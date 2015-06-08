@@ -16,12 +16,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Splunk Web Interface Login Utility',
       'Description'    => %{
-        This module simply attempts to login to a Splunk web interface.  Please note the
-        free version of Splunk actually does not require any authentication, in that case
-        the module will abort trying.  Also, some Splunk applications still have the
-        default credential 'admin:changeme' written on the login page.  If this default
-        credential is found, the module will also store that information, and then move on
-        to trying more passwords.
+        This module simply attempts to login to a Splunk web interface. Some Splunk 
+        applications still have the default credential 'admin:changeme' written on 
+        the login page.  If this default credential is found, the module will also 
+        store that information, and then move on to trying more passwords.
       },
       'Author'         =>
         [
@@ -112,11 +110,6 @@ class Metasploit3 < Msf::Auxiliary
     do_login(user, pass) if user and pass
   end
 
-
-  #
-  # The free version of Splunk does not require authentication. Instead, it'll log the
-  # user right in as 'admin'. If that's the case, no point to brute-force, either.
-  #
   def is_auth_required?
     uid, session_id_port, session_id, cval = get_login_cookie
     res = send_request_raw({
@@ -155,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
       })
 
       if not res
-        vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' returned no response")
+        vprint_error("FAILED LOGIN. '#{user}':'#{pass}' returned no response")
         return :skip_pass
       end
 
@@ -164,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
         return :skip_pass
       end
 
-      print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+      print_good("SUCCESSFUL LOGIN. '#{user}':'#{pass}'")
 
       report_hash = {
         :host   => datastore['RHOST'],
@@ -175,13 +168,44 @@ class Metasploit3 < Msf::Auxiliary
         :active => true,
         :type => 'password'}
 
-      report_auth_info(report_hash)
+      report_cred(
+        ip: datastore['RHOST'],
+        port: datastore['RPORT'],
+        service_name: 'splunk-web',
+        user: user,
+        password: pass
+      )
       return :next_user
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")
       return :abort
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
 end
