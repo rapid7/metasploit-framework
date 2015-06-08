@@ -16,9 +16,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Splunk Web Interface Login Utility',
       'Description'    => %{
-        This module simply attempts to login to a Splunk web interface. Some Splunk 
-        applications still have the default credential 'admin:changeme' written on 
-        the login page.  If this default credential is found, the module will also 
+        This module simply attempts to login to a Splunk web interface. Some Splunk
+        applications still have the default credential 'admin:changeme' written on
+        the login page.  If this default credential is found, the module will also
         store that information, and then move on to trying more passwords.
       },
       'Author'         =>
