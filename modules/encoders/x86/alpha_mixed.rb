@@ -42,6 +42,17 @@ class Metasploit3 < Msf::Encoder::Alphanum
         buf = 'VTX630VXH49HHHPhYAAQhZYYYYAAQQDDDd36FFFFTXVj0PPTUPPa301089'
         reg = 'ECX'
         off = 0
+        modified_registers.concat (
+          [
+            Rex::Arch::X86::ESP,
+            Rex::Arch::X86::EDI,
+            Rex::Arch::X86::ESI,
+            Rex::Arch::X86::EBP,
+            Rex::Arch::X86::EBX,
+            Rex::Arch::X86::EDX,
+            Rex::Arch::X86::ECX,
+            Rex::Arch::X86::EAX
+          ])
       else
         res = Rex::Arch::X86.geteip_fpu(state.badchars)
         if (not res)
@@ -53,9 +64,10 @@ class Metasploit3 < Msf::Encoder::Alphanum
       reg.upcase!
     end
 
-    stub = buf + Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, off)
+    stub = buf + Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, off, modified_registers)
 
     # Sanity check that saved_registers doesn't overlap with modified_registers
+    modified_registers.uniq!
     if (modified_registers & saved_registers).length > 0
       raise BadGenerateError
     end

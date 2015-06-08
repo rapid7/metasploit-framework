@@ -8,22 +8,51 @@ module Alpha2
 
 class AlphaMixed < Generic
 
-  def self.gen_decoder_prefix(reg, offset)
-    if (offset > 32)
-      raise "Critical: Offset is greater than 32"
+  # Generates the decoder stub prefix
+  #
+  # @param [String] reg the register pointing to the encoded payload
+  # @param [Fixnum] offset the offset to reach the encoded payload
+  # @param [Array] modified_registers accounts the registers modified by the stub
+  # @return [String] the alpha mixed decoder stub prefix
+  def self.gen_decoder_prefix(reg, offset, modified_registers = [])
+    if offset > 32
+      raise 'Critical: Offset is greater than 32'
     end
 
+    mod_registers = []
+    nop_regs = []
+    mod_regs = []
+    edx_regs = []
+
     # use inc ebx as a nop here so we still pad correctly
-    if (offset <= 16)
+    if offset <= 16
       nop = 'C' * offset
+      nop_regs.concat(Rex::Arch::X86::EBX)
+
       mod = 'I' * (16 - offset) + nop + '7QZ'    # dec ecx,,, push ecx, pop edx
+      mod_regs.concat([
+        Rex::Arch::X86::ECX,
+        Rex::Arch::X86::EDX
+      ])
+
       edxmod = 'J' * (17 - offset)
+      edx_regs.concat(Rex::Arch::X86::EDX)
     else
       mod = 'A' * (offset - 16)
+      mod_regs.concat(Rex::Arch::X86::ECX)
+
       nop = 'C' * (16 - mod.length)
+      nop_regs.concat(Rex::Arch::X86::EBX)
+
       mod << nop + '7QZ'
+      mod_regs.concat([
+        Rex::Arch::X86::EDX
+      ])
+
       edxmod = 'B' * (17 - (offset - 16))
+      edx_regs.concat(Rex::Arch::X86::EDX)
     end
+
     regprefix = {
       'EAX'   => 'PY' + mod,                         # push eax, pop ecx
       'ECX'   => 'I' + mod,                          # dec ecx
@@ -36,15 +65,38 @@ class AlphaMixed < Generic
     }
 
     reg.upcase!
-    if (not regprefix.keys.include? reg)
-      raise ArgumentError.new("Invalid register name")
+
+    unless regprefix.keys.include?(reg)
+      raise ArgumentError.new('Invalid register name')
     end
+
+    case reg
+    when 'EDX'
+      mod_registers.concat(edx_regs)
+      mod_registers.concat(nop_regs)
+      mod_registers.concat(Rex::Arch::X86::ECX)
+    else
+      mod_registers.concat(Rex::Arch::X86::ECX)
+      mod_registers.concat(mod_regs)
+    end
+
+    mod_registers.uniq!
+    modified_registers.concat(mod_registers)
+
     return regprefix[reg]
   end
 
-  def self.gen_decoder(reg, offset)
+  # Generates the decoder stub
+  #
+  # @param [String] reg the register pointing to the encoded payload
+  # @param [Fixnum] offset the offset to reach the encoded payload
+  # @param [Array] modified_registers accounts the registers modified by the stub
+  # @return [String] the alpha mixed decoder stub
+  def self.gen_decoder(reg, offset, modified_registers = [])
+    mod_registers = []
+
     decoder =
-       gen_decoder_prefix(reg, offset) +
+       gen_decoder_prefix(reg, offset, mod_registers) +
        "jA" +          # push 0x41
        "X" +           # pop eax
        "P" +           # push eax
@@ -62,7 +114,18 @@ class AlphaMixed < Generic
        "uJ" +          # jnz short -------------------------
        "I"             # first encoded char, fixes the above J
 
-    return decoder
+    mod_registers.concat(
+      [
+        Rex::Arch::X86::ESP,
+        Rex::Arch::X86::EAX,
+        Rex::Arch::X86::ECX,
+        Rex::Arch::X86::EDX
+      ])
+
+    mod_registers.uniq!
+    modified_registers.concat(mod_registers)
+
+    decoder
   end
 
 end end end end
