@@ -476,13 +476,22 @@ module X86
       # If the register is not ESP, copy ESP
       if (dst != ESP)
         mod_registers.push(dst)
-        next if badchars.index( (0x70 + dst).chr )
+        if badchars.index( (0x70 + dst).chr )
+          mod_registers.pop(dst)
+          next
+        end
 
         if !(badchars.index("\x89") or badchars.index( (0xE0+dst).chr ))
           buf << "\x89" + (0xE0 + dst).chr
         else
-          next if badchars.index("\x54")
-          next if badchars.index( (0x58+dst).chr )
+          if badchars.index("\x54")
+            mod_registers.pop(dst)
+            next
+          end
+          if badchars.index( (0x58+dst).chr )
+            mod_registers.pop(dst)
+            next
+          end
           buf << "\x54" + (0x58 + dst).chr
         end
       end
@@ -519,6 +528,7 @@ module X86
         modified_registers.concat(mod_registers)
         return [out, REG_NAMES32[reg].upcase, gap]
       end
+      mod_registers.pop(dst)
     end
 
     return nil
