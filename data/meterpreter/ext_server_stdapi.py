@@ -307,6 +307,7 @@ TLV_TYPE_FILE_NAME             = TLV_META_TYPE_STRING  | 1201
 TLV_TYPE_FILE_PATH             = TLV_META_TYPE_STRING  | 1202
 TLV_TYPE_FILE_MODE             = TLV_META_TYPE_STRING  | 1203
 TLV_TYPE_FILE_SIZE             = TLV_META_TYPE_UINT    | 1204
+TLV_TYPE_FILE_HASH             = TLV_META_TYPE_RAW     | 1206
 
 TLV_TYPE_STAT_BUF              = TLV_META_TYPE_COMPLEX | 1220
 
@@ -1011,7 +1012,7 @@ def stdapi_fs_md5(request, response):
 		m = md5.new()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
-	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())
+	response += tlv_pack(TLV_TYPE_FILE_HASH, m.digest())
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -1061,7 +1062,7 @@ def stdapi_fs_sha1(request, response):
 		m = sha.new()
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
 	m.update(open(path, 'rb').read())
-	response += tlv_pack(TLV_TYPE_FILE_NAME, m.digest())
+	response += tlv_pack(TLV_TYPE_FILE_HASH, m.digest())
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function

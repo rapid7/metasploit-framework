@@ -45,7 +45,7 @@ module Metasploit3
   #
   # Dynamically builds the exec payload based on the user's options.
   #
-  def generate_stage
+  def generate_stage(opts={})
     bsd_x86_exec_payload
   end
 

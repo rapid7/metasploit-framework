@@ -17,7 +17,7 @@ module Msf::Payload::Dalvik
   #
   # We could compile the .class files with dx here
   #
-  def generate_stage
+  def generate_stage(opts={})
   end
 
   #
@@ -29,6 +29,11 @@ module Msf::Payload::Dalvik
 
   def java_string(str)
     [str.length].pack("N") + str
+  end
+
+  def apply_options(classes)
+    string_sub(classes, 'TTTT                                ', "TTTT" + datastore['SessionRetryTotal'].to_s)
+    string_sub(classes, 'SSSS                                ', "SSSS" + datastore['SessionRetryWait'].to_s)
   end
 
   def string_sub(data, placeholder="", input="")

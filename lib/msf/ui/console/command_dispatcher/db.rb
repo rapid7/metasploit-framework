@@ -14,10 +14,6 @@ class Db
   require 'tempfile'
 
   include Msf::Ui::Console::CommandDispatcher
-
-  # TODO: Not thrilled about including this entire module for just store_local.
-  include Msf::Auxiliary::Report
-
   include Metasploit::Credential::Creation
 
   #
@@ -1270,8 +1266,8 @@ class Db
       end
     end
     if search_term
-      note_list.delete_if do |n|
-        !n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+      note_list = note_list.select do |n|
+        n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
       end
     end
 
@@ -1752,15 +1748,14 @@ class Db
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     if (args.length == 0)
-      print_status("Usage: db_nmap [nmap options]")
+      print_status("Usage: db_nmap [--save | [--help | -h]] [nmap options]")
       return
     end
-    save = false
     arguments = []
     while (arg = args.shift)
       case arg
-      when 'save'
-        save = active?
+      when '--save'
+        save = true
       when '--help', '-h'
         cmd_db_nmap_help
         return
@@ -1778,55 +1773,47 @@ class Db
       return
     end
 
-    fd = Tempfile.new('dbnmap')
-    fd.binmode
-
-    fo = Tempfile.new('dbnmap')
-    fo.binmode
-
-    # When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
-    if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
-      # Custom function needed because cygpath breaks on 8.3 dirs
-      tout = Rex::Compat.cygwin_to_win32(fd.path)
-      fout = Rex::Compat.cygwin_to_win32(fo.path)
-      arguments.push('-oX', tout)
-      arguments.push('-oN', fout)
-    else
-      arguments.push('-oX', fd.path)
-      arguments.push('-oN', fo.path)
-    end
+    fd = Rex::Quickfile.new(['msf-db-nmap-', '.xml'], Msf::Config.local_directory)
 
     begin
-      nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
-      temp_nmap_threads = []
-      temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
-        np_1.each_line do |nmap_out|
-          next if nmap_out.strip.empty?
-          print_status("Nmap: #{nmap_out.strip}")
-        end
+      # When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
+      if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
+        # Custom function needed because cygpath breaks on 8.3 dirs
+        tout = Rex::Compat.cygwin_to_win32(fd.path)
+        arguments.push('-oX', tout)
+      else
+        arguments.push('-oX', fd.path)
       end
 
-      temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
-        np_2.each_line do |nmap_err|
-          next if nmap_err.strip.empty?
-          print_status("Nmap: '#{nmap_err.strip}'")
+      begin
+        nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
+        temp_nmap_threads = []
+        temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
+          np_1.each_line do |nmap_out|
+            next if nmap_out.strip.empty?
+            print_status("Nmap: #{nmap_out.strip}")
+          end
         end
+
+        temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
+          np_2.each_line do |nmap_err|
+            next if nmap_err.strip.empty?
+            print_status("Nmap: '#{nmap_err.strip}'")
+          end
+        end
+
+        temp_nmap_threads.map {|t| t.join rescue nil}
+        nmap_pipe.each {|p| p.close rescue nil}
+      rescue ::IOError
       end
 
-      temp_nmap_threads.map {|t| t.join rescue nil}
-      nmap_pipe.each {|p| p.close rescue nil}
-    rescue ::IOError
-    end
+      framework.db.import_nmap_xml_file(:filename => fd.path)
 
-    fo.close(true)
-    framework.db.import_nmap_xml_file(:filename => fd.path)
-
-    if save
-      fd.rewind
-      saved_path = report_store_local("nmap.scan.xml", "text/xml", fd.read, "nmap_#{Time.now.utc.to_i}")
-      print_status("Saved NMAP XML results to #{saved_path}")
+      print_status("Saved NMAP XML results to #{fd.path}") if save
+    ensure
+      fd.close
+      fd.unlink unless save
     end
-    fd.close(true)
   }
   end
 
@@ -1867,13 +1854,6 @@ class Db
     end
 
     tabs
-  end
-
-  #
-  # Store some locally-generated data as a file, similiar to store_loot.
-  #
-  def report_store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
-    store_local(ltype,ctype,data,filename)
   end
 
   #

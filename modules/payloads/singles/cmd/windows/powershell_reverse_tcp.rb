@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/powershell'
 require 'msf/core/payload/windows/powershell'
 require 'msf/core/handler/reverse_tcp_ssl'

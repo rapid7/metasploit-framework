@@ -34,7 +34,7 @@ module Metasploit3
   end
 
   # Dynamically generates chmod(FILE, MODE) + exit()
-  def generate_stage
+  def generate_stage(opts={})
     file    = datastore['FILE'] || '/etc/shadow'
     mode	= (datastore['MODE'] || "0666").oct
 

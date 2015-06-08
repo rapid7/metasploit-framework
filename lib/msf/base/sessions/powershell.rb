@@ -58,8 +58,8 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       buff << res
       if buff.match(/#{endm}/)
         # if you see the end marker, read the buffer from the start marker to the end and then display back to screen
-        buff = buff.split(/#{strm}/)[-1]
-        buff.gsub!(/PS .*>/, '')
+        buff = buff.split(/#{strm}\r\n/)[-1]
+        buff.gsub!(/\nPS .*>/, '')
         buff.gsub!(/#{endm}/, '')
         return buff
       end

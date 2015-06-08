@@ -21,61 +21,61 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options used by the 'execute' command.
   #
   @@execute_opts = Rex::Parser::Arguments.new(
-    "-a" => [ true,  "The arguments to pass to the command."                   ],
-    "-c" => [ false, "Channelized I/O (required for interaction)."             ],
-    "-f" => [ true,  "The executable command to run."                          ],
-    "-h" => [ false, "Help menu."                                              ],
-    "-H" => [ false, "Create the process hidden from view."                    ],
-    "-i" => [ false, "Interact with the process after creating it."            ],
-    "-m" => [ false, "Execute from memory."                                    ],
-    "-d" => [ true,  "The 'dummy' executable to launch when using -m."         ],
+    "-a" => [ true,  "The arguments to pass to the command."		   ],
+    "-c" => [ false, "Channelized I/O (required for interaction)."		   ],
+    "-f" => [ true,  "The executable command to run."			   ],
+    "-h" => [ false, "Help menu."						   ],
+    "-H" => [ false, "Create the process hidden from view."			   ],
+    "-i" => [ false, "Interact with the process after creating it."		   ],
+    "-m" => [ false, "Execute from memory."					   ],
+    "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
     "-t" => [ false, "Execute process with currently impersonated thread token"],
-    "-k" => [ false, "Execute process on the meterpreters current desktop"     ],
+    "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
 
   #
   # Options used by the 'reboot' command.
   #
   @@reboot_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."                                              ],
-    "-f" => [ true,  "Force a reboot, valid values [1|2]"                      ])
+    "-h" => [ false, "Help menu."						   ],
+    "-f" => [ true,  "Force a reboot, valid values [1|2]"			   ])
 
   #
   # Options used by the 'shutdown' command.
   #
   @@shutdown_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."                                              ],
-    "-f" => [ true,  "Force a shutdown, valid values [1|2]"                    ])
+    "-h" => [ false, "Help menu."						   ],
+    "-f" => [ true,  "Force a shutdown, valid values [1|2]"			   ])
 
   #
   # Options used by the 'reg' command.
   #
   @@reg_opts = Rex::Parser::Arguments.new(
-    "-d" => [ true,  "The data to store in the registry value."                ],
-    "-h" => [ false, "Help menu."                                              ],
-    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)."       ],
-    "-t" => [ true,  "The registry value type (E.g. REG_SZ)."                  ],
-    "-v" => [ true,  "The registry value name (E.g. Stuff)."                   ],
+    "-d" => [ true,  "The data to store in the registry value."		   ],
+    "-h" => [ false, "Help menu."						   ],
+    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)."	   ],
+    "-t" => [ true,  "The registry value type (E.g. REG_SZ)."		   ],
+    "-v" => [ true,  "The registry value name (E.g. Stuff)."		   ],
     "-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
-    "-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."               ])
+    "-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."		   ])
 
   #
   # Options for the 'ps' command.
   #
   @@ps_opts = Rex::Parser::Arguments.new(
+    "-S" => [ true,  "String to search for (converts to regex)"                ],
     "-h" => [ false, "Help menu."                                              ],
-    "-S" => [ true,  "Filters processes on the process name using the supplied RegEx"],
-    "-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"       ],
-    "-s" => [ false, "Show only SYSTEM processes"                              ],
+    "-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"	   ],
+    "-s" => [ false, "Show only SYSTEM processes"				   ],
     "-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
 
   #
   # Options for the 'suspend' command.
   #
   @@suspend_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."                                              ],
+    "-h" => [ false, "Help menu."						   ],
     "-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
-    "-r" => [ false, "Resumes the target processes instead of suspending"      ])
+    "-r" => [ false, "Resumes the target processes instead of suspending"	   ])
 
   #
   # List of supported commands.
@@ -93,7 +93,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "kill"        => "Terminate a process",
       "ps"          => "List running processes",
       "reboot"      => "Reboots the remote computer",
-      "reg"         => "Modify and interact with the remote registry",
+      "reg"	      => "Modify and interact with the remote registry",
       "rev2self"    => "Calls RevertToSelf() on the remote machine",
       "shell"       => "Drop into a system command shell",
       "shutdown"    => "Shuts down the remote computer",
@@ -105,7 +105,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "clearev"     => [ "stdapi_sys_eventlog_open", "stdapi_sys_eventlog_clear" ],
       "drop_token"  => [ "stdapi_sys_config_drop_token" ],
       "execute"     => [ "stdapi_sys_process_execute" ],
-      "getpid"      => [ "stdapi_sys_process_getpid"  ],
+      "getpid"      => [ "stdapi_sys_process_getpid"	],
       "getprivs"    => [ "stdapi_sys_config_getprivs" ],
       "getuid"      => [ "stdapi_sys_config_getuid" ],
       "getsid"      => [ "stdapi_sys_config_getsid" ],
@@ -113,7 +113,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "kill"        => [ "stdapi_sys_process_kill" ],
       "ps"          => [ "stdapi_sys_process_get_processes" ],
       "reboot"      => [ "stdapi_sys_power_exitwindows" ],
-      "reg"         => [
+      "reg"	      => [
         "stdapi_registry_load_key",
         "stdapi_registry_unload_key",
         "stdapi_registry_open_key",
@@ -169,7 +169,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     interact    = false
     desktop     = false
     channelized = nil
-    hidden      = nil
+    hidden	    = nil
     from_mem    = false
     dummy_exec  = "cmd"
     cmd_args    = nil
@@ -422,23 +422,22 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Lists running processes.
   #
   def cmd_ps(*args)
+    # Init vars
     processes = client.sys.process.get_processes
-    @@ps_opts.parse(args) do |opt, idx, val|
+    search_term = nil
+
+    # Parse opts
+    @@ps_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-h"
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        end
+      when '-h'
         cmd_ps_help
         return true
-      when "-S"
-        print_line "Filtering on process name..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          if val.nil? or val.empty?
-            print_line "You must supply a search term!"
-            return false
-          end
-          searched_procs << proc  if proc["name"].match(/#{val}/)
-        end
-        processes = searched_procs
       when "-A"
         print_line "Filtering on arch..."
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
@@ -448,14 +447,14 @@ class Console::CommandDispatcher::Stdapi::Sys
             print_line "You must select either x86 or x86_64"
             return false
           end
-          searched_procs << proc  if proc["arch"] == val
+          searched_procs << proc	if proc["arch"] == val
         end
         processes = searched_procs
       when "-s"
         print_line "Filtering on SYSTEM processes..."
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
         processes.each do |proc|
-          searched_procs << proc  if proc["user"] == "NT AUTHORITY\\SYSTEM"
+          searched_procs << proc	if proc["user"] == "NT AUTHORITY\\SYSTEM"
         end
         processes = searched_procs
       when "-U"
@@ -466,22 +465,53 @@ class Console::CommandDispatcher::Stdapi::Sys
             print_line "You must supply a search term!"
             return false
           end
-          searched_procs << proc  if proc["user"].match(/#{val}/)
+          searched_procs << proc	if proc["user"].match(/#{val}/)
         end
         processes = searched_procs
       end
-    end
+    }
+
+    tbl = Rex::Ui::Text::Table.new(
+      'Header'  => "Process list",
+      'Indent'  => 1,
+      'Columns' =>
+        [
+          "PID",
+          "Name",
+          "Arch",
+          "Session",
+          "User",
+          "Path"
+        ],
+      'SearchTerm' => search_term)
+
+    processes.each { |ent|
+      session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
+      arch    = ent['arch']
+
+      # for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
+      if( arch == ARCH_X86_64 )
+        arch = "x64"
+      end
+
+      row = [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
+
+      tbl << row #if (search_term.nil? or row.join(' ').to_s.match(search_term))
+    }
+
     if (processes.length == 0)
       print_line("No running processes were found.")
     else
       print_line
-      print_line(processes.to_table("Indent" => 1).to_s)
+      print("\n" + tbl.to_s + "\n")
       print_line
     end
     return true
   end
 
   def cmd_ps_help
+    print_line "Usage: ps [ options ]"
+    print_line
     print_line "Use the command with no arguments to see all running processes."
     print_line "The following options can be used to filter those results:"
 
@@ -529,12 +559,12 @@ class Console::CommandDispatcher::Stdapi::Sys
     end
 
     # Initiailze vars
-    key     = nil
-    value   = nil
-    data    = nil
-    type    = nil
+    key	= nil
+    value	= nil
+    data	= nil
+    type	= nil
     wowflag = 0x0000
-    rem     = nil
+    rem	= nil
 
     @@reg_opts.parse(args) { |opt, idx, val|
       case opt
@@ -544,13 +574,13 @@ class Console::CommandDispatcher::Stdapi::Sys
             "Interact with the target machine's registry.\n" +
             @@reg_opts.usage +
             "COMMANDS:\n\n" +
-            "    enumkey    Enumerate the supplied registry key [-k <key>]\n" +
-            "    createkey  Create the supplied registry key  [-k <key>]\n" +
-            "    deletekey  Delete the supplied registry key  [-k <key>]\n" +
+            "    enumkey	Enumerate the supplied registry key [-k <key>]\n" +
+            "    createkey	Create the supplied registry key  [-k <key>]\n" +
+            "    deletekey	Delete the supplied registry key  [-k <key>]\n" +
             "    queryclass Queries the class of the supplied key [-k <key>]\n" +
-            "    setval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
-            "    deleteval  Delete the supplied registry value [-k <key> -v <val>]\n" +
-            "    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n")
+            "    setval	Set a registry value [-k <key> -v <val> -d <data>]\n" +
+            "    deleteval	Delete the supplied registry value [-k <key> -v <val>]\n" +
+            "    queryval	Queries the data contents of a value [-k <key> -v <val>]\n\n")
           return false
         when "-k"
           key   = val
@@ -672,7 +702,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
           open_key.set_value(value, client.sys.registry.type2str(type), data)
 
-          print_line("Successful set #{value}.")
+          print_line("Successfully set #{value} of #{type}.")
 
         when "deleteval"
           if (value == nil)
@@ -859,11 +889,11 @@ class Console::CommandDispatcher::Stdapi::Sys
     args.uniq!
     diff = args - valid_pids.map {|e| e.to_s}
     if not diff.empty? # then we had an invalid pid
-      print_error("The following pids are not valid:  #{diff.join(", ").to_s}.")
+      print_error("The following pids are not valid:	#{diff.join(", ").to_s}.")
       if continue
         print_status("Continuing.  Invalid args have been removed from the list.")
       else
-        print_error("Quitting.  Use -c to continue using only the valid pids.")
+        print_error("Quitting.	Use -c to continue using only the valid pids.")
         return false
       end
     end
@@ -912,4 +942,3 @@ end
 end
 end
 end
-
