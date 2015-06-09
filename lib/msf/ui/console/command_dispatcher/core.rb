@@ -1778,8 +1778,8 @@ class Core
             end
           ensure
             # Restore timeout for each session
-            if session.respond_to?(:response_timeout)
-              session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
             end
           end
           # If the session isn't a meterpreter or shell type, it
@@ -1801,7 +1801,9 @@ class Core
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1819,7 +1821,9 @@ class Core
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
       end
@@ -1837,7 +1841,9 @@ class Core
           begin
             session.detach
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
       end
@@ -1855,7 +1861,9 @@ class Core
           self.active_session = nil
           driver.input.reset_tab_completion if driver.input.supports_readline
         ensure
-          session.response_timeout = last_known_timeout if last_known_timeout
+          if session.respond_to?(:response_timeout) && last_known_timeout
+            session.response_timeout = last_known_timeout
+          end
         end
       end
     when 'scriptall'
@@ -1893,7 +1901,9 @@ class Core
               end
             end
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1919,7 +1929,9 @@ class Core
               next
             end
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
 
