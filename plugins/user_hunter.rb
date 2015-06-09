@@ -2,6 +2,10 @@
 # $Id$
 # $Revision$
 #
+# Find specific users based on enumeration
+#
+# Joshua D. Abraham <jabra[at]praetorian.com>
+#
 module Msf
 
 class Plugin::UserHunter < Msf::Plugin
