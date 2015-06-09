@@ -650,7 +650,7 @@ from upstream, you're going to want to track it. In your
 ```
 git remote add upstream github:rapid7/metasploit-framework.git
 git fetch upstream
-git checkout upstream-master --track upstream/master
+git checkout -b upstream-master --track upstream/master
 ```
 
 Now, you have a branch that points to upstream (the `rapid7` fork)
