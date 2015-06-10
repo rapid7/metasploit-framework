@@ -159,15 +159,6 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("SUCCESSFUL LOGIN. '#{user}':'#{pass}'")
 
-      report_hash = {
-        :host   => datastore['RHOST'],
-        :port   => datastore['RPORT'],
-        :sname  => 'splunk-web',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'}
-
       report_cred(
         ip: datastore['RHOST'],
         port: datastore['RPORT'],
@@ -202,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
     }.merge(service_data)
 
     create_credential_login(login_data)
