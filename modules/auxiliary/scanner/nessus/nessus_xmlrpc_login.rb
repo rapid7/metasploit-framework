@@ -99,17 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.code == 200
       if res.body =~ /<status>OK<\/status>/
-        print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'nessus-xmlrpc',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
+        print_good("SUCCESSFUL LOGIN. '#{user}':'#{pass}'")
         report_cred(
           ip: datastore['RHOST'],
           port: datastore['RPORT'],
@@ -120,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
         return :next_user
       end
     end
-    vprint_error("FAILED LOGIN. '#{user}' : '#{pass}'")
+    vprint_error("FAILED LOGIN. '#{user}':'#{pass}'")
     return :skip_pass
   end
 
@@ -143,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
     }.merge(service_data)
 
     create_credential_login(login_data)
