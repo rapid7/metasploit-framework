@@ -320,8 +320,6 @@ module Metasploit
         def configure_socket
           shutdown_socket if self.sock
           self.sock = ::Rex::Socket::Udp.create(
-            'PeerHost' => self.host,
-            'PeerPort' => self.port,
             'Context'  =>
               { 'Msf' => framework, 'MsfExploit' => framework_module }
             )
