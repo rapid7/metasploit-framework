@@ -1811,7 +1811,7 @@ require 'msf/core/exe/segment_appender'
   # Generate an executable of a given format suitable for running on the
   # architecture/platform pair.
   #
-  # This routine is shared between msfencode, rpc, and payload modules (use
+  # This routine is shared between msfvenom, rpc, and payload modules (use
   # <payload>)
   #
   # @param framework [Framework]

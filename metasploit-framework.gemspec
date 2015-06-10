@@ -36,7 +36,6 @@ Gem::Specification.new do |spec|
       'msfelfscan',
       'msfencode',
       'msfmachscan',
-      'msfpayload',
       'msfpescan',
       'msfrop',
       'msfrpc',
