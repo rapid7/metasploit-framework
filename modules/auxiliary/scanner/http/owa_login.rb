@@ -206,15 +206,6 @@ class Metasploit3 < Msf::Auxiliary
       # Check if the password needs to be changed.
       if res.headers['location'] =~ /expiredpassword/
         print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}': NOTE password change required")
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'owa',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
         report_cred(
           ip: datastore['RHOST'],
           port: datastore['RPORT'],
@@ -276,16 +267,6 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.body =~ login_check
       print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}'")
-
-      report_hash = {
-        :host   => datastore['RHOST'],
-        :port   => datastore['RPORT'],
-        :sname  => 'owa',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'}
-
       report_cred(
         ip: datastore['RHOST'],
         port: datastore['RPORT'],
@@ -360,7 +341,7 @@ class Metasploit3 < Msf::Auxiliary
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
     }.merge(service_data)
 
     create_credential_login(login_data)
