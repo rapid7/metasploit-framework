@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Post
       username: opts[:user]
     }
 
-    if opts[:password_type] == :nonreplayable_hash
+    if opts['password_type'] == :nonreplayable_hash
       credential_data.merge!(jtr_format: opts['jtr_format'])
     end
 
