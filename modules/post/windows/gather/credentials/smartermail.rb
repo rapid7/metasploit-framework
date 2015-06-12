@@ -145,8 +145,11 @@ class Metasploit3 < Msf::Post
     if password
       begin
         result['password'] = decrypt_des(Rex::Text.decode_base64(password))
+        result['password_type'] = :password
       rescue OpenSSL::Cipher::CipherError
         result['password'] = password
+        result['password_type'] = :nonreplayable_hash
+        result['jtr_format'] = 'des'
       end
     end
 
@@ -167,9 +170,15 @@ class Metasploit3 < Msf::Post
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
-      private_type: :password,
+      private_type: opts[:password_type],
       username: opts[:user]
-    }.merge(service_data)
+    }
+
+    if opts[:password_type] == :nonreplayable_hash
+      credential_data.merge!(jtr_format: opts['jtr_format'])
+    end
+
+    credential_data.merge!(service_data)
 
     login_data = {
       core: create_credential(credential_data),
