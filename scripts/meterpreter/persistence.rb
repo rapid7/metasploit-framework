@@ -138,7 +138,7 @@ def write_script_to_target(target_dir,vbs)
   return tempvbs
 end
 
-# Function for setting multi handler for autocon
+# Function for setting exploit/multi/handler for autocon
 #-------------------------------------------------------------------------------
 def set_handler(selected_payload,rhost,rport)
   print_status("Starting connection handler at port #{rport} for #{selected_payload}")
@@ -154,7 +154,7 @@ def set_handler(selected_payload,rhost,rport)
     'Payload'        => mul.datastore['PAYLOAD'],
     'RunAsJob'       => true
   )
-  print_good("Multi/Handler started!")
+  print_good("exploit/multi/handler started!")
 end
 
 # Function to execute script on target and return the PID of the process

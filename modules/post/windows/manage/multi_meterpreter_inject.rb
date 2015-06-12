@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Post
       'Payload'        => mul.datastore['PAYLOAD'],
       'RunAsJob'       => true
     )
-    print_good("Multi/Handler started!")
+    print_good("exploit/multi/handler started!")
   end
 
   # Function for Creating the Payload
