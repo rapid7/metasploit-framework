@@ -13,7 +13,7 @@ require 'rex/payloads/meterpreter/config'
 
 module Metasploit4
 
-  CachedSize = 1103542
+  CachedSize = 1103942
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -44,12 +44,7 @@ module Metasploit4
   end
 
   def generate_config(opts={})
-    unless opts[:uuid]
-      opts[:uuid] = Msf::Payload::UUID.new(
-        platform: 'windows',
-        arch:     ARCH_X64
-      )
-    end
+    opts[:uuid] ||= generate_payload_uuid
 
     # create the configuration block
     config_opts = {

@@ -14,7 +14,7 @@ module Msf::Payload::Java
   #	[ 32-bit big endian length ][ Nth raw .class file]
   #	[ 32-bit null ]
   #
-  def generate_stage
+  def generate_stage(opts={})
     stage = ''
     @stage_class_files.each do |path|
       data = MetasploitPayloads.read('java', path)

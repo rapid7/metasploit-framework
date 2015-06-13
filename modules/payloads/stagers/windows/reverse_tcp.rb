@@ -17,16 +17,16 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Reverse TCP Stager',
-      'Description'   => 'Connect back to the attacker',
-      'Author'        => ['hdm', 'skape', 'sf'],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'win',
-      'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Convention'    => 'sockedi',
-      'Stager'        => { 'RequiresMidstager' => false }
-      ))
+      'Name'        => 'Reverse TCP Stager',
+      'Description' => 'Connect back to the attacker',
+      'Author'      => ['hdm', 'skape', 'sf'],
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'win',
+      'Arch'        => ARCH_X86,
+      'Handler'     => Msf::Handler::ReverseTcp,
+      'Convention'  => 'sockedi',
+      'Stager'      => { 'RequiresMidstager' => false }
+    ))
   end
 
 end

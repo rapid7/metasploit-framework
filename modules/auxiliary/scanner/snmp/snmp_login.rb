@@ -32,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
       Opt::CHOST,
       OptInt.new('CONNECTION_TIMEOUT', [true, 'The timeout value for each probe', 2]),
       OptInt.new('RETRIES', [true, 'The number of retries per community string', 0]),
-      OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
       OptEnum.new('VERSION', [true, 'The SNMP version to scan', 'all', ['1', '2c', 'all']]),
       OptString.new('PASSWORD', [ false, 'The password to test' ]),
       OptPath.new('PASS_FILE',  [ false, "File containing communities, one per line",
@@ -43,50 +42,42 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE')
   end
 
+  # Operate on a single host so that we can take advantage of multithreading
+  def run_host(ip)
 
-  # Define our batch size
-  def run_batch_size
-    datastore['BATCHSIZE'].to_i
-  end
+    collection = Metasploit::Framework::CommunityStringCollection.new(
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD']
+    )
 
-  # Operate on an entire batch of hosts at once
-  def run_batch(batch)
+    scanner = Metasploit::Framework::LoginScanner::SNMP.new(
+        host: ip,
+        port: rport,
+        cred_details: collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: datastore['CONNECTION_TIMEOUT'],
+        retries: datastore['RETRIES'],
+        version: datastore['VERSION'],
+        framework: framework,
+        framework_module: self
+    )
 
-    batch.each do |ip|
-      collection = Metasploit::Framework::CommunityStringCollection.new(
-          pass_file: datastore['PASS_FILE'],
-          password: datastore['PASSWORD']
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
       )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-      scanner = Metasploit::Framework::LoginScanner::SNMP.new(
-          host: ip,
-          port: rport,
-          cred_details: collection,
-          stop_on_success: datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-          connection_timeout: datastore['CONNECTION_TIMEOUT'],
-          retries: datastore['RETRIES'],
-          version: datastore['VERSION'],
-          framework: framework,
-          framework_module: self
-      )
-
-      scanner.scan! do |result|
-        credential_data = result.to_h
-        credential_data.merge!(
-            module_fullname: self.fullname,
-            workspace_id: myworkspace_id
-        )
-        if result.success?
-          credential_core = create_credential(credential_data)
-          credential_data[:core] = credential_core
-          create_credential_login(credential_data)
-
-          print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential} (Access level: #{result.access_level})"
-        else
-          invalidate_login(credential_data)
-          vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
-        end
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential} (Access level: #{result.access_level}); Proof (sysDescr.0): #{result.proof}"
+      else
+        invalidate_login(credential_data)
+        print_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
   end

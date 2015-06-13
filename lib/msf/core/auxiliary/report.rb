@@ -12,10 +12,19 @@ module Auxiliary::Report
 
   optionally_include_metasploit_credential_creation
 
+  def db_warning_given?
+    if @warning_issued
+      true
+    else
+      @warning_issued = true
+      false
+    end
+  end
+
   def create_cracked_credential(opts={})
     if active_db?
       super(opts)
-    else
+    elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
@@ -23,7 +32,7 @@ module Auxiliary::Report
   def create_credential(opts={})
     if active_db?
       super(opts)
-    else
+    elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
@@ -31,7 +40,7 @@ module Auxiliary::Report
   def create_credential_login(opts={})
     if active_db?
       super(opts)
-    else
+    elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
@@ -39,7 +48,7 @@ module Auxiliary::Report
   def invalidate_login(opts={})
     if active_db?
       super(opts)
-    else
+    elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
@@ -170,7 +179,13 @@ module Auxiliary::Report
   # @option opts [String] :pass The private part of the credential (e.g. password)
   def report_auth_info(opts={})
     print_warning("*** #{self.fullname} is still calling the deprecated report_auth_info method! This needs to be updated!")
-    return if not db
+    print_warning('*** For detailed information about LoginScanners and the Credentials objects see:')
+    print_warning('     https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners')
+    print_warning('     https://github.com/rapid7/metasploit-framework/wiki/How-to-write-a-HTTP-LoginScanner-Module')
+    print_warning('*** For examples of modules converted to just report credentials without report_auth_info, see:')
+    print_warning('     https://github.com/rapid7/metasploit-framework/pull/5376')
+    print_warning('     https://github.com/rapid7/metasploit-framework/pull/5377')
+    return unless db
     raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
     raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 

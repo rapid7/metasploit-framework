@@ -26,7 +26,7 @@ module Metasploit3
     ], self.class)
   end
 
-  def generate_stage
+  def generate_stage(opts={})
     file = ::File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.py")
 
     met = ::File.open(file, "rb") {|f|
@@ -36,6 +36,10 @@ module Metasploit3
     if datastore['PythonMeterpreterDebug']
       met = met.sub("DEBUGGING = False", "DEBUGGING = True")
     end
+
+    uuid = opts[:uuid] || generate_payload_uuid
+    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
+    met = met.sub("PAYLOAD_UUID = \"\"", "PAYLOAD_UUID = \"#{bytes}\"")
 
     met
   end

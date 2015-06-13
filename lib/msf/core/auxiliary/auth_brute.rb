@@ -566,7 +566,6 @@ module Auxiliary::AuthBrute
     else
       level = opts[:level].to_s.strip
     end
-
     host_ip = opts[:ip] || opts[:rhost] || opts[:host] || (rhost rescue nil) || datastore['RHOST']
     host_port = opts[:port] || opts[:rport] || (rport rescue nil) || datastore['RPORT']
     msg = opts[:msg] || opts[:message] || opts[:legacy_msg]

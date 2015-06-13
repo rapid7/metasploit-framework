@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Encoder
     state.badchars.unpack('C*') { |c| qot.delete(c.chr) }
 
     # Throw an error if we ran out of quotes
-    raise RuntimeError if qot.length == 0
+    raise EncodingError if qot.length == 0
 
     sep = qot[0].chr
 
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Encoder
       if (state.badchars.match(/\(|\)/))
 
         # No paranthesis...
-        raise RuntimeError
+        raise EncodingError
       end
 
       cmd << "system\\(pack\\(qq#{sep}H\\*#{sep},qq#{sep}#{hex}#{sep}\\)\\)"
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Encoder
       if (state.badchars.match(/\(|\)/))
         if (state.badchars.include?(" "))
           # No spaces allowed, no paranthesis, give up...
-          raise RuntimeError
+          raise EncodingError
         end
 
         cmd << "'system pack qq#{sep}H*#{sep},qq#{sep}#{hex}#{sep}'"
@@ -124,7 +124,7 @@ class Metasploit3 < Msf::Encoder
       if (state.badchars.include?("`"))
         # Last ditch effort, dollar paren
         if (state.badchars.include?("$") or state.badchars.include?("("))
-          raise RuntimeError
+          raise EncodingError
         else
           buf = "$(/bin/echo -ne #{hex})"
         end
