@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',
       'Author'      =>
         [
-          'natron', # orignal module
+          'natron', # original module
           'Joshua D. Abraham <jabra[at]praetorian.com>', # database storage
         ],
       'References'  =>
