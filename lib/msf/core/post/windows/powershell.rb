@@ -170,7 +170,7 @@ module Powershell
         end
         linkvars.slice!(0..2)
         session.shell_command("$#{script_var} = #{linkvars}")
-      elsif (compress_script(encoded_expression).size < 15000 and encoded_expression > 14999)
+      elsif (compress_script(encoded_expression).size < 15000 and encoded_expression.size > 14999)
         # Attempt to compress the PSH script into available space
         encoded_expression = compress_script(encoded_expression)
         print_good("Compressed script size: #{encoded_expression.size}")
