@@ -141,14 +141,15 @@ module Powershell
   #
   def stage_psh_env(script)
     begin
-      encoded_expression = encode_script(read_script(script))
+      ps_script = read_script(script)
+      encoded_expression = encode_script(ps_script)
       cleanup_commands = []
       # Add entropy to script variable names
-      script_var = Rex::Text.rand_text_alpha(6)
-      decscript = Rex::Text.rand_text_alpha(6)
-      scriptby = Rex::Text.rand_text_alpha(6)
-      scriptbybase = Rex::Text.rand_text_alpha(6)
-      scriptbybasefull = Rex::Text.rand_text_alpha(6)
+      script_var = ps_script.rig.generate(4)
+      decscript = ps_script.rig.generate(4)
+      scriptby = ps_script.rig.generate(4)
+      scriptbybase = ps_script.rig.generate(4)
+      scriptbybasefull = ps_script.rig.generate(4)
 
       if (encoded_expression.size > 14999 && compress_script(encoded_expression).size > 14999)
         print_error("Script size: #{encoded_expression.size} This script requres a stager")
@@ -156,7 +157,7 @@ module Powershell
         print_good("Loading " + arr.count.to_s + " chunks into the stager.")
         vararray = []
         arr.each_with_index do |slice, index|
-          variable = Rex::Text.rand_text_alpha(8)
+          variable = ps_script.rig.generate(5)
           vararray << variable
           indexval = index+1
           vprint_good("Loaded stage:#{indexval}")
