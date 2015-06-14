@@ -151,7 +151,7 @@ module Powershell
       scriptbybase = ps_script.rig.generate(4)
       scriptbybasefull = ps_script.rig.generate(4)
 
-      if (encoded_expression.size > 14999 && compress_script(encoded_expression).size > 14999)
+      if (encoded_expression.size > 14999)
         print_error("Script size: #{encoded_expression.size} This script requres a stager")
         arr = encoded_expression.chars.each_slice(14999).map(&:join)
         print_good("Loading " + arr.count.to_s + " chunks into the stager.")
@@ -170,11 +170,6 @@ module Powershell
         end
         linkvars.slice!(0..2)
         session.shell_command("$#{script_var} = #{linkvars}")
-      elsif (compress_script(encoded_expression).size < 15000 and encoded_expression.size > 14999)
-        # Attempt to compress the PSH script into available space
-        encoded_expression = compress_script(encoded_expression)
-        print_good("Compressed script size: #{encoded_expression.size}")
-        session.shell_command("$#{script_var} = \"#{encoded_expression}\"")
       else
         print_good("Script size: #{encoded_expression.size}")
         session.shell_command("$#{script_var} = \"#{encoded_expression}\"")
