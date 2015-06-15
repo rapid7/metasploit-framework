@@ -38,7 +38,6 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options([Opt::RPORT(31001)], self.class)
-    deregister_options('PASSWORD', 'USERNAME')
   end
 
   def run_host(ip)
