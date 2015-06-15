@@ -71,18 +71,18 @@ class Metasploit3 < Msf::Auxiliary
                 info << " (Kippo Honeypot)"
               end
             end
-            print_status("#{target_host}:#{rport}, SSH server version: #{ident}")
+            print_status("#{peer}, SSH server version: #{ident}")
             report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: info)
           else
-            vprint_warning("#{target_host}:#{rport} was not SSH --"  \
+            vprint_warning("#{peer} was not SSH --"  \
                           " #{resp.size} bytes beginning with #{resp[0, 12]}")
           end
         else
-          vprint_warning("#{target_host}:#{rport} no response")
+          vprint_warning("#{peer} no response")
         end
       end
     rescue Timeout::Error
-      vprint_warning("#{target_host}:#{rport} timed out after #{timeout} seconds. Skipping.")
+      vprint_warning("#{peer} timed out after #{timeout} seconds. Skipping.")
     ensure
       disconnect
     end
