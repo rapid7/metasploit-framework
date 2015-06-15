@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(_target_host)
     begin
-      if connect(true, false)
+      if connect(true, false) && banner
         banner_sanitized = Rex::Text.to_hex_ascii(banner)
         print_status("#{rhost}:#{rport} FTP Banner: '#{banner_sanitized}'")
         report_service(host: rhost, port: rport, name: 'ftp', info: banner_sanitized)
