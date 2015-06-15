@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{ip}:#{datastore['RPORT']} - Admin Credentials: '#{info[:username]}:#{info[:password]}'")
       report_cred(
         ip: ip,
-        port: 21,
+        port: datastore['RPORT'],
         user: info[:username],
         password: info[:password],
         service_name: 'ftp'
