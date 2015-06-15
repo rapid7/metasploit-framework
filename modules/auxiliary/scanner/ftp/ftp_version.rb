@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'recog'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
@@ -19,12 +20,24 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
   def run_host(_target_host)
     begin
       if connect(true, false) && banner
-        banner_sanitized = Rex::Text.to_hex_ascii(banner)
-        print_status("#{rhost}:#{rport} FTP Banner: '#{banner_sanitized}'")
-        report_service(host: rhost, port: rport, name: 'ftp', info: banner_sanitized)
+        if /^220 (?<recog_banner>.*)$/ =~ banner
+          recog_banner.strip!
+          sanitized_banner = Rex::Text.to_hex_ascii(recog_banner)
+          unless info = Recog::Nizer.match('ftp.banner', recog_banner)
+            info = sanitized_banner
+            print_warning("#{peer} -- no Recog match: #{sanitized_banner}")
+          end
+          print_status("#{peer} FTP Banner: '#{sanitized_banner}'")
+          report_service(host: rhost, port: rport, name: 'ftp', info: info.to_s)
+        else
+        end
       end
     rescue ::Interrupt
       raise $ERROR_INFO
