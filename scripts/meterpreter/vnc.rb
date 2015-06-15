@@ -21,7 +21,7 @@ opts = Rex::Parser::Arguments.new(
   "-v"  => [ true,   "The local port for the VNC proxy service (default: 5900)"],
   "-i"  => [ false,  "Inject the vnc server into a new process's memory instead of building an exe"],
   "-P"  => [ true,   "Executable to inject into (starts a new process).  Only useful with -i (default: notepad.exe)"],
-  "-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"],
+  "-D"  => [ false,  "Disable the automatic exploit/multi/handler (use with -r to accept on another system)"],
   "-O"  => [ false,  "Disable binding the VNC proxy to localhost (open it to the network)"],
   "-V"  => [ false,  "Disable the automatic launch of the VNC client"],
   "-t"  => [ false,  "Tunnel through the current session connection. (Will be slower)"],
@@ -176,7 +176,7 @@ else
 end
 
 if tunnel
-  # Set up a port forward for the multi/handler to use for uploading the stage
+  # Set up a port forward for the exploit/multi/handler to use for uploading the stage
   print_status("Starting the port forwarding from #{rport} => TARGET:#{rport}")
   client.run_cmd("portfwd add -L 127.0.0.1 -l #{rport} -p #{rport} -r #{lhost}")
 end
