@@ -34,7 +34,6 @@ Gem::Specification.new do |spec|
       'msfconsole',
       'msfd',
       'msfelfscan',
-      'msfencode',
       'msfmachscan',
       'msfpescan',
       'msfrop',
