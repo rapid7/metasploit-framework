@@ -224,12 +224,7 @@ class Metasploit3 < Msf::Auxiliary
 
   class Chain < ApiObject
     has_objects_list :certs, ChainCert
-    has_fields :subject,
-               :label,
-               :issuerSubject,
-               :issuerLabel,
-               :issues,
-               :raw
+    has_fields :issues
 
     def valid?
       issues == 0
@@ -747,7 +742,6 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     delay = datastore['DELAY']
-
     hostname = datastore['HOSTNAME']
     unless valid_hostname?(hostname)
       print_status "Invalid hostname"
