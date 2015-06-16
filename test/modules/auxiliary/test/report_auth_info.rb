@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def test_drupal_views_user_enum
     mod = framework.auxiliary.create('scanner/http/drupal_views_user_enum')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER)
   end
 
   def test_dolibarr_login

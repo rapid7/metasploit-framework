@@ -75,9 +75,7 @@ class Metasploit3 < Msf::Auxiliary
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
+      username: opts[:user]
     }.merge(service_data)
 
     login_data = {
@@ -129,11 +127,10 @@ class Metasploit3 < Msf::Auxiliary
     final_results.each do |user|
       print_good("Found User: #{user}")
 
-      report_auth_info(
-        :host => Rex::Socket.getaddress(datastore['RHOST']),
-        :port => datastore['RPORT'],
-        :user => user,
-        :type => "drupal_user"
+      report_cred(
+        ip: Rex::Socket.getaddress(datastore['RHOST']),
+        port: datastore['RPORT'],
+        user: user
       )
     end
 
