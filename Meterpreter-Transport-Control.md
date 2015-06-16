@@ -293,8 +293,6 @@ The session is back up and running as if nothing had gone wrong.
 
 In the case where Meterpreter is configured with only a single transport mechanism, this process still takes place. Meterpreter's transport list implementation is a cyclic linked-list, and once the end of the list has been reached, it simply starts from the beginning again. This means that if there's a list of _one_ transport then Meterpreter will continually attempt to use that one transport until the session expires. This works for both `TCP` and `HTTP/S`.
 
-## Important note about resilient transports
-
-Now that both `TCP` and `HTTP/S` payloads contain resiliency features, it's important to know that exiting Metasploit using `exit -y` no longer terminates `TCP` sessions like it used to. If Metasploit is closed using `exit -y` without terminating existing sessions, both `TCP` and `HTTP/S` Meterpreter sessions will continue to run behind the scenes, attempting to connect back to Metasploit on the specified transports. If your intention is to exit Metasploit _and_ terminate all of your sessions, then make sure you run `sessions -K` first.
+For important detail on network resiliency, please see the [reliable network communication documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Reliable-Network-Communication).
 
   [Timeout documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control
