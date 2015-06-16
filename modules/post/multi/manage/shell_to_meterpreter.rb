@@ -29,19 +29,19 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptAddress.new('LHOST',
-          [false, 'IP of host that will receive the connection from the payload.']),
+          [false, 'IP of host that will receive the connection from the payload (Will try to auto detect).', nil]),
         OptInt.new('LPORT',
-          [false, 'Port for payload to connect to.', 4433]),
+          [true, 'Port for payload to connect to.', 4433]),
         OptBool.new('HANDLER',
           [ true, 'Start an exploit/multi/handler to receive the connection', true])
       ], self.class)
     register_advanced_options([
       OptInt.new('HANDLE_TIMEOUT',
-        [false, 'How long to wait for the session to come back', 30]),
-      OptString.new('WIN_TRANSFER',
-        [false, 'Which method to try first to transfer files on a Windows target. Valid values are: POWERSHELL, VBS', 'POWERSHELL']),
-      OptString.new('PAYLOAD_OVERWRITE',
-        [false, 'Overwrite the default payload', nil])
+        [true, 'How long to wait (in seconds) for the session to come back.', 30]),
+      OptEnum.new('WIN_TRANSFER',
+        [true, 'Which method to try first to transfer files on a Windows target.', 'POWERSHELL', ['POWERSHELL', 'VBS']]),
+      OptString.new('PAYLOAD_OVERRIDE',
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
     print_status("Upgrading session ID: #{datastore['SESSION']}")
 
     if session.type =~ /meterpreter/
-      print_error("Shell type is already Meterpreter.")
+      print_error("Shell is already Meterpreter.")
       return nil
     end
 
