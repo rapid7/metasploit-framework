@@ -561,13 +561,14 @@ class Console::CommandDispatcher::Core
   # Display help for transport management.
   #
   def cmd_transport_help
-    print_line('Usage: transport <list|change|add|next|prev> [options]')
+    print_line('Usage: transport <list|change|add|next|prev|remove> [options]')
     print_line
     print_line('   list: list the currently active transports.')
     print_line('    add: add a new transport to the transport list.')
     print_line(' change: same as add, but changes directly to the added entry.')
     print_line('   next: jump to the next transport in the list (no options).')
     print_line('   prev: jump to the previous transport in the list (no options).')
+    print_line(' remove: remove an existing, non-active transport.')
     print_line(@@transport_opts.usage)
   end
 
@@ -581,7 +582,7 @@ class Console::CommandDispatcher::Core
     end
 
     command = args.shift
-    unless ['list', 'add', 'change', 'prev', 'next'].include?(command)
+    unless ['list', 'add', 'change', 'prev', 'next', 'remove'].include?(command)
       cmd_transport_help
       return
     end
@@ -732,6 +733,13 @@ class Console::CommandDispatcher::Core
         print_good("Successfully added #{opts[:transport]} transport.")
       else
         print_error("Failed to add transport, please check the parameters")
+      end
+    when 'remove'
+      print_status("Removing transport ...")
+      if client.core.transport_remove(opts)
+        print_good("Successfully removed #{opts[:transport]} transport.")
+      else
+        print_error("Failed to remove transport, please check the parameters")
       end
     end
   end

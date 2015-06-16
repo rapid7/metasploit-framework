@@ -325,6 +325,16 @@ class ClientCore < Extension
     return Rex::Text.md5(mid)
   end
 
+  def transport_remove(opts={})
+    request = transport_prepare_request('core_transport_remove', opts)
+
+    return false unless request
+
+    client.send_request(request)
+
+    return true
+  end
+
   def transport_add(opts={})
     request = transport_prepare_request('core_transport_add', opts)
 
