@@ -21,7 +21,7 @@ module Msf
       recog_match = Recog::Nizer.match(type, banner)
       if datastore['ShowRecogResults']
         if recog_match
-          print_status("#{endpoint} Recog #{type} match: '#{sanitized_banner}'")
+          print_status("#{endpoint} Recog #{type} match: #{sanitized_banner}")
         else
           print_warning("#{endpoint} no Recog #{type} match: #{sanitized_banner}")
         end
