@@ -19,7 +19,9 @@ module RFB
 DefaultPort = 5900
 
 # Version information
-MajorVersion = 3
+# Created array and added support for version 4. aux/scanner/vnc/vnc_login
+#   was confirmed to work with version 004.001
+MajorVersions = [3,4]
 # NOTE: We will emulate whatever minor version the server reports.
 
 # Security types
