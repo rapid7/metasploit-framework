@@ -24,7 +24,7 @@ class Client
     @opts = opts
 
     @banner = nil
-    @majver = MajorVersion
+    @majver = MajorVersions
     @minver = -1
     @auth_types = []
   end
@@ -50,7 +50,7 @@ class Client
 
     if @banner =~ /RFB ([0-9]{3})\.([0-9]{3})/
       maj = $1.to_i
-      if maj != MajorVersion
+      unless MajorVersions.include?(maj)
         @error = "Invalid major version number: #{maj}"
         return false
       end
@@ -61,8 +61,15 @@ class Client
 
     @minver = $2.to_i
 
-    our_ver = "RFB %03d.%03d\n" % [MajorVersion, @minver]
-    @sock.put(our_ver)
+		# Forces client version 3 to be used. This adds support
+		# 	version 4 servers.
+		# It may be necessary to hardcode a miniver as well
+		# to do: add support for Version 4. Version 4 client
+		#   adds additional information to the packet regarding
+		#		supported authentication types.
+    our_ver = "RFB %03d.%03d\n" % [3, @minver]
+    puts our_ver
+		@sock.put(our_ver)
 
     true
   end
