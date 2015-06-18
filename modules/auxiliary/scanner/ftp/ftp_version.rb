@@ -6,10 +6,10 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Recog
 
   def initialize
     super(
@@ -18,31 +18,24 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      => 'hdm',
       'License'     => MSF_LICENSE
     )
-
-    register_options(
-      [
-        Opt::RPORT(21),
-      ], self.class)
   end
 
-  def run_host(target_host)
+  def peer
+    "#{rhost}:#{rport}"
+  end
 
+  def run_host(_target_host)
     begin
-
-    res = connect(true, false)
-
-    if(banner)
-      banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
-      print_status("#{rhost}:#{rport} FTP Banner: '#{banner_sanitized}'")
-      report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
-    end
-
-    disconnect
-
+      if connect(true, false) && banner && banner =~ /^220[ -]/
+        recog_banner = banner.gsub(/^220[ -](.*)\r\n/) { "#{Regexp.last_match(1)}\r\n" }.strip
+        info = { "banner" => recog_banner }.merge(recog_info(peer, 'ftp.banner', recog_banner) || {})
+        report_service(host: rhost, port: rport, name: 'ftp', info: info.to_s)
+      end
     rescue ::Interrupt
-      raise $!
+      raise $ERROR_INFO
     rescue ::Rex::ConnectionError, ::IOError
+    ensure
+      disconnect
     end
-
   end
 end
