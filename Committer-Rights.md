@@ -35,7 +35,7 @@ Commit rights are granted via a formal voting process involving all current comm
 1. Any current committer may nominate any one person as a potential committer by writing to the mailing list. The nominator generally should not inform the nominee that she has been nominated until after a successful vote in the nominee's favor. The nominator must provide a justification for committer rights, and include the nominee's e-mail address.
 2. Any current committer may veto the nominee for any (or no) reason.
 3. The Metasploit Framework triumvirate of [HD Moore](https://github.com/hmoore-r7), [Tod Beardsley](https://github.com/todb-r7), and [James "Egypt" Lee](https://github.com/jlee-r7), must all affirm the nominee within a week on the mailing list with a yes vote -- otherwise, the nomination suffers a pocket veto.
-4. The engineering manager (@todb) will inform the nominee of his new commit rights and responsibilities, add the new committer to the appropriate ACL groups and mailing lists, and inform the mailing list of the successful completion of these tasks.
+4. The Metasploit community manager (@jlee-r7) will inform the nominee of his new commit rights and responsibilities, add the new committer to the appropriate ACL groups and mailing lists, and inform the mailing list of the successful completion of these tasks.
 
 Committers introduced in this way will have commit rights to the following repositories:
 
