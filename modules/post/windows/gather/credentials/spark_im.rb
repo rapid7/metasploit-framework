@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Post
           end
 
           hash = pass.split("password").join.chomp
-          print_status("Spark password hash: #{hash}") if datastore['VERBOSE']
+          vprint_status("Spark password hash: #{hash}")
 
           # call method to decrypt hash
           decrypt(hash)

