@@ -5,131 +5,119 @@ module Metasploit
     module LoginScanner
 
       class PhpMyAdmin < HTTP
-
-        DEFAULT_PORT = 80
+        DEFAULT_PORT  = 4848
         PRIVATE_TYPES = [ :password ]
         LOGIN_STATUS = Metasploit::Model::Login::Status # shorter name
-        
-        
+
+        # @!attribute php_my_admin
+        #   @return [String] cookie pma à mettre dans la prochaine requete
+        attr_accessor :php_my_admin
+
+        # @!attribute token
+        #   @return [String] token requete
+        attr_accessor :token
+
+        # @!attribute pmaUser_1
+        #   @return [String] pmaUser-1 cookie a mettre dans la requete
+        attr_accessor :pmaUser_1
+
+        # @!attribute pmaPass_1
+        #   @return [String] pmaPass-1 cookie a mettre dans la requete
+        attr_accessor :pmaPass_1
+
+        # (see Base#check_setup)
+        def check_setup
+          begin
+            res = send_request({'uri' => uri})
+            return "Connection failed" if res.nil?
+            if !([200, 302].include?(res.code))
+              return "Unexpected HTTP response code #{res.code} (is this really phpMyAdmin ?)"
+            end
+
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+            return "Unable to connect to target"
+          end
+
+          true
+        end
+
         # Sends a HTTP request with Rex
         #
         # @param (see Rex::Proto::Http::Resquest#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => self}, ssl, ssl_version, proxies)
+          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies)
           configure_http_client(cli)
           cli.connect
           req = cli.request_raw(opts)
           res = cli.send_recv(req)
 
-          # Save the session ID cookie
-          if res && res.get_cookies =~ /(_\w+_session)=([^;$]+)/i
-            self.session_name = $1
-            self.session_id = $2
+          # Found a cookie? Set it. We're going to need it.
+          if self.php_my_admin == '' && res && res.get_cookies =~ /(phpMyAdmin=[a-z0-9]+;)/i
+            self.php_my_admin = res.get_cookies.match(/ (phpMyAdmin=[a-z0-9]+;)/)[1]
+          end
+          if self.pmaPass_1 == '' && res && res.get_cookies =~ /(pmaPass-1=[a-zA-Z0-9%]+;)/i
+            self.pmaPass_1 = $1
+          end
+          if self.pmaUser_1 == '' && res && res.get_cookies =~ /(pmaUser-1=[a-zA-Z0-9%]+;)/i
+            self.pmaUser_1 = $1
+          end
+          if self.token == ''
+            tokens = res.body.match(/<input type="hidden" name="token" value="(\w+)"/)
+            self.token = (tokens.nil?) ? '' : tokens[-1]
           end
 
           res
         end
 
-        def check_setup
-          res = send_request(
-            {
-              'uri'  => "#{uri}"
-            }
-          )
-          if res && res.body && res.body.include?('phpMyAdmin')
-            return true
-          end
 
-          return false
-        end
-
-        def is_logged_in(url, cookies)
-          res = send_request({
-            'method' => 'GET',
-            'uri'    => normalize_uri("#{url}"),
-            'cookie' => cookies
-          })    
-          return !(res.body.include? '<div class="error">')
-        end
-
-        def get_important_cookies_and_token
-          cookies = ''
-
-          res = send_request({
-            'method' => 'GET',
-            'uri'    => normalize_uri("#{uri}")
-          })
-
-          return nil if (res.nil? || res.get_cookies.empty?)
-
-          # Get the cookies
-          # seuls les derniers comptent (d'ou le m[-1])
-          m = res.get_cookies.match(/(phpMyAdmin=[a-z0-9]+;)/)
-          pma_session = (m.nil?) ? nil : m[-1]
-          m = res.get_cookies.match(/(pma_lang=[a-z]+;)/)
-          pma_lang = (m.nil?) ? nil : m[-1]
-          m = res.get_cookies.match(/(pma_collation_connection=[a-z0-9_]+;)/)
-          pma_collation_connection = (m.nil?) ? nil : m[-1]
-          m = res.get_cookies.match(/(pma_mcrypt_iv=[a-zA-Z0-9%]+;)/)
-          pma_mcrypt_iv = (m.nil?) ? nil : m[-1]
-          # check if everythong is okay
-          if pma_session.nil? or pma_lang.nil? or pma_collation_connection.nil? or pma_mcrypt_iv.nil?
-            vprint_error("#{peer} - Unable to obtain all cookies, cannot continue")
-            return :abort
-          else
-            vprint_status("#{peer} - Using session ID: #{pma_session}")
-          end
-          cookies = pma_session + pma_lang + pma_collation_connection + pma_mcrypt_iv
-
-          # Get token
-          doc = REXML::Document.new res.body
-          if !doc
-            fail_with(Failure::UnexpectedReply, 'Error getting token')
-          end
-          token = REXML::XPath.first(doc, "//input[@name='token']/@value").value
-
-          return pma_lang, pma_collation_connection, cookies, token
-        end
-
+        # Sends a login request
+        #
+        # @param credential [Metasploit::Framework::Credential] The credential object
+        # @return [Rex::Proto::Http::Response] The HTTP auth response
         def do_login(username, password)
-          # Get a new session with IDs and other cookies. That way if we get a successful login,
-          # we won't get a false positive due to reusing the same cookies.
+          # on recupere les cookies/token
+          send_request({'uri' => "#{uri}index.php"})
 
-          pma_lang, pma_collation_connection, cookies, token = get_important_cookies_and_token
+          data  = "pma_username=#{Rex::Text.uri_encode(username)}&"
+          data << "pma_password=#{Rex::Text.uri_encode(password)}&"
+          data << "token=#{Rex::Text.uri_encode(self.token)}"
 
-          res = send_request({
-            'method'    => 'POST',
-            'uri'       => "#{uri}",
-            'cookie'    => cookies, 
-            'vars_post' => {
-              'token'                => token,
-              'pma_username'         => username,
-              'pma_password'         => password,
-              'server'               => '1',
-              'lang'                 => pma_lang,
-              'collation_connection' => pma_collation_connection,
+          opts = {
+            'uri'     => "#{uri}index.php",
+            'method'  => 'POST',
+            'data'    => data,
+            'headers' => {
+              'Content-Type'   => 'application/x-www-form-urlencoded',
+              'Cookie'         => "#{self.pmaUser_1} #{self.php_my_admin}",
             }
-          })
+          }
 
-          unless res
-            return {:status => LOGIN_STATUS::UNABLE_TO_CONNECT, :proof => res.to_s}
-          end
-
-          # On complete nos cookies
-          m = res.get_cookies.match(/(pmaUser-1=[a-zA-Z0-9%]+;)/)
-          pmaUser_1 = (m.nil?) ? nil : m[-1]
-          m = res.get_cookies.match(/(pmaPass-1=[a-zA-Z0-9%]+;)/)
-          pmaPass_1 = (m.nil?) ? nil : m[-1]
-          if pmaUser_1 && pmaPass_1
-            cookies = pmaUser_1+ pmaPass_1
-          end
-          location = res.headers['Location']
-          if is_logged_in(location, cookies)
+          res = send_request(opts)
+          
+          if is_logged_in
             return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => pmaPass_1}
           end
 
           return {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
+
+        end
+
+
+        def is_logged_in
+          url_verif = "#{uri}index.php?token=#{self.token}"
+
+          cookies = "#{self.pmaPass_1} #{self.pmaUser_1} #{self.php_my_admin}"
+
+          res = send_request({
+            'uri'    => url_verif,
+             'headers' => {
+               'Content-Type'   => 'application/x-www-form-urlencoded',
+               'Cookie'  => cookies
+             }
+          })
+
+          return (res.body.include? 'Log out')
         end
 
 
@@ -148,6 +136,10 @@ module Metasploit
             protocol: 'tcp'
           }
 
+          self.php_my_admin = ''
+          self.pmaUser_1 = ''
+          self.pmaPass_1 = ''
+          self.token = ''
           # Merge login result
           begin
             result_opts.merge!(do_login(credential.public, credential.private))
@@ -164,3 +156,4 @@ module Metasploit
     end
   end
 end
+
