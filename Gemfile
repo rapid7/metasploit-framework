@@ -1,7 +1,5 @@
 source 'https://rubygems.org'
 
-gem 'pry-debugger'
-
 # Add default group gems to `metasploit-framework.gemspec`:
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
@@ -54,3 +52,5 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
+gem 'pry-debugger'
