@@ -45,8 +45,7 @@ class Metasploit3 < Msf::Auxiliary
     datastore['TIMEOUT'] <= 0 ? DEFAULT_TIMEOUT : datastore['TIMEOUT']
   end
 
-
-  def run_host(target_host)
+  def run_host(_target_host)
     begin
       ::Timeout.timeout(timeout) do
         connect
