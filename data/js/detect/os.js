@@ -1027,7 +1027,7 @@ os_detect.getVersion = function(){
 			}
 			switch (navigator.appMinorVersion){
 				case ";SP2;":
-					ua_version += ";SP2";
+					os_sp = "SP2";
 					break;
 			}
 		}
