@@ -138,8 +138,8 @@ module Msf::DBManager::Web
     page = ::Mdm::WebPage.where(web_site_id: site[:id], path: path, query: query).first_or_initialize
     page.code     = code
     page.body     = body
-    page.headers  = headers
-    page.cookie   = opts[:cookie] if opts[:cookie]
+    page.headers  = headers.to_s
+    page.cookie   = opts[:cookie].to_s if opts[:cookie]
     page.auth     = opts[:auth]   if opts[:auth]
     page.mtime    = opts[:mtime]  if opts[:mtime]
     page.ctype    = opts[:ctype]  if opts[:ctype]
