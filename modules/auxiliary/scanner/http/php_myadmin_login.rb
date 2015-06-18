@@ -3,7 +3,7 @@ require 'metasploit/framework/login_scanner/php_myadmin'
 require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
-# sdkjfn
+
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
