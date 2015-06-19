@@ -94,9 +94,8 @@ module Metasploit
           }
 
           res = send_request(opts)
-          
           if is_logged_in
-            return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => pmaPass_1}
+            return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => self.pmaPass_1}
           end
 
           return {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
