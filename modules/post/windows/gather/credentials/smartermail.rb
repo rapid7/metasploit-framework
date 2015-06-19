@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Post
     username = data.match(/<sysAdminUserName>(.+)<\/sysAdminUserName>/)
     password = data.scan(/<(sysAdminPassword|sysAdminPasswordHash)>(.+)<\/(sysAdminPassword|sysAdminPasswordHash)>/).flatten[1]
 
-    result['username'] = username[1] unless username.nil?
+    result[:username] = username[1] unless username.nil?
 
     if password
       begin
