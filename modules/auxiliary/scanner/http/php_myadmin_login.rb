@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module attempts to authenticate to a phpMyAdmin interface
       },
-      'Author'         => 
+      'Author'         =>
         [
           'hdelval', # original contributor
           'void_in'  # help with dev and cleanup
