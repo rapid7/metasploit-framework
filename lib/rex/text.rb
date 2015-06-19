@@ -4,17 +4,7 @@ require 'digest/sha1'
 require 'stringio'
 require 'cgi'
 require 'rex/powershell'
-
-%W{ iconv zlib }.each do |libname|
-  begin
-    old_verbose = $VERBOSE
-    $VERBOSE = nil
-    require libname
-  rescue ::LoadError
-  ensure
-    $VERBOSE = old_verbose
-  end
-end
+require 'zlib'
 
 module Rex
 
