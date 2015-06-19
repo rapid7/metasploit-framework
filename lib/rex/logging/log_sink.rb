@@ -41,4 +41,4 @@ end
 
 require 'rex/logging/sinks/flatfile'
 require 'rex/logging/sinks/stderr'
-require 'rex/logging/sinks/timestamp_logfile'
+require 'rex/logging/sinks/timestamp_flatfile'
