@@ -714,7 +714,7 @@ class Metasploit3 < Msf::Auxiliary
     return unless r.status == "IN_PROGRESS"
 
     if r.endpoints.length == 1
-      print_status "#{r.host} (#{r.endpoints[0].ip_address}) - Progress #{r.endpoints[0].progress}% (#{r.endpoints[0].status_details_message})"
+      print_status "#{r.host} (#{r.endpoints[0].ip_address}) - Progress #{[r.endpoints[0].progress, 0].max}% (#{r.endpoints[0].status_details_message})"
     elsif r.endpoints.length > 1
       in_progress_srv_num = 0
       ready_srv_num = 0
@@ -723,7 +723,7 @@ class Metasploit3 < Msf::Auxiliary
         case e.status_message.to_s
         when "In progress"
           in_progress_srv_num += 1
-          print_status "Scanned host: #{e.ip_address} (#{e.server_name})- #{e.progress}% complete (#{e.status_details_message})"
+          print_status "Scanned host: #{e.ip_address} (#{e.server_name})- #{[e.progress, 0].max}% complete (#{e.status_details_message})"
         when "Pending"
           pending_srv_num += 1
         when "Ready"
