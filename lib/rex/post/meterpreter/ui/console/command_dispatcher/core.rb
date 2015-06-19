@@ -543,12 +543,13 @@ class Console::CommandDispatcher::Core
     '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
     '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
     '-p'  => [ true,  'LPORT parameter' ],
-    '-ua' => [ true,  'User agent for http(s) transports (optional)' ],
-    '-ph' => [ true,  'Proxy host for http(s) transports (optional)' ],
-    '-pp' => [ true,  'Proxy port for http(s) transports (optional)' ],
-    '-pu' => [ true,  'Proxy username for http(s) transports (optional)' ],
-    '-ps' => [ true,  'Proxy password for http(s) transports (optional)' ],
-    '-pt' => [ true,  'Proxy type for http(s) transports (optional: http, socks; default: http)' ],
+    '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
+    '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
+    '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
+    '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
+    '-pu' => [ true,  'Proxy username for HTTP/S transports (optional)' ],
+    '-ps' => [ true,  'Proxy password for HTTP/S transports (optional)' ],
+    '-pt' => [ true,  'Proxy type for HTTP/S transports (optional: http, socks; default: http)' ],
     '-c'  => [ true,  'SSL certificate path for https transport verification (optional)' ],
     '-to' => [ true,  'Comms timeout (seconds) (default: same as current session)' ],
     '-ex' => [ true,  'Expiration timout (seconds) (default: same as current session)' ],
@@ -592,6 +593,7 @@ class Console::CommandDispatcher::Core
       :transport     => nil,
       :lhost         => nil,
       :lport         => nil,
+      :uri           => nil,
       :ua            => nil,
       :proxy_host    => nil,
       :proxy_port    => nil,
@@ -611,6 +613,8 @@ class Console::CommandDispatcher::Core
       case opt
       when '-c'
         opts[:cert] = val
+      when '-u'
+        opts[:uri] = val
       when '-ph'
         opts[:proxy_host] = val
       when '-pp'
@@ -735,6 +739,11 @@ class Console::CommandDispatcher::Core
         print_error("Failed to add transport, please check the parameters")
       end
     when 'remove'
+      if !opts[:transport].end_with?('_tcp') && opts[:uri].nil?
+        print_error("HTTP/S transport specified without session URI")
+        return
+      end
+
       print_status("Removing transport ...")
       if client.core.transport_remove(opts)
         print_good("Successfully removed #{opts[:transport]} transport.")

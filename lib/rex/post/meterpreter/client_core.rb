@@ -658,8 +658,14 @@ class ClientCore < Extension
 
     # do more magic work for http(s) payloads
     unless opts[:transport].ends_with?('tcp')
-      sum = uri_checksum_lookup(:connect)
-      url << generate_uri_uuid(sum, opts[:uuid]) + '/'
+      if opts[:uri]
+        url << '/' unless opts[:uri].start_with?('/')
+        url << opts[:uri]
+        url << '/' unless opts[:uri].end_with?('/')
+      else
+        sum = uri_checksum_lookup(:connect)
+        url << generate_uri_uuid(sum, opts[:uuid]) + '/'
+      end
 
       # TODO: randomise if not specified?
       opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
