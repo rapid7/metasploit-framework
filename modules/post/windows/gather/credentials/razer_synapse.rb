@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
     }
 
     if opts[:type] == :nonreplayable_hash
-      credential_data[:jtr_format] = 'ODF-AES-opencl'
+      credential_data[:jtr_format] = 'odf-aes-opencl'
     end
 
     credential_data.merge!(service_data)
