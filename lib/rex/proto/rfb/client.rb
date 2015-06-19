@@ -61,12 +61,11 @@ class Client
 
     @minver = $2.to_i
 
-		# Forces client version 3 to be used. This adds support
-		# 	for version 4 servers.
-		# It may be necessary to hardcode a miniver as well
-		# to do: add support for Version 4. Version 4 client
-		#   adds additional information to the packet regarding
-		#		supported authentication types.
+    # Forces version 3 to be used. This adds support  for version 4 servers.
+    # It may be necessary to hardcode minver as well.
+    # TODO: Add support for Version 4.
+    # Version 4 adds additional information to the packet regarding supported
+    # authentication types.
     our_ver = "RFB %03d.%03d\n" % [3, @minver]
     @sock.put(our_ver)
 
