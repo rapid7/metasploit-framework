@@ -185,7 +185,7 @@ class Metasploit3 < Msf::Auxiliary
                :sgc?,
                :validationType,
                :issues,
-               :sct?,
+               :sct?
 
     def valid?
       issues == 0
@@ -211,7 +211,7 @@ class Metasploit3 < Msf::Auxiliary
                :revocationStatus,
                :crlRevocationStatus,
                :ocspRevocationStatus,
-               :raw,
+               :raw
 
     def valid?
       issues == 0
