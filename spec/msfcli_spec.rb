@@ -289,8 +289,8 @@ describe Msfcli, :content do
       }
     end
   end
-  
-  
+
+
   context "#guess_nop_name" do
     subject(:guess_nop_name) {
       msfcli.guess_nop_name(nop_reference_name)
@@ -555,8 +555,8 @@ describe Msfcli, :content do
         expect(modules[:module].fullname).to eq(module_name)
       end
     end
-    
-    context 'with multi/handler' do
+
+    context 'with exploit/multi/handler' do
       let(:module_name) {
         'multi/handler'
       }
@@ -571,14 +571,14 @@ describe Msfcli, :content do
         expect(modules[:module]).to be_an Msf::Exploit
         expect(modules[:module].refname).to eq(module_name)
       end
-      
+
       context 'with payload' do
         let(:args) {
           super().tap { |args|
             args.insert(-2, "payload=#{payload_reference_name}")
           }
         }
-        
+
         context 'windows/meterpreter/reverse_tcp' do
           let(:payload_reference_name) do
             'windows/meterpreter/reverse_tcp'
