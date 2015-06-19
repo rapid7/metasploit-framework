@@ -1,3 +1,19 @@
+GIT
+  remote: git@github.com:rapid7/metasploit_data_models
+  revision: c36c800866d42187c21c1308a9bac5f3278d8aa3
+  branch: bug/MSP-12834/crawler-choke-on-save
+  specs:
+    metasploit_data_models (1.2.4)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      arel-helpers
+      metasploit-concern (~> 1.0)
+      metasploit-model (~> 1.0)
+      pg
+      postgres_ext
+      railties (>= 4.0.9, < 4.1.0)
+      recog (~> 2.0)
+
 PATH
   remote: .
   specs:
@@ -24,7 +40,6 @@ PATH
       activerecord (>= 4.0.9, < 4.1.0)
       metasploit-credential (~> 1.0)
       metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (~> 1.2)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
@@ -124,16 +139,6 @@ GEM
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
     metasploit-payloads (1.0.2)
-    metasploit_data_models (1.2.3)
-      activerecord (>= 4.0.9, < 4.1.0)
-      activesupport (>= 4.0.9, < 4.1.0)
-      arel-helpers
-      metasploit-concern (~> 1.0)
-      metasploit-model (~> 1.0)
-      pg
-      postgres_ext
-      railties (>= 4.0.9, < 4.1.0)
-      recog (~> 2.0)
     method_source (0.8.2)
     mime-types (2.4.3)
     mini_portile (0.6.2)
@@ -238,6 +243,7 @@ DEPENDENCIES
   metasploit-framework!
   metasploit-framework-db!
   metasploit-framework-pcap!
+  metasploit_data_models!
   pry
   rake (>= 10.0.0)
   redcarpet
