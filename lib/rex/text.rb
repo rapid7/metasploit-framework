@@ -45,7 +45,8 @@ module Text
 
   DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
 
-  # In case Iconv isn't loaded
+  # The Iconv translation table. The Iconv gem is deprecated in favor of
+  # String#encode, yet there is no encoding for EBCDIC. See #4525
   Iconv_EBCDIC = [
     "\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05",
     "%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13",
@@ -386,9 +387,9 @@ module Text
   #
   class IllegalSequence < ArgumentError; end
 
-  # A native implementation of the ASCII->EBCDIC table, used to fall back from using
-  # Iconv
-  def self.to_ebcdic_rex(str)
+  # A native implementation of the EBCDIC->ASCII table, since it's not available
+  # in String#encode
+  def self.to_ebcdic(str)
     new_str = []
     str.each_byte do |x|
       if Iconv_ASCII.index(x.chr)
@@ -400,9 +401,9 @@ module Text
     new_str.join
   end
 
-  # A native implementation of the EBCDIC->ASCII table, used to fall back from using
-  # Iconv
-  def self.from_ebcdic_rex(str)
+  # A native implementation of the EBCDIC->ASCII table, since it's not available
+  # in String#encode
+  def self.from_ebcdic(str)
     new_str = []
     str.each_byte do |x|
       if Iconv_EBCDIC.index(x.chr)
@@ -412,29 +413,6 @@ module Text
       end
     end
     new_str.join
-  end
-
-  def self.to_ebcdic(str)
-    begin
-      Iconv.iconv("EBCDIC-US", "ASCII", str).first
-    rescue ::Iconv::IllegalSequence => e
-      raise e
-    rescue
-      self.to_ebcdic_rex(str)
-    end
-  end
-
-  #
-  # Converts EBCIDC to ASCII
-  #
-  def self.from_ebcdic(str)
-    begin
-      Iconv.iconv("ASCII", "EBCDIC-US", str).first
-    rescue ::Iconv::IllegalSequence => e
-      raise e
-    rescue
-      self.from_ebcdic_rex(str)
-    end
   end
 
   #
