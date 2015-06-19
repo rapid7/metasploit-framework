@@ -366,20 +366,11 @@ module Text
   end
 
   #
-  # Converts ISO-8859-1 to UTF-8
+  # Converts US-ASCII and ISO-8859-1 to UTF-8, skipping over
+  # any characters which don't convert cleanly.
   #
   def self.to_utf8(str)
-
-    if str.respond_to?(:encode)
-      # Skip over any bytes that fail to convert to UTF-8
-      return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
-    end
-
-    begin
-      Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
-    rescue
-      raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
-    end
+      str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
   end
 
   #
