@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
         do_logout(resp.get_cookies)
 
         report_cred(ip: rhost, port: rport, user: user, password: pass)
-        report_note(ip: rhost, type: 'cisco.cred.group', data: group)
+        report_note(ip: rhost, type: 'cisco.cred.group', data: "User: #{user} / Group: #{group}")
         return :next_user
 
       else
