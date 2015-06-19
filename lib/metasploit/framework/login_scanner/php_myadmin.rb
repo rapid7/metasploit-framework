@@ -79,9 +79,9 @@ module Metasploit
           # on recupere les cookies/token
           send_request({'uri' => "#{uri}index.php"})
 
-          data  = "pma_username=#{Rex::Text.uri_encode(username)}&"
-          data << "pma_password=#{Rex::Text.uri_encode(password)}&"
-          data << "token=#{Rex::Text.uri_encode(self.token)}"
+          data  = "pma_username=#{username}&"
+          data << "pma_password=#{password}&"
+          data << "token=#{self.token}"
 
           opts = {
             'uri'     => "#{uri}index.php",
