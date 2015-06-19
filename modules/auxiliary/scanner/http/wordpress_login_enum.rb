@@ -125,8 +125,12 @@ class Metasploit3 < Msf::Auxiliary
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      status: opts[:status]
     }.merge(service_data)
+
+    if opts[:attempt_time]
+      login_data.merge!(last_attempted_at: opts[:attempt_time])
+    end
 
     create_credential_login(login_data)
   end
@@ -142,7 +146,8 @@ class Metasploit3 < Msf::Auxiliary
       report_cred(
         ip: rhost,
         port: rport,
-        user: user
+        user: user,
+        status: Metasploit::Model::Login::Status::UNTRIED
       )
 
       @users_found[user] = :reported
@@ -166,7 +171,9 @@ class Metasploit3 < Msf::Auxiliary
         ip: rhost,
         port: rport,
         user: user,
-        password: pass
+        password: pass,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL,
+        attempt_time: DateTime.now
       )
 
       return :next_user
