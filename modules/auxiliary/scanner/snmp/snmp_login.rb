@@ -29,10 +29,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(161),
-      Opt::CHOST,
-      OptInt.new('CONNECTION_TIMEOUT', [true, 'The timeout value for each probe', 2]),
-      OptInt.new('RETRIES', [true, 'The number of retries per community string', 0]),
-      OptEnum.new('VERSION', [true, 'The SNMP version to scan', 'all', ['1', '2c', 'all']]),
+      OptEnum.new('VERSION', [true, 'The SNMP version to scan', '1', ['1', '2c', 'all']]),
       OptString.new('PASSWORD', [ false, 'The password to test' ]),
       OptPath.new('PASS_FILE',  [ false, "File containing communities, one per line",
         File.join(Msf::Config.data_directory, "wordlists", "snmp_default_pass.txt")
@@ -56,11 +53,10 @@ class Metasploit3 < Msf::Auxiliary
         cred_details: collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-        connection_timeout: datastore['CONNECTION_TIMEOUT'],
-        retries: datastore['RETRIES'],
         version: datastore['VERSION'],
         framework: framework,
-        framework_module: self
+        framework_module: self,
+        queue_size: 100
     )
 
     scanner.scan! do |result|
