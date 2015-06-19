@@ -193,7 +193,6 @@ class Metasploit3 < Msf::Auxiliary
       report_cred(ip: datastore['RHOST'], port: datastore['RPORT'], user:user, password: pass)
 
 
-      report_auth_info(report_hash)
       return :next_user
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
