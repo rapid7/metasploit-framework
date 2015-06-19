@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     login_data = {
       last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      status: Metasploit::Model::Login::Status::UNTRIED,
     }.merge(service_data)
 
     create_credential_login(login_data)
