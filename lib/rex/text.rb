@@ -365,21 +365,25 @@ module Text
     return str
   end
 
+  # Converts US-ASCII to UTF-8, skipping over any characters which don't
+  # convert cleanly. This is a convenience method that wraps
+  # String#encode with non-raising default paramaters.
   #
-  # Converts US-ASCII and ISO-8859-1 to UTF-8, skipping over
-  # any characters which don't convert cleanly.
-  #
+  # @param str [String] An encodable ASCII string
+  # @return [String] a UTF-8 equivalent
+  # @note This method will discard invalid characters
   def self.to_utf8(str)
       str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
   end
 
-  #
-  # Converts ASCII to EBCDIC
-  #
   class IllegalSequence < ArgumentError; end
 
-  # A native implementation of the EBCDIC->ASCII table, since it's not available
-  # in String#encode
+  # A native implementation of the ASCII to EBCDIC conversion table, since
+  # EBCDIC isn't available to String#encode as of Ruby 2.1
+  #
+  # @param str [String] An encodable ASCII string
+  # @return [String] an EBCDIC encoded string
+  # @note This method will raise in the event of invalid characters
   def self.to_ebcdic(str)
     new_str = []
     str.each_byte do |x|
@@ -392,8 +396,12 @@ module Text
     new_str.join
   end
 
-  # A native implementation of the EBCDIC->ASCII table, since it's not available
-  # in String#encode
+  # A native implementation of the EBCIDC to ASCII conversion table, since
+  # EBCDIC isn't available to String#encode as of Ruby 2.1
+  #
+  # @param str [String] an EBCDIC encoded string
+  # @return [String] An encodable ASCII string
+  # @note This method will raise in the event of invalid characters
   def self.from_ebcdic(str)
     new_str = []
     str.each_byte do |x|
