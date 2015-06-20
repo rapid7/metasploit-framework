@@ -32,10 +32,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2015-2996' ],
           [ 'CVE', '2015-2997' ],
-          [ 'OSVDB', 'TODO' ],
-          [ 'OSVDB', 'TODO' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt' ],
-          [ 'URL', 'TODO_FULLDISC_URL' ]
+          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Jun/8' ]
         ],
       'DisclosureDate' => 'Jun 3 2015'))
 
@@ -43,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('RPORT', [true, 'The target port', 8080]),
         OptString.new('TARGETURI', [ true,  "SysAid path", '/sysaid']),
-        OptString.new('FILEPATH', [false, 'Path of the file to download (escape Windows paths with 4 back slashes)', '/etc/passwd']),
+        OptString.new('FILEPATH', [false, 'Path of the file to download (escape Windows paths with a back slash)', '/etc/passwd']),
       ], self.class)
   end
 
