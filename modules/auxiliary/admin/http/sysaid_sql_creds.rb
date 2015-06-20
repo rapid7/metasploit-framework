@@ -115,8 +115,7 @@ class Metasploit3 < Msf::Auxiliary
           return
         end
       end
-      print_error("#{peer} - Failed to obtain database credentials, response was:")
-      print_line(res.body.to_s)
+      print_error("#{peer} - Failed to obtain database credentials, response was: #{res.body}")
     else
       print_error("#{peer} - Failed to obtain database credentials.")
     end
