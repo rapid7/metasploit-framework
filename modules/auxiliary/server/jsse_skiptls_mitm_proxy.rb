@@ -109,16 +109,27 @@ class Metasploit3 < Msf::Auxiliary
 
         print_status('Accepted connection from %s:%d' % [client.addr[2], client.addr[1]])
 
-        context = OpenSSL::SSL::SSLContext.new(:TLSv1_2)
-        context.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-        tcp_socket = TCPSocket.new(fake_host, fake_port)
-        fake_server = OpenSSL::SSL::SSLSocket.new(tcp_socket, context)
-        fake_server.connect
+        fake_server = Rex::Socket::Tcp.create(
+          'PeerHost' => fake_host,
+          'PeerPort' => fake_port,
+          'SSL'      => true,
+          'SSLVerifyMode' => 'NONE',
+          'Context'  =>
+            {
+              'Msf'        => framework,
+              'MsfExploit' => self
+            })
 
         print_status('Connected to %s:%d' % [fake_host, fake_port])
 
-        server = TCPSocket.new(host, port)
+        server = Rex::Socket::Tcp.create(
+          'PeerHost' => host,
+          'PeerPort' => port,
+          'Context'  =>
+            {
+              'Msf'        => framework,
+              'MsfExploit' => self
+            })
 
         print_status('Connected to %s:%d' % [host, port])
 
