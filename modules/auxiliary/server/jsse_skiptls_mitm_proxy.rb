@@ -98,8 +98,10 @@ class Metasploit3 < Msf::Auxiliary
     proxy = TCPServer.new(local_host, local_port)
     print_status('Listening on %s:%d' % [proxy.addr[2], proxy.addr[1]])
 
+    thread_num = 0
+
     loop do
-      Thread.start(proxy.accept) do |client|
+      framework.threads.spawn("Thread #{thread_num += 1}", false, proxy.accept) do |client|
       #loop do
         finished_sent = false
         handshake_messages = ''
