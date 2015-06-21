@@ -56,8 +56,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('HOST', [ true, 'The server address', nil]),
         OptString.new('PORT', [ true, 'The server port', 443]),
         OptString.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
-        OptString.new('SRVPORT', [ true, 'The proxy port', 443]),
-        OptInt.new('TIMEOUT', [ true, 'The timeout, in seconds', 5])
+        OptString.new('SRVPORT', [ true, 'The proxy port', 443])
       ], self.class)
   end
 
@@ -93,7 +92,6 @@ class Metasploit3 < Msf::Auxiliary
     local_host = datastore['SRVHOST']
     local_port = datastore['SRVPORT']
     port = datastore['PORT']
-    timeout = datastore['TIMEOUT']
 
     proxy = TCPServer.new(local_host, local_port)
     print_status('Listening on %s:%d' % [proxy.addr[2], proxy.addr[1]])
@@ -120,14 +118,7 @@ class Metasploit3 < Msf::Auxiliary
 
         print_status('Connected to %s:%d' % [fake_host, fake_port])
 
-        server = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM)
-
-        begin
-          server.connect_nonblock(Socket.pack_sockaddr_in(port, host))
-
-        rescue IO::WaitWritable
-          raise Errno::ETIMEDOUT if IO.select(nil, [server], nil, timeout).nil?
-        end
+        server = TCPSocket.new(host, port)
 
         print_status('Connected to %s:%d' % [host, port])
 
