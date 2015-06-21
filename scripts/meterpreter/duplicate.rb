@@ -23,7 +23,7 @@ opts = Rex::Parser::Arguments.new(
   "-e"  => [ true,   "Executable to inject into. Default notepad.exe, will fall back to spawn if not found."],
   "-P"  => [ true,   "Process id to inject into; use instead of -e if multiple copies of one executable are running."],
   "-s"  => [ false,  "Spawn new executable to inject to.  Only useful with -P."],
-  "-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"]
+  "-D"  => [ false,  "Disable the automatic exploit/multi/handler (use with -r to accept on another system)"]
 )
 
 #

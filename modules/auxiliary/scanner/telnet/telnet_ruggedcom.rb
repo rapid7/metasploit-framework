@@ -58,6 +58,31 @@ class Metasploit3 < Msf::Auxiliary
     return so_version << "  " << product
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'telnet',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
   def run_host(ip)
     to = (datastore['TIMEOUT'].zero?) ? 30 : datastore['TIMEOUT']
@@ -70,16 +95,7 @@ class Metasploit3 < Msf::Auxiliary
           mac  = banner_santized.match(/((?:[0-9a-f]{2}[-]){5}[0-9a-f]{2})/i)[0]
           password = mac_to_password(mac)
           info = get_info(banner_santized)
-          report_auth_info(
-            :host  => rhost,
-            :port => rport,
-            :sname => 'telnet',
-            :user => 'factory',
-            :pass => password,
-            :source_type => "user_supplied",
-            :proof => info,
-            :active => true
-          )
+          report_cred(ip: rhost, port: rport, user:'factory', password: password)
           break
         else
           print_status("It doesn't seem to be a RuggedCom service.")

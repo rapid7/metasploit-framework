@@ -34,9 +34,7 @@ Gem::Specification.new do |spec|
       'msfconsole',
       'msfd',
       'msfelfscan',
-      'msfencode',
       'msfmachscan',
-      'msfpayload',
       'msfpescan',
       'msfrop',
       'msfrpc',
@@ -74,7 +72,7 @@ Gem::Specification.new do |spec|
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
-  spec.add_runtime_dependency 'recog', '~> 1.0'
+  spec.add_runtime_dependency 'recog', '~> 2.0'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
