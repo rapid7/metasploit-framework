@@ -12,7 +12,7 @@ module Sinks
 class TimestampFlatfile < Flatfile
 
   def log(sev, src, level, msg, from) # :nodoc:
-    cleaned = msg.gsub(/\x1b\[[0-9;]*[mG]/,'')
+    cleaned = msg.chop.gsub(/\x1b\[[0-9;]*[mG]/,'')
     fd.write("[#{get_current_timestamp}] #{cleaned}\n")
     fd.flush
   end
