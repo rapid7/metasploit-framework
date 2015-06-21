@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def PRF(secret, label, seed)
+  def prf(secret, label, seed)
     if secret.empty?
       s1 = s2 = ''
     else
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     result
   end
 
-  def PRF_SHA256(secret, label, seed)
+  def prf_sha256(secret, label, seed)
     hmac_hash = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'), secret, label + seed)
     OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'), secret, hmac_hash + label + seed)
   end
@@ -153,10 +153,10 @@ class Metasploit3 < Msf::Auxiliary
               # message in plaintext.
               if fragment =~ /^\x0e\x00\x00\x00/
                 if header[2, 1] == "\x03"
-                  verify_data = PRF_SHA256('', 'server finished', OpenSSL::Digest::SHA256.digest(handshake_messages))
+                  verify_data = prf_sha256('', 'server finished', OpenSSL::Digest::SHA256.digest(handshake_messages))
                   verify_data = verify_data[0, 12]
                 else
-                  verify_data = PRF('', 'server finished', OpenSSL::Digest::MD5.digest(handshake_messages) + OpenSSL::Digest::SHA1.digest(handshake_messages))
+                  verify_data = prf('', 'server finished', OpenSSL::Digest::MD5.digest(handshake_messages) + OpenSSL::Digest::SHA1.digest(handshake_messages))
                   verify_data = verify_data[0, 12]
                 end
 
