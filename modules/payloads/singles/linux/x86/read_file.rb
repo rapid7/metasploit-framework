@@ -30,7 +30,7 @@ module Metasploit3
       ], self.class)
   end
 
-  def generate_stage
+  def generate_stage(opts={})
     fd = datastore['FD']
 
     payload_data =<<-EOS

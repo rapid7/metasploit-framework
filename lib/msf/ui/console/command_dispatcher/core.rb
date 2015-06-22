@@ -1772,13 +1772,15 @@ class Core
               rescue Rex::TimeoutError
                 print_error("Operation timed out")
               end
-            elsif session.type == 'shell'
+            elsif session.type == 'shell' || session.type == 'powershell'
               output = session.shell_command(cmd)
               print_line(output) if output
             end
           ensure
             # Restore timeout for each session
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
           # If the session isn't a meterpreter or shell type, it
           # could be a VNC session (which can't run commands) or
@@ -1799,7 +1801,9 @@ class Core
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1817,7 +1821,9 @@ class Core
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
       end
@@ -1835,7 +1841,9 @@ class Core
           begin
             session.detach
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
       end
@@ -1853,7 +1861,9 @@ class Core
           self.active_session = nil
           driver.input.reset_tab_completion if driver.input.supports_readline
         ensure
-          session.response_timeout = last_known_timeout if last_known_timeout
+          if session.respond_to?(:response_timeout) && last_known_timeout
+            session.response_timeout = last_known_timeout
+          end
         end
       end
     when 'scriptall'
@@ -1891,7 +1901,9 @@ class Core
               end
             end
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1917,7 +1929,9 @@ class Core
               next
             end
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
 

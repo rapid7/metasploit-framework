@@ -41,6 +41,10 @@ module Metasploit3
     @class_files = [ ]
   end
 
+  def include_send_uuid
+      false
+  end
+
   def config
     spawn = datastore["Spawn"] || 2
     c =  ""

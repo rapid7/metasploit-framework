@@ -20,6 +20,7 @@ Bundler.require(
 #
 
 # For compatibility with jquery-rails (and other engines that need action_view) in pro
+require 'action_controller/railtie'
 require 'action_view/railtie'
 
 #
@@ -36,6 +37,15 @@ module Metasploit
 
       config.paths['log']             = "#{Msf::Config.log_directory}/#{Rails.env}.log"
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
+
+      case Rails.env
+      when "development"
+        config.eager_load = false
+      when "test"
+        config.eager_load = false
+      when "production"
+        config.eager_load = true
+      end
     end
   end
 end

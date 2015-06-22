@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Apple OSX/iOS/Windows Safari Non-HTTPOnly Cookie Theft',
       'Description' => %q{
-        A vulnerability exists in versions of OSX/iOS/Windows Safari released
+        A vulnerability exists in versions of OSX, iOS, and Windows Safari released
         before April 8, 2015 that allows the non-HTTPOnly cookies of any
         domain to be stolen.
       },

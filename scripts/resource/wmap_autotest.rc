@@ -24,9 +24,9 @@ end
 
 #we look in the global datastore for a global VERBOSE option and use it
 if (framework.datastore['VERBOSE'] == "true")
-	verbose = 1 
+	verbose = 1
 else
-	verbose = 0 
+	verbose = 0
 end
 
 if (framework.plugins.to_s =~ /[Ww]map/)

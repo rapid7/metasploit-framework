@@ -4,10 +4,13 @@ require 'rex/parser/nessus_xml'
 
 module Msf
 
+  PLUGIN_NAME        = 'Nessus'
+  PLUGIN_DESCRIPTION = 'Nessus Bridge for Metasploit'
+
   class Plugin::Nessus < Msf::Plugin
 
     def name
-      "Nessus"
+      PLUGIN_NAME
     end
 
     def desc
@@ -16,9 +19,9 @@ module Msf
 
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
-      
+
       def name
-        "Nessus"
+        PLUGIN_NAME
       end
 
       def xindex
@@ -32,11 +35,11 @@ module Msf
       def msf_local
         "#{Msf::Config.local_directory}"
       end
-  
+
       def cmd_nessus_index
         nessus_index
       end
-         
+
       def commands
         {
           "nessus_connect" => "Connect to a nessus server: nconnect username:password@hostname:port <verify_ssl>",
@@ -78,7 +81,7 @@ module Msf
           "nessus_folder_list" => "List folders configured on the Nessus server",
           "nessus_scanner_list" => "List the configured scanners on the Nessus server",
           "nessus_family_list" => "List all the plugin families along with their corresponding family IDs and plugin count"
-        }  
+        }
       end
 
       def cmd_nessus_help(*args)
@@ -108,7 +111,7 @@ module Msf
         tbl << [ "nessus_db_import", "Import Nessus scan to the Metasploit connected database" ]
         tbl << [ "", ""]
         tbl << [ "Reports Commands", "" ]
-        tbl << [ "-----------------", "-----------------"]   
+        tbl << [ "-----------------", "-----------------"]
         tbl << [ "nessus_report_hosts", "Get list of hosts from a report" ]
         tbl << [ "nessus_report_vulns", "Get list of vulns from a report" ]
         tbl << [ "nessus_report_host_details", "Get detailed information from a report item on a host" ]
@@ -202,7 +205,7 @@ module Msf
         total = Time.now - start
         print_status("It has taken : #{total} seconds to build the exploits search index")
       end
-      
+
       def nessus_index
         if File.exist?("#{xindex}")
           #check if it's version line matches current version.
@@ -244,7 +247,7 @@ module Msf
             return
           end
         end
-        
+
         if args[0] == "-h"
           print_status("%redYou must do this before any other commands.%clr")
           print_status("Usage: ")
@@ -256,7 +259,7 @@ module Msf
           print_status("use a self signed certificate, therefore, users should use ssl_ignore.")
           return
         end
-        
+
         if !@token == ''
           print_error("You are already authenticated.  Call nessus_logout before authenticating again")
           return
@@ -265,7 +268,7 @@ module Msf
           ncusage
           return
         end
-        
+
         @user = @pass = @host = @port = @sslv = nil
         case args.length
         when 1,2
@@ -644,7 +647,7 @@ module Msf
         print_line("IP Address: #{details['info']['host-ip']}")
         print_line("Hostname: #{details['info']['host-name']}")
         print_line("Operating System: #{details['info']['operating-system']}")
-        print_line 
+        print_line
         print_status("Vulnerability information")
         details["vulnerabilities"].each { |vuln|
         tbl << [ vuln["plugin_name"], vuln["plugin_family"], vuln["severity"] ]
@@ -681,7 +684,7 @@ module Msf
             report = @n.report_download(scan_id, file_id)
             File.open("#{msf_local}/#{scan_id}-#{file_id}","w+") do |f|
             f.puts report
-            print_status("Report downloaded to #{msf_local} directory") 
+            print_status("Report downloaded to #{msf_local} directory")
             end
           else
             print_error("Only completed scans ca be downloaded")
@@ -796,7 +799,7 @@ module Msf
             'Status',
             'Folder'
           ])
-           
+
         list["scans"].each { |scan|
         if args[0] == "-r"
           if scan["status"] == "running"
@@ -1007,11 +1010,11 @@ module Msf
             end
           else
             print_error(export)
-          end  
+          end
         else
           print_error("Only completed scans could be used for import")
         end
-        
+
       end
 
       def is_scan_complete(scan_id)
@@ -1669,7 +1672,7 @@ module Msf
     def initialize(framework, opts)
       super
       add_console_dispatcher(ConsoleCommandDispatcher)
-      print_status("Nessus Bridge for Metasploit")
+      print_status(PLUGIN_DESCRIPTION)
       print_status("Type %bldnessus_help%clr for a command listing")
     end
 

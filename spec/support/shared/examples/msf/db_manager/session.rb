@@ -627,7 +627,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   )
                 end
 
-                it { expect(subject.routes).to eq(routes) }
+                it { expect(subject.routes.to_a).to eq(routes) }
               end
 
               context 'without :routes' do

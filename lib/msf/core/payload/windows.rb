@@ -24,6 +24,8 @@ module Msf::Payload::Windows
   require 'msf/core/payload/windows/dllinject'
   require 'msf/core/payload/windows/exec'
   require 'msf/core/payload/windows/loadlibrary'
+  require 'msf/core/payload/windows/meterpreter_loader'
+  require 'msf/core/payload/windows/x64/meterpreter_loader'
   require 'msf/core/payload/windows/reflectivedllinject'
   require 'msf/core/payload/windows/x64/reflectivedllinject'
 
@@ -32,10 +34,12 @@ module Msf::Payload::Windows
   #
   @@exit_types =
     {
+      nil       => 0,          # Default to nothing
+      ''        => 0,          # Default to nothing
       'seh'     => 0xEA320EFE, # SetUnhandledExceptionFilter
       'thread'  => 0x0A2A1DE0, # ExitThread
       'process' => 0x56A2B5F0, # ExitProcess
-      'none'    => 0x5DE2C5AA, # GetLastError
+      'none'    => 0x5DE2C5AA  # GetLastError
     }
 
   #
@@ -157,6 +161,14 @@ module Msf::Payload::Windows
   #
   def self.exit_types
     @@exit_types.dup
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
   end
 
 end

