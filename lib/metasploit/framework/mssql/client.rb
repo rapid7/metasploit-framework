@@ -1,4 +1,5 @@
 require 'metasploit/framework/tcp/client'
+require 'metasploit/framework/mssql/tdssslproxy'
 
 module Metasploit
   module Framework
@@ -50,9 +51,11 @@ module Metasploit
           connect
 
           # Send a prelogin packet and check that encryption is not enabled
-          if mssql_prelogin() != ENCRYPT_NOT_SUP
-            raise ::Rex::ConnectionError, "Encryption is not supported"
-          end
+          #if mssql_prelogin() != ENCRYPT_NOT_SUP
+          #  raise ::Rex::ConnectionError, "Encryption is not supported"
+          #end
+
+          mssql_prelogin()
 
           if windows_authentication
             idx = 0
@@ -199,7 +202,12 @@ module Metasploit
 
             pkt = pkt_hdr.pack("CCnnCC") + ntlmssp
 
-            resp = mssql_send_recv(pkt)
+            #resp = mssql_send_recv(pkt)
+            proxy = TDSSSLProxy.new(sock)
+            proxy.setup_ssl()
+            resp = mssql_ssl_send_recv(pkt,proxy)
+            proxy.cleanup
+            proxy = nil
 
 
             #SQL Server Authentification
@@ -282,8 +290,12 @@ module Metasploit
             # Packet header and total length including header
             pkt = "\x10\x01" + [pkt.length + 8].pack('n') + [0].pack('n') + [1].pack('C') + "\x00" + pkt
 
-            resp = mssql_send_recv(pkt)
-
+            #resp = mssql_send_recv(pkt)
+            proxy = TDSSSLProxy.new(sock)
+            proxy.setup_ssl()
+            resp = mssql_ssl_send_recv(pkt,proxy)
+            proxy.cleanup
+            proxy = nil
           end
 
           info = {:errors => []}
@@ -587,6 +599,7 @@ module Metasploit
 
           version = [0x55010008,0x0000].pack("Vv")
           encryption = ENCRYPT_NOT_SUP # off
+          encryption = ENCRYPT_ON
           instoptdata = "MSSQLServer\0"
 
           threadid =   "\0\0" + Rex::Text.rand_text(2)
@@ -684,6 +697,11 @@ module Metasploit
             end
           end
 
+          resp
+        end
+
+        def mssql_ssl_send_recv(req,tdsproxy,timeout=15,check_status=true)
+          resp = tdsproxy.send_recv(req)
           resp
         end
 
