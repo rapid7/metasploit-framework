@@ -19,7 +19,7 @@ module Metasploit
         def initialize(client, file_path='')
           raise ArgumentError, "Invalid Filepath" unless file_path.present?
           @file_path = file_path
-          @channel = client.priv.ntds_parse(file_path)
+          @channel = client.extapi.ntds.parse(file_path)
           @client = client
         end
 
@@ -61,7 +61,7 @@ module Metasploit
         end
 
         def reopen_channel
-          @channel = client.priv.ntds_parse(file_path)
+          @channel = client.extapi.ntds.parse(file_path)
         end
 
       end
