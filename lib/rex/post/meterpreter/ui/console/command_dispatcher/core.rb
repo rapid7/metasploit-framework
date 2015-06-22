@@ -739,7 +739,7 @@ class Console::CommandDispatcher::Core
         print_error("Failed to add transport, please check the parameters")
       end
     when 'remove'
-      if !opts[:transport].end_with?('_tcp') && opts[:uri].nil?
+      if opts[:transport] && !opts[:transport].end_with?('_tcp') && opts[:uri].nil?
         print_error("HTTP/S transport specified without session URI")
         return
       end
