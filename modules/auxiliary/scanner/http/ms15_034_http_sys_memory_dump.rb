@@ -179,7 +179,17 @@ class Metasploit3 < Msf::Auxiliary
       ranges = calc_ranges(content_length)
 
       uri = normalize_uri(target_uri.path)
-      cli = Rex::Proto::Http::Client.new(ip)
+      cli = Rex::Proto::Http::Client.new(
+        ip,
+        rport,
+        {},
+        datastore['SSL'],
+        datastore['SSLVersion'],
+        nil,
+        datastore['USERNAME'],
+        datastore['PASSWORD']
+      )
+      cli.set_config('agent' => datastore['UserAgent'])
       cli.connect
       req = cli.request_raw(
         'uri' => target_uri.path,
