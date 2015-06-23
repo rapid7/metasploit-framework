@@ -190,7 +190,8 @@ class Metasploit3 < Msf::Post
     # Assemble the options hash for creating the Metasploit::Credential::Login object
     login_data = {
       core: credential_core,
-      status: status
+      status: status,
+      access_level: 'Administrator',
     }
 
     login_data[:last_attempted_at] = DateTime.now unless (status == Metasploit::Model::Login::Status::UNTRIED)
