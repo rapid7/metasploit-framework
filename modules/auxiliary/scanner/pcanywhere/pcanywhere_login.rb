@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
         report successful logins.
       },
       'Author'      => ['theLightCosine'],
-      'References'     =>
+      'References'  =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
           port: datastore['RPORT'],
           service_name: 'pcanywhere',
           user: user,
-          password: pass,
+          password: pass
         )
         return if datastore['STOP_ON_SUCCESS']
         print_status('Waiting to Re-Negotiate Connection (this may take a minute)...')
@@ -90,7 +90,8 @@ class Metasploit3 < Msf::Auxiliary
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL
     }.merge(service_data)
 
     create_credential_login(login_data)
