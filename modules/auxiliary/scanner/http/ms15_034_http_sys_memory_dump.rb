@@ -189,7 +189,6 @@ class Metasploit3 < Msf::Auxiliary
         datastore['USERNAME'],
         datastore['PASSWORD']
       )
-      cli.set_config('agent' => datastore['UserAgent'])
       cli.connect
       req = cli.request_raw(
         'uri' => target_uri.path,
