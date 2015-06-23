@@ -1,17 +1,38 @@
 # -*- coding: binary -*-
 
 require 'openssl'
-require 'socket'
-require 'msf/core'
-require 'msf/core/exploit/mssql_commands'
+
+#
+# TDSSSLProxy:
+#
+# SQL Server uses the TDS protocol to transmit data between clients and
+# servers. Of course this sits on top of TCP.
+#
+# By default, the TDS payload is not encrypted. However, if "force
+# encryption" is set under the SQL Server protocol properties, it will
+# use SSL/TLS to encrypt the TDS data. Oddly, the entire TCP stream is
+# not encrypted (as is say for HTTPS), but instead a TDS header is
+# put on the front of the TLS packet. As a result, the full TLS/SSL
+# setup is done within a series of TDS payloads.
+#
+# This "proxy" basically creates a fake SSL endpoint (s2) from which it
+# can add/remove the TDS header as required. This is implemented as a
+# socket pair (think, a bidirectional pipe), where the other end is s1:
+#
+# sslsock <-> s1 <-> s2 <-> tdssock <-> target SQL Server.
+#
+# (tdssock is the reference to the "sock" from the scanner module)
+#
+# TO DO:
+#
+# This enables brute force of a SQL Server which requires encryption.
+# However, future updates will permit any read/write using
+# mssql_send_recv() to use crypto if required and transparently to
+# other MSF developers.
+#
+# Cheers, JH
 
 class TDSSSLProxy
-
-  @s1 = 0 # write ssl to this sock
-  @s2 = 0 # demux the unencrypted stream on this sock
-  @tdssock = 0
-  @sslsock = 0
-  @t1 = 0
 
   TYPE_TDS7_LOGIN = 16
   TYPE_PRE_LOGIN_MESSAGE = 18
@@ -19,7 +40,7 @@ class TDSSSLProxy
 
   def initialize(sock)
     @tdssock = sock
-    @s1,@s2 = Socket.pair(:UNIX,:STREAM,0)
+    @s1,@s2 = Rex::Socket.tcp_socket_pair()
   end
 
   def cleanup()
@@ -27,7 +48,7 @@ class TDSSSLProxy
   end
 
   def setup_ssl
-    @t1 = Thread.start { ssl_setup_thread(@s2)  }
+    @t1 = Thread.start { ssl_setup_thread() }
     ssl_context = OpenSSL::SSL::SSLContext.new(:TLSv1)
     @ssl_socket = OpenSSL::SSL::SSLSocket.new(@s1, ssl_context)
     @ssl_socket.connect
@@ -39,7 +60,7 @@ class TDSSSLProxy
     resp = ""
 
     while(not done)
-      head = @ssl_socket.sysread(8)
+      head = @ssl_socket.read(8)
       if !(head and head.length == 8)
         return false
       end
@@ -53,7 +74,7 @@ class TDSSSLProxy
       rlen = head[2,2].unpack('n')[0] - 8
 
       while(rlen > 0)
-        buff = @ssl_socket.sysread(rlen)
+        buff = @ssl_socket.read(rlen)
         return if not buff
         resp << buff
         rlen -= buff.length
@@ -63,25 +84,25 @@ class TDSSSLProxy
     resp
   end
 
-  def ssl_setup_thread(s_two)
+  def ssl_setup_thread()
 
     while true do
-      res = select([@tdssock,s_two],nil,nil)
+      res = select([@tdssock,@s2],nil,nil)
       for r in res[0]
 
         # response from SQL Server for client
         if r == @tdssock
           resp = @tdssock.recv(4096)
           if @ssl_socket.state[0,5] == "SSLOK"
-            s_two.send(resp,0)
+            @s2.send(resp,0)
           else
-            s_two.send(resp[8..-1],0)
+            @s2.send(resp[8..-1],0)
           end
         end
 
         # request from client for SQL Server
-        if r == s_two
-          resp = s_two.recv(4096)
+        if r == @s2
+          resp = @s2.recv(4096)
           # SSL negotiation completed - just send it on
           if @ssl_socket.state[0,5] == "SSLOK"
             @tdssock.send(resp,0)
@@ -89,7 +110,6 @@ class TDSSSLProxy
           else
             tds_pkt_len = 8 + resp.length
             pkt_hdr = ''
-            pkt  = ''
             pkt_hdr << [TYPE_PRE_LOGIN_MESSAGE,STATUS_END_OF_MESSAGE,tds_pkt_len,0x0000,0x00,0x00].pack('CCnnCC')
             pkt = pkt_hdr << resp
             @tdssock.send(pkt,0)
