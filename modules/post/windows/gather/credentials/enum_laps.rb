@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
         This module will recover the LAPS (Local Administrator Password Solution) passwords,
         configured in active directory. Note, only privileged users should be able to access
         these fields. Note: The local administrator account name is not stored in active directory,
-        by default credentials will be stored in the database against 'Administrator'.
+        so we assume that this will be 'Administrator' by default.
       },
       'License'      => MSF_LICENSE,
       'Author'       =>
@@ -33,10 +33,6 @@ class Metasploit3 < Msf::Post
         ],
       'Platform'     => [ 'win' ],
       'SessionTypes' => [ 'meterpreter' ],
-      'References'   =>
-        [
-          ['URL', 'http://test'],
-        ]
     ))
 
     register_options([
@@ -56,7 +52,6 @@ class Metasploit3 < Msf::Post
     begin
       q = query(search_filter, max_search, FIELDS)
     rescue RuntimeError => e
-      # Raised when the default naming context isn't specified as distinguished name
       print_error(e.message)
       return
     end
@@ -64,6 +59,7 @@ class Metasploit3 < Msf::Post
     if q.nil? || q[:results].empty?
       print_status('No results returned.')
     else
+      print_status('Parsing results...')
       results_table = parse_results(q[:results])
       print_line results_table.to_s
 
@@ -76,7 +72,7 @@ class Metasploit3 < Msf::Post
 
   # Takes the results of LDAP query, parses them into a table
   # and records and usernames as {Metasploit::Credential::Core}s in
-  # the database.
+  # the database if datastore option STORE_DB is true.
   #
   # @param [Array<Array<Hash>>] the LDAP query results to parse
   # @return [Rex::Ui::Text::Table] the table containing all the result data
