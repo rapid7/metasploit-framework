@@ -24,8 +24,6 @@ group :development do
   gem 'pry'
 end
 
-gem 'metasploit_data_models', git: 'git@github.com:rapid7/metasploit_data_models', branch:'bug/MSP-12834/crawler-choke-on-save'
-
 group :development, :test do
   # automatically include factories from spec/factories
   gem 'factory_girl_rails', '~> 4.5.0'
