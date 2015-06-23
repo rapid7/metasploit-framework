@@ -17,7 +17,6 @@ class JSONHashFile
     @hash = {}
     @last = 0
     ::FileUtils.mkdir_p(::File.dirname(path))
-    synced_update
   end
 
   def [](k)
