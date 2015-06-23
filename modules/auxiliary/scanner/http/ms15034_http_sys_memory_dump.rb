@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
     unless res
-      print_error("Error in send_request_raw")
+      vprint_error("Error in send_request_raw")
       return false
     end
 
@@ -151,14 +151,10 @@ class Metasploit3 < Msf::Auxiliary
       loop do
         sleep 2
 
-        begin
-          buf = sock.get_once(-1, 2)
-          if buf
-            resp << buf
-          else
-            break
-          end
-        rescue
+        buf = sock.get_once(-1, 2)
+        if buf
+          resp << buf
+        else
           break
         end
       end
