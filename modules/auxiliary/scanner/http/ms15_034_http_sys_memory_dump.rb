@@ -48,7 +48,6 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('VHOST')
   end
 
-
   def potential_static_files_uris
     uri = normalize_uri(target_uri.path)
 
