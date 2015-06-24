@@ -313,20 +313,10 @@ protected
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
 
-        blob = ""
-        blob << obj.generate_stage(
+        blob = obj.generate_stage(
           uuid: uuid,
           uri:  conn_id
         )
-
-        # This is a TLV packet - I guess somewhere there should be an API for building them
-        # in Metasploit :-)
-        packet = ""
-        packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"
-        packet << [url.length+8, 0x1000a].pack('NN')+url
-        packet << [12, 0x2000b, datastore['SessionExpirationTimeout'].to_i].pack('NNN')
-        packet << [12, 0x20019, datastore['SessionCommunicationTimeout'].to_i].pack('NNN')
-        blob << [packet.length+8, 0].pack('NN') + packet
 
         resp.body = blob
 
