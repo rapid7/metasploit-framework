@@ -29,8 +29,10 @@ module ReverseTcpComm
       comm = framework.sessions[rl_comm.to_i]
       raise(RuntimeError, "Reverse Listener Comm (Session #{rl_comm}) does not exist") unless comm
       raise(RuntimeError, "Reverse Listener Comm (Session #{rl_comm}) does not implement Rex::Socket::Comm") unless comm.is_a? ::Rex::Socket::Comm
-    else
+    when nil, ''
       comm = nil
+    else
+      raise(RuntimeError, "Reverse Listener Comm '#{rl_comm}' is invalid")
     end
 
     comm
