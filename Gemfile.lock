@@ -104,7 +104,7 @@ GEM
     i18n (0.7.0)
     jsobfu (0.2.1)
       rkelly-remix (= 0.0.6)
-    json (1.8.2)
+    json (1.8.3)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
     metasploit-concern (1.0.0)
