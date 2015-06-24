@@ -16,8 +16,6 @@ class JSONHashFile
     @lock = Mutex.new
     @hash = {}
     @last = 0
-    ::FileUtils.mkdir_p(::File.dirname(path))
-    synced_update
   end
 
   def [](k)
@@ -53,6 +51,7 @@ private
   # Save the file, but prevent thread & process contention
   def synced_update(&block)
     @lock.synchronize do
+      ::FileUtils.mkdir_p(::File.dirname(path))
       ::File.open(path, ::File::RDWR|::File::CREAT) do |fd|
         fd.flock(::File::LOCK_EX)
 
@@ -80,7 +79,6 @@ private
       end
     end
   end
-
 
   def parse_data(data)
     return {} if data.to_s.strip.length == 0
