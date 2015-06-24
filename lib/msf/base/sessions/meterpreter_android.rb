@@ -19,6 +19,13 @@ class Meterpreter_Java_Android < Msf::Sessions::Meterpreter_Java_Java
     self.platform = 'java/android'
   end
 
+  def load_android
+    original = console.disable_output
+    console.disable_output = true
+    console.run_single('load android')
+    console.disable_output = original
+  end
+
 end
 
 end

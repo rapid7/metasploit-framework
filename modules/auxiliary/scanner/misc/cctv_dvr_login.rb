@@ -130,6 +130,32 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'cctv_dvr',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_login(user=nil, pass=nil)
     vprint_status("#{rhost} - Trying username:'#{user}' with password:'#{pass}'")
 
@@ -179,16 +205,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Report valid credentials under the CCTV DVR admin port (5920/TCP).
       # This is a proprietary protocol.
-      report_auth_info(
-        :host         => rhost,
-        :port         => rport,
-        :sname        => 'cctv_dvr',
-        :user         => user,
-        :pass         => pass,
-        :source_type  => "user_supplied",
-        :duplicate_ok => false,
-        :active       => true
-      )
+      report_cred(ip: rhost, port: rport, user:user, password: pass)
 
       @valid_hosts << rhost
       return :next_user
