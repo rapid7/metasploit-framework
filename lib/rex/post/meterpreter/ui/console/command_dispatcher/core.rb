@@ -818,6 +818,9 @@ class Console::CommandDispatcher::Core
 
     print_status("Migration completed successfully.")
 
+    # Update session info (we may have a new username)
+    client.update_session_info
+
     unless existing_relays.empty?
       print_status("Recreating TCP relay(s)...")
       existing_relays.each do |r|
