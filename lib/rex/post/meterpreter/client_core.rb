@@ -321,8 +321,7 @@ class ClientCore < Extension
     # Normalise the format of the incoming machine id so that it's consistent
     # regardless of case and leading/trailing spaces. This means that the
     # individual meterpreters don't have to care
-    mid.downcase!.strip! if mid
-    return Rex::Text.md5(mid)
+    Rex::Text.md5(mid.to_s.downcase.strip)
   end
 
   def transport_remove(opts={})
