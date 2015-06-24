@@ -220,7 +220,7 @@ module Metasploit
           Result.new(result_opts)
         end
 
-        #
+
         # Extract the target's glassfish version from the HTTP Server Sun Java System Application Server 9.1header
         # (ex: Sun Java System Application Server 9.x)
         #
