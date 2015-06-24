@@ -137,6 +137,33 @@ module Metasploit
         end
 
 
+        # Tries to login to Glassfish version 9
+        #
+        # @param credential [Metasploit::Framework::Credential] The credential object
+        # @return [Hash]
+        #   * :status [Metasploit::Model::Login::Status]
+        #   * :proof [String] the HTTP response body
+        def try_glassfish_9(credential)
+          res = try_login(credential)
+          if res && res.code == 302
+            opts = {
+              'uri'     => '/applications/upload.jsf',
+              'method'  => 'GET',
+              'headers' => {
+                'Cookie'  => "JSESSIONID=#{self.jsession}"
+              }
+            }
+
+            res = send_request(opts)
+            if res && res.code.to_i == 302 && res.headers['Location'].to_s !~ /loginError\.jsf$/
+              return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
+            end
+          end
+
+          {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.body}
+        end
+
+
         # Tries to login to Glassfish version 3 or 4 (as of now it's the latest)
         #
         # @param (see #try_glassfish_2)
@@ -176,12 +203,15 @@ module Metasploit
 
           begin
             case self.version
-            when /^[29]\.x$/
+            when /^2\.x$/
               status = try_glassfish_2(credential)
               result_opts.merge!(status)
             when /^[34]\./
               status = try_glassfish_3(credential)
               result_opts.merge!(status)
+            when /^9\.x$/
+              status = try_glassfish_9(credential)
+              result_opts.merge!(status) 
             end
           rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
@@ -191,7 +221,7 @@ module Metasploit
         end
 
         #
-        # Extract the target's glassfish version from the HTTP Server header
+        # Extract the target's glassfish version from the HTTP Server Sun Java System Application Server 9.1header
         # (ex: Sun Java System Application Server 9.x)
         #
         # @param banner [String] `Server` header from a Glassfish service response
