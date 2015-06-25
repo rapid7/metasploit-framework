@@ -8,5 +8,4 @@ The connect URL must be unique between sessions in order for the sessions to fun
 
 Once the Meterpreter connect URL is requested, the actual dispatch loop starts to run. The Meterpreter payload will make repeated requests with a HTTP body consistent of "RECV". Any queued commands will be returned to the payload, which will process them individually, and return the results in a following request. If no commands were returned as a result of a "RECV" request, the payload will double the interval until the next request, with a maximum that is generally about 10 seconds.
 
-
-
+Additional details about the configuration of the HTTP transport can be found on the [[transport control|Meterpreter Transport Control]] wiki page.
