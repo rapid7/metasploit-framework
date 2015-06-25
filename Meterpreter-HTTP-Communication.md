@@ -6,5 +6,7 @@ The HTTP handler within Metasploit will receive the request for the initial URL,
 
 The connect URL must be unique between sessions in order for the sessions to function properly.
 
-Once the Meterpreter connect URL is requested, the actual dispatch loop starts to run. The Meterpreter payload will make repeated requests with a HTTP body consistent of "RECV". Any queued commands will be returned to the payload, which will process them individually, and return the results in a following request.
+Once the Meterpreter connect URL is requested, the actual dispatch loop starts to run. The Meterpreter payload will make repeated requests with a HTTP body consistent of "RECV". Any queued commands will be returned to the payload, which will process them individually, and return the results in a following request. If no commands were returned as a result of a "RECV" request, the payload will double the interval until the next request, with a maximum that is generally about 10 seconds.
+
+
 
