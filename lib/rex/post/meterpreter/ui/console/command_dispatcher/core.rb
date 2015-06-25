@@ -80,10 +80,10 @@ class Console::CommandDispatcher::Core
     if client.platform =~ /win/ || client.platform =~ /linux/
       # Migration only supported on windows and linux
       c["migrate"] = "Migrate the server to another process"
+    end
 
-
+    if client.platform =~ /win/ || client.platform =~ /linux/ || client.platform =~ /java/
       # Yet to implement transport hopping for other meterpreters.
-      # Works for posix and native windows though.
       c["transport"] = "Change the current transport mechanism"
 
       # sleep functionality relies on the transport features, so only
