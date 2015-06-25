@@ -9,5 +9,6 @@ Additional documentation about Meterpreter can be found on this wiki:
 * [[Meterpreter Sleep Control]]
 * [[Meterpreter Stageless Mode]]
 * [[Meterpreter Unicode Support]]
+* [[Meterpreter's Configuration]]
 
 A wishlist of features is maintained at the [[Meterpreter Wishlist]] page.
