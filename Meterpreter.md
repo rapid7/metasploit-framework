@@ -4,10 +4,10 @@ Meterpreter development occurs in a [separate repository](https://github.com/rap
 
 Additional documentation about Meterpreter can be found on this wiki:
 * [[Meterpreter Reliable Network Communication]]
+* [[Meterpreter Transport Control]]
+* [[Meterpreter Timeout Control]]
 * [[Meterpreter Sleep Control]]
 * [[Meterpreter Stageless Mode]]
-* [[Meterpreter Timeout Control]]
-* [[Meterpreter Transport Control]]
 * [[Meterpreter Unicode Support]]
 
 A wishlist of features is maintained at the [[Meterpreter Wishlist]] page.
