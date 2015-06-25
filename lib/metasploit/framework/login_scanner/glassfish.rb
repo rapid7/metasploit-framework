@@ -14,7 +14,7 @@ module Metasploit
 
         # @!attribute [r] version
         #   @return [String] Glassfish version
-        attr_reader :version
+        attr_accessor :version
 
         # @!attribute jsession
         #   @return [String] Cookie session
