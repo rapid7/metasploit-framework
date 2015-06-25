@@ -128,7 +128,7 @@ ufw allow ssh && service ssh start # If you want to shell in from elsewhere
 ```bash
 useradd -m msfdev &&
 PASS=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c8`;
-echo ** RECORD THIS: Your msfdev Kali user password is $PASS ** &&
+echo ++ RECORD THIS: Your msfdev Kali user password is $PASS ++ &&
 echo "msfdev:$PASS" | chpasswd &&
 unset PASS &&
 usermod -a -G sudo msfdev &&
@@ -296,7 +296,7 @@ Host github
 EOF
 
 PASS=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c8` &&
-echo ** RECORD THIS: Your SSH key password is $PASS ** &&
+echo ++ RECORD THIS: Your SSH key password is $PASS ++ &&
 ssh-keygen -t rsa -C "YOUR_USERNAME_FOR_EMAIL" -f $HOME/.ssh/id_rsa.github -N $PASS &&
 eval "$(ssh-agent -s)" &&
 ssh-add $HOME/.ssh/id_rsa.github &&
@@ -860,7 +860,7 @@ service ssh start
 ```bash
 useradd -m msfdev &&
 PASS=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c8`;
-echo ** RECORD THIS: Your msfdev Kali user password is $PASS ** &&
+echo ++ RECORD THIS: Your msfdev Kali user password is $PASS ++ &&
 echo "msfdev:$PASS" | chpasswd &&
 unset PASS &&
 usermod -a -G sudo msfdev &&
@@ -915,7 +915,7 @@ Host github
 EOF
 
 PASS=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c8` &&
-echo ** RECORD THIS: Your SSH key password is $PASS ** &&
+echo ++ RECORD THIS: Your SSH key password is $PASS ++ &&
 ssh-keygen -t rsa -C "YOUR_USERNAME_FOR_EMAIL" -f $HOME/.ssh/id_rsa.github -N $PASS &&
 eval "$(ssh-agent -s)" &&
 ssh-add $HOME/.ssh/id_rsa.github &&
