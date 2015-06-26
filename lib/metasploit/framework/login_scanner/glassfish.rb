@@ -145,19 +145,9 @@ module Metasploit
         #   * :proof [String] the HTTP response body
         def try_glassfish_9(credential)
           res = try_login(credential)
-          if res && res.code == 302
-            opts = {
-              'uri'     => '/applications/upload.jsf',
-              'method'  => 'GET',
-              'headers' => {
-                'Cookie'  => "JSESSIONID=#{self.jsession}"
-              }
-            }
 
-            res = send_request(opts)
-            if res && res.code.to_i == 302 && res.headers['Location'].to_s !~ /loginError\.jsf$/
-              return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
-            end
+          if res && res.code.to_i == 302 && res.headers['Location'].to_s !~ /loginError\.jsf$/
+            return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
           end
 
           {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.body}
