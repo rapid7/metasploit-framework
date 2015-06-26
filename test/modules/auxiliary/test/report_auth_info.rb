@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => "report_cred test",
+      'Name'           => "report_cred Test",
       'Description'    => %q{
-      	This module will test every auxiliary module's report_cred method
+        This module will test every auxiliary module's report_cred method
       },
       'Author'         => [ 'sinn3r' ],
       'License'        => MSF_LICENSE
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def test_asterisk_login
-  	mod = framework.auxiliary.create('voip/asterisk_login')
+    mod = framework.auxiliary.create('voip/asterisk_login')
     mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
   end
 
