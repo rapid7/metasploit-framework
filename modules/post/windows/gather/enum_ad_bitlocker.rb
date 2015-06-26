@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,18 +14,18 @@ class Metasploit3 < Msf::Post
   def initialize(info = {})
     super(update_info(info,
       'Name'         => 'Windows Gather Active Directory BitLocker Recovery',
-      'Description'  => %(
-          This module will enumerate BitLocker recovery passwords in the default AD
-          directory. Requires Domain Admin or other delegated privileges.
-      ),
+      'Description'  => %q{
+        This module will enumerate BitLocker recovery passwords in the default AD
+        directory. Requires Domain Admin or other delegated privileges.
+      },
       'License'      => MSF_LICENSE,
-      'Author'       => [ 'Ben Campbell <ben.campbell[at]mwrinfosecurity.com>' ],
-      'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ],
+      'Author'       => ['Ben Campbell <ben.campbell[at]mwrinfosecurity.com>'],
+      'Platform'     => ['win'],
+      'SessionTypes' => ['meterpreter'],
       'References'   =>
-      [
-        ['URL', 'https://technet.microsoft.com/en-us/library/cc771778%28v=ws.10%29.aspx']
-      ]
+        [
+          ['URL', 'https://technet.microsoft.com/en-us/library/cc771778%28v=ws.10%29.aspx']
+        ]
     ))
 
     register_options([
@@ -66,6 +66,7 @@ class Metasploit3 < Msf::Post
     end
 
     print_line results_table.to_s
+
     if datastore['STORE_LOOT']
       stored_path = store_loot('bitlocker.recovery', 'text/plain', session, results_table.to_csv)
       print_status("Results saved to: #{stored_path}")
