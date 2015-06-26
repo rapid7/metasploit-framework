@@ -1,11 +1,11 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/channels/pool'
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meeterpeter/channels/pool'
+require 'rex/post/meeterpeter/extensions/stdapi/tlv'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Channels
 module Pools
 
@@ -15,10 +15,10 @@ module Pools
 # ----
 #
 # This class represents a channel that is associated with a file
-# on the remote half of the meterpreter connection.
+# on the remote half of the meeterpeter connection.
 #
 ###
-class File < Rex::Post::Meterpreter::Channels::Pool
+class File < Rex::Post::meeterpeter::Channels::Pool
 
   ##
   #
@@ -35,11 +35,11 @@ class File < Rex::Post::Meterpreter::Channels::Pool
         self, CHANNEL_FLAG_SYNCHRONOUS,
         [
           {
-            'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH,
+            'type'  => Rex::Post::meeterpeter::Extensions::Stdapi::TLV_TYPE_FILE_PATH,
             'value' => client.unicode_filter_decode( name )
           },
           {
-            'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_MODE,
+            'type'  => Rex::Post::meeterpeter::Extensions::Stdapi::TLV_TYPE_FILE_MODE,
             'value' => mode + "b"
           },
         ])

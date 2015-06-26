@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Railgun
@@ -18,6 +18,6 @@ end # PlatformUtil
 end # Railgun
 end # Stdapi
 end # Extensions
-end # Meterpreter
+end # meeterpeter
 end # Post
 end # Rex

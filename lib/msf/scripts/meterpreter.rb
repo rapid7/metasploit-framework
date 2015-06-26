@@ -1,13 +1,13 @@
 # -*- coding: binary -*-
-require 'msf/scripts/meterpreter/common'
-require 'msf/scripts/meterpreter/registry'
-require 'msf/scripts/meterpreter/file'
-require 'msf/scripts/meterpreter/services'
-require 'msf/scripts/meterpreter/accounts'
+require 'msf/scripts/meeterpeter/common'
+require 'msf/scripts/meeterpeter/registry'
+require 'msf/scripts/meeterpeter/file'
+require 'msf/scripts/meeterpeter/services'
+require 'msf/scripts/meeterpeter/accounts'
 
 module Msf
 module Scripts
-module Meterpreter
+module meeterpeter
 
 end
 end

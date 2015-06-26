@@ -12,7 +12,7 @@ module Socket
 # classes.  Comm classes are used to instantiate objects that are tied to
 # remote network entities.  For example, the Local Comm class is used to
 # building network connections directly from the local machine whereas, for
-# instance, a Meterpreter Comm would build a local socket pair that is
+# instance, a meeterpeter Comm would build a local socket pair that is
 # associated with a connection established by a remote entity.  This can be
 # seen as a uniform way of communicating with hosts through arbitrary
 # channels.

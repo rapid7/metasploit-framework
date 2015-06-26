@@ -10,7 +10,7 @@ module Handler
 ###
 #
 # This handler implements the HTTP hop tunneling interface.
-# It acts like an HTTP server to the meterpreter packet dispatcher but
+# It acts like an HTTP server to the meeterpeter packet dispatcher but
 # as an HTTP client to actually send and receive the data from the hop.
 #
 ###

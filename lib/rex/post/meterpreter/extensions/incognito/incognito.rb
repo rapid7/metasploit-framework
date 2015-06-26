@@ -1,16 +1,16 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/incognito/tlv'
+require 'rex/post/meeterpeter/extensions/incognito/tlv'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Incognito
 
 ###
 #
-# This meterpreter extensions a privilege escalation interface that is capable
+# This meeterpeter extensions a privilege escalation interface that is capable
 # of doing things like dumping password hashes and performing local
 # exploitation.
 #

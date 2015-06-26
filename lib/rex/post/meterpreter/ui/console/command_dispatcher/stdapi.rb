@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -13,11 +13,11 @@ module Ui
 ###
 class Console::CommandDispatcher::Stdapi
 
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/webcam'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/stdapi/fs'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/stdapi/net'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/stdapi/sys'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/stdapi/ui'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/stdapi/webcam'
 
   Klass = Console::CommandDispatcher::Stdapi
 

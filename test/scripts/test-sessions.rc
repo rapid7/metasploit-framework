@@ -11,8 +11,8 @@ def run_for_session(modname, id)
 end
 
 framework.sessions.each do |id, s|
-  if s.type == 'meterpreter'
-    run_for_session("post/test/meterpreter", id)
+  if s.type == 'meeterpeter'
+    run_for_session("post/test/meeterpeter", id)
 
     if s.sys.config.sysinfo["OS"] =~ /win/in
       run_for_session("post/test/registry", id)

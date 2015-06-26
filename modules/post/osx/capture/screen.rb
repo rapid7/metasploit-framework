@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Post
         cmd_exec("#{exe_path} -C -t #{file_type} #{file}")
         data = read_file(file)
         file_rm(file)
-      rescue ::Rex::Post::Meterpreter::RequestError => e
+      rescue ::Rex::Post::meeterpeter::RequestError => e
         print_error("Error taking the screenshot")
         vprint_error("#{e.class} #{e} #{e.backtrace}")
         return

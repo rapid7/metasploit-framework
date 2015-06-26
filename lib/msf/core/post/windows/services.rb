@@ -232,7 +232,7 @@ module Services
     if load_extapi
       begin
         return session.extapi.service.query(name)
-      rescue Rex::Post::Meterpreter::RequestError => e
+      rescue Rex::Post::meeterpeter::RequestError => e
         vprint_error("Request Error #{e} falling back to registry technique")
       end
     end
@@ -275,7 +275,7 @@ module Services
       begin
         ret = service_change_config(name, {:starttype => startup_number}, server)
         return (ret == Error::SUCCESS)
-      rescue Rex::Post::Meterpreter::RequestError => e
+      rescue Rex::Post::meeterpeter::RequestError => e
         if server
           # Cant do remote registry changes at present
           return false

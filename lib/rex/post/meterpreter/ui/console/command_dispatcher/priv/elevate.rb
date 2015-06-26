@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -46,7 +46,7 @@ class Console::CommandDispatcher::Priv::Elevate
 
 
   #
-  # Attempt to elevate the meterpreter to that of local system.
+  # Attempt to elevate the meeterpeter to that of local system.
   #
   def cmd_getsystem( *args )
 

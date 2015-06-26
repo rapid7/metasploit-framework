@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
           [ 'URL', 'http://www.pentestgeek.com/2013/01/16/hard-coded-encryption-keys-and-more-wordpress-fun/' ],
           [ 'URL', 'https://github.com/pasv/Testing/blob/master/Razer_decode.py' ]
         ],
-      'SessionTypes'   => [ 'meterpreter' ],
+      'SessionTypes'   => [ 'meeterpeter' ],
       'Platform'      => [ 'win' ]
     ))
   end

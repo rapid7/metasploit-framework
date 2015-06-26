@@ -1,14 +1,14 @@
 require 'spec_helper'
-require 'msf/base/sessions/meterpreter'
-require 'rex/post/meterpreter/extensions/stdapi/net/interface'
-require 'rex/post/meterpreter/extensions/stdapi/net/route'
+require 'msf/base/sessions/meeterpeter'
+require 'rex/post/meeterpeter/extensions/stdapi/net/interface'
+require 'rex/post/meeterpeter/extensions/stdapi/net/route'
 
-describe Msf::Sessions::Meterpreter do
+describe Msf::Sessions::meeterpeter do
   before do
-    allow_any_instance_of(Rex::Post::Meterpreter::PacketDispatcher).to receive(:monitor_socket)
+    allow_any_instance_of(Rex::Post::meeterpeter::PacketDispatcher).to receive(:monitor_socket)
   end
 
-  subject(:meterpreter) { described_class.new(StringIO.new(""), skip_ssl: true) }
+  subject(:meeterpeter) { described_class.new(StringIO.new(""), skip_ssl: true) }
 
   let(:v6_gateway) { "2607:f8b0:4004:0802::1014" }
   let(:v4_gateway) { "192.168.3.1" }
@@ -17,12 +17,12 @@ describe Msf::Sessions::Meterpreter do
 
   let(:routes) do
     [
-      Rex::Post::Meterpreter::Extensions::Stdapi::Net::Route.new(
+      Rex::Post::meeterpeter::Extensions::Stdapi::Net::Route.new(
         IPAddr.new("0.0.0.0").hton, # Subnet
         IPAddr.new("0.0.0.0").hton, # Netmask
         IPAddr.new("192.168.3.1").hton  # Gateway
       ),
-      Rex::Post::Meterpreter::Extensions::Stdapi::Net::Route.new(
+      Rex::Post::meeterpeter::Extensions::Stdapi::Net::Route.new(
         IPAddr.new("::").hton, # Subnet
         IPAddr.new("::").hton, # Netmask
         IPAddr.new(v6_gateway).hton  # Gateway
@@ -44,7 +44,7 @@ describe Msf::Sessions::Meterpreter do
     let(:interfaces) do
       ifaces = []
       interface_config.each_with_index { |iface_hash, idx|
-        ifaces << Rex::Post::Meterpreter::Extensions::Stdapi::Net::Interface.new(
+        ifaces << Rex::Post::meeterpeter::Extensions::Stdapi::Net::Interface.new(
           index: idx,
           mac_addr: "00:11:22:33:44:%02x"%idx,
           mac_name: "eth0",

@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => ['Jon Hart <jon_hart[at]rapid7.com>'],
       'Platform'      => %w(bsd linux osx unix),
-      'SessionTypes'  => %w(shell meterpreter)
+      'SessionTypes'  => %w(shell meeterpeter)
     ))
   end
 

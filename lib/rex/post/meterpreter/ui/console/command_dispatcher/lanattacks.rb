@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -13,8 +13,8 @@ module Ui
 ###
 class Console::CommandDispatcher::Lanattacks
 
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/lanattacks/dhcp'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/lanattacks/tftp'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/lanattacks/dhcp'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/lanattacks/tftp'
 
   Klass = Console::CommandDispatcher::Lanattacks
 

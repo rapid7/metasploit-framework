@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         => [ 'Marcus J. Carey <mjc[at]threatagent.com>'],
       'Platform'       => [ 'win' ],
-      'SessionTypes'   => [ 'meterpreter' ],
+      'SessionTypes'   => [ 'meeterpeter' ],
       'References'     =>
         [
           [ 'CVE', '2011-3402'  ],

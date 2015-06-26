@@ -5,7 +5,7 @@ require 'thread'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 
 ###
 #

@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 #
-# Meterpreter script to deploy & run the "plink" commandline ssh-client
+# meeterpeter script to deploy & run the "plink" commandline ssh-client
 # supports only MS-Windows-2k/XP/Vista Hosts
 #
 # Version 1.0
@@ -59,10 +59,10 @@ def usage
   raise Rex::Script::Completed
 end
 
-# Wrong Meterpreter Version Message Function
+# Wrong meeterpeter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-  print_error("#{meter} version of Meterpreter is not supported with this Script!")
+  print_error("#{meter} version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 #
@@ -306,7 +306,7 @@ downloaded = nil
   end
 }
 
-# Check for Version of Meterpreter
+# Check for Version of meeterpeter
 wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 
 

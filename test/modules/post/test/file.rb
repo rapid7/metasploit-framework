@@ -21,12 +21,12 @@ class Metasploit4 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'egypt'],
         'Platform'      => [ 'windows', 'linux', 'java' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+        'SessionTypes'  => [ 'meeterpeter', 'shell' ]
       ))
 
     register_options(
       [
-        OptString.new("BaseFileName" , [true, "File name to create", "meterpreter-test"])
+        OptString.new("BaseFileName" , [true, "File name to create", "meeterpeter-test"])
       ], self.class)
   end
 
@@ -111,19 +111,19 @@ class Metasploit4 < Msf::Post
 
     it "should move files" do
         # Make sure we don't have leftovers from a previous run
-        file_rm("meterpreter-test") rescue nil
-        file_rm("meterpreter-test-moved") rescue nil
+        file_rm("meeterpeter-test") rescue nil
+        file_rm("meeterpeter-test-moved") rescue nil
 
         # touch a new file
-        write_file("meterpreter-test", "")
+        write_file("meeterpeter-test", "")
 
-        rename_file("meterpreter-test", "meterpreter-test-moved")
-        res &&= exist?("meterpreter-test-moved")
-        res &&= !exist?("meterpreter-test")
+        rename_file("meeterpeter-test", "meeterpeter-test-moved")
+        res &&= exist?("meeterpeter-test-moved")
+        res &&= !exist?("meeterpeter-test")
 
         # clean up
-        file_rm("meterpreter-test") rescue nil
-        file_rm("meterpreter-test-moved") rescue nil
+        file_rm("meeterpeter-test") rescue nil
+        file_rm("meeterpeter-test-moved") rescue nil
     end
 
   end

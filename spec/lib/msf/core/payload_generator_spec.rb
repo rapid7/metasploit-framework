@@ -49,10 +49,10 @@ describe Msf::PayloadGenerator do
     load_and_create_module(
         ancestor_reference_names: %w{
           stagers/windows/reverse_tcp
-          stages/windows/meterpreter
+          stages/windows/meeterpeter
         },
         module_type: 'payload',
-        reference_name: 'windows/meterpreter/reverse_tcp'
+        reference_name: 'windows/meeterpeter/reverse_tcp'
     )
   }
   let(:shellcode) { "\x50\x51\x58\x59" }
@@ -118,7 +118,7 @@ describe Msf::PayloadGenerator do
     end
 
     context 'when given an invalid payload' do
-      let(:payload_reference_name) { "beos/meterpreter/reverse_gopher" }
+      let(:payload_reference_name) { "beos/meeterpeter/reverse_gopher" }
 
       it { should raise_error(ArgumentError, "Invalid Payload Selected") }
     end
@@ -507,10 +507,10 @@ describe Msf::PayloadGenerator do
           load_and_create_module(
               ancestor_reference_names: %w{
                 stagers/java/reverse_tcp
-                stages/java/meterpreter
+                stages/java/meeterpeter
               },
               module_type: 'payload',
-              reference_name: 'java/meterpreter/reverse_tcp'
+              reference_name: 'java/meeterpeter/reverse_tcp'
           )
         }
 
@@ -535,10 +535,10 @@ describe Msf::PayloadGenerator do
           load_and_create_module(
               ancestor_reference_names: %w{
                 stagers/java/reverse_tcp
-                stages/java/meterpreter
+                stages/java/meeterpeter
               },
               module_type: 'payload',
-              reference_name: 'java/meterpreter/reverse_tcp'
+              reference_name: 'java/meeterpeter/reverse_tcp'
           )
         }
 
@@ -598,10 +598,10 @@ describe Msf::PayloadGenerator do
         load_and_create_module(
             ancestor_reference_names: %w{
                 stagers/java/reverse_tcp
-                stages/java/meterpreter
+                stages/java/meeterpeter
               },
             module_type: 'payload',
-            reference_name: 'java/meterpreter/reverse_tcp'
+            reference_name: 'java/meeterpeter/reverse_tcp'
         )
       }
 

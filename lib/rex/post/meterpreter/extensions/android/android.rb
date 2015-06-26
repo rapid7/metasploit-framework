@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
-require 'rex/post/meterpreter/extensions/android/tlv'
-require 'rex/post/meterpreter/packet'
-require 'rex/post/meterpreter/client'
-require 'rex/post/meterpreter/channels/pools/stream_pool'
+require 'rex/post/meeterpeter/extensions/android/tlv'
+require 'rex/post/meeterpeter/packet'
+require 'rex/post/meeterpeter/client'
+require 'rex/post/meeterpeter/channels/pools/stream_pool'
 
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Android
 

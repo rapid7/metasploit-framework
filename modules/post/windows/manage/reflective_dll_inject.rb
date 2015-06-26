@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       'License'      => MSF_LICENSE,
       'Author'       => [ 'Ben Campbell'],
       'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ],
+      'SessionTypes' => [ 'meeterpeter' ],
       'References'   =>
         [
           [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ]
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    # syinfo is only on meterpreter sessions
+    # syinfo is only on meeterpeter sessions
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 
     pid = datastore['PID'].to_i

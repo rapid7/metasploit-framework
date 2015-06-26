@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/inbound_packet_handler'
+require 'rex/post/meeterpeter/inbound_packet_handler'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 
 #
 # The various types of channels
@@ -49,7 +49,7 @@ class Channel
   # Class modifications to support global channel message
   # dispatching without having to register a per-instance handler
   class << self
-    include Rex::Post::Meterpreter::InboundPacketHandler
+    include Rex::Post::meeterpeter::InboundPacketHandler
 
     # Class request handler for all channels that dispatches requests
     # to the appropriate class instance's DIO handler
@@ -426,7 +426,7 @@ class Channel
   #
   attr_accessor :params
   #
-  # The associated meterpreter client instance
+  # The associated meeterpeter client instance
   #
   attr_accessor :client
 protected

@@ -327,7 +327,7 @@ class Encoder < Module
         # Append here (String#<<) instead of creating a new string with
         # String#+ because the allocations kill performance with large
         # buffers. This isn't usually noticeable on most shellcode, but
-        # when doing stage encoding on meterpreter (~750k bytes) the
+        # when doing stage encoding on meeterpeter (~750k bytes) the
         # difference is 2 orders of magnitude.
         state.encoded << encode_block(state,
             block + ("\x00" * (decoder_block_size - block.length)))

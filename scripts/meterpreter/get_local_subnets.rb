@@ -1,13 +1,13 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
-# Meterpreter script that display local subnets
+# meeterpeter script that display local subnets
 # Provided by Nicob <nicob [at] nicob.net>
-# Ripped from http://blog.metasploit.com/2006/10/meterpreter-scripts-and-msrt.html
+# Ripped from http://blog.metasploit.com/2006/10/meeterpeter-scripts-and-msrt.html
 
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ]

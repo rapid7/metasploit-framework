@@ -1,11 +1,11 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
-# Meterpreter script that kills Mcafee VirusScan Enterprise v8.7.0i+ processes in magic
+# meeterpeter script that kills Mcafee VirusScan Enterprise v8.7.0i+ processes in magic
 # order which keeps VirusScan icon visible at system tray without disabled sign on it.
 # Additionally it lets you disable On Access Scanner from registry, upload your detectable
 # binary to TEMP folder, add that folder to the VirusScan exclusion list and CurrentVersion\Run

@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
         'Platform'      => %w{ linux },
-        'SessionTypes'  => [ 'meterpreter', 'shell']
+        'SessionTypes'  => [ 'meeterpeter', 'shell']
       ))
   end
 

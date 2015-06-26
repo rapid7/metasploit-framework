@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -31,7 +31,7 @@ logs = ::File.join(Msf::Config.log_directory,'scripts', 'getgui')
   "-f" => [ true,  "Forward RDP Connection." ]
 )
 def usage
-  print_line("Windows Remote Desktop Enabler Meterpreter Script")
+  print_line("Windows Remote Desktop Enabler meeterpeter Script")
   print_line("Usage: getgui -u <username> -p <password>")
   print_line("Or:    getgui -e")
   print(@@exec_opts.usage)
@@ -123,7 +123,7 @@ end
 
 
 def message
-  print_status "Windows Remote Desktop Configuration Meterpreter Script by Darkoperator"
+  print_status "Windows Remote Desktop Configuration meeterpeter Script by Darkoperator"
   print_status "Carlos Perez carlos_perez@darkoperator.com"
 end
 ################## MAIN ##################
@@ -185,6 +185,6 @@ if client.platform =~ /win32|win64/
     usage
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

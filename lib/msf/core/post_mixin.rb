@@ -35,13 +35,13 @@ module Msf::PostMixin
 
     super
 
-    check_for_session_readiness() if session.type == "meterpreter"
+    check_for_session_readiness() if session.type == "meeterpeter"
 
     @session.init_ui(self.user_input, self.user_output)
     @sysinfo = nil
   end
 
-  # Meterpreter sometimes needs a little bit of extra time to
+  # meeterpeter sometimes needs a little bit of extra time to
   # actually be responsive for post modules. Default tries
   # and retries for 5 seconds.
   def check_for_session_readiness(tries=6)
@@ -85,7 +85,7 @@ module Msf::PostMixin
   alias :client :session
 
   #
-  # Cached sysinfo, returns nil for non-meterpreter sessions
+  # Cached sysinfo, returns nil for non-meeterpeter sessions
   #
   # @return [Hash,nil]
   def sysinfo

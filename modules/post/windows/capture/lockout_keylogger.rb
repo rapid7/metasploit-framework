@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       'License'      => MSF_LICENSE,
       'Author'       => [ 'mubix', 'cg' ],
       'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter'],
+      'SessionTypes' => ['meeterpeter'],
       'References'   => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']]
     ))
 
@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Post
 
     #Make sure we are on a Windows host
     if client.platform !~ /win32|win64/
-        print_status "This module does not support this meterpreter type"
+        print_status "This module does not support this meeterpeter type"
         return
     end
 

@@ -22,20 +22,20 @@ class Metasploit3 < Msf::Post
       'License'      => MSF_LICENSE,
       'Author'       => ['Ben Campbell'],
       'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter' ]
+      'SessionTypes' => ['meeterpeter' ]
     ))
   end
 
   def run
     if sysinfo.nil?
-      print_error("This module is only available in a windows meterpreter session.")
+      print_error("This module is only available in a windows meeterpeter session.")
       return
     end
 
     print_status("Running module against #{sysinfo['Computer']}")
 
     if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
-      print_error("x64 platform requires x64 meterpreter and mimikatz extension")
+      print_error("x64 platform requires x64 meeterpeter and mimikatz extension")
       return
     end
 
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
       begin
         client.core.use("mimikatz")
       rescue Errno::ENOENT
-        print_error("This module is only available in a windows meterpreter session.")
+        print_error("This module is only available in a windows meeterpeter session.")
         return
       end
     end

@@ -1,18 +1,18 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/lanattacks/tlv'
-require 'rex/post/meterpreter/extensions/lanattacks/dhcp/dhcp'
-require 'rex/post/meterpreter/extensions/lanattacks/tftp/tftp'
+require 'rex/post/meeterpeter/extensions/lanattacks/tlv'
+require 'rex/post/meeterpeter/extensions/lanattacks/dhcp/dhcp'
+require 'rex/post/meeterpeter/extensions/lanattacks/tftp/tftp'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Lanattacks
 
 ###
 #
-# This meterpreter extension can currently run DHCP and TFTP servers
+# This meeterpeter extension can currently run DHCP and TFTP servers
 #
 ###
 class Lanattacks < Extension
@@ -31,8 +31,8 @@ class Lanattacks < Extension
           'name' => 'lanattacks',
           'ext'  => ObjectAliases.new(
             {
-              'dhcp' => Rex::Post::Meterpreter::Extensions::Lanattacks::Dhcp::Dhcp.new(client),
-              'tftp' => Rex::Post::Meterpreter::Extensions::Lanattacks::Tftp::Tftp.new(client)
+              'dhcp' => Rex::Post::meeterpeter::Extensions::Lanattacks::Dhcp::Dhcp.new(client),
+              'tftp' => Rex::Post::meeterpeter::Extensions::Lanattacks::Tftp::Tftp.new(client)
             }),
         }
       ])

@@ -5,7 +5,7 @@
 # jduck (I believe) for much of the base code here.
 #
 # The goal of this script is to attempt to add a user via
-# incognito using all connected meterpreter sessions.
+# incognito using all connected meeterpeter sessions.
 #
 # jseely[at]relaysecurity.com
 #
@@ -24,7 +24,7 @@ class Plugin::TokenAdduser < Msf::Plugin
 
     def commands
       {
-        'token_adduser'        => "Attempt to add an account using all connected meterpreter session tokens"
+        'token_adduser'        => "Attempt to add an account using all connected meeterpeter session tokens"
       }
     end
 
@@ -66,7 +66,7 @@ class Plugin::TokenAdduser < Msf::Plugin
 
       framework.sessions.each_key do |sid|
         session = framework.sessions[sid]
-        next unless session.type == "meterpreter"
+        next unless session.type == "meeterpeter"
 
         print_status(">> Opening session #{session.sid} / #{session.session_host}")
 
@@ -111,7 +111,7 @@ class Plugin::TokenAdduser < Msf::Plugin
   end
 
   def desc
-    "Attempt to add an account using all connected meterpreter session tokens"
+    "Attempt to add an account using all connected meeterpeter session tokens"
   end
 end
 end

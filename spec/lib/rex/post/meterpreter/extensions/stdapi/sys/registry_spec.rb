@@ -1,6 +1,6 @@
-require 'rex/post/meterpreter/extensions/stdapi/sys/registry'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/registry'
 
-RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
+RSpec.describe Rex::Post::meeterpeter::Extensions::Stdapi::Sys::Registry do
 
   describe '.type2str' do
     subject { described_class.type2str(type) }

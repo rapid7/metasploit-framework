@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
           [ 'URL', 'http://jedicorp.com/?p=534' ]
         ],
       'Platform'	=> ['win'],
-      'SessionTypes'	=> ['meterpreter'],
+      'SessionTypes'	=> ['meeterpeter'],
       'Author'        =>
         [
           'SphaZ <cyberphaz[at]gmail.com>'

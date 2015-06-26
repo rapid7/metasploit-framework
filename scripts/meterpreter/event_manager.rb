@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -36,15 +36,15 @@ opts = Rex::Parser::Arguments.new(
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage(opts)
-  print_line "Meterpreter Script for Windows Event Log Query and Clear."
+  print_line "meeterpeter Script for Windows Event Log Query and Clear."
   print_line(opts.usage)
   raise Rex::Script::Completed
 end
 
-# Wrong Meterpreter Version Message Function
+# Wrong meeterpeter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-  print_error("#{meter} version of Meterpreter is not supported with this script!")
+  print_error("#{meter} version of meeterpeter is not supported with this script!")
   raise Rex::Script::Completed
 end
 
@@ -203,7 +203,7 @@ opts.parse(args) { |opt, idx, val|
   end
 }
 
-# Check for Version of Meterpreter
+# Check for Version of meeterpeter
 wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 
 # Print usage & exit if the user didn't specify an action

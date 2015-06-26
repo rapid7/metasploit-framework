@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
           'sinn3r' #Reporting, file parser
         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
   end
 

@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/win_const_manager'
 require 'thread'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Railgun

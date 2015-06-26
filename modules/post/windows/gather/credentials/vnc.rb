@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
           'mubix'
         ],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes'  => [ 'meeterpeter' ]
       ))
 
   end

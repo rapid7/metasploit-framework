@@ -5,7 +5,7 @@
 
 ##
 # Original script comments by nick[at]executionflow.org:
-# Meterpreter script to deliver and execute powershell scripts using
+# meeterpeter script to deliver and execute powershell scripts using
 # a compression/encoding method based on the powershell PoC code
 # from rel1k and winfang98 at DEF CON 18. This script furthers the
 # idea by bypassing Windows' command character lmits, allowing the
@@ -24,15 +24,15 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'                 => "Windows Manage PowerShell Download and/or Execute",
       'Description'          => %q{
-        This module will download and execute a PowerShell script over a meterpreter session.
+        This module will download and execute a PowerShell script over a meeterpeter session.
         The user may also enter text substitutions to be made in memory before execution.
         Setting VERBOSE to true will output both the script prior to execution and the results.
       },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
+      'SessionTypes'         => ['meeterpeter'],
       'Author'               => [
-        'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
+        'Nicholas Nam (nick[at]executionflow.org)', # original meeterpeter script
         'RageLtMan' # post module
         ]
     ))
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
 
     # Make sure we meet the requirements before running the script, note no need to return
     # unless error
-    return 0 if ! (session.type == "meterpreter" || have_powershell?)
+    return 0 if ! (session.type == "meeterpeter" || have_powershell?)
 
     # End of file marker
     eof = Rex::Text.rand_text_alpha(8)

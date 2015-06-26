@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
           'Ben Campbell'
         ],
         'Platform'     => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meeterpeter' ]
     ))
     register_options(
       [

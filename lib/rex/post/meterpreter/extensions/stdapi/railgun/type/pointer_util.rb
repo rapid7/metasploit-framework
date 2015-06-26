@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter/extensions/stdapi/railgun/platform_util'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/platform_util'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Railgun
@@ -101,6 +101,6 @@ end # Type
 end # Railgun
 end # Stdapi
 end # Extensions
-end # Meterpreter
+end # meeterpeter
 end # Post
 end # Rex

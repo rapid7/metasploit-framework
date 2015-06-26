@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
         ],
         'Platform' => %w(linux osx unix win),
         'References'   => [['URL', 'http://www.martinvigo.com/a-look-into-lastpass/']],
-        'SessionTypes' => %w(meterpreter shell)
+        'SessionTypes' => %w(meeterpeter shell)
       )
     )
   end
@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Post
     user_profiles = []
     case session.platform
     when /unix|linux/
-      if session.type == "meterpreter"
+      if session.type == "meeterpeter"
         user_names = client.fs.dir.entries("/home")
       else
         user_names = session.shell_command("ls /home").split
@@ -222,7 +222,7 @@ class Metasploit3 < Msf::Post
     files = []
     if directory?(path)
       sep = session.platform =~ /win/ ? '\\' : '/'
-      if session.type == "meterpreter"
+      if session.type == "meeterpeter"
         files = client.fs.dir.entries(path)
       elsif session.type == "shell"
         files = session.shell_command("ls \"#{path}\"").split
@@ -247,7 +247,7 @@ class Metasploit3 < Msf::Post
 
     if directory?(path)
       sep = session.platform =~ /win/ ? '\\' : '/'
-      if session.type == "meterpreter"
+      if session.type == "meeterpeter"
         files = client.fs.dir.entries(path)
       elsif session.type == "shell"
         files = session.shell_command("ls \"#{path}\"").split

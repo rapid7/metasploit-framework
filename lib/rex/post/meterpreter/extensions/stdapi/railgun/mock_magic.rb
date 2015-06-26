@@ -1,12 +1,12 @@
 # -*- coding: binary -*-
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Railgun
 
-require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/tlv'
 
 #
 # This mixin serves as a means of providing common mock objects and utilities

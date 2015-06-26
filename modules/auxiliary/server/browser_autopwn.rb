@@ -84,21 +84,21 @@ class Metasploit3 < Msf::Auxiliary
       ]),
       OptString.new('PAYLOAD_WIN32', [false,
         'The payload to use for Windows reverse-connect payloads',
-        'windows/meterpreter/reverse_tcp'
+        'windows/meeterpeter/reverse_tcp'
       ]),
       OptPort.new('LPORT_LINUX', [false,
         'The port to use for Linux reverse-connect payloads', 4444
       ]),
       OptString.new('PAYLOAD_LINUX', [false,
         'The payload to use for Linux reverse-connect payloads',
-        'linux/meterpreter/reverse_tcp'
+        'linux/meeterpeter/reverse_tcp'
       ]),
       OptPort.new('LPORT_MACOS', [false,
         'The port to use for Mac reverse-connect payloads', 5555
       ]),
       OptString.new('PAYLOAD_MACOS', [false,
         'The payload to use for Mac reverse-connect payloads',
-        'osx/meterpreter/reverse_tcp'
+        'osx/meeterpeter/reverse_tcp'
       ]),
       OptPort.new('LPORT_GENERIC', [false,
         'The port to use for generic reverse-connect payloads', 6666
@@ -112,14 +112,14 @@ class Metasploit3 < Msf::Auxiliary
       ]),
       OptString.new('PAYLOAD_JAVA', [false,
         'The payload to use for Java reverse-connect payloads',
-        'java/meterpreter/reverse_tcp'
+        'java/meeterpeter/reverse_tcp'
       ]),
       OptPort.new('LPORT_ANDROID', [false,
         'The port to use for Java reverse-connect payloads', 8888
       ]),
       OptString.new('PAYLOAD_ANDROID', [false,
         'The payload to use for Android reverse-connect payloads',
-        'android/meterpreter/reverse_tcp'
+        'android/meeterpeter/reverse_tcp'
       ])
     ], self.class)
 
@@ -499,7 +499,7 @@ class Metasploit3 < Msf::Auxiliary
         multihandler.datastore['ExitOnSession'] = false
         multihandler.datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
         multihandler.datastore["ReverseListenerBindAddress"] = datastore["ReverseListenerBindAddress"]
-        # XXX: Revisit this when we have meterpreter working on more than just windows
+        # XXX: Revisit this when we have meeterpeter working on more than just windows
         if (lport == @win_lport or lport == @java_lport)
           multihandler.datastore['AutoRunScript'] = datastore['AutoRunScript']
           multihandler.datastore['AutoSystemInfo'] = datastore['AutoSystemInfo']

@@ -355,7 +355,7 @@ class Metasploit3 < Msf::Auxiliary
             print_error("#{ip}:#{port} - Unable to connect to SAPRouter #{rhost}:#{rport} - Connection Refused")
 
           rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
-          rescue ::Rex::Post::Meterpreter::RequestError
+          rescue ::Rex::Post::meeterpeter::RequestError
           rescue ::Interrupt
             raise $!
           ensure

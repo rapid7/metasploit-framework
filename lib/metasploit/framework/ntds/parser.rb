@@ -2,16 +2,16 @@ module Metasploit
   module Framework
     module NTDS
       require 'metasploit/framework/ntds/account'
-      # This class respresent an NTDS parser. It interacts with the Meterpreter Client
+      # This class respresent an NTDS parser. It interacts with the meeterpeter Client
       # to provide a simple interface for enumerating AD user accounts.
       class Parser
 
         # The size, in Bytes, of a batch of NTDS accounts
         BATCH_SIZE = (Metasploit::Framework::NTDS::Account::ACCOUNT_SIZE * 20)
 
-        #@return [Rex::Post::Meterpreter::Channels::Pool] The Meterpreter NTDS Parser Channel
+        #@return [Rex::Post::meeterpeter::Channels::Pool] The meeterpeter NTDS Parser Channel
         attr_accessor :channel
-        #@return [Msf::Session] The Meterpreter Client
+        #@return [Msf::Session] The meeterpeter Client
         attr_accessor :client
         #@return [String] The path to the NTDS.dit file on the remote system
         attr_accessor :file_path

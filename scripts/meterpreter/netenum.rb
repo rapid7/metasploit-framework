@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 
-#Meterpreter script for ping sweeps on Windows 2003, Windows Vista
+#meeterpeter script for ping sweeps on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
 #Verion: 0.1.2
@@ -266,7 +266,7 @@ end
 #-------------------------------------------------------------------------------
 #Function to print message during run
 def message(dest)
-  print_status "Network Enumerator Meterpreter Script "
+  print_status "Network Enumerator meeterpeter Script "
   print_status "Log file being saved in #{dest}"
 end
 
@@ -303,7 +303,7 @@ srvrc = nil
     range = val
   when "-h"
     print(
-      "Network Enumerator Meterpreter Script\n" +
+      "Network Enumerator meeterpeter Script\n" +
       "Usage:\n" +
       @@exec_opts.usage
       )
@@ -352,7 +352,7 @@ if client.platform =~ /win32|win64/
       print_error("Please add a domain name for DNS forward lookup: -d <value>")
     end
   else
-    print("Network Enumerator Meterpreter Script\n" +
+    print("Network Enumerator meeterpeter Script\n" +
       "Usage:\n" +
       "\tnetenum -r <value> (-ps | -rl)\n" +
       "\tnetenum -d <value> (-st | -sr)\n" +
@@ -360,6 +360,6 @@ if client.platform =~ /win32|win64/
       @@exec_opts.usage)
   end
 else
-  print_error("This version of Meterpreter is not supported with this script!")
+  print_error("This version of meeterpeter is not supported with this script!")
   raise Rex::Script::Completed
 end

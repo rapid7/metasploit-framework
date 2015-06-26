@@ -1,16 +1,16 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
+require 'msf/base/sessions/meeterpeter'
 
 module Msf
 module Sessions
 
 ###
 #
-# This class creates a platform-specific meterpreter session type
+# This class creates a platform-specific meeterpeter session type
 #
 ###
-class Meterpreter_x86_BSD < Msf::Sessions::Meterpreter
+class meeterpeter_x86_BSD < Msf::Sessions::meeterpeter
   def initialize(rstream, opts={})
     super
     self.platform      = 'x86/bsd'

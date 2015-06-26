@@ -2,11 +2,11 @@
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 
 ###
 #
-# This class is responsible for reading in and decrypting meterpreter
+# This class is responsible for reading in and decrypting meeterpeter
 # packets that arrive on a socket
 #
 ###

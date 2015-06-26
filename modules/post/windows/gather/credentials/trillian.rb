@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
           'Unknown', # SecurityXploded Team, www.SecurityXploded.com
         ],
       'Platform' => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ]
+      'SessionTypes' => [ 'meeterpeter' ]
     ))
   end
 

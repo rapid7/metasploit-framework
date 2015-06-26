@@ -24,11 +24,11 @@ class Metasploit3 < Msf::Post
         'Ben Campbell'
       ],
       'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ],
+      'SessionTypes' => [ 'meeterpeter' ],
       'References'   =>
             [
               ['URL', 'https:/github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos'],
-              ['URL', 'http://blog.cobalstrike.com/2014/05/14/meterpreter-kiwi-extension-golden-ticket-howto/']
+              ['URL', 'http://blog.cobalstrike.com/2014/05/14/meeterpeter-kiwi-extension-golden-ticket-howto/']
             ]
     ))
 

@@ -1,12 +1,12 @@
 # -*- coding: binary -*-
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
 #
-# Mixin that is meant to extend the base channel class from meterpreter in a
+# Mixin that is meant to extend the base channel class from meeterpeter in a
 # manner that adds interactive capabilities.
 #
 ###

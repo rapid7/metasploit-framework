@@ -1,15 +1,15 @@
 # -*- coding:binary -*-
-require 'rex/post/meterpreter/packet'
-require 'rex/post/meterpreter/packet_parser'
+require 'rex/post/meeterpeter/packet'
+require 'rex/post/meeterpeter/packet_parser'
 
 
-describe Rex::Post::Meterpreter::PacketParser do
+describe Rex::Post::meeterpeter::PacketParser do
   subject(:parser){
-    Rex::Post::Meterpreter::PacketParser.new
+    Rex::Post::meeterpeter::PacketParser.new
   }
   before(:each) do
-    @req_packt = Rex::Post::Meterpreter::Packet.new(
-          Rex::Post::Meterpreter::PACKET_TYPE_REQUEST,
+    @req_packt = Rex::Post::meeterpeter::Packet.new(
+          Rex::Post::meeterpeter::PACKET_TYPE_REQUEST,
           "test_method")
     @raw = @req_packt.to_r
     @sock = double('Socket')
@@ -28,8 +28,8 @@ describe Rex::Post::Meterpreter::PacketParser do
     while @raw.length >0
       parsed_packet = parser.recv(@sock)
     end
-    parsed_packet.should be_a Rex::Post::Meterpreter::Packet
-    parsed_packet.type.should == Rex::Post::Meterpreter::PACKET_TYPE_REQUEST
+    parsed_packet.should be_a Rex::Post::meeterpeter::Packet
+    parsed_packet.type.should == Rex::Post::meeterpeter::PACKET_TYPE_REQUEST
     parsed_packet.method?("test_method").should == true
   end
 

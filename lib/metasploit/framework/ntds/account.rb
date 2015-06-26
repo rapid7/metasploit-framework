@@ -1,7 +1,7 @@
 module Metasploit
   module Framework
     module NTDS
-      # This class represents an NTDS account structure as sent back by Meterpreter's
+      # This class represents an NTDS account structure as sent back by meeterpeter's
       # priv extension.
       class Account
 

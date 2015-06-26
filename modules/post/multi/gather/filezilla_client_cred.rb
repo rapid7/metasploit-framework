@@ -20,10 +20,10 @@ class Metasploit3 < Msf::Post
       'Author'         =>
         [
           'bannedit', # post port, added support for shell sessions
-          'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
+          'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meeterpeter script
         ],
       'Platform'       => %w{ bsd linux osx unix win },
-      'SessionTypes'   => ['shell', 'meterpreter' ]
+      'SessionTypes'   => ['shell', 'meeterpeter' ]
     ))
   end
 

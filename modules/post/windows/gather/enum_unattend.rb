@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
           ['URL', 'http://technet.microsoft.com/en-us/library/c026170e-40ef-4191-98dd-0b9835bfa580']
         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
       key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM')
       fname = key.query_value('Setup!UnattendFile').data
       return fname
-    rescue Rex::Post::Meterpreter::RequestError
+    rescue Rex::Post::meeterpeter::RequestError
       return ''
     end
   end

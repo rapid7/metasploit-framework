@@ -170,7 +170,7 @@ protected
 
               # sf: Only remove the data off the queue is write was successfull.
               #     This way we naturally perform a resend if a failure occured.
-              #     Catches an edge case with meterpreter TCP channels where remote send
+              #     Catches an edge case with meeterpeter TCP channels where remote send
               #     failes gracefully and a resend is required.
               if (sent.nil?)
                 closed = true

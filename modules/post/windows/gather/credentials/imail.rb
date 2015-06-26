@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
           ['EDB', '11331'],
         ],
       'Platform'       => [ 'win' ],
-      'SessionTypes'   => [ 'meterpreter' ]
+      'SessionTypes'   => [ 'meeterpeter' ]
       ))
 
       register_options(

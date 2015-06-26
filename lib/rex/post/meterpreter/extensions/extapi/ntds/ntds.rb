@@ -2,14 +2,14 @@
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Extapi
 module Ntds
 
 ###
 #
-# This meterpreter extension contains extended API functions for
+# This meeterpeter extension contains extended API functions for
 # parsing the NT Directory Service database.
 #
 ###
@@ -28,7 +28,7 @@ class Ntds
     if channel_id.nil?
       raise Exception, "We did not get a channel back!"
     end
-    Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "extapi_ntds", CHANNEL_FLAG_SYNCHRONOUS)
+    Rex::Post::meeterpeter::Channels::Pool.new(client, channel_id, "extapi_ntds", CHANNEL_FLAG_SYNCHRONOUS)
   end
 
   attr_accessor :client

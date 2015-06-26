@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -23,13 +23,13 @@ class Console::CommandDispatcher::Stdapi::Ui
   def commands
     all = {
       "enumdesktops"  => "List all accessible desktops and window stations",
-      "getdesktop"    => "Get the current meterpreter desktop",
+      "getdesktop"    => "Get the current meeterpeter desktop",
       "idletime"      => "Returns the number of seconds the remote user has been idle",
       "keyscan_dump"  => "Dump the keystroke buffer",
       "keyscan_start" => "Start capturing keystrokes",
       "keyscan_stop"  => "Stop capturing keystrokes",
       "screenshot"    => "Grab a screenshot of the interactive desktop",
-      "setdesktop"    => "Change the meterpreters current desktop",
+      "setdesktop"    => "Change the meeterpeters current desktop",
       "uictl"         => "Control some of the user interface components"
       #  not working yet
       # "unlockdesktop" => "Unlock or lock the workstation (must be inside winlogon.exe)",
@@ -211,7 +211,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   end
 
   #
-  # Get the current meterpreter desktop.
+  # Get the current meeterpeter desktop.
   #
   def cmd_getdesktop(*args)
 
@@ -225,7 +225,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   end
 
   #
-  # Change the meterpreters current desktop.
+  # Change the meeterpeters current desktop.
   #
   def cmd_setdesktop( *args )
 
@@ -246,7 +246,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       case opt
         when "-h"
           print_line( "Usage: setdesktop [options]\n" )
-          print_line( "Change the meterpreters current desktop." )
+          print_line( "Change the meeterpeters current desktop." )
           print_line( setdesktop_opts.usage )
           return
         #when "-s"

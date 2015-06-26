@@ -23,13 +23,13 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Roni Bachar <roni.bachar.blog[at]gmail.com>', # original meterpreter script
+          'Roni Bachar <roni.bachar.blog[at]gmail.com>', # original meeterpeter script
           'bannedit', # post module
           'kernelsmith <kernelsmith /x40 kernelsmith /x2E com>', # record/loot support,log x approach, nx
           'Adrian Kubok' # better record file names
         ],
-      'Platform'       => ['win'], # @todo add support for posix meterpreter somehow?
-      'SessionTypes'   => ['meterpreter']
+      'Platform'       => ['win'], # @todo add support for posix meeterpeter somehow?
+      'SessionTypes'   => ['meeterpeter']
     ))
 
     register_options(

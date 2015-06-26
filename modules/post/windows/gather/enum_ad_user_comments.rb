@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
         'License'      => MSF_LICENSE,
         'Author'       => [ 'Ben Campbell' ],
         'Platform'     => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ],
+        'SessionTypes' => [ 'meeterpeter' ],
         'References'	=>
         [
           ['URL', 'http://social.technet.microsoft.com/wiki/contents/articles/5392.active-directory-ldap-syntax-filters.aspx'],
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Post
       if q.nil? or q[:results].empty?
         return
       end
-    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::RuntimeError, ::Rex::Post::meeterpeter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
       return

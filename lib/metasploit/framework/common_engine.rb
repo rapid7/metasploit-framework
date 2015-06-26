@@ -33,7 +33,7 @@ module Metasploit::Framework::CommonEngine
 
     config.root = Msf::Config::install_root
     config.paths.add 'app/concerns', autoload: true
-    config.paths.add 'data/meterpreter', glob: '**/ext_*'
+    config.paths.add 'data/meeterpeter', glob: '**/ext_*'
     config.paths.add 'modules'
 
     config.active_support.deprecation = :notify
@@ -42,14 +42,14 @@ module Metasploit::Framework::CommonEngine
     # `initializer`s
     #
 
-    initializer 'metasploit_framework.merge_meterpreter_extensions' do
+    initializer 'metasploit_framework.merge_meeterpeter_extensions' do
       Rails.application.railties.engines.each do |engine|
-        merge_meterpreter_extensions(engine)
+        merge_meeterpeter_extensions(engine)
       end
 
-      # The Rails.application itself could have paths['data/meterpreter'], but will not be part of
+      # The Rails.application itself could have paths['data/meeterpeter'], but will not be part of
       # Rails.application.railties.engines because only direct subclasses of `Rails::Engine` are returned.
-      merge_meterpreter_extensions(Rails.application)
+      merge_meeterpeter_extensions(Rails.application)
     end
   end
 
@@ -59,18 +59,18 @@ module Metasploit::Framework::CommonEngine
 
   private
 
-  # Merges the meterpreter extensions from `engine`'s `paths['data/meterpreter]`.
+  # Merges the meeterpeter extensions from `engine`'s `paths['data/meeterpeter]`.
   #
-  # @param engine [Rails::Engine] a Rails engine or application that has meterpreter extensions
+  # @param engine [Rails::Engine] a Rails engine or application that has meeterpeter extensions
   # @return [void]
-  # @todo Make metasploit-framework look for meterpreter extension in paths['data/meterpreter'] from the engine instead of copying them.
-  def merge_meterpreter_extensions(engine)
-    data_meterpreter_paths = engine.paths['data/meterpreter']
+  # @todo Make metasploit-framework look for meeterpeter extension in paths['data/meeterpeter'] from the engine instead of copying them.
+  def merge_meeterpeter_extensions(engine)
+    data_meeterpeter_paths = engine.paths['data/meeterpeter']
 
-    # may be `nil` since 'data/meterpreter' is not part of the core Rails::Engine paths set.
-    if data_meterpreter_paths
-      source_paths = data_meterpreter_paths.existent
-      destination_directory = root.join('data', 'meterpreter').to_path
+    # may be `nil` since 'data/meeterpeter' is not part of the core Rails::Engine paths set.
+    if data_meeterpeter_paths
+      source_paths = data_meeterpeter_paths.existent
+      destination_directory = root.join('data', 'meeterpeter').to_path
 
       source_paths.each do |source_path|
         basename = File.basename(source_path)

@@ -2,15 +2,15 @@
 
 require 'thread'
 require 'rex/socket'
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
-require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
-require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_server_channel'
-require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/udp_channel'
+require 'rex/post/meeterpeter/extensions/stdapi/tlv'
+require 'rex/post/meeterpeter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
+require 'rex/post/meeterpeter/extensions/stdapi/net/socket_subsystem/tcp_server_channel'
+require 'rex/post/meeterpeter/extensions/stdapi/net/socket_subsystem/udp_channel'
 require 'rex/logging'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Net
@@ -21,7 +21,7 @@ module Net
 # on the remote machine.  It allows callers to open TCP, UDP,
 # and other arbitrary socket-based connections as channels that
 # can then be interacted with through the established
-# meterpreter connection.
+# meeterpeter connection.
 #
 ###
 class Socket
@@ -41,7 +41,7 @@ class Socket
 
     # register the inbound handler for the tcp server channel (allowing us to
     # receive new client connections to a tcp server channel)
-    client.register_inbound_handler( Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
+    client.register_inbound_handler( Rex::Post::meeterpeter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
 
   end
 
@@ -49,7 +49,7 @@ class Socket
   # Deregister the inbound handler for the tcp server channel
   #
   def shutdown
-    client.deregister_inbound_handler(  Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
+    client.deregister_inbound_handler(  Rex::Post::meeterpeter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
   end
 
   ##
@@ -85,7 +85,7 @@ class Socket
   def create_tcp_server_channel(params)
     begin
       return SocketSubsystem::TcpServerChannel.open(client, params)
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::meeterpeter::RequestError => e
       case e.code
       when 10000 .. 10100
         raise ::Rex::ConnectionError.new
@@ -104,7 +104,7 @@ class Socket
         return channel.lsock
       end
       return nil
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::meeterpeter::RequestError => e
       case e.code
       when 10000 .. 10100
         raise ::Rex::ConnectionError.new
@@ -119,7 +119,7 @@ class Socket
   def create_udp_channel(params)
     begin
       return SocketSubsystem::UdpChannel.open(client, params)
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::meeterpeter::RequestError => e
       case e.code
         when 10000 .. 10100
         raise ::Rex::ConnectionError.new

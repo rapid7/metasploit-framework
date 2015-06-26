@@ -1,18 +1,18 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 
-#Meterpreter script for abusing the scheduler service in windows
+#meeterpeter script for abusing the scheduler service in windows
 #by scheduling and running a list of command against one or more targets
 #using schtasks command to run them as system. This script works with Windows XP,
 #Windows 2003, Windows Vista and Windows 2008.
 #Verion: 0.1.1
 #Note: in Vista UAC must be disabled to be able to perform scheduling
-#and the meterpreter must be running under the profile of local admin
+#and the meeterpeter must be running under the profile of local admin
 #or system.
 ################## Variable Declarations ##################
 session = client
@@ -35,10 +35,10 @@ password = nil
 delay = 2
 help = 0
 def usage
-  print_status( "This Meterpreter script is for running commands on targets system using the")
+  print_status( "This meeterpeter script is for running commands on targets system using the")
   print_status( "Windows Scheduler, it is based on the tool presented but not released by Val Smith")
   print_status( "in Defcon 16 ATAbuser. If no user and password is given it will use the permissions")
-  print_status( "of the process Meterpreter is running under.")
+  print_status( "of the process meeterpeter is running under.")
   print_status( "Options:")
   print_status( @@exec_opts.usage )
 end
@@ -109,9 +109,9 @@ def abuse(session,targets,commands,username,password,delay)
   end
 end
 
-#check for proper Meterpreter Platform
+#check for proper meeterpeter Platform
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 
@@ -154,7 +154,7 @@ end
 }
 
 unsupported if client.platform !~ /win32|win64/i
-print_status("Meterpreter session running as #{session.sys.config.getuid}")
+print_status("meeterpeter session running as #{session.sys.config.getuid}")
 if help == 0 && commands.length != 0
   abuse(session,targets,commands,username,password,delay)
 else

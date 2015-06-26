@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => ['Zach Grace <zgrace[at]403labs.com>'],
       'Platform'      => %w[linux bsd unix osx win],
-      'SessionTypes'  => %w[meterpreter shell]
+      'SessionTypes'  => %w[meeterpeter shell]
     ))
   end
 
@@ -33,8 +33,8 @@ class Metasploit3 < Msf::Post
     when /unix|linux|bsd|osx/
       files = enum_user_directories.map {|d| d + "/.pgpass"}.select { |f| file?(f) }
     when /win/
-      if session.type != "meterpreter"
-        print_error("Only meterpreter sessions are supported on windows hosts")
+      if session.type != "meeterpeter"
+        print_error("Only meeterpeter sessions are supported on windows hosts")
         return
       end
 

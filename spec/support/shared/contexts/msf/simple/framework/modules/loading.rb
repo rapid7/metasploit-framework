@@ -17,10 +17,10 @@
 #     load_and_create_module(
 #       ancestor_reference_names: %w{
 #         stagers/android/reverse_https
-#         stages/android/meterpreter
+#         stages/android/meeterpeter
 #       },
 #       module_type: 'payload',
-#       reference_name: 'android/meterpreter/reverse_tcp'
+#       reference_name: 'android/meeterpeter/reverse_tcp'
 #     )
 #   }
 #

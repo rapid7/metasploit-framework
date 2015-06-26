@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -14,7 +14,7 @@ session = client
 )
 
 def usage()
-  print("\nPull the SNMP community string from a Windows Meterpreter session\n\n")
+  print("\nPull the SNMP community string from a Windows meeterpeter session\n\n")
   completed
 end
 
@@ -59,6 +59,6 @@ if client.platform =~ /win32|win64/
     print_status("Not found")
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

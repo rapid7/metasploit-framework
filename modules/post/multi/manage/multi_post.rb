@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ '<carlos_perez[at]darkoperator.com>'],
         'Platform'      => %w{ linux osx solaris unix win },
-        'SessionTypes'  => [ 'meterpreter','shell' ]
+        'SessionTypes'  => [ 'meeterpeter','shell' ]
       ))
     register_options(
       [
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    # syinfo is only on meterpreter sessions
+    # syinfo is only on meeterpeter sessions
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
     macro = datastore['MACRO']
     entries = []

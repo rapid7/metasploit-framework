@@ -16,7 +16,7 @@ class Plugin::TokenHunter < Msf::Plugin
 
     def commands
       {
-        'token_hunt_user'        => "Scan all connected meterpreter sessions for active tokens corresponding to one or more users"
+        'token_hunt_user'        => "Scan all connected meeterpeter sessions for active tokens corresponding to one or more users"
       }
     end
 
@@ -61,7 +61,7 @@ class Plugin::TokenHunter < Msf::Plugin
 
       framework.sessions.each_key do |sid|
         session = framework.sessions[sid]
-        next if session.type != "meterpreter"
+        next if session.type != "meeterpeter"
 
         print_status(">> Scanning session #{session.sid} / #{session.session_host}")
 
@@ -146,7 +146,7 @@ class Plugin::TokenHunter < Msf::Plugin
   end
 
   def desc
-    "Search all active meterpreter sessions for specific tokens"
+    "Search all active meeterpeter sessions for specific tokens"
   end
 end
 end

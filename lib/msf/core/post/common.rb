@@ -6,7 +6,7 @@ module Msf::Post::Common
     return nil unless session
 
     case session.type
-    when 'meterpreter'
+    when 'meeterpeter'
       session.sock.peerhost
     when 'shell'
       session.session_host
@@ -15,7 +15,7 @@ module Msf::Post::Common
 
   def rport
     case session.type
-    when 'meterpreter'
+    when 'meeterpeter'
       session.sock.peerport
     when 'shell'
       session.session_port
@@ -32,7 +32,7 @@ module Msf::Post::Common
   def has_pid?(pid)
     pid_list = []
     case client.type
-    when /meterpreter/
+    when /meeterpeter/
       pid_list = client.sys.process.processes.collect {|e| e['pid']}
     when /shell/
       if client.platform =~ /win/
@@ -52,7 +52,7 @@ module Msf::Post::Common
   #
   # Executes +cmd+ on the remote system
   #
-  # On Windows meterpreter, this will go through CreateProcess as the
+  # On Windows meeterpeter, this will go through CreateProcess as the
   # "commandLine" parameter. This means it will follow the same rules as
   # Windows' path disambiguation. For example, if you were to call this method
   # thusly:
@@ -67,7 +67,7 @@ module Msf::Post::Common
   #     c:\program files\sub dir\program.exe
   #     c:\program files\sub dir\program name.exe
   #
-  # On POSIX meterpreter, if +args+ is set or if +cmd+ contains shell
+  # On POSIX meeterpeter, if +args+ is set or if +cmd+ contains shell
   # metacharacters, the server will run the whole thing in /bin/sh. Otherwise,
   # (cmd is a single path and there are no arguments), it will execve the given
   # executable.
@@ -82,9 +82,9 @@ module Msf::Post::Common
   #
   def cmd_exec(cmd, args=nil, time_out=15)
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       #
-      # The meterpreter API requires arguments to come separately from the
+      # The meeterpeter API requires arguments to come separately from the
       # executable path. This has no effect on Windows where the two are just
       # blithely concatenated and passed to CreateProcess or its brethren. On
       # POSIX, this allows the server to execve just the executable when a
@@ -131,7 +131,7 @@ module Msf::Post::Common
 
   def cmd_exec_get_pid(cmd, args=nil, time_out=15)
     case session.type
-      when /meterpreter/
+      when /meeterpeter/
         if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
           args = ""
         end
@@ -142,7 +142,7 @@ module Msf::Post::Common
         process.close
         pid
       else
-        print_error "cmd_exec_get_pid is incompatible with non-meterpreter sessions"
+        print_error "cmd_exec_get_pid is incompatible with non-meeterpeter sessions"
     end
   end
 
@@ -167,7 +167,7 @@ module Msf::Post::Common
   #
   def get_env(env)
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       return session.sys.config.getenv(env)
     when /shell/
       if session.platform =~ /win/
@@ -197,7 +197,7 @@ module Msf::Post::Common
   #
   def get_envs(*envs)
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       return session.sys.config.getenvs(*envs)
     when /shell/
       result = {}

@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => 'Borja Merino <bmerinofe[at]gmail.com>',
       'Platform'      => 'win',
-      'SessionTypes'  => ['meterpreter'],
+      'SessionTypes'  => ['meeterpeter'],
       'References'   => [
         ['URL', 'http://www.shelliscoming.com/2014/11/getting-outbound-filtering-rules-by.html']
       ]

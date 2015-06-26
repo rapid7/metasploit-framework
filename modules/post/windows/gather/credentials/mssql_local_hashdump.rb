@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
             'nullbind' # Original technique
           ],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ],
+        'SessionTypes'  => [ 'meeterpeter' ],
         'References'  =>
           [
             ['URL', 'https://www.dionach.com/blog/easily-grabbing-microsoft-sql-server-password-hashes']

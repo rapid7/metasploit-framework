@@ -19,7 +19,7 @@ class Metasploit4 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Ben Campbell'],
         'Platform'      => [ 'windows', 'linux', 'java', 'python' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+        'SessionTypes'  => [ 'meeterpeter', 'shell' ]
       ))
   end
 

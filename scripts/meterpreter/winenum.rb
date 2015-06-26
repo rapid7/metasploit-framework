@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -11,7 +11,7 @@
 @client = client
 opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ],
-  "-m" => [ false, "Migrate the Meterpreter Session from it current process to a new cmd.exe before doing anything" ],
+  "-m" => [ false, "Migrate the meeterpeter Session from it current process to a new cmd.exe before doing anything" ],
   "-r" => [ false, "Dump, compress and download entire Registry" ],
   "-c" => [ false, "Change Access, Modified and Created times of executables that were run on the target machine and clear the EventLog" ]
 )
@@ -564,9 +564,9 @@ def uaccheck()
   return uac
 end
 
-#check for proper Meterpreter Platform
+#check for proper meeterpeter Platform
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 unsupported if client.platform !~ /win32|win64/i
@@ -579,7 +579,7 @@ if (mg != nil)
 end
 # Main part of script, it will run all function minus the ones
 # that will chance the MACE and Clear the Event log.
-print_status("Running Windows Local Enumeration Meterpreter Script")
+print_status("Running Windows Local Enumeration meeterpeter Script")
 print_status("New session on #{host}:#{port}...")
 
 # Header for File that will hold all the output of the commands

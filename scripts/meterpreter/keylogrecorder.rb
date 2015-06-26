@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -19,8 +19,8 @@ session = client
   "-k" => [ false, "Kill old Process"]
 )
 def usage
-  print_line("Keylogger Recorder Meterpreter Script")
-  print_line("This script will start the Meterpreter Keylogger and save all keys")
+  print_line("Keylogger Recorder meeterpeter Script")
+  print_line("This script will start the meeterpeter Keylogger and save all keys")
   print_line("in a log file for later anlysis. To stop capture hit Ctrl-C")
   print_line("Usage:" + @@exec_opts.usage)
   raise Rex::Script::Completed
@@ -207,6 +207,6 @@ if client.platform =~ /win32|win64/
     end
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

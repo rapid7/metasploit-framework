@@ -1,11 +1,11 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/channels/pool'
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meeterpeter/channels/pool'
+require 'rex/post/meeterpeter/extensions/stdapi/tlv'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Channels
 module Pools
 
@@ -22,7 +22,7 @@ module Pools
 # stream pools are always requested data in a single direction.
 #
 ###
-class StreamPool < Rex::Post::Meterpreter::Channels::Pool
+class StreamPool < Rex::Post::meeterpeter::Channels::Pool
 
   include Rex::IO::StreamAbstraction
 

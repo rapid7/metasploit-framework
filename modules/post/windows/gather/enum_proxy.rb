@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       'Author'      => [ 'mubix' ],
       'License'     => MSF_LICENSE,
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     )
 
     register_options(
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     if datastore['RHOST']
       begin
         key = session.sys.registry.open_remote_key(datastore['RHOST'], root_key)
-      rescue ::Rex::Post::Meterpreter::RequestError
+      rescue ::Rex::Post::meeterpeter::RequestError
         print_error("Unable to contact remote registry service on #{datastore['RHOST']}")
         print_status("Attempting to start service remotely...")
         begin

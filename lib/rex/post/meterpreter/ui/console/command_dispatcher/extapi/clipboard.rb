@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 ###
 #
@@ -372,7 +372,7 @@ private
 
   def download_file( dest_folder, source )
     stat = client.fs.file.stat( source )
-    base = ::Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File.basename( source )
+    base = ::Rex::Post::meeterpeter::Extensions::Stdapi::Fs::File.basename( source )
     dest = File.join( dest_folder, base )
 
     if stat.directory?

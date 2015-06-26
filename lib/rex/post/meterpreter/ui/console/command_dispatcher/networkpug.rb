@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 # Rex::Ui::Text::IrbShell.new(binding).run
@@ -178,7 +178,7 @@ class Console::CommandDispatcher::NetworkPug
     response, @channel = client.networkpug.networkpug_start(interface, filter)
 
     if(@channel)
-      @thread_stuff = Rex::ThreadFactory.spawn("MeterpreterNetworkPUGReceiver", false) {
+      @thread_stuff = Rex::ThreadFactory.spawn("meeterpeterNetworkPUGReceiver", false) {
         proxy_packets()
       }
 
@@ -205,7 +205,7 @@ class Console::CommandDispatcher::NetworkPug
 
       #print_line("joining thread")
       #@thread_stuff.join
-      # meterpreter dies if i try to join.. not sure why.
+      # meeterpeter dies if i try to join.. not sure why.
 
       @thread_stuff = nil
 

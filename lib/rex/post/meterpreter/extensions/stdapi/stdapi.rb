@@ -1,33 +1,33 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/object_aliases'
-require 'rex/post/meterpreter/extension'
-require 'rex/post/meterpreter/extensions/stdapi/constants'
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
-require 'rex/post/meterpreter/extensions/stdapi/fs/dir'
-require 'rex/post/meterpreter/extensions/stdapi/fs/file'
-require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
-require 'rex/post/meterpreter/extensions/stdapi/net/resolve'
-require 'rex/post/meterpreter/extensions/stdapi/net/config'
-require 'rex/post/meterpreter/extensions/stdapi/net/socket'
-require 'rex/post/meterpreter/extensions/stdapi/sys/config'
-require 'rex/post/meterpreter/extensions/stdapi/sys/process'
-require 'rex/post/meterpreter/extensions/stdapi/sys/registry'
-require 'rex/post/meterpreter/extensions/stdapi/sys/event_log'
-require 'rex/post/meterpreter/extensions/stdapi/sys/power'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
-require 'rex/post/meterpreter/extensions/stdapi/ui'
-require 'rex/post/meterpreter/extensions/stdapi/webcam/webcam'
+require 'rex/post/meeterpeter/object_aliases'
+require 'rex/post/meeterpeter/extension'
+require 'rex/post/meeterpeter/extensions/stdapi/constants'
+require 'rex/post/meeterpeter/extensions/stdapi/tlv'
+require 'rex/post/meeterpeter/extensions/stdapi/fs/dir'
+require 'rex/post/meeterpeter/extensions/stdapi/fs/file'
+require 'rex/post/meeterpeter/extensions/stdapi/fs/file_stat'
+require 'rex/post/meeterpeter/extensions/stdapi/net/resolve'
+require 'rex/post/meeterpeter/extensions/stdapi/net/config'
+require 'rex/post/meeterpeter/extensions/stdapi/net/socket'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/config'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/process'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/registry'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/event_log'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/power'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/railgun'
+require 'rex/post/meeterpeter/extensions/stdapi/ui'
+require 'rex/post/meeterpeter/extensions/stdapi/webcam/webcam'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 
 ###
 #
-# Standard ruby interface to remote entities for meterpreter.  It provides
+# Standard ruby interface to remote entities for meeterpeter.  It provides
 # basic access to files, network, system, and other properties of the remote
 # machine that are fairly universal.
 #
@@ -68,18 +68,18 @@ class Stdapi < Extension
           'name' => 'net',
           'ext'  => ObjectAliases.new(
             {
-              'config'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client),
-              'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client),
-              'resolve'  => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Resolve.new(client)
+              'config'   => Rex::Post::meeterpeter::Extensions::Stdapi::Net::Config.new(client),
+              'socket'   => Rex::Post::meeterpeter::Extensions::Stdapi::Net::Socket.new(client),
+              'resolve'  => Rex::Post::meeterpeter::Extensions::Stdapi::Net::Resolve.new(client)
             })
         },
         {
           'name' => 'railgun',
-          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun.new(client)
+          'ext'  => Rex::Post::meeterpeter::Extensions::Stdapi::Railgun::Railgun.new(client)
         },
         {
           'name' => 'webcam',
-          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam.new(client)
+          'ext'  => Rex::Post::meeterpeter::Extensions::Stdapi::Webcam::Webcam.new(client)
         },
         {
           'name' => 'ui',
@@ -102,49 +102,49 @@ class Stdapi < Extension
   # Returns a copy of the Dir class.
   #
   def dir
-    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::Dir)
+    brand(Rex::Post::meeterpeter::Extensions::Stdapi::Fs::Dir)
   end
 
   #
   # Returns a copy of the File class.
   #
   def file
-    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File)
+    brand(Rex::Post::meeterpeter::Extensions::Stdapi::Fs::File)
   end
 
   #
   # Returns a copy of the FileStat class.
   #
   def filestat
-    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat)
+    brand(Rex::Post::meeterpeter::Extensions::Stdapi::Fs::FileStat)
   end
 
   #
   # Returns a copy of the Process class.
   #
   def process
-    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process)
+    brand(Rex::Post::meeterpeter::Extensions::Stdapi::Sys::Process)
   end
 
   #
   # Returns a copy of the Registry class.
   #
   def registry
-    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry)
+    brand(Rex::Post::meeterpeter::Extensions::Stdapi::Sys::Registry)
   end
 
   #
   # Returns a copy of the EventLog class.
   #
   def eventlog
-    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::EventLog)
+    brand(Rex::Post::meeterpeter::Extensions::Stdapi::Sys::EventLog)
   end
 
   #
   # Returns a copy of the Power class.
   #
   def power
-    brand(Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Power)
+    brand(Rex::Post::meeterpeter::Extensions::Stdapi::Sys::Power)
   end
 end
 

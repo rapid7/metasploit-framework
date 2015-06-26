@@ -1,17 +1,17 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/sniffer/tlv'
+require 'rex/post/meeterpeter/extensions/sniffer/tlv'
 require 'rex/proto/smb/utils'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Sniffer
 
 ###
 #
-# This meterpreter extension can be used to capture remote traffic
+# This meeterpeter extension can be used to capture remote traffic
 #
 ###
 class Sniffer < Extension

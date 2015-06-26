@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meeterpeter/extensions/stdapi/tlv'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Net

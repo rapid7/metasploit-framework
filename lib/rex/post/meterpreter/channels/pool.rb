@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/channel'
+require 'rex/post/meeterpeter/channel'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Channels
 
 ###
@@ -20,7 +20,7 @@ module Channels
 # into the channel.
 #
 ###
-class Pool < Rex::Post::Meterpreter::Channel
+class Pool < Rex::Post::meeterpeter::Channel
 
   class << self
     def cls

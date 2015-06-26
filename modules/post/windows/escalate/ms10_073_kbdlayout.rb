@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
           'jduck'              # Metasploit module
         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
+      'SessionTypes'  => [ 'meeterpeter' ],
       'References'    =>
         [
           [ 'OSVDB', '68552' ],
@@ -262,7 +262,7 @@ EOS
     #  IN UINT Flags
     # )
 
-    # Again, railgun/meterpreter doesn't implement calling a non-dll function, so
+    # Again, railgun/meeterpeter doesn't implement calling a non-dll function, so
     # I tried to hack up this call to KiFastSystemCall, but that didn't work either...
 =begin
     session.railgun.add_function('ntdll', 'KiFastSystemCall', 'DWORD',

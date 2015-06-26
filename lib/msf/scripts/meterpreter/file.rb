@@ -3,7 +3,7 @@ require 'msf/core/post/file'
 
 module Msf
 module Scripts
-module Meterpreter
+module meeterpeter
 module Common
 
 include ::Msf::Post::File

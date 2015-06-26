@@ -2,19 +2,19 @@
 require 'timeout'
 require 'thread'
 require 'rex/socket/parameters'
-require 'rex/post/meterpreter/channels/stream'
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
-require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
+require 'rex/post/meeterpeter/channels/stream'
+require 'rex/post/meeterpeter/extensions/stdapi/tlv'
+require 'rex/post/meeterpeter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Net
 module SocketSubsystem
 
-class TcpServerChannel < Rex::Post::Meterpreter::Channel
+class TcpServerChannel < Rex::Post::meeterpeter::Channel
 
   #
   # This is a class variable to store all pending client tcp connections which have not been passed
@@ -25,11 +25,11 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   @@server_channels = {}
 
   class << self
-    include Rex::Post::Meterpreter::InboundPacketHandler
+    include Rex::Post::meeterpeter::InboundPacketHandler
 
     #
-    # This is the request handler which is registerd to the respective meterpreter instance via
-    # Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket. All incoming requests from the meterpreter
+    # This is the request handler which is registerd to the respective meeterpeter instance via
+    # Rex::Post::meeterpeter::Extensions::Stdapi::Net::Socket. All incoming requests from the meeterpeter
     # for a 'tcp_channel_open' will be processed here. We create a new TcpClientChannel for each request
     # received and store it in the respective tcp server channels list of new pending client channels.
     # These new tcp client channels are passed off via a call the the tcp server channels accept() method.

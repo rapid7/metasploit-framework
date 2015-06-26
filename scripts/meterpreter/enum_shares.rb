@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -16,7 +16,7 @@ opts = Rex::Parser::Arguments.new(
 opts.parse(args) { |opt, idx, val|
   case opt
   when "-h"
-    print_line "Meterpreter Script for Enumerating Shares Offered, History of Mounted Shares,"
+    print_line "meeterpeter Script for Enumerating Shares Offered, History of Mounted Shares,"
     print_line "History of UNC Paths entered in Run Dialog."
     print_line(opts.usage)
     raise Rex::Script::Completed
@@ -119,6 +119,6 @@ if client.platform =~ /win32|64/
     print_status()
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -24,7 +24,7 @@ passlist = nil
 target = nil
 helpcall = 0
 
-# The 'client' object holds the Meterpreter session
+# The 'client' object holds the meeterpeter session
 # Aliasing here for plugin compatibility
 session = client
 
@@ -145,9 +145,9 @@ def logme(target)
 end
 #--------------------------------------------------------
 #
-##check for proper Meterpreter Platform
+##check for proper meeterpeter Platform
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 unsupported if client.platform !~ /win32|win64/i
@@ -176,7 +176,7 @@ unsupported if client.platform !~ /win32|win64/i
   when "-t"
     target = val
   when "-h"
-    print("Windows Login Brute Force Meterpreter Script\n" +
+    print("Windows Login Brute Force meeterpeter Script\n" +
       "Usage:\n" +
       @@exec_opts.usage)
     helpcall = 1
@@ -194,7 +194,7 @@ elsif userlist != nil && passlist != nil && target != nil
   passbf(session,passlist,target,userlist,ulopt,logme(target))
 
 elsif helpcall == 0
-  print("Windows Login Brute Force Meterpreter Script\n" +
+  print("Windows Login Brute Force meeterpeter Script\n" +
     "Usage:\n" +
     @@exec_opts.usage)
 

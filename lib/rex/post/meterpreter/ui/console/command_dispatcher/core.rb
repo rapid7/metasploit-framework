@@ -1,17 +1,17 @@
 # -*- coding: binary -*-
 require 'set'
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 require 'rex/parser/arguments'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
 #
-# Core meterpreter client commands that provide only the required set of
-# commands for having a functional meterpreter client<->server instance.
+# Core meeterpeter client commands that provide only the required set of
+# commands for having a functional meeterpeter client<->server instance.
 #
 ###
 class Console::CommandDispatcher::Core
@@ -43,20 +43,20 @@ class Console::CommandDispatcher::Core
       "background" => "Backgrounds the current session",
       "close"      => "Closes a channel",
       "channel"    => "Displays information about active channels",
-      "exit"       => "Terminate the meterpreter session",
+      "exit"       => "Terminate the meeterpeter session",
       "help"       => "Help menu",
       "interact"   => "Interacts with a channel",
       "irb"        => "Drop into irb scripting mode",
       "use"        => "Deprecated alias for 'load'",
-      "load"       => "Load one or more meterpreter extensions",
+      "load"       => "Load one or more meeterpeter extensions",
       "machine_id" => "Get the MSF ID of the machine attached to the session",
-      "quit"       => "Terminate the meterpreter session",
+      "quit"       => "Terminate the meeterpeter session",
       "resource"   => "Run the commands stored in a file",
       "uuid"       => "Get the UUID for the current session",
       "read"       => "Reads data from a channel",
-      "run"        => "Executes a meterpreter script or Post module",
-      "bgrun"      => "Executes a meterpreter script as a background thread",
-      "bgkill"     => "Kills a background meterpreter script",
+      "run"        => "Executes a meeterpeter script or Post module",
+      "bgrun"      => "Executes a meeterpeter script as a background thread",
+      "bgkill"     => "Kills a background meeterpeter script",
       "get_timeouts" => "Get the current session timeout values",
       "set_timeouts" => "Set the current session timeout values",
       "bglist"     => "Lists running background scripts",
@@ -66,7 +66,7 @@ class Console::CommandDispatcher::Core
     }
 
     if client.passive_service
-      c["detach"] = "Detach the meterpreter session (for http/https)"
+      c["detach"] = "Detach the meeterpeter session (for http/https)"
     end
 
     # Currently we have some windows-specific core commands`
@@ -82,13 +82,13 @@ class Console::CommandDispatcher::Core
       c["migrate"] = "Migrate the server to another process"
 
 
-      # Yet to implement transport hopping for other meterpreters.
+      # Yet to implement transport hopping for other meeterpeters.
       # Works for posix and native windows though.
       c["transport"] = "Change the current transport mechanism"
 
       # sleep functionality relies on the transport features, so only
       # wire that in with the transport stuff.
-      c["sleep"] = "Force Meterpreter to go quiet, then re-establish session."
+      c["sleep"] = "Force meeterpeter to go quiet, then re-establish session."
     end
 
     if (msf_loaded?)
@@ -262,10 +262,10 @@ class Console::CommandDispatcher::Core
   end
 
   #
-  # Terminates the meterpreter session.
+  # Terminates the meeterpeter session.
   #
   def cmd_exit(*args)
-    print_status("Shutting down Meterpreter...")
+    print_status("Shutting down meeterpeter...")
     client.core.shutdown rescue nil
     client.shutdown_passive_dispatcher
     shell.stop
@@ -327,7 +327,7 @@ class Console::CommandDispatcher::Core
   #
   def cmd_irb(*args)
     print_status("Starting IRB shell")
-    print_status("The 'client' variable holds the meterpreter client\n")
+    print_status("The 'client' variable holds the meeterpeter client\n")
 
     session = client
     framework = client.framework
@@ -505,7 +505,7 @@ class Console::CommandDispatcher::Core
     print_line
     print_line('  time: Number of seconds to wait (positive integer)')
     print_line
-    print_line('  This command tells Meterpreter to go to sleep for the specified')
+    print_line('  This command tells meeterpeter to go to sleep for the specified')
     print_line('  number of seconds. Sleeping will result in the transport being')
     print_line('  shut down and restarted after the designated timeout.')
   end
@@ -540,7 +540,7 @@ class Console::CommandDispatcher::Core
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
-    '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
+    '-t'  => [ true,  "Transport type: #{Rex::Post::meeterpeter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
     '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
     '-p'  => [ true,  'LPORT parameter' ],
     '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
@@ -799,12 +799,12 @@ class Console::CommandDispatcher::Core
 
     # If we have any open port forwards, we need to close them down
     # otherwise we'll end up with local listeners which aren't connected
-    # to valid channels in the migrated meterpreter instance.
+    # to valid channels in the migrated meeterpeter instance.
     existing_relays = []
 
     if service
       service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
-        next unless opts['MeterpreterRelay']
+        next unless opts['meeterpeterRelay']
         if existing_relays.empty?
           print_status("Removing existing TCP relays...")
         end
@@ -851,12 +851,12 @@ class Console::CommandDispatcher::Core
   def cmd_load_help
     print_line("Usage: load ext1 ext2 ext3 ...")
     print_line
-    print_line "Loads a meterpreter extension module or modules."
+    print_line "Loads a meeterpeter extension module or modules."
     print_line @@load_opts.usage
   end
 
   #
-  # Loads one or more meterpreter extensions.
+  # Loads one or more meeterpeter extensions.
   #
   def cmd_load(*args)
     if (args.length == 0)
@@ -867,8 +867,8 @@ class Console::CommandDispatcher::Core
       case opt
       when "-l"
         exts = SortedSet.new
-        msf_path = MetasploitPayloads.msf_meterpreter_dir
-        gem_path = MetasploitPayloads.local_meterpreter_dir
+        msf_path = MetasploitPayloads.msf_meeterpeter_dir
+        gem_path = MetasploitPayloads.local_meeterpeter_dir
         [msf_path, gem_path].each do |path|
           ::Dir.entries(path).each { |f|
             if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
@@ -915,8 +915,8 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
-    msf_path = MetasploitPayloads.msf_meterpreter_dir
-    gem_path = MetasploitPayloads.local_meterpreter_dir
+    msf_path = MetasploitPayloads.msf_meeterpeter_dir
+    gem_path = MetasploitPayloads.local_meeterpeter_dir
     [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
@@ -978,13 +978,13 @@ class Console::CommandDispatcher::Core
     print_line "Usage: run <script> [arguments]"
     print_line
     print_line "Executes a ruby script or Metasploit Post module in the context of the"
-    print_line "meterpreter session.  Post modules can take arguments in var=val format."
+    print_line "meeterpeter session.  Post modules can take arguments in var=val format."
     print_line "Example: run post/foo/bar BAZ=abcd"
     print_line
   end
 
   #
-  # Executes a script in the context of the meterpreter session.
+  # Executes a script in the context of the meeterpeter session.
   #
   def cmd_run(*args)
     if args.length == 0
@@ -1035,8 +1035,8 @@ class Console::CommandDispatcher::Core
           tabs += tab_complete_postmods
         end
         [
-          ::Msf::Sessions::Meterpreter.script_base,
-          ::Msf::Sessions::Meterpreter.user_script_base
+          ::Msf::Sessions::meeterpeter.script_base,
+          ::Msf::Sessions::meeterpeter.user_script_base
         ].each do |dir|
           next if not ::File.exist? dir
           tabs += ::Dir.new(dir).find_all { |e|
@@ -1052,13 +1052,13 @@ class Console::CommandDispatcher::Core
 
 
   #
-  # Executes a script in the context of the meterpreter session in the background
+  # Executes a script in the context of the meeterpeter session in the background
   #
   def cmd_bgrun(*args)
     if args.length == 0
       print_line(
         "Usage: bgrun <script> [arguments]\n\n" +
-        "Executes a ruby script in the context of the meterpreter session.")
+        "Executes a ruby script in the context of the meeterpeter session.")
       return true
     end
 
@@ -1066,7 +1066,7 @@ class Console::CommandDispatcher::Core
     self.bgjob_id += 1
 
     # Get the script name
-    self.bgjobs[jid] = Rex::ThreadFactory.spawn("MeterpreterBGRun(#{args[0]})-#{jid}", false, jid, args) do |myjid,xargs|
+    self.bgjobs[jid] = Rex::ThreadFactory.spawn("meeterpeterBGRun(#{args[0]})-#{jid}", false, jid, args) do |myjid,xargs|
       ::Thread.current[:args] = xargs.dup
       begin
         # the rest of the arguments get passed in through the binding
@@ -1080,7 +1080,7 @@ class Console::CommandDispatcher::Core
       print_status("Background script with Job ID #{myjid} has completed (#{::Thread.current[:args].inspect})")
     end
 
-    print_status("Executed Meterpreter with Job ID #{jid}")
+    print_status("Executed meeterpeter with Job ID #{jid}")
   end
 
   #
@@ -1299,7 +1299,7 @@ class Console::CommandDispatcher::Core
     print_status("Unicode encoding is disabled")
   end
 
-  @@client_extension_search_paths = [ ::File.join(Rex::Root, "post", "meterpreter", "ui", "console", "command_dispatcher") ]
+  @@client_extension_search_paths = [ ::File.join(Rex::Root, "post", "meeterpeter", "ui", "console", "command_dispatcher") ]
 
   def self.add_client_extension_search_path(path)
     @@client_extension_search_paths << path unless @@client_extension_search_paths.include?(path)

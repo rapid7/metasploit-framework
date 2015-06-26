@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
             'Stephen Haywood <averagesecurityguy[at]gmail.com>', # enum_linux
           ],
         'Platform'      => ['linux'],
-        'SessionTypes'  => ['shell', 'meterpreter']
+        'SessionTypes'  => ['shell', 'meeterpeter']
       ))
   end
 
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
   # Get host name
   def get_host
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       host = sysinfo["Computer"]
     when /shell/
       host = session.shell_command_token("hostname").chomp

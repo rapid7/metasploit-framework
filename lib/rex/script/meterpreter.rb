@@ -2,11 +2,11 @@
 
 module Rex
 module Script
-class Meterpreter < Base
+class meeterpeter < Base
 
 begin
-  require 'msf/scripts/meterpreter'
-  include Msf::Scripts::Meterpreter::Common
+  require 'msf/scripts/meeterpeter'
+  include Msf::Scripts::meeterpeter::Common
 rescue ::LoadError
 end
 

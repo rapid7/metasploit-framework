@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -456,7 +456,7 @@ protected
   #   (used for display purposes only).
   # @param method [Proc] Block that calls the method that invokes the
   #   appropriate function on the client that returns the results from
-  #   Meterpreter that lay in the house that Jack built.
+  #   meeterpeter that lay in the house that Jack built.
   #
   # @return [void]
   def scrape_passwords(provider, method)

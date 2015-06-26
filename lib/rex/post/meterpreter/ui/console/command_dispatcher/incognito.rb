@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -99,8 +99,8 @@ class Console::CommandDispatcher::Incognito
   def cmd_impersonate_token(*args)
     if (args.length < 1)
       print_line("Usage: impersonate_token <token>\n")
-      print_line("Instructs the meterpreter thread to impersonate the specified token. All other actions will then be made in the context of that token.\n")
-      print_line("Hint: Double backslash DOMAIN\\\\name (meterpreter quirk)")
+      print_line("Instructs the meeterpeter thread to impersonate the specified token. All other actions will then be made in the context of that token.\n")
+      print_line("Hint: Double backslash DOMAIN\\\\name (meeterpeter quirk)")
       print_line("Hint: Enclose with quotation marks if name contains a space\n")
       return
     end

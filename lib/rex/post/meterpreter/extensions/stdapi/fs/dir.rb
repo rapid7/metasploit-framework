@@ -1,11 +1,11 @@
 # -*- coding: binary -*-
 
 require 'rex/post/dir'
-require 'rex/post/meterpreter/extensions/stdapi/stdapi'
+require 'rex/post/meeterpeter/extensions/stdapi/stdapi'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Fs
@@ -212,7 +212,7 @@ class Dir < Rex::Post::Dir
         begin
           result = client.fs.file.download_file(dst_item, src_item)
           stat.call(result, src_item, dst_item) if (stat)
-        rescue ::Rex::Post::Meterpreter::RequestError => e
+        rescue ::Rex::Post::meeterpeter::RequestError => e
           if force
             stat.call('failed', src_item, dst_item) if (stat)
           else

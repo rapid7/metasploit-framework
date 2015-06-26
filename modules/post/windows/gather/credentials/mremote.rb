@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
             'mubix' #Helped write the Decryption Routine
           ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
   end
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
         parse_xml(condata)
         print_status("Finished processing #{path}")
       end
-    rescue Rex::Post::Meterpreter::RequestError
+    rescue Rex::Post::meeterpeter::RequestError
       print_status("The file #{path} either could not be read or does not exist")
       return
     end

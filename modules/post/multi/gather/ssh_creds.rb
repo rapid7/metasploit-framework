@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         => ['Jim Halfpenny'],
       'Platform'       => %w{ bsd linux osx unix },
-      'SessionTypes'   => ['meterpreter', 'shell' ]
+      'SessionTypes'   => ['meeterpeter', 'shell' ]
     ))
   end
 
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
     print_status("Looting #{paths.count} directories")
     paths.each do |path|
       path.chomp!
-      if session.type == "meterpreter"
+      if session.type == "meeterpeter"
         sep = session.fs.file.separator
         files = session.fs.dir.entries(path)
       else

@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
         'References'    => [
           ['URL', 'http://blog.packetheader.net/2011/10/fun-with-applescript.html']
         ],
-        'SessionTypes'  => [ "shell", "meterpreter" ]
+        'SessionTypes'  => [ "shell", "meeterpeter" ]
       ))
 
     register_options([
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Post
     end
 
     host = case session.type
-    when /meterpreter/
+    when /meeterpeter/
       sysinfo["Computer"]
     when /shell/
       cmd_exec("/bin/hostname").chomp

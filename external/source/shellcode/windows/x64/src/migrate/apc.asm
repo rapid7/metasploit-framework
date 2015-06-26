@@ -8,7 +8,7 @@
 ;-----------------------------------------------------------------------------;
 
 ; A small stub to be used for thread injection where we gain execution via an injected APC. See the
-; file "\msf3\external\source\meterpreter\source\common\arch\win\i386\base_inject.c" for more details
+; file "\msf3\external\source\meeterpeter\source\common\arch\win\i386\base_inject.c" for more details
 
 ;typedef struct _APCCONTEXT
 ;{

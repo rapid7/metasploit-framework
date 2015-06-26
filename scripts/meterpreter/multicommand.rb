@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 
-#Meterpreter script for running multiple commands on Windows 2003, Windows Vista
+#meeterpeter script for running multiple commands on Windows 2003, Windows Vista
 # and Windows XP and Windows 2008 targets.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #Verion: 0.1
@@ -67,7 +67,7 @@ def filewrt(file2wrt, data2wrt)
 end
 
 def usage
-  print_line("Windows Multi Command Execution Meterpreter Script ")
+  print_line("Windows Multi Command Execution meeterpeter Script ")
   print_line(@@exec_opts.usage)
   raise Rex::Script::Completed
 

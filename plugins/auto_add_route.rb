@@ -13,7 +13,7 @@ class Plugin::AutoAddRoute < Msf::Plugin
   end
 
   def on_session_open(session)
-    return if not session.type == 'meterpreter'
+    return if not session.type == 'meeterpeter'
     session.load_stdapi
     sb = Rex::Socket::SwitchBoard.instance
     session.net.config.each_route { |route|

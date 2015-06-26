@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
         ['URL', 'https://www.dionach.com/blog/disabling-mcafee-on-access-scanning']
       ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
   end
 

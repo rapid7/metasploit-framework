@@ -24,9 +24,9 @@ features/support/targets.yml
 # simplecov coverage data
 coverage
 doc/
-external/source/meterpreter/java/bin
-external/source/meterpreter/java/build
-external/source/meterpreter/java/extensions
+external/source/meeterpeter/java/bin
+external/source/meeterpeter/java/build
+external/source/meeterpeter/java/extensions
 external/source/javapayload/bin
 external/source/javapayload/build
 # Java binary ignores. Replace the 5 above with this once we're merged.
@@ -65,19 +65,19 @@ tags
 external/source/exploits/**/Debug
 external/source/exploits/**/Release
 
-# Avoid checking in Meterpreter binaries. These are supplied upstream by
+# Avoid checking in meeterpeter binaries. These are supplied upstream by
 # the metasploit-payloads gem.
-data/meterpreter/*.dll
-data/meterpreter/*.bin
-data/meterpreter/*.jar
-data/meterpreter/*.lso
+data/meeterpeter/*.dll
+data/meeterpeter/*.bin
+data/meeterpeter/*.jar
+data/meeterpeter/*.lso
 data/android
 data/java
 
-# Avoid checking in Meterpreter libs that are built from
+# Avoid checking in meeterpeter libs that are built from
 # private source. If you're interested in this functionality,
 # check out Metasploit Pro: http://metasploit.com/download
-data/meterpreter/ext_server_pivot.*.dll
+data/meeterpeter/ext_server_pivot.*.dll
 
 # Avoid checking in metakitty, the source for
 # https://rapid7.github.io/metasploit-framework. It's an orphan branch.

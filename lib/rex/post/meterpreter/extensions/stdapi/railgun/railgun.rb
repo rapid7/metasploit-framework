@@ -34,17 +34,17 @@
 require 'pp'
 require 'enumerator'
 
-require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/util'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/multicall'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_wrapper'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/api_constants'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/tlv'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/util'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/win_const_manager'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/multicall'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/dll'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/dll_wrapper'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Railgun
@@ -59,7 +59,7 @@ class Railgun
   # Railgun::DLL's that have builtin definitions.
   #
   # If you want to add additional DLL definitions to be preloaded create a
-  # definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/'.
+  # definition class 'rex/post/meeterpeter/extensions/stdapi/railgun/def/'.
   # Naming is important and should follow convention.  For example, if your
   # dll's name was "my_dll"
   # file name:    def_my_dll.rb
@@ -247,7 +247,7 @@ class Railgun
             raise "DLL name #{dll_name} is bad. Correct Railgun::BUILTIN_DLLS"
           end
 
-          require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_' << dll_name
+          require 'rex/post/meeterpeter/extensions/stdapi/railgun/def/def_' << dll_name
           dll = Def.const_get('Def_' << dll_name).create_dll.freeze
 
           @@cached_dlls[dll_name] = dll

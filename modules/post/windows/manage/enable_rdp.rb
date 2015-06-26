@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
       'License'       => BSD_LICENSE,
       'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
         print_status("Starting the port forwarding at local port #{datastore['LPORT']}")
         client.run_cmd("portfwd add -L 0.0.0.0 -l #{datastore['LPORT']} -p 3389 -r 127.0.0.1")
       end
-      print_status("For cleanup execute Meterpreter resource file: #{cleanup_rc}")
+      print_status("For cleanup execute meeterpeter resource file: #{cleanup_rc}")
     end
   end
 

@@ -9,7 +9,7 @@ module Msf::Post::File
   # @return [void]
   def cd(path)
     e_path = expand_path(path) rescue path
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       session.fs.dir.chdir(e_path)
     else
       session.shell_command_token("cd \"#{e_path}\"")
@@ -24,7 +24,7 @@ module Msf::Post::File
   #
   # @return [String]
   def pwd
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       return session.fs.dir.getwd
     else
       if session.platform =~ /win/
@@ -41,7 +41,7 @@ module Msf::Post::File
   # @param directory [String] the directory to list
   # @return [Array] the contents of the directory
   def dir(directory)
-    if session.type == 'meterpreter'
+    if session.type == 'meeterpeter'
       return session.fs.dir.entries(directory)
     else
       if session.platform =~ /win/
@@ -59,7 +59,7 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def directory?(path)
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       stat = session.fs.file.stat(path) rescue nil
       return false unless stat
       return stat.directory?
@@ -81,7 +81,7 @@ module Msf::Post::File
   #
   # @return [String]
   def expand_path(path)
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       return session.fs.file.expand_path(path)
     else
       return cmd_exec("echo #{path}")
@@ -93,7 +93,7 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def file?(path)
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       stat = session.fs.file.stat(path) rescue nil
       return false unless stat
       return stat.file?
@@ -120,7 +120,7 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def exist?(path)
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       stat = session.fs.file.stat(path) rescue nil
       return !!(stat)
     else
@@ -255,8 +255,8 @@ module Msf::Post::File
   # @return [String] Contents of the file
   def read_file(file_name)
     data = nil
-    if session.type == "meterpreter"
-      data = _read_file_meterpreter(file_name)
+    if session.type == "meeterpeter"
+      data = _read_file_meeterpeter(file_name)
     elsif session.type == "shell"
       if session.platform =~ /win/
         data = session.shell_command_token("type \"#{file_name}\"")
@@ -276,7 +276,7 @@ module Msf::Post::File
   # @param data [String] Contents to put in the file
   # @return [void]
   def write_file(file_name, data)
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       fd = session.fs.file.new(file_name, "wb")
       fd.write(data)
       fd.close
@@ -301,7 +301,7 @@ module Msf::Post::File
   # @param data [String] Contents to put in the file
   # @return [void]
   def append_file(file_name, data)
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       fd = session.fs.file.new(file_name, "ab")
       fd.write(data)
       fd.close
@@ -334,7 +334,7 @@ module Msf::Post::File
   # @return [void]
   def rm_f(*remote_files)
     remote_files.each do |remote|
-      if session.type == "meterpreter"
+      if session.type == "meeterpeter"
         session.fs.file.delete(remote) if exist?(remote)
       else
         if session.platform =~ /win/
@@ -354,7 +354,7 @@ module Msf::Post::File
   # @param old_file [String] Remote file name to move
   # @param new_file [String] The new name for the remote file
   def rename_file(old_file, new_file)
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       return (session.fs.file.mv(old_file, new_file).result == 0)
     else
       if session.platform =~ /win/
@@ -370,17 +370,17 @@ module Msf::Post::File
 protected
 
   #
-  # Meterpreter-specific file read.  Returns contents of remote file
+  # meeterpeter-specific file read.  Returns contents of remote file
   # +file_name+ as a String or nil if there was an error
   #
   # You should never call this method directly.  Instead, call {#read_file}
   # which will call this if it is appropriate for the given session.
   #
   # @return [String]
-  def _read_file_meterpreter(file_name)
+  def _read_file_meeterpeter(file_name)
     begin
       fd = session.fs.file.new(file_name, "rb")
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::meeterpeter::RequestError => e
       print_error("Failed to open file: #{file_name}: #{e}")
       return nil
     end

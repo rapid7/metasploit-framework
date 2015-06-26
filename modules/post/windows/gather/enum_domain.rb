@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
         },
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
-      'SessionTypes'    => ['meterpreter'],
+      'SessionTypes'    => ['meeterpeter'],
       'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']
     ))
   end

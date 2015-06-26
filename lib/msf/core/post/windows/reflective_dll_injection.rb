@@ -18,7 +18,7 @@ module Msf::Post::Windows::ReflectiveDLLInjection
   #
   # Inject the given shellcode into a target process.
   #
-  # @param process [Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process]
+  # @param process [Rex::Post::meeterpeter::Extensions::Stdapi::Sys::Process]
   #   The process to inject the shellcode into.
   # @param shellcode [String] The shellcode to inject.
   #
@@ -43,7 +43,7 @@ module Msf::Post::Windows::ReflectiveDLLInjection
   # Inject a reflectively-injectable DLL into the given process
   # using reflective injection.
   #
-  # @param process [Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Process]
+  # @param process [Rex::Post::meeterpeter::Extensions::Stdapi::Sys::Process]
   #   The process to inject the shellcode into.
   # @param dll_path [String] Path to the DLL that is to be loaded and injected.
   #

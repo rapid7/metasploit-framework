@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
         'mubix'
       ],
       'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter'],
+      'SessionTypes' => ['meeterpeter'],
       'References'   => [['URL', 'http://lab.mediaservice.net/code/cachedump.rb']]
     ))
   end
@@ -370,8 +370,8 @@ class Metasploit3 < Msf::Post
 
     rescue ::Interrupt
       raise $!
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      print_error("Meterpreter Exception: #{e.class} #{e}")
+    rescue ::Rex::Post::meeterpeter::RequestError => e
+      print_error("meeterpeter Exception: #{e.class} #{e}")
       print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
     end
   end

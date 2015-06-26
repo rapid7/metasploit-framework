@@ -23,11 +23,11 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
-          'L4teral <l4teral[4t]gmail com>',  # Meterpreter script
+          'L4teral <l4teral[4t]gmail com>',  # meeterpeter script
           'Metlstorm'                        # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
+      'SessionTypes'  => [ 'meeterpeter' ],
       'References'    =>
         [
           [ 'URL', 'http://www.storm.net.nz/projects/16' ]
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
   end
 
   def unsupported
-    print_error("This version of Meterpreter is not supported with this Script!")
+    print_error("This version of meeterpeter is not supported with this Script!")
     raise Rex::Script::Completed
   end
 

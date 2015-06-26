@@ -3,12 +3,12 @@ require 'rex/logging'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
 #
-# Base class for all command dispatchers within the meterpreter console user
+# Base class for all command dispatchers within the meeterpeter console user
 # interface.
 #
 ###
@@ -43,7 +43,7 @@ module Console::CommandDispatcher
   end
 
   #
-  # Returns the meterpreter client context.
+  # Returns the meeterpeter client context.
   #
   def client
     shell.client
@@ -73,9 +73,9 @@ module Console::CommandDispatcher
   def log_error(msg)
     print_error(msg)
 
-    elog(msg, 'meterpreter')
+    elog(msg, 'meeterpeter')
 
-    dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
+    dlog("Call stack:\n#{$@.join("\n")}", 'meeterpeter')
   end
 
 end

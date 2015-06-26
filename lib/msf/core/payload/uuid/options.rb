@@ -2,14 +2,14 @@
 
 require 'msf/core'
 require 'msf/core/payload/uuid'
-require 'rex/payloads/meterpreter/uri_checksum'
+require 'rex/payloads/meeterpeter/uri_checksum'
 
 #
 # This module provides datastore option definitions and helper methods for payload modules that support UUIDs
 #
 module Msf::Payload::UUID::Options
 
-  include Rex::Payloads::Meterpreter::UriChecksum
+  include Rex::Payloads::meeterpeter::UriChecksum
 
   def initialize(info = {})
     super

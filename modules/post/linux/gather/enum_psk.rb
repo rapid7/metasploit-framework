@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => ['Cenk Kalpakoglu'],
       'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell', 'meterpreter']
+      'SessionTypes'  => ['shell', 'meeterpeter']
     ))
 
     register_options(

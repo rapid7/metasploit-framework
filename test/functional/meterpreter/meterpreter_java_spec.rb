@@ -4,31 +4,31 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'test', 'lib'))
 
 require 'fileutils'
 require 'msf/base'
-require 'meterpreter_spec_helper'
-require 'meterpreter_specs'
+require 'meeterpeter_spec_helper'
+require 'meeterpeter_specs'
 
 module MsfTest
 
-describe "JavaMeterpreter" do
+describe "Javameeterpeter" do
   
   # This include brings in all the spec helper methods
-  include MsfTest::MeterpreterSpecHelper
+  include MsfTest::meeterpeterSpecHelper
   
   # This include brings in all the specs that are generic across the 
-  # meterpreter platforms
-  include MsfTest::MeterpreterSpecs
+  # meeterpeter platforms
+  include MsfTest::meeterpeterSpecs
   
   # This include brings in all the specs that are specific to the java
-  # meterpreter
-  include MsfTest::JavaMeterpreterSpecs
+  # meeterpeter
+  include MsfTest::JavameeterpeterSpecs
 
   before :all do
     @verbose = true
   
-    @meterpreter_type = "java"
+    @meeterpeter_type = "java"
     
     ## Set up an outupt directory
-    @output_directory = File.join(File.dirname(__FILE__), "test_output_#{@meterpreter_type}")
+    @output_directory = File.join(File.dirname(__FILE__), "test_output_#{@meeterpeter_type}")
 
     if File.directory? @output_directory
       FileUtils.rm_rf(@output_directory)
@@ -64,7 +64,7 @@ describe "JavaMeterpreter" do
     @framework.modules.add_module_path(test_modules_path)
     
     @exploit_name = 'test/java_tester'
-    @payload_name = 'java/meterpreter/bind_tcp'
+    @payload_name = 'java/meeterpeter/bind_tcp'
     @input        = Rex::Ui::Text::Input::Stdio.new 
     @output       = Rex::Ui::Text::Output::File.new(@default_file)
 

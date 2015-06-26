@@ -3,7 +3,7 @@ require 'msf/core/post/windows/registry'
 
 module Msf
 module Scripts
-module Meterpreter
+module meeterpeter
 module Common
 
 include ::Msf::Post::Windows::Registry

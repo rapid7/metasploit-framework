@@ -1,13 +1,13 @@
 # -*- coding: binary -*-
 
 require 'thread'
-require 'rex/post/meterpreter/channel'
-require 'rex/post/meterpreter/channels/stream'
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meeterpeter/channel'
+require 'rex/post/meeterpeter/channels/stream'
+require 'rex/post/meeterpeter/extensions/stdapi/tlv'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Net
@@ -17,11 +17,11 @@ module SocketSubsystem
 #
 # This class represents a logical TCP client connection
 # that is established from the remote machine and tunnelled
-# through the established meterpreter connection, similar to an
+# through the established meeterpeter connection, similar to an
 # SSH port forward.
 #
 ###
-class TcpClientChannel < Rex::Post::Meterpreter::Stream
+class TcpClientChannel < Rex::Post::meeterpeter::Stream
 
   class << self
     def cls
@@ -167,7 +167,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   def _write(*args)
     begin
       super(*args)
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::meeterpeter::RequestError => e
       case e.code
       when 10000 .. 10100
         raise ::Rex::ConnectionError.new

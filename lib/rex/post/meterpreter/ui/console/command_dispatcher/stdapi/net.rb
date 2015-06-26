@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 require 'rex/service_manager'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -19,9 +19,9 @@ class Console::CommandDispatcher::Stdapi::Net
   include Console::CommandDispatcher
 
   #
-  # This module is used to extend the meterpreter session
+  # This module is used to extend the meeterpeter session
   # so that local port forwards can be tracked and cleaned
-  # up when the meterpreter session goes away
+  # up when the meeterpeter session goes away
   #
   module PortForwardTracker
     def cleanup
@@ -391,7 +391,7 @@ class Console::CommandDispatcher::Stdapi::Net
 
         # Enumerate each TCP relay
         service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
-          next if (opts['MeterpreterRelay'] == nil)
+          next if (opts['meeterpeterRelay'] == nil)
 
           print_line("#{cnt}: #{lhost}:#{lport} -> #{rhost}:#{rport}")
 
@@ -415,7 +415,7 @@ class Console::CommandDispatcher::Stdapi::Net
           'LocalHost'         => lhost,
           'PeerHost'          => rhost,
           'PeerPort'          => rport,
-          'MeterpreterRelay'  => true,
+          'meeterpeterRelay'  => true,
           'OnLocalConnection' => Proc.new { |relay, lfd|
             create_tcp_channel(relay)
             })
@@ -442,7 +442,7 @@ class Console::CommandDispatcher::Stdapi::Net
 
         counter = 0
         service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
-          next if (opts['MeterpreterRelay'] == nil)
+          next if (opts['meeterpeterRelay'] == nil)
 
           if (service.stop_tcp_relay(lport, lhost))
             print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")

@@ -12,16 +12,16 @@ class Metasploit4 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Testing Meterpreter Stuff',
-        'Description'   => %q{ This module will test meterpreter API methods },
+        'Name'          => 'Testing meeterpeter Stuff',
+        'Description'   => %q{ This module will test meeterpeter API methods },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'egypt'],
         'Platform'      => [ 'windows', 'linux', 'java' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes'  => [ 'meeterpeter' ]
       ))
     register_options(
       [
-        OptString.new("BaseFileName" , [true, "File/dir base name", "meterpreter-test"])
+        OptString.new("BaseFileName" , [true, "File/dir base name", "meeterpeter-test"])
       ], self.class)
   end
 
@@ -95,7 +95,7 @@ class Metasploit4 < Msf::Post
 
   def test_net_config
     unless (session.commands.include? "stdapi_net_config_get_interfaces")
-      vprint_status("This meterpreter does not implement get_interfaces, skipping tests")
+      vprint_status("This meeterpeter does not implement get_interfaces, skipping tests")
       return
     end
 
@@ -316,7 +316,7 @@ class Metasploit4 < Msf::Post
     begin
       session.core.use "sniffer"
     rescue
-      # Not all meterpreters have a sniffer extension, don't count it
+      # Not all meeterpeters have a sniffer extension, don't count it
       # against them.
       return
     end

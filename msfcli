@@ -95,7 +95,7 @@ class Msfcli
     $stdout.puts "Error: #{str}\n\n" if str
     $stdout.puts tbl.to_s + "\n"
     $stdout.puts "Examples:" + "\n"
-    $stdout.puts "msfcli exploit/multi/handler payload=windows/meterpreter/reverse_tcp lhost=IP E" + "\n"
+    $stdout.puts "msfcli exploit/multi/handler payload=windows/meeterpeter/reverse_tcp lhost=IP E" + "\n"
     $stdout.puts "msfcli auxiliary/scanner/http/http_version rhosts=IP encoder= post= nop= E" + "\n"
     $stdout.puts extra + "\n" if extra
     $stdout.puts
@@ -148,16 +148,16 @@ class Msfcli
     platform      = payload[0]
     suffix        = payload[-1]
     stage_types   = ['singles', 'stagers', 'stages']
-    session_types = ['meterpreter', 'shell']
+    session_types = ['meeterpeter', 'shell']
     arch          = ''
 
     # Rule out some possibilities
-    if p =~ /meterpreter/i
+    if p =~ /meeterpeter/i
       session_types.delete('shell')
       stage_types.delete('singles')
     end
     if p =~ /shell\/.+$/i
-      session_types.delete('meterpreter')
+      session_types.delete('meeterpeter')
       stage_types.delete('singles')
     end
 
@@ -177,13 +177,13 @@ class Msfcli
       else
         matches << /stages\/#{platform}\/shell/
       end
-    elsif session_types.include?('meterpreter') and stage_types.include?('stages')
+    elsif session_types.include?('meeterpeter') and stage_types.include?('stages')
       if arch == 'x64'
-        matches << /stages\/#{platform}\/x64\/meterpreter/
+        matches << /stages\/#{platform}\/x64\/meeterpeter/
       elsif arch == 'x86'
-        matches << /stages\/#{platform}\/x86\/meterpreter/
+        matches << /stages\/#{platform}\/x86\/meeterpeter/
       else
-        matches << /stages\/#{platform}\/meterpreter/
+        matches << /stages\/#{platform}\/meeterpeter/
       end
     end
 

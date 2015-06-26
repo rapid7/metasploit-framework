@@ -2,23 +2,23 @@
 
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Msf
 module Sessions
 
 ###
 #
-# This class represents a session compatible interface to a meterpreter server
+# This class represents a session compatible interface to a meeterpeter server
 # instance running on a remote machine.  It provides the means of interacting
 # with the server instance both at an API level as well as at a console level.
 #
 ###
-class Meterpreter < Rex::Post::Meterpreter::Client
+class meeterpeter < Rex::Post::meeterpeter::Client
 
   include Msf::Session
   #
-  # The meterpreter session is interactive
+  # The meeterpeter session is interactive
   #
   include Msf::Session::Interactive
   include Msf::Session::Comm
@@ -41,7 +41,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   #
-  # Initializes a meterpreter session instance using the supplied rstream
+  # Initializes a meeterpeter session instance using the supplied rstream
   # that is to be used as the client's connection to the server.
   #
   def initialize(rstream, opts={})
@@ -66,25 +66,25 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       opts[:ssl_cert] = opts[:datastore]['HandlerSSLCert']
     end
 
-    # Don't pass the datastore into the init_meterpreter method
+    # Don't pass the datastore into the init_meeterpeter method
     opts.delete(:datastore)
 
     #
-    # Initialize the meterpreter client
+    # Initialize the meeterpeter client
     #
-    self.init_meterpreter(rstream, opts)
+    self.init_meeterpeter(rstream, opts)
 
     #
     # Create the console instance
     #
-    self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
+    self.console = Rex::Post::meeterpeter::Ui::Console.new(self)
   end
 
   #
-  # Returns the session type as being 'meterpreter'.
+  # Returns the session type as being 'meeterpeter'.
   #
   def self.type
-    "meterpreter"
+    "meeterpeter"
   end
 
   #
@@ -102,7 +102,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def shell_init
     return true if @shell
 
-    # COMSPEC is special-cased on all meterpreters to return a viable
+    # COMSPEC is special-cased on all meeterpeters to return a viable
     # shell.
     sh = fs.file.expand_path("%COMSPEC%")
     @shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
@@ -120,7 +120,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     length = nil if length.nil? or length < 0
     begin
       rv = nil
-      # Meterpreter doesn't offer a way to timeout on the victim side, so
+      # meeterpeter doesn't offer a way to timeout on the victim side, so
       # we have to do it here.  I'm concerned that this will cause loss
       # of data.
       Timeout.timeout(timeout) {
@@ -196,10 +196,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session overrides
   #
-  # Cleans up the meterpreter client session.
+  # Cleans up the meeterpeter client session.
   #
   def cleanup
-    cleanup_meterpreter
+    cleanup_meeterpeter
 
     super
   end
@@ -210,17 +210,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   # Returns the session description.
   #
   def desc
-    "Meterpreter"
+    "meeterpeter"
   end
 
 
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Runs the meterpreter script in the context of a script container
+  # Runs the meeterpeter script in the context of a script container
   #
   def execute_file(full_path, args)
-    o = Rex::Script::Meterpreter.new(self, full_path)
+    o = Rex::Script::meeterpeter.new(self, full_path)
     o.run(args)
   end
 
@@ -254,7 +254,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   def kill
     begin
-      cleanup_meterpreter
+      cleanup_meeterpeter
       self.sock.close if self.sock
     rescue ::Exception
     end
@@ -272,7 +272,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session::Interactive implementors
   #
-  # Explicitly runs a command in the meterpreter console.
+  # Explicitly runs a command in the meeterpeter console.
   #
   def run_cmd(cmd)
     console.run_single(cmd)
@@ -310,8 +310,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       self.payload_uuid ||= self.core.uuid(timeout)
 
       return true
-    rescue ::Rex::Post::Meterpreter::RequestError
-      # This meterpreter doesn't support core_machine_id
+    rescue ::Rex::Post::meeterpeter::RequestError
+      # This meeterpeter doesn't support core_machine_id
       return true
     rescue ::Exception => e
       dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
@@ -425,11 +425,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session::Interactive implementors
   #
-  # Interacts with the meterpreter client at a user interface level.
+  # Interacts with the meeterpeter client at a user interface level.
   #
   def _interact
     framework.events.on_session_interact(self)
-    # Call the console interaction subsystem of the meterpreter client and
+    # Call the console interaction subsystem of the meeterpeter client and
     # pass it a block that returns whether or not we should still be
     # interacting.  This will allow the shell to abort if interaction is
     # canceled.
@@ -446,7 +446,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Creates a connection based on the supplied parameters and returns it to
   # the caller.  The connection is created relative to the remote machine on
-  # which the meterpreter server instance is running.
+  # which the meeterpeter server instance is running.
   #
   def create(param)
     sock = nil
@@ -482,8 +482,8 @@ protected
   # Rummage through this host's routes and interfaces looking for an
   # address that it uses to talk to the internet.
   #
-  # @see Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_interfaces
-  # @see Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_routes
+  # @see Rex::Post::meeterpeter::Extensions::Stdapi::Net::Config#get_interfaces
+  # @see Rex::Post::meeterpeter::Extensions::Stdapi::Net::Config#get_routes
   # @return [String] The address from which this host reaches the
   #   internet, as ASCII. e.g.: "192.168.100.156"
   # @return [nil] If there is an interface with an address that matches

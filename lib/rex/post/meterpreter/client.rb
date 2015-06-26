@@ -4,18 +4,18 @@ require 'socket'
 require 'openssl'
 
 require 'rex/script'
-require 'rex/post/meterpreter/client_core'
-require 'rex/post/meterpreter/channel'
-require 'rex/post/meterpreter/channel_container'
-require 'rex/post/meterpreter/dependencies'
-require 'rex/post/meterpreter/object_aliases'
-require 'rex/post/meterpreter/packet'
-require 'rex/post/meterpreter/packet_parser'
-require 'rex/post/meterpreter/packet_dispatcher'
+require 'rex/post/meeterpeter/client_core'
+require 'rex/post/meeterpeter/channel'
+require 'rex/post/meeterpeter/channel_container'
+require 'rex/post/meeterpeter/dependencies'
+require 'rex/post/meeterpeter/object_aliases'
+require 'rex/post/meeterpeter/packet'
+require 'rex/post/meeterpeter/packet_parser'
+require 'rex/post/meeterpeter/packet_dispatcher'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 
 #
 # Just to get it in there...
@@ -25,16 +25,16 @@ end
 
 ###
 #
-# This class represents a logical meterpreter client class.  This class
+# This class represents a logical meeterpeter client class.  This class
 # provides an interface that is compatible with the Rex post-exploitation
 # interface in terms of the feature set that it attempts to expose.  This
-# class is meant to drive a single meterpreter client session.
+# class is meant to drive a single meeterpeter client session.
 #
 ###
 class Client
 
-  include Rex::Post::Meterpreter::PacketDispatcher
-  include Rex::Post::Meterpreter::ChannelContainer
+  include Rex::Post::meeterpeter::PacketDispatcher
+  include Rex::Post::meeterpeter::ChannelContainer
 
   #
   # Extension name to class hash.
@@ -78,13 +78,13 @@ class Client
   # which communication with the server will be performed.
   #
   def initialize(sock,opts={})
-    init_meterpreter(sock, opts)
+    init_meeterpeter(sock, opts)
   end
 
   #
-  # Cleans up the meterpreter instance, terminating the dispatcher thread.
+  # Cleans up the meeterpeter instance, terminating the dispatcher thread.
   #
-  def cleanup_meterpreter
+  def cleanup_meeterpeter
     if not self.skip_cleanup
       ext.aliases.each_value do | extension |
         extension.cleanup if extension.respond_to?( 'cleanup' )
@@ -101,9 +101,9 @@ class Client
   end
 
   #
-  # Initializes the meterpreter client instance
+  # Initializes the meeterpeter client instance
   #
-  def init_meterpreter(sock,opts={})
+  def init_meeterpeter(sock,opts={})
     self.sock         = sock
     self.parser       = PacketParser.new
     self.ext          = ObjectAliases.new
@@ -148,7 +148,7 @@ class Client
       initialize_channels
 
       # Register the channel inbound packet handler
-      register_inbound_handler(Rex::Post::Meterpreter::Channel)
+      register_inbound_handler(Rex::Post::meeterpeter::Channel)
     else
       # Switch the socket to SSL mode and receive the hello if needed
       if capabilities[:ssl] and not opts[:skip_ssl]
@@ -161,7 +161,7 @@ class Client
       initialize_channels
 
       # Register the channel inbound packet handler
-      register_inbound_handler(Rex::Post::Meterpreter::Channel)
+      register_inbound_handler(Rex::Post::meeterpeter::Channel)
 
       monitor_socket
     end
@@ -230,18 +230,18 @@ class Client
 
       # Load a custom SSL certificate if one has been specified
       if self.ssl_cert
-        wlog("Loading custom SSL certificate for Meterpreter session")
+        wlog("Loading custom SSL certificate for meeterpeter session")
         ssl_cert_info = Rex::Socket::SslTcpServer.ssl_parse_pem(self.ssl_cert)
-        wlog("Loaded custom SSL certificate for Meterpreter session")
+        wlog("Loaded custom SSL certificate for meeterpeter session")
         break
       end
 
       # Generate a certificate if necessary and cache it
       if ! @@ssl_cached_cert
         @@ssl_mutex.synchronize do
-          wlog("Generating SSL certificate for Meterpreter sessions")
+          wlog("Generating SSL certificate for meeterpeter sessions")
           @@ssl_cached_cert = Rex::Socket::SslTcpServer.ssl_generate_certificate
-          wlog("Generated SSL certificate for Meterpreter sessions")
+          wlog("Generated SSL certificate for meeterpeter sessions")
         end
       end
 
@@ -305,16 +305,16 @@ class Client
 
     # Check to see if this extension has already been loaded.
     if ((klass = self.class.check_ext_hash(name.downcase)) == nil)
-      old = Rex::Post::Meterpreter::Extensions.constants
-      require("rex/post/meterpreter/extensions/#{name.downcase}/#{name.downcase}")
-      new = Rex::Post::Meterpreter::Extensions.constants
+      old = Rex::Post::meeterpeter::Extensions.constants
+      require("rex/post/meeterpeter/extensions/#{name.downcase}/#{name.downcase}")
+      new = Rex::Post::meeterpeter::Extensions.constants
 
       # No new constants added?
       if ((diff = new - old).empty?)
         diff = [ name.capitalize ]
       end
 
-      klass = Rex::Post::Meterpreter::Extensions.const_get(diff[0]).const_get(diff[0])
+      klass = Rex::Post::meeterpeter::Extensions.const_get(diff[0]).const_get(diff[0])
 
       # Save the module name to class association now that the code is
       # loaded.
@@ -353,7 +353,7 @@ class Client
     #
     # Create an instance method on this object called +name+ that returns
     # +ext+.  We have to do it this way instead of simply
-    # self.class.class_eval so that other meterpreter sessions don't get
+    # self.class.class_eval so that other meeterpeter sessions don't get
     # extension methods when this one does
     (class << self; self; end).class_eval do
       define_method(name.to_sym) do
@@ -434,7 +434,7 @@ class Client
   #
   attr_accessor :target_id
   #
-  # The libraries available to this meterpreter server
+  # The libraries available to this meeterpeter server
   #
   attr_accessor :capabilities
   #

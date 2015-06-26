@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 #
-# Meterpreter script for enumerating putty connections
+# meeterpeter script for enumerating putty connections
 # Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #
 @client = client
@@ -18,7 +18,7 @@ opts = Rex::Parser::Arguments.new(
 opts.parse(args) { |opt, idx, val|
   case opt
   when "-h"
-    print_line "Meterpreter Script for enumerating Putty Configuration."
+    print_line "meeterpeter Script for enumerating Putty Configuration."
     print_line(opts.usage)
     raise Rex::Script::Completed
   end
@@ -99,6 +99,6 @@ if client.platform =~ /win32|win64/
     end
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

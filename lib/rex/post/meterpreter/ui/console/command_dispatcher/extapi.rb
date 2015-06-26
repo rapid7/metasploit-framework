@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -13,11 +13,11 @@ module Ui
 ###
 class Console::CommandDispatcher::Extapi
 
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/window'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/service'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/clipboard'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/adsi'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/extapi/wmi'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/extapi/window'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/extapi/service'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/extapi/clipboard'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/extapi/adsi'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/extapi/wmi'
 
   Klass = Console::CommandDispatcher::Extapi
 

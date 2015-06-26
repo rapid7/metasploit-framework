@@ -5,27 +5,27 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/meterpreter_php'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter_php'
+require 'msf/base/sessions/meeterpeter_options'
 
 
 module Metasploit4
 
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'PHP Meterpreter',
-      'Description'   => 'Run a meterpreter server in PHP',
+      'Name'          => 'PHP meeterpeter',
+      'Description'   => 'Run a meeterpeter server in PHP',
       'Author'        => ['egypt'],
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_Php_Php))
+      'Session'       => Msf::Sessions::meeterpeter_Php_Php))
   end
 
   def generate_stage(opts={})
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.php")
+    file = File.join(Msf::Config.data_directory, "meeterpeter", "meeterpeter.php")
 
     met = File.open(file, "rb") { |f|
       f.read(f.stat.size)

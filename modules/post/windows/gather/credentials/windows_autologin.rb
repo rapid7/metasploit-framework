@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
             'Myo Soe' #YGN Ethical Hacker Group, http://yehg.net
           ],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ],
+        'SessionTypes'  => [ 'meeterpeter' ],
         'References'     =>
         [
           [ 'URL', 'http://support.microsoft.com/kb/315231' ],

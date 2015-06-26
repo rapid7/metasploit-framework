@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         => ['Nikolai Rusakov <nikolai.rusakov[at]gmail.com>'],
       'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter' ]
+      'SessionTypes'   => ['meeterpeter' ]
     ))
   end
 

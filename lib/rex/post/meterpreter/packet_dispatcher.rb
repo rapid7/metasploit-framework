@@ -1,12 +1,12 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/packet_response_waiter'
+require 'rex/post/meeterpeter/packet_response_waiter'
 require 'rex/logging'
 require 'rex/exceptions'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 
 ###
 #
@@ -261,7 +261,7 @@ module PacketDispatcher
     self.alive = true
 
     # Spawn a thread for receiving packets
-    self.receiver_thread = Rex::ThreadFactory.spawn("MeterpreterReceiver", false) do
+    self.receiver_thread = Rex::ThreadFactory.spawn("meeterpeterReceiver", false) do
       while (self.alive)
         begin
           rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
@@ -304,7 +304,7 @@ module PacketDispatcher
           @pqueue << packet if packet
           @last_recvd = Time.now
         rescue ::Exception
-          dlog("Exception caught in monitor_socket: #{$!}", 'meterpreter', LEV_1)
+          dlog("Exception caught in monitor_socket: #{$!}", 'meeterpeter', LEV_1)
           @finish = true
           self.alive = false
           break
@@ -313,7 +313,7 @@ module PacketDispatcher
     end
 
     # Spawn a new thread that monitors the socket
-    self.dispatcher_thread = Rex::ThreadFactory.spawn("MeterpreterDispatcher", false) do
+    self.dispatcher_thread = Rex::ThreadFactory.spawn("meeterpeterDispatcher", false) do
       begin
       # Whether we're finished or not is determined by the receiver
       # thread above.
@@ -378,7 +378,7 @@ module PacketDispatcher
           end
 
           rescue ::Exception => e
-            dlog("Dispatching exception with packet #{pkt}: #{e} #{e.backtrace}", 'meterpreter', LEV_1)
+            dlog("Dispatching exception with packet #{pkt}: #{e} #{e.backtrace}", 'meeterpeter', LEV_1)
           end
         end
 
@@ -396,12 +396,12 @@ module PacketDispatcher
         @pqueue.unshift(*incomplete)
 
         if(@pqueue.length > 100)
-          dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{@pqueue[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
+          dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{@pqueue[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meeterpeter', LEV_1)
           @pqueue = @pqueue[25 .. 100]
         end
       end
       rescue ::Exception => e
-        dlog("Exception caught in monitor_socket dispatcher: #{e.class} #{e} #{e.backtrace}", 'meterpreter', LEV_1)
+        dlog("Exception caught in monitor_socket dispatcher: #{e.class} #{e} #{e.backtrace}", 'meeterpeter', LEV_1)
       ensure
         self.receiver_thread.kill if self.receiver_thread
       end
@@ -525,7 +525,7 @@ module PacketDispatcher
       end
 
       rescue ::Exception => e
-        dlog("Exception caught in dispatch_inbound_packet: handler=#{handler} #{e.class} #{e} #{e.backtrace}", 'meterpreter', LEV_1)
+        dlog("Exception caught in dispatch_inbound_packet: handler=#{handler} #{e.class} #{e} #{e.backtrace}", 'meeterpeter', LEV_1)
         return true
       end
 

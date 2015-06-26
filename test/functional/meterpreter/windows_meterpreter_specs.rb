@@ -1,8 +1,8 @@
 module MsfTest
-module WindowsMeterpreterSpecs
+module WindowsmeeterpeterSpecs
 
   ## This file is intended to be used in conjunction with a harness, 
-  ## such as meterpreter_win32_spec.rb
+  ## such as meeterpeter_win32_spec.rb
 
   def self.included(base)
         	base.class_eval do

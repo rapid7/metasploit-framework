@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -60,7 +60,7 @@ class Console::CommandDispatcher::Sniffer
   def cmd_sniffer_start(*args)
     intf = args.shift.to_i
     if (intf == 0)
-      print_error("Usage: sniffer_start [interface-id] [packet-buffer (1-200000)] [bpf filter (posix meterpreter only)]")
+      print_error("Usage: sniffer_start [interface-id] [packet-buffer (1-200000)] [bpf filter (posix meeterpeter only)]")
       return
     end
     maxp = (args.shift || 50000).to_i

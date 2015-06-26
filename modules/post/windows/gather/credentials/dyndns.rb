@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
           'sinn3r',  #Lots of code rewrite
         ],
       'Platform'       => [ 'win' ],
-      'SessionTypes'   => [ 'meterpreter' ]
+      'SessionTypes'   => [ 'meeterpeter' ]
     ))
   end
 

@@ -474,7 +474,7 @@ module Auxiliary::Report
     return full_path.dup
   end
 
-  # Takes a credential from a script (shell or meterpreter), and
+  # Takes a credential from a script (shell or meeterpeter), and
   # sources it correctly to the originating user account or
   # session. Note that the passed-in session ID should be the
   # Session.local_id, which will be correlated with the Session.id

@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -65,7 +65,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
   def print_dhcp_start_usage
     print("dhcp_start [-h]\n\n" +
-          "Starts a DHCP server in the current Meterpreter session.\n" +
+          "Starts a DHCP server in the current meeterpeter session.\n" +
           @@dhcp_start_opts.usage + "\n")
   end
 

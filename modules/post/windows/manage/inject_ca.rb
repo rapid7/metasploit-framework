@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
       'License'       => BSD_LICENSE,
       'Author'        => [ 'vt <nick.freeman[at]security-assessment.com>'],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(

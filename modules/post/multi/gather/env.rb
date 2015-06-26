@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
       'Platform'      => %w{ linux win },
-      'SessionTypes'  => [ 'shell', 'meterpreter' ]
+      'SessionTypes'  => [ 'shell', 'meeterpeter' ]
     ))
     @ltype = 'generic.environment'
   end
@@ -26,8 +26,8 @@ class Metasploit3 < Msf::Post
     case session.type
     when "shell"
       get_env_shell
-    when "meterpreter"
-      get_env_meterpreter
+    when "meeterpeter"
+      get_env_meeterpeter
     end
     store_loot(@ltype, "text/plain", session, @output) if @output
     print_line @output if @output
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
     @output = session.shell_command_token(cmd)
   end
 
-  def get_env_meterpreter
+  def get_env_meeterpeter
     case sysinfo["OS"]
     when /windows/i
       var_names = []

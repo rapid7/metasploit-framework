@@ -26,7 +26,7 @@ module Payload::Windows::VerifySsl
     end
 
     hash = Rex::Parser::X509Certificate.get_cert_file_hash(handler_cert)
-    print_status("Meterpreter will verify SSL Certificate with SHA1 hash #{hash.unpack("H*").first}")
+    print_status("meeterpeter will verify SSL Certificate with SHA1 hash #{hash.unpack("H*").first}")
     hash
   end
 
