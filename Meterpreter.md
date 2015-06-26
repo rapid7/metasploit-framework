@@ -11,5 +11,6 @@ Additional documentation about Meterpreter can be found on this wiki:
 * [[Meterpreter Stageless Mode]]
 * [[Meterpreter Unicode Support]]
 * [[Meterpreter's Configuration]]
+* [[Payload UUID]]
 
 A wishlist of features is maintained at the [[Meterpreter Wishlist]] page.
