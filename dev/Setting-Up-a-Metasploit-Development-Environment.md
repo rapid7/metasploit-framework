@@ -59,9 +59,10 @@ So let's get started!
 
 ----
 ```bash
-echo deb http://http.kali.org/kali kali main non-free contrib > /etc/apt/sources.list &&
-echo deb-src http://http.kali.org/kali kali main non-free contrib >> /etc/apt/sources.list &&
-echo deb http://security.kali.org/kali-security kali/updates main contrib non-free >> /etc/apt/sources.list &&
+echo deb http://http.kali.org/kali kali main non-free contrib> /etc/apt/sources.list &&
+echo deb-src http://http.kali.org/kali kali main non-free contrib>> /etc/apt/sources.list &&
+echo deb http://security.kali.org/kali-security kali/updates main contrib non-free>> /etc/apt/sources.list &&
+echo deb-src http://security.kali.org/ kali/updates main contrib non-free>> /etc/apt/sources.list &&
 apt-get clean &&
 rm -rf /var/lib/apt/lists;
 apt-get update &&
@@ -77,9 +78,10 @@ First, you need to know where all the Linux goodness lives. Your `/etc/apt/sourc
 deb http://http.kali.org/kali kali main non-free contrib
 deb-src http://http.kali.org/kali kali main non-free contrib
 deb http://security.kali.org/kali-security kali/updates main contrib non-free
+deb-src http://security.kali.org/ kali/updates main contrib non-free
 ```
 
-If you're missing any of these, add them. If you have a lot of extras, you are almost certain to cause conflicts. [Don't do that][kali-sources]. Once you're set with sources, clean out any cruft, get the latest Kali signing key, and go to town:
+If you have a lot of extra sources, you are almost certain to cause conflicts. [Don't do that][kali-sources]. However, you may want to pick a more appropriate mirror from the [mirrorlist]. Once you're set with sources, clean out any cruft, get the latest Kali signing key, and go to town:
 
 
 ```
@@ -1044,3 +1046,4 @@ invaluable help and feedback on this dev environment documentation guide.
 [landing-prs]:https://github.com/rapid7/metasploit-framework/wiki/Landing-Pull-Requests
 [todb]:https://github.com/todb-r7
 [gh-pr-refs]:https://help.github.com/articles/checking-out-pull-requests-locally/
+[mirrorlist]:http://http.kali.org/README.mirrorlist
