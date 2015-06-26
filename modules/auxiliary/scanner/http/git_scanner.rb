@@ -7,10 +7,8 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanServer
-  # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -24,9 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The test path to .git directory", '/'])#,
-        #OptBool.new('GET_SOURCE', [ false, "Attempt to obtain file source code", true ]),
-        #OptBool.new('SHOW_SOURCE', [ false, "Show source code", true ])
+        OptString.new('PATH', [ true,  "The test path to .git directory", '/'])
 
       ], self.class)
 
@@ -36,8 +32,7 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
             File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
           ]
-        ),
-        OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
+        )
 
       ], self.class)
   end
@@ -47,16 +42,9 @@ class Metasploit3 < Msf::Auxiliary
     ecode = nil
     emesg = nil
 
-    word1 = 'core'
-    word2 = 'remote'
-    word3 = 'branch'
-
     tpath = normalize_uri(datastore['PATH'])
-    if tpath[-1,1] != '/'
-      tpath += '/'
-    end
 
-    ecode = datastore['ErrorCode'].to_i
+    ecode = datastore['ErrorCode']
     vhost = datastore['VHOST'] || wmap_target_host
 
     #
@@ -68,12 +56,11 @@ class Metasploit3 < Msf::Auxiliary
         'uri'  		=>  tpath+randdir,
         'method'   	=> 'GET',
         'ctype'		=> 'text/html'
-      }, 20)
+      })
 
       return if not res
 
       tcode = res.code.to_i
-
 
       # Look for a string we can signature on as well
       if(tcode >= 200 and tcode <= 299)
@@ -86,40 +73,48 @@ class Metasploit3 < Msf::Auxiliary
         end
 
         if(not emesg)
-          #print_status("Using first 256 bytes of the response as 404 string")
+          if datastore['VERBOSE']
+          vprint_status :level => :verror, :ip => ip, :msg => "['#{target_host}'] Using first 256 bytes of the response as 404 string '#{res.code}'"
+        end
           emesg = res.body[0,256]
         else
-          #print_status("Using custom 404 string of '#{emesg}'")
+          if datastore['VERBOSE']
+          vprint_status :level => :verror, :ip => ip, :msg => "['#{target_host}'] Using custom 404 string of '#{emesg}'"
+        end
         end
       else
         ecode = tcode
-        #print_status("Using code '#{ecode}' as not found.")
+        if datastore['VERBOSE']
+          vprint_status :level => :verror, :ip => ip, :msg => "['#{target_host}'] Using code '#{ecode}' as not found."
+        end
       end
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       conn = false
     rescue ::Timeout::Error, ::Errno::EPIPE
+      conn = false
     end
 
     return if not conn
 
-    dm = datastore['NoDetailMessages']
-
     begin
-      turl = tpath+'.git/config'#'.svn/entries'
-
       res = send_request_cgi({
-        'uri'          => turl,
+        'uri'          => normalize_uri(tpath,'.git','config'),
         'method'       => 'GET',
-        'version' => '1.0',
-      }, 10)
+        'version'      => '1.0',
+      })
 
-      if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
-        if dm == false
-          print_status("[#{target_host}] NOT Found. #{tpath} #{res.code}")
+      unless res
+        vprint_error("#{target_host} no response")
+        return 
+      end
+
+      if(((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
+        if datastore['VERBOSE']
+          vprint_status :level => :verror, :ip => ip, :msg => "['#{target_host}'] NOT Found. '#{tpath}' '#{res.code}'"
         end
       else
-        if (res.body.include?(word1) or res.body.include?(word2) or res.body.include?(word3))
+        if (res.body.include?('core') or res.body.include?('remote') or res.body.include?('branch'))
           print_good("[#{target_host}:#{rport}] Git Config file found.")
         end
       end
