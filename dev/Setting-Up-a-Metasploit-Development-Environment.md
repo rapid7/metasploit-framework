@@ -231,11 +231,10 @@ gem install bundler
 ## Configure Gnome Terminal to use RVM
 
 To always use RVM's version of ruby in Gnome Terminal, run the
-following:
+following as msfdev:
 
 ```
-sudo gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
- --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true
+gconftool-2 --set --type boolean /apps/gnome-terminal/profiles/Default/login_shell true
 ```
 
 Or, you can navigate to Edit > Profiles >
@@ -891,8 +890,7 @@ curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.6 &&
 source $HOME/.rvm/scripts/rvm &&
 gem install bundler &&
 ruby -v && # See that it's 2.1.6
-sudo gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
-  --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true
+gconftool-2 --set --type boolean /apps/gnome-terminal/profiles/Default/login_shell true
 ```
 
 ----
