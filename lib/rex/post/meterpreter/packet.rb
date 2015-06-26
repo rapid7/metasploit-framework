@@ -2,7 +2,7 @@
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 
 #
 # Constants
@@ -597,7 +597,7 @@ end
 
 ###
 #
-# The logical meterpreter packet class
+# The logical meeterpeter packet class
 #
 ###
 class Packet < GroupTlv

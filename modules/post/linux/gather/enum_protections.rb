@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
           'ohdae <bindshell[at]live.com>'
         ],
       'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell', 'meterpreter']
+      'SessionTypes'  => ['shell', 'meeterpeter']
     ))
   end
 
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
 
   def get_host
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       host = sysinfo["Computer"]
     when /shell/
       host = session.shell_command_token("hostname").chomp

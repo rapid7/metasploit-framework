@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
       'Platform'      => [ 'win', 'osx', 'linux' ],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ]
+      'SessionTypes'  => [ 'shell', 'meeterpeter' ]
     ))
 
     register_options(
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
       session.sys.process.execute(iexplore_path, "-k http://youtube.com/embed/#{id}?#{PLAY_OPTIONS}")
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return false
     end
 

@@ -1,11 +1,11 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/client'
-require 'rex/post/meterpreter/extensions/stdapi/constants'
+require 'rex/post/meeterpeter/client'
+require 'rex/post/meeterpeter/extensions/stdapi/constants'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Sys
@@ -227,7 +227,7 @@ class Memory
   #
   # Lock a region of memory into physical memory so that it can't be
   # swapped to disk.  This can only be done in the context of the
-  # process that is running the meterpreter server.  The instance's
+  # process that is running the meeterpeter server.  The instance's
   # handle is ignored.
   #
   def lock(base, length)
@@ -244,7 +244,7 @@ class Memory
   #
   # Unloock a region of memory into physical memory so that it can be
   # swapped to disk.  This can only be done in the context of the
-  # process that is running the meterpreter server.  The instance's
+  # process that is running the meeterpeter server.  The instance's
   # handle is ignored.
   #
   def unlock(base, length)

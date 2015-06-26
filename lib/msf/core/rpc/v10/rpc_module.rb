@@ -249,8 +249,8 @@ class RPC_Module < RPC_Base
   #  * 'job_id' [Fixnum] Job ID.
   #  * 'uuid' [String] UUID.
   # @example Here's how you would use this from the client:
-  #  # Starts a windows/meterpreter/reverse_tcp on port 6669
-  #  opts = {'LHOST' => '0.0.0.0', 'LPORT'=>6669, 'PAYLOAD'=>'windows/meterpreter/reverse_tcp'}
+  #  # Starts a windows/meeterpeter/reverse_tcp on port 6669
+  #  opts = {'LHOST' => '0.0.0.0', 'LPORT'=>6669, 'PAYLOAD'=>'windows/meeterpeter/reverse_tcp'}
   #  rpc.call('module.execute', 'exploit', 'multi/handler', opts)
   def rpc_execute(mtype, mname, opts)
     mod = _find_module(mtype,mname)

@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
           'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>'
         ],
-      'SessionTypes'   => [ 'meterpreter' ],
+      'SessionTypes'   => [ 'meeterpeter' ],
       'References'     =>
         [
           [ 'URL', 'http://adamcaudill.com/2012/07/27/decrypting-spark-saved-passwords/']

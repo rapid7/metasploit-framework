@@ -17,11 +17,11 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'          => 'Windows Gather ARP Scanner',
         'Description'   => %q{ This Module will perform an ARP scan for a given IP range through a
-          Meterpreter Session.},
+          meeterpeter Session.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter']
+        'SessionTypes'  => [ 'meeterpeter']
       ))
     register_options(
       [

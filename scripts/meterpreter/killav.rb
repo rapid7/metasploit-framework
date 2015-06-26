@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -7,7 +7,7 @@
 
 
 #
-# Meterpreter script that kills all Antivirus processes
+# meeterpeter script that kills all Antivirus processes
 # Provided by: Jerome Athias <jerome.athias [at] free.fr>
 #
 

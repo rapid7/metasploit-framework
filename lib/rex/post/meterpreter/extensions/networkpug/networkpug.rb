@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/networkpug/tlv'
+require 'rex/post/meeterpeter/extensions/networkpug/tlv'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module NetworkPug
 
@@ -35,7 +35,7 @@ class NetworkPug < Extension
     channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
 
     if(channel_id)
-      channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(
+      channel = Rex::Post::meeterpeter::Channels::Pools::StreamPool.new(
         client,
         channel_id,
         "networkpug_interface",

@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 
-#Meterpreter script for extracting information from windows prefetch folder
+#meeterpeter script for extracting information from windows prefetch folder
 #Provided by Milo at keith.lee2012[at]gmail.com
 #Verion: 0.1.0
 
@@ -114,9 +114,9 @@ def prefetch_dump(options, logging=false)
 end
 
 
-#check for proper Meterpreter Platform
+#check for proper meeterpeter Platform
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 
@@ -142,7 +142,7 @@ check_update  = false
   when "-l"
     logging = true
   when "-h"
-    print_status( "Prefetch-tool Meterpreter Script")
+    print_status( "Prefetch-tool meeterpeter Script")
     print_line(@@exec_opts.usage)
     raise Rex::Script::Completed
   end

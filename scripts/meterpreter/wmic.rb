@@ -1,11 +1,11 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
-#Meterpreter script for running WMIC commands on Windows 2003, Windows Vista
+#meeterpeter script for running WMIC commands on Windows 2003, Windows Vista
 # and Windows XP and Windows 2008 targets.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 ################## Variable Declarations ##################
@@ -73,15 +73,15 @@ def filewrt(file2wrt, data2wrt)
   output.close
 end
 
-#check for proper Meterpreter Platform
+#check for proper meeterpeter Platform
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 
 
 def usage
-  print_line("Windows WMIC Command Execution Meterpreter Script ")
+  print_line("Windows WMIC Command Execution meeterpeter Script ")
   print_line @@exec_opts.usage
   print_line("USAGE:")
   print_line("run wmic -c \"WMIC Command Argument\"\n")

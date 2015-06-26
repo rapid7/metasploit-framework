@@ -1,13 +1,13 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 #
-# Meterpreter script for setting up a route from within a
-# Meterpreter session, without having to background the
+# meeterpeter script for setting up a route from within a
+# meeterpeter session, without having to background the
 # current session.
 
 # Default options
@@ -144,7 +144,7 @@ def usage()
   print_status "  run autoroute -s 10.10.10.1/24              # CIDR notation is also okay"
   print_status "  run autoroute -p                            # Print active routing table"
   print_status "  run autoroute -d -s 10.10.10.1              # Deletes the 10.10.10.1/255.255.255.0 route"
-  print_status "Use the \"route\" and \"ipconfig\" Meterpreter commands to learn about available routes"
+  print_status "Use the \"route\" and \"ipconfig\" meeterpeter commands to learn about available routes"
   print_error "Deprecation warning: This script has been replaced by the post/windows/manage/autoroute module"
 end
 

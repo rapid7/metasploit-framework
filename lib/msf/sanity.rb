@@ -54,7 +54,7 @@ begin
   require 'openssl'
 rescue ::LoadError
   $stderr.puts "*** The ruby-openssl library is not installed, many features will be disabled!"
-  $stderr.puts "*** Examples: Meterpreter, SSL Sockets, SMB/NTLM Authentication, and more"
+  $stderr.puts "*** Examples: meeterpeter, SSL Sockets, SMB/NTLM Authentication, and more"
 end
 
 

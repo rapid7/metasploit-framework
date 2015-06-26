@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 
-# Meterpreter script for modifying the hosts file in windows
+# meeterpeter script for modifying the hosts file in windows
 # given a single entrie or several in a file and clear the
 # DNS cache on the target machine.
 # This script works with Windows 2000,Windows XP,Windows 2003,
@@ -24,7 +24,7 @@ session = client
   "-l" => [ true,  "Text file with list of entries in the format of IP,Hostname. One per line." ]
 )
 def usage
-  print_line("This Meterpreter script is for adding entries in to the Windows Hosts file.")
+  print_line("This meeterpeter script is for adding entries in to the Windows Hosts file.")
   print_line("Since Windows will check first the Hosts file instead of the configured DNS Server")
   print_line("it will assist in diverting traffic to the fake entry or entries. Either a single")
   print_line("entry can be provided or a series of entries provided a file with one per line.")
@@ -103,6 +103,6 @@ if client.platform =~ /win32|win64/
     usage
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

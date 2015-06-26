@@ -214,7 +214,7 @@ module Msf::DBManager::Host
   end
 
   #
-  # Update a host's attributes via semi-standardized sysinfo hash (Meterpreter)
+  # Update a host's attributes via semi-standardized sysinfo hash (meeterpeter)
   #
   # The opts parameter MUST contain the following entries
   # +:host+::           -- the host's ip address

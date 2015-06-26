@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -102,7 +102,7 @@ def enum_users(os)
   return users
 end
 
-# This is a hack because Meterpreter doesn't support exists?(file)
+# This is a hack because meeterpeter doesn't support exists?(file)
 def dir_entry_exists(path)
   files = @client.fs.dir.entries(path)
 rescue
@@ -385,6 +385,6 @@ if client.platform =~ /win32|win64/
     end
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

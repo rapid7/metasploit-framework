@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
       'License'     =>  MSF_LICENSE,
       'Author'      =>  ['TJ Glad <tjglad[at]cmail.nu>'],
       'Platform'    =>  ['win'],
-      'SessionType' =>  ['meterpreter']
+      'SessionType' =>  ['meeterpeter']
     ))
   end
 
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Post
     local_hive_copy.close
     begin
       session.fs.file.download_file(local_hive_copy.path, hive_path)
-    rescue ::Rex::Post::Meterpreter::RequestError
+    rescue ::Rex::Post::meeterpeter::RequestError
       print_error("Unable to download NTUSER.DAT/USRCLASS.DAT file")
       local_hive_copy.unlink rescue nil
       return nil

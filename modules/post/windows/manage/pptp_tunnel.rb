@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
           [ 'URL', 'http://www.youtube.com/watch?v=vdppEZjMPCM&hd=1' ]
         ],
       'Platform'      => 'win',
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(

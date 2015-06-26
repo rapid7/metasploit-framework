@@ -2,14 +2,14 @@
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Extapi
 module Adsi
 
 ###
 #
-# This meterpreter extension contains extended API functions for
+# This meeterpeter extension contains extended API functions for
 # querying and managing desktop windows.
 #
 ###
@@ -62,10 +62,10 @@ protected
 
   #
   # Retrieve the results of the query from the response
-  #   packet that was returned from Meterpreter.
+  #   packet that was returned from meeterpeter.
   #
   # @param response [Packet] Reference to the received
-  #   packet that was returned from Meterpreter.
+  #   packet that was returned from meeterpeter.
   #
   # @return [Array[Array[[Hash]]] Collection of results from
   #   the ADSI query.

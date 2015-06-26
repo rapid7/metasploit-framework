@@ -12,12 +12,12 @@ class Metasploit4 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Test Meterpreter ExtAPI Stuff',
+        'Name'          => 'Test meeterpeter ExtAPI Stuff',
         'Description'   => %q{ This module will test Windows Extended API methods },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Ben Campbell'],
         'Platform'      => [ 'windows', ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes'  => [ 'meeterpeter' ]
       ))
 
   end
@@ -32,7 +32,7 @@ class Metasploit4 < Msf::Post
       begin
         session.core.use("extapi")
       rescue Errno::ENOENT
-        print_error("This module is only available in a windows meterpreter session.")
+        print_error("This module is only available in a windows meeterpeter session.")
         return
       end
     end

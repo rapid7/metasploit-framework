@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
       },
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
-      'SessionTypes'    => ['meterpreter'],
+      'SessionTypes'    => ['meeterpeter'],
       'Author'          => ['Kx499']
     ))
   end
@@ -213,9 +213,9 @@ class Metasploit3 < Msf::Post
 
 
   def run
-    #check for meterpreter and version of ie
-    if session.type != "meterpreter" and session.platform !~ /win/
-      print_error("This module only works with Windows Meterpreter sessions")
+    #check for meeterpeter and version of ie
+    if session.type != "meeterpeter" and session.platform !~ /win/
+      print_error("This module only works with Windows meeterpeter sessions")
       return 0
     end
 

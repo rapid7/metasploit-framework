@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -30,7 +30,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-m" => [ false, "Execute from memory."					   ],
     "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
     "-t" => [ false, "Execute process with currently impersonated thread token"],
-    "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
+    "-k" => [ false, "Execute process on the meeterpeters current desktop"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
 
   #
@@ -254,7 +254,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       path = "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
     else
-      # Then this is a multi-platform meterpreter (php or java), which
+      # Then this is a multi-platform meeterpeter (php or java), which
       # must special-case COMSPEC to return the system-specific shell.
       path = client.fs.file.expand_path("%COMSPEC%")
       # If that failed for whatever reason, guess it's unix
@@ -265,7 +265,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 
   #
-  # Gets the process identifier that meterpreter is running in on the remote
+  # Gets the process identifier that meeterpeter is running in on the remote
   # machine.
   #
   def cmd_getpid(*args)
@@ -440,7 +440,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         return true
       when "-A"
         print_line "Filtering on arch..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+        searched_procs = Rex::Post::meeterpeter::Extensions::Stdapi::Sys::ProcessList.new
         processes.each do |proc|
           next if proc['arch'].nil? or proc['arch'].empty?
           if val.nil? or val.empty? or !(val == "x86" or val == "x86_64")
@@ -452,14 +452,14 @@ class Console::CommandDispatcher::Stdapi::Sys
         processes = searched_procs
       when "-s"
         print_line "Filtering on SYSTEM processes..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+        searched_procs = Rex::Post::meeterpeter::Extensions::Stdapi::Sys::ProcessList.new
         processes.each do |proc|
           searched_procs << proc	if proc["user"] == "NT AUTHORITY\\SYSTEM"
         end
         processes = searched_procs
       when "-U"
         print_line "Filtering on user name..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+        searched_procs = Rex::Post::meeterpeter::Extensions::Stdapi::Sys::ProcessList.new
         processes.each do |proc|
           if val.nil? or val.empty?
             print_line "You must supply a search term!"
@@ -827,13 +827,13 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_sysinfo(*args)
     info = client.sys.config.sysinfo
-    width = "Meterpreter".length
+    width = "meeterpeter".length
     info.keys.each { |k| width = k.length if k.length > width and info[k] }
 
     info.each_pair do |key, value|
       print_line("#{key.ljust(width+1)}: #{value}") if value
     end
-    print_line("#{"Meterpreter".ljust(width+1)}: #{client.platform}")
+    print_line("#{"meeterpeter".ljust(width+1)}: #{client.platform}")
 
     return true
   end
@@ -916,7 +916,7 @@ class Console::CommandDispatcher::Stdapi::Sys
           end
         end
       end
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::meeterpeter::RequestError => e
       print_error "Error acting on the process:  #{e.to_s}."
       print_error "Try migrating to a process with the same owner as the target process."
       print_error "Also consider running the win_privs post module and confirm SeDebug priv."

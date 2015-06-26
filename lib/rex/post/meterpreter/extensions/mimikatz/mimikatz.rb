@@ -1,11 +1,11 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/mimikatz/tlv'
+require 'rex/post/meeterpeter/extensions/mimikatz/tlv'
 require 'csv'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Mimikatz
 

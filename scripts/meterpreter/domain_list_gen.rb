@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -15,7 +15,7 @@ opts = Rex::Parser::Arguments.new(
 opts.parse(args) { |opt, idx, val|
   case opt
   when "-h"
-    print_line "Meterpreter Script for extracting Doamin Admin Account list for use."
+    print_line "meeterpeter Script for extracting Doamin Admin Account list for use."
     print_line "in token_hunter plugin and verifies if current account for session is"
     print_line "is a member of such group."
     print_line(opts.usage)
@@ -24,7 +24,7 @@ opts.parse(args) { |opt, idx, val|
 }
 
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 #-------------------------------------------------------------------------------

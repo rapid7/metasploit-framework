@@ -1,17 +1,17 @@
 # -*- coding: binary -*-
 
-#require 'rex/post/meterpreter/extensions/process'
+#require 'rex/post/meeterpeter/extensions/process'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Webcam
 
 ###
 #
-# This meterpreter extension can list and capture from webcams and/or microphone
+# This meeterpeter extension can list and capture from webcams and/or microphone
 #
 ###
 class Webcam
@@ -133,7 +133,7 @@ class Webcam
       end
     when /linux|unix/
       # Need to add support for Linux in the future.
-      # But you see, the Linux meterpreter is so broken there is no point
+      # But you see, the Linux meeterpeter is so broken there is no point
       # to do it now. You can't test anyway.
     end
 

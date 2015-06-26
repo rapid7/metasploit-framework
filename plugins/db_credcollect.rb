@@ -45,7 +45,7 @@ class Plugin::CredCollect < Msf::Plugin
 
     print_status("This is CredCollect, I have the conn!")
 
-    if (session.type == "meterpreter")
+    if (session.type == "meeterpeter")
 
       # Make sure we're rockin Priv and Incognito
       session.core.use("priv")
@@ -57,7 +57,7 @@ class Plugin::CredCollect < Msf::Plugin
       # Target infos for the db record
       addr = session.sock.peerhost
       # This ought to read from the exploit's datastore.
-      # Use the meterpreter script if you need to control it.
+      # Use the meeterpeter script if you need to control it.
       smb_port = 445
 
       # Record hashes to the running db instance
@@ -110,7 +110,7 @@ class Plugin::CredCollect < Msf::Plugin
   end
 
   def desc
-    "Automatically grabs hashes and tokens from meterpreter session events and stores them in the db"
+    "Automatically grabs hashes and tokens from meeterpeter session events and stores them in the db"
   end
 
 end

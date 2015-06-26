@@ -1,28 +1,28 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/packet'
-require 'rex/post/meterpreter/extension'
-require 'rex/post/meterpreter/client'
+require 'rex/post/meeterpeter/packet'
+require 'rex/post/meeterpeter/extension'
+require 'rex/post/meeterpeter/client'
 
 # Used to generate a reflective DLL when migrating. This is yet another
-# argument for moving the meterpreter client into the Msf namespace.
+# argument for moving the meeterpeter client into the Msf namespace.
 require 'msf/core/payload/windows'
 
 # URI uuid and checksum stuff
 require 'msf/core/payload/uuid'
-require 'rex/payloads/meterpreter/uri_checksum'
+require 'rex/payloads/meeterpeter/uri_checksum'
 
 # certificate hash checking
 require 'rex/parser/x509_certificate'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 
 ###
 #
 # This class is responsible for providing the interface to the core
-# client-side meterpreter API which facilitates the loading of extensions
+# client-side meeterpeter API which facilitates the loading of extensions
 # and the interaction with channels.
 #
 #
@@ -30,11 +30,11 @@ module Meterpreter
 class ClientCore < Extension
 
   UNIX_PATH_MAX = 108
-  DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
+  DEFAULT_SOCK_PATH = "/tmp/meeterpeter.sock"
 
-  METERPRETER_TRANSPORT_SSL   = 0
-  METERPRETER_TRANSPORT_HTTP  = 1
-  METERPRETER_TRANSPORT_HTTPS = 2
+  meeterpeter_TRANSPORT_SSL   = 0
+  meeterpeter_TRANSPORT_HTTP  = 1
+  meeterpeter_TRANSPORT_HTTPS = 2
 
   TIMEOUT_SESSION = 24*3600*7  # 1 week
   TIMEOUT_COMMS = 300          # 5 minutes
@@ -42,16 +42,16 @@ class ClientCore < Extension
   TIMEOUT_RETRY_WAIT = 10      # 10 seconds
 
   VALID_TRANSPORTS = {
-    'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
-    'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
-    'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
-    'bind_tcp'      => METERPRETER_TRANSPORT_SSL
+    'reverse_tcp'   => meeterpeter_TRANSPORT_SSL,
+    'reverse_http'  => meeterpeter_TRANSPORT_HTTP,
+    'reverse_https' => meeterpeter_TRANSPORT_HTTPS,
+    'bind_tcp'      => meeterpeter_TRANSPORT_SSL
   }
 
-  include Rex::Payloads::Meterpreter::UriChecksum
+  include Rex::Payloads::meeterpeter::UriChecksum
 
   #
-  # Initializes the 'core' portion of the meterpreter client commands.
+  # Initializes the 'core' portion of the meeterpeter client commands.
   #
   def initialize(client)
     super(client, "core")
@@ -73,7 +73,7 @@ class ClientCore < Extension
     begin
       response = self.client.send_packet_wait_response(request, self.client.response_timeout)
     rescue
-      # In the case where orphaned shells call back with OLD copies of the meterpreter
+      # In the case where orphaned shells call back with OLD copies of the meeterpeter
       # binaries, we end up with a case where this fails. So here we just return the
       # empty list of supported commands.
       return []
@@ -150,7 +150,7 @@ class ClientCore < Extension
   end
 
   #
-  # Loads a library on the remote meterpreter instance.  This method
+  # Loads a library on the remote meeterpeter instance.  This method
   # supports loading both extension and non-extension libraries and
   # also supports loading libraries from memory or disk depending
   # on the flags that are specified
@@ -171,7 +171,7 @@ class ClientCore < Extension
   #		on the remote machine
   #
   #	Extension
-  #		Indicates whether or not the library is a meterpreter extension
+  #		Indicates whether or not the library is a meeterpeter extension
   #
   def load_library(opts)
     library_path = opts['LibraryFilePath']
@@ -247,7 +247,7 @@ class ClientCore < Extension
   end
 
   #
-  # Loads a meterpreter extension on the remote server instance and
+  # Loads a meeterpeter extension on the remote server instance and
   # initializes the client-side extension handlers
   #
   #	Module
@@ -269,10 +269,10 @@ class ClientCore < Extension
     # if there are existing commands for the given extension, then we can use
     # what's already there
     unless commands.length > 0
-      # Get us to the installation root and then into data/meterpreter, where
+      # Get us to the installation root and then into data/meeterpeter, where
       # the file is expected to be
       modname = "ext_server_#{mod.downcase}"
-      path = MetasploitPayloads.meterpreter_path(modname, client.binary_suffix)
+      path = MetasploitPayloads.meeterpeter_path(modname, client.binary_suffix)
 
       if opts['ExtensionPath']
         path = ::File.expand_path(opts['ExtensionPath'])
@@ -320,7 +320,7 @@ class ClientCore < Extension
 
     # Normalise the format of the incoming machine id so that it's consistent
     # regardless of case and leading/trailing spaces. This means that the
-    # individual meterpreters don't have to care.
+    # individual meeterpeters don't have to care.
 
     # Note that the machine ID may be blank or nil and that is OK
     Rex::Text.md5(mid.to_s.downcase.strip)
@@ -428,7 +428,7 @@ class ClientCore < Extension
   end
 
   #
-  # Migrates the meterpreter instance to the process specified
+  # Migrates the meeterpeter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
   def migrate(pid, writable_dir = nil)
@@ -496,7 +496,7 @@ class ClientCore < Extension
       pos = blob.index(DEFAULT_SOCK_PATH)
 
       if pos.nil?
-        raise RuntimeError, "The meterpreter binary is wrong", caller
+        raise RuntimeError, "The meeterpeter binary is wrong", caller
       end
 
       blob[pos, socket_path.length + 1] = socket_path + "\x00"
@@ -555,11 +555,11 @@ class ClientCore < Extension
       end
     end
 
-    # Update the meterpreter platform/suffix for loading extensions as we may
+    # Update the meeterpeter platform/suffix for loading extensions as we may
     # have changed target architecture
     # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a
     # module this is the simplest solution I could think of. If the platform
-    # specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change
+    # specific modules meeterpeter_x64_Win/meeterpeter_x86_Win change
     # significantly we will need a better way to do this.
 
     case client.platform
@@ -672,7 +672,7 @@ class ClientCore < Extension
       opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
-      if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
+      if transport == meeterpeter_TRANSPORT_HTTPS && opts[:cert]
         hash = Rex::Parser::X509Certificate.get_cert_file_hash(opts[:cert])
         request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
       end
@@ -719,9 +719,9 @@ class ClientCore < Extension
 
     # Include the appropriate reflective dll injection module for the target process architecture...
     if process['arch'] == ARCH_X86
-      c.include( ::Msf::Payload::Windows::MeterpreterLoader )
+      c.include( ::Msf::Payload::Windows::meeterpeterLoader )
     elsif process['arch'] == ARCH_X86_64
-      c.include( ::Msf::Payload::Windows::MeterpreterLoader_x64 )
+      c.include( ::Msf::Payload::Windows::meeterpeterLoader_x64 )
     else
       raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
     end
@@ -729,13 +729,13 @@ class ClientCore < Extension
     # Create the migrate stager
     migrate_stager = c.new()
 
-    blob = migrate_stager.stage_meterpreter
+    blob = migrate_stager.stage_meeterpeter
 
     blob
   end
 
   def generate_linux_stub
-    blob = MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
+    blob = MetasploitPayloads.read('meeterpeter', 'msflinker_linux_x86.bin')
 
     blob
   end

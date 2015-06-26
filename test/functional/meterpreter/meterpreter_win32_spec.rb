@@ -5,37 +5,37 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'test', 'lib'))
 
 require 'fileutils'
 require 'msf/base'
-require 'meterpreter_spec_helper'
+require 'meeterpeter_spec_helper'
 require 'msf_matchers'
-require 'meterpreter_specs'
-require 'windows_meterpreter_specs'
+require 'meeterpeter_specs'
+require 'windows_meeterpeter_specs'
 
 module MsfTest
 
-describe "Win32Meterpreter" do
+describe "Win32meeterpeter" do
 
   # Include Custom Matchers
   include MsfTest::MsfMatchers
 
   
   # This include brings in all the spec helper methods
-  include MsfTest::MeterpreterSpecHelper
+  include MsfTest::meeterpeterSpecHelper
   
   # This include brings in all the specs that are generic across the 
-  # meterpreter platforms
-  include MsfTest::MeterpreterSpecs
+  # meeterpeter platforms
+  include MsfTest::meeterpeterSpecs
 
   # This include brings in all the specs that are specific to the 
-  # windows meterpreter platforms
-  include MsfTest::WindowsMeterpreterSpecs
+  # windows meeterpeter platforms
+  include MsfTest::WindowsmeeterpeterSpecs
 
   before :all do
     @verbose = true
   
-    @meterpreter_type = "win32"
+    @meeterpeter_type = "win32"
     
     ## Set up an outupt directory
-    @output_directory = File.join(File.dirname(__FILE__), "test_output_#{@meterpreter_type}")
+    @output_directory = File.join(File.dirname(__FILE__), "test_output_#{@meeterpeter_type}")
 
     if File.directory? @output_directory
       FileUtils.rm_rf(@output_directory)
@@ -61,7 +61,7 @@ describe "Win32Meterpreter" do
     FileUtils.rm_rf(@output_directory)
 
     ## Screenshot command leaves .jpegs :(
-    ## TODO - fix the meterpreter command to write to
+    ## TODO - fix the meeterpeter command to write to
     ## TODO - an arbitrary file.
     Dir.new(File.dirname(__FILE__)).each do |file|
       if file =~ /.jpeg/
@@ -76,7 +76,7 @@ describe "Win32Meterpreter" do
     ## Setup for win32
     @framework    = Msf::Simple::Framework.create
     @exploit_name = 'windows/smb/psexec'
-    @payload_name = 'windows/meterpreter/bind_tcp'
+    @payload_name = 'windows/meeterpeter/bind_tcp'
     @input        = Rex::Ui::Text::Input::Stdio.new 
     @output       = Rex::Ui::Text::Output::File.new(@default_file)
 

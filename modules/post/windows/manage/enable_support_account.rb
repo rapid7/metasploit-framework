@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => 'salcho <salchoman[at]gmail.com>',
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
+      'SessionTypes'  => [ 'meeterpeter' ],
       'References'	=> [ 'http://xangosec.blogspot.com/2013/06/trojanizing-windows.html' ]
     ))
 

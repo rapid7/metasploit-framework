@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 
-#Meterpreter script for running multiple scripts on a Meterpreter Session
+#meeterpeter script for running multiple scripts on a meeterpeter Session
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #Verion: 0.2
 ################## Variable Declarations ##################
@@ -45,7 +45,7 @@ def script_exec(session,scrptlst)
 end
 
 def usage
-  print_line("Multi Script Execution Meterpreter Script ")
+  print_line("Multi Script Execution meeterpeter Script ")
   print_line(@@exec_opts.usage)
 end
 

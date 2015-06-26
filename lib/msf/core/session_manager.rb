@@ -82,7 +82,7 @@ class SessionManager < Hash
 
 
         #
-        # TODO: Call the dispatch entry point of each Meterpreter thread instead of
+        # TODO: Call the dispatch entry point of each meeterpeter thread instead of
         #       dedicating specific processing threads to each session
         #
 

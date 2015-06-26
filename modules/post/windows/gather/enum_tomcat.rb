@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
         'Barry Shteiman <barry[at]sectorix.com>', # Module author
       ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
   end
 

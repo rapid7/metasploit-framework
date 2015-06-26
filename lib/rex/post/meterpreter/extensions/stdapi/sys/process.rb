@@ -1,19 +1,19 @@
 # -*- coding: binary -*-
 
 require 'rex/post/process'
-require 'rex/post/meterpreter/packet'
-require 'rex/post/meterpreter/client'
-require 'rex/post/meterpreter/channels/pools/stream_pool'
-require 'rex/post/meterpreter/extensions/stdapi/stdapi'
+require 'rex/post/meeterpeter/packet'
+require 'rex/post/meeterpeter/client'
+require 'rex/post/meeterpeter/channels/pools/stream_pool'
+require 'rex/post/meeterpeter/extensions/stdapi/stdapi'
 
-require 'rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/image'
-require 'rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/io'
-require 'rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/memory'
-require 'rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/process_subsystem/image'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/process_subsystem/io'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/process_subsystem/memory'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/process_subsystem/thread'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Sys
@@ -25,7 +25,7 @@ module Sys
 ##
 class Process < Rex::Post::Process
 
-  include Rex::Post::Meterpreter::ObjectAliasesContainer
+  include Rex::Post::meeterpeter::ObjectAliasesContainer
 
   ##
   #
@@ -170,7 +170,7 @@ class Process < Rex::Post::Process
 
     # If we were creating a channel out of this
     if (channel_id != nil)
-      channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client,
+      channel = Rex::Post::meeterpeter::Channels::Pools::StreamPool.new(client,
           channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS)
     end
 
@@ -279,10 +279,10 @@ class Process < Rex::Post::Process
 
     initialize_aliases(
       {
-        'image'  => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Image.new(self),
-        'io'     => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::IO.new(self),
-        'memory' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Memory.new(self),
-        'thread' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread.new(self),
+        'image'  => Rex::Post::meeterpeter::Extensions::Stdapi::Sys::ProcessSubsystem::Image.new(self),
+        'io'     => Rex::Post::meeterpeter::Extensions::Stdapi::Sys::ProcessSubsystem::IO.new(self),
+        'memory' => Rex::Post::meeterpeter::Extensions::Stdapi::Sys::ProcessSubsystem::Memory.new(self),
+        'thread' => Rex::Post::meeterpeter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread.new(self),
       })
 
     ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.handle) )
@@ -376,7 +376,7 @@ class ProcessList < Array
   #
   # +opts+ is passed on to Rex::Ui::Text::Table.new, mostly unmolested
   #
-  # Note that this output is affected by Rex::Post::Meterpreter::Client#unicode_filter_encode
+  # Note that this output is affected by Rex::Post::meeterpeter::Client#unicode_filter_encode
   #
   def to_table(opts={})
     if empty?

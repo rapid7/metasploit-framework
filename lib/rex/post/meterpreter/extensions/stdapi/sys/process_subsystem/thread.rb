@@ -1,12 +1,12 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/client'
-require 'rex/post/meterpreter/extensions/stdapi/constants'
-require 'rex/post/meterpreter/extensions/stdapi/sys/thread'
+require 'rex/post/meeterpeter/client'
+require 'rex/post/meeterpeter/extensions/stdapi/constants'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/thread'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Sys
@@ -69,7 +69,7 @@ class Thread
     response = process.client.send_request(request)
 
     # Create a thread class instance
-    return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Thread.new(
+    return Rex::Post::meeterpeter::Extensions::Stdapi::Sys::Thread.new(
         process, response.get_tlv_value(TLV_TYPE_THREAD_HANDLE), tid)
   end
 
@@ -104,7 +104,7 @@ class Thread
     thread_handle = response.get_tlv_value(TLV_TYPE_THREAD_HANDLE)
 
     # Create a thread class instance
-    return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Thread.new(
+    return Rex::Post::meeterpeter::Extensions::Stdapi::Sys::Thread.new(
         process, thread_handle, thread_id)
   end
 

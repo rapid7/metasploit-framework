@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
 
 require 'metasploit-payloads'
-require 'rex/post/meterpreter/client'
-require 'rex/post/meterpreter/ui/console'
+require 'rex/post/meeterpeter/client'
+require 'rex/post/meeterpeter/ui/console'

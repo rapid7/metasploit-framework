@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
       'Platform'      => [ 'win'],
-      'SessionTypes'  => [ "meterpreter" ],
+      'SessionTypes'  => [ "meeterpeter" ],
       'Actions'       =>
         [
           [ 'LIST',     { 'Description' => 'Show a list of webcams' } ],
@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Post
 
       client.webcam.webcam_stop
       print_status("#{rhost} - Stopped")
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error(e.message)
       return
     end
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Post
   def list_webcams(show=false)
     begin
       webcams = client.webcam.webcam_list
-    rescue Rex::Post::Meterpreter::RequestError
+    rescue Rex::Post::meeterpeter::RequestError
       webcams = []
     end
 

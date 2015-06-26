@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
           'RageLtMan <rageltman[at]sempervictus>'
         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Post
     datastore['FILE_GLOBS'].split(",").each do |glob|
       begin
         download_files(location, glob.strip)
-      rescue ::Rex::Post::Meterpreter::RequestError => e
+      rescue ::Rex::Post::meeterpeter::RequestError => e
         if e.message =~ /The device is not ready/
           print_error("#{my_drive} drive is not ready")
           next

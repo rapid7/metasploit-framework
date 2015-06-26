@@ -22,9 +22,9 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => ['sinn3r'],
       'Platform'      => ['linux'],
-      # linux meterpreter is too busted to support right now,
+      # linux meeterpeter is too busted to support right now,
       # will come back and add support once it's more usable.
-      'SessionTypes'  => ['shell', 'meterpreter'],
+      'SessionTypes'  => ['shell', 'meeterpeter'],
       'Actions'       =>
         [
           ['CONFIGS', { 'Description' => 'Collect XCHAT\'s config files' } ],

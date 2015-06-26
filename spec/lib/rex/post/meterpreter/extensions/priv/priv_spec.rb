@@ -1,11 +1,11 @@
 require 'spec_helper'
-require 'rex/post/meterpreter/extension'
-require 'rex/post/meterpreter/extensions/priv/priv'
+require 'rex/post/meeterpeter/extension'
+require 'rex/post/meeterpeter/extensions/priv/priv'
 
-describe Rex::Post::Meterpreter::Extensions::Priv::Priv do
+describe Rex::Post::meeterpeter::Extensions::Priv::Priv do
 
   it "should be available" do
-    expect(described_class).to eq(Rex::Post::Meterpreter::Extensions::Priv::Priv)
+    expect(described_class).to eq(Rex::Post::meeterpeter::Extensions::Priv::Priv)
   end
 
   describe "#getsystem" do

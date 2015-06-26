@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
+require 'msf/base/sessions/meeterpeter'
 require 'msf/windows_error'
 
 module Msf
@@ -8,10 +8,10 @@ module Sessions
 
 ###
 #
-# This class creates a platform-specific meterpreter session type
+# This class creates a platform-specific meeterpeter session type
 #
 ###
-class Meterpreter_x86_Win < Msf::Sessions::Meterpreter
+class meeterpeter_x86_Win < Msf::Sessions::meeterpeter
   def initialize(rstream,opts={})
     super
     self.platform      = 'x86/win32'

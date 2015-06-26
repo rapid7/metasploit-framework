@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
       'References'    => [ 'URL', 'https://forsec.nl/2014/11/reading-outlook-using-metasploit' ],
       'Platform'      => [ 'win' ],
       'Arch'          => [ 'x86', 'x64' ],
-      'SessionTypes'  => [ 'meterpreter' ],
+      'SessionTypes'  => [ 'meeterpeter' ],
       'Actions'       => [
         [ 'LIST', { 'Description' => 'Lists all folders' } ],
         [ 'SEARCH', { 'Description' => 'Searches for an email' } ]

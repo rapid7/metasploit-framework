@@ -2,14 +2,14 @@
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Extapi
 module Window
 
 ###
 #
-# This meterpreter extension contains extended API functions for
+# This meeterpeter extension contains extended API functions for
 # querying and managing desktop windows.
 #
 ###

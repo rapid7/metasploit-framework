@@ -12,11 +12,11 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'          => 'Multi Gather Run Shell Command Resource File',
         'Description'   => %q{ This module will read shell commands from a resource file and
-          execute the commands in the specified Meterpreter or shell session.},
+          execute the commands in the specified meeterpeter or shell session.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform'      => %w{ bsd linux osx unix win },
-        'SessionTypes'  => [ 'meterpreter','shell' ]
+        'SessionTypes'  => [ 'meeterpeter','shell' ]
       ))
     register_options(
       [
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
           tmpout << "      Output of #{cmd}\n"
           tmpout << "*****************************************\n"
           print_status "Running command #{cmd.chomp}"
-          if session_type =~ /meterpreter/
+          if session_type =~ /meeterpeter/
             tmpout << cmd_exec(cmd.chomp)
           elsif session_type =~ /shell/
             tmpout << session.shell_command_token(cmd.chomp).chomp

@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
           'Joshua Harper <josh[at]radixtx.com>' # @JonValt
         ],
         'Platform' => %w{ win },
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meeterpeter' ]
       ))
   end
 

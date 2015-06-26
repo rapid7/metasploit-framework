@@ -1,22 +1,22 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/extapi/tlv'
-require 'rex/post/meterpreter/extensions/extapi/window/window'
-require 'rex/post/meterpreter/extensions/extapi/service/service'
-require 'rex/post/meterpreter/extensions/extapi/clipboard/clipboard'
-require 'rex/post/meterpreter/extensions/extapi/adsi/adsi'
-require 'rex/post/meterpreter/extensions/extapi/ntds/ntds'
-require 'rex/post/meterpreter/extensions/extapi/wmi/wmi'
+require 'rex/post/meeterpeter/extensions/extapi/tlv'
+require 'rex/post/meeterpeter/extensions/extapi/window/window'
+require 'rex/post/meeterpeter/extensions/extapi/service/service'
+require 'rex/post/meeterpeter/extensions/extapi/clipboard/clipboard'
+require 'rex/post/meeterpeter/extensions/extapi/adsi/adsi'
+require 'rex/post/meeterpeter/extensions/extapi/ntds/ntds'
+require 'rex/post/meeterpeter/extensions/extapi/wmi/wmi'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Extapi
 
 ###
 #
-# This meterpreter extension contains an extended API which will allow for more
+# This meeterpeter extension contains an extended API which will allow for more
 #  advanced enumeration of the victim.
 #
 ###
@@ -31,12 +31,12 @@ class Extapi < Extension
           'name' => 'extapi',
           'ext'  => ObjectAliases.new(
             {
-              'window'    => Rex::Post::Meterpreter::Extensions::Extapi::Window::Window.new(client),
-              'service'   => Rex::Post::Meterpreter::Extensions::Extapi::Service::Service.new(client),
-              'clipboard' => Rex::Post::Meterpreter::Extensions::Extapi::Clipboard::Clipboard.new(client),
-              'adsi'      => Rex::Post::Meterpreter::Extensions::Extapi::Adsi::Adsi.new(client),
-              'ntds'      => Rex::Post::Meterpreter::Extensions::Extapi::Ntds::Ntds.new(client),
-              'wmi'       => Rex::Post::Meterpreter::Extensions::Extapi::Wmi::Wmi.new(client)
+              'window'    => Rex::Post::meeterpeter::Extensions::Extapi::Window::Window.new(client),
+              'service'   => Rex::Post::meeterpeter::Extensions::Extapi::Service::Service.new(client),
+              'clipboard' => Rex::Post::meeterpeter::Extensions::Extapi::Clipboard::Clipboard.new(client),
+              'adsi'      => Rex::Post::meeterpeter::Extensions::Extapi::Adsi::Adsi.new(client),
+              'ntds'      => Rex::Post::meeterpeter::Extensions::Extapi::Ntds::Ntds.new(client),
+              'wmi'       => Rex::Post::meeterpeter::Extensions::Extapi::Wmi::Wmi.new(client)
             })
         },
       ])

@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'mubix' ],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes'  => [ 'meeterpeter' ]
       ))
     register_options(
       [
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
       memtext = client.railgun.memread(ptr2dns['return'],255)
       host_inmem = memtext.split(ip_ino)[1].split("\00")[0]
       print_good("#{ip} resolves to #{host_inmem}")
-    rescue Rex::Post::Meterpreter::RequestError
+    rescue Rex::Post::meeterpeter::RequestError
       print_error("Failed to resolve #{ip}")
     end
   end

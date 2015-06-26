@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => ['TJ Glad <tjglad[at]cmail.nu>'],
       'Platform'      => ['win'],
-      'SessionType'   => ['meterpreter']
+      'SessionType'   => ['meeterpeter']
     ))
   end
 

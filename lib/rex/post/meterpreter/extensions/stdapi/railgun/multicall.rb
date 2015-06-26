@@ -25,14 +25,14 @@
 
 require 'pp'
 require 'enumerator'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/api_constants'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/tlv'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/dll_helper'
+require 'rex/post/meeterpeter/extensions/stdapi/railgun/buffer_item'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Railgun
@@ -196,9 +196,9 @@ class MultiCaller
           #puts "   blob size so far: %X" % literal_pairs_blob.length
         end
 
-        #puts "\n\nsending Stuff to meterpreter"
+        #puts "\n\nsending Stuff to meeterpeter"
 
-        group = Rex::Post::Meterpreter::GroupTlv.new(TLV_TYPE_RAILGUN_MULTI_GROUP)
+        group = Rex::Post::meeterpeter::GroupTlv.new(TLV_TYPE_RAILGUN_MULTI_GROUP)
         group.add_tlv(TLV_TYPE_RAILGUN_SIZE_OUT, out_only_size_bytes)
         group.add_tlv(TLV_TYPE_RAILGUN_STACKBLOB, literal_pairs_blob)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)

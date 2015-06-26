@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
                           'hdm' # crypto help
                         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
+      'SessionTypes'  => [ 'meeterpeter' ],
       'References'    => [
         ['URL', 'http://www.recon.cx/en/f/vskype-part2.pdf'],
         ['URL', 'http://insecurety.net/?p=427'],

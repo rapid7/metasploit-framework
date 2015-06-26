@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
       },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
+      'SessionTypes'         => ['meeterpeter'],
       'Author'               => ['RageLtMan']
     ))
 
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Post
 
     # Make sure we meet the requirements before running the script, note no need to return
     # unless error
-    return 0 if session.type != "meterpreter"
+    return 0 if session.type != "meeterpeter"
 
     # get time
     strtime = Time.now

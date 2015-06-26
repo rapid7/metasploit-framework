@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
                             ),
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
+      'SessionTypes'         => ['meeterpeter'],
       'Author'               => ['Kx499']
     ))
 
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
   def run
     # Make sure we meet the requirements before running the script, note no need to return
     # unless error
-    return unless session.type == "meterpreter"
+    return unless session.type == "meeterpeter"
 
     pi = nil
     # check/set vars

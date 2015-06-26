@@ -1,19 +1,19 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 
-#Meterpreter script for automating the most common scheduling tasks
+#meeterpeter script for automating the most common scheduling tasks
 #during a pentest. This script will use the schtasks command so as
 #to provide future compatibility since MS will retire the AT command
 #in future versions of windows. This script works with Windows XP,
 #Windows 2003, Windows Vista and Windows 2008.
 #Version: 0.1.2
 #Note: in Vista UAC must be disabled to be able to perform scheduling
-#and the meterpreter must be running under the profile of local admin
+#and the meeterpeter must be running under the profile of local admin
 #or system.
 ################## Variable Declarations ##################
 session = client
@@ -37,7 +37,7 @@ session = client
 def usage()
   print_line("Scheduleme -- provides most common scheduling types used during a pentest")
   print_line("This script can upload a given executable or script and schedule it to be")
-  print_line("executed. All scheduled task are run as System so the Meterpreter process")
+  print_line("executed. All scheduled task are run as System so the meeterpeter process")
   print_line("must be System or local admin for local schedules and Administrator for")
   print_line("remote schedules")
   print_line(@@exec_opts.usage)
@@ -258,9 +258,9 @@ if client.platform =~ /win32|win64/
       scheduleme(session,schtype,cmd,tmmod,cmdopt,username,password)
     end
   else
-    print_status("Meterpreter is not running under sufficient administrative rights.")
+    print_status("meeterpeter is not running under sufficient administrative rights.")
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

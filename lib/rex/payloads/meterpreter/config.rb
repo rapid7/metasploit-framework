@@ -4,7 +4,7 @@ require 'msf/core/payload/windows'
 require 'msf/core/reflective_dll_loader'
 require 'rex/parser/x509_certificate'
 
-class Rex::Payloads::Meterpreter::Config
+class Rex::Payloads::meeterpeter::Config
 
   include Msf::ReflectiveDLLLoader
 
@@ -114,7 +114,7 @@ private
 
   def extension_block(ext_name, file_extension)
     ext_name = ext_name.strip.downcase
-    ext, o = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
+    ext, o = load_rdi_dll(MetasploitPayloads.meeterpeter_path("ext_server_#{ext_name}",
                                                               file_extension))
 
     extension_data = [ ext.length, ext ].pack('VA*')

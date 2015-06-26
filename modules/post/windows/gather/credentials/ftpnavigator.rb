@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         => ['theLightCosine'],
       'Platform'       => [ 'win' ],
-      'SessionTypes'   => [ 'meterpreter' ]
+      'SessionTypes'   => [ 'meeterpeter' ]
     ))
   end
 
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 
     begin
       ftplist = client.fs.file.new(path,'r')
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error("Unable to open Ftplist.txt: #{e}")
       print_error("FTP Navigator May not Ne Installed")
       return

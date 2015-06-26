@@ -12,14 +12,14 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Windows Manage Network Route via Meterpreter Session',
+        'Name'          => 'Windows Manage Network Route via meeterpeter Session',
         'Description'   => %q{This module manages session routing via an existing
-          Meterpreter session. It enables other modules to 'pivot' through a
+          meeterpeter session. It enables other modules to 'pivot' through a
           compromised host when connecting to the named NETWORK and SUBMASK.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'todb'],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter']
+        'SessionTypes'  => [ 'meeterpeter']
       ))
 
     register_options(

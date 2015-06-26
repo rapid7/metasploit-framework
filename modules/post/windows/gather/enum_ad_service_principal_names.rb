@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
           'Scott Sutherland' #Original Powershell Code
         ],
       'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ],
+      'SessionTypes' => [ 'meeterpeter' ],
       'References'   =>
         [
           ['URL', 'https://www.netspi.com/blog/entryid/214/faster-domain-escalation-using-ldap'],

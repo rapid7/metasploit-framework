@@ -4,7 +4,7 @@ require 'msf/core/payload/uuid/options'
 
 ##
 # This module contains helper functions for creating the transport
-# configuration stubs that are used for Meterpreter payloads.
+# configuration stubs that are used for meeterpeter payloads.
 ##
 module Msf::Payload::TransportConfig
 

@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
   end
 

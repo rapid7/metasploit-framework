@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
       'Platform'       => [ 'win' ],
-      'SessionTypes'   => [ 'meterpreter' ]
+      'SessionTypes'   => [ 'meeterpeter' ]
     ))
   end
 

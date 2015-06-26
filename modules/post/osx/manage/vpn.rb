@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
             'Peter Toth <globetother[at]gmail.com>'
           ],
         'Platform'      => [ 'osx' ],
-        'SessionTypes'  => [ 'shell', 'meterpreter' ],
+        'SessionTypes'  => [ 'shell', 'meeterpeter' ],
         'Actions'       => [
           [ 'LIST',     { 'Description' => 'Show a list of VPN connections' } ],
           [ 'CONNECT', { 'Description' => 'Connect to a VPN using stored credentials' } ],

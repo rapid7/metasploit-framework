@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'tebo[at]attackresearch.com'],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter']
+        'SessionTypes'  => [ 'meeterpeter']
       ))
 
   end

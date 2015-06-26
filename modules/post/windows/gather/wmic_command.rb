@@ -15,11 +15,11 @@ class Metasploit3 < Msf::Post
       'Name'          => 'Windows Gather Run Specified WMIC Command',
       'Description'   => %q{ This module will execute a given WMIC command options or read
         WMIC commands options from a resource file and execute the commands in the
-        specified Meterpreter session.},
+        specified meeterpeter session.},
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(

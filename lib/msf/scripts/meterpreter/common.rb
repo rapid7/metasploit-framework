@@ -5,7 +5,7 @@ require 'msf/core/post/windows/priv'
 
 module Msf
 module Scripts
-module Meterpreter
+module meeterpeter
 module Common
 
 include Msf::Post::Windows::Priv

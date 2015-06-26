@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Brendan Coles <bcoles[at]gmail.com>' ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
   end
 
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
         condata << connections.read
       end
       return condata
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error "Error when reading #{path} (#{e.message})"
       return nil
     end

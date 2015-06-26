@@ -3,7 +3,7 @@ require 'msf/core/post/windows/accounts'
 
 module Msf
 module Scripts
-module Meterpreter
+module meeterpeter
 module Common
 
 include ::Msf::Post::Windows::Accounts

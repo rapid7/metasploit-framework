@@ -20,10 +20,10 @@ class Metasploit3 < Msf::Post
       },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
+      'SessionTypes'         => ['meeterpeter'],
       'Author'               =>
         [
-          'Sven Taute', #Original (Meterpreter script)
+          'Sven Taute', #Original (meeterpeter script)
           'sinn3r',     #Metasploit post module
           'Kx499',      #x64 support
           'mubix'       #Parse extensions
@@ -222,7 +222,7 @@ class Metasploit3 < Msf::Post
     begin
       session.sys.config.steal_token(target_pid)
       return true
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error("Cannot impersonate: #{e.message.to_s}")
       return false
     end

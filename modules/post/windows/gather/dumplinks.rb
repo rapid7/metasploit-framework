@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'davehull <dph_msf[at]trustedsignal.com>'],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes'  => [ 'meeterpeter' ]
       ))
   end
 
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
     return users
   end
 
-  # This is a hack because Meterpreter doesn't support exists?(file)
+  # This is a hack because meeterpeter doesn't support exists?(file)
   def dir_entry_exists(path)
     files = session.fs.dir.entries(path)
   rescue

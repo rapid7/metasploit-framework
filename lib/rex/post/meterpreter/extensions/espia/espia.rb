@@ -1,16 +1,16 @@
 # -*- coding: binary -*-
 
-require 'rex/post/meterpreter/extensions/espia/tlv'
+require 'rex/post/meeterpeter/extensions/espia/tlv'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Espia
 
 ###
 #
-# This meterpreter extensions interface that is capable
+# This meeterpeter extensions interface that is capable
 # grab webcam frame and recor mic audio
 #
 ###

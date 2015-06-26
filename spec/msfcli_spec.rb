@@ -51,7 +51,7 @@ describe Msfcli, :content do
       }
 
       let(:params) {
-        %w{payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1}
+        %w{payload=windows/meeterpeter/reverse_tcp lhost=127.0.0.1}
       }
 
       let(:parsed_args) {
@@ -165,15 +165,15 @@ describe Msfcli, :content do
       msfcli.guess_payload_name(payload_reference_name)
     }
 
-    context 'with windows/meterpreter/reverse_tcp' do
+    context 'with windows/meeterpeter/reverse_tcp' do
       let(:payload_reference_name) {
-        'windows/meterpreter/reverse_tcp'
+        'windows/meeterpeter/reverse_tcp'
       }
 
       it {
         is_expected.to eq(
                            [
-                               /stages\/windows\/meterpreter/,
+                               /stages\/windows\/meeterpeter/,
                                /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/
                            ]
                        )
@@ -195,45 +195,45 @@ describe Msfcli, :content do
       }
     end
 
-    context 'with php/meterpreter_reverse_tcp' do
+    context 'with php/meeterpeter_reverse_tcp' do
       let(:payload_reference_name) {
-        'php/meterpreter_reverse_tcp'
+        'php/meeterpeter_reverse_tcp'
       }
 
       it {
         is_expected.to eq(
                               [
-                                  /stages\/php\/meterpreter/,
-                                  /payloads\/(stagers|stages)\/php\/.*(meterpreter_reverse_tcp)\.rb$/
+                                  /stages\/php\/meeterpeter/,
+                                  /payloads\/(stagers|stages)\/php\/.*(meeterpeter_reverse_tcp)\.rb$/
                               ]
                           )
       }
     end
 
-    context 'with linux/x86/meterpreter/reverse_tcp' do
+    context 'with linux/x86/meeterpeter/reverse_tcp' do
       let(:payload_reference_name) {
-        'linux/x86/meterpreter/reverse_tcp'
+        'linux/x86/meeterpeter/reverse_tcp'
       }
 
       it {
         is_expected.to eq(
                            [
-                               /stages\/linux\/x86\/meterpreter/,
+                               /stages\/linux\/x86\/meeterpeter/,
                                /payloads\/(stagers|stages)\/linux\/x86\/.*(reverse_tcp)\.rb$/
                            ]
                        )
       }
     end
 
-    context 'with java/meterpreter/reverse_tcp' do
+    context 'with java/meeterpeter/reverse_tcp' do
       let(:payload_reference_name) {
-        'java/meterpreter/reverse_tcp'
+        'java/meeterpeter/reverse_tcp'
       }
 
       it {
         is_expected.to eq(
                            [
-                               /stages\/java\/meterpreter/,
+                               /stages\/java\/meeterpeter/,
                                /payloads\/(stagers|stages)\/java\/.*(reverse_tcp)\.rb$/
                            ]
                        )
@@ -362,9 +362,9 @@ describe Msfcli, :content do
         end
       end
 
-      context 'windows/meterpreter/reverse_tcp' do
+      context 'windows/meeterpeter/reverse_tcp' do
         let(:payload_reference_name) {
-          'windows/meterpreter/reverse_tcp'
+          'windows/meeterpeter/reverse_tcp'
         }
 
         context 'with default options' do
@@ -372,7 +372,7 @@ describe Msfcli, :content do
             is_expected.to match_array(
                                [
                                    /multi\/handler/,
-                                   /stages\/windows\/meterpreter/,
+                                   /stages\/windows\/meeterpeter/,
                                    /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
                                    /post\/.+/,
                                    /encoders\/generic\/*/,
@@ -423,7 +423,7 @@ describe Msfcli, :content do
                       is_expected.to match_array(
                                          [
                                              /multi\/handler/,
-                                             /stages\/windows\/meterpreter/,
+                                             /stages\/windows\/meeterpeter/,
                                              /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
                                              /encoders\/''/,
                                              /post\/''/,
@@ -471,7 +471,7 @@ describe Msfcli, :content do
                       is_expected.to match_array(
                                          [
                                              /multi\/handler/,
-                                             /stages\/windows\/meterpreter/,
+                                             /stages\/windows\/meeterpeter/,
                                              /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
                                              /encoders\/generic\/*/
                                          ].map(&:to_s)
@@ -579,9 +579,9 @@ describe Msfcli, :content do
           }
         }
 
-        context 'windows/meterpreter/reverse_tcp' do
+        context 'windows/meeterpeter/reverse_tcp' do
           let(:payload_reference_name) do
-            'windows/meterpreter/reverse_tcp'
+            'windows/meeterpeter/reverse_tcp'
           end
 
           it 'creates payload in :payload' do
@@ -771,7 +771,7 @@ describe Msfcli, :content do
           }
 
           specify {
-            expect(get_stdout { engage_mode }).to match(/windows\/meterpreter\/reverse_tcp/)
+            expect(get_stdout { engage_mode }).to match(/windows\/meeterpeter\/reverse_tcp/)
           }
         end
 

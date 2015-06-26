@@ -23,7 +23,7 @@ module Interactive
   # Initializes the session.
   #
   def initialize(rstream, opts={})
-    # A nil is passed in the case of non-stream interactive sessions (Meterpreter)
+    # A nil is passed in the case of non-stream interactive sessions (meeterpeter)
     if rstream
       self.rstream = rstream
       self.ring    = Rex::IO::RingBuffer.new(rstream, {:size => opts[:ring_size] || 100 })

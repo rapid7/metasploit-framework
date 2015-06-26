@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'mubix' ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
   end
 
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
             print_good("#{hostval} is connected to as #{hostvalkey.query_value('UsernameHint').data}")
           end
         end
-      rescue Rex::Post::Meterpreter::RequestError => e
+      rescue Rex::Post::meeterpeter::RequestError => e
       end
     end
     unload_our_hives(userhives)

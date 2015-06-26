@@ -1,18 +1,18 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
-require 'msf/base/sessions/meterpreter_java'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter'
+require 'msf/base/sessions/meeterpeter_java'
+require 'msf/base/sessions/meeterpeter_options'
 
 module Msf
 module Sessions
 
 ###
 #
-# This class creates a platform-specific meterpreter session type
+# This class creates a platform-specific meeterpeter session type
 #
 ###
-class Meterpreter_Java_Android < Msf::Sessions::Meterpreter_Java_Java
+class meeterpeter_Java_Android < Msf::Sessions::meeterpeter_Java_Java
 
   def initialize(rstream, opts={})
     super

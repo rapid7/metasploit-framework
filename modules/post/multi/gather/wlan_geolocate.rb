@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Tom Sellers <tom[at]fadedcode.net>'],
         'Platform'      => %w{ osx win linux bsd solaris },
-        'SessionTypes'  => [ 'meterpreter', 'shell' ],
+        'SessionTypes'  => [ 'meeterpeter', 'shell' ],
       ))
 
       register_options(
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
       # Use the shell platform for selecting the command
       platform = session.platform
     else
-      # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
+      # For meeterpeter use the sysinfo OS since java meeterpeter returns java as platform
       platform = session.sys.config.sysinfo['OS']
     end
 
@@ -214,7 +214,7 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
+    rescue Rex::TimeoutError, Rex::Post::meeterpeter::RequestError
     rescue ::Exception => e
       print_status("The following Error was encountered: #{e.class} #{e}")
     end

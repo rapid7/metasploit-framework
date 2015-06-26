@@ -1,11 +1,11 @@
 # -*- coding: binary -*-
 
 require 'rex/post/file_stat'
-require 'rex/post/meterpreter/extensions/stdapi/stdapi'
+require 'rex/post/meeterpeter/extensions/stdapi/stdapi'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Fs

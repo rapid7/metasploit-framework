@@ -1,15 +1,15 @@
 # -*- coding: binary -*-
 
 require 'rex/post/process'
-require 'rex/post/meterpreter/packet'
-require 'rex/post/meterpreter/client'
-require 'rex/post/meterpreter/extensions/stdapi/constants'
-require 'rex/post/meterpreter/extensions/stdapi/stdapi'
-require 'rex/post/meterpreter/extensions/stdapi/sys/event_log_subsystem/event_record'
+require 'rex/post/meeterpeter/packet'
+require 'rex/post/meeterpeter/client'
+require 'rex/post/meeterpeter/extensions/stdapi/constants'
+require 'rex/post/meeterpeter/extensions/stdapi/stdapi'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/event_log_subsystem/event_record'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Sys

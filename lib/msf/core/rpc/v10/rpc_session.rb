@@ -10,7 +10,7 @@ class RPC_Session < RPC_Base
   #
   # @return [Hash] Information about sessions. Each key is the session ID, and each value is a hash
   #                that contains the following:
-  #                * 'type' [String] Payload type. Example: meterpreter.
+  #                * 'type' [String] Payload type. Example: meeterpeter.
   #                * 'tunnel_local' [String] Tunnel (where the malicious traffic comes from).
   #                * 'tunnel_peer' [String] Tunnel (local).
   #                * 'via_exploit' [String] Name of the exploit used by the session.
@@ -48,7 +48,7 @@ class RPC_Session < RPC_Base
         'exploit_uuid' => s.exploit_uuid.to_s,
         'routes'       => s.routes.join(",")
       }
-      if(s.type.to_s == "meterpreter")
+      if(s.type.to_s == "meeterpeter")
         res[s.sid]['platform'] = s.platform.to_s
       end
     end
@@ -129,9 +129,9 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Upgrades a shell to a meterpreter.
+  # Upgrades a shell to a meeterpeter.
   #
-  # @note This uses post/multi/manage/shell_to_meterpreter.
+  # @note This uses post/multi/manage/shell_to_meeterpeter.
   # @param [Fixnum] sid Session ID.
   # @param [String] lhost Local host.
   # @param [Fixnum] lport Local port.
@@ -143,16 +143,16 @@ class RPC_Session < RPC_Base
     s = _valid_session(sid,"shell")
     s.exploit_datastore['LHOST'] = lhost
     s.exploit_datastore['LPORT'] = lport
-    s.execute_script('post/multi/manage/shell_to_meterpreter')
+    s.execute_script('post/multi/manage/shell_to_meeterpeter')
     { "result" => "success" }
   end
 
 
-  # Reads the output from a meterpreter session (such as a command output).
+  # Reads the output from a meeterpeter session (such as a command output).
   #
   # @note Multiple concurrent callers writing and reading the same Meterperter session can lead to
   #  a conflict, where one caller gets the others output and vice versa. Concurrent access to a
-  #  Meterpreter session is best handled by post modules.
+  #  meeterpeter session is best handled by post modules.
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
@@ -160,9 +160,9 @@ class RPC_Session < RPC_Base
   # @return [Hash] It contains the following key:
   #  * 'data' [String] Data read.
   # @example Here's how you would use this from the client:
-  #  rpc.call('session.meterpreter_read', 2)
-  def rpc_meterpreter_read( sid)
-    s = _valid_session(sid,"meterpreter")
+  #  rpc.call('session.meeterpeter_read', 2)
+  def rpc_meeterpeter_read( sid)
+    s = _valid_session(sid,"meeterpeter")
 
     if not s.user_output.respond_to? :dump_buffer
       s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
@@ -256,24 +256,24 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Sends an input to a meterpreter prompt.
-  # You may want to use #rpc_meterpreter_read to retrieve the output.
+  # Sends an input to a meeterpeter prompt.
+  # You may want to use #rpc_meeterpeter_read to retrieve the output.
   #
   # @note Multiple concurrent callers writing and reading the same Meterperter session can lead to
   #  a conflict, where one caller gets the others output and vice versa. Concurrent access to a
-  #  Meterpreter session is best handled by post modules.
+  #  meeterpeter session is best handled by post modules.
   # @param [Fixnum] sid Session ID.
-  # @param [String] data Input to the meterpreter prompt.
+  # @param [String] data Input to the meeterpeter prompt.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   # @return [Hash] A hash indicating the action was successful or not. It contains the following key:
   #  * 'result' [String] Either 'success' or 'failure'.
-  # @see #rpc_meterpreter_run_single
+  # @see #rpc_meeterpeter_run_single
   # @example Here's how you would use this from the client:
-  #  rpc.call('session.meterpreter_write', 2, "sysinfo")
-  def rpc_meterpreter_write( sid, data)
-    s = _valid_session(sid,"meterpreter")
+  #  rpc.call('session.meeterpeter_write', 2, "sysinfo")
+  def rpc_meeterpeter_write( sid, data)
+    s = _valid_session(sid,"meeterpeter")
 
     if not s.user_output.respond_to? :dump_buffer
       s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
@@ -286,13 +286,13 @@ class RPC_Session < RPC_Base
     if interacting
       s.user_input.put(data + "\n")
     else
-      self.framework.threads.spawn("MeterpreterRunSingle", false, s) { |sess| sess.console.run_single(data) }
+      self.framework.threads.spawn("meeterpeterRunSingle", false, s) { |sess| sess.console.run_single(data) }
     end
     { "result" => "success" }
   end
 
 
-  # Detaches from a meterpreter session. Serves the same purpose as [CTRL]+[Z].
+  # Detaches from a meeterpeter session. Serves the same purpose as [CTRL]+[Z].
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
@@ -301,9 +301,9 @@ class RPC_Session < RPC_Base
   # @return [Hash] A hash indicating the action was successful or not. It contains:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
-  #  rpc.call('session.meterpreter_session_detach', 3)
-  def rpc_meterpreter_session_detach(sid)
-    s = _valid_session(sid,"meterpreter")
+  #  rpc.call('session.meeterpeter_session_detach', 3)
+  def rpc_meeterpeter_session_detach(sid)
+    s = _valid_session(sid,"meeterpeter")
     s.channels.each_value do |ch|
       if(ch.respond_to?('interacting') && ch.interacting)
         ch.detach()
@@ -314,7 +314,7 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Kills a meterpreter session. Serves the same purpose as [CTRL]+[C].
+  # Kills a meeterpeter session. Serves the same purpose as [CTRL]+[C].
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
@@ -324,9 +324,9 @@ class RPC_Session < RPC_Base
   #                It contains the following key:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
-  #  rpc.call('session.meterpreter_session_kill', 3)
-  def rpc_meterpreter_session_kill(sid)
-    s = _valid_session(sid,"meterpreter")
+  #  rpc.call('session.meeterpeter_session_kill', 3)
+  def rpc_meeterpeter_session_kill(sid)
+    s = _valid_session(sid,"meeterpeter")
     s.channels.each_value do |ch|
       if(ch.respond_to?('interacting') && ch.interacting)
         ch._close
@@ -337,7 +337,7 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Returns a tab-completed version of your meterpreter prompt input.
+  # Returns a tab-completed version of your meeterpeter prompt input.
   #
   # @param [Fixnum] sid Session ID.
   # @param [String] line Input.
@@ -349,15 +349,15 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   #  # This returns:
   #  # {"tabs"=>["sysinfo"]}
-  #  rpc.call('session.meterpreter_tabs', 3, 'sysin')
-  def rpc_meterpreter_tabs(sid, line)
-    s = _valid_session(sid,"meterpreter")
+  #  rpc.call('session.meeterpeter_tabs', 3, 'sysin')
+  def rpc_meeterpeter_tabs(sid, line)
+    s = _valid_session(sid,"meeterpeter")
     { "tabs" => s.console.tab_complete(line) }
   end
 
 
-  # Runs a meterpreter command even if interacting with a shell or other channel.
-  # You will want to use the #rpc_meterpreter_read to retrieve the output.
+  # Runs a meeterpeter command even if interacting with a shell or other channel.
+  # You will want to use the #rpc_meeterpeter_read to retrieve the output.
   #
   # @param [Fixnum] sid Session ID.
   # @param [String] data Command.
@@ -367,35 +367,35 @@ class RPC_Session < RPC_Base
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] 'success'
   # @example Here's how you would use this from the client:
-  #  rpc.call('session.meterpreter_run_single', 3, 'getpid')
-  def rpc_meterpreter_run_single( sid, data)
-    s = _valid_session(sid,"meterpreter")
+  #  rpc.call('session.meeterpeter_run_single', 3, 'getpid')
+  def rpc_meeterpeter_run_single( sid, data)
+    s = _valid_session(sid,"meeterpeter")
 
     if not s.user_output.respond_to? :dump_buffer
       s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
     end
 
-    self.framework.threads.spawn("MeterpreterRunSingle", false, s) { |sess| sess.console.run_single(data) }
+    self.framework.threads.spawn("meeterpeterRunSingle", false, s) { |sess| sess.console.run_single(data) }
     { "result" => "success" }
   end
 
 
-  # Runs a meterpreter script.
+  # Runs a meeterpeter script.
   #
-  # @deprecated Metasploit no longer maintains or accepts meterpreter scripts. Please try to use
+  # @deprecated Metasploit no longer maintains or accepts meeterpeter scripts. Please try to use
   #             post modules instead.
   # @see Msf::RPC::RPC_Module#rpc_execute You should use Msf::RPC::RPC_Module#rpc_execute instead.
   # @param [Fixnum] sid Session ID.
-  # @param [String] data Meterpreter script name.
+  # @param [String] data meeterpeter script name.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] 'success'
   # @example Here's how you would use this from the client:
-  #  rpc.call('session.meterpreter_script', 3, 'checkvm')
-  def rpc_meterpreter_script( sid, data)
-    rpc_meterpreter_run_single( sid, "run #{data}")
+  #  rpc.call('session.meeterpeter_script', 3, 'checkvm')
+  def rpc_meeterpeter_script( sid, data)
+    rpc_meeterpeter_run_single( sid, "run #{data}")
   end
 
-  # Changes the Transport of a given Meterpreter Session
+  # Changes the Transport of a given meeterpeter Session
   #
   # @param sid [Fixnum] The Session ID of the `Msf::Session`
   # @option opts [String] :transport The transport protocol to use (e.g. reverse_tcp, reverse_http, bind_tcp etc)
@@ -413,8 +413,8 @@ class RPC_Session < RPC_Base
   # @option opts [String] :retry_wait The number of seconds to wait between retries
   # @option opts [String] :cert  Path to the SSL Cert to use for HTTPS
   # @return [Boolean] whether the transport was changed successfully
-  def rpc_meterpreter_transport_change(sid,opts={})
-    session = _valid_session(sid,"meterpreter")
+  def rpc_meeterpeter_transport_change(sid,opts={})
+    session = _valid_session(sid,"meeterpeter")
     real_opts = {}
     opts.each_pair do |key, value|
       real_opts[key.to_sym] = value
@@ -428,20 +428,20 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Returns the separator used by the meterpreter.
+  # Returns the separator used by the meeterpeter.
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   # @return [Hash] A hash that contains the separator. It contains the following key:
-  #  * 'separator' [String] The separator used by the meterpreter.
+  #  * 'separator' [String] The separator used by the meeterpeter.
   # @example Here's how you would use this from the client:
   #  # This returns:
   #  # {"separator"=>"\\"}
-  #  rpc.call('session.meterpreter_directory_separator', 3)
-  def rpc_meterpreter_directory_separator(sid)
-    s = _valid_session(sid,"meterpreter")
+  #  rpc.call('session.meeterpeter_directory_separator', 3)
+  def rpc_meeterpeter_directory_separator(sid)
+    s = _valid_session(sid,"meeterpeter")
 
     { "separator" => s.fs.file.separator }
   end

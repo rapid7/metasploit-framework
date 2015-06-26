@@ -1,9 +1,9 @@
 require 'spec_helper'
-require 'rex/payloads/meterpreter/uri_checksum'
+require 'rex/payloads/meeterpeter/uri_checksum'
 
-describe Rex::Payloads::Meterpreter::UriChecksum do
+describe Rex::Payloads::meeterpeter::UriChecksum do
    class DummyClass
-     include Rex::Payloads::Meterpreter::UriChecksum
+     include Rex::Payloads::meeterpeter::UriChecksum
    end
 
   subject(:dummy_object) { DummyClass.new }
@@ -88,28 +88,28 @@ describe Rex::Payloads::Meterpreter::UriChecksum do
     context 'when passed a value for :connect' do
       let(:mode) { :connect }
       it 'returns a URI_CHECKSUM_CONN' do
-        expect(dummy_object.uri_checksum_lookup(mode)).to eq Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN
+        expect(dummy_object.uri_checksum_lookup(mode)).to eq Rex::Payloads::meeterpeter::UriChecksum::URI_CHECKSUM_CONN
       end
     end
 
     context 'when passed a value for :init_native' do
       let(:mode) { :init_native }
       it 'returns a URI_CHECKSUM_INITN' do
-        expect(dummy_object.uri_checksum_lookup(mode)).to eq Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN
+        expect(dummy_object.uri_checksum_lookup(mode)).to eq Rex::Payloads::meeterpeter::UriChecksum::URI_CHECKSUM_INITN
       end
     end
 
     context 'when passed a value for :init_java' do
       let(:mode) { :init_java }
       it 'returns a URI_CHECKSUM_INITJ' do
-        expect(dummy_object.uri_checksum_lookup(mode)).to eq Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ
+        expect(dummy_object.uri_checksum_lookup(mode)).to eq Rex::Payloads::meeterpeter::UriChecksum::URI_CHECKSUM_INITJ
       end
     end
 
     context 'when passed a value for :init_python' do
       let(:mode) { :init_python }
       it 'returns a URI_CHECKSUM_INITP' do
-        expect(dummy_object.uri_checksum_lookup(mode)).to eq Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP
+        expect(dummy_object.uri_checksum_lookup(mode)).to eq Rex::Payloads::meeterpeter::UriChecksum::URI_CHECKSUM_INITP
       end
     end
 

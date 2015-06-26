@@ -3,18 +3,18 @@ require 'timeout'
 require 'rex/sync/thread_safe'
 require 'rex/socket/udp'
 require 'rex/socket/parameters'
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
-require 'rex/post/meterpreter/channel'
+require 'rex/post/meeterpeter/extensions/stdapi/tlv'
+require 'rex/post/meeterpeter/channel'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Net
 module SocketSubsystem
 
-class UdpChannel < Rex::Post::Meterpreter::Channel
+class UdpChannel < Rex::Post::meeterpeter::Channel
 
   #
   # We inclue Rex::Socket::Udp as this channel is effectivly a UDP socket.
@@ -194,7 +194,7 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
   def _write(*args)
     begin
       super(*args)
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::meeterpeter::RequestError => e
       case e.code
       when 10000 .. 10100
         raise ::Rex::ConnectionError.new

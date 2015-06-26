@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -19,7 +19,7 @@ get_credentials=false
 opts.parse(args) { |opt, idx, val|
   case opt
   when "-h"
-    print_line "Meterpreter Script for extracting servers and credentials from Filezilla."
+    print_line "meeterpeter Script for extracting servers and credentials from Filezilla."
     print_line(opts.usage)
     raise Rex::Script::Completed
   when "-c"
@@ -151,7 +151,7 @@ end
 
 ################## MAIN ##################
 if client.platform =~ /win32|win64/
-  print_status("Running Meterpreter FileZilla Credential harvester script")
+  print_status("Running meeterpeter FileZilla Credential harvester script")
   print_status("All services are logged at #{dest}")
   enum_users(os).each do |u|
     print_status("Checking if Filezilla profile is present for user :::#{u['username']}:::...")
@@ -172,6 +172,6 @@ if client.platform =~ /win32|win64/
     end
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => 'hdm',
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options([
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
   end
 
   def unsupported
-    print_error("This version of Meterpreter is not supported with this script!")
+    print_error("This version of meeterpeter is not supported with this script!")
     raise Rex::Script::Completed
   end
 

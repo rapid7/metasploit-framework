@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
           ['MSB', 'MS14-025']
         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options([
@@ -190,12 +190,12 @@ class Metasploit3 < Msf::Post
               next if sub2 =~ /^(\.|\.\.)$/
               locals << "#{tpath}\\#{sub2}\\"
             end
-          rescue Rex::Post::Meterpreter::RequestError => e
+          rescue Rex::Post::meeterpeter::RequestError => e
             print_error "Could not access #{tpath}  : #{e.message}"
           end
         end
       end
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error "Error accessing #{base} : #{e.message}"
     end
     return locals
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Post
     xml_path = "#{path}#{xml_path}"
     begin
       return xml_path if exist? xml_path
-    rescue Rex::Post::Meterpreter::RequestError
+    rescue Rex::Post::meeterpeter::RequestError
       # No permissions for this specific file.
       return nil
     end
@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Post
         retobj[:domain] = spath[4]
       end
       return retobj
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error "Received error code #{e.code} when reading #{path}"
       return nil
     end
@@ -360,7 +360,7 @@ class Metasploit3 < Msf::Post
         subkey = location[0]
         v_name = location[1]
         domain = registry_getvaldata(subkey, v_name)
-      rescue Rex::Post::Meterpreter::RequestError => e
+      rescue Rex::Post::meeterpeter::RequestError => e
         print_error "Received error code #{e.code} - #{e.message}"
       end
 

@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
           'Joshua D. Abraham <jabra[at]praetorian.com>',
         ],
       'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell', 'meterpreter']
+      'SessionTypes'  => ['shell', 'meeterpeter']
     ))
 
     register_options(

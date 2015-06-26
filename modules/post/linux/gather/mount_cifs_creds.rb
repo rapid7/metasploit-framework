@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => ['Jon Hart <jhart[at]spoofed.org>'],
       'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell', 'meterpreter']
+      'SessionTypes'  => ['shell', 'meeterpeter']
     ))
   end
 

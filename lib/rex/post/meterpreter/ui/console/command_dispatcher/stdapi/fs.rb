@@ -1,10 +1,10 @@
 # -*- coding: binary -*-
 require 'tempfile'
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -308,7 +308,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       src_items << last
       # Use the basename of the remote filename so we don't end up with
       # a file named c:\\boot.ini in linux
-      dest = ::Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File.basename(last)
+      dest = ::Rex::Post::meeterpeter::Extensions::Stdapi::Fs::File.basename(last)
     else
       dest = last
     end

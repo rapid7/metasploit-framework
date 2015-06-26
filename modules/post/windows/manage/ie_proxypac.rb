@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
           [ 'URL', 'http://blog.scriptmonkey.eu/bypassing-group-policy-using-the-windows-registry' ]
         ],
       'Platform'      => 'win',
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
         next
       end
 
-      if res.nil? # Rex::Post::Meterpreter::RequestError
+      if res.nil? # Rex::Post::meeterpeter::RequestError
         next
       end
 

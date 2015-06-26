@@ -113,7 +113,7 @@ class WebConsole
 
   def session_detach
     if(self.console.active_session)
-      #background interactive meterpreter channel
+      #background interactive meeterpeter channel
       if(self.console.active_session.respond_to?('channels'))
         self.console.active_session.channels.each_value do |ch|
           if(ch.respond_to?('interacting') && ch.interacting)

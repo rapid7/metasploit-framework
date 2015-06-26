@@ -1,16 +1,16 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
+require 'msf/base/sessions/meeterpeter'
 
 module Msf
 module Sessions
 
 ###
 #
-# This class creates a platform-specific meterpreter session type
+# This class creates a platform-specific meeterpeter session type
 #
 ###
-class Meterpreter_Java_Java < Msf::Sessions::Meterpreter
+class meeterpeter_Java_Java < Msf::Sessions::meeterpeter
   def supports_ssl?
     false
   end

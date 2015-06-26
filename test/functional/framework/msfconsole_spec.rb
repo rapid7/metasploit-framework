@@ -69,11 +69,11 @@ describe "Msfconsole" do
       data.should contain_no_failures_except(failure_strings, failure_exception_strings)
   end
 
-  it "should generate a meterpreter session against a vulnerable win32 host" do
+  it "should generate a meeterpeter session against a vulnerable win32 host" do
     ## Set input & output to something sane
     input        = Rex::Ui::Text::Input::Stdio.new
     output       = Rex::Ui::Text::Output::File.new("temp.output")
-    session = generate_x86_meterpreter_session(input, output)
+    session = generate_x86_meeterpeter_session(input, output)
 
     session.should_not be_nil	
   
@@ -166,10 +166,10 @@ describe "Msfconsole" do
     data = hlp_file_to_string("#{output_file}")			
   end
   
-  	def generate_x86_meterpreter_session(input, output)
+  	def generate_x86_meeterpeter_session(input, output)
     ## Setup for win32
     exploit_name = 'windows/smb/psexec'
-    payload_name = 'windows/meterpreter/bind_tcp'
+    payload_name = 'windows/meeterpeter/bind_tcp'
       
     ## Fire it off against a known-vulnerable host
     session = @framework.exploits.create(exploit_name).exploit_simple(
@@ -186,16 +186,16 @@ describe "Msfconsole" do
     end
   end
 
-  	def generate_win64_meterpreter_session(input, output)
+  	def generate_win64_meeterpeter_session(input, output)
     raise "Not Implemented"
   end
 
 
-  	def generate_java_meterpreter_session(input, output)
+  	def generate_java_meeterpeter_session(input, output)
     raise "Not Implemented"
   end
  
-   	def generate_php_meterpreter_session(input, output)
+   	def generate_php_meeterpeter_session(input, output)
     raise "Not Implemented"
   end
 

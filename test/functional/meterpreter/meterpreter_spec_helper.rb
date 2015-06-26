@@ -1,5 +1,5 @@
 module MsfTest
-module MeterpreterSpecHelper
+module meeterpeterSpecHelper
 
   def self.included(base)
         	base.class_eval do
@@ -22,14 +22,14 @@ module MeterpreterSpecHelper
         command_output = Rex::Ui::Text::Output::File.new(temp_command_file)
         @session.init_ui(@input, command_output)
   
-        command_output.print_line("meterpreter_functional_test_start")
+        command_output.print_line("meeterpeter_functional_test_start")
         
         if @verbose
           puts "Running Command: " + command
         end
         
         @session.run_cmd(command)
-        command_output.print_line("meterpreter_functional_test_end")		
+        command_output.print_line("meeterpeter_functional_test_end")		
         data = hlp_file_to_string(temp_command_file)
     
         data.should contain_a_complete_test

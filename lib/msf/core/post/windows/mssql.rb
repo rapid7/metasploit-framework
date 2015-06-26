@@ -131,7 +131,7 @@ module Msf
         # steal a token to impersonate, otherwise it will attempt to migrate
         # into the service process.
         #
-        # @note This may cause the meterpreter session to migrate!
+        # @note This may cause the meeterpeter session to migrate!
         #
         # @param [Hash] service the service to target
         # @return [Boolean] true if impersonated successfully
@@ -182,7 +182,7 @@ module Msf
           true
         end
 
-        # Attempts to escalate the meterpreter session to SYSTEM
+        # Attempts to escalate the meeterpeter session to SYSTEM
         #
         # @return [Boolean] true if escalated successfully or user is already SYSTEM
         def get_system

@@ -5,35 +5,35 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/meterpreter_python'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter_python'
+require 'msf/base/sessions/meeterpeter_options'
 
 module Metasploit3
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Python Meterpreter',
-      'Description'   => 'Run a meterpreter server in Python (2.5-2.7 & 3.1-3.4)',
+      'Name'          => 'Python meeterpeter',
+      'Description'   => 'Run a meeterpeter server in Python (2.5-2.7 & 3.1-3.4)',
       'Author'        => 'Spencer McIntyre',
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_Python_Python
+      'Session'       => Msf::Sessions::meeterpeter_Python_Python
     ))
     register_advanced_options([
-      OptBool.new('PythonMeterpreterDebug', [ true, "Enable debugging for the Python meterpreter", false ])
+      OptBool.new('PythonmeeterpeterDebug', [ true, "Enable debugging for the Python meeterpeter", false ])
     ], self.class)
   end
 
   def generate_stage(opts={})
-    file = ::File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.py")
+    file = ::File.join(Msf::Config.data_directory, "meeterpeter", "meeterpeter.py")
 
     met = ::File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
 
-    if datastore['PythonMeterpreterDebug']
+    if datastore['PythonmeeterpeterDebug']
       met = met.sub("DEBUGGING = False", "DEBUGGING = True")
     end
 

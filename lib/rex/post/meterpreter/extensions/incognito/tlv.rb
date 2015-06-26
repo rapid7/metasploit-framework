@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Incognito
 

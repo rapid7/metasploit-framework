@@ -13,7 +13,7 @@ module MsfMatchers
 
     def matches?(data)
       @data = data
-      return @r.verify_start_and_end(@data,"meterpreter_functional_test_start", "meterpreter_functional_test_end")
+      return @r.verify_start_and_end(@data,"meeterpeter_functional_test_start", "meeterpeter_functional_test_end")
     end
 
     def failure_message

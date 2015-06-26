@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
         'License'      => MSF_LICENSE,
         'Author'       => [ 'Ben Campbell' ],
         'Platform'     => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ],
+        'SessionTypes' => [ 'meeterpeter' ],
         'References'	=>
         [
           ['URL', 'http://social.technet.microsoft.com/wiki/contents/articles/5392.active-directory-ldap-syntax-filters.aspx'],

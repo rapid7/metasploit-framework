@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -7,7 +7,7 @@
 
 
 #----------------------------------------------------------------
-# Meterpreter script to obtain the VNC password out of the
+# meeterpeter script to obtain the VNC password out of the
 # registry and print its decoded cleartext
 #
 # by Kurt Grutzmacher <grutz@jingojango.net>
@@ -28,7 +28,7 @@ session = client
 )
 
 def usage()
-  print("\nPull the VNC Password from a Windows Meterpreter session\n")
+  print("\nPull the VNC Password from a Windows meeterpeter session\n")
   print("By default an internal list of keys will be searched.\n\n")
   print("\t-k\tSpecific key to search (e.g. HKLM\\\\Software\\\\ORL\\\\WinVNC3\\\\Default)\n")
   print("\t-l\tList default key locations\n\n")
@@ -104,6 +104,6 @@ else
   end
 end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

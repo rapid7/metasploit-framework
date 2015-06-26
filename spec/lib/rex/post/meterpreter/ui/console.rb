@@ -1,12 +1,12 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/post/meterpreter/ui/console'
+require 'rex/post/meeterpeter/ui/console'
 
-describe Rex::Post::Meterpreter::Ui::Console do
+describe Rex::Post::meeterpeter::Ui::Console do
 
   subject(:console) do
-    Rex::Post::Meterpreter::Ui::Console.new(nil)
+    Rex::Post::meeterpeter::Ui::Console.new(nil)
   end
 
   describe "#run_command" do

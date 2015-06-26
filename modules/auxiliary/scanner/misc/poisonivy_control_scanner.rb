@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
             vprint_status("#{ip}:#{port} - TCP closed")
             r << [ip,port,"closed",'']
           rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
-          rescue ::Rex::Post::Meterpreter::RequestError
+          rescue ::Rex::Post::meeterpeter::RequestError
             raise $!
           ensure
             disconnect(s) rescue nil

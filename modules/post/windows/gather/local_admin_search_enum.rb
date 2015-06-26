@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
           'Royce Davis "r3dy" <rdavis[at]accuvant.com>'
         ],
       'Platform'     => 'win',
-      'SessionTypes' => [ 'meterpreter' ]
+      'SessionTypes' => [ 'meeterpeter' ]
       ))
 
     register_options(

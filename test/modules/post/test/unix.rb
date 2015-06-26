@@ -23,7 +23,7 @@ class Metasploit4 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'egypt'],
         'Platform'      => [ 'linux', 'java' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+        'SessionTypes'  => [ 'meeterpeter', 'shell' ]
       ))
   end
 

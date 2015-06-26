@@ -6,8 +6,8 @@
 
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
-require 'msf/base/sessions/meterpreter_x86_bsd'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter_x86_bsd'
+require 'msf/base/sessions/meeterpeter_options'
 
 module Metasploit3
 
@@ -15,18 +15,18 @@ module Metasploit3
 
   include Msf::Payload::Bsd
   include Msf::Payload::Single
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'FreeBSD Meterpreter Service, Bind TCP',
-      'Description'   => 'Stub payload for interacting with a Meterpreter Service',
+      'Name'          => 'FreeBSD meeterpeter Service, Bind TCP',
+      'Description'   => 'Stub payload for interacting with a meeterpeter Service',
       'Author'        => 'hdm',
       'License'       => BSD_LICENSE,
       'Platform'      => 'bsd',
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::Meterpreter_x86_BSD,
+      'Session'       => Msf::Sessions::meeterpeter_x86_BSD,
       'Payload'       =>
         {
           'Offsets' => {},

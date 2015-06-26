@@ -12,7 +12,7 @@
 		set RHOST vulnerable
 		set SMBUser Administrator
 		set SMBPass 
-		set payload windows/meterpreter/bind_tcp
+		set payload windows/meeterpeter/bind_tcp
 		exit
 	</commands>
 	<output>

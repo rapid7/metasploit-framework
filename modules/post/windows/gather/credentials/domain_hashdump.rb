@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => ['theLightCosine'],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
   ))
   end
 
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Post
 
   def session_compat?
     if sysinfo['Architecture'] =~ /x64/ && session.platform =~ /x86/
-      print_error "You are running 32-bit Meterpreter on a 64 bit system"
+      print_error "You are running 32-bit meeterpeter on a 64 bit system"
       print_error "Try migrating to a 64-bit process and try again"
       false
     else

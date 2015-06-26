@@ -1,11 +1,11 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
-# Meterpreter script for detecting if target host is a Virtual Machine
+# meeterpeter script for detecting if target host is a Virtual Machine
 # Provided by Carlos Perez at carlos_perez[at]darkoperator.com
 # Version: 0.2.0
 session = client
@@ -354,6 +354,6 @@ if client.platform =~ /win32|win64/
   found = qemuchk(session) if not found
   print_status("It appears to be physical host.") if not found
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

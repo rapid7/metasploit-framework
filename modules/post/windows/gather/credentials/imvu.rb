@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
         ],
       'License'        => MSF_LICENSE,
       'Platform' => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ]
+      'SessionTypes' => [ 'meeterpeter' ]
     ))
   end
 

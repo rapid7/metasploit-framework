@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -116,19 +116,19 @@ def addrdpusr(username, password)
 end
 #---------------------------------------------------------------------------------------------------------
 def message
-  print_status "Windows Telnet Server Enabler Meterpreter Script"
+  print_status "Windows Telnet Server Enabler meeterpeter Script"
 end
 def usage
-  print_line("Windows Telnet Server Enabler Meterpreter Script")
+  print_line("Windows Telnet Server Enabler meeterpeter Script")
   print_line("Usage: gettelnet -u <username> -p <password>")
   print_line(@@exec_opts.usage)
   raise Rex::Script::Completed
 end
 
 
-#check for proper Meterpreter Platform
+#check for proper meeterpeter Platform
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 

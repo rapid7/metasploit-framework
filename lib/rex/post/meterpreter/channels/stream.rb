@@ -1,11 +1,11 @@
 # -*- coding: binary -*-
 
 require 'rex/io/stream_abstraction'
-require 'rex/post/meterpreter/channel'
+require 'rex/post/meeterpeter/channel'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 
 ###
 #
@@ -16,7 +16,7 @@ module Meterpreter
 # that sequential data is flowing in either one or both directions.
 #
 ###
-class Stream < Rex::Post::Meterpreter::Channel
+class Stream < Rex::Post::meeterpeter::Channel
 
   include Rex::IO::StreamAbstraction
 

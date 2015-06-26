@@ -1,16 +1,16 @@
 # -*- coding: binary -*-
 
 require 'rex/post/file'
-require 'rex/post/meterpreter/channel'
-require 'rex/post/meterpreter/channels/pools/file'
-require 'rex/post/meterpreter/extensions/stdapi/stdapi'
-require 'rex/post/meterpreter/extensions/stdapi/fs/io'
-require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
+require 'rex/post/meeterpeter/channel'
+require 'rex/post/meeterpeter/channels/pools/file'
+require 'rex/post/meeterpeter/extensions/stdapi/stdapi'
+require 'rex/post/meeterpeter/extensions/stdapi/fs/io'
+require 'rex/post/meeterpeter/extensions/stdapi/fs/file_stat'
 require 'fileutils'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Fs
@@ -21,7 +21,7 @@ module Fs
 # with files on the remote machine.
 #
 ###
-class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
+class File < Rex::Post::meeterpeter::Extensions::Stdapi::Fs::IO
 
   include Rex::Post::File
 
@@ -40,7 +40,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     request = Packet.create_request('stdapi_fs_separator')
 
     # Fall back to the old behavior of always assuming windows.  This
-    # allows meterpreter executables built before the addition of this
+    # allows meeterpeter executables built before the addition of this
     # command to continue functioning.
     begin
       response = client.send_request(request)
@@ -152,7 +152,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    # older meterpreter binaries will send FILE_NAME containing the hash
+    # older meeterpeter binaries will send FILE_NAME containing the hash
     hash = response.get_tlv_value(TLV_TYPE_FILE_HASH) ||
       response.get_tlv_value(TLV_TYPE_FILE_NAME)
     return hash
@@ -168,7 +168,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    # older meterpreter binaries will send FILE_NAME containing the hash
+    # older meeterpeter binaries will send FILE_NAME containing the hash
     hash = response.get_tlv_value(TLV_TYPE_FILE_HASH) ||
       response.get_tlv_value(TLV_TYPE_FILE_NAME)
     return hash
@@ -410,7 +410,7 @@ protected
   # Creates a File channel using the supplied information.
   #
   def _open(name, mode = "r", perms = 0)
-    return Rex::Post::Meterpreter::Channels::Pools::File.open(
+    return Rex::Post::meeterpeter::Channels::Pools::File.open(
         self.client, name, mode, perms)
   end
 

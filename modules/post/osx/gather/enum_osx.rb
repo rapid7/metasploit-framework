@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
   # Run Method for when run command is issued
   def run
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       host = sysinfo["Computer"]
     when /shell/
       host = session.shell_command_token("hostname").chomp
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Post
   def log_folder_create(log_path = nil)
     #Get hostname
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       host = Rex::FileUtils.clean_path(sysinfo["Computer"])
     when /shell/
       host = Rex::FileUtils.clean_path(session.shell_command_token("hostname").chomp)
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
     case session.type
     when /shell/
       id = session.shell_command_token("/usr/bin/id -ru").chomp
-    when /meterpreter/
+    when /meeterpeter/
       id = cmd_exec("/usr/bin/id","-ru").chomp
     end
     if id == "0"
@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Post
   def check_server
     # Get the OS Name
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       osx_ver = cmd_exec("/usr/bin/sw_vers", "-productName").chomp
     when /shell/
       osx_ver = session.shell_command_token("/usr/bin/sw_vers -productName").chomp
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Post
   def get_ver
     # Get the OS Version
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       osx_ver_num = cmd_exec("/usr/bin/sw_vers", "-productVersion").chomp
     when /shell/
       osx_ver_num = session.shell_command_token("/usr/bin/sw_vers -productVersion").chomp
@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Post
 
       # Run commands according to the session type
 
-        if session_type =~ /meterpreter/
+        if session_type =~ /meeterpeter/
 
           returned_data = cmd_exec("system_profiler",profile_datatypes)
 
@@ -210,7 +210,7 @@ class Metasploit3 < Msf::Post
 
       # Run commands according to the session type
       begin
-        if session_type =~ /meterpreter/
+        if session_type =~ /meeterpeter/
 
           command_output = cmd_exec(command[0],command[1])
 
@@ -255,7 +255,7 @@ class Metasploit3 < Msf::Post
       print_status("\tEnumerating #{name}")
 
       # Run commands according to the session type
-      if session.type =~ /meterpreter/
+      if session.type =~ /meeterpeter/
 
         command_output = cmd_exec(command[0],command[1])
 
@@ -316,7 +316,7 @@ class Metasploit3 < Msf::Post
       else
         users = []
         case session.type
-        when /meterpreter/
+        when /meeterpeter/
           users_folder = cmd_exec("/bin/ls","/Users")
         when /shell/
           users_folder = session.shell_command_token("/bin/ls /Users")
@@ -399,7 +399,7 @@ class Metasploit3 < Msf::Post
     # Run commands according to the session type
     users = []
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       users_folder = cmd_exec("/bin/ls","/Users").chomp
       current_user = cmd_exec("/usr/bin/id","-nu").chomp
     when /shell/
@@ -463,7 +463,7 @@ class Metasploit3 < Msf::Post
   def get_keychains(log_folder)
     users = []
     case session.type
-    when /meterpreter/
+    when /meeterpeter/
       users_folder = cmd_exec("/bin/ls","/Users").chomp
     when /shell/
       users_folder = session.shell_command_token("/bin/ls /Users").chomp

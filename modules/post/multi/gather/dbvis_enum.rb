@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
         'Platform'      => %w{ linux win },
-        'SessionTypes'  => [ 'meterpreter', 'shell']
+        'SessionTypes'  => [ 'meeterpeter', 'shell']
       ))
     register_options(
       [
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
     when /win/
-      if session.type =~ /meterpreter/
+      if session.type =~ /meeterpeter/
         user_profile = session.sys.config.getenv('USERPROFILE')
       else
         user_profile = cmd_exec("echo %USERPROFILE%").strip

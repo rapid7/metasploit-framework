@@ -288,7 +288,7 @@ function cononicalize_path($path) {
 #
 # Need to nail down what this should actually do.  Ruby's File.expand_path is
 # for cononicalizing a path (e.g., removing /./ and ../) and expanding "~" into
-# a path to the current user's homedir.  In contrast, Meterpreter has
+# a path to the current user's homedir.  In contrast, meeterpeter has
 # traditionally used this to get environment variables from the server.
 #
 if (!function_exists('stdapi_fs_file_expand_path')) {

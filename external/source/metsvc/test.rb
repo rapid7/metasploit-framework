@@ -5,7 +5,7 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))
 require 'openssl'
 require 'rex'
 
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 ip   = ARGV.shift() || exit
 port = ARGV.shift() || 31337
@@ -17,9 +17,9 @@ end
 
 sock = TCPSocket.new(ip, port)
 
-puts "* Initializing Meterpreter"
+puts "* Initializing meeterpeter"
 
-meterp = Rex::Post::Meterpreter::Client.new(sock)
+meterp = Rex::Post::meeterpeter::Client.new(sock)
 
 puts "* Loading Stdapi"
 

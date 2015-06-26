@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
         },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
+      'SessionTypes'         => ['meeterpeter'],
       'Author'               => ['theLightCosine'],
       'References'    => [
         [ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]

@@ -1,10 +1,10 @@
 require 'spec_helper'
-require 'rex/post/meterpreter/client_core'
+require 'rex/post/meeterpeter/client_core'
 
-describe Rex::Post::Meterpreter::ClientCore do
+describe Rex::Post::meeterpeter::ClientCore do
 
   it "should be available" do
-    expect(described_class).to eq(Rex::Post::Meterpreter::ClientCore)
+    expect(described_class).to eq(Rex::Post::meeterpeter::ClientCore)
   end
 
   describe "#use" do

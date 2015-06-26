@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         => ['bannedit'],
       'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter' ]
+      'SessionTypes'   => ['meeterpeter' ]
     ))
 
     register_options(
@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    if session.type != "meterpreter"
-      print_error "Only meterpreter sessions are supported by this post module"
+    if session.type != "meeterpeter"
+      print_error "Only meeterpeter sessions are supported by this post module"
       return
     end
 

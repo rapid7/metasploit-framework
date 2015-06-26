@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
       },
       'License'      => MSF_LICENSE,
       'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter'],
+      'SessionTypes' => ['meeterpeter'],
       'Author'       => ['Borja Merino <bmerinofe[at]gmail.com>'],
       'References'   => [
         [ 'URL', 'http://www.youtube.com/watch?v=9yzCf360ujY&hd=1' ]

@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -61,7 +61,7 @@ class Console::CommandDispatcher::Lanattacks::Tftp
 
   def print_tftp_start_usage
     print("tftp_start [-h]\n\n" +
-          "Starts a TFTP server in the current Meterpreter session.\n" +
+          "Starts a TFTP server in the current meeterpeter session.\n" +
           @@tftp_start_opts.usage + "\n")
   end
 

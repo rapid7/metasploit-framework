@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
       'References'    => [ 'URL', 'https://forsec.nl/2015/02/windows-credentials-phishing-using-metasploit' ],
       'Platform'      => [ 'win' ],
       'Arch'          => [ 'x86', 'x64' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
 
     register_options(

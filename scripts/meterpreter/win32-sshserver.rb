@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 #
-# meterpreter-script to deploy + run OpenSSH
+# meeterpeter-script to deploy + run OpenSSH
 # on the target machine
 #
 # written by Oliver "illegalguy" Kleinecke
@@ -21,7 +21,7 @@ meter_type = client.platform
 
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h"  => [ false, "This help menu"],
-  "-f"  => [ true,  "The filename of the OpenSSH-SFX to deploy. (Default is to auto-download from meterpreter.illegalguy.hostzi.com"],
+  "-f"  => [ true,  "The filename of the OpenSSH-SFX to deploy. (Default is to auto-download from meeterpeter.illegalguy.hostzi.com"],
   "-U"  => [ true, "Download OpenSSH-SFX from given URL"],
   "-u"  => [ true, "Add windows-user (autoadded to local administrators"],
   "-p"  => [ true, "Password for the new user"],
@@ -65,10 +65,10 @@ def queryval(key, value)
   return valdata.data
 end
 
-# Wrong Meterpreter Version Message Function
+# Wrong meeterpeter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-  print_error("#{meter} version of Meterpreter is not supported with this Script!")
+  print_error("#{meter} version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 
@@ -178,7 +178,7 @@ type = "auto"
   end
 }
 
-# Check for Version of Meterpreter
+# Check for Version of meeterpeter
 wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 
 #

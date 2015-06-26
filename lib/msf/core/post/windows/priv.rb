@@ -98,7 +98,7 @@ module Msf::Post::Windows::Priv
               'EnableLUA'
           )
           uac = (enable_lua == 1)
-        rescue Rex::Post::Meterpreter::RequestError => e
+        rescue Rex::Post::meeterpeter::RequestError => e
           print_error("Error Checking if UAC is Enabled: #{e.class} #{e}")
         end
       end
@@ -118,7 +118,7 @@ module Msf::Post::Windows::Priv
           'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
           'ConsentPromptBehaviorAdmin'
       )
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       print_error("Error Checking UAC Level: #{e.class} #{e}")
     end
 
@@ -165,7 +165,7 @@ module Msf::Post::Windows::Priv
   end
 
   #
-  # Return true if the session has extended capabilities (ie meterpreter)
+  # Return true if the session has extended capabilities (ie meeterpeter)
   #
   def session_has_ext
     begin
@@ -185,7 +185,7 @@ module Msf::Post::Windows::Priv
     %W{JD Skew1 GBG Data}.each do |k|
       begin
         ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, basekey + "\\" + k, KEY_READ)
-      rescue Rex::Post::Meterpreter::RequestError
+      rescue Rex::Post::meeterpeter::RequestError
       end
 
       return nil if not ok

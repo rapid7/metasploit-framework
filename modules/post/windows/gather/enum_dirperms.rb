@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       },
       'License'        => MSF_LICENSE,
       'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter'],
+      'SessionTypes'   => ['meeterpeter'],
       'Author'         =>
         [
           'Kx499',
@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
 
     begin
       dirs = session.fs.dir.foreach(dpath)
-    rescue Rex::Post::Meterpreter::RequestError
+    rescue Rex::Post::meeterpeter::RequestError
       # Sometimes we cannot see the dir
       dirs = []
     end
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Post
 
     begin
       p = cmd_exec("cmd.exe", "/c echo %PATH%")
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       vprint_error(e.message)
       return []
     end

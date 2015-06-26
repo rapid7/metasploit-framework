@@ -1,5 +1,5 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
@@ -88,9 +88,9 @@ def m_unlink(session, path)
   end
   r.close
 end
-#check for proper Meterpreter Platform
+#check for proper meeterpeter Platform
 def unsupported
-  print_error("This version of Meterpreter is not supported with this Script!")
+  print_error("This version of meeterpeter is not supported with this Script!")
   raise Rex::Script::Completed
 end
 unsupported if client.platform !~ /win32|win64/i
@@ -128,7 +128,7 @@ sleep_sec = nil
 if args.length == 0 || helpcall == 1
   usage
 end
-print_status("Running Upload and Execute Meterpreter script....")
+print_status("Running Upload and Execute meeterpeter script....")
 exec = upload(session,file,path)
 if sleep_sec
   print_status("\tSleeping for #{sleep_sec}s...")

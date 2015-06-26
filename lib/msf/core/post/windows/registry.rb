@@ -12,7 +12,7 @@ module Registry
 
   #
   # This is the default view. It reflects what the remote process would see
-  # natively. So, if you are using a remote 32-bit meterpreter session, you
+  # natively. So, if you are using a remote 32-bit meeterpeter session, you
   # will see 32-bit registry keys and values.
   #
   REGISTRY_VIEW_NATIVE = 0
@@ -34,7 +34,7 @@ module Registry
   #
   def registry_loadkey(key, file)
     if session_has_registry_ext
-      meterpreter_registry_loadkey(key, file)
+      meeterpeter_registry_loadkey(key, file)
     else
       shell_registry_loadkey(key, file)
     end
@@ -45,7 +45,7 @@ module Registry
   #
   def registry_unloadkey(key)
     if session_has_registry_ext
-      meterpreter_registry_unloadkey(key)
+      meeterpeter_registry_unloadkey(key)
     else
       shell_registry_unloadkey(key)
     end
@@ -56,7 +56,7 @@ module Registry
   #
   def registry_createkey(key, view = REGISTRY_VIEW_NATIVE)
     if session_has_registry_ext
-      meterpreter_registry_createkey(key, view)
+      meeterpeter_registry_createkey(key, view)
     else
       shell_registry_createkey(key, view)
     end
@@ -69,7 +69,7 @@ module Registry
   #
   def registry_deleteval(key, valname, view = REGISTRY_VIEW_NATIVE)
     if session_has_registry_ext
-      meterpreter_registry_deleteval(key, valname, view)
+      meeterpeter_registry_deleteval(key, valname, view)
     else
       shell_registry_deleteval(key, valname, view)
     end
@@ -82,7 +82,7 @@ module Registry
   #
   def registry_deletekey(key, view = REGISTRY_VIEW_NATIVE)
     if session_has_registry_ext
-      meterpreter_registry_deletekey(key, view)
+      meeterpeter_registry_deletekey(key, view)
     else
       shell_registry_deletekey(key, view)
     end
@@ -93,7 +93,7 @@ module Registry
   #
   def registry_enumkeys(key, view = REGISTRY_VIEW_NATIVE)
     if session_has_registry_ext
-      meterpreter_registry_enumkeys(key, view)
+      meeterpeter_registry_enumkeys(key, view)
     else
       shell_registry_enumkeys(key, view)
     end
@@ -104,7 +104,7 @@ module Registry
   #
   def registry_enumvals(key, view = REGISTRY_VIEW_NATIVE)
     if session_has_registry_ext
-      meterpreter_registry_enumvals(key, view)
+      meeterpeter_registry_enumvals(key, view)
     else
       shell_registry_enumvals(key, view)
     end
@@ -115,7 +115,7 @@ module Registry
   #
   def registry_getvaldata(key, valname, view = REGISTRY_VIEW_NATIVE)
     if session_has_registry_ext
-      meterpreter_registry_getvaldata(key, valname, view)
+      meeterpeter_registry_getvaldata(key, valname, view)
     else
       shell_registry_getvaldata(key, valname, view)
     end
@@ -126,7 +126,7 @@ module Registry
   #
   def registry_getvalinfo(key, valname, view = REGISTRY_VIEW_NATIVE)
     if session_has_registry_ext
-      meterpreter_registry_getvalinfo(key, valname, view)
+      meeterpeter_registry_getvalinfo(key, valname, view)
     else
       shell_registry_getvalinfo(key, valname, view)
     end
@@ -139,7 +139,7 @@ module Registry
   #
   def registry_setvaldata(key, valname, data, type, view = REGISTRY_VIEW_NATIVE)
     if session_has_registry_ext
-      meterpreter_registry_setvaldata(key, valname, data, type, view)
+      meeterpeter_registry_setvaldata(key, valname, data, type, view)
     else
       shell_registry_setvaldata(key, valname, data, type, view)
     end
@@ -148,7 +148,7 @@ module Registry
 protected
 
   #
-  # Determines whether the session can use meterpreter registry methods
+  # Determines whether the session can use meeterpeter registry methods
   #
   def session_has_registry_ext
     begin
@@ -312,10 +312,10 @@ protected
 
 
   ##
-  # Meterpreter-specific registry manipulation methods
+  # meeterpeter-specific registry manipulation methods
   ##
 
-  def meterpreter_registry_perms(perms, view = REGISTRY_VIEW_NATIVE)
+  def meeterpeter_registry_perms(perms, view = REGISTRY_VIEW_NATIVE)
     if view == REGISTRY_VIEW_32_BIT
       perms |= KEY_WOW64_32KEY
     elsif view == REGISTRY_VIEW_64_BIT
@@ -327,13 +327,13 @@ protected
   #
   # Load a registry hive stored in +file+ into +key+
   #
-  def meterpreter_registry_loadkey(key, file)
+  def meeterpeter_registry_loadkey(key, file)
     begin
       client.sys.config.getprivs()
       root_key, base_key = session.sys.registry.splitkey(key)
       begin
         loadres = session.sys.registry.load_key(root_key, base_key, file)
-      rescue Rex::Post::Meterpreter::RequestError => e
+      rescue Rex::Post::meeterpeter::RequestError => e
         case e.to_s
         when "stdapi_registry_load_key: Operation failed: 1314"
           #print_error("You appear to be lacking the SeRestorePrivilege. Are you running with Admin privs?")
@@ -360,13 +360,13 @@ protected
   #
   # Unload the hive file stored in +key+
   #
-  def meterpreter_registry_unloadkey(key)
+  def meeterpeter_registry_unloadkey(key)
     begin
       client.sys.config.getprivs()
       root_key, base_key = session.sys.registry.splitkey(key)
       begin
         unloadres= session.sys.registry.unload_key(root_key,base_key)
-      rescue Rex::Post::Meterpreter::RequestError => e
+      rescue Rex::Post::meeterpeter::RequestError => e
         case e.to_s
         when "stdapi_registry_unload_key: Operation failed: The parameter is incorrect."
           #print_error("The KEY you provided does not appear to match a loaded Registry Hive: #{key}")
@@ -386,14 +386,14 @@ protected
   #
   # Create a new registry key
   #
-  def meterpreter_registry_createkey(key, view)
+  def meeterpeter_registry_createkey(key, view)
     begin
       root_key, base_key = session.sys.registry.splitkey(key)
-      perms = meterpreter_registry_perms(KEY_WRITE, view)
+      perms = meeterpeter_registry_perms(KEY_WRITE, view)
       open_key = session.sys.registry.create_key(root_key, base_key, perms)
       open_key.close
       return true
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return nil
     end
   end
@@ -401,15 +401,15 @@ protected
   #
   # Delete the registry value +valname+ store in +key+
   #
-  def meterpreter_registry_deleteval(key, valname, view)
+  def meeterpeter_registry_deleteval(key, valname, view)
     begin
       root_key, base_key = session.sys.registry.splitkey(key)
-      perms = meterpreter_registry_perms(KEY_WRITE, view)
+      perms = meeterpeter_registry_perms(KEY_WRITE, view)
       open_key = session.sys.registry.open_key(root_key, base_key, perms)
       open_key.delete_value(valname)
       open_key.close
       return true
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return nil
     end
   end
@@ -417,13 +417,13 @@ protected
   #
   # Delete the registry key +key+
   #
-  def meterpreter_registry_deletekey(key, view)
+  def meeterpeter_registry_deletekey(key, view)
     begin
       root_key, base_key = session.sys.registry.splitkey(key)
-      perms = meterpreter_registry_perms(KEY_WRITE, view)
+      perms = meeterpeter_registry_perms(KEY_WRITE, view)
       deleted = session.sys.registry.delete_key(root_key, base_key, perms)
       return deleted
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return nil
     end
   end
@@ -431,17 +431,17 @@ protected
   #
   # Enumerate the subkeys in +key+
   #
-  def meterpreter_registry_enumkeys(key, view)
+  def meeterpeter_registry_enumkeys(key, view)
     begin
       subkeys = []
       root_key, base_key = session.sys.registry.splitkey(key)
-      perms = meterpreter_registry_perms(KEY_READ, view)
+      perms = meeterpeter_registry_perms(KEY_READ, view)
       keys = session.sys.registry.enum_key_direct(root_key, base_key, perms)
       keys.each { |subkey|
         subkeys << subkey
       }
       return subkeys
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return nil
     end
   end
@@ -449,18 +449,18 @@ protected
   #
   # Enumerate the values in +key+
   #
-  def meterpreter_registry_enumvals(key, view)
+  def meeterpeter_registry_enumvals(key, view)
     begin
       values = []
       vals = {}
       root_key, base_key = session.sys.registry.splitkey(key)
-      perms = meterpreter_registry_perms(KEY_READ, view)
+      perms = meeterpeter_registry_perms(KEY_READ, view)
       vals = session.sys.registry.enum_value_direct(root_key, base_key, perms)
       vals.each { |val|
         values <<  val.name
       }
       return values
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return nil
     end
   end
@@ -468,14 +468,14 @@ protected
   #
   # Get the data stored in the value +valname+
   #
-  def meterpreter_registry_getvaldata(key, valname, view)
+  def meeterpeter_registry_getvaldata(key, valname, view)
     begin
       value = nil
       root_key, base_key = session.sys.registry.splitkey(key)
-      perms = meterpreter_registry_perms(KEY_READ, view)
+      perms = meeterpeter_registry_perms(KEY_READ, view)
       v = session.sys.registry.query_value_direct(root_key, base_key, valname, perms)
       value = v.data
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return nil
     end
     return value
@@ -484,17 +484,17 @@ protected
   #
   # Enumerate the type and data of the value +valname+
   #
-  def meterpreter_registry_getvalinfo(key, valname, view)
+  def meeterpeter_registry_getvalinfo(key, valname, view)
     value = {}
     begin
       root_key, base_key = session.sys.registry.splitkey(key)
-      perms = meterpreter_registry_perms(KEY_READ, view)
+      perms = meeterpeter_registry_perms(KEY_READ, view)
       open_key = session.sys.registry.open_key(root_key, base_key, perms)
       v = open_key.query_value(valname)
       value["Data"] = v.data
       value["Type"] = v.type
       open_key.close
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return nil
     end
     return value
@@ -503,14 +503,14 @@ protected
   #
   # Add the value +valname+ to the key +key+ with the specified +type+ and +data+
   #
-  def meterpreter_registry_setvaldata(key, valname, data, type, view)
+  def meeterpeter_registry_setvaldata(key, valname, data, type, view)
     begin
       root_key, base_key = session.sys.registry.splitkey(key)
-      perms = meterpreter_registry_perms(KEY_WRITE, view)
+      perms = meeterpeter_registry_perms(KEY_WRITE, view)
       session.sys.registry.set_value_direct(root_key, base_key,
         valname, session.sys.registry.type2str(type), data, perms)
       return true
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::meeterpeter::RequestError => e
       return nil
     end
   end

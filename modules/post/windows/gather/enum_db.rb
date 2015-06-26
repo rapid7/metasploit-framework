@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
         'juan vazquez' # minor help
       ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
+      'SessionTypes'  => [ 'meeterpeter' ]
     ))
   end
 

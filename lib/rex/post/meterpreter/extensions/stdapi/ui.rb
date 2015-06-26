@@ -4,7 +4,7 @@ require 'rex/post/ui'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 
@@ -21,7 +21,7 @@ module Stdapi
 ###
 class UI < Rex::Post::UI
 
-  include Rex::Post::Meterpreter::ObjectAliasesContainer
+  include Rex::Post::meeterpeter::ObjectAliasesContainer
 
   ##
   #
@@ -114,7 +114,7 @@ class UI < Rex::Post::UI
   end
 
   #
-  # Get the current desktop meterpreter is using.
+  # Get the current desktop meeterpeter is using.
   #
   def get_desktop
     request  = Packet.create_request( 'stdapi_ui_desktop_get' )
@@ -131,7 +131,7 @@ class UI < Rex::Post::UI
   end
 
   #
-  # Change the meterpreters current desktop. The switch param sets this
+  # Change the meeterpeters current desktop. The switch param sets this
   # new desktop as the interactive one (The local users visible desktop
   # with screen/keyboard/mouse control).
   #
@@ -157,7 +157,7 @@ class UI < Rex::Post::UI
 
     # include the x64 screenshot dll if the host OS is x64
     if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
-      screenshot_path = MetasploitPayloads.meterpreter_path('screenshot','x64.dll')
+      screenshot_path = MetasploitPayloads.meeterpeter_path('screenshot','x64.dll')
       if screenshot_path.nil?
         raise RuntimeError, "screenshot.x64.dll not found", caller
       end
@@ -172,7 +172,7 @@ class UI < Rex::Post::UI
     end
 
     # but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
-    screenshot_path = MetasploitPayloads.meterpreter_path('screenshot','x86.dll')
+    screenshot_path = MetasploitPayloads.meeterpeter_path('screenshot','x86.dll')
     if screenshot_path.nil?
       raise RuntimeError, "screenshot.x86.dll not found", caller
     end

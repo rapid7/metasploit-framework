@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###

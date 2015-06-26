@@ -3,7 +3,7 @@ require 'msf/core/payload/uuid'
 
 module Rex
   module Payloads
-    module Meterpreter
+    module meeterpeter
       module UriChecksum
 
         #

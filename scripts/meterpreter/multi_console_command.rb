@@ -1,12 +1,12 @@
 ##
-# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# WARNING: Metasploit no longer maintains or accepts meeterpeter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
 
 #
-# Meterpreter script for running multiple console commands on a meterpreter session
+# meeterpeter script for running multiple console commands on a meeterpeter session
 # Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 # Verion: 0.1
 #
@@ -46,7 +46,7 @@ end
 
 
 def usage
-  print_line("Console Multi Command Execution Meterpreter Script ")
+  print_line("Console Multi Command Execution meeterpeter Script ")
   print_line(@@exec_opts.usage)
   raise Rex::Script::Completed
 end

@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
         'Carlos Perez <carlos_perez[at]darkoperator.com>'
       ],
       'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ]
+      'SessionTypes' => [ 'meeterpeter' ]
     ))
 
     register_options([
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
 
     begin
       q = query(query_filter, max_search, @user_fields)
-    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::RuntimeError, ::Rex::Post::meeterpeter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
       return

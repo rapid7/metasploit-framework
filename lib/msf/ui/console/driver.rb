@@ -127,7 +127,7 @@ class Driver < Msf::Ui::Driver
       require 'openssl'
     rescue ::LoadError
       print_error("***")
-      print_error("* WARNING: No OpenSSL support. This is required by meterpreter payloads and many exploits")
+      print_error("* WARNING: No OpenSSL support. This is required by meeterpeter payloads and many exploits")
       print_error("* Please install the ruby-openssl package (apt-get install libopenssl-ruby on Debian/Ubuntu")
       print_error("***")
     end

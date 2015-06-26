@@ -12,7 +12,7 @@
 if framework.datastore['PAYLOAD']
 	pload = framework.datastore['PAYLOAD']
 else	#just to get sure that we have a backup payload
-	pload = "windows/meterpreter/bind_tcp"
+	pload = "windows/meeterpeter/bind_tcp"
 end
 
 if pload =~ /reverse/ and not framework.datastore['LHOST']

@@ -7,7 +7,7 @@ module VncInjectOptions
   def initialize(info = {})
     super(info)
 
-    # Override the DLL path with the path to the meterpreter server DLL
+    # Override the DLL path with the path to the meeterpeter server DLL
     register_options(
       [
         OptPort.new('VNCPORT',

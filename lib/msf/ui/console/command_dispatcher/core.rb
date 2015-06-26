@@ -45,7 +45,7 @@ class Core
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
     "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ],
+    "-u" => [ true,  "Upgrade a shell to a meeterpeter session on many platforms" ],
     "-t" => [ true,  "Set a response timeout (default: 15)"])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
@@ -786,7 +786,7 @@ class Core
   def cmd_rename_job_help
     print_line "Usage: rename_job [ID] [Name]"
     print_line
-    print_line "Example: rename_job 0 \"meterpreter HTTPS special\""
+    print_line "Example: rename_job 0 \"meeterpeter HTTPS special\""
     print_line
     print_line "Rename a job that's currently active."
     print_line "You may use the jobs command to see what jobs are available."
@@ -1682,7 +1682,7 @@ class Core
       when "-d"
         method = 'detach'
         sid = val || false
-      # Run a script on all meterpreter sessions
+      # Run a script on all meeterpeter sessions
       when "-s"
         unless script
           method = 'scriptall'
@@ -1750,7 +1750,7 @@ class Core
           end
 
           begin
-            if session.type == 'meterpreter'
+            if session.type == 'meeterpeter'
               # If session.sys is nil, dont even try..
               unless session.sys
                 print_error("Session #{s} does not have stdapi loaded, skipping...")
@@ -1767,7 +1767,7 @@ class Core
                   data = process.channel.read
                   print_line(data) if data
                 end
-              rescue ::Rex::Post::Meterpreter::RequestError
+              rescue ::Rex::Post::meeterpeter::RequestError
                 print_error("Failed: #{$!.class} #{$!}")
               rescue Rex::TimeoutError
                 print_error("Operation timed out")
@@ -1782,7 +1782,7 @@ class Core
               session.response_timeout = last_known_timeout
             end
           end
-          # If the session isn't a meterpreter or shell type, it
+          # If the session isn't a meeterpeter or shell type, it
           # could be a VNC session (which can't run commands) or
           # something custom (which we don't know how to run
           # commands on), so don't bother.
@@ -1872,7 +1872,7 @@ class Core
         return false
       end
       script_paths = {}
-      script_paths['meterpreter'] = Msf::Sessions::Meterpreter.find_script_path(script)
+      script_paths['meeterpeter'] = Msf::Sessions::meeterpeter.find_script_path(script)
       script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
 
       sessions = sid ? session_list : framework.sessions.keys.sort
@@ -1910,7 +1910,7 @@ class Core
         end
       end
     when 'upexec'
-      print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " +
+      print_status("Executing 'post/multi/manage/shell_to_meeterpeter' on " +
                     "session(s): #{session_list}")
       session_list.each do |sess_id|
         session = verify_session(sess_id)
@@ -1922,7 +1922,7 @@ class Core
           begin
             if session.type == 'shell'
               session.init_ui(driver.input, driver.output)
-              session.execute_script('post/multi/manage/shell_to_meterpreter')
+              session.execute_script('post/multi/manage/shell_to_meeterpeter')
               session.reset_ui
             else
               print_error("Session #{sess_id} is not a command shell session, skipping...")

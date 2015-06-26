@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
             # Askpass first added March 2, 2008, looks like
             [ 'URL', 'http://www.sudo.ws/repos/sudo/file/05780f5f71fd/sudo.h']
           ],
-        'SessionTypes'  => [ 'shell' ] # Need to test 'meterpreter'
+        'SessionTypes'  => [ 'shell' ] # Need to test 'meeterpeter'
       ))
 
       register_options(

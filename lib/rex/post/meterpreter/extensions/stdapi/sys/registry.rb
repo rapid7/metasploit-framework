@@ -1,17 +1,17 @@
 # -*- coding: binary -*-
 
 require 'rex/post/process'
-require 'rex/post/meterpreter/packet'
-require 'rex/post/meterpreter/client'
-require 'rex/post/meterpreter/extensions/stdapi/constants'
-require 'rex/post/meterpreter/extensions/stdapi/stdapi'
-require 'rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_key'
-require 'rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_value'
-require 'rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/remote_registry_key'
+require 'rex/post/meeterpeter/packet'
+require 'rex/post/meeterpeter/client'
+require 'rex/post/meeterpeter/extensions/stdapi/constants'
+require 'rex/post/meeterpeter/extensions/stdapi/stdapi'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/registry_subsystem/registry_key'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/registry_subsystem/registry_value'
+require 'rex/post/meeterpeter/extensions/stdapi/sys/registry_subsystem/remote_registry_key'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Extensions
 module Stdapi
 module Sys
@@ -73,7 +73,7 @@ class Registry
 
     response = client.send_request(request)
 
-    return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey.new(
+    return Rex::Post::meeterpeter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey.new(
         client, root_key, base_key, perm, response.get_tlv(TLV_TYPE_HKEY).value)
   end
 
@@ -91,7 +91,7 @@ class Registry
 
     response = client.send_request(request)
 
-    return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RemoteRegistryKey.new(
+    return Rex::Post::meeterpeter::Extensions::Stdapi::Sys::RegistrySubsystem::RemoteRegistryKey.new(
         client, target_host, root_key, response.get_tlv(TLV_TYPE_HKEY).value)
   end
 
@@ -107,7 +107,7 @@ class Registry
 
     response = client.send_request(request)
 
-    return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey.new(
+    return Rex::Post::meeterpeter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey.new(
         client, root_key, base_key, perm, response.get_tlv(TLV_TYPE_HKEY).value)
   end
 
@@ -257,7 +257,7 @@ class Registry
       data = data.unpack('N')[0]
     end
 
-    Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+    Rex::Post::meeterpeter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
         client, 0, name, type, data)
   end
 
@@ -278,7 +278,7 @@ class Registry
       data = data.unpack("N")[0]
     end
 
-    return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+    return Rex::Post::meeterpeter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
         client, hkey, name, type, data)
   end
 
@@ -327,7 +327,7 @@ class Registry
     response = client.send_request(request)
 
     response.each(TLV_TYPE_VALUE_NAME) { |value_name|
-      values << Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+      values << Rex::Post::meeterpeter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
           client, hkey, value_name.value)
     }
 
@@ -345,7 +345,7 @@ class Registry
     response = client.send_request(request)
 
     response.each(TLV_TYPE_VALUE_NAME) do |value_name|
-      values << Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+      values << Rex::Post::meeterpeter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
           client, 0, value_name.value)
     end
 

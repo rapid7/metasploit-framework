@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
           'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
         ],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes'  => [ 'meeterpeter' ]
       ))
   end
 

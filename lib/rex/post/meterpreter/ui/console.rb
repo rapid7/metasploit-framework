@@ -1,16 +1,16 @@
 # -*- coding: binary -*-
 require 'rex/ui'
-require 'rex/post/meterpreter'
+require 'rex/post/meeterpeter'
 require 'rex/logging'
 
 module Rex
 module Post
-module Meterpreter
+module meeterpeter
 module Ui
 
 ###
 #
-# This class provides a shell driven interface to the meterpreter client API.
+# This class provides a shell driven interface to the meeterpeter client API.
 #
 ###
 class Console
@@ -18,21 +18,21 @@ class Console
   include Rex::Ui::Text::DispatcherShell
 
   # Dispatchers
-  require 'rex/post/meterpreter/ui/console/interactive_channel'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/core'
+  require 'rex/post/meeterpeter/ui/console/interactive_channel'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher'
+  require 'rex/post/meeterpeter/ui/console/command_dispatcher/core'
 
   #
-  # Initialize the meterpreter console.
+  # Initialize the meeterpeter console.
   #
   def initialize(client)
     if (Rex::Compat.is_windows())
-      super("meterpreter")
+      super("meeterpeter")
     else
-      super("%undmeterpreter%clr")
+      super("%undmeeterpeter%clr")
     end
 
-    # The meterpreter client context
+    # The meeterpeter client context
     self.client = client
 
     # Queued commands array
@@ -44,13 +44,13 @@ class Console
     enstack_dispatcher(Console::CommandDispatcher::Core)
 
     # Set up logging to whatever logsink 'core' is using
-    if ! $dispatcher['meterpreter']
-      $dispatcher['meterpreter'] = $dispatcher['core']
+    if ! $dispatcher['meeterpeter']
+      $dispatcher['meeterpeter'] = $dispatcher['core']
     end
   end
 
   #
-  # Called when someone wants to interact with the meterpreter client.  It's
+  # Called when someone wants to interact with the meeterpeter client.  It's
   # assumed that init_ui has been called prior.
   #
   def interact(&block)
@@ -96,7 +96,7 @@ class Console
   end
 
   #
-  # Runs the specified command wrapper in something to catch meterpreter
+  # Runs the specified command wrapper in something to catch meeterpeter
   # exceptions.
   #
   def run_command(dispatcher, method, arguments)
@@ -121,9 +121,9 @@ class Console
   def log_error(msg)
     print_error(msg)
 
-    elog(msg, 'meterpreter')
+    elog(msg, 'meeterpeter')
 
-    dlog("Call stack:\n#{$@.join("\n")}", 'meterpreter')
+    dlog("Call stack:\n#{$@.join("\n")}", 'meeterpeter')
   end
 
   attr_reader :client # :nodoc:

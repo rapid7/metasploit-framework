@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
+require 'msf/base/sessions/meeterpeter'
 require 'msf/windows_error'
 
 module Msf
@@ -8,10 +8,10 @@ module Sessions
 
 ###
 #
-# This class creates a platform-specific meterpreter session type
+# This class creates a platform-specific meeterpeter session type
 #
 ###
-class Meterpreter_Python_Python < Msf::Sessions::Meterpreter
+class meeterpeter_Python_Python < Msf::Sessions::meeterpeter
   ERROR_TYPE_UNKNOWN = 1
   ERROR_TYPE_PYTHON = 2
   ERROR_TYPE_WINDOWS = 3

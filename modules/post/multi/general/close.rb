@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'hdm' ],
       'Platform'      => %w{ linux osx unix win },
-      'SessionTypes'  => [ 'shell', 'meterpreter' ]
+      'SessionTypes'  => [ 'shell', 'meeterpeter' ]
     ))
   end
 
