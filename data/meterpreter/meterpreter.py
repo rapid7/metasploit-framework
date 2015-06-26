@@ -144,6 +144,19 @@ TLV_TYPE_TARGET_PATH           = TLV_META_TYPE_STRING  | 401
 TLV_TYPE_MIGRATE_PID           = TLV_META_TYPE_UINT    | 402
 TLV_TYPE_MIGRATE_LEN           = TLV_META_TYPE_UINT    | 403
 
+TLV_TYPE_TRANS_TYPE            = TLV_META_TYPE_UINT    | 430
+TLV_TYPE_TRANS_URL             = TLV_META_TYPE_STRING  | 431
+TLV_TYPE_TRANS_UA              = TLV_META_TYPE_STRING  | 432
+TLV_TYPE_TRANS_COMM_TIMEOUT    = TLV_META_TYPE_UINT    | 433
+TLV_TYPE_TRANS_SESSION_EXP     = TLV_META_TYPE_UINT    | 434
+TLV_TYPE_TRANS_CERT_HASH       = TLV_META_TYPE_RAW     | 435
+TLV_TYPE_TRANS_PROXY_HOST      = TLV_META_TYPE_STRING  | 436
+TLV_TYPE_TRANS_PROXY_USER      = TLV_META_TYPE_STRING  | 437
+TLV_TYPE_TRANS_PROXY_PASS      = TLV_META_TYPE_STRING  | 438
+TLV_TYPE_TRANS_RETRY_TOTAL     = TLV_META_TYPE_UINT    | 439
+TLV_TYPE_TRANS_RETRY_WAIT      = TLV_META_TYPE_UINT    | 440
+TLV_TYPE_TRANS_GROUP           = TLV_META_TYPE_GROUP   | 441
+
 TLV_TYPE_MACHINE_ID            = TLV_META_TYPE_STRING  | 460
 TLV_TYPE_UUID                  = TLV_META_TYPE_RAW     | 461
 
@@ -209,6 +222,15 @@ def error_result_windows(error_number=None):
 		return ERROR_FAILURE
 	result = ((error_number << 16) | ERROR_FAILURE_WINDOWS)
 	return result
+
+@export
+def get_hdd_label():
+	for _, _, files in os.walk('/dev/disk/by-id/'):
+		for f in files:
+			for p in ['ata-', 'mb-']:
+				if f[:len(p)] == p:
+					return f[len(p):]
+	return ''
 
 @export
 def inet_pton(family, address):
@@ -387,6 +409,7 @@ class PythonMeterpreter(object):
 		self.channels = {}
 		self.interact_channels = []
 		self.processes = {}
+		self.transports = []
 		for func in list(filter(lambda x: x.startswith('_core'), dir(self))):
 			self.extension_functions[func[1:]] = getattr(self, func)
 		if self.driver:
@@ -576,15 +599,14 @@ class PythonMeterpreter(object):
 		response += tlv_pack(TLV_TYPE_UUID, PAYLOAD_UUID)
 		return ERROR_SUCCESS, response
 
-	def _core_machine_id(self, request, response):
-		def get_hdd_label():
-			for _, _, files in os.walk('/dev/disk/by-id/'):
-				for f in files:
-					for p in ['ata-', 'mb-']:
-						if f[:len(p)] == p:
-							return f[len(p):]
-			return ""
+	def _core_enumextcmd(self, request, response):
+		extension_name = packet_get_tlv(request, TLV_TYPE_STRING)['value']
+		for func_name in self.extension_functions.keys():
+			if func_name.split('_', 1)[0] == extension_name:
+				response += tlv_pack(TLV_TYPE_STRING, func_name)
+		return ERROR_SUCCESS, response
 
+	def _core_machine_id(self, request, response):
 		serial = ''
 		machine_name = platform.uname()[1]
 		if has_windll:
@@ -634,6 +656,27 @@ class PythonMeterpreter(object):
 		response += tlv_pack(TLV_TYPE_BOOL, True)
 		self.running = False
 		return ERROR_SUCCESS, response
+
+	def _core_transport_add(self, request, response):
+		raise NotImplemented()
+
+	def _core_transport_change(self, request, response):
+		raise NotImplemented()
+
+	def _core_transport_list(self, request, response):
+		raise NotImplemented()
+
+	def _core_transport_next(self, request, response):
+		raise NotImplemented()
+
+	def _core_transport_prev(self, request, response):
+		raise NotImplemented()
+
+	def _core_transport_set_timeouts(self, request, response):
+		raise NotImplemented()
+
+	def _core_transport_sleep(self, request, response):
+		raise NotImplemented()
 
 	def _core_channel_open(self, request, response):
 		channel_type = packet_get_tlv(request, TLV_TYPE_CHANNEL_TYPE)
