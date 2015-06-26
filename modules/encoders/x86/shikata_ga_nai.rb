@@ -281,8 +281,9 @@ protected
     begin
       # Generate a permutation saving the ECX, ESP, and user defined registers
       loop_inst.generate(block_generator_register_blacklist, nil, state.badchars)
-    rescue EncodingError => e
-      raise EncodingError
+    rescue RuntimeError, EncodingError => e
+      # The Rex::Poly block generator can raise RuntimeError variants
+      raise EncodingError, e.to_s
     end
   end
 

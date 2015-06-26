@@ -320,9 +320,20 @@ class ClientCore < Extension
 
     # Normalise the format of the incoming machine id so that it's consistent
     # regardless of case and leading/trailing spaces. This means that the
-    # individual meterpreters don't have to care
-    mid.downcase!.strip! if mid
-    return Rex::Text.md5(mid)
+    # individual meterpreters don't have to care.
+
+    # Note that the machine ID may be blank or nil and that is OK
+    Rex::Text.md5(mid.to_s.downcase.strip)
+  end
+
+  def transport_remove(opts={})
+    request = transport_prepare_request('core_transport_remove', opts)
+
+    return false unless request
+
+    client.send_request(request)
+
+    return true
   end
 
   def transport_add(opts={})
@@ -648,8 +659,14 @@ class ClientCore < Extension
 
     # do more magic work for http(s) payloads
     unless opts[:transport].ends_with?('tcp')
-      sum = uri_checksum_lookup(:connect)
-      url << generate_uri_uuid(sum, opts[:uuid]) + '/'
+      if opts[:uri]
+        url << '/' unless opts[:uri].start_with?('/')
+        url << opts[:uri]
+        url << '/' unless opts[:uri].end_with?('/')
+      else
+        sum = uri_checksum_lookup(:connect)
+        url << generate_uri_uuid(sum, opts[:uuid]) + '/'
+      end
 
       # TODO: randomise if not specified?
       opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
