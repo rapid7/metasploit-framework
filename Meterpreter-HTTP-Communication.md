@@ -12,8 +12,18 @@ The connect URL must be unique between sessions in order for the sessions to fun
 
 ### TLS Certificate Pinning
 
-The Meterpreter HTTPS transport supports certificate pinning. This applies to the stageless payloads as well as Meterpreter payloads loaded with the ```reverse_winhttps``` stagers. At this time, some of the non-Windows stagers also support certificate pinning, but this is still a work in progress. Certificate pinning is enabled by setting the ```StagerVerifySSLCert``` option to ```true``` and by extracting a SHA1 hash of the certificate specified in the ```HandlerSSLCert``` option. The SHA1 hash of the certificate will be verified during the staging process, and also in the handler, if these options are specified in the listener. This feature requires the pre-generation of a unified SSL/TLS certificate in PEM format, with the private key followed by one or more certificates in the chain. If an incoming session connects through a man-in-the-middle proxy that presents a different certificate, the first connection will connect back, but then immediately teriminate. The handler will detect a non-responsive connection and close the session automatically.
+The Meterpreter HTTPS transport supports certificate pinning. This applies to the stageless payloads as well as Meterpreter payloads loaded with the ```reverse_winhttps``` stagers. At this time, some of the non-Windows stagers also support certificate pinning, but this is still a work in progress. Certificate pinning is enabled by setting the ```StagerVerifySSLCert``` option to ```true``` and by extracting a SHA1 hash of the certificate specified in the ```HandlerSSLCert``` option. The SHA1 hash of the certificate will be verified during the staging process, and also in the handler, if these options are specified in the listener. This feature requires the pre-generation of a unified SSL/TLS certificate in PEM format, with the private key followed by one or more certificates in the chain. If an incoming session connects through a man-in-the-middle proxy that presents a different certificate, the first connection will connect back, but then immediately terminate. The handler will detect a non-responsive connection and close the session automatically.
 
+The command below generates a custom unified PEM TLS certificate that works with the ```HandlerSSLCert``` option:
+
+```
+$ openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
+    -subj "/C=US/ST=Texas/L=Austin/O=Development/CN=www.example.com" \
+    -keyout www.example.com.key \
+    -out www.example.com.crt && \
+cat www.example.com.key  www.example.com.crt > www.example.com.pem && \
+rm -f www.example.com.key  www.example.com.crt
+```
 
 ### The Application Protocol
 
