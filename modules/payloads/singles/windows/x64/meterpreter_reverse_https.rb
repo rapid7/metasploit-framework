@@ -53,7 +53,7 @@ module Metasploit4
       exitfunk:   datastore['EXITFUNC'],
       expiration: datastore['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: [transport_config_reverse_http(opts)],
+      transports: [transport_config_reverse_https(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(',')
     }
 
