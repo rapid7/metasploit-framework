@@ -27,34 +27,34 @@ class Metasploit3 < Msf::Auxiliary
     begin
       res = send_request_raw({
         'version'      => '1.0',
-        'uri'          => '/<script>alert("TRACE Payload");</script>', #XST Payload
+        'uri'          => '/<script>alert(1337)</script>', #XST Payload
         'method'       => 'TRACE',
         'headers' =>
         {
           'Cookie' => "TRACE ME PLS",
         },
-      }, 10)
+      })
 
       if res.nil?
-        print_error("no repsonse for #{target_host}")
-      elsif (res.code == 200 and res.body =~/>alert/)
-        print_good("#{target_host}:#{rport}-->#{res.code}")
+        vprint_error("no repsonse for #{target_host}")
+      elsif res.code == 200 and res.body =~/>alert\(1337\)/
+        vprint_status("#{target_host}:#{rport}-->#{res.code}")
         print_good("Response Headers:\n #{res.headers}")
         print_good("Response Body:\n #{res.body}")
-        print_good("#{target_host}:#{rport} is vulnerable to Cross-Site Tracing\n")
-        report_note(
+        print_good("#{target_host}:#{rport} is vulnerable to Cross-Site Tracing")
+        report_vuln(
           :host   => target_host,
           :port   => rport,
           :proto => 'tcp',
           :sname  => (ssl ? 'https' : 'http'),
           :type   => 'service.http.method.trace',
-          :data   => "TRACE method is enabled for this service and is vulnerable to Cross-Site Tracing",
+          :info   => "TRACE method is enabled for this service and is vulnerable to Cross-Site Tracing",
           :update => :unique_data
         )
-      elsif (res.code == 405)#Method Not Allowed
-        print_error("Received #{res.code} Method Not Allowed for #{target_host}:#{rport}")
+      elsif res.code == 405 #Method Not Allowed
+        vprint_error("Received #{res.code} Method Not Allowed for #{target_host}:#{rport}")
       else
-        print_status("#{res.code}")
+        vprint_status("#{res.code}")
       end
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
