@@ -48,7 +48,8 @@ module Msf::Payload::TransportConfig
     # going up as part of the stage.
     uri = opts[:uri]
     unless uri
-      sum = uri_checksum_lookup(:connect)
+      type = opts[:stageless] == true ? :init_connect : :connect
+      sum = uri_checksum_lookup(type)
       uri = generate_uri_uuid(sum, opts[:uuid])
     end
 
