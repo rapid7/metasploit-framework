@@ -61,8 +61,8 @@ Gem::Specification.new do |spec|
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '~> 1.0'
-  # Needed for Meterpreter on Windows, soon others.
-  spec.add_runtime_dependency 'metasploit-payloads', '1.0.2'
+  # Needed for Meterpreter
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.3'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler

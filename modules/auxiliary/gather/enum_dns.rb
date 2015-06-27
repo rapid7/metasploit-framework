@@ -296,6 +296,7 @@ class Metasploit3 < Msf::Auxiliary
         tl << framework.threads.spawn("Module(#{self.refname})-#{ip}", false, ip.dup) do |tip|
           begin
             query = @res.query(tip)
+            raise ::Rex::ConnectionError
             query.each_ptr do |addresstp|
               print_status("Hostname: #{addresstp} IP address: #{tip.to_s}")
               report_note(:host => @nsinuse.to_s,
@@ -342,12 +343,13 @@ class Metasploit3 < Msf::Auxiliary
     srvrcd.each do |srvt|
       trg = "#{srvt}#{dom}"
       query = @res.query(trg , Net::DNS::SRV)
-      if query
-        query.answer.each do |srv|
-          print_status("SRV Record: #{trg} Host: #{srv.host} Port: #{srv.port} Priority: #{srv.priority}") if srv.type != "CNAME"
-        end
+      next unless query
+      query.answer.each do |srv|
+        next if srv.type == "CNAME"
+        print_status("SRV Record: #{trg} Host: #{srv.host} Port: #{srv.port} Priority: #{srv.priority}")
       end
     end
+    print_status("Done")
   end
 
   # For Performing Zone Transfers
@@ -359,7 +361,7 @@ class Metasploit3 < Msf::Auxiliary
     end
     @res.tcp_timeout=15
     query = @res.query(target, "NS")
-    if (query.answer.length != 0)
+    if query && query.answer.length != 0
       (query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |nsrcd|
         print_status("Testing nameserver: #{nsrcd.nsdname}")
         nssrvquery = @res.query(nsrcd.nsdname, "A")
@@ -372,7 +374,12 @@ class Metasploit3 < Msf::Auxiliary
           @res.nameserver=(nssrvip)
           @nsinuse = nssrvip
           zone = []
-          zone = @res.axfr(target)
+
+          begin
+            zone = @res.axfr(target)
+          rescue ::NoResponseError
+          end
+
           if zone.length != 0
             print_status("Zone transfer successful")
             report_note(:host => nssrvip,
@@ -381,7 +388,7 @@ class Metasploit3 < Msf::Auxiliary
               :port => 53 ,
               :type => 'dns.enum',
               :update => :unique_data,
-              :data => "Zone transfer successful")
+              :data => zone)
             # Prints each record according to its type
             zone.each do |response|
               response.answer.each do |rr|
@@ -389,85 +396,22 @@ class Metasploit3 < Msf::Auxiliary
                 case rr.type
                 when "A"
                   print_status("Name: #{rr.name} IP address: #{rr.address} Record: A ")
-                  report_note(:host => nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => "#{rr.address.to_s},#{rr.name},A")
                 when "SOA"
                   print_status("Name: #{rr.mname} Record: SOA")
-                  report_note(:host => nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => "#{rr.name},SOA")
                 when "MX"
                   print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
-                  report_note(:host => nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => "#{rr.exchange},MX")
                 when "CNAME"
                   print_status("Name: #{rr.cname} Record: CNAME")
-                  report_note(:host => nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => "#{rr.cname},CNAME")
                 when "HINFO"
                   print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
-                  report_note(:host => nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
                 when "AAAA"
                   print_status("IPv6 Address: #{rr.address} Record: AAAA")
-                  report_note(:host => nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => "#{rr.address.to_s}, AAAA")
                 when "NS"
                   print_status("Name: #{rr.nsdname} Record: NS")
-                  report_note(:host =>  nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => "#{rr.nsdname},NS")
                 when "TXT"
                   print_status("Text: #{rr.inspect}")
-                  report_note(:host =>  nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => rr.inspect)
                 when "SRV"
                   print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
-                  report_note(:host =>  nssrvip,
-                    :proto => 'udp',
-                    :sname => 'dns',
-                    :port => 53 ,
-                    :type => 'dns.enum',
-                    :update => :unique_data,
-                    :data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
                 end
                 rescue ActiveRecord::RecordInvalid
                   # Do nothing. Probably tried to store :host => 127.0.0.1

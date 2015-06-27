@@ -157,6 +157,33 @@ class Metasploit3 < Msf::Auxiliary
           )
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'Cisco SSL VPN',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
   # Brute-force the login page
   def do_login(user, pass, group)
     vprint_status("#{peer} - Trying username:#{user.inspect} with password:#{pass.inspect} and group:#{group.inspect}")
@@ -197,18 +224,8 @@ class Metasploit3 < Msf::Auxiliary
 
         do_logout(resp.get_cookies)
 
-        report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'Cisco SSL VPN',
-          :user   => user,
-          :pass   => pass,
-          :group => group,
-          :active => true,
-          :type => 'password'
-        }
-
-        report_auth_info(report_hash)
+        report_cred(ip: rhost, port: rport, user: user, password: pass)
+        report_note(ip: rhost, type: 'cisco.cred.group', data: "User: #{user} / Group: #{group}")
         return :next_user
 
       else

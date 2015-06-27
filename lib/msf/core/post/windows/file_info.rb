@@ -13,6 +13,11 @@ module FileInfo
     num & 0xffff
   end
 
+# File Version
+# @param [String]  filepath The path of the file you are targeting
+#
+# @return [String] Returns the file version of target
+
   def file_version(filepath)
     file_version_info_size = client.railgun.version.GetFileVersionInfoSizeA(
       filepath,

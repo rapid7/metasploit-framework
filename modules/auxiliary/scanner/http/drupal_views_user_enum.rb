@@ -63,6 +63,30 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run_host(ip)
     # Check if remote host is available or appears vulnerable
     unless check_host(ip) == Exploit::CheckCode::Appears
@@ -103,11 +127,10 @@ class Metasploit3 < Msf::Auxiliary
     final_results.each do |user|
       print_good("Found User: #{user}")
 
-      report_auth_info(
-        :host => Rex::Socket.getaddress(datastore['RHOST']),
-        :port => datastore['RPORT'],
-        :user => user,
-        :type => "drupal_user"
+      report_cred(
+        ip: Rex::Socket.getaddress(datastore['RHOST']),
+        port: datastore['RPORT'],
+        user: user
       )
     end
 

@@ -5,6 +5,7 @@ require 'rex/post/meterpreter/extensions/extapi/window/window'
 require 'rex/post/meterpreter/extensions/extapi/service/service'
 require 'rex/post/meterpreter/extensions/extapi/clipboard/clipboard'
 require 'rex/post/meterpreter/extensions/extapi/adsi/adsi'
+require 'rex/post/meterpreter/extensions/extapi/ntds/ntds'
 require 'rex/post/meterpreter/extensions/extapi/wmi/wmi'
 
 module Rex
@@ -34,6 +35,7 @@ class Extapi < Extension
               'service'   => Rex::Post::Meterpreter::Extensions::Extapi::Service::Service.new(client),
               'clipboard' => Rex::Post::Meterpreter::Extensions::Extapi::Clipboard::Clipboard.new(client),
               'adsi'      => Rex::Post::Meterpreter::Extensions::Extapi::Adsi::Adsi.new(client),
+              'ntds'      => Rex::Post::Meterpreter::Extensions::Extapi::Ntds::Ntds.new(client),
               'wmi'       => Rex::Post::Meterpreter::Extensions::Extapi::Wmi::Wmi.new(client)
             })
         },
