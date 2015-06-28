@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
       service_name: opts[:creds_name],
     }
     credential_data = {
-      username: opts[:user]
+      username: opts[:user],
       private_type: :password,
       private_data: opts[:password],
       module_fullname: self.fullname
