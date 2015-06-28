@@ -343,7 +343,7 @@ if __FILE__ == $0
 
   if generator_opts[:out]
     begin
-      ::File.open(generator_opts[:out], 'wb') do |f|
+      ::File.open(generator_opts[:out], 'wb', 0755) do |f|
         f.write(payload)
       end
       $stderr.puts "Saved as: #{generator_opts[:out]}"
