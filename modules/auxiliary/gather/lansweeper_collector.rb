@@ -103,6 +103,26 @@ class Metasploit3 < Msf::Auxiliary
     Rex::Text.to_ascii(decrypted, 'utf-16le')
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:host],
+      port: opts[:port],
+      service_name: opts[:creds_name],
+    }
+    credential_data = {
+      username: opts[:user]
+      private_type: :password,
+      private_data: opts[:password],
+      module_fullname: self.fullname
+    }.merge(service_data)
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     unless mssql_login_datastore
       fail_with(Failure::NoAccess, "Login failed. Check credentials.")
@@ -112,12 +132,12 @@ class Metasploit3 < Msf::Auxiliary
     result[:rows].each do |row|
       pw = lswdecrypt(row[2])
       print_good("Credential name: #{row[0]} | username: #{row[1]} | password: #{pw}")
-      report_auth_info(
+      report_cred(
         :host => rhost,
         :port => rport,
-        :sname => row[0],
+        :creds_name => row[0],
         :user => row[1],
-        :pass => pw
+        :password => pw
       )
     end
     disconnect
