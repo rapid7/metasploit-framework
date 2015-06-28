@@ -312,6 +312,12 @@ def tlv_pack(*args):
 			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
 	return data
 
+@export
+def tlv_pack_response(result, response):
+	response += tlv_pack(TLV_TYPE_RESULT, result)
+	response = struct.pack('>I', len(response) + 4) + response
+	return response
+
 #@export
 class MeterpreterFile(object):
 	def __init__(self, file_obj):
@@ -644,7 +650,6 @@ class PythonMeterpreter(object):
 		self.transport = self.transports[new_idx]
 		self.transport.activate()
 
-
 	def run(self):
 		while self.running and not self.session_has_expired:
 			request = None
@@ -653,7 +658,8 @@ class PythonMeterpreter(object):
 				request = self.get_packet()
 			if request:
 				response = self.create_response(request)
-				self.send_packet(response)
+				if response:
+					self.send_packet(response)
 			else:
 				# iterate over the keys because self.channels could be modified if one is closed
 				channel_ids = list(self.channels.keys())
@@ -791,12 +797,14 @@ class PythonMeterpreter(object):
 		return ERROR_SUCCESS, response
 
 	def _core_transport_next(self, request, response):
+		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
 		self.change_transport(forward=True)
-		return ERROR_SUCCESS, response
+		return None
 
 	def _core_transport_prev(self, request, response):
+		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
 		self.change_transport(forward=False)
-		return ERROR_SUCCESS, response
+		return None
 
 	def _core_transport_set_timeouts(self, request, response):
 		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_SESSION_EXP).get('value')
@@ -933,7 +941,10 @@ class PythonMeterpreter(object):
 			handler = self.extension_functions[handler_name]
 			try:
 				self.debug_print('[*] running method ' + handler_name)
-				result, resp = handler(request, resp)
+				result = handler(request, resp)
+				if result is None:
+					return
+				result, resp = result
 			except Exception:
 				self.debug_print('[-] method ' + handler_name + ' resulted in an error')
 				if DEBUGGING:
@@ -942,9 +953,7 @@ class PythonMeterpreter(object):
 		else:
 			self.debug_print('[-] method ' + handler_name + ' was requested but does not exist')
 			result = error_result(NotImplementedError)
-		resp += tlv_pack(TLV_TYPE_RESULT, result)
-		resp = struct.pack('>I', len(resp) + 4) + resp
-		return resp
+		return tlv_pack_response(result, resp)
 
 if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 	if hasattr(os, 'setsid'):
