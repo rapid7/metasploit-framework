@@ -40,7 +40,6 @@ class Core
     "-l" => [ false, "List all active sessions"                       ],
     "-v" => [ false, "List verbose fields"                            ],
     "-q" => [ false, "Quiet mode"                                     ],
-    "-d" => [ true,  "Detach an interactive session"                  ],
     "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
@@ -1679,9 +1678,6 @@ class Core
         sid = val || false
       when "-K"
         method = 'killall'
-      when "-d"
-        method = 'detach'
-        sid = val || false
       # Run a script on all meterpreter sessions
       when "-s"
         unless script
@@ -1827,26 +1823,6 @@ class Core
           end
         end
       end
-    when 'detach'
-      print_status("Detaching the following session(s): #{session_list.join(', ')}")
-      session_list.each do |sess_id|
-        session = verify_session(sess_id)
-        # if session is interactive, it's detachable
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
-          end
-          print_status("Detaching session #{sess_id}")
-          begin
-            session.detach
-          ensure
-            if session.respond_to?(:response_timeout) && last_known_timeout
-              session.response_timeout = last_known_timeout
-            end
-          end
-        end
-      end
     when 'interact'
       session = verify_session(sid)
       if session
@@ -1981,7 +1957,7 @@ class Core
     end
 
     case words[-1]
-    when "-i", "-k", "-d", "-u"
+    when "-i", "-k", "-u"
       return framework.sessions.keys.map { |k| k.to_s }
 
     when "-c"
@@ -3274,7 +3250,7 @@ class Core
         browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
         ::Process.detach(browser_pid)
       elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
-        print_line
+        print_linee
         print_warning "For some reason, Community / Pro didn't start in a timely fashion."
         print_warning "You might want to restart the Metasploit services by typing"
         print_warning "'service metasploit restart'. Sorry it didn't work out."
