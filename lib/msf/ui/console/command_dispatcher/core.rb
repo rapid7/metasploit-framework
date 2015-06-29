@@ -3250,7 +3250,7 @@ class Core
         browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
         ::Process.detach(browser_pid)
       elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
-        print_linee
+        print_line
         print_warning "For some reason, Community / Pro didn't start in a timely fashion."
         print_warning "You might want to restart the Metasploit services by typing"
         print_warning "'service metasploit restart'. Sorry it didn't work out."
