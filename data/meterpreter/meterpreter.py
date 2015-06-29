@@ -844,7 +844,13 @@ class PythonMeterpreter(object):
 		return ERROR_SUCCESS, response
 
 	def _core_transport_sleep(self, request, response):
-		raise NotImplemented()
+		seconds = packet_get_tlv(request, TLV_TYPE_TRANS_COMM_TIMEOUT)['value']
+		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
+		if seconds:
+			self.transport.deactivate()
+			time.sleep(seconds)
+			self.transport.activate()
+		return None
 
 	def _core_channel_open(self, request, response):
 		channel_type = packet_get_tlv(request, TLV_TYPE_CHANNEL_TYPE)
