@@ -7,24 +7,24 @@ PATH
       bcrypt
       jsobfu (~> 0.2.0)
       json
-      metasploit-concern (~> 1.0)
-      metasploit-model (~> 1.0)
+      metasploit-concern (= 1.0.0)
+      metasploit-model (= 1.0.0)
       metasploit-payloads (= 1.0.4)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
       railties
       rb-readline-r7
-      recog (~> 2.0)
+      recog (= 2.0.6)
       robots
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 4.0.9, < 4.1.0)
-      metasploit-credential (~> 1.0)
+      metasploit-credential (= 1.0.0)
       metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (~> 1.2)
+      metasploit_data_models (= 1.2.5)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
