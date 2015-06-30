@@ -103,10 +103,12 @@ class Webcam
     case client.platform
     when /win/
       paths = [
-        "Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-        "Program Files\\Google\\Chrome\\Application\\chrome.exe",
-        "Program Files (x86)\\Mozilla Firefox\\firefox.exe",
-        "Program Files\\Mozilla Firefox\\firefox.exe"
+        "%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe",
+        "%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe",
+        "%ProgramW6432%\\Google\\Chrome\\Application\\chrome.exe",
+        "%ProgramFiles(x86)%\\Mozilla Firefox\\firefox.exe",
+        "%ProgramFiles%\\Mozilla Firefox\\firefox.exe",
+        "%ProgramW6432%\\Mozilla Firefox\\firefox.exe"
       ]
 
       drive = session.sys.config.getenv("SYSTEMDRIVE")
