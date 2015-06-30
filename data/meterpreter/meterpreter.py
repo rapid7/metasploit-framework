@@ -846,6 +846,20 @@ class PythonMeterpreter(object):
 		self.transport_change(self.transport_prev())
 		return None
 
+	def _core_transport_remove(self, request, response):
+		url = packet_get_tlv(request, TLV_TYPE_TRANS_URL)['value']
+		if self.transport.url == url:
+			return ERROR_FAILURE, response
+		transport_found = False
+		for transport in self.transports:
+			if transport.url == url:
+				transport_found = True
+				break
+		if transport_found:
+			self.transports.remove(transport)
+			return ERROR_SUCCESS, response
+		return ERROR_FAILURE, response
+
 	def _core_transport_set_timeouts(self, request, response):
 		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_SESSION_EXP).get('value')
 		if timeout_value:
