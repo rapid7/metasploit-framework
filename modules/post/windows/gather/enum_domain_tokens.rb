@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Post
   # List local group members
   def list_group_mem(group)
     devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = client.shell_command_token("net localgroup #{group}").split(devisor)[1]
+    raw_list = cmd_exec("net localgroup #{group}").split(devisor)[1]
     account_list = raw_list.split("\r\n")
     account_list.delete("The command completed successfully.")
     return account_list
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Post
   def list_domain_group_mem(group)
     account_list = []
     devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = client.shell_command_token("net groups \"#{group}\" /domain").split(devisor)[1]
+    raw_list = cmd_exec("net groups \"#{group}\" /domain").split(devisor)[1]
     raw_list.split(" ").each do |m|
       account_list << m
     end
