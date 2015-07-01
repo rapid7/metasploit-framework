@@ -338,7 +338,6 @@ os_detect.getVersion = function(){
 				case "Windows NT 6.1": os_name = "Windows 7"; break;
 				case "Windows NT 6.2": os_name = "Windows 8"; break;
 				case "Windows NT 6.3": os_name = "Windows 8.1"; break;
-				case "Windows NT 10.0": os_name = "Windows 10"; break;
 			}
 		}
 		if (version.match(/Linux/)) {
@@ -972,6 +971,12 @@ os_detect.getVersion = function(){
 				// IE 10.0.8400.0 (Pre-release + KB2702844), Windows 8 x86 English Pre-release
 				ua_version = "10.0";
 				os_name = "Windows 8";
+				os_sp = "SP0";
+				break;
+			case "1100":
+				// IE 11.0.10011.0 Windows 10.0 (Build 10074) English - insider preview
+				ua_version = "11.0";
+				os_name = "Windows 10";
 				os_sp = "SP0";
 				break;
 			default:
