@@ -48,10 +48,10 @@ if sys.version_info[0] < 3:
 else:
 	if isinstance(__builtins__, dict):
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
-		str = lambda x: __builtins__['str'](x, 'UTF-8')
+		str = lambda x: __builtins__['str'](x, *(() if isinstance(x, (float, int)) else ('UTF-8',)))
 	else:
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
-		str = lambda x: __builtins__.str(x, 'UTF-8')
+		str = lambda x: __builtins__.str(x, *(() if isinstance(x, (float, int)) else ('UTF-8',)))
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
@@ -286,15 +286,17 @@ def tlv_pack(*args):
 		tlv = {'type':args[0], 'value':args[1]}
 	else:
 		tlv = args[0]
-	data = ""
+	data = ''
+	value = tlv['value']
 	if (tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
-		data = struct.pack('>III', 12, tlv['type'], tlv['value'])
+		if isinstance(value, float):
+			value = int(round(value))
+		data = struct.pack('>III', 12, tlv['type'], value)
 	elif (tlv['type'] & TLV_META_TYPE_QWORD) == TLV_META_TYPE_QWORD:
-		data = struct.pack('>IIQ', 16, tlv['type'], tlv['value'])
+		data = struct.pack('>IIQ', 16, tlv['type'], value)
 	elif (tlv['type'] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
-		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
+		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(value))), 'UTF-8')
 	else:
-		value = tlv['value']
 		if sys.version_info[0] < 3 and value.__class__.__name__ == 'unicode':
 			value = value.encode('UTF-8')
 		elif not is_bytes(value):
@@ -644,7 +646,6 @@ class TcpTransport(Transport):
 		if not address in ('', '0.0.0.0', '::'):
 			address, port = sock.getpeername()[:2]
 		url += address + ':' + str(port)
-		url = url
 		return cls(url, sock)
 
 class PythonMeterpreter(object):
