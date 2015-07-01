@@ -84,8 +84,8 @@ module Payload::Windows::ReverseTcp_x64
     # Start with our cached default generated size
     space = cached_size
 
-    # EXITFUNK processing adds some bytes onto the defaults
-    space += 11
+    # EXITFUNK 'seh' is the worst case, that adds 15 bytes
+    space += 15
 
     # Reliability adds bytes!
     space += 57

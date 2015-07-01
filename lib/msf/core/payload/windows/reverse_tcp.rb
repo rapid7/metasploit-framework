@@ -76,8 +76,8 @@ module Payload::Windows::ReverseTcp
     # Start with our cached default generated size
     space = cached_size
 
-    # EXITFUNK processing only seems to add 8 bytes on top of the default
-    space += 8
+    # EXITFUNK 'thread' is the biggest by far, adds 29 bytes.
+    space += 29
 
     # Reliability adds some bytes!
     space += 44
