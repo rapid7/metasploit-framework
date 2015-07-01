@@ -338,6 +338,7 @@ os_detect.getVersion = function(){
 				case "Windows NT 6.1": os_name = "Windows 7"; break;
 				case "Windows NT 6.2": os_name = "Windows 8"; break;
 				case "Windows NT 6.3": os_name = "Windows 8.1"; break;
+				case "Windows NT 10.0": os_name = "Windows 10"; break;
 			}
 		}
 		if (version.match(/Linux/)) {
