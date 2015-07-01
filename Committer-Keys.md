@@ -20,6 +20,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@jvazquez-r7](https://github.com/jvazquez-r7)   | [jvazquezr7](https://keybase.io/jvazquezr7)     |
 | [@kernelsmith](https://github.com/kernelsmith)   | [kernelsmith](https://keybase.io/kernelsmith)   |
 | [@limhoff-r7](https://github.com/limhoff-r7)     | [kronicdeth](https://keybase.io/kronicdeth)     |
+| [@MSadek-r7](https://github.com/MSadek-r7)       | [msadek](https://keybase.io/msadek)             |
 | [@mbuck-r7](https://github.com/mbuck-r7)         | [techpeace](https://keybase.io/techpeace)       |
 | [@Meatballs1](https://github.com/Meatballs1)     | [meatballs](https://keybase.io/meatballs)       |
 | [@OJ](https://github.com/OJ)                     | [oj](https://keybase.io/oj)                     |
