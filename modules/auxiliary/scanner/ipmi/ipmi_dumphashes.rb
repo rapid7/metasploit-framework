@@ -270,7 +270,7 @@ class Metasploit3 < Msf::Auxiliary
     }.merge(service_data)
 
     cl = create_credential_login(login_data)
-    cl.core_id
+    cl ? cl.core_id : nil
   end
 
   def report_cracked_cred(user, password, core_id)

