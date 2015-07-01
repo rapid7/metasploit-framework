@@ -259,7 +259,8 @@ protected
         # was generated on the fly. This means we form a new session for each.
 
         # Hurl a TLV back at the caller, and ignore the response
-        pkt = Rex::Post::Meterpreter::Packet.new(PACKET_TYPE_RESPONSE, 'core_patch_url')
+        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
+                                                 'core_patch_url')
         pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
         resp.body = pkt.to_r
 
