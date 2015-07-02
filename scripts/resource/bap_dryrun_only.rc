@@ -2,7 +2,7 @@
 print_status("Starting BAP...")
 print_status("Exploits will not be actually served, but you will know which ones the clients might be vulnerable to.")
 print_status("You can do 'notes -t baps.clicks' in msfconsole to track clicks and client-specific exploit info.")
-run_single("use exploit/multi/browser/autopwn")
+run_single("use auxiliary/server/browser_autopwn2")
 run_single("set RealList true")
 run_single("set MaxSessions 0")
 

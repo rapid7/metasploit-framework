@@ -4,9 +4,7 @@
 ##
 
 require 'msf/core'
-
-class Metasploit3 < Msf::Exploit::Remote
-  Rank = ExcellentRanking
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::BrowserAutopwnv2
 
@@ -49,16 +47,25 @@ class Metasploit3 < Msf::Exploit::Remote
       },
       'License'        => MSF_LICENSE,
       'Author'         => [ 'sinn3r' ],
-      'Targets'        => [ [ 'Automatic', {} ] ],
-      'Platform'       => %w{ java linux osx solaris win android firefox },
-      'Privileged'     => false,
       'DisclosureDate' => "Jul 5 2015",
-      'Targets'        => [ [ 'Automatic', {} ] ],
       'References'     =>
         [
           [ 'URL', 'https://github.com/rapid7/metasploit-framework/wiki' ]
         ],
-      'DefaultTarget'  => 0))
+      'Actions'     =>
+        [
+          [ 'WebServer', {
+            'Description' => 'Start a bunch of modules and direct clients to appropriate exploits'
+          } ],
+        ],
+      'PassiveActions' =>
+        [ 'WebServer' ],
+      'DefaultOptions' => {
+          # We know that most of these exploits will crash the browser, so
+          # set the default to run migrate right away if possible.
+          "InitialAutoRunScript" => "migrate -f",
+        },
+      'DefaultAction'  => 'WebServer'))
 
 
     register_advanced_options(get_advanced_options, self.class)
@@ -77,16 +84,6 @@ class Metasploit3 < Msf::Exploit::Remote
     deregister_options('Retries', 'DisablePayloadHandler', 'ContextInformationFile')
   end
 
-  def setup
-    if datastore['PAYLOAD'] != 'windows/meterpreter/reverse_tcp'
-      msg = "\"set payload\" is disabled: Instead of using \"set payload\", please set PAYLOAD_[platform] "
-      msg << "to set a platform-specific payload, and set PAYLOAD_[platform]_LPORT "
-      msg << "to set a platform-specific LPORT."
-      raise RuntimeError, msg
-    end
-    super
-  end
-
   def get_advanced_options
     opts = []
     DEFAULT_PAYLOADS.each_pair do |platform, payload_info|
@@ -102,5 +99,8 @@ class Metasploit3 < Msf::Exploit::Remote
     send_exploit_html(cli, serve)
   end
 
+  def run
+    exploit
+  end
 
 end
