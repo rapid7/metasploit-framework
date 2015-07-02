@@ -12,7 +12,7 @@ At this point in time it is not possible to add multiple transports to payloads 
 
 ## The `transport` command
 
-Meterpreter now has a new base command called `transport`. This is the hub of all transport-related commands and will allow you to list them, add new ones and cycle through them on the fly. At the time of writing, the ability to remove transports is not yet present, but will be implemented soon.
+Meterpreter now has a new base command called `transport`. This is the hub of all transport-related commands and will allow you to list them, add new ones, cycle through them on the fly, and remove those which are no longer valid or useful.
 
 The following output shows the current help text for the `transport` command:
 
