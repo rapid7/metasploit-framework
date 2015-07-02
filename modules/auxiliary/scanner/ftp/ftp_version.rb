@@ -8,8 +8,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
   include Msf::Auxiliary::Recog
+  include Msf::Auxiliary::Report
 
   def initialize
     super(
