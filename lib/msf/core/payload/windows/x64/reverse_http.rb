@@ -58,6 +58,7 @@ module Payload::Windows::ReverseHttp_x64
     unless self.available_space.nil? || required_space > self.available_space
       conf[:url]        = generate_uri
       conf[:exitfunk]   = datastore['EXITFUNC']
+      conf[:ua]         = datastore['MeterpreterUserAgent']
       conf[:proxy_host] = datastore['PayloadProxyHost']
       conf[:proxy_port] = datastore['PayloadProxyPort']
       conf[:proxy_user] = datastore['PayloadProxyUser']

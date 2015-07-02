@@ -196,12 +196,12 @@ class Metasploit3 < Msf::Post
       sent = 0
       aborted = false
       cmds.each { |cmd|
-        ret = session.shell_command_token(cmd)
+        ret = cmd_exec(cmd)
         if !ret
           aborted = true
         else
           ret.strip!
-          aborted = true if !ret.empty?
+          aborted = true if !ret.empty? && ret !~ /The process tried to write to a nonexistent pipe./
         end
         if aborted
           print_error('Error: Unable to execute the following command: ' + cmd.inspect)

