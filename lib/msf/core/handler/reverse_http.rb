@@ -280,14 +280,17 @@ protected
 
         # Patch all the things
         blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
-        blob.sub!('HTTP_EXPIRATION_TIMEOUT = 604800', "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
-        blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
         unless datastore['PayloadProxyHost'].blank?
           proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
           blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
         end
+
+        blob.sub!('SESSION_EXPIRATION_TIMEOUT = 604800', "SESSION_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
+        blob.sub!('SESSION_COMMUNICATION_TIMEOUT = 300', "SESSION_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
+        blob.sub!('SESSION_RETRY_TOTAL = 3600', "SESSION_RETRY_TOTAL = #{datastore['SessionRetryTotal']}")
+        blob.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{datastore['SessionRetryWait']}")
 
         resp.body = blob
 

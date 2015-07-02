@@ -1,3 +1,4 @@
+# vim: tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
 import fnmatch
 import getpass
 import os
