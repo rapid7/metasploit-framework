@@ -254,6 +254,11 @@ protected
       when :init_connect
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection ...")
 
+        # init_connect needs to redirect with a new uri that points at connect, as this
+        # prevents stageless connections from all looking the same
+        sum = uri_checksum_lookup(:connect)
+        new_uri = generate_uri_uuid(sum, uuid) + '/'
+
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
         # was generated on the fly. This means we form a new session for each.
@@ -261,7 +266,9 @@ protected
         # Hurl a TLV back at the caller, and ignore the response
         pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
                                                  'core_patch_url')
-        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
+        # We reuse the TLV_TYPE_TRANS_URL element here, but we're actually only passing in
+        # a new URI, not a full URL
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, new_uri)
         resp.body = pkt.to_r
 
       when :init_python
