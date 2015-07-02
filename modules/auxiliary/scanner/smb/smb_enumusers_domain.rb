@@ -154,13 +154,15 @@ class Metasploit3 < Msf::Auxiliary
           end
 
           print_good("#{ip} - Found user: #{comp_user}")
-          report_note(
-            :host => ip,
-            :proto  => 'tcp',
-            :port => rport,
-            :type => 'smb_loggedin_users',
-            :data => { :user => comp_user },
-            :update => :unique_data
+          credential_core =  create_credential(
+            origin_type: :service,
+            address: ip,
+            port: rport,
+            service_name: 'smb',
+            protocol: 'tcp',
+            module_fullname: self.fullname,
+            workspace_id: myworkspace.id,
+            username: comp_user
           )
         end
 
