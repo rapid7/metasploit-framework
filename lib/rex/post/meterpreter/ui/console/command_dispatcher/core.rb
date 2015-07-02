@@ -30,6 +30,10 @@ class Console::CommandDispatcher::Core
     self.bgjob_id   = 0
   end
 
+  @@irb_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                  ],
+    "-e" => [ true,  "Expression to evaluate."       ])
+
   @@load_opts = Rex::Parser::Arguments.new(
     "-l" => [ false, "List all available extensions" ],
     "-h" => [ false, "Help menu."                    ])
@@ -322,16 +326,40 @@ class Console::CommandDispatcher::Core
 
   alias cmd_interact_tabs cmd_close_tabs
 
+  def cmd_irb_help
+    print_line "Usage: irb"
+    print_line
+    print_line "Execute commands in a Ruby environment"
+    print @@irb_opts.usage
+  end
+
   #
   # Runs the IRB scripting shell
   #
   def cmd_irb(*args)
-    print_status("Starting IRB shell")
-    print_status("The 'client' variable holds the meterpreter client\n")
+    expressions = []
+
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        return cmd_irb_help
+      end
+    end
 
     session = client
     framework = client.framework
-    Rex::Ui::Text::IrbShell.new(binding).run
+
+    if expressions.empty?
+      print_status("Starting IRB shell")
+      print_status("The 'client' variable holds the meterpreter client\n")
+
+      Rex::Ui::Text::IrbShell.new(binding).run
+    else
+      expressions.each { |expression| eval(expression, binding) }
+    end
   end
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
