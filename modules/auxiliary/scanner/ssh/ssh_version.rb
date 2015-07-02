@@ -4,11 +4,11 @@
 ##
 
 require 'msf/core'
+require 'recog'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Recog
   include Msf::Auxiliary::Report
 
   # the default timeout (in seconds) to wait, in total, for both a successful
@@ -56,17 +56,23 @@ class Metasploit3 < Msf::Auxiliary
         if resp
           ident, first_message = resp.split(/[\r\n]+/)
           if /^SSH-\d+\.\d+-(?<banner>.*)$/ =~ ident
-            info = { "banner" => banner }.merge(recog_info(peer, 'ssh.banner', banner) || {})
+            if recog_match = Recog::Nizer.match('ssh.banner', banner)
+              info = recog_match.to_s
+            else
+              info = 'UNKNOWN'
+              print_warning("#{peer} unknown SSH banner: #{banner}")
+            end
             # Check to see if this is Kippo, which sends a premature
             # key init exchange right on top of the SSH version without
             # waiting for the required client identification string.
             if first_message && first_message.size >= 5
               extra = first_message.unpack("NCCA*") # sz, pad_sz, code, data
               if (extra.last.size + 2 == extra[0]) && extra[2] == 20
-                info['extra'] = "Kippo Honeypot"
+                info << " (Kippo Honeypot)"
               end
             end
-            report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: info.to_s)
+            print_status("#{peer}, SSH server version: #{ident}")
+            report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: info)
           else
             vprint_warning("#{peer} was not SSH --"  \
                           " #{resp.size} bytes beginning with #{resp[0, 12]}")
