@@ -5,16 +5,12 @@
 
 require 'msf/core'
 
+
 class Metasploit3 < Msf::Auxiliary
+
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Recog
   include Msf::Auxiliary::Report
-
-  # the default timeout (in seconds) to wait, in total, for both a successful
-  # connection to a given endpoint and for the initial protocol response
-  # from the supposed SSH endpoint to be returned
-  DEFAULT_TIMEOUT = 30
 
   def initialize
     super(
@@ -22,62 +18,54 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => 'Detect SSH Version.',
       'References'  =>
         [
-          [ 'URL', 'http://en.wikipedia.org/wiki/SecureShell' ]
+          [ 'URL', 'http://en.wikipedia.org/wiki/SecureShell' ],
         ],
       'Author'      => [ 'Daniel van Eeden <metasploit[at]myname.nl>' ],
       'License'     => MSF_LICENSE
     )
 
     register_options(
-      [
-        Opt::RPORT(22),
-        OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', DEFAULT_TIMEOUT])
-      ],
-      self.class
-    )
+    [
+      Opt::RPORT(22),
+      OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30])
+    ], self.class)
   end
 
-  def peer
-    "#{rhost}:#{rport}"
+  def to
+    return 30 if datastore['TIMEOUT'].to_i.zero?
+    datastore['TIMEOUT'].to_i
   end
 
-  def timeout
-    datastore['TIMEOUT'] <= 0 ? DEFAULT_TIMEOUT : datastore['TIMEOUT']
-  end
-
-  def run_host(_target_host)
+  def run_host(target_host)
     begin
-      ::Timeout.timeout(timeout) do
+      ::Timeout.timeout(to) do
+
         connect
 
-        resp = sock.get_once(-1, timeout)
+        resp = sock.get_once(-1, 5)
 
-        if resp
-          ident, first_message = resp.split(/[\r\n]+/)
-          if /^SSH-\d+\.\d+-(?<banner>.*)$/ =~ ident
-            info = { "banner" => banner }.merge(recog_info(peer, 'ssh.banner', banner) || {})
-            # Check to see if this is Kippo, which sends a premature
-            # key init exchange right on top of the SSH version without
-            # waiting for the required client identification string.
-            if first_message && first_message.size >= 5
-              extra = first_message.unpack("NCCA*") # sz, pad_sz, code, data
-              if (extra.last.size + 2 == extra[0]) && extra[2] == 20
-                info['extra'] = "Kippo Honeypot"
-              end
+        if (resp and resp =~ /SSH/)
+          ver,msg = (resp.split(/[\r\n]+/))
+          # Check to see if this is Kippo, which sends a premature
+          # key init exchange right on top of the SSH version without
+          # waiting for the required client identification string.
+          if msg and msg.size >= 5
+            extra = msg.unpack("NCCA*") # sz, pad_sz, code, data
+            if (extra.last.size+2 == extra[0]) and extra[2] == 20
+              ver << " (Kippo Honeypot)"
             end
-            report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: info.to_s)
-          else
-            vprint_warning("#{peer} was not SSH --"  \
-                          " #{resp.size} bytes beginning with #{resp[0, 12]}")
           end
+          print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
+          report_service(:host => rhost, :port => rport, :name => "ssh", :proto => "tcp", :info => ver)
         else
-          vprint_warning("#{peer} no response")
+          print_error("#{target_host}:#{rport}, SSH server version detection failed!")
         end
+
+        disconnect
       end
+
     rescue Timeout::Error
-      vprint_warning("#{peer} timed out after #{timeout} seconds. Skipping.")
-    ensure
-      disconnect
+      print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
     end
   end
 end
