@@ -105,9 +105,7 @@ module ReverseTcpDoubleSSL
           via = ""
         end
 
-        unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
-          print_status("Started reverse double SSL handler on #{ip}:#{local_port} #{via}")
-        end
+        print_status("Started reverse double SSL handler on #{ip}:#{local_port} #{via}")
         break
       rescue
         ex = $!

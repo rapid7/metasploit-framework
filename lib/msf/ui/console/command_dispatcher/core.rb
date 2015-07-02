@@ -1986,12 +1986,6 @@ class Core
   # Sets a name to a value in a context aware environment.
   #
   def cmd_set(*args)
-    # Special-case Browser AutoPwn because set payload can only set one payload, but BAP can
-    # do multiple. So let BAP handle this.
-    if args[0] && args[0].upcase == 'PAYLOAD' && active_module.kind_of?(Msf::Exploit::Remote::BrowserAutopwnv2) && active_module.respond_to?(:set_payload)
-      active_module.set_payload
-      return
-    end
 
     # Figure out if these are global variables
     global = false
@@ -2083,6 +2077,7 @@ class Core
   # at least 1 when tab completion has reached this stage since the command itself has been completed
 
   def cmd_set_tabs(str, words)
+
     # A value has already been specified
     return [] if words.length > 2
 
@@ -3353,15 +3348,9 @@ class Core
     mod_opt = Serializer::ReadableText.dump_options(mod, '   ')
     print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 
-    # We have to special-case browser autopwn because BAP is an exploit module that allows having
-    # multiple payloads, but normally MSF can't do this, so it will have be handled by the BAP
-    # mixin.
-    # For other normal cases, if it's still an exploit and a payload is defined, then just go ahead
-    # create it, and then display the payload options.
-    if mod.exploit? and mod.kind_of?(Msf::Exploit::Remote::BrowserAutopwnv2) and mod.respond_to?(:show_payloads)
-      # #show_payloads should be defined by BrowserAutoPwn
-      mod.show_payloads
-    elsif (mod.exploit? and mod.datastore['PAYLOAD'])
+    # If it's an exploit and a payload is defined, create it and
+    # display the payload's options
+    if (mod.exploit? and mod.datastore['PAYLOAD'])
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
       if (!p)
