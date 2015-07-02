@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
       'Name'         => 'Windows Gather Credentials Local Administrator Password Solution',
       'Description'  => %Q{
         This module will recover the LAPS (Local Administrator Password Solution) passwords,
-        configured in Active Directory, which is usually only accessable by privileged users.
+        configured in Active Directory, which is usually only accessible by privileged users.
         Note that the local administrator account name is not stored in Active Directory,
         so it is assumed to be 'Administrator' by default.
       },
