@@ -26,9 +26,9 @@ class Console::CommandDispatcher::Priv::Elevate
   ELEVATE_TECHNIQUE_DESCRIPTION =
     [
       "All techniques available",
-      "Service - Named Pipe Impersonation (In Memory/Admin)",
-      "Service - Named Pipe Impersonation (Dropper/Admin)",
-      "Service - Token Duplication (In Memory/Admin)"
+      "Named Pipe Impersonation (In Memory/Admin)",
+      "Named Pipe Impersonation (Dropper/Admin)",
+      "Token Duplication (In Memory/Admin)"
     ]
 
   #
@@ -53,11 +53,10 @@ class Console::CommandDispatcher::Priv::Elevate
   #
   def translate_technique_index(index)
     translation = ''
-    desc = ELEVATE_TECHNIQUE_DESCRIPTION.dup
-    desc.each {|e| e.gsub!(/^Service - /, '')}
 
     case index
     when 0
+      desc = ELEVATE_TECHNIQUE_DESCRIPTION.dup
       desc.shift
       translation = desc
     else
