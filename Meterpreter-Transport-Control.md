@@ -25,6 +25,7 @@ Usage: transport <list|change|add|next|prev> [options]
  change: same as add, but changes directly to the added entry.
    next: jump to the next transport in the list (no options).
    prev: jump to the previous transport in the list (no options).
+ remove: remove an existing, non-active transport.
 
 OPTIONS:
 
@@ -42,6 +43,7 @@ OPTIONS:
     -rw <opt>  Retry wait time (seconds) (default: same as current session)
     -t  <opt>  Transport type: reverse_tcp, reverse_http, reverse_https, bind_tcp
     -to <opt>  Comms timeout (seconds) (default: same as current session)
+    -u  <opt>  Custom URI for HTTP/S transports (used when removing transports)
     -ua <opt>  User agent for http(s) transports (optional)
     -v         Show the verbose format of the transport list
 
@@ -219,6 +221,41 @@ Session Expiry  : @ 2015-06-09 19:56:05
     *     http://10.1.10.40:5105/jpdUntK69qiVKZQrwETonAkuobdXaVJovSXlqkvd7s5WB58Xbc3fNoZ5Cld4kAfVJgbVFsgvSpH_N/  100000     50000        2500
           tcp://10.1.10.40:5005                                                                                  300        3600         10
           tcp://10.1.10.40:6000                                                                                  300        3600         10
+```
+
+### Removing transports
+
+It is also possible to remove transports from the underlying transport list. This is valuable in cases where you want Meterpreter to always callback on _stageless_ listeners (allowing you to avoid the unnecessary upload of the second stage), or when you have a listener located at an IP address that may have been blacklisted by your target as a result of your post-exploitation shenanigans.
+
+The command is similar to `add` in that it takes a subset of the parameters, and then adds a new one on top of it:
+
+* `-t` - The transport type.
+* `-l` - The `LHOST` value (unless it's `bind_tcp`).
+* `-p` - The `LPORT` value.
+* `-u` - This value is only required for `reverse_http/s` transports and needs to contain the URI of the transport in question. This is important because there might be multiple listeners on the same IP and port, so the URI is what differentiates each of the sessions.
+
+```
+[*] Starting interaction with 2...
+
+meterpreter > transport list
+Session Expiry  : @ 2015-07-10 07:39:08
+
+    Curr  URL                                                                                                             Comms T/O  Retry Total  Retry Wait
+    ----  ---                                                                                                             ---------  -----------  ----------
+    *     tcp://10.1.10.40:5000                                                                                           300        3600         10
+          http://10.1.10.40:9090/jYGS61OX8On-Dv8Pq5v9FAJAEobAlrL4J2FBOf_3DsnZzCJAY6-Dh_8AeWdrkFwRbQdvz4vOo8let4huygVLPJ/  300        3600         10
+
+meterpreter > transport remove -t reverse_http -l 10.1.10.40 -p 9090 -u jYGS61OX8On-Dv8Pq5v9FAJAEobAlrL4J2FBOf_3DsnZzCJAY6-Dh_8AeWdrkFwRbQdvz4vOo8let4huygVLPJ
+[*] Removing transport ...
+[+] Successfully removed reverse_http transport.
+meterpreter > transport list
+Session Expiry  : @ 2015-07-10 07:39:08
+
+    Curr  URL                    Comms T/O  Retry Total  Retry Wait
+    ----  ---                    ---------  -----------  ----------
+    *     tcp://10.1.10.40:5000  300        3600         10
+
+meterpreter > 
 ```
 
 ### Resilient transports
