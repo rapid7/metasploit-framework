@@ -11,6 +11,7 @@ require 'monitor'
 #
 
 require 'metasploit/framework/version'
+require 'msf/base/config'
 require 'msf/core'
 require 'msf/util'
 
@@ -33,15 +34,9 @@ class Framework
   Minor    = Metasploit::Framework::Version::MINOR
   Point    = Metasploit::Framework::Version::PATCH
   Release  = "-#{Metasploit::Framework::Version::PRERELEASE}"
-
-  if(Point)
-    Version  = "#{Major}.#{Minor}.#{Point}#{Release}"
-  else
-    Version  = "#{Major}.#{Minor}#{Release}"
-  end
+  Version  = Metasploit::Framework::VERSION
 
   Revision = "$Revision$"
-
 
   # Repository information
   RepoRevision        = ::Msf::Util::SVN.revision
