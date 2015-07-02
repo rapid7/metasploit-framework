@@ -93,23 +93,18 @@ class Metasploit3 < Msf::Post
 
 
   def preconditions_met?
-    status = true
-    unless is_domain_controller?
-      print_error "This does not appear to be an AD Domain Controller"
-      status = false
-    end
     unless is_admin?
       print_error "This module requires Admin privs to run"
-      status = false
+      return false
     end
-    if is_uac_enabled?
-      print_error "This module requires UAC to be bypassed first"
-      status = false
+    unless is_domain_controller?
+      print_error "This does not appear to be an AD Domain Controller"
+      return false
     end
     unless session_compat?
-      status = false
+      return false
     end
-    return status
+    return true
   end
 
   def repair_ntds(path='')
