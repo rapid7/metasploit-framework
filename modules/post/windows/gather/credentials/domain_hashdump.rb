@@ -28,6 +28,7 @@ class Metasploit3 < Msf::Post
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
   ))
+    deregister_options('RHOST','SMBUser','SMBPass', 'SMBDomain')
   end
 
   def run
