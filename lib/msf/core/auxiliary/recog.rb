@@ -10,12 +10,14 @@ module Msf
       super
       register_advanced_options(
         [
-          OptBool.new('ShowRecogResults', [true, 'Show Recog hits and misses', true])
+          OptBool.new('ShowRecogResults', [true, 'Show Recog hits and misses', true]),
+          OptBool.new('UseRecog', [true, 'Uses Recog to further fingerprint and report services', true])
         ], Auxiliary::Recog
       )
     end
 
-    def recog_info(endpoint, type, banner)
+    def report_recog_info(endpoint, type, banner)
+      return unless datastore['UseRecog']
       sanitized_banner = Rex::Text.to_hex_ascii(banner)
       vprint_status("#{endpoint} checking for Recog #{type} match")
       recog_match = Recog::Nizer.match(type, banner)
