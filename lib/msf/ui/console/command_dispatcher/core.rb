@@ -764,7 +764,7 @@ class Core
     print_line "Usage: irb"
     print_line
     print_line "Execute commands in a Ruby environment"
-    print @@irb_opts.usage()
+    print @@irb_opts.usage
   end
 
   #
@@ -778,32 +778,29 @@ class Core
     # Parse the command options
     @@irb_opts.parse(args) do |opt, idx, val|
       case opt
-        when '-e'
-          expressions << val
-        when '-h'
-          cmd_irb_help
-          return false
+      when '-e'
+        expressions << val
+      when '-h'
+        cmd_irb_help
+        return false
       end
     end
 
-    if !expressions.empty?
-      expressions.each do |expression|
-        eval(expression, binding)
+    if expressions.empty?
+      print_status("Starting IRB shell...\n")
+
+      begin
+        Rex::Ui::Text::IrbShell.new(binding).run
+      rescue
+        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
       end
-      return
-    end
 
-    print_status("Starting IRB shell...\n")
-
-    begin
-      Rex::Ui::Text::IrbShell.new(binding).run
-    rescue
-      print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
-    end
-
-    # Reset tab completion
-    if (driver.input.supports_readline)
-      driver.input.reset_tab_completion
+      # Reset tab completion
+      if (driver.input.supports_readline)
+        driver.input.reset_tab_completion
+      end
+    else
+      expressions.each { |expression| eval(expression, binding) }
     end
   end
 

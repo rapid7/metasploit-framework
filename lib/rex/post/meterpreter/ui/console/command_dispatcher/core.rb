@@ -330,7 +330,7 @@ class Console::CommandDispatcher::Core
     print_line "Usage: irb"
     print_line
     print_line "Execute commands in a Ruby environment"
-    print @@irb_opts.usage()
+    print @@irb_opts.usage
   end
 
   #
@@ -342,28 +342,24 @@ class Console::CommandDispatcher::Core
     # Parse the command options
     @@irb_opts.parse(args) do |opt, idx, val|
       case opt
-        when '-e'
-          expressions << val
-        when '-h'
-          cmd_irb_help
-          return
+      when '-e'
+        expressions << val
+      when '-h'
+        return cmd_irb_help
       end
     end
 
     session = client
     framework = client.framework
 
-    if !expressions.empty?
-      expressions.each do |expression|
-        eval(expression, binding)
-      end
-      return
+    if expressions.empty?
+      print_status("Starting IRB shell")
+      print_status("The 'client' variable holds the meterpreter client\n")
+
+      Rex::Ui::Text::IrbShell.new(binding).run
+    else
+      expressions.each { |expression| eval(expression, binding) }
     end
-
-    print_status("Starting IRB shell")
-    print_status("The 'client' variable holds the meterpreter client\n")
-
-    Rex::Ui::Text::IrbShell.new(binding).run
   end
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
