@@ -574,12 +574,7 @@ class TcpTransport(Transport):
 		sock.close()
 
 	def _activate(self):
-		if self.url.startswith('tcp:'):
-			family = socket.AF_INET
-			address, port = self.url[6:].split(':', 1)
-		else:
-			family = socket.AF_INET6
-			address, port = self.url[7:].split(':', 1)
+		address, port = self.url[6:].rsplit(':', 1)
 		port = int(port.rstrip('/'))
 		timeout = max(self.communication_timeout, 30)
 		if address in ('', '0.0.0.0', '::'):
@@ -596,7 +591,10 @@ class TcpTransport(Transport):
 			sock, _ = server_sock.accept()
 			server_sock.close()
 		else:
-			sock = socket.socket(family, socket.SOCK_STREAM)
+			if ':' in address:
+				sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+			else:
+				sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock.settimeout(timeout)
 			sock.connect((address, port))
 			sock.settimeout(None)
@@ -637,10 +635,7 @@ class TcpTransport(Transport):
 
 	@classmethod
 	def from_socket(cls, sock):
-		if sock.family == socket.AF_INET:
-			url = 'tcp://'
-		else:
-			url = 'tcp6://'
+		url = 'tcp://'
 		address, port = sock.getsockname()[:2]
 		# this will need to be changed if the bind stager ever supports binding to a specific address
 		if not address in ('', '0.0.0.0', '::'):
