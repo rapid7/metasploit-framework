@@ -715,8 +715,6 @@ class PythonMeterpreter(object):
 		return time.time() > self.session_expiry_end
 
 	def transport_change(self, new_transport=None):
-		if new_transport == self.transport:
-			return
 		if new_transport is None:
 			new_transport = self.transport_next()
 		self.transport.deactivate()
@@ -898,13 +896,19 @@ class PythonMeterpreter(object):
 		return ERROR_SUCCESS, response
 
 	def _core_transport_next(self, request, response):
+		new_transport = self.transport_next()
+		if new_transport == self.transport:
+			return ERROR_FAILURE, response
 		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
-		self.transport_change(self.transport_next())
+		self.transport_change(new_transport)
 		return None
 
 	def _core_transport_prev(self, request, response):
+		new_transport = self.transport_prev()
+		if new_transport == self.transport:
+			return ERROR_FAILURE, response
 		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
-		self.transport_change(self.transport_prev())
+		self.transport_change(new_transport)
 		return None
 
 	def _core_transport_remove(self, request, response):
