@@ -463,14 +463,14 @@ class Transport(object):
 		return True
 
 	def get_packet(self):
+		self.communication_active = False
 		try:
 			pkt = self._get_packet()
 		except:
-			self.communication_active = False
 			return None
+		self.communication_last = time.time()
 		if pkt:
 			self.communication_active = True
-			self.communication_last = time.time()
 		return pkt
 
 	def send_packet(self, pkt):
@@ -611,7 +611,7 @@ class TcpTransport(Transport):
 		packet = None
 		first = self._first_packet
 		self._first_packet = False
-		if select.select([self.socket], [], [], max(self.communication_timeout, 0.5))[0]:
+		if select.select([self.socket], [], [], 0.5)[0]:
 			packet = self.socket.recv(8)
 			if len(packet) != 8:
 				if first and len(packet) == 4:
@@ -738,7 +738,7 @@ class PythonMeterpreter(object):
 	def run(self):
 		while self.running and not self.session_has_expired:
 			request = None
-			should_get_packet = self.transport.communication_active or ((time.time() - self.transport.communication_last) > 1)
+			should_get_packet = self.transport.communication_active or ((time.time() - self.transport.communication_last) > 0.75)
 			if should_get_packet:
 				request = self.get_packet()
 			if request:
