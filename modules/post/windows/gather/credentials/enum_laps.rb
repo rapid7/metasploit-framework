@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
       OptString.new('LOCAL_ADMIN_NAME', [true, 'The username to store the password against', 'Administrator']),
       OptBool.new('STORE_DB', [true, 'Store file in loot.', false]),
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', true]),
-      OptString.new('FILTER', [true, 'Search filter.', '(objectCategory=Computer)'])
+      OptString.new('FILTER', [true, 'Search filter.', '(&(objectCategory=Computer)(ms-MCS-AdmPwd=*))'])
     ], self.class)
 
     deregister_options('FIELDS')
