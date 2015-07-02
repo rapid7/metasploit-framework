@@ -21,14 +21,18 @@ module Msf
       sanitized_banner = Rex::Text.to_hex_ascii(banner)
       vprint_status("#{endpoint} checking for Recog #{type} match")
       recog_match = Recog::Nizer.match(type, banner)
-      if datastore['ShowRecogResults']
-        if recog_match
+      if recog_match
+        if datastore['ShowRecogResults']
           print_status("#{endpoint} Recog #{type} match: #{sanitized_banner}")
-        else
+        end
+        # TODO: should we do this?  if so, how to unit test it?
+        # report_service(host: rhost, port: 21, name: 'ftp', proto: 'tcp', info: banner)
+      else
+        if datastore['ShowRecogResults']
           print_warning("#{endpoint} no Recog #{type} match: #{sanitized_banner}")
         end
-      else
-        print_status("#{endpoint} #{type}: '#{sanitized_banner}'")
+        # TODO: should we do this?  if so, how to unit test it?
+        # report_service(host: rhost, port: 21, name: 'ftp', proto: 'tcp', info: banner)
       end
       recog_match
     end

@@ -7,6 +7,7 @@ describe Msf::Auxiliary::Recog do
   subject do
     mod = Msf::Module.new
     mod.extend described_class
+    mod.extend Msf::Auxiliary::Report
     mod.send(:initialize, {})
     mod
   end
@@ -15,6 +16,9 @@ describe Msf::Auxiliary::Recog do
 
   describe '#report_recog_info' do
     context 'should use recog only when told to' do
+      before(:each) do
+        allow(subject).to receive(:rhost).and_return('192.168.255.255')
+      end
       it 'should when told to' do
         subject.datastore['UseRecog'] = true
         match = subject.report_recog_info('blah', 'ftp.banner', banner)
