@@ -23,16 +23,16 @@ describe Msf::Auxiliary::Recog do
         subject.datastore['UseRecog'] = true
         match = subject.report_recog_info('blah', 'ftp.banner', banner)
         match.should == {
-          "matched"=>"Microsoft FTP Server on Windows NT",
-          "service.vendor"=>"Microsoft",
-          "service.product"=>"IIS",
-          "service.family"=>"IIS",
-          "service.version"=>"3.0",
-          "os.vendor"=>"Microsoft",
-          "os.device"=>"General",
-          "os.family"=>"Windows",
-          "os.product"=>"Windows NT",
-          "host.name"=>"xx"
+          'matched' => 'Microsoft FTP Server on Windows NT',
+          'service.vendor' => 'Microsoft',
+          'service.product' => 'IIS',
+          'service.family' => 'IIS',
+          'service.version' => '3.0',
+          'os.vendor' => 'Microsoft',
+          'os.device' => 'General',
+          'os.family' => 'Windows',
+          'os.product' => 'Windows NT',
+          'host.name' => 'xx'
         }
       end
 
