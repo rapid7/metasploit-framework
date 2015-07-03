@@ -67,6 +67,12 @@ module Exe
     end
 
     def is_warbird?(pe)
+      # The byte sequence is for the following code pattern:
+      # .text:004136B4                 mov     eax, large fs:30h
+      # .text:004136BA                 sub     ecx, edx
+      # .text:004136BC                 sar     ecx, 1
+      # .text:004136BE                 mov     eax, [eax+0Ch]
+      # .text:004136C1                 add     eax, 0Ch
       pattern = /\x64\xA1\x30\x00\x00\x00\x2B\xCA\xD1\xF9\x8B\x40\x0C\x83\xC0\x0C/
       sections = {}
       pe.sections.each {|s| sections[s.name.to_s] = s}
