@@ -245,3 +245,7 @@ end
 ```
 
 This way, when a mixin wants that information, it will end up with the value 80, and not whatever is actually in ```datastore['RPORT']```.
+
+### Ideal datastore naming
+
+Normal options are always UPPERCASE, advanced options are CamelCase, evasion options are Prefixed::CamelCase
