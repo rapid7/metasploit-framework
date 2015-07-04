@@ -8,13 +8,13 @@ The [WinInet][] API was designed for use in desktop applications. It provides al
 
 [WinInet][] comes with some limitations, one of which is that it's close to impossible to do any kind of custom validation, parsing, or handling of SSL communications. One of the needs of Metasploit users is to be able to enable a [Paranoid Mode][] that forces Meterpreter to only talk with the appropriate endpoint. The goal is to prevent shells from being hijacked by unauthorised users. In order to do this, one of the things that was implemented was the verification of the SHA1 hash of the SSL certificate that Meterpreter reads from the server. If this hash doesn't match the one that Meterpreter is configured with, Meterpreter will shut down. [WinInet][] doesn't make this process possible without a _lot_ of custom work.
 
+For applications such as this, [WinHTTP][] is the "preferred" option as deemed by Microsoft. This API is designed to work under a service, and provides a greater number of ways to interact with communications made over HTTP/S. With this API it was trivial to implement the SHA1 hash verification and force Meterpreter to shut down when a MITM is detected.
+
 For a full comparison of the feature differences, please see [this feature matrix][winhttp_wininet] on MSDN.
 
 ## Meterpreter's Implementation
 
-For applications such as this, [WinHTTP][] is the "preferred" option as deemed by Microsoft. This API is designed to work under a service, and provides a greater number of ways to interact with communications made over HTTP/S. With this API it was trivial to implement the SHA1 hash verification and force Meterpreter to shut down when a MITM is detected.
-
-Using [WinHTTP][] doesn't come for free though. Behind the scenes, this API does not make any use of the current user's Internet Explorer configuration settings, where the [WinInet][] API does. This means that if the current user has a proxy configured, extra code needs to be added to make use of the current Internet Explorer settings in [WinHTTP][]. Meterpreter has been modified to do this, however there is still one limitation that is in place.
+Meterpreter now makes use of [WinHTTP][] by default so that the new features are accommodated, but unfortuanetly this doesn't come for free. Behind the scenes, this API does not make any use of the current user's Internet Explorer configuration settings, where the [WinInet][] API does. This means that if the current user has a proxy configured, extra code needs to be added to make use of the current Internet Explorer settings in [WinHTTP][]. Meterpreter has been modified to do this, however there is still one limitation that is in place.
 
 As indicated in a [blog post on MSDN][msdn_winhttp]:
 
