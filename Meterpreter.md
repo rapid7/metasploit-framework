@@ -20,3 +20,5 @@ Examples of specific use cases can also be found on this wiki:
 
 Those interested in the technical details of Meterpeter, along with rationale behind some of the implementations, should read the following:
  * [[The ins and outs of HTTP and HTTPS communications in Meterpreter and Metasploit Stagers]]
+
+Got dead Meterpreter sessions? Read this: [[Debugging Dead Meterpreter Sessions]].
