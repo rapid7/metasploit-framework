@@ -54,10 +54,16 @@ When the handler launches, it binds to `8443` and handles any connections it rec
 
 If the attacker makes the mistake of either setting `LPORT` to `8443`, or leaving `LPORT` as `443` and not using `ReverseListenerBindPort`, then the result is either a dead shell after the first stage, or no connect back at all.
 
-## Dead HTTP/S Shells - What to check for?
+## Dead Shells - What to check for?
+
+### Quick things to check
 
 * Make sure that `LHOST` is set to a routable address from the target, and not a local listen address.
 * Make sure that `LPORT` is set to the port number that the target needs to connect to.
 * Make sure that `ReverseListenerBindPort` is set if port forwarding is enabled and the traffic is being routed to a different port.
+
+### Not so quick things to check
+
+* If the target is running AntiVirus there's a chance that the **stage** (ie. `metsrv`) is being caught while being uploaded. `reverse_tcp` and `reverse_http` **stagers** download `metsrv` _without_ any encryption, and so the content of the DLL is visible to anything watching on the wire. `reverse_https` can still get caught in cases where AV is doing MITM. In this case, consider encoding your payloads, or if possible using _stageless_ meterpreter instead. 
 
 ... more to come ...
