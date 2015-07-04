@@ -38,7 +38,7 @@ module Payload::Windows::ReverseWinHttp_x64
       conf[:proxy_pass]       = datastore['PayloadProxyPass']
       conf[:proxy_type]       = datastore['PayloadProxyType']
     else
-    # Otherwise default to small URIs
+      # Otherwise default to small URIs
       conf[:url]              = generate_small_uri
     end
 

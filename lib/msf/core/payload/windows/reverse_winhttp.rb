@@ -42,7 +42,7 @@ module Payload::Windows::ReverseWinHttp
       conf[:proxy_type]       = datastore['PayloadProxyType']
       conf[:retry_count]      = datastore['StagerRetryCount']
     else
-    # Otherwise default to small URIs
+      # Otherwise default to small URIs
       conf[:url]              = generate_small_uri
     end
 
