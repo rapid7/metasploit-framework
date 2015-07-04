@@ -40,7 +40,24 @@ A **handler** obviously needs to listen on a host/IP for the incoming connection
 
 However, if some kind of NAT or port forward is enabled, or if the handler is behind a firewall, etc, then setting `LHOST` isn't enough. In order to listen on the appropriate interface, another setting must be used called `ReverseListenerBindHost`. This value tells the **handler** to listen on a different interface/IP, but it doesn't change the fact that the `LHOST` value is given to the target when the **stage** is uploaded.
 
-In short, `LHOST` must always remain the IP/host that is routable from the target, and if this value is not the same as what the listener needs to bind to, then change the `ReverseListenerBindHost` value. If you're attacking something across the Internet and you specific an internal IP in `LHOST`, you're doing it wrong.
+In short, `LHOST` must always remain the IP/host that is routable from the target, and if this value is not the same as what the listener needs to bind to, then change the `ReverseListenerBindHost` value. If you're attacking something across the Internet and you specify an internal IP in `LHOST`, you're doing it wrong.
 
-## Dead HTTP/S Shells
+#### LPORT
 
+The principles of `LHOST` / `ReverseListenerBindHost` can be applied to `LPORT` and `ReverseListenerBindPort` as well. If you have port forwarding in place, and your listener needs to bind to a different port, then you need to make use of the `ReverseListenerBindPort` setting.
+
+The classic example of this case is where an attacker wants to make use of port `443`, but rightfully doesn't want to run Metasploit as `root` so that they can bind to ports lower than `1024`. Instead, the set up a port forward (on their router, or using `iptables`) so that `443` forwards to `8443`, with a goal of accepting connections on that port instead.
+
+To accommodate this scenario, the `LHOST` value must **still contain `443`**, as this is the port that the target machine needs to establish communications on; `443` is the value that needs to go out with the **stager** and the **stage** configurations. Metasploit needs to bind locally to port `8443`, and so the **handler** is configured so that `ReverseListenerBindPort` has this value instead.
+
+When the handler launches, it binds to `8443` and handles any connections it receives. When a stage is generated, it uses `443` from `LHOST` value to populate the configuration.
+
+If the attacker makes the mistake of either setting `LPORT` to `8443`, or leaving `LPORT` as `443` and not using `ReverseListenerBindPort`, then the result is either a dead shell after the first stage, or no connect back at all.
+
+## Dead HTTP/S Shells - What to check for?
+
+* Make sure that `LHOST` is set to a routable address from the target, and not a local listen address.
+* Make sure that `LPORT` is set to the port number that the target needs to connect to.
+* Make sure that `ReverseListenerBindPort` is set if port forwarding is enabled and the traffic is being routed to a different port.
+
+... more to come ...
