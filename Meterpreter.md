@@ -17,3 +17,6 @@ A wishlist of features is maintained at the [[Meterpreter Wishlist]] page.
 
 Examples of specific use cases can also be found on this wiki:
  * [[Meterpreter Paranoid Mode]]
+
+Those interested in the technical details of Meterpeter, along with rationale behind some of the implementations, should read the following:
+ * [[The ins and outs of HTTP and HTTPS communications in Meterpreter and Metasploit Stagers]]
