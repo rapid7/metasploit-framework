@@ -117,7 +117,7 @@ module Webarchive
       window.addEventListener('message', function(e) {
         if (!qq && e.data === 'EXT') {
           qq = e.source;
-          setInterval(go, 3000);
+          setInterval(go, 600);
         }
       });
       |
