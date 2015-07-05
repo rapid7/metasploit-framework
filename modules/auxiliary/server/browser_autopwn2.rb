@@ -72,16 +72,17 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptRegexp.new('Include', [false, 'Pattern search to include specific modules']),
-        OptRegexp.new('Exclude', [false, 'Pattern search to exclude specific modules']),
-        OptInt.new('MaxExploits', [false, 'Number of browser exploits to load', 20]),
-        OptString.new('Content', [false, 'HTML Content', '']),
-        OptAddressRange.new('Whitelist', [false, "A range of IPs you're interested in attacking"]),
-        OptInt.new('MaxSessions', [false, 'Number of sessions to get', -1]),
-        OptBool.new('RealList', [true, "Show which exploits will actually be served to each client", false])
-      ] ,self.class)
+        OptRegexp.new('INCLUDE_PATTERN', [false, 'Pattern search to include specific modules']),
+        OptRegexp.new('EXCLUDE_PATTERN', [false, 'Pattern search to exclude specific modules'])
+      ], self.class)
 
-    deregister_options('Retries', 'DisablePayloadHandler', 'ContextInformationFile')
+    register_advanced_options([
+        OptInt.new('MaxExploitCount', [false, 'Number of browser exploits to load', 20]),
+        OptString.new('HTMLContent', [false, 'HTML Content', '']),
+        OptAddressRange.new('AllowedAddresses', [false, "A range of IPs you're interested in attacking"]),
+        OptInt.new('MaxSessionCount', [false, 'Number of sessions to get', -1]),
+        OptBool.new('ShowExploitList', [true, "Show which exploits will actually be served to each client", false])
+      ] ,self.class)
   end
 
   def get_advanced_options
