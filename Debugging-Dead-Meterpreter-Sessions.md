@@ -46,7 +46,7 @@ In short, `LHOST` must always remain the IP/host that is routable from the targe
 
 The principles of `LHOST` / `ReverseListenerBindHost` can be applied to `LPORT` and `ReverseListenerBindPort` as well. If you have port forwarding in place, and your listener needs to bind to a different port, then you need to make use of the `ReverseListenerBindPort` setting.
 
-The classic example of this case is where an attacker wants to make use of port `443`, but rightfully doesn't want to run Metasploit as `root` so that they can bind to ports lower than `1024`. Instead, the set up a port forward (on their router, or using `iptables`) so that `443` forwards to `8443`, with a goal of accepting connections on that port instead.
+The classic example of this case is where an attacker wants to make use of port `443`, but rightfully doesn't want to run Metasploit as `root` just so they can directly bind to ports lower than `1024`. Instead, the set up a port forward (on their router, or using `iptables`) so that `443` forwards to `8443`, with a goal of accepting connections on that port instead.
 
 To accommodate this scenario, the `LHOST` value must **still contain `443`**, as this is the port that the target machine needs to establish communications on; `443` is the value that needs to go out with the **stager** and the **stage** configurations. Metasploit needs to bind locally to port `8443`, and so the **handler** is configured so that `ReverseListenerBindPort` has this value instead.
 
