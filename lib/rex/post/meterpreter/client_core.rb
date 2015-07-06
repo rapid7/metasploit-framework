@@ -108,6 +108,7 @@ class ClientCore < Extension
 
     response.each(TLV_TYPE_TRANS_GROUP) { |t|
       result[:transports] << {
+        :transport_id => t.get_tlv_value(TLV_TYPE_TRANS_ID),
         :url          => t.get_tlv_value(TLV_TYPE_TRANS_URL),
         :comm_timeout => t.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
         :retry_total  => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
@@ -623,6 +624,18 @@ class ClientCore < Extension
   private
 
   def transport_prepare_request(method, opts={})
+    request = Packet.create_request(method)
+
+    # handle transport removal up here to avoid reworking the logic below
+    if method == "core_transport_remove"
+      if opts[:transport_id]
+        request.add_tlv(TLV_TYPE_TRANS_ID, opts[:transport_id])
+        return request
+      else
+        return nil
+      end
+    end
+
     unless valid_transport?(opts[:transport]) && opts[:lport]
       return nil
     end
@@ -635,8 +648,6 @@ class ClientCore < Extension
     end
 
     transport = VALID_TRANSPORTS[opts[:transport]]
-
-    request = Packet.create_request(method)
 
     scheme = opts[:transport].split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"

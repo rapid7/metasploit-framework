@@ -571,7 +571,7 @@ class Console::CommandDispatcher::Core
     '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
     '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
     '-p'  => [ true,  'LPORT parameter' ],
-    '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
+    '-i'  => [ true,  'Transport ID to remove' ],
     '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
     '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
     '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
@@ -617,11 +617,11 @@ class Console::CommandDispatcher::Core
     end
 
     opts = {
+      :transport_id  => nil,
       :uuid          => client.payload_uuid,
       :transport     => nil,
       :lhost         => nil,
       :lport         => nil,
-      :uri           => nil,
       :ua            => nil,
       :proxy_host    => nil,
       :proxy_port    => nil,
@@ -641,8 +641,8 @@ class Console::CommandDispatcher::Core
       case opt
       when '-c'
         opts[:cert] = val
-      when '-u'
-        opts[:uri] = val
+      when '-i'
+        opts[:transport_id] = val.to_i
       when '-ph'
         opts[:proxy_host] = val
       when '-pp'
@@ -692,6 +692,7 @@ class Console::CommandDispatcher::Core
       print_timeouts(result)
 
       columns =[
+        'ID',
         'Curr',
         'URL',
         'Comms T/O',
@@ -709,13 +710,13 @@ class Console::CommandDispatcher::Core
 
       # next draw up a table of transport entries
       tbl = Rex::Ui::Text::Table.new(
-        'SortIndex' => -1,       # disable any sorting
+        'SortIndex' => 0, # sort by transport ID
         'Indent'    => 4,
         'Columns'   => columns)
 
       first = true
       result[:transports].each do |t|
-        entry = [ first ? '*' : '', t[:url], t[:comm_timeout],
+        entry = [ t[:transport_id], first ? '*' : '', t[:url], t[:comm_timeout],
                   t[:retry_total], t[:retry_wait] ]
 
         first = false
@@ -767,14 +768,14 @@ class Console::CommandDispatcher::Core
         print_error("Failed to add transport, please check the parameters")
       end
     when 'remove'
-      if opts[:transport] && !opts[:transport].end_with?('_tcp') && opts[:uri].nil?
-        print_error("HTTP/S transport specified without session URI")
+      unless opts[:transport_id]
+        print_error("No transport ID specified for removal")
         return
       end
 
       print_status("Removing transport ...")
       if client.core.transport_remove(opts)
-        print_good("Successfully removed #{opts[:transport]} transport.")
+        print_good("Successfully removed transport ##{opts[:transport_id]}.")
       else
         print_error("Failed to remove transport, please check the parameters")
       end
