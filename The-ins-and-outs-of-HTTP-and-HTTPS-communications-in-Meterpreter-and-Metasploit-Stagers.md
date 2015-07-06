@@ -34,7 +34,7 @@ To provide support for paranoid mode directly inside the stager, ultimately prev
 
 ## Combining Stagers with Meterpreter
 
-It's important to note that the implementations of communications inside the stagers are completely separate that those inside Meterpreter. If you use `windows/meterpreter/reverse_https`, then the stager will use [WinInet][] and Meterpreter will use [WinHTTP][]. It isn't possible to "hand over" communications from the stager to Meterpreter in this case, and it wouldn't make sense anyway because HTTP/S is stateless. This is the most common set up because many people don't realise that the `reverse_winhttp/s` payloads exist!
+It's important to note that the implementations of communications inside the stagers are completely separate to those inside Meterpreter. If you use `windows/meterpreter/reverse_https`, then the stager will use [WinInet][] and Meterpreter will use [WinHTTP][]. It isn't possible to "hand over" communications from the stager to Meterpreter in this case, and it wouldn't make sense anyway because HTTP/S is stateless. This is the most common set up because many people don't realise that the `reverse_winhttp/s` payloads exist!
 
 Prior to the [WinInet fallback][wininet_fallback] work, those people hitting the HTTP/1.0 proxy issue would find themselves with the following scenario:
 
