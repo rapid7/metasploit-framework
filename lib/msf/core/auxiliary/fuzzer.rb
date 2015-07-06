@@ -48,10 +48,12 @@ module Auxiliary::Fuzzer
     res
   end
 
- # Modifies each byte of the string from beginning to end, packing each element as an 8 bit character.
- #
- # @returns [Array] Returns an array of an array of strings
- # @see #fuzzer_string_format
+  # Modifies each byte of the string from beginning to end, packing each element as an 8 bit character.
+  #
+  # @param str [String] The string the mutation will be based on.
+  # @param max [Fixnum, NilClass] Max string size.
+  # @return [Array] Returns an array of an array of strings
+  # @see #fuzzer_string_format
 
   def fuzz_string_corrupt_byte(str,max=nil)
     res = []
@@ -68,8 +70,9 @@ module Auxiliary::Fuzzer
 
   # Modifies each byte of the string from beginning to end, packing each element as an 8 bit character.
   #
-  #
-  # @returns [Array] Returns an array of an array of strings
+  # @param str [String] The string the mutation will be based on.
+  # @param max [Fixnum, NilClass] Max string size.
+  # @return [Array] Returns an array of an array of strings
   # @see fuzzer_string_format
 
   def fuzz_string_corrupt_byte_reverse(str,max=nil)
@@ -87,7 +90,7 @@ module Auxiliary::Fuzzer
 
   # Useful generators (many derived from AxMan)
   #
-  # @returns [Array] Returns and array of strings.
+  # @return [Array] Returns and array of strings.
 
   def fuzzer_string_format
     res = %W{ %s %p %n %x %@ %.257d %.65537d %.2147483648d %.257f %.65537f %.2147483648f}
@@ -97,7 +100,7 @@ module Auxiliary::Fuzzer
   # Reserved filename array
   # Useful generators (many derived from AxMan)
   #
-  # @returns [Array] Returns and array of reserved filenames in Windows.
+  # @return [Array] Returns and array of reserved filenames in Windows.
 
   def fuzzer_string_filepath_dos
     res = %W{ aux con nul com1 com2 com3 com4 lpt1 lpt2 lp3 lpt4 prn }
@@ -106,7 +109,7 @@ module Auxiliary::Fuzzer
 
   # Fuzzer Numbers by Powers of Two
   #
-  # @returns [Array] Returns an array with pre-set values
+  # @return [Array] Returns an array with pre-set values
 
   def fuzzer_number_power2
     res = [
@@ -128,7 +131,7 @@ module Auxiliary::Fuzzer
 
   # Powers of two by some fuzzing factor.
   #
-  # @returns [Array] Returns and array of integers.
+  # @return [Array] Returns and array of integers.
 
   def fuzzer_number_power2_plus
     res = []
@@ -144,9 +147,10 @@ module Auxiliary::Fuzzer
     block_given? ? res.each { |n| yield(n) } : res
   end
 
-  # Generates a fuzz string
-  # If no block set, will retrive characters from the FuzzChar datastore option
+  # Generates a fuzz string If no block is set, it will retrive characters from the
+  # FuzzChar datastore option.
   #
+  # @param len [Fixnum] String size.
   # @return [String] Returns a string of size 1024 * 512 specified by the user
 
   def fuzzer_gen_string(len)
@@ -198,7 +202,7 @@ module Auxiliary::Fuzzer
 
   # Various URI types
   #
-  # @returns [Array] Returns an array of strings
+  # @return [Array] Returns an array of strings
   def fuzzer_string_uri_types
     res = %W{
       aaa  aaas  about  acap  adiumxtra  afp  aim  apt  aw  bolo  callto  cap  chrome  cid
@@ -216,27 +220,27 @@ module Auxiliary::Fuzzer
     block_given? ? res.each { |n| yield(n) } : res
   end
 
-# Generator for common URI dividers
-#
-# @return [Array] Returns an array of strings
+  # Generator for common URI dividers
+  #
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_uri_dividers
     res = %W{ : :// }
     block_given? ? res.each { |n| yield(n) } : res
   end
 
-# Generator for common path prefixes
-#
-# @return [Array] Returns an array of strings
+  # Generator for common path prefixes
+  #
+  # @return [Array] Returns an array of strings
 
   def fuzzer_string_path_prefixes
     res = %W{ C:\\ \\\\localhost\\ / }
     block_given? ? res.each { |n| yield(n) } : res
   end
 
-# Generates various small URI string types
-#
-# @return [Array] Returns an array of stings
+  # Generates various small URI string types
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_uris_small
     res = []
@@ -268,9 +272,9 @@ module Auxiliary::Fuzzer
     res
   end
 
-# Generates various giant URI string types
-#
-# @return [Array] Returns an array of stings
+  # Generates various giant URI string types
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_uris_giant
     res = []
@@ -285,9 +289,9 @@ module Auxiliary::Fuzzer
     res
   end
 
-# Format for the URI string generator
-#
-# @return [Array] Returns an array of stings
+  # Format for the URI string generator
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_uris_format
     res = []
@@ -303,9 +307,9 @@ module Auxiliary::Fuzzer
   end
 
 
-# Generates various small strings
-#
-# @return [Array] Returns an array of stings
+  # Generates various small strings
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_uris_dos
     res = []
@@ -321,9 +325,9 @@ module Auxiliary::Fuzzer
   end
 
 
-# Generates various small strings
-#
-# @return [Array] Returns an array of stings
+  # Generates various small strings
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_paths_small
     res = []
@@ -337,9 +341,9 @@ module Auxiliary::Fuzzer
   end
 
 
-# Generates various small strings
-#
-# @return [Array] Returns an array of stings
+  # Generates various small strings
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_paths_long
     res = []
@@ -353,9 +357,9 @@ module Auxiliary::Fuzzer
   end
 
 
-# Generates various giant strings
-#
-# @return [Array] Returns an array of stings
+  # Generates various giant strings
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_paths_giant
     res = []
@@ -369,9 +373,9 @@ module Auxiliary::Fuzzer
   end
 
 
-# Format for the path generator
-#
-# @return [Array] Returns an array of stings
+  # Format for the path generator
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_paths_format
     res = []
@@ -385,9 +389,9 @@ module Auxiliary::Fuzzer
   end
 
 
-# Generates fuzzer strings using path prefixes
-#
-# @return [Array] Returns an array of stings
+  # Generates fuzzer strings using path prefixes
+  #
+  # @return [Array] Returns an array of stings
 
   def fuzzer_string_paths_dos
     res = []
