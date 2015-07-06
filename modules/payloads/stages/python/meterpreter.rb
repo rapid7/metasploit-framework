@@ -43,8 +43,8 @@ module Metasploit3
     met.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{datastore['SessionRetryWait']}")
 
     uuid = opts[:uuid] || generate_payload_uuid
-    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
-    met = met.sub("PAYLOAD_UUID = \"\"", "PAYLOAD_UUID = \"#{bytes}\"")
+    uuid = Rex::Text.to_hex(uuid.to_raw, prefix = '')
+    met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
     met
   end

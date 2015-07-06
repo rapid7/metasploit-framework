@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # vim: tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
+import binascii
 import code
 import os
 import platform
@@ -66,7 +67,7 @@ DEBUGGING = False
 HTTP_CONNECTION_URL = None
 HTTP_PROXY = None
 HTTP_USER_AGENT = None
-PAYLOAD_UUID = ""
+PAYLOAD_UUID = ''
 SESSION_COMMUNICATION_TIMEOUT = 300
 SESSION_EXPIRATION_TIMEOUT = 604800
 SESSION_RETRY_TOTAL = 3600
@@ -807,7 +808,7 @@ class PythonMeterpreter(object):
 		self.send_packet(pkt)
 
 	def _core_uuid(self, request, response):
-		response += tlv_pack(TLV_TYPE_UUID, PAYLOAD_UUID)
+		response += tlv_pack(TLV_TYPE_UUID, binascii.a2b_hex(PAYLOAD_UUID))
 		return ERROR_SUCCESS, response
 
 	def _core_enumextcmd(self, request, response):
