@@ -22,7 +22,7 @@ Each exploit and handler is made up of multiple things, and they're all independ
 * A **Stage**: This is the second payload that is executed by the target. It is sent to the target via the communications channel that was opened by the **stage**. Once downloaded, it is invoked and from there it takes over. It has it's _own configuration_.
 * A **Handler**: This is the code that runs on the attacker's machine. It is responsible for handling the attacker-side of the communications channel that is established by the **stager**. It is responsible for uploading the **stage**. It is responsible for handling communication between the attacker and the target once the stage has taken over from the stager.
 
-In some cases there might be mulitple stages (as is the case with POSIX Meterpreter). This is called an **intermediate** stage. Usually these stages are slightly bigger than the stager and can do more work to help establish communications. In the context of this article, they aren't too important.
+In some cases there might be multiple stages (as is the case with POSIX Meterpreter). This is called an **intermediate** stage. Usually these stages are slightly bigger than the stager and can do more work to help establish communications. In the context of this article, they aren't too important.
 
 The most important thing to remember is that both the **stager** and the **stage** have their own configurations that are **independent**. _THE MOST COMMON_ cause of dead shells is the result of the **stage** not having the correct configuration (ie. it's different to that specified in the **stager**).
 
