@@ -11,7 +11,7 @@
 
 ##                 ==   WARNING   ==
 ## As said by mmiller, this kind of script is slow and noisy :
-## http://www.metasploit.com/archive/framework/msg01670.html
+## https://www.metasploit.com/archive/framework/msg01670.html
 ## However, it can sometimes save your ass ;-)
 ##                 ==   WARNING   ==
 

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
+          ['URL', 'https://www.metasploit.com/research/projects/rogue_network/'],
         ]
     )
 
