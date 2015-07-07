@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
       'Name'         => 'Windows Gather Active Directory BitLocker Recovery',
       'Description'  => %q{
         This module will enumerate BitLocker recovery passwords in the default AD
-        directory. Requires Domain Admin or other delegated privileges.
+        directory. This module does require Domain Admin or other delegated privileges.
       },
       'License'      => MSF_LICENSE,
       'Author'       => ['Ben Campbell <ben.campbell[at]mwrinfosecurity.com>'],
