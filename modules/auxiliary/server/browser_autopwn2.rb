@@ -77,6 +77,7 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
 
     register_advanced_options([
+        OptInt.new('ExploitReloadTimeout', [false, 'Number of milliseconds before trying the next exploit', 3000]),
         OptInt.new('MaxExploitCount', [false, 'Number of browser exploits to load', 20]),
         OptString.new('HTMLContent', [false, 'HTML Content', '']),
         OptAddressRange.new('AllowedAddresses', [false, "A range of IPs you're interested in attacking"]),
