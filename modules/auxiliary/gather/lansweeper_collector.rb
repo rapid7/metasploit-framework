@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'sghctoma <tamas.szakaly [at] praudit [dot] hu>',
       # Lansweeper RCE + discovering default credentials
       'eq <balazs.bucsay [at] praudit [dot] hu>',
-      # Updated module to work on latest version of lansweeper
+      # Module for lansweeper (5.3.0.8)
       'calderpwn <calderon [at] websec [dot] mx>'
     ],
     'License' => MSF_LICENSE,
@@ -107,12 +107,15 @@ class Metasploit3 < Msf::Auxiliary
     service_data = {
       address: opts[:host],
       port: opts[:port],
+      protocol: 'tcp',
+      workspace_id: myworkspace.id,
       service_name: opts[:creds_name],
     }
     credential_data = {
       username: opts[:user],
       private_type: :password,
       private_data: opts[:password],
+      origin_type: :service,
       module_fullname: self.fullname
     }.merge(service_data)
     login_data = {
