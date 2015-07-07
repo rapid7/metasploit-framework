@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "HTTP Client Automatic Exploiter (Browser Autopwn)",
+      'Name'           => "HTTP Client Automatic Exploiter 2 (Browser Autopwn)",
       'Description'    => %q{
         This module will automatically serve browser exploits. Here are the options you can
         configure:
