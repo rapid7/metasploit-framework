@@ -36,7 +36,7 @@ module Msf::Payload::UUID::Options
     # The URI length may not have room for an embedded UUID
     if len && len < URI_CHECKSUM_UUID_MIN_LEN
       # Throw an error if the user set a seed, but there is no room for it
-      if datastore['PayloadUUIDSeed'].to_s.length > 0 ||datastore['PayloadUUIDRaw'].to_s.length > 0
+      if datastore['PayloadUUIDSeed'].to_s.length > 0 || datastore['PayloadUUIDRaw'].to_s.length > 0
         raise ArgumentError, "A PayloadUUIDSeed or PayloadUUIDRaw value was specified, but this payload doesn't have enough room for a UUID"
       end
       return "/" + generate_uri_checksum(sum, len, prefix="")

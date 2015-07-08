@@ -31,6 +31,16 @@ module Msf::Payload::Dalvik
     [str.length].pack("N") + str
   end
 
+  def apply_options(classes)
+    timeouts = [
+      datastore['SessionExpirationTimeout'].to_s,
+      datastore['SessionCommunicationTimeout'].to_s,
+      datastore['SessionRetryTotal'].to_s,
+      datastore['SessionRetryWait'].to_s
+    ].join('-')
+    string_sub(classes, 'TTTT                                ', 'TTTT' + timeouts)
+  end
+
   def string_sub(data, placeholder="", input="")
     data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
   end

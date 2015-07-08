@@ -671,7 +671,7 @@ require 'msf/core/exe/segment_appender'
 
     msi = self.get_file_contents(template)
 
-    section_size =	2**(msi[30..31].unpack('v')[0])
+    section_size = 2**(msi[30..31].unpack('v')[0])
 
     # This table is one of the few cases where signed values are needed
     sector_allocation_table = msi[section_size..section_size*2].unpack('l<*')
@@ -978,24 +978,24 @@ require 'msf/core/exe/segment_appender'
 
   def self.to_vba(framework,code,opts = {})
     hash_sub = {}
-    hash_sub[:var_myByte]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_myArray]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_rwxpage]  	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_res]      	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_offset] 		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_myByte]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_myArray]            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_rwxpage]            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_res]                = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_offset]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpThreadAttributes] = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_dwStackSize]        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpStartAddress]     = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpParameter]        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_dwCreationFlags]	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_dwCreationFlags]    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpThreadID]         = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpAddr]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lSize]              = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_flAllocationType]   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_flProtect]          = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lDest]	          = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_Source]	 	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_Length]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_lDest]              = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_Source]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_Length]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 
     # put the shellcode bytes into an array
     hash_sub[:bytes] = Rex::Text.to_vbapplication(code, hash_sub[:var_myArray])
@@ -1035,16 +1035,16 @@ require 'msf/core/exe/segment_appender'
     persist = opts[:persist] || false
 
     hash_sub = {}
+    hash_sub[:exe_filename]  = opts[:exe_filename] || Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
     hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:exe_filename] = Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
-    hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_obj]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_shell]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_fname]     = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_func]      = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_stream]    = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_obj]       = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_shell]     = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempdir]   = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempexe]   = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_basedir]   = Rex::Text.rand_text_alpha(rand(8)+8)
 
     hash_sub[:hex_shellcode] = exes.unpack('H*').join('')
 
@@ -1081,13 +1081,13 @@ require 'msf/core/exe/segment_appender'
 
   def self.to_exe_aspx(exes = '', opts = {})
     hash_sub = {}
-    hash_sub[:var_file] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir]	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_file]     = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempdir]  = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_basedir]  = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_filename] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempexe]  = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_iterator] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_proc]	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_proc] = Rex::Text.rand_text_alpha(rand(8)+8)
 
     hash_sub[:shellcode] = Rex::Text.to_csharp(exes,100,hash_sub[:var_file])
 
@@ -1729,8 +1729,8 @@ require 'msf/core/exe/segment_appender'
 
     set_handler:
       xor eax,eax
-;		  push dword [fs:eax]
-;		  mov dword [fs:eax], esp
+;     push dword [fs:eax]
+;     mov dword [fs:eax], esp
       push eax               ; LPDWORD lpThreadId (NULL)
       push eax               ; DWORD dwCreationFlags (0)
       push eax               ; LPVOID lpParameter (NULL)
@@ -1741,10 +1741,10 @@ require 'msf/core/exe/segment_appender'
       call ebp               ; Spawn payload thread
 
       pop eax                ; Skip
-;		  pop eax                ; Skip
+;     pop eax                ; Skip
       pop eax                ; Skip
       popad                  ; Get our registers back
-;		  sub esp, 44             ; Move stack pointer back past the handler
+;     sub esp, 44             ; Move stack pointer back past the handler
     ^
 
     stub_final = %Q^
@@ -1811,7 +1811,7 @@ require 'msf/core/exe/segment_appender'
   # Generate an executable of a given format suitable for running on the
   # architecture/platform pair.
   #
-  # This routine is shared between msfencode, rpc, and payload modules (use
+  # This routine is shared between msfvenom, rpc, and payload modules (use
   # <payload>)
   #
   # @param framework [Framework]

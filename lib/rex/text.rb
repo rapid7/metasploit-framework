@@ -4,17 +4,7 @@ require 'digest/sha1'
 require 'stringio'
 require 'cgi'
 require 'rex/powershell'
-
-%W{ iconv zlib }.each do |libname|
-  begin
-    old_verbose = $VERBOSE
-    $VERBOSE = nil
-    require libname
-  rescue ::LoadError
-  ensure
-    $VERBOSE = old_verbose
-  end
-end
+require 'zlib'
 
 module Rex
 
@@ -55,7 +45,8 @@ module Text
 
   DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
 
-  # In case Iconv isn't loaded
+  # The Iconv translation table. The Iconv gem is deprecated in favor of
+  # String#encode, yet there is no encoding for EBCDIC. See #4525
   Iconv_EBCDIC = [
     "\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05",
     "%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13",
@@ -374,31 +365,26 @@ module Text
     return str
   end
 
+  # Converts US-ASCII to UTF-8, skipping over any characters which don't
+  # convert cleanly. This is a convenience method that wraps
+  # String#encode with non-raising default paramaters.
   #
-  # Converts ISO-8859-1 to UTF-8
-  #
+  # @param str [String] An encodable ASCII string
+  # @return [String] a UTF-8 equivalent
+  # @note This method will discard invalid characters
   def self.to_utf8(str)
-
-    if str.respond_to?(:encode)
-      # Skip over any bytes that fail to convert to UTF-8
-      return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
-    end
-
-    begin
-      Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
-    rescue
-      raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
-    end
+      str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
   end
 
-  #
-  # Converts ASCII to EBCDIC
-  #
   class IllegalSequence < ArgumentError; end
 
-  # A native implementation of the ASCII->EBCDIC table, used to fall back from using
-  # Iconv
-  def self.to_ebcdic_rex(str)
+  # A native implementation of the ASCII to EBCDIC conversion table, since
+  # EBCDIC isn't available to String#encode as of Ruby 2.1
+  #
+  # @param str [String] An encodable ASCII string
+  # @return [String] an EBCDIC encoded string
+  # @note This method will raise in the event of invalid characters
+  def self.to_ebcdic(str)
     new_str = []
     str.each_byte do |x|
       if Iconv_ASCII.index(x.chr)
@@ -410,9 +396,13 @@ module Text
     new_str.join
   end
 
-  # A native implementation of the EBCDIC->ASCII table, used to fall back from using
-  # Iconv
-  def self.from_ebcdic_rex(str)
+  # A native implementation of the EBCIDC to ASCII conversion table, since
+  # EBCDIC isn't available to String#encode as of Ruby 2.1
+  #
+  # @param str [String] an EBCDIC encoded string
+  # @return [String] An encodable ASCII string
+  # @note This method will raise in the event of invalid characters
+  def self.from_ebcdic(str)
     new_str = []
     str.each_byte do |x|
       if Iconv_EBCDIC.index(x.chr)
@@ -422,29 +412,6 @@ module Text
       end
     end
     new_str.join
-  end
-
-  def self.to_ebcdic(str)
-    begin
-      Iconv.iconv("EBCDIC-US", "ASCII", str).first
-    rescue ::Iconv::IllegalSequence => e
-      raise e
-    rescue
-      self.to_ebcdic_rex(str)
-    end
-  end
-
-  #
-  # Converts EBCIDC to ASCII
-  #
-  def self.from_ebcdic(str)
-    begin
-      Iconv.iconv("ASCII", "EBCDIC-US", str).first
-    rescue ::Iconv::IllegalSequence => e
-      raise e
-    rescue
-      self.from_ebcdic_rex(str)
-    end
   end
 
   #
