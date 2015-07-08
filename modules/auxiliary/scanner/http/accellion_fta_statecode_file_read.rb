@@ -57,7 +57,14 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    contents = res.body
+    contents = res.body.to_s
+
+    # Check for patched versions of the FTA
+    if contents =~ / Missing session ID.*Accellion, Inc/m
+      print_error("#{peer} Appears to be a patched Accellion FTA")
+      return
+    end
+
     fname = ::File.basename(datastore['FILEPATH'])
 
     expected_server  = "Apache"
