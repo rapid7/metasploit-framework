@@ -30,7 +30,6 @@ Gem::Specification.new do |spec|
   spec.bindir = '.'
   spec.executables   = [
       'msfbinscan',
-      'msfcli',
       'msfconsole',
       'msfd',
       'msfelfscan',
