@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Accellion FTA statecode Cookie Arbitrary File Read',
+      'Name'           => "Accellion FTA 'statecode' Cookie Arbitrary File Read",
       'Description'    => %q{
           This module exploits a file disclosure vulnerability in the Accellion
         File Transfer appliance. This vulnerability is triggered when a user-provided
