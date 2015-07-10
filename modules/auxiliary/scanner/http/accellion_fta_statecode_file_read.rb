@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['URL', 'http://r-7.co/R7-2015-08'],
-          ['CVE', '2015-2857']
+          ['CVE', '2015-2856']
         ],
       'DisclosureDate' => 'Jul 10 2015'
     ))
