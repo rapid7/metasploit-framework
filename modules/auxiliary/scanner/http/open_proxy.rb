@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'rex/user_agent'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -39,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('SITE', [ true, 'The web site to test via alleged web proxy (default is www.google.com)', 'www.google.com' ]),
         OptString.new('ValidCode', [ false, "Valid HTTP code for a successfully request", '200,302' ]),
         OptString.new('ValidPattern', [ false, "Valid HTTP server header for a successfully request", 'server: gws' ]),
-        OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
+        OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', Rex::UserAgent.random]),
       ], self.class)
 
     register_advanced_options(

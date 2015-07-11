@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'net/http'
+require 'rex/user_agent'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -63,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Searching Yahoo for email addresses from #{targetdom}")
     response = ""
     emails = []
-    header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
+    header = { 'User-Agent' => Rex::UserAgent.random }
     clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("search.yahoo.com")
     searches = ["1", "101","201", "301", "401", "501"]
     searches.each { |num|
@@ -84,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Searching Bing email addresses from #{targetdom}")
     response = ""
     emails = []
-    header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
+    header = { 'User-Agent' => Rex::UserAgent.random }
     clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.bing.com")
     searches = 1
     while searches < 201

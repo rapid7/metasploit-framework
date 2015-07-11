@@ -3,9 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
 require 'net/http'
+require 'rex/user_agent'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
   def pull_urls(targetdom)
     response = ""
     pages = []
-    header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
+    header = { 'User-Agent' => Rex::UserAgent.random }
     clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("wayback.archive.org")
     resp = clnt.get2("/web/*/http://"+targetdom+"/*",header)
     response << resp.body

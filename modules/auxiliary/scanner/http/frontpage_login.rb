@@ -28,11 +28,6 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
       'License'     => MSF_LICENSE
     )
-
-    register_options(
-      [
-        OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ])
-      ], self.class)
   end
 
   def run_host(target_host)

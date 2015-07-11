@@ -7,6 +7,7 @@
 ##
 
 require 'uri'
+require 'rex/user_agent'
 
 module Msf
 class Auxiliary::Web::HTTP
@@ -118,7 +119,7 @@ class Auxiliary::Web::HTTP
 
     c.set_config({
       'vhost' => opts[:target].vhost,
-      'agent' => opts[:user_agent] || 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
+      'agent' => opts[:user_agent] || Rex::UserAgent.random,
       'domain' => domain
     })
     c

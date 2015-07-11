@@ -3,6 +3,7 @@ require 'uri'
 #require 'rex/proto/http'
 require 'rex/socket'
 require 'rex/text'
+require 'rex/user_agent'
 
 require 'pp'
 
@@ -12,7 +13,7 @@ module Http
 
 class ClientRequest
 
-  DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+  DefaultUserAgent = Rex::UserAgent.most_common
   DefaultConfig = {
     #
     # Regular HTTP stuff
