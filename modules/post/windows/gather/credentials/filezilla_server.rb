@@ -134,6 +134,7 @@ class Metasploit3 < Msf::Post
       "Password"
     ])
 
+
     paths.each do|path|
       file = session.fs.file.new(path, "rb")
       until file.eof?
@@ -193,9 +194,6 @@ class Metasploit3 < Msf::Post
         perm['dircreate'], perm['dirdelete'], perm['dirlist'], perm['dirsubdirs'], perm['autocreate'], perm['home']]
     end
 
-    configuration << [config['ftp_port'], config['ftp_bindip'], ['admin_port'], config['admin_bindip'], config['admin_pass'],
-      config['ssl'], config['ssl_certfile'], config['ssl_keypass']]
-
     session.db_record ? (source_id = session.db_record.id) : (source_id = nil)
 
     # report the goods!
@@ -244,6 +242,10 @@ class Metasploit3 < Msf::Post
     vprint_status("     Admin Pass: %s" % config['admin_pass'])
     vprint_line("")
 
+    configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'], config['admin_pass'],
+      config['ssl'], config['ssl_certfile'], config['ssl_keypass']]
+
+
     lastser = parse_interface(fsi_xml)
     lastserver << [lastser['ip'], lastser['port'], lastser['password']]
 
@@ -274,13 +276,12 @@ class Metasploit3 < Msf::Post
 
 
   def parse_server(data)
-    creds = []
-    perms = []
-    settings = {}
-    users = 0
-    passwords = 0
+    creds  = []
+    perms  = []
     groups = []
-    perm = {}
+    settings = {}
+    users     = 0
+    passwords = 0
 
     begin
       doc = REXML::Document.new(data).root
@@ -346,9 +347,10 @@ class Metasploit3 < Msf::Post
       groups << account['group']
 
       user.elements.to_a("Permissions/Permission").each do |permission|
+        perm = {}
         opt = permission.elements.to_a("Option")
-        perm['user'] = account['user']   # give some context as to which user has these permissions
-        perm['dir'] = permission.attributes['Dir']
+        perm['user']       = user.attributes['Name'] rescue "<unknown>"
+        perm['dir']        = permission.attributes['Dir'] rescue "<unknown>"
         perm['fileread']   = opt[0].text rescue "<unknown>"
         perm['filewrite']  = opt[1].text rescue "<unknown>"
         perm['filedelete'] = opt[2].text rescue "<unknown>"
@@ -358,6 +360,7 @@ class Metasploit3 < Msf::Post
         perm['dirlist']    = opt[6].text rescue "<unknown>"
         perm['dirsubdirs'] = opt[7].text rescue "<unknown>"
         perm['autocreate'] = opt[9].text rescue "<unknown>"
+        perm['host']       = settings['ftp_bindip']
 
         opt[8].text == "1" ? (perm['home'] = "true") : (perm['home'] = "false")
 
@@ -370,7 +373,6 @@ class Metasploit3 < Msf::Post
       end
 
       account['host'] = settings['ftp_bindip']
-      perm['host']    = settings['ftp_bindip']
       account['port'] = settings['ftp_port']
       account['ssl']  = settings['ssl']
       creds << account
