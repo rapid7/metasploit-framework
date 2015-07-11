@@ -104,7 +104,7 @@ module Rex::UserAgent
   # Choose the agent with the shortest string (for use in payloads)
   #
   def self.shortest
-    COMMON_AGENTS.min { |a, b| a.size <=> b.size }
+    @@shortest_agent ||= COMMON_AGENTS.min { |a, b| a.size <=> b.size }
   end
 
   #
