@@ -803,7 +803,7 @@ class Console::CommandDispatcher::Core
 
       print_status("Removing transport ...")
       if client.core.transport_remove(opts)
-        print_good("Successfully removed transport ##{transport_index}.")
+        print_good("Successfully removed #{opts[:transport]} transport.")
       else
         print_error("Failed to remove transport, please check the parameters")
       end
