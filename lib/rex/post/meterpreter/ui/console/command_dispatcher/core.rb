@@ -28,6 +28,9 @@ class Console::CommandDispatcher::Core
     self.extensions = []
     self.bgjobs     = []
     self.bgjob_id   = 0
+
+    # keep a lookup table to refer to transports by index
+    @transport_map = {}
   end
 
   @@irb_opts = Rex::Parser::Arguments.new(
@@ -571,7 +574,7 @@ class Console::CommandDispatcher::Core
     '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
     '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
     '-p'  => [ true,  'LPORT parameter' ],
-    '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
+    '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
     '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
     '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
     '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
@@ -599,6 +602,13 @@ class Console::CommandDispatcher::Core
     print_line('   prev: jump to the previous transport in the list (no options).')
     print_line(' remove: remove an existing, non-active transport.')
     print_line(@@transport_opts.usage)
+  end
+
+  def update_transport_map
+    result = client.core.transport_list
+    @transport_map.clear
+    sorted_by_url = result[:transports].sort_by { |k| k[:url] }
+    sorted_by_url.each_with_index { |t, i| @transport_map[i+1] = t }
   end
 
   #
@@ -637,12 +647,13 @@ class Console::CommandDispatcher::Core
     }
 
     valid = true
+    transport_index = 0
     @@transport_opts.parse(args) do |opt, idx, val|
       case opt
       when '-c'
         opts[:cert] = val
-      when '-u'
-        opts[:uri] = val
+      when '-i'
+        transport_index = val.to_i
       when '-ph'
         opts[:proxy_host] = val
       when '-pp'
@@ -685,13 +696,21 @@ class Console::CommandDispatcher::Core
       return
     end
 
+    update_transport_map
+
     case command
     when 'list'
       result = client.core.transport_list
+
+      current_transport_url = result[:transports].first[:url]
+
+      sorted_by_url = result[:transports].sort_by { |k| k[:url] }
+
       # this will output the session timeout first
       print_timeouts(result)
 
       columns =[
+        'ID',
         'Curr',
         'URL',
         'Comms T/O',
@@ -709,16 +728,13 @@ class Console::CommandDispatcher::Core
 
       # next draw up a table of transport entries
       tbl = Rex::Ui::Text::Table.new(
-        'SortIndex' => -1,       # disable any sorting
+        'SortIndex' => 0, # sort by ID
         'Indent'    => 4,
         'Columns'   => columns)
 
-      first = true
-      result[:transports].each do |t|
-        entry = [ first ? '*' : '', t[:url], t[:comm_timeout],
-                  t[:retry_total], t[:retry_wait] ]
-
-        first = false
+      sorted_by_url.each_with_index do |t, i|
+        entry = [ i+1, (current_transport_url == t[:url]) ? '*' : '', t[:url],
+                  t[:comm_timeout], t[:retry_total], t[:retry_wait] ]
 
         if opts[:verbose]
           entry << t[:ua]
@@ -767,14 +783,27 @@ class Console::CommandDispatcher::Core
         print_error("Failed to add transport, please check the parameters")
       end
     when 'remove'
-      if opts[:transport] && !opts[:transport].end_with?('_tcp') && opts[:uri].nil?
-        print_error("HTTP/S transport specified without session URI")
+      if transport_index.zero? or not @transport_map.has_key?(transport_index)
+        print_error("Missing or invalid transport index specified")
+        return
+      end
+
+      url_to_remove = @transport_map[transport_index][:url]
+
+      # crack the url and fill in the opts hash
+      if url_to_remove =~ /^(.*):\/\/(.*):(\d+)(\/.*)?/
+        opts[:transport] = "reverse_#{$1}"
+        opts[:lhost]     = $2
+        opts[:lport]     = $3
+        opts[:uri]       = $4[1..-2] if opts[:transport].include?("http")
+      else
+        print_error("Failed to parse URL")
         return
       end
 
       print_status("Removing transport ...")
       if client.core.transport_remove(opts)
-        print_good("Successfully removed #{opts[:transport]} transport.")
+        print_good("Successfully removed transport ##{transport_index}.")
       else
         print_error("Failed to remove transport, please check the parameters")
       end
