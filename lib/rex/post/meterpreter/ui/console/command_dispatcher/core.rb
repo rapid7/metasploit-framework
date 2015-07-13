@@ -575,6 +575,7 @@ class Console::CommandDispatcher::Core
     '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
     '-p'  => [ true,  'LPORT parameter' ],
     '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
+    '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
     '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
     '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
     '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
@@ -652,6 +653,8 @@ class Console::CommandDispatcher::Core
       case opt
       when '-c'
         opts[:cert] = val
+      when '-u'
+        opts[:uri] = val
       when '-i'
         transport_index = val.to_i
       when '-ph'
@@ -783,22 +786,24 @@ class Console::CommandDispatcher::Core
         print_error("Failed to add transport, please check the parameters")
       end
     when 'remove'
-      if transport_index.zero? or not @transport_map.has_key?(transport_index)
-        print_error("Missing or invalid transport index specified")
+      if opts[:transport] && !opts[:transport].end_with?('_tcp') && opts[:uri].nil?
+        print_error("HTTP/S transport specified without session URI")
         return
       end
 
-      url_to_remove = @transport_map[transport_index][:url]
+      if !transport_index.zero? && @transport_map.has_key?(transport_index)
+        url_to_remove = @transport_map[transport_index][:url]
 
-      # crack the url and fill in the opts hash
-      if url_to_remove =~ /^(.*):\/\/(.*):(\d+)(\/.*)?/
-        opts[:transport] = "reverse_#{$1}"
-        opts[:lhost]     = $2
-        opts[:lport]     = $3
-        opts[:uri]       = $4[1..-2] if opts[:transport].include?("http")
-      else
-        print_error("Failed to parse URL")
-        return
+        # crack the url and fill in the opts hash
+        if url_to_remove =~ /^(.*):\/\/(.*):(\d+)(\/.*)?/
+          opts[:transport] = "reverse_#{$1}"
+          opts[:lhost]     = $2
+          opts[:lport]     = $3
+          opts[:uri]       = $4[1..-2] if opts[:transport].include?("http")
+        else
+          print_error("Failed to parse URL")
+          return
+        end
       end
 
       print_status("Removing transport ...")
