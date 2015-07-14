@@ -469,9 +469,10 @@ class Transport(object):
 			pkt = self._get_packet()
 		except:
 			return None
+		if pkt is None:
+			return None
 		self.communication_last = time.time()
-		if pkt:
-			self.communication_active = True
+		self.communication_active = True
 		return pkt
 
 	def send_packet(self, pkt):
@@ -536,11 +537,13 @@ class HttpTransport(Transport):
 		request = urllib.Request(self.url, bytes('RECV', 'UTF-8'), self._http_request_headers)
 		url_h = urllib.urlopen(request, timeout=self.communication_timeout)
 		packet = url_h.read()
-		if not packet or len(packet) < 8:
-			return None
+		if packet == '':
+			return ''
+		if len(packet) < 8:
+			return None  # looks corrupt
 		pkt_length, _ = struct.unpack('>II', packet[:8])
 		if len(packet) != pkt_length:
-			return None
+			return None  # looks corrupt
 		return packet[8:]
 
 	def _send_packet(self, packet):
@@ -609,26 +612,28 @@ class TcpTransport(Transport):
 		self.socket = None
 
 	def _get_packet(self):
-		packet = None
 		first = self._first_packet
 		self._first_packet = False
-		if select.select([self.socket], [], [], 0.5)[0]:
-			packet = self.socket.recv(8)
-			if len(packet) != 8:
-				if first and len(packet) == 4:
-					received = 0
-					pkt_length = struct.unpack('>I', packet)[0]
-					self.socket.settimeout(max(self.communication_timeout, 30))
-					while received < pkt_length:
-						received += len(self.socket.recv(pkt_length - received))
-					self.socket.settimeout(None)
-					return self._get_packet()
-				return None
-			pkt_length, pkt_type = struct.unpack('>II', packet)
-			pkt_length -= 8
-			packet = bytes()
-			while len(packet) < pkt_length:
-				packet += self.socket.recv(pkt_length - len(packet))
+		if not select.select([self.socket], [], [], 0.5)[0]:
+			return ''
+		packet = self.socket.recv(8)
+		if packet == '':  # remote is closed
+			return None
+		if len(packet) != 8:
+			if first and len(packet) == 4:
+				received = 0
+				pkt_length = struct.unpack('>I', packet)[0]
+				self.socket.settimeout(max(self.communication_timeout, 30))
+				while received < pkt_length:
+					received += len(self.socket.recv(pkt_length - received))
+				self.socket.settimeout(None)
+				return self._get_packet()
+			return None
+		pkt_length, pkt_type = struct.unpack('>II', packet)
+		pkt_length -= 8
+		packet = bytes()
+		while len(packet) < pkt_length:
+			packet += self.socket.recv(pkt_length - len(packet))
 		return packet
 
 	def _send_packet(self, packet):
