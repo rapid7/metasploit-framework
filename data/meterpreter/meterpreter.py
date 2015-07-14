@@ -870,7 +870,9 @@ class PythonMeterpreter(object):
 		return ERROR_SUCCESS, response
 
 	def _core_transport_add(self, request, response):
-		self.transports.append(Transport.from_request(request))
+		new_transport = Transport.from_request(request)
+		new_position = self.transports.index(self.transport) + 1
+		self.transports.insert(new_position, new_transport)
 		return ERROR_SUCCESS, response
 
 	def _core_transport_change(self, request, response):
