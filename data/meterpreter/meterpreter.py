@@ -732,7 +732,7 @@ class PythonMeterpreter(object):
 		if current_transport is None:
 			current_transport = self.transport
 		new_idx = self.transports.index(current_transport) - 1
-		if new_idx == 0:
+		if new_idx == -1:
 			new_idx = len(self.transports) - 1
 		return self.transports[new_idx]
 
