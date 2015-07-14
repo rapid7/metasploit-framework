@@ -6,7 +6,7 @@
 require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::BrowserAutopwnv2
+  include Msf::Exploit::Remote::BrowserAutopwn2
 
   def initialize(info={})
     super(update_info(info,
