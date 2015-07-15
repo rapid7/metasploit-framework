@@ -2,7 +2,7 @@ The Meterpreter that we have known and loved for years has always had the abilit
 
 Recent modifications to Meterpreter have changed this. Meterpreter has a new [configuration system](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter%27s-Configuration) that supports multiple transports, and behind the scenes it now supports the addition of new transports _on the fly while the session is still running_. With the extra transports configured, Meterpreter allows the user to cycle through those transports without shutting down the session.
 
-Not only that, but Meterpreter will cycle through these transports automatically when communication fails. For more information on the session resiliency features, please view the **session resiliency documentation** (link coming soon).
+Not only that, but Meterpreter will cycle through these transports automatically when communication fails. For more information on the session resiliency features, please view the [Reliable Network documentation][].
 
 This document describes how multiple transports are added on the fly to an existing Meterpreter session.
 
@@ -99,9 +99,9 @@ This command is what was used to create the transport that was listed in the sam
 * The `-t` option is what tells Metasploit what type of transport to add. The options are `bind_tcp`, `reverse_tcp`, `reverse_http` and `reverse_https`. These match those that are used for the construction of the original payloads. Given that we are not dealing with stages, there is no `reverse_winhttps` because Meterpreter always uses the WinHTTP API behind the scenes anyway.
 * The `-l` option specifies what we all know as the `LHOST` parameter.
 * The `-p` option specifies what we all know as the `LPORT` parameter.
-* The `-rt` option matches the `retry total` parameter and is related to **connection resiliency** (link coming soon). The measure of this value is in seconds, and should be a positive integer that is more than `-rw`.
-* The `-rw` option matches the `retry wait` parameter and is related to **connection resiliency** (link coming soon). The measure of this value is in seconds, and should be a positive integer that is less than `-rt`.
-* The `-to` option matches the `communication timeout` parameter and is related to **connection resiliency** (link coming soon). The measure of this value is in seconds, and should be a positive integer.
+* The `-rt` option matches the `retry total` parameter. The measure of this value is in seconds, and should be a positive integer that is more than `-rw`.
+* The `-rw` option matches the `retry wait` parameter. The measure of this value is in seconds, and should be a positive integer that is less than `-rt`.
+* The `-to` option matches the `communication timeout`. The measure of this value is in seconds, and should be a positive integer.
 * The `-ua` specifies a custom user agent that is used for HTTP requests.
 
 It is also possible to specify the following:
@@ -333,3 +333,4 @@ In the case where Meterpreter is configured with only a single transport mechani
 For important detail on network resiliency, please see the [reliable network communication documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Reliable-Network-Communication).
 
   [Timeout documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control
+  [Reliable Network documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Reliable-Network-Communication
