@@ -48,8 +48,6 @@ Prior to the [WinInet fallback][wininet_fallback] work, those people hitting the
 
 Examples of these issues are [this](https://github.com/rapid7/metasploit-framework/issues/5462) and [this](https://github.com/rapid7/metasploit-framework/issues/5626). If you are seeing similar issues it's because your current Meterpreter binaries don't have the fallback option.
 
-**Note**: at the time of writing, the fallback code hasn't yet been merged, but it will happen soon.
-
 ## Conclusion
 
 HTTP/S communications in Windows is a hairy beast, and trying to cater for all cases proves to be quite tricky thanks to the limitations of some APIs, and the variable implementations of others. We're still working to iron out all of issues, and so please log an issue if you stumble on an edge case that hasn't yet been covered. Thank you for your patience!
