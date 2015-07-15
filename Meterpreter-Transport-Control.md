@@ -341,7 +341,7 @@ The following Meterpreter implementations currently support the transport comman
  * POSIX x86
  * Android
  * Java
- * ~Python~ Coming [very soon](https://github.com/rapid7/metasploit-framework/pull/5654)
+ * ~~Python~~ Coming [very soon](https://github.com/rapid7/metasploit-framework/pull/5654)
 
   [Timeout documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control
   [Reliable Network documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Reliable-Network-Communication
