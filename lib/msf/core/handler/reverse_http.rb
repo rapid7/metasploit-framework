@@ -5,6 +5,7 @@ require 'rex/payloads/meterpreter/uri_checksum'
 require 'rex/post/meterpreter'
 require 'rex/parser/x509_certificate'
 require 'msf/core/payload/windows/verify_ssl'
+require 'rex/user_agent'
 
 module Msf
 module Handler
@@ -50,7 +51,7 @@ module ReverseHttp
     register_advanced_options(
       [
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
+        OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),

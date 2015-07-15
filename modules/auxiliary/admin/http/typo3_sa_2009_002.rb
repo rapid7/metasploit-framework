@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
       'method'  => 'GET',
       'headers' =>
       {
-        'User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
+        'User-Agent' => datastore['UserAgent'],
         'Connection' => 'Close',
       }
     }, 25)
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
       'method'  => 'GET',
       'headers' =>
       {
-        'User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
+        'User-Agent' => datastore['UserAgent'],
         'Connection' => 'Close',
       }
     },25)
