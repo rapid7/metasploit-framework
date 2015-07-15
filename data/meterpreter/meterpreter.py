@@ -715,6 +715,10 @@ class PythonMeterpreter(object):
 			return False
 		return time.time() > self.session_expiry_end
 
+	def transport_add(self, new_transport):
+		new_position = self.transports.index(self.transport)
+		self.transports.insert(new_position, new_transport)
+
 	def transport_change(self, new_transport=None):
 		if new_transport is None:
 			new_transport = self.transport_next()
@@ -876,13 +880,12 @@ class PythonMeterpreter(object):
 
 	def _core_transport_add(self, request, response):
 		new_transport = Transport.from_request(request)
-		new_position = self.transports.index(self.transport) + 1
-		self.transports.insert(new_position, new_transport)
+		self.transport_add(new_transport)
 		return ERROR_SUCCESS, response
 
 	def _core_transport_change(self, request, response):
 		new_transport = Transport.from_request(request)
-		self.transports.append(new_transport)
+		self.transport_add(new_transport)
 		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
 		self.transport_change(new_transport)
 		return None
