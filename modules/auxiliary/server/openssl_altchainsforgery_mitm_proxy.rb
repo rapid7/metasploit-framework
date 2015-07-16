@@ -20,8 +20,13 @@ class Metasploit3 < Msf::Auxiliary
         allowing it to use a valid leaf certificate as a CA certificate to sign a
         fake certificate. The SSL/TLS session is then proxied to the server
         allowing the session to continue normally and application data transmitted
-        between the peers to be saved. This module requires an active
-        man-in-the-middle attack.
+        between the peers to be saved.
+
+        The valid leaf certificate must not contain the keyUsage extension or it
+        must have at least the keyCertSign bit set (see X509_check_issued function
+        in crypto/x509v3/v3_purp.c); otherwise; X509_verify_cert fails with
+        X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY. This module requires an
+        active man-in-the-middle attack.
       },
       'Author'      =>
         [
