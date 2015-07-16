@@ -32,7 +32,4 @@ avs = ::File.read(::File.join(Msf::Config.data_directory, "/wordlists/av_list.tx
      end
    end
 end
-
-
-	
 end
