@@ -411,6 +411,7 @@ class Transport(object):
 		self.communication_last = 0
 		self.retry_total = SESSION_RETRY_TOTAL
 		self.retry_wait = SESSION_RETRY_WAIT
+		self.request_retire = False
 
 	def __repr__(self):
 		return "<{0} url='{1}' >".format(self.__class__.__name__, self.url)
@@ -418,6 +419,10 @@ class Transport(object):
 	@property
 	def communication_has_expired(self):
 		return self.communication_last + self.communication_timeout < time.time()
+
+	@property
+	def should_retire(self):
+		return self.communication_has_expired or self.request_retire
 
 	@staticmethod
 	def from_request(request):
@@ -461,6 +466,7 @@ class Transport(object):
 		return True
 
 	def get_packet(self):
+		self.request_retire = False
 		try:
 			pkt = self._get_packet()
 		except:
@@ -471,6 +477,7 @@ class Transport(object):
 		return pkt
 
 	def send_packet(self, pkt):
+		self.request_retire = False
 		try:
 			self._send_packet(pkt)
 		except:
@@ -622,6 +629,7 @@ class TcpTransport(Transport):
 			return ''
 		packet = self.socket.recv(8)
 		if packet == '':  # remote is closed
+			self.request_retire = True
 			return None
 		if len(packet) != 8:
 			if first and len(packet) == 4:
@@ -703,13 +711,13 @@ class PythonMeterpreter(object):
 
 	def get_packet(self):
 		pkt = self.transport.get_packet()
-		if pkt is None and self.transport.communication_has_expired:
+		if pkt is None and self.transport.should_retire:
 			self.transport_change()
 		return pkt
 
 	def send_packet(self, packet):
 		send_succeeded = self.transport.send_packet(packet)
-		if not send_succeeded and self.transport.communication_has_expired:
+		if not send_succeeded and self.transport.should_retire:
 			self.transport_change()
 		return send_succeeded
 
