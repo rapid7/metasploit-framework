@@ -73,7 +73,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptRegexp.new('INCLUDE_PATTERN', [false, 'Pattern search to include specific modules']),
-        OptRegexp.new('EXCLUDE_PATTERN', [false, 'Pattern search to exclude specific modules'])
+        OptRegexp.new('EXCLUDE_PATTERN', [false, 'Pattern search to exclude specific modules']),
+
       ], self.class)
 
     register_advanced_options([
@@ -91,6 +92,7 @@ class Metasploit3 < Msf::Auxiliary
     DEFAULT_PAYLOADS.each_pair do |platform, payload_info|
       opts << OptString.new("PAYLOAD_#{platform.to_s.upcase}", [true, "Payload for #{platform} browser exploits", payload_info[:payload] ])
       opts << OptInt.new("PAYLOAD_#{platform.to_s.upcase}_LPORT", [true, "Payload LPORT for #{platform} browser exploits", payload_info[:lport]])
+      opts << OptAddress.new("LHOST", [true, "The local host for the exploits and handlers", Rex::Socket.source_address])
     end
 
     opts
