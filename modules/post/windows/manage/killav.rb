@@ -40,7 +40,7 @@ class Metasploit4 < Msf::Post
         print_status("Attempting to terminate '#{x['name']}' (PID: #{x['pid']}) ...")
         begin
           client.sys.process.kill(x['pid'])
-          process_killed += 1
+          processes_killed += 1
           print_good("#{x['name']} terminated.")
         rescue Rex::Post::Meterpreter::RequestError
           print_error("Failed to terminate '#{x['name']}' (PID: #{x['pid']}).")
