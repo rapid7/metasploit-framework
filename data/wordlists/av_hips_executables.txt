@@ -118,6 +118,7 @@ bvt.exe
 ccapp.exe
 ccevtmgr.exe
 ccpxysvc.exe
+ccsvchst.exe
 cdp.exe
 cfd.exe
 cfgwiz.exe
