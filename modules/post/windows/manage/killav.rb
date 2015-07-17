@@ -19,7 +19,8 @@ class Metasploit4 < Msf::Post
       'Author'       => [
         'Marc-Andre Meloche (MadmanTM)',
         'Nikhil Mittal (Samratashok)',
-        'Jerome Athias'
+        'Jerome Athias',
+        'OJ Reeves'
       ],
       'Platform'     => ['win'],
       'SessionTypes' => ['meterpreter']
