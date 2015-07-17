@@ -26,6 +26,13 @@ class Metasploit4 < Msf::Post
     ))
   end
 
+  def skip_process_name?(process_name)
+    [
+      '[system process]',
+      'system'
+    ].include?(process_name)
+  end
+
   def run
     avs = ::File.read(::File.join(Msf::Config.data_directory, 'wordlists',
                                   'av_hips_executables.txt')).strip
@@ -34,6 +41,7 @@ class Metasploit4 < Msf::Post
     processes_found = 0
     processes_killed = 0
     client.sys.process.get_processes().each do |x|
+      next if skip_process_name?(x['name'].downcase)
       vprint_status("Checking #{x['name'].downcase} ...")
       if avs.include?(x['name'].downcase)
         processes_found += 1
