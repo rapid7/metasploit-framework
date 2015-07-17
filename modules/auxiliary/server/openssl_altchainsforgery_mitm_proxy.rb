@@ -30,7 +30,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'      =>
         [
-          'Ramon de C Valle'
+          'David Benjamin', # Vulnerability discovery
+          'Adam Langley', # Vulnerability discovery
+          'Ramon de C Valle' # Metasploit module
         ],
       'License' => MSF_LICENSE,
       'Actions'     =>
@@ -57,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('CERT', [ true, 'The leaf certificate', nil]),
         OptString.new('KEY', [ true, "The leaf certificate's private key", nil]),
         OptString.new('PASSPHRASE', [ false, "The pass phrase for the leaf certificate's private key", nil]),
-        OptString.new('SUBJECT', [ false, "The subject field for the fake certificate", '/C=US/ST=California/L=Mountain View/O=Example Inc/CN=*.example.com']),
+        OptString.new('SUBJECT', [ false, 'The subject field for the fake certificate', '/C=US/ST=California/L=Mountain View/O=Example Inc/CN=*.example.com']),
         OptString.new('HOST', [ true, 'The server address', nil]),
         OptString.new('PORT', [ true, 'The server port', 443]),
         OptString.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
