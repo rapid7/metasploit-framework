@@ -66,17 +66,6 @@ class Metasploit3 < Msf::Post
     print_status("#{msg} stored in #{loot.to_s}")
   end
 
-  def get_host
-    case session.type
-    when /meterpreter/
-      host = sysinfo['Computer']
-    when /shell/
-      host = session.shell_command_token('hostname').chomp
-    end
-    print_status("Running module against #{host}")
-    host
-  end
-
   def execute(cmd)
     vprint_status("Execute: #{cmd}")
     output = cmd_exec(cmd)

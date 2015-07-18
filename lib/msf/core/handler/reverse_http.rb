@@ -2,7 +2,7 @@
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
 require 'rex/payloads/meterpreter/uri_checksum'
-require 'rex/post/meterpreter/packet'
+require 'rex/post/meterpreter'
 require 'rex/parser/x509_certificate'
 require 'msf/core/payload/windows/verify_ssl'
 
@@ -19,7 +19,6 @@ module ReverseHttp
   include Msf::Handler
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
-  include Rex::Post::Meterpreter
 
   #
   # Returns the string representation of the handler type
@@ -258,15 +257,11 @@ protected
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
         # was generated on the fly. This means we form a new session for each.
-        sum = uri_checksum_lookup(:connect)
-        new_uri = generate_uri_uuid(sum, uuid) + '/'
 
-        # This bit is going to need to be validated by the Ruby/MSF masters as I
-        # am not sure that this is the best way to get a TLV packet out from this
-        # handler.
         # Hurl a TLV back at the caller, and ignore the response
-        pkt = Packet.new(PACKET_TYPE_RESPONSE, 'core_patch_url')
-        pkt.add_tlv(TLV_TYPE_TRANS_URL, new_uri)
+        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
+                                                 'core_patch_url')
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
         resp.body = pkt.to_r
 
       when :init_python
@@ -313,20 +308,10 @@ protected
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
 
-        blob = ""
-        blob << obj.generate_stage(
+        blob = obj.generate_stage(
           uuid: uuid,
           uri:  conn_id
         )
-
-        # This is a TLV packet - I guess somewhere there should be an API for building them
-        # in Metasploit :-)
-        packet = ""
-        packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"
-        packet << [url.length+8, 0x1000a].pack('NN')+url
-        packet << [12, 0x2000b, datastore['SessionExpirationTimeout'].to_i].pack('NNN')
-        packet << [12, 0x20019, datastore['SessionCommunicationTimeout'].to_i].pack('NNN')
-        blob << [packet.length+8, 0].pack('NN') + packet
 
         resp.body = blob
 

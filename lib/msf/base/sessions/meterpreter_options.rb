@@ -13,6 +13,7 @@ module MeterpreterOptions
       [
         OptBool.new('AutoLoadStdapi', [true, "Automatically load the Stdapi extension", true]),
         OptBool.new('AutoVerifySession', [true, "Automatically verify and drop invalid sessions", true]),
+        OptInt.new('AutoVerifySessionTimeout', [false, "Timeout period to wait for session validation to occur, in seconds", 30]),
         OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
         OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", '']),
         OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
@@ -43,7 +44,7 @@ module MeterpreterOptions
     valid = true
 
     if datastore['AutoVerifySession'] == true
-      if not session.is_valid_session?
+      if not session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
         print_error("Meterpreter session #{session.sid} is not valid and will be closed")
         valid = false
       end
@@ -61,6 +62,12 @@ module MeterpreterOptions
 
         if session.platform =~ /win32|win64/i
           session.load_priv rescue nil
+        end
+      end
+
+      if session.platform =~ /android/i
+        if datastore['AutoLoadAndroid']
+          session.load_android
         end
       end
 
