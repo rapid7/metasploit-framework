@@ -33,9 +33,9 @@ class CmdStagerCertutil < CmdStagerBase
   end
 
 
-  #
   # Override just to set the extra byte count
-  #
+  # @param opts [Array] The options to generate the command line
+  # @return [Array] The complete command line
   def generate_cmds(opts)
     # Set the start/end of the commands here (vs initialize) so we have @tempdir
     @cmd_start = "echo "
@@ -46,18 +46,19 @@ class CmdStagerCertutil < CmdStagerBase
   end
 
 
-  #
-  # Simple base64...
-  #
+  # Simple base64 encoder for the executable
+  # @param opts [Array] The options to generate the command line
+  # @return [String] Base64 encoded executable
   def encode_payload(opts)
     Rex::Text.encode_base64(@exe)
   end
 
 
-  #
   # Combine the parts of the encoded file with the stuff that goes
   # before / after it.
-  #
+  # @param parts [Array] Splitted commands
+  # @param opts [Array] The options to generate the command line
+  # @return [Array] The command line
   def parts_to_commands(parts, opts)
 
     cmds = []
@@ -73,9 +74,9 @@ class CmdStagerCertutil < CmdStagerBase
   end
 
 
-  #
   # Generate the commands that will decode the file we just created
-  #
+  # @param opts [Array] The options to generate the command line
+  # @return [Array] The certutil Base64 decoder part of the command line
   def generate_cmds_decoder(opts)
 
     cmds = []
@@ -84,10 +85,11 @@ class CmdStagerCertutil < CmdStagerBase
   end
 
 
-  #
   # We override compress commands just to stick in a few extra commands
   # last second..
-  #
+  # @param cmds [Array] Complete command line
+  # @param opts [Array] Extra options for command line generation
+  # @return [Array] The complete command line including cleanup
   def compress_commands(cmds, opts)
     # Make it all happen
     cmds << "#{@tempdir}#{@var_decoded}.exe"
@@ -102,6 +104,8 @@ class CmdStagerCertutil < CmdStagerBase
   end
 
   # Windows uses & to concat strings
+  #
+  # @return [String] Concat operator
   def cmd_concat_operator
     " & "
   end
