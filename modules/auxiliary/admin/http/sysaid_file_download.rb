@@ -15,13 +15,15 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'SysAid Help Desk Arbitrary File Download',
       'Description' => %q{
         This module exploits two vulnerabilities in SysAid Help Desk that allows
-        an unauthenticated user to download arbitrary files from the system. First an
+        an unauthenticated user to download arbitrary files from the system. First, an
         information disclosure vulnerability (CVE-2015-2997) is used to obtain the file
         system path, and then we abuse a directory traversal (CVE-2015-2996) to download
-        the file. Note that there are some limitations on Windows: 1) the information
-        disclosure vulnerability doesn't work; 2) we can only traverse the current drive,
-        so if you enter C:\afile.txt and the server is running on D:\ the file will not
-        be downloaded. This module has been tested with SysAid 14.4 on Windows and Linux.
+        the file. Note that there are some limitations on Windows, in that the information
+        disclosure vulnerability doesn't work on a Windows platform, and we can only
+        traverse the current drive (if you enter C:\afile.txt and the server is running
+        on D:\ the file will not be downloaded).
+
+        This module has been tested with SysAid 14.4 on Windows and Linux.
         },
       'Author' =>
         [
@@ -74,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def download_file (download_path)
+  def download_file(download_path)
     begin
       return send_request_cgi({
         'method' => 'GET',
