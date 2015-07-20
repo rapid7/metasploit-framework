@@ -44,7 +44,7 @@ class Android < Extension
   def dump_sms
     sms = Array.new
     request = Packet.create_request('dump_sms')
-    response = client.send_request(request)
+    response = client.send_request(request,60)
 
     response.each( TLV_TYPE_SMS_GROUP ) { |p|
 
@@ -64,7 +64,7 @@ class Android < Extension
   def dump_contacts
     contacts = Array.new
     request = Packet.create_request('dump_contacts')
-    response = client.send_request(request)
+    response = client.send_request(request,60)
 
     response.each( TLV_TYPE_CONTACT_GROUP ) { |p|
 
@@ -118,6 +118,40 @@ class Android < Extension
     request = Packet.create_request('check_root')
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
+  end
+
+  def send_sms(dest,body)
+    request = Packet.create_request('send_sms')
+    request.add_tlv(TLV_TYPE_SMS_ADDRESS,dest)
+    request.add_tlv(TLV_TYPE_SMS_BODY,body)
+    response = client.send_request(request)
+    resp=response.get_tlv(TLV_TYPE_SMS_SENT).value
+    return resp
+  end
+
+  def wlan_geolocate
+    request = Packet.create_request('wlan_geolocate')
+    response = client.send_request(request,60)
+    networks=[]
+    response.each( TLV_TYPE_WLAN_GROUP ) { |p|
+
+      networks <<
+      {
+        'ssid' => client.unicode_filter_encode(p.get_tlv(TLV_TYPE_WLAN_SSID).value),
+        'bssid' => client.unicode_filter_encode(p.get_tlv(TLV_TYPE_WLAN_BSSID).value),
+        'level' => client.unicode_filter_encode(p.get_tlv(TLV_TYPE_WLAN_LEVEL).value)
+      }
+
+    }
+    return networks
+#    response.get_tlv(TLV_TYPE_WLAN_STRING).value
+#    response.each( TLV_TYPE_CONTACT_GROUP ) { |p|
+#	    wifi << {
+#		    'string' => p.get_tlv(TLV_TYPE_WLAN_STRING).value
+#	    }
+#    }
+#    return wifi
+#    response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
 end
 
