@@ -25,7 +25,8 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'References'      =>
         [
-          ['WPVDB', '7857']
+          ['WPVDB', '7857'],
+          ['URL', 'http://www.pritect.net/blog/all-in-one-wp-migration-2-0-4-security-vulnerability']
         ],
       'DisclosureDate'  => 'Mar 19 2015'
     ))
