@@ -144,14 +144,6 @@ class Android < Extension
 
     }
     return networks
-#    response.get_tlv(TLV_TYPE_WLAN_STRING).value
-#    response.each( TLV_TYPE_CONTACT_GROUP ) { |p|
-#	    wifi << {
-#		    'string' => p.get_tlv(TLV_TYPE_WLAN_STRING).value
-#	    }
-#    }
-#    return wifi
-#    response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
 end
 

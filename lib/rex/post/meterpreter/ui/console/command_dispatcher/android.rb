@@ -422,8 +422,8 @@ class Console::CommandDispatcher::Android
         print_line(wlan_geolocate_opts.usage)
         return
       end
-    }
-
+    
+    print_status('Waiting for WiFi scan results...')
     log = client.android.wlan_geolocate
     wlan_list=''
     log.each{|x|
@@ -432,7 +432,6 @@ class Console::CommandDispatcher::Android
 	ss=x['level']
 	network_data = "&wifi=mac:#{mac}|ssid:#{ssid}|ss=#{ss}"
 	wlan_list << network_data
-#	print_status(x['ssid']+" ("+x['bssid']+") pwr: "+x['level'].to_s())
     }
 
     if wlan_list.blank?
@@ -460,15 +459,6 @@ class Console::CommandDispatcher::Android
       print_error("Failure connecting to Google for location lookup.")
     end
 
-#    print_status(log)
-#    log.each{|x|
-#	print_line(x)
-#    }
-    #if is_rooted
-    #  print_good('Device is rooted')
-    #elsif
-    #  print_status('Device is not rooted')
-    #end
   end
 
 
