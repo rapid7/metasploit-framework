@@ -55,12 +55,12 @@ class Metasploit3 < Msf::Auxiliary
         'vars_post' => { 'options[action]' => 'export' }
       }, datastore['MAXTIME'])
 
-    if res.nil?
-      print_error("#{peer} - No response from the target")
-      return
-    elsif res.code != 200
-      print_error("#{peer} - Server responded with status code #{res.code}")
-      return
+    unless res
+      fail_with(Failure::Unknown, "#{peer} - No response from the target")
+    end
+    
+    if res.code != 200
+      fail_with(Failure::UnexpectedReply, "#{peer} - Server responded with status code #{res.code}")
     end
 
     store_path = store_loot('wordpress.export', 'zip', datastore['RHOST'], res.body, 'wordpress_backup.zip', 'WordPress Database and Content Backup')
