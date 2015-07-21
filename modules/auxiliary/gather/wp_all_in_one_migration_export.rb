@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
     unless res
       fail_with(Failure::Unknown, "#{peer} - No response from the target")
     end
-    
+
     if res.code != 200
       fail_with(Failure::UnexpectedReply, "#{peer} - Server responded with status code #{res.code}")
     end
