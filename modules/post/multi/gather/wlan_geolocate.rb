@@ -43,14 +43,14 @@ class Metasploit3 < Msf::Post
     wlan_list = ''
     raw_networks = listing.split("\r\n\r\n")
 
-    raw_networks.each { |network|
+    raw_networks.each do |network|
       details = network.match(/^SSID [\d]+ : ([^\r\n]*).*?BSSID 1[\s]+: ([\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}).*?Signal[\s]+: ([\d]{1,3})%/m)
-        if !details.nil?
-          strength = get_strength(details[3])
-          network_data = "&wifi=mac:#{details[2].to_s.upcase}|ssid:#{details[1].to_s}|ss=#{strength.to_i}"
-          wlan_list << network_data
-        end
-    }
+      if !details.nil?
+        strength = get_strength(details[3])
+        network_data = "&wifi=mac:#{details[2].to_s.upcase}|ssid:#{details[1].to_s}|ss=#{strength.to_i}"
+        wlan_list << network_data
+      end
+    end
 
     return wlan_list
   end
@@ -60,13 +60,13 @@ class Metasploit3 < Msf::Post
     wlan_list = ''
     raw_networks = listing.split("Cell ")
 
-    raw_networks.each { |network|
+    raw_networks.each do |network|
       details = network.match(/^[\d]{1,4} - Address: ([\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}).*?Signal level=([\d-]{1,3}).*?ESSID:"([^"]*)/m)
-        if !details.nil?
-          network_data = "&wifi=mac:#{details[1].to_s.upcase}|ssid:#{details[3].to_s}|ss=#{details[2].to_i}"
-          wlan_list << network_data
-        end
-    }
+      if !details.nil?
+        network_data = "&wifi=mac:#{details[1].to_s.upcase}|ssid:#{details[3].to_s}|ss=#{details[2].to_i}"
+        wlan_list << network_data
+      end
+    end
 
     return wlan_list
   end
@@ -75,14 +75,14 @@ class Metasploit3 < Msf::Post
     wlan_list = ''
     raw_networks = listing.split("\n")
 
-    raw_networks.each { |network|
+    raw_networks.each do |network|
       network = network.strip
       details = network.match(/^(.*(?!\h\h:))[\s]*([\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2})[\s]*([\d-]{1,3})/)
-        if !details.nil?
-          network_data = "&wifi=mac:#{details[2].to_s.upcase}|ssid:#{details[1].to_s}|ss=#{details[3].to_i}"
-          wlan_list << network_data
-        end
-    }
+      if !details.nil?
+        network_data = "&wifi=mac:#{details[2].to_s.upcase}|ssid:#{details[1].to_s}|ss=#{details[3].to_i}"
+        wlan_list << network_data
+      end
+    end
 
     return wlan_list
   end
@@ -214,10 +214,10 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
-    rescue ::Exception => e
-      print_status("The following Error was encountered: #{e.class} #{e}")
-    end
+  rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
+  rescue ::Exception => e
+    print_status("The following Error was encountered: #{e.class} #{e}")
+  end
 
 
 end
