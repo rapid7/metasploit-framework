@@ -146,7 +146,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       return
     end
 
-    globs.each do |glob|
+    globs.uniq.each do |glob|
       files += client.fs.file.search(root, glob, recurse)
     end
 
