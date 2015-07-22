@@ -1176,6 +1176,7 @@ class Db
     print_line "  -h,--help                 Show this help information"
     print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
     print_line "  -S,--search               Regular expression to match for search"
+    print_line "  -o,--output               Save the notes to a csv file"
     print_line "  --sort <field1,field2>    Fields to sort by (case sensitive)"
     print_line
     print_line "Examples:"
@@ -1196,6 +1197,7 @@ class Db
     host_ranges = []
     rhosts      = []
     search_term = nil
+    out_file    = nil
 
     while (arg = args.shift)
       case arg
@@ -1222,6 +1224,8 @@ class Db
         search_term = /#{args.shift}/nmi
       when '--sort'
         sort_term = args.shift
+      when '-o', '--output'
+        out_file = args.shift
       when '-h','--help'
         cmd_notes_help
         return
@@ -1231,7 +1235,6 @@ class Db
           return
         end
       end
-
     end
 
     if mode == :add
@@ -1308,12 +1311,21 @@ class Db
     end
 
     # Now display them
+    csv_table = Rex::Ui::Text::Table.new(
+      'Header'  => 'Notes',
+      'Indent'  => 1,
+      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data']
+    )
+
     note_list.each do |note|
       next if(types and types.index(note.ntype).nil?)
+      csv_note = []
       msg = "Time: #{note.created_at} Note:"
+      csv_note << note.created_at if out_file
       if (note.host)
         host = note.host
         msg << " host=#{note.host.address}"
+        csv_note << note.host.address if out_file
         if set_rhosts
           addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
@@ -1321,15 +1333,35 @@ class Db
       end
       if (note.service)
         msg << " service=#{note.service.name}" if note.service.name
+        csv_note << note.service.name || '' if out_file
         msg << " port=#{note.service.port}" if note.service.port
+        csv_note << note.service.port || '' if out_file
         msg << " protocol=#{note.service.proto}" if note.service.proto
+        csv_note << note.service.proto || '' if out_file
+      else
+        if out_file
+          csv_note << '' # For the Service field
+          csv_note << '' # For the Port field
+          csv_note << '' # For the Protocol field
+        end
       end
       msg << " type=#{note.ntype} data=#{note.data.inspect}"
+      if out_file
+        csv_note << note.ntype
+        csv_note << note.data.inspect
+      end
       print_status(msg)
+      if out_file
+        csv_table << csv_note
+      end
       if mode == :delete
         note.destroy
         delete_count += 1
       end
+    end
+
+    if out_file
+      save_csv_notes(out_file, csv_table)
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -1338,6 +1370,17 @@ class Db
 
     print_status("Deleted #{delete_count} notes") if delete_count > 0
   }
+  end
+
+  def save_csv_notes(fpath, csv_table)
+    begin
+      File.open(fpath, 'wb') do |f|
+        f.write(csv_table.to_csv)
+      end
+      print_status("Notes saved as #{fpath}")
+    rescue Errno::EACCES => e
+      print_error("Unable to save notes. #{e.message}")
+    end
   end
 
   def make_sortable(input)
