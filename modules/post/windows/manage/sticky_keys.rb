@@ -40,8 +40,8 @@ class Metasploit4 < Msf::Post
       'Platform'      => ['win'],
       'SessionTypes'  => ['meterpreter', 'cmd'],
       'Actions'       => [
-          [ 'ADD',    { 'Description' => 'Add the backdoor to the target.' } ],
-          [ 'REMOVE', { 'Description' => 'Remove the backdoor from the target' } ]
+        [ 'ADD',    { 'Description' => 'Add the backdoor to the target.' } ],
+        [ 'REMOVE', { 'Description' => 'Remove the backdoor from the target' } ]
       ],
       'DefaultAction' => 'ADD'
     ))
