@@ -44,7 +44,7 @@ class Android < Extension
   def dump_sms
     sms = Array.new
     request = Packet.create_request('dump_sms')
-    response = client.send_request(request)
+    response = client.send_request(request,60)
 
     response.each( TLV_TYPE_SMS_GROUP ) { |p|
 
@@ -64,7 +64,7 @@ class Android < Extension
   def dump_contacts
     contacts = Array.new
     request = Packet.create_request('dump_contacts')
-    response = client.send_request(request)
+    response = client.send_request(request,60)
 
     response.each( TLV_TYPE_CONTACT_GROUP ) { |p|
 
@@ -120,18 +120,26 @@ class Android < Extension
     response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
 
-  def send_sms(dest,body)
+  def send_sms(dest,body,dr)
     request = Packet.create_request('send_sms')
     request.add_tlv(TLV_TYPE_SMS_ADDRESS,dest)
     request.add_tlv(TLV_TYPE_SMS_BODY,body)
-    response = client.send_request(request)
-    resp=response.get_tlv(TLV_TYPE_SMS_SENT).value
-    return resp
+    request.add_tlv(TLV_TYPE_SMS_DR,dr)
+    if dr == false
+      response=client.send_request(request)
+      sr=response.get_tlv(TLV_TYPE_SMS_SR).value
+      return sr
+    else
+      response=client.send_request(request,30)
+      sr=response.get_tlv(TLV_TYPE_SMS_SR).value
+      dr=response.get_tlv(TLV_TYPE_SMS_SR).value
+      return [sr,dr]
+    end
   end
 
   def wlan_geolocate
     request = Packet.create_request('wlan_geolocate')
-    response = client.send_request(request,45)
+    response = client.send_request(request,60)
     networks=[]
     response.each( TLV_TYPE_WLAN_GROUP ) { |p|
 

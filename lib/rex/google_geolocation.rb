@@ -18,15 +18,14 @@ module Rex
     attr_accessor :longitude
 
     def initialize
-      @uri = URI.parse(GOOGLE_API_URI)
+      @uri = URI.parse(URI.encode(GOOGLE_API_URI))
       @wlan_list = []
     end
 
     # Ask Google's Maps API for the location of a given set of BSSIDs (MAC
     # addresses of access points), ESSIDs (AP names), and signal strengths.
     def fetch!
-      @uri.query << @wlan_list.join("&")
-
+      @uri.query << @wlan_list.join("&wifi=")
       request = Net::HTTP::Get.new(@uri.request_uri)
       http = Net::HTTP::new(@uri.host,@uri.port)
       http.use_ssl = true
@@ -52,7 +51,7 @@ module Rex
     # @param ssid [String] ESSID associated with the mac
     # @param signal_strength [String] a thing like
     def add_wlan(mac, ssid = nil, signal_strength = nil)
-      @wlan_list.push("mac:#{mac.upcase}|ssid:#{ssid}|ss=#{signal_strength.to_i}")
+      @wlan_list.push(URI.encode("mac:#{mac.upcase}|ssid:#{ssid}|ss=#{signal_strength.to_i}"))
     end
 
     def google_maps_url
