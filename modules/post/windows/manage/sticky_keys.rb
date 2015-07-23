@@ -13,9 +13,9 @@ class Metasploit4 < Msf::Post
 
   DEBUG_REG_PATH = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options'
   DEBUG_REG_VALUE = 'Debugger'
-  
+
   def initialize(info={})
-    super(update_info(info, 
+    super(update_info(info,
       'Name'         => 'Sticky Keys Persistance Module',
       'Description'  => %q{
         This module makes it possible to apply the 'sticky keys' hack to a session with appropriate
