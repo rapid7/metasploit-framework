@@ -44,7 +44,7 @@ class Android < Extension
   def dump_sms
     sms = Array.new
     request = Packet.create_request('dump_sms')
-    response = client.send_request(request,60)
+    response = client.send_request(request)
 
     response.each( TLV_TYPE_SMS_GROUP ) { |p|
 
@@ -64,7 +64,7 @@ class Android < Extension
   def dump_contacts
     contacts = Array.new
     request = Packet.create_request('dump_contacts')
-    response = client.send_request(request,60)
+    response = client.send_request(request)
 
     response.each( TLV_TYPE_CONTACT_GROUP ) { |p|
 
@@ -139,7 +139,7 @@ class Android < Extension
 
   def wlan_geolocate
     request = Packet.create_request('wlan_geolocate')
-    response = client.send_request(request,60)
+    response = client.send_request(request,30)
     networks=[]
     response.each( TLV_TYPE_WLAN_GROUP ) { |p|
 
