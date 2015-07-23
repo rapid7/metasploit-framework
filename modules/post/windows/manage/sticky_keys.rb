@@ -48,7 +48,7 @@ class Metasploit4 < Msf::Post
 
     register_options([
       OptEnum.new('TARGET', [true, 'The target binary to add the exploit to.', 'SETHC', ['SETHC', 'UTILMAN', 'OSK', 'DISP']]),
-      OptString.new('EXE', [true, 'Executable to execute when the exploit is triggered', '%SYSTEMROOT%\system32\cmd.exe'])
+      OptString.new('EXE', [true, 'Executable to execute when the exploit is triggered.', '%SYSTEMROOT%\system32\cmd.exe'])
     ], self.class)
   end
 
