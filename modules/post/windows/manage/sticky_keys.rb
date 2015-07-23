@@ -88,7 +88,7 @@ class Metasploit4 < Msf::Post
   #
   def run
     unless is_admin?
-      fail_with("The current session does not have administrative rights.")
+      fail_with(Failure::NoAccess, 'The current session does not have administrative rights.')
     end
 
     print_good("Session has administrator rights, proceeding.")
