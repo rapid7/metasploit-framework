@@ -26,102 +26,102 @@ class Metasploit3 < Msf::Auxiliary
 
   def test_novell_mdm_creds
     mod = framework.auxiliary.create('scanner/http/novell_mdm_creds')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_joomla_bruteforce_login
     mod = framework.auxiliary.create('scanner/http/joomla_bruteforce_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_infovista_enum
     mod = framework.auxiliary.create('scanner/http/infovista_enum')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_etherpad_duo_login
     mod = framework.auxiliary.create('scanner/http/etherpad_duo_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_ektron_cms400net
     mod = framework.auxiliary.create('scanner/http/ektron_cms400net')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_drupal_views_user_enum
     mod = framework.auxiliary.create('scanner/http/drupal_views_user_enum')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, proof: FAKE_PROOF)
   end
 
   def test_dolibarr_login
     mod = framework.auxiliary.create('scanner/http/dolibarr_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_dlink_dir_session_cgi_http_login
     mod = framework.auxiliary.create('scanner/http/dlink_dir_session_cgi_http_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_dlink_dir_615h_http_login
     mod = framework.auxiliary.create('scanner/http/dlink_dir_615h_http_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_dlink_dir_300_615_http_login
     mod = framework.auxiliary.create('scanner/http/dlink_dir_300_615_http_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_cisco_ssl_vpn
     mod = framework.auxiliary.create('scanner/http/cisco_ssl_vpn')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_cisco_ironport_enum
     mod = framework.auxiliary.create('scanner/http/cisco_ironport_enum')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_cisco_asa_asdm
     mod = framework.auxiliary.create('scanner/http/cisco_asa_asdm')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_axis_local_file_include
     mod = framework.auxiliary.create('scanner/http/axis_local_file_include')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_splunk_web_login
     mod = framework.auxiliary.create('scanner/http/splunk_web_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_cctv_dvr_login
     mod = framework.auxiliary.create('scanner/misc/cctv_dvr_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_http_vcms_login
     mod = framework.auxiliary.create('scanner/http/vcms_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_telnet_ruggedcom
     mod = framework.auxiliary.create('scanner/telnet/telnet_ruggedcom')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: 'factory', password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: 'factory', password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_vmware_http_login
     mod = framework.auxiliary.create('scanner/vmware/vmware_http_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_asterisk_login
     mod = framework.auxiliary.create('voip/asterisk_login')
-    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def test_hp_imc_som_create_account
@@ -297,6 +297,31 @@ class Metasploit3 < Msf::Auxiliary
   def test_sap_businessobjects_user_brute_web
     mod = framework.auxiliary.create('scanner/http/sap_businessobjects_user_brute_web')
     mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'sap-businessobjects', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_sap_businessobjects_user_brute
+    mod = framework.auxiliary.create('scanner/http/sap_businessobjects_user_brute')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'sap-businessobjects', user: FAKE_USER, proof: FAKE_PROOF)
+  end
+
+  def test_rfcode_reader_enum
+    mod = framework.auxiliary.create('scanner/http/rfcode_reader_enum')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'RFCode Reader', user: FAKE_USER, password:FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_radware_appdictor_enum
+    mod = framework.auxiliary.create('scanner/http/radware_appdirector_enum')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'Radware AppDirector', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_pocketpad_login
+    mod = framework.auxiliary.create('scanner/http/pocketpad_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'PocketPAD Portal', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_oracle_ilom_login
+    mod = framework.auxiliary.create('scanner/http/oracle_ilom_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'Oracle Integrated Lights Out Manager Portal', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
   def run
