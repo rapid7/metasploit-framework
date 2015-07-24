@@ -340,7 +340,7 @@ class Metasploit3 < Msf::Auxiliary
       "DNSKEY,DHCID,NSEC3,NSEC3PARAM,HIP,NINFO,RKEY," <<
       "TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG," <<
       "IXFR,AXFR,MAILA,MAILB,*,TA,DLV,RESERVED"
-    @fuzz_rr     = datastore['RR'].blank ? fuzz_rr_queries : datastore['RR']
+    @fuzz_rr     = datastore['RR'].blank? ? fuzz_rr_queries : datastore['RR']
   end
 
   def run_host(ip)

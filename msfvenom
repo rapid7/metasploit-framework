@@ -110,6 +110,15 @@ require 'msf/core/payload_generator'
       opts[:platform] = l
     end
 
+    opt.on('--help-platforms', String, 'List available platforms') do
+      init_framework(:module_types => [])
+      supported_platforms = []
+      Msf::Module::Platform.subclasses.each {|c| supported_platforms << "#{c.realname.downcase}"}
+      msg = "Platforms\n" +
+            "\t" + supported_platforms * ", "
+      raise UsageError, msg
+    end
+
     opt.on('-s', '--space         <length>', Integer, 'The maximum size of the resulting payload') do |s|
       opts[:space] = s
     end
