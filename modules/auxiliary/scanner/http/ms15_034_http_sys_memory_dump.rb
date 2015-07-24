@@ -88,14 +88,8 @@ class Metasploit3 < Msf::Auxiliary
         }
       )
 
-      unless res
-        vprint_error("#{peer} - Timed out :-(")
-        return Exploit::CheckCode::Unknown
-      end
-
-      vmessage = "#{peer} - Checking #{uri} [#{res.code}]"
-
       if res && res.body.include?('Requested Range Not Satisfiable')
+        vmessage = "#{peer} - Checking #{uri} [#{res.code}]"
         vprint_status("#{vmessage} - Vulnerable")
 
         # Save the file that we want to use for the information leak
