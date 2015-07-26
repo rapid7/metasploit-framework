@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         end
 
         def run()
-          ctrlurl = #{datastore['CTRL_URL']}
+          ctrlurl = datastore['CTRL_URL']
           soapaction = "urn:schemas-upnp-org:service:WANIPConnection:1#AddPortMapping"
 
           content = "<?xml version=\"1.0\"?>"
