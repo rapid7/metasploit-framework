@@ -30,7 +30,7 @@ res = send_request_cgi({
 
 # There's a bug here, because res can return nil (due to a timeout or other reasons)
 # If that happens, you will hit a "undefined method `code' for nil:NilClass" error.
-# The correct way should be: if res and res.code == 200
+# The correct way should be: if res && res.code == 200
 if res.code == 200
   print_status("Response looks good")
 else
