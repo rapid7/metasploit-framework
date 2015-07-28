@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
     return if res.nil?
 
     vprint_status("Status: #{res.code}")
-    if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+    if res and res.code == 401 and res['WWW-Authenticate'] and res['WWW-Authenticate'].match(/^NTLM/i)
       hash = res['WWW-Authenticate'].split('NTLM ')[1]
       # Parse out the NTLM and just get the Target Information Data
       target = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_info].value()
