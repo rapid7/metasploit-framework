@@ -1,10 +1,12 @@
-# Please see [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) for an authoritative coding guide. This document is out of date and should be consulted ONLY for BAD code examples.
+# Deprecation notice!
+
+Please see [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) for an authoritative coding guide. This document has fallen out of date. We don't write bad code any more! Hooray!
 
 This is a collection of all the bad code we often see in Metasploit modules.  You should avoid them, too.
 
 Note: Some of these examples use puts() for demo purposes, but you should always use print_status / print_error when writing a module.
 
-### Bad Examples You Shouldn't Follow:
+### Bad Examples You Should NOT Follow:
 
 1. Not checking the return value of a Metasploit API
 2. Ruby 1.9.3 vs 1.8.7... gotcha!
