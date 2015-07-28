@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %Q{
         This module enumerates files from target domain controllers and
         connects to them via SMB. It then looks for Group Policy Preference XML
-        files containing local user accounts and passwords and decrypts them
+        files containing local/domain user accounts and passwords and decrypts them
         using Microsofts public AES key.
 
         Tested on Win2k8 R2 DC.
