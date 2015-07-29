@@ -45,6 +45,7 @@ class Metasploit4 < Msf::Post
       ],
       'References' => [
         ['URL', 'https://social.technet.microsoft.com/Forums/windows/en-US/a3968ec9-5824-4bc2-82a2-a37ea88c273a/sticky-keys-exploit'],
+        ['URL', 'http://carnal0wnage.attackresearch.com/2012/04/privilege-escalation-via-sticky-keys.html']
       ],
       'DefaultAction' => 'ADD'
     ))
