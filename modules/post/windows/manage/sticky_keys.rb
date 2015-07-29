@@ -43,6 +43,9 @@ class Metasploit4 < Msf::Post
         ['ADD',    {'Description' => 'Add the backdoor to the target.'}],
         ['REMOVE', {'Description' => 'Remove the backdoor from the target.'}]
       ],
+      'References' => [
+        ['URL', 'https://social.technet.microsoft.com/Forums/windows/en-US/a3968ec9-5824-4bc2-82a2-a37ea88c273a/sticky-keys-exploit'],
+      ],
       'DefaultAction' => 'ADD'
     ))
 
