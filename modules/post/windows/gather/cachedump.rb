@@ -297,8 +297,8 @@ class Metasploit3 < Msf::Post
       client.railgun.netapi32()
       join_status = client.railgun.netapi32.NetGetJoinInformation(nil,4,4)["BufferType"]
 
-      if sysinfo['Architecture'] =~ /wow64/i || sysinfo['Architecture'] =~ /x64/
-        join_status = join_status & 0x0000ffff
+      if sysinfo['Architecture'] =~ /x64/
+        join_status = join_status & 0x00000000ffffffff
       end
 
       if join_status != 3
