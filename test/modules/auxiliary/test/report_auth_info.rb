@@ -324,20 +324,69 @@ class Metasploit3 < Msf::Auxiliary
     mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'Oracle Integrated Lights Out Manager Portal', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
+  def test_mysql
+    mod = framework.auxiliary.create('server/capture/mysql')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'mysql_client', user: FAKE_USER, pass: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_http
+    mod = framework.auxiliary.create('server/capture/http')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, pass: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_ssh_enumusers
+    mod = framework.auxiliary.create('scanner/ssh/ssh_enumusers')
+    mod.do_report(FAKE_IP, FAKE_USER, FAKE_PORT)
+  end
+
+  def test_cerberus_sftp_enumusers
+    mod = framework.auxiliary.create('scanner/ssh/cerberus_sftp_enumusers')
+    mod.do_report(FAKE_IP, FAKE_USER, FAKE_PORT)
+  end
+
+  def test_sap_web_gui_brute_login
+    mod = framework.auxiliary.create('scanner/sap/sap_web_gui_brute_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'sap_webgui', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_sap_soap_rfc_brute_login
+    mod = framework.auxiliary.create('scanner/sap/sap_soap_rfc_brute_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'sap', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_sap_soap_bapi_user_create1
+    mod = framework.auxiliary.create('scanner/sap/sap_soap_bapi_user_create1')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'sap', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  
+
   def run
+    counter_all  = 0
+    counter_good = 0
+    counter_bad = 0
     self.methods.each do |m|
       next if m.to_s !~ /^test_.+/
       print_status("Trying: ##{m.to_s}")
       begin
         self.send(m)
         print_good("That didn't blow up. Good!")
+        counter_good += 1
       rescue ::Exception => e
         print_error("That blew up :-(")
         print_line("#{e.class} #{e.message}\n#{e.backtrace*"\n"}")
+        counter_bad += 1
       ensure
         print_line
       end
+
+      counter_all += 1
     end
+
+    print_good("Number of test cases that passed: #{counter_good}")
+    print_error("Number of test cases that failed: #{counter_bad}")
+    print_status("Number of test cases overall: #{counter_all}")
+    print_line
   end
 
 end
