@@ -4,37 +4,84 @@ require 'yaml'
 module Metasploit
   module Framework
     module Version
+
+      def self.root_path
+        File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..'))
+      end
+
+      def self.git_available?
+        @@git_available ||= begin
+          # adjust for Windows systems
+          void = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? 'NUL' : '/dev/null'
+          system("git --version >>#{void} 2>&1") && File.exist?(File.join(root_path, '.git'))
+        end
+      end
+
+      def self.version_yml
+        @@version_yml ||= begin
+          path = File.join(root_path, 'version.yml')
+          File.exist?(path) ? YAML.load_file(path) : nil
+        end
+      end
+
+      def self.version
+        @@version ||= begin
+          v = [4, 11, 4]
+          if version_yml
+            v = [version_yml['major'].to_i, version_yml['minor'].to_i, version_yml['patch'].to_i]
+          else
+            matching_tags = `git tag -l "?.*.*-??????????"`
+            unless matching_tags.nil?
+              tags = matching_tags.split('\n')
+              if tags.length > 0
+                match = tags[-1].match(/(\d*)\.(\d*)\.(\d*)-\d*/)
+                if match && match.length == 4
+                  v = [match[1].to_i, match[2].to_i, match[3].to_i]
+                end
+              end
+            end
+          end
+          v
+        end
+      end
+
+      def self.get_major
+        version[0]
+      end
+
+      def self.get_minor
+        version[1]
+      end
+
+      def self.get_patch
+        version[2]
+      end
+
       # Determines the git hash for this source tree
       #
       # @return [String] the git hash for this source tree
-      def self.get_hash
+      def self.git_hash
         @@git_hash ||= begin
-          root = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..'))
-          version_yml = File.join(root, 'version.yml')
           hash = ''
 
-          if File.exist?(version_yml)
-            version_info = YAML.load_file(version_yml)
-            hash = '-' + version_info['build_framework_rev']
-          else
-            # determine if git is installed
-            void = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? 'NUL' : '/dev/null'
-            git_installed = system("git --version >>#{void} 2>&1")
+          if version_yml
+            # get the stored hash from version.yml
+            hash = '-' + version_yml['build_framework_rev']
 
+          elsif git_available?
             # get the hash of the HEAD commit
-            if git_installed && File.exist?(File.join(root, '.git'))
-              hash = '-' + `git rev-parse HEAD`[0, 8]
-            end
+            hash = '-' + `git rev-parse HEAD`[0, 8]
           end
+
           hash.strip
         end
       end
 
-      MAJOR = 4
-      MINOR = 11
-      PATCH = 3
+      MAJOR = get_major
+      MINOR = get_minor
+      PATCH = get_patch
       PRERELEASE = 'dev'
-      HASH = get_hash
+      HASH = git_hash
     end
 
     VERSION = "#{Version::MAJOR}.#{Version::MINOR}.#{Version::PATCH}-#{Version::PRERELEASE}#{Version::HASH}"
