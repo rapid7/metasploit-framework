@@ -25,10 +25,10 @@ class Metasploit4 < Msf::Post
 
         The module options allow for this hack to be applied to:
 
-        - SETHC   - sethc.exe is invoked when SHIFT is pressed 5 times.
-        - UTILMAN - Utilman.exe is invoked by pressing WINDOWS+U.
-        - OSK     - osk.exe is invoked by pressing WINDOWS+U, then launching the on-screen keyboard.
-        - DISP    - DisplaySwitch.exe is invoked by pressing WINDOWS+P.
+        SETHC   (sethc.exe is invoked when SHIFT is pressed 5 times),
+        UTILMAN (Utilman.exe is invoked by pressing WINDOWS+U),
+        OSK     (osk.exe is invoked by pressing WINDOWS+U, then launching the on-screen keyboard), and
+        DISP    (DisplaySwitch.exe is invoked by pressing WINDOWS+P).
 
         The hack can be added using the ADD action, and removed with the REMOVE action.
 
