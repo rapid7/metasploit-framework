@@ -33,6 +33,7 @@ def types
     'US-CERT-VU' => 'http://www.kb.cert.org/vuls/id/#{in_ctx_val}',
     'ZDI'        => 'http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}',
     'WPVDB'      => 'https://wpvulndb.com/vulnerabilities/#{in_ctx_val}',
+    'PSS'        => 'https://packetstormsecurity.com/files/#{in_ctx_val}',
     'URL'        => '#{in_ctx_val}'
   }
 end
@@ -145,7 +146,7 @@ def is_url_alive?(uri)
   if res.nil? || res.code == 404 || res.body =~ /<title>.*not found<\/title>/i
     #puts "Return false 3: HTTP #{res.code}"
     #puts req.to_s
-    return false 
+    return false
   end
 
   true
