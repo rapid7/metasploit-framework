@@ -206,7 +206,7 @@ class Msftidy
             warn("Please use 'EDB' for '#{value}'")
           elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
-          elsif value =~ /^http:\/\/wpvulndb\.com\/vulnerabilities\//
+          elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
           end
         end
