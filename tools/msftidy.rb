@@ -193,6 +193,8 @@ class Msftidy
           warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3}$/
         when 'WPVDB'
           warn("Invalid WPVDB reference") if value !~ /^\d+$/
+        when 'PSS'
+          warn("Invalid PSS reference") if value !~ /^\d+$/
         when 'URL'
           if value =~ /^http:\/\/www\.osvdb\.org/
             warn("Please use 'OSVDB' for '#{value}'")
@@ -208,6 +210,8 @@ class Msftidy
             warn("Please use 'US-CERT-VU' for '#{value}'")
           elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
+          elsif value =~ /^http:\/\/packetstormsecurity\.com\/files\//
+            warn("Please use 'PSS' for '#{value}'")
           end
         end
       end
