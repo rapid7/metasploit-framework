@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
     if rport == 443 or ssl
       proto = "https"
     end
-    "#{proto}://#{rhost}:#{rport}#{@uri.to_s}"
+    "#{proto}://#{vhost}:#{rport}#{@uri.to_s}"
   end
 
   def run_host(ip)
