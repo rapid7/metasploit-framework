@@ -283,7 +283,7 @@ if __FILE__ == $0
   begin
     generator_opts = parse_args(ARGV)
   rescue MsfVenomError, Msf::OptionValidateError => e
-    $stderr.puts e.message
+    $stderr.puts "Error: #{e.message}"
     exit(-1)
   end
 
@@ -344,7 +344,7 @@ if __FILE__ == $0
     payload = venom_generator.generate_payload
   rescue ::Exception => e
     elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
-    $stderr.puts e.message
+    $stderr.puts "Error: #{e.message}"
   end
 
   # No payload generated, no point to go on
@@ -359,7 +359,7 @@ if __FILE__ == $0
     rescue ::Exception => e
       # If I can't save it, then I can't save it. I don't think it matters what error.
       elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
-      $stderr.puts e.message
+      $stderr.puts "Error: #{e.message}"
     end
   else
     output_stream = $stdout
