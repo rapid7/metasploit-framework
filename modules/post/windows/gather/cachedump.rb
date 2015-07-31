@@ -291,10 +291,6 @@ class Metasploit3 < Msf::Post
     begin
       print_status("Executing module against #{sysinfo['Computer']}")
       client.railgun.netapi32()
-      if client.railgun.netapi32.NetGetJoinInformation(nil,4,4)["BufferType"] != 3
-        print_error("System is not joined to a domain, exiting..")
-        return
-      end
 
       # Check policy setting for cached creds
       check_gpo
