@@ -49,6 +49,74 @@ module Msf::Post::Common
     pid_list.include?(pid)
   end
 
+
+  # Returns the target architecture.
+  # You should use this instead of session.platform, because of the following reasons:
+  # 1. session.platform doesn't always give you an arch. For example: a shell session.
+  # 2. session.platform doesn't mean the target platform/arch, it means whatever the session is.
+  #    For example: you can use a python meterpreter on a Windows platform, and you will
+  #    get 'python/python' as your arch/platform, and not 'x86/win32'.
+  #
+  # @returns [String] The archtecture recognizable by framework's ARCH_TYPES.
+  def get_target_arch
+    arch = nil
+
+    case session.type
+    when 'meterpreter'
+      arch = get_recognizable_arch(client.sys.config.sysinfo['Architecture'])
+    when 'shell'
+      if session.platform =~ /win/
+        arch = get_recognizable_arch(get_env('PROCESSOR_ARCHITECTURE').strip)
+      else
+        arch = get_recognizable_arch(get_env('MACHTYPE').strip)
+      end
+    end
+
+    arch
+  end
+
+
+  # Returns the target OS.
+  # You should use this instead of session.platform, because of the following reasons:
+  # 1. session.platform doesn't always provide a consistent OS name. For example: for a Windows
+  #    target, session.platform might return 'win32', which isn't recognized by Msf::Module::Platform.
+  # 2. session.platform doesn't mean the target platform/arch, it means whatever the session is.
+  #    For example: You can use a python meterpreter on a Windows platform, and you will get
+  #    'python/python', as your arch/platform, and not 'windows'.
+  #
+  # @return [String] The OS name recognizable by Msf::Module::Platform.
+  def get_target_os
+    os = nil
+    info = ''
+
+    case session.type
+    when 'meterpreter'
+      info = client.sys.config.sysinfo['OS']
+    when 'shell'
+      if session.platform =~ /win/
+        info = get_env('OS').strip
+      else
+        info = cmd_exec('uname -s').strip
+      end
+    end
+
+    case info
+    when /windows/i
+      os = Msf::Module::Platform::Windows.realname.downcase
+    when /darwin/i
+      os = Msf::Module::Platform::OSX.realname.downcase
+    when /freebsd/i
+      os = Msf::Module::Platform::FreeBSD.realname.downcase
+    when /GENERIC\.MP/i, /netbsd/i
+      os =  Msf::Module::Platform::BSD.realname.downcase
+    else
+      os = Msf::Module::Platform::Linux.realname.downcase
+    end
+
+
+    os
+  end
+
   #
   # Executes +cmd+ on the remote system
   #
@@ -214,6 +282,41 @@ module Msf::Post::Common
     end
 
     nil
+  end
+
+  private
+
+  # Returns an architecture recognizable by ARCH_TYPES.
+  #
+  # @param [String] target_arch The arch. Example: x86
+  # @return [String] One of the archs from ARCH_TYPES.
+  def get_recognizable_arch(target_arch)
+    arch = nil
+
+    # Special handle some cases that ARCH_TYPES won't recognize.
+    # https://msdn.microsoft.com/en-us/library/aa384274.aspx
+    case target_arch
+    when /i386/, /i686/
+      return ARCH_X86
+    when /amd64/i, /ia64/i
+      return ARCH_X86_64
+    end
+
+    # Rely on ARCH_TYPES to tell us a framework-recognizable ARCH.
+    # Notice we're sorting ARCH_TYPES first, so that the longest string
+    # goes first. This step is used because sometimes let's say if the target
+    # is 'x86_64', and if the ARCH_X86 kicks in first, then we will get 'x86'
+    # instead of x86_64, which is inaccurate.
+    recognizable_archs = ARCH_TYPES
+    recognizable_archs = recognizable_archs.sort_by {|a| a.length}.reverse
+    recognizable_archs.each do |a|
+      if target_arch =~ /#{a}/
+        arch = a
+        break
+      end
+    end
+
+    arch
   end
 
 end
