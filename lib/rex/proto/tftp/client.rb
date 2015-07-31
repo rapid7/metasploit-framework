@@ -295,6 +295,7 @@ class Client
     end
     sent_data = 0
     sent_blocks = 0
+    send_retries = 0
     expected_blocks = data_blocks.size
     expected_size = data_blocks.join.size
     if block_given?
@@ -304,7 +305,15 @@ class Client
     data_blocks.each_with_index do |data_block,idx|
       loop do
         req = [OpData, (idx + 1), data_block].pack("nnA*")
-        self.server_sock.sendto(req, host, port)
+        if self.server_sock.sendto(req, host, port) <= 0
+          send_retries += 1
+          if send_retries > 100
+            break
+          else
+            next
+          end
+        end
+        send_retries = 0
         res = self.server_sock.recvfrom(65535)
         if res
           code, type, msg = parse_tftp_response(res[0])
@@ -326,6 +335,11 @@ class Client
         end
       end
     end
+
+    if send_retries > 100
+      yield "Too many send retries, aborted"
+    end
+
     if block_given?
       if(sent_data == expected_size)
         yield("Transferred #{sent_data} bytes in #{sent_blocks} blocks, upload complete!")
@@ -333,6 +347,7 @@ class Client
         yield "Upload complete, but with errors."
       end
     end
+
     if sent_data == expected_size
     self.status = {:success => [
         self.local_file,
