@@ -302,7 +302,7 @@ class Client
       yield "Sending #{expected_size} bytes (#{expected_blocks} blocks)"
     end
     data_blocks.each_with_index do |data_block,idx|
-      while true
+      loop do
         req = [OpData, (idx + 1), data_block].pack("nnA*")
         self.server_sock.sendto(req, host, port)
         res = self.server_sock.recvfrom(65535)
@@ -313,10 +313,10 @@ class Client
               sent_blocks += 1
               sent_data += data_block.size
               yield "Sent #{data_block.size} bytes in block #{idx+1}" if block_given?
-	      break
-	    else
+              break
+            else
               next
-	    end
+            end
           else
             if block_given?
               yield "Got an unexpected response: Code:%d, Type:%d, Message:'%s'. Aborting." % [code, type, msg]
