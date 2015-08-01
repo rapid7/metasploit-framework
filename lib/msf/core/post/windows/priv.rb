@@ -8,7 +8,6 @@ module Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
 
   INTEGRITY_LEVEL_SID = {
-      :untrusted => 'S-1-16-4096',
       :low => 'S-1-16-4096',
       :medium => 'S-1-16-8192',
       :high => 'S-1-16-12288',
