@@ -15,15 +15,21 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'BIND TKEY Query Denial of Service',
       'Description'    => %q{
-        This module exploits an error in handling TKEY queries that can cause
-        named to exit with a REQUIRE assertion failure.
+        This module sends a malformed TKEY query, which exploits an
+        error in handling TKEY queries on affected BIND9 'named' DNS servers.
+        As a result, a vulnerable named server will exit with a REQUIRE
+        assertion failure. This condition can be exploited in versions of BIND
+        between BIND 9.1.0 through 9.8.x, 9.9.0 through 9.9.7-P1 and 9.10.0
+        through 9.10.2-P2.
       },
       'Author'         => [
+        'Jonathan Foote',      # Original discoverer
         'throwawayokejxqbbif', # PoC
-        'wvu'                  # Module
+        'wvu'                  # Metasploit module
       ],
       'References'     => [
         ['CVE', '2015-5477'],
+        ['URL', 'https://www.isc.org/blogs/cve-2015-5477-an-error-in-handling-tkey-queries-can-cause-named-to-exit-with-a-require-assertion-failure/'],
         ['URL', 'https://kb.isc.org/article/AA-01272'],
         ['URL', 'https://github.com/rapid7/metasploit-framework/issues/5790']
       ],
