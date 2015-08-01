@@ -8,6 +8,7 @@ module Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
 
   INTEGRITY_LEVEL_SID = {
+      :untrusted => 'S-1-16-4096',
       :low => 'S-1-16-4096',
       :medium => 'S-1-16-8192',
       :high => 'S-1-16-12288',
@@ -145,6 +146,14 @@ module Msf::Post::Windows::Priv
         end
       end
     end
+  end
+
+  #
+  # Returns true if in a high integrity, or system, service
+  #
+  def is_high_integrity?
+    il = get_integrity_level
+    (il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SIDE[:system])
   end
 
   #
