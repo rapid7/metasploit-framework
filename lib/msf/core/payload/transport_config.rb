@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-require 'msf/core/payload/uuid_options'
+require 'msf/core/payload/uuid/options'
 
 ##
 # This module contains helper functions for creating the transport
@@ -8,7 +8,7 @@ require 'msf/core/payload/uuid_options'
 ##
 module Msf::Payload::TransportConfig
 
-  include Msf::Payload::UUIDOptions
+  include Msf::Payload::UUID::Options
 
   def transport_config_reverse_tcp(opts={})
     config = transport_config_bind_tcp(opts)
@@ -48,7 +48,8 @@ module Msf::Payload::TransportConfig
     # going up as part of the stage.
     uri = opts[:uri]
     unless uri
-      sum = uri_checksum_lookup(:connect)
+      type = opts[:stageless] == true ? :init_connect : :connect
+      sum = uri_checksum_lookup(type)
       uri = generate_uri_uuid(sum, opts[:uuid])
     end
 
@@ -60,6 +61,7 @@ module Msf::Payload::TransportConfig
       :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
       :retry_total  => datastore['SessionRetryTotal'].to_i,
       :retry_wait   => datastore['SessionRetryWait'].to_i,
+      :ua           => datastore['MeterpreterUserAgent'],
       :proxy_host   => datastore['PayloadProxyHost'],
       :proxy_port   => datastore['PayloadProxyPort'],
       :proxy_type   => datastore['PayloadProxyType'],

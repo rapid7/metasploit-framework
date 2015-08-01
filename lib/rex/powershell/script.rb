@@ -37,7 +37,7 @@ module Powershell
 
       begin
         # Open code file for reading
-        fd = ::File.new(code, 'rb')
+        fd = ::File.new(code || '', 'rb')
         while (line = fd.gets)
           @code << line
         end

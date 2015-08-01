@@ -14,10 +14,6 @@ class Db
   require 'tempfile'
 
   include Msf::Ui::Console::CommandDispatcher
-
-  # TODO: Not thrilled about including this entire module for just store_local.
-  include Msf::Auxiliary::Report
-
   include Metasploit::Credential::Creation
 
   #
@@ -1180,6 +1176,7 @@ class Db
     print_line "  -h,--help                 Show this help information"
     print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
     print_line "  -S,--search               Regular expression to match for search"
+    print_line "  -o,--output               Save the notes to a csv file"
     print_line "  --sort <field1,field2>    Fields to sort by (case sensitive)"
     print_line
     print_line "Examples:"
@@ -1200,6 +1197,7 @@ class Db
     host_ranges = []
     rhosts      = []
     search_term = nil
+    out_file    = nil
 
     while (arg = args.shift)
       case arg
@@ -1226,6 +1224,8 @@ class Db
         search_term = /#{args.shift}/nmi
       when '--sort'
         sort_term = args.shift
+      when '-o', '--output'
+        out_file = args.shift
       when '-h','--help'
         cmd_notes_help
         return
@@ -1235,7 +1235,6 @@ class Db
           return
         end
       end
-
     end
 
     if mode == :add
@@ -1312,12 +1311,21 @@ class Db
     end
 
     # Now display them
+    csv_table = Rex::Ui::Text::Table.new(
+      'Header'  => 'Notes',
+      'Indent'  => 1,
+      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data']
+    )
+
     note_list.each do |note|
       next if(types and types.index(note.ntype).nil?)
+      csv_note = []
       msg = "Time: #{note.created_at} Note:"
+      csv_note << note.created_at if out_file
       if (note.host)
         host = note.host
         msg << " host=#{note.host.address}"
+        csv_note << note.host.address if out_file
         if set_rhosts
           addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
@@ -1325,15 +1333,35 @@ class Db
       end
       if (note.service)
         msg << " service=#{note.service.name}" if note.service.name
+        csv_note << note.service.name || '' if out_file
         msg << " port=#{note.service.port}" if note.service.port
+        csv_note << note.service.port || '' if out_file
         msg << " protocol=#{note.service.proto}" if note.service.proto
+        csv_note << note.service.proto || '' if out_file
+      else
+        if out_file
+          csv_note << '' # For the Service field
+          csv_note << '' # For the Port field
+          csv_note << '' # For the Protocol field
+        end
       end
       msg << " type=#{note.ntype} data=#{note.data.inspect}"
+      if out_file
+        csv_note << note.ntype
+        csv_note << note.data.inspect
+      end
       print_status(msg)
+      if out_file
+        csv_table << csv_note
+      end
       if mode == :delete
         note.destroy
         delete_count += 1
       end
+    end
+
+    if out_file
+      save_csv_notes(out_file, csv_table)
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -1342,6 +1370,17 @@ class Db
 
     print_status("Deleted #{delete_count} notes") if delete_count > 0
   }
+  end
+
+  def save_csv_notes(fpath, csv_table)
+    begin
+      File.open(fpath, 'wb') do |f|
+        f.write(csv_table.to_csv)
+      end
+      print_status("Notes saved as #{fpath}")
+    rescue Errno::EACCES => e
+      print_error("Unable to save notes. #{e.message}")
+    end
   end
 
   def make_sortable(input)
@@ -1752,15 +1791,14 @@ class Db
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     if (args.length == 0)
-      print_status("Usage: db_nmap [nmap options]")
+      print_status("Usage: db_nmap [--save | [--help | -h]] [nmap options]")
       return
     end
-    save = false
     arguments = []
     while (arg = args.shift)
       case arg
-      when 'save'
-        save = active?
+      when '--save'
+        save = true
       when '--help', '-h'
         cmd_db_nmap_help
         return
@@ -1778,55 +1816,47 @@ class Db
       return
     end
 
-    fd = Tempfile.new('dbnmap')
-    fd.binmode
-
-    fo = Tempfile.new('dbnmap')
-    fo.binmode
-
-    # When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
-    if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
-      # Custom function needed because cygpath breaks on 8.3 dirs
-      tout = Rex::Compat.cygwin_to_win32(fd.path)
-      fout = Rex::Compat.cygwin_to_win32(fo.path)
-      arguments.push('-oX', tout)
-      arguments.push('-oN', fout)
-    else
-      arguments.push('-oX', fd.path)
-      arguments.push('-oN', fo.path)
-    end
+    fd = Rex::Quickfile.new(['msf-db-nmap-', '.xml'], Msf::Config.local_directory)
 
     begin
-      nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
-      temp_nmap_threads = []
-      temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
-        np_1.each_line do |nmap_out|
-          next if nmap_out.strip.empty?
-          print_status("Nmap: #{nmap_out.strip}")
-        end
+      # When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
+      if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
+        # Custom function needed because cygpath breaks on 8.3 dirs
+        tout = Rex::Compat.cygwin_to_win32(fd.path)
+        arguments.push('-oX', tout)
+      else
+        arguments.push('-oX', fd.path)
       end
 
-      temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
-        np_2.each_line do |nmap_err|
-          next if nmap_err.strip.empty?
-          print_status("Nmap: '#{nmap_err.strip}'")
+      begin
+        nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
+        temp_nmap_threads = []
+        temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
+          np_1.each_line do |nmap_out|
+            next if nmap_out.strip.empty?
+            print_status("Nmap: #{nmap_out.strip}")
+          end
         end
+
+        temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
+          np_2.each_line do |nmap_err|
+            next if nmap_err.strip.empty?
+            print_status("Nmap: '#{nmap_err.strip}'")
+          end
+        end
+
+        temp_nmap_threads.map {|t| t.join rescue nil}
+        nmap_pipe.each {|p| p.close rescue nil}
+      rescue ::IOError
       end
 
-      temp_nmap_threads.map {|t| t.join rescue nil}
-      nmap_pipe.each {|p| p.close rescue nil}
-    rescue ::IOError
-    end
+      framework.db.import_nmap_xml_file(:filename => fd.path)
 
-    fo.close(true)
-    framework.db.import_nmap_xml_file(:filename => fd.path)
-
-    if save
-      fd.rewind
-      saved_path = report_store_local("nmap.scan.xml", "text/xml", fd.read, "nmap_#{Time.now.utc.to_i}")
-      print_status("Saved NMAP XML results to #{saved_path}")
+      print_status("Saved NMAP XML results to #{fd.path}") if save
+    ensure
+      fd.close
+      fd.unlink unless save
     end
-    fd.close(true)
   }
   end
 
@@ -1867,13 +1897,6 @@ class Db
     end
 
     tabs
-  end
-
-  #
-  # Store some locally-generated data as a file, similiar to store_loot.
-  #
-  def report_store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
-    store_local(ltype,ctype,data,filename)
   end
 
   #

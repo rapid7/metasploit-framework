@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Post
         dbvis = "\"#{dbvis}\""
         cmd = "#{dbvis} #{args}"
         resp = cmd_exec(cmd)
-        vprint_line("")
+        vprint_line
         vprint_status("#{resp}")
         if resp =~ /denied|failed/i
           error = true

@@ -123,8 +123,8 @@ module Payload::Generic
     redirect_to_actual(:stage_over_connection?)
   end
 
-  def generate_stage
-    redirect_to_actual(:generate_stage)
+  def generate_stage(opts={})
+    redirect_to_actual(:generate_stage, opts)
   end
 
   def handle_connection_stage(*args)
