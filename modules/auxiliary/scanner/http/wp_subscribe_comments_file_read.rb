@@ -35,8 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('WP_USER', [true, 'A valid username', nil]),
         OptString.new('WP_PASS', [true, 'Valid password for the provided username', nil]),
-        OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
-        OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 7 ])
+        OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd'])
       ], self.class)
   end
 
