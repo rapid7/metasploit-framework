@@ -21,7 +21,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['WPVDB', '8102']
+          ['WPVDB', '8102'],
+          ['URL', 'http://packetstormsecurity.com/files/132694/'],
+          ['URL', 'https://security.dxw.com/advisories/admin-only-local-file-inclusion-and-arbitrary-code-execution-in-subscribe-to-comments-2-1-2/']
         ],
       'Author'         =>
         [
