@@ -21,7 +21,8 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['WPVDB', '8107']
+          ['WPVDB', '8107'],
+          ['URL', 'https://packetstormsecurity.com/files/132750/']
         ],
       'Author'         =>
         [
@@ -42,7 +43,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     postid = datastore['POSTID']
 
     begin
