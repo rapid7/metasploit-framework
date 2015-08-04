@@ -6,38 +6,37 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-    'Name' => 'Lansweeper Collector',
-    'Description' => %q(
-    Lansweeper stores the credentials it uses to scan the computers
-    in its MSSQL database. The passwords are XTea-encrypted with a
-    68 character long key, which first 8 character is stored with the
-    password in the database, and the other 60 is static. Lansweeper by
-    default creates an MSSQL user "lansweeperuser" whose password is
-    "mysecretpassword0*", and stores its data in a database called
-    "lansweeperdb".
-    This module will query the MSSQL database for the credentials.
-    ),
-    'Author' => [
-      # Lansweeper RCE + Metasploit implementation
-      'sghctoma <tamas.szakaly [at] praudit [dot] hu>',
-      # Lansweeper RCE + discovering default credentials
-      'eq <balazs.bucsay [at] praudit [dot] hu>',
-      # Module for lansweeper (5.3.0.8)
-      'calderpwn <calderon [at] websec [dot] mx>'
-    ],
-    'License' => MSF_LICENSE,
-    'References' => [
-      [ 'URL', 'http://www.lansweeper.com'],
-      [ 'URL', 'http://www.praudit.hu/prauditeng/index.php/blog/a-lansweeper-es-a-tea']
-    ]
-                     )
-)
+      'Name' => 'Lansweeper Collector',
+      'Description' => %q(
+        Lansweeper stores the credentials it uses to scan the computers in its MSSQL database.
+        The passwords are XTea-encrypted with a 68 character long key, which first 8 character
+        are stored with the password in the database, and the other 60 is static. Lansweeper by
+        default creates an MSSQL user "lansweeperuser" whose password is "mysecretpassword0*",
+        and stores its data in a database called "lansweeperdb". This module will query the MSSQL
+        database for the credentials.
+      ),
+      'Author' =>
+        [
+          'sghctoma <tamas.szakaly[at]praudit.hu>', # Lansweeper RCE + Metasploit implementation
+          'eq <balazs.bucsay[at]praudit.hu>', # Lansweeper RCE + discovering default credentials
+          'calderpwn <calderon[at]websec.mx>' # Module for lansweeper (5.3.0.8)
+        ],
+      'License' => MSF_LICENSE,
+      'DefaultOptions'  =>
+        {
+          'USERNAME' => 'lansweeperuser',
+          'PASSWORD' => 'mysecretpassword0*'
+        },
+      'References' =>
+        [
+          ['URL', 'http://www.lansweeper.com'],
+          ['URL', 'http://www.praudit.hu/prauditeng/index.php/blog/a-lansweeper-es-a-tea']
+        ]))
 
-  register_options([
-    OptString.new('USERNAME', [ true, 'The username to authenticate as', 'lansweeperuser' ]),
-    OptString.new('PASSWORD', [ false, 'The password for the specified username', 'mysecretpassword0*' ]),
-    OptString.new('DATABASE', [ true, 'The Lansweeper database', 'lansweeperdb'])
-  ], self.class)
+    register_options([
+      OptString.new('DATABASE', [true, 'The Lansweeper database', 'lansweeperdb'])
+    ], self.class)
+
   end
 
   def uint32(n)
