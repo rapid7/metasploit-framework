@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('POSTID', [true, 'Set the post identification to read', '1'])
+        OptString.new('POSTID', [true, 'The post identification to read', '1'])
       ], self.class)
   end
 
@@ -63,10 +63,11 @@ class Metasploit3 < Msf::Auxiliary
 
     if res &&
         res.code == 200 &&
-        res.body.length > 0 &&
-        res.headers['Content-Type'].include?('application/json')
+        res.body.length > 29 &&
+        res.headers['Content-Type'].include?('application/json') &&
+        !res.body.include?('"error":')
 
-      vprint_status('Enumerating information...')
+      vprint_status('Enumerating...')
       res_clean = JSON.pretty_generate(temp)
       vprint_good("Found:\n\n#{res_clean}\n")
 
@@ -76,10 +77,9 @@ class Metasploit3 < Msf::Auxiliary
         ip,
         res_clean
       )
-
       print_good("#{peer} - File saved in: #{path}")
     else
-      print_error("#{peer} - Nothing was downloaded. You can try to verify the POSTID parameter.")
+      print_error("#{peer} - Nothing was downloaded. You can try checking the POSTID parameter.")
     end
   end
 end
