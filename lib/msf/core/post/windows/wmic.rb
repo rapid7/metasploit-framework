@@ -7,6 +7,7 @@ module Windows
 module WMIC
 
   include Msf::Post::File
+  include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ExtAPI
 
   def initialize(info = {})
@@ -32,13 +33,13 @@ module WMIC
       end
     end
 
-    if extapi
+    if extapi && !is_system?
       session.extapi.clipboard.set_text("")
       wcmd = "wmic #{wmic_user_pass_string}/output:CLIPBOARD /INTERACTIVE:off /node:#{server} #{query}"
     else
-      tmp = session.fs.file.expand_path("%TEMP%")
+      tmp = get_env('TEMP')
       out_file = "#{tmp}\\#{Rex::Text.rand_text_alpha(8)}"
-      wcmd = "wmic #{wmic_user_pass_string}/output:#{out_file} /INTERACTIVE:off /node:#{server} #{query}"
+      wcmd = "cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe #{wmic_user_pass_string}/output:#{out_file} /INTERACTIVE:off /node:#{server} #{query}"
     end
 
     vprint_status("[#{server}] #{wcmd}")
@@ -48,9 +49,9 @@ module WMIC
     session.railgun.kernel32.WaitForSingleObject(ps.handle, (datastore['TIMEOUT'] * 1000))
     ps.close
 
-    if extapi
+    if extapi && !is_system?
       result = session.extapi.clipboard.get_data.first
-      if result[1].has_key? 'Text'
+      if result && result[1] && result[1].has_key?('Text')
         result_text = result[1]['Text']
       else
         result_text = ""
