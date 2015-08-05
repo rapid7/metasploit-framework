@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res
       banner = res.headers['Server']
-      if !banner.nil? 
+      if !banner.nil?
         print_good "Found: #{banner}"
         report_service(
           :host => ip,
