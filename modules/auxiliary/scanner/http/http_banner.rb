@@ -23,10 +23,9 @@ class Metasploit3 < Msf::Auxiliary
     ))
 
     register_options([
-      OptString.new('METHOD', [ true, 'HTTP Method to use', 'GET']),
+      OptString.new('HTTP_METHOD', [ true, 'HTTP Method to use', 'GET']),
       OptString.new('PROTOCOL', [ false, 'Protocol to use', 'HTTP']),
-      OptString.new('TARGETURI', [ true, 'The URI to use', '/']),
-      OptInt.new('TIMEOUT', [ false, "The timeout waiting for the server response", 10])
+      OptString.new('TARGETURI', [ true, 'The URI to use', '/'])
     ])
   end
 
@@ -37,18 +36,16 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     print_status "Trying #{peer}"
     uri = normalize_uri(target_uri.path)
-    method = datastore['METHOD']
-    proto = datastore['PROTOCOL']
 
     res = send_request_raw({
-      'method'  => method,
+      'method'  => datastore['HTTP_METHOD'],
       'uri'     => uri,
-      'proto'   => proto
-    }, timeout)
+      'proto'   => datastore['PROTOCOL']
+    })
 
     if res
       banner = res.headers['Server']
-      if !banner.nil?
+      unless banner.nil?
         print_good "Found: #{banner}"
         report_service(
           :host => ip,
