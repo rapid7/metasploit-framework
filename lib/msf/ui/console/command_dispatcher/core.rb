@@ -40,7 +40,6 @@ class Core
     "-l" => [ false, "List all active sessions"                       ],
     "-v" => [ false, "List verbose fields"                            ],
     "-q" => [ false, "Quiet mode"                                     ],
-    "-d" => [ true,  "Detach an interactive session"                  ],
     "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
@@ -93,6 +92,10 @@ class Core
 
   @@go_pro_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ])
+
+  @@irb_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-e" => [ true,  "Expression to evaluate."                        ])
 
   # The list of data store elements that cannot be set when in defanged
   # mode.
@@ -415,7 +418,7 @@ class Core
     avdwarn = nil
 
     banner_trailers = {
-      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Metasploit::Framework::Core::GEM_VERSION} api:#{Metasploit::Framework::API::GEM_VERSION}]%clr",
+      :version     => "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
       :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
       :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
       :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
@@ -759,8 +762,8 @@ class Core
   def cmd_irb_help
     print_line "Usage: irb"
     print_line
-    print_line "Drop into an interactive Ruby environment"
-    print_line
+    print_line "Execute commands in a Ruby environment"
+    print @@irb_opts.usage
   end
 
   #
@@ -769,17 +772,34 @@ class Core
   def cmd_irb(*args)
     defanged?
 
-    print_status("Starting IRB shell...\n")
+    expressions = []
 
-    begin
-      Rex::Ui::Text::IrbShell.new(binding).run
-    rescue
-      print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        cmd_irb_help
+        return false
+      end
     end
 
-    # Reset tab completion
-    if (driver.input.supports_readline)
-      driver.input.reset_tab_completion
+    if expressions.empty?
+      print_status("Starting IRB shell...\n")
+
+      begin
+        Rex::Ui::Text::IrbShell.new(binding).run
+      rescue
+        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
+      end
+
+      # Reset tab completion
+      if (driver.input.supports_readline)
+        driver.input.reset_tab_completion
+      end
+    else
+      expressions.each { |expression| eval(expression, binding) }
     end
   end
 
@@ -1679,9 +1699,6 @@ class Core
         sid = val || false
       when "-K"
         method = 'killall'
-      when "-d"
-        method = 'detach'
-        sid = val || false
       # Run a script on all meterpreter sessions
       when "-s"
         unless script
@@ -1827,26 +1844,6 @@ class Core
           end
         end
       end
-    when 'detach'
-      print_status("Detaching the following session(s): #{session_list.join(', ')}")
-      session_list.each do |sess_id|
-        session = verify_session(sess_id)
-        # if session is interactive, it's detachable
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
-          end
-          print_status("Detaching session #{sess_id}")
-          begin
-            session.detach
-          ensure
-            if session.respond_to?(:response_timeout) && last_known_timeout
-              session.response_timeout = last_known_timeout
-            end
-          end
-        end
-      end
     when 'interact'
       session = verify_session(sid)
       if session
@@ -1981,7 +1978,7 @@ class Core
     end
 
     case words[-1]
-    when "-i", "-k", "-d", "-u"
+    when "-i", "-k", "-u"
       return framework.sessions.keys.map { |k| k.to_s }
 
     when "-c"

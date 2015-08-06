@@ -9,7 +9,7 @@ require 'msf/core/payload/php/reverse_tcp'
 
 module Metasploit4
 
-  CachedSize = 931
+  CachedSize = 936
 
   include Msf::Payload::Stager
   include Msf::Payload::Php::ReverseTcp

