@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Auxiliary
         :path   => path,
         :xml    => data
       }
-    retobj[:domain] = spath[1]
+    retobj[:domain] = spath[0]
 
     parse_xml(ip,path,retobj) if retobj
 
@@ -192,17 +192,20 @@ class Metasploit3 < Msf::Auxiliary
         subfolders << key
       end
 
+      gpp_locations = [ "\\MACHINE\\Preferences\\Groups\\Groups.xml",
+                        "\\USER\\Preferences\\Groups\\Groups.xml",
+                        "\\MACHINE\\Preferences\\Services\\Services.xml",
+                        "\\USER\\Preferences\\Printers\\Printers.xml",
+                        "\\USER\\Preferences\\Drives\\Drives.xml",
+                        "\\MACHINE\\Preferences\\Datasources\\DataSources.xml",
+                        "\\USER\\Preferences\\Datasources\\DataSources.xml",
+                        "\\MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml",
+                        "\\USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml",
+      ]
       subfolders.each do |i|
-        i = "#{corpdomain}\\Policies\\#{i}"
-        check_path(ip,"\\#{i}\\MACHINE\\Preferences\\Groups\\Groups.xml")
-        check_path(ip,"\\#{i}\\USER\\Preferences\\Groups\\Groups.xml")
-        check_path(ip,"\\#{i}\\MACHINE\\Preferences\\Services\\Services.xml")
-        check_path(ip,"\\#{i}\\USER\\Preferences\\Printers\\Printers.xml")
-        check_path(ip,"\\#{i}\\USER\\Preferences\\Drives\\Drives.xml")
-        check_path(ip,"\\#{i}\\MACHINE\\Preferences\\Datasources\\DataSources.xml")
-        check_path(ip,"\\#{i}\\USER\\Preferences\\Datasources\\DataSources.xml")
-        check_path(ip,"\\#{i}\\MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml")
-        check_path(ip,"\\#{i}\\USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml")
+        gpp_locations.each do |gpp_l|
+          check_path(ip,"#{corpdomain}\\Policies\\#{i}#{gpp_l}")
+        end
       end
 
       disconnect
