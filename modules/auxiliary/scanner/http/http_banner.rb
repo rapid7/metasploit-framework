@@ -9,6 +9,7 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super(update_info(info,
@@ -48,10 +49,10 @@ class Metasploit3 < Msf::Auxiliary
       unless banner.nil?
         print_good "Found: #{banner}"
         report_service(
-          :host => ip,
-          :port => rport,
-          :name => "http",
-          :info => "#{banner}"
+          host: ip,
+          port: rport,
+          name: "http",
+          info: "#{banner}"
         )
       end
     end
