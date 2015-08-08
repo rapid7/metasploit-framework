@@ -155,6 +155,7 @@ class Metasploit3 < Msf::Auxiliary
 
         print_status('Connected to %s:%d' % [host, port])
 
+        version = nil
         begin
           loop do
             readable, _, _ = IO.select([client, server])
@@ -206,7 +207,6 @@ class Metasploit3 < Msf::Auxiliary
 
                 # Save version used in the handshake
                 version = header[2, 1]
-
                 next
               else
                 # Save handshake messages
