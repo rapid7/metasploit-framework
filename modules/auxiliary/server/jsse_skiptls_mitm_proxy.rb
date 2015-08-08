@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
         version = nil
         begin
           loop do
-            readable, _, _ = IO.select([client, server])
+            readable, _, _ = Rex::ThreadSafe.select([client, server])
 
             readable.each do |r|
               case r
