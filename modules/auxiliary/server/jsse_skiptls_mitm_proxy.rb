@@ -108,7 +108,6 @@ class Metasploit3 < Msf::Auxiliary
     local_port = datastore['SRVPORT']
     port = datastore['PORT']
 
-    #proxy = TCPServer.new(local_host, local_port)
     @proxy = Rex::Socket::TcpServer.create(
       'LocalHost' => local_host,
       'LocalPort' => local_port,
@@ -166,12 +165,17 @@ class Metasploit3 < Msf::Auxiliary
                 # The fake_server (i.e., server) is an SSL socket; Read
                 # application data directly.
                 header = ''
-                r.get_once(4096)
-
+                fragment = r.get_once(4096)
               else
                 header = r.get_once(5)
                 raise EOFError if header.nil?
-                fragment = r.get_once(header[3, 2].unpack('n')[0])
+                fragment_length = header[3, 2].unpack('n')[0]
+                fragment = ''
+                while fragment_length > 0
+                  partial_fragment = r.get_once(fragment_length)
+                  fragment << partial_fragment
+                  fragment_length = fragment_length - partial_fragment.length
+                end
               end
 
               print_status('%d bytes received' % [header.length + fragment.length])
