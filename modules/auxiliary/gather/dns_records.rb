@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'         => 'Collect DNS Records Information',
       'Description'  => %q{
-        This module can collect dns records (a, aaaa, mx, ns and so on). 
+        This module can collect dns records (a, aaaa, mx, ns and so on).
         Dns query and dns bruteforce will be used.
       },
       'Author'       => [ 'Nixawk' ],
@@ -29,8 +29,8 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('WORDLIST', [ false, "Wordlist file for subdomain bruteforce", ""]),
         OptInt.new('TIMEOUT', [ false, "Dns response timeout", "4"]),
         OptInt.new('THREADS', [ false, "Number of threads for subdomain bruteforce", 1]),
-        OptInt.new('RETRIES', [ false, "Times to retry (nameservers give us no response)", 2]), 
-        OptInt.new('RETRY_INTERVAL', [ false, "Times to wait between first and second try)", 2]), 
+        OptInt.new('RETRIES', [ false, "Times to retry (nameservers give us no response)", 2]),
+        OptInt.new('RETRY_INTERVAL', [ false, "Times to wait between first and second try)", 2]),
       ], self.class)
 
   end
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
     domain = datastore['DOMAIN'].to_s
     nameserver = datastore['NS'].to_s
     wordlist = datastore['WORDLIST'].to_s
-    threads = datastore['THREADS'].to_i 
+    threads = datastore['THREADS'].to_i
     threads = 1 if threads == 0
 
     @dns = Net::DNS::Resolver.new()   # initialize it with args
@@ -55,7 +55,6 @@ class Metasploit3 < Msf::Auxiliary
 
     dns_ns_set(nameserver) unless nameserver.blank?
     dns_wildcard(domain)
-    
     record = get_ns(domain, "NS")
 
     get_a(domain, "A")
@@ -113,13 +112,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def db_filter(host)
     framework.db.hosts.each do |dbhost|
-      unless dbhost.address.to_s.include? host.to_s 
+      if dbhost.address.to_s.include? host.to_s
         next
       else
-        return true
+        return false
       end
     end
-    return false
+    return true
   end
 
   def db_record(domain, temp)
@@ -127,16 +126,13 @@ class Metasploit3 < Msf::Auxiliary
       record[:host] = domain
       record[:type] = type
       record[:address] = temp.join(", ")
-      
       return record
   end
 
   def get_a(domain, type="A")
     record = {}
     result = dns_query(domain, type)
-    
     return record unless result
-
     unless result.answer.blank?
       temp = []  # store all A records
 
@@ -154,12 +150,10 @@ class Metasploit3 < Msf::Auxiliary
           print_good("#{domain}: #{r.cname}")
         end
       end
-      
       return db_record(domain, temp)
     else
       return record
     end
-
   end
 
   def get_cname(domain, type="CNAME")
@@ -167,7 +161,6 @@ class Metasploit3 < Msf::Auxiliary
     result = dns_query(domain, type)
 
     return record unless result
-
     unless result.answer.blank?
       temp = []
 
@@ -188,7 +181,6 @@ class Metasploit3 < Msf::Auxiliary
     result = dns_query(domain, type)
 
     return record unless result
-
     unless result.answer.blank?
       temp = []
 
@@ -214,17 +206,14 @@ class Metasploit3 < Msf::Auxiliary
     result = dns_query(domain, type)
 
     return record unless result
-  
     unless result.answer.blank?
       temp = []
-
       result.answer.each do |r|
         if r.class == Net::DNS::RR::CNAME
           print_good("#{domain}: #{r.cname}")
         elsif r.class == Net::DNS::RR::MX
           print_good("#{domain}: #{r.exchange}")
           temp << r.exchange
-
           unless db_filter(r.exchange)  # save MX record to database
             report_host(:host => r.exchange)
             report_service(:host => r.exchange, :name => "smtp", :port => 25, :proto => "tcp")
@@ -243,7 +232,6 @@ class Metasploit3 < Msf::Auxiliary
     result = dns_query(domain, type)
 
     return record unless result
-
     unless result.answer.blank?
       temp = []
 
@@ -255,7 +243,6 @@ class Metasploit3 < Msf::Auxiliary
           report_host(:host => r.mname)  # save SOA record to database
         end
       end
-
       return db_record(domain, temp)
     else
       return record
@@ -267,7 +254,6 @@ class Metasploit3 < Msf::Auxiliary
     result = dns_query(domain, type)
 
     return record unless result
-
     unless result.answer.blank?
       temp = []
       result.answer.each do |r|
@@ -279,11 +265,9 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
       end
-
       return db_record(domain, temp)
     else
       return record
     end
   end
-
 end
