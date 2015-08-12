@@ -555,6 +555,10 @@ class Msftidy
         end
       end
 
+      if ln =~ /['"]ExitFunction['"]\s*=>/
+        warn("Please use EXITFUNC instead of ExitFunction #{ln}", idx)
+      end
+
     end
   end
 
