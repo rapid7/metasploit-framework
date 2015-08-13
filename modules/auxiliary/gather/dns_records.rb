@@ -7,7 +7,6 @@
 require 'msf/core'
 require 'net/dns/resolver'
 require 'rex'
-require 'pry'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
