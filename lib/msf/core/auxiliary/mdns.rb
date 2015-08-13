@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'net/dns'
-require 'rex/proto/mdns'
 
 module Msf
   # This module provides methods for working with mDNS
