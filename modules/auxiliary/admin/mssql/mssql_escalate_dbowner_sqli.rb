@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
 
-    #Parse results
+    # Parse results
     parsed_result = res.body.scan(/#{clue_start}(.*?)#{clue_end}/m)
 
     if parsed_result && !parsed_result.empty?

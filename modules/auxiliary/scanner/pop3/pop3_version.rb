@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      res    = connect
+      res = connect
       banner = sock.get_once(-1, 30)
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
       print_status("#{ip}:#{rport} POP3 #{banner_sanitized}")

@@ -89,7 +89,6 @@ class Registry
     request.add_tlv(TLV_TYPE_TARGET_HOST, target_host)
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
 
-
     response = client.send_request(request)
 
     return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RemoteRegistryKey.new(
@@ -166,6 +165,24 @@ class Registry
     return keys
   end
 
+  def Registry.enum_key_direct(root_key, base_key, perm = KEY_READ)
+    request = Packet.create_request('stdapi_registry_enum_key_direct')
+    keys    = []
+
+    request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+    request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+    request.add_tlv(TLV_TYPE_PERMISSION, perm)
+
+    response = client.send_request(request)
+
+    # Enumerate through all of the registry keys
+    response.each(TLV_TYPE_KEY_NAME) do |key_name|
+      keys << key_name.value
+    end
+
+    keys
+  end
+
   ##
   #
   # Registry value interaction
@@ -195,10 +212,55 @@ class Registry
     return true
   end
 
+  def Registry.set_value_direct(root_key, base_key, name, type, data, perm = KEY_WRITE)
+    request = Packet.create_request('stdapi_registry_set_value_direct')
+
+    request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+    request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+    request.add_tlv(TLV_TYPE_PERMISSION, perm)
+    request.add_tlv(TLV_TYPE_VALUE_NAME, name)
+    request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
+
+    if type == REG_SZ
+      data += "\x00"
+    elsif type == REG_DWORD
+      data = [data.to_i].pack('V')
+    end
+
+    request.add_tlv(TLV_TYPE_VALUE_DATA, data)
+
+    response = client.send_request(request)
+
+    true
+  end
+
   #
   # Queries the registry value supplied in name and returns an
   # initialized RegistryValue instance if a match is found.
   #
+  def Registry.query_value_direct(root_key, base_key, name, perm = KEY_READ)
+    request = Packet.create_request('stdapi_registry_query_value_direct')
+
+    request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+    request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+    request.add_tlv(TLV_TYPE_PERMISSION, perm)
+    request.add_tlv(TLV_TYPE_VALUE_NAME, name)
+
+    response = client.send_request(request)
+
+    type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
+    data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
+
+    if type == REG_SZ
+      data = data[0..-2]
+    elsif type == REG_DWORD
+      data = data.unpack('N')[0]
+    end
+
+    Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+        client, 0, name, type, data)
+  end
+
   def Registry.query_value(hkey, name)
     request = Packet.create_request('stdapi_registry_query_value')
 
@@ -207,8 +269,8 @@ class Registry
 
     response = client.send_request(request)
 
-    data = response.get_tlv(TLV_TYPE_VALUE_DATA).value;
-    type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value;
+    data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
+    type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
 
     if (type == REG_SZ)
       data = data[0..-2]
@@ -272,6 +334,24 @@ class Registry
     return values
   end
 
+  def Registry.enum_value_direct(root_key, base_key, perm = KEY_READ)
+    request = Packet.create_request('stdapi_registry_enum_value_direct')
+    values  = []
+
+    request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+    request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+    request.add_tlv(TLV_TYPE_PERMISSION, perm)
+
+    response = client.send_request(request)
+
+    response.each(TLV_TYPE_VALUE_NAME) do |value_name|
+      values << Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+          client, 0, value_name.value)
+    end
+
+    values
+  end
+
   #
   # Return the key value associated with the supplied string.  This is useful
   # for converting HKLM as a string into its actual integer representation.
@@ -300,13 +380,20 @@ class Registry
   # Returns the integer value associated with the supplied registry value
   # type (like REG_SZ).
   #
+  # @see https://msdn.microsoft.com/en-us/library/windows/desktop/ms724884(v=vs.85).aspx
+  # @param type [String] A Windows registry type constant name, e.g. 'REG_SZ'
+  # @return [Integer] one of the `REG_*` constants
   def self.type2str(type)
-    return REG_SZ if (type == 'REG_SZ')
-    return REG_DWORD if (type == 'REG_DWORD')
-    return REG_BINARY if (type == 'REG_BINARY')
-    return REG_EXPAND_SZ if (type == 'REG_EXPAND_SZ')
-    return REG_NONE if (type == 'REG_NONE')
-    return nil
+    case type
+    when 'REG_BINARY'    then REG_BINARY
+    when 'REG_DWORD'     then REG_DWORD
+    when 'REG_EXPAND_SZ' then REG_EXPAND_SZ
+    when 'REG_MULTI_SZ'  then REG_MULTI_SZ
+    when 'REG_NONE'      then REG_NONE
+    when 'REG_SZ'        then REG_SZ
+    else
+      nil
+    end
   end
 
   #

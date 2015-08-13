@@ -84,7 +84,7 @@ module Session
     #self.routes = []
   end
 
-  # Direct descendents
+  # Direct descendants
   require 'msf/core/session/interactive'
   require 'msf/core/session/basic'
   require 'msf/core/session/comm'
@@ -384,6 +384,14 @@ module Session
   # The unique identifier of exploit that created this session
   #
   attr_accessor :exploit_uuid
+  #
+  # The unique identifier of the payload that created this session
+  #
+  attr_accessor :payload_uuid
+  #
+  # The unique machine identifier for the host that created this session
+  #
+  attr_accessor :machine_id
   #
   # The actual exploit module instance that created this session
   #

@@ -61,7 +61,6 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :each_host_range_chunk }
   it { is_expected.to respond_to :make_sortable }
   it { is_expected.to respond_to :name }
-  it { is_expected.to respond_to :report_store_local }
   it { is_expected.to respond_to :set_rhosts_from_addrs }
 
   describe "#cmd_creds" do
@@ -391,7 +390,11 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -o <file>         Send output to a file in csv format",
           "  -R,--rhosts       Set RHOSTS from the results of the search",
           "  -S,--search       Search string to filter by",
-          "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count"
+          "  -i,--info         Change the info of a host",
+          "  -n,--name         Change the name of a host",
+          "  -m,--comment      Change the comment of a host",
+          "  -t,--tag          Add or specify a tag to a range of hosts",
+          "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count, tags"
         ]
       end
     end
@@ -432,6 +435,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -h,--help                 Show this help information",
           "  -R,--rhosts               Set RHOSTS from the results of the search",
           "  -S,--search               Regular expression to match for search",
+          "  -o,--output               Save the notes to a csv file",
           "  --sort <field1,field2>    Fields to sort by (case sensitive)",
           "Examples:",
           "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
@@ -520,6 +524,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -h,--help             Show this help information",
           "  -p,--port <portspec>  List vulns matching this port spec",
           "  -s <svc names>        List vulns matching these service names",
+          "  -R,--rhosts           Set RHOSTS from the results of the search",
           "  -S,--search           Search string to filter by",
           "  -i,--info             Display Vuln Info",
           "Examples:",

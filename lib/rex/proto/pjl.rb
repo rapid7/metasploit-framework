@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 # https://en.wikipedia.org/wiki/Printer_Job_Language
 # See external links for PJL spec
 
@@ -25,7 +26,10 @@ module Rex::Proto::PJL
   RDYMSG = "#{PREFIX} RDYMSG"
 
   FSINIT = "#{PREFIX} FSINIT"
+  FSQUERY = "#{PREFIX} FSQUERY"
   FSDIRLIST = "#{PREFIX} FSDIRLIST"
   FSUPLOAD = "#{PREFIX} FSUPLOAD"
+  FSDOWNLOAD = "#{PREFIX} FSDOWNLOAD"
+  FSDELETE = "#{PREFIX} FSDELETE"
 
 end

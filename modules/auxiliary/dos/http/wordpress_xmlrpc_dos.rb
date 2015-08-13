@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
     }
 
     space_to_fill = size_bytes - empty_xml.size
-    vprint_debug("#{peer} - max XML space to fill: #{space_to_fill} bytes")
+    vprint_status("#{peer} - max XML space to fill: #{space_to_fill} bytes")
 
     payload = "&#{entity};" * (space_to_fill / 6)
     entity_value_length = space_to_fill - payload.length

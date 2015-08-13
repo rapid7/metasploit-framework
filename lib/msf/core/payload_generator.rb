@@ -23,7 +23,7 @@ module Msf
   class PayloadGenerator
 
     # @!attribute  add_code
-    #   @return [String] The path to a shellcode file to execute in a seperate thread
+    #   @return [String] The path to a shellcode file to execute in a separate thread
     attr_accessor :add_code
     # @!attribute  arch
     #   @return [String] The CPU architecture to build the payload for
@@ -61,9 +61,15 @@ module Msf
     # @!attribute  platform
     #   @return [String] The platform to build the payload for
     attr_accessor :platform
+    # @!attribute  smallest
+    #   @return [Boolean] Whether or not to find the smallest possible output
+    attr_accessor :smallest
     # @!attribute  space
     #   @return [Fixnum] The maximum size in bytes of the payload
     attr_accessor :space
+    # @!attribute  encoder_space
+    #   @return [Fixnum] The maximum size in bytes of the encoded payload
+    attr_accessor :encoder_space
     # @!attribute  stdin
     #   @return [String] The raw bytes of a payload taken from STDIN
     attr_accessor :stdin
@@ -85,12 +91,14 @@ module Msf
     # @option opts [String] :badchars (see #badchars)
     # @option opts [String] :template (see #template)
     # @option opts [Fixnum] :space (see #space)
+    # @option opts [Fixnum] :encoder_space (see #encoder_space)
     # @option opts [Fixnum] :nops (see #nops)
     # @option opts [String] :add_code (see #add_code)
     # @option opts [Boolean] :keep (see #keep)
     # @option opts [Hash] :datastore (see #datastore)
     # @option opts [Msf::Framework] :framework (see #framework)
     # @option opts [Boolean] :cli (see #cli)
+    # @option opts [Boolean] :smallest (see #smallest)
     # @raise [KeyError] if framework is not provided in the options hash
     def initialize(opts={})
       @add_code   = opts.fetch(:add_code, '')
@@ -109,18 +117,27 @@ module Msf
       @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
       @var_name   = opts.fetch(:var_name, 'buf')
+      @smallest   = opts.fetch(:smallest, false)
+      @encoder_space = opts.fetch(:encoder_space, @space)
 
       @framework  = opts.fetch(:framework)
 
       raise ArgumentError, "Invalid Payload Selected" unless payload_is_valid?
       raise ArgumentError, "Invalid Format Selected" unless format_is_valid?
+
+      # In smallest mode, override the payload @space & @encoder_space settings
+      if @smallest
+        @space = 0
+        @encoder_space = 1.gigabyte
+      end
+
     end
 
     # This method takes the shellcode generated so far and adds shellcode from
-    # a supplied file. The added shellcode is executed in a seperate thread
+    # a supplied file. The added shellcode is executed in a separate thread
     # from the main payload.
     # @param shellcode [String] The shellcode to add to
-    # @return [String] the combined shellcode which executes the added code in a seperate thread
+    # @return [String] the combined shellcode which executes the added code in a separate thread
     def add_shellcode(shellcode)
       if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
         cli_print "Adding shellcode from #{add_code} to the payload"
@@ -144,8 +161,10 @@ module Msf
       if arch.blank?
         @arch = mod.arch.first
         cli_print "No Arch selected, selecting Arch: #{arch} from the payload"
+        datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return mod.arch.first
       elsif mod.arch.include? arch
+        datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return arch
       else
         return nil
@@ -157,7 +176,10 @@ module Msf
     # @param mod [Msf::Payload] The module class to choose a platform for
     # @return [Msf::Module::PlatformList] The selected platform list
     def choose_platform(mod)
+      # By default, platform_list will at least return Msf::Module::Platform
+      # if there is absolutely no pre-configured platform info at all
       chosen_platform = platform_list
+
       if chosen_platform.platforms.empty?
         chosen_platform = mod.platform
         cli_print "No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
@@ -165,6 +187,17 @@ module Msf
       elsif (chosen_platform & mod.platform).empty?
         chosen_platform = Msf::Module::PlatformList.new
       end
+
+      begin
+        platform_object = Msf::Module::Platform.find_platform(platform)
+      rescue ArgumentError
+        platform_object = nil
+      end
+
+      if mod.kind_of?(Msf::Payload::Generic) && mod.send(:module_info)['Platform'].empty? && platform_object
+        datastore['PLATFORM'] = platform
+      end
+
       chosen_platform
     end
 
@@ -178,23 +211,36 @@ module Msf
       encoder_list = get_encoders
       if encoder_list.empty?
         cli_print "No encoder or badchars specified, outputting raw payload"
-        shellcode
-      else
-        cli_print "Found #{encoder_list.count} compatible encoders"
-        encoder_list.each do |encoder_mod|
-          cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
-          begin
-            return run_encoder(encoder_mod, shellcode.dup)
-          rescue ::Msf::EncoderSpaceViolation => e
-            cli_print "#{encoder_mod.refname} failed with #{e.message}"
-            next
-          rescue ::Msf::EncodingError => e
-            cli_print "#{encoder_mod.refname} failed with #{e.message}"
-            next
-          end
+        return shellcode
+      end
+
+      results = {}
+
+      cli_print "Found #{encoder_list.count} compatible encoders"
+      encoder_list.each do |encoder_mod|
+        cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
+        begin
+          encoder_mod.available_space = @encoder_space unless @smallest
+          results[encoder_mod.refname] = run_encoder(encoder_mod, shellcode.dup)
+          break unless @smallest
+        rescue ::Msf::EncoderSpaceViolation => e
+          cli_print "#{encoder_mod.refname} failed with #{e.message}"
+          next
+        rescue ::Msf::EncodingError => e
+          cli_print "#{encoder_mod.refname} failed with #{e.message}"
+          next
         end
+      end
+
+      if results.keys.length == 0
         raise ::Msf::EncodingError, "No Encoder Succeeded"
       end
+
+      # Return the shortest encoding of the payload
+      chosen_encoder = results.keys.sort{|a,b| results[a].length <=> results[b].length}.first
+      cli_print "#{chosen_encoder} chosen with final size #{results[chosen_encoder].length}"
+
+      results[chosen_encoder]
     end
 
     # This returns a hash for the exe format generation of payloads
@@ -259,12 +305,15 @@ module Msf
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
       if platform == "java" or arch == "java" or payload.start_with? "java/"
-        generate_java_payload
+        p = generate_java_payload
+        cli_print "Payload size: #{p.length} bytes"
+        p
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
         encoded_payload = encode_payload(raw_payload)
         encoded_payload = prepend_nops(encoded_payload)
+        cli_print "Payload size: #{encoded_payload.length} bytes"
         format_payload(encoded_payload)
       end
     end
@@ -298,9 +347,11 @@ module Msf
         end
 
         payload_module.generate_simple(
-            'Format'   => 'raw',
-            'Options'  => datastore,
-            'Encoder'  => nil
+            'Format'      => 'raw',
+            'Options'     => datastore,
+            'Encoder'     => nil,
+            'MaxSize'     => @space,
+            'DisableNops' => true
         )
       end
     end
@@ -311,7 +362,7 @@ module Msf
     def get_encoders
       encoders = []
       if encoder.present?
-        # Allow comma seperated list of encoders so users can choose several
+        # Allow comma separated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
           e = framework.encoders.create(chosen_encoder)
           e.datastore.import_options_from_hash(datastore)
@@ -324,7 +375,7 @@ module Msf
           e.datastore.import_options_from_hash(datastore)
           encoders << e if e
         end
-        encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
+        encoders.select{ |my_encoder| my_encoder.rank != ManualRanking }.sort_by { |my_encoder| my_encoder.rank }.reverse
       else
         encoders
       end
@@ -373,7 +424,7 @@ module Msf
       iterations.times do |x|
         shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
         cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
-        if shellcode.length > space
+        if shellcode.length > encoder_space
           raise EncoderSpaceViolation, "encoder has made a buffer that is too big"
         end
       end

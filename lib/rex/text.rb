@@ -3,18 +3,8 @@ require 'digest/md5'
 require 'digest/sha1'
 require 'stringio'
 require 'cgi'
-require 'rex/exploitation/powershell'
-
-%W{ iconv zlib }.each do |libname|
-  begin
-    old_verbose = $VERBOSE
-    $VERBOSE = nil
-    require libname
-  rescue ::LoadError
-  ensure
-    $VERBOSE = old_verbose
-  end
-end
+require 'rex/powershell'
+require 'zlib'
 
 module Rex
 
@@ -42,8 +32,10 @@ module Text
   UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
   Numerals     = "0123456789"
-  Base32	     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-  Alpha	     = UpperAlpha + LowerAlpha
+  Base32       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+  Base64       = UpperAlpha + LowerAlpha + Numerals + '+/'
+  Base64Url    = UpperAlpha + LowerAlpha + Numerals + '-_'
+  Alpha        = UpperAlpha + LowerAlpha
   AlphaNumeric = Alpha + Numerals
   HighAscii    = [*(0x80 .. 0xff)].pack("C*")
   LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
@@ -53,7 +45,8 @@ module Text
 
   DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
 
-  # In case Iconv isn't loaded
+  # The Iconv translation table. The Iconv gem is deprecated in favor of
+  # String#encode, yet there is no encoding for EBCDIC. See #4525
   Iconv_EBCDIC = [
     "\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05",
     "%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13",
@@ -306,7 +299,7 @@ module Text
   # Converts a raw string to a powershell byte array
   #
   def self.to_powershell(str, name = "buf")
-    return Rex::Exploitation::Powershell::Script.to_byte_array(str, name)
+    return Rex::Powershell::Script.to_byte_array(str, name)
   end
 
   #
@@ -372,31 +365,26 @@ module Text
     return str
   end
 
+  # Converts US-ASCII to UTF-8, skipping over any characters which don't
+  # convert cleanly. This is a convenience method that wraps
+  # String#encode with non-raising default paramaters.
   #
-  # Converts ISO-8859-1 to UTF-8
-  #
+  # @param str [String] An encodable ASCII string
+  # @return [String] a UTF-8 equivalent
+  # @note This method will discard invalid characters
   def self.to_utf8(str)
-
-    if str.respond_to?(:encode)
-      # Skip over any bytes that fail to convert to UTF-8
-      return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
-    end
-
-    begin
-      Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
-    rescue
-      raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
-    end
+      str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
   end
 
-  #
-  # Converts ASCII to EBCDIC
-  #
   class IllegalSequence < ArgumentError; end
 
-  # A native implementation of the ASCII->EBCDIC table, used to fall back from using
-  # Iconv
-  def self.to_ebcdic_rex(str)
+  # A native implementation of the ASCII to EBCDIC conversion table, since
+  # EBCDIC isn't available to String#encode as of Ruby 2.1
+  #
+  # @param str [String] An encodable ASCII string
+  # @return [String] an EBCDIC encoded string
+  # @note This method will raise in the event of invalid characters
+  def self.to_ebcdic(str)
     new_str = []
     str.each_byte do |x|
       if Iconv_ASCII.index(x.chr)
@@ -408,9 +396,13 @@ module Text
     new_str.join
   end
 
-  # A native implementation of the EBCDIC->ASCII table, used to fall back from using
-  # Iconv
-  def self.from_ebcdic_rex(str)
+  # A native implementation of the EBCIDC to ASCII conversion table, since
+  # EBCDIC isn't available to String#encode as of Ruby 2.1
+  #
+  # @param str [String] an EBCDIC encoded string
+  # @return [String] An encodable ASCII string
+  # @note This method will raise in the event of invalid characters
+  def self.from_ebcdic(str)
     new_str = []
     str.each_byte do |x|
       if Iconv_EBCDIC.index(x.chr)
@@ -420,29 +412,6 @@ module Text
       end
     end
     new_str.join
-  end
-
-  def self.to_ebcdic(str)
-    begin
-      Iconv.iconv("EBCDIC-US", "ASCII", str).first
-    rescue ::Iconv::IllegalSequence => e
-      raise e
-    rescue
-      self.to_ebcdic_rex(str)
-    end
-  end
-
-  #
-  # Converts EBCIDC to ASCII
-  #
-  def self.from_ebcdic(str)
-    begin
-      Iconv.iconv("ASCII", "EBCDIC-US", str).first
-    rescue ::Iconv::IllegalSequence => e
-      raise e
-    rescue
-      self.from_ebcdic_rex(str)
-    end
   end
 
   #
@@ -1135,6 +1104,24 @@ module Text
   end
 
   #
+  # Base64 encoder (URL-safe RFC6920)
+  #
+  def self.encode_base64url(str, delim='')
+    encode_base64(str, delim).
+      tr('+/', '-_').
+      gsub('=', '')
+  end
+
+  #
+  # Base64 decoder (URL-safe RFC6920, ignores invalid characters)
+  #
+  def self.decode_base64url(str)
+    decode_base64(
+      str.gsub(/[^a-zA-Z0-9_\-]/, '').
+      tr('-_', '+/'))
+  end
+
+  #
   # Raw MD5 digest of the supplied string
   #
   def self.md5_raw(str)
@@ -1271,6 +1258,18 @@ module Text
   def self.rand_text_highascii(len, bad='')
     foo = []
     foo += (0x80 .. 0xff).map{ |c| c.chr }
+    rand_base(len, bad, *foo )
+  end
+
+  # Generate random bytes of base64 data
+  def self.rand_text_base64(len, bad='')
+    foo = Base64.unpack('C*').map{ |c| c.chr }
+    rand_base(len, bad, *foo )
+  end
+
+  # Generate random bytes of base64url data
+  def self.rand_text_base64url(len, bad='')
+    foo = Base64Url.unpack('C*').map{ |c| c.chr }
     rand_base(len, bad, *foo )
   end
 
@@ -1643,6 +1642,19 @@ module Text
     mail_address << Rex::Text.rand_hostname
   end
 
+  #
+  # Calculate the block API hash for the given module/function
+  #
+  # @param mod [String] The name of the module containing the target function.
+  # @param fun [String] The name of the function.
+  #
+  # @return [String] The hash of the mod/fun pair in string format
+  def self.block_api_hash(mod, fun)
+    unicode_mod = (mod.upcase + "\x00").unpack('C*').pack('v*')
+    mod_hash = self.ror13_hash(unicode_mod)
+    fun_hash = self.ror13_hash(fun + "\x00")
+    "0x#{(mod_hash + fun_hash & 0xFFFFFFFF).to_s(16)}"
+  end
 
   #
   # Calculate the ROR13 hash of a given string

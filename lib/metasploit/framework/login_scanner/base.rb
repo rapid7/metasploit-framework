@@ -220,8 +220,8 @@ module Metasploit
 
               if result.success?
                 consecutive_error_count = 0
-                break if stop_on_success
                 successful_users << credential.public
+                break if stop_on_success
               else
                 if result.status == Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
                   consecutive_error_count += 1

@@ -188,8 +188,12 @@ module Net # :nodoc:
             @num = type
             @str = Types.invert[type]
           else
+<<<<<<< HEAD
             @num = type
             @str = "TYPE#{type}"
+=======
+            raise TypeArgumentError, "Unknown type number #{type}"
+>>>>>>> master
           end
         end
 

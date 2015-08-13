@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Encoder::Xor
     # add 4 number of passes  for the space reserved for the key, at the end of the decoder stub
     # (see commented source)
     number_of_passes=state.buf.length+4
-    raise InvalidPayloadSizeException.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 32766
+    raise EncodingError.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 32766
 
     # 16-bits not (again, see also commented source)
     reg_14 = (number_of_passes+1)^0xFFFF

@@ -45,6 +45,7 @@ class Plugin::MSGRPC < Msf::Plugin
     user = opts['User'] || "msf"
     pass = opts['Pass'] || ::Rex::Text.rand_text_alphanumeric(8)
     uri  = opts['URI'] || "/api"
+    timeout = opts['TokenTimeout'] || 300
 
     print_status("MSGRPC Service:  #{host}:#{port} #{ssl ? " (SSL)" : ""}")
     print_status("MSGRPC Username: #{user}")
@@ -56,14 +57,15 @@ class Plugin::MSGRPC < Msf::Plugin
       :ssl    => ssl,
       :cert   => cert,
       :uri    => uri,
-      :tokens => { }
+      :tokens => { },
+      :token_timeout => timeout
     })
 
     self.server.add_user(user, pass)
 
     # If the run in foreground flag is not specified, then go ahead and fire
     # it off in a worker thread.
-    unless opts['RunInForeground']
+    unless opts['RunInForeground'] == true
       # Store a handle to the thread so we can kill it during
       # cleanup when we get unloaded.
       self.thread = Thread.new { run }

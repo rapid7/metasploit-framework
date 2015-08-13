@@ -87,7 +87,7 @@ rpc.login(opts['User'], opts['Pass'])
 
 puts "[*] The 'rpc' object holds the RPC client interface"
 puts "[*] Use rpc.call('group.command') to make RPC calls"
-puts
+puts ''
 
 while(ARGV.shift)
 end

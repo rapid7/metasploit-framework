@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          '==[ Alligator Security Team ]==',
           'Tiago Ferreira <tiago.ccna[at]gmail.com>'
         ],
       'DisclosureDate' => 'Oct 08 2010',

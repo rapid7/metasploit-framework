@@ -41,9 +41,6 @@ module Net; module SSH; module Transport
     # version.
     attr_reader :server_version
 
-    # Internal compatibility flags (hacks/tweaks/etc)
-    attr_reader :compat_flags
-
     # The Algorithms instance used to perform key exchanges.
     attr_reader :algorithms
 
@@ -96,13 +93,6 @@ module Net; module SSH; module Transport
       @host_key_verifier = select_host_key_verifier(options[:paranoid])
 
       @server_version = ServerVersion.new(socket, logger)
-
-      # Compatibility settings
-      ver = @server_version.version
-      @compat_flags = 0
-      if ver =~ /OpenSSH_2\.[0-3]/ or ver =~ /OpenSSH_2\.5\.[0-2]/
-        @compat_flags |= COMPAT_OLD_DHGEX
-      end
 
       @algorithms = Algorithms.new(self, options)
       wait { algorithms.initialized? }

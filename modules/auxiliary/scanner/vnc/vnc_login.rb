@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
           This module will test a VNC server on a range of machines and
         report successful logins. Currently it supports RFB protocol
-        version 3.3, 3.7, and 3.8 using the VNC challenge response
+        version 3.3, 3.7, 3.8 and 4.001 using the VNC challenge response
         authentication method.
       },
       'Author'      =>
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
 
-        #We need to set the following options to make sure BLANK_PASSWORDS functions properly
+        # We need to set the following options to make sure BLANK_PASSWORDS functions properly
         OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
         OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
       ], self.class)

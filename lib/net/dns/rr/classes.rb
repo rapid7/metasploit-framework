@@ -110,8 +110,12 @@ module Net # :nodoc:
             @num = cls
             @str = Classes.invert[cls]
           else
+<<<<<<< HEAD
             @num = cls
             @str = "CLASS#{cls}"
+=======
+            raise ClassesArgumentError, "Unknown cls number #{cls}"
+>>>>>>> master
           end
         end
 

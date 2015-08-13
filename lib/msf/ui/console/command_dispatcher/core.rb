@@ -40,7 +40,6 @@ class Core
     "-l" => [ false, "List all active sessions"                       ],
     "-v" => [ false, "List verbose fields"                            ],
     "-q" => [ false, "Quiet mode"                                     ],
-    "-d" => [ true,  "Detach an interactive session"                  ],
     "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
@@ -93,6 +92,10 @@ class Core
 
   @@go_pro_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ])
+
+  @@irb_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-e" => [ true,  "Expression to evaluate."                        ])
 
   # The list of data store elements that cannot be set when in defanged
   # mode.
@@ -243,16 +246,16 @@ class Core
 
     args.each do |res|
       good_res = nil
-      if (File.file? res and File.readable? res)
+      if ::File.exists?(res)
         good_res = res
       elsif
         # let's check to see if it's in the scripts/resource dir (like when tab completed)
         [
-          ::Msf::Config.script_directory + File::SEPARATOR + "resource",
-          ::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+          ::Msf::Config.script_directory + ::File::SEPARATOR + "resource",
+          ::Msf::Config.user_script_directory + ::File::SEPARATOR + "resource"
         ].each do |dir|
-          res_path = dir + File::SEPARATOR + res
-          if (File.file?(res_path) and File.readable?(res_path))
+          res_path = dir + ::File::SEPARATOR + res
+          if ::File.exists?(res_path)
             good_res = res_path
             break
           end
@@ -415,7 +418,7 @@ class Core
     avdwarn = nil
 
     banner_trailers = {
-      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Metasploit::Framework::Core::GEM_VERSION} api:#{Metasploit::Framework::API::GEM_VERSION}]%clr",
+      :version     => "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
       :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
       :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
       :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
@@ -629,6 +632,8 @@ class Core
       n2c.kill
     end
 
+    c2n.join
+    n2c.join
 
     sock.close rescue nil
     infile.close if infile
@@ -757,8 +762,8 @@ class Core
   def cmd_irb_help
     print_line "Usage: irb"
     print_line
-    print_line "Drop into an interactive Ruby environment"
-    print_line
+    print_line "Execute commands in a Ruby environment"
+    print @@irb_opts.usage
   end
 
   #
@@ -767,17 +772,34 @@ class Core
   def cmd_irb(*args)
     defanged?
 
-    print_status("Starting IRB shell...\n")
+    expressions = []
 
-    begin
-      Rex::Ui::Text::IrbShell.new(binding).run
-    rescue
-      print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        cmd_irb_help
+        return false
+      end
     end
 
-    # Reset tab completion
-    if (driver.input.supports_readline)
-      driver.input.reset_tab_completion
+    if expressions.empty?
+      print_status("Starting IRB shell...\n")
+
+      begin
+        Rex::Ui::Text::IrbShell.new(binding).run
+      rescue
+        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
+      end
+
+      # Reset tab completion
+      if (driver.input.supports_readline)
+        driver.input.reset_tab_completion
+      end
+    else
+      expressions.each { |expression| eval(expression, binding) }
     end
   end
 
@@ -806,7 +828,7 @@ class Core
     end
 
     # This is not respecting the Protected access control, but this seems to be the only way
-    # to rename a job. If you know a more appropriate way, patches accepted. 
+    # to rename a job. If you know a more appropriate way, patches accepted.
     framework.jobs[job_id].send(:name=, job_name)
     print_status("Job #{job_id} updated")
 
@@ -1677,9 +1699,6 @@ class Core
         sid = val || false
       when "-K"
         method = 'killall'
-      when "-d"
-        method = 'detach'
-        sid = val || false
       # Run a script on all meterpreter sessions
       when "-s"
         unless script
@@ -1770,13 +1789,15 @@ class Core
               rescue Rex::TimeoutError
                 print_error("Operation timed out")
               end
-            elsif session.type == 'shell'
+            elsif session.type == 'shell' || session.type == 'powershell'
               output = session.shell_command(cmd)
               print_line(output) if output
             end
           ensure
             # Restore timeout for each session
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
           # If the session isn't a meterpreter or shell type, it
           # could be a VNC session (which can't run commands) or
@@ -1797,7 +1818,9 @@ class Core
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1815,25 +1838,9 @@ class Core
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
-          end
-        end
-      end
-    when 'detach'
-      print_status("Detaching the following session(s): #{session_list.join(', ')}")
-      session_list.each do |sess_id|
-        session = verify_session(sess_id)
-        # if session is interactive, it's detachable
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
-          end
-          print_status("Detaching session #{sess_id}")
-          begin
-            session.detach
-          ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
       end
@@ -1851,7 +1858,9 @@ class Core
           self.active_session = nil
           driver.input.reset_tab_completion if driver.input.supports_readline
         ensure
-          session.response_timeout = last_known_timeout if last_known_timeout
+          if session.respond_to?(:response_timeout) && last_known_timeout
+            session.response_timeout = last_known_timeout
+          end
         end
       end
     when 'scriptall'
@@ -1889,7 +1898,9 @@ class Core
               end
             end
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1915,7 +1926,9 @@ class Core
               next
             end
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
 
@@ -1965,7 +1978,7 @@ class Core
     end
 
     case words[-1]
-    when "-i", "-k", "-d", "-u"
+    when "-i", "-k", "-u"
       return framework.sessions.keys.map { |k| k.to_s }
 
     when "-c"
@@ -2321,7 +2334,7 @@ class Core
     # Walk the plugins array
     framework.plugins.each { |plugin|
       # Unload the plugin if it matches the name we're searching for
-      if (plugin.name == args[0])
+      if (plugin.name.downcase == args[0].downcase)
         print("Unloading plugin #{args[0]}...")
         framework.plugins.unload(plugin)
         print_line("unloaded.")
@@ -2973,11 +2986,18 @@ class Core
           res << addr
         end
       when 'LHOST'
-        rh = self.active_module.datastore["RHOST"]
+        rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
         else
-          res << Rex::Socket.source_address()
+          res << Rex::Socket.source_address
+          # getifaddrs was introduced in 2.1.2
+          if Socket.respond_to?(:getifaddrs)
+            ifaddrs = Socket.getifaddrs.find_all { |ifaddr|
+              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) && ifaddr.addr.ip?
+            }
+            res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+          end
         end
       else
       end

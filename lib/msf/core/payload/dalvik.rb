@@ -17,7 +17,7 @@ module Msf::Payload::Dalvik
   #
   # We could compile the .class files with dx here
   #
-  def generate_stage
+  def generate_stage(opts={})
   end
 
   #
@@ -29,6 +29,16 @@ module Msf::Payload::Dalvik
 
   def java_string(str)
     [str.length].pack("N") + str
+  end
+
+  def apply_options(classes)
+    timeouts = [
+      datastore['SessionExpirationTimeout'].to_s,
+      datastore['SessionCommunicationTimeout'].to_s,
+      datastore['SessionRetryTotal'].to_s,
+      datastore['SessionRetryWait'].to_s
+    ].join('-')
+    string_sub(classes, 'TTTT                                ', 'TTTT' + timeouts)
   end
 
   def string_sub(data, placeholder="", input="")
@@ -56,7 +66,7 @@ module Msf::Payload::Dalvik
     #
     # If you plan to publish your application(s) on Google Play, note
     # that a validity period ending after 22 October 2033 is a
-    # requirement. You can not upload an application if it is signed
+    # requirement. You cannot upload an application if it is signed
     # with a key whose validity expires before that date.
     # """
     cert.not_after = cert.not_before + 3600*24*365*20 # 20 years

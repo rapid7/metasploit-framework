@@ -98,10 +98,10 @@ class Metasploit3 < Msf::Auxiliary
       data = http.get(20)
 
       if data =~ /DVR WebViewer/i
-        #Confirmed ActiveX control over HTTP, display the control name and version
-        #Report HTTP service info since there is a confirmed IE ActiveX control
-        #Code base example:
-        #codebase="CtrWeb.cab#version=1,1,5,4"
+        # Confirmed ActiveX control over HTTP, display the control name and version
+        # Report HTTP service info since there is a confirmed IE ActiveX control
+        # Code base example:
+        # codebase="CtrWeb.cab#version=1,1,5,4"
         if data.match(/codebase="(\w{1,16})\.(\w{1,3}).version=(\d{1,3},\d{1,3},\d{1,3},\d{1,3})/)
           v   = "#{$1}.#{$2} v#{$3}"
         else
@@ -118,8 +118,8 @@ class Metasploit3 < Msf::Auxiliary
           :info => "IE ActiveX CCTV DVR Control (#{v})"
         )
       else
-        #An HTTP server is listening on HTTP_PORT, however, does not appear to be
-        #the ActiveX control
+        # An HTTP server is listening on HTTP_PORT, however, does not appear to be
+        # the ActiveX control
         print_status("An unknown HTTP interface was found on #{datastore['HTTP_PORT']}/TCP")
       end
 
@@ -130,20 +130,46 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'cctv_dvr',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_login(user=nil, pass=nil)
     vprint_status("#{rhost} - Trying username:'#{user}' with password:'#{pass}'")
 
     fill_length1 = 64 - user.length
 
-    #Check if user name length is too long for submission (exceeds packet length)
+    # Check if user name length is too long for submission (exceeds packet length)
     if fill_length1 < 1
       return
     end
 
-    #Build the authentication packet starting here
+    # Build the authentication packet starting here
     data = "\x00\x01\x00\x00\x80\x00\x00\x00" + user + ("\x00" * fill_length1)
 
-    #Check if password length is too long for submission (exceeds packet length)
+    # Check if password length is too long for submission (exceeds packet length)
     fill_length2 = 64 - pass.length
     if fill_length2 < 1
       return
@@ -164,14 +190,14 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    #Analyze the response
+    # Analyze the response
     if res == "\x00\x01\x03\x01\x00\x00\x00\x00"  #Failed Password
       vprint_error("#{rhost}:#{rport}  Failed login as: '#{user}'")
       return
 
     elsif res =="\x00\x01\x02\x01\x00\x00\x00\x00" #Invalid User
       vprint_error("#{rhost}:#{rport}  Invalid user: '#{user}'")
-      #Stop attempting passwords for this user since it doesn't exist
+      # Stop attempting passwords for this user since it doesn't exist
       return :skip_user
 
     elsif res =="\x00\x01\x05\x01\x00\x00\x00\x00" or res =="\x00\x01\x01\x01\x00\x00\x00\x00"
@@ -179,16 +205,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Report valid credentials under the CCTV DVR admin port (5920/TCP).
       # This is a proprietary protocol.
-      report_auth_info(
-        :host         => rhost,
-        :port         => rport,
-        :sname        => 'cctv_dvr',
-        :user         => user,
-        :pass         => pass,
-        :source_type  => "user_supplied",
-        :duplicate_ok => false,
-        :active       => true
-      )
+      report_cred(ip: rhost, port: rport, user:user, password: pass)
 
       @valid_hosts << rhost
       return :next_user

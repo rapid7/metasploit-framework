@@ -21,10 +21,6 @@ class Metasploit3 < Msf::Auxiliary
           This module will check the certificate of the specified web servers
         to ensure the subject and issuer match the supplied pattern and that the certificate
         is not expired.
-
-        Note:  Be sure to check your expression if using msfcli, shells tend to not like certain
-        things and will strip/interpret them (= is a perfect example). It is better to use in
-        console.
       }
     )
 
