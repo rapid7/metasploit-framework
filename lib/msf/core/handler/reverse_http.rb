@@ -98,7 +98,7 @@ module ReverseHttp
       callback_host = req.headers['Host']
     end
 
-    # Override these host and port as appropriate
+    # Override the host and port as appropriate
     if datastore['OverrideRequestHost'] || callback_host.nil?
       callback_name = datastore['OverrideLHOST'] || datastore['LHOST']
       callback_port = datastore['OverrideLPORT'] || datastore['LPORT']
