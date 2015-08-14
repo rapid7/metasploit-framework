@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-
     # Check to ensure that UNIX sockets are supported
     begin
       ::UNIXServer
@@ -88,9 +87,9 @@ class Metasploit3 < Msf::Post
           response = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
           if response[:success]
             begin
-                s.send response[:blob], 0
-            rescue
-                break
+              s.send response[:blob], 0
+          rescue
+            break
             end
             vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Size='#{response[:blob].size}' Error='#{translate_error(response[:error])}')")
           else
@@ -106,28 +105,28 @@ class Metasploit3 < Msf::Post
     ::File.delete(@sockpath) if ::File.exist?(@sockpath) if @sockpath
   end
 
-  def translate_error(errnum) 
+  def translate_error(errnum)
     errstring = "#{errnum}: "
     case errnum
     when 0
-        errstring += "No error"
+      errstring += "No error"
     when 1
-        errstring += "The Pageant request was not processed."
+      errstring += "The Pageant request was not processed."
     when 2
-        errstring += "Unable to obtain IPC memory address."
+      errstring += "Unable to obtain IPC memory address."
     when 3
-        errstring += "Unable to allocate memory for Pageant<-->Meterpreter IPC."
+      errstring += "Unable to allocate memory for Pageant<-->Meterpreter IPC."
     when 4
-        errstring += "Unable to allocate memory buffer."
-    when 5  
-        errstring += "Unable to build Pageant request string."
+      errstring += "Unable to allocate memory buffer."
+    when 5
+      errstring += "Unable to build Pageant request string."
     when 6
-        errstring += "Pageant not found."
+      errstring += "Pageant not found."
     when 7
-        errstring += "Not forwarded."
+      errstring += "Not forwarded."
     else
-        errstring += "Unknown."
+      errstring += "Unknown."
     end
-    return errstring
+    errstring
   end
 end
