@@ -14,7 +14,7 @@ module Util
 
 class PayloadCachedSize
 
-  @opts = {
+  OPTS = {
     'Format'      => 'raw',
     'Options'     => {
       'CPORT' => 4444,
@@ -81,7 +81,7 @@ class PayloadCachedSize
   # @return [Fixnum]
   def self.compute_cached_size(mod)
     return ":dynamic" if is_dynamic?(mod)
-    return mod.generate_simple(@opts).size
+    return mod.generate_simple(OPTS).size
   end
 
   # Determines whether a payload generates a static sized output
@@ -92,7 +92,7 @@ class PayloadCachedSize
   # @return [Fixnum]
   def self.is_dynamic?(mod, generation_count=5)
     [*(1..generation_count)].map{|x|
-      mod.generate_simple(@opts).size}.uniq.length != 1
+      mod.generate_simple(OPTS).size}.uniq.length != 1
   end
 
   # Determines whether a payload's CachedSize is up to date
@@ -102,7 +102,7 @@ class PayloadCachedSize
   def self.is_cached_size_accurate?(mod)
     return true if mod.dynamic_size? && is_dynamic?(mod)
     return false if mod.cached_size.nil?
-    mod.cached_size == mod.generate_simple(@opts).size
+    mod.cached_size == mod.generate_simple(OPTS).size
   end
 
 end

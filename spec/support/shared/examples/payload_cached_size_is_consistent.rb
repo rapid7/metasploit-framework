@@ -86,9 +86,6 @@ shared_examples_for 'payload cached size is consistent' do |options|
 
   include_context 'Msf::Simple::Framework#modules loading'
 
-  datastore = {
-  }
-
   opts = {
     'Format'      => 'raw',
     'Options'     => {
