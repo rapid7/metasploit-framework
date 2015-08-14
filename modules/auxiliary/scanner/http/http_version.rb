@@ -29,9 +29,12 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     register_options([
-      OptString.new('HTTP_METHOD', [ true, 'HTTP Method to use', 'GET']),
-      OptString.new('PROTOCOL', [ false, 'Protocol to use', 'HTTP']),
-      OptString.new('TARGETURI', [ true, 'The URI to use', '/'])
+      OptString.new('TARGETURI', [true, 'The URI to use', '/'])
+    ])
+
+    register_advanced_options([
+      OptString.new('HTTP_METHOD', [true, 'HTTP Method to use', 'GET']),
+      OptString.new('PROTOCOL', [false, 'Protocol to use', 'HTTP'])
     ])
   end
 
