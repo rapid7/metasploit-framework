@@ -24,7 +24,7 @@ module Rex
     # Ask Google's Maps API for the location of a given set of BSSIDs (MAC
     # addresses of access points), ESSIDs (AP names), and signal strengths.
     def fetch!
-      @uri.query << @wlan_list.join("&wifi=")
+      @uri.query << @wlan_list.take(10).join("&wifi=")
       request = Net::HTTP::Get.new(@uri.request_uri)
       http = Net::HTTP.new(@uri.host, @uri.port)
       http.use_ssl = true
@@ -36,7 +36,9 @@ module Rex
         self.longitude = results["location"]["lng"]
         self.accuracy = results["accuracy"]
       else
-        fail "Failure connecting to Google for location lookup."
+        msg = "Failure connecting to Google for location lookup."
+        msg += " Code #{response.code} for query #{@uri.to_s}" if response
+        fail msg
       end
     end
 
