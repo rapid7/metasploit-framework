@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    vprint_line("")
+    vprint_line
     vprint_line(res.body)
 
     f = ::File.basename(fname)

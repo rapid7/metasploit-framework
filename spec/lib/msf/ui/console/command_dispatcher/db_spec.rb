@@ -61,7 +61,6 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :each_host_range_chunk }
   it { is_expected.to respond_to :make_sortable }
   it { is_expected.to respond_to :name }
-  it { is_expected.to respond_to :report_store_local }
   it { is_expected.to respond_to :set_rhosts_from_addrs }
 
   describe "#cmd_creds" do
@@ -436,6 +435,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -h,--help                 Show this help information",
           "  -R,--rhosts               Set RHOSTS from the results of the search",
           "  -S,--search               Regular expression to match for search",
+          "  -o,--output               Save the notes to a csv file",
           "  --sort <field1,field2>    Fields to sort by (case sensitive)",
           "Examples:",
           "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",

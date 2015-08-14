@@ -35,7 +35,7 @@ module Metasploit3
       ], self.class)
   end
 
-  def generate_stage
+  def generate_stage(opts={})
     cmd     = datastore['CMD'] || ''
 
     payload =

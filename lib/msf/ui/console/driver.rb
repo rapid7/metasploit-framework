@@ -547,7 +547,7 @@ class Driver < Msf::Ui::Driver
 
     if $msf_spinner_thread
       $msf_spinner_thread.kill
-      $stderr.print "\n"
+      $stderr.print "\r" + (" " * 50) + "\n"
     end
 
     run_single("banner") unless opts['DisableBanner']
@@ -570,6 +570,8 @@ class Driver < Msf::Ui::Driver
       when "payload"
 
         if (framework and framework.payloads.valid?(val) == false)
+          return false
+        elsif active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
           return false
         elsif (active_module)
           active_module.datastore.clear_non_user_defined

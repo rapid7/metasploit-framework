@@ -14,8 +14,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'InfluxDB Enum Utility',
       'Description'    => %q{
-        This module enumerates databases on InfluxDB using the REST API
-        (using default authentication - root:root).
+        This module enumerates databases on InfluxDB using the REST API using the
+        default authentication of root:root.
       },
       'References'     =>
         [

