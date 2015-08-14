@@ -22,6 +22,10 @@ class Metasploit3 < Msf::Auxiliary
         inject cross-domain Javascript (UXSS), silently install a browser
         extension, collect user information, steal the cookie database,
         and steal arbitrary local files.
+
+        When opened on the target machine the webarchive file must not have the
+        quarantine attribute set, as this forces the webarchive to execute in a
+        sandbox.
       },
       'License'        => MSF_LICENSE,
       'Author'         => 'joev',
