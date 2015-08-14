@@ -314,92 +314,100 @@ module PacketDispatcher
 
     # Spawn a new thread that monitors the socket
     self.dispatcher_thread = Rex::ThreadFactory.spawn("MeterpreterDispatcher", false) do
+      base_sleep = 0.001
+      max_sleep = 1
+      attempts = 0
       begin
-      # Whether we're finished or not is determined by the receiver
-      # thread above.
-      while(not @finish)
-        if(@pqueue.empty?)
-          ::IO.select(nil, nil, nil, 0.10)
-          next
-        end
+        # Whether we're finished or not is determined by the receiver
+        # thread above.
+        while ! @finish
+          attempts += 1
+          # Exponential back-off on sleep times.
+          sleep = [base_sleep * (2 ** (attempts - 1)), max_sleep].min
 
-        incomplete = []
-        backlog    = []
-
-        while(@pqueue.length > 0)
-          backlog << @pqueue.shift
-        end
-
-        #
-        # Prioritize message processing here
-        # 1. Close should always be processed at the end
-        # 2. Command responses always before channel data
-        #
-
-        tmp_command = []
-        tmp_channel = []
-        tmp_close   = []
-        backlog.each do |pkt|
-          if(pkt.response?)
-            tmp_command << pkt
+          if @pqueue.empty?
+            ::IO.select(nil, nil, nil, sleep)
             next
           end
-          if(pkt.method == "core_channel_close")
-            tmp_close << pkt
-            next
+
+          # Reset backoff sleep delay
+          attempts = 0
+
+          incomplete = []
+          backlog    = []
+
+          while(@pqueue.length > 0)
+            backlog << @pqueue.shift
           end
-          tmp_channel << pkt
-        end
 
-        backlog = []
-        backlog.push(*tmp_command)
-        backlog.push(*tmp_channel)
-        backlog.push(*tmp_close)
+          #
+          # Prioritize message processing here
+          # 1. Close should always be processed at the end
+          # 2. Command responses always before channel data
+          #
+
+          tmp_command = []
+          tmp_channel = []
+          tmp_close   = []
+          backlog.each do |pkt|
+            if(pkt.response?)
+              tmp_command << pkt
+              next
+            end
+            if(pkt.method == "core_channel_close")
+              tmp_close << pkt
+              next
+            end
+            tmp_channel << pkt
+          end
+
+          backlog = []
+          backlog.push(*tmp_command)
+          backlog.push(*tmp_channel)
+          backlog.push(*tmp_close)
 
 
-        #
-        # Process the message queue
-        #
+          #
+          # Process the message queue
+          #
 
-        backlog.each do |pkt|
-
-          begin
-          if ! dispatch_inbound_packet(pkt)
-            # Keep Packets in the receive queue until a handler is registered
-            # for them. Packets will live in the receive queue for up to
-            # PacketTimeout, after which they will be dropped.
-            #
-            # A common reason why there would not immediately be a handler for
-            # a received Packet is in channels, where a connection may
-            # open and receive data before anything has asked to read.
-            if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
-              incomplete << pkt
+          backlog.each do |pkt|
+            begin
+              if ! dispatch_inbound_packet(pkt)
+                # Keep Packets in the receive queue until a handler is registered
+                # for them. Packets will live in the receive queue for up to
+                # PacketTimeout, after which they will be dropped.
+                #
+                # A common reason why there would not immediately be a handler for
+                # a received Packet is in channels, where a connection may
+                # open and receive data before anything has asked to read.
+                if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
+                  incomplete << pkt
+                end
+              end
+            rescue ::Exception => e
+              dlog("Dispatching exception with packet #{pkt}: #{e} #{e.backtrace}", 'meterpreter', LEV_1)
             end
           end
 
-          rescue ::Exception => e
-            dlog("Dispatching exception with packet #{pkt}: #{e} #{e.backtrace}", 'meterpreter', LEV_1)
+          # If the backlog and incomplete arrays are the same, it means
+          # dispatch_inbound_packet wasn't able to handle any of the
+          # packets. When that's the case, we can get into a situation
+          # where @pqueue is not empty and, since nothing else bounds this
+          # loop, we spin CPU trying to handle packets that can't be
+          # handled. Sleep here to treat that situation as though the
+          # queue is empty.
+          if (backlog.length > 0 && backlog.length == incomplete.length)
+            ::IO.select(nil, nil, nil, 0.001)
+          end
+
+          @pqueue.unshift(*incomplete)
+
+          if(@pqueue.length > 100)
+            dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{@pqueue[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
+            @pqueue = @pqueue[25 .. 100]
           end
         end
-
-        # If the backlog and incomplete arrays are the same, it means
-        # dispatch_inbound_packet wasn't able to handle any of the
-        # packets. When that's the case, we can get into a situation
-        # where @pqueue is not empty and, since nothing else bounds this
-        # loop, we spin CPU trying to handle packets that can't be
-        # handled. Sleep here to treat that situation as though the
-        # queue is empty.
-        if (backlog.length > 0 && backlog.length == incomplete.length)
-          ::IO.select(nil, nil, nil, 0.10)
-        end
-
-        @pqueue.unshift(*incomplete)
-
-        if(@pqueue.length > 100)
-          dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{@pqueue[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
-          @pqueue = @pqueue[25 .. 100]
-        end
-      end
       rescue ::Exception => e
         dlog("Exception caught in monitor_socket dispatcher: #{e.class} #{e} #{e.backtrace}", 'meterpreter', LEV_1)
       ensure
