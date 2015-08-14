@@ -10,7 +10,6 @@ module Rex
   #   g.fetch!
   #   puts g, g.google_maps_url
   class GoogleGeolocation
-
     GOOGLE_API_URI = "https://maps.googleapis.com/maps/api/browserlocation/json?browser=firefox&sensor=true&"
 
     attr_accessor :accuracy
@@ -27,7 +26,7 @@ module Rex
     def fetch!
       @uri.query << @wlan_list.join("&wifi=")
       request = Net::HTTP::Get.new(@uri.request_uri)
-      http = Net::HTTP::new(@uri.host,@uri.port)
+      http = Net::HTTP.new(@uri.host, @uri.port)
       http.use_ssl = true
       response = http.request(request)
 
@@ -37,7 +36,7 @@ module Rex
         self.longitude = results["location"]["lng"]
         self.accuracy = results["accuracy"]
       else
-        raise "Failure connecting to Google for location lookup."
+        fail "Failure connecting to Google for location lookup."
       end
     end
 
@@ -61,22 +60,5 @@ module Rex
     def to_s
       "Google indicates the device is within #{accuracy} meters of #{latitude},#{longitude}."
     end
-
   end
-end
-
-if $0 == __FILE__
-  if ARGV.empty?
-    $stderr.puts("Usage: #{$0} <mac> [mac] ...")
-    $stderr.puts("Ask Google for the location of the given set of BSSIDs")
-    $stderr.puts
-    $stderr.puts("Example: iwlist sc 2>/dev/null|awk '/Address/{print $5}'|xargs #{$0}")
-    exit(1)
-  end
-  g = Rex::GoogleGeolocation.new
-  ARGV.each do |mac|
-    g.add_wlan(mac, nil, -83)
-  end
-  g.fetch!
-  puts g, g.google_maps_url
 end
