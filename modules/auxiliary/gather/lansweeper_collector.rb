@@ -6,14 +6,16 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Lansweeper Collector',
+      'Name' => 'Lansweeper Credential Collector',
       'Description' => %q(
-        Lansweeper stores the credentials it uses to scan the computers in its MSSQL database.
-        The passwords are XTea-encrypted with a 68 character long key, which first 8 character
-        are stored with the password in the database, and the other 60 is static. Lansweeper by
-        default creates an MSSQL user "lansweeperuser" whose password is "mysecretpassword0*",
-        and stores its data in a database called "lansweeperdb". This module will query the MSSQL
-        database for the credentials.
+        Lansweeper stores the credentials it uses to scan the computers
+        in its Microsoft SQL database.  The passwords are XTea-encrypted with a
+        68 character long key, in which the first 8 characters are stored with
+        the password in the database and the other 60 is static. Lansweeper, by
+        default, creates an MSSQL user "lansweeperuser" with the password is
+        "mysecretpassword0*", and stores its data in a database called
+        "lansweeperdb". This module will query the MSSQL database for the
+        credentials.
       ),
       'Author' =>
         [
