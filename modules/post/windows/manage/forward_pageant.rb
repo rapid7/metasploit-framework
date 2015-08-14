@@ -92,9 +92,9 @@ class Metasploit3 < Msf::Post
             rescue
                 break
             end
-            vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Size='#{response[:blob].size}' Error='#{response[:error]}')")
+            vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Size='#{response[:blob].size}' Error='#{translate_error(response[:error])}')")
           else
-            print_error("PageantJacker: Unsuccessful response received (#{response[:error]})")
+            print_error("PageantJacker: Unsuccessful response received (#{translate_error(response[:error])})")
           end
         end
       end
@@ -106,4 +106,28 @@ class Metasploit3 < Msf::Post
     ::File.delete(@sockpath) if ::File.exist?(@sockpath) if @sockpath
   end
 
+  def translate_error(errnum) 
+    errstring = "#{errnum}: "
+    case errnum
+    when 0
+        errstring += "No error"
+    when 1
+        errstring += "The Pageant request was not processed."
+    when 2
+        errstring += "Unable to obtain IPC memory address."
+    when 3
+        errstring += "Unable to allocate memory for Pageant<-->Meterpreter IPC."
+    when 4
+        errstring += "Unable to allocate memory buffer."
+    when 5  
+        errstring += "Unable to build Pageant request string."
+    when 6
+        errstring += "Pageant not found."
+    when 7
+        errstring += "Not forwarded."
+    else
+        errstring += "Unknown."
+    end
+    return errstring
+  end
 end
