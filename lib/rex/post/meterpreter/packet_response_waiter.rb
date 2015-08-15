@@ -57,22 +57,24 @@ class PacketResponseWaiter
   # If the interval is -1 we can wait forever.
   #
   def wait(interval)
-    if( interval and interval == -1 )
-      while(not self.done)
-        ::IO.select(nil, nil, nil, 0.1)
+    if interval && interval < 0
+      while !self.done
+        ::IO.select(nil, nil, nil, 0.001)
       end
     else
       begin
-        Timeout.timeout(interval) {
-          while(not self.done)
-            ::IO.select(nil, nil, nil, 0.1)
+        Timeout.timeout(interval) do
+          while !self.done
+            ::IO.select(nil, nil, nil, 0.001)
           end
-        }
+        end
       rescue Timeout::Error
         self.response = nil
       end
     end
-    return self.response
+
+    # TODO Doesn't look like the return value is used? See PacketDispatcher.send_packet_wait_response
+    self.response
   end
 
   attr_accessor :rid, :done, :response # :nodoc:
