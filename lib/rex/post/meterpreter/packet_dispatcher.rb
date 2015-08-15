@@ -455,15 +455,16 @@ module PacketDispatcher
   # if anyone.
   #
   def notify_response_waiter(response)
+    handled = false
     self.waiters.each() { |waiter|
       if (waiter.waiting_for?(response))
         waiter.notify(response)
-
         remove_response_waiter(waiter)
-
+        handled = true
         break
       end
     }
+    return handled
   end
 
   #
