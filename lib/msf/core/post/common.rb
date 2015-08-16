@@ -169,6 +169,7 @@ module Msf::Post::Common
       # through /bin/sh, solving all the pesky parsing troubles, without
       # affecting Windows.
       #
+      start = Time.now.to_i
       if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
         args = ""
       end
@@ -176,9 +177,17 @@ module Msf::Post::Common
       session.response_timeout = time_out
       process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
       o = ""
+      # Wait up to time_out seconds for the first bytes to arrive
       while (d = process.channel.read)
-        break if d == ""
-        o << d
+        if d == ""
+          if (Time.now.to_i - start < time_out) && (o == '')
+            sleep 0.1
+          else
+            break
+          end
+        else
+          o << d
+        end
       end
       o.chomp! if o
 
