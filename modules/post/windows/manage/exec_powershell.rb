@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptString.new( 'SCRIPT',  [true, 'Path to the PS script or command string to execute' ]),
+        OptString.new( 'SCRIPT',  [true, 'Path to the local PS script or command string to execute' ]),
       ], self.class)
 
     register_advanced_options(
@@ -40,22 +40,18 @@ class Metasploit3 < Msf::Post
 
   end
 
-
-
   def run
 
     # Make sure we meet the requirements before running the script, note no need to return
     # unless error
     raise "Powershell not available" if ! have_powershell?
 
-                # Preprocess the Powershell::Script object with substitions from Exploit::Powershell
-                script = make_subs(read_script(datstore['SCRIPT']),process_subs(datstore['SUBSTITUTIONS']))
+    # Preprocess the Powershell::Script object with substitions from Exploit::Powershell
+    script = make_subs(read_script(datstore['SCRIPT']),process_subs(datstore['SUBSTITUTIONS']))
 
-                # Execute in session
+    # Execute in session
     print_status psh_exec(script)
     print_good('Finished!')
   end
-
-
 
 end
