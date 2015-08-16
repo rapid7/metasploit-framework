@@ -5,7 +5,7 @@
 
 require 'msf/core'
 require 'rex'
-require 'rex/google_geolocation'
+require 'rex/google/geolocation'
 
 class Metasploit3 < Msf::Post
 
@@ -84,12 +84,11 @@ class Metasploit3 < Msf::Post
   end
 
   def perform_geolocation(wlan_list)
-
     if wlan_list.blank?
       print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
       return
     end
-    g = Rex::GoogleGeolocation.new
+    g = Rex::Google::Geolocation.new
 
     wlan_list.each do |wlan|
       g.add_wlan(*wlan)

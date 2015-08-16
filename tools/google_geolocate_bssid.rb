@@ -9,7 +9,7 @@ while File.symlink?(msfbase)
 end
 
 $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
-require 'rex/google_geolocation'
+require 'rex/google/geolocation'
 require 'optparse'
 
 if ARGV.empty?
@@ -21,7 +21,7 @@ if ARGV.empty?
   exit(1)
 end
 
-g = Rex::GoogleGeolocation.new
+g = Rex::Google::Geolocation.new
 ARGV.each do |mac|
   g.add_wlan(mac, nil, -83)
 end
