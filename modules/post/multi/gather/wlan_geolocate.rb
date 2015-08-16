@@ -114,8 +114,8 @@ class Metasploit3 < Msf::Post
     else
       # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
       platform = session.sys.config.sysinfo['OS']
+      platform = 'osx' if platform =~ /darwin/i
     end
-
 
     case platform
     when /win/i
