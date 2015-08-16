@@ -94,7 +94,7 @@ module ReverseHttp
     callback_host = nil
 
     # Extract whatever the client sent us in the Host header
-    if req and req.headers and req.headers['Host']
+    if req && req.headers && req.headers['Host']
       callback_host = req.headers['Host']
     end
 
