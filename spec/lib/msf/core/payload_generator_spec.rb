@@ -376,7 +376,6 @@ describe Msf::PayloadGenerator do
 
         it 'returns shellcode of the correct size' do
           final = payload_generator.prepend_nops(shellcode)
-          puts "in spec, x86 final: #{final.inspect}"
           expect(final.length).to eq 24
         end
 
