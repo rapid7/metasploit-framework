@@ -11,6 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super(update_info(info,
@@ -35,6 +36,33 @@ class Metasploit3 < Msf::Auxiliary
 
   def cleanup
     datastore['RPORT'] = @org_rport
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(ip)
@@ -80,12 +108,13 @@ class Metasploit3 < Msf::Auxiliary
         case response
         when "200"
           print_good("#{rhost}:#{datastore['HTTPPORT']} logged in as: admin/#{last_six}")
-          report_auth_info(
-            :host  => rhost,
-            :port  => datastore['HTTPPORT'],
-            :proto => "tcp",
-            :user  => 'admin',
-            :pass  => last_six
+          report_cred(
+            ip: rhost,
+            port: datastore['HTTPPORT'],
+            service_name: 'http',
+            user: 'admin',
+            password: last_six,
+            proof: response.inspect
           )
         when "401"
           print_error("Default credentials failed")
