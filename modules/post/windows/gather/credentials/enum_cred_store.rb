@@ -29,8 +29,12 @@ class Metasploit3 < Msf::Post
   #RAILGUN HELPER FUNCTIONS
   ############################
   def is_86
-    pid = session.sys.process.open.pid
-    return session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+    if @is_86_check.nil?
+      pid = session.sys.process.open.pid
+      @is_86_check = session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+    end
+
+    @is_86_check
   end
 
   def pack_add(data)
