@@ -363,7 +363,7 @@ describe Msf::PayloadGenerator do
     end
 
     context 'when nops are set to more than 0' do
-      let(:badchars) { "" }
+      let(:badchars) { '' }
       let(:nops) { 20 }
 
       context 'when payload is x86' do
@@ -408,15 +408,13 @@ describe Msf::PayloadGenerator do
 
         it 'returns shellcode of the correct size' do
           final = payload_generator.prepend_nops(shellcode)
-          puts "in spec, x86_64 final: #{final.inspect}"
-          expect(final.length).to eq(nops+shellcode.length)
+          expect(final.length).to eq(nops + shellcode.length)
         end
 
         it 'puts the nops in front of the original shellcode' do
           final = payload_generator.prepend_nops(shellcode)
-          expect(final[nops,nops+shellcode.length]).to eq shellcode
+          expect(final[nops, nops + shellcode.length]).to eq shellcode
         end
-
 
       end
     end
