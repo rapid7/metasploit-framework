@@ -209,7 +209,7 @@ class Metasploit3 < Msf::Auxiliary
 
     return record unless result
     if result.answer.blank?
-      return rercord
+      return record
     else
       temp = []
       result.answer.each do |r|
