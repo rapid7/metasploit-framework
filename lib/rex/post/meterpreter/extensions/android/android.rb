@@ -15,6 +15,27 @@ module Android
 # extension by Anwar Mohamed (@anwarelmakrahy)
 ###
 class Android < Extension
+
+  COLLECT_TYPE_WIFI = 1
+
+  COLLECT_ACTION_START  = 1
+  COLLECT_ACTION_PAUSE  = 2
+  COLLECT_ACTION_RESUME = 3
+  COLLECT_ACTION_STOP   = 4
+  COLLECT_ACTION_DUMP   = 5
+
+  COLLECT_TYPES = {
+    'wifi' => COLLECT_TYPE_WIFI
+  }
+
+  COLLECT_ACTIONS = {
+    'start'  => COLLECT_ACTION_START,
+    'pause'  => COLLECT_ACTION_PAUSE,
+    'resume' => COLLECT_ACTION_START,
+    'stop'   => COLLECT_ACTION_STOP,
+    'dump'   => COLLECT_ACTION_DUMP
+  }
+
   def initialize(client)
     super(client, 'android')
 
@@ -29,11 +50,55 @@ class Android < Extension
       ])
   end
 
+  def collect_actions
+    return @@collect_action_list ||= COLLECT_ACTIONS.keys
+  end
+
+  def collect_types
+    return @@collect_type_list ||= COLLECT_TYPES.keys
+  end
+
   def device_shutdown(n)
     request = Packet.create_request('device_shutdown')
     request.add_tlv(TLV_TYPE_SHUTDOWN_TIMER, n)
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_SHUTDOWN_OK).value
+  end
+
+  def interval_collect(opts)
+    request = Packet.create_request('interval_collect')
+    request.add_tlv(TLV_TYPE_COLLECT_ACTION, COLLECT_ACTIONS[opts[:action]])
+    request.add_tlv(TLV_TYPE_COLLECT_TYPE, COLLECT_TYPES[opts[:type]])
+    request.add_tlv(TLV_TYPE_COLLECT_TIMEOUT, opts[:timeout])
+    response = client.send_request(request)
+
+    result = {
+      headers:     [],
+      collections: []
+    }
+
+    case COLLECT_TYPES[opts[:type]]
+    when COLLECT_TYPE_WIFI
+      result[:headers] = ['BSSID', 'SSID', 'Level']
+      response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
+        collection = {
+          timestamp: g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP),
+          entries:   []
+        }
+
+        g.each(TLV_TYPE_COLLECT_RESULT_WIFI) do |w|
+          collection[:entries] << [
+            w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_BSSID),
+            w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_SSID),
+            0x100000000 - w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL)
+          ]
+        end
+
+        result[:collections] << collection
+      end
+    end
+
+    result
   end
 
   def dump_sms
