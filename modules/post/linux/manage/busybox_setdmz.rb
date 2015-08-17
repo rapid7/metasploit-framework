@@ -27,11 +27,9 @@ class Metasploit3 < Msf::Post
       OptAddress.new('TARGETHOST', [ true, "The address of the host to be target for the dmz", nil ]),
       OptBool.new('DELETE', [false, "If this option is set to true, the DMZ is removed. Else it is added.", false])
     ], self.class)
-
   end
 
   def run
-
     if datastore['DELETE'] == true
       vprint_status("Executing iptables to delete dmz.")
       vprint_status(cmd_exec("iptables -D FORWARD -d #{datastore['TARGETHOST']} -j ACCEPT"))
@@ -43,7 +41,6 @@ class Metasploit3 < Msf::Post
       vprint_status(cmd_exec("iptables --list"))
     end
     print_good("Dmz modified. Enable verbose for additional information.")
-
   end
 
 end

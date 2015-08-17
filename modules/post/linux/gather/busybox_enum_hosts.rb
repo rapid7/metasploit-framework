@@ -8,6 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
+  include Msf::Post::Linux::Busybox
 
   def initialize
     super(
@@ -49,15 +50,6 @@ class Metasploit3 < Msf::Post
       # If there's nothing in the file, we hit EOFError
       print_error("Nothing read from file: #{hosts_file}, file may be empty.")
     end
-  end
-
-  #file? doesnt work because test -f is not implemented in busybox
-  def file_exists(file_path)
-    s = read_file(file_path)
-    if s and s.length
-      return true
-    end
-    return false
   end
 
 end

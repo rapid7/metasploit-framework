@@ -30,16 +30,15 @@ class Metasploit3 < Msf::Post
         OptAddress.new('IPRANGESTART',   [ true, "The first ip address of the range to ping.", nil ]),
         OptAddress.new('IPRANGEEND',   [ true, "The last ip address of the range to ping.", nil ])
       ], self.class)
-
   end
 
+  #
+  #this module will send a sh script for busybox shell for doing ping to a range of ip address from
+  #the router or device that is executing busybox. It could be possible to calculate each ip address
+  #of the range of ip addresses in the ruby script and execute each ping command with cmd_exec, but
+  #it would generate an unnecesary traffic in the connection with the busybox device (usually telnet)
+  #
   def run
-
-    #this module will send a sh script for busybox shell for doing ping to a range of ip address from
-    #the router or device that is executing busybox. It could be possible to calculate each ip address
-    #of the range of ip addresses in the ruby script and execute each ping command with cmd_exec, but
-    #it would generate an unnecesary traffic in the connection with the busybox device (usually telnet)
-
     sh_script_lines=[
             "#!/bin/sh",
             "param1=#{datastore['IPRANGESTART']}",
@@ -156,10 +155,8 @@ class Metasploit3 < Msf::Post
     end
 
     #storing results
-
     p = store_loot("Pingnet", "text/plain", session, full_results, "#{datastore['IPRANGESTART']}"+"-"+"#{datastore['IPRANGEEND']}", "BusyBox Device Network Range Pings")
     print_good("Pingnet results saved to #{p}.")
-
   end
 
 end

