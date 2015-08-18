@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+#
 # -*- coding: binary -*-
 require 'rex/post/meterpreter/extensions/android/tlv'
 require 'rex/post/meterpreter/packet'
@@ -10,10 +11,12 @@ module Post
 module Meterpreter
 module Extensions
 module Android
+
 ###
 # Android extension - set of commands to be executed on android devices.
 # extension by Anwar Mohamed (@anwarelmakrahy)
 ###
+
 class Android < Extension
 
   COLLECT_TYPE_WIFI = 1
@@ -79,22 +82,28 @@ class Android < Extension
 
     case COLLECT_TYPES[opts[:type]]
     when COLLECT_TYPE_WIFI
-      result[:headers] = ['BSSID', 'SSID', 'Level']
+      result[:headers] = ['Last Seen', 'BSSID', 'SSID', 'Level']
+      result[:entries] = []
+      records = {}
+
       response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
-        collection = {
-          timestamp: g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP),
-          entries:   []
-        }
+        timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
+        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
 
         g.each(TLV_TYPE_COLLECT_RESULT_WIFI) do |w|
-          collection[:entries] << [
-            w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_BSSID),
-            w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_SSID),
-            0x100000000 - w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL)
-          ]
-        end
+          bssid = w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_BSSID)
+          ssid = w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_SSID)
+          key = "#{bssid}-#{ssid}"
 
-        result[:collections] << collection
+          if !records.include?(key) || records[key][0] < timestamp
+            level = 0x100000000 - w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL)
+            records[key] = [timestamp, bssid, ssid, level]
+          end
+        end
+      end
+
+      records.each do |k, v|
+        result[:entries] << v
       end
     end
 

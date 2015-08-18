@@ -96,25 +96,28 @@ class Console::CommandDispatcher::Android
         return
       end
 
-
       result = client.android.interval_collect(opts)
-      if result[:headers].length > 0 && result[:collections].length > 0
-        result[:collections].each do |c|
-          time = Time.at(c[:timestamp]).to_datetime
-          table = Rex::Ui::Text::Table.new(
-            'Header'    => "Captured #{opts[:type]} data at #{time.strftime('%Y-%m-%d %H:%M:%S')}",
-            'SortIndex' => -1,
-            'Columns'   => result[:headers],
-            'Indent'    => 0
-          )
+      if result[:headers].length > 0 && result[:entries].length > 0
+        header = "Captured #{opts[:type]} data"
 
-          c[:entries].each do |e|
-            table << e
-          end
-
-          print_line
-          print_line(table.to_s)
+        if result[:timestamp]
+          time = Time.at(result[:timestamp]).to_datetime
+          header << " at #{time.strftime('%Y-%m-%d %H:%M:%S')}"
         end
+
+        table = Rex::Ui::Text::Table.new(
+          'Header'    => header,
+          'SortIndex' => 0,
+          'Columns'   => result[:headers],
+          'Indent'    => 0
+        )
+
+        result[:entries].each do |e|
+          table << e
+        end
+
+        print_line
+        print_line(table.to_s)
       else
         print_good('Interval action completed successfully')
       end
