@@ -10,7 +10,10 @@ module Busybox
   include ::Msf::Post::File
 
   #
-  #file? doesnt work because test -f is not implemented in busybox
+  #Checks if the target file exists
+  #@param file_path [String] the target file path
+  #@note file? doesnt work because test -f is not implemented in busybox
+  #@return [Boolean] True if files exists, otherwise false
   #
   def file_exists(file_path)
     s = read_file(file_path)
@@ -21,7 +24,9 @@ module Busybox
   end
 
   #
-  #This function checks if the target directory is writable
+  #Checks if the target directory is writable
+  #@param directory_path [String] the target directory path
+  #@return [Boolean] True if target directory is writable, otherwise false
   #
   def is_writable_directory(directory_path)
     retval = false
@@ -38,9 +43,12 @@ module Busybox
   end
 
   #
-  #This function checks if the target file is writable and writes or append the data given as parameter.
-  #BusyBox shell's commands are limited and Msf > Post > File > write_file function doesnt work here, for
-  #this reason it is necessary to implement an specific function
+  #Checks if the target file is writable and writes or append to the file the data given as parameter
+  #@param file_path [String] the target file path
+  #@param data [String] the content to be written to the file
+  #@param append [Boolean] if true, append data to the target file. Otherwise, overwrite the target file
+  #@note BusyBox shell's commands are limited and Msf > Post > File > write_file function doesnt work here, for this reason it is necessary to implement an specific function
+  #@return [Boolean] True if target file is writable and it was written. Otherwise, false.
   #
   def is_writable_and_write(file_path, data, append)
     if append
@@ -64,8 +72,8 @@ module Busybox
   end
 
   #
-  #This function will check some directories that usually are writable in devices running busybox
-  #If the function finds a writable directory, it returns the path. Else it returns nil
+  #Checks some directories that usually are writable in devices running busybox
+  #@return [String] If the function finds a writable directory, it returns the path. Else it returns nil
   #
   def get_writable_directory()
     writable_directory = nil
