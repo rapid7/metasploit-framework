@@ -96,7 +96,9 @@ class Android < Extension
           key = "#{bssid}-#{ssid}"
 
           if !records.include?(key) || records[key][0] < timestamp
-            level = 0x100000000 - w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL)
+            # Level is passed through as positive, because UINT
+            # but we flip it back to negative on this side
+            level = -w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL)
             records[key] = [timestamp, bssid, ssid, level]
           end
         end
