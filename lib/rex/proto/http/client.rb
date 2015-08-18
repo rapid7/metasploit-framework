@@ -586,8 +586,8 @@ class Client
 
         begin
 
-          buff = conn.get_once(-1, 1)
-          rv   = resp.parse( buff || '' )
+          buff = conn.get_once(resp.max_data, 1)
+          rv   = resp.parse(buff || '')
 
         # Handle unexpected disconnects
         rescue ::Errno::EPIPE, ::EOFError, ::IOError
