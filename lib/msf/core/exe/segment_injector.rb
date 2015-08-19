@@ -16,7 +16,13 @@ module Exe
       @template = opts[:template]
       @arch  = opts[:arch] || :x86
       @buffer_register = opts[:buffer_register] || 'edx'
-      unless %w{eax ecx edx ebx edi esi}.include?(@buffer_register.downcase)
+
+      x86_regs = %w{eax ecx edx ebx edi esi}
+      x64_regs = %w{rax rcx rdx rbx rdi rsi} + (8..15).map{|n| "r#{n}" }
+
+      if @arch == :x86 && !x86_regs.include?(@buffer_register.downcase)
+        raise ArgumentError, ":buffer_register is not a real register"
+      elsif @arch == :x64 && !x64_regs.include?(@buffer_register.downcase)
         raise ArgumentError, ":buffer_register is not a real register"
       end
     end
