@@ -77,6 +77,7 @@ class Metasploit3 < Msf::Auxiliary
       last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -125,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
     location = res.headers['Location']
     if res and res.headers and (location = res.headers['Location']) and location =~ /admin\//
       print_good("#{peer} - Successful login: \"#{user}:#{pass}\"")
-      report_cred(ip: rhost, port: rport, user: user, password: pass)
+      report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.headers['Location'])
       return :next_user
     else
       vprint_error("#{peer} - Bad login: \"#{user}:#{pass}\"")

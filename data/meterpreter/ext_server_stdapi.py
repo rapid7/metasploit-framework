@@ -743,7 +743,8 @@ def stdapi_sys_process_close(request, response):
 	if not proc_h_id:
 		return ERROR_SUCCESS, response
 	proc_h_id = proc_h_id['value']
-	del meterpreter.processes[proc_h_id]
+	if meterpreter.processes.has_key(proc_h_id):
+		del meterpreter.processes[proc_h_id]
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function

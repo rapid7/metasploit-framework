@@ -75,6 +75,15 @@ module Color
     str.gsub!(/%und/, pre_color+colorize('underline')+post_color)
     str.gsub!(/%bld/, pre_color+colorize('bold')+post_color)
     str.gsub!(/%clr/, pre_color+colorize('clear')+post_color)
+    # Background Color
+    str.gsub!(/%bgblu/, pre_color+colorize('on_blue')+post_color)
+    str.gsub!(/%bgyel/, pre_color+colorize('on_yellow')+post_color)
+    str.gsub!(/%bggrn/, pre_color+colorize('on_green')+post_color)
+    str.gsub!(/%bgmag/, pre_color+colorize('on_magenta')+post_color)
+    str.gsub!(/%bgblk/, pre_color+colorize('on_black')+post_color)
+    str.gsub!(/%bgred/, pre_color+colorize('on_red')+post_color)
+    str.gsub!(/%bgcyn/, pre_color+colorize('on_cyan')+post_color)
+    str.gsub!(/%bgwhi/, pre_color+colorize('on_white')+post_color)
 
     str
   end

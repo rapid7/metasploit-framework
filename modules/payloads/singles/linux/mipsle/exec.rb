@@ -7,7 +7,7 @@ require 'msf/core'
 
 module Metasploit3
 
-  CachedSize = 48
+  CachedSize = 52
 
   include Msf::Payload::Single
   include Msf::Payload::Linux

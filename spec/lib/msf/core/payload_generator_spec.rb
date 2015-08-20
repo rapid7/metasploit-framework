@@ -347,28 +347,74 @@ describe Msf::PayloadGenerator do
   end
 
   context '#prepend_nops' do
-    before(:each) do
-      load_and_create_module(
-          module_type: 'nop',
-          reference_name: 'x86/opty2'
-      )
-    end
-
     context 'when nops are set to 0' do
+      let(:nops) { 0 }
+
+      before(:each) do
+        load_and_create_module(
+            module_type: 'nop',
+            reference_name: 'x86/opty2'
+        )
+      end
+
       it 'returns the unmodified shellcode' do
         expect(payload_generator.prepend_nops(shellcode)).to eq shellcode
       end
     end
 
     context 'when nops are set to more than 0' do
+      let(:badchars) { '' }
       let(:nops) { 20 }
 
-      it 'returns shellcode of the correct size' do
-        expect(payload_generator.prepend_nops(shellcode).length).to eq 24
+      context 'when payload is x86' do
+        before(:each) do
+          load_and_create_module(
+            module_type: 'nop',
+            reference_name: 'x86/opty2'
+          )
+        end
+
+        it 'returns shellcode of the correct size' do
+          final = payload_generator.prepend_nops(shellcode)
+          expect(final.length).to eq 24
+        end
+
+        it 'puts the nops in front of the original shellcode' do
+          expect(payload_generator.prepend_nops(shellcode)[20,24]).to eq shellcode
+        end
+
       end
 
-      it 'puts the nops in front of the original shellcode' do
-        expect(payload_generator.prepend_nops(shellcode)[20,24]).to eq shellcode
+      context 'when payload is Windows x64' do
+        let(:arch) { 'x86_64' }
+        let(:payload_module) {
+          load_and_create_module(
+            ancestor_reference_names: %w{
+                stagers/windows/x64/reverse_tcp
+                stages/windows/x64/meterpreter
+            },
+            module_type: 'payload',
+            reference_name: 'windows/x64/meterpreter/reverse_tcp'
+          )
+        }
+
+        before(:each) do
+          load_and_create_module(
+              module_type: 'nop',
+              reference_name: 'x64/simple'
+          )
+        end
+
+        it 'returns shellcode of the correct size' do
+          final = payload_generator.prepend_nops(shellcode)
+          expect(final.length).to eq(nops + shellcode.length)
+        end
+
+        it 'puts the nops in front of the original shellcode' do
+          final = payload_generator.prepend_nops(shellcode)
+          expect(final[nops, nops + shellcode.length]).to eq shellcode
+        end
+
       end
     end
   end

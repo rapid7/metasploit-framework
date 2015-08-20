@@ -88,7 +88,7 @@ module Msf::Payload::Stager
   # Can be nil if the final stage is not pre-assembled.
   #
   # @return [String,nil]
-  def stage_payload
+  def stage_payload(opts = {})
     return module_info['Stage']['Payload']
   end
 
