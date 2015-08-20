@@ -33,7 +33,7 @@ def types
     'US-CERT-VU' => 'http://www.kb.cert.org/vuls/id/#{in_ctx_val}',
     'ZDI'        => 'http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}',
     'WPVDB'      => 'https://wpvulndb.com/vulnerabilities/#{in_ctx_val}',
-    'PSS'        => 'https://packetstormsecurity.com/files/#{in_ctx_val}',
+    'PKT'        => 'https://packetstormsecurity.com/files/#{in_ctx_val}',
     'URL'        => '#{in_ctx_val}'
   }
 end
