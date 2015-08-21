@@ -983,6 +983,10 @@ class Db
         set_rhosts = true
       when '-O', '--origins'
         hosts = args.shift
+        if !hosts
+          print_error("Argument required for -O")
+          return
+        end
         arg_host_range(hosts, origin_ranges)
       else
         # Anything that wasn't an option is a host to search for
@@ -1074,8 +1078,7 @@ class Db
           next
         end
 
-        if core.logins.empty?
-
+        if core.logins.empty? && origin_ranges.empty?
           tbl << [
             "", # host
             "", # cred
