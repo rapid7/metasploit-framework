@@ -107,65 +107,63 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
       context "when the credential is present" do
         it "should show a user that matches the given expression" do
           db.cmd_creds("-u", username)
-          @output.should =~ [
+          expect(@output).to eq([
             "Credentials",
             "===========",
             "",
-            "host  service  public    private   realm  private_type",
-            "----  -------  ------    -------   -----  ------------",
-            "               thisuser  thispass         Password",
-          ]
+            "host  origin  service  public    private   realm  private_type",
+            "----  ------  -------  ------    -------   -----  ------------",
+            "                       thisuser  thispass         Password"
+          ])
         end
 
         it 'should match a regular expression' do
           subject.cmd_creds("-u", "^#{username}$")
-          @output.should =~
-          [
+          expect(@output).to eq([
             "Credentials",
             "===========",
             "",
-            "host  service  public    private   realm  private_type",
-            "----  -------  ------    -------   -----  ------------",
-            "               thisuser  thispass         Password",
-          ]
+            "host  origin  service  public    private   realm  private_type",
+            "----  ------  -------  ------    -------   -----  ------------",
+            "                       thisuser  thispass         Password"
+          ])
         end
 
         it 'should return nothing for a non-matching regular expression' do
           subject.cmd_creds("-u", "^#{nomatch_username}$")
-          @output.should =~
-          [
+          expect(@output).to eq([
             "Credentials",
             "===========",
             "",
-            "host  service  public  private  realm  private_type",
-            "----  -------  ------  -------  -----  ------------",
-          ]
+            "host  origin  service  public  private  realm  private_type",
+            "----  ------  -------  ------  -------  -----  ------------"
+          ])
         end
 
         context "and when the username is blank" do
           it "should show a user that matches the given expression" do
             db.cmd_creds("-u", blank_username)
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public  private        realm  private_type",
-              "----  -------  ------  -------        -----  ------------",
-              "                       nonblank_pass         Password",
-            ]
+              "host  origin  service  public  private        realm  private_type",
+              "----  ------  -------  ------  -------        -----  ------------",
+              "                               nonblank_pass         Password"
+            ])
           end
         end
         context "and when the password is blank" do
           it "should show a user that matches the given expression" do
             db.cmd_creds("-P", blank_password)
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public         private  realm  private_type",
-              "----  -------  ------         -------  -----  ------------",
-              "               nonblank_user                  Password",
-            ]
+              "host  origin  service  public         private  realm  private_type",
+              "----  ------  -------  ------         -------  -----  ------------",
+              "                       nonblank_user                  Password"
+            ])
           end
         end
       end
@@ -174,25 +172,25 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         context "due to a nonmatching username" do
           it "should return a blank set" do
             db.cmd_creds("-u", nomatch_username)
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public  private  realm  private_type",
-              "----  -------  ------  -------  -----  ------------",
-            ]
+              "host  origin  service  public  private  realm  private_type",
+              "----  ------  -------  ------  -------  -----  ------------"
+            ])
           end
         end
         context "due to a nonmatching password" do
           it "should return a blank set" do
             db.cmd_creds("-P", nomatch_password)
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public  private  realm  private_type",
-              "----  -------  ------  -------  -----  ------------",
-            ]
+              "host  origin  service  public  private  realm  private_type",
+              "----  ------  -------  ------  -------  -----  ------------"
+            ])
           end
         end
       end
@@ -257,14 +255,14 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           it "should show just the password" do
             db.cmd_creds("-t", "password")
             # Table matching really sucks
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public    private   realm  private_type",
-              "----  -------  ------    -------   -----  ------------",
-              "               thisuser  thispass         Password"
-            ]
+              "host  origin  service  public    private   realm  private_type",
+              "----  ------  -------  ------    -------   -----  ------------",
+              "                       thisuser  thispass         Password"
+            ])
           end
         end
 
