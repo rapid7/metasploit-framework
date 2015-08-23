@@ -28,9 +28,10 @@ class RPC_Job < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('job.stop', 0)
   def rpc_stop(jid)
-    obj = self.framework.jobs[jid.to_s]
+    jid = jid.to_s
+    obj = self.framework.jobs[jid]
     error(500, "Invalid Job") if not obj
-    obj.stop
+    self.framework.jobs.stop_job(jid)
     { "result" => "success" }
   end
 

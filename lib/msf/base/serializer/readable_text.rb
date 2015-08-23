@@ -589,8 +589,11 @@ class ReadableText
       sess_via     = session.via_exploit.to_s
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
       sess_checkin = "<none>"
       sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
 
       if session.respond_to? :platform
         sess_type << (" " + session.platform)
@@ -598,6 +601,13 @@ class ReadableText
 
       if session.respond_to?(:last_checkin) && session.last_checkin
         sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
       end
 
       out << "  Session ID: #{sess_id}\n"
@@ -608,6 +618,10 @@ class ReadableText
       out << "        UUID: #{sess_uuid}\n"
       out << "   MachineID: #{sess_machine_id}\n"
       out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
       out << "\n"
     end
 

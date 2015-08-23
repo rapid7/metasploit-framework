@@ -170,7 +170,7 @@ protected
     elsif view == REGISTRY_VIEW_64_BIT
       cmd += " /reg:64"
     end
-    session.shell_command_token_win32("#{cmd} #{suffix}")
+    cmd_exec("#{cmd} #{suffix}")
   end
 
   def shell_registry_cmd_result(suffix, view = REGISTRY_VIEW_NATIVE)

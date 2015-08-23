@@ -1,33 +1,33 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.11.0.pre.dev)
+    metasploit-framework (4.11.4)
       actionpack (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       bcrypt
       jsobfu (~> 0.2.0)
       json
-      metasploit-concern (~> 1.0)
-      metasploit-model (~> 1.0)
-      metasploit-payloads (= 0.0.7)
+      metasploit-concern (= 1.0.0)
+      metasploit-model (= 1.0.0)
+      metasploit-payloads (= 1.0.8)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
       railties
       rb-readline-r7
-      recog (~> 1.0)
+      recog (= 2.0.6)
       robots
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
-    metasploit-framework-db (4.11.0.pre.dev)
+    metasploit-framework-db (4.11.4)
       activerecord (>= 4.0.9, < 4.1.0)
-      metasploit-credential (~> 1.0)
-      metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (~> 1.0)
+      metasploit-credential (= 1.0.0)
+      metasploit-framework (= 4.11.4)
+      metasploit_data_models (= 1.2.5)
       pg (>= 0.11)
-    metasploit-framework-pcap (4.11.0.pre.dev)
-      metasploit-framework (= 4.11.0.pre.dev)
+    metasploit-framework-pcap (4.11.4)
+      metasploit-framework (= 4.11.4)
       network_interface (~> 0.0.1)
       pcaprub
 
@@ -104,7 +104,7 @@ GEM
     i18n (0.7.0)
     jsobfu (0.2.1)
       rkelly-remix (= 0.0.6)
-    json (1.8.2)
+    json (1.8.3)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
     metasploit-concern (1.0.0)
@@ -123,8 +123,8 @@ GEM
       activemodel (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
-    metasploit-payloads (0.0.7)
-    metasploit_data_models (1.1.0)
+    metasploit-payloads (1.0.8)
+    metasploit_data_models (1.2.5)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       arel-helpers
@@ -133,13 +133,13 @@ GEM
       pg
       postgres_ext
       railties (>= 4.0.9, < 4.1.0)
-      recog (~> 1.0)
+      recog (~> 2.0)
     method_source (0.8.2)
     mime-types (2.4.3)
     mini_portile (0.6.2)
     minitest (4.7.5)
-    msgpack (0.5.11)
-    multi_json (1.11.0)
+    msgpack (0.6.2)
+    multi_json (1.11.1)
     multi_test (0.1.2)
     network_interface (0.0.1)
     nokogiri (1.6.6.2)
@@ -156,7 +156,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rack (1.5.3)
+    rack (1.5.5)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (4.0.13)
@@ -174,7 +174,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (10.4.2)
     rb-readline-r7 (0.5.2.0)
-    recog (1.0.29)
+    recog (2.0.6)
       nokogiri
     redcarpet (3.2.3)
     rkelly-remix (0.0.6)
@@ -198,7 +198,7 @@ GEM
       rspec-core (~> 2.99.0)
       rspec-expectations (~> 2.99.0)
       rspec-mocks (~> 2.99.0)
-    rubyntlm (0.5.0)
+    rubyntlm (0.5.1)
     rubyzip (1.1.7)
     shoulda-matchers (2.8.0)
       activesupport (>= 3.0.0)

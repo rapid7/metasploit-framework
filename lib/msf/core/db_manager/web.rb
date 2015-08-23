@@ -142,8 +142,16 @@ module Msf::DBManager::Web
     page.cookie   = opts[:cookie] if opts[:cookie]
     page.auth     = opts[:auth]   if opts[:auth]
     page.mtime    = opts[:mtime]  if opts[:mtime]
-    page.ctype    = opts[:ctype]  if opts[:ctype]
+
+
+    if opts[:ctype].blank? || opts[:ctype] == [""]
+      page.ctype = ""
+    else
+      page.ctype = opts[:ctype]
+    end
+
     page.location = opts[:location] if opts[:location]
+
     msf_import_timestamps(opts, page)
     page.save!
 
