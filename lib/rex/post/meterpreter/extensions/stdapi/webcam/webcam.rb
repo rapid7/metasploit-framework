@@ -111,9 +111,6 @@ class Webcam
         "%ProgramW6432%\\Mozilla Firefox\\firefox.exe"
       ]
 
-      drive = session.sys.config.getenv("SYSTEMDRIVE")
-      paths = paths.map { |p| "#{drive}\\#{p}" }
-
       # Old chrome path
       user_profile = client.sys.config.getenv("USERPROFILE")
       paths << "#{user_profile}\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe"
