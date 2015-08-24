@@ -58,7 +58,6 @@ class Client
       'method_random_case'     => 'bool',
       'version_random_valid'   => 'bool',
       'version_random_invalid' => 'bool',
-      'version_random_case'    => 'bool',
       'uri_dir_self_reference' => 'bool',
       'uri_dir_fake_relative'  => 'bool',
       'uri_use_backslashes'    => 'bool',

@@ -837,6 +837,7 @@ class Db
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
     print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    print_line "  -O,--origins          List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 
     print_line
@@ -925,15 +926,16 @@ class Db
   end
 
   def creds_search(*args)
-    host_ranges = []
-    port_ranges = []
-    svcs        = []
-    rhosts      = []
+    host_ranges   = []
+    origin_ranges = []
+    port_ranges   = []
+    svcs          = []
+    rhosts        = []
 
     set_rhosts = false
 
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
-    cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
+    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type' ]
     user = nil
     delete_count = 0
 
@@ -979,6 +981,13 @@ class Db
         mode = :delete
       when '-R', '--rhosts'
         set_rhosts = true
+      when '-O', '--origins'
+        hosts = args.shift
+        if !hosts
+          print_error("Argument required for -O")
+          return
+        end
+        arg_host_range(hosts, origin_ranges)
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -1058,11 +1067,22 @@ class Db
           next
         end
 
-        if core.logins.empty?
+        origin = ''
+        if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
+          origin = core.origin.service.host.address
+        elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
+          origin = core.origin.session.host.address
+        end
 
+        if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
+          next
+        end
+
+        if core.logins.empty? && origin_ranges.empty?
           tbl << [
             "", # host
-            "", # port
+            "", # cred
+            "", # service
             core.public,
             core.private,
             core.realm,
@@ -1070,7 +1090,6 @@ class Db
           ]
         else
           core.logins.each do |login|
-
             # If none of this Core's associated Logins is for a host within
             # the user-supplied RangeWalker, then we don't have any reason to
             # print it out. However, we treat the absence of ranges as meaning
@@ -1078,7 +1097,9 @@ class Db
             if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
               next
             end
+
             row = [ login.service.host.address ]
+            row << origin
             rhosts << login.service.host.address
             if login.service.name.present?
               row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
