@@ -30,7 +30,7 @@ module Meterpreter
 class ClientCore < Extension
 
   UNIX_PATH_MAX = 108
-  DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
+  DEFAULT_SOCK_PATH = '/tmp/meterpreter.sock'
 
   METERPRETER_TRANSPORT_SSL   = 0
   METERPRETER_TRANSPORT_HTTP  = 1
@@ -54,7 +54,7 @@ class ClientCore < Extension
   # Initializes the 'core' portion of the meterpreter client commands.
   #
   def initialize(client)
-    super(client, "core")
+    super(client, 'core')
   end
 
   ##
@@ -81,7 +81,7 @@ class ClientCore < Extension
 
     # No response?
     if response.nil?
-      raise RuntimeError, "No response was received to the core_enumextcmd request.", caller
+      raise RuntimeError, 'No response was received to the core_enumextcmd request.', caller
     elsif response.result != 0
       # This case happens when the target doesn't support the core_enumextcmd message.
       # If this is the case, then we just want to ignore the error and return an empty
@@ -102,21 +102,21 @@ class ClientCore < Extension
     response = client.send_request(request)
 
     result = {
-      :session_exp => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
-      :transports  => []
+      session_exp: response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
+      transports:  []
     }
 
     response.each(TLV_TYPE_TRANS_GROUP) { |t|
       result[:transports] << {
-        :url          => t.get_tlv_value(TLV_TYPE_TRANS_URL),
-        :comm_timeout => t.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
-        :retry_total  => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
-        :retry_wait   => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT),
-        :ua           => t.get_tlv_value(TLV_TYPE_TRANS_UA),
-        :proxy_host   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_HOST),
-        :proxy_user   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_USER),
-        :proxy_pass   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_PASS),
-        :cert_hash    => t.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
+        url:          t.get_tlv_value(TLV_TYPE_TRANS_URL),
+        comm_timeout: t.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
+        retry_total:  t.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
+        retry_wait:   t.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT),
+        ua:           t.get_tlv_value(TLV_TYPE_TRANS_UA),
+        proxy_host:   t.get_tlv_value(TLV_TYPE_TRANS_PROXY_HOST),
+        proxy_user:   t.get_tlv_value(TLV_TYPE_TRANS_PROXY_USER),
+        proxy_pass:   t.get_tlv_value(TLV_TYPE_TRANS_PROXY_PASS),
+        cert_hash:    t.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
       }
     }
 
@@ -142,10 +142,10 @@ class ClientCore < Extension
     response = client.send_request(request)
 
     {
-      :session_exp  => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
-      :comm_timeout => response.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
-      :retry_total  => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
-      :retry_wait   => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT)
+      session_exp:  response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
+      comm_timeout: response.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
+      retry_total:  response.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
+      retry_wait:   response.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT)
     }
   end
 
@@ -180,7 +180,7 @@ class ClientCore < Extension
 
     # No library path, no cookie.
     if library_path.nil?
-      raise ArgumentError, "No library file path was supplied", caller
+      raise ArgumentError, 'No library file path was supplied', caller
     end
 
     # Set up the proper loading flags
@@ -215,7 +215,7 @@ class ClientCore < Extension
       # path of the local and target so that it gets loaded with a random
       # name
       if opts['Extension']
-        library_path = "ext" + rand(1000000).to_s + ".#{client.binary_suffix}"
+        library_path = "ext#{rand(1000000).to_s}.#{client.binary_suffix}"
         target_path  = library_path
       end
     end
@@ -233,7 +233,7 @@ class ClientCore < Extension
 
     # No response?
     if response.nil?
-      raise RuntimeError, "No response was received to the core_loadlib request.", caller
+      raise RuntimeError, 'No response was received to the core_loadlib request.', caller
     elsif response.result != 0
       raise RuntimeError, "The core_loadlib request failed with result: #{response.result}.", caller
     end
@@ -259,7 +259,7 @@ class ClientCore < Extension
   #
   def use(mod, opts = { })
     if mod.nil?
-      raise RuntimeError, "No modules were specified", caller
+      raise RuntimeError, 'No modules were specified', caller
     end
 
     # Query the remote instance to see if commands for the extension are
@@ -431,7 +431,7 @@ class ClientCore < Extension
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
-  def migrate(pid, writable_dir = nil)
+  def migrate(opts={})
     keepalive = client.send_keepalives
     client.send_keepalives = false
     process       = nil
@@ -440,11 +440,11 @@ class ClientCore < Extension
     old_binary_suffix = client.binary_suffix
 
     # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
-    client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
+    client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
 
     # Determine the architecture for the pid we are going to migrate into...
     client.sys.process.processes.each { | p |
-      if p['pid'] == pid
+      if p['pid'] == opts[:pid]
         process = p
         break
       end
@@ -452,31 +452,31 @@ class ClientCore < Extension
 
     # We cant migrate into a process that does not exist.
     unless process
-      raise RuntimeError, "Cannot migrate into non existent process", caller
+      raise RuntimeError, 'Cannot migrate into non existent process', caller
     end
 
     # We cannot migrate into a process that we are unable to open
     # On linux, arch is empty even if we can access the process
     if client.platform =~ /win/
       if process['arch'] == nil || process['arch'].empty?
-        raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
+        raise RuntimeError, 'Cannot migrate into this process (insufficient privileges)', caller
       end
     end
 
     # And we also cannot migrate into our own current process...
     if process['pid'] == client.sys.process.getpid
-      raise RuntimeError, "Cannot migrate into current process", caller
+      raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
     if client.platform =~ /linux/
-      if writable_dir.blank?
-        writable_dir = tmp_folder
+      if opts[:write_dir].blank?
+        opts[:write_dir] = tmp_folder
       end
 
-      stat_dir = client.fs.filestat.new(writable_dir)
+      stat_dir = client.fs.filestat.new(opts[:write_dir])
 
       unless stat_dir.directory?
-        raise RuntimeError, "Directory #{writable_dir} not found", caller
+        raise RuntimeError, "Directory #{opts[:write_dir]} not found", caller
       end
       # Rex::Post::FileStat#writable? isn't available
     end
@@ -487,16 +487,16 @@ class ClientCore < Extension
     request = Packet.create_request( 'core_migrate' )
 
     if client.platform =~ /linux/i
-      socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
+      socket_path = File.join(opts[:write_dir], Rex::Text.rand_text_alpha_lower(5 + rand(5)))
 
       if socket_path.length > UNIX_PATH_MAX - 1
-        raise RuntimeError, "The writable dir is too long", caller
+        raise RuntimeError, 'The writable dir is too long', caller
       end
 
       pos = blob.index(DEFAULT_SOCK_PATH)
 
       if pos.nil?
-        raise RuntimeError, "The meterpreter binary is wrong", caller
+        raise RuntimeError, 'The meterpreter binary is wrong', caller
       end
 
       blob[pos, socket_path.length + 1] = socket_path + "\x00"
@@ -507,7 +507,7 @@ class ClientCore < Extension
       request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
     end
 
-    request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
+    request.add_tlv( TLV_TYPE_MIGRATE_PID, opts[:pid] )
     request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
     request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
     if process['arch'] == ARCH_X86_64
@@ -516,8 +516,10 @@ class ClientCore < Extension
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
     end
 
-    # Send the migration request (bump up the timeout to 60 seconds)
-    client.send_request( request, 60 )
+    # Send the migration request (bump up the timeout to at least 60 seconds,
+    # allowing user to override)
+    timeout = [opts[:timeout], 60].max
+    client.send_request(request, timeout)
 
     if client.passive_service
       # Sleep for 5 seconds to allow the full handoff, this prevents
@@ -539,7 +541,7 @@ class ClientCore < Extension
         # keep from hanging the packet dispatcher thread, which results
         # in blocking the entire process.
         begin
-          Timeout.timeout(60) do
+          Timeout.timeout(timeout) do
             # Renegotiate SSL over this socket
             client.swap_sock_ssl_to_plain()
             client.swap_sock_plain_to_ssl()
@@ -668,8 +670,7 @@ class ClientCore < Extension
         url << generate_uri_uuid(sum, opts[:uuid]) + '/'
       end
 
-      # TODO: randomise if not specified?
-      opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
+      opts[:ua] ||= Rex::UserAgent.random
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
       if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
