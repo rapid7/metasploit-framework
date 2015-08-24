@@ -12,7 +12,6 @@ module Ui
 #
 ###
 class Console::CommandDispatcher::Stdapi::Webcam
-
   Klass = Console::CommandDispatcher::Stdapi::Webcam
 
   include Console::CommandDispatcher
@@ -33,17 +32,16 @@ class Console::CommandDispatcher::Stdapi::Webcam
       "webcam_list"   => [ "webcam_list" ],
       "webcam_snap"   => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
       "webcam_stream" => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
-      "record_mic"    => [ "webcam_audio_record" ],
+      "record_mic"    => [ "webcam_audio_record" ]
     }
 
-    all.delete_if do |cmd, desc|
+    all.delete_if do |cmd, _desc|
       del = false
       reqs[cmd].each do |req|
         next if client.commands.include? req
         del = true
         break
       end
-
       del
     end
 
@@ -58,14 +56,13 @@ class Console::CommandDispatcher::Stdapi::Webcam
   end
 
   def cmd_webcam_list
-    begin
-      client.webcam.webcam_list.each_with_index { |name, indx|
-        print_line("#{indx + 1}: #{name}")
-      }
-      return true
-    rescue
+    if client.webcam.webcam_list.length == 0
       print_error("No webcams were found")
-      return false
+      return
+    end
+
+    client.webcam.webcam_list.each_with_index do |name, indx|
+      print_line("#{indx + 1}: #{name}")
     end
   end
 
@@ -86,25 +83,25 @@ class Console::CommandDispatcher::Stdapi::Webcam
       "-q" => [ true, "The JPEG image quality (Default: '#{quality}')" ],
       "-p" => [ true, "The JPEG image path (Default: '#{path}')" ],
       "-v" => [ true, "Automatically view the JPEG image (Default: '#{view}')" ]
-   )
+    )
 
-    webcam_snap_opts.parse(args) { | opt, idx, val |
+    webcam_snap_opts.parse(args) do |opt, _idx, val|
       case opt
-        when "-h"
-          print_line("Usage: webcam_snap [options]\n")
-          print_line("Grab a frame from the specified webcam.")
-          print_line(webcam_snap_opts.usage)
-          return
-        when "-i"
-          index = val.to_i
-        when "-q"
-          quality = val.to_i
-        when "-p"
-          path = val
-        when "-v"
-          view = false if val =~ /^(f|n|0)/i
+      when "-h"
+        print_line("Usage: webcam_snap [options]\n")
+        print_line("Grab a frame from the specified webcam.")
+        print_line(webcam_snap_opts.usage)
+        return
+      when "-i"
+        index = val.to_i
+      when "-q"
+        quality = val.to_i
+      when "-p"
+        path = val
+      when "-v"
+        view = false if val =~ /^(f|n|0)/i
       end
-    }
+    end
 
     begin
       print_status("Starting...")
@@ -139,23 +136,22 @@ class Console::CommandDispatcher::Stdapi::Webcam
     webcam_chat_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help banner"],
       "-s" => [ false, "WebSocket server" ]
-   )
+    )
 
-    webcam_chat_opts.parse(args) { | opt, idx, val |
+    webcam_chat_opts.parse(args) do |opt, _idx, val|
       case opt
-        when "-h"
-          print_line("Usage: webcam_chat [options]\n")
-          print_line("Starts a video conversation with your target.")
-          print_line("Browser Requirements:")
-          print_line("Chrome: version 23 or newer")
-          print_line("Firefox: version 22 or newer")
-          print_line(webcam_chat_opts.usage)
-          return
-        when "-s"
-          server = val.to_s
+      when "-h"
+        print_line("Usage: webcam_chat [options]\n")
+        print_line("Starts a video conversation with your target.")
+        print_line("Browser Requirements:")
+        print_line("Chrome: version 23 or newer")
+        print_line("Firefox: version 22 or newer")
+        print_line(webcam_chat_opts.usage)
+        return
+      when "-s"
+        server = val.to_s
       end
-    }
-
+    end
 
     begin
       print_status("Webcam chat session initialized.")
@@ -172,7 +168,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
     end
 
     print_status("Starting...")
-    stream_path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
+    stream_path = Rex::Text.rand_text_alpha(8) + ".jpeg"
     player_path = Rex::Text.rand_text_alpha(8) + ".html"
     duration = 1800
     quality  = 50
@@ -189,7 +185,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
       "-v" => [ true, "Automatically view the stream (Default: '#{view}')" ]
     )
 
-    webcam_snap_opts.parse(args) { |opt, _idx, val|
+    webcam_snap_opts.parse(args) do |opt, _idx, val|
       case opt
       when "-h"
         print_line("Usage: webcam_stream [options]\n")
@@ -209,7 +205,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
       when "-v"
         view = false if val =~ /^(f|n|0)/i
       end
-    }
+    end
 
     print_status("Preparing player...")
     html = %|<html>
@@ -294,14 +290,14 @@ Status     : <span id="status"></span>
   end
 
   def cmd_record_mic(*args)
-    path    = Rex::Text.rand_text_alpha(8) + ".wav"
-    play    = true
-    duration   = 1
+    path = Rex::Text.rand_text_alpha(8) + ".wav"
+    play = true
+    duration = 1
 
     record_mic_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner" ],
       "-d" => [ true, "Number of seconds to record (Default: 1)" ],
-      "-f" => [ true, "The wav file path (Default: '#{::File.expand_path("[randomname].wav")}')" ],
+      "-f" => [ true, "The wav file path (Default: '#{::File.expand_path('[randomname].wav')}')" ],
       "-p" => [ true, "Automatically play the captured audio (Default: '#{play}')" ]
     )
 
