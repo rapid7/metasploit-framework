@@ -18,6 +18,12 @@ then
   exit
 fi
 
+if ! [ -e "$HOME/.android/debug.keystore" ]
+then
+  echo "Missing ~/.android/debug.keystore"
+  exit
+fi
+
 if [ -z "$apk_path" ]
 then
   echo "APK path is required."
