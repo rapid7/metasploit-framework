@@ -641,7 +641,7 @@ require 'msf/core/exe/segment_appender'
     opts[:exe_type] = :dll
 
     if opts[:inject]
-      raise RuntimeError, 'Template injection unsupported for x64 DLLs'
+      self.to_win64pe(framework, code, opts)
     else
       exe_sub_method(code,opts)
     end
