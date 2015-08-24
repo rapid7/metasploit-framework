@@ -70,7 +70,7 @@ class Webcam
     remote_browser_path = get_webrtc_browser_path
 
     if remote_browser_path.blank?
-      raise RuntimeError, "Unable to find a suitable browser on the target machine"
+      raise "Unable to find a suitable browser on the target machine"
     end
 
     ready_status = init_video_chat(remote_browser_path, server, channel, offerer_id)
@@ -163,8 +163,8 @@ class Webcam
       write_file("#{tmp_dir}\\interface.html", interface)
       write_file("#{tmp_dir}\\api.js", api)
     rescue ::Exception => e
-      elog("webcam_chat failed. #{e.class} #{e.to_s}")
-      raise RuntimeError, "Unable to initialize the interface on the target machine"
+      elog("webcam_chat failed. #{e.class} #{e}")
+      raise "Unable to initialize the interface on the target machine"
     end
 
     #
@@ -181,8 +181,8 @@ class Webcam
       begin
         write_file(profile_path, setting)
       rescue ::Exception => e
-        elog("webcam_chat failed: #{e.class} #{e.to_s}")
-        raise RuntimeError, "Unable to write the necessary setting for Firefox."
+        elog("webcam_chat failed: #{e.class} #{e}")
+        raise "Unable to write the necessary setting for Firefox."
       end
       args = "-p #{profile_name}"
     end
@@ -192,11 +192,14 @@ class Webcam
     begin
       session.sys.process.execute(remote_browser_path, "#{args} #{tmp_dir}\\interface.html", exec_opts)
     rescue ::Exception => e
-      elog("webcam_chat failed. #{e.class} #{e.to_s}")
-      raise RuntimeError, "Unable to start the remote browser: #{e.message}"
+      elog("webcam_chat failed. #{e.class} #{e}")
+      raise "Unable to start the remote browser: #{e.message}"
     end
   end
-
 end
-
-end; end; end; end; end; end
+end
+end
+end
+end
+end
+end
