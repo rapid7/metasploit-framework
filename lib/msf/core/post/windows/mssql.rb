@@ -169,7 +169,7 @@ module Msf
             # Migrating works, but I can't rev2self after its complete
             print_warning("No SeImpersonatePrivilege, attempting to migrate to process #{pid}...")
             begin
-              session.core.migrate(pid: pid, timeout: 60)
+              session.core.migrate(pid: pid)
             rescue Rex::RuntimeError => e
               print_error(e.to_s)
               return false
