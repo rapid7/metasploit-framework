@@ -70,6 +70,11 @@ class Console::CommandDispatcher::Stdapi::Webcam
   end
 
   def cmd_webcam_snap(*args)
+    if client.webcam.webcam_list.length == 0
+      print_error("Target does not have a webcam")
+      return
+    end
+
     path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
     quality = 50
     view    = true
@@ -101,6 +106,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
           view = false if ( val =~ /^(f|n|0)/i )
       end
     }
+
     begin
       wc_list << client.webcam.webcam_list
     rescue
@@ -109,10 +115,11 @@ class Console::CommandDispatcher::Stdapi::Webcam
       begin
         print_status("Starting...")
         client.webcam.webcam_start(index)
+        webcam_started = true
         data = client.webcam.webcam_get_frame(quality)
         print_good("Got frame")
       ensure
-        client.webcam.webcam_stop
+        client.webcam.webcam_stop if webcam_started
         print_status("Stopped")
       end
 
@@ -163,12 +170,17 @@ class Console::CommandDispatcher::Stdapi::Webcam
     begin
       print_status("Webcam chat session initialized.")
       client.webcam.webcam_chat(server)
-    rescue RuntimeError => e 
+    rescue RuntimeError => e
       print_error(e.message)
     end
   end
 
   def cmd_webcam_stream(*args)
+    if client.webcam.webcam_list.length == 0
+      print_error("Target does not have a webcam")
+      return
+    end
+
     print_status("Starting...")
     stream_path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
     player_path = Rex::Text.rand_text_alpha(8) + ".html"
@@ -264,7 +276,7 @@ Status     : <span id="status"></span>
     end
     if view
       print_status("Opening player at: #{player_path}")
-      Rex::Compat.open_file(player_path) 
+      Rex::Compat.open_file(player_path)
     else
       print_status("Please open the player manually with a browser: #{player_path}")
     end
@@ -272,6 +284,7 @@ Status     : <span id="status"></span>
     print_status("Streaming...")
     begin
       client.webcam.webcam_start(index)
+      webcam_started = true
       ::Timeout.timeout(duration) {
         while client do
           data = client.webcam.webcam_get_frame(quality)
@@ -285,7 +298,7 @@ Status     : <span id="status"></span>
       }
     rescue ::Timeout::Error
     ensure
-      client.webcam.webcam_stop
+      client.webcam.webcam_stop if webcam_started
     end
 
     print_status("Stopped")
@@ -333,11 +346,8 @@ Status     : <span id="status"></span>
     end
     return true
   end
-
-end
-
 end
 end
 end
 end
-
+end
