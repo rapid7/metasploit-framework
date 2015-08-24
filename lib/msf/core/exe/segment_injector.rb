@@ -160,24 +160,7 @@ module Exe
       # Don't rebase if we can help it since Metasm doesn't do relocations well
       pe.optheader.dll_characts.delete("DYNAMIC_BASE")
 
-      prefix = ''
-      if pe.header.characteristics.include? "DLL"
-        # if there is no entry point, just return after we bail or spawn shellcode
-        if pe.optheader.entrypoint == 0
-          prefix = "cmp [esp + 8], 1
-              jz spawncode
-entrypoint:
-              xor eax, eax
-              inc eax
-              ret 0x0c
-              spawncode:"
-        else
-          # there is an entry point, we'll need to go to it after we bail or spawn shellcode
-          # if fdwReason != DLL_PROCESS_ATTACH, skip the shellcode, jump back to original DllMain
-          prefix = "cmp [esp + 8], 1
-              jnz entrypoint"
-        end
-      end
+      prefix = dll_prefix(pe)
 
       # Generate a new code section set to RWX with our payload in it
       s = Metasm::PE::Section.new
@@ -197,6 +180,32 @@ entrypoint:
       pe.cpu = pe_orig.cpu
 
       pe.encode_string
+    end
+
+    # @param pe [Metasm::PE]
+    # @return [String] assembly code to place at the entrypoint. Will be empty
+    #   for non-DLL executables.
+    def dll_prefix(pe)
+      prefix = ''
+      if pe.header.characteristics.include? "DLL"
+        # if there is no entry point, just return after we bail or spawn shellcode
+        if pe.optheader.entrypoint == 0
+          prefix = "cmp [esp + 8], 1
+              jz spawncode
+entrypoint:
+              xor eax, eax
+              inc eax
+              ret 0x0c
+              spawncode:"
+        else
+          # there is an entry point, we'll need to go to it after we bail or spawn shellcode
+          # if fdwReason != DLL_PROCESS_ATTACH, skip the shellcode, jump back to original DllMain
+          prefix = "cmp [esp + 8], 1
+              jnz entrypoint"
+        end
+      end
+
+      prefix
     end
 
   end
