@@ -84,7 +84,7 @@ begin
   session.sys.process.get_processes().each do |x|
     if (process2mig.index(x['name'].downcase) and x['pid'] != mypid)
       print_status("#{process2mig} Process found, migrating into #{x['pid']}")
-      session.core.migrate(pid: x['pid'].to_i, timeout: 60)
+      session.core.migrate(pid: x['pid'].to_i)
       print_status("Migration Successful!!")
     end
   end

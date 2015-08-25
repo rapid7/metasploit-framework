@@ -524,7 +524,7 @@ def migrateToProc(newproc)
   oldproc = server.pid
 
   # Do the migration
-  @client.core.migrate(pid: newproc.pid.to_i, timeout: 60)
+  @client.core.migrate(pid: newproc.pid.to_i)
 
   print_status("Migration completed successfully.")
 

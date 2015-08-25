@@ -81,7 +81,7 @@ if client.platform =~ /win32|win64/
 
   begin
     print_good("Migrating to #{target_pid}")
-    client.core.migrate(pid: target_pid.to_i, timeout: 60)
+    client.core.migrate(pid: target_pid.to_i)
     print_good("Successfully migrated to process")
   rescue ::Exception => e
     print_error("Could not migrate in to process.")
