@@ -2,6 +2,7 @@
 require 'rex/post/meterpreter'
 require 'msf/core/auxiliary/report'
 require 'rex/google/geolocation'
+require 'date'
 
 module Rex
 module Post
@@ -27,24 +28,99 @@ class Console::CommandDispatcher::Android
       'check_root'        => 'Check if device is rooted',
       'device_shutdown'   => 'Shutdown device',
       'send_sms'          => 'Sends SMS from target session',
-      'wlan_geolocate'    => 'Get current lat-long using WLAN information'
+      'wlan_geolocate'    => 'Get current lat-long using WLAN information',
+      'interval_collect'  => 'Manage interval collection capabilities'
     }
 
     reqs = {
-      'dump_sms'        => [ 'dump_sms' ],
-      'dump_contacts'   => [ 'dump_contacts' ],
-      'geolocate'       => [ 'geolocate' ],
-      'dump_calllog'    => [ 'dump_calllog' ],
-      'check_root'      => [ 'check_root' ],
-      'device_shutdown' => [ 'device_shutdown'],
-      'send_sms'        => [ 'send_sms' ],
-      'wlan_geolocate'  => [ 'wlan_geolocate' ]
+      'dump_sms'         => ['dump_sms'],
+      'dump_contacts'    => ['dump_contacts'],
+      'geolocate'        => ['geolocate'],
+      'dump_calllog'     => ['dump_calllog'],
+      'check_root'       => ['check_root'],
+      'device_shutdown'  => ['device_shutdown'],
+      'send_sms'         => ['send_sms'],
+      'wlan_geolocate'   => ['wlan_geolocate'],
+      'interval_collect' => ['interval_collect']
     }
 
     # Ensure any requirements of the command are met
     all.delete_if do |cmd, _desc|
       reqs[cmd].any? { |req| !client.commands.include?(req) }
     end
+  end
+
+  def interval_collect_usage
+    print_line('Usage: interval_collect <parameters>')
+    print_line
+    print_line('Specifies an action to perform on a collector type.')
+    print_line
+    print_line(@@interval_collect_opts.usage)
+  end
+
+  def cmd_interval_collect(*args)
+      @@interval_collect_opts ||= Rex::Parser::Arguments.new(
+        '-h' => [false, 'Help Banner'],
+        '-a' => [true, "Action (required, one of: #{client.android.collect_actions.join(', ')})"],
+        '-c' => [true, "Collector type (required, one of: #{client.android.collect_types.join(', ')})"],
+        '-t' => [true, 'Collect poll timeout period in seconds (default: 30)']
+      )
+
+      opts = {
+        action:  nil,
+        type:    nil,
+        timeout: 30
+      }
+
+      @@interval_collect_opts.parse(args) do |opt, idx, val|
+        case opt
+        when '-a'
+          opts[:action] = val.downcase
+        when '-c'
+          opts[:type] = val.downcase
+        when '-t'
+          opts[:timeout] = val.to_i
+          opts[:timeout] = 30 if opts[:timeout] <= 0
+        end
+      end
+
+      unless client.android.collect_actions.include?(opts[:action])
+        interval_collect_usage
+        return
+      end
+
+      type = args.shift.downcase
+
+      unless client.android.collect_types.include?(opts[:type])
+        interval_collect_usage
+        return
+      end
+
+      result = client.android.interval_collect(opts)
+      if result[:headers].length > 0 && result[:entries].length > 0
+        header = "Captured #{opts[:type]} data"
+
+        if result[:timestamp]
+          time = Time.at(result[:timestamp]).to_datetime
+          header << " at #{time.strftime('%Y-%m-%d %H:%M:%S')}"
+        end
+
+        table = Rex::Ui::Text::Table.new(
+          'Header'    => header,
+          'SortIndex' => 0,
+          'Columns'   => result[:headers],
+          'Indent'    => 0
+        )
+
+        result[:entries].each do |e|
+          table << e
+        end
+
+        print_line
+        print_line(table.to_s)
+      else
+        print_good('Interval action completed successfully')
+      end
   end
 
   def cmd_device_shutdown(*args)
