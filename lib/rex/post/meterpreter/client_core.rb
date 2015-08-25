@@ -427,11 +427,21 @@ class ClientCore < Extension
     return response.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
   end
 
-  #
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
+  # @param [Hash] opts
+  # @option opts [Fixnum] :pid The process ID to migrate to.
+  # @option opts [Fixnum] :timeout Optional. Timeout for migrate. Default is 60.
+  # @option opts [String] :write_dir Optional. A writable directory.
+  # @raise [ArgumentError] If :pid is missing.
+  # @raise [RuntimeError] Unable to migrate. The message should explain why.
+  # @return [void]
   def migrate(opts={})
+    unless opts[:pid].present?
+      raise ArgumentError, "Option :pid is missing for opts."
+    end
+
     keepalive = client.send_keepalives
     client.send_keepalives = false
     process       = nil
@@ -518,7 +528,7 @@ class ClientCore < Extension
 
     # Send the migration request (bump up the timeout to at least 60 seconds,
     # allowing user to override)
-    timeout = [opts[:timeout], 60].max
+    timeout = [opts[:timeout] || 0, 60].max
     client.send_request(request, timeout)
 
     if client.passive_service

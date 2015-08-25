@@ -193,7 +193,7 @@ if @migrate
   if target_pid != current_pid
     @old_pid = current_pid
     print_status("current PID is #{current_pid}. migrating into explorer.exe, PID=#{target_pid}...")
-    client.core.migrate(target_pid)
+    client.core.migrate(pid: target_pid)
     print_status("done.")
   end
 end
@@ -237,7 +237,7 @@ end
 
 if @migrate && @old_pid
   print_status("migrating back into PID=#{@old_pid}...")
-  client.core.migrate(@old_pid)
+  client.core.migrate(pid: @old_pid)
   print_status("done.")
 end
 

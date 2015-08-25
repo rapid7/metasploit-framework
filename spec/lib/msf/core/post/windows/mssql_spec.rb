@@ -324,13 +324,13 @@ describe Msf::Post::Windows::MSSQL do
 
       it 'should return true if successful' do
         expect(subject).to receive(:print_warning)
-        subject.stub_chain('session.core.migrate').with(pid).and_return(true)
+        subject.stub_chain('session.core.migrate').with(pid: pid).and_return(true)
         subject.impersonate_sql_user(service).should be true
       end
 
       it 'should rescue an exception if migration fails' do
         expect(subject).to receive(:print_warning)
-        subject.stub_chain('session.core.migrate').with(pid).and_raise(Rex::RuntimeError)
+        subject.stub_chain('session.core.migrate').with(pid: pid).and_raise(Rex::RuntimeError)
         subject.impersonate_sql_user(service).should be false
       end
     end
