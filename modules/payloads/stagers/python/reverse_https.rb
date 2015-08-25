@@ -9,7 +9,7 @@ require 'msf/core/payload/uuid/options'
 
 module Metasploit3
 
-  CachedSize = 742
+  CachedSize = 762
 
   include Msf::Payload::Stager
   include Msf::Payload::UUID::Options

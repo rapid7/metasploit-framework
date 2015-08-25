@@ -66,23 +66,47 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_login(user='msf', pass='msf')
     vprint_status("Trying username:'#{user}' with password:'#{pass}'")
     begin
       res = @rpc.login(user, pass)
       if res
         print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'msf-rpc',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
-        report_auth_info(report_hash)
+        report_cred(
+          ip: datastore['RHOST'],
+          port: datastore['RPORT'],
+          service_name: 'msf-rpc',
+          user: user,
+          password: pass,
+          proof: res.body
+        )
         @rpc.close
         return :next_user
       end

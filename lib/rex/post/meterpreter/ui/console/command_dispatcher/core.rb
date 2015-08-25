@@ -86,7 +86,7 @@ class Console::CommandDispatcher::Core
       c["migrate"] = "Migrate the server to another process"
     end
 
-    if client.platform =~ /win/ || client.platform =~ /linux/ || client.platform =~ /java/
+    if client.platform =~ /win/ || client.platform =~ /linux/ || client.platform =~ /python/ || client.platform =~ /java/
       # Yet to implement transport hopping for other meterpreters.
       c["transport"] = "Change the current transport mechanism"
 

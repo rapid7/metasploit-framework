@@ -178,6 +178,7 @@ class Metasploit3 < Msf::Auxiliary
       last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -224,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
 
         do_logout(resp.get_cookies)
 
-        report_cred(ip: rhost, port: rport, user: user, password: pass)
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
         report_note(ip: rhost, type: 'cisco.cred.group', data: "User: #{user} / Group: #{group}")
         return :next_user
 

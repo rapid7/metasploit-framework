@@ -85,7 +85,7 @@ module Metasploit
               recvd_sample = @recvd.dup
               # Allow for slow echos
               1.upto(10) do
-                recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
+                recv_telnet(self.sock, 0.10) unless @recvd.nil? || password_prompt?(@recvd)
               end
 
               if password_prompt?(credential.public)

@@ -4,12 +4,12 @@
 ###
 
 require 'msf/core'
-require 'msf/core/format/webarchive'
+require 'msf/core/exploit/format/webarchive'
 
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::FtpServer
-  include Msf::Format::Webarchive
+  include Msf::Exploit::Format::Webarchive
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
         'joev' # discovery, module
       ],
       'References'  => [
-        ['ZDI', '15-288'],
+        ['ZDI', '15-228'],
         ['CVE', '2015-1155'],
         ['URL', 'https://support.apple.com/en-us/HT204826']
       ],
