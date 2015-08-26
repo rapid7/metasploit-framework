@@ -27,6 +27,8 @@ class Console::CommandDispatcher::Extapi::Adsi
   def commands
     {
       "adsi_user_enum"     => "Enumerate all users on the specified domain.",
+      "adsi_group_enum"    => "Enumerate all groups on the specified domain.",
+      "adsi_nested_group_user_enum"    => "Enumerate users who are effectively members of a group, taking intermediate groups into account.",
       "adsi_computer_enum" => "Enumerate all computers on the specified domain.",
       "adsi_domain_query"  => "Enumerate all objects on the specified domain that match a filter."
     }
@@ -37,6 +39,52 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   def name
     "Extapi: ADSI Management"
+  end
+
+  #
+  # Options for the adsi_nested_group_user_enum command.
+  #
+  @@adsi_nested_group_user_enum_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ],
+    "-m" => [ true, "Maximum results to return." ],
+    "-p" => [ true, "Result set page size." ]
+  )
+
+  def adsi_nested_group_user_enum_usage
+    print(
+      "\nUsage: adsi_nested_group_user_enum <domain> <Group DN> [-h] [-m maxresults] [-p pagesize]\n\n" +
+      "Enumerate the users who are members of the named group, taking nested groups into account." +
+      "For example, specifying the 'Domain Admins' group DN will list all users who are effectively\n" +
+      "members of the Domain Admins group, even if they are members of intermediary groups.\n\n" +
+      "Example:\n" +
+      "adsi_nested_group_user_enum MWR \"CN=Domain Admins,CN=Users,DC=mwrinfosecurity,DC=com\"\n\n" +
+      @@adsi_nested_group_user_enum_opts.usage)
+  end
+
+  #
+  # Enumerate domain users.
+  #
+  def cmd_adsi_nested_group_user_enum(*args)
+    args.unshift("-h") if args.length == 0
+    if args.include?("-h") 
+      adsi_nested_group_user_enum_usage
+      return true
+    end
+
+    domain = args.shift
+    groupdn = args.shift
+    # This OID (canonical name = LDAP_MATCHING_RULE_IN_CHAIN) will recursively search each 'memberof' parent
+    # https://support.microsoft.com/en-us/kb/275523 for more information -stufus
+    filter = "(&(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{groupdn}))"
+    fields = [
+      "samaccountname",
+      "name",
+      "distinguishedname",
+      "description",
+      "comment"
+      ]
+    args = [domain, filter] + fields + args
+    return cmd_adsi_domain_query(*args)
   end
 
   #
@@ -75,6 +123,43 @@ class Console::CommandDispatcher::Extapi::Adsi
       "distinguishedname",
       "description",
       "comment"
+      ]
+    args = [domain, filter] + fields + args
+    return cmd_adsi_domain_query(*args)
+  end
+
+  #
+  # Options for the adsi_user_enum command.
+  #
+  @@adsi_group_enum_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ],
+    "-m" => [ true, "Maximum results to return." ],
+    "-p" => [ true, "Result set page size." ]
+  )
+
+  def adsi_group_enum_usage
+    print(
+      "\nUsage: adsi_group_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
+      "Enumerate the groups on the target domain.\n\n" +
+      "Enumeration returns the group name and description" +
+      @@adsi_group_enum_opts.usage)
+  end
+  #
+  # Enumerate domain groups.
+  #
+  def cmd_adsi_group_enum(*args)
+    args.unshift("-h") if args.length == 0
+    if args.include?("-h")
+      adsi_group_enum_usage
+      return true
+    end
+
+    domain = args.shift
+    filter = "(objectClass=group)"
+    fields = [
+      "name",
+      "distinguishedname",
+      "description",
       ]
     args = [domain, filter] + fields + args
     return cmd_adsi_domain_query(*args)
