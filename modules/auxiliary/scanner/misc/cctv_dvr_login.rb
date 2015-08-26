@@ -151,6 +151,7 @@ class Metasploit3 < Msf::Auxiliary
       last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -205,7 +206,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Report valid credentials under the CCTV DVR admin port (5920/TCP).
       # This is a proprietary protocol.
-      report_cred(ip: rhost, port: rport, user:user, password: pass)
+      report_cred(ip: rhost, port: rport, user:user, password: pass, proof: res.inspect)
 
       @valid_hosts << rhost
       return :next_user

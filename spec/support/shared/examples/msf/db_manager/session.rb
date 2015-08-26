@@ -123,9 +123,15 @@ shared_examples_for 'Msf::DBManager::Session' do
           end
 
           context 'with a match in user_data' do
+            let(:vuln) do
+              FactoryGirl.create(:mdm_vuln,
+                                 name: parent_module_name,
+                                 host: host)
+            end
+
             let(:user_data) do
               {
-                match: FactoryGirl.build(:automatic_exploitation_match),
+                match: FactoryGirl.build(:automatic_exploitation_match, matchable: vuln),
                 match_set: FactoryGirl.build(:automatic_exploitation_match_set),
                 run: FactoryGirl.build(:automatic_exploitation_run, workspace: session_workspace),
               }

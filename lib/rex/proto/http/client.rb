@@ -58,7 +58,6 @@ class Client
       'method_random_case'     => 'bool',
       'version_random_valid'   => 'bool',
       'version_random_invalid' => 'bool',
-      'version_random_case'    => 'bool',
       'uri_dir_self_reference' => 'bool',
       'uri_dir_fake_relative'  => 'bool',
       'uri_use_backslashes'    => 'bool',
@@ -586,8 +585,8 @@ class Client
 
         begin
 
-          buff = conn.get_once(-1, 1)
-          rv   = resp.parse( buff || '' )
+          buff = conn.get_once(resp.max_data, 1)
+          rv   = resp.parse(buff || '')
 
         # Handle unexpected disconnects
         rescue ::Errno::EPIPE, ::EOFError, ::IOError
