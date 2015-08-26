@@ -67,7 +67,7 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   def cmd_adsi_nested_group_user_enum(*args)
     args.unshift("-h") if args.length == 0
-    if args.include?("-h") 
+    if args.include?("-h") || args.length < 2
       adsi_nested_group_user_enum_usage
       return true
     end
@@ -197,7 +197,55 @@ class Console::CommandDispatcher::Extapi::Adsi
     filter = "(objectClass=computer)"
     fields = [
       "name",
+      "dnshostname",
       "distinguishedname",
+      "operatingsystem",
+      "operatingsystemversion",
+      "operatingsystemservicepack",
+      "description",
+      "comment"
+      ]
+    args = [domain, filter] + fields + args
+    return cmd_adsi_domain_query(*args)
+  end
+
+  #
+  # Options for the adsi_dc_enum command.
+  #
+  @@adsi_dc_enum_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ],
+    "-m" => [ true, "Maximum results to return." ],
+    "-p" => [ true, "Result set page size." ]
+  )
+
+  def adsi_dc_enum_usage
+    print(
+      "\nUsage: adsi_dc_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
+      "Enumerate the dcs on the target domain.\n\n" +
+      "Enumeration returns information such as the dc name, desc, and comment.\n" +
+      @@adsi_dc_enum_opts.usage)
+  end
+
+  #
+  # Enumerate domain dcs.
+  #
+  def cmd_adsi_dc_enum(*args)
+    args.unshift("-h") if args.length == 0
+    if args.include?("-h") 
+      adsi_dc_enum_usage
+      return true
+    end
+
+    domain = args.shift
+    # This LDAP filter will pull out domain controllers
+    filter = "(&(objectCategory=computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))"
+    fields = [
+      "name",
+      "dnshostname",
+      "distinguishedname",
+      "operatingsystem",
+      "operatingsystemversion",
+      "operatingsystemservicepack",
       "description",
       "comment"
       ]
