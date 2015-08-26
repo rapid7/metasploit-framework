@@ -152,7 +152,7 @@ module Powershell
       scriptbybasefull = ps_script.rig.generate(4)
 
       if (encoded_expression.size > 14999)
-        print_error("Script size: #{encoded_expression.size} This script requres a stager")
+        print_error("Script size: #{encoded_expression.size} This script requires a stager")
         arr = encoded_expression.chars.each_slice(14999).map(&:join)
         print_good("Loading " + arr.count.to_s + " chunks into the stager.")
         vararray = []
