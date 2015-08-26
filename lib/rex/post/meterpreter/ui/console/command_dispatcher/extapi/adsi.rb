@@ -28,8 +28,9 @@ class Console::CommandDispatcher::Extapi::Adsi
     {
       "adsi_user_enum"     => "Enumerate all users on the specified domain.",
       "adsi_group_enum"    => "Enumerate all groups on the specified domain.",
-      "adsi_nested_group_user_enum"    => "Enumerate users who are effectively members of a group, taking intermediate groups into account.",
+      "adsi_nested_group_user_enum"    => "Recursively enumerate users who are effectively members of the group specified.",
       "adsi_computer_enum" => "Enumerate all computers on the specified domain.",
+      "adsi_dc_enum" => "Enumerate all domain controllers on the specified domain.",
       "adsi_domain_query"  => "Enumerate all objects on the specified domain that match a filter."
     }
   end
@@ -62,7 +63,7 @@ class Console::CommandDispatcher::Extapi::Adsi
   end
 
   #
-  # Enumerate domain users.
+  # Enumerate domain groups.
   #
   def cmd_adsi_nested_group_user_enum(*args)
     args.unshift("-h") if args.length == 0
@@ -129,7 +130,7 @@ class Console::CommandDispatcher::Extapi::Adsi
   end
 
   #
-  # Options for the adsi_user_enum command.
+  # Options for the adsi_group_enum command.
   #
   @@adsi_group_enum_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
