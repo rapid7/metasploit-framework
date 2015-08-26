@@ -19,15 +19,15 @@ describe Msf::Post::Android::Priv do
   end
 
   describe '#is_root?' do
-    context 'when root' do
-      it 'returns TrueClass' do
+    context 'when not root' do
+      it 'returns FalseClass' do
         allow(subject).to receive(:cmd_exec).with('id').and_return(nonroot_id)
         expect(subject.is_root?).to be_falsey
       end
     end
 
-    context 'when non root' do
-      it 'reeturns FalseClass' do
+    context 'when root' do
+      it 'returns TrueClass' do
         allow(subject).to receive(:cmd_exec).with('id').and_return(root_id)
         expect(subject.is_root?).to be_truthy
       end
