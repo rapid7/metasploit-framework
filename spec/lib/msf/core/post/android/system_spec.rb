@@ -23,7 +23,7 @@ ro.build.version.release=4.1.1
 
     it 'returns the android version' do
       allow(subject).to receive(:cmd_exec).and_return(build_prop_output)
-      expect(subject.get_sysinfo['ro.build.version.release']).to eq(expected_android_version)
+      expect(subject.get_build_prop['ro.build.version.release']).to eq(expected_android_version)
     end
   end
 
