@@ -124,7 +124,7 @@ if not target_pid
 end
 
 print_status("Migrating into process ID #{target_pid}")
-client.core.migrate(target_pid)
+client.core.migrate(pid: target_pid)
 
 target_pid = nil
 

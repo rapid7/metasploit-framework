@@ -71,9 +71,9 @@ if client.platform =~ /win32|win64/
     target_pid = create_temp_proc
   end
 
-  if target_name and not target_pid
+  if target_name && !target_pid
     target_pid = client.sys.process[target_name]
-    if not target_pid
+    if !target_pid
       print_status("Could not identify the process ID for #{target_name}")
       raise Rex::Script::Completed
     end
@@ -81,8 +81,8 @@ if client.platform =~ /win32|win64/
 
   begin
     print_good("Migrating to #{target_pid}")
-    client.core.migrate(target_pid)
-    print_good("Successfully migrated to process #{}")
+    client.core.migrate(pid: target_pid.to_i)
+    print_good("Successfully migrated to process")
   rescue ::Exception => e
     print_error("Could not migrate in to process.")
     print_error(e)
