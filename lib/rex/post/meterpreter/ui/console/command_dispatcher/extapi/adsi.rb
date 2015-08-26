@@ -58,7 +58,7 @@ class Console::CommandDispatcher::Extapi::Adsi
       "For example, specifying the 'Domain Admins' group DN will list all users who are effectively\n" +
       "members of the Domain Admins group, even if they are members of intermediary groups.\n\n" +
       "Example:\n" +
-      "adsi_nested_group_user_enum MWR \"CN=Domain Admins,CN=Users,DC=mwrinfosecurity,DC=com\"\n\n" +
+      " adsi_nested_group_user_enum STUFUS \"CN=Domain Admins,CN=Users,DC=mwrinfosecurity,DC=com\"\n\n" +
       @@adsi_nested_group_user_enum_opts.usage)
   end
 
@@ -142,7 +142,9 @@ class Console::CommandDispatcher::Extapi::Adsi
     print(
       "\nUsage: adsi_group_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
       "Enumerate the groups on the target domain.\n\n" +
-      "Enumeration returns the group name and description" +
+      "Enumeration returns the group name and description\n" +
+      "Example:\n" +
+      " adsi_group_enum STUFUS\n\n" +
       @@adsi_group_enum_opts.usage)
   end
   #
@@ -223,6 +225,8 @@ class Console::CommandDispatcher::Extapi::Adsi
       "\nUsage: adsi_dc_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
       "Enumerate the dcs on the target domain.\n\n" +
       "Enumeration returns information such as the dc name, desc, and comment.\n" +
+      "Example:\n" +
+      " adsi_dc_enum STUFUS\n\n" +
       @@adsi_dc_enum_opts.usage)
   end
 
@@ -231,7 +235,7 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   def cmd_adsi_dc_enum(*args)
     args.unshift("-h") if args.length == 0
-    if args.include?("-h") 
+    if args.include?("-h")
       adsi_dc_enum_usage
       return true
     end
