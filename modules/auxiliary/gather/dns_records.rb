@@ -141,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 
           # save A record to database
           unless db_filter(r.address)
-            report_host(host: r.address, comments: domain)
+            report_host(host: r.address, name: domain)
           end
 
         elsif r.class == Net::DNS::RR::CNAME
