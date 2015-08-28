@@ -565,6 +565,12 @@ class Msftidy
     end
   end
 
+  def check_hash_syntax
+    if @source =~ /([^:]):(\w+)\s*=>\s/
+      warn('Please use "{ key: \'value\' }" instead of "{ :key => \'value\' }"')
+    end
+  end
+
   def check_vars_get
     test = @source.scan(/send_request_cgi\s*\(\s*\{?\s*['"]uri['"]\s*=>\s*[^=})]*?\?[^,})]+/im)
     unless test.empty?
@@ -684,6 +690,7 @@ def run_checks(full_filepath)
   tidy.check_print_debug
   tidy.check_register_datastore_debug
   tidy.check_use_datastore_debug
+  tidy.check_hash_syntax
   return tidy
 end
 
