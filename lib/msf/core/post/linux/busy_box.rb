@@ -50,7 +50,7 @@ module BusyBox
   # Checks some directories that usually are writable in devices running busybox
   # @return [String] If the function finds a writable directory, it returns the path. Else it returns nil
   def busy_box_writable_dir
-    dirs = ['/etc/', '/mnt/', '/var/', '/var/tmp/']
+    dirs = %w(/etc/ /mnt/ /var/ /var/tmp/)
 
     dirs.each do |d|
       return d if busy_box_is_writable_dir?(d)
