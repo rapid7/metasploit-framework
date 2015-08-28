@@ -10,10 +10,11 @@ module BusyBox
   include ::Msf::Post::Common
   include ::Msf::Post::File
 
-  # Checks if the target file exists
+  # Checks if the file exists in the target
+  #
   # @param file_path [String] the target file path
-  # @note file? doesnt work because test -f is not implemented in busybox
-  # @return [Boolean] True if files exists, otherwise false
+  # @return [Boolean] true if files exists, false otherwise
+  # @note Msf::Post::File#file? doesnt work because test -f is not available in busybox
   def busy_box_file_exist?(file_path)
     contents = read_file(file_path)
     if contents and contents.length > 0
@@ -23,13 +24,14 @@ module BusyBox
     false
   end
 
-  # Checks if the target directory is writable
-  # @param directory_path [String] the target directory path
-  # @return [Boolean] True if target directory is writable, otherwise false
-  def is_writable_directory?(directory_path)
+  # Checks if the directory is writable in the target
+  #
+  # @param dir_path [String] the target directory path
+  # @return [Boolean] true if target directory is writable, false otherwise
+  def is_writable_directory?(dir_path)
     res = false
     rand_str = Rex::Text.rand_text_alpha(16)
-    file_path = "#{directory_path}"/"#{rand_str}"
+    file_path = "#{dir_path}"/"#{rand_str}"
 
     cmd_exec("echo #{rand_str}XXX#{rand_str} > #{file_path}")
     Rex::sleep(0.3)
@@ -45,12 +47,28 @@ module BusyBox
     res
   end
 
-  # Checks if the target file is writable and writes or append to the file the data given as parameter
-  # @param file_path [String] the target file path
-  # @param data [String] the content to be written to the file
-  # @param append [Boolean] if true, append data to the target file. Otherwise, overwrite the target file
-  # @note BusyBox shell's commands are limited and Msf > Post > File > write_file function doesnt work here, for this reason it is necessary to implement an specific function
+  # Checks some directories that usually are writable in devices running busybox
+  # @return [String] If the function finds a writable directory, it returns the path. Else it returns nil
+  def get_writable_directory
+    dirs = ['/etc/', '/mnt/', '/var/', '/var/tmp/']
+
+    dirs.each do |d|
+      return d if is_writable_directory?(d)
+    end
+
+    nil
+  end
+
+
+  # Writes data to a file
+  #
+  # @param file_path [String] the file path to write on the target
+  # @param data [String] the content to be written
+  # @param prepend [Boolean] if true, prepend the data to the target file. Otherwise, overwrite
+  #   the target file
   # @return [Boolean] True if target file is writable and it was written. Otherwise, false.
+  # @note BusyBox commands are limited and Msf::Post::File#write_file doesn't work here, because
+  #   of it is necessary to implement an specific method.
   def busybox_write_file(file_path, data, prepend = false)
     if prepend
       cmd_exec("cp -f #{file_path} #{dir}tmp")
@@ -84,19 +102,6 @@ module BusyBox
 
     true
   end
-
-  # Checks some directories that usually are writable in devices running busybox
-  # @return [String] If the function finds a writable directory, it returns the path. Else it returns nil
-  def get_writable_directory
-    dirs = ['/etc/', '/mnt/', '/var/', '/var/tmp/']
-
-    dirs.each do |d|
-      return d if is_writable_directory?(d)
-    end
-
-    nil
-  end
-
 end # Busybox
 end # Linux
 end # Post
