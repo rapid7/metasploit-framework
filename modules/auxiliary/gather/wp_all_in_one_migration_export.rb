@@ -13,10 +13,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'WordPress All-in-One Migration Export',
-      'Description'     => %q(Due to lack of authenticated session verification
-                              it is possible for unauthenticated users to export
-                              a complete copy of the database, all plugins, themes
-                              and uploaded files.),
+      'Description'     => %q{
+        This module allows you to export Wordpress data (such as the database, plugins, themes,
+        uploaded files, etc) via the All-in-One Migration plugin without authentication.
+      },
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
