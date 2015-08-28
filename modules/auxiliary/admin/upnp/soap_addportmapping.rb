@@ -70,6 +70,7 @@ class Metasploit3 < Msf::Auxiliary
     content << "</m:AddPortMapping>"
     content << "</SOAP-ENV:Body>"
     content << "</SOAP-ENV:Envelope>"
+
     res = send_request_cgi(
       'uri'           => normalize_uri(target_uri.path),
       'method'        => 'POST',
@@ -81,7 +82,9 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res
-      map = "#{rhost}:#{external_port}/#{protocol} -> #{internal_client}:#{internal_port}/#{protocol}"
+      external_map = "#{external_client ? external_client : 'any'}:#{external_port}/#{protocol}"
+      internal_map = "#{internal_client ? internal_client : 'any'}:#{internal_port}/#{protocol}"
+      map = "#{external_map} -> #{internal_map}"
       if res.code == 200
         print_good("#{peer} successfully mapped #{map}")
       else
