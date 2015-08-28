@@ -135,7 +135,7 @@ GEM
       railties (>= 4.0.9, < 4.1.0)
       recog (~> 2.0)
     method_source (0.8.2)
-    mime-types (2.4.3)
+    mime-types (2.6.1)
     mini_portile (0.6.2)
     minitest (4.7.5)
     msgpack (0.6.2)
