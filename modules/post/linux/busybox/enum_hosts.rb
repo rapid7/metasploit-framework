@@ -26,9 +26,9 @@ class Metasploit3 < Msf::Post
 
   def run
     print_status('Searching hosts files...')
-    if file_exists('/var/hosts')
+    if busy_box_file_exist?('/var/hosts')
       hosts_file = '/var/hosts'
-    elsif file_exists('/var/udhcpd/udhcpd.leases')
+    elsif busy_box_file_exist?('/var/udhcpd/udhcpd.leases')
       hosts_file = '/var/udhcpd/udhcpd.leases'
     else
       print_error('Files not found')

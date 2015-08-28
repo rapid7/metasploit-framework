@@ -13,12 +13,13 @@ module BusyBox
   # @param file_path [String] the target file path
   # @note file? doesnt work because test -f is not implemented in busybox
   # @return [Boolean] True if files exists, otherwise false
-  def file_exists(file_path)
+  def busy_box_file_exist?(file_path)
     s = read_file(file_path)
-    if s and s.length
+    if s and s.length > 0
       return true
     end
-    return false
+
+    false
   end
 
   # Checks if the target directory is writable

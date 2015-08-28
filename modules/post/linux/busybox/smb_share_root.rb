@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 
   def run
     print_status('Checking smb.conf...')
-    if read_file('/var/samba/smb.conf').length > 0 #file? doesnt work because test -f is not implemented in busybox
+    if busy_box_file_exist?('/var/samba/smb.conf')
       print_status('smb.conf found, searching writable directory...')
       writable_directory = get_writable_directory
       if writable_directory

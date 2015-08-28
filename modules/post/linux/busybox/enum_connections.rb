@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
     found = false
     print_status('Searching for files that store information about network connections')
     FILES.each do |f|
-      if file_exists(f)
+      if busy_box_file_exist?(f)
         found = true
         print_good("Connections File found: #{f}.")
         read_connection_file(f)

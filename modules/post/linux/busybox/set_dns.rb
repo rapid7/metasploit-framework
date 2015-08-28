@@ -32,11 +32,11 @@ class Metasploit3 < Msf::Post
 
   def run
     print_status("Searching for files to modify dns server.")
-    if file_exists("/etc/resolv.conf")
+    if busy_box_file_exist?('/etc/resolv.conf')
       modify_resolv_conf
     end
 
-    if file_exists("/etc/udhcpd.conf")
+    if busy_box_file_exist?('/etc/udhcpd.conf')
       modify_udhcpd_conf
     end
   end

