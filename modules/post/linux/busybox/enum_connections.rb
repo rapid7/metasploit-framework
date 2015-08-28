@@ -52,9 +52,9 @@ class Metasploit3 < Msf::Post
       str_file=read_file(file)
       vprint_line(str_file)
       p = store_loot('busybox.enum.connections', 'text/plain', session, str_file, file, 'BusyBox Device Network Established Connections')
-      print_good("Connections saved to #{p}.")
+      print_good("Connections saved to #{p}")
     rescue EOFError
-      print_error("Nothing read from file #{file}, file may be empty.")
+      print_error("Nothing read from file #{file}, file may be empty")
     end
   end
 
