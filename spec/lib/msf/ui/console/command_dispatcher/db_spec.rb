@@ -547,21 +547,23 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace "-a foo"
         db.cmd_workspace
         @output.should =~ [
-          "default"
+          "default",
           " * foo"
         ]
       end
     end
+
     describe "-a" do
       it "should add workspaces" do
         db.cmd_workspace "-a foo bar baf"
         @output.should =~ [
-          "Added workspace: foo"
-          "Added workspace: bar"
+          "Added workspace: foo",
+          "Added workspace: bar",
           "Added workspace: baf"
         ]
       end
     end
+
     describe "-d" do
       it "should delete a workspace" do
         db.cmd_workspace "-a foo"
@@ -571,6 +573,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         ]
       end
     end
+
     describe "-D" do
       it "should delete all workspaces" do
         db.cmd_workspace "-a foo"
@@ -581,6 +584,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         ]
       end
     end
+
     describe "-h" do
       it "should show a help message" do
         db.cmd_workspace "-h"
