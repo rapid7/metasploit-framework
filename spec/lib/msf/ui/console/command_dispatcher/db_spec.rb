@@ -535,6 +535,52 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
   end
 
   describe "#cmd_workspace" do
+    describe "<no arguments>" do
+      it "should list default workspace" do
+        db.cmd_workspace
+        @output.should =~ [
+          "* default"
+        ]
+      end
+
+      it "should list all workspaces" do
+        db.cmd_workspace "-a foo"
+        db.cmd_workspace
+        @output.should =~ [
+          "default"
+          " * foo"
+        ]
+      end
+    end
+    describe "-a" do
+      it "should add workspaces" do
+        db.cmd_workspace "-a foo bar baf"
+        @output.should =~ [
+          "Added workspace: foo"
+          "Added workspace: bar"
+          "Added workspace: baf"
+        ]
+      end
+    end
+    describe "-d" do
+      it "should delete a workspace" do
+        db.cmd_workspace "-a foo"
+        db.cmd_workspace "-d foo"
+        @output.should =~ [
+          "Deleted workspace: foo"
+        ]
+      end
+    end
+    describe "-D" do
+      it "should delete all workspaces" do
+        db.cmd_workspace "-a foo"
+        db.cmd_workspace "-D"
+        @output.should =~ [
+          "Deleted and recreated the default workspace",
+          "Deleted workspace: foo"
+        ]
+      end
+    end
     describe "-h" do
       it "should show a help message" do
         db.cmd_workspace "-h"
