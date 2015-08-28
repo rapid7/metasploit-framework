@@ -9,7 +9,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
-  include Msf::Post::Windows::Accounts
+#  include Msf::Post::Windows::Accounts
 
   USER_FIELDS = ['name',
                  'distinguishedname',
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Post
     max_search = datastore['MAX_SEARCH']
 
     begin
-      q = query('(objectClass=group)'), max_search, @user_fields)
+      q = query('(objectClass=group)', max_search, @user_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
