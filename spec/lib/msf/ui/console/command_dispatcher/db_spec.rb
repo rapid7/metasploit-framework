@@ -544,6 +544,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "    workspace [name]           Switch workspace",
           "    workspace -a [name] ...    Add workspace(s)",
           "    workspace -d [name] ...    Delete workspace(s)",
+          "    workspace -D               Delete all workspaces",
           "    workspace -r <old> <new>   Rename workspace",
           "    workspace -h               Show this help information"
         ]
