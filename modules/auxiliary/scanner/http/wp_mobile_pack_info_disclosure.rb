@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'WordPress Mobile Pack Information Disclosure Vulnerability',
       'Description'    => %q{
-        This module exploits a information disclosure vulnerability in WordPress Plugin
+        This module exploits an information disclosure vulnerability in WordPress Plugin
         "WP Mobile Pack" version 2.1.2, allowing to read files with privileges
-        informations.
+        information.
       },
       'References'     =>
         [
