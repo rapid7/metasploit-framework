@@ -52,14 +52,18 @@ class Console::CommandDispatcher::Extapi::Adsi
   )
 
   def adsi_nested_group_user_enum_usage
-    print(
-      "\nUsage: adsi_nested_group_user_enum <domain> <Group DN> [-h] [-m maxresults] [-p pagesize]\n\n" +
-      "Enumerate the users who are members of the named group, taking nested groups into account." +
-      "For example, specifying the 'Domain Admins' group DN will list all users who are effectively\n" +
-      "members of the Domain Admins group, even if they are members of intermediary groups.\n\n" +
-      "Example:\n" +
-      " adsi_nested_group_user_enum STUFUS \"CN=Domain Admins,CN=Users,DC=mwrinfosecurity,DC=com\"\n\n" +
-      @@adsi_nested_group_user_enum_opts.usage)
+    print_line("USAGE:")
+    print_line(" adsi_nested_group_user_enum <domain> <Group DN> [-h] [-m maxresults] [-p pagesize]")
+    print_line("")
+    print_line("DESCRIPTION:")
+    print_line(" Enumerate the users who are members of the named group, taking nested groups into account.")
+    print_line(" For example, specifying the 'Domain Admins' group DN will list all users who are effectively")
+    print_line(" members of the Domain Admins group, even if they are in practice members of intermediary groups.")
+    print_line("")
+    print_line("EXAMPLE:")
+    print_line(" The example below will list all members of the 'Domain Admins' group on the STUFUS domain:")
+    print_line("  adsi_nested_group_user_enum STUFUS \"CN=Domain Admins,CN=Users,DC=mwrinfosecurity,DC=com\"")
+    print_line(@@adsi_nested_group_user_enum_opts.usage)
   end
 
   #
@@ -139,14 +143,18 @@ class Console::CommandDispatcher::Extapi::Adsi
   )
 
   def adsi_group_enum_usage
-    print(
-      "\nUsage: adsi_group_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
-      "Enumerate the groups on the target domain.\n\n" +
-      "Enumeration returns the group name and description\n" +
-      "Example:\n" +
-      " adsi_group_enum STUFUS\n\n" +
-      @@adsi_group_enum_opts.usage)
+    print_line("USAGE:")
+    print_line(" adsi_nested_group_user_enum <domain> [-h] [-m maxresults] [-p pagesize]")
+    print_line("")
+    print_line("DESCRIPTION:")
+    print_line(" Enumerate all groups on the target domain.")
+    print_line("")
+    print_line("EXAMPLE:")
+    print_line(" The example below will list all groups on the STUFUS domain.")
+    print_line("  adsi_group_enum STUFUS")
+    print_line(@@adsi_group_enum_opts.usage)
   end
+
   #
   # Enumerate domain groups.
   #
