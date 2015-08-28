@@ -27,8 +27,8 @@ class Metasploit3 < Msf::Post
       'Name'         => 'Windows Gather Active Directory Users',
       'Description'  => %{
         This module will enumerate user accounts in the default Active Domain (AD) directory and stores
-      them in the database. If GROUP_MEMBER is set to the DN of a group, this will list the members of 
-      that group by performing a recursive/nested search (i.e. it will list users who are members of 
+      them in the database. If GROUP_MEMBER is set to the DN of a group, this will list the members of
+      that group by performing a recursive/nested search (i.e. it will list users who are members of
       groups that are members of groups that are members of groups (etc) which eventually include the
       target group DN.
       },
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Post
     @user_fields = USER_FIELDS.dup
 
     if datastore['ADDITIONAL_FIELDS']
-      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/,"").split(',')
+      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, "").split(',')
       @user_fields.push(*additional_fields)
     end
 
@@ -136,7 +136,6 @@ class Metasploit3 < Msf::Post
     end
     results_table
   end
-
 
   # Builds the LDAP query 'filter' used to find our User Accounts based on
   # criteria set by user in the Datastore.
