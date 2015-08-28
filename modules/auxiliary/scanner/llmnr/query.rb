@@ -39,6 +39,7 @@ class Metasploit3 < Msf::Auxiliary
     @results.each_pair do |peer, resps|
       resps.each do |resp|
         print_good("#{peer} responded with #{Resolv::DNS::Message.decode(resp).inspect}")
+        report_service(host: peer, port: rport, proto: "udp", name: "llmnr")
       end
     end
   end

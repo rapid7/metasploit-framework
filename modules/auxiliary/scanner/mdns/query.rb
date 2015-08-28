@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_prescan(batch)
-    print_status("Sending mDNS #{query_type_name} #{query_class_name} queries for " +
+    print_status("Sending mDNS #{query_type_name} #{query_class_name} queries for " \
                  "#{query_name} to #{batch[0]}->#{batch[-1]} port #{rport} (#{batch.length} hosts)")
     @results = {}
   end
@@ -39,6 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       resps.each do |resp|
         resp_message = Resolv::DNS::Message.decode(resp)
         print_good("#{peer} responded with #{resp_message.inspect}")
+        report_service(host: peer, port: rport, proto: "udp", name: "mdns")
       end
     end
   end
