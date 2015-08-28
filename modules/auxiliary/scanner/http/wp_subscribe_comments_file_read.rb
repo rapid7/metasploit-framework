@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'WordPress Subscribe Comments File Read Vulnerability',
       'Description'    => %q{
-        This module exploits a authenticated directory traversal vulnerability
+        This module exploits an authenticated directory traversal vulnerability
         in WordPress Plugin "Subscribe to Comments" version 2.1.2, allowing
         to read arbitrary files with the web server privileges.
       },
