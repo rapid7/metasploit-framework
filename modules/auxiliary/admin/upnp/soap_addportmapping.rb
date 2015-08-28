@@ -81,7 +81,6 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res
-      map_target = Rex::Socket.source_address(rhost)
       map = "#{rhost}:#{external_port}/#{protocol} -> #{internal_ip}:#{internal_port}/#{protocol}"
       if res.code == 200
         print_good("#{peer} successfully mapped #{map}")
