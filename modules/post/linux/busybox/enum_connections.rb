@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
     super(
       'Name'         => 'BusyBox Enumerate Connections',
       'Description'  => %q{
-        This module will be applied on a session connected to a BusyBox sh shell. It will
+        This module will be applied on a session connected to a BusyBox shell. It will
         enumerate the connections established with the router or device executing BusyBox.
       },
       'Author'       => 'Javier Vicente Vallejo',
@@ -51,11 +51,9 @@ class Metasploit3 < Msf::Post
     begin
       str_file=read_file(file)
       vprint_line(str_file)
-      #Store file
       p = store_loot('busybox.enum.connections', 'text/plain', session, str_file, file, 'BusyBox Device Network Established Connections')
       print_good("Connections saved to #{p}.")
     rescue EOFError
-      # If there's nothing in the file, we hit EOFError
       print_error("Nothing read from file #{file}, file may be empty.")
     end
   end

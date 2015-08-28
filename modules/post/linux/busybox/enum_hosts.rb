@@ -13,10 +13,10 @@ class Metasploit3 < Msf::Post
   def initialize
     super(
       'Name'         => 'BusyBox Enumerate Hosts',
-      'Description'  => 'This module will be applied on a session connected
-                         to a BusyBox sh shell. The script will enumerate
-                         the hosts connected to the router or device executing
-                         BusyBox.',
+      'Description'  => %q{
+        This module will be applied on a session connected to a BusyBox shell. It will enumerate
+        host names related to the device executing BusyBox.
+      },
       'Author'       => 'Javier Vicente Vallejo',
       'License'      => MSF_LICENSE,
       'References'   =>
@@ -29,26 +29,28 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    hosts_file = nil
-    if file_exists("/var/hosts")
-      hosts_file = "/var/hosts"
-    elsif file_exists("/var/udhcpd/udhcpd.leases")
-      hosts_file = "/var/udhcpd/udhcpd.leases"
+    print_status('Searching hosts files...')
+    if file_exists('/var/hosts')
+      hosts_file = '/var/hosts'
+    elsif file_exists('/var/udhcpd/udhcpd.leases')
+      hosts_file = '/var/udhcpd/udhcpd.leases'
     else
-      vprint_error("Files not found: /var/hosts, /var/udhcpd/udhcpd.leases.")
+      print_error('Files not found')
       return
     end
-    #File exists
+
+    read_hosts_file(hosts_file)
+  end
+
+  def read_hosts_file(file)
     begin
-      str_file=read_file(hosts_file)
-      print_good("Hosts File found: #{hosts_file}.")
+      str_file=read_file(file)
+      print_good("Hosts File found: #{file}.")
       vprint_line(str_file)
-      #Store file
-      p = store_loot("Hosts", "text/plain", session, str_file, hosts_file, "BusyBox Device Connected Hosts")
+      p = store_loot('busybox.enum.hosts', 'text/plain', session, str_file, file, 'BusyBox Device host names')
       print_good("Hosts saved to #{p}.")
     rescue EOFError
-      # If there's nothing in the file, we hit EOFError
-      print_error("Nothing read from file: #{hosts_file}, file may be empty.")
+      print_error("Nothing read from file: #{file}, file may be empty.")
     end
   end
 
