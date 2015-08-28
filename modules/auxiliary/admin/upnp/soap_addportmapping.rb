@@ -19,11 +19,16 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'UPnP control URL', '/' ]),
         OptString.new('INTERNAL_CLIENT', [true, 'New Internal Client']),
+        OptEnum.new('PROTOCOL', [true, 'Transport level protocol to map', 'TCP', %w(TCP UDP)]),
         OptInt.new('INTERNAL_PORT', [true, 'New Internal Port']),
         OptInt.new('EXTERNAL_PORT', [true, 'New External Port'])
       ],
       self.class
     )
+  end
+
+  def setup
+    @protocol = datastore['PROTOCOL']
   end
 
   def run
@@ -37,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
     content << "<NewEnabled>1</NewEnabled>"
     content << "<NewExternalPort>#{datastore['EXTERNAL_PORT']}</NewExternalPort>"
     content << "<NewRemoteHost></NewRemoteHost>"
-    content << "<NewProtocol>TCP</NewProtocol>"
+    content << "<NewProtocol>#{@protocol}</NewProtocol>"
     content << "<NewInternalPort>#{datastore['INTERNAL_PORT']}</NewInternalPort>"
     content << "</m:AddPortMapping>"
     content << "</SOAP-ENV:Body>"
