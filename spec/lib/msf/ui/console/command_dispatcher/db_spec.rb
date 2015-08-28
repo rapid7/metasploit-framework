@@ -535,6 +535,10 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
   end
 
   describe "#cmd_workspace" do
+    before(:each) do
+      db.cmd_workspace "-D"
+      @output = []
+    end
     describe "<no arguments>" do
       it "should list default workspace" do
         db.cmd_workspace
@@ -545,10 +549,11 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
 
       it "should list all workspaces" do
         db.cmd_workspace("-a", "foo")
+        @output = []
         db.cmd_workspace
         @output.should =~ [
-          "default",
-          " * foo"
+          "  default",
+          "* foo"
         ]
       end
     end
@@ -567,9 +572,11 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-d" do
       it "should delete a workspace" do
         db.cmd_workspace("-a", "foo")
+        @output = []
         db.cmd_workspace("-d", "foo")
         @output.should =~ [
-          "Deleted workspace: foo"
+          "Deleted workspace: foo",
+          "Switched workspace: default"
         ]
       end
     end
@@ -577,10 +584,12 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-D" do
       it "should delete all workspaces" do
         db.cmd_workspace("-a", "foo")
+        @output = []
         db.cmd_workspace("-D")
         @output.should =~ [
           "Deleted and recreated the default workspace",
-          "Deleted workspace: foo"
+          "Deleted workspace: foo",
+          "Switched workspace: default"
         ]
       end
     end
