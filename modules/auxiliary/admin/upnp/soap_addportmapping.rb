@@ -19,11 +19,11 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'UPnP control URL', '/' ]),
-        OptString.new('INTERNAL_IP', [false, 'New Internal Client']),
-        OptString.new('EXTERNAL_IP', [false, 'New Internal Client']),
+        OptAddress.new('INTERNAL_CLIENT', [false, 'Internal client hostname/IP']),
+        OptAddress.new('EXTERNAL_CLIENT', [false, 'External client hostname/IP']),
         OptEnum.new('PROTOCOL', [true, 'Transport level protocol to map', 'TCP', %w(TCP UDP)]),
-        OptInt.new('INTERNAL_PORT', [true, 'New Internal Port']),
-        OptInt.new('EXTERNAL_PORT', [true, 'New External Port']),
+        OptInt.new('INTERNAL_PORT', [true, 'Internal port']),
+        OptInt.new('EXTERNAL_PORT', [true, 'External port']),
         OptInt.new('LEASE_DURATION', [true, 'Lease time for mapping, in seconds', 3600])
       ],
       self.class
@@ -34,16 +34,16 @@ class Metasploit3 < Msf::Auxiliary
     @internal_port ||= datastore['INTERNAL_PORT']
   end
 
-  def internal_ip
-    @internal_ip ||= datastore['INTERNAL_IP']
+  def internal_client
+    @internal_client ||= datastore['INTERNAL_CLIENT']
   end
 
   def external_port
     @external_port ||= datastore['EXTERNAL_PORT']
   end
 
-  def external_ip
-    @external_ip ||= datastore['EXTERNAL_IP']
+  def external_client
+    @external_client ||= datastore['EXTERNAL_CLIENT']
   end
 
   def lease_duration
@@ -61,10 +61,10 @@ class Metasploit3 < Msf::Auxiliary
     content << "<m:AddPortMapping xmlns:m=\"urn:schemas-upnp-org:service:WANIPConnection:1\">"
     content << "<NewPortMappingDescription>#{Rex::Text.rand_text_alpha(8)}</NewPortMappingDescription>"
     content << "<NewLeaseDuration>#{lease_duration}</NewLeaseDuration>"
-    content << "<NewInternalClient>#{internal_ip}</NewInternalClient>"
+    content << "<NewInternalClient>#{internal_client}</NewInternalClient>"
     content << "<NewEnabled>1</NewEnabled>"
     content << "<NewExternalPort>#{external_port}</NewExternalPort>"
-    content << "<NewRemoteHost>#{external_ip}</NewRemoteHost>"
+    content << "<NewRemoteHost>#{external_client}</NewRemoteHost>"
     content << "<NewProtocol>#{protocol}</NewProtocol>"
     content << "<NewInternalPort>#{internal_port}</NewInternalPort>"
     content << "</m:AddPortMapping>"
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res
-      map = "#{rhost}:#{external_port}/#{protocol} -> #{internal_ip}:#{internal_port}/#{protocol}"
+      map = "#{rhost}:#{external_port}/#{protocol} -> #{internal_client}:#{internal_port}/#{protocol}"
       if res.code == 200
         print_good("#{peer} successfully mapped #{map}")
       else
