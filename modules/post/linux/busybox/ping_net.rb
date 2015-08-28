@@ -11,43 +11,32 @@ class Metasploit3 < Msf::Post
 
   def initialize
     super(
-      'Name'         => 'BusyBox Ping Network',
-      'Description'  => 'This module will be applied on a session connected
-                         to a BusyBox sh shell. The script will ping a range of
-                         ip adresses from the router or device executing BusyBox.',
+      'Name'         => 'BusyBox Ping Network Enumeration',
+      'Description'  => %q{
+        This module will be applied on a session connected to a BusyBox shell. It will ping a range
+        of IP addresses from the router or device executing BusyBox.
+      },
       'Author'       => 'Javier Vicente Vallejo',
       'License'      => MSF_LICENSE,
-      'References'   =>
-        [
-          [ 'URL', 'http://vallejo.cc']
-        ],
       'Platform'      => ['linux'],
-       'SessionTypes'  => ['shell']
+      'SessionTypes'  => ['shell']
     )
 
     register_options(
       [
-        OptAddress.new('IPRANGESTART',   [ true, "The first ip address of the range to ping.", nil ]),
-        OptAddress.new('IPRANGEEND',   [ true, "The last ip address of the range to ping.", nil ])
+        OptAddressRange.new('RANGE', [true, 'IP range to ping'])
       ], self.class)
   end
 
-  #
-  #This module executes the ping command from the BusyBox connected shell for a given range of ip addresses. The
-  #results will be stored in loots
-  #
   def run
-
-    full_results = ""
-
-    (IPAddr.new(datastore['IPRANGESTART'])..IPAddr.new(datastore['IPRANGEEND'])).map(&:to_s).each do |current_ip_address|
-      print_status("Doing ping to the address #{current_ip_address}.")
-      full_results << cmd_exec("ping -c 1 #{current_ip_address}")
+    results = ''
+    Rex::Socket::RangeWalker.new(datastore['RANGE']).each do |ip|
+      vprint_status("Checking address #{ip}")
+      results << cmd_exec("ping -c 1 #{ip}")
     end
 
-    #storing results
-    p = store_loot("Pingnet", "text/plain", session, full_results, "#{datastore['IPRANGESTART']}"+"-"+"#{datastore['IPRANGEEND']}", "BusyBox Device Network Range Pings")
-    print_good("Pingnet results saved to #{p}.")
+    p = store_loot('busybox.enum.network', 'text/plain', session, results, 'ping_results.txt', 'BusyBox Device Network Range Enumeration')
+    print_good("Results saved to #{p}.")
   end
 
 end

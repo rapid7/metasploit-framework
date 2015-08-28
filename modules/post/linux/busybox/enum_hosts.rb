@@ -12,17 +12,13 @@ class Metasploit3 < Msf::Post
 
   def initialize
     super(
-      'Name'         => 'BusyBox Enumerate Hosts',
+      'Name'         => 'BusyBox Enumerate Host Names',
       'Description'  => %q{
         This module will be applied on a session connected to a BusyBox shell. It will enumerate
         host names related to the device executing BusyBox.
       },
       'Author'       => 'Javier Vicente Vallejo',
       'License'      => MSF_LICENSE,
-      'References'   =>
-        [
-          [ 'URL', 'http://vallejo.cc']
-        ],
       'Platform'      => ['linux'],
       'SessionTypes'  => ['shell']
     )
