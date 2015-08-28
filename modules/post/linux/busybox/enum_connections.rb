@@ -8,7 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
-  include Msf::Post::Linux::Busybox
+  include Msf::Post::Linux::BusyBox
 
   FILES = [
     '/proc/net/nf_conntrack',
