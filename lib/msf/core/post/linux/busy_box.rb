@@ -7,6 +7,7 @@ class Post
 module Linux
 module BusyBox
 
+  include ::Msf::Post::Common
   include ::Msf::Post::File
 
   # Checks if the target file exists
@@ -14,8 +15,8 @@ module BusyBox
   # @note file? doesnt work because test -f is not implemented in busybox
   # @return [Boolean] True if files exists, otherwise false
   def busy_box_file_exist?(file_path)
-    s = read_file(file_path)
-    if s and s.length > 0
+    contents = read_file(file_path)
+    if contents and contents.length > 0
       return true
     end
 
@@ -25,17 +26,23 @@ module BusyBox
   # Checks if the target directory is writable
   # @param directory_path [String] the target directory path
   # @return [Boolean] True if target directory is writable, otherwise false
-  def is_writable_directory(directory_path)
-    retval = false
-    rand_str = ""; 16.times{rand_str  << (65 + rand(25)).chr}
-    file_path = directory_path + "/" + rand_str
-    cmd_exec("echo #{rand_str}XXX#{rand_str} > #{file_path}"); Rex::sleep(0.3)
+  def is_writable_directory?(directory_path)
+    res = false
+    rand_str = Rex::Text.rand_text_alpha(16)
+    file_path = "#{directory_path}"/"#{rand_str}"
+
+    cmd_exec("echo #{rand_str}XXX#{rand_str} > #{file_path}")
+    Rex::sleep(0.3)
     rcv = read_file(file_path)
-    if rcv.include? (rand_str+"XXX"+rand_str)
-      retval = true
+
+    if rcv.include?("#{rand_str}XXX#{rand_str}")
+      res = true
     end
-    cmd_exec("rm -f #{file_path}"); Rex::sleep(0.3)
-    return retval
+
+    cmd_exec("rm -f #{file_path}")
+    Rex::sleep(0.3)
+
+    res
   end
 
   # Checks if the target file is writable and writes or append to the file the data given as parameter
@@ -71,12 +78,13 @@ module BusyBox
   # Checks some directories that usually are writable in devices running busybox
   # @return [String] If the function finds a writable directory, it returns the path. Else it returns nil
   def get_writable_directory
-    writable_directory = nil
-    writable_directory = "/etc/" if is_writable_directory("/etc")
-    writable_directory = "/mnt/" if (!writable_directory && is_writable_directory("/mnt"))
-    writable_directory = "/var/" if (!writable_directory && is_writable_directory("/var"))
-    writable_directory = "/var/tmp/" if (!writable_directory && is_writable_directory("/var/tmp"))
-    return writable_directory
+    dirs = ['/etc/', '/mnt/', '/var/', '/var/tmp/']
+
+    dirs.each do |d|
+      return d if is_writable_directory?(d)
+    end
+
+    nil
   end
 
 end # Busybox
