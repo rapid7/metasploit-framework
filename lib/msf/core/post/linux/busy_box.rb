@@ -17,11 +17,11 @@ module BusyBox
   # @note Msf::Post::File#file? doesnt work because test -f is not available in busybox
   def busy_box_file_exist?(file_path)
     contents = read_file(file_path)
-    if contents and contents.length > 0
-      return true
+    if contents.nil? || contents.empty?
+      return false
     end
 
-    false
+    true
   end
 
   # Checks if the directory is writable in the target
@@ -31,7 +31,7 @@ module BusyBox
   def busy_box_is_writable_dir?(dir_path)
     res = false
     rand_str = Rex::Text.rand_text_alpha(16)
-    file_path = "#{dir_path}"/"#{rand_str}"
+    file_path = "#{dir_path}/#{rand_str}"
 
     cmd_exec("echo #{rand_str}XXX#{rand_str} > #{file_path}")
     Rex::sleep(0.3)

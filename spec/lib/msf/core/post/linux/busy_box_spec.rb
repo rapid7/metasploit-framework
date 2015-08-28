@@ -1,42 +1,148 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-require 'msf/core/post/linux/busybox'
+require 'msf/core/post/linux/busy_box'
 
-describe Msf::Post::Linux::Busybox do
+describe Msf::Post::Linux::BusyBox do
   subject do
-    mod = Module.new
+    mod = ::Msf::Module.new
     mod.extend described_class
     mod
   end
 
-  describe '#file_exists' do
-    it "should test for file existence" do
-      result = subject.file_exists("/etc/passwd")
-      result.should be true
-    end
-  end
-
-  describe '#get_writable_directory' do
-    it "should find a writable directory" do
-      result = subject.get_writable_directory()
-      result.should be true
-    end
-  end
-
-  describe '#is_writable_and_write' do
-    it "should write and append data to a file in a writable directory" do
-      result = false
-      writable_directory = get_writable_directory()
-      if nil != writable_directory
-        writable_file = writable_directory + "tmp"
-        if is_writable_and_write(writable_file, "test write ", false) and "test write " == read_file(writable_file) and
-           is_writable_and_write(writable_file, "test append", true)  and "test write test append" == read_file(writable_file)
-          result = true
+  describe "#busy_box_file_exist?" do
+    describe "when file exists" do
+      before :each do
+        allow(subject).to receive(:read_file) do
+          'test data'
         end
-        cmd_exec("rm -f #{writable_file}")
       end
-      result.should be true
+
+      it "returns true" do
+        expect(subject.busy_box_file_exist?('/etc/passwd')).to be_truthy
+      end
+    end
+
+    describe "when file doesn't exist" do
+      before :each do
+        allow(subject).to receive(:read_file) do
+          ''
+        end
+      end
+
+      it "returns false" do
+        expect(subject.busy_box_file_exist?('/etc/nonexistent')).to be_falsey
+      end
+    end
+  end
+
+  describe "#busy_box_is_writable_dir?" do
+    before :each do
+      allow(subject).to receive(:cmd_exec) do
+        ''
+      end
+    end
+
+    describe "when dir is writable" do
+      before :each do
+        allow(subject).to receive(:read_file) do
+          "#{'A' * 16}XXX#{'A' * 16}"
+        end
+
+        allow(Rex::Text).to receive(:rand_text_alpha) do
+          'A' * 16
+        end
+      end
+
+      it "returns true" do
+        expect(subject.busy_box_is_writable_dir?('/tmp/')).to be_truthy
+      end
+    end
+
+    describe "when dir isn't writable" do
+      before :each do
+        allow(subject).to receive(:read_file) do
+          ''
+        end
+      end
+
+      it "returns false" do
+        expect(subject.busy_box_is_writable_dir?('/etc/')).to be_falsey
+      end
+    end
+  end
+
+
+  describe "#busy_box_writable_dir" do
+    before :each do
+      allow(subject).to receive(:cmd_exec) do
+        ''
+      end
+    end
+
+    describe "when a writable directory doesn't exist" do
+      before :each do
+        allow(subject).to receive(:read_file) do
+          ''
+        end
+      end
+
+      it "returns nil" do
+        expect(subject.busy_box_writable_dir).to be_nil
+      end
+    end
+
+    describe "when a writable directory exists" do
+      before :each do
+        allow(subject).to receive(:read_file) do
+          "#{'A' * 16}XXX#{'A' * 16}"
+        end
+
+        allow(Rex::Text).to receive(:rand_text_alpha) do
+          'A' * 16
+        end
+      end
+
+      it "returns the writable dir path" do
+        expect(subject.busy_box_writable_dir).to eq('/etc/')
+      end
+    end
+  end
+
+
+  describe "#busy_box_write_file" do
+    before :each do
+      allow(subject).to receive(:cmd_exec) do
+        ''
+      end
+    end
+
+    describe "when the file isn't writable" do
+      before :each do
+        allow(subject).to receive(:read_file) do
+          ''
+        end
+      end
+
+      it "returns false" do
+        expect(subject.busy_box_write_file('/etc/passwd', 'test')).to be_falsey
+      end
+    end
+
+    describe "when the file is writable" do
+      before :each do
+        allow(subject).to receive(:read_file) do
+          "#{'A' * 16}XXX#{'A' * 16}"
+        end
+
+        allow(Rex::Text).to receive(:rand_text_alpha) do
+          'A' * 16
+        end
+      end
+
+      it "returns true" do
+        expect(subject.busy_box_write_file('/tmp/test', 'test')).to be_truthy
+      end
     end
   end
 
