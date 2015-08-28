@@ -51,28 +51,38 @@ module BusyBox
   # @param append [Boolean] if true, append data to the target file. Otherwise, overwrite the target file
   # @note BusyBox shell's commands are limited and Msf > Post > File > write_file function doesnt work here, for this reason it is necessary to implement an specific function
   # @return [Boolean] True if target file is writable and it was written. Otherwise, false.
-  def is_writable_and_write(file_path, data, append)
-    if append
-      writable_directory = get_writable_directory
-      return false if not writable_directory
-      cmd_exec("cp -f #{file_path} #{writable_directory}tmp"); Rex::sleep(0.3)
+  def busybox_write_file(file_path, data, prepend = false)
+    if prepend
+      cmd_exec("cp -f #{file_path} #{dir}tmp")
+      Rex::sleep(0.3)
     end
-    rand_str = ""; 16.times{rand_str  << (65 + rand(25)).chr}
-    cmd_exec("echo #{rand_str} > #{file_path}"); Rex::sleep(0.3)
-    if read_file(file_path).include? rand_str
-      cmd_exec("echo \"\"> #{file_path}"); Rex::sleep(0.3)
-      lines = data.lines.map(&:chomp)
-      lines.each do |line|
-        cmd_exec("echo #{line.chomp} >> #{file_path}"); Rex::sleep(0.3)
-      end
-      if append
-        cmd_exec("cat #{writable_directory}tmp >> #{file_path}"); Rex::sleep(0.3)
-        cmd_exec("rm -f #{writable_directory}tmp"); Rex::sleep(0.3)
-      end
-      return true
-    else
+
+    rand_str = Rex::Text.rand_text_alpha(16)
+    cmd_exec("echo #{rand_str} > #{file_path}")
+    Rex::sleep(0.3)
+
+    unless read_file(file_path).include?(rand_str)
       return false
     end
+
+    cmd_exec("echo \"\"> #{file_path}")
+    Rex::sleep(0.3)
+
+    lines = data.lines.map(&:chomp)
+    lines.each do |line|
+      cmd_exec("echo #{line.chomp} >> #{file_path}")
+      Rex::sleep(0.3)
+    end
+
+    if prepend
+      cmd_exec("cat #{dir}tmp >> #{file_path}")
+      Rex::sleep(0.3)
+
+      cmd_exec("rm -f #{dir}tmp")
+      Rex::sleep(0.3)
+    end
+
+    true
   end
 
   # Checks some directories that usually are writable in devices running busybox
