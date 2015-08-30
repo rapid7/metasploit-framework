@@ -839,7 +839,7 @@ module Net # :nodoc:
         if name.include? "."
           @logger.debug "Search(#{name},#{Net::DNS::RR::Types.new(type)},#{Net::DNS::RR::Classes.new(cls)})"
           ans = query(name,type,cls)
-          return ans if ans.header.anCount > 0
+          return ans if ans && ans.header && ans.header.anCount > 0
         end
 
         # If the name doesn't end in a dot then apply the search list.
@@ -848,7 +848,7 @@ module Net # :nodoc:
             newname = name + "." + domain
             @logger.debug "Search(#{newname},#{Net::DNS::RR::Types.new(type)},#{Net::DNS::RR::Classes.new(cls)})"
             ans = query(newname,type,cls)
-            return ans if ans.header.anCount > 0
+            return ans if ans && ans.header && ans.header.anCount > 0
           end
         end
 
