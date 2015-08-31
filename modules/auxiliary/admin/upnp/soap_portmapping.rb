@@ -11,10 +11,15 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'UPnP AddPortMapping',
-      'Description'    => 'UPnP AddPortMapping SOAP request',
-      'Author'         => 'St0rn <fabien@anbu-pentest.com>',
+      'Name'           => 'UPnP IGD SOAP Port Mapping Utility',
+      'Description'    => 'Manage port mappings on UPnP IGD-capable device using the AddPortMapping and DeletePortMapping SOAP requests',
+      'Author'         =>
+        [
+          'St0rn <fabien[at]anbu-pentest.com>', # initial module
+          'Jon Hart <jon_hart[at]rapid7.com>'   # module cleanup and refactoring
+        ],
       'License'        => MSF_LICENSE,
+      'DefaultAction'  => 'ADD',
       'Actions'        =>
         [
           [ 'ADD',
@@ -30,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
             }
           ]
         ],
-      'DefaultAction'  => 'ADD'
     )
 
     register_options(
