@@ -9,3 +9,4 @@ tags
 *.swp
 *.orig
 *.rej
+modules/exploits/windows/http/uptime_code_exec.rb
