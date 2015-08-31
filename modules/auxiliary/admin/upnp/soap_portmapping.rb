@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
         OptAddress.new('INTERNAL_CLIENT', [false, 'Internal client hostname/IP']),
         OptAddress.new('EXTERNAL_CLIENT', [false, 'External client hostname/IP']),
         OptEnum.new('PROTOCOL', [true, 'Transport level protocol to map', 'TCP', %w(TCP UDP)]),
-        OptInt.new('INTERNAL_PORT', [true, 'Internal port']),
+        OptInt.new('INTERNAL_PORT', [false, 'Internal port']),
         OptInt.new('EXTERNAL_PORT', [true, 'External port']),
         OptInt.new('LEASE_DURATION', [true, 'Lease time for mapping, in seconds', 3600])
       ],
