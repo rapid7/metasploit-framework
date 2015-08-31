@@ -19,6 +19,7 @@ class Metasploit3 < Msf::Auxiliary
           'Jon Hart <jon_hart[at]rapid7.com>'   # module cleanup and refactoring
         ],
       'License'        => MSF_LICENSE,
+      'References'     => [['URL', 'http://www.upnp-hacks.org/igd.html']],
       'DefaultAction'  => 'ADD',
       'Actions'        =>
         [
