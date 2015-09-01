@@ -153,6 +153,7 @@ module Msf::ModuleManager::Cache
     self.module_info_by_path = {}
 
     if framework_migrated?
+      loaded_paths = self.module_paths.map{|x| x + "/"}
       ActiveRecord::Base.connection_pool.with_connection do
         # TODO record module parent_path in Mdm::Module::Detail so it does not need to be derived from file.
         # Use find_each so Mdm::Module::Details are returned in batches, which will
@@ -161,6 +162,11 @@ module Msf::ModuleManager::Cache
           path = module_detail.file
           type = module_detail.mtype
           reference_name = module_detail.refname
+
+          # Skip cached modules that are not in our load path
+          if loaded_paths.select{|x| path.index(x) == 0}.empty?
+            next
+          end
 
           typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
           # join to '' so that typed_path_prefix starts with file separator

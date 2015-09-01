@@ -10,9 +10,8 @@ module Msf
           if @module_paths_inited
             fail "Module paths already initialized.  To add more module paths call `modules.add_module_path`"
           else
-            # Ensure the module cache is accurate
-            self.modules.refresh_cache_from_database
 
+            additional_paths = opts.delete(:module_paths)
             add_engine_module_paths(Rails.application, opts)
 
             Rails.application.railties.engines.each do |engine|
@@ -31,6 +30,17 @@ module Msf
                 self.modules.add_module_path(path, opts)
               }
             end
+
+            # If the caller had additional paths to search, load them.
+            # They should be separated by semi-colons.
+            if additional_paths
+              additional_paths.split(";").each { |path|
+                self.modules.add_module_path(path, opts)
+              }
+            end
+
+            # Update the module cache
+            self.modules.refresh_cache_from_database
 
             @module_paths_inited = true
           end
