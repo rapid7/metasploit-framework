@@ -782,7 +782,7 @@ class Console::CommandDispatcher::Core
   end
 
   @@migrate_opts = Rex::Parser::Arguments.new(
-    '-p'  => [true,  'Writable path (eg. /tmp).'],
+    '-p'  => [true,  'Writable path - Linux only (eg. /tmp).'],
     '-t'  => [true,  'The number of seconds to wait for migration to finish (default: 60).'],
     '-h'  => [false, 'Help menu.']
   )
@@ -826,7 +826,7 @@ class Console::CommandDispatcher::Core
       when '-t'
         opts[:timeout] = val.to_i
       when '-p'
-        writable_dir] = val
+        writable_dir = val
       end
     end
 
@@ -873,7 +873,7 @@ class Console::CommandDispatcher::Core
     if client.platform =~ /linux/
       client.core.migrate(pid, writable_dir, opts)
     else
-      client.core.migrate(pid, opts = opts)
+      client.core.migrate(pid, opts: opts)
     end
 
     print_status('Migration completed successfully.')
