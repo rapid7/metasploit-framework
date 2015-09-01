@@ -113,7 +113,7 @@ module Msf::ModuleManager::Cache
         framework.db.update_all_module_details
       end
 
-      refresh_cache_from_database
+      refresh_cache_from_database(self.module_paths)
     end
   end
 
