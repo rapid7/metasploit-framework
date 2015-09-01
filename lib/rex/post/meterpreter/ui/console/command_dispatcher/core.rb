@@ -781,15 +781,21 @@ class Console::CommandDispatcher::Core
     end
   end
 
+  @@migrate_opts = Rex::Parser::Arguments.new(
+    '-p'  => [true,  'Writable path (eg. /tmp).'],
+    '-t'  => [true,  'The number of seconds to wait for migration to finish (default: 60).'],
+    '-h'  => [false, 'Help menu.']
+  )
+
   def cmd_migrate_help
     if client.platform =~ /linux/
-      print_line "Usage: migrate <pid> [writable_path]"
+      print_line('Usage: migrate <pid> [-p writable_path] [-t timeout]')
     else
-      print_line "Usage: migrate <pid>"
+      print_line('Usage: migrate <pid> [-t timeout]')
     end
     print_line
-    print_line "Migrates the server instance to another process."
-    print_line "NOTE: Any open channels or other dynamic state will be lost."
+    print_line('Migrates the server instance to another process.')
+    print_line('NOTE: Any open channels or other dynamic state will be lost.')
     print_line
   end
 
@@ -800,19 +806,28 @@ class Console::CommandDispatcher::Core
   #   platforms a path for the unix domain socket used for IPC.
   # @return [void]
   def cmd_migrate(*args)
-    if ( args.length == 0 or args.include?("-h") )
+    if args.length == 0 || args.include?('-h')
       cmd_migrate_help
       return true
     end
 
     pid = args[0].to_i
-    if(pid == 0)
-      print_error("A process ID must be specified, not a process name")
+    if pid == 0
+      print_error('A process ID must be specified, not a process name')
       return
     end
 
-    if client.platform =~ /linux/
-      writable_dir = (args.length >= 2) ? args[1] : nil
+    opts = {
+      timeout: nil
+    }
+
+    @@transport_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-t'
+        opts[:timeout] = val.to_i
+      when '-p'
+        writable_dir] = val
+      end
     end
 
     begin
@@ -834,7 +849,7 @@ class Console::CommandDispatcher::Core
       service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
         next unless opts['MeterpreterRelay']
         if existing_relays.empty?
-          print_status("Removing existing TCP relays...")
+          print_status('Removing existing TCP relays...')
         end
         if (service.stop_tcp_relay(lport, lhost))
           print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
@@ -856,18 +871,18 @@ class Console::CommandDispatcher::Core
 
     # Do this thang.
     if client.platform =~ /linux/
-      client.core.migrate(pid, writable_dir)
+      client.core.migrate(pid, writable_dir, opts)
     else
-      client.core.migrate(pid)
+      client.core.migrate(pid, opts = opts)
     end
 
-    print_status("Migration completed successfully.")
+    print_status('Migration completed successfully.')
 
     # Update session info (we may have a new username)
     client.update_session_info
 
     unless existing_relays.empty?
-      print_status("Recreating TCP relay(s)...")
+      print_status('Recreating TCP relay(s)...')
       existing_relays.each do |r|
         client.pfservice.start_tcp_relay(r[:lport], r[:opts])
         print_status("Local TCP relay recreated: #{r[:opts]['LocalHost'] || '0.0.0.0'}:#{r[:lport]} <-> #{r[:opts]['PeerHost']}:#{r[:opts]['PeerPort']}")
