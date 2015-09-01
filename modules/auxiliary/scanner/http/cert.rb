@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    issuer_pattern = Regexp.new(datastore['ISSUER'], [Regexp::EXTENDED, 'n'])
+    issuer_pattern = Regexp.new(datastore['ISSUER'])
     sub = cert.subject.to_a
 
     before = Time.parse("#{cert.not_before}")
