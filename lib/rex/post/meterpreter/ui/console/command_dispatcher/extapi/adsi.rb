@@ -26,9 +26,9 @@ class Console::CommandDispatcher::Extapi::Adsi
   #
   def commands
     {
-      "adsi_user_enum"     => "Enumerate all users on the specified domain.",
-      "adsi_computer_enum" => "Enumerate all computers on the specified domain.",
-      "adsi_domain_query"  => "Enumerate all objects on the specified domain that match a filter."
+      'adsi_user_enum'     => 'Enumerate all users on the specified domain.',
+      'adsi_computer_enum' => 'Enumerate all computers on the specified domain.',
+      'adsi_domain_query'  => 'Enumerate all objects on the specified domain that match a filter.'
     }
   end
 
@@ -36,46 +36,43 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Name for this dispatcher
   #
   def name
-    "Extapi: ADSI Management"
+    'Extapi: ADSI Management'
   end
 
   #
   # Options for the adsi_user_enum command.
   #
   @@adsi_user_enum_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ],
-    "-m" => [ true, "Maximum results to return." ],
-    "-p" => [ true, "Result set page size." ]
+    '-h' => [false, 'Help banner'],
+    '-o' => [true,  'Path to output file'],
+    '-m' => [true,  'Maximum results to return.'],
+    '-p' => [true,  'Result set page size.']
   )
 
   def adsi_user_enum_usage
-    print(
-      "\nUsage: adsi_user_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
-      "Enumerate the users on the target domain.\n\n" +
-      "Enumeration returns information such as the user name, SAM account name, locked\n" +
-      "status, desc, and comment.\n" +
-      @@adsi_user_enum_opts.usage)
+    print_line()
+    print_line('Usage: adsi_user_enum <domain> [-h] [-m maxresults] [-p pagesize] [-o file]'
+    print_line()
+    print_line('Enumerate the users on the target domain.')
+    print_line()
+    print_line('Enumeration returns information such as the user name, SAM account name, locked')
+    print_line('status, desc, and comment.')
+    print_line(@@adsi_user_enum_opts.usage)
   end
 
   #
   # Enumerate domain users.
   #
   def cmd_adsi_user_enum(*args)
-    args.unshift("-h") if args.length == 0
-    if args.include?("-h")
+    args.unshift('-h') if args.length == 0
+    if args.include?('-h')
       adsi_user_enum_usage
       return true
     end
 
     domain = args.shift
-    filter = "(objectClass=user)"
-    fields = [
-      "samaccountname",
-      "name",
-      "distinguishedname",
-      "description",
-      "comment"
-      ]
+    filter = '(objectClass=user)'
+    fields = ['samaccountname', 'name', 'distinguishedname', 'description', 'comment']
     args = [domain, filter] + fields + args
     return cmd_adsi_domain_query(*args)
   end
@@ -84,37 +81,35 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Options for the adsi_computer_enum command.
   #
   @@adsi_computer_enum_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ],
-    "-m" => [ true, "Maximum results to return." ],
-    "-p" => [ true, "Result set page size." ]
+    '-h' => [false, 'Help banner'],
+    '-o' => [true,  'Path to output file'],
+    '-m' => [true,  'Maximum results to return'],
+    '-p' => [true,  'Result set page size']
   )
 
   def adsi_computer_enum_usage
-    print(
-      "\nUsage: adsi_computer_enum <domain> [-h] [-m maxresults] [-p pagesize]\n\n" +
-      "Enumerate the computers on the target domain.\n\n" +
-      "Enumeration returns information such as the computer name, desc, and comment.\n" +
-      @@adsi_computer_enum_opts.usage)
+    print_line()
+    print_line('Usage: adsi_computer_enum <domain> [-h] [-m maxresults] [-p pagesize] [-o file]')
+    print_line()
+    print_line('Enumerate the computers on the target domain.')
+    print_line()
+    print_line('Enumeration returns information such as the computer name, desc, and comment.')
+    print_line(@@adsi_computer_enum_opts.usage)
   end
 
   #
   # Enumerate domain computers.
   #
   def cmd_adsi_computer_enum(*args)
-    args.unshift("-h") if args.length == 0
-    if args.include?("-h")
+    args.unshift('-h') if args.length == 0
+    if args.include?('-h')
       adsi_computer_enum_usage
       return true
     end
 
     domain = args.shift
-    filter = "(objectClass=computer)"
-    fields = [
-      "name",
-      "distinguishedname",
-      "description",
-      "comment"
-      ]
+    filter = '(objectClass=computer)'
+    fields = ['name', 'distinguishedname', 'description', 'comment']
     args = [domain, filter] + fields + args
     return cmd_adsi_domain_query(*args)
   end
@@ -123,17 +118,20 @@ class Console::CommandDispatcher::Extapi::Adsi
   # Options for the adsi_domain_query command.
   #
   @@adsi_domain_query_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ],
-    "-m" => [ true, "Maximum results to return." ],
-    "-p" => [ true, "Result set page size." ]
+    '-h' => [false, 'Help banner'],
+    '-o' => [true,  'Path to output file'],
+    '-m' => [true,  'Maximum results to return'],
+    '-p' => [true,  'Result set page size']
   )
 
   def adsi_domain_query_usage
-    print(
-      "\nUsage: adsi_domain_query <domain> <filter> <field 1> [field 2 [field ..]] [-h] [-m maxresults] [-p pagesize]\n\n" +
-      "Enumerate the objects on the target domain.\n\n" +
-      "Enumeration returns the set of fields that are specified.\n" +
-      @@adsi_domain_query_opts.usage)
+    print_line()
+    print_line('Usage: adsi_domain_query <domain> <filter> <field 1> [field 2 [field ..]] [-h] [-m maxresults] [-p pagesize] [-o file]')
+    print_line()
+    print_line('Enumerate the objects on the target domain.')
+    print_line()
+    print_line('Enumeration returns the set of fields that are specified.')
+    print_line(@@adsi_domain_query_opts.usage)
   end
 
   #
@@ -143,22 +141,25 @@ class Console::CommandDispatcher::Extapi::Adsi
     page_size = DEFAULT_PAGE_SIZE
     max_results = DEFAULT_MAX_RESULTS
 
-    args.unshift("-h") if args.length < 3
+    args.unshift('-h') if args.length < 3
+    output_file = nil
 
     @@adsi_domain_query_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-p"
+      when '-p'
         page_size = val.to_i
-      when "-m"
+      when '-o'
+        output_file = val
+      when '-m'
         max_results = val.to_i
-      when "-h"
+      when '-h'
         adsi_domain_query_usage
         return true
       end
     }
 
     # Assume that the flags are passed in at the end. Safe?
-    switch_index = args.index { |a| a.start_with?("-") }
+    switch_index = args.index { |a| a.start_with?('-') }
     if switch_index
       args = args.first(switch_index)
     end
@@ -179,12 +180,17 @@ class Console::CommandDispatcher::Extapi::Adsi
       table << to_table_row(c)
     end
 
-    print_line
+    print_line()
     print_line(table.to_s)
-
     print_line("Total objects: #{objects[:results].length}")
+    print_line()
 
-    print_line
+    if output_file
+      ::File.open(output_file, 'w') do |f|
+        f.write("#{table.to_s}\n")
+        f.write("\nTotal objects: #{objects[:results].length}\n")
+      end
+    end
 
     return true
   end
@@ -210,7 +216,7 @@ protected
         # for UI level stuff, rendering raw as hex is really the only option
         values << Rex::Text.to_hex(v[:value], '')
       when :array
-        val = "#{to_table_row(v[:value]).join(", ")}"
+        val = "#{to_table_row(v[:value]).join(', ')}"
 
         # we'll truncate the output of the array because it could be excessive if we
         # don't. Users who want the detail of this stuff should probably script it.
@@ -224,7 +230,7 @@ protected
       when :path
         values << "Vol: #{v[:volume]}, Path: #{v[:path]}, Type: #{v[:vol_type]}"
       when :unknown
-        values << "(unknown)"
+        values << '(unknown)'
       end
     end
 
