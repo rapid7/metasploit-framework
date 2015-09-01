@@ -792,16 +792,17 @@ class Console::CommandDispatcher::Core
       end
 
       if !transport_index.zero? && @transport_map.has_key?(transport_index)
-        url_to_remove = @transport_map[transport_index][:url]
+        # validate the URL
+        url_to_delete = @transport_map[transport_index][:url]
+        begin
+          uri = URI.parse(url_to_delete)
+          opts[:transport] = "reverse_#{uri.scheme}"
+          opts[:lhost]     = uri.host
+          opts[:lport]     = uri.port
+          opts[:uri]       = uri.path[1..-2] if uri.scheme.include?("http")
 
-        # crack the url and fill in the opts hash
-        if url_to_remove =~ /^(.*):\/\/(.*):(\d+)(\/.*)?/
-          opts[:transport] = "reverse_#{$1}"
-          opts[:lhost]     = $2
-          opts[:lport]     = $3
-          opts[:uri]       = $4[1..-2] if opts[:transport].include?("http")
-        else
-          print_error("Failed to parse URL")
+        rescue URI::InvalidURIError
+          print_error("Failed to parse URL: #{url_to_delete}")
           return
         end
       end
