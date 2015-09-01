@@ -292,7 +292,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
   context '#refresh_cache_from_database' do
     def refresh_cache_from_database
-      module_manager.refresh_cache_from_database("")
+      module_manager.refresh_cache_from_database
     end
 
     it 'should call #module_info_by_path_from_database!' do

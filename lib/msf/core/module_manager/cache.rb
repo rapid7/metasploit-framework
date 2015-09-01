@@ -120,7 +120,7 @@ module Msf::ModuleManager::Cache
   # Refreshes the in-memory cache from the database cache.
   #
   # @return [void]
-  def refresh_cache_from_database(allowed_paths)
+  def refresh_cache_from_database(allowed_paths="")
     self.module_info_by_path_from_database!(allowed_paths)
   end
 
@@ -149,7 +149,7 @@ module Msf::ModuleManager::Cache
   # @return [Hash{String => Hash{Symbol => Object}}] Maps path (Mdm::Module::Detail#file) to module information.  Module
   #   information is a Hash derived from Mdm::Module::Detail.  It includes :modification_time, :parent_path, :type,
   #   :reference_name.
-  def module_info_by_path_from_database!(allowed_paths)
+  def module_info_by_path_from_database!(allowed_paths="")
     self.module_info_by_path = {}
 
     if framework_migrated?
