@@ -3,6 +3,9 @@ require 'rex/parser/ini'
 module Rex
 module Parser
   module WinSCP
+    PWDALG_SIMPLE_MAGIC = 0xA3
+    PWDALG_SIMPLE_FLAG = 0xFF
+
     def read_and_parse_ini(filename)
       file = File.read(filename)
       return if file.to_s.empty?
@@ -10,7 +13,9 @@ module Parser
     end
 
     def parse_protocol(fsprotocol)
-      case fsprotocol.to_i
+      return 'Unknown' if fsprotocol.nil?
+
+      case fsprotocol
       when 5 then 'FTP'
       when 0 then 'SSH'
       else
@@ -26,7 +31,7 @@ module Parser
 
       if ini['Configuration\\Security']
         # if a Master Password is in use we give up
-        if ini['Configuration\\Security']['MasterPassword'].to_i == 1
+        if ini['Configuration\\Security']['UseMasterPassword'].to_i == 1
           raise RuntimeError, 'Master Password Set, unable to recover saved passwords!'
         end
       end
@@ -38,7 +43,7 @@ module Parser
           encrypted_password = ini[group]['Password']
           user = ini[group]['UserName']
           host = ini[group]['HostName']
-          sname = parse_protocol(ini[group]['FSProtocol'])
+          sname = parse_protocol(ini[group]['FSProtocol'].to_i)
           plaintext = decrypt_password(encrypted_password, "#{user}#{host}")
 
           results << {
@@ -54,49 +59,46 @@ module Parser
       results
     end
 
-    def decrypt_next_char
-      pwalg_simple_magic = 0xA3
-      pwalg_simple_string = "0123456789ABCDEF"
-
-      # Decrypts the next character in the password sequence
-      if @password.length > 0
-        # Takes the first char from the encrypted password and finds its position in the
-        # pre-defined string, then left shifts the returned index by 4 bits
-        unpack1 = pwalg_simple_string.index(@password[0,1])
-        unpack1 = unpack1 << 4
-
-        # Takes the second char from the encrypted password and finds its position in the
-        # pre-defined string
-        unpack2 = pwalg_simple_string.index(@password[1,1])
-        # Adds the two results, XORs against 0xA3, NOTs it and then ands it with 0xFF
-        result= ~((unpack1+unpack2) ^ pwalg_simple_magic) & 0xff
-        # Strips the first two chars off and returns our result
-        @password = @password[2,@password.length]
-        return result
+    # Decrypts the next character in the password sequence
+    def decrypt_next_char(pwd)
+      if pwd.nil? || pwd.length <= 0
+        return 0, pwd
       end
+
+      # Takes the first char from the encrypted password and then left shifts the returned index by 4 bits
+      a = pwd[0].hex << 4
+
+      # Takes the second char from the encrypted password
+      b = pwd[1].hex
+
+      # Adds the two results, XORs against 0xA3, NOTs it and then ANDs it with 0xFF
+      result = ~((a + b) ^ PWDALG_SIMPLE_MAGIC) & PWDALG_SIMPLE_FLAG
+
+      # Strips the first two chars off and returns our result
+      return result, pwd[2..-1]
     end
 
     def decrypt_password(pwd, key)
-      pwalg_simple_flag = 0xFF
-      @password = pwd
-      flag = decrypt_next_char()
+      flag, pwd = decrypt_next_char(pwd)
 
-      if flag == pwalg_simple_flag
-        decrypt_next_char()
-        length = decrypt_next_char()
+      if flag == PWDALG_SIMPLE_FLAG
+        _, pwd = decrypt_next_char(pwd)
+        length, pwd = decrypt_next_char(pwd)
       else
         length = flag
       end
-      ldel = (decrypt_next_char())*2
-      @password = @password[ldel,@password.length]
+
+      del, pwd = decrypt_next_char(pwd)
+      pwd = pwd[del*2..-1]
 
       result = ""
       length.times do
-        result << decrypt_next_char().chr
+        r, pwd = decrypt_next_char(pwd)
+        result << r.chr
       end
 
-      if flag == pwalg_simple_flag
-        result = result[key.length, result.length]
+      if flag == PWDALG_SIMPLE_FLAG
+        result = result[key.length..-1]
       end
 
       result
