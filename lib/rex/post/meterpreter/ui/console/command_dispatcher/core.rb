@@ -28,6 +28,9 @@ class Console::CommandDispatcher::Core
     self.extensions = []
     self.bgjobs     = []
     self.bgjob_id   = 0
+
+    # keep a lookup table to refer to transports by index
+    @transport_map = {}
   end
 
   @@irb_opts = Rex::Parser::Arguments.new(
@@ -571,6 +574,7 @@ class Console::CommandDispatcher::Core
     '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
     '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
     '-p'  => [ true,  'LPORT parameter' ],
+    '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
     '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
     '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
     '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
@@ -599,6 +603,13 @@ class Console::CommandDispatcher::Core
     print_line('   prev: jump to the previous transport in the list (no options).')
     print_line(' remove: remove an existing, non-active transport.')
     print_line(@@transport_opts.usage)
+  end
+
+  def update_transport_map
+    result = client.core.transport_list
+    @transport_map.clear
+    sorted_by_url = result[:transports].sort_by { |k| k[:url] }
+    sorted_by_url.each_with_index { |t, i| @transport_map[i+1] = t }
   end
 
   #
@@ -637,12 +648,15 @@ class Console::CommandDispatcher::Core
     }
 
     valid = true
+    transport_index = 0
     @@transport_opts.parse(args) do |opt, idx, val|
       case opt
       when '-c'
         opts[:cert] = val
       when '-u'
         opts[:uri] = val
+      when '-i'
+        transport_index = val.to_i
       when '-ph'
         opts[:proxy_host] = val
       when '-pp'
@@ -685,13 +699,21 @@ class Console::CommandDispatcher::Core
       return
     end
 
+    update_transport_map
+
     case command
     when 'list'
       result = client.core.transport_list
+
+      current_transport_url = result[:transports].first[:url]
+
+      sorted_by_url = result[:transports].sort_by { |k| k[:url] }
+
       # this will output the session timeout first
       print_timeouts(result)
 
       columns =[
+        'ID',
         'Curr',
         'URL',
         'Comms T/O',
@@ -709,16 +731,13 @@ class Console::CommandDispatcher::Core
 
       # next draw up a table of transport entries
       tbl = Rex::Ui::Text::Table.new(
-        'SortIndex' => -1,       # disable any sorting
+        'SortIndex' => 0, # sort by ID
         'Indent'    => 4,
         'Columns'   => columns)
 
-      first = true
-      result[:transports].each do |t|
-        entry = [ first ? '*' : '', t[:url], t[:comm_timeout],
-                  t[:retry_total], t[:retry_wait] ]
-
-        first = false
+      sorted_by_url.each_with_index do |t, i|
+        entry = [ i+1, (current_transport_url == t[:url]) ? '*' : '', t[:url],
+                  t[:comm_timeout], t[:retry_total], t[:retry_wait] ]
 
         if opts[:verbose]
           entry << t[:ua]
@@ -770,6 +789,22 @@ class Console::CommandDispatcher::Core
       if opts[:transport] && !opts[:transport].end_with?('_tcp') && opts[:uri].nil?
         print_error("HTTP/S transport specified without session URI")
         return
+      end
+
+      if !transport_index.zero? && @transport_map.has_key?(transport_index)
+        # validate the URL
+        url_to_delete = @transport_map[transport_index][:url]
+        begin
+          uri = URI.parse(url_to_delete)
+          opts[:transport] = "reverse_#{uri.scheme}"
+          opts[:lhost]     = uri.host
+          opts[:lport]     = uri.port
+          opts[:uri]       = uri.path[1..-2] if uri.scheme.include?("http")
+
+        rescue URI::InvalidURIError
+          print_error("Failed to parse URL: #{url_to_delete}")
+          return
+        end
       end
 
       print_status("Removing transport ...")
