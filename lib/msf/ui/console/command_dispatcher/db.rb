@@ -89,6 +89,7 @@ class Db
     print_line "    workspace [name]           Switch workspace"
     print_line "    workspace -a [name] ...    Add workspace(s)"
     print_line "    workspace -d [name] ...    Delete workspace(s)"
+    print_line "    workspace -D               Delete all workspaces"
     print_line "    workspace -r <old> <new>   Rename workspace"
     print_line "    workspace -h               Show this help information"
     print_line
@@ -106,6 +107,8 @@ class Db
         adding = true
       when '-d','--del'
         deleting = true
+      when '-D','--delete-all'
+        delete_all = true
       when '-r','--rename'
         renaming = true
       else
@@ -123,28 +126,9 @@ class Db
       end
       framework.db.workspace = workspace
     elsif deleting and names
-      switched = false
-      # Delete workspaces
-      names.each do |name|
-        workspace = framework.db.find_workspace(name)
-        if workspace.nil?
-          print_error("Workspace not found: #{name}")
-        elsif workspace.default?
-          workspace.destroy
-          workspace = framework.db.add_workspace(name)
-          print_status("Deleted and recreated the default workspace")
-        else
-          # switch to the default workspace if we're about to delete the current one
-          if framework.db.workspace.name == workspace.name
-            framework.db.workspace = framework.db.default_workspace
-            switched = true
-          end
-          # now destroy the named workspace
-          workspace.destroy
-          print_status("Deleted workspace: #{name}")
-        end
-      end
-      print_status("Switched workspace: #{framework.db.workspace.name}") if switched
+      delete_workspaces(names)
+    elsif delete_all
+      delete_workspaces(framework.db.workspaces.map(&:name))
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
@@ -200,6 +184,31 @@ class Db
       end
     end
   }
+  end
+
+  def delete_workspaces(names)
+    switched = false
+    # Delete workspaces
+    names.each do |name|
+      workspace = framework.db.find_workspace(name)
+      if workspace.nil?
+        print_error("Workspace not found: #{name}")
+      elsif workspace.default?
+        workspace.destroy
+        workspace = framework.db.add_workspace(name)
+        print_status("Deleted and recreated the default workspace")
+      else
+        # switch to the default workspace if we're about to delete the current one
+        if framework.db.workspace.name == workspace.name
+          framework.db.workspace = framework.db.default_workspace
+          switched = true
+        end
+        # now destroy the named workspace
+        workspace.destroy
+        print_status("Deleted workspace: #{name}")
+      end
+    end
+    print_status("Switched workspace: #{framework.db.workspace.name}") if switched
   end
 
   def cmd_workspace_tabs(str, words)

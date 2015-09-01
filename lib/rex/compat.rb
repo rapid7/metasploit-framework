@@ -166,9 +166,9 @@ def self.open_webrtc_browser(url='http://google.com/')
       app_data = ENV['APPDATA']
       paths << "#{app_data}\\Google\\Chrome\\Application\\chrome.exe"
 
-      paths.each do |p|
-        if File.exists?(p)
-          args = (p =~ /chrome\.exe/) ? "--allow-file-access-from-files" : ""
+      paths.each do |path|
+        if File.exists?(path)
+          args = (path =~ /chrome\.exe/) ? "--allow-file-access-from-files" : ""
           system("#{path} #{args} #{url}")
           found_browser = true
           break
@@ -188,13 +188,14 @@ def self.open_webrtc_browser(url='http://google.com/')
     end
   else
     if defined? ENV['PATH']
-      ['chrome', 'chromium', 'firefox', 'opera'].each do |browser|
+      ['firefox', 'google-chrome', 'chrome', 'chromium', 'firefox', 'opera'].each do |browser|
         ENV['PATH'].split(':').each do |path|
           browser_path = "#{path}/#{browser}"
           if File.exists?(browser_path)
             args = (browser_path =~ /Chrome/) ? "--allow-file-access-from-files" : ""
             system("#{browser_path} #{args} #{url} &")
             found_browser = true
+            break
           end
         end
       end
