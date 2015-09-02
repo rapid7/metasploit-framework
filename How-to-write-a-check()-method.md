@@ -31,7 +31,7 @@ Once you have determined the vulnerable state, you should return a check code. C
 | **Exploit::CheckCode::Unsupported** | The exploit does not support the check method. If this is the case, then you don't really have to add the check method. |
 
 
-## Example
+## Remote Check Example
 
 Here's an abstract example of how a Metasploit check might be written:
 
@@ -71,3 +71,35 @@ def check_host(ip)
   # Do your thing
 end
 ```
+
+### Local Exploit Check Example
+
+Most local exploit checks are done by checking the version of the vulnerable file, which is considered passive, therefore they should be flagging Exploit::CheckCode::Appears. Passive local exploit checks don't necessarily mean they are less reliable, in fact, they are not bad. But to qualify for Exploit::CheckCode::Vulnerable, your check should do the extra mile, inspect the vulnerable code, and/or check for other exploitable requirements.
+
+One way to inspect the vulnerable code is to come up with a signature, and and see if exists in the vulnerable process. Here's an example with adobe_sandbox_adobecollabsync.rb:
+
+```ruby
+def check_trigger
+  signature = session.railgun.memread(@addresses['AcroRd32.exe'] + target['AdobeCollabSyncTrigger'], target['AdobeCollabSyncTriggerSignature'].length)
+  if signature == target['AdobeCollabSyncTriggerSignature']
+    return true
+  end
+
+  return false
+end
+
+def check
+  @addresses = {}
+  acrord32 = session.railgun.kernel32.GetModuleHandleA("AcroRd32.exe")
+  @addresses['AcroRd32.exe'] = acrord32["return"]
+  if @addresses['AcroRd32.exe'] == 0
+    return Msf::Exploit::CheckCode::Unknown
+  elsif check_trigger
+    return Msf::Exploit::CheckCode::Vulnerable
+  else
+    return Msf::Exploit::CheckCode::Detected
+  end
+end
+```
+
+Another possible way to inspect is grab the vulnerable file, and use Metasm. But of course, this is a lot slower and generates more network traffic.
