@@ -870,11 +870,7 @@ class Console::CommandDispatcher::Core
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
     # Do this thang.
-    if client.platform =~ /linux/
-      client.core.migrate(pid, writable_dir, opts)
-    else
-      client.core.migrate(pid, opts: opts)
-    end
+    client.core.migrate(pid, writable_dir, opts)
 
     print_status('Migration completed successfully.')
 
