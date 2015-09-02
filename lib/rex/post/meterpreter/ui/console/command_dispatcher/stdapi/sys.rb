@@ -1001,7 +1001,7 @@ Shutdown the remote machine.
   # @todo  Accept process names, much of that code is done (kernelsmith)
   #
   # @param args [Array<String>] List of one of more pids
-  # @return [Boolean] Returns true if command was successful, else false
+  # @return [Boolean] Returns COMMAND_SUCCESS or COMMAND_FAILURE
   def cmd_suspend(*args)
     # give'em help if they want it, or seem confused
     if args.include?('-h')
