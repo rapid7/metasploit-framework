@@ -68,8 +68,13 @@ module Msf
 
     def describe_response(response)
       decoded = Resolv::DNS::Message.decode(response)
-      answers = decoded.answer.map(&:to_s)
-      "#{answers.size} answers: #{answers.join(',')}"
+      answers = decoded.answer
+      if answers.empty? # not sure this will ever happen...
+        "no answers"
+      else
+        names = answers.map { |_,_,data| data.name }
+        "#{answers.size} answers: #{names.join(',')}"
+      end
     end
 
     def request_info
