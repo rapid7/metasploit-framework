@@ -25,6 +25,14 @@ module DispatcherShell
   ###
   module CommandDispatcher
 
+    # Some constants to normalize how commands (cmd_* methods) indicate success
+    # Generally, if the command completed nominally or -h was given,
+    # COMMAND_SUCCESS should be returned, otherwise COMMAND_FAILURE
+    # If an argument error was detected, and help was provided, COMMAND_FAILURE
+    # should be returned.
+    COMMAND_SUCCESS = true
+    COMMAND_FAILURE = false
+
     #
     # Initializes the command dispatcher mixin.
     #
