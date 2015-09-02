@@ -4,7 +4,7 @@ Although vulnerability checks aren't the focus of Metasploit, because it isn't a
 
 ## Check Method Output
 
-Modules messages are important to the user, because they keep him/her informed about what the module is doing, and sometimes it even allows them to debug problems by themselves. However, you do also want to keep your messages in verbose mode because it becomes really noisy if the check is used against multiple targets. Ideally, you only should be using these print methods:
+Modules messages are important to the user, because they keep him/her informed about what the module is doing, and usually make the module more debuggable. However, you do also want to keep your messages in verbose mode because it becomes really noisy if the check is used against multiple targets. Ideally, you only should be using these print methods:
 
 | Method | Description |
 | ------ | ----------- |
