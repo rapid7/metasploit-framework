@@ -76,7 +76,7 @@ end
 
 Most local exploit checks are done by checking the version of the vulnerable file, which is considered passive, therefore they should be flagging Exploit::CheckCode::Appears. Passive local exploit checks don't necessarily mean they are less reliable, in fact, they are not bad. But to qualify for Exploit::CheckCode::Vulnerable, your check should do the extra mile, inspect the vulnerable code, and/or check for other exploitable requirements.
 
-One way to inspect the vulnerable code is to come up with a signature, and and see if it exists in the vulnerable process. Here's an example with adobe_sandbox_adobecollabsync.rb:
+One way to inspect the vulnerable code is to come up with a signature, and see if it exists in the vulnerable process. Here's an example with adobe_sandbox_adobecollabsync.rb:
 
 ```ruby
 def check_trigger
