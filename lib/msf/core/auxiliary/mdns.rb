@@ -65,5 +65,15 @@ module Msf
     def query_type_num
       Net::DNS::RR::Types.new(query_type).to_i
     end
+
+    def describe_response(response)
+      decoded = Resolv::DNS::Message.decode(response)
+      answers = decoded.answer.map(&:to_s)
+      "#{answers.size} answers: #{answers.join(',')}"
+    end
+
+    def request_info
+      "#{query_name} #{query_class}/#{query_type}"
+    end
   end
 end

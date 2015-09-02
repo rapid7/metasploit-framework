@@ -37,9 +37,9 @@ class Metasploit3 < Msf::Auxiliary
   def scanner_postscan(_batch)
     @results.each_pair do |peer, resps|
       resps.each do |resp|
-        resp_message = Resolv::DNS::Message.decode(resp)
-        print_good("#{peer} responded with #{resp_message.inspect}")
-        report_service(host: peer, port: rport, proto: "udp", name: "mdns")
+        response_info = describe_response(resp)
+        print_good("#{peer} responded with #{response_info}")
+        report_service(host: peer, port: rport, proto: "udp", name: "mdns", info: "#{request_info} -> #{response_info}")
       end
     end
   end
