@@ -95,9 +95,9 @@ module Msf
               data.inspect
             end
           end
-          { "#{name}" => summarized_group }
+          "#{name}: (#{summarized_group.join(", ")})"
         end
-        "#{answers.size} answers: #{summarized_answers.join(', ')}"
+        summarized_answers.join(', ')
       end
     end
 

@@ -35,11 +35,15 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_postscan(_batch)
+    found = {}
     @results.each_pair do |peer, resps|
       resps.each do |resp|
+        found[peer] ||= {}
+        next if found[peer][resp]
         response_info = describe_response(resp)
         print_good("#{peer} responded with #{response_info}")
-        report_service(host: peer, port: rport, proto: "udp", name: "mdns", info: "#{request_info} -> #{response_info}")
+        report_service(host: peer, port: rport, proto: "udp", name: "mdns", info: response_info)
+        found[peer][resp] = true
       end
     end
   end
