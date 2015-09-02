@@ -16,7 +16,6 @@ module Msf
         # TODO: allow more than one
         OptString.new('NAME', [true, 'The name to query', 'localhost']),
         OptString.new('TYPE', [true, 'The query type (name, # or TYPE#)', 'A']),
-        OptString.new('CLASS', [true, 'The query class (name, # or CLASS#)', 'IN'])
       ], self.class)
     end
   end
