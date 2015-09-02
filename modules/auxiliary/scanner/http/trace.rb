@@ -30,34 +30,27 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       res = send_request_raw({
-        'version'      => '1.0',
         'uri'          => '/<script>alert(1337)</script>', #XST Payload
         'method'       => 'TRACE',
       })
 
-      if res.nil?
-        vprint_error("no repsonse for #{target_host}")
-      elsif res.code == 200 and res.body =~/>alert\(1337\)/
-        vprint_status("#{target_host}:#{rport}-->#{res.code}")
-        print_good("Response Headers:\n #{res.headers}")
-        print_good("Response Body:\n #{res.body}")
-        print_good("#{target_host}:#{rport} is vulnerable to Cross-Site Tracing")
-        report_vuln(
-          :host   => target_host,
-          :port   => rport,
-          :proto => 'tcp',
-          :sname  => (ssl ? 'https' : 'http'),
-          :type   => 'service.http.method.trace',
-          :info   => "TRACE method is enabled for this service and is vulnerable to Cross-Site Tracing",
-        )
-      elsif res.code == 405 #Method Not Allowed (Apache)
-        vprint_error("Received #{res.code} Method Not Allowed for #{target_host}:#{rport}")
-      elsif res.code == 501 #Not Implemented (IIS)
-        vprint_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}")
-      else
-        vprint_status("#{res.code}")
+      unless res
+        vprint_error("#{rhost}:#{rport} did not reply to our request")
+        return
       end
 
+      if res.body.to_s.index('/<script>alert(1337)</script>')
+        print_good("#{rhost}:#{rport} is vulnerable to Cross-Site Tracing")
+        report_vuln(
+          :host   => rhost,
+          :port   => rport,
+          :proto  => 'tcp',
+          :sname  => (ssl ? 'https' : 'http'),
+          :info   => "Vulnerable to Cross-Site Tracing",
+        )
+      else
+        vprint_error("#{rhost}:#{rport} returned #{res.code} #{res.message}")
+      end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
