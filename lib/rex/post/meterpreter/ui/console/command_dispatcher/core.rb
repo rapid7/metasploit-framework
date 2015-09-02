@@ -817,6 +817,7 @@ class Console::CommandDispatcher::Core
       return
     end
 
+    writable_dir = nil
     opts = {
       timeout: nil
     }
