@@ -17,8 +17,8 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'Cross-Site Tracing (XST) Checker',
       'Description' => 'Checks if the host is vulnerable to Cross-Site Tracing (XST)',
-      'Author'       => 
-        [ 
+      'Author'       =>
+        [
           'Jay Turla <@shipcod3>' , #Cross-Site Tracing (XST) Checker
           'CG' #HTTP TRACE Detection
         ],
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
       elsif res.code == 405 #Method Not Allowed (Apache)
         vprint_error("Received #{res.code} Method Not Allowed for #{target_host}:#{rport}")
       elsif res.code == 501 #Not Implemented (IIS)
-        vprint_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}") 
+        vprint_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}")
       else
         vprint_status("#{res.code}")
       end
