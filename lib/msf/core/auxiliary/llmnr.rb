@@ -10,13 +10,15 @@ module Msf
     def initialize(info = {})
       super
       register_options(
-      [
-        OptAddressRange.new('RHOSTS', [true, 'The multicast address or CIDR range of targets to query', '224.0.0.252']),
-        Opt::RPORT(5355),
-        # TODO: allow more than one
-        OptString.new('NAME', [true, 'The name to query', 'localhost']),
-        OptString.new('TYPE', [true, 'The query type (name, # or TYPE#)', 'A']),
-      ], self.class)
+        [
+          OptAddressRange.new('RHOSTS', [true, 'The multicast address or CIDR range of targets to query', '224.0.0.252']),
+          Opt::RPORT(5355),
+          # TODO: allow more than one
+          OptString.new('NAME', [true, 'The name to query', 'localhost']),
+          OptString.new('TYPE', [true, 'The query type (name, # or TYPE#)', 'A'])
+        ],
+        self.class
+      )
     end
   end
 end
