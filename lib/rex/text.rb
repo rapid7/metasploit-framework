@@ -1522,6 +1522,7 @@ module Text
   # @param data [#delete]
   # @param badchars [String] A list of characters considered to be bad
   def self.remove_badchars(data, badchars = '')
+    return data if badchars.length == 0
     badchars_pat = badchars.unpack("C*").map{|c| "\\x%.2x" % c}.join
     data.gsub!(/[#{badchars_pat}]/n, '')
     data
