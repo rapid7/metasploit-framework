@@ -33,10 +33,6 @@ class Metasploit3 < Msf::Auxiliary
         'version'      => '1.0',
         'uri'          => '/<script>alert(1337)</script>', #XST Payload
         'method'       => 'TRACE',
-        'headers' =>
-        {
-          'Cookie' => "TRACE ME PLS",
-        },
       })
 
       if res.nil?
