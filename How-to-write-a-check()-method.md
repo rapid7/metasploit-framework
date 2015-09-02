@@ -79,6 +79,9 @@ Most local exploit checks are done by checking the version of the vulnerable fil
 One way to inspect the vulnerable code is to come up with a signature, and see if it exists in the vulnerable process. Here's an example with adobe_sandbox_adobecollabsync.rb:
 
 ```ruby
+# 'AdobeCollabSyncTriggerSignature' => "\x56\x68\xBC\x00\x00\x00\xE8\xF5\xFD\xFF\xFF"
+# 'AdobeCollabSyncTrigger' => 0x18fa0
+
 def check_trigger
   signature = session.railgun.memread(@addresses['AcroRd32.exe'] + target['AdobeCollabSyncTrigger'], target['AdobeCollabSyncTriggerSignature'].length)
   if signature == target['AdobeCollabSyncTriggerSignature']
