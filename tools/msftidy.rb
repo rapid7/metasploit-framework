@@ -193,8 +193,8 @@ class Msftidy
           warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3}$/
         when 'WPVDB'
           warn("Invalid WPVDB reference") if value !~ /^\d+$/
-        when 'PKT'
-          warn("Invalid PKT reference") if value !~ /^\d+$/
+        when 'PACKETSTORM'
+          warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
         when 'URL'
           if value =~ /^http:\/\/www\.osvdb\.org/
             warn("Please use 'OSVDB' for '#{value}'")
@@ -211,7 +211,7 @@ class Msftidy
           elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
           elsif value =~ /^http:\/\/packetstormsecurity\.com\/files\//
-            warn("Please use 'PKT' for '#{value}'")
+            warn("Please use 'PACKETSTORM' for '#{value}'")
           end
         end
       end
