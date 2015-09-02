@@ -15,9 +15,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'HTTP TRACE Detection',
-      'Description' => 'Test if TRACE is actually enabled.  405 (Apache) 501(IIS) if its disabled, 200 if it is',
-      'Author'       => ['CG'],
+      'Name'        => 'Cross-Site Tracing (XST) Checker',
+      'Description' => 'Checks if the host is vulnerable to Cross-Site Tracing (XST)',
+      'Author'       => 
+        [ 
+          'Jay Turla <@shipcod3>' , #Cross-Site Tracing (XST) Checker
+          'CG' #HTTP TRACE Detection
+        ],
       'License'     => MSF_LICENSE
     )
   end
@@ -27,36 +31,36 @@ class Metasploit3 < Msf::Auxiliary
     begin
       res = send_request_raw({
         'version'      => '1.0',
-        'uri'          => '/',
+        'uri'          => '/<script>alert(1337)</script>', #XST Payload
         'method'       => 'TRACE',
         'headers' =>
         {
-          'Cookie' => "did you echo me back?",
+          'Cookie' => "TRACE ME PLS",
         },
-      }, 10)
+      })
 
       if res.nil?
-        print_error("no repsonse for #{target_host}")
-      elsif (res.code == 200)
-        print_good("#{target_host}:#{rport}-->#{res.code}")
+        vprint_error("no repsonse for #{target_host}")
+      elsif res.code == 200 and res.body =~/>alert\(1337\)/
+        vprint_status("#{target_host}:#{rport}-->#{res.code}")
         print_good("Response Headers:\n #{res.headers}")
         print_good("Response Body:\n #{res.body}")
-        print_good("TRACE appears to be enabled on #{target_host}:#{rport} \n")
-        report_note(
+        print_good("#{target_host}:#{rport} is vulnerable to Cross-Site Tracing")
+        report_vuln(
           :host   => target_host,
           :port   => rport,
           :proto => 'tcp',
           :sname  => (ssl ? 'https' : 'http'),
           :type   => 'service.http.method.trace',
-          :data   => "TRACE method is enabled for this service",
+          :info   => "TRACE method is enabled for this service and is vulnerable to Cross-Site Tracing",
           :update => :unique_data
         )
-      elsif (res.code == 501)#Not Implemented
-        print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}") #IIS
-      elsif (res.code == 405)#Method Not Allowed
-        print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}") #Apache
+      elsif res.code == 405 #Method Not Allowed (Apache)
+        vprint_error("Received #{res.code} Method Not Allowed for #{target_host}:#{rport}")
+      elsif res.code == 501 #Not Implemented (IIS)
+        vprint_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}") 
       else
-        print_status("#{res.code}")
+        vprint_status("#{res.code}")
       end
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
