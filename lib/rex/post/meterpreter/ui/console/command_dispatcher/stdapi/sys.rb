@@ -237,9 +237,11 @@ class Console::CommandDispatcher::Stdapi::Sys
       if interact && p.channel
         shell.interact_with_channel(p.channel)
       end
+      COMMAND_SUCCESS
     else
       print_error('You must specify an executable file with -f')
-      true
+      cmd_execute_help
+      COMMAND_FAILURE
     end
   end
 
@@ -250,6 +252,7 @@ Usage: execute -f file [options]
 Executes a command on the remote machine.
 #{@@execute_opts.usage})
     )
+    COMMAND_SUCCESS
   end
 
   #
@@ -263,23 +266,23 @@ Executes a command on the remote machine.
 
       # attempt the shell with thread impersonation
       begin
-        cmd_execute('-f', path, '-c', '-H', '-i', '-t')
+        return cmd_execute('-f', path, '-c', '-H', '-i', '-t')
       rescue
         # if this fails, then we attempt without impersonation
         print_error( 'Failed to spawn shell with thread impersonation. Retrying without it.' )
-        cmd_execute('-f', path, '-c', '-H', '-i')
+        return cmd_execute('-f', path, '-c', '-H', '-i')
       end
     when /linux/
       # Don't expand_path() this because it's literal anyway
       path = '/bin/sh'
-      cmd_execute('-f', path, '-c', '-i')
+      return cmd_execute('-f', path, '-c', '-i')
     else
       # Then this is a multi-platform meterpreter (php or java), which
       # must special-case COMSPEC to return the system-specific shell.
       path = client.fs.file.expand_path('%COMSPEC%')
       # If that failed for whatever reason, guess it's unix
       path = path && !path.empty? ? path : '/bin/sh'
-      cmd_execute('-f', path, '-c', '-i')
+      return cmd_execute('-f', path, '-c', '-i')
     end
   end
 
@@ -304,6 +307,7 @@ Usage: getpid
 Get the process ID under which meterpreter is running on the remote machine.
 )
     )
+    COMMAND_SUCCESS
   end
 
   #
@@ -324,6 +328,7 @@ Usage: getuid
 Get the user under which meterpreter is running on the remote machine.
 )
     )
+    COMMAND_SUCCESS
   end
 
   #
@@ -344,29 +349,48 @@ Usage: getsid
 Get the security ID under which meterpreter is running on the remote machine.
 )
     )
+    COMMAND_SUCCESS
   end
 
   #
   # Get the value of one or more environment variables fr0om the target.
   #
   def cmd_getenv(*args)
-    vars = client.sys.config.getenvs(*args)
-
-    if vars.length == 0
-      print_error('None of the specified environment variables were found/set.')
+    if args.length == 0
+      print_error 'You must provide env vars to lookup, or -h'
+      cmd_getenv_help
+      COMMAND_FAILURE
+    elsif args.include?('-h')
+      cmd_getenv_help
     else
-      table = Rex::Ui::Text::Table.new(
-        'Header'    => 'Environment Variables',
-        'Indent'    => 0,
-        'SortIndex' => 1,
-        'Columns'   => [
-          'Variable', 'Value'
-        ]
-      )
-      vars.each { |var, val| table << [var, val] }
-      print_line
-      print_line(table.to_s)
+      vars = client.sys.config.getenvs(*args)
+
+      if vars.length == 0
+        print_error('None of the specified environment variables were found/set.')
+        COMMAND_FAILURE
+      else
+        table = Rex::Ui::Text::Table.new(
+          'Header'    => 'Environment Variables',
+          'Indent'    => 0,
+          'SortIndex' => 1,
+          'Columns'   => [
+            'Variable', 'Value'
+          ]
+        )
+        vars.each { |var, val| table << [var, val] }
+        print_line
+        print_line(table.to_s)
+        COMMAND_SUCCESS
+      end
     end
+  end
+
+  def cmd_getenv_help
+    print(%Q(
+Usage: getenv varname [varname2] ...
+)
+    )
+    COMMAND_SUCCESS
   end
 
   #
@@ -378,11 +402,13 @@ Get the security ID under which meterpreter is running on the remote machine.
     logs << args
     logs.flatten!
 
+    # @TODO: this probably needs a flag to indicate if any one clear failed
     logs.each do |name|
       log = client.sys.eventlog.open(name)
       print_status("Wiping #{log.length} records from #{name}...")
       log.clear
     end
+    COMMAND_SUCCESS
   end
 
   #
@@ -390,7 +416,11 @@ Get the security ID under which meterpreter is running on the remote machine.
   #
   def cmd_kill(*args)
     # give'em help if they ask for it, or seem confused
-    if args.length == 0 || args.include?('-h')
+    if args.length == 0
+      print_error 'You must provide at least 1 argument'
+      cmd_kill_help
+      COMMAND_FAILURE
+    elsif args.include?('-h')
       cmd_kill_help
     else
       self_destruct = args.include?('-s')
@@ -405,7 +435,7 @@ Get the security ID under which meterpreter is running on the remote machine.
         diff = args - valid_pids.map { |e| e.to_s }
         unless diff.empty? # then we had an invalid pid
           print_error("The following pids are not valid:  #{diff.join(", ").to_s}.  Quitting")
-          return false
+          return COMMAND_FAILURE
         end
       end
 
@@ -413,7 +443,7 @@ Get the security ID under which meterpreter is running on the remote machine.
       print_line("Killing: #{valid_pids.join(", ").to_s}")
       client.sys.process.kill(*(valid_pids.map { |x| x }))
     end
-    true
+    COMMAND_SUCCESS
   end
 
   #
@@ -426,6 +456,7 @@ Usage: kill [pid1 [pid2 [pid3 ...]]] [-s]
 Terminate one or more processes.
 #{@@kill_opts.usage})
     )
+    COMMAND_SUCCESS
   end
 
   #
@@ -444,7 +475,6 @@ Terminate one or more processes.
   # @return [Array] Valid pids or empty
 
   def validate_pids(pids, allow_pid_0 = false, allow_session_pid = false)
-
     valid_pids = []
     if pids.is_a?(Array) && !pids.empty?
       # to minimize network traffic, we only get host processes once
@@ -493,7 +523,8 @@ Terminate one or more processes.
           search_term = val
           unless search_term
             print_error('Enter a search term')
-            return true
+            cmd_ps_help
+            return COMMAND_FAILURE
           end
         when '-A'
           print_line 'Filtering on arch...'
@@ -501,8 +532,9 @@ Terminate one or more processes.
           processes.each do |proc|
             next if !proc['arch'] || proc['arch'].empty?
             if !val || val.empty? || !(val == 'x86' || val == 'x86_64')
-              print_line 'You must select either x86 or x86_64'
-              return false
+              print_error 'You must select either x86 or x86_64'
+              cmd_ps_help
+              return COMMAND_FAILURE
             end
             searched_procs << proc if proc['arch'] == val
           end
@@ -519,8 +551,8 @@ Terminate one or more processes.
           searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
           processes.each do |proc|
             if !val || val.empty?
-              print_line 'You must supply a search term!'
-              return false
+              print_error 'You must supply a search term!'
+              return COMMAND_FAILURE
             end
             searched_procs << proc if proc['user'].match(/#{val}/)
           end
@@ -535,7 +567,7 @@ Terminate one or more processes.
         print_line
         print_line(tbl.to_s)
       end
-      true
+      COMMAND_SUCCESS
     end
   end
 
@@ -550,6 +582,7 @@ Use the command with no arguments to see all running processes.
 The following options can be used to filter those results:
 #{@@ps_opts.usage})
     )
+    COMMAND_SUCCESS
   end
 
   #
@@ -558,9 +591,12 @@ The following options can be used to filter those results:
   def cmd_reboot(*args)
     force = 0
 
-    if args.length == 1 && args[0].strip == '-h'
+    if args.include?('-h')
       cmd_reboot_help
-      true
+    elsif args.length != 0 && args.length != 2
+      print_error 'Wrong number of arguments'
+      cmd_reboot_help
+      COMMAND_FAILURE
     else
       @@reboot_opts.parse(args) do |opt, idx, val|
         case opt
@@ -584,6 +620,7 @@ Usage: reboot [options]
 Reboot the remote machine.
 #{@@reboot_opts.usage})
     )
+    COMMAND_SUCCESS
   end
 
   #
@@ -608,8 +645,7 @@ Reboot the remote machine.
     @@reg_opts.parse(args) do |opt, idx, val|
       case opt
       when '-h'
-        cmd_reg_help
-        return true
+        return cmd_reg_help
       when '-k'
         key   = val
       when '-v'
@@ -632,7 +668,7 @@ Reboot the remote machine.
     # All commands require a key.
     unless key
       print_error('You must specify a key path (-k)')
-      return false
+      return COMMAND_FAILURE
     end
 
     # Split the key into its parts
@@ -659,17 +695,13 @@ Reboot the remote machine.
 
         if keys.length > 0
           print_line("  Keys (#{keys.length}):\n")
-
           keys.each { |subkey| print_line("\t#{subkey}") }
-
           print_line
         end
 
         if vals.length > 0
           print_line("  Values (#{vals.length}):\n")
-
           vals.each { |val| print_line("\t#{val.name}") }
-
           print_line
         end
 
@@ -707,7 +739,7 @@ Reboot the remote machine.
       when 'setval'
         if !value || !data
           print_error('You must specify both a value name and data (-v, -d).')
-          return false
+          return COMMAND_FAILURE
         end
 
         type ||= 'REG_SZ'
@@ -729,7 +761,7 @@ Reboot the remote machine.
       when 'deleteval'
         unless value
           print_error('You must specify a value name (-v).')
-          return false
+          return COMMAND_FAILURE
         end
 
         open_key = nil
@@ -749,7 +781,7 @@ Reboot the remote machine.
       when 'queryval'
         unless value
           print_error('You must specify a value name (-v).')
-          return false
+          return COMMAND_FAILURE
         end
 
         open_key = nil
@@ -764,12 +796,12 @@ Reboot the remote machine.
 
         v = open_key.query_value(value)
 
-        print(
-          %Q(Key: #{key}
-          Name: #{v.name}
-          Type: #{v.type_to_s}
-          Data: #{v.data}
-          )
+        print(%Q(
+Key: #{key}
+Name: #{v.name}
+Type: #{v.type_to_s}
+Data: #{v.data}
+)
         )
 
       when 'queryclass'
@@ -786,10 +818,12 @@ Reboot the remote machine.
         print("Data: #{data}\n")
       else
         print_error("Invalid command supplied: #{cmd}")
+        return COMMAND_FAILURE
       end
     ensure
       open_key.close if open_key
     end
+    COMMAND_SUCCESS
   end
 
   #
@@ -814,6 +848,7 @@ COMMANDS:
     queryval  Queries the data contents of a value [-k <key> -v <val>]
 )
     )
+    COMMAND_SUCCESS
   end
 
   #
@@ -823,26 +858,16 @@ COMMANDS:
     client.sys.config.revert_to_self
   end
 
-  def cmd_getprivs_help
-    print_line(%Q(
-Usage: getprivs
-
-Attempt to enable all privileges, such as SeDebugPrivilege, available to the
-current process.  Note that this only enables existing privs and does not change
-users or tokens.
-
-See also: steal_token, getsystem
-)
-    )
-  end
-
   #
   # Obtains as many privileges as possible on the target machine.
   #
   def cmd_getprivs(*args)
-    if args.length > 2 || args.include?('-h')
+    if args.include?('-h')
       # -h is the only currently supported arg
       cmd_getprivs_help
+    elsif args.length != 0
+      cmd_getprivs_help
+      return COMMAND_FAILURE
     else # don't want to actually run getprivs if -h specified
       print_line
       print_line('=' * 60)
@@ -853,6 +878,28 @@ See also: steal_token, getsystem
       end
       print_line
     end
+    COMMAND_SUCCESS
+  end
+
+  #
+  # Help for the 'getprivs' command
+  #
+  def cmd_getprivs_help
+    print_line(%Q(
+Usage: getprivs
+
+Attempt to enable all privileges, such as SeDebugPrivilege, available to the
+current process.  Note that this only enables existing privs and does not change
+users or tokens.
+
+OPTIONS:
+
+    -h     Help menu.
+
+See also: steal_token, getsystem
+)
+    )
+    COMMAND_SUCCESS
   end
 
   #
@@ -863,12 +910,13 @@ See also: steal_token, getsystem
     if args.length != 1
       print_error('No PID provided')
       cmd_steal_token_help
-      false
+      return COMMAND_FAILURE
     elsif args.include?('-h')
       cmd_steal_token_help
     else
       print_line("Stolen token with username: #{client.sys.config.steal_token(args.first)}")
     end
+    COMMAND_SUCCESS
   end
 
   #
@@ -876,7 +924,7 @@ See also: steal_token, getsystem
   #
   def cmd_steal_token_help
     print_line('Usage: steal_token [pid]')
-    true
+    COMMAND_SUCCESS
   end
 
   #
@@ -884,7 +932,7 @@ See also: steal_token, getsystem
   #
   def cmd_drop_token(*args)
     print_line("Relinquished token, now running as: #{client.sys.config.drop_token}")
-    true
+    COMMAND_SUCCESS
   end
 
   #
@@ -900,7 +948,7 @@ See also: steal_token, getsystem
     end
     print_line("#{"Meterpreter".ljust(width+1)}: #{client.platform}")
 
-    true
+    COMMAND_SUCCESS
   end
 
   #
@@ -909,14 +957,7 @@ See also: steal_token, getsystem
   def cmd_shutdown(*args)
     force = 0
     if args.include? '-h'
-      print(%Q(
-        Usage: shutdown [options]
-
-        Shutdown the remote machine.
-        #{@@shutdown_opts.usage}
-        )
-      )
-      true
+      cmd_shutdown_help
     else
       @@shutdown_opts.parse(args) do |opt, idx, val|
         case opt
@@ -931,6 +972,20 @@ See also: steal_token, getsystem
   end
 
   #
+  # Help for the 'shutdown' command
+  #
+  def cmd_shutdown_help
+    print(%Q(
+Usage: shutdown [options]
+
+Shutdown the remote machine.
+#{@@shutdown_opts.usage}
+)
+    )
+    COMMAND_SUCCESS
+  end
+
+  #
   # Suspends or resumes a list of one or more pids
   #
   # +args+ can optionally be -c to continue on error or -r to resume
@@ -942,9 +997,12 @@ See also: steal_token, getsystem
   # @return [Boolean] Returns true if command was successful, else false
   def cmd_suspend(*args)
     # give'em help if they want it, or seem confused
-    if args.length == 0 || args.include?('-h')
+    if args.include?('-h')
       cmd_suspend_help
-      true
+    elsif args.length == 0
+      print_error 'You must provide pids or the -h argument'
+      cmd_suspend_help
+      return COMMAND_FAILURE
     else
       continue = args.delete('-c') || false
       resume = args.delete('-r') || false
@@ -959,7 +1017,7 @@ See also: steal_token, getsystem
           print_status('Continuing.  Invalid args have been removed from the list.')
         else
           print_error('Aborting.	Use -c to continue using only the valid pids.')
-          return false
+          return COMMAND_FAILURE
         end
       end
 
@@ -985,12 +1043,12 @@ See also: steal_token, getsystem
         print_error "Error acting on the process:  #{e.to_s}."
         print_error 'Try migrating to a process with the same owner as the target process.'
         print_error 'Also consider confirming you have the SeDebug priv.'
-        return false unless continue
+        return COMMAND_FAILURE unless continue
       ensure
         targetprocess.close if targetprocess
       end
     end
-    true
+    COMMAND_SUCCESS
   end
 
   #
@@ -1001,8 +1059,9 @@ See also: steal_token, getsystem
 Usage: suspend [options] pid1 pid2 pid3 ...
 
 Suspend one or more processes.
-    #{@@suspend_opts.usage})
+#{@@suspend_opts.usage})
     )
+    COMMAND_SUCCESS
   end
 
 end
