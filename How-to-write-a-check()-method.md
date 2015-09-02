@@ -74,7 +74,23 @@ end
 
 ### Local Exploit Check Example
 
-Most local exploit checks are done by checking the version of the vulnerable file, which is considered passive, therefore they should be flagging Exploit::CheckCode::Appears. Passive local exploit checks don't necessarily mean they are less reliable, in fact, they are not bad. But to qualify for Exploit::CheckCode::Vulnerable, your check should do the extra mile, inspect the vulnerable code, and/or check for other exploitable requirements.
+Most local exploit checks are done by checking the version of the vulnerable file, which is considered passive, therefore they should be flagging Exploit::CheckCode::Appears. Passive local exploit checks don't necessarily mean they are less reliable, in fact, they are not bad. But to qualify for Exploit::CheckCode::Vulnerable, your check should do the extra mile, which means either you somehow make the program return a vulnerable response, or you inspect the vulnerable code.
+
+An example of making the program return a vulnerable response is ShellShock (the following is specific for VMWare):
+
+```ruby
+def check
+  check_str = Rex::Text.rand_text_alphanumeric(5)
+  # ensure they are vulnerable to bash env variable bug
+  if cmd_exec("env x='() { :;}; echo #{check_str}' bash -c echo").include?(check_str) &&
+     cmd_exec("file '#{datastore['VMWARE_PATH']}'") !~ /cannot open/
+
+     Exploit::CheckCode::Vulnerable
+  else
+    Exploit::CheckCode::Safe
+  end
+end
+```
 
 One way to inspect the vulnerable code is to come up with a signature, and see if it exists in the vulnerable process. Here's an example with adobe_sandbox_adobecollabsync.rb:
 
