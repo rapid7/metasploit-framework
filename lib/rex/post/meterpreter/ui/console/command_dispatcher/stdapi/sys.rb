@@ -305,6 +305,7 @@ Executes a command on the remote machine.
 Usage: getpid
 
 Get the process ID under which meterpreter is running on the remote machine.
+
 )
     )
     COMMAND_SUCCESS
@@ -326,6 +327,7 @@ Get the process ID under which meterpreter is running on the remote machine.
 Usage: getuid
 
 Get the user under which meterpreter is running on the remote machine.
+
 )
     )
     COMMAND_SUCCESS
@@ -347,6 +349,7 @@ Get the user under which meterpreter is running on the remote machine.
 Usage: getsid
 
 Get the security ID under which meterpreter is running on the remote machine.
+
 )
     )
     COMMAND_SUCCESS
@@ -388,6 +391,7 @@ Get the security ID under which meterpreter is running on the remote machine.
   def cmd_getenv_help
     print(%Q(
 Usage: getenv varname [varname2] ...
+
 )
     )
     COMMAND_SUCCESS
@@ -846,6 +850,7 @@ COMMANDS:
     setval  Set a registry value [-k <key> -v <val> -d <data>]
     deleteval  Delete the supplied registry value [-k <key> -v <val>]
     queryval  Queries the data contents of a value [-k <key> -v <val>]
+
 )
     )
     COMMAND_SUCCESS
@@ -897,6 +902,7 @@ OPTIONS:
     -h     Help menu.
 
 See also: steal_token, getsystem
+
 )
     )
     COMMAND_SUCCESS
@@ -924,6 +930,7 @@ See also: steal_token, getsystem
   #
   def cmd_steal_token_help
     print_line('Usage: steal_token [pid]')
+    print_line
     COMMAND_SUCCESS
   end
 
@@ -932,6 +939,7 @@ See also: steal_token, getsystem
   #
   def cmd_drop_token(*args)
     print_line("Relinquished token, now running as: #{client.sys.config.drop_token}")
+    print_line
     COMMAND_SUCCESS
   end
 
@@ -979,8 +987,7 @@ See also: steal_token, getsystem
 Usage: shutdown [options]
 
 Shutdown the remote machine.
-#{@@shutdown_opts.usage}
-)
+#{@@shutdown_opts.usage})
     )
     COMMAND_SUCCESS
   end
