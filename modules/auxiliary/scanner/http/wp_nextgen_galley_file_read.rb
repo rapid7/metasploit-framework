@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
         'nextgen.traversal',
         'text/plain',
         ip,
-        paths,
+        paths * "\n",
         fname
       )
 
