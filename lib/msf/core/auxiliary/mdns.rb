@@ -72,8 +72,30 @@ module Msf
       if answers.empty? # not sure this will ever happen...
         "no answers"
       else
-        names = answers.map { |_,_,data| data.name }
-        "#{answers.size} answers: #{names.join(',')}"
+        # there are often many answers for the same RR, so group them
+        grouped_answers = answers.group_by { |name,_,_| name }
+        # now summarize each group by noting the resource type and the notable
+        # part(s) of that RR
+        summarized_answers = grouped_answers.map do |name,these_answers|
+          summarized_group = these_answers.map do |_,_,data|
+            friendly_data = case data
+              when Resolv::DNS::Resource::IN::A
+                "A #{data.address}"
+              when Resolv::DNS::Resource::IN::AAAA
+                "AAAA #{data.address}"
+              when Resolv::DNS::Resource::IN::PTR
+                "PTR #{data.name}"
+              when Resolv::DNS::Resource::IN::SRV
+                "SRV #{data.target}"
+              when Resolv::DNS::Resource::IN::TXT
+                "TXT #{data.strings.join(',')}"
+              else
+                data.inspect
+              end
+          end
+          { "#{name}" => summarized_group }
+        end
+        "#{answers.size} answers: #{summarized_answers.join(', ')}"
       end
     end
 
