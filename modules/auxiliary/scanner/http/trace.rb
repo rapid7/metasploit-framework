@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Cross-Site Tracing (XST) Checker',
+      'Name'        => 'HTTP Cross-Site Tracing Detection',
       'Description' => 'Checks if the host is vulnerable to Cross-Site Tracing (XST)',
       'Author'       =>
         [
@@ -49,7 +49,6 @@ class Metasploit3 < Msf::Auxiliary
           :sname  => (ssl ? 'https' : 'http'),
           :type   => 'service.http.method.trace',
           :info   => "TRACE method is enabled for this service and is vulnerable to Cross-Site Tracing",
-          :update => :unique_data
         )
       elsif res.code == 405 #Method Not Allowed (Apache)
         vprint_error("Received #{res.code} Method Not Allowed for #{target_host}:#{rport}")
