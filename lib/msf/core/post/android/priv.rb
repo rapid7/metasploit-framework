@@ -19,7 +19,7 @@ module Priv
   def is_root?
     id = cmd_exec('id')
     uid = id.scan(/uid=(\d+)(.+)/).flatten.first
-    if uid =~ /^0$/
+    if /^0$/ === uid
       return true
     else
       return false
