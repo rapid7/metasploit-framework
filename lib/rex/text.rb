@@ -1522,7 +1522,10 @@ module Text
   # @param data [#delete]
   # @param badchars [String] A list of characters considered to be bad
   def self.remove_badchars(data, badchars = '')
-    data.delete(badchars)
+    return data if badchars.length == 0
+    badchars_pat = badchars.unpack("C*").map{|c| "\\x%.2x" % c}.join
+    data.gsub!(/[#{badchars_pat}]/n, '')
+    data
   end
 
   #
@@ -1531,7 +1534,8 @@ module Text
   # @param keepers [String]
   # @return [String] All characters not contained in +keepers+
   def self.charset_exclude(keepers)
-    [*(0..255)].pack('C*').delete(keepers)
+    excluded_bytes = [*(0..255)] - keepers.unpack("C*")
+    excluded_bytes.pack("C*")
   end
 
   #

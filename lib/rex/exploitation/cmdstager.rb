@@ -2,6 +2,7 @@
 
 require 'rex/exploitation/cmdstager/base'
 require 'rex/exploitation/cmdstager/vbs'
+require 'rex/exploitation/cmdstager/certutil'
 require 'rex/exploitation/cmdstager/debug_write'
 require 'rex/exploitation/cmdstager/debug_asm'
 require 'rex/exploitation/cmdstager/tftp'
