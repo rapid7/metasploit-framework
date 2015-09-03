@@ -12,7 +12,7 @@ class Metasploit4 < Msf::Post
 
   def initialize(info={})
     super( update_info( info, {
-        'Name'          => "Android Settings Remove Device Locks",
+        'Name'          => "Android Settings Remove Device Locks (4.0-4.3)",
         'Description'   => %q{
             This module exploits a bug in the Android 4.0 to 4.3 com.android.settings.ChooseLockGeneric class.
             Any unprivileged app can exploit this vulnerability to remove the lockscreen.
