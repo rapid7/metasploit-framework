@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
         print_error("The provided command is not valid. Try again.")
       else
         print_good("The command executed. Output:")
-        output.split("\n").each{|line| print_status("#{rhost}:#{rport} Output: #{line.strip} "}
+        print_good(output.strip)
       end
     end
   end
