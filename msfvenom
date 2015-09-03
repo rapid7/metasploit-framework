@@ -54,7 +54,10 @@ require 'msf/core/payload_generator'
     opts = {}
     datastore = {}
     opt = OptionParser.new
-    opt.banner = "Usage: #{$0} [options] <var=val>"
+    banner  = "MsfVenom - a Metasploit standalone payload generator.\n"
+    banner << "Also a replacement for msfpayload and msfencode.\n"
+    banner << "Usage: #{$0} [options] <var=val>"
+    opt.banner = banner
     opt.separator('')
     opt.separator('Options:')
 
@@ -105,6 +108,15 @@ require 'msf/core/payload_generator'
 
     opt.on('--platform      <platform>', String, 'The platform of the payload') do |l|
       opts[:platform] = l
+    end
+
+    opt.on('--help-platforms', String, 'List available platforms') do
+      init_framework(:module_types => [])
+      supported_platforms = []
+      Msf::Module::Platform.subclasses.each {|c| supported_platforms << "#{c.realname.downcase}"}
+      msg = "Platforms\n" +
+            "\t" + supported_platforms * ", "
+      raise UsageError, msg
     end
 
     opt.on('-s', '--space         <length>', Integer, 'The maximum size of the resulting payload') do |s|
@@ -271,7 +283,7 @@ if __FILE__ == $0
   begin
     generator_opts = parse_args(ARGV)
   rescue MsfVenomError, Msf::OptionValidateError => e
-    $stderr.puts e.message
+    $stderr.puts "Error: #{e.message}"
     exit(-1)
   end
 
@@ -292,7 +304,14 @@ if __FILE__ == $0
           $stdout.puts dump_encoders
           $stdout.puts dump_nops
         else
-          $stderr.puts "Invalid module type"
+          if mod == 'payload'
+            question = ". Do you mean 'payloads'?"
+          elsif mod == 'encoder'
+            question = ". Do you mean 'encoders'?"
+          elsif mod == 'nop'
+            quesetion = ". Do you mean 'nops'?"
+          end
+          $stderr.puts "Invalid module type#{question}"
       end
     end
     exit(0)
@@ -325,7 +344,7 @@ if __FILE__ == $0
     payload = venom_generator.generate_payload
   rescue ::Exception => e
     elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
-    $stderr.puts e.message
+    $stderr.puts "Error: #{e.message}"
   end
 
   # No payload generated, no point to go on
@@ -340,7 +359,7 @@ if __FILE__ == $0
     rescue ::Exception => e
       # If I can't save it, then I can't save it. I don't think it matters what error.
       elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
-      $stderr.puts e.message
+      $stderr.puts "Error: #{e.message}"
     end
   else
     output_stream = $stdout

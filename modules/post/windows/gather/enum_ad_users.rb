@@ -13,6 +13,7 @@ class Metasploit3 < Msf::Post
 
   UAC_DISABLED = 0x02
   USER_FIELDS = ['sAMAccountName',
+                 'name',
                  'userPrincipalName',
                  'userAccountControl',
                  'lockoutTime',
@@ -26,12 +27,16 @@ class Metasploit3 < Msf::Post
       'Name'         => 'Windows Gather Active Directory Users',
       'Description'  => %{
         This module will enumerate user accounts in the default Active Domain (AD) directory and stores
-      them in the database.
+      them in the database. If GROUP_MEMBER is set to the DN of a group, this will list the members of
+      that group by performing a recursive/nested search (i.e. it will list users who are members of
+      groups that are members of groups that are members of groups (etc) which eventually include the
+      target group DN.
       },
       'License'      => MSF_LICENSE,
       'Author'       => [
         'Ben Campbell',
-        'Carlos Perez <carlos_perez[at]darkoperator.com>'
+        'Carlos Perez <carlos_perez[at]darkoperator.com>',
+        'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
       ],
       'Platform'     => [ 'win' ],
       'SessionTypes' => [ 'meterpreter' ]
@@ -42,6 +47,7 @@ class Metasploit3 < Msf::Post
       OptBool.new('EXCLUDE_LOCKED', [true, 'Exclude in search locked accounts..', false]),
       OptBool.new('EXCLUDE_DISABLED', [true, 'Exclude from search disabled accounts.', false]),
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
+      OptString.new('GROUP_MEMBER', [false, 'Recursively list users that are effectve members of the group DN specified.', nil]),
       OptEnum.new('UAC', [true, 'Filter on User Account Control Setting.', 'ANY',
                           [
                             'ANY',
@@ -58,7 +64,7 @@ class Metasploit3 < Msf::Post
     @user_fields = USER_FIELDS.dup
 
     if datastore['ADDITIONAL_FIELDS']
-      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/,"").split(',')
+      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, "").split(',')
       @user_fields.push(*additional_fields)
     end
 
@@ -131,7 +137,6 @@ class Metasploit3 < Msf::Post
     results_table
   end
 
-
   # Builds the LDAP query 'filter' used to find our User Accounts based on
   # criteria set by user in the Datastore.
   #
@@ -140,6 +145,7 @@ class Metasploit3 < Msf::Post
     inner_filter = '(objectCategory=person)(objectClass=user)'
     inner_filter << '(!(lockoutTime>=1))' if datastore['EXCLUDE_LOCKED']
     inner_filter << '(!(userAccountControl:1.2.840.113556.1.4.803:=2))' if datastore['EXCLUDE_DISABLED']
+    inner_filter << "(memberof:1.2.840.113556.1.4.1941:=#{datastore['GROUP_MEMBER']})" if datastore['GROUP_MEMBER']
     case datastore['UAC']
       when 'ANY'
       when 'NO_PASSWORD'

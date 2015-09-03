@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Post
   def run
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
     domain = get_domain()
-
     if not domain.empty?
       hostname_list = get_domain_computers()
       list_computers(domain, hostname_list)
@@ -49,7 +48,7 @@ class Metasploit3 < Msf::Post
   def get_domain_computers()
     computer_list = []
     devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = client.shell_command_token("net view").split(devisor)[1]
+    raw_list = cmd_exec('net view').split(devisor)[1]
     if raw_list =~ /The command completed successfully/
       raw_list.sub!(/The command completed successfully\./,'')
       raw_list.gsub!(/\\\\/,'')

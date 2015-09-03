@@ -395,6 +395,38 @@ class RPC_Session < RPC_Base
     rpc_meterpreter_run_single( sid, "run #{data}")
   end
 
+  # Changes the Transport of a given Meterpreter Session
+  #
+  # @param sid [Fixnum] The Session ID of the `Msf::Session`
+  # @option opts [String] :transport The transport protocol to use (e.g. reverse_tcp, reverse_http, bind_tcp etc)
+  # @option opts [String] :lhost  The LHOST of the listener to use
+  # @option opts [String] :lport The LPORT of the listener to use
+  # @option opts [String] :ua The User Agent String to use for reverse_http(s)
+  # @option opts [String] :proxy_host The address of the proxy to route transport through
+  # @option opts [String] :proxy_port The port the proxy is listening on
+  # @option opts [String] :proxy_type The type of proxy to use
+  # @option opts [String] :proxy_user The username to authenticate to the proxy with
+  # @option opts [String] :proxy_pass The password to authenticate to the proxy with
+  # @option opts [String] :comm_timeout Connection timeout in seconds
+  # @option opts [String] :session_exp  Session Expiration Timeout
+  # @option opts [String] :retry_total Total number of times to retry etsablishing the transport
+  # @option opts [String] :retry_wait The number of seconds to wait between retries
+  # @option opts [String] :cert  Path to the SSL Cert to use for HTTPS
+  # @return [Boolean] whether the transport was changed successfully
+  def rpc_meterpreter_transport_change(sid,opts={})
+    session = _valid_session(sid,"meterpreter")
+    real_opts = {}
+    opts.each_pair do |key, value|
+      real_opts[key.to_sym] = value
+    end
+    real_opts[:uuid] = session.payload_uuid
+    result = session.core.transport_change(real_opts)
+    if result == true
+      rpc_stop(sid)
+    end
+    result
+  end
+
 
   # Returns the separator used by the meterpreter.
   #

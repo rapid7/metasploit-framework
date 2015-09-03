@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'HTTP HTML Title Tag Content Grabber',
       'Description' => %q{
-        Generates a GET request to the webservers provided and returns the server header,
-        HTML title attribute and location header (if set). Useful for rapidly identifying
+        Generates a GET request to the provided webservers and returns the server header,
+        HTML title attribute and location header (if set). This is useful for rapidly identifying
         interesting web applications en mass.
       },
       'Author'       => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',

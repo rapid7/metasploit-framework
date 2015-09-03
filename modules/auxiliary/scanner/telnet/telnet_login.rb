@@ -89,6 +89,7 @@ class Metasploit3 < Msf::Auxiliary
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        disconnect(scanner.sock)
       end
     end
   end
