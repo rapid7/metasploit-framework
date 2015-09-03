@@ -535,6 +535,65 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
   end
 
   describe "#cmd_workspace" do
+    before(:each) do
+      db.cmd_workspace "-D"
+      @output = []
+    end
+    describe "<no arguments>" do
+      it "should list default workspace" do
+        db.cmd_workspace
+        @output.should =~ [
+          "* default"
+        ]
+      end
+
+      it "should list all workspaces" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace
+        @output.should =~ [
+          "  default",
+          "* foo"
+        ]
+      end
+    end
+
+    describe "-a" do
+      it "should add workspaces" do
+        db.cmd_workspace("-a", "foo", "bar", "baf")
+        @output.should =~ [
+          "Added workspace: foo",
+          "Added workspace: bar",
+          "Added workspace: baf"
+        ]
+      end
+    end
+
+    describe "-d" do
+      it "should delete a workspace" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace("-d", "foo")
+        @output.should =~ [
+          "Deleted workspace: foo",
+          "Switched workspace: default"
+        ]
+      end
+    end
+
+    describe "-D" do
+      it "should delete all workspaces" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace("-D")
+        @output.should =~ [
+          "Deleted and recreated the default workspace",
+          "Deleted workspace: foo",
+          "Switched workspace: default"
+        ]
+      end
+    end
+
     describe "-h" do
       it "should show a help message" do
         db.cmd_workspace "-h"
@@ -544,6 +603,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "    workspace [name]           Switch workspace",
           "    workspace -a [name] ...    Add workspace(s)",
           "    workspace -d [name] ...    Delete workspace(s)",
+          "    workspace -D               Delete all workspaces",
           "    workspace -r <old> <new>   Rename workspace",
           "    workspace -h               Show this help information"
         ]

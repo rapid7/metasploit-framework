@@ -80,7 +80,7 @@ class Logging
   # @return [void]
   def self.start_session_log(session)
     if (log_source_registered?(session.log_source) == false)
-      f = Rex::Logging::Sinks::Flatfile.new(
+      f = Rex::Logging::Sinks::TimestampFlatfile.new(
       Msf::Config.session_log_directory + File::SEPARATOR + "#{session.log_file_name}.log")
 
       register_log_source(session.log_source, f)

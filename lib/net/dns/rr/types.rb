@@ -167,8 +167,8 @@ module Net # :nodoc:
         # *PRIVATE* method
         def new_from_string(type)
           case type
-          when /^TYPE\\d+/
-            # TODO!!!
+          when /^TYPE(\d+)$/
+            new_from_num(Regexp.last_match(1).to_i)
           else
             # String with name of type
             if Types.has_key? type
@@ -183,11 +183,13 @@ module Net # :nodoc:
         # Contructor for numeric data type
         # *PRIVATE* method
         def new_from_num(type)
+          raise TypeArgumentError, "Invalid type #{type}" if type < 0 || type > 0xFFFF
           if Types.invert.has_key? type
             @num = type
             @str = Types.invert[type]
           else
-            raise TypeArgumentError, "Unknown type number #{type}"
+            @num = type
+            @str = "TYPE#{type}"
           end
         end
 

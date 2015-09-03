@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+#
 # -*- coding: binary -*-
 require 'rex/post/meterpreter/extensions/android/tlv'
 require 'rex/post/meterpreter/packet'
@@ -10,11 +11,34 @@ module Post
 module Meterpreter
 module Extensions
 module Android
+
 ###
 # Android extension - set of commands to be executed on android devices.
 # extension by Anwar Mohamed (@anwarelmakrahy)
 ###
+
 class Android < Extension
+
+  COLLECT_TYPE_WIFI = 1
+
+  COLLECT_ACTION_START  = 1
+  COLLECT_ACTION_PAUSE  = 2
+  COLLECT_ACTION_RESUME = 3
+  COLLECT_ACTION_STOP   = 4
+  COLLECT_ACTION_DUMP   = 5
+
+  COLLECT_TYPES = {
+    'wifi' => COLLECT_TYPE_WIFI
+  }
+
+  COLLECT_ACTIONS = {
+    'start'  => COLLECT_ACTION_START,
+    'pause'  => COLLECT_ACTION_PAUSE,
+    'resume' => COLLECT_ACTION_START,
+    'stop'   => COLLECT_ACTION_STOP,
+    'dump'   => COLLECT_ACTION_DUMP
+  }
+
   def initialize(client)
     super(client, 'android')
 
@@ -29,11 +53,63 @@ class Android < Extension
       ])
   end
 
+  def collect_actions
+    return @@collect_action_list ||= COLLECT_ACTIONS.keys
+  end
+
+  def collect_types
+    return @@collect_type_list ||= COLLECT_TYPES.keys
+  end
+
   def device_shutdown(n)
     request = Packet.create_request('device_shutdown')
     request.add_tlv(TLV_TYPE_SHUTDOWN_TIMER, n)
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_SHUTDOWN_OK).value
+  end
+
+  def interval_collect(opts)
+    request = Packet.create_request('interval_collect')
+    request.add_tlv(TLV_TYPE_COLLECT_ACTION, COLLECT_ACTIONS[opts[:action]])
+    request.add_tlv(TLV_TYPE_COLLECT_TYPE, COLLECT_TYPES[opts[:type]])
+    request.add_tlv(TLV_TYPE_COLLECT_TIMEOUT, opts[:timeout])
+    response = client.send_request(request)
+
+    result = {
+      headers:     [],
+      collections: []
+    }
+
+    case COLLECT_TYPES[opts[:type]]
+    when COLLECT_TYPE_WIFI
+      result[:headers] = ['Last Seen', 'BSSID', 'SSID', 'Level']
+      result[:entries] = []
+      records = {}
+
+      response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
+        timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
+        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+
+        g.each(TLV_TYPE_COLLECT_RESULT_WIFI) do |w|
+          bssid = w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_BSSID)
+          ssid = w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_SSID)
+          key = "#{bssid}-#{ssid}"
+
+          if !records.include?(key) || records[key][0] < timestamp
+            # Level is passed through as positive, because UINT
+            # but we flip it back to negative on this side
+            level = -w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL)
+            records[key] = [timestamp, bssid, ssid, level]
+          end
+        end
+      end
+
+      records.each do |k, v|
+        result[:entries] << v
+      end
+    end
+
+    result
   end
 
   def dump_sms
