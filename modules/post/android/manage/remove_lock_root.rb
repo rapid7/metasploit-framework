@@ -12,7 +12,7 @@ class Metasploit4 < Msf::Post
 
   def initialize(info={})
     super( update_info( info, {
-        'Name'          => "Android Root Remove Device Locks",
+        'Name'          => "Android Root Remove Device Locks (root)",
         'Description'   => %q{
             This module uses root privileges to remove the device lock.
             In some cases the original lock method will still be present but any key/gesture will
