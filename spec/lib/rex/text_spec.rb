@@ -4,6 +4,31 @@ require 'rex/text'
 describe Rex::Text do
   context "Class methods" do
 
+    context ".to_ebcdic" do
+      it "should convert ASCII to EBCDIC (both US standards)" do
+        described_class.to_ebcdic("Hello, World!").should eq("\xc8\x85\x93\x93\x96\x6b\x40\xe6\x96\x99\x93\x84\x5a")
+      end
+      it "should raise on non-convertable characters" do
+        lambda {described_class.to_ebcdic("\xff\xfe")}.should raise_exception(described_class::IllegalSequence)
+      end
+    end
+
+    context ".from_ebcdic" do
+      it "should convert EBCDIC to ASCII (both US standards)" do
+        described_class.from_ebcdic("\xc8\x85\x93\x93\x96\x6b\x40\xe6\x96\x99\x93\x84\x5a").should eq("Hello, World!")
+      end
+      it "should raise on non-convertable characters" do
+        lambda {described_class.from_ebcdic("\xff\xfe")}.should raise_exception(described_class::IllegalSequence)
+      end
+    end
+
+    context ".to_utf8" do
+      it "should convert a string to UTF-8, skipping badchars" do
+        described_class.to_utf8("Hello, world!").should eq("Hello, world!")
+        described_class.to_utf8("Oh no, \xff\xfe can't convert!").should eq("Oh no,  can't convert!")
+      end
+    end
+
     context ".to_octal" do
       it "should convert all chars 00 through ff" do
         described_class.to_octal("\x7f"*100).should eq("\\177"*100)

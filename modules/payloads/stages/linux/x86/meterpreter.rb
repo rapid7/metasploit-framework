@@ -142,25 +142,18 @@ module Metasploit3
 
   end
 
-  def generate_stage
+  def generate_stage(opts={})
     meterpreter = generate_meterpreter
-    config = generate_config
+    config = generate_config(opts)
     meterpreter + config
   end
 
   def generate_meterpreter
-    blob = MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
-
-    blob
+    MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
   end
 
   def generate_config(opts={})
-    unless opts[:uuid]
-      opts[:uuid] = Msf::Payload::UUID.new({
-        :platform => 'linux',
-        :arch     => ARCH_X86
-      })
-    end
+    opts[:uuid] ||= generate_payload_uuid
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {

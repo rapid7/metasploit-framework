@@ -75,8 +75,8 @@ module Metasploit3
     ], self.class)
   end
 
-  def generate_stage
-    p = super
+  def generate_stage(opts={})
+    p = super(opts)
     m = OpenSSL::Digest.new('sha1')
     m.reset
     key = m.digest(datastore["RC4PASSWORD"] || "")

@@ -191,6 +191,10 @@ class Msftidy
           warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
         when 'ZDI'
           warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3}$/
+        when 'WPVDB'
+          warn("Invalid WPVDB reference") if value !~ /^\d+$/
+        when 'PACKETSTORM'
+          warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
         when 'URL'
           if value =~ /^http:\/\/www\.osvdb\.org/
             warn("Please use 'OSVDB' for '#{value}'")
@@ -204,6 +208,10 @@ class Msftidy
             warn("Please use 'EDB' for '#{value}'")
           elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
+          elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
+            warn("Please use 'WPVDB' for '#{value}'")
+          elsif value =~ /^http:\/\/packetstormsecurity\.com\/files\//
+            warn("Please use 'PACKETSTORM' for '#{value}'")
           end
         end
       end
@@ -549,6 +557,10 @@ class Msftidy
         unless ln =~ /^\s*fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
           error("fail_with requires a valid Failure:: reason as first parameter: #{ln}", idx)
         end
+      end
+
+      if ln =~ /['"]ExitFunction['"]\s*=>/
+        warn("Please use EXITFUNC instead of ExitFunction #{ln}", idx)
       end
 
     end

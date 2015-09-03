@@ -16,7 +16,7 @@ require 'msf/core'
 ###
 module Metasploit3
 
-  CachedSize = 16
+  CachedSize = 24
 
   include Msf::Payload::Single
   include Msf::Payload::Bsd::X86
@@ -44,7 +44,7 @@ module Metasploit3
   #
   # Dynamically builds the exec payload based on the user's options.
   #
-  def generate_stage
+  def generate_stage(opts={})
     bsd_x86_exec_payload
   end
 end

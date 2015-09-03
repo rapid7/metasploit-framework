@@ -19,7 +19,7 @@ module RFB
 DefaultPort = 5900
 
 # Version information
-MajorVersion = 3
+MajorVersions = [3, 4]
 # NOTE: We will emulate whatever minor version the server reports.
 
 # Security types

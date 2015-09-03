@@ -48,8 +48,14 @@ module Rex::Socket::SslTcpServer
   end
 
   def initsock(params = nil)
-    raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-    self.sslctx  = makessl(params)
+    raise RuntimeError, 'No OpenSSL support' unless @@loaded_openssl
+
+    if params && params.sslctx && params.sslctx.kind_of?(OpenSSL::SSL::SSLContext)
+      self.sslctx = params.sslctx
+    else
+      self.sslctx  = makessl(params)
+    end
+
     super
   end
 
