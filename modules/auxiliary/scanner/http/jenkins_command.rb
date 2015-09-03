@@ -3,10 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-##
-# Some of this code was taken from the "jboss_vulnscan" module by: Tyler Krpata
-##
-
 require 'rex/proto/http'
 require 'msf/core'
 require 'rexml/document'
@@ -62,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
         print_error("The provided command is not valid. Try again.")
       else
         print_good("The command executed. Output:")
-        print_good(output)
+        output.split("\n").each{|line| print_status("#{rhost}:#{rport} Output: #{line.strip} "}
       end
     end
   end
