@@ -231,18 +231,46 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def report_isqlauth_info(ip,user,pass,sid)
     ora_info = {
-      :host => ip, :port => rport, :proto => "tcp",
-      :pass => pass, :source_type => "user_supplied",
-      :active => true
+      ip: ip,
+      port: rport,
+      password: pass,
+      proof: sid.inspect,
+      service_name: 'tcp'
     }
     if sid.nil? || sid.empty?
       ora_info.merge! :user => user
     else
       ora_info.merge! :user => "#{sid}/#{user}"
     end
-    report_auth_info(ora_info)
+    report_cred(ora_info)
   end
 
 end

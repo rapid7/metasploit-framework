@@ -74,7 +74,14 @@ class Metasploit3 < Msf::Post
       # XXX: currently, you can only report_auth_info on an IP or a valid Host.  in our case,
       # host[:host] is *not* a Host.  Fix this some day.
       if (Rex::Socket.dotted_ip?(cred[:host]))
-        report_auth_info({ :port => 445, :sname => 'smb', :type => 'password', :active => true }.merge(cred))
+        report_cred(
+          ip: rhost,
+          port: 445,
+          service_name: 'smb',
+          user: cred[:user],
+          password: cred[:pass],
+          proof: '/etc/fstab'
+        )
       end
       cred_table << [ cred[:user], cred[:pass], cred[:host], cred[:file] ]
     end
@@ -91,6 +98,35 @@ class Metasploit3 < Msf::Post
         "mount.cifs credentials")
       print_status("CIFS credentials saved in: #{p.to_s}")
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :session,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password,
+      module_fullname: fullname,
+      session_id: session_db_id,
+      post_reference_name: self.refname
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   # Parse mount.cifs credentials from +line+, assumed to be a line from /etc/fstab.

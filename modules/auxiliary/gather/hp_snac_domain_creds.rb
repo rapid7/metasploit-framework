@@ -88,6 +88,34 @@ class Metasploit3 < Msf::Auxiliary
     return results
   end
 
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
   def run
 
     print_status("#{peer} - Get Domain Info")
@@ -121,14 +149,14 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     credentials.each do |record|
-      report_auth_info({
-        :host  => record[0],
-        :port  => record[1],
-        :sname => record[2].downcase,
-        :user  => record[3],
-        :pass  => record[4],
-        :source_type => "vuln"
-      })
+      report_cred(
+        ip: record[0],
+        port: record[1],
+        service_name: record[2].downcase,
+        user: record[3],
+        password: record[4],
+        proof: domain_info.inspect
+      )
       cred_table << [record[0], record[3], record[4]]
     end
 

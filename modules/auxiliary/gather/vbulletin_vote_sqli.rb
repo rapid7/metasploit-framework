@@ -145,6 +145,33 @@ class Metasploit3 < Msf::Auxiliary
     Msf::Exploit::CheckCode::Safe
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash,
+      jtr_format: 'md5'
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     print_status("#{peer} - Checking for a valid node id...")
     node_id = get_node
@@ -171,15 +198,14 @@ class Metasploit3 < Msf::Auxiliary
     for i in 0..count_users
       user = get_user_data(node_id, i)
       unless user.join.empty?
-        report_auth_info({
-         :host => rhost,
-         :port => rport,
-         :user => user[0],
-         :pass => user[1],
-         :type => "hash",
-         :sname => (ssl ? "https" : "http"),
-         :proof => "salt: #{user[2]}" # Using proof to store the hash salt
-        })
+        report_cred(
+          ip: rhost,
+          port: rport,
+          user: user[0],
+          password: user[1],
+          service_name: (ssl ? "https" : "http"),
+          proof: "salt: #{user[2]}"
+        )
         users_table << user
       end
     end
