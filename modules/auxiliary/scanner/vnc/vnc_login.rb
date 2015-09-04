@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
           This module will test a VNC server on a range of machines and
         report successful logins. Currently it supports RFB protocol
-        version 3.3, 3.7, and 3.8 using the VNC challenge response
+        version 3.3, 3.7, 3.8 and 4.001 using the VNC challenge response
         authentication method.
       },
       'Author'      =>

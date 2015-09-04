@@ -15,7 +15,10 @@ module Payload::Windows::Exitfunk_x64
 
   def asm_exitfunk(opts={})
 
-    asm = "exitfunk:\n"
+    asm = %Q^
+      exitfunk:
+        pop rax               ; won't be returning, realign the stack with a pop
+    ^
 
     case opts[:exitfunk]
 
@@ -23,32 +26,18 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 0                ;
         pop rcx               ; set the exit function parameter
-        mov ebx, #{"0x%.8x" % Msf::Payload::Windows.exit_types['seh']}
+        mov ebx, 0x#{Msf::Payload::Windows.exit_types['seh'].to_s(16)}
         mov r10d, ebx         ; place the correct EXITFUNK into r10d
         call rbp              ; SetUnhandledExceptionFilter(0)
         push 0                ;
         ret                   ; Return to NULL (crash)
       ^
 
-    # On Windows Vista, Server 2008, and newer, it is not possible to call ExitThread
-    # on WoW64 processes, instead we need to call RtlExitUserThread. This stub will
-    # automatically generate the right code depending on the selected exit method.
-
     when 'thread'
       asm << %Q^
-        mov ebx, #{"0x%.8x" % Msf::Payload::Windows.exit_types['thread']}
-        mov r10d, 0x9DBD95A6  ; hash( "kernel32.dll", "GetVersion" )
-        call rbp              ; GetVersion(); (AL will = major version and AH will = minor version)
-        add rsp, 40           ; cleanup the default param space on stack
-        cmp al, 6             ; If we are not running on Windows Vista, 2008 or 7
-        jl exitfunk_goodbye   ; Then just call the exit function...
-        cmp bl, 0xE0          ; If we are trying a call to kernel32.dll!ExitThread on
-                              ; Windows Vista, 2008 or 7...
-        jne exitfunk_goodbye  ;
-        mov ebx, 0x6F721347   ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThread
-      exitfunk_goodbye:       ; We now perform the actual call to the exit function
         push 0                ;
         pop rcx               ; set the exit function parameter
+        mov ebx, 0x#{Msf::Payload::Windows.exit_types['thread'].to_s(16)}
         mov r10d, ebx         ; place the correct EXITFUNK into r10d
         call rbp              ; call EXITFUNK( 0 );
       ^
@@ -57,8 +46,7 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 0                ;
         pop rcx               ; set the exit function parameter
-        mov ebx, #{"0x%.8x" % Msf::Payload::Windows.exit_types['process']}
-        mov r10d, ebx         ; place the correct EXITFUNK into r10d
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
         call rbp              ; ExitProcess(0)
       ^
 
@@ -66,8 +54,7 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 300000           ; 300 seconds
         pop rcx               ; set the sleep function parameter
-        mov ebx, #{"0x%.8x" % Rex::Text.ror13_hash('Sleep')}
-        mov r10d, ebx         ; place the correct EXITFUNK into r10d
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
         call rbp              ; Sleep(30000)
         jmp exitfunk          ; repeat
       ^

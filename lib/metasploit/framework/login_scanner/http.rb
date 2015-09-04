@@ -73,6 +73,14 @@ module Metasploit
         #   @return [Boolean] Whether to use random casing for the HTTP method
         attr_accessor :evade_method_random_case
 
+        # @!attribute evade_version_random_valid
+        #   @return [Boolean] Whether to use a random, but valid, HTTP version for request
+        attr_accessor :evade_version_random_valid
+
+        # @!attribute evade_version_random_invalid
+        #   @return [Boolean] Whether to use a random invalid, HTTP version for request
+        attr_accessor :evade_version_random_invalid
+
         # @!attribute evade_uri_dir_self_reference
         #   @return [Boolean] Whether to insert self-referential directories into the uri
         attr_accessor :evade_uri_dir_self_reference
@@ -294,6 +302,8 @@ module Metasploit
             'method_random_valid'    => evade_method_random_valid,
             'method_random_invalid'  => evade_method_random_invalid,
             'method_random_case'     => evade_method_random_case,
+            'version_random_valid'   => evade_version_random_valid,
+            'version_random_invalid' => evade_version_random_invalid,
             'uri_dir_self_reference' => evade_uri_dir_self_reference,
             'uri_dir_fake_relative'  => evade_uri_dir_fake_relative,
             'uri_use_backslashes'    => evade_uri_use_backslashes,

@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('LPORT',      [false, 'Port number for the payload LPORT variable.', 4444]),
         OptString.new('IPLIST',  [true, 'List of semicolom separated IP list.', Rex::Socket.source_address("1.2.3.4")]),
         OptString.new('PIDLIST', [false, 'List of semicolom separated PID list.', '']),
-        OptBool.new('HANDLER',   [false, 'Start new multi/handler job on local box.', false]),
+        OptBool.new('HANDLER',   [false, 'Start new exploit/multi/handler job on local box.', false]),
         OptInt.new('AMOUNT',     [false, 'Select the amount of shells you want to spawn.', 1])
       ], self.class)
 
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Post
       'Payload'        => mul.datastore['PAYLOAD'],
       'RunAsJob'       => true
     )
-    print_good("Multi/Handler started!")
+    print_good("exploit/multi/handler started!")
   end
 
   # Function for Creating the Payload

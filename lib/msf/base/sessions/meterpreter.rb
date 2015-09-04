@@ -319,25 +319,28 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     false
   end
 
+  def update_session_info
+    username = self.sys.config.getuid
+    sysinfo  = self.sys.config.sysinfo
+
+    safe_info = "#{username} @ #{sysinfo['Computer']}"
+    safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
+    # Should probably be using Rex::Text.ascii_safe_hex but leave
+    # this as is for now since "\xNN" is arguably uglier than "_"
+    # showing up in various places in the UI.
+    safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
+    self.info = safe_info
+  end
+
   #
   # Populate the session information.
   #
   # Also reports a session_fingerprint note for host os normalization.
   #
-  def load_session_info()
+  def load_session_info
     begin
       ::Timeout.timeout(60) do
-        # Gather username/system information
-        username = self.sys.config.getuid
-        sysinfo  = self.sys.config.sysinfo
-
-        safe_info = "#{username} @ #{sysinfo['Computer']}"
-        safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
-        # Should probably be using Rex::Text.ascii_safe_hex but leave
-        # this as is for now since "\xNN" is arguably uglier than "_"
-        # showing up in various places in the UI.
-        safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
-        self.info = safe_info
+        update_session_info
 
         hobj = nil
 
@@ -372,9 +375,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             :host => self,
             :workspace => wspace,
             :data => {
-              :name => sysinfo["Computer"],
-              :os => sysinfo["OS"],
-              :arch => sysinfo["Architecture"],
+              :name => sys.config.sysinfo["Computer"],
+              :os => sys.config.sysinfo["OS"],
+              :arch => sys.config.sysinfo["Architecture"],
             }
           })
 

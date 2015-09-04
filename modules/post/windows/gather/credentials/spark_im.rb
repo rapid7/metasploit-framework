@@ -49,30 +49,54 @@ class Metasploit3 < Msf::Post
     password = ::Rex::Text.to_utf8(password)
 
     user, pass = password.scan(/[[:print:]]+/)
+    cred_opts = {}
     if pass.nil? or pass.empty?
       print_status("Username found: #{user}, but no password")
-      pass = ''
+      cred_opts.merge!(user: user)
     else
       print_good("Decrypted Username #{user} Password: #{pass}")
+      cred_opts.merge!(user: user, password: pass)
     end
 
-    store_creds(user, pass)
+    cred_opts.merge!(
+      ip: client.sock.peerhost,
+      port: 5222,
+      service_name: 'spark'
+    )
+
+    report_cred(cred_opts)
   end
 
-  def store_creds(user, pass)
-    if db
-      report_auth_info(
-        :host   => client.sock.peerhost,
-        :port   => 5222,
-        :ptype  => 'password',
-        :sname  => 'spark',
-        :user   => user,
-        :pass   => pass,
-        :duplicate_ok => true,
-        :active => true
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: fullname,
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      username: opts[:user],
+      private_type: :password
+    }.merge(service_data)
+
+    if opts[:password]
+      credential_data.merge!(
+        private_data: opts[:password],
       )
-      print_status("Loot stored in the db")
     end
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   # main control method
@@ -107,7 +131,7 @@ class Metasploit3 < Msf::Post
           end
 
           hash = pass.split("password").join.chomp
-          print_status("Spark password hash: #{hash}") if datastore['VERBOSE']
+          vprint_status("Spark password hash: #{hash}")
 
           # call method to decrypt hash
           decrypt(hash)
