@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
       (1..10).each do
         resp = session.shell_read
         vprint_status("jailbreak received: #{resp}") unless resp.nil? || resp.empty?
-        if resp.include?('BusyBox') && resp.include?('Built-in shell')
+        if resp.downcase.include?('busybox') && resp.downcase.include?('built-in shell')
           print_good("Jailbreak accomplished with #{command}")
           return true
         end
