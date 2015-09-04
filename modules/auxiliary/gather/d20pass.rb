@@ -182,6 +182,32 @@ class Metasploit3 < Msf::Auxiliary
     return res
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   # Parse the usernames, passwords, and security levels from the config
   # It's a little ugly (lots of hard-coded offsets).
   # The userdata starts at an offset dictated by the B014USERS config
@@ -213,13 +239,13 @@ class Metasploit3 < Msf::Auxiliary
         break
       end
       logins <<  [accounttype,  accountname,  accountpass]
-      report_auth_info(
-        :host => datastore['RHOST'],
-        :port => 23,
-        :sname => "telnet",
-        :user => accountname,
-        :pass => accountpass,
-        :active => true
+      report_cred(
+        ip: datastore['RHOST'],
+        port: 23,
+        service_name: 'telnet',
+        user: accountname,
+        password: accountpass,
+        proof: accounttype
       )
     end
     if not logins.rows.empty?

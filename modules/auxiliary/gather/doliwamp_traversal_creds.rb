@@ -151,6 +151,32 @@ class Metasploit3 < Msf::Auxiliary
     get_session_tokens ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     return unless tokens = get_session_tokens
     credentials = []
@@ -172,14 +198,14 @@ class Metasploit3 < Msf::Auxiliary
       'Columns' => ['Username', 'Password', 'Admin', 'E-mail']
     )
     credentials.each do |record|
-      report_auth_info({
-        :host  => rhost,
-        :port  => rport,
-        :sname => (ssl ? 'https' : 'http'),
-        :user  => record[0],
-        :pass  => record[1],
-        :source_type => 'vuln'
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: (ssl ? 'https' : 'http'),
+        user: record[0],
+        password: record[1],
+        proof: @cookie
+      )
       cred_table << [record[0], record[1], record[2], record[3]]
     end
     print_line

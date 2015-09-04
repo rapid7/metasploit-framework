@@ -175,20 +175,45 @@ class Metasploit3 < Msf::Auxiliary
         @plain_passwords[i] << " (ISO-8859-1 hex chars)"
       end
 
-      report_auth_info({
-       :host => rhost,
-       :port => rport,
-       :user => @users[i][0],
-       :pass => @plain_passwords[i],
-       :type => "password",
-       :sname => (ssl ? "https" : "http"),
-       :proof => "Leaked encrypted password from #{@users[i][3]}: #{@users[i][1]}:#{@users[i][2]}"
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        user: @users[i][0],
+        password: @plain_passwords[i],
+        service_name: (ssl ? "https" : "http"),
+        proof: "Leaked encrypted password from #{@users[i][3]}: #{@users[i][1]}:#{@users[i][2]}"
+      )
 
       users_table << [@users[i][0], @users[i][1], @users[i][2], @plain_passwords[i], user_type(@users[i][3])]
     end
 
     print_line(users_table.to_s)
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def user_type(database)

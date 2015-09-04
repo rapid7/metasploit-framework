@@ -450,6 +450,36 @@ class Metasploit3 < Msf::Auxiliary
     mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'hp', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
+  def test_d20pass
+     mod = framework.auxiliary.create('gather/d20pass')
+     mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'hp', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_doliwamp_traversal_creds
+    mod = framework.auxiliary.create('gather/doliwamp_traversal_creds')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'hp', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_apache_rave_creds
+    mod = framework.auxiliary.create('gather/apache_rave_creds')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'Apache Rave', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_wordpress_long_password_dos
+    mod = framework.auxiliary.create('dos/http/wordpress_long_password_dos')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, proof: FAKE_PROOF)
+  end
+
+  def test_modicon_password_recovery
+    mod = framework.auxiliary.create('admin/scada/modicon_password_recovery')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_advantech_webaccess_dbvisitor_sqli
+    mod = framework.auxiliary.create('admin/scada/advantech_webaccess_dbvisitor_sqli')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
   def run
     counter_all  = 0
     counter_good = 0
