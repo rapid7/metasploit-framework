@@ -144,6 +144,42 @@ describe Msf::Post::Linux::BusyBox do
         expect(subject.busy_box_write_file('/tmp/test', 'test')).to be_truthy
       end
     end
+
+    describe "when prepend is true" do
+      describe "when there is a writable dir" do
+        describe "when the target file is writable" do
+          before :each do
+            allow(subject).to receive(:busy_box_writable_dir) do
+              '/tmp/'
+            end
+
+            allow(subject).to receive(:read_file) do
+              "#{'A' * 16}XXX#{'A' * 16}"
+            end
+
+            allow(Rex::Text).to receive(:rand_text_alpha) do
+              'A' * 16
+            end
+          end
+
+          it "returns true" do
+            expect(subject.busy_box_write_file('/tmp/test', 'test', true)).to be_truthy
+          end
+        end
+      end
+
+      describe "when there isn't a writable dir" do
+        before :each do
+          allow(subject).to receive(:busy_box_writable_dir) do
+            nil
+          end
+        end
+        
+        it "returns false" do
+          expect(subject.busy_box_write_file('/tmp/test', 'test', true)).to be_falsey
+        end
+      end
+    end
   end
 
 end
