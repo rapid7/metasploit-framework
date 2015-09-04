@@ -47,7 +47,7 @@ class Metasploit4 < Msf::Post
     # Sometimes cmd_exec fails to cat build_prop, so the #get_build_prop method returns
     # empty.
     if build_prop.empty?
-      raise RuntimeError, "Failed to retrieve build.prop, you might need to try again."
+      fail_with(Failure::Unknown, 'Failed to retrieve build.prop, you might need to try again.')
     end
 
     android_version = Gem::Version.new(build_prop['ro.build.version.release'])
