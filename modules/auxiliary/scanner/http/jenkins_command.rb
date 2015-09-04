@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Jenkins RCE (via Groovy Script)',
+      'Name'        => 'Jenkins-CI Unauthenticated Script-Console Scanner',
       'Description' => %q{
         This module takes advantage of the lack of password on Jenkins web applications
         and automates the command execution aspect (via groovy script).
@@ -27,13 +27,14 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'References'  => [
         ['URL', 'https://www.pentestgeek.com/penetration-testing/hacking-jenkins-servers-with-no-password/']
-       ],
+        ['URL', 'https://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Script+Console'],
+        ],
       'License'     => MSF_LICENSE
       ))
 
     register_options(
       [
-        OptString.new('TARGETURI',  [ true,  "Path to Jenkins instance", "/jenkins/script"]),
+        OptString.new('TARGETURI', [ true,  'The path to the Jenkins-CI application', '/jenkins/' ]),
         OptString.new('COMMAND', [true, 'Command to run in application', 'whoami']),
       ], self.class)
     deregister_options('VHOST')

@@ -19,9 +19,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Jenkins Enumeration',
+      'Name'        => 'Jenkins-CI Enumeration',
       'Description' => %q{
-        This module enumerates a remote Jenkins installation in an unauthenticated manner, including
+        This module enumerates a remote Jenkins-CI installation in an unauthenticated manner, including
         host operating system and and Jenkins installation details.
       },
       'Author'      => 'Jeff McCutchan',
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI',  [ true,  "Path to Jenkins instance", "/jenkins/"]),
+        OptString.new('TARGETURI', [ true,  'The path to the Jenkins-CI application', '/jenkins/' ])
       ], self.class)
   end
 
