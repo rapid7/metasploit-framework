@@ -67,7 +67,7 @@ Gem::Specification.new do |spec|
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
-  spec.add_runtime_dependency 'packetfu', '1.1.9'
+  spec.add_runtime_dependency 'packetfu', '1.1.11'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting

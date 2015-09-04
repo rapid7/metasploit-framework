@@ -12,7 +12,7 @@ PATH
       metasploit-payloads (= 1.0.12)
       msgpack
       nokogiri
-      packetfu (= 1.1.9)
+      packetfu (= 1.1.11)
       railties
       rb-readline-r7
       recog (= 2.0.6)
@@ -144,7 +144,9 @@ GEM
     network_interface (0.0.1)
     nokogiri (1.6.6.2)
       mini_portile (~> 0.6.0)
-    packetfu (1.1.9)
+    packetfu (1.1.11)
+      network_interface (~> 0.0)
+      pcaprub (~> 0.12)
     pcaprub (0.12.0)
     pg (0.18.2)
     pg_array_parser (0.0.9)
