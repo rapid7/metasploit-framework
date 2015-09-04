@@ -71,6 +71,8 @@ module BusyBox
   #   of it is necessary to implement an specific method.
   def busy_box_write_file(file_path, data, prepend = false)
     if prepend
+      dir = busy_box_writable_dir
+      return false unless dir
       cmd_exec("cp -f #{file_path} #{dir}tmp")
       Rex::sleep(0.3)
     end
