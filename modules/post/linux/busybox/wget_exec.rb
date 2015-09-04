@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status('Searching a writable direcotry...')
+    print_status('Searching a writable directory...')
     writable_directory = busy_box_writable_dir
     if writable_directory
       print_status('Writable directory found, downloading file...')
