@@ -720,6 +720,12 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 
   def whoami
-    @platform == :windows ? (session.sys.config.getenv('USERNAME')) : (cmd_exec("whoami").chomp)
+    if @platform == :windows
+      id = session.sys.config.getenv('USERNAME')
+    else
+      id = cmd_exec("id -un")
+    end
+
+    id
   end
 end
