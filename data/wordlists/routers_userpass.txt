@@ -32,10 +32,6 @@ halt tlah
 admin switch
 diag switch
 root permit
-ftp_inst pbxk1064
-ftp_admi kilo1987
-ftp_oper help1954
-ftp_nmc tuxalize
 manager friend
 manager admin
 Manager friend
