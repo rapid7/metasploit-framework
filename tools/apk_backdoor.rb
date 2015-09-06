@@ -183,7 +183,8 @@ end
 tempdir = Dir.mktmpdir
 
 print "[*] Generating msfvenom payload..\n"
-res = run_cmd("../msfvenom -f raw #{opts} -o #{tempdir}/payload.apk 2>&1")
+msfvenom_path = File.expand_path(File.join(File.dirname(__FILE__), "..", "msfvenom"))
+res = run_cmd("#{msfvenom_path} -f raw #{opts} -o #{tempdir}/payload.apk 2>&1")
 if res.downcase.include?("invalid" || "error")
 	puts res
 	exit(1)
