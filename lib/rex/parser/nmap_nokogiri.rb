@@ -17,7 +17,7 @@ module Rex
         Msf::ServiceState::Closed
       when "filtered"
         Msf::ServiceState::Filtered
-      when "unknown"
+      else
         Msf::ServiceState::Unknown
       end
     end
