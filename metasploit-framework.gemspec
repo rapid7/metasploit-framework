@@ -61,13 +61,13 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.0.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.0.9'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.12'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
-  spec.add_runtime_dependency 'packetfu', '1.1.9'
+  spec.add_runtime_dependency 'packetfu', '1.1.11'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
