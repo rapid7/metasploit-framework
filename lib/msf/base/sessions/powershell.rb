@@ -28,6 +28,13 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   end
 
   #
+  # Returns the session platform.
+  #
+  def platform
+    "win"
+  end
+
+  #
   # Returns the session description.
   #
   def desc
