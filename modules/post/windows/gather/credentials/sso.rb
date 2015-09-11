@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Post
       /^LOCAL SYSTEM$/
     ]
 
-    return system_users.find{|r| user.match(r)}
+    system_users.find{|r| user.to_s.match(r)}
   end
 
 end
