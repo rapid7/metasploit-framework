@@ -4,7 +4,6 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/android'
 
 class Metasploit4 < Msf::Post
   Rank = NormalRanking
