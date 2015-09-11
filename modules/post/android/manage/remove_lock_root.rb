@@ -4,11 +4,11 @@
 ##
 
 require 'msf/core'
-require 'rex'
 
 class Metasploit4 < Msf::Post
 
   include Msf::Post::Common
+  include Msf::Post::Android::Priv
 
   def initialize(info={})
     super( update_info( info, {
@@ -28,10 +28,9 @@ class Metasploit4 < Msf::Post
   end
 
   def run
-    id = cmd_exec('id')
-    unless id =~ /root/
-      #print_error("This module requires root permissions")
-      #return
+    unless is_root?
+      print_error("This module requires root permissions.")
+      return
     end
 
     %W{
