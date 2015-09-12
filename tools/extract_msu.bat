@@ -18,8 +18,9 @@ for /f %%f in ('dir /B %arg%') DO (
 	@set lastfourchars=!fname:~-4,4!
 	if "!lastfourchars!" == ".msu" (
 		@set newname=!fname:~0,-4!
-		7za e %arg%!fname! -o%arg%!newname!
+		mkdir %arg%!newname!
 		mkdir %arg%!newname!\extracted
+		expand /F:* %arg%!fname! %arg%!newname!
 		expand /F:* %arg%!newname!\!newname!.cab %arg%!newname!\extracted
 	)
 
