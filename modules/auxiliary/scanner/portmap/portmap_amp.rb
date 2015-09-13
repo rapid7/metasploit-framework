@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'Portmap Amplification Scanner',
       'Description' => %q{
-          This module can be used to discover Portmap servers which expose unauthicated
+          This module can be used to discover Portmap servers which expose unauthenticated
           functionality that can be used in an amplication attack against a third party.
       },
       'Author'      => [ 'xistence <xistence[at]0x90.nl>'], # Original scanner module
@@ -104,13 +104,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    if data =~/#{XID_SUMMARY}\x00\x00\x00\x01/
+    if data =~ /#{XID_SUMMARY}\x00\x00\x00\x01/
       @results_summary[shost] ||= []
       @results_summary[shost] << data
-    elsif data =~/#{XID_METRICS}\x00\x00\x00\x01/
+    elsif data =~ /#{XID_METRICS}\x00\x00\x00\x01/
       @results_metrics[shost] ||= []
       @results_metrics[shost] << data
-    elsif data =~/#{XID_DUMP}\x00\x00\x00\x01/
+    elsif data =~ /#{XID_DUMP}\x00\x00\x00\x01/
       @results_dump[shost] ||= []
       @results_dump[shost] << data
     else
@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
           port: datastore['RPORT'],
           proto: 'udp',
           name: what,
-          refs: self.references
+          refs: references
         )
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
           port: datastore['RPORT'],
           proto: 'udp',
           name: what,
-          refs: self.references
+          refs: references
         )
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
@@ -194,7 +194,7 @@ class Metasploit3 < Msf::Auxiliary
           port: datastore['RPORT'],
           proto: 'udp',
           name: what,
-          refs: self.references
+          refs: references
         )
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
