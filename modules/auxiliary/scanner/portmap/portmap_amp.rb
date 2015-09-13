@@ -93,13 +93,13 @@ class Metasploit3 < Msf::Auxiliary
   def scan_host(ip)
     if spoofed?
       datastore['ScannerRecvWindow'] = 0
-      scanner_spoof_send(@portmap_summary, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
-      scanner_spoof_send(@portmap_dump, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
-      scanner_spoof_send(@portmap_metrics, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
+      scanner_spoof_send(@portmap_summary, ip, rport, datastore['SRCIP'], datastore['NUM_REQUESTS'])
+      scanner_spoof_send(@portmap_dump, ip, rport, datastore['SRCIP'], datastore['NUM_REQUESTS'])
+      scanner_spoof_send(@portmap_metrics, ip, rport, datastore['SRCIP'], datastore['NUM_REQUESTS'])
     else
-      scanner_send(@portmap_summary, ip, datastore['RPORT'])
-      scanner_send(@portmap_dump, ip, datastore['RPORT'])
-      scanner_send(@portmap_metrics, ip, datastore['RPORT'])
+      scanner_send(@portmap_summary, ip, rport)
+      scanner_send(@portmap_dump, ip, rport)
+      scanner_send(@portmap_metrics, ip, rport)
     end
   end
 
@@ -126,18 +126,18 @@ class Metasploit3 < Msf::Auxiliary
       report_service(
         host: k,
         proto: 'udp',
-        port: datastore['RPORT'],
+        port: rport,
         name: 'portmap'
       )
 
-      peer = "#{k}:#{datastore['RPORT']}"
+      peer = "#{k}:#{rport}"
       vulnerable, proof = prove_amplification(response_map_summary)
       what = 'Portmap RPC DUMP (Program version: 3) amplification'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
         report_vuln(
           host: k,
-          port: datastore['RPORT'],
+          port: rport,
           proto: 'udp',
           name: what,
           refs: references
@@ -153,18 +153,18 @@ class Metasploit3 < Msf::Auxiliary
       report_service(
         host: k,
         proto: 'udp',
-        port: datastore['RPORT'],
+        port: rport,
         name: 'portmap'
       )
 
-      peer = "#{k}:#{datastore['RPORT']}"
+      peer = "#{k}:#{rport}"
       vulnerable, proof = prove_amplification(response_map_dump)
       what = 'Portmap RPC DUMP (Program version: 2) amplification'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
         report_vuln(
           host: k,
-          port: datastore['RPORT'],
+          port: rport,
           proto: 'udp',
           name: what,
           refs: references
@@ -180,18 +180,18 @@ class Metasploit3 < Msf::Auxiliary
       report_service(
         host: k,
         proto: 'udp',
-        port: datastore['RPORT'],
+        port: rport,
         name: 'portmap'
       )
 
-      peer = "#{k}:#{datastore['RPORT']}"
+      peer = "#{k}:#{rport}"
       vulnerable, proof = prove_amplification(response_map_metrics)
       what = 'Portmap RPC GETSTAT amplification'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
         report_vuln(
           host: k,
-          port: datastore['RPORT'],
+          port: rport,
           proto: 'udp',
           name: what,
           refs: references
