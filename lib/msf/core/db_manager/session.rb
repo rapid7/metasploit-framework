@@ -92,14 +92,7 @@ module Msf::DBManager::Session
     wspace = s.workspace
 
     if session
-      if session.exploit.user_data_is_match?
-        MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
-          match: session.exploit.user_data[:match],
-          run: session.exploit.user_data[:run],
-          state: MetasploitDataModels::AutomaticExploitation::MatchResult::SUCCEEDED,
-        )
-        infer_vuln_from_session(session, wspace)
-      elsif session.via_exploit
+      if session.via_exploit
         # This is a live session, we know the host is vulnerable to something.
         infer_vuln_from_session(session, wspace)
       end

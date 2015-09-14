@@ -46,7 +46,6 @@ shared_examples_for 'Msf::DBManager::Session' do
                 framework: framework,
                 name: name
             )
-            allow(d).to receive(:user_data_is_match?).and_return(false)
             d
           end
 
@@ -135,10 +134,6 @@ shared_examples_for 'Msf::DBManager::Session' do
                 match_set: FactoryGirl.build(:automatic_exploitation_match_set),
                 run: FactoryGirl.build(:automatic_exploitation_run, workspace: session_workspace),
               }
-            end
-
-            before do
-              allow(module_instance).to receive(:user_data_is_match?).and_return(true)
             end
 
             it 'should make a MatchResult' do
