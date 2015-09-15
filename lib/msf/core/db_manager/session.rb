@@ -151,6 +151,7 @@ module Msf::DBManager::Session
         username: session.username,
         vuln: vuln,
         workspace: wspace,
+        run_id: session.exploit.user_data[:run_id]
       }
 
       framework.db.report_exploit_success(attempt_info)
