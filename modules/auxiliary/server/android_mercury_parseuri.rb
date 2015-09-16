@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
     |
   end
 
-  def on_request_uri(ci, req)
+  def on_request_uri(cli, req)
     print_status("Requesting: #{req.uri}")
 
     unless is_android?(req.headers['User-Agent'])
