@@ -12,6 +12,10 @@ if [%arg%] == [] (
 	exit /B
 )
 
+if not "!arg:~-1,1!" == "\" (
+	@set arg=!arg!\
+)
+
 
 for /f %%f in ('dir /B %arg%') DO (
 	@set fname=%%f
