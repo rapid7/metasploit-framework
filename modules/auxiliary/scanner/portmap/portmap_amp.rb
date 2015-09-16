@@ -11,22 +11,19 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::DRDoS
 
-  XID_SUMMARY = [Rex::Text::rand_text_numeric(8).to_i].pack("N")
-  XID_METRICS = [Rex::Text::rand_text_numeric(8).to_i].pack("N")
-  XID_DUMP = [Rex::Text::rand_text_numeric(8).to_i].pack("N")
-
   def initialize
     super(
-      'Name'        => 'Portmap Amplification Scanner',
+      'Name'        => 'Portmapper Amplification Scanner',
       'Description' => %q{
-          This module can be used to discover Portmap servers which expose unauthenticated
-          functionality that can be used in an amplication attack against a third party.
+        This module can be used to discover Portmapper services which can be used in an
+        amplification DDoS attack against a third party.
       },
-      'Author'      => [ 'xistence <xistence[at]0x90.nl>'], # Original scanner module
+      'Author'      => ['xistence <xistence[at]0x90.nl>'],
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-017A']
+          ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-017A'],
+          ['URL', 'http://blog.level3.com/security/a-new-ddos-reflection-attack-portmapper-an-early-warning-to-the-industry/']
         ],
     )
 
@@ -39,12 +36,24 @@ class Metasploit3 < Msf::Auxiliary
     datastore['RPORT']
   end
 
+  def xid_summary
+    @xid_summary ||= [Rex::Text::rand_text_numeric(8).to_i].pack('N')
+  end
+
+  def xid_dump
+    @xid_dump ||= [Rex::Text::rand_text_numeric(8).to_i].pack('N')
+  end
+
+  def xid_metrics
+    @xid_metrics ||= [Rex::Text::rand_text_numeric(8).to_i].pack('N')
+  end
+
   def setup
     super
 
     # RPC DUMP (Program version: 3) request: rpcinfo -T udp -s <IP>
-    @portmap_summary = ""
-    @portmap_summary << XID_SUMMARY # Random ID
+    @portmap_summary = ''
+    @portmap_summary << xid_summary # Random ID
     @portmap_summary << "\x00\x00\x00\x00" # Message Type: 0 (Call)
     @portmap_summary << "\x00\x00\x00\x02" # RPC Version: 2
     @portmap_summary << "\x00\x01\x86\xa0" # Program: Portmap (10000)
@@ -55,9 +64,9 @@ class Metasploit3 < Msf::Auxiliary
     @portmap_summary << "\x00\x00\x00\x00" # Verifier Flavor: AUTH_NULL (0)
     @portmap_summary << "\x00\x00\x00\x00" # Verifier Length: 0
 
-    # RPC DUMP (Program version: 3) request: rpcinfo -T udp -p <IP>
-    @portmap_dump = ""
-    @portmap_dump << XID_DUMP # Random ID
+    # RPC DUMP (Program version: 2) request: rpcinfo -T udp -p <IP>
+    @portmap_dump = ''
+    @portmap_dump << xid_dump # Random ID
     @portmap_dump << "\x00\x00\x00\x00" # Message Type: 0 (Call)
     @portmap_dump << "\x00\x00\x00\x02" # RPC Version: 2
     @portmap_dump << "\x00\x01\x86\xa0" # Program: Portmap (10000)
@@ -69,8 +78,8 @@ class Metasploit3 < Msf::Auxiliary
     @portmap_dump << "\x00\x00\x00\x00" # Verifier Length: 0
 
     # RPC GETSTAT request: rpcinfo -T udp -m <IP>
-    @portmap_metrics = ""
-    @portmap_metrics << XID_METRICS # Random ID
+    @portmap_metrics = ''
+    @portmap_metrics << xid_metrics # Random ID
     @portmap_metrics << "\x00\x00\x00\x00" # Message Type: 0 (Call)
     @portmap_metrics << "\x00\x00\x00\x02" # RPC Version: 2
     @portmap_metrics << "\x00\x01\x86\xa0" # Program: Portmap (10000)
@@ -80,7 +89,6 @@ class Metasploit3 < Msf::Auxiliary
     @portmap_metrics << "\x00\x00\x00\x00" # Credentials Length: 0
     @portmap_metrics << "\x00\x00\x00\x00" # Verifier Flavor: AUTH_NULL (0)
     @portmap_metrics << "\x00\x00\x00\x00" # Verifier Length: 0
-
   end
 
   def scanner_prescan(batch)
@@ -104,13 +112,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    if data =~ /#{XID_SUMMARY}\x00\x00\x00\x01/
+    if data =~ /#{@xid_summary}\x00\x00\x00\x01/
       @results_summary[shost] ||= []
       @results_summary[shost] << data
-    elsif data =~ /#{XID_METRICS}\x00\x00\x00\x01/
+    elsif data =~ /#{@xid_metrics}\x00\x00\x00\x01/
       @results_metrics[shost] ||= []
       @results_metrics[shost] << data
-    elsif data =~ /#{XID_DUMP}\x00\x00\x00\x01/
+    elsif data =~ /#{@xid_dump}\x00\x00\x00\x01/
       @results_dump[shost] ||= []
       @results_dump[shost] << data
     else
@@ -122,85 +130,45 @@ class Metasploit3 < Msf::Auxiliary
   def scanner_postscan(batch)
     @results_summary.keys.each do |k|
       response_map_summary = { @portmap_summary => @results_summary[k] }
-
-      report_service(
-        host: k,
-        proto: 'udp',
-        port: rport,
-        name: 'portmap'
-      )
-
-      peer = "#{k}:#{rport}"
-      vulnerable, proof = prove_amplification(response_map_summary)
       what = 'Portmap RPC DUMP (Program version: 3) amplification'
-      if vulnerable
-        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
-        report_vuln(
-          host: k,
-          port: rport,
-          proto: 'udp',
-          name: what,
-          refs: references
-        )
-      else
-        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
-      end
+      report_result(k, what, response_map_summary)
     end
 
     @results_dump.keys.each do |k|
       response_map_dump = { @portmap_dump => @results_dump[k] }
-
-      report_service(
-        host: k,
-        proto: 'udp',
-        port: rport,
-        name: 'portmap'
-      )
-
-      peer = "#{k}:#{rport}"
-      vulnerable, proof = prove_amplification(response_map_dump)
       what = 'Portmap RPC DUMP (Program version: 2) amplification'
-      if vulnerable
-        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
-        report_vuln(
-          host: k,
-          port: rport,
-          proto: 'udp',
-          name: what,
-          refs: references
-        )
-      else
-        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
-      end
+      report_result(k, what, response_map_dump)
     end
 
     @results_metrics.keys.each do |k|
       response_map_metrics = { @portmap_summary => @results_metrics[k] }
-
-      report_service(
-        host: k,
-        proto: 'udp',
-        port: rport,
-        name: 'portmap'
-      )
-
-      peer = "#{k}:#{rport}"
-      vulnerable, proof = prove_amplification(response_map_metrics)
       what = 'Portmap RPC GETSTAT amplification'
-      if vulnerable
-        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
-        report_vuln(
-          host: k,
-          port: rport,
-          proto: 'udp',
-          name: what,
-          refs: references
-        )
-      else
-        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
-      end
+      report_result(k, what, response_map_metrics)
     end
+  end
 
+  def report_result(host, attack, map)
+    report_service(
+      host: host,
+      proto: 'udp',
+      port: rport,
+      name: 'portmap'
+    )
+
+    peer = "#{host}:#{rport}"
+    vulnerable, proof = prove_amplification(map)
+    if vulnerable
+      print_good("#{peer} - Vulnerable to #{attack}: #{proof}")
+      report_vuln(
+        host: host,
+        port: rport,
+        proto: 'udp',
+        name: attack,
+        refs: references
+      )
+    else
+      vprint_status("#{peer} - Not vulnerable to #{attack}: #{proof}")
+    end
   end
 end
 
