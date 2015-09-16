@@ -5,6 +5,7 @@ module Metasploit
     module MSSQL
 
       module Client
+        extend ActiveSupport::Concern
         include Metasploit::Framework::Tcp::Client
 
         NTLM_CRYPT = Rex::Proto::NTLM::Crypt
@@ -50,8 +51,7 @@ module Metasploit
 
           # Send a prelogin packet and check that encryption is not enabled
           if mssql_prelogin() != ENCRYPT_NOT_SUP
-            print_error("Encryption is not supported")
-            return false
+            raise ::Rex::ConnectionError, "Encryption is not supported"
           end
 
           if windows_authentication

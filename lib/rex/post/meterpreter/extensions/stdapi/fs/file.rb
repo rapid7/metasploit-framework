@@ -91,9 +91,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     if( response.result == 0 )
       response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |
         files << {
-          'path' => client.unicode_filter_encode( results.get_tlv_value( TLV_TYPE_FILE_PATH ).chomp( '\\' ) ),
-          'name' => client.unicode_filter_encode( results.get_tlv_value( TLV_TYPE_FILE_NAME ) ),
-          'size' => results.get_tlv_value( TLV_TYPE_FILE_SIZE )
+          'path' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_PATH).chomp( '\\' )),
+          'name' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_NAME)),
+          'size' => results.get_tlv_value(TLV_TYPE_FILE_SIZE)
         }
       end
     end
@@ -138,7 +138,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    return client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_FILE_PATH) )
+    return client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_FILE_PATH))
   end
 
 
@@ -152,8 +152,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    # This is not really a file name, but a raw hash in bytes
-    return response.get_tlv_value(TLV_TYPE_FILE_NAME)
+    # older meterpreter binaries will send FILE_NAME containing the hash
+    hash = response.get_tlv_value(TLV_TYPE_FILE_HASH) ||
+      response.get_tlv_value(TLV_TYPE_FILE_NAME)
+    return hash
   end
 
   #
@@ -166,8 +168,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    # This is not really a file name, but a raw hash in bytes
-    return response.get_tlv_value(TLV_TYPE_FILE_NAME)
+    # older meterpreter binaries will send FILE_NAME containing the hash
+    hash = response.get_tlv_value(TLV_TYPE_FILE_HASH) ||
+      response.get_tlv_value(TLV_TYPE_FILE_NAME)
+    return hash
   end
 
   #
@@ -203,10 +207,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     alias delete rm
   end
 
-        #
-        # Performs a rename from oldname to newname
-        #
-        def File.mv(oldname, newname)
+  #
+  # Performs a rename from oldname to newname
+  #
+  def File.mv(oldname, newname)
     request = Packet.create_request('stdapi_fs_file_move')
 
     request.add_tlv(TLV_TYPE_FILE_NAME, client.unicode_filter_decode( oldname ))
@@ -215,12 +219,12 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     response = client.send_request(request)
 
     return response
-        end
+  end
 
-        class << self
-                alias move mv
-                alias rename mv
-        end
+  class << self
+    alias move mv
+    alias rename mv
+  end
 
   #
   # Upload one or more files to the remote remote directory supplied in
@@ -246,9 +250,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Upload a single file.
   #
-  def File.upload_file(dest_file, src_file)
+  def File.upload_file(dest_file, src_file, &stat)
     # Open the file on the remote side for writing and read
     # all of the contents of the local file
+    stat.call('uploading', src_file, dest_file) if (stat)
     dest_fd = client.fs.file.new(dest_file, "wb")
     src_buf = ''
 
@@ -261,6 +266,11 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     ensure
       dest_fd.close
     end
+    stat.call('uploaded', src_file, dest_file) if (stat)
+  end
+
+  def File.is_glob?(name)
+    /\*|\[|\?/ === name
   end
 
   #
@@ -279,10 +289,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       end
 
       stat.call('downloading', src, dest) if (stat)
-
-      download_file(dest, src)
-
-      stat.call('downloaded', src, dest) if (stat)
+      result = download_file(dest, src)
+      stat.call(result, src, dest) if (stat)
     }
   end
 
@@ -291,6 +299,17 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   def File.download_file(dest_file, src_file)
     src_fd = client.fs.file.new(src_file, "rb")
+
+    # Check for changes
+    src_stat = client.fs.filestat.new(src_file)
+    if ::File.exists?(dest_file)
+      dst_stat = ::File.stat(dest_file)
+      if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
+        return 'skipped'
+      end
+    end
+
+    # Make the destination path if necessary
     dir = ::File.dirname(dest_file)
     ::FileUtils.mkdir_p(dir) if dir and not ::File.directory?(dir)
 
@@ -306,6 +325,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       src_fd.close
       dst_fd.close
     end
+
+    # Clone the times from the remote file
+    ::File.utime(src_stat.atime, src_stat.mtime, dest_file)
+    return 'download'
   end
 
   #

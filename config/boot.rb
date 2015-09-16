@@ -23,14 +23,12 @@ unless ENV['BUNDLE_GEMFILE']
 end
 
 begin
-  require 'bundler'
+  require 'bundler/setup'
 rescue LoadError
   $stderr.puts "[*] Metasploit requires the Bundler gem to be installed"
   $stderr.puts "    $ gem install bundler"
-  exit(0)
+  exit(1)
 end
-
-Bundler.setup
 
 lib_path = root.join('lib').to_path
 

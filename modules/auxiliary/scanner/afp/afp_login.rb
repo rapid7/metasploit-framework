@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'URL', 'https://developer.apple.com/library/mac/#documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ],
-          [ 'URL', 'https://developer.apple.com/library/mac/#documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html' ]
+          [ 'URL', 'https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ],
+          [ 'URL', 'https://developer.apple.com/library/mac/documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html' ]
 
         ],
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
@@ -34,6 +34,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST')
     register_options(
       [
+        Opt::Proxies,
         OptInt.new('LoginTimeOut', [ true, "Timout on login", 23 ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest login to the database", false]),
         OptBool.new('CHECK_GUEST', [ false, "Check for guest login", true])
@@ -62,7 +63,12 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: 30
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 30,
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
+        framework: framework,
+        framework_module: self,
     )
 
     scanner.scan! do |result|

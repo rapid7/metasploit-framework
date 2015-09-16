@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 
       sock.put(buf)
 
-      response = sock.get_once
+      response = sock.get_once || ''
 
       # print(Rex::Text.to_hex_dump(response))
 
@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
 
       sock.put(buf)
 
-      response = sock.get_once
+      response = sock.get_once || ''
 
       res = response.unpack('x28Z*Z*')
 
@@ -210,9 +210,9 @@ class Metasploit3 < Msf::Auxiliary
       print("Version of the InterBase server: #{info_svc_server_version}\n")
       print("Implementation of the InterBase server: #{info_svc_implementation}\n\n")
 
-      # print(Rex::Text.to_hex_dump(response))
+      #print(Rex::Text.to_hex_dump(response))
 
-      #Add Report
+      # Add Report
       report_note(
         :host	=> ip,
         :sname	=> 'ib',
@@ -222,7 +222,7 @@ class Metasploit3 < Msf::Auxiliary
         :data	=> "Version of the InterBase server: #{info_svc_server_version}"
       )
 
-      #Add Report
+      # Add Report
       report_note(
         :host	=> ip,
         :sname	=> 'ib',

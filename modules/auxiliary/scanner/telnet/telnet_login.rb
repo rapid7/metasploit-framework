@@ -7,7 +7,6 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/telnet'
 
-
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Telnet
@@ -27,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         logins and hosts so you can track your access.
       },
       'Author'      => 'egypt',
-      'References'     =>
+      'References'  =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
@@ -65,9 +64,14 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: datastore['Timeout'],
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
         banner_timeout: datastore['TelnetBannerTimeout'],
-        telnet_timeout: datastore['TelnetTimeout']
+        telnet_timeout: datastore['TelnetTimeout'],
+        framework: framework,
+        framework_module: self,
     )
 
     scanner.scan! do |result|
@@ -85,6 +89,7 @@ class Metasploit3 < Msf::Auxiliary
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        disconnect(scanner.sock)
       end
     end
   end

@@ -710,6 +710,8 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
   end
 
   context '#update_module_details' do
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
     def update_module_details
       db_manager.update_module_details(module_instance)
     end

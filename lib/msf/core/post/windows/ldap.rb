@@ -68,7 +68,7 @@ module LDAP
     0x02 => 'LDAP_PROTOCOL_ERROR',
     0x0a => 'LDAP_REFERRAL',
     0x61 => 'LDAP_REFERRAL_LIMIT_EXCEEDED',
-    0x09 => 'LDAP_REFERRAL_V2',
+    # 0x09 => 'LDAP_REFERRAL_V2', alias for LDAP_PARTIAL_RESULTS
     0x46 => 'LDAP_RESULTS_TOO_LARGE',
     0x51 => 'LDAP_SERVER_DOWN',
     0x04 => 'LDAP_SIZELIMIT_EXCEEDED',
@@ -149,7 +149,7 @@ module LDAP
       query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
       first_entry_fields = query_result[:results].first
       # Value from First Attribute of First Entry
-      default_naming_context = first_entry_fields.first
+      default_naming_context = first_entry_fields.first[:value]
       vprint_status("Default naming context #{default_naming_context}")
       return default_naming_context
     end
@@ -231,7 +231,7 @@ module LDAP
         values_result = values.join(',') if values
         vprint_status("Values #{values}")
 
-        field_results << values_result
+        field_results << {:type => 'unknown', :value => values_result}
       end
 
       entry_results << field_results

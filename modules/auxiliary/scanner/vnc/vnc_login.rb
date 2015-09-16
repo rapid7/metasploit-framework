@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
           This module will test a VNC server on a range of machines and
         report successful logins. Currently it supports RFB protocol
-        version 3.3, 3.7, and 3.8 using the VNC challenge response
+        version 3.3, 3.7, 3.8 and 4.001 using the VNC challenge response
         authentication method.
       },
       'Author'      =>
@@ -38,12 +38,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         Opt::RPORT(5900),
         OptString.new('PASSWORD', [ false, 'The password to test' ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
 
-        #We need to set the following options to make sure BLANK_PASSWORDS functions properly
+        # We need to set the following options to make sure BLANK_PASSWORDS functions properly
         OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
         OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
       ], self.class)
@@ -76,7 +77,12 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: datastore['ConnectTimeout']
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: datastore['ConnectTimeout'],
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
+        framework: framework,
+        framework_module: self,
     )
 
     scanner.scan! do |result|

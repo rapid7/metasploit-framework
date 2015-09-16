@@ -176,26 +176,26 @@ class EventDispatcher
     found = false
     case event
     when "on"
-      if respond_to?(subscribers)
+      if respond_to?(subscribers, true)
         found = true
         self.send(subscribers).each do |sub|
-          next if not sub.respond_to?(name)
+          next if not sub.respond_to?(name, true)
           sub.send(name, *args)
         end
       else
         (general_event_subscribers + custom_event_subscribers).each do |sub|
-          next if not sub.respond_to?(name)
+          next if not sub.respond_to?(name, true)
           sub.send(name, *args)
           found = true
         end
       end
     when "add"
-      if respond_to?(subscribers)
+      if respond_to?(subscribers, true)
         found = true
         add_event_subscriber(self.send(subscribers), *args)
       end
     when "remove"
-      if respond_to?(subscribers)
+      if respond_to?(subscribers, true)
         found = true
         remove_event_subscriber(self.send(subscribers), *args)
       end
@@ -221,11 +221,11 @@ protected
     array.delete(subscriber)
   end
 
-  attr_accessor :general_event_subscribers # :nodoc:
   attr_accessor :custom_event_subscribers # :nodoc:
-  attr_accessor :exploit_event_subscribers # :nodoc:
-  attr_accessor :session_event_subscribers # :nodoc:
   attr_accessor :db_event_subscribers # :nodoc:
+  attr_accessor :exploit_event_subscribers # :nodoc:
+  attr_accessor :general_event_subscribers # :nodoc:
+  attr_accessor :session_event_subscribers # :nodoc:
   attr_accessor :ui_event_subscribers # :nodoc:
 
 end

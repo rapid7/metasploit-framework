@@ -18,15 +18,20 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'			=> 'MySQL Login Utility',
+      'Name'		=> 'MySQL Login Utility',
       'Description'	=> 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
       'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
       'License'		=> MSF_LICENSE,
-      'References'     =>
+      'References'      =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ]
     ))
+
+    register_options(
+      [
+        Opt::Proxies
+      ], self.class)
   end
 
   def target
@@ -55,7 +60,12 @@ class Metasploit3 < Msf::Auxiliary
             proxies: datastore['PROXIES'],
             cred_details: cred_collection,
             stop_on_success: datastore['STOP_ON_SUCCESS'],
-            connection_timeout: 30
+            bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+            connection_timeout: 30,
+            max_send_size: datastore['TCP::max_send_size'],
+            send_delay: datastore['TCP::send_delay'],
+            framework: framework,
+            framework_module: self,
         )
 
         scanner.scan! do |result|
@@ -69,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
             credential_data[:core] = credential_core
             create_credential_login(credential_data)
 
-            print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+            print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
           else
             invalidate_login(credential_data)
             vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

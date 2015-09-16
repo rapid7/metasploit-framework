@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         Opt::RPORT(22),
         OptPath.new('USER_FILE',
                     [true, 'File containing usernames, one per line', nil]),
@@ -98,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
         Net::SSH.start(ip, user, opt_hash)
       end
-    rescue Rex::ConnectionError, Rex::AddressInUse
+    rescue Rex::ConnectionError
       return :connection_error
     rescue Net::SSH::Disconnect, ::EOFError
       return :success
@@ -117,13 +118,26 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def do_report(ip, user, port)
-    report_auth_info(
-      :host   => ip,
-      :port   => rport,
-      :sname  => 'ssh',
-      :user   => user,
-      :active => true
-    )
+    service_data = {
+      address: ip,
+      port: rport,
+      service_name: 'ssh',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: user,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   # Because this isn't using the AuthBrute mixin, we don't have the
@@ -147,7 +161,7 @@ class Metasploit3 < Msf::Auxiliary
     while attempt_num <= retry_num and (ret.nil? or ret == :connection_error)
       if attempt_num > 0
         Rex.sleep(2 ** attempt_num)
-        print_debug "#{peer(ip)} Retrying '#{user}' due to connection error"
+        vprint_status("#{peer(ip)} Retrying '#{user}' due to connection error")
       end
 
       ret = check_user(ip, user, rport)
@@ -160,12 +174,12 @@ class Metasploit3 < Msf::Auxiliary
   def show_result(attempt_result, user, ip)
     case attempt_result
     when :success
-      print_good "#{peer(ip)} User '#{user}' found"
+      print_good("#{peer(ip)} User '#{user}' found")
       do_report(ip, user, rport)
     when :connection_error
-      print_error "#{peer(ip)} User '#{user}' on could not connect"
+      print_error("#{peer(ip)} User '#{user}' on could not connect")
     when :fail
-      print_debug "#{peer(ip)} User '#{user}' not found"
+      print_error("#{peer(ip)} User '#{user}' not found")
     end
   end
 

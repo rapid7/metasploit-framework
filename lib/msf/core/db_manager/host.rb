@@ -73,7 +73,7 @@ module Msf::DBManager::Host
   # address
   #
   def normalize_host(host)
-    return host if host.kind_of? ::Mdm::Host
+    return host if defined?(::Mdm) and host.kind_of? ::Mdm::Host
     norm_host = nil
 
     if (host.kind_of? String)
@@ -92,12 +92,11 @@ module Msf::DBManager::Host
       else
         norm_host = Rex::Socket.getaddress(host, true)
       end
-    elsif host.kind_of? ::Mdm::Session
+    elsif defined?(::Mdm) and host.kind_of? ::Mdm::Session
       norm_host = host.host
     elsif host.respond_to?(:session_host)
       # Then it's an Msf::Session object
-      thost = host.session_host
-      norm_host = thost
+      norm_host = host.session_host
     end
 
     # If we got here and don't have a norm_host yet, it could be a
@@ -158,17 +157,15 @@ module Msf::DBManager::Host
 
     if not addr.kind_of? ::Mdm::Host
       addr = normalize_host(addr)
-      addr, scope = addr.split('%', 2)
-      opts[:scope] = scope if scope
 
       unless ipv46_validator(addr)
         raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
       end
 
       if opts[:comm] and opts[:comm].length > 0
-        host = wspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
+        host = wspace.hosts.where(address: addr, comm: opts[:comm]).first_or_initialize
       else
-        host = wspace.hosts.find_or_initialize_by_address(addr)
+        host = wspace.hosts.where(address: addr).first_or_initialize
       end
     else
       host = addr
@@ -257,9 +254,9 @@ module Msf::DBManager::Host
       end
 
       if opts[:comm] and opts[:comm].length > 0
-        host = wspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
+        host = wspace.hosts.where(address: addr, comm: opts[:comm]).first_or_initialize
       else
-        host = wspace.hosts.find_or_initialize_by_address(addr)
+        host = wspace.hosts.where(address: addr).first_or_initialize
       end
     else
       host = addr

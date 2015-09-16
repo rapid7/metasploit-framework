@@ -10,8 +10,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
 
   # Scanner mixin should be near last
@@ -21,9 +21,12 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'SMB Domain User Enumeration',
-      'Version'     => '$Revision $',
       'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',
-      'Author'      => 'natron',
+      'Author'      =>
+        [
+          'natron', # original module
+          'Joshua D. Abraham <jabra[at]praetorian.com>', # database storage
+        ],
       'References'  =>
         [
           [ 'URL', 'http://msdn.microsoft.com/en-us/library/aa370669%28VS.85%29.aspx' ]
@@ -42,8 +45,7 @@ class Metasploit3 < Msf::Auxiliary
     idx += 4
     val_actual = resp[idx,4].unpack("V")[0]
     idx += 4
-    value	= resp[idx,val_actual*2]
-    #print_debug "resp[0x#{idx.to_s(16)},#{val_actual*2}] : " + value
+    value = resp[idx,val_actual*2]
     idx += val_actual * 2
 
     idx += val_actual % 2 * 2 # alignment
@@ -51,18 +53,15 @@ class Metasploit3 < Msf::Auxiliary
     return value,idx
   end
 
-  def parse_NetWkstaEnumUsersInfo(resp)
+  def parse_net_wksta_enum_users_info(resp)
     accounts = [ Hash.new() ]
 
-    #print_debug resp[0,20].unpack("H*")
     idx = 20
     count = resp[idx,4].unpack("V")[0] # wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> Max Count
     idx += 4
-    #print_debug "Max Count  : " + count.to_s
 
     1.upto(count) do
       # wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> Ref ID
-      # print_debug "Ref ID#{account.to_s}: " + resp[idx,4].unpack("H*").to_s
       idx += 4 # ref id name
       idx += 4 # ref id logon domain
       idx += 4 # ref id other domains
@@ -72,10 +71,10 @@ class Metasploit3 < Msf::Auxiliary
     1.upto(count) do
       # wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> ID1 max count
 
-      account_name,idx	= parse_value(resp, idx)
-      logon_domain,idx	= parse_value(resp, idx)
-      other_domains,idx	= parse_value(resp, idx)
-      logon_server,idx	= parse_value(resp, idx)
+      account_name,idx  = parse_value(resp, idx)
+      logon_domain,idx  = parse_value(resp, idx)
+      other_domains,idx = parse_value(resp, idx)
+      logon_server,idx  = parse_value(resp, idx)
 
       accounts << {
         :account_name => account_name,
@@ -94,6 +93,35 @@ class Metasploit3 < Msf::Auxiliary
 
   def smb_direct
     @smbdirect || datastore['SMBDirect']
+  end
+
+  def store_username(username, res, ip, rport)
+    service_data = {
+      address: ip,
+      port: rport,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      proof: res
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: username
+    }
+
+    credential_data.merge!(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
+
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
   end
 
   def run_host(ip)
@@ -115,22 +143,22 @@ class Metasploit3 < Msf::Auxiliary
       begin
         dcerpc_bind(handle)
         stub =
-          NDR.uwstring("\\\\" + ip) +	# Server Name
-          NDR.long(1) +						# Level
-          NDR.long(1) +						# Ctr
-          NDR.long(rand(0xffffffff)) +	# ref id
-          NDR.long(0) +						# entries read
-          NDR.long(0) +						# null ptr to user0
+          NDR.uwstring("\\\\" + ip) + # Server Name
+          NDR.long(1) +           # Level
+          NDR.long(1) +           # Ctr
+          NDR.long(rand(0xffffffff)) +  # ref id
+          NDR.long(0) +           # entries read
+          NDR.long(0) +           # null ptr to user0
 
-          NDR.long(0xffffffff) +			# Prefmaxlen
-          NDR.long(rand(0xffffffff)) +	# ref id
-          NDR.long(0)							# null ptr to resume handle
+          NDR.long(0xffffffff) +      # Prefmaxlen
+          NDR.long(rand(0xffffffff)) +  # ref id
+          NDR.long(0)             # null ptr to resume handle
 
         dcerpc.call(2,stub)
 
         resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 
-        accounts = parse_NetWkstaEnumUsersInfo(resp)
+        accounts = parse_net_wksta_enum_users_info(resp)
         accounts.shift
 
         if datastore['VERBOSE']
@@ -140,6 +168,21 @@ class Metasploit3 < Msf::Auxiliary
           end
         else
           print_status "#{ip} : #{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
+        end
+
+        found_accounts = []
+        accounts.each do |x|
+          comp_user = x[:logon_domain] + "\\" + x[:account_name]
+          found_accounts.push(comp_user.scan(/[[:print:]]/).join) unless found_accounts.include?(comp_user.scan(/[[:print:]]/).join)
+        end
+
+        found_accounts.each do |comp_user|
+          if comp_user.to_s =~ /\$$/
+            next
+          end
+
+          print_good("#{ip} - Found user: #{comp_user}")
+          store_username(comp_user, resp, ip, rport)
         end
 
       rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e

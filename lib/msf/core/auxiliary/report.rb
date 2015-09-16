@@ -12,6 +12,47 @@ module Auxiliary::Report
 
   optionally_include_metasploit_credential_creation
 
+  def db_warning_given?
+    if @warning_issued
+      true
+    else
+      @warning_issued = true
+      false
+    end
+  end
+
+  def create_cracked_credential(opts={})
+    if active_db?
+      super(opts)
+    elsif !db_warning_given?
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential(opts={})
+    if active_db?
+      super(opts)
+    elsif !db_warning_given?
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential_login(opts={})
+    if active_db?
+      super(opts)
+    elsif !db_warning_given?
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def invalidate_login(opts={})
+    if active_db?
+      super(opts)
+    elsif !db_warning_given?
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
   # This method overrides the method from Metasploit::Credential to check for an active db
   def active_db?
     framework.db.active
@@ -81,13 +122,11 @@ module Auxiliary::Report
 
   #
   # Report a client connection
-  #
-  # opts must contain
-  #	:host      the address of the client connecting
-  #	:ua_string a string that uniquely identifies this client
-  # opts can contain
-  #	:ua_name a brief identifier for the client, e.g. "Firefox"
-  #	:ua_ver  the version number of the client, e.g. "3.0.11"
+  # @param opts [Hash] report client information based on user-agent
+  # @option opts [String] :host the address of the client connecting
+  # @option opts [String] :ua_string a string that uniquely identifies this client
+  # @option opts [String] :ua_name a brief identifier for the client, e.g. "Firefox"
+  # @option opts [String] :ua_ver  the version number of the client, e.g. "3.0.11"
   #
   def report_client(opts={})
     return if not db
@@ -125,13 +164,108 @@ module Auxiliary::Report
     framework.db.report_note(opts)
   end
 
+  # This Legacy method is responsible for creating credentials from data supplied
+  # by a module. This method is deprecated and the new Metasploit::Credential methods
+  # should be used directly instead.
+  #
+  # @param opts [Hash] the option hash
+  # @option opts [String] :host the address of the host (also takes a {Mdm::Host})
+  # @option opts [Fixnum] :port the port of the connected service
+  # @option opts [Mdm::Service] :service an optional Service object to build the cred for
+  # @option opts [String] :type What type of private credential this is (e.g. "password", "hash", "ssh_key")
+  # @option opts [String] :proto Which transport protocol the service uses
+  # @option opts [String] :sname The 'name' of the service
+  # @option opts [String] :user The username for the cred
+  # @option opts [String] :pass The private part of the credential (e.g. password)
   def report_auth_info(opts={})
-    return if not db
-    opts = {
-        :workspace => myworkspace,
-        :task => mytask
-    }.merge(opts)
-    framework.db.report_auth_info(opts)
+    print_warning("*** #{self.fullname} is still calling the deprecated report_auth_info method! This needs to be updated!")
+    print_warning('*** For detailed information about LoginScanners and the Credentials objects see:')
+    print_warning('     https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners')
+    print_warning('     https://github.com/rapid7/metasploit-framework/wiki/How-to-write-a-HTTP-LoginScanner-Module')
+    print_warning('*** For examples of modules converted to just report credentials without report_auth_info, see:')
+    print_warning('     https://github.com/rapid7/metasploit-framework/pull/5376')
+    print_warning('     https://github.com/rapid7/metasploit-framework/pull/5377')
+    return unless db
+    raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
+    raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
+
+    if opts[:host].kind_of?(::Mdm::Host)
+      host = opts[:host].address
+    else
+      host = opts[:host]
+    end
+
+    type = :password
+    case opts[:type]
+      when "password"
+        type = :password
+      when "hash"
+        type = :nonreplayable_hash
+      when "ssh_key"
+        type = :ssh_key
+    end
+
+    case opts[:proto]
+      when "tcp"
+        proto = "tcp"
+      when "udp"
+        proto = "udp"
+      else
+        proto = "tcp"
+    end
+
+    if opts[:service] && opts[:service].kind_of?(Mdm::Service)
+      port         = opts[:service].port
+      proto        = opts[:service].proto
+      service_name = opts[:service].name
+      host         = opts[:service].host.address
+    else
+      port         = opts.fetch(:port)
+      service_name = opts.fetch(:sname, nil)
+    end
+
+    username = opts.fetch(:user, nil)
+    private  = opts.fetch(:pass, nil)
+
+    service_data = {
+      address: host,
+      port: port,
+      service_name: service_name,
+      protocol: proto,
+      workspace_id: myworkspace_id
+    }
+
+    if self.type == "post"
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname
+      }
+    else
+      credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname
+      }
+      credential_data.merge!(service_data)
+    end
+
+    unless private.nil?
+      credential_data[:private_type] = type
+      credential_data[:private_data] = private
+    end
+
+    unless username.nil?
+      credential_data[:username] = username
+    end
+
+    credential_core = create_credential(credential_data)
+
+    login_data ={
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
   end
 
   def report_vuln(opts={})
@@ -306,7 +440,7 @@ module Auxiliary::Report
       fname = ctype || "local_#{Time.now.utc.to_i}"
     end
 
-    # Split by path seperator
+    # Split by path separator
     fname = ::File.split(fname).last
 
     case ctype # Probably could use more cases
@@ -352,7 +486,7 @@ module Auxiliary::Report
     cred_opts = opts.merge(:workspace => myworkspace)
     cred_host = myworkspace.hosts.find_by_address(cred_opts[:host])
     unless opts[:port]
-      possible_services = myworkspace.services.find_all_by_host_id_and_name(cred_host[:id],cred_opts[:sname])
+      possible_services = myworkspace.services.where(host_id: cred_host[:id], name: cred_opts[:sname])
       case possible_services.size
       when 0
         case cred_opts[:sname].downcase
@@ -393,7 +527,7 @@ module Auxiliary::Report
       end
     end
     if opts[:collect_session]
-      session = myworkspace.sessions.find_all_by_local_id(opts[:collect_session]).last
+      session = myworkspace.sessions.where(local_id: opts[:collect_session]).last
       if !session.nil?
         cred_opts[:source_id] = session.id
         cred_opts[:source_type] = "exploit"

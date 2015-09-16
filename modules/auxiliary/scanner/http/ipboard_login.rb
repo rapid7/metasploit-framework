@@ -38,15 +38,13 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::IPBoard.new(
-        host: ip,
-        port: rport,
+      configure_http_login_scanner(
         uri: normalize_uri(target_uri.path),
-        proxies: datastore["PROXIES"],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: 5,
-        user_agent: datastore['UserAgent'],
-        vhost: datastore['VHOST']
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
+      )
     )
 
     scanner.scan! do |result|

@@ -11,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft SQL Server NTLM Stealer - SQLi',
+      'Name'           => 'Microsoft SQL Server SQLi NTLM Stealer',
       'Description'    => %q{
         This module can be used to help capture or relay the LM/NTLM credentials of the
         account running the remote SQL Server service. The module will use the SQL

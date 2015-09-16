@@ -15,7 +15,7 @@ MESSAGE = Rex::Proto::NTLM::Message
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
-  include Msf::Exploit::Remote::SMBServer
+  include Msf::Exploit::Remote::SMB::Server
   include Msf::Auxiliary::Report
 
   class Constants
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #those variables will prevent to spam the screen with identical hashes (works only with ntlmv1)
+    # those variables will prevent to spam the screen with identical hashes (works only with ntlmv1)
     @previous_lm_hash="none"
     @previous_ntlm_hash="none"
 
@@ -373,7 +373,7 @@ class Metasploit3 < Msf::Auxiliary
         if @s_ntlm_esn && arg[:lm_hash][16,32] == '0' * 32
           arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
         end
-        #if the length of the ntlm response is not 24 then it will be bigger and represent
+        # if the length of the ntlm response is not 24 then it will be bigger and represent
         # a ntlmv2 response
       elsif nt_len > 24 #lmv2/ntlmv2
         arg = {	:ntlm_ver 		=> NTLM_CONST::NTLM_V2_RESPONSE,

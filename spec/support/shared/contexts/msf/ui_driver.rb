@@ -9,6 +9,10 @@ shared_context 'Msf::UIDriver' do
         @output ||= []
         @output.concat string.split("\n")
       end
+      driver.stub(:print_status).with(kind_of(String)) do |string|
+        @output ||= []
+        @output.concat string.split("\n")
+      end
       driver.stub(:print_error).with(kind_of(String)) do |string|
         @error ||= []
         @error.concat string.split("\n")

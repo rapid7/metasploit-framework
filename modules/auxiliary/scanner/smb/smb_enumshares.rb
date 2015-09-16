@@ -9,8 +9,8 @@ require 'msf/core/auxiliary/report'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
 
   # Scanner mixin should be near last
@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
     if win_error != 0
       raise "DCE/RPC error : Win_error = #{win_error + 0}"
     end
-    #remove some uneeded data
+    # remove some uneeded data
     res.slice!(0,12) # level, CTR header, Reference ID of CTR
     share_count = res.slice!(0, 4).unpack("V")[0]
     res.slice!(0,4) # Reference ID of CTR1

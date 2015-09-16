@@ -1,8 +1,3 @@
-##
-# $Id$
-# $Revision$
-##
-
 require 'rex/ui/text/table'
 
 module Msf

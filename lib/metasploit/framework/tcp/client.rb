@@ -40,6 +40,33 @@ module Metasploit
 
       module Client
 
+        extend ActiveSupport::Concern
+
+        # @!attribute max_send_size
+        #   @return [Fixnum] The max size of the data to encapsulate in a single packet
+        attr_accessor :max_send_size
+        # @!attribute send_delay
+        #   @return [Fixnum] The delay between sending packets
+        attr_accessor :send_delay
+
+        included do
+          include ActiveModel::Validations
+          validates :max_send_size,
+                    presence: true,
+                    numericality: {
+                        only_integer:             true,
+                        greater_than_or_equal_to: 0
+                    }
+
+          validates :send_delay,
+                    presence: true,
+                    numericality: {
+                        only_integer:             true,
+                        greater_than_or_equal_to: 0
+                    }
+
+        end
+
         #
         # Establishes a TCP connection to the specified RHOST/RPORT
         #
@@ -62,9 +89,9 @@ module Metasploit
               'SSL'        =>  dossl,
               'SSLVersion' =>  opts['SSLVersion'] || ssl_version,
               'Proxies'    => proxies,
-              'Timeout'    => (opts['ConnectTimeout'] || connection_timeout || 10).to_i
+              'Timeout'    => (opts['ConnectTimeout'] || connection_timeout || 10).to_i,
+              'Context'    => { 'Msf' => framework, 'MsfExploit' => framework_module }
               )
-
           # enable evasions on this socket
           set_tcp_evasions(nsock)
 
@@ -120,14 +147,6 @@ module Metasploit
         # Wrappers for getters
         #
         ##
-
-        def max_send_size
-          raise NotImplementedError
-        end
-
-        def send_delay
-          raise NotImplementedError
-        end
 
         #
         # Returns the target host

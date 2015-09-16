@@ -7,6 +7,12 @@ Gemfile.local.lock
 .sublime-project
 # RVM control file, keep this to avoid backdooring Metasploit
 .rvmrc
+# Allow for a local choice of (unsupported / semi-supported) ruby versions
+# See PR #4136 for usage, but example usage for rvm:
+#   rvm --create --versions-conf use 2.1.4@metasploit-framework
+# Because rbenv doesn't use .versions.conf, to achieve this same functionality, run:
+#   rbenv shell 2.1.4
+.versions.conf
 # YARD cache directory
 .yardoc
 # Mac OS X files
@@ -60,20 +66,19 @@ external/source/exploits/**/Debug
 external/source/exploits/**/Release
 
 # Avoid checking in Meterpreter binaries. These are supplied upstream by
-# the meterpreter_bins gem.
-data/meterpreter/elevator.*.dll
-data/meterpreter/ext_server_espia.*.dll
-data/meterpreter/ext_server_extapi.*.dll
-data/meterpreter/ext_server_incognito.*.dll
-data/meterpreter/ext_server_kiwi.*.dll
-data/meterpreter/ext_server_lanattacks.*.dll
-data/meterpreter/ext_server_mimikatz.*.dll
-data/meterpreter/ext_server_priv.*.dll
-data/meterpreter/ext_server_stdapi.*.dll
-data/meterpreter/metsrv.*.dll
-data/meterpreter/screenshot.*.dll
+# the metasploit-payloads gem.
+data/meterpreter/*.dll
+data/meterpreter/*.bin
+data/meterpreter/*.jar
+data/meterpreter/*.lso
+data/android
+data/java
 
 # Avoid checking in Meterpreter libs that are built from
 # private source. If you're interested in this functionality,
 # check out Metasploit Pro: http://metasploit.com/download
 data/meterpreter/ext_server_pivot.*.dll
+
+# Avoid checking in metakitty, the source for
+# https://rapid7.github.io/metasploit-framework. It's an orphan branch.
+/metakitty

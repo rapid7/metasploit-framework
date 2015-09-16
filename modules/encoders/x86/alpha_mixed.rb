@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
       else
         res = Rex::Arch::X86.geteip_fpu(state.badchars)
         if (not res)
-          raise RuntimeError, "Unable to generate geteip code"
+          raise EncodingError, "Unable to generate geteip code"
         end
       buf, reg, off = res
       end
@@ -53,15 +53,6 @@ class Metasploit3 < Msf::Encoder::Alphanum
     end
 
     buf + Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, off)
-  end
-
-  #
-  # Configure SEH getpc code on Windows
-  #
-  def init_platform(platform)
-    if(platform.supports?(::Msf::Module::PlatformList.win32))
-      datastore['AllowWin32SEH'] = true
-    end
   end
 
   #

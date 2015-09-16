@@ -15,6 +15,8 @@ require 'msf/core/payload/windows/exec'
 ###
 module Metasploit3
 
+  CachedSize = 282
+
   include Msf::Payload::Windows::Exec
 
   def initialize(info = {})

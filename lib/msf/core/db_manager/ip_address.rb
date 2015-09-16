@@ -4,27 +4,38 @@ module Msf::DBManager::IPAddress
   end
 
   def ipv4_validator(addr)
-    return false unless addr.kind_of? String
-    Rex::Socket.is_ipv4?(addr)
+    if addr.try(:ipv4?)
+      true
+    elsif addr.kind_of? String
+      Rex::Socket.is_ipv4?(addr)
+    else
+      false
+    end    
   end
 
   def ipv6_validator(addr)
-    Rex::Socket.is_ipv6?(addr)
+    if addr.try(:ipv6?)
+      true
+    elsif addr.kind_of? String
+      Rex::Socket.is_ipv6?(addr)
+    else
+      false
+    end    
   end
 
   def rfc3330_reserved(ip)
-    case ip.class.to_s
-    when "PacketFu::Octets"
+    case ip
+    when PacketFu::Octets
       ip_x = ip.to_x
       ip_i = ip.to_i
-    when "String"
+    when String
       if ipv46_validator(ip)
         ip_x = ip
         ip_i = Rex::Socket.addr_atoi(ip)
       else
         raise ArgumentError, "Invalid IP address: #{ip.inspect}"
       end
-    when "Fixnum"
+    when Fixnum
       if (0..2**32-1).include? ip
         ip_x = Rex::Socket.addr_itoa(ip)
         ip_i = ip

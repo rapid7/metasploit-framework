@@ -29,6 +29,7 @@ module Auxiliary::JohnTheRipper
         OptPath.new('CUSTOM_WORDLIST',      [false, 'The path to an optional custom wordlist']),
         OptInt.new('ITERATION_TIMOUT',      [false, 'The max-run-time for each iteration of cracking']),
         OptPath.new('JOHN_PATH',            [false, 'The absolute path to the John the Ripper executable']),
+        OptBool.new('KoreLogic',            [false, 'Apply the KoreLogic rules to Wordlist Mode(slower)', false]),
         OptBool.new('MUTATE',               [false, 'Apply common mutations to the Wordlist (SLOW)', false]),
         OptPath.new('POT',                  [false, 'The path to a John POT file to use instead of the default']),
         OptBool.new('USE_CREDS',            [false, 'Use existing credential data saved in the database', true]),
@@ -76,7 +77,7 @@ module Auxiliary::JohnTheRipper
   end
 
   # This method instantiates a {Metasploit::Framework::JtR::Wordlist}, writes the data
-  # out to a file and returns the {rex::quickfile} object.
+  # out to a file and returns the {Rex::Quickfile} object.
   #
   # @return [nilClass] if there is no active framework db connection
   # @return [Rex::Quickfile] if it successfully wrote the wordlist to a file

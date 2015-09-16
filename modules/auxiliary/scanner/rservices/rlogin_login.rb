@@ -218,7 +218,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put("\x00#{luser}\x00#{user}\x00#{datastore['TERM']}/#{datastore['SPEED']}\x00")
 
     # Read the expected nul byte response.
-    buf = sock.get_once(1)
+    buf = sock.get_once(1) || ''
     return :abort if buf != "\x00"
 
     # NOTE: We report this here, since we are awfully convinced now that this is really
@@ -256,7 +256,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Allow for slow echos
     1.upto(10) do
-      recv(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
+      recv(self.sock, 0.10) unless @recvd.nil? || password_prompt?(@recvd)
     end
 
     vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")

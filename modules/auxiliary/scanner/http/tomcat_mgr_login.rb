@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('URI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
+        OptString.new('TARGETURI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      uri = normalize_uri(datastore['URI'])
+      uri = normalize_uri(target_uri.path)
       res = send_request_cgi({
         'uri'     => uri,
         'method'  => 'GET',
@@ -94,26 +94,24 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file: datastore['PASS_FILE'],
-        password: datastore['PASSWORD'],
-        user_file: datastore['USER_FILE'],
-        userpass_file: datastore['USERPASS_FILE'],
-        username: datastore['USERNAME'],
-        user_as_pass: datastore['USER_AS_PASS'],
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS'],
     )
 
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::Tomcat.new(
-        host: ip,
-        port: rport,
-        proxies: datastore['PROXIES'],
+      configure_http_login_scanner(
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: 10,
-        user_agent: datastore['UserAgent'],
-        vhost: datastore['VHOST']
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 10
+      )
     )
 
     scanner.scan! do |result|

@@ -128,15 +128,11 @@ class Metasploit3 < Msf::Auxiliary
     "#{rhost}:#{rport}"
   end
 
-  def run_host(ip)
-
-    connect
-
+  def check_rdp_vuln
     # check if rdp is open
-    if not check_rdp
+    unless check_rdp
       vprint_status "#{peer} Could not connect to RDP."
-      disconnect
-      return
+      return Exploit::CheckCode::Unknown
     end
 
     # send connectInitial
@@ -145,31 +141,63 @@ class Metasploit3 < Msf::Auxiliary
     # send userRequest
     sock.put(user_request)
     res = sock.get_once(-1, 5)
+    return Exploit::CheckCode::Unknown unless res # nil due to a timeout
     user1 = res[9,2].unpack("n").first
     chan1 = user1 + 1001
 
     # send 2nd userRequest
     sock.put(user_request)
     res = sock.get_once(-1, 5)
-
+    return Exploit::CheckCode::Unknown unless res # nil due to a timeout
     user2 = res[9,2].unpack("n").first
     chan2 = user2 + 1001
 
     # send channel request one
     sock.put(channel_request << [user1, chan2].pack("nn"))
     res = sock.get_once(-1, 5)
-
-    if res and res[7,2] == "\x3e\x00"
+    return Exploit::CheckCode::Unknown unless res # nil due to a timeout
+    if res[7,2] == "\x3e\x00"
       # send ChannelRequestTwo - prevent BSoD
       sock.put(channel_request << [user2, chan2].pack("nn"))
 
-      print_good("#{peer} Vulnerable to MS12-020")
       report_goods
+      return Exploit::CheckCode::Vulnerable
     else
-      vprint_status("#{peer} Not Vulnerable")
+      return Exploit::CheckCode::Safe
     end
 
-    disconnect()
+    # Can't determine, but at least I know the service is running
+    return Exploit::CheckCode::Detected
+  end
+
+  def check_host(ip)
+    # The check command will call this method instead of run_host
+
+    status = Exploit::CheckCode::Unknown
+
+    begin
+      connect
+      status = check_rdp_vuln
+    rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+      bt = e.backtrace.join("\n")
+      vprint_error("Unexpected error: #{e.message}")
+      vprint_line(bt)
+      elog("#{e.message}\n#{bt}")
+    ensure
+      disconnect
+    end
+
+    status
+  end
+
+  def run_host(ip)
+    # Allow the run command to call the check command
+    status = check_host(ip)
+    if status == Exploit::CheckCode::Vulnerable
+      print_good("#{ip}:#{rport} - #{status[1]}")
+    else
+      print_status("#{ip}:#{rport} - #{status[1]}")
+    end
   end
 
 end

@@ -54,26 +54,15 @@ class Driver < Msf::Ui::Driver
   # @option opts [Boolean] 'SkipDatabaseInit' (false) Whether to skip
   #   connecting to the database and running migrations
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
-
-    # Choose a readline library before calling the parent
-    rl = false
-    rl_err = nil
-    begin
-      if(opts['RealReadline'])
-        require 'readline'
-        rl = true
-      end
-    rescue ::LoadError
-      rl_err = $!
-    end
-
-    # Default to the RbReadline wrapper
-    require 'readline_compatible' if(not rl)
+    choose_readline(opts)
 
     histfile = opts['HistFile'] || Msf::Config.history_file
 
     # Initialize attributes
-    self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
+
+    # Defer loading of modules until paths from opts can be added below
+    framework_create_options = opts.merge('DeferModuleLoads' => true)
+    self.framework = opts['Framework'] || Msf::Simple::Framework.create(framework_create_options)
 
     if self.framework.datastore['Prompt']
       prompt = self.framework.datastore['Prompt']
@@ -112,9 +101,9 @@ class Driver < Msf::Ui::Driver
     enstack_dispatcher(CommandDispatcher::Core)
 
     # Report readline error if there was one..
-    if not rl_err.nil?
+    if !@rl_err.nil?
       print_error("***")
-      print_error("* WARNING: Unable to load readline: #{rl_err}")
+      print_error("* WARNING: Unable to load readline: #{@rl_err}")
       print_error("* Falling back to RbReadLine")
       print_error("***")
     end
@@ -180,7 +169,7 @@ class Driver < Msf::Ui::Driver
 
         unless configuration_pathname.nil?
           if configuration_pathname.readable?
-            dbinfo = YAML.load_file(configuration_pathname)
+            dbinfo = YAML.load_file(configuration_pathname) || {}
             dbenv  = opts['DatabaseEnv'] || Rails.env
             db     = dbinfo[dbenv]
           else
@@ -197,13 +186,7 @@ class Driver < Msf::Ui::Driver
 
       # framework.db.active will be true if after_establish_connection ran directly when connection_established? was
       # already true or if framework.db.connect called after_establish_connection.
-      if framework.db.active
-        self.framework.modules.refresh_cache_from_database
-
-        if self.framework.modules.cache_empty?
-          print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
-        end
-      elsif !framework.db.error.nil?
+      if !! framework.db.error
         if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
           print_error("***")
           print_error("*")
@@ -223,15 +206,18 @@ class Driver < Msf::Ui::Driver
       end
     end
 
-    # Initialize the module paths only if we didn't get passed a Framework instance
-    unless opts['Framework']
+    # Initialize the module paths only if we didn't get passed a Framework instance and 'DeferModuleLoads' is false
+    unless opts['Framework'] || opts['DeferModuleLoads']
       # Configure the framework module paths
-      self.framework.init_module_paths
-      self.framework.modules.add_module_path(opts['ModulePath']) if opts['ModulePath']
+      self.framework.init_module_paths(module_paths: opts['ModulePath'])
+    end
 
-      # Rebuild the module cache in a background thread
-      self.framework.threads.spawn("ModuleCacheRebuild", true) do
-        self.framework.modules.refresh_cache_from_module_files
+    if framework.db.active && !opts['DeferModuleLoads']
+      if self.framework.modules.cache_empty?
+        self.framework.threads.spawn("ModuleCacheRebuild", true) do
+          self.framework.modules.refresh_cache_from_module_files
+        end
+        print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
       end
     end
 
@@ -244,7 +230,8 @@ class Driver < Msf::Ui::Driver
     # Process any resource scripts
     if opts['Resource'].blank?
       # None given, load the default
-      load_resource(File.join(Msf::Config.config_directory, 'msfconsole.rc'))
+      default_resource = ::File.join(Msf::Config.config_directory, 'msfconsole.rc')
+      load_resource(default_resource) if ::File.exists?(default_resource)
     else
       opts['Resource'].each { |r|
         load_resource(r)
@@ -395,8 +382,13 @@ class Driver < Msf::Ui::Driver
     if (conf.group?(ConfigGroup))
       conf[ConfigGroup].each_pair { |k, v|
         case k.downcase
-          when "activemodule"
+          when 'activemodule'
             run_single("use #{v}")
+          when 'activeworkspace'
+            if framework.db.active
+              workspace = framework.db.find_workspace(v)
+              framework.db.workspace = workspace if workspace
+            end
         end
       }
     end
@@ -413,6 +405,12 @@ class Driver < Msf::Ui::Driver
       group['ActiveModule'] = active_module.fullname
     end
 
+    if framework.db.active
+      unless framework.db.workspace.default?
+        group['ActiveWorkspace'] = framework.db.workspace.name
+      end
+    end
+
     # Save it
     begin
       Msf::Config.save(ConfigGroup => group)
@@ -426,8 +424,15 @@ class Driver < Msf::Ui::Driver
   # @param path [String] Path to a resource file to run
   # @return [void]
   def load_resource(path)
-    return if not ::File.readable?(path)
-    resource_file = ::File.read(path)
+    if path == '-'
+      resource_file = $stdin.read
+      path = 'stdin'
+    elsif ::File.exists?(path)
+      resource_file = ::File.read(path)
+    else
+      print_error("Cannot find resource script: #{path}")
+      return
+    end
 
     self.active_resource = resource_file
 
@@ -537,7 +542,7 @@ class Driver < Msf::Ui::Driver
 
     if $msf_spinner_thread
       $msf_spinner_thread.kill
-      $stderr.print "\n"
+      $stderr.print "\r" + (" " * 50) + "\n"
     end
 
     run_single("banner") unless opts['DisableBanner']
@@ -560,6 +565,8 @@ class Driver < Msf::Ui::Driver
       when "payload"
 
         if (framework and framework.payloads.valid?(val) == false)
+          return false
+        elsif active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
           return false
         elsif (active_module)
           active_module.datastore.clear_non_user_defined
@@ -719,6 +726,43 @@ protected
     set_log_level(Msf::LogSource, val)
   end
 
+  # Require the appropriate readline library based on the user's preference.
+  #
+  # @return [void]
+  def choose_readline(opts)
+    # Choose a readline library before calling the parent
+    @rl_err = nil
+    if opts['RealReadline']
+      # Remove the gem version from load path to be sure we're getting the
+      # stdlib readline.
+      gem_dir = Gem::Specification.find_all_by_name('rb-readline-r7').first.gem_dir
+      rb_readline_path = File.join(gem_dir, "lib")
+      index = $LOAD_PATH.index(rb_readline_path)
+      # Bundler guarantees that the gem will be there, so it should be safe to
+      # assume we found it in the load path, but check to be on the safe side.
+      if index
+        $LOAD_PATH.delete_at(index)
+      end
+    end
+
+    begin
+      require 'readline'
+    rescue ::LoadError => e
+      if @rl_err.nil? && index
+        # Then this is the first time the require failed and we have an index
+        # for the gem version as a fallback.
+        @rl_err = e
+        # Put the gem back and see if that works
+        $LOAD_PATH.insert(index, rb_readline_path)
+        index = rb_readline_path = nil
+        retry
+      else
+        # Either we didn't have the gem to fall back on, or we failed twice.
+        # Nothing more we can do here.
+        raise e
+      end
+    end
+  end
 end
 
 #
@@ -730,6 +774,7 @@ class DefangedException < ::Exception
     "This functionality is currently disabled (defanged mode)"
   end
 end
+
 
 end
 end

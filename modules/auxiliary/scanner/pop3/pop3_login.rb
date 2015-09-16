@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
     'Description' => 'This module attempts to authenticate to an POP3 service.',
     'Author'      =>
     [
-      '==[ Alligator Security Team ]==',
       'Heyder Andrade <heyder[at]alligatorteam.org>'
     ],
       'References'     =>
@@ -71,6 +70,11 @@ class Metasploit3 < Msf::Auxiliary
       ssl: datastore['SSL'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      max_send_size: datastore['TCP::max_send_size'],
+      send_delay: datastore['TCP::send_delay'],
+      framework: framework,
+      framework_module: self,
     )
 
     scanner.scan! do |result|
@@ -88,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
         next
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
         end
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']

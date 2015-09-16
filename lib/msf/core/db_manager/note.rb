@@ -75,9 +75,10 @@ module Msf::DBManager::Note
       if (opts[:port])
         proto = nil
         sname = nil
-        case opts[:proto].to_s.downcase # Catch incorrect usages
+        proto_lower = opts[:proto].to_s.downcase # Catch incorrect usages
+        case proto_lower
         when 'tcp','udp'
-          proto = opts[:proto]
+          proto = proto_lower
           sname = opts[:sname] if opts[:sname]
         when 'dns','snmp','dhcp'
           proto = 'udp'
@@ -123,6 +124,7 @@ module Msf::DBManager::Note
     conditions = { :ntype => ntype }
     conditions[:host_id] = host[:id] if host
     conditions[:service_id] = service[:id] if service
+    conditions[:vuln_id] = opts[:vuln_id]
 
     case mode
     when :unique
@@ -160,6 +162,9 @@ module Msf::DBManager::Note
       note.critical = crit
       note.ntype    = ntype
       note.data     = data
+    end
+    if opts[:vuln_id]
+      note.vuln_id = opts[:vuln_id]
     end
     msf_import_timestamps(opts,note)
     note.save!

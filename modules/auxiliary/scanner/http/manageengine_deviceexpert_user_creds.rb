@@ -25,12 +25,12 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Discovery and exploit
-          'Brendan Coles <bcoles[at]gmail.com>'  # msf
+          'Brendan Coles <bcoles[at]gmail.com>'  # metasploit module
         ],
       'References'     =>
         [
           ['EDB', '34449'],
-          ['OSVBD', '110522'],
+          ['OSVDB', '110522'],
           ['CVE', '2014-5377']
         ],
       'DisclosureDate' => 'Aug 28 2014'))

@@ -60,7 +60,7 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
           options.console.quiet = true
         end
 
-        option_parser.on('-r', '--resource FILE', 'Execute the specified resource file') do |file|
+        option_parser.on('-r', '--resource FILE', 'Execute the specified resource file (- for stdin)') do |file|
           options.console.resources << file
         end
 

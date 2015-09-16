@@ -222,7 +222,13 @@ os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if ('copyWithin' in Array.prototype) {
+		if ('closest' in Element.prototype) {
+			ua_version = '35.0';
+		} else if ('matches' in Element.prototype) {
+			ua_version = '34.0';
+		} else if ('RadioNodeList' in window) {
+			ua_version = '33.0';
+		} else if ('copyWithin' in Array.prototype) {
 			ua_version = '32.0';
 		} else if ('fill' in Array.prototype) {
 			ua_version = '31.0';
@@ -967,6 +973,12 @@ os_detect.getVersion = function(){
 				os_name = "Windows 8";
 				os_sp = "SP0";
 				break;
+			case "1100":
+				// IE 11.0.10011.0 Windows 10.0 (Build 10074) English - insider preview
+				ua_version = "11.0";
+				os_name = "Windows 10";
+				os_sp = "SP0";
+				break;
 			default:
 				unknown_fingerprint = version;
 				break;
@@ -1021,7 +1033,7 @@ os_detect.getVersion = function(){
 			}
 			switch (navigator.appMinorVersion){
 				case ";SP2;":
-					ua_version += ";SP2";
+					os_sp = "SP2";
 					break;
 			}
 		}

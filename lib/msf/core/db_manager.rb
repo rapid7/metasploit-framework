@@ -17,12 +17,15 @@ require 'msf/core/database_event'
 require 'msf/core/db_import_error'
 require 'msf/core/host_state'
 require 'msf/core/service_state'
-require 'msf/core/task_manager'
 
 # The db module provides persistent storage and events. This class should be instantiated LAST
 # as the active_suppport library overrides Kernel.require, slowing down all future code loads.
 class Msf::DBManager
   extend Metasploit::Framework::Require
+
+  # Default proto for making new `Mdm::Service`s. This should probably be a
+  # const on `Mdm::Service`
+  DEFAULT_SERVICE_PROTO = "tcp"
 
   autoload :Adapter, 'msf/core/db_manager/adapter'
   autoload :Client, 'msf/core/db_manager/client'
@@ -47,7 +50,6 @@ class Msf::DBManager
   autoload :Service, 'msf/core/db_manager/service'
   autoload :Session, 'msf/core/db_manager/session'
   autoload :SessionEvent, 'msf/core/db_manager/session_event'
-  autoload :Sink, 'msf/core/db_manager/sink'
   autoload :Task, 'msf/core/db_manager/task'
   autoload :Vuln, 'msf/core/db_manager/vuln'
   autoload :VulnAttempt, 'msf/core/db_manager/vuln_attempt'
@@ -80,7 +82,6 @@ class Msf::DBManager
   include Msf::DBManager::Service
   include Msf::DBManager::Session
   include Msf::DBManager::SessionEvent
-  include Msf::DBManager::Sink
   include Msf::DBManager::Task
   include Msf::DBManager::Vuln
   include Msf::DBManager::VulnAttempt
@@ -103,7 +104,7 @@ class Msf::DBManager
   attr_accessor :usable
 
   #
-  # iniitialize
+  # initialize
   #
 
   def initialize(framework, opts = {})
@@ -133,7 +134,7 @@ class Msf::DBManager
   #
   def check
   ::ActiveRecord::Base.connection_pool.with_connection {
-    res = ::Mdm::Host.find(:first)
+    res = ::Mdm::Host.first
   }
   end
 
@@ -159,11 +160,6 @@ class Msf::DBManager
     # Determine what drivers are available
     #
     initialize_adapter
-
-    #
-    # Instantiate the database sink
-    #
-    initialize_sink
 
     true
   end

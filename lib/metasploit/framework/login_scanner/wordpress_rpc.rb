@@ -10,8 +10,9 @@ module Metasploit
         # (see Base#attempt_login)
         def attempt_login(credential)
           http_client = Rex::Proto::Http::Client.new(
-              host, port, {}, ssl, ssl_version
+              host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies
           )
+          configure_http_client(http_client)
 
           result_opts = {
               credential: credential,
@@ -42,8 +43,8 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: response)
             end
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
           Result.new(result_opts)

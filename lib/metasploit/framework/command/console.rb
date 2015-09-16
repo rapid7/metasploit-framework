@@ -8,14 +8,32 @@ require 'metasploit/framework/command/base'
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::Base
 
+  # Provides an animated spinner in a seperate thread.
+  #
+  # See GitHub issue #4147, as this may be blocking some
+  # Windows instances, which is why Windows platforms
+  # should simply return immediately.
+
   def spinner
+    return if Rex::Compat.is_windows
+    return if Rex::Compat.is_cygwin
     return if $msf_spinner_thread
     $msf_spinner_thread = Thread.new do
-      $stderr.print "[*] Starting the Metasploit Framework console..."
+      base_line = "[*] Starting the Metasploit Framework console..."
+      cycle = 0
       loop do
         %q{/-\|}.each_char do |c|
-          $stderr.print c
-          $stderr.print "\b"
+          status = "#{base_line}#{c}\r"
+          cycle += 1
+          off    = cycle % base_line.length
+          case status[off, 1]
+          when /[a-z]/
+            status[off, 1] = status[off, 1].upcase
+          when /[A-Z]/
+            status[off, 1] = status[off, 1].downcase
+          end
+          $stderr.print status
+          ::IO.select(nil, nil, nil, 0.10)
         end
       end
     end
@@ -61,6 +79,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['DatabaseEnv'] = options.environment
       driver_options['DatabaseMigrationPaths'] = options.database.migrations_paths
       driver_options['DatabaseYAML'] = options.database.config
+      driver_options['DeferModuleLoads'] = options.modules.defer_loads
       driver_options['Defanged'] = options.console.defanged
       driver_options['DisableBanner'] = options.console.quiet
       driver_options['DisableDatabase'] = options.database.disable

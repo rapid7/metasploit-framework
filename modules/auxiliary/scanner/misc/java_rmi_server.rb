@@ -4,10 +4,11 @@
 ##
 
 require 'msf/core'
+require 'rex/java/serialization'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::Tcp
+  include Msf::Java::Rmi::Client
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -33,96 +34,149 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def setup
-    buf = gen_rmi_loader_packet
-
-    jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
-    old_url = "file:./rmidummy.jar"
-    new_url = "file:RMIClassLoaderSecurityTest/" + jar
-
-    # Java strings in serialized data are prefixed with a 2-byte, big endian length
-    # (at least, as long as they are shorter than 65536 bytes)
-    find_me = [old_url.length].pack("n") + old_url
-
-    idx = buf.index(find_me)
-    len = [new_url.length].pack("n")
-
-    # Now replace it with the new url
-    buf[idx, find_me.length] = len + new_url
-
-    @pkt = "JRMI" + [2,0x4b,0,0].pack("nCnN") + buf
-  end
-
   def run_host(target_host)
+    vprint_status("#{peer} - Sending RMI Header...")
+    connect
 
-    begin
-      connect
-      sock.put("\x4a\x52\x4d\x49\0\x02\x4b")
-      res = sock.get_once
+    send_header
+    ack = recv_protocol_ack
+    if ack.nil?
+      print_error("#{peer} - Failed to negotiate RMI protocol")
       disconnect
-
-      if res and res =~ /^\x4e..([^\x00]+)\x00\x00/
-        info = $1
-
-        begin
-          # Determine if the instance allows remote class loading
-          connect
-          sock.put(@pkt) rescue nil
-
-          buf = ""
-          1.upto(6) do
-            res = sock.get_once(-1, 5) rescue nil
-            break if not res
-            buf << res
-          end
-
-        rescue ::Interrupt
-          raise $!
-        rescue ::Exception
-        ensure
-          disconnect
-        end
-
-        if buf =~ /RMI class loader disabled/
-          print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
-          report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
-        elsif buf.length > 0
-          print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
-          svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
-          report_vuln(
-            :host         => rhost,
-            :service      => svc,
-            :name         => self.name,
-            :info         => "Module #{self.fullname} confirmed remote code execution via this RMI service",
-            :refs         => self.references
-          )
-        else
-          print_status("#{rhost}:#{rport} Java RMI Endpoint Detected")
-          report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
-        end
-
-      end
-
-    rescue ::Interrupt
-      raise $!
-    rescue ::Rex::ConnectionError, ::IOError
-    ensure
-      disconnect
+      return
     end
 
+    # Determine if the instance allows remote class loading
+    vprint_status("#{peer} - Sending RMI Call...")
+    jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
+    jar_url = "file:RMIClassLoaderSecurityTest/" + jar
+
+    dgc_interface_hash = calculate_interface_hash(
+      [
+        {
+          name: 'clean',
+          descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/VMID;Z)V',
+          exceptions: ['java.rmi.RemoteException']
+        },
+        {
+          name: 'dirty',
+          descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/Lease;)Ljava/rmi/dgc/Lease;',
+          exceptions: ['java.rmi.RemoteException']
+        }
+      ]
+    )
+
+    # JDK 1.1 stub protocol
+    # Interface hash: 0xf6b6898d8bf28643 (sun.rmi.transport.DGCImpl_Stub)
+    # Operation: 0 (public void clean(ObjID[] paramArrayOfObjID, long paramLong, VMID paramVMID, boolean paramBoolean))
+    send_call(
+      object_number: 2,
+      uid_number: 0,
+      uid_time: 0,
+      uid_count: 0,
+      operation: 0,
+      hash: dgc_interface_hash,
+      arguments: build_dgc_clean_args(jar_url)
+    )
+    return_value = recv_return
+
+    if return_value.nil?
+      print_error("#{peer} - Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
+      report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
+      return
+    end
+
+    if return_value.is_exception? && loader_enabled?(return_value.value)
+      print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
+      svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
+      report_vuln(
+        :host         => rhost,
+        :service      => svc,
+        :name         => self.name,
+        :info         => "Module #{self.fullname} confirmed remote code execution via this RMI service",
+        :refs         => self.references
+      )
+    else
+      print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
+      report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
+    end
   end
 
-  def gen_rmi_loader_packet
-    "\x50\xac\xed\x00\x05\x77\x22\x00\x00\x00\x00\x00\x00\x00\x02\x00" +
-    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-    "\x00\xf6\xb6\x89\x8d\x8b\xf2\x86\x43\x75\x72\x00\x18\x5b\x4c\x6a" +
-    "\x61\x76\x61\x2e\x72\x6d\x69\x2e\x73\x65\x72\x76\x65\x72\x2e\x4f" +
-    "\x62\x6a\x49\x44\x3b\x87\x13\x00\xb8\xd0\x2c\x64\x7e\x02\x00\x00" +
-    "\x70\x78\x70\x00\x00\x00\x00\x77\x08\x00\x00\x00\x00\x00\x00\x00" +
-    "\x00\x73\x72\x00\x14\x6d\x65\x74\x61\x73\x70\x6c\x6f\x69\x74\x2e" +
-    "\x52\x4d\x49\x4c\x6f\x61\x64\x65\x72\xa1\x65\x44\xba\x26\xf9\xc2" +
-    "\xf4\x02\x00\x00\x74\x00\x13\x66\x69\x6c\x65\x3a\x2e\x2f\x72\x6d" +
-    "\x69\x64\x75\x6d\x6d\x79\x2e\x6a\x61\x72\x78\x70\x77\x01\x00\x0a"
+  def loader_enabled?(exception_stack)
+    exception_stack.each do |exception|
+      if exception.class == Rex::Java::Serialization::Model::NewObject &&
+          exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
+          exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
+          exception.class_data[0].class == Rex::Java::Serialization::Model::NullReference &&
+          !exception.class_data[1].contents.include?('RMI class loader disabled')
+          return true
+      end
+    end
+
+    false
+  end
+
+  # class: sun.rmi.trasnport.DGC
+  # method: public void clean(ObjID[] paramArrayOfObjID, long paramLong, VMID paramVMID, boolean paramBoolean)
+  def build_dgc_clean_args(jar_url)
+    arguments = []
+
+    new_array_annotation = Rex::Java::Serialization::Model::Annotation.new
+    new_array_annotation.contents = [
+      Rex::Java::Serialization::Model::NullReference.new,
+      Rex::Java::Serialization::Model::EndBlockData.new
+    ]
+
+    new_array_super = Rex::Java::Serialization::Model::ClassDesc.new
+    new_array_super.description = Rex::Java::Serialization::Model::NullReference.new
+
+    new_array_desc = Rex::Java::Serialization::Model::NewClassDesc.new
+    new_array_desc.class_name =  Rex::Java::Serialization::Model::Utf.new(nil, '[Ljava.rmi.server.ObjID;')
+    new_array_desc.serial_version = 0x871300b8d02c647e
+    new_array_desc.flags = 2
+    new_array_desc.fields = []
+    new_array_desc.class_annotation = new_array_annotation
+    new_array_desc.super_class = new_array_super
+
+    array_desc = Rex::Java::Serialization::Model::ClassDesc.new
+    array_desc.description = new_array_desc
+
+    new_array = Rex::Java::Serialization::Model::NewArray.new
+    new_array.type = 'java.rmi.server.ObjID;'
+    new_array.values = []
+    new_array.array_description = array_desc
+
+    # ObjID[] paramArrayOfObjID
+    arguments << new_array
+
+    # long paramLong
+    arguments << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00\x00\x00\x00\x00\x00\x00\x00")
+
+    new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
+    new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'metasploit.RMILoader')
+    new_class_desc.serial_version = 0xa16544ba26f9c2f4
+    new_class_desc.flags = 2
+    new_class_desc.fields = []
+    new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+    new_class_desc.class_annotation.contents = [
+      Rex::Java::Serialization::Model::Utf.new(nil, jar_url),
+      Rex::Java::Serialization::Model::EndBlockData.new
+    ]
+    new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
+    new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
+
+    new_object = Rex::Java::Serialization::Model::NewObject.new
+    new_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
+    new_object.class_desc.description = new_class_desc
+    new_object.class_data = []
+
+    # VMID paramVMID
+    arguments << new_object
+
+    # boolean paramBoolean
+    arguments << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00")
+
+    arguments
   end
 
 end

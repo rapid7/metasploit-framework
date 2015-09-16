@@ -59,14 +59,15 @@ module Metasploit
         end
       end
 
-      # Tries to `require 'metasploit/credential/creation'` and include it in the `including_module`.
+      # Tries to `require 'metasploit/credential'` and include `Metasploit::Credential::Creation` in the
+      # `including_module`.
       #
       # @param including_module [Module] `Class` or `Module` that wants to `include Metasploit::Credential::Creation`.
       # @return [void]
       def self.optionally_include_metasploit_credential_creation(including_module)
         optionally(
-            'metasploit/credential/creation',
-            "metasploit-credential not in the bundle, so Metasploit::Credential creation will fail for #{including_module.name}",
+            'metasploit/credential',
+            "metasploit-credential not in the bundle, so Metasploit::Credential creation will fail for #{including_module.name}"
         ) do
           including_module.send(:include, Metasploit::Credential::Creation)
         end
@@ -80,13 +81,18 @@ module Metasploit
       # @return [void]
       def self.optionally_require_metasploit_db_gem_engines
         optionally(
-          'metasploit/credential/engine',
-          'metasploit-credential not in the bundle',
-        )
+            'metasploit/credential',
+            'metasploit-credential not in the bundle',
+        ) do
+          require 'metasploit/credential/engine'
+        end
+
         optionally(
-          'metasploit_data_models/engine',
-          'metaspoit_data_models not in the bundle'
-        )
+          'metasploit_data_models',
+          'metasploit_data_models not in the bundle'
+        ) do
+          require 'metasploit_data_models/engine'
+        end
       end
 
       #

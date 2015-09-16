@@ -8,6 +8,8 @@ require 'msf/core'
 
 module Metasploit3
 
+  CachedSize = 53
+
   include Msf::Payload::Single
 
   def initialize(info = {})

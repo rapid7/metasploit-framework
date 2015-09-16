@@ -85,14 +85,15 @@ class Metasploit3 < Msf::Auxiliary
         vprint_status "#{hostport} Oracle - Refused '#{sid}'"
         return :fail
       end
-      disconnect
     rescue ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{hostport} Oracle - unable to connect to a TNS listener")
       return :abort
+    ensure
+      disconnect
     end
   end
 
-  # Based vaugely on each_user_pass in AuthBrute
+  # Based vaguely on each_user_pass in AuthBrute
   def each_sid(&block)
     @@oracle_sid_fail = []
     @@oracle_sid_success = []

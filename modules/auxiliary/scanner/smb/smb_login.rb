@@ -10,8 +10,8 @@ require 'metasploit/framework/credential_collection'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     # more active role, so make them regular options.
     register_options(
       [
+        Opt::Proxies,
         OptString.new('SMBPass', [ false, "SMB Password" ]),
         OptString.new('SMBUser', [ false, "SMB Username" ]),
         OptString.new('SMBDomain', [ false, "SMB Domain", '' ]),
@@ -72,7 +73,12 @@ class Metasploit3 < Msf::Auxiliary
       host: ip,
       port: rport,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 5,
+      max_send_size: datastore['TCP::max_send_size'],
+      send_delay: datastore['TCP::send_delay'],
+      framework: framework,
+      framework_module: self,
     )
 
     bogus_result = @scanner.attempt_bogus_login(domain)

