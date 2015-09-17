@@ -7,9 +7,10 @@ PATH
       bcrypt
       jsobfu (~> 0.2.0)
       json
+      metasm (~> 1.0.2)
       metasploit-concern (= 1.0.0)
       metasploit-model (= 1.0.0)
-      metasploit-payloads (= 1.0.12)
+      metasploit-payloads (= 1.0.13)
       msgpack
       nokogiri
       packetfu (= 1.1.11)
@@ -107,6 +108,7 @@ GEM
     json (1.8.3)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
+    metasm (1.0.2)
     metasploit-concern (1.0.0)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
@@ -123,7 +125,7 @@ GEM
       activemodel (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
-    metasploit-payloads (1.0.12)
+    metasploit-payloads (1.0.13)
     metasploit_data_models (1.2.5)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)

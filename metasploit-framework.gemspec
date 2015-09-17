@@ -55,13 +55,15 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'jsobfu', '~> 0.2.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
+  # Metasm compiler/decompiler/assembler
+  spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
   spec.add_runtime_dependency 'metasploit-concern', '1.0.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.0.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.0.12'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.13'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler
