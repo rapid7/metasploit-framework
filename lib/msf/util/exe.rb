@@ -25,9 +25,9 @@ require 'msf/core/exe/segment_appender'
   # Generates a default template
   #
   # @param  opts [Hash] The options hash
-  # @option opts [Hash] :template, the template type for the executable
-  # @option opts [Hash] :template_path, the path for the template
-  # @option opts [Hash] :fallback, If there are no options set, default options will be used
+  # @option opts [String] :template, the template type for the executable
+  # @option opts [String] :template_path, the path for the template
+  # @option opts [Bool] :fallback, If there are no options set, default options will be used
   # @param  exe  [String] Template type. If undefined, will use the default.
   # @param  path [String] Where you would like the template to be saved.
   def self.set_template_default(opts, exe = nil, path = nil)
@@ -66,7 +66,7 @@ require 'msf/core/exe/segment_appender'
   # self.read_replace_script_template
   #
   # @param filename [String] Name of the file
-  # @param hash_sub [String]
+  # @param hash_sub [Hash]
   def self.read_replace_script_template(filename, hash_sub)
     template_pathname = File.join(Msf::Config.data_directory, "templates",
                                   "scripts", filename)
@@ -77,8 +77,7 @@ require 'msf/core/exe/segment_appender'
 
   # Executable generators
   #
-  #
-  # @param arch       [String] The architecture of the system (i.e x86, x64)
+  # @param arch       [Array<String>] The architecture of the system (i.e :x86, :x64)
   # @param plat       [String] The platform (i.e Linux, Windows, OSX)
   # @param code       [String]
   # @param opts       [Hash]   The options hash
@@ -189,7 +188,7 @@ require 'msf/core/exe/segment_appender'
   # @option opts      [String] :sub_method
   # @option opts      [String] :inject, Code to inject into the exe
   # @option opts      [String] :template
-  # @option opts      [String] :arch, Set to x86 by default
+  # @option opts      [Symbol] :arch, Set to :x86 by default
   # @return           [String]
   def self.to_win32pe(framework, code, opts = {})
 
@@ -932,7 +931,7 @@ require 'msf/core/exe/segment_appender'
   # segments as writable and overwrites the entrypoint (usually _start) with
   # the payload.
   # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param opt        [Hash]
+  # @param opts       [Hash]
   # @option           [String] :template
   # @param template   [String]
   # @param code       [String]
