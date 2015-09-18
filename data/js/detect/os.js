@@ -1,4 +1,3 @@
-
 // Case matters, see lib/msf/core/constants.rb
 // All of these should match up with constants in ::Msf::HttpClients
 var clients_opera  = "Opera";
@@ -343,7 +342,7 @@ os_detect.getVersion = function(){
 		if (version.match(/Linux/)) {
 			os_name = oses_linux;
 		}
-
+		// end navigator.oscpu checks
 		else if (typeof ScriptEngineMajorVersion == "function") {
 		// Then this is IE and we can very reliably detect the OS.
 		// Need to add detection for IE on Mac.  Low priority, since we
