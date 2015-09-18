@@ -21,7 +21,6 @@ require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
 require 'msf/core/exe/segment_appender'
 
-  # self.set_template_default
   # Generates a default template
   #
   # @param  opts [Hash] The options hash
@@ -490,9 +489,9 @@ require 'msf/core/exe/segment_appender'
   #
   # @param  code [String]
   # @param  opts [Hash]
-  # @option opts [Hash] :exe_type
-  # @option opts [Hash] :service_exe
-  # @option opts [Hash] :sub_method
+  # @option opts [Symbol] :exe_type
+  # @option opts [String] :service_exe
+  # @option opts [Boolean] :sub_method
   # @return      [String]
   def self.exe_sub_method(code,opts ={})
     pe = self.get_file_contents(opts[:template])
@@ -2277,8 +2276,9 @@ require 'msf/core/exe/segment_appender'
 
   # self.find_payload_tag
   #
-  # @param mo       [Array]
+  # @param mo       [String]
   # @param err_msg  [String]
+  # @raise [RuntimeError] if the "PAYLOAD:" is not found
   # @return         [Fixnum]
   def self.find_payload_tag(mo, err_msg)
     bo = mo.index('PAYLOAD:')
