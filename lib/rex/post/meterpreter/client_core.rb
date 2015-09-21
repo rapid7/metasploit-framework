@@ -54,7 +54,7 @@ class ClientCore < Extension
   # Initializes the 'core' portion of the meterpreter client commands.
   #
   def initialize(client)
-    super(client, "core")
+    super(client, 'core')
   end
 
   ##
@@ -81,7 +81,7 @@ class ClientCore < Extension
 
     # No response?
     if response.nil?
-      raise RuntimeError, "No response was received to the core_enumextcmd request.", caller
+      raise RuntimeError, 'No response was received to the core_enumextcmd request.', caller
     elsif response.result != 0
       # This case happens when the target doesn't support the core_enumextcmd message.
       # If this is the case, then we just want to ignore the error and return an empty
@@ -180,7 +180,7 @@ class ClientCore < Extension
 
     # No library path, no cookie.
     if library_path.nil?
-      raise ArgumentError, "No library file path was supplied", caller
+      raise ArgumentError, 'No library file path was supplied', caller
     end
 
     # Set up the proper loading flags
@@ -215,7 +215,7 @@ class ClientCore < Extension
       # path of the local and target so that it gets loaded with a random
       # name
       if opts['Extension']
-        library_path = "ext" + rand(1000000).to_s + ".#{client.binary_suffix}"
+        library_path = "ext#{rand(1000000)}.#{client.binary_suffix}"
         target_path  = library_path
       end
     end
@@ -233,7 +233,7 @@ class ClientCore < Extension
 
     # No response?
     if response.nil?
-      raise RuntimeError, "No response was received to the core_loadlib request.", caller
+      raise RuntimeError, 'No response was received to the core_loadlib request.', caller
     elsif response.result != 0
       raise RuntimeError, "The core_loadlib request failed with result: #{response.result}.", caller
     end
@@ -431,16 +431,16 @@ class ClientCore < Extension
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
-  def migrate(pid, writable_dir = nil)
-    keepalive = client.send_keepalives
+  def migrate(pid, writable_dir = nil, opts = {})
+    keepalive              = client.send_keepalives
     client.send_keepalives = false
-    process       = nil
-    binary_suffix = nil
-    old_platform      = client.platform
-    old_binary_suffix = client.binary_suffix
+    process                = nil
+    binary_suffix          = nil
+    old_platform           = client.platform
+    old_binary_suffix      = client.binary_suffix
 
     # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
-    client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
+    client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
 
     # Determine the architecture for the pid we are going to migrate into...
     client.sys.process.processes.each { | p |
@@ -452,7 +452,7 @@ class ClientCore < Extension
 
     # We cant migrate into a process that does not exist.
     unless process
-      raise RuntimeError, "Cannot migrate into non existent process", caller
+      raise RuntimeError, 'Cannot migrate into non existent process', caller
     end
 
     # We cannot migrate into a process that we are unable to open
@@ -465,7 +465,7 @@ class ClientCore < Extension
 
     # And we also cannot migrate into our own current process...
     if process['pid'] == client.sys.process.getpid
-      raise RuntimeError, "Cannot migrate into current process", caller
+      raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
     if client.platform =~ /linux/
@@ -484,19 +484,19 @@ class ClientCore < Extension
     blob = generate_payload_stub(process)
 
     # Build the migration request
-    request = Packet.create_request( 'core_migrate' )
+    request = Packet.create_request('core_migrate')
 
     if client.platform =~ /linux/i
       socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
 
       if socket_path.length > UNIX_PATH_MAX - 1
-        raise RuntimeError, "The writable dir is too long", caller
+        raise RuntimeError, 'The writable dir is too long', caller
       end
 
       pos = blob.index(DEFAULT_SOCK_PATH)
 
       if pos.nil?
-        raise RuntimeError, "The meterpreter binary is wrong", caller
+        raise RuntimeError, 'The meterpreter binary is wrong', caller
       end
 
       blob[pos, socket_path.length + 1] = socket_path + "\x00"
@@ -510,14 +510,17 @@ class ClientCore < Extension
     request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
     request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
     request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
+
     if process['arch'] == ARCH_X86_64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
     else
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
     end
 
-    # Send the migration request (bump up the timeout to 60 seconds)
-    client.send_request( request, 60 )
+    # Send the migration request. Timeout can be specified by the caller, or set to a min
+    # of 60 seconds.
+    timeout = [(opts[:timeout] || 0), 60].max
+    client.send_request(request, timeout)
 
     if client.passive_service
       # Sleep for 5 seconds to allow the full handoff, this prevents
@@ -539,7 +542,7 @@ class ClientCore < Extension
         # keep from hanging the packet dispatcher thread, which results
         # in blocking the entire process.
         begin
-          Timeout.timeout(60) do
+          Timeout.timeout(timeout) do
             # Renegotiate SSL over this socket
             client.swap_sock_ssl_to_plain()
             client.swap_sock_plain_to_ssl()
@@ -600,10 +603,10 @@ class ClientCore < Extension
     if not client.passive_service
       self.client.send_packet(request)
     else
-    # If this is a HTTP/HTTPS session we need to wait a few seconds
-    # otherwise the session may not receive the command before we
-    # kill the handler. This could be improved by the server side
-    # sending a reply to shutdown first.
+      # If this is a HTTP/HTTPS session we need to wait a few seconds
+      # otherwise the session may not receive the command before we
+      # kill the handler. This could be improved by the server side
+      # sending a reply to shutdown first.
       self.client.send_packet_wait_response(request, 10)
     end
     true
