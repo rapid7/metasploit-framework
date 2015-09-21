@@ -55,9 +55,6 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
-        OptString.new('SMBPass', [ false, "SMB Password" ]),
-        OptString.new('SMBUser', [ false, "SMB Username" ]),
-        OptString.new('SMBDomain', [ false, "SMB Domain", '' ]),
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ])
       ], self.class)
@@ -79,6 +76,16 @@ class Metasploit3 < Msf::Auxiliary
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
+      smb_verify_signature: datastore['SMB::VerifySignature'],
+      use_ntlmv2: datastore['NTLM::UseNTLMv2'],
+      use_ntlm2_session: datastore['NTLM::UseNTLM2_session'],
+      send_lm: datastore['NTLM::SendLM'],
+      use_lmkey: datastore['NTLM::UseLMKey'],
+      send_ntlm: datastore['NTLM::SendNTLM'],
+      smb_native_os: datastore['SMB::Native_OS'],
+      smb_native_lm: datastore['SMB::Native_LM'],
+      send_spn: datastore['NTLM::SendSPN'],
+      host: ip
     )
 
     bogus_result = @scanner.attempt_bogus_login(domain)
