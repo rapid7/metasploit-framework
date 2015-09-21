@@ -88,6 +88,32 @@ class Metasploit3 < Msf::Auxiliary
     parse_configuration(config[:data])
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   private
 
   def little_endian?
@@ -200,16 +226,14 @@ class Metasploit3 < Msf::Auxiliary
     @credentials.each do |k,v|
       next unless v[:user] and v[:password]
       print_status("#{peer} - #{k}: User: #{v[:user]} Pass: #{v[:password]}")
-      auth = {
-          :host => rhost,
-          :port => rport,
-          :user => v[:user],
-          :pass => v[:password],
-          :type => 'password',
-          :source_type => "exploit",
-          :active => true
-      }
-      report_auth_info(auth)
+      report_cred(
+        ip: rhost,
+        port: rport,
+        user: v[:user],
+        password: v[:password],
+        service_name: 'sercomm',
+        proof: v.inspect
+      )
     end
 
   end

@@ -96,8 +96,9 @@ module Msf::DBManager::Session
         MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
           match: session.exploit.user_data[:match],
           run: session.exploit.user_data[:run],
-          state: 'succeeded',
+          state: MetasploitDataModels::AutomaticExploitation::MatchResult::SUCCEEDED,
         )
+        infer_vuln_from_session(session, wspace)
       elsif session.via_exploit
         # This is a live session, we know the host is vulnerable to something.
         infer_vuln_from_session(session, wspace)

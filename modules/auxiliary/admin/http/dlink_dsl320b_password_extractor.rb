@@ -32,6 +32,33 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     vprint_status("#{rhost}:#{rport} - Trying to access the configuration of the device")
 
@@ -69,13 +96,13 @@ class Metasploit3 < Msf::Auxiliary
             pass = $1
             pass = Rex::Text.decode_base64(pass)
             print_good("#{rhost}:#{rport} - Credentials found: #{user} / #{pass}")
-            report_auth_info(
-              :host => rhost,
-              :port => rport,
-              :sname => 'http',
-              :user => user,
-              :pass => pass,
-              :active => true
+            report_cred(
+              ip: rhost,
+              port: rport,
+              sname: 'http',
+              user: user,
+              password: pass,
+              proof: line
             )
           end
         end

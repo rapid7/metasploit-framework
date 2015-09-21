@@ -169,7 +169,7 @@ class Driver < Msf::Ui::Driver
 
         unless configuration_pathname.nil?
           if configuration_pathname.readable?
-            dbinfo = YAML.load_file(configuration_pathname)
+            dbinfo = YAML.load_file(configuration_pathname) || {}
             dbenv  = opts['DatabaseEnv'] || Rails.env
             db     = dbinfo[dbenv]
           else
