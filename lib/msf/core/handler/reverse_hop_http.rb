@@ -55,6 +55,13 @@ module ReverseHopHttp
   end
 
   #
+  # Returns the socket type. (hop)
+  #
+  def type?
+    return 'hop'
+  end
+
+  #
   # Sets up a handler. Doesn't do much since it's all in start_handler.
   #
   def setup_handler
