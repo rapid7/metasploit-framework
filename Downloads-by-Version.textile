@@ -1,4 +1,12 @@
-h1. Metasploit Combined Installers
+h2. Metasploit Framework Installers
+
+These include Metasploit Framework only. Updates are built about once a day.
+See [[Nightly-Installers]] for installation instructions for Windows, OS X and Linux.
+
+h2. Metasploit Community / Pro Combined Installers
+
+These include the Metasploit Community / Pro UI as well as Framework.
+Updates are released about once a week for Windows and Linux.
 
 |Download Link|File Type|SHA1|PGP|
 | | | | |
