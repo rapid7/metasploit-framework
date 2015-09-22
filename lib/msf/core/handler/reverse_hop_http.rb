@@ -17,7 +17,6 @@ module Handler
 module ReverseHopHttp
 
   include Msf::Handler::ReverseHttp
-  include Msf::Payload::UUIDOptions
 
   #
   # Magic bytes to know we are talking to a valid hop
