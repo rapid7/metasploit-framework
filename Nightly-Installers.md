@@ -8,7 +8,7 @@ The latest Windows installer is located here: http://windows.metasploit.com/meta
 
 # OS X
 
-Similarly, the latest OS X installer is located here: http://osx.metasploit.com. It works similarly to the Windows installer, except that you need to initially launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole```. An initial wizard will prompt for setting up a database and adding Metasploit to your local PATH. You can also follow the Linux instructions below to install in a single step.
+The latest OS X installer is located here: http://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at http://osx.metasploit.com/. It works similarly to the Windows installer with double-click installation of Metasploit Framework with all of its dependencies.  Once installed, initially launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole```. A series of prompts will helpy you setup a database and add Metasploit to your local PATH. You can also follow the Linux instructions below to install in a single step.
 
 # Linux
 
