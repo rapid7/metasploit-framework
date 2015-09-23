@@ -40,5 +40,14 @@ describe Rex::Powershell::PshMethods do
       script.include?('Get-QADComputer').should be_truthy
     end
   end
+  describe "::proxy_aware_download_and_exec_string" do
+    it 'should return some powershell' do
+      url = 'http://blah'
+      script = Rex::Powershell::PshMethods.proxy_aware_download_and_exec_string(url)
+      script.should be
+      script.include?(url).should be_truthy
+      script.downcase.include?('downloadstring').should be_truthy
+    end
+  end
 end
 
