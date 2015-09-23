@@ -122,9 +122,17 @@ shared_examples_for 'Msf::DBManager::Session' do
           end
 
           context 'with a run_id in user_data' do
+            let(:match_set) do
+              FactoryGirl.create(:automatic_exploitation_match_set, user: session_workspace.owner,workspace:session_workspace)
+            end
+
+            let(:run) do
+              FactoryGirl.create(:automatic_exploitation_run, workspace: session_workspace, match_set_id: match_set.id)
+            end
+
             let(:user_data) do
               {
-                run_id: FactoryGirl.create(:automatic_exploitation_run, workspace: session_workspace).id,
+                run_id: run.id
               }
             end
 
