@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 
     begin
       q = query(search_filter, max_search, FIELDS)
-    rescue RuntimeError => e
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error(e.message)
       return
     end
