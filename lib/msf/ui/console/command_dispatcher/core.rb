@@ -1917,7 +1917,7 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if session.type.include? 'shell'
+            if ['shell', 'powershell'].include?(session.type)
               session.init_ui(driver.input, driver.output)
               session.execute_script('post/multi/manage/shell_to_meterpreter')
               session.reset_ui
