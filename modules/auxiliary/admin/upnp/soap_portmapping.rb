@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'UPnP control URL', '/' ]),
         OptAddress.new('INTERNAL_CLIENT', [false, 'Internal client hostname/IP']),
-        OptAddress.new('EXTERNAL_CLIENT', [true, 'External client hostname/IP']),
+        OptAddress.new('EXTERNAL_CLIENT', [false, 'External client hostname/IP']),
         OptEnum.new('PROTOCOL', [true, 'Transport level protocol to map', 'TCP', %w(TCP UDP)]),
         OptInt.new('INTERNAL_PORT', [false, 'Internal port']),
         OptInt.new('EXTERNAL_PORT', [true, 'External port']),
