@@ -130,7 +130,8 @@ class Metasploit3 < Msf::Auxiliary
       if res.code == 200
         print_good("#{peer} #{map} #{action.name} succeeded")
       else
-        print_error("#{peer} #{map} #{action.name} failed: #{res}")
+        print_error("#{peer} #{map} #{action.name} failed with response code #{res.code}")
+        vprint_status("#{res.body}")
       end
     else
       print_error("#{peer} no response for #{map} #{action.name}")
