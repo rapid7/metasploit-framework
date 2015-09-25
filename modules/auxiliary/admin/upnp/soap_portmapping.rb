@@ -13,7 +13,10 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'           => 'UPnP IGD SOAP Port Mapping Utility',
-      'Description'    => 'Manage port mappings on UPnP IGD-capable device using the AddPortMapping and DeletePortMapping SOAP requests',
+      'Description'    => %q{
+        Manage port mappings on UPnP IGD-capable device using the AddPortMapping and
+        DeletePortMapping SOAP requests
+      },
       'Author'         =>
         [
           'St0rn <fabien[at]anbu-pentest.com>', # initial module
@@ -43,11 +46,11 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'UPnP control URL', '/' ]),
         OptAddress.new('INTERNAL_CLIENT', [false, 'Internal client hostname/IP']),
-        OptAddress.new('EXTERNAL_CLIENT', [false, 'External client hostname/IP']),
+        OptAddress.new('EXTERNAL_CLIENT', [true, 'External client hostname/IP']),
         OptEnum.new('PROTOCOL', [true, 'Transport level protocol to map', 'TCP', %w(TCP UDP)]),
         OptInt.new('INTERNAL_PORT', [false, 'Internal port']),
         OptInt.new('EXTERNAL_PORT', [true, 'External port']),
-        OptInt.new('LEASE_DURATION', [true, 'Lease time for mapping, in seconds', 3600])
+        OptInt.new('LEASE_DURATION', [false, 'Lease time for mapping, in seconds', 3600])
       ],
       self.class
     )
