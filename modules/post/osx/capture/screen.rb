@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
             'Peter Toth <globetother[at]gmail.com>' # ported windows version to osx
           ],
         'Platform'      => [ 'osx' ],
-        'SessionTypes'  => [ 'shell' ]
+        'SessionTypes'  => [ 'meterpreter', 'shell' ]
       ))
 
     register_options(

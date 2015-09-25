@@ -30,7 +30,6 @@ Gem::Specification.new do |spec|
   spec.bindir = '.'
   spec.executables   = [
       'msfbinscan',
-      'msfcli',
       'msfconsole',
       'msfd',
       'msfelfscan',
@@ -56,23 +55,25 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'jsobfu', '~> 0.2.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
+  # Metasm compiler/decompiler/assembler
+  spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern', '~> 1.0'
+  spec.add_runtime_dependency 'metasploit-concern', '1.0.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model', '~> 1.0'
+  spec.add_runtime_dependency 'metasploit-model', '1.0.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.0.4'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.13'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
-  spec.add_runtime_dependency 'packetfu', '1.1.9'
+  spec.add_runtime_dependency 'packetfu', '1.1.11'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
-  spec.add_runtime_dependency 'recog', '~> 2.0'
+  spec.add_runtime_dependency 'recog', '2.0.6'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module

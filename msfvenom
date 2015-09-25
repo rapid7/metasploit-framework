@@ -110,6 +110,15 @@ require 'msf/core/payload_generator'
       opts[:platform] = l
     end
 
+    opt.on('--help-platforms', String, 'List available platforms') do
+      init_framework(:module_types => [])
+      supported_platforms = []
+      Msf::Module::Platform.subclasses.each {|c| supported_platforms << "#{c.realname.downcase}"}
+      msg = "Platforms\n" +
+            "\t" + supported_platforms * ", "
+      raise UsageError, msg
+    end
+
     opt.on('-s', '--space         <length>', Integer, 'The maximum size of the resulting payload') do |s|
       opts[:space] = s
     end
@@ -274,8 +283,8 @@ if __FILE__ == $0
   begin
     generator_opts = parse_args(ARGV)
   rescue MsfVenomError, Msf::OptionValidateError => e
-    $stderr.puts e.message
-    exit(-1)
+    $stderr.puts "Error: #{e.message}"
+    exit(1)
   end
 
   if generator_opts[:list]
@@ -335,11 +344,11 @@ if __FILE__ == $0
     payload = venom_generator.generate_payload
   rescue ::Exception => e
     elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
-    $stderr.puts e.message
+    $stderr.puts "Error: #{e.message}"
   end
 
   # No payload generated, no point to go on
-  exit(-1) unless payload
+  exit(2) unless payload
 
   if generator_opts[:out]
     begin
@@ -350,7 +359,7 @@ if __FILE__ == $0
     rescue ::Exception => e
       # If I can't save it, then I can't save it. I don't think it matters what error.
       elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
-      $stderr.puts e.message
+      $stderr.puts "Error: #{e.message}"
     end
   else
     output_stream = $stdout

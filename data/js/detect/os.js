@@ -973,6 +973,12 @@ os_detect.getVersion = function(){
 				os_name = "Windows 8";
 				os_sp = "SP0";
 				break;
+			case "1100":
+				// IE 11.0.10011.0 Windows 10.0 (Build 10074) English - insider preview
+				ua_version = "11.0";
+				os_name = "Windows 10";
+				os_sp = "SP0";
+				break;
 			default:
 				unknown_fingerprint = version;
 				break;

@@ -422,6 +422,11 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Lists running processes.
   #
   def cmd_ps(*args)
+    if args.include?('-h')
+      cmd_ps_help
+      return true
+    end
+
     # Init vars
     processes = client.sys.process.get_processes
     search_term = nil
@@ -435,9 +440,6 @@ class Console::CommandDispatcher::Stdapi::Sys
           print_error("Enter a search term")
           return true
         end
-      when '-h'
-        cmd_ps_help
-        return true
       when "-A"
         print_line "Filtering on arch..."
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
@@ -447,14 +449,14 @@ class Console::CommandDispatcher::Stdapi::Sys
             print_line "You must select either x86 or x86_64"
             return false
           end
-          searched_procs << proc	if proc["arch"] == val
+          searched_procs << proc if proc["arch"] == val
         end
         processes = searched_procs
       when "-s"
         print_line "Filtering on SYSTEM processes..."
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
         processes.each do |proc|
-          searched_procs << proc	if proc["user"] == "NT AUTHORITY\\SYSTEM"
+          searched_procs << proc if proc["user"] == "NT AUTHORITY\\SYSTEM"
         end
         processes = searched_procs
       when "-U"
@@ -465,46 +467,18 @@ class Console::CommandDispatcher::Stdapi::Sys
             print_line "You must supply a search term!"
             return false
           end
-          searched_procs << proc	if proc["user"].match(/#{val}/)
+          searched_procs << proc if proc["user"].match(/#{val}/)
         end
         processes = searched_procs
       end
     }
 
-    tbl = Rex::Ui::Text::Table.new(
-      'Header'  => "Process list",
-      'Indent'  => 1,
-      'Columns' =>
-        [
-          "PID",
-          "Name",
-          "Arch",
-          "Session",
-          "User",
-          "Path"
-        ],
-      'SearchTerm' => search_term)
-
-    processes.each { |ent|
-      session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
-      arch    = ent['arch']
-
-      # for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
-      if( arch == ARCH_X86_64 )
-        arch = "x64"
-      end
-
-      row = [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
-
-      tbl << row #if (search_term.nil? or row.join(' ').to_s.match(search_term))
-    }
-
     if (processes.length == 0)
       print_line("No running processes were found.")
     else
+      tbl = processes.to_table('SearchTerm' => search_term)
       print_line
-      print("\n" + tbl.to_s + "\n")
-      print_line
+      print_line(tbl.to_s)
     end
     return true
   end

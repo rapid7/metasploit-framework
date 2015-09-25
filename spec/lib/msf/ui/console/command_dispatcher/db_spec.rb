@@ -107,65 +107,63 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
       context "when the credential is present" do
         it "should show a user that matches the given expression" do
           db.cmd_creds("-u", username)
-          @output.should =~ [
+          expect(@output).to eq([
             "Credentials",
             "===========",
             "",
-            "host  service  public    private   realm  private_type",
-            "----  -------  ------    -------   -----  ------------",
-            "               thisuser  thispass         Password",
-          ]
+            "host  origin  service  public    private   realm  private_type",
+            "----  ------  -------  ------    -------   -----  ------------",
+            "                       thisuser  thispass         Password"
+          ])
         end
 
         it 'should match a regular expression' do
           subject.cmd_creds("-u", "^#{username}$")
-          @output.should =~
-          [
+          expect(@output).to eq([
             "Credentials",
             "===========",
             "",
-            "host  service  public    private   realm  private_type",
-            "----  -------  ------    -------   -----  ------------",
-            "               thisuser  thispass         Password",
-          ]
+            "host  origin  service  public    private   realm  private_type",
+            "----  ------  -------  ------    -------   -----  ------------",
+            "                       thisuser  thispass         Password"
+          ])
         end
 
         it 'should return nothing for a non-matching regular expression' do
           subject.cmd_creds("-u", "^#{nomatch_username}$")
-          @output.should =~
-          [
+          expect(@output).to eq([
             "Credentials",
             "===========",
             "",
-            "host  service  public  private  realm  private_type",
-            "----  -------  ------  -------  -----  ------------",
-          ]
+            "host  origin  service  public  private  realm  private_type",
+            "----  ------  -------  ------  -------  -----  ------------"
+          ])
         end
 
         context "and when the username is blank" do
           it "should show a user that matches the given expression" do
             db.cmd_creds("-u", blank_username)
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public  private        realm  private_type",
-              "----  -------  ------  -------        -----  ------------",
-              "                       nonblank_pass         Password",
-            ]
+              "host  origin  service  public  private        realm  private_type",
+              "----  ------  -------  ------  -------        -----  ------------",
+              "                               nonblank_pass         Password"
+            ])
           end
         end
         context "and when the password is blank" do
           it "should show a user that matches the given expression" do
             db.cmd_creds("-P", blank_password)
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public         private  realm  private_type",
-              "----  -------  ------         -------  -----  ------------",
-              "               nonblank_user                  Password",
-            ]
+              "host  origin  service  public         private  realm  private_type",
+              "----  ------  -------  ------         -------  -----  ------------",
+              "                       nonblank_user                  Password"
+            ])
           end
         end
       end
@@ -174,25 +172,25 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         context "due to a nonmatching username" do
           it "should return a blank set" do
             db.cmd_creds("-u", nomatch_username)
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public  private  realm  private_type",
-              "----  -------  ------  -------  -----  ------------",
-            ]
+              "host  origin  service  public  private  realm  private_type",
+              "----  ------  -------  ------  -------  -----  ------------"
+            ])
           end
         end
         context "due to a nonmatching password" do
           it "should return a blank set" do
             db.cmd_creds("-P", nomatch_password)
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public  private  realm  private_type",
-              "----  -------  ------  -------  -----  ------------",
-            ]
+              "host  origin  service  public  private  realm  private_type",
+              "----  ------  -------  ------  -------  -----  ------------"
+            ])
           end
         end
       end
@@ -257,14 +255,14 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           it "should show just the password" do
             db.cmd_creds("-t", "password")
             # Table matching really sucks
-            @output.should =~ [
+            expect(@output).to eq([
               "Credentials",
               "===========",
               "",
-              "host  service  public    private   realm  private_type",
-              "----  -------  ------    -------   -----  ------------",
-              "               thisuser  thispass         Password"
-            ]
+              "host  origin  service  public    private   realm  private_type",
+              "----  ------  -------  ------    -------   -----  ------------",
+              "                       thisuser  thispass         Password"
+            ])
           end
         end
 
@@ -435,6 +433,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -h,--help                 Show this help information",
           "  -R,--rhosts               Set RHOSTS from the results of the search",
           "  -S,--search               Regular expression to match for search",
+          "  -o,--output               Save the notes to a csv file",
           "  --sort <field1,field2>    Fields to sort by (case sensitive)",
           "Examples:",
           "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
@@ -536,6 +535,65 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
   end
 
   describe "#cmd_workspace" do
+    before(:each) do
+      db.cmd_workspace "-D"
+      @output = []
+    end
+    describe "<no arguments>" do
+      it "should list default workspace" do
+        db.cmd_workspace
+        @output.should =~ [
+          "* default"
+        ]
+      end
+
+      it "should list all workspaces" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace
+        @output.should =~ [
+          "  default",
+          "* foo"
+        ]
+      end
+    end
+
+    describe "-a" do
+      it "should add workspaces" do
+        db.cmd_workspace("-a", "foo", "bar", "baf")
+        @output.should =~ [
+          "Added workspace: foo",
+          "Added workspace: bar",
+          "Added workspace: baf"
+        ]
+      end
+    end
+
+    describe "-d" do
+      it "should delete a workspace" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace("-d", "foo")
+        @output.should =~ [
+          "Deleted workspace: foo",
+          "Switched workspace: default"
+        ]
+      end
+    end
+
+    describe "-D" do
+      it "should delete all workspaces" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace("-D")
+        @output.should =~ [
+          "Deleted and recreated the default workspace",
+          "Deleted workspace: foo",
+          "Switched workspace: default"
+        ]
+      end
+    end
+
     describe "-h" do
       it "should show a help message" do
         db.cmd_workspace "-h"
@@ -545,6 +603,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "    workspace [name]           Switch workspace",
           "    workspace -a [name] ...    Add workspace(s)",
           "    workspace -d [name] ...    Delete workspace(s)",
+          "    workspace -D               Delete all workspaces",
           "    workspace -r <old> <new>   Rename workspace",
           "    workspace -h               Show this help information"
         ]

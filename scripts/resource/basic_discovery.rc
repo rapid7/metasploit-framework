@@ -559,7 +559,7 @@ framework.db.workspace.hosts.each do |host|
 			jobwaiting(maxjobs,verbose)
 
 			print_line("Module: vmware_server_dir_trav")
-			run_single("use auxiliary/scanner/http/vmware_server_dir_trav")
+			run_single("use auxiliary/scanner/vmware/vmware_server_dir_trav")
 			if(verbose == 1)
 				infos(serv,host)
 			end

@@ -313,6 +313,8 @@ class Export
 
       # Host attributes
       h.attributes.each_pair do |k,v|
+        # Convert IPAddr -> String
+        v = v.to_s if k == 'address'
         el = create_xml_element(k,v)
         report_file.write("    #{el}\n") # Not checking types
       end
