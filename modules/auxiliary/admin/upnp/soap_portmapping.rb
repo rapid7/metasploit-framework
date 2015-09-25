@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def build_soap
     builder = ::Nokogiri::XML::Builder.new do |xml|
-      xml['SOAP-ENV'].Envelope("xmlns:SOAP-ENV" => 'http://schemas.xmlsoap.org/soap/envelope', 'SOAP-ENV:encodingStyle' => 'http://schemas.xmlsoap.org/soap/encoding/') do
+      xml['SOAP-ENV'].Envelope('xmlns:SOAP-ENV' => 'http://schemas.xmlsoap.org/soap/envelope', 'SOAP-ENV:encodingStyle' => 'http://schemas.xmlsoap.org/soap/encoding/') do
         xml['SOAP-ENV'].Body do
           xml['m'].send(soap_action, 'xmlns:m' => 'urn:schemas-upnp-org:service:WANIPConnection:1') do
             case action.name
