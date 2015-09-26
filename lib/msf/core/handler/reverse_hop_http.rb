@@ -55,6 +55,13 @@ module ReverseHopHttp
   end
 
   #
+  # Returns the socket type. (hop)
+  #
+  def type?
+    return 'hop'
+  end
+
+  #
   # Sets up a handler. Doesn't do much since it's all in start_handler.
   #
   def setup_handler
@@ -249,6 +256,7 @@ module ReverseHopHttp
     # generate a new connect
     sum = uri_checksum_lookup(:connect)
     conn_id = generate_uri_uuid(sum, uuid)
+    conn_id = conn_id[1..-1] if conn_id.start_with? '/'
     url = full_uri + conn_id + "/\x00"
 
     print_status("Preparing stage for next session #{conn_id}")
