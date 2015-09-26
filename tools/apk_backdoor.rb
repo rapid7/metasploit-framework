@@ -149,19 +149,19 @@ end
 
 jarsigner = run_cmd("jarsigner")
 unless(jarsigner != nil)
-	puts "[-] Jarsigner not found. If it's not in your PATH, please add it.\n"
+	puts "[-] jarsigner not found. If it's not in your PATH, please add it.\n"
 	exit(1)
 end
 
-apktool = run_cmd("apktool")
+apktool = run_cmd("apktool -version")
 unless(apktool != nil)
-	puts "[-] APKTool not found. If it's not in your PATH, please add it.\n"
+	puts "[-] apktool not found. If it's not in your PATH, please add it.\n"
 	exit(1)
 end
 
-apk_v = apktool
-unless(apk_v.split()[1].include?("v2."))
-	puts "[-] Apktool version #{apk_v} not supported, please download the latest 2.xx version from git.\n"
+apk_v = Gem::Version.new(apktool)
+unless(apk_v >= Gem::Version.new('2.0.1'))
+	puts "[-] apktool version #{apk_v} not supported, please download at least version 2.0.1.\n"
 	exit(1)
 end
 
