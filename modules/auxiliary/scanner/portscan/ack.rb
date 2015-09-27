@@ -55,9 +55,11 @@ class Metasploit3 < Msf::Auxiliary
 
     to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
 
+    # we copy the hosts because some may not be reachable and need to be ejected
+    host_queue = hosts.dup
     # Spread the load across the hosts
     ports.each do |dport|
-      hosts.each do |dhost|
+      host_queue.each do |dhost|
         shost, sport = getsource(dhost)
 
         pcap.setfilter(getfilter(shost, sport, dhost, dport))
@@ -65,7 +67,10 @@ class Metasploit3 < Msf::Auxiliary
         begin
           probe = buildprobe(shost, sport, dhost, dport)
 
-          capture_sendto(probe, dhost)
+          unless capture_sendto(probe, dhost)
+            host_queue.delete(dhost)
+            next
+          end
 
           reply = probereply(pcap, to)
 
