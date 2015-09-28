@@ -18,16 +18,20 @@ module Metasploit
           # @!attribute ssl_version
           #   @return [String] The version of SSL to implement
           attr_accessor :ssl_version
+          # @!attribute ssl_verify_mode
+          #   @return [String] The SSL certification verification mechanism
+          attr_accessor :ssl_verify_mode
+          # @!attribute ssl_cipher
+          #   @return [String] The SSL cipher to use for the context
+          attr_accessor :ssl_cipher
+          # @!attribute chost
+          #   @return [String] The local host for outgoing connections
+          attr_accessor :chost
+          # @!attribute cport
+          #   @return [Fixnum] The local port for outgoing connections
+          attr_accessor :cport
 
           private
-
-          def chost
-            '0.0.0.0'
-          end
-
-          def cport
-            0
-          end
 
           def rhost
             host
