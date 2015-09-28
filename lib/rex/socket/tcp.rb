@@ -25,7 +25,6 @@ module Rex::Socket::Tcp
   # @see Rex::Socket::Parameters.from_hash
   def self.create(hash = {})
     hash['Proto'] = 'tcp'
-    puts "parameters: #{hash.inspect}"
     self.create_param(Rex::Socket::Parameters.from_hash(hash))
   end
 
