@@ -116,6 +116,12 @@ class Metasploit4 < Msf::Auxiliary
           pre_login: lambda { |s| raw_send("enable\r\n", s.sock) },
           framework: framework,
           framework_module: self,
+          ssl: datastore['SSL'],
+          ssl_version: datastore['SSLVersion'],
+          ssl_verify_mode: datastore['SSLVerifyMode'],
+          ssl_cipher: datastore['SSLCipher'],
+          local_port: datastore['CPORT'],
+          local_host: datastore['CHOST']
       )
 
       scanner.scan! do |result|
