@@ -122,6 +122,10 @@ shared_examples_for 'Msf::DBManager::Session' do
           end
 
           context 'with a run_id in user_data' do
+            before(:each) do
+              MetasploitDataModels::AutomaticExploitation::MatchSet.any_instance.stub(:create_match_for_vuln).and_return(nil)
+            end
+
             let(:match_set) do
               FactoryGirl.create(:automatic_exploitation_match_set, user: session_workspace.owner,workspace:session_workspace)
             end
