@@ -80,6 +80,30 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_enum(asset)
     begin
       res = send_request_cgi({
@@ -121,12 +145,12 @@ class Metasploit3 < Msf::Auxiliary
           @users_found[user] = :reported
         end
 
-        report_auth_info(
-        :host => rhost,
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :port => rport,
-        :proof => "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}")
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: (ssl ? 'https' : 'http'),
+          proof: "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}"
+        )
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE

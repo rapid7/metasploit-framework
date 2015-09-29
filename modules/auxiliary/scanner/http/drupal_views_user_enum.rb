@@ -79,9 +79,9 @@ class Metasploit3 < Msf::Auxiliary
     }.merge(service_data)
 
     login_data = {
-      last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -130,7 +130,8 @@ class Metasploit3 < Msf::Auxiliary
       report_cred(
         ip: Rex::Socket.getaddress(datastore['RHOST']),
         port: datastore['RPORT'],
-        user: user
+        user: user,
+        proof: base_uri+l
       )
     end
 

@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
         This module exploits a vulnerability in SysAid Help Desk that allows an unauthenticated
         user to download arbitrary files from the system. This is used to download the server
         configuration file that contains the database username and password, which is encrypted
-        with a fixed key. This module has been tested with SysAid 14.4 on Windows and Linux.
+        with a fixed, known key. This module has been tested with SysAid 14.4 on Windows and Linux.
         },
       'Author' =>
         [

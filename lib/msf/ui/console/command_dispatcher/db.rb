@@ -89,6 +89,7 @@ class Db
     print_line "    workspace [name]           Switch workspace"
     print_line "    workspace -a [name] ...    Add workspace(s)"
     print_line "    workspace -d [name] ...    Delete workspace(s)"
+    print_line "    workspace -D               Delete all workspaces"
     print_line "    workspace -r <old> <new>   Rename workspace"
     print_line "    workspace -h               Show this help information"
     print_line
@@ -106,6 +107,8 @@ class Db
         adding = true
       when '-d','--del'
         deleting = true
+      when '-D','--delete-all'
+        delete_all = true
       when '-r','--rename'
         renaming = true
       else
@@ -123,28 +126,9 @@ class Db
       end
       framework.db.workspace = workspace
     elsif deleting and names
-      switched = false
-      # Delete workspaces
-      names.each do |name|
-        workspace = framework.db.find_workspace(name)
-        if workspace.nil?
-          print_error("Workspace not found: #{name}")
-        elsif workspace.default?
-          workspace.destroy
-          workspace = framework.db.add_workspace(name)
-          print_status("Deleted and recreated the default workspace")
-        else
-          # switch to the default workspace if we're about to delete the current one
-          if framework.db.workspace.name == workspace.name
-            framework.db.workspace = framework.db.default_workspace
-            switched = true
-          end
-          # now destroy the named workspace
-          workspace.destroy
-          print_status("Deleted workspace: #{name}")
-        end
-      end
-      print_status("Switched workspace: #{framework.db.workspace.name}") if switched
+      delete_workspaces(names)
+    elsif delete_all
+      delete_workspaces(framework.db.workspaces.map(&:name))
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
@@ -200,6 +184,31 @@ class Db
       end
     end
   }
+  end
+
+  def delete_workspaces(names)
+    switched = false
+    # Delete workspaces
+    names.each do |name|
+      workspace = framework.db.find_workspace(name)
+      if workspace.nil?
+        print_error("Workspace not found: #{name}")
+      elsif workspace.default?
+        workspace.destroy
+        workspace = framework.db.add_workspace(name)
+        print_status("Deleted and recreated the default workspace")
+      else
+        # switch to the default workspace if we're about to delete the current one
+        if framework.db.workspace.name == workspace.name
+          framework.db.workspace = framework.db.default_workspace
+          switched = true
+        end
+        # now destroy the named workspace
+        workspace.destroy
+        print_status("Deleted workspace: #{name}")
+      end
+    end
+    print_status("Switched workspace: #{framework.db.workspace.name}") if switched
   end
 
   def cmd_workspace_tabs(str, words)
@@ -837,6 +846,7 @@ class Db
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
     print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    print_line "  -O,--origins          List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 
     print_line
@@ -925,15 +935,16 @@ class Db
   end
 
   def creds_search(*args)
-    host_ranges = []
-    port_ranges = []
-    svcs        = []
-    rhosts      = []
+    host_ranges   = []
+    origin_ranges = []
+    port_ranges   = []
+    svcs          = []
+    rhosts        = []
 
     set_rhosts = false
 
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
-    cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
+    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type' ]
     user = nil
     delete_count = 0
 
@@ -979,6 +990,13 @@ class Db
         mode = :delete
       when '-R', '--rhosts'
         set_rhosts = true
+      when '-O', '--origins'
+        hosts = args.shift
+        if !hosts
+          print_error("Argument required for -O")
+          return
+        end
+        arg_host_range(hosts, origin_ranges)
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -1058,11 +1076,22 @@ class Db
           next
         end
 
-        if core.logins.empty?
+        origin = ''
+        if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
+          origin = core.origin.service.host.address
+        elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
+          origin = core.origin.session.host.address
+        end
 
+        if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
+          next
+        end
+
+        if core.logins.empty? && origin_ranges.empty?
           tbl << [
             "", # host
-            "", # port
+            "", # cred
+            "", # service
             core.public,
             core.private,
             core.realm,
@@ -1070,7 +1099,6 @@ class Db
           ]
         else
           core.logins.each do |login|
-
             # If none of this Core's associated Logins is for a host within
             # the user-supplied RangeWalker, then we don't have any reason to
             # print it out. However, we treat the absence of ranges as meaning
@@ -1078,7 +1106,9 @@ class Db
             if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
               next
             end
+
             row = [ login.service.host.address ]
+            row << origin
             rhosts << login.service.host.address
             if login.service.name.present?
               row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
@@ -1176,6 +1206,7 @@ class Db
     print_line "  -h,--help                 Show this help information"
     print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
     print_line "  -S,--search               Regular expression to match for search"
+    print_line "  -o,--output               Save the notes to a csv file"
     print_line "  --sort <field1,field2>    Fields to sort by (case sensitive)"
     print_line
     print_line "Examples:"
@@ -1196,6 +1227,7 @@ class Db
     host_ranges = []
     rhosts      = []
     search_term = nil
+    out_file    = nil
 
     while (arg = args.shift)
       case arg
@@ -1222,6 +1254,8 @@ class Db
         search_term = /#{args.shift}/nmi
       when '--sort'
         sort_term = args.shift
+      when '-o', '--output'
+        out_file = args.shift
       when '-h','--help'
         cmd_notes_help
         return
@@ -1231,7 +1265,6 @@ class Db
           return
         end
       end
-
     end
 
     if mode == :add
@@ -1308,12 +1341,21 @@ class Db
     end
 
     # Now display them
+    csv_table = Rex::Ui::Text::Table.new(
+      'Header'  => 'Notes',
+      'Indent'  => 1,
+      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data']
+    )
+
     note_list.each do |note|
       next if(types and types.index(note.ntype).nil?)
+      csv_note = []
       msg = "Time: #{note.created_at} Note:"
+      csv_note << note.created_at if out_file
       if (note.host)
         host = note.host
         msg << " host=#{note.host.address}"
+        csv_note << note.host.address if out_file
         if set_rhosts
           addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
@@ -1321,15 +1363,35 @@ class Db
       end
       if (note.service)
         msg << " service=#{note.service.name}" if note.service.name
+        csv_note << note.service.name || '' if out_file
         msg << " port=#{note.service.port}" if note.service.port
+        csv_note << note.service.port || '' if out_file
         msg << " protocol=#{note.service.proto}" if note.service.proto
+        csv_note << note.service.proto || '' if out_file
+      else
+        if out_file
+          csv_note << '' # For the Service field
+          csv_note << '' # For the Port field
+          csv_note << '' # For the Protocol field
+        end
       end
       msg << " type=#{note.ntype} data=#{note.data.inspect}"
+      if out_file
+        csv_note << note.ntype
+        csv_note << note.data.inspect
+      end
       print_status(msg)
+      if out_file
+        csv_table << csv_note
+      end
       if mode == :delete
         note.destroy
         delete_count += 1
       end
+    end
+
+    if out_file
+      save_csv_notes(out_file, csv_table)
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -1338,6 +1400,17 @@ class Db
 
     print_status("Deleted #{delete_count} notes") if delete_count > 0
   }
+  end
+
+  def save_csv_notes(fpath, csv_table)
+    begin
+      File.open(fpath, 'wb') do |f|
+        f.write(csv_table.to_csv)
+      end
+      print_status("Notes saved as #{fpath}")
+    rescue Errno::EACCES => e
+      print_error("Unable to save notes. #{e.message}")
+    end
   end
 
   def make_sortable(input)

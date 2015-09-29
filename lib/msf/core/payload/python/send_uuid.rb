@@ -21,9 +21,11 @@ module Payload::Python::SendUUID
     sock_var = opts[:sock_var] || 's'
 
     uuid = opts[:uuid] || generate_payload_uuid
-    uuid_raw = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
+    uuid_hex = Rex::Text.to_hex(uuid.to_raw, prefix = '')
 
-    "#{sock_var}.send(\"#{uuid_raw}\")\n"
+    uuid_stub = "import binascii\n"
+    uuid_stub << "#{sock_var}.send(binascii.a2b_hex('#{uuid_hex}'))\n"
+    uuid_stub
   end
 
 end

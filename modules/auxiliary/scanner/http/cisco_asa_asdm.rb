@@ -109,6 +109,7 @@ class Metasploit3 < Msf::Auxiliary
       last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -139,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 
         print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
-        report_cred(ip: rhost, port: rport, user: user, password: pass)
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
         return :next_user
 
       else

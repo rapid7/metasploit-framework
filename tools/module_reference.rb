@@ -23,17 +23,18 @@ require 'uri'
 # We gsub '#{in_ctx_val}' with the actual value
 def types
   {
-    'ALL'        => '',
-    'OSVDB'      => 'http://www.osvdb.org/#{in_ctx_val}',
-    'CVE'        => 'http://cvedetails.com/cve/#{in_ctx_val}/',
-    'CWE'        => 'http://cwe.mitre.org/data/definitions/#{in_ctx_val}.html',
-    'BID'        => 'http://www.securityfocus.com/bid/#{in_ctx_val}',
-    'MSB'        => 'http://technet.microsoft.com/en-us/security/bulletin/#{in_ctx_val}',
-    'EDB'        => 'http://www.exploit-db.com/exploits/#{in_ctx_val}',
-    'US-CERT-VU' => 'http://www.kb.cert.org/vuls/id/#{in_ctx_val}',
-    'ZDI'        => 'http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}',
-    'WPVDB'      => 'https://wpvulndb.com/vulnerabilities/#{in_ctx_val}',
-    'URL'        => '#{in_ctx_val}'
+    'ALL'         => '',
+    'OSVDB'       => 'http://www.osvdb.org/#{in_ctx_val}',
+    'CVE'         => 'http://cvedetails.com/cve/#{in_ctx_val}/',
+    'CWE'         => 'http://cwe.mitre.org/data/definitions/#{in_ctx_val}.html',
+    'BID'         => 'http://www.securityfocus.com/bid/#{in_ctx_val}',
+    'MSB'         => 'http://technet.microsoft.com/en-us/security/bulletin/#{in_ctx_val}',
+    'EDB'         => 'http://www.exploit-db.com/exploits/#{in_ctx_val}',
+    'US-CERT-VU'  => 'http://www.kb.cert.org/vuls/id/#{in_ctx_val}',
+    'ZDI'         => 'http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}',
+    'WPVDB'       => 'https://wpvulndb.com/vulnerabilities/#{in_ctx_val}',
+    'PACKETSTORM' => 'https://packetstormsecurity.com/files/#{in_ctx_val}',
+    'URL'         => '#{in_ctx_val}'
   }
 end
 
@@ -145,7 +146,7 @@ def is_url_alive?(uri)
   if res.nil? || res.code == 404 || res.body =~ /<title>.*not found<\/title>/i
     #puts "Return false 3: HTTP #{res.code}"
     #puts req.to_s
-    return false 
+    return false
   end
 
   true

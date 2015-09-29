@@ -114,50 +114,54 @@ class Console::CommandDispatcher::Stdapi::Fs
   def cmd_search(*args)
 
     root    = nil
-    glob    = nil
     recurse = true
+    globs   = []
+    files   = []
 
     opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner." ],
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
-      "-f" => [ true,  "The file pattern glob to search for. (e.g. *secret*.doc?)" ],
+      "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
       "-r" => [ true,  "Recursivly search sub directories. (Default: #{recurse})" ]
     )
 
     opts.parse(args) { | opt, idx, val |
       case opt
         when "-h"
-          print_line("Usage: search [-d dir] [-r recurse] -f pattern")
+          print_line("Usage: search [-d dir] [-r recurse] -f pattern [-f pattern]...")
           print_line("Search for files.")
           print_line(opts.usage)
           return
         when "-d"
           root = val
         when "-f"
-          glob = val
+          globs << val
         when "-r"
           recurse = false if val =~ /^(f|n|0)/i
       end
     }
 
-    if not glob
+    if globs.empty?
       print_error("You must specify a valid file glob to search for, e.g. >search -f *.doc")
       return
     end
 
-    files = client.fs.file.search(root, glob, recurse)
+    globs.uniq.each do |glob|
+      files += client.fs.file.search(root, glob, recurse)
+    end
 
-    if not files.empty?
-      print_line("Found #{files.length} result#{ files.length > 1 ? 's' : '' }...")
-      files.each do | file |
-        if file['size'] > 0
-          print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n")
-        else
-          print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n")
-        end
-      end
-    else
+    if files.empty?
       print_line("No files matching your search were found.")
+      return
+    end
+
+    print_line("Found #{files.length} result#{ files.length > 1 ? 's' : '' }...")
+    files.each do | file |
+      if file['size'] > 0
+        print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n")
+      else
+        print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n")
+      end
     end
 
   end

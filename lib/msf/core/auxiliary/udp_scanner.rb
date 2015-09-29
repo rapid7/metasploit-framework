@@ -181,7 +181,9 @@ module Auxiliary::UDPScanner
   end
 
   # Called for each response packet
-  def scanner_process(data, shost, sport)
+  def scanner_process(data, shost, _sport)
+    @results[shost] ||= []
+    @results[shost] << data
   end
 
   # Called before the scan block

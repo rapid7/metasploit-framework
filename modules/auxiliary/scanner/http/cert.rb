@@ -43,8 +43,6 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{ip} No certificate subject or CN found")
       return
     end
-
-    issuer_pattern = Regexp.new(datastore['ISSUER'], [Regexp::EXTENDED, 'n'])
     sub = cert.subject.to_a
 
     before = Time.parse("#{cert.not_before}")
@@ -61,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    if ( "#{cert.issuer}" !~ /#{issuer_pattern}/)
+    if cert.issuer.to_s !~ /#{datastore['ISSUER']}/n
       print_good("#{ip} - '#{vhostn}' : #{cert.issuer} (BAD ISSUER)" )
     elsif datastore['SHOWALL']
       # show verbose as status

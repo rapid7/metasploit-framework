@@ -138,14 +138,40 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    report_auth_info({
-      :host         => server,
-      :port         => port,
-      :sname        => 'ftp',
-      :duplicate_ok => false,
-      :user         => user,
-      :pass         => password
-    })
+    report_cred(
+      ip: server,
+      port: port,
+      service_name: 'ftp',
+      user: user,
+      password: password,
+      proof: conf.inspect
+    )
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def get_dvr_credentials(conf)

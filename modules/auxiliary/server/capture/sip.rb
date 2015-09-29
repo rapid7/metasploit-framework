@@ -104,6 +104,32 @@ class Metasploit3 < Msf::Auxiliary
     return addr
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     begin
       @port = datastore['SRVPORT'].to_i
@@ -141,16 +167,13 @@ class Metasploit3 < Msf::Auxiliary
             proof = "client: #{client_ip}; username: #{username}; nonce: #{datastore['NONCE']}; response: #{response}; algorithm: #{algorithm}"
             print_status("SIP LOGIN: #{proof}")
 
-            report_auth_info(
-              :host  => @requestor[:ip],
-              :port => @requestor[:port],
-              :sname => 'sip_client',
-              :user => username,
-              :pass => response + ":" + auth_tokens['nonce'] + ":" + algorithm,
-              :type => "sip_hash",
-              :proof => proof,
-              :source_type => "captured",
-              :active => true
+            report_cred(
+              ip: @requestor[:ip],
+              port: @requestor[:port],
+              service_name: 'sip_client',
+              user: username,
+              password: response + ":" + auth_tokens['nonce'] + ":" + algorithm,
+              proof: proof
             )
 
             if datastore['JOHNPWFILE']

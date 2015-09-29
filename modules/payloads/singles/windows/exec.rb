@@ -13,7 +13,7 @@ require 'msf/core/payload/windows/exec'
 ###
 module Metasploit3
 
-  CachedSize = 185
+  CachedSize = 192
 
   include Msf::Payload::Windows::Exec
 
