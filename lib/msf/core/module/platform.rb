@@ -524,4 +524,12 @@ class Msf::Module::Platform
     Rank = 100
     Alias = "firefox"
   end
+
+  #
+  # Mainframe
+  #
+  class Mainframe < Msf::Module::Platform
+    Rank = 100
+    Alias = "mainframe"
+  end
 end

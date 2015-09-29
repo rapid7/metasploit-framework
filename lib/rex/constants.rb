@@ -88,6 +88,7 @@ ARCH_DALVIK  = 'dalvik'
 ARCH_PYTHON  = 'python'
 ARCH_NODEJS  = 'nodejs'
 ARCH_FIREFOX = 'firefox'
+ARCH_ZARCH   = 'zarch'
 ARCH_TYPES   =
   [
     ARCH_X86,
@@ -110,7 +111,8 @@ ARCH_TYPES   =
     ARCH_DALVIK,
     ARCH_PYTHON,
     ARCH_NODEJS,
-    ARCH_FIREFOX
+    ARCH_FIREFOX,
+    ARCH_ZARCH,
   ]
 
 ARCH_ALL = ARCH_TYPES

@@ -18,6 +18,7 @@ module Arch
   #
   require 'rex/arch/x86'
   require 'rex/arch/sparc'
+  require 'rex/arch/zarch'
 
   #
   # This routine adjusts the stack pointer for a given architecture.
@@ -64,6 +65,8 @@ module Arch
         [addr].pack('V')
       when ARCH_ARMBE
         [addr].pack('N')
+      when ARCH_ZARCH
+        [addr].pack('Q>')
     end
   end
 
@@ -94,6 +97,8 @@ module Arch
       when ARCH_ARMLE
         return ENDIAN_LITTLE
       when ARCH_ARMBE
+        return ENDIAN_BIG
+      when ARCH_ZARCH
         return ENDIAN_BIG
     end
 

