@@ -88,14 +88,12 @@ module Payload::Windows::Rc4
 
   def generate_stage(opts={})
     p = super(opts)
-    m = OpenSSL::Digest.new('sha1')
-    m.reset
-    key = m.digest(datastore["RC4PASSWORD"] || "")
+    xorkey,rc4key = rc4_keys(datastore['RC4PASSWORD'])
     c1 = OpenSSL::Cipher::Cipher.new('RC4')
     c1.decrypt
-    c1.key=key[4,16]
+    c1.key = rc4key
     p = c1.update(p)
-    return [ p.length ^ key[0,4].unpack('V')[0] ].pack('V') + p
+    return [ p.length ^ xorkey.unpack('V')[0] ].pack('V') + p
   end
 
   def handle_intermediate_stage(conn, payload)
