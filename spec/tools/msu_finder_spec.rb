@@ -1,6 +1,16 @@
 load Metasploit::Framework.root.join('tools/msu_finder.rb').to_path
 
+require 'nokogiri'
+
 describe MicrosoftPatch do
+
+  before(:each) do
+    cli = Rex::Proto::Http::Client.new('127.0.0.1')
+    allow(cli).to receive(:connect)
+    allow(cli).to receive(:request_cgi)
+    allow(cli).to receive(:send_recv).and_return(Rex::Proto::Http::Response.new)
+    allow(Rex::Proto::Http::Client).to receive(:new).and_return(cli)
+  end
 
   describe MicrosoftPatch::SiteInfo do
     context 'Constants' do
@@ -49,18 +59,220 @@ describe MicrosoftPatch do
   end
 
   describe MicrosoftPatch::Base do
+
+    def get_stdout(&block)
+      out = $stdout
+      $stdout = fake = StringIO.new
+      begin
+        yield
+      ensure
+        $stdout = out
+      end
+      fake.string
+    end
+
+    def get_stderr(&block)
+      out = $stderr
+      $stderr = fake = StringIO.new
+      begin
+        yield
+      ensure
+        $stderr = out
+      end
+      fake.string
+    end
+
+    subject do
+      MicrosoftPatch::Base.new
+    end
+
+    describe '#print_debug' do
+      it 'prints a [DEBUG] message' do
+        output = get_stderr { subject.print_debug }
+        expect(output).to include('[DEBUG]')
+      end
+    end
+
+    describe '#print_status' do
+      it 'prints a [*] message' do
+        output = get_stderr { subject.print_status }
+        expect(output).to include('[*]')
+      end
+    end
+
+    describe '#print_error' do
+      it 'prints an [ERROR] message' do
+        output = get_stderr { subject.print_error }
+        expect(output).to include('[ERROR]')
+      end
+    end
+
+    describe '#print_line' do
+      it 'prints a regular message' do
+        msg = 'TEST'
+        output = get_stdout { subject.print_line(msg) }
+        expect(output).to eq("#{msg}\n")
+      end
+    end
+
+    describe '#send_http_request' do
+      it 'returns a Rex::Proto::Http::Response object' do
+        allow(subject).to receive(:print_debug)
+        res = subject.send_http_request(MicrosoftPatch::SiteInfo::TECHNET)
+        expect(res).to be_kind_of(Rex::Proto::Http::Response)
+      end
+    end
+
   end
 
   describe MicrosoftPatch::PatchLinkCollector do
+
+    subject do
+      MicrosoftPatch::PatchLinkCollector.new
+    end
+
+    before(:each) do
+      allow(subject).to receive(:print_debug)
+    end
+
+    describe '#download_advisory' do
+      it 'returns a Rex::Proto::Http::Response object' do
+        res = subject.download_advisory('ms15-100')
+        expect(res).to be_kind_of(Rex::Proto::Http::Response)
+      end
+    end
+
+    describe '#get_appropriate_pattern' do
+      let(:ms15_100_html) do
+        %Q|
+        <html>
+        <div id="mainBody">
+          <div>
+            <h2>
+            <div>
+              <span>Affected Software</span>
+              <div class="sectionblock">
+                <table>
+                <tr><td><a href="http://technet.microsoft.com">fake link</a></td></tr>
+                </table>
+              </div>
+            </div>
+            </h2>
+          </div>
+        </div>
+        </html>
+        |
+      end
+
+      let(:ms07_029_html) do
+        %Q|
+        <html>
+        </html>
+        |
+      end
+
+      let(:ms03_039_html) do
+        %Q|
+        <html>
+        </html>
+        |
+      end
+
+      let(:ms07_030_html) do
+        %Q|
+        <html>
+        </html>
+        |
+      end
+
+      it 'returns a pattern for ms15-100' do
+        expected_pattern = '//div[@id="mainBody"]//div//div[@class="sectionblock"]//table//a'
+        p = subject.get_appropriate_pattern(::Nokogiri::HTML(ms15_100_html))
+        expect(p).to eq(expected_pattern)
+      end
+
+      it 'returns a pattern for ms07-029' do
+      end
+
+      it 'returns a pattern for ms03-039' do
+      end
+
+      it 'returns a pattern for ms07-030' do
+      end
+    end
+
+    describe '#get_details_aspx' do
+    end
+
+    describe '#follow_redirect' do
+    end
+
+    describe '#get_download_page' do
+    end
+
+    describe '#get_download_links' do
+    end
+
+    describe '#has_advisory?' do
+    end
+
+    describe '#is_valid_msb?' do
+    end
+
   end
 
   describe MicrosoftPatch::TechnetMsbSearch do
+
+    describe '#find_msb_numbers' do
+    end
+
+    describe '#search' do
+    end
+
+    describe '#search_by_product_ids' do
+    end
+
+    describe '#search_by_keyword' do
+    end
+
+    describe '#get_product_dropdown_list' do
+    end
+
   end
 
   describe MicrosoftPatch::GoogleMsbSearch do
+
+    describe '#find_msb_numbers' do
+    end
+
+    describe '#search' do
+    end
+
+    describe '#parse_results' do
+    end
+
+    describe '#get_total_results' do
+    end
+
+    describe '#get_next_index' do
+    end
+
   end
 
   describe MicrosoftPatch::Module do
+
+    describe '#get_download_links' do
+    end
+
+    describe '#google_search' do
+    end
+
+    describe '#technet_search' do
+    end
+
+    describe '#run' do
+    end
+
   end
 
 end

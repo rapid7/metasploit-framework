@@ -64,7 +64,7 @@ module MicrosoftPatch
     # @param msg [String] The message to print.
     # @return [void]
     def print_error(msg='')
-      $stderr.puts "[Error] #{msg}"
+      $stderr.puts "[ERROR] #{msg}"
     end
 
     # Prints a regular message.
