@@ -1,6 +1,7 @@
 load Metasploit::Framework.root.join('tools/msu_finder.rb').to_path
 
 require 'nokogiri'
+require 'uri'
 
 describe MicrosoftPatch do
 
@@ -127,6 +128,76 @@ describe MicrosoftPatch do
 
   describe MicrosoftPatch::PatchLinkCollector do
 
+    let(:ms15_100_html) do
+      %Q|
+      <html>
+      <div id="mainBody">
+        <div>
+          <h2>
+          <div>
+            <span>Affected Software</span>
+            <div class="sectionblock">
+              <table>
+              <tr><td><a href="https://www.microsoft.com/downloads/details.aspx?familyid=1">fake link</a></td></tr>
+              </table>
+            </div>
+          </div>
+          </h2>
+        </div>
+      </div>
+      </html>
+      |
+    end
+
+    let(:ms07_029_html) do
+      %Q|
+      <html>
+      <div id="mainBody">
+        <ul>
+          <li>
+            <a href="http://technet.microsoft.com">Download the update</a>
+          </li>
+        </ul>
+      </div>
+      </html>
+      |
+    end
+
+    let(:ms03_039_html) do
+      %Q|
+      <html>
+      <div id="mainBody">
+        <div>
+          <div class="sectionblock">
+            <p>
+              <strong>Download locations</strong>
+            </p>
+            <ul>
+              <li>
+                <a href="http://technet.microsoft.com">Download</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      </html>
+      |
+    end
+
+    let(:ms07_030_html) do
+      %Q|
+      <html>
+      <div id="mainBody">
+        <p>
+          <strong>Affected Software</strong>
+        </p>
+        <table>
+        <tr><td><a href="http://technet.microsoft.com">Download</a></td></tr>
+      </div>
+      </html>
+      |
+    end
+
     subject do
       MicrosoftPatch::PatchLinkCollector.new
     end
@@ -143,47 +214,6 @@ describe MicrosoftPatch do
     end
 
     describe '#get_appropriate_pattern' do
-      let(:ms15_100_html) do
-        %Q|
-        <html>
-        <div id="mainBody">
-          <div>
-            <h2>
-            <div>
-              <span>Affected Software</span>
-              <div class="sectionblock">
-                <table>
-                <tr><td><a href="http://technet.microsoft.com">fake link</a></td></tr>
-                </table>
-              </div>
-            </div>
-            </h2>
-          </div>
-        </div>
-        </html>
-        |
-      end
-
-      let(:ms07_029_html) do
-        %Q|
-        <html>
-        </html>
-        |
-      end
-
-      let(:ms03_039_html) do
-        %Q|
-        <html>
-        </html>
-        |
-      end
-
-      let(:ms07_030_html) do
-        %Q|
-        <html>
-        </html>
-        |
-      end
 
       it 'returns a pattern for ms15-100' do
         expected_pattern = '//div[@id="mainBody"]//div//div[@class="sectionblock"]//table//a'
@@ -192,16 +222,38 @@ describe MicrosoftPatch do
       end
 
       it 'returns a pattern for ms07-029' do
+        expected_pattern = '//div[@id="mainBody"]//ul//li//a[contains(text(), "Download the update")]'
+        p = subject.get_appropriate_pattern(::Nokogiri::HTML(ms07_029_html))
+        expect(p).to eq(expected_pattern)
       end
 
       it 'returns a pattern for ms03-039' do
+        expected_pattern = '//div[@id="mainBody"]//div//div[@class="sectionblock"]//ul//li//a'
+        p = subject.get_appropriate_pattern(::Nokogiri::HTML(ms03_039_html))
+        expect(p).to eq(expected_pattern)
       end
 
       it 'returns a pattern for ms07-030' do
+        expected_pattern = '//div[@id="mainBody"]//table//a'
+        p = subject.get_appropriate_pattern(::Nokogiri::HTML(ms07_030_html))
+        expect(p).to eq(expected_pattern)
       end
     end
 
     describe '#get_details_aspx' do
+      let(:details_aspx) do
+        res = Rex::Proto::Http::Response.new
+        allow(res).to receive(:body).and_return(ms15_100_html)
+        res
+      end
+
+      it 'returns an URI object to a details aspx' do
+        links = subject.get_details_aspx(details_aspx)
+        expected_uri = 'https://www.microsoft.com/downloads/details.aspx?familyid=1'
+        expect(links.length).to eq(1)
+        expect(links.first).to be_kind_of(URI)
+        expect(links.first.to_s).to eq(expected_uri)
+      end
     end
 
     describe '#follow_redirect' do
