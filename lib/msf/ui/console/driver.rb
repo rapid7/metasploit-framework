@@ -213,11 +213,8 @@ class Driver < Msf::Ui::Driver
     end
 
     if framework.db.active && !opts['DeferModuleLoads']
-      if self.framework.modules.cache_empty?
-        self.framework.threads.spawn("ModuleCacheRebuild", true) do
-          self.framework.modules.refresh_cache_from_module_files
-        end
-        print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
+      framework.threads.spawn("ModuleCacheRebuild", true) do
+        framework.modules.refresh_cache_from_module_files
       end
     end
 

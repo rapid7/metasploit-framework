@@ -112,7 +112,6 @@ module Msf::ModuleManager::Cache
       else
         framework.db.update_all_module_details
       end
-
       refresh_cache_from_database(self.module_paths)
     end
   end
@@ -131,11 +130,7 @@ module Msf::ModuleManager::Cache
   # @return [true] if migrations have been run
   # @return [false] otherwise
   def framework_migrated?
-    if framework.db and framework.db.migrated
-      true
-    else
-      false
-    end
+    framework.db && framework.db.migrated
   end
 
   # @!attribute [rw] module_info_by_path

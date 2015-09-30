@@ -47,7 +47,10 @@ module Msf::DBManager::Vuln
   def find_vuln_by_refs(refs, host, service=nil)
     ref_ids = refs.find_all { |ref| ref.name.starts_with? 'CVE-'}
     relation = host.vulns.includes(:refs)
-    relation.where(service_id: service.try(:id), refs: { id: ref_ids}).first || relation.where(refs: { id: ref_ids}).first
+    if !service.try(:id).nil?
+      return relation.where(service_id: service.try(:id), refs: { id: ref_ids}).first
+    end
+    return relation.where(refs: { id: ref_ids}).first
   end
 
   def get_vuln(wspace, host, service, name, data='')

@@ -1543,12 +1543,16 @@ class Core
       end
     }
 
-    if framework.db and framework.db.migrated and framework.db.modules_cached
-      search_modules_sql(match)
-      return
+    if framework.db
+      if framework.db.migrated && framework.db.modules_cached
+        search_modules_sql(match)
+        return
+      else
+        print_warning("Module database cache not built yet, using slow search")
+      end
+    else
+      print_warning("Database not connected, using slow search")
     end
-
-    print_warning("Database not connected or cache not built, using slow search")
 
     tbl = generate_module_table("Matching Modules")
     [

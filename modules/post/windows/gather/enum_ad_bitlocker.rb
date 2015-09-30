@@ -39,7 +39,13 @@ class Metasploit3 < Msf::Post
     fields = datastore['FIELDS'].gsub(/\s+/, "").split(',')
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
-    q = query(search_filter, max_search, fields)
+
+    begin
+      q = query(search_filter, max_search, fields)
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      print_error(e.message)
+      return
+    end
 
     if q.nil? || q[:results].empty?
       print_status('No results found...')
