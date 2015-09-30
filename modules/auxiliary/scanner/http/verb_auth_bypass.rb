@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
     auth_code = res.code
 
-    print_status("[#{ip}:#{datastore['RPORT']}#{datastore['PATH']}] Authentication required: #{res.headers['WWW-Authenticate']}, resp code [#{auth_code}]")
+    print_status("[#{ip}:#{datastore['RPORT']}#{datastore['PATH']}] Authentication required: #{res.headers['WWW-Authenticate']}, resp code: [#{auth_code}]")
 
     report_note(
       :host   => ip,
