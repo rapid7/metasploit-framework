@@ -33,17 +33,39 @@ class Python < Extension
       ])
   end
 
+  def reset
+    request = Packet.create_request('python_reset')
+    client.send_request(request)
+
+    return true
+  end
+
   #
   # Dump the LSA secrets from the target machine.
   #
   # @return [Hash<Symbol,Object>]
-  def execute_string(code)
+  def execute_string(code, result_var)
     request = Packet.create_request('python_execute_string')
-    request.add_tlv(TLV_TYPE_PYTHON_STRING, code)
+    request.add_tlv(TLV_TYPE_PYTHON_CODE, code)
+    request.add_tlv(TLV_TYPE_PYTHON_RESULT_VAR, result_var) if result_var
 
     response = client.send_request(request)
 
-    response.get_tlv_value(TLV_TYPE_PYTHON_OUTPUT)
+    result = {
+      result: response.get_tlv_value(TLV_TYPE_PYTHON_RESULT),
+      stdout: "",
+      stderr: ""
+    }
+
+    response.each(TLV_TYPE_PYTHON_STDOUT) do |o|
+      result[:stdout] << o.value
+    end
+
+    response.each(TLV_TYPE_PYTHON_STDERR) do |e|
+      result[:stderr] << e.value
+    end
+
+    result
   end
 
 end
