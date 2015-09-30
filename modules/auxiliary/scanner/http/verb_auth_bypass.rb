@@ -51,13 +51,13 @@ class Metasploit3 < Msf::Auxiliary
     return if not res
 
     if not res.headers['WWW-Authenticate']
-      print_status("[#{ip}] Authentication not required. #{datastore['PATH']} #{res.code}")
+      print_status("[#{ip}:#{datastore['RPORT']}#{datastore['PATH']}] Authentication not required, resp code: [#{res.code}]")
       return
     end
 
     auth_code = res.code
 
-    print_status("#{ip} requires authentication: #{res.headers['WWW-Authenticate']} [#{auth_code}]")
+    print_status("[#{ip}:#{datastore['RPORT']}#{datastore['PATH']}] Authentication required: #{res.headers['WWW-Authenticate']}, resp code [#{auth_code}]")
 
     report_note(
       :host   => ip,
@@ -77,10 +77,10 @@ class Metasploit3 < Msf::Auxiliary
 
       next if not resauth
 
-      print_status("[#{ip}] Testing verb #{tv}, resp code: [#{resauth.code}]")
+      print_status("[#{ip}:#{datastore['RPORT']}#{datastore['PATH']}] Testing verb #{tv}, resp code: [#{resauth.code}]")
 
       if resauth.code != auth_code and resauth.code <= 302
-        print_good("[#{ip}] Possible authentication bypass with verb #{tv} code #{resauth.code}")
+        print_good("[#{ip}:#{datastore['RPORT']}#{datastore['PATH']}] Possible authentication bypass with verb #{tv}, resp code: [#{resauth.code}]")
 
         # Unable to use report_web_vuln as method is not in list of allowed methods.
 
