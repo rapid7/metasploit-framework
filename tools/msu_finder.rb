@@ -558,6 +558,10 @@ module MicrosoftPatch
     Download:
     The following trick demonstrates how you can automatically download the updates:
     ruby #{__FILE__} -q "ms15-100" -r x86 > /tmp/list.txt && wget -i /tmp/list.txt
+
+    Patch Extraction:
+    After downloading the patch, you can use the extract_msu.bat tool to automatically extract
+    Microsoft patches.
     |
     end
 
