@@ -294,7 +294,7 @@ module MicrosoftPatch
     # @param keyword [String] The product to look for.
     # @return [Array<String>]
     def find_msb_numbers(keyword)
-      product_list_matches = get_product_dropdown_list.select { |p| /^#{keyword}/ === p[:option_text] }
+      product_list_matches = get_product_dropdown_list.select { |p| Regexp.new(keyword) === p[:option_text] }
       if product_list_matches.empty?
         print_debug("Did not find a match from the product list, attempting a generic search")
         search_by_keyword(keyword)
@@ -573,7 +573,7 @@ module MicrosoftPatch
         opt.separator ''
         opt.separator 'Specific options:'
 
-        opt.on('-q', '--query <keyword>', 'Keyword to search') do |v|
+        opt.on('-q', '--query <keyword>', 'Regex keyword to search') do |v|
           options[:keyword] = v
         end
 
@@ -588,7 +588,7 @@ module MicrosoftPatch
           end
         end
 
-        opt.on('-r', '--regex <string>', '(Optional) Search filter') do |v|
+        opt.on('-r', '--regex <string>', '(Optional) Regex download links') do |v|
           options[:regex] = v
         end
 
