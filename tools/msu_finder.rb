@@ -499,7 +499,7 @@ module MicrosoftPatch
     # @param j [Hash] JSON data from Google.
     # @return [Fixnum]
     def get_next_index(j)
-      i = j['queries']['nextPage'] ? j['queries']['nextPage'].first['startIndex'] : 0
+      j['queries']['nextPage'] ? j['queries']['nextPage'].first['startIndex'] : 0
     end
 
     # @!attribute api_key
