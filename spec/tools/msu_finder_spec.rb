@@ -610,16 +610,47 @@ describe MicrosoftPatch do
 
   describe MicrosoftPatch::Module do
 
+    let(:msb) do
+      'ms15-100'
+    end
+
+    let(:expected_link) do
+      'http://download.microsoft.com/download/9/0/6/906BC7A4-7DF7-4C24-9F9D-3E801AA36ED3/Windows6.0-KB3087918-x86.msu'
+    end
+
+    before(:each) do
+      opts = { keyword: msb }
+      allow(MicrosoftPatch::OptsConsole).to receive(:get_parsed_options).and_return(opts)
+      allow_any_instance_of(MicrosoftPatch::PatchLinkCollector).to receive(:download_advisory).and_return(Rex::Proto::Http::Response.new)
+      allow_any_instance_of(MicrosoftPatch::PatchLinkCollector).to receive(:get_details_aspx).and_return([expected_link])
+      allow_any_instance_of(MicrosoftPatch::PatchLinkCollector).to receive(:get_download_page).and_return(Rex::Proto::Http::Response.new)
+      allow_any_instance_of(MicrosoftPatch::PatchLinkCollector).to receive(:get_download_links).and_return([expected_link])
+      allow_any_instance_of(MicrosoftPatch::Base).to receive(:print_debug)
+      allow_any_instance_of(MicrosoftPatch::Base).to receive(:print_error)
+    end
+
+    subject do
+      MicrosoftPatch::Module.new
+    end
+
     describe '#get_download_links' do
+      it 'returns an array of links' do
+        results = subject.get_download_links(msb)
+        expect(results).to be_kind_of(Array)
+        expect(results.first).to eq(expected_link)
+      end
     end
 
     describe '#google_search' do
+      it 'returns search results' do
+        skip('See rspec for MicrosoftPatch::GoogleMsbSearch#find_msb_numbers')
+      end
     end
 
     describe '#technet_search' do
-    end
-
-    describe '#run' do
+      it 'returns search results' do
+        skip('See rspec for MicrosoftPatch::TechnetMsbSearch#find_msb_numbers')
+      end
     end
 
   end
