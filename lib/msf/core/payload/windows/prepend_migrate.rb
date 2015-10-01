@@ -456,10 +456,11 @@ module Msf::Payload::Windows::PrependMigrate
       call rbp                  ; GetStartupInfoA( &si );
 
       jmp getcommand
-      gotcommand:
+    gotcommand:
       pop rsi                   ; rsi = address of process name (command line)
 
       ; create the process
+      push 0                    ; keep the stack aligned
       lea rdi,[rsp+0x110]       ; Offset of empty space for lpProcessInformation
       push rdi                  ; lpProcessInformation : write processinfo here
       lea rcx,[rsp+0x58]
