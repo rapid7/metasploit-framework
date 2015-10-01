@@ -405,10 +405,11 @@ module MicrosoftPatch
     # @return [Array<String>] MSB numbers
     def find_msb_numbers(keyword)
       msb_numbers = []
-      starting_index = 1
+      next_starting_index = 1
 
       begin
-        while ( starting_index = get_next_index( (results = search(keyword: keyword, starting_index: starting_index))) ) > 0
+        while
+          results = search(keyword: keyword, starting_index: next_starting_index)
           items = results['items']
           items.each do |item|
             title = item['title']
@@ -417,6 +418,8 @@ module MicrosoftPatch
               msb_numbers << msb.downcase
             end
           end
+          next_starting_index = get_next_index(results)
+          break if next_starting_index == 0
         end
       rescue RuntimeError => e
         print_error(e.message)
@@ -487,7 +490,7 @@ module MicrosoftPatch
     # @param j [Hash] JSON data from Google.
     # @return [Fixnum]
     def get_total_results(j)
-      j['queries']['request'].first['totalResults']
+      j['queries']['request'].first['totalResults'].to_i
     end
 
 
@@ -496,7 +499,7 @@ module MicrosoftPatch
     # @param j [Hash] JSON data from Google.
     # @return [Fixnum]
     def get_next_index(j)
-      j['queries']['nextPage'] ? j['queries']['nextPage'].first['startIndex'] : 0
+      i = j['queries']['nextPage'] ? j['queries']['nextPage'].first['startIndex'] : 0
     end
 
     # @!attribute api_key
