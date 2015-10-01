@@ -418,8 +418,15 @@ module MicrosoftPatch
               msb_numbers << msb.downcase
             end
           end
+
           next_starting_index = get_next_index(results)
-          break if next_starting_index == 0
+          next_page = results['queries']['nextPage']
+
+          # Google API Documentation:
+          # https://developers.google.com/custom-search/json-api/v1/using_rest
+          # "This role is not present if the current results are the last page.
+          # Note: This API returns up to the first 100 results only."
+          break if next_page.nil? || next_starting_index > 100
         end
       rescue RuntimeError => e
         print_error(e.message)
