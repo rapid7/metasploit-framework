@@ -13,13 +13,21 @@ describe MicrosoftPatch do
     allow(Rex::Proto::Http::Client).to receive(:new).and_return(cli)
   end
 
+  let(:technet) do
+    MicrosoftPatch::SiteInfo::TECHNET
+  end
+
+  let(:microsoft) do
+    MicrosoftPatch::SiteInfo::MICROSOFT
+  end
+
+  let(:googleapis) do
+    MicrosoftPatch::SiteInfo::GOOGLEAPIS
+  end
+
   describe MicrosoftPatch::SiteInfo do
     context 'Constants' do
       context 'TECHNET' do
-        let(:technet) do
-          MicrosoftPatch::SiteInfo::TECHNET
-        end
-
         it 'returns 157.56.148.23 as the IP' do
           expect(technet[:ip]).to eq('157.56.148.23')
         end
@@ -30,10 +38,6 @@ describe MicrosoftPatch do
       end
 
       context 'MICROSOFT' do
-        let(:microsoft) do
-          MicrosoftPatch::SiteInfo::MICROSOFT
-        end
-
         it 'returns 104.72.230.162 as the IP' do
           expect(microsoft[:ip]).to eq('104.72.230.162')
         end
@@ -44,10 +48,6 @@ describe MicrosoftPatch do
       end
 
       context 'GOOGLEAPIS' do
-        let(:googleapis) do
-          MicrosoftPatch::SiteInfo::GOOGLEAPIS
-        end
-
         it 'returns 74.125.28.95 as the IP' do
           expect(googleapis[:ip]).to eq('74.125.28.95')
         end
@@ -257,37 +257,210 @@ describe MicrosoftPatch do
     end
 
     describe '#follow_redirect' do
+      let(:expected_header) do
+        { 'Location' => 'http://example.com/' }
+      end
+
+      let(:http_res) do
+        res = Rex::Proto::Http::Response.new
+        allow(res).to receive(:headers).and_return(expected_header)
+        res
+      end
+
+      it 'goes to a location based on the Location HTTP header' do
+        cli = Rex::Proto::Http::Client.new('127.0.0.1')
+        allow(cli).to receive(:connect)
+        allow(cli).to receive(:request_cgi)
+        allow(cli).to receive(:send_recv).and_return(http_res)
+        allow(Rex::Proto::Http::Client).to receive(:new).and_return(cli)
+
+        expect(subject.follow_redirect(technet, http_res).headers).to eq(expected_header)
+      end
     end
 
     describe '#get_download_page' do
+      it 'returns a Rex::Proto::Http::Response object' do
+        uri = URI('http://www.example.com/')
+        expect(subject.get_download_page(uri)).to be_kind_of(Rex::Proto::Http::Response)
+      end
     end
 
     describe '#get_download_links' do
+      let(:confirm_aspx) do
+        %Q|
+        <html>
+        <a href="https://www.microsoft.com/en-us/download/confirmation.aspx?id=1">Download</a>
+        </html>
+        |
+      end
+
+      let(:expected_link) do
+        'http://download.microsoft.com/download/9/0/6/906BC7A4-7DF7-4C24-9F9D-3E801AA36ED3/Windows6.0-KB3087918-x86.msu'
+      end
+
+      let(:download_html_res) do
+        html = %Q|
+        <html>
+        <a href="#{expected_link}">Click here</a>
+        </html>
+        |
+
+        res = Rex::Proto::Http::Response
+        allow(res).to receive(:body).and_return(html)
+        res
+      end
+
+      it 'returns an array of links' do
+        cli = Rex::Proto::Http::Client.new('127.0.0.1')
+        allow(cli).to receive(:connect)
+        allow(cli).to receive(:request_cgi)
+        allow(cli).to receive(:send_recv).and_return(download_html_res)
+        allow(Rex::Proto::Http::Client).to receive(:new).and_return(cli)
+
+        expect(subject.get_download_links(confirm_aspx).first).to eq(expected_link)
+      end
     end
 
     describe '#has_advisory?' do
+      it 'returns true if the page is found' do
+        res = Rex::Proto::Http::Response.new
+        expect(subject.has_advisory?(res)).to be_truthy
+      end
+
+      it 'returns false if the page is not found' do
+        html = %Q|
+        <html>
+        We are sorry. The page you requested cannot be found
+        </html>
+        |
+
+        res = Rex::Proto::Http::Response.new
+        allow(res).to receive(:body).and_return(html)
+        expect(subject.has_advisory?(res)).to be_falsey
+      end
     end
 
     describe '#is_valid_msb?' do
+      let(:good_msb) do
+        'MS15-100'
+      end
+
+      let(:bad_msb) do
+        'MS15-01'
+      end
+
+      it 'returns true if the MSB format is correct' do
+        expect(subject.is_valid_msb?(good_msb)).to be_truthy
+      end
+
+      it 'returns false if the MSB format is incorrect' do
+        expect(subject.is_valid_msb?(bad_msb)).to be_falsey
+      end
+
     end
 
   end
 
   describe MicrosoftPatch::TechnetMsbSearch do
 
+    subject do
+      MicrosoftPatch::TechnetMsbSearch.new
+    end
+
+    before(:each) do
+      allow_any_instance_of(MicrosoftPatch::Base).to receive(:print_debug)
+      allow_any_instance_of(MicrosoftPatch::Base).to receive(:send_http_request) { |info_obj, info_opts, opts|
+        case opts['uri']
+        when /\/en\-us\/security\/bulletin\/dn602597\.aspx/
+          html = %Q|
+          <div class="sb-search">
+          <div class="SearchBox">
+          <input type="text" id="txtSearch" title="Search Security Bulletins" value="Search Security Bulletins" />
+          <input type="button" id="btnSearch" />
+          </div>
+          <select id="productDropdown">
+          <option value="-1">All</option>
+          <option value="10175">Active Directory</option>
+          <option value="10401">Windows Internet Explorer 10</option>
+          <option value="10486">Windows Internet Explorer 11</option>
+          <option value="1282">Windows Internet Explorer 7</option>
+          <option value="1233">Windows Internet Explorer 8</option>
+          <option value="10054">Windows Internet Explorer 9</option>
+          </select>
+          </div>
+          |
+        when /\/security\/bulletin\/services\/GetBulletins/
+          html = %Q|{
+            "l":1,
+            "b":[
+              {
+                "d":"9/8/2015",
+                "Id":"MS15-100",
+                "KB":"3087918",
+                "Title":"Vulnerability in Windows Media Center Could Allow Remote Code Execution",
+                "Rating":"Important"
+              }
+            ]
+          }
+          |
+        else
+          html = ''
+        end
+
+        res = Rex::Proto::Http::Response.new
+        allow(res).to receive(:body).and_return(html)
+        res
+      }
+    end
+
+    let(:ie10) do
+      'Windows Internet Explorer 10'
+    end
+
+    let(:ie10_id) do
+      10401
+    end
+
     describe '#find_msb_numbers' do
+      it 'returns an array of found MSB numbers' do
+        msb = subject.find_msb_numbers(ie10)
+        expect(msb).to be_kind_of(Array)
+        expect(msb.first).to eq('ms15-100')
+      end
     end
 
     describe '#search' do
+      it 'returns search results in JSON format' do
+        results = subject.search(ie10)
+        expect(results).to be_kind_of(Hash)
+        expect(results['b'].first['Id']).to eq('MS15-100')
+      end
     end
 
     describe '#search_by_product_ids' do
+      it 'returns an array of found MSB numbers' do
+        results = subject.search_by_product_ids([ie10_id])
+        expect(results).to be_kind_of(Array)
+        expect(results.first).to eq('ms15-100')
+      end
     end
 
     describe '#search_by_keyword' do
+      it 'returns an array of found MSB numbers' do
+        results = subject.search_by_keyword('ms15-100')
+        expect(results).to be_kind_of(Array)
+        expect(results.first).to eq('ms15-100')
+      end
     end
 
     describe '#get_product_dropdown_list' do
+      it 'returns an array of products' do
+        results = subject.get_product_dropdown_list
+        expect(results).to be_kind_of(Array)
+        expect(results.first).to be_kind_of(Hash)
+        expected_hash = {:option_value=>"10175", :option_text=>"Active Directory"}
+        expect(results.first).to eq(expected_hash)
+      end
     end
 
   end
