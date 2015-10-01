@@ -1777,7 +1777,7 @@ class Db
       case arg
       when '-h','--help'
         print_line "Usage:"
-        print_line "    db_export -f <format> [-a] [filename]"
+        print_line "    db_export -f <format> [filename]"
         print_line "    Format can be one of: #{export_formats.join(", ")}"
       when '-f','--format'
         format = args.shift.to_s.downcase
