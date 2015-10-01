@@ -16,7 +16,7 @@ PATH
       packetfu (= 1.1.11)
       railties
       rb-readline-r7
-      recog (= 2.0.6)
+      recog (= 2.0.14)
       robots
       rubyzip (~> 1.1)
       sqlite3
@@ -178,7 +178,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (10.4.2)
     rb-readline-r7 (0.5.2.0)
-    recog (2.0.6)
+    recog (2.0.14)
       nokogiri
     redcarpet (3.2.3)
     rkelly-remix (0.0.6)
