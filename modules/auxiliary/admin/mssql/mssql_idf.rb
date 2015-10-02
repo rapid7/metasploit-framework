@@ -94,10 +94,16 @@ class Metasploit3 < Msf::Auxiliary
     sql += "CLOSE table_cursor "
     sql += "DEALLOCATE table_cursor "
 
-    if mssql_login_datastore
-      result = mssql_query(sql, false)
-    else
-      print_error('Login failed')
+    begin
+      if mssql_login_datastore
+        result = mssql_query(sql, false)
+        column_data = result[:rows]
+      else
+        print_error('Login failed')
+        return
+      end
+    rescue Rex::ConnectionRefused => e
+      print_error("Connection failed: #{e}")
       return
     end
 
