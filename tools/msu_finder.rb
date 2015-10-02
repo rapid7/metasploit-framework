@@ -21,7 +21,7 @@ require 'uri'
 require 'json'
 require 'optparse'
 
-module MicrosoftPatch
+module MicrosoftPatchFinder
 
   module SiteInfo
     TECHNET = {
@@ -41,7 +41,7 @@ module MicrosoftPatch
   end
 
   # This class provides whatever other classes need.
-  class Base
+  module Helper
 
     # Prints a debug message.
     #
@@ -77,7 +77,7 @@ module MicrosoftPatch
 
     # Sends an HTTP request with Rex.
     #
-    # @param rhost [Hash] Information about the target host. Use MicrosoftPatch::SiteInfo.
+    # @param rhost [Hash] Information about the target host. Use MicrosoftPatchFinder::SiteInfo.
     # @option rhost [String] :vhost
     # @option rhost [String] :ip IPv4 address
     # @param opts [Hash] Information about the Rex request.
@@ -114,7 +114,8 @@ module MicrosoftPatch
 
 
   # Collects MSU download links from Technet.
-  class PatchLinkCollector < Base
+  class PatchLinkCollector
+    include MicrosoftPatchFinder::Helper
 
     # Returns a response of an advisory page.
     #
@@ -197,7 +198,7 @@ module MicrosoftPatch
 
     # Returns the redirected page.
     #
-    # @param rhost [Hash] From MicrosoftPatch::SiteInfo
+    # @param rhost [Hash] From MicrosoftPatchFinder::SiteInfo
     # @param res [Rex::Proto::Http::Response]
     # @return [Rex::Proto::Http::Response]
     def follow_redirect(rhost, res)
@@ -278,7 +279,9 @@ module MicrosoftPatch
 
 
   # A class that searches advisories from Technet.
-  class TechnetMsbSearch < Base
+  class TechnetMsbSearch
+    include MicrosoftPatchFinder::Helper
+
     def initialize
       opts = {
         'method' => 'GET',
@@ -387,7 +390,9 @@ module MicrosoftPatch
     attr_reader :firstpage
   end
 
-  class GoogleMsbSearch < Base
+  class GoogleMsbSearch
+    include MicrosoftPatchFinder::Helper
+
     # API Doc:
     # https://developers.google.com/custom-search/json-api/v1/using_rest
     # Known bug:
@@ -634,11 +639,12 @@ module MicrosoftPatch
     end
   end
 
-  class Module < Base
+  class Driver
+    include MicrosoftPatchFinder::Helper
 
     def initialize
       begin
-        @args = MicrosoftPatch::OptsConsole.get_parsed_options
+        @args = MicrosoftPatchFinder::OptsConsole.get_parsed_options
       rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
         print_error(e.message)
         exit
@@ -651,7 +657,7 @@ module MicrosoftPatch
     # @param regex [String] The regex pattern to use to collect specific download URLs.
     # @return [Array<String>] Download links
     def get_download_links(msb, regex=nil)
-      msft = MicrosoftPatch::PatchLinkCollector.new
+      msft = MicrosoftPatchFinder::PatchLinkCollector.new
 
       unless msft.is_valid_msb?(msb)
         print_error "Not a valid MSB format."
@@ -695,9 +701,9 @@ module MicrosoftPatch
     # @param keyword [String] The keyword to search
     # @param api_key [String] Google API key
     # @param cx [String] Google Search Engine Key
-    # @return [Array<String>] See MicrosoftPatch::GoogleMsbSearch#find_msb_numbers
+    # @return [Array<String>] See MicrosoftPatchFinder::GoogleMsbSearch#find_msb_numbers
     def google_search(keyword, api_key, cx)
-      search = MicrosoftPatch::GoogleMsbSearch.new(api_key: api_key, search_engine_id: cx)
+      search = MicrosoftPatchFinder::GoogleMsbSearch.new(api_key: api_key, search_engine_id: cx)
       search.find_msb_numbers(keyword)
     end
 
@@ -705,9 +711,9 @@ module MicrosoftPatch
     # Performs a search via Technet
     #
     # @param keyword [String] The keyword to search
-    # @return [Array<String>] See MicrosoftPatch::TechnetMsbSearch#find_msb_numbers
+    # @return [Array<String>] See MicrosoftPatchFinder::TechnetMsbSearch#find_msb_numbers
     def technet_search(keyword)
-      search = MicrosoftPatch::TechnetMsbSearch.new
+      search = MicrosoftPatchFinder::TechnetMsbSearch.new
       search.find_msb_numbers(keyword)
     end
 
@@ -750,7 +756,7 @@ end
 
 
 if __FILE__ == $PROGRAM_NAME
-  mod = MicrosoftPatch::Module.new
+  mod = MicrosoftPatchFinder::Driver.new
   begin
     mod.run
   rescue Interrupt
