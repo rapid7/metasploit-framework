@@ -81,6 +81,7 @@ module MicrosoftPatchFinder
     # @option rhost [String] :vhost
     # @option rhost [String] :ip IPv4 address
     # @param opts [Hash] Information about the Rex request.
+    # @raise [RuntimeError] Failure to make a request.
     # @return [Rex::Proto::Http::Response]
     def send_http_request(rhost, opts={})
       res = nil
@@ -532,13 +533,10 @@ module MicrosoftPatchFinder
     #{__FILE__} -q "Internet Explorer"
 
     Searching advisories via Technet:
-    When you submit a query, the Technet search engine will first look it up from a product list.
-    If there is more than one match found, then the script will collect all of the advisories.
-    For example, the current product list has Internet Explorer 10 and 9, and if the query is
-    "Internet Explorer", then it will return results for both of them. If there's no match found,
-    then the Technet search engine will try a more generic search that doesn't use the product list.
-    But keep in mind this tends to return irrelevant results. If the generic search function kicks
-    in, you can use it to search via the MSB, KB, or even the CVE number.
+    When you submit a query, the Technet search engine will first look it up from a product list,
+    and then return all the advisories that include the keyword you are looking for. If there's
+    no match from the product list, then the script will try a generic search. The generic method
+    also means you can search by MSB, KB, or even the CVE number.
 
     Searching advisories via Google:
     Searching via Google requires an API key and an Search Engine ID from Google. To obtain these,
