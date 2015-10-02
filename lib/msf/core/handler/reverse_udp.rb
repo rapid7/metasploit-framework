@@ -155,6 +155,7 @@ module ReverseUdp
           # end
 
           client = Rex::Socket.create_udp(cli_opts)
+          client.extend(Rex::IO::Stream)
           if ! client
             wlog("ReverseUdpHandlerListener-#{local_port}: No client received in call to accept, exiting...")
             break
