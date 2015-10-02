@@ -725,10 +725,10 @@ module MicrosoftPatchFinder
 
       case args[:search_engine]
       when :technet
-        print_debug("Searching advisories for #{keyword} via Technet")
+        print_debug("Searching advisories that include #{keyword} via Technet")
         msb_numbers = technet_search(keyword)
       when :google
-        print_debug("Searching advisories for #{keyword} via Google")
+        print_debug("Searching advisories that include #{keyword} via Google")
         msb_numbers = google_search(keyword, api_key, cx)
       end
 
