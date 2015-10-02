@@ -64,7 +64,8 @@ begin
       case params.ssl_version
       when 'SSL2', :SSLv2
         version = :SSLv2
-      when 'SSL23', :SSLv23
+      # 'TLS' will be the new name for autonegotation with newer versions of OpenSSL
+      when 'SSL23', :SSLv23, 'TLS'
         version = :SSLv23
       when 'SSL3', :SSLv3
         version = :SSLv3
