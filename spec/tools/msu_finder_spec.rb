@@ -3,7 +3,7 @@ load Metasploit::Framework.root.join('tools/msu_finder.rb').to_path
 require 'nokogiri'
 require 'uri'
 
-describe MicrosoftPatch do
+describe MicrosoftPatchFinder do
 
   before(:each) do
     cli = Rex::Proto::Http::Client.new('127.0.0.1')
@@ -14,18 +14,18 @@ describe MicrosoftPatch do
   end
 
   let(:technet) do
-    MicrosoftPatch::SiteInfo::TECHNET
+    MicrosoftPatchFinder::SiteInfo::TECHNET
   end
 
   let(:microsoft) do
-    MicrosoftPatch::SiteInfo::MICROSOFT
+    MicrosoftPatchFinder::SiteInfo::MICROSOFT
   end
 
   let(:googleapis) do
-    MicrosoftPatch::SiteInfo::GOOGLEAPIS
+    MicrosoftPatchFinder::SiteInfo::GOOGLEAPIS
   end
 
-  describe MicrosoftPatch::SiteInfo do
+  describe MicrosoftPatchFinder::SiteInfo do
     context 'Constants' do
       context 'TECHNET' do
         it 'returns 157.56.148.23 as the IP' do
@@ -59,7 +59,7 @@ describe MicrosoftPatch do
     end
   end
 
-  describe MicrosoftPatch::Base do
+  describe MicrosoftPatchFinder::Helper do
 
     def get_stdout(&block)
       out = $stdout
@@ -84,7 +84,9 @@ describe MicrosoftPatch do
     end
 
     subject do
-      MicrosoftPatch::Base.new
+      mod = Object.new
+      mod.extend MicrosoftPatchFinder::Helper
+      mod
     end
 
     describe '#print_debug' do
@@ -119,14 +121,14 @@ describe MicrosoftPatch do
     describe '#send_http_request' do
       it 'returns a Rex::Proto::Http::Response object' do
         allow(subject).to receive(:print_debug)
-        res = subject.send_http_request(MicrosoftPatch::SiteInfo::TECHNET)
+        res = subject.send_http_request(MicrosoftPatchFinder::SiteInfo::TECHNET)
         expect(res).to be_kind_of(Rex::Proto::Http::Response)
       end
     end
 
   end
 
-  describe MicrosoftPatch::PatchLinkCollector do
+  describe MicrosoftPatchFinder::PatchLinkCollector do
 
     let(:ms15_100_html) do
       %Q|
@@ -199,7 +201,7 @@ describe MicrosoftPatch do
     end
 
     subject do
-      MicrosoftPatch::PatchLinkCollector.new
+      MicrosoftPatchFinder::PatchLinkCollector.new
     end
 
     before(:each) do
@@ -361,15 +363,15 @@ describe MicrosoftPatch do
 
   end
 
-  describe MicrosoftPatch::TechnetMsbSearch do
+  describe MicrosoftPatchFinder::TechnetMsbSearch do
 
     subject do
-      MicrosoftPatch::TechnetMsbSearch.new
+      MicrosoftPatchFinder::TechnetMsbSearch.new
     end
 
     before(:each) do
-      allow_any_instance_of(MicrosoftPatch::Base).to receive(:print_debug)
-      allow_any_instance_of(MicrosoftPatch::Base).to receive(:send_http_request) { |info_obj, info_opts, opts|
+      allow_any_instance_of(MicrosoftPatchFinder::TechnetMsbSearch).to receive(:print_debug)
+      allow_any_instance_of(MicrosoftPatchFinder::TechnetMsbSearch).to receive(:send_http_request) { |info_obj, info_opts, opts|
         case opts['uri']
         when /\/en\-us\/security\/bulletin\/dn602597\.aspx/
           html = %Q|
@@ -465,10 +467,10 @@ describe MicrosoftPatch do
 
   end
 
-  describe MicrosoftPatch::GoogleMsbSearch do
+  describe MicrosoftPatchFinder::GoogleMsbSearch do
 
     subject do
-      MicrosoftPatch::GoogleMsbSearch.new
+      MicrosoftPatchFinder::GoogleMsbSearch.new
     end
 
     let(:json_data) do
@@ -555,8 +557,8 @@ describe MicrosoftPatch do
     end
 
     before(:each) do
-      allow_any_instance_of(MicrosoftPatch::Base).to receive(:print_debug)
-      allow_any_instance_of(MicrosoftPatch::Base).to receive(:send_http_request) { |info_obj, info_opts, opts|
+      allow_any_instance_of(MicrosoftPatchFinder::GoogleMsbSearch).to receive(:print_debug)
+      allow_any_instance_of(MicrosoftPatchFinder::GoogleMsbSearch).to receive(:send_http_request) { |info_obj, info_opts, opts|
         res = Rex::Proto::Http::Response.new
         allow(res).to receive(:body).and_return(json_data)
         res
@@ -608,7 +610,7 @@ describe MicrosoftPatch do
 
   end
 
-  describe MicrosoftPatch::Module do
+  describe MicrosoftPatchFinder::Driver do
 
     let(:msb) do
       'ms15-100'
@@ -620,17 +622,19 @@ describe MicrosoftPatch do
 
     before(:each) do
       opts = { keyword: msb }
-      allow(MicrosoftPatch::OptsConsole).to receive(:get_parsed_options).and_return(opts)
-      allow_any_instance_of(MicrosoftPatch::PatchLinkCollector).to receive(:download_advisory).and_return(Rex::Proto::Http::Response.new)
-      allow_any_instance_of(MicrosoftPatch::PatchLinkCollector).to receive(:get_details_aspx).and_return([expected_link])
-      allow_any_instance_of(MicrosoftPatch::PatchLinkCollector).to receive(:get_download_page).and_return(Rex::Proto::Http::Response.new)
-      allow_any_instance_of(MicrosoftPatch::PatchLinkCollector).to receive(:get_download_links).and_return([expected_link])
-      allow_any_instance_of(MicrosoftPatch::Base).to receive(:print_debug)
-      allow_any_instance_of(MicrosoftPatch::Base).to receive(:print_error)
+      allow(MicrosoftPatchFinder::OptsConsole).to receive(:get_parsed_options).and_return(opts)
+      allow_any_instance_of(MicrosoftPatchFinder::PatchLinkCollector).to receive(:download_advisory).and_return(Rex::Proto::Http::Response.new)
+      allow_any_instance_of(MicrosoftPatchFinder::PatchLinkCollector).to receive(:get_details_aspx).and_return([expected_link])
+      allow_any_instance_of(MicrosoftPatchFinder::PatchLinkCollector).to receive(:get_download_page).and_return(Rex::Proto::Http::Response.new)
+      allow_any_instance_of(MicrosoftPatchFinder::PatchLinkCollector).to receive(:get_download_links).and_return([expected_link])
+      allow_any_instance_of(MicrosoftPatchFinder::Driver).to receive(:print_debug)
+      allow_any_instance_of(MicrosoftPatchFinder::Driver).to receive(:print_error)
+      allow_any_instance_of(MicrosoftPatchFinder::PatchLinkCollector).to receive(:print_debug)
+      allow_any_instance_of(MicrosoftPatchFinder::PatchLinkCollector).to receive(:print_error)
     end
 
     subject do
-      MicrosoftPatch::Module.new
+      MicrosoftPatchFinder::Driver.new
     end
 
     describe '#get_download_links' do
@@ -643,13 +647,13 @@ describe MicrosoftPatch do
 
     describe '#google_search' do
       it 'returns search results' do
-        skip('See rspec for MicrosoftPatch::GoogleMsbSearch#find_msb_numbers')
+        skip('See rspec for MicrosoftPatchFinder::GoogleMsbSearch#find_msb_numbers')
       end
     end
 
     describe '#technet_search' do
       it 'returns search results' do
-        skip('See rspec for MicrosoftPatch::TechnetMsbSearch#find_msb_numbers')
+        skip('See rspec for MicrosoftPatchFinder::TechnetMsbSearch#find_msb_numbers')
       end
     end
 
