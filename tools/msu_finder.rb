@@ -40,7 +40,7 @@ module MicrosoftPatchFinder
     }
   end
 
-  # This class provides whatever other classes need.
+  # This provides whatever other classes need.
   module Helper
 
     # Prints a debug message.
@@ -764,3 +764,10 @@ if __FILE__ == $PROGRAM_NAME
     $stdout.puts "Good bye"
   end
 end
+
+=begin
+TODO:
+  * Make a gem
+  * Make it generic in order to manage different kind of patches and providers
+  * Multithreading
+=end
