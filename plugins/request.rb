@@ -93,7 +93,8 @@ class Plugin::Requests < Msf::Plugin
       end
     end
 
-    # Parse the provided arguments for making HTTPS requests.
+    # Parse the provided arguments for making HTTPS requests. The argument flags
+    # are intended to be similar to the curl utility.
     #
     # @param args [Array<String>] The command line arguments to parse.
     # @param type [String] The protocol type that the request is for.
@@ -104,7 +105,8 @@ class Plugin::Requests < Msf::Plugin
       parse_args_http(args, type)
     end
 
-    # Parse the provided arguments for making HTTP requests.
+    # Parse the provided arguments for making HTTP requests. The argument flags
+    # are intended to be similar to the curl utility.
     #
     # @param args [Array<String>] The command line arguments to parse.
     # @param type [String] The protocol type that the request is for.
@@ -209,6 +211,7 @@ class Plugin::Requests < Msf::Plugin
     # @option opts [Hash] :headers A hash of additional headers to include in
     #   the request.
     # @option opts [String] :method The HTTP method to use in the request.
+    # @option opts [#write] :output_file A file to write the response data to.
     # @option opts [Boolean] :print_body Whether or not to print the body of the
     #   response.
     # @option opts [Boolean] :print_headers Whether or not to print the headers
@@ -239,6 +242,7 @@ class Plugin::Requests < Msf::Plugin
     # @option opts [Hash] :headers A hash of additional headers to include in
     #   the request.
     # @option opts [String] :method The HTTP method to use in the request.
+    # @option opts [#write] :output_file A file to write the response data to.
     # @option opts [Boolean] :print_body Whether or not to print the body of the
     #   response.
     # @option opts [Boolean] :print_headers Whether or not to print the headers
@@ -314,7 +318,9 @@ class Plugin::Requests < Msf::Plugin
     # Output lines based on the provided options. Data is either printed to the
     # console or written to a file. Trailing new lines are removed.
     #
-    # @param opts [Array<Symbol>] The options as parsed from the command line.
+    # @param opts [Hash] The options as parsed from parse_args.
+    # @option opts [#write, nil] :output_file An optional file to write the
+    #   output to.
     # @param line [String] The string to output.
     # @return [nil]
     def output_line(opts, line)
