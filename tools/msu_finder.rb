@@ -435,7 +435,7 @@ module MicrosoftPatchFinder
         end
       rescue RuntimeError => e
         print_error(e.message)
-        return msb_numbers
+        return msb_numbers.uniq
       end
 
       msb_numbers.uniq

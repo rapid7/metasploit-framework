@@ -3,7 +3,7 @@ load Metasploit::Framework.root.join('tools/msu_finder.rb').to_path
 require 'nokogiri'
 require 'uri'
 
-describe MicrosoftPatch do
+describe MicrosoftPatchFinder do
 
   before(:each) do
     cli = Rex::Proto::Http::Client.new('127.0.0.1')
