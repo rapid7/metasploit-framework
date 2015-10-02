@@ -83,7 +83,7 @@ describe MicrosoftPatchFinder do
       fake.string
     end
 
-    subject do
+    subject(:object_helper) do
       mod = Object.new
       mod.extend MicrosoftPatchFinder::Helper
       mod
@@ -91,21 +91,21 @@ describe MicrosoftPatchFinder do
 
     describe '#print_debug' do
       it 'prints a [DEBUG] message' do
-        output = get_stderr { subject.print_debug }
+        output = get_stderr { object_helper.print_debug }
         expect(output).to include('[DEBUG]')
       end
     end
 
     describe '#print_status' do
       it 'prints a [*] message' do
-        output = get_stderr { subject.print_status }
+        output = get_stderr { object_helper.print_status }
         expect(output).to include('[*]')
       end
     end
 
     describe '#print_error' do
       it 'prints an [ERROR] message' do
-        output = get_stderr { subject.print_error }
+        output = get_stderr { object_helper.print_error }
         expect(output).to include('[ERROR]')
       end
     end
@@ -113,15 +113,15 @@ describe MicrosoftPatchFinder do
     describe '#print_line' do
       it 'prints a regular message' do
         msg = 'TEST'
-        output = get_stdout { subject.print_line(msg) }
+        output = get_stdout { object_helper.print_line(msg) }
         expect(output).to eq("#{msg}\n")
       end
     end
 
     describe '#send_http_request' do
       it 'returns a Rex::Proto::Http::Response object' do
-        allow(subject).to receive(:print_debug)
-        res = subject.send_http_request(MicrosoftPatchFinder::SiteInfo::TECHNET)
+        allow(object_helper).to receive(:print_debug)
+        res = object_helper.send_http_request(MicrosoftPatchFinder::SiteInfo::TECHNET)
         expect(res).to be_kind_of(Rex::Proto::Http::Response)
       end
     end
@@ -200,17 +200,17 @@ describe MicrosoftPatchFinder do
       |
     end
 
-    subject do
+    subject(:patch_link_collector) do
       MicrosoftPatchFinder::PatchLinkCollector.new
     end
 
     before(:each) do
-      allow(subject).to receive(:print_debug)
+      allow(patch_link_collector).to receive(:print_debug)
     end
 
     describe '#download_advisory' do
       it 'returns a Rex::Proto::Http::Response object' do
-        res = subject.download_advisory('ms15-100')
+        res = patch_link_collector.download_advisory('ms15-100')
         expect(res).to be_kind_of(Rex::Proto::Http::Response)
       end
     end
@@ -219,25 +219,25 @@ describe MicrosoftPatchFinder do
 
       it 'returns a pattern for ms15-100' do
         expected_pattern = '//div[@id="mainBody"]//div//div[@class="sectionblock"]//table//a'
-        p = subject.get_appropriate_pattern(::Nokogiri::HTML(ms15_100_html))
+        p = patch_link_collector.get_appropriate_pattern(::Nokogiri::HTML(ms15_100_html))
         expect(p).to eq(expected_pattern)
       end
 
       it 'returns a pattern for ms07-029' do
         expected_pattern = '//div[@id="mainBody"]//ul//li//a[contains(text(), "Download the update")]'
-        p = subject.get_appropriate_pattern(::Nokogiri::HTML(ms07_029_html))
+        p = patch_link_collector.get_appropriate_pattern(::Nokogiri::HTML(ms07_029_html))
         expect(p).to eq(expected_pattern)
       end
 
       it 'returns a pattern for ms03-039' do
         expected_pattern = '//div[@id="mainBody"]//div//div[@class="sectionblock"]//ul//li//a'
-        p = subject.get_appropriate_pattern(::Nokogiri::HTML(ms03_039_html))
+        p = patch_link_collector.get_appropriate_pattern(::Nokogiri::HTML(ms03_039_html))
         expect(p).to eq(expected_pattern)
       end
 
       it 'returns a pattern for ms07-030' do
         expected_pattern = '//div[@id="mainBody"]//table//a'
-        p = subject.get_appropriate_pattern(::Nokogiri::HTML(ms07_030_html))
+        p = patch_link_collector.get_appropriate_pattern(::Nokogiri::HTML(ms07_030_html))
         expect(p).to eq(expected_pattern)
       end
     end
@@ -250,7 +250,7 @@ describe MicrosoftPatchFinder do
       end
 
       it 'returns an URI object to a details aspx' do
-        links = subject.get_details_aspx(details_aspx)
+        links = patch_link_collector.get_details_aspx(details_aspx)
         expected_uri = 'https://www.microsoft.com/downloads/details.aspx?familyid=1'
         expect(links.length).to eq(1)
         expect(links.first).to be_kind_of(URI)
@@ -276,14 +276,14 @@ describe MicrosoftPatchFinder do
         allow(cli).to receive(:send_recv).and_return(http_res)
         allow(Rex::Proto::Http::Client).to receive(:new).and_return(cli)
 
-        expect(subject.follow_redirect(technet, http_res).headers).to eq(expected_header)
+        expect(patch_link_collector.follow_redirect(technet, http_res).headers).to eq(expected_header)
       end
     end
 
     describe '#get_download_page' do
       it 'returns a Rex::Proto::Http::Response object' do
         uri = URI('http://www.example.com/')
-        expect(subject.get_download_page(uri)).to be_kind_of(Rex::Proto::Http::Response)
+        expect(patch_link_collector.get_download_page(uri)).to be_kind_of(Rex::Proto::Http::Response)
       end
     end
 
@@ -319,14 +319,14 @@ describe MicrosoftPatchFinder do
         allow(cli).to receive(:send_recv).and_return(download_html_res)
         allow(Rex::Proto::Http::Client).to receive(:new).and_return(cli)
 
-        expect(subject.get_download_links(confirm_aspx).first).to eq(expected_link)
+        expect(patch_link_collector.get_download_links(confirm_aspx).first).to eq(expected_link)
       end
     end
 
     describe '#has_advisory?' do
       it 'returns true if the page is found' do
         res = Rex::Proto::Http::Response.new
-        expect(subject.has_advisory?(res)).to be_truthy
+        expect(patch_link_collector.has_advisory?(res)).to be_truthy
       end
 
       it 'returns false if the page is not found' do
@@ -338,7 +338,7 @@ describe MicrosoftPatchFinder do
 
         res = Rex::Proto::Http::Response.new
         allow(res).to receive(:body).and_return(html)
-        expect(subject.has_advisory?(res)).to be_falsey
+        expect(patch_link_collector.has_advisory?(res)).to be_falsey
       end
     end
 
@@ -352,11 +352,11 @@ describe MicrosoftPatchFinder do
       end
 
       it 'returns true if the MSB format is correct' do
-        expect(subject.is_valid_msb?(good_msb)).to be_truthy
+        expect(patch_link_collector.is_valid_msb?(good_msb)).to be_truthy
       end
 
       it 'returns false if the MSB format is incorrect' do
-        expect(subject.is_valid_msb?(bad_msb)).to be_falsey
+        expect(patch_link_collector.is_valid_msb?(bad_msb)).to be_falsey
       end
 
     end
@@ -365,7 +365,7 @@ describe MicrosoftPatchFinder do
 
   describe MicrosoftPatchFinder::TechnetMsbSearch do
 
-    subject do
+    subject(:technet_msb_search) do
       MicrosoftPatchFinder::TechnetMsbSearch.new
     end
 
@@ -425,7 +425,7 @@ describe MicrosoftPatchFinder do
 
     describe '#find_msb_numbers' do
       it 'returns an array of found MSB numbers' do
-        msb = subject.find_msb_numbers(ie10)
+        msb = technet_msb_search.find_msb_numbers(ie10)
         expect(msb).to be_kind_of(Array)
         expect(msb.first).to eq('ms15-100')
       end
@@ -433,7 +433,7 @@ describe MicrosoftPatchFinder do
 
     describe '#search' do
       it 'returns search results in JSON format' do
-        results = subject.search(ie10)
+        results = technet_msb_search.search(ie10)
         expect(results).to be_kind_of(Hash)
         expect(results['b'].first['Id']).to eq('MS15-100')
       end
@@ -441,7 +441,7 @@ describe MicrosoftPatchFinder do
 
     describe '#search_by_product_ids' do
       it 'returns an array of found MSB numbers' do
-        results = subject.search_by_product_ids([ie10_id])
+        results = technet_msb_search.search_by_product_ids([ie10_id])
         expect(results).to be_kind_of(Array)
         expect(results.first).to eq('ms15-100')
       end
@@ -449,7 +449,7 @@ describe MicrosoftPatchFinder do
 
     describe '#search_by_keyword' do
       it 'returns an array of found MSB numbers' do
-        results = subject.search_by_keyword('ms15-100')
+        results = technet_msb_search.search_by_keyword('ms15-100')
         expect(results).to be_kind_of(Array)
         expect(results.first).to eq('ms15-100')
       end
@@ -457,7 +457,7 @@ describe MicrosoftPatchFinder do
 
     describe '#get_product_dropdown_list' do
       it 'returns an array of products' do
-        results = subject.get_product_dropdown_list
+        results = technet_msb_search.get_product_dropdown_list
         expect(results).to be_kind_of(Array)
         expect(results.first).to be_kind_of(Hash)
         expected_hash = {:option_value=>"10175", :option_text=>"Active Directory"}
@@ -469,7 +469,7 @@ describe MicrosoftPatchFinder do
 
   describe MicrosoftPatchFinder::GoogleMsbSearch do
 
-    subject do
+    subject(:google_msb_search) do
       MicrosoftPatchFinder::GoogleMsbSearch.new
     end
 
@@ -571,7 +571,7 @@ describe MicrosoftPatchFinder do
 
     describe '#find_msb_numbers' do
       it 'returns an array of msb numbers' do
-        results = subject.find_msb_numbers(expected_msb)
+        results = google_msb_search.find_msb_numbers(expected_msb)
         expect(results).to be_kind_of(Array)
         expect(results).to eq([expected_msb])
       end
@@ -579,7 +579,7 @@ describe MicrosoftPatchFinder do
 
     describe '#search' do
       it 'returns a hash (json data)' do
-        results = subject.search(starting_index: 1)
+        results = google_msb_search.search(starting_index: 1)
         expect(results).to be_kind_of(Hash)
       end
     end
@@ -589,21 +589,21 @@ describe MicrosoftPatchFinder do
         res = Rex::Proto::Http::Response.new
         allow(res).to receive(:body).and_return(json_data)
 
-        results = subject.parse_results(res)
+        results = google_msb_search.parse_results(res)
         expect(results).to be_kind_of(Hash)
       end
     end
 
     describe '#get_total_results' do
       it 'returns a fixnum' do
-        total = subject.get_total_results(JSON.parse(json_data))
+        total = google_msb_search.get_total_results(JSON.parse(json_data))
         expect(total).to be_kind_of(Fixnum)
       end
     end
 
     describe '#get_next_index' do
       it 'returns a fixnum' do
-        i = subject.get_next_index(JSON.parse(json_data))
+        i = google_msb_search.get_next_index(JSON.parse(json_data))
         expect(i).to be_kind_of(Fixnum)
       end
     end
@@ -633,13 +633,13 @@ describe MicrosoftPatchFinder do
       allow_any_instance_of(MicrosoftPatchFinder::PatchLinkCollector).to receive(:print_error)
     end
 
-    subject do
+    subject(:driver) do
       MicrosoftPatchFinder::Driver.new
     end
 
     describe '#get_download_links' do
       it 'returns an array of links' do
-        results = subject.get_download_links(msb)
+        results = driver.get_download_links(msb)
         expect(results).to be_kind_of(Array)
         expect(results.first).to eq(expected_link)
       end
