@@ -321,7 +321,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_db_export "-h"
         @output.should =~ [
           "Usage:",
-          "    db_export -f <format> [-a] [filename]",
+          "    db_export -f <format> [filename]",
           "    Format can be one of: xml, pwdump"
         ]
       end

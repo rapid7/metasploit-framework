@@ -200,16 +200,42 @@ class Metasploit3 < Msf::Auxiliary
         user_active = true
       end
 
-      report_auth_info({
-        :host         => rhost,
-        :port         => rport,
-        :sname        => 'dvr',
-        :duplicate_ok => false,
-        :user         => user,
-        :pass         => password,
-        :active       => user_active
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'dvr',
+        user: user,
+        password: password,
+        service_name: 'http',
+        proof: "user_id: #{user_id}, active: #{active}"
+      )
     }
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(ip)

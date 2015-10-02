@@ -43,9 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 
     pcap = self.capture
 
-    capture_sendto(build_tcp_syn(ip), ip)
-
-    capture_sendto(build_icmp(ip), ip)
+    capture_sendto(build_tcp_syn(ip), ip) and capture_sendto(build_icmp(ip), ip)
 
     close_pcap
   end

@@ -27,6 +27,33 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash,
+      jtr_format: 'mysql,mysql-sha1'
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     return if not mysql_login_datastore
     print_status("Running MySQL Enumerator...")
@@ -86,15 +113,14 @@ class Metasploit3 < Msf::Auxiliary
       print_status("\tList of Accounts with Password Hashes:")
       res.each do |row|
         print_status("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
-        report_auth_info({
-          :host  => rhost,
-          :port  => rport,
-          :user  => row[0],
-          :pass  => row[2],
-          :type  => "mysql_hash",
-          :sname => "mysql",
-          :active => true
-        })
+        report_cred(
+          ip: rhost,
+          port: rport,
+          user: row[0],
+          password: row[2],
+          service_name: 'mysql',
+          proof: row.inspect
+        )
       end
     end
     # Only list accounts that can log in with SSL if SSL is enabled
