@@ -744,6 +744,24 @@ module Socket
   end
 
   #
+  # Returns peer information (host + port) in host:port format.
+  #
+  def peerinfo
+    if (pi = getpeername)
+      return pi[1] + ':' + pi[2].to_s
+    end
+  end
+
+  #
+  # Returns local information (host + port) in host:port format.
+  #
+  def localinfo
+    if (pi = getlocalname)
+      return pi[1] + ':' + pi[2].to_s
+    end
+  end
+
+  #
   # Returns a string that indicates the type of the socket, such as 'tcp'.
   #
   def type?

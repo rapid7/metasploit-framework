@@ -285,6 +285,32 @@ class RingBuffer
 
 end
 
+class RingBufferUdp < RingBuffer
+
+  #
+  # The built-in monitor thread (normally unused with Metasploit)
+  #
+  def monitor_thread
+    Thread.new do
+      begin
+      while self.fd
+        begin
+          buff = self.fd.recvfrom_nonblock(1.0)
+        rescue  IO::WaitReadable
+          # IO.select([self.fd])
+          next
+        end
+        next if not buff
+        store_data(buff)
+      end
+      rescue ::Exception => e
+        self.monitor_thread_error = e
+      end
+    end
+  end
+
+end
+
 end
 end
 
@@ -365,5 +391,3 @@ c = r.create_stream
 p c.read
 
 =end
-
-
