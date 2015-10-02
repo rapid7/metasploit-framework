@@ -528,8 +528,8 @@ module MicrosoftPatchFinder
     %Q|
     Usage: #{__FILE__} [options]
 
-    The following example will download all IE 10 update links:
-    #{__FILE__} -q "Internet Explorer 10"
+    The following example will download all IE update links:
+    #{__FILE__} -q "Internet Explorer"
 
     Searching advisories via Technet:
     When you submit a query, the Technet search engine will first look it up from a product list.
@@ -578,7 +578,7 @@ module MicrosoftPatchFinder
         opt.separator ''
         opt.separator 'Specific options:'
 
-        opt.on('-q', '--query <keyword>', 'Regex keyword to search') do |v|
+        opt.on('-q', '--query <keyword>', 'Find advisories that include this keyword') do |v|
           options[:keyword] = v
         end
 
@@ -593,7 +593,7 @@ module MicrosoftPatchFinder
           end
         end
 
-        opt.on('-r', '--regex <string>', '(Optional) Regex download links') do |v|
+        opt.on('-r', '--regex <string>', '(Optional) Specify what type of links you want') do |v|
           options[:regex] = v
         end
 
