@@ -245,9 +245,11 @@ protected
       conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
     end
 
+    request_summary = "#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
+
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
-      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID")
+      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID: #{request_summary}")
       info[:mode] = :unknown_uuid
     end
 
@@ -255,7 +257,7 @@ protected
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
       allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
       unless allowed_urls.include?(req.relative_resource)
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID URL #{req.relative_resource}")
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID URL: #{request_summary}")
         info[:mode] = :unknown_uuid_url
       end
     end
@@ -265,7 +267,7 @@ protected
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -388,7 +390,7 @@ protected
 
       else
         unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
-          print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} with UA #{req.headers['User-Agent']}...")
+          print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{request_summary}")
         end
         resp.code    = 200
         resp.message = 'OK'
