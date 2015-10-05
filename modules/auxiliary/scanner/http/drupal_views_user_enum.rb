@@ -149,4 +149,5 @@ class Metasploit3 < Msf::Auxiliary
     )
     print_status("Usernames stored in: #{p}")
   end
+
 end
