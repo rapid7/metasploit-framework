@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-load Metasploit::Framework.root.join('tools/pentest/file/jsobfu.rb').to_path
+load Metasploit::Framework.root.join('tools/exploit/jsobfu.rb').to_path
 
 require 'stringio'
 
