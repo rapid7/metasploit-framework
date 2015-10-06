@@ -3,13 +3,14 @@ require 'rex/socket'
 
 module Msf
 module Handler
+module Reverse
 
 ###
 #
-# This module implements the reverse Rex::Socket::Comm handlng.
+# Implements the reverse Rex::Socket::Comm handlng.
 #
 ###
-module ReverseTcpComm
+module Comm
 
   def initialize(info = {})
     super
@@ -17,7 +18,7 @@ module ReverseTcpComm
     register_advanced_options(
       [
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-      ], Msf::Handler::ReverseTcpComm)
+      ], Msf::Handler::Reverse::Comm)
   end
 
   def select_comm
@@ -39,5 +40,6 @@ module ReverseTcpComm
   end
 end
 
+end
 end
 end

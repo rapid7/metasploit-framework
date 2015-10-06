@@ -15,6 +15,7 @@ module Handler
 module ReverseTcpDouble
 
   include Msf::Handler
+  include Msf::Handler::Reverse::Comm
 
   #
   # Returns the string representation of the handler type, in this case
@@ -65,7 +66,7 @@ module ReverseTcpDouble
     self.listener_sock = Rex::Socket::TcpServer.create(
       # 'LocalHost' => datastore['LHOST'],
       'LocalPort' => datastore['LPORT'].to_i,
-      'Comm'      => comm,
+      'Comm'      => select_comm,
       'Context'   =>
         {
           'Msf'        => framework,

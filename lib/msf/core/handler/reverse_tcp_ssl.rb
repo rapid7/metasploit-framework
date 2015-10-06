@@ -61,10 +61,7 @@ module ReverseTcpSsl
 
     ex = false
 
-    # Identify the comm to use from
-    # Msf::Handler::ReverseTcpComm.select_comm
     comm = select_comm
-
     local_port = bind_port
     addrs = bind_address
 

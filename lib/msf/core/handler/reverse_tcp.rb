@@ -20,7 +20,7 @@ module Handler
 module ReverseTcp
 
   include Msf::Handler
-  include Msf::Handler::ReverseTcpComm
+  include Msf::Handler::Reverse::Comm
 
   #
   # Returns the string representation of the handler type, in this case
@@ -76,10 +76,7 @@ module ReverseTcp
 
     ex = false
 
-    # Identify the comm to use from
-    # Msf::Handler::ReverseTcpComm.select_comm
     comm = select_comm
-
     local_port = bind_port
     addrs = bind_address
 

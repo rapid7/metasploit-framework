@@ -15,6 +15,7 @@ module Handler
 module ReverseTcpDoubleSSL
 
   include Msf::Handler
+  include Msf::Handler::Reverse::Comm
 
   #
   # Returns the string representation of the handler type, in this case
@@ -68,8 +69,6 @@ module ReverseTcpDoubleSSL
 
     ex = false
 
-    # Identify the comm to use from
-    # Msf::Handler::ReverseTcpComm.select_comm
     comm = select_comm
     local_port = bind_port
     addrs = bind_address
