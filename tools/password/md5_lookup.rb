@@ -31,7 +31,7 @@ msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
-$:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
 require 'msfenv'
 require 'rex'
 require 'msf/core'

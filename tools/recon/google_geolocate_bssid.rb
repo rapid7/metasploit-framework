@@ -8,7 +8,7 @@ while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
-$LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
+$LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..','lib')))
 require 'rex/google/geolocation'
 require 'optparse'
 
