@@ -33,7 +33,7 @@ module ReverseTcpDoubleSSL
   end
 
   #
-  # Initializes the reverse TCP handler and ads the options that are required
+  # Initializes the reverse TCP handler and adds the options that are required
   # for all reverse TCP payloads, like local host and local port.
   #
   def initialize(info = {})
@@ -68,20 +68,15 @@ module ReverseTcpDoubleSSL
 
     ex = false
 
-    comm  = datastore['ReverseListenerComm']
-    if comm.to_s == "local"
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
-
+    # Identify the comm to use from
+    # Msf::Handler::ReverseTcpComm.select_comm
+    comm = select_comm
     local_port = bind_port
     addrs = bind_address
 
     addrs.each { |ip|
       begin
 
-        comm.extend(Rex::Socket::SslTcp)
         self.listener_sock = Rex::Socket::SslTcpServer.create(
         'LocalHost' => ip,
         'LocalPort' => local_port,

@@ -71,7 +71,6 @@ module ReverseTcpSsl
     addrs.each { |ip|
       begin
 
-        comm.extend(Rex::Socket::SslTcp)
         self.listener_sock = Rex::Socket::SslTcpServer.create(
         'LocalHost' => ip,
         'LocalPort' => local_port,
