@@ -54,11 +54,11 @@ class Metasploit3 < Msf::Auxiliary
       if res.headers =~ /#{p}/ || res.body =~ /#{p}/
         print_good("#{peer} is vulnerable to HTTP Host-Header Injection")
         report_vuln(
-          :host: rhost,
-          :port: rport,
-          :proto: 'tcp',
-          :sname: (ssl ? 'https' : 'http'),
-          :info: "Vulnerable to HTTP Host-Header Injection",
+          host: rhost,
+          port: rport,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          info: "Vulnerable to HTTP Host-Header Injection",
         )
       else
         vprint_error("#{peer} returned #{res.code} #{res.message}")
