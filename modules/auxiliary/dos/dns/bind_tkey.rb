@@ -40,7 +40,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(53),
-      OptAddress.new('SRC_ADDR', [false, 'Source address to spoof', nil])
+      OptAddress.new('SRC_ADDR', [false, 'Source address to spoof'])
     ])
 
     deregister_options('PCAPFILE', 'FILTER', 'SNAPLEN', 'TIMEOUT')
