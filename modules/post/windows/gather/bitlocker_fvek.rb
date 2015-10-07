@@ -37,8 +37,8 @@ class Metasploit3 < Msf::Post
     major, minor, _build, _revision, _branch = file_version(file_path)
     winver = (major.to_s + '.' + minor.to_s).to_f
 
-    fail_with(Exploit::Failure::NoTarget, 'Module not valid for OS older that Windows 7') if winver <= 6
-    fail_with(Exploit::Failure::NoAccess, 'You don\'t have administrative privileges') unless is_admin?
+    fail_with(Failure::NoTarget, 'Module not valid for OS older that Windows 7') if winver <= 6
+    fail_with(Failure::NoAccess, 'You don\'t have administrative privileges') unless is_admin?
 
     drive_letter = datastore['DRIVE_LETTER']
 
@@ -57,8 +57,7 @@ class Metasploit3 < Msf::Post
                                             0)
 
     if r['GetLastError'] != ERROR::SUCCESS
-      fail_with(
-        Exploit::Failure::Unknown,
+      fail_with(Failure::Unknown,
         "Error opening #{drive_letter}. Windows Error Code: #{r['GetLastError']}
          - #{r['ErrorMessage']}")
     end
