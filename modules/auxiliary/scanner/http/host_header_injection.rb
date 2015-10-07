@@ -7,10 +7,8 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanServer
-  # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
   def initialize(info={})
@@ -49,21 +47,21 @@ class Metasploit3 < Msf::Auxiliary
       })
 
       unless res
-        vprint_error("#{rhost}:#{rport} did not reply to our request")
+        vprint_error("#{peer} did not reply to our request")
         return
       end
 
       if res.headers =~ /#{p}/ || res.body =~ /#{p}/
-        print_good("#{rhost}:#{rport} is vulnerable to HTTP Host-Header Injection")
+        print_good("#{peer} is vulnerable to HTTP Host-Header Injection")
         report_vuln(
-          :host   => rhost,
-          :port   => rport,
-          :proto  => 'tcp',
-          :sname  => (ssl ? 'https' : 'http'),
-          :info   => "Vulnerable to HTTP Host-Header Injection",
+          :host: rhost,
+          :port: rport,
+          :proto: 'tcp',
+          :sname: (ssl ? 'https' : 'http'),
+          :info: "Vulnerable to HTTP Host-Header Injection",
         )
       else
-        vprint_error("#{rhost}:#{rport} returned #{res.code} #{res.message}")
+        vprint_error("#{peer} returned #{res.code} #{res.message}")
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
