@@ -3,13 +3,12 @@
 require 'msf/core'
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/reverse_tcp'
-require 'msf/core/payload/windows/rc4'
 
 module Msf
 
 ###
 #
-# Complex reverse_tcp_rc4 payload generation for Windows ARCH_X86
+# Complex reverse_udp payload generation for Windows ARCH_X86
 #
 ###
 
