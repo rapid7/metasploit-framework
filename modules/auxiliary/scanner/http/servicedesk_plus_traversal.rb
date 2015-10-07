@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{peer} - File saved in: #{p}")
       end
     else
-        vprint_error("#{peer} - Server returned #{res.code.to_s}")
+        vprint_error("#{peer} - Connection timed out")
     end
   end
 end
