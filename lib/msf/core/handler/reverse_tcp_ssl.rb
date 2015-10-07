@@ -2,8 +2,6 @@
 require 'rex/socket'
 require 'thread'
 
-require 'msf/core/handler/reverse_tcp'
-
 module Msf
 module Handler
 
@@ -20,6 +18,7 @@ module Handler
 module ReverseTcpSsl
 
   include Msf::Handler::ReverseTcp
+  include Msf::Handler::Reverse::SSL
 
   #
   # Returns the string representation of the handler type, in this case
@@ -38,25 +37,13 @@ module ReverseTcpSsl
   end
 
   #
-  # Initializes the reverse TCP SSL handler and adds the certificate option.
-  #
-  def initialize(info = {})
-    super
-    register_advanced_options(
-      [
-        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"])
-      ], Msf::Handler::ReverseTcpSsl)
-
-  end
-
-  #
   # Starts the listener but does not actually attempt
   # to accept a connection.  Throws socket exceptions
   # if it fails to start the listener.
   #
   def setup_handler
     if datastore['Proxies'] and not datastore['ReverseAllowProxy']
-      raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
+      raise RuntimeError, "TCP connect-back payloads cannot be used with Proxies. Use 'set ReverseAllowProxy true' to override this behaviour."
     end
 
     ex = false

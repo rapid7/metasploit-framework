@@ -16,6 +16,7 @@ module ReverseTcpDoubleSSL
 
   include Msf::Handler
   include Msf::Handler::Reverse::Comm
+  include Msf::Handler::Reverse::SSL
 
   #
   # Returns the string representation of the handler type, in this case
@@ -51,7 +52,6 @@ module ReverseTcpDoubleSSL
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse TCP even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
-        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"])
       ], Msf::Handler::ReverseTcpDoubleSSL)
 
     self.conn_threads = []

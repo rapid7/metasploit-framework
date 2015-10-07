@@ -2,8 +2,6 @@
 require 'rex/socket'
 require 'thread'
 
-require 'msf/core/handler/reverse_tcp_comm'
-
 module Msf
 module Handler
 
