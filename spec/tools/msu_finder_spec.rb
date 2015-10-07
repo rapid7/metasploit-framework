@@ -1,4 +1,4 @@
-load Metasploit::Framework.root.join('tools/msu_finder.rb').to_path
+load Metasploit::Framework.root.join('tools/exploit/msu_finder.rb').to_path
 
 require 'nokogiri'
 require 'uri'
