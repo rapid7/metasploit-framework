@@ -3,6 +3,7 @@ PATH
   specs:
     metasploit-framework (4.11.5)
       actionpack (>= 4.0.9, < 4.1.0)
+      activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       bcrypt
       filesize
@@ -10,11 +11,16 @@ PATH
       json
       metasm (~> 1.0.2)
       metasploit-concern (= 1.0.0)
+      metasploit-credential (= 1.0.1)
       metasploit-model (= 1.0.0)
       metasploit-payloads (= 1.0.16)
+      metasploit_data_models (= 1.2.9)
       msgpack
+      network_interface (~> 0.0.1)
       nokogiri
       packetfu (= 1.1.11)
+      pcaprub
+      pg (>= 0.11)
       railties
       rb-readline-r7
       recog (= 2.0.14)
@@ -22,16 +28,6 @@ PATH
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
-    metasploit-framework-db (4.11.5)
-      activerecord (>= 4.0.9, < 4.1.0)
-      metasploit-credential (= 1.0.1)
-      metasploit-framework (= 4.11.5)
-      metasploit_data_models (= 1.2.9)
-      pg (>= 0.11)
-    metasploit-framework-pcap (4.11.5)
-      metasploit-framework (= 4.11.5)
-      network_interface (~> 0.0.1)
-      pcaprub
 
 GEM
   remote: https://rubygems.org/
@@ -242,8 +238,6 @@ DEPENDENCIES
   factory_girl_rails (~> 4.5.0)
   fivemat (= 1.2.1)
   metasploit-framework!
-  metasploit-framework-db!
-  metasploit-framework-pcap!
   pry
   rake (>= 10.0.0)
   redcarpet
