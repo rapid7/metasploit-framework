@@ -19,6 +19,7 @@ module Rex
         autoload :NewClassDesc,   'rex/java/serialization/model/new_class_desc'
         autoload :NewEnum,        'rex/java/serialization/model/new_enum'
         autoload :NewObject,      'rex/java/serialization/model/new_object'
+        autoload :NewClass,       'rex/java/serialization/model/new_class'
         autoload :NullReference,  'rex/java/serialization/model/null_reference'
         autoload :Reference,      'rex/java/serialization/model/reference'
         autoload :Reset,          'rex/java/serialization/model/reset'
