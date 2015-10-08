@@ -76,9 +76,12 @@ module Msf::Payload::Windows
     #	info['Alias'] = 'windows/' + info['Alias']
     #end
 
+
+    acceptable_exit_types = @@exit_types.keys.collect { |e| e.blank? ? "''" : e }.uniq
+
     register_options(
       [
-        Msf::OptEnum.new('EXITFUNC', [true, 'Exit technique', 'process', @@exit_types.keys])
+        Msf::OptEnum.new('EXITFUNC', [true, 'Exit technique', 'process', acceptable_exit_types])
       ], Msf::Payload::Windows )
     ret
   end
