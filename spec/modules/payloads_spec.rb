@@ -863,7 +863,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/firefox/exec'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'firefox/exec'
   end
@@ -2320,7 +2320,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/solaris/sparc/shell_find_port'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'solaris/sparc/shell_find_port'
   end
@@ -3886,7 +3886,7 @@ describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/powershell_reverse_tcp'
   end
-  
+
   context 'windows/x64/shell/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

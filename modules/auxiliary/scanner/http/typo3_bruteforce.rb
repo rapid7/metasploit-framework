@@ -39,20 +39,46 @@ class Metasploit3 < Msf::Auxiliary
     }
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def try_login(user, pass)
     vprint_status("#{peer} - Trying username:'#{user}' password: '#{pass}'")
     cookie = typo3_backend_login(user, pass)
     if cookie
       print_good("#{peer} - Successful login '#{user}' password: '#{pass}'")
-      report_auth_info({
-        :host   => rhost,
-        :proto => 'http',
-        :sname  => 'typo3',
-        :user   => user,
-        :pass   => pass,
-        :target_host => rhost,
-        :target_port => rport
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'typo3',
+        user: user,
+        password: pass,
+        proof: cookie
+      )
       return :next_user
     else
       vprint_error("#{peer} - failed to login as '#{user}' password: '#{pass}'")

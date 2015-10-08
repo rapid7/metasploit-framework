@@ -91,6 +91,7 @@ class Metasploit3 < Msf::Auxiliary
       last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -122,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 
           print_good("#{target_url} - Apache Axis - Credentials Found Username: '#{username}' - Password: '#{password}'")
 
-          report_cred(ip: rhost, port: rport, user: username, password: password)
+          report_cred(ip: rhost, port: rport, user: username, password: password, proof: res.body)
 
         else
           print_error("#{target_url} - Apache Axis - Not Vulnerable")

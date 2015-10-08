@@ -1543,12 +1543,16 @@ class Core
       end
     }
 
-    if framework.db and framework.db.migrated and framework.db.modules_cached
-      search_modules_sql(match)
-      return
+    if framework.db
+      if framework.db.migrated && framework.db.modules_cached
+        search_modules_sql(match)
+        return
+      else
+        print_warning("Module database cache not built yet, using slow search")
+      end
+    else
+      print_warning("Database not connected, using slow search")
     end
-
-    print_warning("Database not connected or cache not built, using slow search")
 
     tbl = generate_module_table("Matching Modules")
     [
@@ -1917,12 +1921,12 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if session.type == 'shell'
+            if ['shell', 'powershell'].include?(session.type)
               session.init_ui(driver.input, driver.output)
               session.execute_script('post/multi/manage/shell_to_meterpreter')
               session.reset_ui
             else
-              print_error("Session #{sess_id} is not a command shell session, skipping...")
+              print_error("Session #{sess_id} is not a command shell session, it is #{session.type}, skipping...")
               next
             end
           ensure

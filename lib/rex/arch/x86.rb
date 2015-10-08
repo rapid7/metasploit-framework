@@ -421,8 +421,7 @@ module X86
   # This method returns an array containing a geteip stub, a register, and an offset
   # This method will return nil if the getip generation fails
   #
-  def self.geteip_fpu(badchars)
-
+  def self.geteip_fpu(badchars, modified_registers = [])
     #
     # Default badchars to an empty string
     #
@@ -470,18 +469,29 @@ module X86
     #
     while(dsts.length > 0)
       buf = ''
+      mod_registers = [ESP]
       dst = dsts[ rand(dsts.length) ]
       dsts.delete(dst)
 
       # If the register is not ESP, copy ESP
       if (dst != ESP)
-        next if badchars.index( (0x70 + dst).chr )
+        mod_registers.push(dst)
+        if badchars.index( (0x70 + dst).chr )
+          mod_registers.pop(dst)
+          next
+        end
 
         if !(badchars.index("\x89") or badchars.index( (0xE0+dst).chr ))
           buf << "\x89" + (0xE0 + dst).chr
         else
-          next if badchars.index("\x54")
-          next if badchars.index( (0x58+dst).chr )
+          if badchars.index("\x54")
+            mod_registers.pop(dst)
+            next
+          end
+          if badchars.index( (0x58+dst).chr )
+            mod_registers.pop(dst)
+            next
+          end
           buf << "\x54" + (0x58 + dst).chr
         end
       end
@@ -506,6 +516,7 @@ module X86
         regs.delete(reg)
         next if reg == ESP
         next if badchars.index( (0x58 + reg).chr )
+        mod_registers.push(reg)
 
         # Pop the value back out
         0.upto(pad / 4) { |c| out << (0x58 + reg).chr }
@@ -513,8 +524,11 @@ module X86
         # Fix the value to point to self
         gap = out.length - buf.length
 
+        mod_registers.uniq!
+        modified_registers.concat(mod_registers)
         return [out, REG_NAMES32[reg].upcase, gap]
       end
+      mod_registers.pop(dst)
     end
 
     return nil

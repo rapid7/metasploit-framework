@@ -55,7 +55,9 @@ module ReverseHttp
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
         OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [false, 'The port to bind to on the local system if different from LPORT']),
-        OptBool.new('OverrideRequestHost', [false, 'Forces clients to connect to LHOST:LPORT instead of keeping original payload host', false]),
+        OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
+        OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
+        OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
         OptString.new('HttpUnknownRequestResponse', [false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>']),
         OptBool.new('IgnoreUnknownPayloads', [false, 'Whether to drop connections from payloads using unknown UUIDs', false])
       ], Msf::Handler::ReverseHttp)
@@ -89,13 +91,23 @@ module ReverseHttp
   #
   # @return [String] A URI of the form +scheme://host:port/+
   def payload_uri(req)
-    if req and req.headers and req.headers['Host'] and not datastore['OverrideRequestHost']
+    callback_host = nil
+
+    # Extract whatever the client sent us in the Host header
+    if req && req.headers && req.headers['Host']
       callback_host = req.headers['Host']
-    elsif Rex::Socket.is_ipv6?(datastore['LHOST'])
-      callback_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
-    else
-      callback_host = "#{datastore['LHOST']}:#{datastore['LPORT']}"
     end
+
+    # Override the host and port as appropriate
+    if datastore['OverrideRequestHost'] || callback_host.nil?
+      callback_name = datastore['OverrideLHOST'] || datastore['LHOST']
+      callback_port = datastore['OverrideLPORT'] || datastore['LPORT']
+      if Rex::Socket.is_ipv6? callback_name
+        callback_name = "[#{callback_name}]"
+      end
+      callback_host = "#{callback_name}:#{callback_port}"
+    end
+
     "#{scheme}://#{callback_host}/"
   end
 
@@ -233,9 +245,11 @@ protected
       conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
     end
 
+    request_summary = "#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
+
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
-      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID")
+      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID: #{request_summary}")
       info[:mode] = :unknown_uuid
     end
 
@@ -243,7 +257,7 @@ protected
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
       allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
       unless allowed_urls.include?(req.relative_resource)
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID URL #{req.relative_resource}")
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID URL: #{request_summary}")
         info[:mode] = :unknown_uuid_url
       end
     end
@@ -253,7 +267,7 @@ protected
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -376,7 +390,7 @@ protected
 
       else
         unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
-          print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} with UA #{req.headers['User-Agent']}...")
+          print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{request_summary}")
         end
         resp.code    = 200
         resp.message = 'OK'

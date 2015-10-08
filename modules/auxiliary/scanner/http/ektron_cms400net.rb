@@ -145,6 +145,7 @@ class Metasploit3 < Msf::Auxiliary
       last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -167,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if (res and res.code == 200 and res.body.to_s.match(/LoginSuceededPanel/i) != nil)
         print_good("#{target_url} [Ektron CMS400.NET] Successful login: '#{user}' : '#{pass}'")
-        report_cred(ip: rhost, port: rport, user: user, password: pass)
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
 
       elsif(res and res.code == 200)
         vprint_error("#{target_url} [Ekton CMS400.NET] - Failed login as: '#{user}'")

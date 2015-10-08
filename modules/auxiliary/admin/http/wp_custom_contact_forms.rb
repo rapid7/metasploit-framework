@@ -62,6 +62,33 @@ class Metasploit3 < Msf::Auxiliary
     table_prefix
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     username = Rex::Text.rand_text_alpha(10)
     password = Rex::Text.rand_text_alpha(20)
@@ -98,14 +125,14 @@ class Metasploit3 < Msf::Auxiliary
     # login successfull
     if cookie
       print_status("#{peer} - User #{username} with password #{password} successfully created")
-      report_auth_info(
-        sname: 'WordPress',
-        host: rhost,
+      report_cred(
+        ip: rhost,
         port: rport,
         user: username,
-        pass: password,
-        active: true
-    )
+        password: password,
+        service_name: 'WordPress',
+        proof: cookie
+      )
     else
       print_error("#{peer} - User creation failed")
       return

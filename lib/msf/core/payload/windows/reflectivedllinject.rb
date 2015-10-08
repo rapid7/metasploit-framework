@@ -70,7 +70,7 @@ module Payload::Windows::ReflectiveDllInject
     ^
   end
 
-  def stage_payload
+  def stage_payload(opts = {})
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(library_path)
 

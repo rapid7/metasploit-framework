@@ -28,6 +28,13 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   end
 
   #
+  # Returns the session platform.
+  #
+  def platform
+    "win"
+  end
+
+  #
   # Returns the session description.
   #
   def desc
@@ -37,7 +44,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   #
   # Takes over the shell_command of the parent
   #
-  def shell_command(cmd)
+  def shell_command(cmd, timeout = 1800)
     # insert random marker
     strm = Rex::Text.rand_text_alpha(15)
     endm = Rex::Text.rand_text_alpha(15)
@@ -45,7 +52,6 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
     # Send the shell channel's stdin.
     shell_write(";'#{strm}'\n" + cmd + "\n'#{endm}';\n")
 
-    timeout = 1800 # 30 minute timeout
     etime = ::Time.now.to_f + timeout
 
     buff = ""

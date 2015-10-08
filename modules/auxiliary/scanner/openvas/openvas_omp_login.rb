@@ -60,6 +60,33 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_login(user=nil,pass=nil)
     begin
       vprint_status("#{msg} Trying user:'#{user}' with password:'#{pass}'")
@@ -67,14 +94,13 @@ class Metasploit3 < Msf::Auxiliary
       omp_send(cmd,true) # send hello
       if @result =~ /<authenticate_response.*status="200"/is
         print_good("#{msg} SUCCESSFUL login for '#{user}' : '#{pass}'")
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => 'openvas-omp',
-          :user => user,
-          :pass => pass,
-          :source_type => "user_supplied",
-          :active => true
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'openvas-omp',
+          user: user,
+          password: pass,
+          proof: @result
         )
         disconnect
         @connected = false

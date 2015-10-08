@@ -11,7 +11,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit4
 
-  CachedSize = 342
+  CachedSize = 362
 
   include Msf::Payload::Stager
   include Msf::Payload::Python::ReverseTcp

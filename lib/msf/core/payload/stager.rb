@@ -45,7 +45,7 @@ module Msf::Payload::Stager
         proto = 'http'
     end
     send("transport_config_#{direction}_#{proto}", opts)
-  end 
+  end
 
   #
   # Sets the payload type to a stager.
@@ -88,7 +88,7 @@ module Msf::Payload::Stager
   # Can be nil if the final stage is not pre-assembled.
   #
   # @return [String,nil]
-  def stage_payload
+  def stage_payload(opts = {})
     return module_info['Stage']['Payload']
   end
 
@@ -159,10 +159,12 @@ module Msf::Payload::Stager
     if (stage_over_connection?)
       opts = {}
 
-      if include_send_uuid
-        uuid_raw = conn.get_once(16, 1)
-        if uuid_raw
-          opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+      if respond_to? :include_send_uuid
+        if include_send_uuid
+          uuid_raw = conn.get_once(16, 1)
+          if uuid_raw
+            opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+          end
         end
       end
 

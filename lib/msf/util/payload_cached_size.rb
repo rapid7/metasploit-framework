@@ -14,6 +14,27 @@ module Util
 
 class PayloadCachedSize
 
+  OPTS = {
+    'Format'      => 'raw',
+    'Options'     => {
+      'CPORT' => 4444,
+      'LPORT' => 4444,
+      'LHOST' => '255.255.255.255',
+      'KHOST' => '255.255.255.255',
+      'AHOST' => '255.255.255.255',
+      'CMD' => '/bin/sh',
+      'URL' => 'http://a.com',
+      'PATH' => '/',
+      'BUNDLE' => 'data/isight.bundle',
+      'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
+      'RC4PASSWORD' => 'Metasploit',
+      'DNSZONE' => 'corelan.eu',
+      'PEXEC' => '/bin/sh'
+    },
+    'Encoder'     => nil,
+    'DisableNops' => true
+  }
+
   # Insert a new CachedSize value into the text of a payload module
   #
   # @param data [String] The source code of a payload module
@@ -60,7 +81,7 @@ class PayloadCachedSize
   # @return [Fixnum]
   def self.compute_cached_size(mod)
     return ":dynamic" if is_dynamic?(mod)
-    return mod.new.size
+    return mod.generate_simple(OPTS).size
   end
 
   # Determines whether a payload generates a static sized output
@@ -69,8 +90,9 @@ class PayloadCachedSize
   # @param generation_count [Fixnum] The number of iterations to use to
   #   verify that the size is static.
   # @return [Fixnum]
-  def self.is_dynamic?(mod,generation_count=5)
-    [*(1..generation_count)].map{|x| mod.new.size}.uniq.length != 1
+  def self.is_dynamic?(mod, generation_count=5)
+    [*(1..generation_count)].map{|x|
+      mod.generate_simple(OPTS).size}.uniq.length != 1
   end
 
   # Determines whether a payload's CachedSize is up to date
@@ -78,9 +100,9 @@ class PayloadCachedSize
   # @param mod [Msf::Payload] The class of the payload module to update
   # @return [Boolean]
   def self.is_cached_size_accurate?(mod)
-    return true if mod.dynamic_size?
+    return true if mod.dynamic_size? && is_dynamic?(mod)
     return false if mod.cached_size.nil?
-    mod.cached_size == mod.new.size
+    mod.cached_size == mod.generate_simple(OPTS).size
   end
 
 end

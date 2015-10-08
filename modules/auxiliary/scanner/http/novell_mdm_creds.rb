@@ -97,6 +97,7 @@ class Metasploit3 < Msf::Auxiliary
     login_data = {
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -122,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good("Got creds. Login:#{user} Password:#{pass}")
         print_good("Access the admin interface here: #{ip}:#{rport}#{target_uri.path}dashboard/")
 
-        report_cred(ip: ip, port: rport, user: user, password: pass)
+        report_cred(ip: ip, port: rport, user: user, password: pass, proof: res.body)
       else
         print_error("Zenworks MDM does not appear to be running at #{ip}")
         return :abort

@@ -25,11 +25,7 @@ module Metasploit4
   end
 
   def generate_stage(opts={})
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.php")
-
-    met = File.open(file, "rb") { |f|
-      f.read(f.stat.size)
-    }
+    met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
 
     uuid = opts[:uuid] || generate_payload_uuid
     bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')

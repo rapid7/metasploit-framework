@@ -27,11 +27,7 @@ module Metasploit3
   end
 
   def generate_stage(opts={})
-    file = ::File.join(Msf::Config.data_directory, 'meterpreter', 'meterpreter.py')
-
-    met = ::File.open(file, 'rb') {|f|
-      f.read(f.stat.size)
-    }
+    met = MetasploitPayloads.read('meterpreter', 'meterpreter.py')
 
     if datastore['PythonMeterpreterDebug']
       met = met.sub("DEBUGGING = False", "DEBUGGING = True")

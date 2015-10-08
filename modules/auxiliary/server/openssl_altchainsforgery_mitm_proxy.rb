@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
 
         begin
           loop do
-            readable, _, _ = IO.select([client, server])
+            readable, _, _ = Rex::ThreadSafe.select([client, server])
 
             readable.each do |r|
               data = r.get_once

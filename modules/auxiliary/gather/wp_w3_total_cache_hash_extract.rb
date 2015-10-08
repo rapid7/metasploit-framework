@@ -76,6 +76,34 @@ class Metasploit3 < Msf::Auxiliary
     nil
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash,
+      jtr_format: 'md5,des'
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run_host(ip)
     users_found = false
 
@@ -117,14 +145,13 @@ class Metasploit3 < Msf::Auxiliary
         unless match.nil?
           print_good("Username: #{match[0]}")
           print_good("Password Hash: #{match[1]}")
-          report_auth_info(
-              host: rhost,
-              port: rport,
-              sname: ssl ? 'https' : 'http',
-              user: match[0],
-              pass: match[1],
-              active: true,
-              type: 'hash'
+          report_cred(
+            ip: rhost,
+            port: rport,
+            service_name: ssl ? 'https' : 'http',
+            user: match[0],
+            password: match[1],
+            proof: result.body
           )
           users_found = true
         end

