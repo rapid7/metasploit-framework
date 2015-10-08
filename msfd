@@ -37,7 +37,10 @@ arguments = Rex::Parser::Arguments.new(
   "-q" => [ false, "Do not print the banner on startup"                   ],
   "-h" => [ false, "Help banner"                                          ])
 
-opts = { 'RunInForeground' => true }
+opts = {
+  'RunInForeground' => true,
+  'DisableBanner' => false
+}
 foreground = false
 
 # Parse command line arguments.
