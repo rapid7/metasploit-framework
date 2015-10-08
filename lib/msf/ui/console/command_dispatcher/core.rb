@@ -2989,7 +2989,7 @@ class Core
         option_values_target_addrs().each do |addr|
           res << addr
         end
-      when 'LHOST'
+      when 'LHOST', 'SRVHOST'
         rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
