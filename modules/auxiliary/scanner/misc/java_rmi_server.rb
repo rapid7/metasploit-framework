@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
       if exception.class == Rex::Java::Serialization::Model::NewObject &&
           exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
           exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
-          exception.class_data[0].class == Rex::Java::Serialization::Model::NullReference &&
+          [Rex::Java::Serialization::Model::NullReference, Rex::Java::Serialization::Model::Reference].include?(exception.class_data[0].class) &&
           !exception.class_data[1].contents.include?('RMI class loader disabled')
           return true
       end

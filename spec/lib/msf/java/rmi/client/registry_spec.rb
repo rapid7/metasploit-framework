@@ -163,6 +163,10 @@ describe Msf::Java::Rmi::Client::Registry do
         allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
           io.read
         end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
+        end
       end
 
       it "returns empty array" do
@@ -180,6 +184,10 @@ describe Msf::Java::Rmi::Client::Registry do
 
         allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
           io.read
+        end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
         end
       end
 
@@ -202,6 +210,10 @@ describe Msf::Java::Rmi::Client::Registry do
         allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
           io.read
         end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
+        end
       end
 
       it "raises an Rex::Proto::Rmi::Exception" do
@@ -219,6 +231,10 @@ describe Msf::Java::Rmi::Client::Registry do
 
         allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
           io.read
+        end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
         end
       end
 

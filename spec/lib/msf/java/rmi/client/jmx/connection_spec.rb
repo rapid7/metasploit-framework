@@ -105,6 +105,10 @@ describe Msf::Java::Rmi::Client::Jmx::Connection do
         allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
           io.read
         end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
+        end
       end
 
       it "returns true" do
@@ -125,6 +129,10 @@ describe Msf::Java::Rmi::Client::Jmx::Connection do
         allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
           io.read
         end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
+        end
       end
 
       it "returns true" do
@@ -144,6 +152,10 @@ describe Msf::Java::Rmi::Client::Jmx::Connection do
 
         allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
           io.read
+        end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
         end
       end
 
