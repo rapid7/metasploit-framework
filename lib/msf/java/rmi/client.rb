@@ -121,7 +121,7 @@ module Msf
         #
         # @param nsock [Rex::Socket::Tcp]
         # @return [String]
-        def safe_get_once(nsock = sock)
+        def safe_get_once(nsock = sock, read_loop_timeout = 1)
           data = ''
           begin
             res = nsock.get_once
@@ -129,7 +129,7 @@ module Msf
             res = nil
           end
 
-          until res.nil? || res.length < 1448
+          while res && nsock.has_read_data?(read_loop_timeout)
             data << res
             begin
               res = nsock.get_once
