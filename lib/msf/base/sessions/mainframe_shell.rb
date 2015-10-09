@@ -57,7 +57,7 @@ class Msf::Sessions::MainframeShell < Msf::Sessions::CommandShell
     end
 
     begin
-      rv = Rex::Ttext.from_ibm1047(rstream.get_once(length, timeout))
+      rv = Rex::Text.from_ibm1047(rstream.get_once(length, timeout))
       framework.events.on_session_output(self, rv) if rv
       return rv
     rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
