@@ -19,6 +19,23 @@ module Msf
         include Msf::Java::Rmi::Client::Jmx
         include Exploit::Remote::Tcp
 
+        def initialize(info = {})
+          super
+
+          register_advanced_options(
+            [
+              OptInt.new('RmiReadLoopTimeout', [ true, 'Maximum number of seconds to wait for data between read iterations', 1])
+            ], Msf::Java::Rmi::Client
+          )
+        end
+
+        # Returns the timeout to wait for data between read iterations
+        #
+        # @return [Fixnum]
+        def read_loop_timeout
+          datastore['RmiReadLoopTimeout'] || 1
+        end
+
         # Returns the target host
         #
         # @return [String]
@@ -86,8 +103,9 @@ module Msf
         # @see Rex::Proto::Rmi::Model::ProtocolAck.decode
         def recv_protocol_ack(opts = {})
           nsock = opts[:sock] || sock
+          data = safe_get_once(nsock)
           begin
-            ack = Rex::Proto::Rmi::Model::ProtocolAck.decode(nsock)
+            ack = Rex::Proto::Rmi::Model::ProtocolAck.decode(StringIO.new(data))
           rescue Rex::Proto::Rmi::DecodeError
             return nil
           end
@@ -105,14 +123,40 @@ module Msf
         # @see Rex::Proto::Rmi::Model::ReturnData.decode
         def recv_return(opts = {})
           nsock = opts[:sock] || sock
+          data = safe_get_once(nsock)
 
           begin
-            return_data = Rex::Proto::Rmi::Model::ReturnData.decode(nsock)
+            return_data = Rex::Proto::Rmi::Model::ReturnData.decode(StringIO.new(data))
           rescue Rex::Proto::Rmi::DecodeError
             return nil
           end
 
           return_data.return_value
+        end
+
+        # Helper method to read fragmented data from a ```Rex::Socket::Tcp```
+        #
+        # @param nsock [Rex::Socket::Tcp]
+        # @return [String]
+        def safe_get_once(nsock = sock, loop_timeout = read_loop_timeout)
+          data = ''
+          begin
+            res = nsock.get_once
+          rescue ::EOFError
+            res = nil
+          end
+
+          while res && nsock.has_read_data?(loop_timeout)
+            data << res
+            begin
+              res = nsock.get_once
+            rescue ::EOFError
+              res = nil
+            end
+          end
+
+          data << res if res
+          data
         end
       end
     end

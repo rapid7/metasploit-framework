@@ -101,6 +101,14 @@ describe Msf::Java::Rmi::Client::Jmx::Connection do
           io.write(get_object_instance_response)
           io.seek(0)
         end
+
+        allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
+          io.read
+        end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
+        end
       end
 
       it "returns true" do
@@ -117,6 +125,14 @@ describe Msf::Java::Rmi::Client::Jmx::Connection do
           io.write(create_mbean_response)
           io.seek(0)
         end
+
+        allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
+          io.read
+        end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
+        end
       end
 
       it "returns true" do
@@ -132,6 +148,14 @@ describe Msf::Java::Rmi::Client::Jmx::Connection do
           io.seek(0)
           io.write(invoke_response)
           io.seek(0)
+        end
+
+        allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
+          io.read
+        end
+
+        allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
+          false
         end
       end
 
