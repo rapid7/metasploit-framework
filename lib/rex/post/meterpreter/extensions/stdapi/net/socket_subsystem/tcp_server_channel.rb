@@ -15,6 +15,7 @@ module Net
 module SocketSubsystem
 
 class TcpServerChannel < Rex::Post::Meterpreter::Channel
+  include Rex::IO::StreamServer
 
   #
   # This is a class variable to store all pending client tcp connections which have not been passed
@@ -157,7 +158,10 @@ protected
         next
       end
       result = accept_nonblock
-      break if result != nil
+      if result != nil
+        result.extend(Rex::Socket::Tcp)
+        break
+      end
     end
     return result
   end
