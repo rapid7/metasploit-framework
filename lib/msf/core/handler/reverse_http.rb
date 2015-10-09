@@ -20,6 +20,7 @@ module ReverseHttp
   include Msf::Handler
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
+  include Msf::Handler::Reverse::Comm
 
   #
   # Returns the string representation of the handler type
@@ -129,15 +130,8 @@ module ReverseHttp
   #
   def setup_handler
 
-    comm = datastore['ReverseListenerComm']
-    if (comm.to_s == 'local')
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
-
+    comm = select_comm
     local_port = bind_port
-
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
@@ -164,7 +158,16 @@ module ReverseHttp
       },
       'VirtualDirectory' => true)
 
-    print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
+    comm_used = comm || Rex::Socket::SwitchBoard.best_comm( ip )
+    comm_used = Rex::Socket::Comm::Local if comm_used == nil
+
+    if( comm_used.respond_to?( :type ) and comm_used.respond_to?( :sid ) )
+      via = "via the #{comm_used.type} on session #{comm_used.sid}"
+    else
+      via = ""
+    end
+
+    print_status("Started #{scheme.upcase} reverse handler on #{listener_uri} #{via}")
     lookup_proxy_settings
 
     if datastore['IgnoreUnknownPayloads']
