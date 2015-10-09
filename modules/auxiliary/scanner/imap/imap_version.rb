@@ -27,6 +27,8 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{ip}:#{rport} IMAP #{banner_sanitized}")
       report_service(:host => rhost, :port => rport, :name => "imap", :info => banner)
     rescue ::Rex::ConnectionError
+    rescue ::EOFError
+      print_error('The service failed to respond with a banner')
     rescue ::Exception => e
       print_error("#{rhost}:#{rport} #{e} #{e.backtrace}")
     end
