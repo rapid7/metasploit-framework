@@ -160,7 +160,7 @@ module Payload::Windows::ReverseUdp
       send_newline:
         push 0                 ; flags
         push #{newline.length} ; length of the newline
-        call get_nl_address    ; put uuid buffer on the stack
+        call get_nl_address    ; put newline buffer on the stack
         db #{newline}          ; newline
       get_nl_address:
         push edi               ; saved socket

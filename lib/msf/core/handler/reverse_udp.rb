@@ -187,7 +187,7 @@ module ReverseUdp
             :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
             :retry_total  => datastore['SessionRetryTotal'].to_i,
             :retry_wait   => datastore['SessionRetryWait'].to_i,
-            :udp_inbound  => inbound
+            :udp_session  => inbound
           }
 
           if datastore['ReverseListenerThreaded']
