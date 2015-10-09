@@ -19,6 +19,23 @@ module Msf
         include Msf::Java::Rmi::Client::Jmx
         include Exploit::Remote::Tcp
 
+        def initialize(info = {})
+          super
+
+          register_advanced_options(
+            [
+              OptInt.new('RmiReadLoopTimeout', [ true, 'Maximum number of seconds to wait for data between read iterations', 1])
+            ], Msf::Java::Rmi::Client
+          )
+        end
+
+        # Returns the timeout to wait for data between read iterations
+        #
+        # @return [Fixnum]
+        def read_loop_timeout
+          datastore['RmiReadLoopTimeout'] || 1
+        end
+
         # Returns the target host
         #
         # @return [String]
@@ -121,7 +138,7 @@ module Msf
         #
         # @param nsock [Rex::Socket::Tcp]
         # @return [String]
-        def safe_get_once(nsock = sock, read_loop_timeout = 1)
+        def safe_get_once(nsock = sock, loop_timeout = read_loop_timeout)
           data = ''
           begin
             res = nsock.get_once
@@ -129,7 +146,7 @@ module Msf
             res = nil
           end
 
-          while res && nsock.has_read_data?(read_loop_timeout)
+          while res && nsock.has_read_data?(loop_timeout)
             data << res
             begin
               res = nsock.get_once
