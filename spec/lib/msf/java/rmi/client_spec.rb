@@ -44,14 +44,6 @@ describe Msf::Java::Rmi::Client do
     allow_any_instance_of(::StringIO).to receive(:put) do |io, data|
       io.write(data)
     end
-
-    allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
-      io.read
-    end
-
-    allow_any_instance_of(::StringIO).to receive(:has_read_data?) do |io|
-      false
-    end
   end
 
   describe "#send_header" do
