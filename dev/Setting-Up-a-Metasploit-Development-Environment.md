@@ -210,7 +210,7 @@ This does pipe straight to bash, which can be a [sensitive
 issue][dont-pipe]. For the longer, safer way:
 
 ```
-curl - rvm.sh -L https://get.rvm.io
+curl -o rvm.sh -L https://get.rvm.io
 cat rvm.sh # Read it and see it's all good
 cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.6
 ```
