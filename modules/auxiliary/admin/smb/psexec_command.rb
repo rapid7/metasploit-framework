@@ -85,9 +85,9 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
         get_output(text)
+        cleanup_after(text, bat)
       end
 
-      cleanup_after(text, bat)
       disconnect
     end
   end
@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer} - Executing the command...")
     begin
       return psexec(execute)
-    rescue Rex::Proto::SMB::Exceptions::Error => exec_command_error
+    rescue ::Exception => exec_command_error
       print_error("#{peer} - Unable to execute specified command: #{exec_command_error}")
       return false
     end
