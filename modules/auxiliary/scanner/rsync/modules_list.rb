@@ -29,22 +29,21 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     connect
-    version = sock.get_once
+    return unless greeting = sock.get_once
 
-    return if version.blank?
-    version.strip!
+    greeting.strip!
+    return unless /^@RSYNCD: (?<version>\d+(\.\d+)?)$/ =~ greeting
 
-    report_service(host: ip, port: rport, proto: 'tcp', name: 'rsync')
-    report_note(
+    report_service(
       host: ip,
-      proto: 'tcp',
       port: rport,
-      type: 'rsync_version',
-      data: version
+      proto: 'tcp',
+      name: 'rsync',
+      info: "rsync protocol version #{version}"
     )
 
     # making sure we match the version of the server
-    sock.puts("#{version}\n")
+    sock.puts("#{greeting}\n")
     # the listing command
     sock.puts("#list\n")
     listing = sock.get(20)
@@ -79,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
         host: ip,
         proto: 'tcp',
         port: rport,
-        type: 'rsync_listing',
+        type: 'rsync_modules',
         :data   => { :modules => listing_table.rows },
         :update => :unique_data
       )
