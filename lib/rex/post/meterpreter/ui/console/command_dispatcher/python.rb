@@ -31,7 +31,7 @@ class Console::CommandDispatcher::Python
     {
       'python_reset'              => 'Resets/restarts the Python interpreter',
       'python_execute'            => 'Execute a python command string',
-      'python_import'             => 'Import/run a python run'
+      'python_import'             => 'Import/run a python file or module'
     }
   end
 
@@ -42,15 +42,18 @@ class Console::CommandDispatcher::Python
 
   @@python_import_opts = Rex::Parser::Arguments.new(
     '-h' => [false, 'Help banner'],
-    '-f' => [true,  'Path to the file (.py, .pyc) to import'],
-    '-m' => [true,  'Name of the module (optional)'],
-    '-r' => [true,  'Name of the variable containing the result (optional)']
+    '-f' => [true,  'Path to the file (.py, .pyc), or module directory to import'],
+    '-n' => [true,  'Name of the module (optional, for single files only)'],
+    '-r' => [true,  'Name of the variable containing the result (optional, single files only)']
   )
 
   def python_import_usage
-    print_line('Usage: python_imoprt <-f file path> [-m mod name] [-r result var name]')
+    print_line('Usage: python_imoprt <-f file path> [-n mod name] [-r result var name]')
     print_line
-    print_line('Loads a python code file from disk into memory on the target.')
+    print_line('Loads a python code file or module from disk into memory on the target.')
+    print_line('The module loader requires a path to a folder that contains the module,')
+    print_line('and the folder name will be used as the module name. Only .py files will')
+    print_line('work with modules.')
     print_line(@@python_import_opts.usage)
   end
 
@@ -64,28 +67,59 @@ class Console::CommandDispatcher::Python
     end
 
     result_var = nil
-    file = nil
+    source = nil
     mod_name = nil
 
     @@python_import_opts.parse(args) { |opt, idx, val|
       case opt
       when '-f'
-        file = val
-      when '-m'
+        source = val
+      when '-n'
         mod_name = val
       when '-r'
         result_var = val
       end
     }
 
-    unless file
-      print_error("File path must be specified")
+    unless source
+      print_error("The -f parameter must be specified")
       return false
     end
 
-    result = client.python.import(file, mod_name, result_var)
+    if ::File.directory?(source)
+      files = ::Find.find(source).select { |p| /.*\.py$/ =~ p }
+      if files.length == 0
+        fail_with("No .py files found in #{source}")
+      end
 
-    handle_exec_result(result, result_var)
+      base_name = ::File.basename(source)
+      unless source.end_with?('/')
+        source << '/'
+      end
+
+      print_status("Importing #{source} with base module name #{base_name} ...")
+
+      files.each do |file|
+        rel_path = file[source.length, file.length - source.length]
+        parts = rel_path.split('/')
+
+        mod_parts = [base_name] + parts[0, parts.length - 1]
+
+        if parts[-1] != '__init__.py'
+          mod_parts << ::File.basename(parts[-1], '.*')
+        end
+
+        mod_name = mod_parts.join('.')
+        print_status("Importing #{file} as #{mod_name} ...")
+        result = client.python.import(file, mod_name, nil)
+        handle_exec_result(result, nil)
+      end
+    else
+      print_status("Importing #{source} ...")
+      result = client.python.import(source, mod_name, result_var)
+      handle_exec_result(result, result_var)
+    end
+
   end
 
   @@python_execute_opts = Rex::Parser::Arguments.new(
