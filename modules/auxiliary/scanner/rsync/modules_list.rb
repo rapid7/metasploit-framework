@@ -59,9 +59,6 @@ class Metasploit3 < Msf::Auxiliary
       listing_table = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
         'Header' => "rsync modules",
-        'Prefix' => "\n",
-        'Postfix' => "\n",
-        'Indent' => 1,
         'Columns' =>
           [
             "Name",
