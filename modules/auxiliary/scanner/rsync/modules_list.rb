@@ -27,12 +27,36 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def run_host(ip)
+  def rsync_list
+    sock.puts("#list\n")
+
+    list = []
+    # the module listing is the module name and comment separated by a tab, each module
+    # on its own line, lines separated with a newline
+    sock.get(20).split(/\n/).map(&:strip).map do |module_line|
+      next if module_line =~ /^@RSYNCD: EXIT$/
+      list << module_line.split(/\t/).map(&:strip)
+    end
+    list
+  end
+
+  def rsync_negotiate
     connect
     return unless greeting = sock.get_once
 
     greeting.strip!
-    return unless /^@RSYNCD: (?<version>\d+(\.\d+)?)$/ =~ greeting
+    if /^@RSYNCD: (?<version>\d+(\.\d+)?)$/ =~ greeting
+      # making sure we match the version of the server
+      sock.puts("@RSYNCD: #{version}\n")
+      version
+    end
+  end
+
+  def run_host(ip)
+    unless version = rsync_negotiate
+      disconnect
+      return
+    end
 
     report_service(
       host: ip,
@@ -42,18 +66,10 @@ class Metasploit3 < Msf::Auxiliary
       info: "rsync protocol version #{version}"
     )
 
-    # making sure we match the version of the server
-    sock.puts("#{greeting}\n")
-    # the listing command
-    sock.puts("#list\n")
-    listing = sock.get(20)
-    disconnect
-
-    if listing.blank?
+    listing = rsync_list
+    if listing.empty?
       print_status("#{ip}:#{port} - rsync #{version}: no modules found")
     else
-      listing.gsub!('@RSYNCD: EXIT', '') # not interested in EXIT message
-      listing.strip!
       # build a table to store the module listing in
       listing_table = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
@@ -62,14 +78,9 @@ class Metasploit3 < Msf::Auxiliary
           [
             "Name",
             "Comment"
-          ])
-
-      # the module listing is the module name and comment separated by a tab, each module
-      # on its own line, lines separated with a newline
-      listing.split(/\n/).map do |share_line|
-        name, comment = share_line.split(/\t/).map(&:strip)
-        listing_table << [ name, comment ]
-      end
+          ],
+        'Rows' => listing
+      )
 
       print_good("#{ip}:#{rport} - rsync #{version}: #{listing_table.rows.size} modules found")
       vprint_line(listing_table.to_s)
