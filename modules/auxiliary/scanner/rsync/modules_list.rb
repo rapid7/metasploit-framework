@@ -32,37 +32,59 @@ class Metasploit3 < Msf::Auxiliary
     version = sock.get_once
 
     return if version.blank?
+    version.strip!
 
-    print_good("#{ip}:#{rport} - rsync #{version.strip} found")
     report_service(host: ip, port: rport, proto: 'tcp', name: 'rsync')
     report_note(
       host: ip,
       proto: 'tcp',
       port: rport,
       type: 'rsync_version',
-      data: version.strip
+      data: version
     )
 
     # making sure we match the version of the server
-    sock.puts("#{version}")
+    sock.puts("#{version}\n")
     # the listing command
-    sock.puts("\n")
+    sock.puts("#list\n")
     listing = sock.get(20)
     disconnect
 
-    return if listing.blank?
+    if listing.blank?
+      print_status("#{ip}:#{port} - rsync #{version}: no modules found")
+    else
+      listing.gsub!('@RSYNCD: EXIT', '') # not interested in EXIT message
+      listing.strip!
+      # build a table to store the module listing in
+      listing_table = Msf::Ui::Console::Table.new(
+        Msf::Ui::Console::Table::Style::Default,
+        'Header' => "rsync modules",
+        'Prefix' => "\n",
+        'Postfix' => "\n",
+        'Indent' => 1,
+        'Columns' =>
+          [
+            "Name",
+            "Comment"
+          ])
 
-    print_good("#{ip}:#{rport} - rsync listing found")
-    listing.gsub!('@RSYNCD: EXIT', '') # not interested in EXIT message
-    listing_sanitized = Rex::Text.to_hex_ascii(listing.strip)
+      # the module listing is the module name and comment separated by a tab, each module
+      # on its own line, lines separated with a newline
+      listing.split(/\n/).map do |share_line|
+        name, comment = share_line.split(/\t/).map(&:strip)
+        listing_table << [ name, comment ]
+      end
 
-    vprint_status("#{ip}:#{rport} - #{version.rstrip} #{listing_sanitized}")
-    report_note(
-      host: ip,
-      proto: 'tcp',
-      port: rport,
-      type: 'rsync_listing',
-      data: listing_sanitized
-    )
+      print_good("#{ip}:#{rport} - rsync #{version}: #{listing_table.rows.size} modules found")
+      vprint_line(listing_table.to_s)
+
+      report_note(
+        host: ip,
+        proto: 'tcp',
+        port: rport,
+        type: 'rsync_listing',
+        data: listing_table
+      )
+    end
   end
 end
