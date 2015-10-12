@@ -10,6 +10,8 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
+  RSYNC_HEADER = '@RSYNCD:'
+
   def initialize
     super(
       'Name'        => 'Rsync Unauthenticated List Command',
@@ -31,6 +33,16 @@ class Metasploit3 < Msf::Auxiliary
     10
   end
 
+  def rsync_requires_auth?(rmodule)
+    sock.puts("#{rmodule}\n")
+    res = sock.get_once
+    if res && (res =~ /^#{RSYNC_HEADER} AUTHREQD/)
+      true
+    else
+      false
+    end
+  end
+
   def rsync_list
     sock.puts("#list\n")
 
@@ -38,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
     # the module listing is the module name and comment separated by a tab, each module
     # on its own line, lines separated with a newline
     sock.get(read_timeout).split(/\n/).map(&:strip).map do |module_line|
-      next if module_line =~ /^@RSYNCD: EXIT$/
+      next if module_line =~ /^#{RSYNC_HEADER} EXIT$/
       list << module_line.split(/\t/).map(&:strip)
     end
 
@@ -52,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
     control_lines = []
     motd_lines = []
     greeting.split(/\n/).map do |greeting_line|
-      if greeting_line =~ /^@RSYNCD:/
+      if greeting_line =~ /^#{RSYNC_HEADER}/
         control_lines << greeting_line
       else
         motd_lines << greeting_line
@@ -60,11 +72,12 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     control_lines.map do |control_line|
-      if /^@RSYNCD: (?<version>\d+(\.\d+)?)$/ =~ control_line
+      if /^#{RSYNC_HEADER} (?<version>\d+(\.\d+)?)$/ =~ control_line
+        version = Regexp.last_match('version')
         motd = motd_lines.empty? ? nil : motd_lines.join("\n")
-        sock.puts("@RSYNCD: #{version}\n")
+        sock.puts("#{RSYNC_HEADER} #{version}\n")
+        return version, motd
       end
-      return version, motd
     end
 
     nil
@@ -90,9 +103,16 @@ class Metasploit3 < Msf::Auxiliary
     vprint_good("#{ip}:#{rport} - rsync MOTD: #{motd}") if motd
 
     listing = rsync_list
+    disconnect
     if listing.empty?
       print_status("#{ip}:#{rport} - rsync #{version}: no modules found")
     else
+      listing.each do |name_comment|
+        connect
+        rsync_negotiate
+        name_comment << rsync_requires_auth?(name_comment.first)
+        disconnect
+      end
       # build a table to store the module listing in
       listing_table = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
@@ -100,7 +120,8 @@ class Metasploit3 < Msf::Auxiliary
         'Columns' =>
           [
             "Name",
-            "Comment"
+            "Comment",
+            "Authentication?"
           ],
         'Rows' => listing
       )
