@@ -48,7 +48,7 @@ class Console::CommandDispatcher::Python
   )
 
   def python_import_usage
-    print_line('Usage: python_imoprt <-f file path> [-n mod name] [-r result var name]')
+    print_line('Usage: python_import <-f file path> [-n mod name] [-r result var name]')
     print_line
     print_line('Loads a python code file or module from disk into memory on the target.')
     print_line('The module loader requires a path to a folder that contains the module,')
