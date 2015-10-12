@@ -80,7 +80,8 @@ class Metasploit3 < Msf::Auxiliary
         proto: 'tcp',
         port: rport,
         type: 'rsync_listing',
-        data: listing_table
+        :data   => { :modules => listing_table.rows },
+        :update => :unique_data
       )
     end
   end
