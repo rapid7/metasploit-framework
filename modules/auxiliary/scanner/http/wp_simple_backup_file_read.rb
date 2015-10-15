@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['WPVDB', '7997'],
-          ['URL', 'http://packetstormsecurity.com/files/131919/']
+          ['PACKETSTORM', '131919']
         ],
       'Author'         =>
         [
