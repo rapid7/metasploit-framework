@@ -18,12 +18,12 @@ module Metasploit
             hash = '-' + version_info['build_framework_rev']
           else
             # determine if git is installed
-            void = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? 'NUL' : '/dev/null'
-            git_installed = system("git --version >>#{void} 2>&1")
+            null = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? 'NUL' : '/dev/null'
+            git_installed = system("git --version > #{null} 2>&1")
 
             # get the hash of the HEAD commit
             if git_installed && File.exist?(File.join(root, '.git'))
-              hash = '-' + `git rev-parse HEAD`[0, 8]
+              hash = '-' + `git rev-parse --short HEAD`
             end
           end
           hash.strip

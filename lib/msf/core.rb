@@ -67,9 +67,6 @@ require 'msf/core/nop'
 require 'msf/core/payload'
 require 'msf/core/post'
 
-# Kerberos Support
-require 'msf/kerberos/client'
-
 # Drivers
 require 'msf/core/exploit_driver'
 
