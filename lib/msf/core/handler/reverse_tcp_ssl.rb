@@ -69,15 +69,7 @@ module ReverseTcpSsl
 
         ex = false
 
-        comm_used = comm || Rex::Socket::SwitchBoard.best_comm( ip )
-        comm_used = Rex::Socket::Comm::Local if comm_used == nil
-
-        if( comm_used.respond_to?( :type ) and comm_used.respond_to?( :sid ) )
-          via = "via the #{comm_used.type} on session #{comm_used.sid}"
-        else
-          via = ""
-        end
-
+        via = via_string_for_ip(ip, comm)
         print_status("Started reverse SSL handler on #{ip}:#{local_port} #{via}")
         break
       rescue
