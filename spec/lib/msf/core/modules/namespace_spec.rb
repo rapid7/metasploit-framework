@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'msf/core'
 require 'msf/core/modules/namespace'
 
-describe Msf::Modules::Namespace do
+RSpec.describe Msf::Modules::Namespace do
   let(:module_path) do
     "parent/path/type_directory/#{module_reference_name}.rb"
   end

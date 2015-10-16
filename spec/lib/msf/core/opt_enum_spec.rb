@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptEnum do
+RSpec.describe Msf::OptEnum do
 
   it_behaves_like "an option", [], [], 'enum'
 

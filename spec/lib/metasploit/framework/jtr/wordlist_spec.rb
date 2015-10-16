@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/jtr/wordlist'
 
-describe Metasploit::Framework::JtR::Wordlist do
+RSpec.describe Metasploit::Framework::JtR::Wordlist do
 
   subject(:wordlist) { described_class.new }
 

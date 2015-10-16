@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'msf/core'
 require 'msf/http/jboss'
 
-describe Msf::HTTP::JBoss::BeanShellScripts do
+RSpec.describe Msf::HTTP::JBoss::BeanShellScripts do
   subject do
     mod = ::Msf::Exploit.new
     mod.extend Msf::HTTP::JBoss

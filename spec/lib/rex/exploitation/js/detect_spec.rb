@@ -1,6 +1,6 @@
 require 'rex/exploitation/js'
 
-describe Rex::Exploitation::Js::Detect do
+RSpec.describe Rex::Exploitation::Js::Detect do
 
   context "Class methods" do
 

@@ -14,7 +14,7 @@ class MyStringIO < StringIO
   end
 end
 
-describe Rex::Proto::Kerberos::Client do
+RSpec.describe Rex::Proto::Kerberos::Client do
   before :each do
     allow(Rex::Socket::Tcp).to receive(:create) do
       s = ''

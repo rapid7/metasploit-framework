@@ -6,7 +6,7 @@ require 'msfenv'
 require 'msf/base'
 require 'digest/sha2'
 
-describe VirusTotalUtility do
+RSpec.describe VirusTotalUtility do
 
   context "Classes" do
     let(:api_key) do

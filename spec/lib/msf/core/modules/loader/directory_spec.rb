@@ -5,7 +5,7 @@ require 'msf/core/modules/loader/directory'
 
 require 'msf/core'
 
-describe Msf::Modules::Loader::Directory do
+RSpec.describe Msf::Modules::Loader::Directory do
   context 'instance methods' do
     include_context 'Msf::Modules::Loader::Base'
 

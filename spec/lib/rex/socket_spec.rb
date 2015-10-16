@@ -2,7 +2,7 @@
 require 'rex/socket/range_walker'
 require 'spec_helper'
 
-describe Rex::Socket do
+RSpec.describe Rex::Socket do
 
   describe '.addr_itoa' do
 

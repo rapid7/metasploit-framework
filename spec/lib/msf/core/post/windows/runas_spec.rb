@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'msf/core/post/windows/runas'
 
-describe Msf::Post::Windows::Runas do
+RSpec.describe Msf::Post::Windows::Runas do
   let(:process_info) do
     "\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x04\x00\x00\x00"
   end

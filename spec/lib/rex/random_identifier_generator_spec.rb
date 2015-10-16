@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'rex/random_identifier_generator'
 
-describe Rex::RandomIdentifierGenerator do
+RSpec.describe Rex::RandomIdentifierGenerator do
   let(:options) do
     { :min_length => 10, :max_length => 20 }
   end

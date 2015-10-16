@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/post/meterpreter/ui/console'
 
-describe Rex::Post::Meterpreter::Ui::Console do
+RSpec.describe Rex::Post::Meterpreter::Ui::Console do
 
   subject(:console) do
     Rex::Post::Meterpreter::Ui::Console.new(nil)

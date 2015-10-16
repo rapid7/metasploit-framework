@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'rex/sslscan/result'
 
-describe Rex::SSLScan::Result do
+RSpec.describe Rex::SSLScan::Result do
 
   subject{Rex::SSLScan::Result.new}
 

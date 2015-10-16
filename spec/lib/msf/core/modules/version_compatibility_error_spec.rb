@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-describe Msf::Modules::VersionCompatibilityError do
+RSpec.describe Msf::Modules::VersionCompatibilityError do
   it_should_behave_like 'Msf::Modules::Error subclass #initialize' do
     let(:minimum_api_version) do
       1

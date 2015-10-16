@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/text'
 
-describe Rex::Text do
+RSpec.describe Rex::Text do
   context "Class methods" do
 
     context ".to_ebcdic" do

@@ -2,7 +2,7 @@
 
 require 'rex/proto/sip/response'
 
-describe 'Rex::Proto::SIP::Response parsing' do
+RSpec.describe 'Rex::Proto::SIP::Response parsing' do
   describe 'Parses vaild responses correctly' do
     specify do
       resp = 'SIP/1.0 123 Sure, OK'

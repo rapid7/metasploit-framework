@@ -6,7 +6,7 @@ require 'msf/core/exploit'
 require 'rex/proto/http/response'
 require 'msf/http/wordpress'
 
-describe Msf::HTTP::Wordpress::Base do
+RSpec.describe Msf::HTTP::Wordpress::Base do
   subject do
     mod = ::Msf::Exploit.new
     mod.extend ::Msf::HTTP::Wordpress

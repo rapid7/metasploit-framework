@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'stringio'
 require 'rex/proto/rmi'
 
-describe Rex::Proto::Rmi::Model::PingAck do
+RSpec.describe Rex::Proto::Rmi::Model::PingAck do
 
   subject(:ping_ack) do
     described_class.new

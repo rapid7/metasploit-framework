@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'rex/post/meterpreter/packet'
 
-describe Rex::Post::Meterpreter::Tlv do
+RSpec.describe Rex::Post::Meterpreter::Tlv do
   subject(:tlv) {
     Rex::Post::Meterpreter::Tlv.new(
       Rex::Post::Meterpreter::TLV_TYPE_STRING,
@@ -124,7 +124,7 @@ describe Rex::Post::Meterpreter::Tlv do
 
 end
 
-describe Rex::Post::Meterpreter::GroupTlv do
+RSpec.describe Rex::Post::Meterpreter::GroupTlv do
   subject(:group_tlv) {
     Rex::Post::Meterpreter::GroupTlv.new(
       Rex::Post::Meterpreter::TLV_TYPE_CHANNEL_DATA_GROUP
@@ -363,7 +363,7 @@ describe Rex::Post::Meterpreter::GroupTlv do
   end
 end
 
-describe Rex::Post::Meterpreter::Packet do
+RSpec.describe Rex::Post::Meterpreter::Packet do
   context "Request Packet" do
     subject(:packet) {
       Rex::Post::Meterpreter::Packet.new(

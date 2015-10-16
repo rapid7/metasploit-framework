@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'rex/socket/range_walker'
 
-describe Rex::Socket::RangeWalker do
+RSpec.describe Rex::Socket::RangeWalker do
 
   let(:args) { "::1" }
   subject(:walker) { described_class.new(args) }

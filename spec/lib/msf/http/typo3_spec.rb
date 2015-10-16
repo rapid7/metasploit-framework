@@ -5,7 +5,7 @@ require 'msf/core'
 require 'rex/proto/http/response'
 require 'msf/http/typo3'
 
-describe Msf::HTTP::Typo3 do
+RSpec.describe Msf::HTTP::Typo3 do
   subject do
     mod = ::Msf::Module.new
     mod.extend described_class

@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
-describe Rex::Powershell::Obfu do
+RSpec.describe Rex::Powershell::Obfu do
 
   let(:example_script_without_literal) do
 """

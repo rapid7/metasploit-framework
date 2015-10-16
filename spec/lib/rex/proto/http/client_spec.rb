@@ -5,7 +5,7 @@ require 'rex/proto/http/client'
 # connection to 127.0.0.1:1. If you have some crazy local
 # firewall that is dropping packets to this, your tests
 # might be slow. I wonder how Travis-CI will react to this...
-describe Rex::Proto::Http::Client do
+RSpec.describe Rex::Proto::Http::Client do
 
   class << self
 

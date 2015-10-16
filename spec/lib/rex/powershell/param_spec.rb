@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
-describe Rex::Powershell::Param do
+RSpec.describe Rex::Powershell::Param do
 
   let(:param_name) do
     Rex::Text.rand_text_alpha(15)

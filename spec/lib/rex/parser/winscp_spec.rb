@@ -17,7 +17,7 @@ Password=#{PASSWORD}
 Shell=/bin/bash}
 END
 
-describe Rex::Parser::WinSCP do
+RSpec.describe Rex::Parser::WinSCP do
   let(:target) do
     d = Class.new { include Rex::Parser::WinSCP }
     d.new

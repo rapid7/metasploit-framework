@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/mysql'
 
-describe Metasploit::Framework::LoginScanner::MySQL do
+RSpec.describe Metasploit::Framework::LoginScanner::MySQL do
   let(:public) { 'root' }
   let(:private) { 'toor' }
   let(:pub_blank) {

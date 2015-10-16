@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rex/java'
 require 'stringio'
 
-describe Rex::Java::Serialization::Model::Stream do
+RSpec.describe Rex::Java::Serialization::Model::Stream do
 
   subject(:stream) do
     described_class.new

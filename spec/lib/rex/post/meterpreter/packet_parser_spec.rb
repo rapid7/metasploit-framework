@@ -3,7 +3,7 @@ require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/packet_parser'
 
 
-describe Rex::Post::Meterpreter::PacketParser do
+RSpec.describe Rex::Post::Meterpreter::PacketParser do
   subject(:parser){
     Rex::Post::Meterpreter::PacketParser.new
   }

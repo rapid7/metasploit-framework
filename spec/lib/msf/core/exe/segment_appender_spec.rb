@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'msf/core/exe/segment_appender'
 
-describe Msf::Exe::SegmentAppender do
+RSpec.describe Msf::Exe::SegmentAppender do
 
   let(:opts) do
     option_hash = {

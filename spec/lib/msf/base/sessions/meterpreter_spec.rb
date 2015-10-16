@@ -3,7 +3,7 @@ require 'msf/base/sessions/meterpreter'
 require 'rex/post/meterpreter/extensions/stdapi/net/interface'
 require 'rex/post/meterpreter/extensions/stdapi/net/route'
 
-describe Msf::Sessions::Meterpreter do
+RSpec.describe Msf::Sessions::Meterpreter do
   before do
     allow_any_instance_of(Rex::Post::Meterpreter::PacketDispatcher).to receive(:monitor_socket)
   end

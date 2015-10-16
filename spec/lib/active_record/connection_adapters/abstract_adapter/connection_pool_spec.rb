@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-describe ActiveRecord::ConnectionAdapters::ConnectionPool do
+RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
   self.use_transactional_fixtures = false
 
   def database_configurations

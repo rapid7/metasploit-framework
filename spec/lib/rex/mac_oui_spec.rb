@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/mac_oui'
 
-describe Rex::Oui do
+RSpec.describe Rex::Oui do
   describe ".lookup_oui_fullname" do
     subject(:oui_fullname) { described_class.lookup_oui_fullname(mac) }
 

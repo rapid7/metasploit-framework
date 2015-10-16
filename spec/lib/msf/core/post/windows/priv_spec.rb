@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'msf/core/post/windows/priv'
 
-describe Msf::Post::Windows::Priv do
+RSpec.describe Msf::Post::Windows::Priv do
 
   subject do
     mod = Module.new

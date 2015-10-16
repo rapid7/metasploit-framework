@@ -87,7 +87,7 @@ cpassword_win2k8 << ['EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wFSuDccBEp/4l5EuK
 cpassword_normal = "j1Uyj3Vx8TY9LtLZil2uAuZkFQA/4latT76ZwgdHdhw"
 cpassword_bad = "blah"
 
-describe Rex::Parser::GPP do
+RSpec.describe Rex::Parser::GPP do
   GPP = Rex::Parser::GPP
 
   ##

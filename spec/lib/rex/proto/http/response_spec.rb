@@ -1,6 +1,6 @@
 require 'rex/proto/http/response'
 
-describe Rex::Proto::Http::Response do
+RSpec.describe Rex::Proto::Http::Response do
 
   def get_cookies_test_no_cookies
     <<-HEREDOC.gsub(/^ {6}/, '')

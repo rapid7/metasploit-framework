@@ -6,7 +6,7 @@ def decompress(code)
   Rex::Powershell::Script.new(code).decompress_code
 end
 
-describe Rex::Powershell::Command do
+RSpec.describe Rex::Powershell::Command do
   let(:example_script) do
     File.join(Msf::Config.data_directory, "exploits", "powershell", "powerdump.ps1")
   end

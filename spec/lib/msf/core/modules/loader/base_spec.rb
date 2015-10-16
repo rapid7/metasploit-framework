@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'msf/core'
 
-describe Msf::Modules::Loader::Base do
+RSpec.describe Msf::Modules::Loader::Base do
   include_context 'Msf::Modules::Loader::Base'
 
   let(:described_class_pathname) do

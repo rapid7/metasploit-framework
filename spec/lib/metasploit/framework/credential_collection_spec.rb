@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/credential_collection'
 
-describe Metasploit::Framework::CredentialCollection do
+RSpec.describe Metasploit::Framework::CredentialCollection do
 
   subject(:collection) do
     described_class.new(

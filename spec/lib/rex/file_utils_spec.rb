@@ -1,6 +1,6 @@
 require 'rex/file'
 
-describe Rex::FileUtils do
+RSpec.describe Rex::FileUtils do
   context "Class methods" do
 
     context ".normalize_win_path" do

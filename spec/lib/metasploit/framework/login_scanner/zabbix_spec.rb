@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/zabbix'
 
-describe Metasploit::Framework::LoginScanner::Zabbix do
+RSpec.describe Metasploit::Framework::LoginScanner::Zabbix do
 
   subject(:http_scanner) { described_class.new }
 
