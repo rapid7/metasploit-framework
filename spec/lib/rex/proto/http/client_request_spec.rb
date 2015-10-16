@@ -72,7 +72,7 @@ shared_context "with 'uri_full_url'" do
 
 end
 
-shared_examples "uri_full_url" do
+RSpec.shared_examples "uri_full_url" do
 
   it "#set_uri should have the host in the URI" do
     client_request.send(:set_uri).should start_with("http://#{host}/")

@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/data_store'
 
-shared_examples "datastore" do
+RSpec.shared_examples "datastore" do
   it "should have options" do
     subject["foo"].should == "bar"
     subject["fizz"].should == "buzz"
