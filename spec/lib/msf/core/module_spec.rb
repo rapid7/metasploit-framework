@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'msf/core/module'
 
-describe Msf::Module do
+RSpec.describe Msf::Module do
   subject(:msf_module) {
     described_class.new
   }

@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/smh'
 
-describe Metasploit::Framework::LoginScanner::Smh do
+RSpec.describe Metasploit::Framework::LoginScanner::Smh do
 
   subject(:smh_cli) { described_class.new }
 

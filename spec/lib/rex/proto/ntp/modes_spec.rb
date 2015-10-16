@@ -2,7 +2,7 @@
 #
 require 'rex/proto/ntp/modes'
 
-describe "Rex::Proto::NTP mode message handling" do
+RSpec.describe "Rex::Proto::NTP mode message handling" do
   before do
     @payload = 'R7' * 7
   end

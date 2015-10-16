@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/arch/x86'
 
-describe Rex::Arch::X86 do
+RSpec.describe Rex::Arch::X86 do
 
   describe ".reg_number" do
     subject { described_class.reg_number(register) }

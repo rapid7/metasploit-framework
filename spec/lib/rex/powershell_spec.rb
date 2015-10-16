@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
-describe Rex::Powershell do
+RSpec.describe Rex::Powershell do
 
   let(:example_script) do
     """function DumpHashes

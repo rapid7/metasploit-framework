@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-describe Msf::Modules::Error do
+RSpec.describe Msf::Modules::Error do
   context 'instance methods' do
     context '#initialize' do
       include_context 'Msf::Modules::Error attributes'

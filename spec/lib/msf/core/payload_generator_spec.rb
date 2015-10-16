@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'msf/core/payload_generator'
 
-describe Msf::PayloadGenerator do
+RSpec.describe Msf::PayloadGenerator do
   include_context 'Msf::Simple::Framework#modules loading'
 
   let(:lhost) { "192.168.172.1"}

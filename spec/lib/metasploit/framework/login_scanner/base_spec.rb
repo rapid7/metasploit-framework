@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/base'
 
-describe Metasploit::Framework::LoginScanner::Base do
+RSpec.describe Metasploit::Framework::LoginScanner::Base do
 
   let(:base_class) {
     Class.new do

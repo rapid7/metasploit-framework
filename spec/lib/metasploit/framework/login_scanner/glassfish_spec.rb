@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/glassfish'
 
-describe Metasploit::Framework::LoginScanner::Glassfish do
+RSpec.describe Metasploit::Framework::LoginScanner::Glassfish do
 
   subject(:http_scanner) { described_class.new }
 

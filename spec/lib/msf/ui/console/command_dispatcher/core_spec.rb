@@ -4,7 +4,7 @@ require 'msf/ui'
 require 'msf/ui/console/module_command_dispatcher'
 require 'msf/ui/console/command_dispatcher/core'
 
-describe Msf::Ui::Console::CommandDispatcher::Core do
+RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
   include_context 'Msf::DBManager'
   include_context 'Msf::UIDriver'
 

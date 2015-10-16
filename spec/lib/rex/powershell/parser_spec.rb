@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
-describe Rex::Powershell::Parser do
+RSpec.describe Rex::Powershell::Parser do
 
   let(:example_script) do
 """

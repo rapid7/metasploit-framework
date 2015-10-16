@@ -5,7 +5,7 @@ load Metasploit::Framework.root.join('tools/password/cpassword_decrypt.rb').to_p
 require 'msfenv'
 require 'msf/base'
 
-describe CPassword do
+RSpec.describe CPassword do
   context "Class methods" do
     let(:cpasswd) do
       CPassword.new

@@ -32,7 +32,7 @@ shared_examples "datastore" do
   end
 end
 
-describe Msf::DataStore do
+RSpec.describe Msf::DataStore do
 
   describe "#import_option" do
     subject do

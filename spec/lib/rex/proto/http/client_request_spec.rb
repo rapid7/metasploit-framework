@@ -81,7 +81,7 @@ shared_examples "uri_full_url" do
 end
 
 
-describe Rex::Proto::Http::ClientRequest do
+RSpec.describe Rex::Proto::Http::ClientRequest do
 
   default_options = {
     # All of these should be what you get when you pass in empty

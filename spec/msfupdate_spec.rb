@@ -2,7 +2,7 @@ require 'spec_helper'
 
 load Metasploit::Framework.root.join('msfupdate').to_path
 
-describe Msfupdate do
+RSpec.describe Msfupdate do
 
   def dummy_pathname
     Pathname.new(File.dirname(__FILE__)).join('dummy')

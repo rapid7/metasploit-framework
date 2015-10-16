@@ -2,7 +2,7 @@ require 'spec_helper'
 
 require 'msf/core/db_export'
 
-describe Msf::DBManager::Export do
+RSpec.describe Msf::DBManager::Export do
   include_context 'Msf::DBManager'
 
   subject(:export) do

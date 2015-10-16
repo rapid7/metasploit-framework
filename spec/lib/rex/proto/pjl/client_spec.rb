@@ -3,7 +3,7 @@ require 'msfenv'
 require 'msf/base'
 require 'rex/proto/pjl'
 
-describe Rex::Proto::PJL::Client do
+RSpec.describe Rex::Proto::PJL::Client do
   context "methods" do
     let(:default_response) do
       'OK'

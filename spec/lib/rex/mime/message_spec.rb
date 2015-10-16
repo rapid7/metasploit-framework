@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rex/mime'
 require 'rex/text'
 
-describe Rex::MIME::Message do
+RSpec.describe Rex::MIME::Message do
 
   subject do
     described_class.new

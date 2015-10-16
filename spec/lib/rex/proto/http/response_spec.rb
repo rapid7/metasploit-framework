@@ -1,7 +1,7 @@
 require 'rex/proto/http/response'
 require 'nokogiri'
 
-describe Rex::Proto::Http::Response do
+RSpec.describe Rex::Proto::Http::Response do
 
   let(:get_cookies_test_no_cookies) do
     <<-HEREDOC.gsub(/^ {6}/, '')

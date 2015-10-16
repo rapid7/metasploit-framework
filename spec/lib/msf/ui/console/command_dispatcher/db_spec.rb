@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'msf/ui'
 require 'msf/ui/console/command_dispatcher/db'
 
-describe Msf::Ui::Console::CommandDispatcher::Db do
+RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   include_context 'Msf::DBManager'
   include_context 'Msf::UIDriver'
 

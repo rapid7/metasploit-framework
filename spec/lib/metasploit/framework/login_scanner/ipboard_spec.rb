@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/ipboard'
 
-describe Metasploit::Framework::LoginScanner::IPBoard do
+RSpec.describe Metasploit::Framework::LoginScanner::IPBoard do
 
   subject { described_class.new }
 

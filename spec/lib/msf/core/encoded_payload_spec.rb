@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'msf/core/encoded_payload'
 
-describe Msf::EncodedPayload do
+RSpec.describe Msf::EncodedPayload do
   include_context 'Msf::Simple::Framework#modules loading'
 
   before do

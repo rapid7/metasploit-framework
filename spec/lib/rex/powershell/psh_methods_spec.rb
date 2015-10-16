@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
-describe Rex::Powershell::PshMethods do
+RSpec.describe Rex::Powershell::PshMethods do
 
   describe "::download" do
     it 'should return some powershell' do

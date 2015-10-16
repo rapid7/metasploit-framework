@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/encoder/alpha2/unicode_upper'
 
-describe Rex::Encoder::Alpha2::UnicodeUpper do
+RSpec.describe Rex::Encoder::Alpha2::UnicodeUpper do
 
   it_behaves_like 'Rex::Encoder::Alpha2::Generic'
 

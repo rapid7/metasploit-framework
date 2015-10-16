@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/encoder/alpha2/unicode_mixed'
 
-describe Rex::Encoder::Alpha2::UnicodeMixed do
+RSpec.describe Rex::Encoder::Alpha2::UnicodeMixed do
 
   it_behaves_like 'Rex::Encoder::Alpha2::Generic'
 

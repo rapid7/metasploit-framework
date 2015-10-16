@@ -4,7 +4,7 @@ require 'rex/thread_factory'
 require 'rex/text'
 require 'rex/compat'
 
-describe Rex::SSLScan::Scanner do
+RSpec.describe Rex::SSLScan::Scanner do
 
   subject{Rex::SSLScan::Scanner.new("google.com", 443)}
 

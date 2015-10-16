@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/framework'
 
-describe Msf::Framework do
+RSpec.describe Msf::Framework do
   context '#initialize' do
     subject(:framework) {
       described_class.new

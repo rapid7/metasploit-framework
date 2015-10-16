@@ -1,6 +1,6 @@
 require 'rex/exploitation/ropdb'
 
-describe Rex::Exploitation::RopDb do
+RSpec.describe Rex::Exploitation::RopDb do
 
   subject(:ropdb) do
     described_class.new

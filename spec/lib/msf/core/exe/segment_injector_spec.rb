@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'msf/core/exe/segment_injector'
 
-describe Msf::Exe::SegmentInjector do
+RSpec.describe Msf::Exe::SegmentInjector do
 
   let(:opts) do
     option_hash = {

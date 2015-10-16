@@ -4,7 +4,7 @@ load Metasploit::Framework.root.join('tools/exploit/jsobfu.rb').to_path
 
 require 'stringio'
 
-describe Jsobfu do
+RSpec.describe Jsobfu do
 
   let(:fname) {
     'test.js'

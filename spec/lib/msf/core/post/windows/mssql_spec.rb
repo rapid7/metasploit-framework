@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'msf/core/post/windows/mssql'
 
-describe Msf::Post::Windows::MSSQL do
+RSpec.describe Msf::Post::Windows::MSSQL do
   let(:subject) do
     mod = Module.new
     mod.extend described_class

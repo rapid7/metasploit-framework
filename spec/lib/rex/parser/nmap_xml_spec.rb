@@ -23,7 +23,7 @@ xml = '
 </runstats></nmaprun>
 '
 
-describe Rex::Parser::NmapXMLStreamParser do
+RSpec.describe Rex::Parser::NmapXMLStreamParser do
   parser = Rex::Parser::NmapXMLStreamParser.new
   total_hosts = 0
   parser.on_found_host = Proc.new { |host|

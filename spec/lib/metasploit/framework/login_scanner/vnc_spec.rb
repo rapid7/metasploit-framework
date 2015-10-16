@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/vnc'
 
-describe Metasploit::Framework::LoginScanner::VNC do
+RSpec.describe Metasploit::Framework::LoginScanner::VNC do
   let(:private) { 'password' }
   let(:blank) { '' }
   let(:test_cred) {

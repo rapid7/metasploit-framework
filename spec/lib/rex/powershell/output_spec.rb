@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
-describe Rex::Powershell::Output do
+RSpec.describe Rex::Powershell::Output do
 
   let(:example_script) do
     Rex::Text.rand_text_alpha(400)

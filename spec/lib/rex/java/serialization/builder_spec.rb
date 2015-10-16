@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/java'
 
-describe Rex::Java::Serialization::Builder do
+RSpec.describe Rex::Java::Serialization::Builder do
   subject(:builder) do
     described_class.new
   end

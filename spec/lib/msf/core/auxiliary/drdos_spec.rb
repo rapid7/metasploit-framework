@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'msf/core/auxiliary/drdos'
 
-describe Msf::Auxiliary::DRDoS do
+RSpec.describe Msf::Auxiliary::DRDoS do
   subject do
     mod = Module.new
     mod.extend described_class

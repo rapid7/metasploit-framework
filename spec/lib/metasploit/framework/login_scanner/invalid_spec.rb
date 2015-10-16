@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/invalid'
 
-describe Metasploit::Framework::LoginScanner::Invalid do
+RSpec.describe Metasploit::Framework::LoginScanner::Invalid do
 
   subject(:invalid) do
     described_class.new(model)

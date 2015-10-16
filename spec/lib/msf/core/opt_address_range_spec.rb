@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptAddressRange do
+RSpec.describe Msf::OptAddressRange do
   # Normalized values are just the original value for OptAddressRange
   valid_values = [
     { :value => "192.0.2.0/24",    :normalized => "192.0.2.0/24" },
