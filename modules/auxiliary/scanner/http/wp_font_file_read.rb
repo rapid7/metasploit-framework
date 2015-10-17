@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
     fail_with(Failure::NoAccess, "#{peer} - Unable to login as: #{user}") if cookie.nil?
 
     filename = datastore['FILEPATH']
-    filename = filename[1, filename.length] if filename =~ %r{/^///}
+    filename = filename.sub(/^\//,"")
 
     res = send_request_cgi(
       'method'          => 'POST',
