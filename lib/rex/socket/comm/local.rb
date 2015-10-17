@@ -5,6 +5,7 @@ require 'rex/socket/tcp'
 require 'rex/socket/ssl_tcp'
 require 'rex/socket/ssl_tcp_server'
 require 'rex/socket/udp'
+require 'rex/socket/ssl_udp'
 require 'rex/socket/ip'
 require 'timeout'
 
@@ -314,12 +315,11 @@ class Rex::Socket::Comm::Local
         case param.proto
           when 'tcp'
             klass = Rex::Socket::Tcp
-            sock.extend(klass)
-            sock.initsock(param)
           when 'udp'
-            sock.extend(Rex::Socket::Udp)
-            sock.initsock(param)
+            klass = Rex::Socket::Udp
         end
+        sock.extend(klass)
+        sock.initsock(param)
       end
 
       if chain.size > 1
@@ -334,7 +334,12 @@ class Rex::Socket::Comm::Local
 
       # Now extend the socket with SSL and perform the handshake
       if(param.bare? == false and param.ssl)
-        klass = Rex::Socket::SslTcp
+        case param.proto
+          when 'tcp'
+            klass = Rex::Socket::Tcp
+          when 'udp'
+            klass = Rex::Socket::Udp
+        end
         sock.extend(klass)
         sock.initsock(param)
       end
