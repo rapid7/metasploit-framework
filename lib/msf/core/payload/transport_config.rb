@@ -16,8 +16,8 @@ module Msf::Payload::TransportConfig
     config
   end
 
-  def transport_config_reverse_udp(upts={})
-    config =transport_config_reverse_tcp(opts)
+  def transport_config_reverse_udp(opts={})
+    config = transport_config_reverse_tcp(opts)
     config[:scheme] = 'udp'
     config
   end
