@@ -30,9 +30,10 @@ RSpec.describe Metasploit::Framework::LoginScanner::Postgres do
   context '#attempt_login' do
     context 'when the login is successful' do
       it 'returns a result object with a status of success' do
-        fake_conn = "fake_connection"
-        expect(Msf::Db::PostgresPR::Connection).to receive(:new).and_return fake_conn
+        fake_conn = double('fake_connection')
+
         expect(fake_conn).to receive(:close)
+        expect(Msf::Db::PostgresPR::Connection).to receive(:new).and_return fake_conn
         expect(login_scanner.attempt_login(full_cred).status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
       end
     end
