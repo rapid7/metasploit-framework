@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
     raise "Powershell not available" if ! have_powershell?
 
     # Preprocess the Powershell::Script object with substitions from Exploit::Powershell
-    script = make_subs(read_script(datstore['SCRIPT']),process_subs(datstore['SUBSTITUTIONS']))
+    script = make_subs(read_script(datstore['SCRIPT']),process_subs(datastore['SUBSTITUTIONS']))
 
     # Execute in session
     print_status psh_exec(script)
