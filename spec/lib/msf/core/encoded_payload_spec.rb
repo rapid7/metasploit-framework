@@ -62,9 +62,10 @@ RSpec.describe Msf::EncodedPayload do
     end
 
     context 'when passed a valid payload instance' do
-
       # don't ever actually generate payload bytes
-      before { described_class.any_instance.stub(:generate) }
+      before(:each) do
+        allow_any_instance_of(described_class).to receive(:generate)
+      end
 
       it 'returns an Msf::EncodedPayload instance' do
         expect(encoded_payload).to be_a(described_class)
