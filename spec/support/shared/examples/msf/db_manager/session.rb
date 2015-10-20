@@ -84,6 +84,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             Class.new do
               include Msf::Session
 
+              attr_accessor :arch
               attr_accessor :exploit
               attr_accessor :datastore
               attr_accessor :platform
@@ -123,7 +124,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
           context 'with a run_id in user_data' do
             before(:each) do
-              MetasploitDataModels::AutomaticExploitation::MatchSet.any_instance.stub(:create_match_for_vuln).and_return(nil)
+              allow(db_manager).to receive(:create_match_for_vuln).and_return(nil)
             end
 
             let(:match_set) do
@@ -192,7 +193,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 before(:each) do
-                  expect(session).to receive(:arch).and_return(arch)
+                  allow(session).to receive(:arch).and_return(arch)
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
@@ -437,7 +438,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                   context "with session.exploit_datastore['ParentModule']" do
                     it "should have session.exploit_datastore['ParentModule']" do
-                      session.exploit_datastore['ParentModule'].should_not be_nil
+                      expect(session.exploit_datastore['ParentModule']).not_to be_nil
                     end
 
                     it { expect(subject.via_exploit).to eq(parent_module_fullname) }
@@ -516,9 +517,9 @@ shared_examples_for 'Msf::DBManager::Session' do
             context 'with workspace from either :workspace or session' do
               it 'should pass normalized host from session as :host to #find_or_create_host' do
                 normalized_host = double('Normalized Host')
-                expect(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
+                allow(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
-                expect(db_manager).to receive(:report_vuln)
+                allow(db_manager).to receive(:report_vuln)
 
                 expect(db_manager).to receive(:find_or_create_host).with(
                     hash_including(
@@ -535,7 +536,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 before(:each) do
-                  expect(session).to receive(:arch).and_return(arch)
+                  allow(session).to receive(:arch).and_return(arch)
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
@@ -780,7 +781,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                   context "with session.exploit_datastore['ParentModule']" do
                     it "should have session.exploit_datastore['ParentModule']" do
-                      session.exploit_datastore['ParentModule'].should_not be_nil
+                      expect(session.exploit_datastore['ParentModule']).not_to be_nil
                     end
 
                     it { expect(subject.via_exploit).to eq(parent_module_fullname) }
