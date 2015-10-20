@@ -50,7 +50,7 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
     context 'in thread without connection' do
       it 'should be false' do
         thread = Thread.new do
-          Thread.current.should_not == main_thread
+          expect(Thread.current).not_to eq main_thread
           expect(active_connection?).to be_falsey
         end
 

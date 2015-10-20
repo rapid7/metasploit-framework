@@ -302,7 +302,7 @@ RSpec.describe Rex::SSLScan::Result do
 
       it "should return only the ciphers for the specified version" do
         subject.each_accepted([:SSLv3,:TLSv1]) do |cipher_details|
-          cipher_details[:version].should_not == :SSLv2
+          expect(cipher_details[:version]).not_to eq :SSLv2
         end
       end
     end
@@ -358,7 +358,7 @@ RSpec.describe Rex::SSLScan::Result do
 
       it "should return only the ciphers for the specified version" do
         subject.each_rejected([:SSLv3,:TLSv1]) do |cipher_details|
-          cipher_details[:version].should_not == :SSLv2
+          expect(cipher_details[:version]).not_to eq :SSLv2
         end
       end
     end

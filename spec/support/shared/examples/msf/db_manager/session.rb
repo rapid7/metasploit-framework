@@ -471,7 +471,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   it "should not have session.via_exploit of 'exploit/multi/handler'" do
-                    session.via_exploit.should_not == 'exploit/multi/handler'
+                    expect(session.via_exploit).not_to eq 'exploit/multi/handler'
                   end
 
                   it { expect(subject.via_exploit).to eq(session.via_exploit) }
@@ -814,7 +814,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   it "should not have session.via_exploit of 'exploit/multi/handler'" do
-                    session.via_exploit.should_not == 'exploit/multi/handler'
+                    expect(session.via_exploit).not_to eq 'exploit/multi/handler'
                   end
 
                   it { expect(subject.via_exploit).to eq(session.via_exploit) }
