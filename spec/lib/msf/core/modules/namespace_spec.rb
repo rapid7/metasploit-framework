@@ -133,7 +133,7 @@ RSpec.describe Msf::Modules::Namespace do
       end
 
       it 'should return the metasploit_class' do
-        subject.metasploit_class!(module_path, module_reference_name).should == metasploit_class
+        expect(subject.metasploit_class!(module_path, module_reference_name)).to eq metasploit_class
       end
     end
 

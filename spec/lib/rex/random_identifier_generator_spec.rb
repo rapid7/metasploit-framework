@@ -44,7 +44,7 @@ RSpec.describe Rex::RandomIdentifierGenerator do
       { :min_length=>3, :max_length=>3 }
     end
     it "should return the same thing for subsequent calls" do
-      rig.get(:rspec).should == rig.get(:rspec)
+      expect(rig.get(:rspec)).to eq rig.get(:rspec)
     end
     it "should not return the same for different names" do
       # Statistically...
@@ -53,7 +53,7 @@ RSpec.describe Rex::RandomIdentifierGenerator do
       count.times do |n|
         a.add rig.get(n)
       end
-      a.size.should == count
+      expect(a.size).to eq count
     end
 
     context "with an exhausted set" do
@@ -87,30 +87,30 @@ RSpec.describe Rex::RandomIdentifierGenerator do
     it "should allow smaller than minimum length" do
       value = "a"*(options[:min_length]-1)
       rig.store(:spec, value)
-      rig.get(:spec).should == value
+      expect(rig.get(:spec)).to eq value
     end
 
     it "should allow bigger than maximum length" do
       value = "a"*(options[:max_length]+1)
       rig.store(:spec, value)
-      rig.get(:spec).should == value
+      expect(rig.get(:spec)).to eq value
     end
 
     it "should raise if value is not unique" do
       value = "a"*(options[:max_length]+1)
       rig.store(:spec0, value)
-      rig.get(:spec0).should == value
+      expect(rig.get(:spec0)).to eq value
       expect { rig.store(:spec1, value) }.to raise_error
     end
 
     it "should overwrite a previously stored value" do
       orig_value = "a"*(options[:max_length])
       rig.store(:spec, orig_value)
-      rig.get(:spec).should == orig_value
+      expect(rig.get(:spec)).to eq orig_value
 
       new_value = "b"*(options[:max_length])
       rig.store(:spec, new_value)
-      rig.get(:spec).should == new_value
+      expect(rig.get(:spec)).to eq new_value
     end
 
     it "should overwrite a previously generated value" do
@@ -118,7 +118,7 @@ RSpec.describe Rex::RandomIdentifierGenerator do
 
       new_value = "a"*(options[:max_length])
       rig.store(:spec, new_value)
-      rig.get(:spec).should == new_value
+      expect(rig.get(:spec)).to eq new_value
     end
 
   end

@@ -57,7 +57,7 @@ RSpec.describe Msf::DBManager::Export do
       it 'should have module_detail tag for each Mdm::Module::Detail' do
         nodes = root.xpath('module_detail')
 
-        nodes.length.should == module_detail_count
+        expect(nodes.length).to eq module_detail_count
       end
 
       context 'module_detail' do
@@ -79,7 +79,7 @@ RSpec.describe Msf::DBManager::Export do
           it 'should have Mdm::Module::Detail#disclosure_date from disclosure-date content' do
             node = module_detail_node.at_xpath('disclosure-date')
 
-            DateTime.parse(node.content).should == module_detail.disclosure_date
+            expect(DateTime.parse(node.content)).to eq module_detail.disclosure_date
           end
         end
 

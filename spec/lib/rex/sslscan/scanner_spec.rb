@@ -15,22 +15,22 @@ RSpec.describe Rex::SSLScan::Scanner do
 
   context "when validating the scanner config" do
     it "should return true when given a valid config" do
-      subject.valid?.should == true
+      expect(subject.valid?).to eq true
     end
 
     it "should return false if given an invalid host" do
       subject.host = nil
-      subject.valid?.should == false
+      expect(subject.valid?).to eq false
     end
 
     it "should return false if given an invalid port" do
       subject.port = nil
-      subject.valid?.should == false
+      expect(subject.valid?).to eq false
     end
 
     it "should return false if given an invalid timeout" do
       subject.timeout = nil
-      subject.valid?.should == false
+      expect(subject.valid?).to eq false
     end
   end
 
@@ -56,24 +56,24 @@ RSpec.describe Rex::SSLScan::Scanner do
 
     context ":rejected should be returned if" do
       it "scans a server that doesn't support the supplied SSL version" do
-        subject.test_cipher(:SSLv3, "DES-CBC-SHA").should == :rejected
+        expect(subject.test_cipher(:SSLv3, "DES-CBC-SHA")).to eq :rejected
       end
 
       it "scans a server that doesn't support the cipher" do
-        subject.test_cipher(:SSLv3, "DHE-DSS-AES256-SHA").should == :rejected
+        expect(subject.test_cipher(:SSLv3, "DHE-DSS-AES256-SHA")).to eq :rejected
       end
     end
 
     context ":accepted should be returned if" do
       it "scans a server that accepts the given cipher" do
-        subject.test_cipher(:SSLv3, "AES256-SHA").should == :accepted
+        expect(subject.test_cipher(:SSLv3, "AES256-SHA")).to eq :accepted
       end
     end
   end
 
   context "when retrieving the cert" do
     it "should return nil if it can't connect" do
-      subject.get_cert(:SSLv3, "DES-CBC-SHA").should == nil
+      expect(subject.get_cert(:SSLv3, "DES-CBC-SHA")).to eq nil
     end
 
     it "should return an X509 cert if it can connect" do
@@ -94,12 +94,12 @@ RSpec.describe Rex::SSLScan::Scanner do
       end
       it "should mark SSLv2 as unsupported" do
         subject.supported_versions.should_not include :SSLv2
-        subject.sslv2.should == false
+        expect(subject.sslv2).to eq false
       end
 
       it "should not test any SSLv2 ciphers" do
         res = subject.scan
-        res.sslv2.should == []
+        expect(res.sslv2).to eq []
       end
     end
   end

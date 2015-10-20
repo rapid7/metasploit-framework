@@ -19,9 +19,9 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
   end
 
   it "should initialise with expected defaults" do
-    parser.send(:raw).should == ""
-    parser.send(:hdr_length_left).should == 8
-    parser.send(:payload_length_left).should == 0
+    expect(parser.send(:raw)).to eq ""
+    expect(parser.send(:hdr_length_left)).to eq 8
+    expect(parser.send(:payload_length_left)).to eq 0
   end
 
   it "should parse valid raw data into a packet object" do
@@ -29,8 +29,8 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
       parsed_packet = parser.recv(@sock)
     end
     parsed_packet.should be_a Rex::Post::Meterpreter::Packet
-    parsed_packet.type.should == Rex::Post::Meterpreter::PACKET_TYPE_REQUEST
-    parsed_packet.method?("test_method").should == true
+    expect(parsed_packet.type).to eq Rex::Post::Meterpreter::PACKET_TYPE_REQUEST
+    expect(parsed_packet.method?("test_method")).to eq true
   end
 
 end

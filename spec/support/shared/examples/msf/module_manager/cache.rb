@@ -106,19 +106,19 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           end
 
           it 'should have modification time of :path option for :modification_time' do
-            value[:modification_time].should == pathname_modification_time
+            expect(value[:modification_time]).to eq pathname_modification_time
           end
 
           it 'should have parent path from namespace module for :parent_path' do
-            value[:parent_path].should == namespace_module.parent_path
+            expect(value[:parent_path]).to eq namespace_module.parent_path
           end
 
           it 'should use :reference_name option' do
-            value[:reference_name].should == reference_name
+            expect(value[:reference_name]).to eq reference_name
           end
 
           it 'should use :type option' do
-            value[:type].should == type
+            expect(value[:type]).to eq type
           end
         end
       end
@@ -440,7 +440,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
               # have to use fetch because [] will trigger de-symbolization and
               # instantiation.
-              typed_module_set.fetch(reference_name).should == Msf::SymbolicModule
+              expect(typed_module_set.fetch(reference_name)).to eq Msf::SymbolicModule
             end
           end
         end

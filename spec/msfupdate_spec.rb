@@ -59,7 +59,7 @@ RSpec.describe Msfupdate do
       ARGV.clear
       ARGV << 'foo'
       subject.parse_args(['x', 'y'])
-      ARGV.should == ['foo']
+      expect(ARGV).to eq ['foo']
     end
 
     context "with --help" do
@@ -84,7 +84,7 @@ RSpec.describe Msfupdate do
 
       it "sets @git_branch" do
         subject.parse_args(args)
-        subject.instance_variable_get(:@git_branch).should == git_branch
+        expect(subject.instance_variable_get(:@git_branch)).to eq git_branch
       end
 
       context "without a space" do
@@ -92,7 +92,7 @@ RSpec.describe Msfupdate do
 
         it "sets @git_branch" do
           subject.parse_args(args)
-          subject.instance_variable_get(:@git_branch).should == git_branch
+          expect(subject.instance_variable_get(:@git_branch)).to eq git_branch
         end
       end
     end
@@ -103,7 +103,7 @@ RSpec.describe Msfupdate do
 
       it "sets @git_remote" do
         subject.parse_args(args)
-        subject.instance_variable_get(:@git_remote).should == git_remote
+        expect(subject.instance_variable_get(:@git_remote)).to eq git_remote
       end
 
       context "without a space" do
@@ -111,7 +111,7 @@ RSpec.describe Msfupdate do
 
         it "sets @git_remote" do
           subject.parse_args(args)
-          subject.instance_variable_get(:@git_remote).should == git_remote
+          expect(subject.instance_variable_get(:@git_remote)).to eq git_remote
         end
       end
     end
@@ -128,7 +128,7 @@ RSpec.describe Msfupdate do
       context "with relative path" do
         it "transforms argument into an absolute path" do
           subject.parse_args(args)
-          subject.instance_variable_get(:@offline_file).should == File.join(Dir.pwd, offline_file)
+          expect(subject.instance_variable_get(:@offline_file)).to eq File.join(Dir.pwd, offline_file)
         end
       end
 
@@ -136,7 +136,7 @@ RSpec.describe Msfupdate do
         let(:offline_file) { '/tmp/foo' }
         it "accepts an absolute path" do
           subject.parse_args(args)
-          subject.instance_variable_get(:@offline_file).should == offline_file
+          expect(subject.instance_variable_get(:@offline_file)).to eq offline_file
         end
       end
 
@@ -154,7 +154,7 @@ RSpec.describe Msfupdate do
       let(:args) { ['wait'] }
       it "sets @actually_wait" do
         subject.parse_args(args)
-        subject.instance_variable_get(:@actually_wait).should == true
+        expect(subject.instance_variable_get(:@actually_wait)).to eq true
       end
     end
 
@@ -162,7 +162,7 @@ RSpec.describe Msfupdate do
       let(:args) { ['nowait'] }
       it "sets @actually_wait" do
         subject.parse_args(args)
-        subject.instance_variable_get(:@actually_wait).should == false
+        expect(subject.instance_variable_get(:@actually_wait)).to eq false
       end
     end
   end

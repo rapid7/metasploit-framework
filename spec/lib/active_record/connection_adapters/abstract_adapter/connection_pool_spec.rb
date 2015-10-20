@@ -166,18 +166,18 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
             child_count = reserved_connection_count
             count_change = child_count - before_count
 
-            count_change.should == 1
+            expect(count_change).to eq 1
 
             connection_pool.with_connection do
               grandchild_count = reserved_connection_count
 
-              grandchild_count.should == child_count
+              expect(grandchild_count).to eq child_count
             end
           end
 
           after_count = reserved_connection_count
 
-          after_count.should == before_count
+          expect(after_count).to eq before_count
         end
       end
 
@@ -197,7 +197,7 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
           connection_pool.with_connection do
             inside = reserved_connection_count
 
-            inside.should == outside
+            expect(inside).to eq outside
           end
         end
       end

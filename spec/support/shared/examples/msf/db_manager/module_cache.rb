@@ -325,7 +325,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
 
       context 'without Mdm::Module::Ref#name' do
         it 'should not match Mdm::Module::Ref#name' do
-          module_details.count.should == 0
+          expect(module_details.count).to eq 0
         end
       end
     end
@@ -363,7 +363,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
 
       context 'without Mdm::Module::Detail#mtype' do
         it 'should not match Mdm::Module::Detail#mtype' do
-          module_details.count.should == 0
+          expect(module_details.count).to eq 0
         end
       end
     end
@@ -445,7 +445,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           end
 
           it 'should match Mdm::Module::Detail#description' do
-            module_details.count.should == 1
+            expect(module_details.count).to eq 1
 
             module_details.all? { |module_detail|
               module_detail.description == target_module_detail.description
@@ -459,7 +459,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           end
 
           it 'should match Mdm::Module::Detail#fullname' do
-            module_details.count.should == 1
+            expect(module_details.count).to eq 1
 
             module_details.all? { |module_detail|
               module_detail.fullname == search_string
@@ -474,7 +474,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           end
 
           it 'should match Mdm::Module::Detail#name' do
-            module_details.count.should == 1
+            expect(module_details.count).to eq 1
 
             module_details.all? { |module_detail|
               module_detail.name == target_module_detail.name

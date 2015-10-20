@@ -57,7 +57,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
 
           created_module = module_manager.create(module_full_name)
 
-          created_module.name.should == 'MS08-067 Microsoft Server Service Relative Path Stack Corruption'
+          expect(created_module.name).to eq 'MS08-067 Microsoft Server Service Relative Path Stack Corruption'
         end
 
         context 'with module previously loaded' do
@@ -152,13 +152,13 @@ RSpec.describe Msf::Modules::Loader::Directory do
         end
 
         it 'should return an empty string' do
-          subject.send(:read_module_content, parent_path, type, module_reference_name).should == ''
+          expect(subject.send(:read_module_content, parent_path, type, module_reference_name)).to eq ''
         end
 
         it 'should record the load error' do
           subject.should_receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
 
-          subject.send(:read_module_content, parent_path, type, module_reference_name).should == ''
+          expect(subject.send(:read_module_content, parent_path, type, module_reference_name)).to eq ''
         end
       end
     end

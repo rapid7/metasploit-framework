@@ -12,7 +12,7 @@ RSpec.shared_context "with no evasions" do
   end
 
   it "should return the unmodified uri" do
-    client_request.send(:set_uri).should == "/"
+    expect(client_request.send(:set_uri)).to eq "/"
   end
 end
 
@@ -161,7 +161,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         result = things[:result]
         describe "##{meth}" do
           it "should return #{result.inspect}" do
-            client_request.send(meth, *args).should == result
+            expect(client_request.send(meth, *args)).to eq result
           end
         end
       end
@@ -202,10 +202,10 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         client_request.opts['pad_get_params'] = true
 
         client_request.opts['pad_get_params_count'] = 0
-        client_request.to_s.split("&").length.should == vars_get.length
+        expect(client_request.to_s.split("&").length).to eq vars_get.length
 
         client_request.opts['pad_get_params_count'] = 10
-        client_request.to_s.split("&").length.should == vars_get.length + 10
+        expect(client_request.to_s.split("&").length).to eq vars_get.length + 10
 
         client_request.opts['pad_get_params'] = old
       end
@@ -262,7 +262,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
 
       describe "#to_s" do
         it "should produce same values if called multiple times with same options" do
-          client_request.to_s.should == client_request.to_s
+          expect(client_request.to_s).to eq client_request.to_s
         end
       end
 

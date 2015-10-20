@@ -38,7 +38,7 @@ RSpec.describe Rex::Proto::Http::Client do
   describe "#set_config" do
 
     it "should respond to #set_config" do
-      cli.set_config.should == {}
+      expect(cli.set_config).to eq {}
     end
 
   end
@@ -48,9 +48,9 @@ RSpec.describe Rex::Proto::Http::Client do
   end
 
   it "should have a set of default instance variables" do
-    cli.instance_variable_get(:@hostname).should == ip
-    cli.instance_variable_get(:@port).should == 80
-    cli.instance_variable_get(:@context).should == {}
+    expect(cli.instance_variable_get(:@hostname)).to eq ip
+    expect(cli.instance_variable_get(:@port)).to eq 80
+    expect(cli.instance_variable_get(:@context)).to eq {}
     cli.instance_variable_get(:@ssl).should be_falsey
     cli.instance_variable_get(:@proxies).should be_nil
     cli.instance_variable_get(:@username).should be_empty
@@ -85,14 +85,14 @@ RSpec.describe Rex::Proto::Http::Client do
         req = cli.request_cgi
         match = req.to_s.match("Authorization: Basic")
         match.should be
-        match.length.should == 1
+        expect(match.length).to eq 1
       end
       it "should prefer the value in the header" do
         req = cli.request_cgi
         match = req.to_s.match(/Authorization: Basic (.*)$/)
         match.should be
-        match.captures.length.should == 1
-        match.captures[0].chomp.should == base64
+        expect(match.captures.length).to eq 1
+        expect(match.captures[0].chomp).to eq base64
       end
     end
   end
@@ -142,7 +142,7 @@ RSpec.describe Rex::Proto::Http::Client do
       cli.send_recv(req)
 
       # Make sure it didn't modify the argument
-      opts.should == { "username" => user, "password" => pass}
+      expect(opts).to eq({ "username" => user, "password" => pass})
     end
 
   end
@@ -182,7 +182,7 @@ RSpec.describe Rex::Proto::Http::Client do
     u = "user1"
     p = "pass1"
     b64 = ["#{u}:#{p}"].pack("m*").strip
-    cli.basic_auth_header("user1","pass1").should == "Basic #{b64}"
+    expect(cli.basic_auth_header("user1","pass1")).to eq "Basic #{b64}"
   end
 
   it "should perform digest authentication", :skip => excuse_needs_auth do

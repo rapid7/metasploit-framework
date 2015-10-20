@@ -39,14 +39,14 @@ RSpec.describe Rex::Parser::NmapXMLStreamParser do
       host["addrs"].should be_a(Hash)
     end
     it "should find the address" do
-      host["addrs"].keys.length.should == 1
+      expect(host["addrs"].keys.length).to eq 1
       host["addrs"].should have_key("ipv4")
-      host["addrs"]["ipv4"].should == "192.168.0.1"
+      expect(host["addrs"]["ipv4"]).to eq "192.168.0.1"
     end
   }
   REXML::Document.parse_stream(StringIO.new(xml), parser)
   it "should have found exactly one host" do
-    total_hosts.should == 1
+    expect(total_hosts).to eq 1
   end
 end
 

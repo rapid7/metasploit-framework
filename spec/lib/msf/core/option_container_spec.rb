@@ -18,7 +18,7 @@ RSpec.describe Msf::OptionContainer do
     subject = described_class.new({
       'thing' => [ foo_class, true, nil, false ]
     })
-    subject["thing"].should == foo_inst
+    expect(subject["thing"]).to eq foo_inst
 
   end
 

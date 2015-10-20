@@ -229,7 +229,7 @@ shared_examples_for 'Msf::DBManager::Session' do
               it 'should set session.db_record to created Mdm::Session' do
                 mdm_session = report_session
 
-                session.db_record.should == mdm_session
+                expect(session.db_record).to eq mdm_session
               end
 
               context 'with session.via_exploit' do
@@ -432,7 +432,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                 context "with session.via_exploit 'exploit/multi/handler'" do
                   it "should have session.via_exploit of 'exploit/multi/handler'" do
-                    session.via_exploit.should == 'exploit/multi/handler'
+                    expect(session.via_exploit).to eq 'exploit/multi/handler'
                   end
 
                   context "with session.exploit_datastore['ParentModule']" do
@@ -572,7 +572,7 @@ shared_examples_for 'Msf::DBManager::Session' do
               it 'should set session.db_record to created Mdm::Session' do
                 mdm_session = report_session
 
-                session.db_record.should == mdm_session
+                expect(session.db_record).to eq mdm_session
               end
 
               context 'with session.via_exploit' do
@@ -775,7 +775,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                 context "with session.via_exploit 'exploit/multi/handler'" do
                   it "should have session.via_exploit of 'exploit/multi/handler'" do
-                    session.via_exploit.should == 'exploit/multi/handler'
+                    expect(session.via_exploit).to eq 'exploit/multi/handler'
                   end
 
                   context "with session.exploit_datastore['ParentModule']" do
