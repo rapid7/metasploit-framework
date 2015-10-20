@@ -25,13 +25,15 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword
       end
 
       it 'should match Mdm::Module::Ref#name' do
-        module_details.count.should > 0
+        expect(module_details.count).to > 0
 
-        module_details.all? { |module_detail|
-          module_detail.refs.any? { |module_ref|
-            module_ref.name == name
+        expect(
+          module_details.all? { |module_detail|
+            module_detail.refs.any? { |module_ref|
+              module_ref.name == name
+            }
           }
-        }.should be_truthy
+        ).to eq true
       end
     end
 

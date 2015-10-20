@@ -9,12 +9,12 @@ shared_examples_for 'Msf::Module::Search' do
       accept.each do |query|
         it "should accept a query containing '#{query}'" do
           # if the subject matches, search_filter returns false ("don't filter me out!")
-          subject.search_filter(query).should be_falsey
+          expect(subject.search_filter(query)).to be_falsey
         end
 
         unless opts.has_key?(:test_inverse) and not opts[:test_inverse]
           it "should reject a query containing '-#{query}'" do
-            subject.search_filter("-#{query}").should be_truthy
+            expect(subject.search_filter("-#{query}")).to be_truthy
           end
         end
       end
@@ -22,12 +22,12 @@ shared_examples_for 'Msf::Module::Search' do
       reject.each do |query|
         it "should reject a query containing '#{query}'" do
           # if the subject doesn't matches, search_filter returns true ("filter me out!")
-          subject.search_filter(query).should be_truthy
+          expect(subject.search_filter(query)).to be_truthy
         end
 
         unless opts.has_key?(:test_inverse) and not opts[:test_inverse]
           it "should accept a query containing '-#{query}'" do
-            subject.search_filter("-#{query}").should be_truthy # what? why?
+            expect(subject.search_filter("-#{query}")).to be_truthy # what? why?
           end
         end
       end

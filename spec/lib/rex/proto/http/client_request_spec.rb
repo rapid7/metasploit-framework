@@ -23,8 +23,8 @@ RSpec.shared_context "with 'uri_dir_self_reference'" do
   end
 
   it "should have a self reference" do
-    client_request.send(:set_uri).should include("/./")
-    client_request.to_s.should include("/./")
+    expect(client_request.send(:set_uri)).to include("/./")
+    expect(client_request.to_s).to include("/./")
   end
 end
 
@@ -35,8 +35,8 @@ RSpec.shared_context "with 'uri_dir_fake_relative'" do
   end
 
   it "should contain sequences of '../'" do
-    client_request.send(:set_uri).should include("../")
-    client_request.to_s.should include("../")
+    expect(client_request.send(:set_uri)).to include("../")
+    expect(client_request.to_s).to include("../")
   end
 
 end
@@ -75,7 +75,7 @@ end
 RSpec.shared_examples "uri_full_url" do
 
   it "#set_uri should have the host in the URI" do
-    client_request.send(:set_uri).should start_with("http://#{host}/")
+    expect(client_request.send(:set_uri)).to start_with("http://#{host}/")
   end
 
 end
@@ -215,12 +215,12 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
       let(:encode_params) { false }
       it "should contain the unaltered params" do
         str = client_request.to_s
-        str.should include("foo[]=bar")
-        str.should include("bar=baz")
-        str.should include("frobnicate=the froozle?")
-        str.should include("foshizzle=my/nizzle")
-        str.should include("asdf&")
-        str.should include("test=")
+        expect(str).to include("foo[]=bar")
+        expect(str).to include("bar=baz")
+        expect(str).to include("frobnicate=the froozle?")
+        expect(str).to include("foshizzle=my/nizzle")
+        expect(str).to include("asdf&")
+        expect(str).to include("test=")
       end
     end
 
@@ -229,12 +229,12 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
       context "and 'uri_encode_mode' = default (hex-normal)" do
         it "should encode special chars" do
           str = client_request.to_s
-          str.should include("foo%5b%5d=bar")
-          str.should include("bar=baz")
-          str.should include("frobnicate=the%20froozle%3f")
-          str.should include("foshizzle=my/nizzle")
-          str.should include("asdf&")
-          str.should include("test=")
+          expect(str).to include("foo%5b%5d=bar")
+          expect(str).to include("bar=baz")
+          expect(str).to include("frobnicate=the%20froozle%3f")
+          expect(str).to include("foshizzle=my/nizzle")
+          expect(str).to include("asdf&")
+          expect(str).to include("test=")
         end
       end
 
@@ -242,10 +242,10 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         let(:encode_mode) { 'hex-noslashes' }
         it "should encode all chars" do
           str = client_request.to_s
-          str.should include("%66%6f%6f%5b%5d=%62%61%72")
-          str.should include("%62%61%72=%62%61%7a")
-          str.should include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
-          str.should include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79/%6e%69%7a%7a%6c%65")
+          expect(str).to include("%66%6f%6f%5b%5d=%62%61%72")
+          expect(str).to include("%62%61%72=%62%61%7a")
+          expect(str).to include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
+          expect(str).to include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79/%6e%69%7a%7a%6c%65")
         end
       end
 
@@ -253,10 +253,10 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         let(:encode_mode) { 'hex-all' }
         it "should encode all chars" do
           str = client_request.to_s
-          str.should include("%66%6f%6f%5b%5d=%62%61%72")
-          str.should include("%62%61%72=%62%61%7a")
-          str.should include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
-          str.should include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79%2f%6e%69%7a%7a%6c%65")
+          expect(str).to include("%66%6f%6f%5b%5d=%62%61%72")
+          expect(str).to include("%62%61%72=%62%61%7a")
+          expect(str).to include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
+          expect(str).to include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79%2f%6e%69%7a%7a%6c%65")
         end
       end
 

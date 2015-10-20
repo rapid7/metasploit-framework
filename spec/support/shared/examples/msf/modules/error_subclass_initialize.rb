@@ -12,7 +12,7 @@ shared_examples_for 'Msf::Modules::Error subclass #initialize' do
       end
 
       it 'should include causal message in error' do
-        subject.to_s.should match(/due to .*/)
+        expect(subject.to_s).to match(/due to .*/)
       end
 
       it 'should set module_path' do

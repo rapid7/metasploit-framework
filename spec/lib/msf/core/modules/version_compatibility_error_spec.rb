@@ -12,7 +12,7 @@ RSpec.describe Msf::Modules::VersionCompatibilityError do
     end
 
     it 'should say cause was version check' do
-      subject.to_s.should match(/due to version check/)
+      expect(subject.to_s).to match(/due to version check/)
     end
 
     context 'with :minimum_api_version' do
@@ -27,7 +27,7 @@ RSpec.describe Msf::Modules::VersionCompatibilityError do
       end
 
       it 'should include minimum_api_version in error' do
-        subject.to_s.should match(/due to version check \(requires API >= #{minimum_api_version}\)/)
+        expect(subject.to_s).to match(/due to version check \(requires API >= #{minimum_api_version}\)/)
       end
     end
 
@@ -40,7 +40,7 @@ RSpec.describe Msf::Modules::VersionCompatibilityError do
       end
 
       it 'should include minimum_api_version and minimum_core_version in error' do
-        subject.to_s.should match(/due to version check \(requires API >= #{minimum_api_version} and Core >= #{minimum_core_version}\)/)
+        expect(subject.to_s).to match(/due to version check \(requires API >= #{minimum_api_version} and Core >= #{minimum_core_version}\)/)
       end
     end
 
@@ -56,7 +56,7 @@ RSpec.describe Msf::Modules::VersionCompatibilityError do
       end
 
       it 'should include minimum_core_version in error' do
-        subject.to_s.should match(/due to version check \(requires Core >= #{minimum_core_version}\)/)
+        expect(subject.to_s).to match(/due to version check \(requires Core >= #{minimum_core_version}\)/)
       end
     end
   end

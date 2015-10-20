@@ -88,7 +88,7 @@ RSpec.describe Metasploit::Framework::Credential do
     end
     it { should respond_to :to_credential }
     it "should return self" do
-      cred_detail.to_credential.should eq(cred_detail)
+      expect(cred_detail.to_credential).to eq(cred_detail)
     end
   end
 

@@ -30,11 +30,11 @@ RSpec.describe VirusTotalUtility do
 
         context ".Initializer" do
           it "should init the config file path as Metasploit's default config path" do
-            tool_config.instance_variable_get(:@config_file).should eq(Msf::Config.config_file)
+            expect(tool_config.instance_variable_get(:@config_file)).to eq(Msf::Config.config_file)
           end
 
           it "should init the group name as 'VirusTotal'" do
-            tool_config.instance_variable_get(:@group_name).should eq('VirusTotal')
+            expect(tool_config.instance_variable_get(:@group_name)).to eq('VirusTotal')
           end
         end
       end
@@ -92,31 +92,31 @@ RSpec.describe VirusTotalUtility do
 
         context ".Initializer" do
           it "should have an API key" do
-            vt.instance_variable_get(:@api_key).should eq(api_key)
+            expect(vt.instance_variable_get(:@api_key)).to eq(api_key)
           end
 
           it "should have a checksum for the malware sample" do
-            vt.instance_variable_get(:@sample_info)['sha256'].should eq(malware_sha256)
+            expect(vt.instance_variable_get(:@sample_info)['sha256']).to eq(malware_sha256)
           end
         end
 
         context "._load_sample" do
           it "should contain sample info including data, filename, and sha256" do
-            vt.send(:_load_sample, filename).should eq(sample)
+            expect(vt.send(:_load_sample, filename)).to eq(sample)
           end
         end
 
         context ".scan_sample" do
           it "should return with data" do
             expect(vt).to receive(:_execute_request).and_return('')
-            vt.scan_sample.should eq('')
+            expect(vt.scan_sample).to eq('')
           end
         end
 
         context ".retrieve_report" do
           it "should return with data" do
             expect(vt).to receive(:_execute_request).and_return('')
-            vt.retrieve_report.should eq('')
+            expect(vt.retrieve_report).to eq('')
           end
         end
 
@@ -152,19 +152,19 @@ RSpec.describe VirusTotalUtility do
           end
 
           it "should create form-data with a boundary" do
-            @upload_data.should match(/#{boundary}/)
+            expect(@upload_data).to match(/#{boundary}/)
           end
 
           it "should create form-data with the API key" do
-            @upload_data.should match(/#{api_key}/)
+            expect(@upload_data).to match(/#{api_key}/)
           end
 
           it "should create form-data with the malware filename" do
-            @upload_data.should match(/#{filename}/)
+            expect(@upload_data).to match(/#{filename}/)
           end
 
           it "should create form-data with the malware data" do
-            @upload_data.should match(/#{malware_data}/)
+            expect(@upload_data).to match(/#{malware_data}/)
           end
         end
       end
@@ -224,7 +224,7 @@ RSpec.describe VirusTotalUtility do
 
         context ".initialize" do
           it "should return a Driver object" do
-            driver.class.should eq(VirusTotalUtility::Driver)
+            expect(driver.class).to eq(VirusTotalUtility::Driver)
           end
         end
 
@@ -232,7 +232,7 @@ RSpec.describe VirusTotalUtility do
           it "should have a link of VirusTotal's terms of service" do
             tos = 'https://www.virustotal.com/en/about/terms-of-service'
             out = get_stdout { driver.ack_privacy }
-            out.should match(/#{tos}/)
+            expect(out).to match(/#{tos}/)
           end
         end
 
@@ -246,7 +246,7 @@ RSpec.describe VirusTotalUtility do
             }
 
             out = get_stdout { driver.generate_report(res, filename) }
-            out.should match(/#{res['scans']['Bkav']['version']}/)
+            expect(out).to match(/#{res['scans']['Bkav']['version']}/)
           end
         end
       end

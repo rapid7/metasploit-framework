@@ -32,15 +32,15 @@ RSpec.describe Rex::Parser::NmapXMLStreamParser do
       host.should_not be_nil
     end
     it "should populate the host with proper keys" do
-      host.should have_key("status")
-      host.should have_key("ports")
-      host.should have_key("addrs")
-      host["ports"].should be_a(Array)
-      host["addrs"].should be_a(Hash)
+      expect(host).to have_key("status")
+      expect(host).to have_key("ports")
+      expect(host).to have_key("addrs")
+      expect(host["ports"]).to be_a(Array)
+      expect(host["addrs"]).to be_a(Hash)
     end
     it "should find the address" do
       expect(host["addrs"].keys.length).to eq 1
-      host["addrs"].should have_key("ipv4")
+      expect(host["addrs"]).to have_key("ipv4")
       expect(host["addrs"]["ipv4"]).to eq "192.168.0.1"
     end
   }

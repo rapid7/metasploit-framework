@@ -16,14 +16,14 @@ RSpec.describe CPassword do
         # Encrypted password for "testpassword"
         cpass = "AzVJmXh/J9KrU5n0czX1uBPLSUjzFE8j7dOltPD8tLk"
         pass = cpasswd.decrypt(cpass)
-        pass.should eq('testpassword')
+        expect(pass).to eq('testpassword')
       end
 
       it "should return an empty string due to a bad password" do
         # Invalid password format
         cpass = "BadPassword"
         pass = cpasswd.decrypt(cpass)
-        pass.should eq('')
+        expect(pass).to eq('')
       end
     end
   end

@@ -122,7 +122,7 @@ RSpec.describe Msfupdate do
 
       it "sets @offline_file" do
         subject.parse_args(args)
-        subject.instance_variable_get(:@offline_file).should =~ Regexp.new(Regexp.escape(offline_file))
+        expect(subject.instance_variable_get(:@offline_file)).to =~ Regexp.new(Regexp.escape(offline_file))
       end
 
       context "with relative path" do
@@ -145,7 +145,7 @@ RSpec.describe Msfupdate do
 
         it "sets @offline_file" do
           subject.parse_args(["--offline-file=#{offline_file}"])
-          subject.instance_variable_get(:@offline_file).should =~ Regexp.new(Regexp.escape(offline_file))
+          expect(subject.instance_variable_get(:@offline_file)).to =~ Regexp.new(Regexp.escape(offline_file))
         end
       end
     end

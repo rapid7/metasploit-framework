@@ -28,7 +28,7 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
     while @raw.length >0
       parsed_packet = parser.recv(@sock)
     end
-    parsed_packet.should be_a Rex::Post::Meterpreter::Packet
+    expect(parsed_packet).to be_a Rex::Post::Meterpreter::Packet
     expect(parsed_packet.type).to eq Rex::Post::Meterpreter::PACKET_TYPE_REQUEST
     expect(parsed_packet.method?("test_method")).to eq true
   end

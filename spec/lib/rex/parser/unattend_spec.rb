@@ -18,14 +18,14 @@ RSpec.describe Rex::Parser::Unattend do
   context "#parse" do
     it "returns passwords for b64" do
       results = described_class.parse(b64)
-      results.length.should eq(2)
-      results[0]['password'].should eq(Rex::Text.to_unicode('Temp123'))
+      expect(results.length).to eq(2)
+      expect(results[0]['password']).to eq(Rex::Text.to_unicode('Temp123'))
     end
 
     it "returns passwords for domain join" do
       results = described_class.parse(dj)
-      results.length.should eq(1)
-      results[0]['password'].should eq('Password1')
+      expect(results.length).to eq(1)
+      expect(results[0]['password']).to eq('Password1')
     end
 
     pos_xmls = [dj, b64, comb, std, lng]
@@ -42,7 +42,7 @@ RSpec.describe Rex::Parser::Unattend do
     it "returns no results for negative examples" do
       neg_xmls.each do |xml|
         results = described_class.parse(xml)
-        results.should be_empty
+        expect(results).to be_empty
       end
     end
   end

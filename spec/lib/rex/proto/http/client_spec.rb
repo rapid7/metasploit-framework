@@ -44,27 +44,27 @@ RSpec.describe Rex::Proto::Http::Client do
   end
 
   it "should respond to intialize" do
-    cli.should be
+    expect(cli).to be
   end
 
   it "should have a set of default instance variables" do
     expect(cli.instance_variable_get(:@hostname)).to eq ip
     expect(cli.instance_variable_get(:@port)).to eq 80
     expect(cli.instance_variable_get(:@context)).to eq {}
-    cli.instance_variable_get(:@ssl).should be_falsey
-    cli.instance_variable_get(:@proxies).should be_nil
-    cli.instance_variable_get(:@username).should be_empty
-    cli.instance_variable_get(:@password).should be_empty
-    cli.config.should be_a_kind_of Hash
+    expect(cli.instance_variable_get(:@ssl)).to be_falsey
+    expect(cli.instance_variable_get(:@proxies)).to be_nil
+    expect(cli.instance_variable_get(:@username)).to be_empty
+    expect(cli.instance_variable_get(:@password)).to be_empty
+    expect(cli.config).to be_a_kind_of Hash
   end
 
   it "should produce a raw HTTP request" do
-    cli.request_raw.should be_a_kind_of Rex::Proto::Http::ClientRequest
+    expect(cli.request_raw).to be_a_kind_of Rex::Proto::Http::ClientRequest
   end
 
   it "should produce a CGI HTTP request" do
     req = cli.request_cgi
-    req.should be_a_kind_of Rex::Proto::Http::ClientRequest
+    expect(req).to be_a_kind_of Rex::Proto::Http::ClientRequest
   end
 
   context "with authorization" do
@@ -84,13 +84,13 @@ RSpec.describe Rex::Proto::Http::Client do
       it "should have one Authorization header" do
         req = cli.request_cgi
         match = req.to_s.match("Authorization: Basic")
-        match.should be
+        expect(match).to be
         expect(match.length).to eq 1
       end
       it "should prefer the value in the header" do
         req = cli.request_cgi
         match = req.to_s.match(/Authorization: Basic (.*)$/)
-        match.should be
+        expect(match).to be
         expect(match.captures.length).to eq 1
         expect(match.captures[0].chomp).to eq base64
       end
@@ -129,7 +129,7 @@ RSpec.describe Rex::Proto::Http::Client do
         nil
       end
       expect(conn).to receive(:put) do |str_request|
-        str_request.should include("Authorization")
+        expect(str_request).to include("Authorization")
         nil
       end
 
@@ -153,7 +153,7 @@ RSpec.describe Rex::Proto::Http::Client do
   end
 
   it "should be able to close a connection" do
-    cli.close.should be_nil
+    expect(cli.close).to be_nil
   end
 
   it "should send a request and receive a response", :skip => excuse_needs_connection do
@@ -172,7 +172,7 @@ RSpec.describe Rex::Proto::Http::Client do
     skip "Should actually respond to :has_creds" do
       cli.should_not have_creds
       this_cli = described_class.new("127.0.0.1", 1, {}, false, nil, nil, "user1", "pass1" )
-      this_cli.should have_creds
+      expect(this_cli).to have_creds
     end
   end
 
@@ -198,37 +198,32 @@ RSpec.describe Rex::Proto::Http::Client do
   end
 
   it "should end a connection with a stop" do
-    cli.stop.should be_nil
+    expect(cli.stop).to be_nil
   end
 
   it "should test if a connection is valid" do
-    cli.conn?.should be_falsey
+    expect(cli.conn?).to be_falsey
   end
 
   it "should tell if pipelining is enabled" do
     cli.should_not be_pipelining
     this_cli = Rex::Proto::Http::Client.new("127.0.0.1", 1)
     this_cli.pipeline = true
-    this_cli.should be_pipelining
+    expect(this_cli).to be_pipelining
   end
 
   it "should respond to its various accessors" do
-    cli.should respond_to :config
-    cli.should respond_to :config_types
-    cli.should respond_to :pipeline
-    cli.should respond_to :local_host
-    cli.should respond_to :local_port
-    cli.should respond_to :conn
-    cli.should respond_to :context
-    cli.should respond_to :proxies
-    cli.should respond_to :username
-    cli.should respond_to :password
-    cli.should respond_to :junk_pipeline
-    # These are protected. Why are they protected? Hysterical raisins.
-    #cli.should respond_to :ssl
-    #cli.should respond_to :ssl_version
-    #cli.should respond_to :hostname
-    #cli.should respond_to :port
+    expect(cli).to respond_to :config
+    expect(cli).to respond_to :config_types
+    expect(cli).to respond_to :pipeline
+    expect(cli).to respond_to :local_host
+    expect(cli).to respond_to :local_port
+    expect(cli).to respond_to :conn
+    expect(cli).to respond_to :context
+    expect(cli).to respond_to :proxies
+    expect(cli).to respond_to :username
+    expect(cli).to respond_to :password
+    expect(cli).to respond_to :junk_pipeline
   end
 
   # Not super sure why these are protected...

@@ -7,21 +7,21 @@ RSpec.describe Rex::Exploitation::Js::Detect do
     context ".os" do
       it "should load the OS detection in Javascript" do
         js = Rex::Exploitation::Js::Detect.os.to_s
-        js.should =~ /os_detect/
+        expect(js).to =~ /os_detect/
       end
     end
 
     context ".ie_addons" do
       it "should load the IE Addons detection in Javascript" do
         js = Rex::Exploitation::Js::Detect.ie_addons.to_s
-        js.should =~ /ie_addons_detect/
+        expect(js).to =~ /ie_addons_detect/
       end
     end
 
     context ".misc_addons" do
       it "should load the misc Addons detection in Javascript" do
         js = Rex::Exploitation::Js::Detect.misc_addons.to_s
-        js.should =~ /misc_addons_detect/
+        expect(js).to =~ /misc_addons_detect/
       end
     end
 

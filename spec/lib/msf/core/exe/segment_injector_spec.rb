@@ -44,7 +44,7 @@ RSpec.describe Msf::Exe::SegmentInjector do
     end
 
     it 'should set a buffer register for the payload' do
-      injector.create_thread_stub.should include('lea edx, [thread_hook]')
+      expect(injector.create_thread_stub).to include('lea edx, [thread_hook]')
     end
   end
 

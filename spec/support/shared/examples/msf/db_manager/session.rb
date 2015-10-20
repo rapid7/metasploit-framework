@@ -396,27 +396,27 @@ shared_examples_for 'Msf::DBManager::Session' do
                 #
 
                 it 'should have session.info present' do
-                  session.info.should be_present
+                  expect(session.info).to be_present
                 end
 
                 it 'should have session.sid present' do
-                  session.sid.should be_present
+                  expect(session.sid).to be_present
                 end
 
                 it 'should have session.platform present' do
-                  session.platform.should be_present
+                  expect(session.platform).to be_present
                 end
 
                 it 'should have session.type present' do
-                  session.type.should be_present
+                  expect(session.type).to be_present
                 end
 
                 it 'should have session.via_exploit present' do
-                  session.via_exploit.should be_present
+                  expect(session.via_exploit).to be_present
                 end
 
                 it 'should have session.via_payload present' do
-                  session.via_exploit.should be_present
+                  expect(session.via_exploit).to be_present
                 end
 
                 it { expect(subject.datastore).to eq(session.exploit_datastore.to_h) }
@@ -739,27 +739,27 @@ shared_examples_for 'Msf::DBManager::Session' do
                 #
 
                 it 'should have session.info present' do
-                  session.info.should be_present
+                  expect(session.info).to be_present
                 end
 
                 it 'should have session.sid present' do
-                  session.sid.should be_present
+                  expect(session.sid).to be_present
                 end
 
                 it 'should have session.platform present' do
-                  session.platform.should be_present
+                  expect(session.platform).to be_present
                 end
 
                 it 'should have session.type present' do
-                  session.type.should be_present
+                  expect(session.type).to be_present
                 end
 
                 it 'should have session.via_exploit present' do
-                  session.via_exploit.should be_present
+                  expect(session.via_exploit).to be_present
                 end
 
                 it 'should have session.via_payload present' do
-                  session.via_exploit.should be_present
+                  expect(session.via_exploit).to be_present
                 end
 
                 it { expect(subject.datastore).to eq(session.exploit_datastore.to_h) }

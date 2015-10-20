@@ -73,7 +73,7 @@ RSpec.describe Msf::DBManager::Export do
 
         context '/disclosure-date' do
           it 'should have Mdm::Module::Detail#disclosure_date present' do
-            module_detail.disclosure_date.should be_present
+            expect(module_detail.disclosure_date).to be_present
           end
 
           it 'should have Mdm::Module::Detail#disclosure_date from disclosure-date content' do
@@ -101,7 +101,7 @@ RSpec.describe Msf::DBManager::Export do
       it 'should not write anything to report_file' do
         extract_module_detail_info
 
-        report_file.string.should be_empty
+        expect(report_file.string).to be_empty
       end
     end
   end
