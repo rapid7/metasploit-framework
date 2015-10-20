@@ -20,7 +20,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Invalid do
   it { should be_a StandardError }
 
   it 'should use ActiveModel::Errors#full_messages' do
-    model.errors.should_receive(:full_messages).and_call_original
+    expect(model.errors).to receive(:full_messages).and_call_original
 
     described_class.new(model)
   end

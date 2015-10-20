@@ -139,7 +139,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
 
         # this ensures that the File.exist?(module_path) checks are checking the same path as the code under test
         it 'should attempt to open the expected module_path' do
-          File.should_receive(:open).with(module_path, 'rb')
+          expect(File).to receive(:open).with(module_path, 'rb')
           File.exist?(module_path).should be_falsey
 
           subject.send(:read_module_content, parent_path, type, module_reference_name)
@@ -156,7 +156,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
         end
 
         it 'should record the load error' do
-          subject.should_receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
+          expect(subject).to receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
 
           expect(subject.send(:read_module_content, parent_path, type, module_reference_name)).to eq ''
         end

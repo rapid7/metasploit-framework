@@ -154,13 +154,13 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             context 'without :workspace' do
               it 'should find workspace from session' do
-                db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
+                expect(db_manager).to receive(:find_workspace).with(session.workspace).and_call_original
 
                 report_session
               end
 
               it 'should pass session.workspace to #find_or_create_host' do
-                db_manager.should_receive(:find_or_create_host).with(
+                expect(db_manager).to receive(:find_or_create_host).with(
                   hash_including(
                     :workspace => session_workspace
                   )
@@ -177,7 +177,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
                 db_manager.stub(:report_vuln)
 
-                db_manager.should_receive(:find_or_create_host).with(
+                expect(db_manager).to receive(:find_or_create_host).with(
                   hash_including(
                     :host => normalized_host
                   )
@@ -196,7 +196,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
-                  db_manager.should_receive(:find_or_create_host).with(
+                  expect(db_manager).to receive(:find_or_create_host).with(
                     hash_including(
                       :arch => arch
                     )
@@ -208,7 +208,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
               context 'without session responds to arch' do
                 it 'should not pass :arch to #find_or_create_host' do
-                  db_manager.should_receive(:find_or_create_host).with(
+                  expect(db_manager).to receive(:find_or_create_host).with(
                     hash_excluding(
                       :arch
                     )
@@ -497,13 +497,13 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             context 'without :workspace' do
               it 'should find workspace from session' do
-                db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
+                expect(db_manager).to receive(:find_workspace).with(session.workspace).and_call_original
 
                 report_session
               end
 
               it 'should pass session.workspace to #find_or_create_host' do
-                db_manager.should_receive(:find_or_create_host).with(
+                expect(db_manager).to receive(:find_or_create_host).with(
                     hash_including(
                         :workspace => session_workspace
                     )
@@ -520,7 +520,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
                 db_manager.stub(:report_vuln)
 
-                db_manager.should_receive(:find_or_create_host).with(
+                expect(db_manager).to receive(:find_or_create_host).with(
                     hash_including(
                         :host => normalized_host
                     )
@@ -539,7 +539,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
-                  db_manager.should_receive(:find_or_create_host).with(
+                  expect(db_manager).to receive(:find_or_create_host).with(
                       hash_including(
                           :arch => arch
                       )
@@ -551,7 +551,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
               context 'without session responds to arch' do
                 it 'should not pass :arch to #find_or_create_host' do
-                  db_manager.should_receive(:find_or_create_host).with(
+                  expect(db_manager).to receive(:find_or_create_host).with(
                       hash_excluding(
                           :arch
                       )

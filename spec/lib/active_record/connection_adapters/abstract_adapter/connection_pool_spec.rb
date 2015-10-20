@@ -69,7 +69,7 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
     end
 
     it 'should call #current_connection_id' do
-      connection_pool.should_receive(
+      expect(connection_pool).to receive(
           :current_connection_id
       ).at_least(
           :once

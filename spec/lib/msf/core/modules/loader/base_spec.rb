@@ -259,7 +259,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       it 'should call file_changed? with the module_path' do
-        module_manager.should_receive(:file_changed?).with(module_path).and_return(false)
+        expect(module_manager).to receive(:file_changed?).with(module_path).and_return(false)
 
         subject.load_module(parent_path, type, module_reference_name, :force => false)
       end
@@ -329,7 +329,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         it 'should call #namespace_module_transaction with the module full name and :reload => true' do
           subject.stub(:read_module_content => module_content)
 
-          subject.should_receive(:namespace_module_transaction).with(module_full_name, hash_including(:reload => true))
+          expect(subject).to receive(:namespace_module_transaction).with(module_full_name, hash_including(:reload => true))
 
           subject.load_module(parent_path, type, module_reference_name)
         end
@@ -346,7 +346,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         it 'should call #read_module_content to get the module content so that #read_module_content can be overridden to change loading behavior' do
           module_manager.stub(:on_module_load)
 
-          subject.should_receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
+          expect(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
           subject.load_module(parent_path, type, module_reference_name).should be_truthy
         end
 
@@ -355,7 +355,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           module_manager.stub(:on_module_load)
 
           # if the module eval error includes the module_path then the module_path was passed along correctly
-          subject.should_receive(:elog).with(/#{Regexp.escape(module_path)}/)
+          expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/)
           subject.load_module(parent_path, type, module_reference_name, :reload => true).should be_falsey
         end
 
@@ -429,7 +429,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               it 'should record the load error using the original error' do
-                subject.should_receive(:load_error).with(module_path, error)
+                expect(subject).to receive(:load_error).with(module_path, error)
                 subject.load_module(parent_path, type, module_reference_name).should be_falsey
               end
             end
@@ -460,7 +460,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               it 'should record the load error using the Msf::Modules::VersionCompatibilityError' do
-                subject.should_receive(:load_error).with(module_path, version_compatibility_error)
+                expect(subject).to receive(:load_error).with(module_path, version_compatibility_error)
                 subject.load_module(parent_path, type, module_reference_name).should be_falsey
               end
             end
@@ -493,7 +493,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           it 'should check for version compatibility' do
             module_manager.stub(:on_module_load)
 
-            @namespace_module.should_receive(:version_compatible!).with(module_path, module_reference_name)
+            expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
             subject.load_module(parent_path, type, module_reference_name)
           end
 
@@ -523,7 +523,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
 
             it 'should record the load error' do
-              subject.should_receive(:load_error).with(module_path, version_compatibility_error)
+              expect(subject).to receive(:load_error).with(module_path, version_compatibility_error)
               subject.load_module(parent_path, type, module_reference_name).should be_falsey
             end
 
@@ -556,7 +556,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               it 'should record load error' do
-                subject.should_receive(
+                expect(subject).to receive(
                     :load_error
                 ).with(
                     module_path,
@@ -586,7 +586,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               it 'should check if it is usable' do
-                subject.should_receive(:usable?).with(metasploit_class).and_return(true)
+                expect(subject).to receive(:usable?).with(metasploit_class).and_return(true)
                 subject.load_module(parent_path, type, module_reference_name).should be_truthy
               end
 
@@ -596,7 +596,7 @@ RSpec.describe Msf::Modules::Loader::Base do
                 end
 
                 it 'should log information' do
-                  subject.should_receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_1)
+                  expect(subject).to receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_1)
                   subject.load_module(parent_path, type, module_reference_name).should be_falsey
                 end
 
@@ -618,7 +618,7 @@ RSpec.describe Msf::Modules::Loader::Base do
                 end
 
                 it 'should log load information' do
-                  subject.should_receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_2)
+                  expect(subject).to receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_2)
                   subject.load_module(parent_path, type, module_reference_name).should be_truthy
                 end
 
@@ -636,7 +636,7 @@ RSpec.describe Msf::Modules::Loader::Base do
                 end
 
                 it 'should call module_manager.on_module_load' do
-                  module_manager.should_receive(:on_module_load)
+                  expect(module_manager).to receive(:on_module_load)
                   subject.load_module(parent_path, type, module_reference_name).should be_truthy
                 end
 
@@ -719,7 +719,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       it 'should wrap NAMESPACE_MODULE_CONTENT with module declarations matching namespace_module_names' do
-        Object.should_receive(
+        expect(Object).to receive(
             :module_eval
         ).with(
             "module #{namespace_module_names[0]}\n" \
@@ -741,7 +741,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       it "should set the module_eval path to the loader's __FILE__" do
-        Object.should_receive(
+        expect(Object).to receive(
             :module_eval
         ).with(
             anything,
@@ -757,7 +757,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       it 'should set the module_eval line to compensate for the wrapping module declarations' do
-        Object.should_receive(
+        expect(Object).to receive(
             :module_eval
         ).with(
             anything,
@@ -775,7 +775,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       it "should set the namespace_module's module loader to itself" do
         namespace_module = double('Namespace Module')
 
-        namespace_module.should_receive(:loader=).with(subject)
+        expect(namespace_module).to receive(:loader=).with(subject)
 
         subject.stub(:current_module => namespace_module)
 
@@ -949,7 +949,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
         context 'with :reload => false' do
           it 'should log an error' do
-            subject.should_receive(:elog).with(/Reloading.*when :reload => false/)
+            expect(subject).to receive(:elog).with(/Reloading.*when :reload => false/)
 
             subject.send(:namespace_module_transaction, module_full_name, :reload => false) do |namespace_module|
               true
@@ -1320,7 +1320,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       it 'should delegate to the class method' do
         type = Msf::MODULE_EXPLOIT
 
-        described_class.should_receive(:typed_path).with(type, module_reference_name)
+        expect(described_class).to receive(:typed_path).with(type, module_reference_name)
         subject.send(:typed_path, type, module_reference_name)
       end
     end
@@ -1358,7 +1358,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           end
 
           it 'should log error' do
-            subject.should_receive(:elog).with(/#{error}/)
+            expect(subject).to receive(:elog).with(/#{error}/)
 
             subject.send(:usable?, metasploit_class)
           end

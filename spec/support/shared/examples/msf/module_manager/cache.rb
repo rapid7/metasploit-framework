@@ -167,14 +167,14 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
       it 'should enumerate loaders until if it find the one where loadable?(parent_path) is true' do
         module_manager.send(:loaders).each do |loader|
-          loader.should_receive(:loadable?).with(parent_path).and_call_original
+          expect(loader).to receive(:loadable?).with(parent_path).and_call_original
         end
 
         load_cached_module
       end
 
       it 'should force load using #load_module on the loader' do
-        Msf::Modules::Loader::Directory.any_instance.should_receive(
+        expect(Msf::Modules::Loader::Directory.any_instance).to receive(
             :load_module
         ).with(
             parent_path,
@@ -240,8 +240,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should update database and then update in-memory cache from the database for the given module_class_or_instance' do
-          framework.db.should_receive(:update_module_details).with(module_class_or_instance).ordered
-          module_manager.should_receive(:refresh_cache_from_database).ordered
+          expect(framework.db).to receive(:update_module_details).with(module_class_or_instance).ordered
+          expect(module_manager).to receive(:refresh_cache_from_database).ordered
 
           refresh_cache_from_module_files
         end
@@ -253,8 +253,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should update database and then update in-memory cache from the database for all modules' do
-          framework.db.should_receive(:update_all_module_details).ordered
-          module_manager.should_receive(:refresh_cache_from_database)
+          expect(framework.db).to receive(:update_all_module_details).ordered
+          expect(module_manager).to receive(:refresh_cache_from_database)
 
           refresh_cache_from_module_files
         end
@@ -296,7 +296,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     it 'should call #module_info_by_path_from_database!' do
-      module_manager.should_receive(:module_info_by_path_from_database!)
+      expect(module_manager).to receive(:module_info_by_path_from_database!)
 
       refresh_cache_from_database
     end
@@ -369,7 +369,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
       it 'should use ActiveRecord::Batches#find_each to enumerate Mdm::Module::Details in batches' do
-        Mdm::Module::Detail.should_receive(:find_each)
+        expect(Mdm::Module::Detail).to receive(:find_each)
 
         module_info_by_path_from_database!
       end
@@ -395,7 +395,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should use Msf::Modules::Loader::Base.typed_path to derive parent_path' do
-          Msf::Modules::Loader::Base.should_receive(:typed_path).with(type, reference_name).at_least(:once).and_call_original
+          expect(Msf::Modules::Loader::Base).to receive(:typed_path).with(type, reference_name).at_least(:once).and_call_original
 
           module_info_by_path_from_database!
         end

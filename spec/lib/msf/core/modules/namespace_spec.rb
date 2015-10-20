@@ -118,7 +118,7 @@ RSpec.describe Msf::Modules::Namespace do
 
   context 'metasploit_class!' do
     it 'should call metasploit_class' do
-      subject.should_receive(:metasploit_class).and_return(Class.new)
+      expect(subject).to receive(:metasploit_class).and_return(Class.new)
 
       subject.metasploit_class!(module_path, module_reference_name)
     end

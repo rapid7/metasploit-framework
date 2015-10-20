@@ -123,17 +123,17 @@ RSpec.describe Rex::Proto::Http::Client do
       conn.stub(:close)
       conn.stub(:closed? => false)
 
-      conn.should_receive(:get_once).and_return(first_response, authed_response)
-      conn.should_receive(:put) do |str_request|
+      expect(conn).to receive(:get_once).and_return(first_response, authed_response)
+      expect(conn).to receive(:put) do |str_request|
         str_request.should_not include("Authorization")
         nil
       end
-      conn.should_receive(:put) do |str_request|
+      expect(conn).to receive(:put) do |str_request|
         str_request.should include("Authorization")
         nil
       end
 
-      cli.should_receive(:_send_recv).twice.and_call_original
+      expect(cli).to receive(:_send_recv).twice.and_call_original
 
       Rex::Socket::Tcp.stub(:create).and_return(conn)
 
