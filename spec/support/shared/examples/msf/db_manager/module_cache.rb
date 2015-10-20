@@ -585,22 +585,22 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should set framework.cache_thread to current thread and then nil' do
-          framework.should_receive(:cache_thread=).with(Thread.current).ordered
-          framework.should_receive(:cache_thread=).with(nil).ordered
+          expect(framework).to receive(:cache_thread=).with(Thread.current).ordered
+          expect(framework).to receive(:cache_thread=).with(nil).ordered
 
           update_all_module_details
         end
 
         it 'should set modules_cached to false and then true' do
-          db_manager.should_receive(:modules_cached=).with(false).ordered
-          db_manager.should_receive(:modules_cached=).with(true).ordered
+          expect(db_manager).to receive(:modules_cached=).with(false).ordered
+          expect(db_manager).to receive(:modules_cached=).with(true).ordered
 
           update_all_module_details
         end
 
         it 'should set modules_caching to true and then false' do
-          db_manager.should_receive(:modules_caching=).with(true).ordered
-          db_manager.should_receive(:modules_caching=).with(false).ordered
+          expect(db_manager).to receive(:modules_caching=).with(true).ordered
+          expect(db_manager).to receive(:modules_caching=).with(false).ordered
 
           update_all_module_details
         end
@@ -780,7 +780,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       it 'should call module_to_details_hash to get Mdm::Module::Detail attributes and association attributes' do
-        db_manager.should_receive(:module_to_details_hash).and_call_original
+        expect(db_manager).to receive(:module_to_details_hash).and_call_original
 
         update_module_details
       end

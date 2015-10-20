@@ -69,7 +69,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
     context 'when the is a connection error' do
       it 'returns a result with the connection_error status' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:mssql_login).and_raise ::Rex::ConnectionError
+        expect(my_scanner).to receive(:mssql_login).and_raise ::Rex::ConnectionError
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
     end
@@ -77,7 +77,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
     context 'when the login fails' do
       it 'returns a result object with a status of Metasploit::Model::Login::Status::INCORRECT' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:mssql_login).and_return false
+        expect(my_scanner).to receive(:mssql_login).and_return false
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::INCORRECT
       end
     end
@@ -85,7 +85,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
     context 'when the login succeeds' do
       it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:mssql_login).and_return true
+        expect(my_scanner).to receive(:mssql_login).and_return true
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
       end
     end

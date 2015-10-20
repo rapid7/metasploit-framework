@@ -13,7 +13,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   def with_info
-    db_manager.should_receive(:import_msf_web_element) do |*args, &specialization|
+    expect(db_manager).to receive(:import_msf_web_element) do |*args, &specialization|
       info = specialization.call(element, options)
 
       yield info
@@ -333,7 +333,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should pass :workspace to report_web_<:type>' do
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               "report_web_#{type}"
           ).with(
               hash_including(:workspace => workspace)
@@ -353,13 +353,13 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should call Msf::DBManager#workspace' do
-          db_manager.should_receive(:workspace).and_call_original
+          expect(db_manager).to receive(:workspace).and_call_original
 
           import_msf_web_element
         end
 
         it 'should pass Msf::DBManager#workspace to report_web_<:type>' do
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               "report_web_#{type}"
           ).with(
               hash_including(:workspace => workspace)
@@ -371,7 +371,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
       it 'should import all elements in MSF_WEB_TEXT_ELEMENT_NAMES with #import_msf_text_element' do
         msf_web_text_element_names.each do |name|
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               :import_msf_text_element
           ).with(
               element,
@@ -394,7 +394,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should pass returned Hash as part of Hash passed to report_web_<:type' do
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               "report_web_#{type}"
           ).with(
               hash_including(returned_hash)
@@ -413,7 +413,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           end
 
           it 'should pass false for :ssl to report_web_<:type>' do
-            db_manager.should_receive(
+            expect(db_manager).to receive(
                 "report_web_#{type}"
             ).with(
                 hash_including(:ssl => false)
@@ -438,7 +438,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
             end
 
             it 'should pass true for :ssl to report_web_<:type>' do
-              db_manager.should_receive(
+              expect(db_manager).to receive(
                   "report_web_#{type}"
               ).with(
                   hash_including(:ssl => true)
@@ -454,7 +454,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
             end
 
             it 'should pass false for :ssl to report_web_<:type>' do
-              db_manager.should_receive(
+              expect(db_manager).to receive(
                   "report_web_#{type}"
               ).with(
                   hash_including(:ssl => false)
@@ -495,7 +495,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should pass return Hash to report_web_<:type>' do
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               "report_web_#{type}"
           ).with(
               hash_including(returned_hash)
@@ -713,7 +713,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should be a Hash' do
-          db_manager.should_receive(:import_msf_web_element) do |*args, &specialization|
+          expect(db_manager).to receive(:import_msf_web_element) do |*args, &specialization|
             info = specialization.call(element, options)
 
             info.should be_a Hash
@@ -1018,7 +1018,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     end
 
     it 'should call #check_msf_xml_version!' do
-      db_manager.should_receive(:check_msf_xml_version!).and_call_original
+      expect(db_manager).to receive(:check_msf_xml_version!).and_call_original
 
       import_msf_xml
     end
@@ -1056,7 +1056,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       it 'should call #import_msf_web_form_element' do
-        db_manager.should_receive(:import_msf_web_form_element).and_call_original
+        expect(db_manager).to receive(:import_msf_web_form_element).and_call_original
 
         import_msf_xml
       end
@@ -1107,7 +1107,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       it 'should call #import_msf_web_page_element' do
-        db_manager.should_receive(:import_msf_web_page_element).and_call_original
+        expect(db_manager).to receive(:import_msf_web_page_element).and_call_original
 
         import_msf_xml
       end
@@ -1153,7 +1153,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       it 'should call #import_msf_web_vuln_element' do
-        db_manager.should_receive(:import_msf_web_vuln_element).and_call_original
+        expect(db_manager).to receive(:import_msf_web_vuln_element).and_call_original
 
         import_msf_xml
       end

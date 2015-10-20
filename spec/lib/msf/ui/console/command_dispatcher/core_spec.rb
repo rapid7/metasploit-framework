@@ -22,13 +22,13 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
     end
 
     it 'should generate Matching Modules table' do
-      core.should_receive(:generate_module_table).with('Matching Modules').and_call_original
+      expect(core).to receive(:generate_module_table).with('Matching Modules').and_call_original
 
       search_modules_sql
     end
 
     it 'should call Msf::DBManager#search_modules' do
-      db_manager.should_receive(:search_modules).with(match).and_return([])
+      expect(db_manager).to receive(:search_modules).with(match).and_return([])
 
       search_modules_sql
     end

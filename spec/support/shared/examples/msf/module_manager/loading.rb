@@ -129,7 +129,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
     end
 
     it "should add module to type's module_set" do
-      module_set.should_receive(:add_module).with(
+      expect(module_set).to receive(:add_module).with(
           klass,
           reference_name,
           options
@@ -139,19 +139,19 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
     end
 
     it 'should call cache_in_memory' do
-      module_manager.should_receive(:cache_in_memory)
+      expect(module_manager).to receive(:cache_in_memory)
 
       on_module_load
     end
 
     it 'should pass class to #auto_subscribe_module' do
-      module_manager.should_receive(:auto_subscribe_module).with(klass)
+      expect(module_manager).to receive(:auto_subscribe_module).with(klass)
 
       on_module_load
     end
 
     it 'should fire on_module_load event with class' do
-      framework.events.should_receive(:on_module_load).with(
+      expect(framework.events).to receive(:on_module_load).with(
           reference_name,
           klass
       )

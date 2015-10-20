@@ -11,9 +11,9 @@ RSpec.describe Msf::OptionContainer do
     foo_inst.stub(:owner=)
 
     foo_class = double("opt_class")
-    foo_class.should_receive(:new).and_return(foo_inst)
+    expect(foo_class).to receive(:new).and_return(foo_inst)
 
-    foo_inst.should_receive(:name).and_return("thing")
+    expect(foo_inst).to receive(:name).and_return("thing")
 
     subject = described_class.new({
       'thing' => [ foo_class, true, nil, false ]

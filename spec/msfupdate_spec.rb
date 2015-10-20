@@ -174,13 +174,13 @@ RSpec.describe Msfupdate do
     let(:args) { [] }
 
     it "calls validate_args" do
-      subject.should_receive(:validate_args) { true }
+      expect(subject).to receive(:validate_args) { true }
       subject.run!
     end
 
     it "exits if arguments are invalid" do
       subject.stub(:validate_args) { false }
-      subject.should_receive(:maybe_wait_and_exit).and_raise(SystemExit)
+      expect(subject).to receive(:maybe_wait_and_exit).and_raise(SystemExit)
       expect { subject.run! }.to raise_error(SystemExit)
     end
   end
@@ -220,7 +220,7 @@ RSpec.describe Msfupdate do
 
     context "#run!" do
       it "calls update_apt!" do
-        subject.should_receive(:update_apt!)
+        expect(subject).to receive(:update_apt!)
         subject.run!
       end
       it "does not call update_binary_install!" do
@@ -277,7 +277,7 @@ RSpec.describe Msfupdate do
         subject.run!
       end
       it "calls update_binary_install!" do
-        subject.should_receive(:update_binary_install!)
+        expect(subject).to receive(:update_binary_install!)
         subject.run!
       end
       it "does not call update_git!" do
@@ -335,7 +335,7 @@ RSpec.describe Msfupdate do
         subject.run!
       end
       it "calls update_git!" do
-        subject.should_receive(:update_git!)
+        expect(subject).to receive(:update_git!)
         subject.run!
       end
     end
