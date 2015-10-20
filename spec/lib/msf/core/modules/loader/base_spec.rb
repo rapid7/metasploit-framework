@@ -853,7 +853,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         non_module_extension = '.c'
         path = "path/with/wrong/extension#{non_module_extension}"
 
-        non_module_extension.should_not == described_class::MODULE_EXTENSION
+        expect(non_module_extension).not_to eq described_class::MODULE_EXTENSION
         subject.send(:module_path?, path).should be_falsey
       end
 
@@ -968,7 +968,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
         it 'should create a new namespace module for the block' do
           subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
-            namespace_module.should_not == @existent_namespace_module
+            expect(namespace_module).not_to eq @existent_namespace_module
 
             expect {
               namespace_module::Metasploit3
@@ -995,7 +995,7 @@ RSpec.describe Msf::Modules::Loader::Base do
                 current_constant = Msf::Modules.const_get(relative_name)
 
                 current_constant.should == namespace_module
-                current_constant.should_not == @existent_namespace_module
+                expect(current_constant).not_to eq @existent_namespace_module
 
                 raise error_class, error_message
               end
@@ -1022,7 +1022,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               current_constant = Msf::Modules.const_get(relative_name)
 
               current_constant.should == namespace_module
-              current_constant.should_not == @existent_namespace_module
+              expect(current_constant).not_to eq @existent_namespace_module
 
               false
             end
@@ -1048,7 +1048,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             current_constant = Msf::Modules.const_get(relative_name)
 
             current_constant.should_not be_nil
-            current_constant.should_not == @existent_namespace_module
+            expect(current_constant).not_to eq @existent_namespace_module
           end
 
           it 'should return true' do
@@ -1292,7 +1292,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
 
             it 'should restore the module to the constant' do
-              parent_module.const_get(relative_name).should_not == @original_namespace_module
+              expect(parent_module.const_get(relative_name)).not_to eq @original_namespace_module
 
               subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
 
