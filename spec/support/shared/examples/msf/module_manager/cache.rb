@@ -174,7 +174,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
       it 'should force load using #load_module on the loader' do
-        expect(Msf::Modules::Loader::Directory.any_instance).to receive(
+        expect_any_instance_of(Msf::Modules::Loader::Directory).to receive(
             :load_module
         ).with(
             parent_path,
