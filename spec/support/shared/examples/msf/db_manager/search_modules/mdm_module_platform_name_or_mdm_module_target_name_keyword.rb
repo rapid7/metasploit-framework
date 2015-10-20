@@ -19,7 +19,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Platform#name or
       end
 
       it 'should find matching Mdm::Module::Platform#name' do
-        expect(module_details.count).to > 0
+        expect(module_details.count).to be > 0
 
         expect(
           module_details.all? { |module_detail|
@@ -38,7 +38,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Platform#name or
       end
 
       it 'should find matching Mdm::Module::Target#name' do
-        expect(module_details.count).to > 0
+        expect(module_details.count).to be > 0
 
         expect(
           module_details.all? { |module_detail|

@@ -27,7 +27,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     before(:each) do
-      expect(db_manager).to receive(:migrated).and_return(migrated)
+      allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -40,7 +40,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       before(:each) do
-        expect(db_manager).to receive(:modules_caching).and_return(modules_caching)
+        allow(db_manager).to receive(:modules_caching).and_return(modules_caching)
       end
 
       context 'with modules_caching' do
@@ -97,7 +97,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     before(:each) do
-      expect(db_manager).to receive(:migrated).and_return(migrated)
+      allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -169,7 +169,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it "should match Mdm::Module::Detail#stance 'passive'" do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -185,7 +185,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it "should match Mdm::Module::Detail#stance 'aggressive'" do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -216,7 +216,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Author#email' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -235,7 +235,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Author#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -271,7 +271,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#fullname' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -288,7 +288,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -325,7 +325,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Ref#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -367,7 +367,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#mtype' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -395,7 +395,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Action#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -417,7 +417,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Arch#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -439,7 +439,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Author#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -521,7 +521,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Platform#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -543,7 +543,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Ref#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -565,7 +565,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Target#name' do
-          expect(module_details.count).to > 0
+          expect(module_details.count).to be > 0
 
           expect(
             module_details.all? { |module_detail|
@@ -589,7 +589,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     before(:each) do
-      expect(db_manager).to receive(:migrated).and_return(migrated)
+      allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -602,7 +602,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       before(:each) do
-        expect(db_manager).to receive(:modules_caching).and_return(modules_caching)
+        allow(db_manager).to receive(:modules_caching).and_return(modules_caching)
       end
 
       context 'with modules_caching' do
@@ -805,7 +805,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     before(:each) do
-      expect(db_manager).to receive(:migrated).and_return(migrated)
+      allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do

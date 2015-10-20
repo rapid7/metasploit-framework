@@ -245,7 +245,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       it 'should return an empty Hash' do
-        expect(info).to eq {}
+        expect(info).to eq({})
       end
     end
   end
@@ -390,7 +390,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         before(:each) do
-          expect(db_manager).to receive(:import_msf_text_element).and_return(returned_hash)
+          allow(db_manager).to receive(:import_msf_text_element).and_return(returned_hash)
         end
 
         it 'should pass returned Hash as part of Hash passed to report_web_<:type' do

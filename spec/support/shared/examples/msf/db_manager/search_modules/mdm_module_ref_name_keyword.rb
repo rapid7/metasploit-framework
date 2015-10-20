@@ -25,7 +25,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword
       end
 
       it 'should match Mdm::Module::Ref#name' do
-        expect(module_details.count).to > 0
+        expect(module_details.count).to be > 0
 
         expect(
           module_details.all? { |module_detail|
