@@ -42,14 +42,14 @@ RSpec.describe Rex::Socket::RangeWalker do
     it "should handle single ipv6 addresses" do
       walker = Rex::Socket::RangeWalker.new("::1")
       walker.should be_valid
-      walker.length.should == 1
+      expect(walker.length).to eq 1
     end
 
     it "should handle longform ranges" do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-10.1.1.2")
       walker.should be_valid
-      walker.length.should == 2
-      walker.next.should == "10.1.1.1"
+      expect(walker.length).to eq 2
+      expect(walker.next).to eq "10.1.1.1"
     end
 
     context "with mulitple ranges" do
@@ -62,14 +62,14 @@ RSpec.describe Rex::Socket::RangeWalker do
     it "should handle ranges" do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-2")
       walker.should be_valid
-      walker.length.should == 2
-      walker.next.should == "10.1.1.1"
+      expect(walker.length).to eq 2
+      expect(walker.next).to eq "10.1.1.1"
       walker = Rex::Socket::RangeWalker.new("10.1-2.1.1-2")
       walker.should be_valid
-      walker.length.should == 4
+      expect(walker.length).to eq 4
       walker = Rex::Socket::RangeWalker.new("10.1-2.3-4.5-6")
       walker.should be_valid
-      walker.length.should == 8
+      expect(walker.length).to eq 8
       walker.should include("10.1.3.5")
     end
 
@@ -86,28 +86,28 @@ RSpec.describe Rex::Socket::RangeWalker do
     it "should default the lower bound of a range to 0" do
       walker = Rex::Socket::RangeWalker.new("10.1.3.-17")
       walker.should be_valid
-      walker.length.should == 18
+      expect(walker.length).to eq 18
       walker = Rex::Socket::RangeWalker.new("10.1.3.-255")
       walker.should be_valid
-      walker.length.should == 256
+      expect(walker.length).to eq 256
     end
 
     it "should default the upper bound of a range to 255" do
       walker = Rex::Socket::RangeWalker.new("10.1.3.254-")
       walker.should be_valid
-      walker.length.should == 2
+      expect(walker.length).to eq 2
     end
 
     it "should take * to mean 0-255" do
       walker = Rex::Socket::RangeWalker.new("10.1.3.*")
       walker.should be_valid
-      walker.length.should == 256
-      walker.next.should == "10.1.3.0"
+      expect(walker.length).to eq 256
+      expect(walker.next).to eq "10.1.3.0"
       walker.should include("10.1.3.255")
       walker = Rex::Socket::RangeWalker.new("10.1.*.3")
       walker.should be_valid
-      walker.length.should == 256
-      walker.next.should == "10.1.0.3"
+      expect(walker.length).to eq 256
+      expect(walker.next).to eq "10.1.0.3"
       walker.should include("10.1.255.3")
     end
 
@@ -117,10 +117,10 @@ RSpec.describe Rex::Socket::RangeWalker do
       #walker.length.should == 2
       walker = Rex::Socket::RangeWalker.new("10.1.1.1")
       walker.should be_valid
-      walker.length.should == 1
+      expect(walker.length).to eq 1
       walker = Rex::Socket::RangeWalker.new("10.1.1.1,3")
       walker.should be_valid
-      walker.length.should == 2
+      expect(walker.length).to eq 2
       walker.should_not include("10.1.1.2")
     end
 
@@ -133,19 +133,19 @@ RSpec.describe Rex::Socket::RangeWalker do
     it "should handle ranges and lists together" do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-2,3")
       walker.should be_valid
-      walker.length.should == 3
+      expect(walker.length).to eq 3
       walker = Rex::Socket::RangeWalker.new("10.1-2.1.1,2")
       walker.should be_valid
-      walker.length.should == 4
+      expect(walker.length).to eq 4
       walker = Rex::Socket::RangeWalker.new("10.1,2.3,4.5,6")
-      walker.length.should == 8
+      expect(walker.length).to eq 8
     end
 
     it "should handle cidr" do
       31.downto 16 do |bits|
         walker = Rex::Socket::RangeWalker.new("10.1.1.1/#{bits}")
         walker.should be_valid
-        walker.length.should == (2**(32-bits))
+        expect(walker.length).to eq (2**(32-bits))
       end
     end
   end
@@ -158,7 +158,7 @@ RSpec.describe Rex::Socket::RangeWalker do
       walker.each { |ip|
         got.push ip
       }
-      got.should == ["10.1.1.1", "10.1.1.2", "10.1.1.3", "10.2.2.2"]
+      expect(got).to eq ["10.1.1.1", "10.1.1.2", "10.1.1.3", "10.2.2.2"]
     end
 
   end
@@ -180,7 +180,7 @@ RSpec.describe Rex::Socket::RangeWalker do
       while ip = walker.next
         all << ip
       end
-      all.should == [ "10.1.1.1", "10.1.1.2", "10.1.1.3", "10.1.1.4", "10.1.1.5", ]
+      expect(all).to eq [ "10.1.1.1", "10.1.1.2", "10.1.1.3", "10.1.1.4", "10.1.1.5", ]
     end
 
     it "should not raise if called again after empty" do

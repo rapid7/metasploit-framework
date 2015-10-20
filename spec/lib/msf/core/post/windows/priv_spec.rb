@@ -49,7 +49,7 @@ RSpec.describe Msf::Post::Windows::Priv do
 
     it "should produce expected plaintext" do
       decrypted = subject.decrypt_lsa_data(ciphertext, lsa_key)
-      decrypted.should == plaintext
+      expect(decrypted).to eq plaintext
     end
   end
 
@@ -67,7 +67,7 @@ RSpec.describe Msf::Post::Windows::Priv do
     end
 
     it "should produce expected plaintext" do
-      subject.decrypt_secret_data(ciphertext, boot_key).should == plaintext
+      expect(subject.decrypt_secret_data(ciphertext, boot_key)).to eq plaintext
     end
   end
 

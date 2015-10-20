@@ -31,7 +31,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Invalid do
     end
 
     it 'should be the passed in model' do
-      error_model.should == model
+      expect(error_model).to eq model
     end
   end
 

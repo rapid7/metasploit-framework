@@ -16,7 +16,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
         ActiveRecord::Migrator.migrations_paths.length
       }
 
-      ActiveRecord::Migrator.migrations_paths.uniq.should == ActiveRecord::Migrator.migrations_paths
+      expect(ActiveRecord::Migrator.migrations_paths.uniq).to eq ActiveRecord::Migrator.migrations_paths
     end
   end
 
@@ -37,7 +37,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
       migrations = [double('Migration 1')]
       ActiveRecord::Migrator.stub(:migrate => migrations)
 
-      migrate.should == migrations
+      expect(migrate).to eq migrations
     end
 
     it 'should reset the column information' do
@@ -62,7 +62,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
       it 'should set Msf::DBManager#error' do
         migrate
 
-        db_manager.error.should == error
+        expect(db_manager.error).to eq error
       end
 
       it 'should log error message at error level' do

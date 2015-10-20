@@ -9,18 +9,18 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
   let(:optional) { described_class.new('name', [false, 'A description here'])}
 
   it "should return a type of #{type}"  do
-    subject.type.should == type
+    expect(subject.type).to eq type
   end
 
   context 'when required' do
     it 'should not be valid for nil' do
-      required.valid?(nil).should == false
+      expect(required.valid?(nil)).to eq false
     end
   end
 
   context 'when not required' do
     it 'it should be valid for nil' do
-      optional.valid?(nil).should == true
+      expect(optional.valid?(nil)).to eq true
     end
   end
 
@@ -31,7 +31,7 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
 
       it "should be valid and normalize appropriately: #{valid_value}" do
         block = Proc.new {
-          subject.normalize(valid_value).should == normalized_value
+          expect(subject.normalize(valid_value)).to eq normalized_value
           subject.valid?(valid_value).should be_truthy
         }
         if vhash[:skip]

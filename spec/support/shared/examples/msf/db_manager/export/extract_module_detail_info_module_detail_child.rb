@@ -17,7 +17,7 @@ shared_examples_for 'Msf::DBManager::Export#extract_module_detail_info module_de
     if attribute == false
       child_node.content.should be_blank
     else
-      child_node.content.should == attribute.to_s
+      expect(child_node.content).to eq attribute.to_s
     end
   end
 end

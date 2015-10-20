@@ -70,7 +70,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
               :modification_time => cached_modification_time
           }
 
-          cached_modification_time.should == modification_time
+          expect(cached_modification_time).to eq modification_time
           subject.file_changed?(module_path).should be_falsey
         end
       end

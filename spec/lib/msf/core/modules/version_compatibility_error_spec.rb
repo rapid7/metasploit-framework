@@ -23,7 +23,7 @@ RSpec.describe Msf::Modules::VersionCompatibilityError do
       end
 
       it 'should set minimum_api_version' do
-        subject.minimum_api_version.should == minimum_api_version
+        expect(subject.minimum_api_version).to eq minimum_api_version
       end
 
       it 'should include minimum_api_version in error' do
@@ -52,7 +52,7 @@ RSpec.describe Msf::Modules::VersionCompatibilityError do
       end
 
       it 'should set minimum_core_version' do
-        subject.minimum_core_version.should == minimum_core_version
+        expect(subject.minimum_core_version).to eq minimum_core_version
       end
 
       it 'should include minimum_core_version in error' do

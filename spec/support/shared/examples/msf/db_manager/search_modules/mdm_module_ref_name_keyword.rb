@@ -37,7 +37,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword
 
     context "without #{context_suffix}" do
       it 'should not match Mdm::Module::Ref#name' do
-        module_details.count.should == 0
+        expect(module_details.count).to eq 0
       end
     end
   end

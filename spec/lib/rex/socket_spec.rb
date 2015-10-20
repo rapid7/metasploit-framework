@@ -8,25 +8,25 @@ RSpec.describe Rex::Socket do
 
     context 'with explicit v6' do
       it "should convert a number to a human-readable IPv6 address" do
-        described_class.addr_itoa(1, true).should == "::1"
+        expect(described_class.addr_itoa(1, true)).to eq "::1"
       end
     end
 
     context 'with explicit v4' do
       it "should convert a number to a human-readable IPv4 address" do
-        described_class.addr_itoa(1, false).should == "0.0.0.1"
+        expect(described_class.addr_itoa(1, false)).to eq "0.0.0.1"
       end
     end
 
     context 'without explicit version' do
       it "should convert a number within the range of possible v4 addresses to a human-readable IPv4 address" do
-        described_class.addr_itoa(0).should == "0.0.0.0"
-        described_class.addr_itoa(1).should == "0.0.0.1"
-        described_class.addr_itoa(0xffff_ffff).should == "255.255.255.255"
+        expect(described_class.addr_itoa(0)).to eq "0.0.0.0"
+        expect(described_class.addr_itoa(1)).to eq "0.0.0.1"
+        expect(described_class.addr_itoa(0xffff_ffff)).to eq "255.255.255.255"
       end
       it "should convert a number larger than possible v4 addresses to a human-readable IPv6 address" do
-        described_class.addr_itoa(0xfe80_0000_0000_0000_0000_0000_0000_0001).should == "fe80::1"
-        described_class.addr_itoa(0x1_0000_0001).should == "::1:0:1"
+        expect(described_class.addr_itoa(0xfe80_0000_0000_0000_0000_0000_0000_0001)).to eq "fe80::1"
+        expect(described_class.addr_itoa(0x1_0000_0001)).to eq "::1:0:1"
       end
     end
 
@@ -42,7 +42,7 @@ RSpec.describe Rex::Socket do
       it { is_expected.to be_an(String) }
       it { expect(subject.bytes.count).to eq(16) }
       it "should be in the right order" do
-        nbo.should == "\xfe\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
+        expect(nbo).to eq "\xfe\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
       end
     end
 
@@ -51,7 +51,7 @@ RSpec.describe Rex::Socket do
       it { is_expected.to be_an(String) }
       it { expect(subject.bytes.count).to eq(4) }
       it "should be in the right order" do
-        nbo.should == "\x7f\x00\x00\x01"
+        expect(nbo).to eq "\x7f\x00\x00\x01"
       end
     end
 
@@ -59,7 +59,7 @@ RSpec.describe Rex::Socket do
       let(:try) { "localhost" }
       it "should resolve" do
         nbo.should be_a(String)
-        nbo.encoding.should == Encoding.find('binary')
+        expect(nbo.encoding).to eq Encoding.find('binary')
         [ 4, 16 ].should include(nbo.length)
       end
     end
@@ -93,7 +93,7 @@ RSpec.describe Rex::Socket do
 
       it { should be_a(String) }
       it "should return the first ASCII address" do
-        subject.should == "1.1.1.1"
+        expect(subject).to eq "1.1.1.1"
       end
     end
 
@@ -103,7 +103,7 @@ RSpec.describe Rex::Socket do
 
       it { should be_a(String) }
       it "should return the first ASCII address" do
-        subject.should == "fe80::1"
+        expect(subject).to eq "fe80::1"
       end
     end
 
@@ -113,7 +113,7 @@ RSpec.describe Rex::Socket do
 
       it { should be_a(String) }
       it "should return the first ASCII address" do
-        subject.should == "1.1.1.1"
+        expect(subject).to eq "1.1.1.1"
       end
 
     end
