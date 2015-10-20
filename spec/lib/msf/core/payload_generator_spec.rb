@@ -561,8 +561,8 @@ RSpec.describe Msf::PayloadGenerator do
         }
 
         it 'calls the generate_war on the payload' do
-          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
-          framework.stub_chain(:payloads, :create).and_return(payload_module)
+          allow(framework).to receive_message_chain(:payloads, :keys).and_return [payload_reference_name]
+          allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
           expect(payload_module).to receive(:generate_war).and_call_original
           payload_generator.generate_java_payload
         end
@@ -589,8 +589,8 @@ RSpec.describe Msf::PayloadGenerator do
         }
 
         it 'calls the generate_jar on the payload' do
-          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
-          framework.stub_chain(:payloads, :create).and_return(payload_module)
+          allow(framework).to receive_message_chain(:payloads, :keys).and_return [payload_reference_name]
+          allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
           expect(payload_module).to receive(:generate_jar).and_call_original
           payload_generator.generate_java_payload
         end
@@ -608,8 +608,8 @@ RSpec.describe Msf::PayloadGenerator do
         }
 
         it 'calls #generate' do
-          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
-          framework.stub_chain(:payloads, :create).and_return(payload_module)
+          allow(framework).to receive_message_chain(:payloads, :keys).and_return [payload_reference_name]
+          allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
           expect(payload_module).to receive(:generate).and_call_original
           payload_generator.generate_java_payload
         end

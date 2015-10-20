@@ -34,8 +34,8 @@ RSpec.describe Msf::Sessions::Meterpreter do
 
     subject(:connected_address) do
       m = described_class.new(StringIO.new(""), skip_ssl: true)
-      m.stub_chain(:net, :config, :get_interfaces).and_return(interfaces)
-      m.stub_chain(:net, :config, :get_routes).and_return(routes)
+      allow(m).to receive_message_chain(:net, :config, :get_interfaces).and_return(interfaces)
+      allow(m).to receive_message_chain(:net, :config, :get_routes).and_return(routes)
       m.session_host = session_host
 
       m.send(:find_internet_connected_address)
