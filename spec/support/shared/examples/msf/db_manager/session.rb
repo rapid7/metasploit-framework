@@ -146,7 +146,7 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               it 'should not find workspace from session' do
-                db_manager.should_not_receive(:find_workspace)
+                expect(db_manager).not_to receive(:find_workspace)
 
                 expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
@@ -489,7 +489,7 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               it 'should not find workspace from session' do
-                db_manager.should_not_receive(:find_workspace)
+                expect(db_manager).not_to receive(:find_workspace)
 
                 expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
@@ -997,7 +997,7 @@ shared_examples_for 'Msf::DBManager::Session' do
       it { should be_nil }
 
       it 'should not create a connection' do
-        ActiveRecord::Base.connection_pool.should_not_receive(:with_connection)
+        expect(ActiveRecord::Base.connection_pool).not_to receive(:with_connection)
 
         report_session
       end

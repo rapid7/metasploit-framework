@@ -54,7 +54,7 @@ shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
 
   context 'without cached module in Msf::ModuleSet' do
     it 'should not call update_module_details' do
-      db_manager.should_not_receive(:update_module_details)
+      expect(db_manager).not_to receive(:update_module_details)
 
       update_all_module_details
     end
