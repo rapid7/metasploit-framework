@@ -189,7 +189,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       context 'return from load_module' do
         before(:each) do
           module_manager.send(:loaders).each do |loader|
-            loader.stub(:load_module => module_loaded)
+            expect(loader).to receive(:load_module).and_return(module_loaded)
           end
         end
 
@@ -222,7 +222,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
   context '#refresh_cache_from_module_files' do
     before(:each) do
-      module_manager.stub(:framework_migrated? => framework_migrated?)
+      expect(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
     end
 
     context 'with framework migrated' do
@@ -309,7 +309,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
     context 'with framework database' do
       before(:each) do
-        framework.db.stub(:migrated => migrated)
+        expect(framework.db).to receive(:migrated).and_return(migrated)
       end
 
       context 'with migrated' do
@@ -331,7 +331,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
     context 'without framework database' do
       before(:each) do
-        framework.stub(:db => nil)
+        expect(framework).to receive(:db).and_return(nil)
       end
 
       it { should be_falsey }
@@ -360,7 +360,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     before(:each) do
-      module_manager.stub(:framework_migrated? => framework_migrated?)
+      expect(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
     end
 
     context 'with framework migrated' do

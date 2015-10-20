@@ -84,7 +84,7 @@ RSpec.describe Rex::Socket do
     subject { described_class.getaddress('whatever') }
 
     before(:each) do
-      Socket.stub(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
+      expect(Socket).to receive(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
     end
 
     context 'when ::Socket.gethostbyname returns IPv4 responses' do
@@ -124,7 +124,7 @@ RSpec.describe Rex::Socket do
     subject { described_class.getaddresses('whatever') }
 
     before(:each) do
-      Socket.stub(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
+      expect(Socket).to receive(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
     end
 
     context 'when ::Socket.gethostbyname returns IPv4 responses' do

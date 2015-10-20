@@ -68,7 +68,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
         let(:printed_table) do
           table = ''
 
-          core.stub(:print_line) do |string|
+          expect(core).to receive(:print_line) do |string|
             table = string
           end
 

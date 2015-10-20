@@ -255,7 +255,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       before(:each) do
-        subject.stub(:module_path => module_path)
+        allow(subject).to receive(:module_path).and_return(module_path)
       end
 
       it 'should call file_changed? with the module_path' do
@@ -266,7 +266,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
       context 'without file changed' do
         before(:each) do
-          module_manager.stub(:file_changed? => false)
+          allow(module_manager).to receive(:file_changed?).and_return(false)
         end
 
         it 'should return false if :force is false' do
@@ -318,16 +318,16 @@ RSpec.describe Msf::Modules::Loader::Base do
 
           @original_namespace_module = Msf::Modules::Mod617578696c696172792f72737065632f6d6f636b
 
-          module_manager.stub(:delete).with(module_reference_name)
-          module_manager.stub(:file_changed?).with(module_path).and_return(true)
-
           module_set = double('Module Set')
-          module_set.stub(:delete).with(module_reference_name)
-          module_manager.stub(:module_set).with(type).and_return(module_set)
+          allow(module_set).to receive(:delete).with(module_reference_name)
+
+          allow(module_manager).to receive(:delete).with(module_reference_name)
+          allow(module_manager).to receive(:file_changed?).with(module_path).and_return(true)
+          allow(module_manager).to receive(:module_set).with(type).and_return(module_set)
         end
 
         it 'should call #namespace_module_transaction with the module full name and :reload => true' do
-          subject.stub(:read_module_content => module_content)
+          allow(subject).to receive(:read_module_content).and_return(module_content)
 
           expect(subject).to receive(:namespace_module_transaction).with(module_full_name, hash_including(:reload => true))
 
@@ -335,24 +335,26 @@ RSpec.describe Msf::Modules::Loader::Base do
         end
 
         it 'should set the parent_path on the namespace_module to match the parent_path passed to #load_module' do
-          module_manager.stub(:on_module_load)
+          allow(module_manager).to receive(:on_module_load)
 
-          subject.stub(:read_module_content => module_content)
+          allow(subject).to receive(:read_module_content).and_receive(module_content)
 
           subject.load_module(parent_path, type, module_reference_name).should be_truthy
+
           expect(namespace_module.parent_path).to eq parent_path
         end
 
         it 'should call #read_module_content to get the module content so that #read_module_content can be overridden to change loading behavior' do
-          module_manager.stub(:on_module_load)
+          allow(module_manager).to receive(:on_module_load)
 
           expect(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
+
           subject.load_module(parent_path, type, module_reference_name).should be_truthy
         end
 
         it 'should call namespace_module.module_eval_with_lexical_scope with the module_path' do
-          subject.stub(:read_module_content => malformed_module_content)
-          module_manager.stub(:on_module_load)
+          allow(subject).to receive(:read_module_content).and_return(malformed_module_content)
+          allow(module_manager).to receive(:on_module_load)
 
           # if the module eval error includes the module_path then the module_path was passed along correctly
           expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/)
@@ -361,7 +363,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
         context 'with empty module content' do
           before(:each) do
-            subject.stub(:read_module_content).with(parent_path, type, module_reference_name).and_return('')
+            allow(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return('')
           end
 
           it 'should return false' do
@@ -376,17 +378,16 @@ RSpec.describe Msf::Modules::Loader::Base do
 
         context 'with errors from namespace_module_eval_with_lexical_scope' do
           before(:each) do
-            @namespace_module = double('Namespace Module')
-            @namespace_module.stub(:parent_path=)
+            @namespace_module = double('Namespace Module', :'parent_path=' => nil)
+            module_content = double('Module Content', empty?: false)
 
-            subject.stub(:namespace_module_transaction).and_yield(@namespace_module)
-            module_content = double('Module Content', :empty? => false)
-            subject.stub(:read_module_content).and_return(module_content)
+            allow(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
+            allow(subject).to receive(:read_module_content).and_return(module_content)
           end
 
           context 'with Interrupt' do
             it 'should re-raise' do
-              @namespace_module.stub(:module_eval_with_lexical_scope).and_raise(Interrupt)
+              allow(@namespace_module).to receive(:module_eval_with_lexical_scope).and_raise(Interrupt)
 
               expect {
                 subject.load_module(parent_path, type, module_reference_name)
@@ -415,17 +416,17 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
 
             before(:each) do
-              @namespace_module.stub(:module_eval_with_lexical_scope).and_raise(error)
+              allow(@namespace_module).to receive(:module_eval_with_lexical_scope).and_raise(error)
 
               @module_load_error_by_path = {}
-              module_manager.stub(:module_load_error_by_path => @module_load_error_by_path)
+              expect(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
 
-              error.stub(:backtrace => backtrace)
+              expect(error).to receive(:backtrace).and_return(backtrace)
             end
 
             context 'with version compatibility' do
               before(:each) do
-                @namespace_module.stub(:version_compatible!).with(module_path, module_reference_name)
+                expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
               end
 
               it 'should record the load error using the original error' do
@@ -449,7 +450,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               before(:each) do
-                @namespace_module.stub(
+                allow(@namespace_module).to receive(
                     :version_compatible!
                 ).with(
                     module_path,
@@ -466,7 +467,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
 
             it 'should return false' do
-              @namespace_module.stub(:version_compatible!).with(module_path, module_reference_name)
+              expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
 
               subject.load_module(parent_path, type, module_reference_name).should be_falsey
             end
@@ -476,22 +477,22 @@ RSpec.describe Msf::Modules::Loader::Base do
         context 'without module_eval errors' do
           before(:each) do
             @namespace_module = double('Namespace Module')
-            @namespace_module.stub(:parent_path=)
-            @namespace_module.stub(:module_eval_with_lexical_scope).with(module_content, module_path)
+            expect(@namespace_module).to receive(:parent_path=)
+            expect(@namespace_module).to receive(:module_eval_with_lexical_scope).with(module_content, module_path)
 
             metasploit_class = double('Metasploit Class', :parent => @namespace_module)
-            @namespace_module.stub(:metasploit_class! => metasploit_class)
+            expect(@namespace_module).to receive(:metasploit_class!).and_return(metasploit_class)
 
-            subject.stub(:namespace_module_transaction).and_yield(@namespace_module)
+            expect(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
 
-            subject.stub(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
+            expect(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
 
             @module_load_error_by_path = {}
-            module_manager.stub(:module_load_error_by_path => @module_load_error_by_path)
+            expect(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
           end
 
           it 'should check for version compatibility' do
-            module_manager.stub(:on_module_load)
+            expect(module_manager).to receive(:on_module_load)
 
             expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
             subject.load_module(parent_path, type, module_reference_name)
@@ -512,7 +513,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
 
             before(:each) do
-              @namespace_module.stub(
+              allow(@namespace_module).to receive(
                   :version_compatible!
               ).with(
                   module_path,
@@ -538,9 +539,9 @@ RSpec.describe Msf::Modules::Loader::Base do
 
           context 'with version compatibility' do
             before(:each) do
-              @namespace_module.stub(:version_compatible!).with(module_path, module_reference_name)
+              expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
 
-              module_manager.stub(:on_module_load)
+              expect(module_manager).to receive(:on_module_load)
             end
 
             context 'without metasploit_class' do
@@ -552,7 +553,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               before(:each) do
-                @namespace_module.stub(:metasploit_class!).with(module_path, module_reference_name).and_raise(error)
+                expect(@namespace_module).to receive(:metasploit_class!).with(module_path, module_reference_name).and_raise(error)
               end
 
               it 'should record load error' do
@@ -582,7 +583,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               before(:each) do
-                @namespace_module.stub(:metasploit_class! => metasploit_class)
+                expect(@namespace_module).to receive(:metasploit_class!).and_return(metasploit_class)
               end
 
               it 'should check if it is usable' do
@@ -592,7 +593,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
               context 'without usable metasploit_class' do
                 before(:each) do
-                  subject.stub(:usable? => false)
+                  expect(subject).to receive(:usable?).and_return(false)
                 end
 
                 it 'should log information' do
@@ -734,8 +735,8 @@ RSpec.describe Msf::Modules::Loader::Base do
         )
 
         namespace_module = double('Namespace Module')
-        namespace_module.stub(:loader=)
-        subject.stub(:current_module => namespace_module)
+        expect(namespace_module).to receive(:loader=)
+        expect(subject).to receive(:current_module).and_return(namespace_module)
 
         subject.send(:create_namespace_module, namespace_module_names)
       end
@@ -750,8 +751,8 @@ RSpec.describe Msf::Modules::Loader::Base do
         )
 
         namespace_module = double('Namespace Module')
-        namespace_module.stub(:loader=)
-        subject.stub(:current_module => namespace_module)
+        expect(namespace_module).to receive(:loader=)
+        expect(subject).to receive(:current_module).and_return(namespace_module)
 
         subject.send(:create_namespace_module, namespace_module_names)
       end
@@ -766,8 +767,8 @@ RSpec.describe Msf::Modules::Loader::Base do
         )
 
         namespace_module = double('Namespace Module')
-        namespace_module.stub(:loader=)
-        subject.stub(:current_module => namespace_module)
+        expect(namespace_module).to receive(:loader=)
+        expect(subject).to receive(:current_module).and_return(namespace_module)
 
         subject.send(:create_namespace_module, namespace_module_names)
       end
@@ -777,7 +778,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
         expect(namespace_module).to receive(:loader=).with(subject)
 
-        subject.stub(:current_module => namespace_module)
+        expect(subject).to receive(:current_module).and_return(namespace_module)
 
         subject.send(:create_namespace_module, namespace_module_names)
       end
@@ -1352,7 +1353,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           let(:metasploit_class) do
             metasploit_class = double('Metasploit Class')
 
-            metasploit_class.stub(:is_usable).and_raise(error)
+            expect(metasploit_class).to receive(:is_usable).and_raise(error)
 
             metasploit_class
           end

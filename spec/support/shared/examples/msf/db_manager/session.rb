@@ -173,9 +173,9 @@ shared_examples_for 'Msf::DBManager::Session' do
             context 'with workspace from either :workspace or session' do
               it 'should pass normalized host from session as :host to #find_or_create_host' do
                 normalized_host = double('Normalized Host')
-                db_manager.stub(:normalize_host).with(session).and_return(normalized_host)
+                expect(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
-                db_manager.stub(:report_vuln)
+                expect(db_manager).to receive(:report_vuln)
 
                 expect(db_manager).to receive(:find_or_create_host).with(
                   hash_including(
@@ -192,7 +192,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 before(:each) do
-                  session.stub(:arch => arch)
+                  expect(session).to receive(:arch).and_return(arch)
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
@@ -516,9 +516,9 @@ shared_examples_for 'Msf::DBManager::Session' do
             context 'with workspace from either :workspace or session' do
               it 'should pass normalized host from session as :host to #find_or_create_host' do
                 normalized_host = double('Normalized Host')
-                db_manager.stub(:normalize_host).with(session).and_return(normalized_host)
+                expect(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
-                db_manager.stub(:report_vuln)
+                expect(db_manager).to receive(:report_vuln)
 
                 expect(db_manager).to receive(:find_or_create_host).with(
                     hash_including(
@@ -535,7 +535,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 before(:each) do
-                  session.stub(:arch => arch)
+                  expect(session).to receive(:arch).and_return(arch)
                 end
 
                 it 'should pass :arch to #find_or_create_host' do

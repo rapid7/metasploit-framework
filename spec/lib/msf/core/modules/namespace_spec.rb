@@ -129,7 +129,7 @@ RSpec.describe Msf::Modules::Namespace do
       end
 
       before(:each) do
-        subject.stub(:metasploit_class => metasploit_class)
+        allow(subject).to receive(:metasploit_class).and_return(metasploit_class)
       end
 
       it 'should return the metasploit_class' do
@@ -139,7 +139,7 @@ RSpec.describe Msf::Modules::Namespace do
 
     context 'without metasploit_class' do
       before(:each) do
-        subject.stub(:metasploit_class => nil)
+        allow(subject).to receive(:metasploit_class)
       end
 
       it 'should raise a Msf::Modules::MetasploitClassCompatibilityError' do

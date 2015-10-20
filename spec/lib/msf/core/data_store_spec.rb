@@ -66,12 +66,14 @@ RSpec.describe Msf::DataStore do
 
   describe "#from_file" do
     subject do
-      ini_instance = double
-      ini_instance.stub(:group?).and_return(true)
-      ini_instance.stub(:[]).and_return( { "foo" => "bar", "fizz" => "buzz" } )
+      ini_instance = double group?: true,
+                            :[] => {
+                              "foo" => "bar",
+                              "fizz" => "buzz"
+                            }
 
       ini = stub_const("Rex::Parser::Ini", Class.new)
-      ini.stub(:from_file).and_return(ini_instance)
+      allow(ini).to receive(:from_file).and_return(ini_instance)
 
       s = described_class.new
       s.from_file("path")

@@ -49,9 +49,9 @@ RSpec.describe Msfupdate do
   before(:each) do
     # By default, we want to ensure tests never actually try to execute any
     # of the update methods unless we are explicitly testing them
-    subject.stub(:update_apt!)
-    subject.stub(:update_binary_install!)
-    subject.stub(:update_git!)
+    allow(subject).to receive(:update_apt!)
+    allow(subject).to receive(:update_binary_install!)
+    allow(subject).to receive(:update_git!)
   end
 
   context "#parse_args" do
@@ -179,7 +179,7 @@ RSpec.describe Msfupdate do
     end
 
     it "exits if arguments are invalid" do
-      subject.stub(:validate_args) { false }
+      allow(subject).to receive(:validate_args).and_return(false)
       expect(subject).to receive(:maybe_wait_and_exit).and_raise(SystemExit)
       expect { subject.run! }.to raise_error(SystemExit)
     end

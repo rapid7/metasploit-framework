@@ -25,7 +25,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
       # to init_module_paths doesn't get captured.
       framework
 
-      Msf::Config.stub(:user_module_directory => user_module_directory)
+      expect(Msf::Config).to receive(:user_module_directory).and_return(user_module_directory)
     end
 
     it 'should refresh module cache from database' do

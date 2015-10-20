@@ -79,8 +79,7 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
     end
 
     it 'should yield #connection' do
-      connection = double('Connection')
-      connection_pool.stub(:connection => connection)
+      connection = double('Connection', connection: connection)
 
       expect { |block|
         connection_pool.with_connection(&block)
