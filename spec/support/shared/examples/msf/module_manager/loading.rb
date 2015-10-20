@@ -8,8 +8,8 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
       Tempfile.open(module_basename) do |tempfile|
         module_path = tempfile.path
 
-        subject.send(:module_info_by_path)[module_path].should be_nil
-        subject.file_changed?(module_path).should be_truthy
+        expect(subject.send(:module_info_by_path)[module_path]).to be_nil
+        expect(subject.file_changed?(module_path)).to be_truthy
       end
     end
 
@@ -25,7 +25,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
             :type => Msf::MODULE_PAYLOAD
         }
 
-        subject.file_changed?(module_path).should be_truthy
+        expect(subject.file_changed?(module_path)).to be_truthy
       end
     end
 
@@ -41,8 +41,8 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 
         tempfile.unlink
 
-        File.exist?(module_path).should be_falsey
-        subject.file_changed?(module_path).should be_truthy
+        expect(File.exist?(module_path)).to be_falsey
+        expect(subject.file_changed?(module_path)).to be_truthy
       end
 
       it 'should return true if modification time does not match the cached modification time' do
@@ -56,7 +56,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
           }
 
           expect(cached_modification_time).not_to eq modification_time
-          subject.file_changed?(module_path).should be_truthy
+          expect(subject.file_changed?(module_path)).to be_truthy
         end
       end
 
@@ -71,7 +71,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
           }
 
           expect(cached_modification_time).to eq modification_time
-          subject.file_changed?(module_path).should be_falsey
+          expect(subject.file_changed?(module_path)).to be_falsey
         end
       end
     end

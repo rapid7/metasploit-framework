@@ -10,39 +10,39 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
   }
 
   it "should respond to type" do
-    tlv.should respond_to :type
+    expect(tlv).to respond_to :type
   end
 
   it "should respond to value" do
-    tlv.should respond_to :value
+    expect(tlv).to respond_to :value
   end
 
   it "should respond to compress" do
-    tlv.should respond_to :compress
+    expect(tlv).to respond_to :compress
   end
 
   it "should respond to inspect" do
-    tlv.should respond_to :inspect
+    expect(tlv).to respond_to :inspect
   end
 
   it "should respond to meta_type?" do
-    tlv.should respond_to :meta_type?
+    expect(tlv).to respond_to :meta_type?
   end
 
   it "should respond to type?" do
-    tlv.should respond_to :type?
+    expect(tlv).to respond_to :type?
   end
 
   it "should respond to value?" do
-    tlv.should respond_to :value?
+    expect(tlv).to respond_to :value?
   end
 
   it "should respond to to_r" do
-    tlv.should respond_to :to_r
+    expect(tlv).to respond_to :to_r
   end
 
   it "should respond to from_r" do
-    tlv.should respond_to :from_r
+    expect(tlv).to respond_to :from_r
   end
 
   context "A String TLV" do
@@ -132,63 +132,63 @@ RSpec.describe Rex::Post::Meterpreter::GroupTlv do
   }
 
   it "should respond to tlvs" do
-    group_tlv.should respond_to :tlvs
+    expect(group_tlv).to respond_to :tlvs
   end
 
   it "should respond to each" do
-    group_tlv.should respond_to :each
+    expect(group_tlv).to respond_to :each
   end
 
   it "should respond to each_tlv" do
-    group_tlv.should respond_to :each_tlv
+    expect(group_tlv).to respond_to :each_tlv
   end
 
   it "should respond to each_with_index" do
-    group_tlv.should respond_to :each_with_index
+    expect(group_tlv).to respond_to :each_with_index
   end
 
   it "should respond to each_tlv_with_index" do
-    group_tlv.should respond_to :each_tlv_with_index
+    expect(group_tlv).to respond_to :each_tlv_with_index
   end
 
   it "should respond to get_tlvs" do
-    group_tlv.should respond_to :get_tlvs
+    expect(group_tlv).to respond_to :get_tlvs
   end
 
   it "should respond to add_tlv" do
-    group_tlv.should respond_to :add_tlv
+    expect(group_tlv).to respond_to :add_tlv
   end
 
   it "should respond to add_tlvs" do
-    group_tlv.should respond_to :add_tlvs
+    expect(group_tlv).to respond_to :add_tlvs
   end
 
   it "should respond to get_tlv" do
-    group_tlv.should respond_to :get_tlv
+    expect(group_tlv).to respond_to :get_tlv
   end
 
   it "should respond to get_tlv_value" do
-    group_tlv.should respond_to :get_tlv_value
+    expect(group_tlv).to respond_to :get_tlv_value
   end
 
   it "should respond to get_tlv_values" do
-    group_tlv.should respond_to :get_tlv_values
+    expect(group_tlv).to respond_to :get_tlv_values
   end
 
   it "should respond to has_tlv?" do
-    group_tlv.should respond_to :has_tlv?
+    expect(group_tlv).to respond_to :has_tlv?
   end
 
   it "should respond to reset" do
-    group_tlv.should respond_to :reset
+    expect(group_tlv).to respond_to :reset
   end
 
   it "should respond to to_r" do
-    group_tlv.should respond_to :to_r
+    expect(group_tlv).to respond_to :to_r
   end
 
   it "should respond to from_r" do
-    group_tlv.should respond_to :from_r
+    expect(group_tlv).to respond_to :from_r
   end
 
   it "should return an empty array for tlvs by default" do
@@ -231,12 +231,12 @@ RSpec.describe Rex::Post::Meterpreter::GroupTlv do
 
     it "should raise an error when given something other than nil or an array" do
       skip "RM #7598"
-      group_tlv.add_tlvs("bad value").should raise_error
+      expect(group_tlv.add_tlvs("bad value")).to raise_error
     end
 
     it "should raise an error when given an array of objects other than hashes" do
       skip "RM #7598"
-      group_tlv.add_tlvs([1,2,3]).should raise_error
+      expect(group_tlv.add_tlvs([1,2,3])).to raise_error
     end
 
     it "should raise an error when any of the hashes are missing a key" do
@@ -245,7 +245,7 @@ RSpec.describe Rex::Post::Meterpreter::GroupTlv do
         {:type => Rex::Post::Meterpreter::TLV_TYPE_STRING, :value => "test"},
         {:type => Rex::Post::Meterpreter::TLV_TYPE_STRING}
       ]
-      group_tlv.add_tlvs(tlv_array).should raise_error
+      expect(group_tlv.add_tlvs(tlv_array)).to raise_error
     end
   end
 
@@ -373,35 +373,35 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     }
 
     it "should respond to created_at" do
-      packet.should respond_to :created_at
+      expect(packet).to respond_to :created_at
     end
 
     it "should respond to response?" do
-      packet.should respond_to :response?
+      expect(packet).to respond_to :response?
     end
 
     it "should respond to method?" do
-      packet.should respond_to :method?
+      expect(packet).to respond_to :method?
     end
 
     it "should respond to method" do
-      packet.should respond_to :method
+      expect(packet).to respond_to :method
     end
 
     it "should respond to result?" do
-      packet.should respond_to :result?
+      expect(packet).to respond_to :result?
     end
 
     it "should respond to result=" do
-      packet.should respond_to :result=
+      expect(packet).to respond_to :result=
     end
 
     it "should respond to result" do
-      packet.should respond_to :result
+      expect(packet).to respond_to :result
     end
 
     it "should respond to rid" do
-      packet.should respond_to :rid
+      expect(packet).to respond_to :rid
     end
 
     it "should return false for response?" do
@@ -427,7 +427,7 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     end
 
     it "should return a valid request id" do
-      packet.rid.should =~ /\A\d{32}\Z/
+      expect(packet.rid).to =~ /\A\d{32}\Z/
     end
 
     it "should be created when Packet.create_request is called" do

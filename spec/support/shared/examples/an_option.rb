@@ -32,7 +32,7 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
       it "should be valid and normalize appropriately: #{valid_value}" do
         block = Proc.new {
           expect(subject.normalize(valid_value)).to eq normalized_value
-          subject.valid?(valid_value).should be_truthy
+          expect(subject.valid?(valid_value)).to be_truthy
         }
         if vhash[:skip]
           skip(vhash[:skip], &block)
@@ -47,7 +47,7 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
     invalid_values.each do |vhash|
       invalid_value = vhash[:value]
       it "should not be valid: #{invalid_value}" do
-        block = Proc.new { subject.valid?(invalid_value).should be_falsey }
+        block = Proc.new { expect(subject.valid?(invalid_value)).to be_falsey }
         if vhash[:skip]
           skip(vhash[:skip], &block)
         else

@@ -97,7 +97,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should have entry for path' do
-          module_info_by_path[path].should be_a Hash
+          expect(module_info_by_path[path]).to be_a Hash
         end
 
         context 'value' do
@@ -340,13 +340,13 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
   context '#module_info_by_path' do
     it 'should have protected method module_info_by_path' do
-      subject.respond_to?(:module_info_by_path, true).should be_truthy
+      expect(subject.respond_to?(:module_info_by_path, true)).to be_truthy
     end
   end
 
   context '#module_info_by_path=' do
     it 'should have protected method module_info_by_path=' do
-      subject.respond_to?(:module_info_by_path=, true).should be_truthy
+      expect(subject.respond_to?(:module_info_by_path=, true)).to be_truthy
     end
   end
 
@@ -391,7 +391,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         it 'should create cache entry for path' do
           module_info_by_path_from_database!
 
-          module_info_by_path.should have_key(path)
+          expect(module_info_by_path).to have_key(path)
         end
 
         it 'should use Msf::Modules::Loader::Base.typed_path to derive parent_path' do
@@ -458,7 +458,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
         module_info_by_path_from_database!
 
-        module_info_by_path.should be_empty
+        expect(module_info_by_path).to be_empty
       end
     end
   end

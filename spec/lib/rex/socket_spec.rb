@@ -58,9 +58,9 @@ RSpec.describe Rex::Socket do
     context 'with a hostname' do
       let(:try) { "localhost" }
       it "should resolve" do
-        nbo.should be_a(String)
+        expect(nbo).to be_a(String)
         expect(nbo.encoding).to eq Encoding.find('binary')
-        [ 4, 16 ].should include(nbo.length)
+        expect([ 4, 16 ]).to include(nbo.length)
       end
     end
 
@@ -134,8 +134,8 @@ RSpec.describe Rex::Socket do
       it { is_expected.to be_an(Array) }
       it { expect(subject.size).to eq(2) }
       it "should return the ASCII addresses" do
-        subject.should include("1.1.1.1")
-        subject.should include("2.2.2.2")
+        expect(subject).to include("1.1.1.1")
+        expect(subject).to include("2.2.2.2")
       end
     end
 
@@ -146,8 +146,8 @@ RSpec.describe Rex::Socket do
       it { is_expected.to be_an(Array) }
       it { expect(subject.size).to eq(2) }
       it "should return the ASCII addresses" do
-        subject.should include("fe80::1")
-        subject.should include("fe80::2")
+        expect(subject).to include("fe80::1")
+        expect(subject).to include("fe80::2")
       end
     end
 
@@ -158,8 +158,8 @@ RSpec.describe Rex::Socket do
       it { is_expected.to be_an(Array) }
       it { expect(subject.size).to eq(2) }
       it "should return the ASCII addresses" do
-        subject.should include("1.1.1.1")
-        subject.should include("2.2.2.2")
+        expect(subject).to include("1.1.1.1")
+        expect(subject).to include("2.2.2.2")
       end
 
     end

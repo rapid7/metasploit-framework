@@ -67,7 +67,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
 
       it 'should log error message at error level' do
         expect(db_manager).to receive(:elog) do |error_message|
-          error_message.should include(error.to_s)
+          expect(error_message).to include(error.to_s)
         end
 
         migrate
@@ -75,7 +75,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
 
       it 'should log error backtrace at debug level' do
         expect(db_manager).to receive(:dlog) do |debug_message|
-          debug_message.should include('Call stack')
+          expect(debug_message).to include('Call stack')
         end
 
         migrate

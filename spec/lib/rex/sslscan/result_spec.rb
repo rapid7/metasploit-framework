@@ -27,7 +27,7 @@ RSpec.describe Rex::SSLScan::Result do
     end
 
     it "should return an empty set for ciphers" do
-      subject.ciphers.should be_empty
+      expect(subject.ciphers).to be_empty
     end
 
     it "should return an empty array for accepted" do
@@ -138,7 +138,7 @@ RSpec.describe Rex::SSLScan::Result do
       it "should add an SSLv2 cipher result to the SSLv2 Accepted array or generate an SSLv2 exception" do
         begin
           subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :accepted)
-          subject.accepted(:SSLv2).should include({
+          expect(subject.accepted(:SSLv2)).to include({
             :version => :SSLv2,
             :cipher=>"DES-CBC3-MD5",
             :key_length=>168,
@@ -151,7 +151,7 @@ RSpec.describe Rex::SSLScan::Result do
 
       it "should add an SSLv3 cipher result to the SSLv3 Accepted array" do
         subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
-        subject.accepted(:SSLv3).should include({
+        expect(subject.accepted(:SSLv3)).to include({
           :version => :SSLv3,
           :cipher=>"AES256-SHA",
           :key_length=>256,
@@ -161,7 +161,7 @@ RSpec.describe Rex::SSLScan::Result do
 
       it "should add an TLSv1 cipher result to the TLSv1 Accepted array" do
         subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
-        subject.accepted(:TLSv1).should include({
+        expect(subject.accepted(:TLSv1)).to include({
           :version => :TLSv1,
           :cipher=>"AES256-SHA",
           :key_length=>256,
@@ -172,13 +172,13 @@ RSpec.describe Rex::SSLScan::Result do
       it "should successfully add multiple entries in a row" do
         subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
         subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
-        subject.accepted(:SSLv3).should include({
+        expect(subject.accepted(:SSLv3)).to include({
           :version => :SSLv3,
           :cipher=>"AES256-SHA",
           :key_length=>256,
           :weak=> false,
           :status => :accepted})
-        subject.accepted(:SSLv3).should include({
+        expect(subject.accepted(:SSLv3)).to include({
           :version => :SSLv3,
           :cipher=>"AES256-SHA",
           :key_length=>256,
@@ -196,7 +196,7 @@ RSpec.describe Rex::SSLScan::Result do
       it "should add an SSLv2 cipher result to the SSLv2 Rejected array or generate an SSLv2 exception" do
         begin
           subject.add_cipher(:SSLv2, "DES-CBC3-MD5", 168, :rejected)
-          subject.rejected(:SSLv2).should include({
+          expect(subject.rejected(:SSLv2)).to include({
             :version => :SSLv2,
             :cipher=>"DES-CBC3-MD5",
             :key_length=>168,
@@ -209,7 +209,7 @@ RSpec.describe Rex::SSLScan::Result do
 
       it "should add an SSLv3 cipher result to the SSLv3 Rejected array" do
         subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
-        subject.rejected(:SSLv3).should include({
+        expect(subject.rejected(:SSLv3)).to include({
           :version => :SSLv3,
           :cipher=>"AES256-SHA",
           :key_length=>256,
@@ -219,7 +219,7 @@ RSpec.describe Rex::SSLScan::Result do
 
       it "should add an TLSv1 cipher result to the TLSv1 Rejected array" do
         subject.add_cipher(:TLSv1, "AES256-SHA", 256, :rejected)
-        subject.rejected(:TLSv1).should include({
+        expect(subject.rejected(:TLSv1)).to include({
           :version => :TLSv1,
           :cipher=>"AES256-SHA",
           :key_length=>256,
@@ -230,13 +230,13 @@ RSpec.describe Rex::SSLScan::Result do
       it "should successfully add multiple entries in a row" do
         subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
         subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
-        subject.rejected(:SSLv3).should include({
+        expect(subject.rejected(:SSLv3)).to include({
           :version => :SSLv3,
           :cipher=>"AES256-SHA",
           :key_length=>256,
           :weak=> false,
           :status => :rejected})
-        subject.rejected(:SSLv3).should include({
+        expect(subject.rejected(:SSLv3)).to include({
           :version => :SSLv3,
           :cipher=>"AES128-SHA",
           :key_length=>128,
@@ -262,7 +262,7 @@ RSpec.describe Rex::SSLScan::Result do
     context "with no version selected" do
       it "should return an array of cipher detail hashes" do
         subject.each_accepted do |cipher_details|
-          cipher_details.should include(:version, :cipher, :key_length, :status, :weak)
+          expect(cipher_details).to include(:version, :cipher, :key_length, :status, :weak)
         end
       end
 
@@ -318,7 +318,7 @@ RSpec.describe Rex::SSLScan::Result do
     context "with no version selected" do
       it "should return an array of cipher detail hashes" do
         subject.each_rejected do |cipher_details|
-          cipher_details.should include(:version, :cipher, :key_length, :status, :weak)
+          expect(cipher_details).to include(:version, :cipher, :key_length, :status, :weak)
         end
       end
 
@@ -479,7 +479,7 @@ RSpec.describe Rex::SSLScan::Result do
         subject.openssl_sslv2 = false
       end
       it "should warn the user" do
-        subject.to_s.should include "*** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
+        expect(subject.to_s).to include "*** WARNING: Your OS hates freedom! Your OpenSSL libs are compiled without SSLv2 support!"
       end
     end
 
@@ -504,15 +504,15 @@ RSpec.describe Rex::SSLScan::Result do
       end
 
       it "should contain the certificate" do
-        subject.to_s.should include "Issuer: DC=org, DC=ruby-lang, CN=Ruby CA"
-        subject.to_s.should include "Subject: DC=org, DC=ruby-lang, CN=Ruby CA"
+        expect(subject.to_s).to include "Issuer: DC=org, DC=ruby-lang, CN=Ruby CA"
+        expect(subject.to_s).to include "Subject: DC=org, DC=ruby-lang, CN=Ruby CA"
       end
 
       it "should have a table with our SSL Cipher Results" do
-        subject.to_s.should include "Accepted  *     SSLv3        40          EXP-RC2-CBC-MD5"
-        subject.to_s.should include "Accepted        SSLv3        128         AES128-SHA"
-        subject.to_s.should include "Accepted        SSLv3        256         AES256-SHA"
-        subject.to_s.should include "Accepted        TLSv1        256         AES256-SHA"
+        expect(subject.to_s).to include "Accepted  *     SSLv3        40          EXP-RC2-CBC-MD5"
+        expect(subject.to_s).to include "Accepted        SSLv3        128         AES128-SHA"
+        expect(subject.to_s).to include "Accepted        SSLv3        256         AES256-SHA"
+        expect(subject.to_s).to include "Accepted        TLSv1        256         AES256-SHA"
       end
     end
 

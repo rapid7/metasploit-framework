@@ -15,7 +15,7 @@ shared_examples_for 'Msf::DBManager::Export#extract_module_detail_info module_de
 
   it "should have Mdm::Module::Detail##{attribute_name} for #{child_node_name} content" do
     if attribute == false
-      child_node.content.should be_blank
+      expect(child_node.content).to be_blank
     else
       expect(child_node.content).to eq attribute.to_s
     end

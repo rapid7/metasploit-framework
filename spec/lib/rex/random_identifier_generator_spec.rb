@@ -17,22 +17,22 @@ RSpec.describe Rex::RandomIdentifierGenerator do
   describe "#generate" do
     it "should respect :min_length" do
       1000.times do
-        rig.generate.length.should >= options[:min_length]
+        expect(rig.generate.length).to >= options[:min_length]
       end
     end
 
     it "should respect :max_length" do
       1000.times do
-        rig.generate.length.should <= options[:max_length]
+        expect(rig.generate.length).to <= options[:max_length]
       end
     end
 
     it "should allow mangling in a block" do
       ident = rig.generate { |identifier| identifier.upcase }
-      ident.should match(/\A[A-Z0-9_]*\Z/)
+      expect(ident).to match(/\A[A-Z0-9_]*\Z/)
 
       ident = subject.generate { |identifier| identifier.downcase }
-      ident.should match(/\A[a-z0-9_]*\Z/)
+      expect(ident).to match(/\A[a-z0-9_]*\Z/)
 
       ident = subject.generate { |identifier| identifier.gsub("A","B") }
       ident.should_not include("A")
@@ -125,16 +125,16 @@ RSpec.describe Rex::RandomIdentifierGenerator do
 
   describe "#to_h" do
     it "should return a Hash" do
-      rig.to_h.should be_kind_of(Hash)
+      expect(rig.to_h).to be_kind_of(Hash)
     end
     it "should return expected key-value pairs" do
       expected_keys = [:var_foo, :var_bar]
       expected_keys.shuffle.each do |key|
         rig.init_var(key)
       end
-      rig.to_h.size.should eq(expected_keys.size)
-      rig.to_h.keys.should include(*expected_keys)
-      rig.to_h.values.map {|v| v.class}.uniq.should eq([String])
+      expect(rig.to_h.size).to eq(expected_keys.size)
+      expect(rig.to_h.keys).to include(*expected_keys)
+      expect(rig.to_h.values.map {|v| v.class}.uniq).to eq([String])
     end
   end
 

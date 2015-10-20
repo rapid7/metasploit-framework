@@ -41,13 +41,13 @@ RSpec.describe Rex::Socket::RangeWalker do
 
     it "should handle single ipv6 addresses" do
       walker = Rex::Socket::RangeWalker.new("::1")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 1
     end
 
     it "should handle longform ranges" do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-10.1.1.2")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 2
       expect(walker.next).to eq "10.1.1.1"
     end
@@ -61,16 +61,16 @@ RSpec.describe Rex::Socket::RangeWalker do
 
     it "should handle ranges" do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-2")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 2
       expect(walker.next).to eq "10.1.1.1"
       walker = Rex::Socket::RangeWalker.new("10.1-2.1.1-2")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 4
       walker = Rex::Socket::RangeWalker.new("10.1-2.3-4.5-6")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 8
-      walker.should include("10.1.3.5")
+      expect(walker).to include("10.1.3.5")
     end
 
     it 'should reject CIDR ranges with missing octets' do
@@ -85,41 +85,38 @@ RSpec.describe Rex::Socket::RangeWalker do
 
     it "should default the lower bound of a range to 0" do
       walker = Rex::Socket::RangeWalker.new("10.1.3.-17")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 18
       walker = Rex::Socket::RangeWalker.new("10.1.3.-255")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 256
     end
 
     it "should default the upper bound of a range to 255" do
       walker = Rex::Socket::RangeWalker.new("10.1.3.254-")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 2
     end
 
     it "should take * to mean 0-255" do
       walker = Rex::Socket::RangeWalker.new("10.1.3.*")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 256
       expect(walker.next).to eq "10.1.3.0"
-      walker.should include("10.1.3.255")
+      expect(walker).to include("10.1.3.255")
       walker = Rex::Socket::RangeWalker.new("10.1.*.3")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 256
       expect(walker.next).to eq "10.1.0.3"
-      walker.should include("10.1.255.3")
+      expect(walker).to include("10.1.255.3")
     end
 
     it "should handle lists" do
-      #walker = Rex::Socket::RangeWalker.new("10.1.1.1,2")
-      #walker.should be_valid
-      #walker.length.should == 2
       walker = Rex::Socket::RangeWalker.new("10.1.1.1")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 1
       walker = Rex::Socket::RangeWalker.new("10.1.1.1,3")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 2
       walker.should_not include("10.1.1.2")
     end
@@ -127,15 +124,15 @@ RSpec.describe Rex::Socket::RangeWalker do
     it "should produce the same ranges with * and 0-255" do
       a = Rex::Socket::RangeWalker.new("10.1.3.*")
       b = Rex::Socket::RangeWalker.new("10.1.3.0-255")
-      a.ranges.should eq(b.ranges)
+      expect(a.ranges).to eq(b.ranges)
     end
 
     it "should handle ranges and lists together" do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1-2,3")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 3
       walker = Rex::Socket::RangeWalker.new("10.1-2.1.1,2")
-      walker.should be_valid
+      expect(walker).to be_valid
       expect(walker.length).to eq 4
       walker = Rex::Socket::RangeWalker.new("10.1,2.3,4.5,6")
       expect(walker.length).to eq 8
@@ -144,7 +141,7 @@ RSpec.describe Rex::Socket::RangeWalker do
     it "should handle cidr" do
       31.downto 16 do |bits|
         walker = Rex::Socket::RangeWalker.new("10.1.1.1/#{bits}")
-        walker.should be_valid
+        expect(walker).to be_valid
         expect(walker.length).to eq (2**(32-bits))
       end
     end
@@ -168,7 +165,7 @@ RSpec.describe Rex::Socket::RangeWalker do
 
     it "returns true for a sub-range" do
       other = described_class.new("10.1.1.1-255")
-      walker.should be_include_range(other)
+      expect(walker).to be_include_range(other)
     end
 
   end

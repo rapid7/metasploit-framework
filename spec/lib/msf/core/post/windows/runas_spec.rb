@@ -48,15 +48,15 @@ RSpec.describe Msf::Post::Windows::Runas do
       expect(advapi32).to receive(:CreateProcessWithLogonW)
       expect(kernel32).not_to receive(:CloseHandle)
       pi = subject.create_process_with_logon(nil, 'bob', 'pass', nil, 'cmd.exe')
-      pi.should be_kind_of(Hash)
-      pi.should eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
+      expect(pi).to be_kind_of(Hash)
+      expect(pi).to eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
     end
 
     it "should return a nil on failure" do
       expect(advapi32).to receive(:CreateProcessWithLogonW)
       expect(kernel32).not_to receive(:CloseHandle)
       advapi32.to receive(:CreateProcessWithLogonW).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
-      subject.create_process_with_logon(nil, 'bob', 'pass', nil, 'cmd.exe').should be nil
+      expect(subject.create_process_with_logon(nil, 'bob', 'pass', nil, 'cmd.exe')).to be nil
     end
   end
 
@@ -68,8 +68,8 @@ RSpec.describe Msf::Post::Windows::Runas do
       expect(kernel32).to receive(:CloseHandle).with(1)
       expect(kernel32).to receive(:CloseHandle).with(2)
       pi = subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe')
-      pi.should be_kind_of(Hash)
-      pi.should eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
+      expect(pi).to be_kind_of(Hash)
+      expect(pi).to eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
     end
 
     it "should return a nil on failure of create process" do
@@ -79,7 +79,7 @@ RSpec.describe Msf::Post::Windows::Runas do
       expect(kernel32).not_to receive(:CloseHandle).with(1)
       expect(kernel32).not_to receive(:CloseHandle).with(2)
       advapi32.to receive(:CreateProcessAsUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
-      subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe').should be nil
+      expect(subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe')).to be nil
     end
 
     it "should return a nil on failure of logon user" do
@@ -89,27 +89,27 @@ RSpec.describe Msf::Post::Windows::Runas do
       expect(kernel32).not_to receive(:CloseHandle).with(1)
       expect(kernel32).not_to receive(:CloseHandle).with(2)
       advapi32.to receive(:LogonUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
-      subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe').should be nil
+      expect(subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe')).to be nil
     end
   end
 
   context "#startup_info" do
     it "should be 68 bytes" do
-      subject.startup_info.size.should eq(68)
+      expect(subject.startup_info.size).to eq(68)
     end
 
     it "should return SW_HIDE=0 and STARTF_USESHOWWINDOW=1" do
       si = subject.startup_info.unpack('VVVVVVVVVVVVvvVVVV')
-      si[11].should eq(1)
-      si[12].should eq(0)
+      expect(si[11]).to eq(1)
+      expect(si[12]).to eq(0)
     end
   end
 
   context "#parse_process_information" do
     it "should return a hash when given valid data" do
       pi = subject.parse_process_information(process_info)
-      pi.should be_kind_of(Hash)
-      pi.should eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
+      expect(pi).to be_kind_of(Hash)
+      expect(pi).to eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
     end
 
     it "should return an exception when given an empty string" do
@@ -141,15 +141,15 @@ RSpec.describe Msf::Post::Windows::Runas do
     end
 
     it "should return true when UPN format and domain is nil" do
-      subject.check_user_format(upn_username, nil).should be true
+      expect(subject.check_user_format(upn_username, nil)).to be true
     end
 
     it "should return true when domain format and domain is nil" do
-      subject.check_user_format(domain_username, nil).should be true
+      expect(subject.check_user_format(domain_username, nil)).to be true
     end
 
     it "should return true when domain format and domain supplied" do
-      subject.check_user_format(domain_username, domain).should be true
+      expect(subject.check_user_format(domain_username, domain)).to be true
     end
   end
 
@@ -185,11 +185,11 @@ RSpec.describe Msf::Post::Windows::Runas do
     end
 
     it "should return true when application_name is set and command_line is nil" do
-      subject.check_command_length(application_name, nil, max_length).should be true
+      expect(subject.check_command_length(application_name, nil, max_length)).to be true
     end
 
     it "should return true when application_name is set and command_line is max_length" do
-      subject.check_command_length(application_name, normal_command_line, max_length).should be true
+      expect(subject.check_command_length(application_name, normal_command_line, max_length)).to be true
     end
 
     it "should raise an exception when command_line is larger than max_length" do
@@ -201,7 +201,7 @@ RSpec.describe Msf::Post::Windows::Runas do
     end
 
     it "should return true when application_name is nil and command_module is less than MAX_PATH" do
-      subject.check_command_length(nil, normal_command_module, max_length).should be true
+      expect(subject.check_command_length(nil, normal_command_module, max_length)).to be true
     end
   end
 end

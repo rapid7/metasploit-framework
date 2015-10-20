@@ -169,11 +169,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it "should match Mdm::Module::Detail#stance 'passive'" do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.stance == 'passive'
-          }.should be_truthy
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.stance == 'passive'
+            }
+          ).to eq true
         end
       end
 
@@ -183,11 +185,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it "should match Mdm::Module::Detail#stance 'aggressive'" do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.stance == 'aggressive'
-          }.should be_truthy
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.stance == 'aggressive'
+            }
+          ).to eq true
         end
       end
     end
@@ -212,13 +216,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Author#email' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.authors.any? { |module_author|
-              module_author.email == target_module_author.email
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.authors.any? { |module_author|
+                module_author.email == target_module_author.email
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -229,13 +235,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Author#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.authors.any? { |module_author|
-              module_author.name == target_module_author.name
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.authors.any? { |module_author|
+                module_author.name == target_module_author.name
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
     end
@@ -263,11 +271,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#fullname' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.fullname == target_module_detail.fullname
-          }.should be_truthy
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.fullname == target_module_detail.fullname
+            }
+          ).to eq true
         end
       end
 
@@ -278,11 +288,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.name == target_module_detail.name
-          }.should be_truthy
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.name == target_module_detail.name
+            }
+          ).to eq true
         end
       end
     end
@@ -313,13 +325,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Ref#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.refs.any? { |module_ref|
-              module_ref.name == ref
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.refs.any? { |module_ref|
+                module_ref.name == ref
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -353,11 +367,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#mtype' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.mtype == type
-          }.should be_truthy
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.mtype == type
+            }
+          ).to eq true
         end
       end
 
@@ -379,13 +395,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Action#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.actions.any? { |module_action|
-              module_action.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.actions.any? { |module_action|
+                module_action.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -399,13 +417,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Arch#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.archs.any? { |module_arch|
-              module_arch.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.archs.any? { |module_arch|
+                module_arch.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -419,13 +439,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Author#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.authors.any? { |module_author|
-              module_author.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.authors.any? { |module_author|
+                module_author.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -447,9 +469,11 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           it 'should match Mdm::Module::Detail#description' do
             expect(module_details.count).to eq 1
 
-            module_details.all? { |module_detail|
-              module_detail.description == target_module_detail.description
-            }.should be_truthy
+            expect(
+              module_details.all? { |module_detail|
+                module_detail.description == target_module_detail.description
+              }
+            ).to eq true
           end
         end
 
@@ -461,9 +485,11 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           it 'should match Mdm::Module::Detail#fullname' do
             expect(module_details.count).to eq 1
 
-            module_details.all? { |module_detail|
-              module_detail.fullname == search_string
-            }.should be_truthy
+            expect(
+              module_details.all? { |module_detail|
+                module_detail.fullname == search_string
+              }
+            ).to eq true
           end
         end
 
@@ -476,9 +502,11 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           it 'should match Mdm::Module::Detail#name' do
             expect(module_details.count).to eq 1
 
-            module_details.all? { |module_detail|
-              module_detail.name == target_module_detail.name
-            }.should be_truthy
+            expect(
+              module_details.all? { |module_detail|
+                module_detail.name == target_module_detail.name
+              }
+            ).to eq true
           end
         end
       end
@@ -493,13 +521,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Platform#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.platforms.any? { |module_platform|
-              module_platform.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.platforms.any? { |module_platform|
+                module_platform.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -513,13 +543,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Ref#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.refs.any? { |module_ref|
-              module_ref.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.refs.any? { |module_ref|
+                module_ref.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -533,13 +565,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Target#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to > 0
 
-          module_details.all? { |module_detail|
-            module_detail.targets.any? { |module_target|
-              module_target.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.targets.any? { |module_target|
+                module_target.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
     end

@@ -85,7 +85,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   it 'should include methods from module so method can be overridden easier in pro' do
-    db_manager.should be_a Msf::DBManager::Import::MetasploitFramework::XML
+    expect(db_manager).to be_a Msf::DBManager::Import::MetasploitFramework::XML
   end
 
   context 'CONSTANTS' do
@@ -221,8 +221,8 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         it 'should have nil for child name in info' do
           # use have_key to verify info isn't just returning hash default of
           # `nil`.
-          info.should have_key(child_sym)
-          info[child_sym].should be_nil
+          expect(info).to have_key(child_sym)
+          expect(info[child_sym]).to be_nil
         end
       end
 
@@ -599,7 +599,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
         it 'should be a Hash' do
           with_info do |info|
-            info.should be_a Hash
+            expect(info).to be_a Hash
           end
         end
 
@@ -716,7 +716,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           expect(db_manager).to receive(:import_msf_web_element) do |*args, &specialization|
             info = specialization.call(element, options)
 
-            info.should be_a Hash
+            expect(info).to be_a Hash
           end
 
           import_msf_web_page_element
@@ -885,7 +885,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
         it 'should be a Hash' do
           with_info do |info|
-            info.should be_a Hash
+            expect(info).to be_a Hash
           end
 
           import_msf_web_vuln_element

@@ -77,14 +77,14 @@ RSpec.describe Rex::SSLScan::Scanner do
     end
 
     it "should return an X509 cert if it can connect" do
-      subject.get_cert(:SSLv3, "AES256-SHA").should be_a OpenSSL::X509::Certificate
+      expect(subject.get_cert(:SSLv3, "AES256-SHA")).to be_a OpenSSL::X509::Certificate
     end
   end
 
   context "when scanning https://google.com" do
     it "should return a Result object" do
       result = subject.scan
-      result.should be_a Rex::SSLScan::Result
+      expect(result).to be_a Rex::SSLScan::Result
     end
 
     context "if SSLv2 is not available locally" do

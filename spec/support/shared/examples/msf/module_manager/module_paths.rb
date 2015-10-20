@@ -10,7 +10,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
         module_manager.add_module_path(path_with_trailing_separator)
 
         module_paths.should_not include(path_with_trailing_separator)
-        module_paths.should include(path)
+        expect(module_paths).to include(path)
       end
     end
 
@@ -19,7 +19,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
         Dir.mktmpdir do |path|
           module_manager.add_module_path(path)
 
-          module_paths.should include(path)
+          expect(module_paths).to include(path)
         end
       end
     end

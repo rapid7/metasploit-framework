@@ -329,13 +329,13 @@ RSpec.describe Rex::Proto::Http::Response do
     it 'returns empty string for no Set-Cookies' do
       resp = described_class.new()
       resp.parse(get_cookies_test_no_cookies)
-      resp.get_cookies.should eq('')
+      expect(resp.get_cookies).to eq('')
     end
 
     it 'returns 5 cookies when given 5 cookies non-sequentially' do
       cookies_array = cookie_sanity_check(:get_cookies_test_five_cookies)
-      cookies_array.count.should eq(5)
-      cookies_array.should =~ %w(
+      expect(cookies_array.count).to eq(5)
+      expect(cookies_array).to =~ %w(
       pma_lang=en
       pma_collation_connection=utf8_general_ci
       pma_mcrypt_iv=mF1NmTE64IY%3D
@@ -346,7 +346,7 @@ RSpec.describe Rex::Proto::Http::Response do
 
     it 'returns and parses 5 cookies when given 5 ordered cookies' do
       cookies_array = cookie_sanity_check(:get_cookies_test_five_ordered_cookies)
-      cookies_array.count.should eq(5)
+      expect(cookies_array.count).to eq(5)
       expected_cookies = %w{
       pma_lang=en
       pma_collation_connection=utf8_general_ci
@@ -355,12 +355,12 @@ RSpec.describe Rex::Proto::Http::Response do
       superC00kie!=stupidcookie
       }
       expected_cookies.shuffle!
-      cookies_array.should include(*expected_cookies)
+      expect(cookies_array).to include(*expected_cookies)
     end
 
     it 'parses an empty cookie value' do
       cookies_array = cookie_sanity_check(:get_cookies_test_with_empty_cookie)
-      cookies_array.count.should eq(5)
+      expect(cookies_array.count).to eq(5)
       expected_cookies = %w{
       pma_lang=en
       pma_collation_connection=utf8_general_ci
@@ -369,31 +369,31 @@ RSpec.describe Rex::Proto::Http::Response do
       phpMyAdmin=gpjif0gtpqbvfion91ddtrq8p8vgjtue
       }
       expected_cookies.shuffle!
-      cookies_array.should include(*expected_cookies)
+      expect(cookies_array).to include(*expected_cookies)
 
     end
 
     it 'parses multiple cookies in one Set-Cookie header' do
       cookies_array = cookie_sanity_check(:get_cookies_test_one_set_cookie_header)
-      cookies_array.count.should eq(2)
+      expect(cookies_array.count).to eq(2)
       expected_cookies = %w{
       wordpressuser_a97c5267613d6de70e821ff82dd1ab94=admin
       wordpresspass_a97c5267613d6de70e821ff82dd1ab94=c3284d0f94606de1fd2af172aba15bf3
       }
       expected_cookies.shuffle!
-      cookies_array.should include(*expected_cookies)
+      expect(cookies_array).to include(*expected_cookies)
     end
 
     it 'parses comma separated cookies' do
       cookies_array = cookie_sanity_check(:get_cookies_comma_separated)
-      cookies_array.count.should eq(3)
+      expect(cookies_array.count).to eq(3)
       expected_cookies = %w{
       cval=880350187
       session_id_8000=83466b1a1a7a27ce13d35f78155d40ca3a1e7a28
       uid=348637C4-9B10-485A-BFA9-5E892432FCFD
       }
       expected_cookies.shuffle!
-      cookies_array.should include(*expected_cookies)
+      expect(cookies_array).to include(*expected_cookies)
     end
 
   end

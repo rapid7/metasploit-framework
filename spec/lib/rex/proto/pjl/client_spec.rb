@@ -22,7 +22,7 @@ RSpec.describe Rex::Proto::PJL::Client do
 
     context "#initialize" do
       it "should initialize a 'sock' ivar" do
-        cli.instance_variable_get(:@sock).class.should eq(RSpec::Mocks::Double)
+        expect(cli.instance_variable_get(:@sock).class).to eq(RSpec::Mocks::Double)
       end
     end
 
@@ -44,7 +44,7 @@ RSpec.describe Rex::Proto::PJL::Client do
       end
 
       it "should receive a response for an INFO request" do
-        cli.info(:id).should eq(default_response)
+        expect(cli.info(:id)).to eq(default_response)
       end
     end
 
@@ -52,7 +52,7 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should return the version information" do
         fake_version = '"1337"'
         expect(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_version)
-        cli.info_id.should eq('1337')
+        expect(cli.info_id).to eq('1337')
       end
     end
 
@@ -60,7 +60,7 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should return the environment variables" do
         fake_env_vars = "#{Rex::Proto::PJL::Info::VARIABLES}\r\nPASSWORD=DISABLED\f"
         expect(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_env_vars)
-        cli.info_variables.should eq('PASSWORD=DISABLED')
+        expect(cli.info_variables).to eq('PASSWORD=DISABLED')
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should return the volumes" do
         fake_volumes = "[1 TABLE]\r\nDIR\f"
         expect(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_volumes)
-        cli.info_filesys.should eq('DIR')
+        expect(cli.info_filesys).to eq('DIR')
       end
     end
 
@@ -76,7 +76,7 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should return a READY message" do
         fake_ready_message = 'DISPLAY="RES"'
         expect(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_ready_message)
-        cli.get_rdymsg.should eq('RES')
+        expect(cli.get_rdymsg).to eq('RES')
       end
     end
 
@@ -107,7 +107,7 @@ RSpec.describe Rex::Proto::PJL::Client do
         expect(tmp_sock).to receive(:put).with(an_instance_of(String))
         expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
-        tmp_cli.fsquery("1:").should eq(true)
+        expect(tmp_cli.fsquery("1:")).to eq(true)
       end
     end
 
@@ -122,7 +122,7 @@ RSpec.describe Rex::Proto::PJL::Client do
         expect(tmp_sock).to receive(:put).with(an_instance_of(String))
         expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
-        tmp_cli.fsdirlist("1:").should eq('DIR')
+        expect(tmp_cli.fsdirlist("1:")).to eq('DIR')
       end
     end
 
@@ -137,7 +137,7 @@ RSpec.describe Rex::Proto::PJL::Client do
         expect(tmp_sock).to receive(:put).with(an_instance_of(String))
         expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
-        tmp_cli.fsupload("1:").should eq('FILE')
+        expect(tmp_cli.fsupload("1:")).to eq('FILE')
       end
     end
 
@@ -152,7 +152,7 @@ RSpec.describe Rex::Proto::PJL::Client do
         expect(tmp_sock).to receive(:put).with(an_instance_of(String))
         expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
-        tmp_cli.fsdownload("/dev/null", "1:").should eq(true)
+        expect(tmp_cli.fsdownload("/dev/null", "1:")).to eq(true)
       end
     end
 
@@ -167,7 +167,7 @@ RSpec.describe Rex::Proto::PJL::Client do
         expect(tmp_sock).to receive(:put).with(an_instance_of(String))
         expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
-        tmp_cli.fsdelete("1:").should eq(true)
+        expect(tmp_cli.fsdelete("1:")).to eq(true)
       end
     end
   end

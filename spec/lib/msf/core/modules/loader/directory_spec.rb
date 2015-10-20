@@ -53,7 +53,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
         end
 
         it 'should load a module that can be created' do
-          subject.load_module(parent_path, type, module_reference_name).should be_truthy
+          expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
 
           created_module = module_manager.create(module_full_name)
 
@@ -76,7 +76,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
             end
 
             it 'should not load the module' do
-              subject.load_module(parent_path, type, module_reference_name).should be_falsey
+              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
             end
           end
 
@@ -91,7 +91,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
             end
 
             it 'should not load the module' do
-              subject.load_module(parent_path, type, module_reference_name).should be_falsey
+              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
             end
           end
         end
@@ -112,7 +112,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
         end
 
         it 'should not raise an error' do
-          File.exist?(module_path).should be_falsey
+          expect(File.exist?(module_path)).to be_falsey
 
           expect {
             subject.load_module(parent_path, type, module_reference_name)
@@ -120,9 +120,9 @@ RSpec.describe Msf::Modules::Loader::Directory do
         end
 
         it 'should return false' do
-          File.exist?(module_path).should be_falsey
+          expect(File.exist?(module_path)).to be_falsey
 
-          subject.load_module(parent_path, type, module_reference_name).should be_falsey
+          expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
         end
       end
     end
@@ -140,7 +140,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
         # this ensures that the File.exist?(module_path) checks are checking the same path as the code under test
         it 'should attempt to open the expected module_path' do
           expect(File).to receive(:open).with(module_path, 'rb')
-          File.exist?(module_path).should be_falsey
+          expect(File.exist?(module_path)).to be_falsey
 
           subject.send(:read_module_content, parent_path, type, module_reference_name)
         end
