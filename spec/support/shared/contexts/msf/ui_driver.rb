@@ -1,4 +1,4 @@
-shared_context 'Msf::UIDriver' do
+RSpec.shared_context 'Msf::UIDriver' do
   let(:driver) do
     double(
       'Driver',

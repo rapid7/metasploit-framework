@@ -1,4 +1,4 @@
-shared_context 'Msf::DBManager' do
+RSpec.shared_context 'Msf::DBManager' do
   include_context 'Msf::Simple::Framework'
 
   let(:active) do

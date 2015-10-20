@@ -1,4 +1,4 @@
-shared_context 'Msf::Framework#threads cleaner' do
+RSpec.shared_context 'Msf::Framework#threads cleaner' do
   after(:each) do |example|
     unless framework.threads?
       fail RuntimeError.new(
