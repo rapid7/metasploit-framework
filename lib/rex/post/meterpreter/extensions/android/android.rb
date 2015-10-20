@@ -20,6 +20,7 @@ module Android
 class Android < Extension
 
   COLLECT_TYPE_WIFI = 1
+  COLLECT_TYPE_GEO  = 2
 
   COLLECT_ACTION_START  = 1
   COLLECT_ACTION_PAUSE  = 2
@@ -28,7 +29,8 @@ class Android < Extension
   COLLECT_ACTION_DUMP   = 5
 
   COLLECT_TYPES = {
-    'wifi' => COLLECT_TYPE_WIFI
+    'wifi' => COLLECT_TYPE_WIFI,
+    'geo'  => COLLECT_TYPE_GEO
   }
 
   COLLECT_ACTIONS = {
@@ -100,6 +102,31 @@ class Android < Extension
             # but we flip it back to negative on this side
             level = -w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL)
             records[key] = [timestamp, bssid, ssid, level]
+          end
+        end
+      end
+
+      records.each do |k, v|
+        result[:entries] << v
+      end
+
+    when COLLECT_TYPE_GEO
+      result[:headers] = ['Timestamp', 'Latitude', 'Longitude']
+      result[:entries] = []
+      records = {}
+
+      response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
+        timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
+        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+
+        g.each(TLV_TYPE_COLLECT_RESULT_GEO) do |w|
+          lat = w.get_tlv_value(TLV_TYPE_GEO_LAT)
+          lng = w.get_tlv_value(TLV_TYPE_GEO_LONG)
+          key = "#{lat},#{lng}"
+
+          # Allow record non-duplicate locations over a contiguous period
+          if !records.include?(key) || records[key][0] < timestamp
+            records[key] = [timestamp, lat, lng]
           end
         end
       end
