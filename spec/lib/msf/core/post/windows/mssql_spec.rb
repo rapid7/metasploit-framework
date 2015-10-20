@@ -294,43 +294,43 @@ RSpec.describe Msf::Post::Windows::MSSQL do
 
     context 'user has privs to impersonate' do
       before(:each) do
-        subject.stub_chain('session.sys.config.getuid').and_return('Superman')
-        subject.stub_chain('client.sys.config.getprivs').and_return(['SeAssignPrimaryTokenPrivilege'])
-        subject.stub_chain('session.incognito').and_return(true)
-        subject.stub_chain('session.sys.process.each_process').and_yield(process)
+        allow(subject).to receive_message_chain('session.sys.config.getuid').and_return('Superman')
+        allow(subject).to receive_message_chain('client.sys.config.getprivs').and_return(['SeAssignPrimaryTokenPrivilege'])
+        allow(subject).to receive_message_chain('session.incognito').and_return(true)
+        allow(subject).to receive_message_chain('session.sys.process.each_process').and_yield(process)
       end
 
       it 'should return true if successful impersonating' do
-        subject.stub_chain('session.incognito.incognito_impersonate_token').with(user).and_return('Successfully')
+        allow(subject).to receive_message_chain('session.incognito.incognito_impersonate_token').with(user).and_return('Successfully')
         expect(subject.impersonate_sql_user(service)).to be true
       end
 
       it 'should return false if fails impersonating' do
-        subject.stub_chain('session.incognito.incognito_impersonate_token').with(user).and_return('guff')
+        allow(subject).to receive_message_chain('session.incognito.incognito_impersonate_token').with(user).and_return('guff')
         expect(subject.impersonate_sql_user(service)).to be false
       end
 
       it 'should return false if unable to find process username' do
-        subject.stub_chain('session.sys.process.each_process').and_yield('pid' => 0)
+        allow(subject).to receive_message_chain('session.sys.process.each_process').and_yield('pid' => 0)
         expect(subject.impersonate_sql_user(service)).to be false
       end
     end
 
     context 'user does not have privs to impersonate' do
       before(:each) do
-        subject.stub_chain('session.sys.config.getuid').and_return('Superman')
-        subject.stub_chain('client.sys.config.getprivs').and_return([])
+        allow(subject).to receive_message_chain('session.sys.config.getuid').and_return('Superman')
+        allow(subject).to receive_message_chain('client.sys.config.getprivs').and_return([])
       end
 
       it 'should return true if successful' do
         expect(subject).to receive(:print_warning)
-        subject.stub_chain('session.core.migrate').with(pid).and_return(true)
+        allow(subject).to receive_message_chain('session.core.migrate').with(pid).and_return(true)
         expect(subject.impersonate_sql_user(service)).to be true
       end
 
       it 'should rescue an exception if migration fails' do
         expect(subject).to receive(:print_warning)
-        subject.stub_chain('session.core.migrate').with(pid).and_raise(Rex::RuntimeError)
+        allow(subject).to receive_message_chain('session.core.migrate').with(pid).and_raise(Rex::RuntimeError)
         expect(subject.impersonate_sql_user(service)).to be false
       end
     end
@@ -345,14 +345,14 @@ RSpec.describe Msf::Post::Windows::MSSQL do
     it 'should return true if able to get SYSTEM and print a warning' do
       expect(subject).to receive(:is_system?).and_return(false)
       expect(subject).to receive(:print_warning)
-      subject.stub_chain('session.priv.getsystem').and_return([true])
+      allow(subject).to receive_message_chain('session.priv.getsystem').and_return([true])
       expect(subject.get_system).to be_truthy
     end
 
     it 'should return false if unable to get SYSTEM and print a warning' do
       expect(subject).to receive(:is_system?).and_return(false)
       expect(subject).to receive(:print_warning)
-      subject.stub_chain('session.priv.getsystem').and_return([false])
+      allow(subject).to receive_message_chain('session.priv.getsystem').and_return([false])
       expect(subject.get_system).to be_falsey
     end
   end
@@ -362,7 +362,7 @@ RSpec.describe Msf::Post::Windows::MSSQL do
       p = double('process')
       c = double('channel')
       expect(p).to receive(:channel).and_return(c)
-      subject.stub_chain('session.sys.process.execute').and_return(p)
+      allow(subject).to receive_message_chain('session.sys.process.execute').and_return(p)
       expect(c).to receive(:read).and_return('hello')
       expect(c).to receive(:read).and_return(nil)
       expect(c).to receive(:close)

@@ -74,11 +74,11 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
 
   context '#attempt_login' do
     before(:each) do
-      login_scanner.stub_chain(:simple, :client, :auth_user, :nil?).and_return false
+      allow(login_scanner).to receive_message_chain(:simple, :client, :auth_user, :nil?).and_return false
     end
     context 'when there is a connection error' do
       it 'returns a result with the connection_error status' do
-        login_scanner.stub_chain(:simple, :login).and_raise ::Rex::ConnectionError
+        allow(login_scanner).to receive_message_chain(:simple, :login).and_raise ::Rex::ConnectionError
         expect(login_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
     end
@@ -98,10 +98,10 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
           exception = Rex::Proto::SMB::Exceptions::LoginError.new
           exception.error_code = code
 
-          login_scanner.stub_chain(:simple, :login).and_raise exception
-          login_scanner.stub_chain(:simple, :connect)
-          login_scanner.stub_chain(:simple, :disconnect)
-          login_scanner.stub_chain(:simple, :client, :auth_user, :nil?).and_return false
+          allow(login_scanner).to receive_message_chain(:simple, :login).and_raise exception
+          allow(login_scanner).to receive_message_chain(:simple, :connect)
+          allow(login_scanner).to receive_message_chain(:simple, :disconnect)
+          allow(login_scanner).to receive_message_chain(:simple, :client, :auth_user, :nil?).and_return false
 
           expect(login_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::DENIED_ACCESS
         end
@@ -111,8 +111,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
 
     context 'when the login fails' do
       it 'returns a result object with a status of Metasploit::Model::Login::Status::INCORRECT' do
-        login_scanner.stub_chain(:simple, :login).and_return false
-        login_scanner.stub_chain(:simple, :connect).and_raise Rex::Proto::SMB::Exceptions::Error
+        allow(login_scanner).to receive_message_chain(:simple, :login).and_return false
+        allow(login_scanner).to receive_message_chain(:simple, :connect).and_raise Rex::Proto::SMB::Exceptions::Error
         expect(login_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::INCORRECT
       end
     end
@@ -127,7 +127,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
         end
 
         it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do
-          login_scanner.stub_chain(:simple, :login).and_return true
+          allow(login_scanner).to receive_message_chain(:simple, :login).and_return true
           result = login_scanner.attempt_login(pub_blank)
           expect(result.status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
           expect(result.access_level).to eq described_class::AccessLevels::ADMINISTRATOR
@@ -145,7 +145,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
         end
 
         it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do
-          login_scanner.stub_chain(:simple, :login).and_return true
+          allow(login_scanner).to receive_message_chain(:simple, :login).and_return true
           result = login_scanner.attempt_login(pub_blank)
           expect(result.status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
           expect(result.access_level).to_not eq described_class::AccessLevels::ADMINISTRATOR
