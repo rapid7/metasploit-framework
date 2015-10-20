@@ -327,7 +327,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should not call Msf::DBManager#workspace' do
-          db_manager.should_not_receive(:workspace)
+          expect(db_manager).not_to receive(:workspace)
 
           import_msf_web_element
         end

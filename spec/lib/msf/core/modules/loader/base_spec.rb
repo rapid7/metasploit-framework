@@ -274,7 +274,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         end
 
         it 'should not call #read_module_content' do
-          subject.should_not_receive(:read_module_content)
+          expect(subject).not_to receive(:read_module_content)
           subject.load_module(parent_path, type, module_reference_name)
         end
       end
@@ -371,7 +371,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           end
 
           it 'should not attempt to make a new namespace_module' do
-            subject.should_not_receive(:namespace_module_transaction)
+            expect(subject).not_to receive(:namespace_module_transaction)
             expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
           end
         end
@@ -1228,7 +1228,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         end
 
         it 'should not set the relative_name constant to anything' do
-          parent_module.should_not_receive(:const_set)
+          expect(parent_module).not_to receive(:const_set)
 
           subject.send(:restore_namespace_module, parent_module, relative_name, namespace_module)
         end
@@ -1287,8 +1287,8 @@ RSpec.describe Msf::Modules::Loader::Base do
               # Allow 'Metasploit::Framework::Spec::Constants cleaner' removal
               expect(parent_module).to receive(:remove_const).with(relative_name.to_sym).and_call_original
 
-              parent_module.should_not_receive(:remove_const).with(relative_name)
-              parent_module.should_not_receive(:const_set).with(relative_name, @current_namespace_module)
+              expect(parent_module).not_to receive(:remove_const).with(relative_name)
+              expect(parent_module).not_to receive(:const_set).with(relative_name, @current_namespace_module)
 
               subject.send(:restore_namespace_module, parent_module, relative_name, @current_namespace_module)
             end

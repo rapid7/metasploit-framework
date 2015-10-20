@@ -224,11 +224,11 @@ RSpec.describe Msfupdate do
         subject.run!
       end
       it "does not call update_binary_install!" do
-        subject.should_not_receive(:update_binary_install!)
+        expect(subject).not_to receive(:update_binary_install!)
         subject.run!
       end
       it "does not call update_git!" do
-        subject.should_not_receive(:update_git!)
+        expect(subject).not_to receive(:update_git!)
         subject.run!
       end
     end
@@ -273,7 +273,7 @@ RSpec.describe Msfupdate do
 
     context "#run!" do
       it "does not call update_apt!" do
-        subject.should_not_receive(:update_apt!)
+        expect(subject).not_to receive(:update_apt!)
         subject.run!
       end
       it "calls update_binary_install!" do
@@ -281,7 +281,7 @@ RSpec.describe Msfupdate do
         subject.run!
       end
       it "does not call update_git!" do
-        subject.should_not_receive(:update_git!)
+        expect(subject).not_to receive(:update_git!)
         subject.run!
       end
     end
@@ -327,11 +327,11 @@ RSpec.describe Msfupdate do
 
     context "#run!" do
       it "does not call update_apt!" do
-        subject.should_not_receive(:update_apt!)
+        expect(subject).not_to receive(:update_apt!)
         subject.run!
       end
       it "does not call update_binary_install!" do
-        subject.should_not_receive(:update_binary_install!)
+        expect(subject).not_to receive(:update_binary_install!)
         subject.run!
       end
       it "calls update_git!" do

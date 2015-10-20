@@ -271,19 +271,19 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
       it 'should not call Msf::DBManager#update_module_details' do
-        framework.db.should_not_receive(:update_module_details)
+        expect(framework.db).not_to receive(:update_module_details)
 
         refresh_cache_from_module_files
       end
 
       it 'should not call Msf::DBManager#update_all_module_details' do
-        framework.db.should_not_receive(:update_all_module_details)
+        expect(framework.db).not_to receive(:update_all_module_details)
 
         refresh_cache_from_module_files
       end
 
       it 'should not call #refresh_cache_from_database' do
-        module_manager.should_not_receive(:refresh_cache_from_database)
+        expect(module_manager).not_to receive(:refresh_cache_from_database)
 
         refresh_cache_from_module_files
       end

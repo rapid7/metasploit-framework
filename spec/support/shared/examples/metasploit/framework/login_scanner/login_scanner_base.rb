@@ -268,7 +268,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
       expect(my_scanner).to receive(:valid!)
       expect(my_scanner).to receive(:attempt_login).once.with(pub_blank).and_return failure_blank
       expect(my_scanner).to receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_not_receive(:attempt_login)
+      expect(my_scanner).not_to receive(:attempt_login)
       my_scanner.scan!
     end
 
@@ -295,7 +295,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
         expect(my_scanner).to receive(:valid!)
         expect(my_scanner).to receive(:attempt_login).once.with(pub_blank).and_return failure_blank
         expect(my_scanner).to receive(:attempt_login).once.with(pub_pub).and_return success
-        my_scanner.should_not_receive(:attempt_login).with(pub_pri)
+        expect(my_scanner).not_to receive(:attempt_login).with(pub_pri)
         my_scanner.scan!
       end
     end

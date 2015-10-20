@@ -607,7 +607,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
 
       context 'with modules_caching' do
         it 'should not update module details' do
-          db_manager.should_not_receive(:update_module_details)
+          expect(db_manager).not_to receive(:update_module_details)
 
           update_all_module_details
         end
@@ -692,7 +692,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
               context 'with existing Mdm::Module::Detail#file' do
                 context 'with same Mdm::Module::Detail#mtime and File.mtime' do
                   it 'should not update module details' do
-                    db_manager.should_not_receive(:update_module_details)
+                    expect(db_manager).not_to receive(:update_module_details)
 
                     update_all_module_details
                   end
@@ -723,7 +723,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 end
 
                 it 'should not update module details' do
-                  db_manager.should_not_receive(:update_module_details)
+                  expect(db_manager).not_to receive(:update_module_details)
 
                   update_all_module_details
                 end
@@ -736,7 +736,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
 
     context 'without migrated' do
       it 'should not update module details' do
-        db_manager.should_not_receive(:update_module_details)
+        expect(db_manager).not_to receive(:update_module_details)
 
         update_all_module_details
       end
