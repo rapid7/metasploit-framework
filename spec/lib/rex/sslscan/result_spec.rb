@@ -517,7 +517,7 @@ RSpec.describe Rex::SSLScan::Result do
     end
 
     it "should return an appropriate message when SSL is not supported" do
-      subject.stub(:supports_ssl?).and_return(false)
+      expect(subject).to receive(:supports_ssl?).and_return(false)
       expect(subject.to_s).to eq "Server does not appear to support SSL on this port!"
     end
 

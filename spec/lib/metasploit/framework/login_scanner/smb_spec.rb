@@ -121,9 +121,9 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
       context 'and the user is local admin' do
         before(:each) do
           login_scanner.simple = double
-          login_scanner.simple.stub(:connect).with(/.*admin\$/i)
-          login_scanner.simple.stub(:connect).with(/.*ipc\$/i)
-          login_scanner.simple.stub(:disconnect)
+          allow(login_scanner.simple).to receive(:connect).with(/.*admin\$/i)
+          allow(login_scanner.simple).to receive(:connect).with(/.*ipc\$/i)
+          allow(login_scanner.simple).to receive(:disconnect)
         end
 
         it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do
@@ -137,11 +137,11 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
       context 'and the user is NOT local admin' do
         before(:each) do
           login_scanner.simple = double
-          login_scanner.simple.stub(:connect).with(/.*admin\$/i).and_raise(
+          allow(login_scanner.simple).to receive(:connect).with(/.*admin\$/i).and_raise(
             # STATUS_ACCESS_DENIED
             Rex::Proto::SMB::Exceptions::ErrorCode.new.tap{|e|e.error_code = 0xC0000022}
           )
-          login_scanner.simple.stub(:connect).with(/.*ipc\$/i)
+          allow(login_scanner.simple).to receive(:connect).with(/.*ipc\$/i)
         end
 
         it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do

@@ -8,8 +8,8 @@ RSpec.describe Msf::Post::Windows::MSSQL do
     mod = Module.new
     mod.extend described_class
     stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error, :print_warning ]
-    stubs.each { |meth| mod.stub(meth) }
-    mod.stub(:service_info).and_return({})
+    stubs.each { |meth| expect(mod).to receive(meth) }
+    expect(mod).to receive(:service_info).and_return({})
     mod
   end
 
@@ -361,7 +361,7 @@ RSpec.describe Msf::Post::Windows::MSSQL do
     it 'should return a string' do
       p = double('process')
       c = double('channel')
-      p.stub(:channel).and_return(c)
+      expect(p).to receive(:channel).and_return(c)
       subject.stub_chain('session.sys.process.execute').and_return(p)
       expect(c).to receive(:read).and_return('hello')
       expect(c).to receive(:read).and_return(nil)

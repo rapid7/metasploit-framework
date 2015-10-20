@@ -35,7 +35,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
 
     it 'should return migrations that were ran from ActiveRecord::Migrator.migrate' do
       migrations = [double('Migration 1')]
-      ActiveRecord::Migrator.stub(:migrate => migrations)
+      expect(ActiveRecord::Migrator).to receive(:migrate).and_return(migrations)
 
       expect(migrate).to eq migrations
     end
@@ -56,7 +56,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
       end
 
       before(:each) do
-        ActiveRecord::Migrator.stub(:migrate).and_raise(error)
+        expect(ActiveRecord::Migrator).to receive(:migrate).and_raise(error)
       end
 
       it 'should set Msf::DBManager#error' do
@@ -144,7 +144,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
         descendants << double("Descendant #{i}")
       end
 
-      ActiveRecord::Base.stub(:descendants => descendants)
+      expect(ActiveRecord::Base).to receive(:descendants).and_return(descendants)
 
       descendants.each do |descendant|
         expect(descendant).to receive(:reset_column_information)

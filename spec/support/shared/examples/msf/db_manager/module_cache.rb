@@ -27,7 +27,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     before(:each) do
-      db_manager.stub(:migrated => migrated)
+      expect(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -40,7 +40,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       before(:each) do
-        db_manager.stub(:modules_caching => modules_caching)
+        expect(db_manager).to receive(:modules_caching).and_return(modules_caching)
       end
 
       context 'with modules_caching' do
@@ -97,7 +97,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     before(:each) do
-      db_manager.stub(:migrated => migrated)
+      expect(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -555,7 +555,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     before(:each) do
-      db_manager.stub(:migrated => migrated)
+      expect(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -568,7 +568,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       before(:each) do
-        db_manager.stub(:modules_caching => modules_caching)
+        expect(db_manager).to receive(:modules_caching).and_return(modules_caching)
       end
 
       context 'with modules_caching' do
@@ -771,7 +771,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     before(:each) do
-      db_manager.stub(:migrated => migrated)
+      expect(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -816,7 +816,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         before(:each) do
-          db_manager.stub(
+          allow(db_manager).to receive(
               :module_to_details_hash
           ).with(
               module_instance

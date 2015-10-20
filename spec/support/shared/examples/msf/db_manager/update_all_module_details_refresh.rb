@@ -41,7 +41,7 @@ shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
 
     context 'with exception raised by #update_module_details' do
       before(:each) do
-        db_manager.stub(:update_module_details).and_raise(Exception)
+        expect(db_manager).to receive(:update_module_details).and_raise(Exception)
       end
 
       it 'should log error' do

@@ -34,7 +34,7 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     let(:opts) { Hash.new }
-    before { subject.stub(:fullname => '/module') }
+    before { expect(subject).to receive(:fullname).and_return('/module') }
     subject { Msf::Module.new(opts) }
     accept = []
     reject = []
@@ -44,7 +44,7 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a client module' do
-      before { subject.stub(:stance => 'passive') }
+      before { expect(subject).to receive(:stance).and_return('passive') }
       accept = %w(app:client)
       reject = %w(app:server)
 
@@ -52,7 +52,7 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a server module' do
-      before { subject.stub(:stance => 'aggressive') }
+      before { expect(subject).to receive(:stance).and_return('aggressive') }
       accept = %w(app:server)
       reject = %w(app:client)
 
@@ -116,7 +116,10 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a module with a default RPORT of 5555' do
-      before { subject.stub(:datastore => { 'RPORT' => 5555 }) }
+      before do
+        expect(subject).to receive(:datastore).and_return({ 'RPORT' => 5555 })
+      end
+
       accept = %w(port:5555)
       reject = %w(port:5556)
 
@@ -130,7 +133,7 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a module with a #fullname of "blah"' do
-      before { subject.stub(:fullname => '/c/d/e/blah') }
+      before { expect(subject).to receive(:fullname).and_return('/c/d/e/blah') }
       it_should_behave_like 'search_filter', :accept => %w(text:blah), :reject => %w(text:foo)
       it_should_behave_like 'search_filter', :accept => %w(path:blah), :reject => %w(path:foo)
     end
@@ -144,7 +147,7 @@ shared_examples_for 'Msf::Module::Search' do
       all_module_types = Msf::MODULE_TYPES
       all_module_types.each do |mtype|
         context "on a #{mtype} module" do
-          before(:each) { subject.stub(:type => mtype) }
+          before(:each) { expect(subject).to receive(:type).and_return(mtype) }
 
           accept = ["type:#{mtype}"]
           reject = all_module_types.reject { |t| t == mtype }.map { |t| "type:#{t}" }

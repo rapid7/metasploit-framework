@@ -47,11 +47,13 @@ RSpec.describe Metasploit::Framework::LoginScanner::POP3 do
       let(:sock) {double('socket')}
 
       before(:each) do
-        sock.stub(:shutdown)
-        sock.stub(:close)
-        sock.stub(:closed?)
+        allow(sock).to receive(:shutdown)
+        allow(sock).to receive(:close)
+        allow(sock).to receive(:closed?)
+
+        allow(scanner).to receive(:sock).and_return(sock)
+
         expect(scanner).to receive(:connect)
-        scanner.stub(:sock).and_return(sock)
         expect(scanner).to receive(:select).with([sock],nil,nil,0.4)
       end
 
@@ -68,7 +70,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::POP3 do
       end
 
       it "Server Returns Something Else" do
-        sock.stub(:get_once).and_return("+ERROR")
+        allow(sock).to receive(:get_once).and_return("+ERROR")
 
         result = scanner.attempt_login(pub_blank)
 

@@ -12,6 +12,6 @@ RSpec.shared_context 'Msf::DBManager' do
   before(:each) do
     # already connected due to use_transactional_fixtures, but need some of the side-effects of #connect
     framework.db.workspace = framework.db.default_workspace
-    db_manager.stub(:active => active)
+    expect(db_manager).to receive(:active).and_return(active)
   end
 end

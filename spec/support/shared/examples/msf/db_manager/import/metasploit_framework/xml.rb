@@ -308,7 +308,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       before(:each) do
-        db_manager.stub(
+        allow(db_manager).to receive(
             :report_web_vuln
         ).with(
             an_instance_of(Hash)
@@ -390,7 +390,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         before(:each) do
-          db_manager.stub(:import_msf_text_element).and_return(returned_hash)
+          expect(db_manager).to receive(:import_msf_text_element).and_return(returned_hash)
         end
 
         it 'should pass returned Hash as part of Hash passed to report_web_<:type' do

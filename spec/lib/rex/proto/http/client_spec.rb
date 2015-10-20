@@ -118,10 +118,10 @@ RSpec.describe Rex::Proto::Http::Client do
 
     it "should send creds after receiving a 401" do
       conn = double
-      conn.stub(:put)
-      conn.stub(:shutdown)
-      conn.stub(:close)
-      conn.stub(:closed? => false)
+      expect(conn).to receive(:put)
+      expect(conn).to receive(:shutdown)
+      expect(conn).to receive(:close)
+      expect(conn).to receive(:closed?).and_return(false)
 
       expect(conn).to receive(:get_once).and_return(first_response, authed_response)
       expect(conn).to receive(:put) do |str_request|
@@ -135,7 +135,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
       expect(cli).to receive(:_send_recv).twice.and_call_original
 
-      Rex::Socket::Tcp.stub(:create).and_return(conn)
+      expect(Rex::Socket::Tcp).to receive(:create).and_return(conn)
 
       opts = { "username" => user, "password" => pass}
       req = cli.request_cgi(opts)

@@ -86,7 +86,7 @@ RSpec.describe VirusTotalUtility do
 
         let(:vt) do
           file = double(File, read: malware_data)
-          File.stub(:open).with(filename, 'rb') {|&block| block.yield file}
+          expect(File).to receive(:open).with(filename, 'rb') {|&block| block.yield file}
           VirusTotalUtility::VirusTotal.new({'api_key'=>api_key, 'sample'=>filename})
         end
 
@@ -108,14 +108,14 @@ RSpec.describe VirusTotalUtility do
 
         context ".scan_sample" do
           it "should return with data" do
-            vt.stub(:_execute_request).and_return('')
+            expect(vt).to receive(:_execute_request).and_return('')
             vt.scan_sample.should eq('')
           end
         end
 
         context ".retrieve_report" do
           it "should return with data" do
-            vt.stub(:_execute_request).and_return('')
+            expect(vt).to receive(:_execute_request).and_return('')
             vt.retrieve_report.should eq('')
           end
         end
@@ -123,15 +123,15 @@ RSpec.describe VirusTotalUtility do
         context "._execute_request" do
           it "should return status code 204" do
             res = double(Rex::Proto::Http::Response)
-            res.stub(:code).and_return(204)
-            vt.stub(:send_request_cgi).with(scan_sample_opts).and_return(res)
+            expect(res).to receive(:code).and_return(204)
+            expect(vt).to receive(:send_request_cgi).with(scan_sample_opts).and_return(res)
             expect { vt.send(:_execute_request, scan_sample_opts) }.to raise_error(RuntimeError)
           end
 
           it "should return status code 403" do
             res = double(Rex::Proto::Http::Response)
-            res.stub(:code).and_return(403)
-            vt.stub(:send_request_cgi).with(scan_sample_opts).and_return(res)
+            expect(res).to receive(:code).and_return(403)
+            expect(vt).to receive(:send_request_cgi).with(scan_sample_opts).and_return(res)
             expect { vt.send(:_execute_request, scan_sample_opts) }.to raise_error(RuntimeError)
           end
         end
@@ -201,15 +201,15 @@ RSpec.describe VirusTotalUtility do
           'delay'   => 60
         }
 
-        VirusTotalUtility::OptsConsole.stub(:parse).with(anything).and_return(options)
+        expect(VirusTotalUtility::OptsConsole).to receive(:parse).with(anything).and_return(options)
 
 
         tool_config = double("tool_config")
-        VirusTotalUtility::ToolConfig.stub(:new).and_return(tool_config)
-        tool_config.stub(:has_privacy_waiver?).and_return(true)
-        tool_config.stub(:load_api_key).and_return(api_key)
-        tool_config.stub(:save_privacy_waiver)
-        tool_config.stub(:save_api_key).with(anything)
+        expect(VirusTotalUtility::ToolConfig).to receive(:new).and_return(tool_config)
+        expect(tool_config).to receive(:has_privacy_waiver?).and_return(true)
+        expect(tool_config).to receive(:load_api_key).and_return(api_key)
+        expect(tool_config).to receive(:save_privacy_waiver)
+        expect(tool_config).to receive(:save_api_key).with(anything)
 
         d = nil
 
