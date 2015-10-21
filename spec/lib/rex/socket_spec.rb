@@ -74,7 +74,7 @@ RSpec.describe Rex::Socket do
 
     context 'with lots of single 0s' do
       let(:try) { "fe80:0:0:0:0:0:0:1" }
-      it { should == "fe80::1" }
+      it { is_expected.to eq "fe80::1" }
     end
 
   end
