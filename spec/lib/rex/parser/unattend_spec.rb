@@ -35,7 +35,7 @@ RSpec.describe Rex::Parser::Unattend do
     it "returns results for all positive examples" do
       pos_xmls.each do |xml|
         results = described_class.parse(xml)
-        results.should_not be_empty
+        expect(results).not_to be_empty
       end
     end
 

@@ -157,7 +157,7 @@ RSpec.describe Msf::Modules::Namespace do
           rescue Msf::Modules::MetasploitClassCompatibilityError => error
           end
 
-          error.should_not be_nil
+          expect(error).not_to be_nil
           expect(error.to_s).to include(module_path)
         end
 
@@ -169,7 +169,7 @@ RSpec.describe Msf::Modules::Namespace do
           rescue Msf::Modules::MetasploitClassCompatibilityError => error
           end
 
-          error.should_not be_nil
+          expect(error).not_to be_nil
           expect(error.to_s).to include(module_reference_name)
         end
       end

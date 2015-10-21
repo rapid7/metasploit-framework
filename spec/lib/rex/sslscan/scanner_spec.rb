@@ -93,7 +93,7 @@ RSpec.describe Rex::SSLScan::Scanner do
         subject.send(:initialize, 'google.com', 443)
       end
       it "should mark SSLv2 as unsupported" do
-        subject.supported_versions.should_not include :SSLv2
+        expect(subject.supported_versions).not_to include :SSLv2
         expect(subject.sslv2).to eq false
       end
 

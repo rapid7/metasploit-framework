@@ -51,7 +51,7 @@ RSpec.describe Rex::Exploitation::RopDb do
         gadgets1 = ropdb.select_rop('msvcrt')
         gadgets2 = ropdb.select_rop('msvcrt', {'base'=>0x10000000})
 
-        gadgets2[0].should_not eq(gadgets1[0])
+        expect(gadgets2[0]).not_to eq(gadgets1[0])
       end
     end
 

@@ -22,15 +22,15 @@ shared_examples_for 'an xor encoder' do |keysize|
 
   if keysize > 1
     it "should deal with input lengths that aren't a multiple of keysize" do
-      lambda {
+      expect {
         encoded, key = described_class.encode("A"*(keysize+1), "A"*keysize)
         expect(encoded).to eql("\x00"*(keysize+1))
-      }.should_not raise_error
+      }.not_to raise_error
 
-      lambda {
+      expect {
         encoded, key = described_class.encode("A"*(keysize-1), "A"*keysize)
         expect(encoded).to eql("\x00"*(keysize-1))
-      }.should_not raise_error
+      }.not_to raise_error
     end
   end
 

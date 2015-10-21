@@ -113,7 +113,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
     it "should not send creds on the first request in order to induce a 401" do
       req = cli.request_cgi
-      req.to_s.should_not match("Authorization:")
+      expect(req.to_s).not_to match("Authorization:")
     end
 
     it "should send creds after receiving a 401" do
@@ -125,7 +125,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
       expect(conn).to receive(:get_once).and_return(first_response, authed_response)
       expect(conn).to receive(:put) do |str_request|
-        str_request.should_not include("Authorization")
+        expect(str_request).not_to include("Authorization")
         nil
       end
       expect(conn).to receive(:put) do |str_request|
@@ -170,7 +170,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
   it "should test for credentials" do
     skip "Should actually respond to :has_creds" do
-      cli.should_not have_creds
+      expect(cli).not_to have_creds
       this_cli = described_class.new("127.0.0.1", 1, {}, false, nil, nil, "user1", "pass1" )
       expect(this_cli).to have_creds
     end
@@ -206,7 +206,7 @@ RSpec.describe Rex::Proto::Http::Client do
   end
 
   it "should tell if pipelining is enabled" do
-    cli.should_not be_pipelining
+    expect(cli).not_to be_pipelining
     this_cli = Rex::Proto::Http::Client.new("127.0.0.1", 1)
     this_cli.pipeline = true
     expect(this_cli).to be_pipelining
