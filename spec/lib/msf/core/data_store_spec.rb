@@ -71,9 +71,9 @@ RSpec.describe Msf::DataStore do
                               "foo" => "bar",
                               "fizz" => "buzz"
                             }
+      ini_class = double from_file: ini_instance
 
-      ini = stub_const("Rex::Parser::Ini", Class.new)
-      allow(ini).to receive(:from_file).and_return(ini_instance)
+      stub_const("Rex::Parser::Ini", ini_class)
 
       s = described_class.new
       s.from_file("path")
