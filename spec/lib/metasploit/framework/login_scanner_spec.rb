@@ -21,7 +21,7 @@ RSpec.describe Metasploit::Framework::LoginScanner do
     let(:name) { 'smb' }
 
     it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
-    it { should_not include Metasploit::Framework::LoginScanner::HTTP }
+    it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
   end
 
   [ 139, 445 ].each do |foo|
@@ -29,8 +29,8 @@ RSpec.describe Metasploit::Framework::LoginScanner do
       let(:port) { foo }
 
       it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
-      it { should_not include Metasploit::Framework::LoginScanner::HTTP }
-      it { should_not include Metasploit::Framework::LoginScanner::VNC }
+      it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
+      it { is_expected.not_to include Metasploit::Framework::LoginScanner::VNC }
     end
   end
 
@@ -38,8 +38,8 @@ RSpec.describe Metasploit::Framework::LoginScanner do
     let(:name) { 'http' }
 
     it { is_expected.to include Metasploit::Framework::LoginScanner::HTTP }
-    it { should_not include Metasploit::Framework::LoginScanner::SMB }
-    it { should_not include Metasploit::Framework::LoginScanner::VNC }
+    it { is_expected.not_to include Metasploit::Framework::LoginScanner::SMB }
+    it { is_expected.not_to include Metasploit::Framework::LoginScanner::VNC }
   end
 
   [ 80, 8080, 8000, 443 ].each do |foo|
@@ -49,7 +49,7 @@ RSpec.describe Metasploit::Framework::LoginScanner do
       it { is_expected.to include Metasploit::Framework::LoginScanner::HTTP }
       it { is_expected.to include Metasploit::Framework::LoginScanner::Axis2 }
       it { is_expected.to include Metasploit::Framework::LoginScanner::Tomcat }
-      it { should_not include Metasploit::Framework::LoginScanner::SMB }
+      it { is_expected.not_to include Metasploit::Framework::LoginScanner::SMB }
     end
   end
 

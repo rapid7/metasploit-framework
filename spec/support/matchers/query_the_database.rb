@@ -12,7 +12,7 @@ module Shoulda # :nodoc:
       # Examples:
       #  it { is_expected.to query_the_database(4.times).when_calling(:complicated_counting_method)
       #  it { is_expected.to query_the_database(4.times).or_less.when_calling(:generate_big_report)
-      #  it { should_not query_the_database.when_calling(:cached_count)
+      #  it { is_expected.not_to query_the_database.when_calling(:cached_count)
       #
       def query_the_database(times = nil)
         QueryTheDatabaseMatcher.new(times)
