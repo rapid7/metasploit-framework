@@ -120,7 +120,7 @@ class Response < Packet
   end
 
   # Returns the title from the HTML document.
-  # Instead of using a regex, normally you should call this to retrieve the title tag.
+  # You will probably want to use this if you want to grab the web app's banner in the title.
   #
   # @return [String]
   def get_html_title
@@ -130,7 +130,8 @@ class Response < Packet
   end
 
   # Returns meta tags.
-  # Instead of using a regex, you should use this to collect the meta tags.
+  # You will probably want to use this the web app's version info (or other stuff) can be found
+  # in the metadata.
   #
   # @return [Array<Nokogiri::XML::Element>]
   def get_html_meta_elements
