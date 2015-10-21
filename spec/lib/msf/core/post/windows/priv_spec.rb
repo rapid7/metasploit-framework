@@ -6,11 +6,13 @@ require 'msf/core/post/windows/priv'
 RSpec.describe Msf::Post::Windows::Priv do
 
   subject do
-    mod = Module.new
-    mod.extend described_class
-    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, ]
-    stubs.each { |meth| expect(mod).to receive(meth) }
-    mod
+    context_described_class = described_class
+
+    klass = Class.new(Msf::Post) do
+      include context_described_class
+    end
+
+    klass.new
   end
 
   let(:boot_key_vista) do
@@ -100,7 +102,6 @@ RSpec.describe Msf::Post::Windows::Priv do
 
       it "should produce expected LSA key" do
         expect(subject).to receive(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolSecretEncryptionKey", "").and_return(pol_enc_key_xp)
-        expect(subject).to receive(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolEKList", "").and_return(nil)
         subject.capture_lsa_key(boot_key_xp)
       end
     end
