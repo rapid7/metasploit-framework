@@ -47,7 +47,7 @@ class Metasploit4 < Msf::Post
     user = cmd_exec('/usr/bin/whoami')
     print_good("Module running as \"#{user}\" user")
 
-    unless is_root? && user == 'root'
+    unless is_root?
       print_error('This module requires root permissions.')
       return
     end
