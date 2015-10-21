@@ -24,15 +24,17 @@ RSpec.describe Rex::Text do
 
     context ".to_ibm1047" do
       it "should convert ASCII to mainfram EBCDIC (cp1047)" do
-        described_class.to_ibm1047(%q[^[](){}%!$#1234567890abcde'"`~]).should
-        eq("_\xAD\xBDM]\xC0\xD0lZ[{\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xF0\x81\x82\x83\x84\x85}\x7Fy\xA1")
+        expect(
+          described_class.to_ibm1047(%q[^[](){}%!$#1234567890abcde'"`~])
+        ).to eq("_\xAD\xBDM]\xC0\xD0lZ[{\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xF0\x81\x82\x83\x84\x85}\x7Fy\xA1")
       end
     end
 
     context ".from_1047" do
       it "should convert mainframe EBCDIC (cp1047) to ASCII (ISO-8859-1)" do
-        described_class.from_ibm1047(%q[^[](){}%!$#1234567890abcde'"`~]).should
-        eq(";$)\x88\x89#'\x85\x81\x84\x83\x91\x16\x93\x94\x95\x96\x04\x98\x99\x90/\xC2\xC4\xC0\xC1\e\x82-=")
+        expect(
+          described_class.from_ibm1047(%q[^[](){}%!$#1234567890abcde'"`~])
+        ).to eq(";$)\x88\x89#'\x85\x81\x84\x83\x91\x16\x93\x94\x95\x96\x04\x98\x99\x90/\xC2\xC4\xC0\xC1\e\x82-=")
       end
     end
 
