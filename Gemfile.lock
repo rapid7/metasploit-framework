@@ -25,7 +25,7 @@ PATH
       activerecord (>= 4.0.9, < 4.1.0)
       metasploit-credential (= 1.0.1)
       metasploit-framework (= 4.11.4)
-      metasploit_data_models (= 1.2.7)
+      metasploit_data_models (= 1.2.8)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.4)
       metasploit-framework (= 4.11.4)
@@ -126,7 +126,7 @@ GEM
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
     metasploit-payloads (1.0.15)
-    metasploit_data_models (1.2.7)
+    metasploit_data_models (1.2.8)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       arel-helpers
