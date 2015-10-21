@@ -11,8 +11,8 @@ RSpec.describe Rex::Proto::PJL::Client do
 
     let(:sock) do
       s = double("sock")
-      expect(s).to receive(:put).with(an_instance_of(String))
-      expect(s).to receive(:get).and_return(default_response)
+      allow(s).to receive(:put).with(an_instance_of(String))
+      allow(s).to receive(:get).and_return(default_response)
       s
     end
 
@@ -51,7 +51,7 @@ RSpec.describe Rex::Proto::PJL::Client do
     context "#info_id" do
       it "should return the version information" do
         fake_version = '"1337"'
-        expect(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_version)
+        allow(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_version)
         expect(cli.info_id).to eq('1337')
       end
     end
@@ -59,7 +59,7 @@ RSpec.describe Rex::Proto::PJL::Client do
     context "#info_variables" do
       it "should return the environment variables" do
         fake_env_vars = "#{Rex::Proto::PJL::Info::VARIABLES}\r\nPASSWORD=DISABLED\f"
-        expect(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_env_vars)
+        allow(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_env_vars)
         expect(cli.info_variables).to eq('PASSWORD=DISABLED')
       end
     end
@@ -67,7 +67,7 @@ RSpec.describe Rex::Proto::PJL::Client do
     context "#info_filesys" do
       it "should return the volumes" do
         fake_volumes = "[1 TABLE]\r\nDIR\f"
-        expect(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_volumes)
+        allow(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_volumes)
         expect(cli.info_filesys).to eq('DIR')
       end
     end
@@ -75,7 +75,7 @@ RSpec.describe Rex::Proto::PJL::Client do
     context "#get_rdymsg" do
       it "should return a READY message" do
         fake_ready_message = 'DISPLAY="RES"'
-        expect(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_ready_message)
+        allow(cli).to receive(:info).with(an_instance_of(Symbol)).and_return(fake_ready_message)
         expect(cli.get_rdymsg).to eq('RES')
       end
     end
@@ -104,8 +104,8 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should query a file" do
         response = "TYPE=FILE SIZE=1337\r\n\f"
         tmp_sock = double("sock")
-        expect(tmp_sock).to receive(:put).with(an_instance_of(String))
-        expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        allow(tmp_sock).to receive(:put).with(an_instance_of(String))
+        allow(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         expect(tmp_cli.fsquery("1:")).to eq(true)
       end
@@ -119,8 +119,8 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should return a LIST directory response" do
         response = "ENTRY=1\r\nDIR\f"
         tmp_sock = double("sock")
-        expect(tmp_sock).to receive(:put).with(an_instance_of(String))
-        expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        allow(tmp_sock).to receive(:put).with(an_instance_of(String))
+        allow(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         expect(tmp_cli.fsdirlist("1:")).to eq('DIR')
       end
@@ -134,8 +134,8 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should return a file" do
         response = "SIZE=1337\r\nFILE\f"
         tmp_sock = double("sock")
-        expect(tmp_sock).to receive(:put).with(an_instance_of(String))
-        expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        allow(tmp_sock).to receive(:put).with(an_instance_of(String))
+        allow(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         expect(tmp_cli.fsupload("1:")).to eq('FILE')
       end
@@ -149,8 +149,8 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should upload a file" do
         response = "TYPE=FILE SIZE=1337\r\n\f"
         tmp_sock = double("sock")
-        expect(tmp_sock).to receive(:put).with(an_instance_of(String))
-        expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        allow(tmp_sock).to receive(:put).with(an_instance_of(String))
+        allow(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         expect(tmp_cli.fsdownload("/dev/null", "1:")).to eq(true)
       end
@@ -164,8 +164,8 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should delete a file" do
         response = "FILEERROR=3\r\n\f"
         tmp_sock = double("sock")
-        expect(tmp_sock).to receive(:put).with(an_instance_of(String))
-        expect(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        allow(tmp_sock).to receive(:put).with(an_instance_of(String))
+        allow(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         expect(tmp_cli.fsdelete("1:")).to eq(true)
       end
