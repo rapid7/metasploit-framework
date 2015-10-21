@@ -44,7 +44,7 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
     end
 
     context 'in thread with connection' do
-      it { should be_truthy }
+      it { is_expected.to be_truthy }
     end
 
     context 'in thread without connection' do

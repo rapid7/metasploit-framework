@@ -20,7 +20,7 @@ RSpec.describe Metasploit::Framework::LoginScanner do
   context "with name 'smb'" do
     let(:name) { 'smb' }
 
-    it { should include Metasploit::Framework::LoginScanner::SMB }
+    it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
     it { should_not include Metasploit::Framework::LoginScanner::HTTP }
   end
 
@@ -28,7 +28,7 @@ RSpec.describe Metasploit::Framework::LoginScanner do
     context "with port #{foo}" do
       let(:port) { foo }
 
-      it { should include Metasploit::Framework::LoginScanner::SMB }
+      it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
       it { should_not include Metasploit::Framework::LoginScanner::HTTP }
       it { should_not include Metasploit::Framework::LoginScanner::VNC }
     end
@@ -37,7 +37,7 @@ RSpec.describe Metasploit::Framework::LoginScanner do
   context "with name 'http'" do
     let(:name) { 'http' }
 
-    it { should include Metasploit::Framework::LoginScanner::HTTP }
+    it { is_expected.to include Metasploit::Framework::LoginScanner::HTTP }
     it { should_not include Metasploit::Framework::LoginScanner::SMB }
     it { should_not include Metasploit::Framework::LoginScanner::VNC }
   end
@@ -46,9 +46,9 @@ RSpec.describe Metasploit::Framework::LoginScanner do
     context "with port #{foo}" do
       let(:port) { foo }
 
-      it { should include Metasploit::Framework::LoginScanner::HTTP }
-      it { should include Metasploit::Framework::LoginScanner::Axis2 }
-      it { should include Metasploit::Framework::LoginScanner::Tomcat }
+      it { is_expected.to include Metasploit::Framework::LoginScanner::HTTP }
+      it { is_expected.to include Metasploit::Framework::LoginScanner::Axis2 }
+      it { is_expected.to include Metasploit::Framework::LoginScanner::Tomcat }
       it { should_not include Metasploit::Framework::LoginScanner::SMB }
     end
   end

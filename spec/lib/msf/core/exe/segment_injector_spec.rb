@@ -12,11 +12,11 @@ RSpec.describe Msf::Exe::SegmentInjector do
   end
   subject(:injector) { Msf::Exe::SegmentInjector.new(opts) }
 
-  it { should respond_to :payload }
-  it { should respond_to :template }
-  it { should respond_to :arch }
-  it { should respond_to :processor }
-  it { should respond_to :buffer_register }
+  it { is_expected.to respond_to :payload }
+  it { is_expected.to respond_to :template }
+  it { is_expected.to respond_to :arch }
+  it { is_expected.to respond_to :processor }
+  it { is_expected.to respond_to :buffer_register }
 
   it 'should return the correct processor for the arch' do
     expect(injector.processor.class).to eq Metasm::Ia32

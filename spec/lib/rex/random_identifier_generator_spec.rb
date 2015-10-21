@@ -8,11 +8,11 @@ RSpec.describe Rex::RandomIdentifierGenerator do
 
   subject(:rig) { described_class.new(options) }
 
-  it { should respond_to(:generate) }
-  it { should respond_to(:[]) }
-  it { should respond_to(:get) }
-  it { should respond_to(:store) }
-  it { should respond_to(:to_h) }
+  it { is_expected.to respond_to(:generate) }
+  it { is_expected.to respond_to(:[]) }
+  it { is_expected.to respond_to(:get) }
+  it { is_expected.to respond_to(:store) }
+  it { is_expected.to respond_to(:to_h) }
 
   describe "#generate" do
     it "should respect :min_length" do

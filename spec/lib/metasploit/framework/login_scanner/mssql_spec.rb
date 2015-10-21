@@ -37,7 +37,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
   it_behaves_like 'Metasploit::Framework::LoginScanner::NTLM'
   it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
-  it { should respond_to :windows_authentication }
+  it { is_expected.to respond_to :windows_authentication }
 
   context 'validations' do
     context '#windows_authentication' do

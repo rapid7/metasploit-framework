@@ -28,15 +28,15 @@ RSpec.describe Metasploit::Framework::JtR::Wordlist do
       "p@$$w0rd"
   ] }
 
-  it { should respond_to :appenders }
-  it { should respond_to :custom_wordlist }
-  it { should respond_to :mutate }
-  it { should respond_to :prependers }
-  it { should respond_to :use_common_root }
-  it { should respond_to :use_creds }
-  it { should respond_to :use_db_info }
-  it { should respond_to :use_default_wordlist }
-  it { should respond_to :use_hostnames }
+  it { is_expected.to respond_to :appenders }
+  it { is_expected.to respond_to :custom_wordlist }
+  it { is_expected.to respond_to :mutate }
+  it { is_expected.to respond_to :prependers }
+  it { is_expected.to respond_to :use_common_root }
+  it { is_expected.to respond_to :use_creds }
+  it { is_expected.to respond_to :use_db_info }
+  it { is_expected.to respond_to :use_default_wordlist }
+  it { is_expected.to respond_to :use_hostnames }
 
   describe 'validations' do
 

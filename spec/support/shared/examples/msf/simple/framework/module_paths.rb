@@ -1,5 +1,5 @@
 shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
-  it { should be_a Msf::Simple::Framework::ModulePaths }
+  it { is_expected.to be_a Msf::Simple::Framework::ModulePaths }
 
   context '#init_module_paths' do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'

@@ -5,21 +5,21 @@ RSpec.describe Rex::SSLScan::Result do
 
   subject{Rex::SSLScan::Result.new}
 
-      it { should respond_to :accepted }
-      it { should respond_to :cert }
-      it { should respond_to :ciphers }
-      it { should respond_to :rejected }
-      it { should respond_to :sslv2 }
-      it { should respond_to :sslv3 }
-      it { should respond_to :standards_compliant? }
-      it { should respond_to :strong_ciphers }
-      it { should respond_to :supports_ssl? }
-      it { should respond_to :supports_sslv2? }
-      it { should respond_to :supports_sslv3? }
-      it { should respond_to :supports_tlsv1? }
-      it { should respond_to :supports_weak_ciphers? }
-      it { should respond_to :tlsv1 }
-      it { should respond_to :weak_ciphers }
+      it { is_expected.to respond_to :accepted }
+      it { is_expected.to respond_to :cert }
+      it { is_expected.to respond_to :ciphers }
+      it { is_expected.to respond_to :rejected }
+      it { is_expected.to respond_to :sslv2 }
+      it { is_expected.to respond_to :sslv3 }
+      it { is_expected.to respond_to :standards_compliant? }
+      it { is_expected.to respond_to :strong_ciphers }
+      it { is_expected.to respond_to :supports_ssl? }
+      it { is_expected.to respond_to :supports_sslv2? }
+      it { is_expected.to respond_to :supports_sslv3? }
+      it { is_expected.to respond_to :supports_tlsv1? }
+      it { is_expected.to respond_to :supports_weak_ciphers? }
+      it { is_expected.to respond_to :tlsv1 }
+      it { is_expected.to respond_to :weak_ciphers }
 
   context "with no values set" do
     it "should return nil for the cert" do
