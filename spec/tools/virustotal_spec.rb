@@ -86,7 +86,7 @@ RSpec.describe VirusTotalUtility do
 
         let(:vt) do
           file = double(File, read: malware_data)
-          expect(File).to receive(:open).with(filename, 'rb') {|&block| block.yield file}
+          allow(File).to receive(:open).with(filename, 'rb') {|&block| block.yield file}
           VirusTotalUtility::VirusTotal.new({'api_key'=>api_key, 'sample'=>filename})
         end
 
@@ -203,17 +203,19 @@ RSpec.describe VirusTotalUtility do
 
         expect(VirusTotalUtility::OptsConsole).to receive(:parse).with(anything).and_return(options)
 
+        tool_config = instance_double(
+          VirusTotalUtility::ToolConfig,
+          has_privacy_waiver?: true,
+          load_api_key: api_key,
+          save_api_key: nil,
+          save_privacy_waiver: nil
+        )
 
-        tool_config = double("tool_config")
         expect(VirusTotalUtility::ToolConfig).to receive(:new).and_return(tool_config)
-        expect(tool_config).to receive(:has_privacy_waiver?).and_return(true)
-        expect(tool_config).to receive(:load_api_key).and_return(api_key)
-        expect(tool_config).to receive(:save_privacy_waiver)
-        expect(tool_config).to receive(:save_api_key).with(anything)
 
         d = nil
 
-        out = get_stdout {
+        get_stdout {
           d = VirusTotalUtility::Driver.new
         }
 
