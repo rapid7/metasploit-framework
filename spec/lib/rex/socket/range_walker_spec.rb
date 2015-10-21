@@ -26,12 +26,12 @@ RSpec.describe Rex::Socket::RangeWalker do
 
     context "with an invalid hostname" do
       let(:args) { "@!*^&.invalid-hostname-really." }
-      it { should_not be_valid }
+      it { is_expected.not_to be_valid }
     end
 
     context "with an invalid hostname and CIDR" do
       let(:args) { "@!*^&.invalid-hostname-really./24" }
-      it { should_not be_valid }
+      it { is_expected.not_to be_valid }
     end
 
     context "with an IPv6 address range containing a scope" do

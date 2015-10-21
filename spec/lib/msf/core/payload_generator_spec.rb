@@ -126,7 +126,7 @@ RSpec.describe Msf::PayloadGenerator do
     context 'when given a payload through stdin' do
       let(:payload_reference_name) { "stdin" }
 
-      it { should_not raise_error }
+      it { is_expected.not_to raise_error }
     end
 
     context 'when given an invalid format' do
@@ -138,13 +138,13 @@ RSpec.describe Msf::PayloadGenerator do
     context 'when given any valid transform format' do
       let(:format) { ::Msf::Simple::Buffer.transform_formats.sample }
 
-      it { should_not raise_error }
+      it { is_expected.not_to raise_error }
     end
 
     context 'when given any valid executable format' do
       let(:format) { ::Msf::Util::EXE.to_executable_fmt_formats.sample }
 
-      it { should_not raise_error }
+      it { is_expected.not_to raise_error }
     end
   end
 
