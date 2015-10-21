@@ -75,12 +75,12 @@ RSpec.describe Rex::Socket::RangeWalker do
 
     it 'should reject CIDR ranges with missing octets' do
       walker = Rex::Socket::RangeWalker.new('192.168/24')
-      walker.should_not be_valid
+      expect(walker).not_to be_valid
     end
 
     it 'should reject a CIDR range with too many octets' do
       walker = Rex::Socket::RangeWalker.new('192.168.1.2.0/24')
-      walker.should_not be_valid
+      expect(walker).not_to be_valid
     end
 
     it "should default the lower bound of a range to 0" do
@@ -118,7 +118,7 @@ RSpec.describe Rex::Socket::RangeWalker do
       walker = Rex::Socket::RangeWalker.new("10.1.1.1,3")
       expect(walker).to be_valid
       expect(walker.length).to eq 2
-      walker.should_not include("10.1.1.2")
+      expect(walker).not_to include("10.1.1.2")
     end
 
     it "should produce the same ranges with * and 0-255" do

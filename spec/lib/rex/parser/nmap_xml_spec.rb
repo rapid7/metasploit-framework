@@ -29,7 +29,7 @@ RSpec.describe Rex::Parser::NmapXMLStreamParser do
   parser.on_found_host = Proc.new { |host|
     total_hosts += 1
     it "should yield a host" do
-      host.should_not be_nil
+      expect(host).not_to be_nil
     end
     it "should populate the host with proper keys" do
       expect(host).to have_key("status")

@@ -191,8 +191,8 @@ RSpec.describe Rex::Proto::Http::Response do
     resp = described_class.new()
     resp.parse(self.send meth)
     cookies = resp.get_cookies
-    cookies.should_not be_nil
-    cookies.should_not be ''
+    expect(cookies).not_to be_nil
+    expect(cookies).not_to be ''
     cookies.split(';').map(&:strip)
   end
 

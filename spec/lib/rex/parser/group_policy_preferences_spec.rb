@@ -125,15 +125,15 @@ RSpec.describe Rex::Parser::GPP do
 
   it "Parse returns results for xml_ms and password is empty" do
     results = GPP.parse(xml_ms)
-    results.should_not be_empty
+    expect(results).not_to be_empty
     expect(results[0][:PASS]).to be_empty
   end
 
   it "Parse returns results for xml_datasrc, and attributes, and password is test1" do
     results = GPP.parse(xml_datasrc)
-    results.should_not be_empty
+    expect(results).not_to be_empty
     expect(results[0].include?(:ATTRIBUTES)).to be_truthy
-    results[0][:ATTRIBUTES].should_not be_empty
+    expect(results[0][:ATTRIBUTES]).not_to be_empty
     expect(results[0][:PASS]).to eq("test")
   end
 
@@ -147,8 +147,8 @@ RSpec.describe Rex::Parser::GPP do
   it "Parse returns results for all good xmls and passwords" do
     xmls.each do |xml|
       results = GPP.parse(xml)
-      results.should_not be_empty
-      results[0][:PASS].should_not be_empty
+      expect(results).not_to be_empty
+      expect(results[0][:PASS]).not_to be_empty
     end
   end
 
@@ -159,7 +159,7 @@ RSpec.describe Rex::Parser::GPP do
     xmls.each do |xml|
       results = GPP.parse(xml)
       tables = GPP.create_tables(results, "test")
-      tables.should_not be_empty
+      expect(tables).not_to be_empty
     end
   end
 end

@@ -10,7 +10,7 @@ shared_examples_for 'Msf::DBManager::Export#extract_module_detail_info module_de
   end
 
   it "should not have Mdm::Module::Detail##{attribute_name} nil" do
-    attribute.should_not be_nil
+    expect(attribute).not_to be_nil
   end
 
   it "should have Mdm::Module::Detail##{attribute_name} for #{child_node_name} content" do

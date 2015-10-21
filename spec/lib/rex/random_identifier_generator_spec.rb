@@ -35,7 +35,7 @@ RSpec.describe Rex::RandomIdentifierGenerator do
       expect(ident).to match(/\A[a-z0-9_]*\Z/)
 
       ident = subject.generate { |identifier| identifier.gsub("A","B") }
-      ident.should_not include("A")
+      expect(ident).not_to include("A")
     end
   end
 

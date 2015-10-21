@@ -9,7 +9,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
         path_with_trailing_separator = path + File::SEPARATOR
         module_manager.add_module_path(path_with_trailing_separator)
 
-        module_paths.should_not include(path_with_trailing_separator)
+        expect(module_paths).not_to include(path_with_trailing_separator)
         expect(module_paths).to include(path)
       end
     end

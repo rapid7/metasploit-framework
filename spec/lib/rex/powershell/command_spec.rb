@@ -385,14 +385,14 @@ RSpec.describe Rex::Powershell::Command do
 
           opt_length = opts.length - 1
 
-          short_args.should_not be_nil
-          long_args.should_not be_nil
+          expect(short_args).not_to be_nil
+          expect(long_args).not_to be_nil
           expect(short_args.count('-')).to eql opt_length
           expect(long_args.count('-')).to eql opt_length
-          short_args[0].should_not eql " "
-          long_args[0].should_not eql " "
-          short_args[-1].should_not eql " "
-          long_args[-1].should_not eql " "
+          expect(short_args[0]).not_to eql " "
+          expect(long_args[0]).not_to eql " "
+          expect(short_args[-1]).not_to eql " "
+          expect(long_args[-1]).not_to eql " "
 
           if opts[:command]
             expect(long_args[-10..-1]).to eql "-Command Z"

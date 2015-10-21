@@ -149,7 +149,7 @@ RSpec.describe Msf::Modules::Loader::Base do
                 # successful.
               end
 
-              error.should_not be_nil
+              expect(error).not_to be_nil
               expect(error.backtrace[0]).to include(module_path)
             end
           end
@@ -1056,7 +1056,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
             current_constant = Msf::Modules.const_get(relative_name)
 
-            current_constant.should_not be_nil
+            expect(current_constant).not_to be_nil
             expect(current_constant).not_to eq @existent_namespace_module
           end
 
@@ -1344,7 +1344,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       context 'without metasploit_class responding to is_usable' do
         it 'should return true' do
           metasploit_class = double('Metasploit Class')
-          metasploit_class.should_not respond_to(:is_usable)
+          expect(metasploit_class).not_to respond_to(:is_usable)
 
           expect(subject.send(:usable?, metasploit_class)).to be_truthy
         end
