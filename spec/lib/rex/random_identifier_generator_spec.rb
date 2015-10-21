@@ -17,13 +17,13 @@ RSpec.describe Rex::RandomIdentifierGenerator do
   describe "#generate" do
     it "should respect :min_length" do
       1000.times do
-        expect(rig.generate.length).to >= options[:min_length]
+        expect(rig.generate.length).to be >= options[:min_length]
       end
     end
 
     it "should respect :max_length" do
       1000.times do
-        expect(rig.generate.length).to <= options[:max_length]
+        expect(rig.generate.length).to be <= options[:max_length]
       end
     end
 
