@@ -37,14 +37,14 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
   it_behaves_like 'Metasploit::Framework::LoginScanner::NTLM'
   it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
-  it { should respond_to :smb_chunk_size }
-  it { should respond_to :smb_name }
-  it { should respond_to :smb_native_lm }
-  it { should respond_to :smb_native_os }
-  it { should respond_to :smb_obscure_trans_pipe_level }
-  it { should respond_to :smb_pad_data_level }
-  it { should respond_to :smb_pad_file_level }
-  it { should respond_to :smb_pipe_evasion }
+  it { is_expected.to respond_to :smb_chunk_size }
+  it { is_expected.to respond_to :smb_name }
+  it { is_expected.to respond_to :smb_native_lm }
+  it { is_expected.to respond_to :smb_native_os }
+  it { is_expected.to respond_to :smb_obscure_trans_pipe_level }
+  it { is_expected.to respond_to :smb_pad_data_level }
+  it { is_expected.to respond_to :smb_pad_file_level }
+  it { is_expected.to respond_to :smb_pipe_evasion }
 
   context 'validations' do
     context '#smb_verify_signature' do

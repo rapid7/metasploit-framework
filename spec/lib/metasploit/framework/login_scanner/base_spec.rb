@@ -29,7 +29,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
     base_class.new(options)
   }
 
-  it { should respond_to :bruteforce_speed }
+  it { is_expected.to respond_to :bruteforce_speed }
 
   context 'validations' do
 
@@ -70,7 +70,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
 
     end
 
-    it { should respond_to :sleep_time }
+    it { is_expected.to respond_to :sleep_time }
 
     context '#sleep_time' do
 
@@ -93,7 +93,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
       end
     end
 
-    it { should respond_to :sleep_between_attempts }
+    it { is_expected.to respond_to :sleep_between_attempts }
 
     context '#sleep_between_attempts'
     context 'default' do

@@ -225,7 +225,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 }.to change(Mdm::Session, :count).by(1)
               end
 
-              it { should be_an Mdm::Session }
+              it { is_expected.to be_an Mdm::Session }
 
               it 'should set session.db_record to created Mdm::Session' do
                 mdm_session = report_session
@@ -568,7 +568,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 }.to change(Mdm::Session, :count).by(1)
               end
 
-              it { should be_an Mdm::Session }
+              it { is_expected.to be_an Mdm::Session }
 
               it 'should set session.db_record to created Mdm::Session' do
                 mdm_session = report_session
@@ -995,7 +995,7 @@ shared_examples_for 'Msf::DBManager::Session' do
         false
       end
 
-      it { should be_nil }
+      it { is_expected.to be_nil }
 
       it 'should not create a connection' do
         expect(ActiveRecord::Base.connection_pool).not_to receive(:with_connection)

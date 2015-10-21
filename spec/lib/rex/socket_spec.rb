@@ -91,7 +91,7 @@ RSpec.describe Rex::Socket do
       let(:response_afamily) { Socket::AF_INET }
       let(:response_addresses) { ["\x01\x01\x01\x01", "\x02\x02\x02\x02"] }
 
-      it { should be_a(String) }
+      it { is_expected.to be_a(String) }
       it "should return the first ASCII address" do
         expect(subject).to eq "1.1.1.1"
       end
@@ -101,7 +101,7 @@ RSpec.describe Rex::Socket do
       let(:response_afamily) { Socket::AF_INET6 }
       let(:response_addresses) { ["\xfe\x80"+("\x00"*13)+"\x01", "\xfe\x80"+("\x00"*13)+"\x02"] }
 
-      it { should be_a(String) }
+      it { is_expected.to be_a(String) }
       it "should return the first ASCII address" do
         expect(subject).to eq "fe80::1"
       end
@@ -111,7 +111,7 @@ RSpec.describe Rex::Socket do
       let(:response_afamily) { Socket::AF_INET }
       let(:response_addresses) { ["1.1.1.1", "2.2.2.2"] }
 
-      it { should be_a(String) }
+      it { is_expected.to be_a(String) }
       it "should return the first ASCII address" do
         expect(subject).to eq "1.1.1.1"
       end

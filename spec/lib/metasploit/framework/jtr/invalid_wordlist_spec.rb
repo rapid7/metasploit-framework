@@ -17,7 +17,7 @@ RSpec.describe Metasploit::Framework::JtR::InvalidWordlist do
     end
   end
 
-  it { should be_a StandardError }
+  it { is_expected.to be_a StandardError }
 
   it 'should use ActiveModel::Errors#full_messages' do
     expect(model.errors).to receive(:full_messages).and_call_original

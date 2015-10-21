@@ -54,12 +54,12 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
     [ pub_blank, pub_pub, pub_pri]
   }
 
-  it { should respond_to :connection_timeout }
-  it { should respond_to :cred_details }
-  it { should respond_to :host }
-  it { should respond_to :port }
-  it { should respond_to :proxies }
-  it { should respond_to :stop_on_success }
+  it { is_expected.to respond_to :connection_timeout }
+  it { is_expected.to respond_to :cred_details }
+  it { is_expected.to respond_to :host }
+  it { is_expected.to respond_to :port }
+  it { is_expected.to respond_to :proxies }
+  it { is_expected.to respond_to :stop_on_success }
 
   context 'validations' do
     context 'port' do

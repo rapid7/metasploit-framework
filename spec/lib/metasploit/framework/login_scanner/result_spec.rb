@@ -20,11 +20,11 @@ RSpec.describe Metasploit::Framework::LoginScanner::Result do
     )
   }
 
-  it { should respond_to :access_level }
-  it { should respond_to :credential }
-  it { should respond_to :proof }
-  it { should respond_to :status }
-  it { should respond_to :success? }
+  it { is_expected.to respond_to :access_level }
+  it { is_expected.to respond_to :credential }
+  it { is_expected.to respond_to :proof }
+  it { is_expected.to respond_to :status }
+  it { is_expected.to respond_to :success? }
 
   context '#success?' do
     context 'when the status code is success' do

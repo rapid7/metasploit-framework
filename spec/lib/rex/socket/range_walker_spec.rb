@@ -6,21 +6,21 @@ RSpec.describe Rex::Socket::RangeWalker do
   let(:args) { "::1" }
   subject(:walker) { described_class.new(args) }
 
-  it { should respond_to(:length) }
-  it { should respond_to(:valid?) }
-  it { should respond_to(:each) }
+  it { is_expected.to respond_to(:length) }
+  it { is_expected.to respond_to(:valid?) }
+  it { is_expected.to respond_to(:each) }
 
   describe '.new' do
 
     context "with a hostname" do
       let(:args) { "localhost" }
-      it { should be_valid }
+      it { is_expected.to be_valid }
       it { expect(subject.length).to be >= 1 }
     end
 
     context "with a hostname and CIDR" do
       let(:args) { "localhost/24" }
-      it { should be_valid }
+      it { is_expected.to be_valid }
       it { expect(subject.length).to eq(256) }
     end
 
@@ -36,7 +36,7 @@ RSpec.describe Rex::Socket::RangeWalker do
 
     context "with an IPv6 address range containing a scope" do
       let(:args) { "fe80::1%lo-fe80::100%lo" }
-      it { should be_valid }
+      it { is_expected.to be_valid }
     end
 
     it "should handle single ipv6 addresses" do
@@ -54,9 +54,9 @@ RSpec.describe Rex::Socket::RangeWalker do
 
     context "with mulitple ranges" do
       let(:args) { "1.1.1.1-2 2.1-2.2.2 3.1-2.1-2.1 " }
-      it { should be_valid }
+      it { is_expected.to be_valid }
       it { expect(subject.length).to eq(8) }
-      it { should include("1.1.1.1") }
+      it { is_expected.to include("1.1.1.1") }
     end
 
     it "should handle ranges" do

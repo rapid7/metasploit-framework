@@ -1,5 +1,5 @@
 shared_examples_for 'Msf::DBManager::Migration' do
-  it { should be_a Msf::DBManager::Migration }
+  it { is_expected.to be_a Msf::DBManager::Migration }
 
 
   context '#add_rails_engine_migration_paths' do
@@ -122,8 +122,8 @@ shared_examples_for 'Msf::DBManager::Migration' do
   end
 
   context '#migrated' do
-    it { should respond_to :migrated }
-    it { should respond_to :migrated= }
+    it { is_expected.to respond_to :migrated }
+    it { is_expected.to respond_to :migrated= }
   end
 
   context '#reset_column_information' do

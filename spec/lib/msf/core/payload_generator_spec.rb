@@ -68,22 +68,22 @@ RSpec.describe Msf::PayloadGenerator do
     described_class.new(generator_opts)
   }
 
-  it { should respond_to :add_code }
-  it { should respond_to :arch }
-  it { should respond_to :badchars }
-  it { should respond_to :cli }
-  it { should respond_to :encoder }
-  it { should respond_to :datastore }
-  it { should respond_to :format }
-  it { should respond_to :framework }
-  it { should respond_to :iterations }
-  it { should respond_to :keep }
-  it { should respond_to :nops }
-  it { should respond_to :payload }
-  it { should respond_to :platform }
-  it { should respond_to :space }
-  it { should respond_to :stdin }
-  it { should respond_to :template }
+  it { is_expected.to respond_to :add_code }
+  it { is_expected.to respond_to :arch }
+  it { is_expected.to respond_to :badchars }
+  it { is_expected.to respond_to :cli }
+  it { is_expected.to respond_to :encoder }
+  it { is_expected.to respond_to :datastore }
+  it { is_expected.to respond_to :format }
+  it { is_expected.to respond_to :framework }
+  it { is_expected.to respond_to :iterations }
+  it { is_expected.to respond_to :keep }
+  it { is_expected.to respond_to :nops }
+  it { is_expected.to respond_to :payload }
+  it { is_expected.to respond_to :platform }
+  it { is_expected.to respond_to :space }
+  it { is_expected.to respond_to :stdin }
+  it { is_expected.to respond_to :template }
 
   context 'when creating a new generator' do
     subject(:new_payload_generator) { -> { described_class.new(generator_opts) } }
@@ -108,19 +108,19 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { should raise_error(KeyError, "key not found: :framework") }
+      it { is_expected.to raise_error(KeyError, "key not found: :framework") }
     end
 
     context 'when not given a payload' do
       let(:payload_reference_name) { nil }
 
-      it { should raise_error(ArgumentError, "Invalid Payload Selected") }
+      it { is_expected.to raise_error(ArgumentError, "Invalid Payload Selected") }
     end
 
     context 'when given an invalid payload' do
       let(:payload_reference_name) { "beos/meterpreter/reverse_gopher" }
 
-      it { should raise_error(ArgumentError, "Invalid Payload Selected") }
+      it { is_expected.to raise_error(ArgumentError, "Invalid Payload Selected") }
     end
 
     context 'when given a payload through stdin' do
@@ -132,7 +132,7 @@ RSpec.describe Msf::PayloadGenerator do
     context 'when given an invalid format' do
       let(:format) { "foobar" }
 
-      it { should raise_error(ArgumentError, "Invalid Format Selected") }
+      it { is_expected.to raise_error(ArgumentError, "Invalid Format Selected") }
     end
 
     context 'when given any valid transform format' do

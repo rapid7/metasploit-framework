@@ -8,10 +8,10 @@ RSpec.describe Rex::SSLScan::Scanner do
 
   subject{Rex::SSLScan::Scanner.new("google.com", 443)}
 
-  it { should respond_to :host }
-  it { should respond_to :port }
-  it { should respond_to :timeout }
-  it { should respond_to :valid? }
+  it { is_expected.to respond_to :host }
+  it { is_expected.to respond_to :port }
+  it { is_expected.to respond_to :timeout }
+  it { is_expected.to respond_to :valid? }
 
   context "when validating the scanner config" do
     it "should return true when given a valid config" do

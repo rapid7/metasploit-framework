@@ -58,7 +58,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: false, has_default_realm: false
 
 
-  it { should respond_to :verbosity }
+  it { is_expected.to respond_to :verbosity }
 
   context 'validations' do
 
