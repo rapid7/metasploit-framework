@@ -1,6 +1,21 @@
 ##
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
+#
+# patch 20150915 by fraf :
+#	- Split record srvrcd one entry by line for readability.
+#	- Add record for Default-First-Site-Name :
+#	(according to https://technet.microsoft.com/en-us/library/cc759550%28v=ws.10%29.aspx)
+#		'_gc._tcp.Default-First-Site-Name._sites.',
+#		'_kerberos._tcp.Default-First-Site-Name._sites.',
+#		'_kerberos.tcp.Default-First-Site-Name._sites.dc._msdcs.',
+#		'_ldap._tcp.Default-First-Site-Name._sites.',
+#		'_ldap._tcp.Default-First-Site-Name._sites.dc._msdcs.',
+#		'_ldap._tcp.Default-First-Site-Name._sites.gc._msdcs.',
+#	- Remove double entry '_kerberos.tcp.dc._msdcs.'
+#	- Add fqdn query in logs.
+#	- Add report_note to store and preserve the fqdn query.
+#
 ##
 
 require 'msf/core'
@@ -20,14 +35,18 @@ class Metasploit3 < Msf::Auxiliary
         all the available name servers for the given domain the SOA and NS records are
         queried. In order to convert from domain names to IP addresses queries for A and
         AAAA (IPv6) records are used.
+        Especially for active directory, it is possible to specify sites.
       },
-      'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
+      'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', # First and main.
+      					 'Fabrice RAFART' # patch 20150915 (mainly change for AD and report).
+      				 ],
       'License'		=> BSD_LICENSE
       ))
 
     register_options(
       [
         OptString.new('DOMAIN', [ true, "The target domain name."]),
+        OptString.new('SITES', [ false, "The active directory sites names to test (separate by comma)."]),
         OptBool.new(  'ALL_NS', [ false, "Run against all name servers for the given domain.",false])
       ], self.class)
 
@@ -61,9 +80,10 @@ class Metasploit3 < Msf::Auxiliary
         records =records + srvqry(datastore['DOMAIN'])
       end
     end
+
     records.uniq!
     records.each do |r|
-      print_good("Host: #{r[:host]} IP: #{r[:address].to_s} Service: #{r[:service]} Protocol: #{r[:proto]} Port: #{r[:port]}")
+      print_good("Host: #{r[:host]} IP: #{r[:address].to_s} Service: #{r[:service]} Protocol: #{r[:proto]} Port: #{r[:port]} Query: #{r[:query]}")
       report_host(
         :host => r[:address].to_s,
         :name => r[:host]
@@ -74,6 +94,13 @@ class Metasploit3 < Msf::Auxiliary
         :proto => r[:proto],
         :name => r[:service],
         :host_name => r[:host]
+      )
+      report_note(
+        :type => "SRV record",
+        :host => r[:address].to_s,
+        :port => r[:port].to_i,
+        :proto => r[:proto],
+        :data => r[:query]
       )
     end
 
@@ -107,33 +134,94 @@ class Metasploit3 < Msf::Auxiliary
     results = []
     # Most common SRV Records
     srvrcd = [
-      '_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
-      '_test._tcp.', '_sips._tcp.', '_sip._udp.', '_sip._tcp.', '_aix._tcp.',
-      '_aix._tcp.', '_finger._tcp.', '_ftp._tcp.', '_http._tcp.', '_nntp._tcp.',
-      '_telnet._tcp.', '_whois._tcp.', '_h323cs._tcp.', '_h323cs._udp.',
-      '_h323be._tcp.', '_h323be._udp.', '_h323ls._tcp.',
-      '_h323ls._udp.', '_sipinternal._tcp.', '_sipinternaltls._tcp.',
-      '_sip._tls.', '_sipfederationtls._tcp.', '_jabber._tcp.',
-      '_xmpp-server._tcp.', '_xmpp-client._tcp.', '_imap.tcp.',
-      '_certificates._tcp.', '_crls._tcp.', '_pgpkeys._tcp.',
-      '_pgprevokations._tcp.', '_cmp._tcp.', '_svcp._tcp.', '_crl._tcp.',
-      '_ocsp._tcp.', '_PKIXREP._tcp.', '_smtp._tcp.', '_hkp._tcp.',
-      '_hkps._tcp.', '_jabber._udp.','_xmpp-server._udp.', '_xmpp-client._udp.',
-      '_jabber-client._tcp.', '_jabber-client._udp.','_kerberos.tcp.dc._msdcs.',
-      '_ldap._tcp.ForestDNSZones.', '_ldap._tcp.dc._msdcs.', '_ldap._tcp.pdc._msdcs.',
-      '_ldap._tcp.gc._msdcs.','_kerberos._tcp.dc._msdcs.','_kpasswd._tcp.','_kpasswd._udp.'
+      '_aix._tcp.',
+      '_aix._tcp.',
+      '_certificates._tcp.',
+      '_cmp._tcp.',
+      '_crl._tcp.',
+      '_crls._tcp.',
+      '_finger._tcp.',
+      '_ftp._tcp.',
+      '_gc._tcp.',
+      '_gc._tcp.Default-First-Site-Name._sites.',
+      '_h323be._tcp.',
+      '_h323be._udp.',
+      '_h323cs._tcp.',
+      '_h323cs._udp.',
+      '_h323ls._tcp.',
+      '_h323ls._udp.',
+      '_hkp._tcp.',
+      '_hkps._tcp.',
+      '_http._tcp.',
+      '_imap.tcp.',
+      '_jabber-client._tcp.',
+      '_jabber-client._udp.',
+      '_jabber._tcp.',
+      '_jabber._udp.',
+      '_kerberos._tcp.',
+      '_kerberos._tcp.dc._msdcs.',
+      '_kerberos._tcp.Default-First-Site-Name._sites.',
+      '_kerberos._udp.',
+      '_kerberos.tcp.Default-First-Site-Name._sites.dc._msdcs.',
+      '_kpasswd._tcp.',
+      '_kpasswd._udp.',
+      '_ldap._tcp.',
+      '_ldap._tcp.dc._msdcs.',
+      '_ldap._tcp.Default-First-Site-Name._sites.',
+      '_ldap._tcp.Default-First-Site-Name._sites.dc._msdcs.',
+      '_ldap._tcp.Default-First-Site-Name._sites.gc._msdcs.',
+      '_ldap._tcp.ForestDNSZones.',
+      '_ldap._tcp.gc._msdcs.',
+      '_ldap._tcp.pdc._msdcs.',
+      '_nntp._tcp.',
+      '_ocsp._tcp.',
+      '_pgpkeys._tcp.',
+      '_pgprevokations._tcp.',
+      '_PKIXREP._tcp.',
+      '_sip._tcp.',
+      '_sip._tls.',
+      '_sip._udp.',
+      '_sipfederationtls._tcp.',
+      '_sipinternal._tcp.',
+      '_sipinternaltls._tcp.',
+      '_sips._tcp.',
+      '_smtp._tcp.',
+      '_svcp._tcp.',
+      '_telnet._tcp.',
+      '_test._tcp.',
+      '_whois._tcp.',
+      '_xmpp-client._tcp.',
+      '_xmpp-client._udp.',
+      '_xmpp-server._tcp.',
+      '_xmpp-server._udp.'
     ]
+
+    sites = []
+    if datastore['SITES']
+      sites = datastore['SITES'].split(',')
+    end
+
+    sites.each do |site|
+      srvrcd = srvrcd + [
+        '_gc._tcp.'+site+'._sites.',
+        '_kerberos._tcp.'+site+'._sites.',
+        '_kerberos.tcp.'+site+'._sites.dc._msdcs.',
+        '_ldap._tcp.'+site+'._sites.',
+        '_ldap._tcp.'+site+'._sites.dc._msdcs.',
+        '_ldap._tcp.'+site+'._sites.gc._msdcs.'  
+      ]
+    end
 
     srvrcd.each do |srvt|
       trg = "#{srvt}#{dom}"
       begin
-
         query = @res.query(trg , Net::DNS::SRV)
         next unless query
         query.answer.each do |srv|
           if Rex::Socket.dotted_ip?(srv.host)
             record = {}
             srv_info = srvt.scan(/^_(\S*)\._(tcp|udp)\./)[0]
+            record[:query] = "#{srvt}#{dom}"
             record[:host] = srv.host.gsub(/\.$/,'')
             record[:type] = "SRV"
             record[:address] = srv.host
@@ -148,6 +236,7 @@ class Metasploit3 < Msf::Auxiliary
             get_ip(srv.host.gsub(/\.$/,'')).each do |ip|
               record = {}
               srv_info = srvt.scan(/^_(\S*)\._(tcp|udp)\./)[0]
+              record[:query] = "#{srvt}#{dom}"
               record[:host] = srv.host.gsub(/\.$/,'')
               record[:type] = "SRV"
               record[:address] = ip[:address]
