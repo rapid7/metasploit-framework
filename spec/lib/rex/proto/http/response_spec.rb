@@ -335,7 +335,7 @@ RSpec.describe Rex::Proto::Http::Response do
     it 'returns 5 cookies when given 5 cookies non-sequentially' do
       cookies_array = cookie_sanity_check(:get_cookies_test_five_cookies)
       expect(cookies_array.count).to eq(5)
-      expect(cookies_array).to =~ %w(
+      expect(cookies_array).to match_array %w(
       pma_lang=en
       pma_collation_connection=utf8_general_ci
       pma_mcrypt_iv=mF1NmTE64IY%3D
