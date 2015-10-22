@@ -48,6 +48,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to write a module using HttpServer and HttpClient]]
 - [[How to Send an HTTP Request Using HTTPClient]]
 - [[How to send an HTTP request using Rex::Proto::Http::Client]]
+- [[How to parse an HTTP response]]
 - [[How to write a check() method]]
 - [[How to use WbemExec for a write privilege attack on Windows]]
 - [[How to use the Seh mixin to exploit an exception handler]]
