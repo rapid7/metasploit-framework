@@ -4,16 +4,17 @@ A reference in a Metasploit module is a source of information related to the mod
 
 ID  | Source | Code Example
 ------------- | ------------- | -------------
-CVE  | cvedetails.com | [ 'CVE', '2014-9999' ]
-OSVDB | osvdb.org | ['OSVDB', '94981']
-CWE | cwe.mitre.org | ['CWE', '90']
-BID | securityfocus.com | ['BID', '1234']
-MSB | technet.microsoft.com | ['MSB', 'MS13-055']
-EDB | exploit-db.com | ['EDB', '1337']
-US-CERT-VU | kb.cert.org | ['US-CERT-VU', '800113']
-ZDI | zerodayinitiative.com | ['ZDI', '10-123']
-WPVDB | wpvulndb.com | ['WPVDB', '7615']
-URL | anything | ['URL', 'http://example.com/blog.php?id=123']
+CVE  | cvedetails.com | ```['CVE', '2014-9999']```
+OSVDB | osvdb.org | ```['OSVDB', '94981']```
+CWE | cwe.mitre.org | ```['CWE', '90']```
+BID | securityfocus.com | ```['BID', '1234']```
+MSB | technet.microsoft.com | ```['MSB', 'MS13-055']```
+EDB | exploit-db.com | ```['EDB', '1337']```
+US-CERT-VU | kb.cert.org | ```['US-CERT-VU', '800113']```
+ZDI | zerodayinitiative.com | ```['ZDI', '10-123']```
+WPVDB | wpvulndb.com | ```['WPVDB', '7615']```
+PACKETSTORM | packetstormsecurity.com | ```['PACKETSTORM', '132721']```
+URL | anything | ```['URL', 'http://example.com/blog.php?id=123']```
 
 ## Code Example of having references in a module ##
 
