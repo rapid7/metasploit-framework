@@ -33,8 +33,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new("TARGETURI", [true, 'The relative URI of the Joomla instance', '/']),
-        OptString.new('ACTION', [ true, 'Enumerate session IDs [SESSIONS] or password hashes [HASHES]','HASHES' ] ),
+        OptString.new("TARGETURI", [true, 'The relative URI of the Joomla instance', '/'])
       ], self.class)
   end
 
