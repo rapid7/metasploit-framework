@@ -1,3 +1,5 @@
+# NOT VALID UNTIL https://github.com/rapid7/metasploit-framework/pull/6118 IS LANDED
+
 This document talks about how to parse an HTTP response body in the cleanest way possible.
 
 ## Getting a response
