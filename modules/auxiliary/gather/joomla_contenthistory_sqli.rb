@@ -155,7 +155,7 @@ class Metasploit4 < Msf::Auxiliary
         loop do
           value = request(query_fmt % [col, l, i])
           break if value.blank?
-          record[col] = value
+          record[col] << value
           l += 54
         end
       end
