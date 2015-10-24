@@ -133,10 +133,6 @@ describe Rex::Proto::Http::Response do
     HEREDOC
   end
 
-  let (:html_title) do
-    'TEST'
-  end
-
   let (:meta_name) do
     'META_NAME'
   end
@@ -149,7 +145,7 @@ describe Rex::Proto::Http::Response do
     %Q|
     <html>
     <head>
-      <title>#{html_title}</title>
+      <title>TEST</title>
       <meta name="#{meta_name}" content="#{meta_content}">
     </head>
     <body>
@@ -263,14 +259,6 @@ describe Rex::Proto::Http::Response do
       context 'when a response is received' do
         it 'returns a Hash object' do
           expect(subject.get_json_document).to be_kind_of(Hash)
-        end
-      end
-    end
-
-    describe '#get_html_title' do
-      context "when the title in the HTML is 'TEST'" do
-        it "returns 'TEST'" do
-          expect(subject.get_html_title).to eq(html_title)
         end
       end
     end

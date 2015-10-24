@@ -119,16 +119,6 @@ class Response < Packet
     json
   end
 
-  # Returns the title from the HTML document.
-  # You will probably want to use this if you want to grab the web app's banner in the title.
-  #
-  # @return [String]
-  def get_html_title
-    n = get_html_document
-    title = n.at_xpath('//title')
-    title ? title.text : ''
-  end
-
   # Returns meta tags.
   # You will probably want to use this the web app's version info (or other stuff) can be found
   # in the metadata.
