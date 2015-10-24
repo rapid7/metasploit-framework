@@ -20,7 +20,7 @@ With a Rex::Proto::Http::Response object, here's how you can retrieve the HTTP b
 data = res.body
 ```
 
-If you want to get the raw HTTP response (and including the response message/code, headers, body, etc), then you can simply do:
+If you want to get the raw HTTP response (including the response message/code, headers, body, etc), then you can simply do:
 
 ```ruby
 raw_res = res.to_s
