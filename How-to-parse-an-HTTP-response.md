@@ -105,6 +105,7 @@ Let's say I don't want the English Hello, I want the Spanish one. Then we can do
 
 ```ruby
 html = res.get_html_document
+greeting = html.at('div[@id="spanish"]')
 ```
 
 **Grabbing an element with a specific text**
