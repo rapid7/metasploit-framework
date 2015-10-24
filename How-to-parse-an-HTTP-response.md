@@ -1,4 +1,4 @@
-This document talks about how to parse the response body in the cleanest way possible.
+This document talks about how to parse an HTTP response body in the cleanest way possible.
 
 ## Getting a response
 
