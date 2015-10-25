@@ -15,8 +15,7 @@ class Metasploit4 < Msf::Auxiliary
       'Name'           => 'Joomla com_contenthistory Error-Based SQL Injection',
       'Description'    => %q{
         This module exploits a SQL injection vulnerability in Joomla versions 3.2
-        through 3.4.4 in order to either enumerate usernames and password hashes
-        or session IDs.
+        through 3.4.4 in order to either enumerate usernames and password hashes.
       },
       'References'     =>
         [
