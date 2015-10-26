@@ -90,7 +90,6 @@ class MainframeShell < Msf::Sessions::CommandShell
 
   def process_autoruns(datastore)
     # mf not implemented yet
-    raise NotImplementedError
   end
 
   def desc
