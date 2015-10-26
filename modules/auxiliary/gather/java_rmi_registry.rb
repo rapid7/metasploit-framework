@@ -9,7 +9,7 @@ require 'rex/java/serialization'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Java::Rmi::Client
+  include Msf::Exploit::Remote::Java::Rmi::Client
 
   def initialize
     super(

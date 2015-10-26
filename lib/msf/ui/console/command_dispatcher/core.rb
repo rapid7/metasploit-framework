@@ -2989,7 +2989,7 @@ class Core
         option_values_target_addrs().each do |addr|
           res << addr
         end
-      when 'LHOST'
+      when 'LHOST', 'SRVHOST'
         rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
@@ -2997,9 +2997,9 @@ class Core
           res << Rex::Socket.source_address
           # getifaddrs was introduced in 2.1.2
           if Socket.respond_to?(:getifaddrs)
-            ifaddrs = Socket.getifaddrs.find_all { |ifaddr|
+            ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
               ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) && ifaddr.addr.ip?
-            }
+            end
             res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
           end
         end

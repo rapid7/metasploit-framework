@@ -72,13 +72,6 @@ require 'msf/http/wordpress'
 require 'msf/http/typo3'
 require 'msf/http/jboss'
 
-# Kerberos Support
-require 'msf/kerberos/client'
-
-# Java RMI Support
-require 'msf/java/rmi/util'
-require 'msf/java/rmi/client'
-
 # Drivers
 require 'msf/core/exploit_driver'
 
