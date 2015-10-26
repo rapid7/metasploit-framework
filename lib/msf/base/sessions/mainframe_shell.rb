@@ -88,9 +88,10 @@ class MainframeShell < Msf::Sessions::CommandShell
     raise NotImplementedError
   end
 
-  def process_autoruns(datastore)
-    # mf not implemented yet
-  end
+  # need to do more testing on this before we either use the default in command_shell
+  # or write a new one.  For now we just make it unavailble. This prevents a hang on
+  # initial session creation.  See PR#6067
+  undef_method  :process_autoruns
 
   def desc
     "Mainframe USS session"
