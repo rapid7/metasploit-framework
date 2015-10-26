@@ -193,3 +193,9 @@ To get the JSON body from Rex::Proto::Http::Response, do:
 ```ruby
 json = res.get_json_document
 ```
+
+## References
+
+* http://www.nokogiri.org/tutorials/parsing_an_html_xml_document.html
+* https://github.com/rapid7/metasploit-framework/wiki/How-to-send-an-HTTP-request-using-Rex%3A%3AProto%3A%3AHttp%3A%3AClient
+* https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient
