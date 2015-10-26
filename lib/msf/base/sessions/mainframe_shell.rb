@@ -1,8 +1,8 @@
 # -*- coding: binary -*-
+
 require 'msf/base/sessions/command_shell'
 
-module Msf
-module Sessions
+module Msf::Sessions
 
 ###
 #
@@ -15,7 +15,7 @@ module Sessions
 #  Author:  Bigendian Smalls
 #
 ###
-class Msf::Sessions::MainframeShell < Msf::Sessions::CommandShell
+class MainframeShell < Msf::Sessions::CommandShell
 
   #
   # This interface supports basic interaction.
@@ -61,7 +61,6 @@ class Msf::Sessions::MainframeShell < Msf::Sessions::CommandShell
       framework.events.on_session_output(self, rv) if rv
       return rv
     rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
-      #print_error("Socket error: #{e.class}: #{e}")
       shell_close
       raise e
     end
@@ -73,37 +72,35 @@ class Msf::Sessions::MainframeShell < Msf::Sessions::CommandShell
   #
   def shell_write(buf)
     #mfimpl
-    return if not buf
+    return unless buf
 
     begin
       framework.events.on_session_command(self, buf.strip)
       rstream.write(Rex::Text.to_ibm1047(buf))
     rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
-      #print_error("Socket error: #{e.class}: #{e}")
       shell_close
       raise e
     end
   end
 
-  #
   def execute_file(full_path, args)
     #mfimpl
     raise NotImplementedError
   end
 
-  #
   def process_autoruns(datastore)
     # mf not implemented yet
   end
 
-  #
   def desc
     "Mainframe USS session"
   end
+
   attr_accessor :translate_1047   # tells the session whether or not to translate
                                   # ebcdic (cp1047) <-> ASCII for certain mainframe payloads
                                   # this will be used in post modules to be able to switch on/off the
                                   # translation on file transfers, for instance
+
   protected
 
   ##
@@ -111,45 +108,41 @@ class Msf::Sessions::MainframeShell < Msf::Sessions::CommandShell
   # _interact_ring overridden to include decoding of cp1047 data
   #
   def _interact_ring
-
     begin
+      rdr = framework.threads.spawn("RingMonitor", false) do
+        seq = nil
 
-    rdr = framework.threads.spawn("RingMonitor", false) do
-      seq = nil
-      while self.interacting
+        while self.interacting
+          # Look for any pending data from the remote ring
+          nseq,data = ring.read_data(seq)
 
-        # Look for any pending data from the remote ring
-        nseq,data = ring.read_data(seq)
+          # Update the sequence number if necessary
+          seq = nseq || seq
 
-        # Update the sequence number if necessary
-        seq = nseq || seq
+          # Write output to the local stream if successful
+          user_output.print(Rex::Text.from_ibm1047(data)) if data
 
-        # Write output to the local stream if successful
-        user_output.print(Rex::Text.from_ibm1047(data)) if data
-
-        begin
-          # Wait for new data to arrive on this session
-          ring.wait(seq)
+          begin
+            # Wait for new data to arrive on this session
+            ring.wait(seq)
           rescue EOFError => e
-          #print_error("EOFError: #{e.class}: #{e}")
-          break
+            print_error("EOFError: #{e.class}: #{e}")
+            break
+          end
         end
       end
-    end
 
-    while self.interacting
-      # Look for any pending input or errors from the local stream
-      sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
+      while self.interacting
+        # Look for any pending input or errors from the local stream
+        sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
 
-      # Write input to the ring's input mechanism
-      shell_write(user_input.gets) if sd
-    end
-
+        # Write input to the ring's input mechanism
+        shell_write(user_input.gets) if sd
+      end
     ensure
       rdr.kill
     end
   end
 
-end
 end
 end
