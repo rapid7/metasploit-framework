@@ -30,8 +30,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2012-2215' ],
           [ 'OSVDB', '80230' ],
-          [ 'URL', 'http://www.verisigninc.com/en_US/products-and-services/network-intelligence-availability/idefense/public-vulnerability-reports/articles/index.xhtml?id=975' ],
-          [ 'URL', 'http://support.novell.com/docs/Readmes/InfoDocument/patchbuilder/readme_5127930.html' ]
+          [ 'URL', 'http://www.verisigninc.com/en_US/products-and-services/network-intelligence-availability/idefense/public-vulnerability-reports/articles/index.xhtml?id=975' ]
         ]
     ))
 

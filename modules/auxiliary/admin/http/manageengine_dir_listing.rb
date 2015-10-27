@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2014-7863'],
           ['OSVDB', '117696'],
-          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_failservlet.txt'],
           ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/114']
         ],
       'DisclosureDate' => 'Jan 28 2015'))

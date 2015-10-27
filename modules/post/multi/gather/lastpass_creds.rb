@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
           'Jon Hart <jon_hart[at]rapid7.com' # module rework and cleanup
         ],
         'Platform' => %w(linux osx unix win),
-        'References'   => [['URL', 'http://www.martinvigo.com/a-look-into-lastpass/']],
         'SessionTypes' => %w(meterpreter shell)
       )
     )

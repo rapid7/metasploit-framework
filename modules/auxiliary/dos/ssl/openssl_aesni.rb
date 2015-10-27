@@ -28,8 +28,7 @@ class Metasploit4 < Msf::Auxiliary
       'License'		=> MSF_LICENSE,
       'References'	=>
         [
-          [ 'CVE', '2012-2686'],
-          [ 'URL', 'https://www.openssl.org/news/secadv_20130205.txt']
+          [ 'CVE', '2012-2686']
         ],
       'DisclosureDate' => 'Feb 05 2013'))
 

@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
       'References' =>
         [
           [ 'CVE', '2015-2993' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2015/Jun/8' ]
         ],
       'DisclosureDate' => 'Jun 3 2015'))

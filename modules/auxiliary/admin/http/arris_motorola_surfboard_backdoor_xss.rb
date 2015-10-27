@@ -46,8 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       'References' => [
         [ 'CVE', '2015-0964' ], # XSS vulnerability
         [ 'CVE', '2015-0965' ], # CSRF vulnerability
-        [ 'CVE', '2015-0966' ],  # "techician/yZgO8Bvj" web interface backdoor
-        [ 'URL', 'https://community.rapid7.com/rapid7_blogpostdetail?id=a111400000AanBs' ] # Original disclosure
+        [ 'CVE', '2015-0966' ]  # "techician/yZgO8Bvj" web interface backdoor
       ]
     ))
 
