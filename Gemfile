@@ -3,6 +3,10 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'metasploit_data_models',
+    git: 'https://github.com/rapid7/metasploit_data_models.git',
+    branch: 'bug/MSP-13193/zip-export-web-scan-cookies'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
