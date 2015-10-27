@@ -89,7 +89,7 @@ opts.parse(ARGV) { |opt, idx, val|
     filter = val
   when "-t"
     val = (val || '').upcase
-    unless types.has_key(val)
+    unless types.has_key?(val)
       puts "Invalid Type Supplied: #{val}"
       puts "Please use one of these: #{types.keys.inspect}"
       exit
