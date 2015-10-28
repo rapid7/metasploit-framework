@@ -91,4 +91,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
+  # Needed so that disk size output isn't horrible
+  spec.add_runtime_dependency 'filesize'
 end
