@@ -46,13 +46,21 @@ class Metasploit3 < Msf::Auxiliary
     probe.stratum = 1
     probe.poll = 10
     now = Time.now
+    # compute the timestamp.  NTP stores a timestamp as 64-bit unsigned
+    # integer, the high 32-bits representing the number of seconds since era
+    # epoch and the low 32-bits representing the fraction of a second.  The era
+    # epoch in this case is Jan 1 1900, so we must add the number of seconds
+    # between then and the ruby era epoch, Jan 1 1970, which is 2208988800
     ts = ((now.to_i + 2208988800 + datastore['OFFSET']) << 32) + now.nsec
+    # TODO: use different values for each?
     probe.reference_timestamp = ts
     probe.origin_timestamp = ts
     probe.receive_timestamp = ts
     probe.transmit_timestamp = ts
+    # key-id 0
     probe.payload = "\x00\x00\x00\x00"
     scanner_send(probe, ip, datastore['RPORT'])
+    # TODO: whatever is next in order to let us win the race against the other peers
   end
 
   def scanner_prescan(batch)
