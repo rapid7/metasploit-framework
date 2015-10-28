@@ -92,6 +92,28 @@ module NTP
     end
   end
 
+  class NTPCryptoNAK < BitStruct
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |LI | VN  | mode|    Stratum    |      Poll     |   Precision   |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    unsigned :li, 2,  default: 0
+    unsigned :version, 3,  default: 3
+    unsigned :mode, 3,  default: 1
+    unsigned :stratum, 8,  default: 0
+    unsigned :poll, 8,  default: 0
+    unsigned :precision, 8,  default: 0
+    unsigned :root_delay, 32,  default: 0
+    unsigned :root_dispersion, 32,  default: 0
+    unsigned :reference_id, 32,  default: 0
+    unsigned :reference_timestamp, 64,  default: 0
+    unsigned :origin_timestamp, 64,  default: 0
+    unsigned :receive_timestamp, 64,  default: 0
+    unsigned :transmit_timestamp, 64,  default: 0
+    rest :payload
+  end
+
   def self.ntp_control(version, operation, payload = nil)
     n = NTPControl.new
     n.version = version
