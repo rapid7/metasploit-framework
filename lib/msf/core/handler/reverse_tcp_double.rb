@@ -15,6 +15,7 @@ module Handler
 module ReverseTcpDouble
 
   include Msf::Handler
+  include Msf::Handler::Reverse
   include Msf::Handler::Reverse::Comm
 
   #
@@ -39,17 +40,6 @@ module ReverseTcpDouble
   #
   def initialize(info = {})
     super
-
-    register_options(
-      [
-        Opt::LHOST,
-        Opt::LPORT(4444)
-      ], Msf::Handler::ReverseTcpDouble)
-
-    register_advanced_options(
-      [
-        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
-      ], Msf::Handler::ReverseTcpDouble)
 
     self.conn_threads = []
   end

@@ -15,6 +15,7 @@ module Handler
 module ReverseTcpDoubleSSL
 
   include Msf::Handler
+  include Msf::Handler::Reverse
   include Msf::Handler::Reverse::Comm
   include Msf::Handler::Reverse::SSL
 
@@ -41,17 +42,9 @@ module ReverseTcpDoubleSSL
   def initialize(info = {})
     super
 
-    register_options(
-      [
-        Opt::LHOST,
-        Opt::LPORT(4444)
-      ], Msf::Handler::ReverseTcpDoubleSSL)
-
     register_advanced_options(
       [
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse TCP even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
       ], Msf::Handler::ReverseTcpDoubleSSL)
 
     self.conn_threads = []
@@ -230,11 +223,6 @@ module ReverseTcpDoubleSSL
   end
 
 protected
-
-  def bind_port
-    port = datastore['ReverseListenerBindPort'].to_i
-    port > 0 ? port : datastore['LPORT'].to_i
-  end
 
   def bind_address
     # Switch to IPv6 ANY address if the LHOST is also IPv6

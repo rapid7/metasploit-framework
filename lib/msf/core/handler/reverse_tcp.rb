@@ -18,6 +18,7 @@ module Handler
 module ReverseTcp
 
   include Msf::Handler
+  include Msf::Handler::Reverse
   include Msf::Handler::Reverse::Comm
 
   #
@@ -43,19 +44,11 @@ module ReverseTcp
   def initialize(info = {})
     super
 
-    register_options(
-      [
-        Opt::LHOST,
-        Opt::LPORT(4444)
-      ], Msf::Handler::ReverseTcp)
-
     # XXX: Not supported by all modules
     register_advanced_options(
       [
         OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
         OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
       ], Msf::Handler::ReverseTcp)
 
@@ -248,11 +241,6 @@ module ReverseTcp
   end
 
 protected
-
-  def bind_port
-    port = datastore['ReverseListenerBindPort'].to_i
-    port > 0 ? port : datastore['LPORT'].to_i
-  end
 
   def bind_address
     # Switch to IPv6 ANY address if the LHOST is also IPv6
