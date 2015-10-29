@@ -30,7 +30,6 @@ class Metasploit4 < Msf::Auxiliary
        'References'     =>
          [
            ['CVE', '2014-0050'],
-           ['URL', 'http://markmail.org/message/kpfl7ax4el2owb3o'],
            ['URL', 'http://tomcat.apache.org/security-8.html'],
            ['URL', 'http://tomcat.apache.org/security-7.html']
          ],
