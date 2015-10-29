@@ -19,6 +19,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@joevennix](https://github.com/joevennix)       | [joevennix](https://keybase.io/joevennix)       |
 | [@jvazquez-r7](https://github.com/jvazquez-r7)   | [jvazquezr7](https://keybase.io/jvazquezr7)     |
 | [@limhoff-r7](https://github.com/limhoff-r7)     | [kronicdeth](https://keybase.io/kronicdeth)     |
+| [@lsato-r7](https://github.com/lsato-r7)         | [louissato](https://keybase.io/lsato)           |
 | [@Meatballs1](https://github.com/Meatballs1)     | [meatballs](https://keybase.io/meatballs)       |
 | [@OJ](https://github.com/OJ)                     | [oj](https://keybase.io/oj)                     |
 | [@scriptjunkie](https://github.com/scriptjunkie) | [scriptjunkie](https://keybase.io/scriptjunkie) |
