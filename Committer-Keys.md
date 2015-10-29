@@ -18,16 +18,12 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@jhart-r7](https://github.com/jhart-r7)         | [jhart](https://keybase.io/jhart)               |
 | [@joevennix](https://github.com/joevennix)       | [joevennix](https://keybase.io/joevennix)       |
 | [@jvazquez-r7](https://github.com/jvazquez-r7)   | [jvazquezr7](https://keybase.io/jvazquezr7)     |
-| [@kernelsmith](https://github.com/kernelsmith)   | [kernelsmith](https://keybase.io/kernelsmith)   |
 | [@limhoff-r7](https://github.com/limhoff-r7)     | [kronicdeth](https://keybase.io/kronicdeth)     |
-| [@MSadek-r7](https://github.com/MSadek-r7)       | [msadek](https://keybase.io/msadek)             |
-| [@mbuck-r7](https://github.com/mbuck-r7)         | [techpeace](https://keybase.io/techpeace)       |
 | [@Meatballs1](https://github.com/Meatballs1)     | [meatballs](https://keybase.io/meatballs)       |
 | [@OJ](https://github.com/OJ)                     | [oj](https://keybase.io/oj)                     |
 | [@scriptjunkie](https://github.com/scriptjunkie) | [scriptjunkie](https://keybase.io/scriptjunkie) |
 | [@timwr](https://github.com/timwr)               | [timwr](https://keybase.io/timwr)               |
 | [@todb-r7](https://github.com/todb-r7)           | [todb](https://keybase.io/todb)                 |
-| [@trosen-r7](https://github.com/trosen-r7)       | [trevrosen](https://keybase.io/trevrosen)       |
 | [@void-in](https://github.com/void-in)           | [void_in](https://keybase.io/void_in)
 | [@wchen-r7](https://github.com/wchen-r7)         | [wchenr7](https://keybase.io/wchenr7)           |
 | [@wvu-r7](https://github.com/wvu-r7)             | [wvu](https://keybase.io/wvu)                   |
