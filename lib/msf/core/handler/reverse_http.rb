@@ -20,7 +20,6 @@ module ReverseHttp
   include Msf::Handler
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
-  include Msf::Handler::Reverse::Comm
 
   #
   # Returns the string representation of the handler type
@@ -130,7 +129,6 @@ module ReverseHttp
   #
   def setup_handler
 
-    comm = select_comm
     local_port = bind_port
 
     # Start the HTTPS server service on this host/port
@@ -142,7 +140,7 @@ module ReverseHttp
         'Msf'        => framework,
         'MsfExploit' => self,
       },
-      comm,
+      nil,
       (ssl?) ? datastore['HandlerSSLCert'] : nil
     )
 
@@ -158,9 +156,7 @@ module ReverseHttp
       },
       'VirtualDirectory' => true)
 
-    via = via_string_for_ip(ip, comm)
-
-    print_status("Started #{scheme.upcase} reverse handler on #{listener_uri} #{via}")
+    print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
     lookup_proxy_settings
 
     if datastore['IgnoreUnknownPayloads']
