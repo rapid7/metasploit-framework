@@ -35,7 +35,7 @@ identity. Actually sharing your private key with Keybase.io is a matter of
 contention -- here's the usual argument [against][con-sharing], and here's one
 thoughtful argument [for][pro-sharing].
 
-As all Metapsloit Framework committers are quite comfortable with the command
+As all Metasploit Framework committers are quite comfortable with the command
 line, there should be no need to store your (encrypted) private key with a
 third party. So, please don't, unless you have amazingly good reasons (and a great
 local password).
