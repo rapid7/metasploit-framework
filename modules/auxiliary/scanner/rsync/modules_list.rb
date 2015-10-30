@@ -87,6 +87,7 @@ class Metasploit3 < Msf::Auxiliary
     connect
     version, motd = rsync_negotiate
     unless version
+      vprint_error("#{ip}:#{rport} - does not appear to be rsync")
       disconnect
       return
     end
