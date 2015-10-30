@@ -34,8 +34,7 @@ class Metasploit3 < Msf::Auxiliary
           ['CVE', '2003-0027'],
           ['OSVDB', '8201'],
           ['BID', '6665'],
-          ['URL', 'http://marc.info/?l=bugtraq&m=104326556329850&w=2'],
-          ['URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-77-1000898.1-1']
+          ['URL', 'http://marc.info/?l=bugtraq&m=104326556329850&w=2']
         ],
       # Tested OK against sol8.tor 20100624 -jjd
       'DisclosureDate' => 'Jan 22 2003')

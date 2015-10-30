@@ -35,8 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '1999-0103' ], # Note, does not actually trigger a flood.
-          [ 'URL', 'https://www.cert.be/pro/docs/chargensnmp-ddos-attacks-rise' ],
-          [ 'URL', 'http://tools.ietf.org/html/rfc864' ],
+          [ 'URL', 'http://tools.ietf.org/html/rfc864' ]
         ],
       'DisclosureDate' => 'Feb 08 1996')
 
