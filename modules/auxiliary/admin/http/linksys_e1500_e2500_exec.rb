@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '89912' ],
           [ 'BID', '57760' ],
           [ 'EDB', '24475' ],
-          [ 'URL', 'http://homesupport.cisco.com/de-eu/support/routers/E1500' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ]
         ],
       'DisclosureDate' => 'Feb 05 2013'))

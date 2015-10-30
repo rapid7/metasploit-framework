@@ -47,7 +47,6 @@ class Metasploit3 < Msf::Auxiliary
       'References' => [
         ['CVE', '2015-1793'],
         ['CWE', '754'],
-        ['URL', 'http://www.openssl.org/news/secadv_20150709.txt'],
         ['URL', 'http://git.openssl.org/?p=openssl.git;a=commit;h=f404943bcab4898d18f3ac1b36479d1d7bbbb9e6']
       ],
       'DisclosureDate' => 'Jul 9 2015'

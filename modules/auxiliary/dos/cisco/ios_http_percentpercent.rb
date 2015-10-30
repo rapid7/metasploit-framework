@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'BID', '1154'],
           [ 'CVE', '2000-0380'],
-          [ 'URL', 'http://www.cisco.com/warp/public/707/cisco-sa-20000514-ios-http-server.shtml'],
           [ 'OSVDB', '1302' ],
         ],
       'DisclosureDate' => 'Apr 26 2000'))
