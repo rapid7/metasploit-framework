@@ -58,8 +58,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def rsync_negotiate
+    # rsync is promiscuous and will send the negotitation and motd
+    # upon connecting.  abort if we get nothing
     return unless greeting = sock.get(read_timeout)
 
+    # split the lines we got back into those likely to be control lines and
+    # thoese that are likely motd lines
     greeting.strip!
     control_lines = []
     motd_lines = []
@@ -71,16 +75,22 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
+    # locate the rsync negotiation and complete it by just echo'ing
+    # back the same rsync version that it sent us
+    version = nil
     control_lines.map do |control_line|
       if /^#{RSYNC_HEADER} (?<version>\d+(\.\d+)?)$/ =~ control_line
         version = Regexp.last_match('version')
-        motd = motd_lines.empty? ? nil : motd_lines.join("\n")
         sock.puts("#{RSYNC_HEADER} #{version}\n")
-        return version, motd
       end
     end
 
-    nil
+    unless version
+      vprint_error("#{ip}:#{rport} - no rsync negotation found")
+      return
+    end
+
+    [ version, motd_lines.empty? ? nil : motd_lines.join("\n") ]
   end
 
   def run_host(ip)
