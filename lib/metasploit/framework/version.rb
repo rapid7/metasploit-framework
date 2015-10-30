@@ -32,7 +32,7 @@ module Metasploit
 
       MAJOR = 4
       MINOR = 11
-      PATCH = 4
+      PATCH = 5
       PRERELEASE = 'dev'
       HASH = get_hash
     end
