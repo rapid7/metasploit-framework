@@ -2204,7 +2204,7 @@ class Core
   end
 
   def cmd_show_help
-    global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
+    global_opts = %w{all encoders nops exploits payloads auxiliary plugins info options}
     print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
     module_opts = %w{ missing advanced evasion targets actions }
@@ -2244,6 +2244,8 @@ class Core
           show_auxiliary
         when 'post'
           show_post
+        when 'info'
+          cmd_info(*args[1, args.length])
         when 'options'
           if (mod)
             show_options(mod)
