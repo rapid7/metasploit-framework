@@ -123,7 +123,9 @@ class Core
       "go_pro"     => "Launch Metasploit web GUI",
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
-      "info"       => "Displays information about one or more module",
+      "advanced"   => "Displays advanced options for one or more modules",
+      "info"       => "Displays information about one or more modules",
+      "options"    => "Displays options for one or more modules",
       "irb"        => "Drop into irb scripting mode",
       "jobs"       => "Displays and manages jobs",
       "rename_job" => "Rename a job",
@@ -712,6 +714,36 @@ class Core
     Rex::ThreadSafe.sleep(args[0].to_f)
   end
 
+  def cmd_advanced_help
+    print_line 'Usage: advanced [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for advanced options. If no module is given,'
+    print_line 'show advanced options for the currently active module.'
+    print_line
+  end
+
+  def cmd_advanced(*args)
+    if args.empty?
+      if (active_module)
+        show_advanced_options(active_module)
+        return true
+      else
+        print_error('No module active')
+        return false
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_advanced_options(mod)
+      end
+    }
+  end
+
   def cmd_info_help
     print_line "Usage: info <module name> [mod2 mod3 ...]"
     print_line
@@ -748,6 +780,47 @@ class Core
     }
   end
 
+  def cmd_options_help
+    print_line 'Usage: options [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for options. If no module is given,'
+    print_line 'show options for the currently active module.'
+    print_line
+  end
+
+  def cmd_options(*args)
+    if args.empty?
+      if (active_module)
+        show_options(active_module)
+        return true
+      else
+        show_global_options
+        return true
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_options(mod)
+      end
+    }
+  end
+
+  #
+  # Tab completion for the advanced command (same as use)
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_advanced_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
   #
   # Tab completion for the info command (same as use)
   #
@@ -756,6 +829,17 @@ class Core
   # at least 1 when tab completion has reached this stage since the command itself has been completed
 
   def cmd_info_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
+  #
+  # Tab completion for the options command (same as use)
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_options_tabs(str, words)
     cmd_use_tabs(str, words)
   end
 
