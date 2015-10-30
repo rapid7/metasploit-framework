@@ -5,6 +5,7 @@ PATH
       actionpack (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       bcrypt
+      filesize
       jsobfu (~> 0.2.0)
       json
       metasm (~> 1.0.2)
@@ -98,6 +99,7 @@ GEM
       factory_girl (~> 4.5.0)
       railties (>= 3.0.0)
     ffi (1.9.8)
+    filesize (0.1.1)
     fivemat (1.2.1)
     gherkin (2.12.2)
       multi_json (~> 1.3)
