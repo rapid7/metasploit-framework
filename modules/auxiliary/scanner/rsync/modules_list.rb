@@ -107,6 +107,8 @@ class Metasploit3 < Msf::Auxiliary
     if listing.empty?
       print_status("#{ip}:#{rport} - rsync #{version}: no modules found")
     else
+      print_good("#{ip}:#{rport} - rsync #{version}: #{listing.size} modules found: " \
+                 "#{listing.map(&:first).join(', ')}")
       listing.each do |name_comment|
         connect
         rsync_negotiate
@@ -125,9 +127,6 @@ class Metasploit3 < Msf::Auxiliary
           ],
         'Rows' => listing
       )
-
-      print_good("#{ip}:#{rport} - rsync #{version}: #{listing.size} modules found: " \
-                 "#{listing.map(&:first).join(', ')}")
       vprint_line(listing_table.to_s)
 
       report_note(
