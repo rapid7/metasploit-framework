@@ -125,7 +125,7 @@ class Core
       "help"       => "Help menu",
       "advanced"   => "Displays advanced options for one or more modules",
       "info"       => "Displays information about one or more modules",
-      "options"    => "Displays options for one or more modules",
+      "options"    => "Displays global options or for one or more modules",
       "irb"        => "Drop into irb scripting mode",
       "jobs"       => "Displays and manages jobs",
       "rename_job" => "Rename a job",

@@ -24,7 +24,9 @@ Feature: Help command
           go_pro        Launch Metasploit web GUI
           grep          Grep the output of another command
           help          Help menu
-          info          Displays information about one or more module
+          advanced      Displays advanced options for one or more modules
+          info          Displays information about one or more modules
+          options       Displays global options or for one or more modules
           irb           Drop into irb scripting mode
           jobs          Displays and manages jobs
           kill          Kill a job
