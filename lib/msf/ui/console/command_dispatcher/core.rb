@@ -813,31 +813,28 @@ class Core
   #
   # Tab completion for the advanced command (same as use)
   #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
 
   def cmd_advanced_tabs(str, words)
     cmd_use_tabs(str, words)
   end
 
   #
-  # Tab completion for the info command (same as use)
+  # Tab completion for the advanced command (same as use)
   #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
 
   def cmd_info_tabs(str, words)
     cmd_use_tabs(str, words)
   end
 
   #
-  # Tab completion for the options command (same as use)
+  # Tab completion for the advanced command (same as use)
   #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
 
   def cmd_options_tabs(str, words)
     cmd_use_tabs(str, words)
