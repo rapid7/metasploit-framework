@@ -53,9 +53,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scan_host(ip)
-    probe = Rex::Proto::NTP::NTPCryptoNAK.new
+    probe = Rex::Proto::NTP::NTPSymmetric.new
     probe.stratum = 1
     probe.poll = 10
+    probe.mode = 1
     now = Time.now
     # compute the timestamp.  NTP stores a timestamp as 64-bit unsigned
     # integer, the high 32-bits representing the number of seconds since era
@@ -72,5 +73,25 @@ class Metasploit3 < Msf::Auxiliary
     probe.payload = "\x00\x00\x00\x00"
     scanner_send(probe, ip, datastore['RPORT'])
     # TODO: whatever is next in order to let us win the race against the other peers
+  end
+
+  def scanner_postscan(batch)
+    @results.keys.map do |host|
+      @results[host].map do |response|
+        ntp_symmetric = Rex::Proto::NTP::NTPSymmetric.new(response)
+        if ntp_symmetric.mode = 2
+          print_good("#{host}:#{rport} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
+          report_vuln(
+            :host  => host,
+            :port  => rport.to_i,
+            :proto => 'udp',
+            :sname => 'ntp',
+            :name  => 'NTP "NAK to the Future"',
+            :info  => "Accepted an NTP symmetric active association by replying with a symmetric passive request",
+            :refs  => self.references
+          )
+        end
+      end
+    end
   end
 end

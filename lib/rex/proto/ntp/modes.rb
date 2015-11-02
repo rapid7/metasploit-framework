@@ -92,15 +92,10 @@ module NTP
     end
   end
 
-  class NTPCryptoNAK < BitStruct
-    #    0                   1                   2                   3
-    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    #   |LI | VN  | mode|    Stratum    |      Poll     |   Precision   |
-    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  class NTPSymmetric < BitStruct
     unsigned :li, 2,  default: 0
     unsigned :version, 3,  default: 3
-    unsigned :mode, 3,  default: 1
+    unsigned :mode, 3,  default: 0
     unsigned :stratum, 8,  default: 0
     unsigned :poll, 8,  default: 0
     unsigned :precision, 8,  default: 0
