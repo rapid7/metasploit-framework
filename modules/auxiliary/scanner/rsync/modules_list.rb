@@ -58,7 +58,8 @@ class Metasploit3 < Msf::Auxiliary
     list
   end
 
-  def rsync_negotiate
+  # Attempts to negotiate the rsync protocol with the endpoint.
+  def rsync_negotiate(get_motd)
     # rsync is promiscuous and will send the negotitation and motd
     # upon connecting.  abort if we get nothing
     return unless greeting = sock.get_once
@@ -82,9 +83,11 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    _, post_neg_data_lines = rsync_parse_lines(sock.get_once)
-
-    motd_lines = greeting_data_lines + post_neg_data_lines
+    motd_lines = greeting_data_lines
+    if get_motd
+      _, post_neg_data_lines = rsync_parse_lines(sock.get_once)
+      motd_lines |= post_neg_data_lines
+    end
     [ version, motd_lines.empty? ? nil : motd_lines.join("\n") ]
   end
 
@@ -109,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     connect
-    version, motd = rsync_negotiate
+    version, motd = rsync_negotiate(true)
     unless version
       vprint_error("#{ip}:#{rport} - does not appear to be rsync")
       disconnect
@@ -136,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
                  "#{listing.map(&:first).join(', ')}")
       listing.each do |name_comment|
         connect
-        rsync_negotiate
+        rsync_negotiate(false)
         name_comment << rsync_requires_auth?(name_comment.first)
         disconnect
       end
