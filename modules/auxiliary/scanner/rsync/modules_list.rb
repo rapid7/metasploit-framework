@@ -51,7 +51,8 @@ class Metasploit3 < Msf::Auxiliary
     # on its own line, lines separated with a newline
     sock.get(read_timeout).split(/\n/).map(&:strip).map do |module_line|
       next if module_line =~ /^#{RSYNC_HEADER} EXIT$/
-      list << module_line.split(/\t/).map(&:strip)
+      name, comment = module_line.split(/\t/).map(&:strip)
+      list << [ name, comment ]
     end
 
     list
