@@ -62,24 +62,15 @@ class Metasploit3 < Msf::Auxiliary
     # upon connecting.  abort if we get nothing
     return unless greeting = sock.get(read_timeout)
 
-    # split the lines we got back into those likely to be control lines and
-    # thoese that are likely motd lines
-    greeting.strip!
-    control_lines = []
-    motd_lines = []
-    greeting.split(/\n/).map do |greeting_line|
-      if greeting_line =~ /^#{RSYNC_HEADER}/
-        control_lines << greeting_line
-      else
-        motd_lines << greeting_line
-      end
-    end
+    # parse the greeting control and data lines.  With some systems, the data
+    # lines at this point will be the motd.
+    greeting_control_lines, greeting_data_lines = rsync_parse_lines(greeting)
 
     # locate the rsync negotiation and complete it by just echo'ing
     # back the same rsync version that it sent us
     version = nil
-    control_lines.map do |control_line|
-      if /^#{RSYNC_HEADER} (?<version>\d+(\.\d+)?)$/ =~ control_line
+    greeting_control_lines.map do |greeting_control_line|
+      if /^#{RSYNC_HEADER} (?<version>\d+(\.\d+)?)$/ =~ greeting_control_line
         version = Regexp.last_match('version')
         sock.puts("#{RSYNC_HEADER} #{version}\n")
       end
@@ -90,7 +81,29 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    [ version, motd_lines.empty? ? nil : motd_lines.join("\n") ]
+    _, post_neg_data_lines = rsync_parse_lines(sock.get(read_timeout))
+
+    motd_lines = greeting_data_lines + post_neg_data_lines
+    [ version, motd_lines.join("\n") ]
+  end
+
+  # parses the control and data lines from the provided response data
+  def rsync_parse_lines(response_data)
+    control_lines = []
+    data_lines = []
+
+    if response_data
+      response_data.strip!
+      response_data.split(/\n/).map do |line|
+        if line =~ /^#{RSYNC_HEADER}/
+          control_lines << line
+        else
+          data_lines << line
+        end
+      end
+    end
+
+    [ control_lines, data_lines ]
   end
 
   def run_host(ip)
@@ -126,6 +139,7 @@ class Metasploit3 < Msf::Auxiliary
         name_comment << rsync_requires_auth?(name_comment.first)
         disconnect
       end
+
       # build a table to store the module listing in
       listing_table = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
