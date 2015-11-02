@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
     _, post_neg_data_lines = rsync_parse_lines(sock.get(read_timeout))
 
     motd_lines = greeting_data_lines + post_neg_data_lines
-    [ version, motd_lines.join("\n") ]
+    [ version, motd_lines.empty? ? nil : motd_lines.join("\n") ]
   end
 
   # parses the control and data lines from the provided response data
