@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
     # pick a random 64-bit timestamp
     canary_timestamp = rand(2**32..2**64-1)
     probe = build_crypto_nak(canary_timestamp)
-    udp_sock.puts(probe)
+    udp_sock.put(probe)
 
     expected_length = probe.length - probe.payload.length
     response = udp_sock.timed_read(expected_length)
