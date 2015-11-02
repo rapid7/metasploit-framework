@@ -3551,7 +3551,6 @@ class Core
 
   def show_advanced_options(mod) # :nodoc:
     mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ')
-    print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
     print("\nModule advanced options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 
     # If it's an exploit and a payload is defined, create it and
