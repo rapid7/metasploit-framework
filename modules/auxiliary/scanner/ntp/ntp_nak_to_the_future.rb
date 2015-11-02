@@ -37,13 +37,7 @@ class Metasploit3 < Msf::Auxiliary
             [ 'URL', 'http://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
             [ 'URL', 'http://support.ntp.org/bin/view/Main/NtpBug2941' ],
             [ 'CVE', '2015-7871' ]
-          ],
-        'Actions'        =>
-          [
-            ['CHECK', { 'Description' => 'Check for NTP NAK to the future' }],
-            ['SET', { 'Description' => 'Set the time' }]
-          ],
-        'DefaultAction'  => 'CHECK'
+          ]
       )
     )
 
@@ -109,5 +103,9 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     return Exploit::CheckCode::Unknown
+  end
+
+  def run_host(ip)
+    fail_with(Failure::Unknown, 'Not yet implemented')
   end
 end
