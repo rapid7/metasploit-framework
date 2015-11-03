@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Auxiliary
         '_kerberos.tcp.'+site+'._sites.dc._msdcs.',
         '_ldap._tcp.'+site+'._sites.',
         '_ldap._tcp.'+site+'._sites.dc._msdcs.',
-        '_ldap._tcp.'+site+'._sites.gc._msdcs.'  
+        '_ldap._tcp.'+site+'._sites.gc._msdcs.'
       ]
     end
 
