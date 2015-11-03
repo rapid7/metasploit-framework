@@ -38,8 +38,8 @@ class Metasploit3 < Msf::Auxiliary
         Especially for active directory, it is possible to specify sites.
       },
       'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', # First and main.
-      					 'Fabrice RAFART' # patch 20150915 (mainly change for AD and report).
-      				 ],
+                      'Fabrice RAFART' # patch 20150915 (mainly change for AD and report).
+                    ],
       'License'		=> BSD_LICENSE
       ))
 
@@ -311,4 +311,3 @@ class Metasploit3 < Msf::Auxiliary
     return results
   end
 end
-
