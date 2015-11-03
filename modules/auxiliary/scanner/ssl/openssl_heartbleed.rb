@@ -534,7 +534,7 @@ class Metasploit3 < Msf::Auxiliary
     # Keep this many duplicates as padding around the deduplication message
     duplicate_pad = (DEDUP_REPEATED_CHARS_THRESHOLD / 3).round
 
-    # Remove duplicate characters 
+    # Remove duplicate characters
     abbreviated_data = printable_data.gsub(/(.)\1{#{(DEDUP_REPEATED_CHARS_THRESHOLD - 1)},}/) { |s|
               s[0,duplicate_pad] +
               ' repeated ' + ( s.length - (2 * duplicate_pad) ).to_s + ' times ' +
