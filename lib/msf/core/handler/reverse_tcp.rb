@@ -235,7 +235,12 @@ module ReverseTcp
     end
 
     if (self.listener_sock)
-      self.listener_sock.close
+      begin
+        self.listener_sock.close
+      rescue IOError
+        # Ignore if it's listening on a dead session
+        dlog("IOError closing listener sock; listening on dead session?", LEV_1)
+      end
       self.listener_sock = nil
     end
   end
