@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
   def rsync_negotiate(get_motd)
     # rsync is promiscuous and will send the negotitation and motd
     # upon connecting.  abort if we get nothing
-    return unless greeting = sock.get_once
+    return unless (greeting = sock.get_once)
 
     # parse the greeting control and data lines.  With some systems, the data
     # lines at this point will be the motd.
