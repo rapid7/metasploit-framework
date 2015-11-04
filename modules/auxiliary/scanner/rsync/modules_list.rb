@@ -42,6 +42,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
+        OptBool.new('SHOW_MOTD',
+                    [ true, 'Show the rsync motd, if found', false ]),
         OptInt.new('READ_TIMEOUT', [ true, 'Seconds to wait while reading rsync responses', 2 ])
       ]
     )
@@ -148,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
       name: 'rsync',
       info: info
     )
-    vprint_good("#{peer} - rsync MOTD: #{motd}") if motd
+    vprint_good("#{peer} - rsync MOTD: #{motd}") if motd && datastore['SHOW_MOTD']
 
     modules_metadata = rsync_list
     disconnect
