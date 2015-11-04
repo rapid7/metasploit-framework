@@ -25,6 +25,8 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
+        OptBool.new('TEST_AUTHENTICATION',
+                    [ true, 'Test if the rsync module requires authentication', true ]),
         Opt::RPORT(873)
       ], self.class)
   end
@@ -137,23 +139,23 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_good("#{ip}:#{rport} - rsync #{version}: #{listing.size} modules found: " \
                  "#{listing.map(&:first).join(', ')}")
-      listing.each do |name_comment|
-        connect
-        rsync_negotiate(false)
-        name_comment << rsync_requires_auth?(name_comment.first)
-        disconnect
+
+      table_columns = %w(Name Comment)
+      if datastore['TEST_AUTHENTICATION']
+        table_columns << 'Authentication?'
+        listing.each do |name_comment|
+          connect
+          rsync_negotiate(false)
+          name_comment << rsync_requires_auth?(name_comment.first)
+          disconnect
+        end
       end
 
       # build a table to store the module listing in
       listing_table = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
         'Header' => "rsync modules for #{ip}:#{rport}",
-        'Columns' =>
-          [
-            "Name",
-            "Comment",
-            "Authentication?"
-          ],
+        'Columns' => table_columns,
         'Rows' => listing
       )
       vprint_line(listing_table.to_s)
