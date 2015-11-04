@@ -62,7 +62,8 @@ class Metasploit3 < Msf::Auxiliary
     sock.get(read_timeout).split(/\n/).map(&:strip).map do |module_line|
       next if module_line =~ /^#{RSYNC_HEADER} EXIT$/
       name, comment = module_line.split(/\t/).map(&:strip)
-      list << [ name, comment ]
+      next unless name
+      list << { name: name, comment: comment }
     end
 
     list
@@ -151,10 +152,10 @@ class Metasploit3 < Msf::Auxiliary
       table_columns = %w(Name Comment)
       if datastore['TEST_AUTHENTICATION']
         table_columns << 'Authentication?'
-        listing.each do |name_comment|
+        listing.each do |listing_metadata|
           connect
           rsync_negotiate(false)
-          name_comment << rsync_requires_auth?(name_comment.first)
+          listing_metadata[:authentication?] = rsync_requires_auth?(listing_metadata[:name])
           disconnect
         end
       end
@@ -174,7 +175,6 @@ class Metasploit3 < Msf::Auxiliary
         port: rport,
         type: 'rsync_modules',
         data: { modules: listing },
-        update: :unique_data
       )
     end
   end
