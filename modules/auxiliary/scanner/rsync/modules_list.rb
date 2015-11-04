@@ -14,9 +14,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Rsync Unauthenticated List Command',
-      'Description' => 'List all (listable) modules from a rsync daemon',
-      'Author'      => 'ikkini',
+      'Name'        => 'List Rsync Modules',
+      'Description' => %q(
+        An rsync module is essentially a directory share.  These modules can
+        optionally be protected by a password.  This module connects to and
+        negotiates with an rsync server, lists the available modules and,
+        optionally, determines if the module requires a password to access.
+      ),
+      'Author'      => [
+        'ikkini', # original metasploit module
+        'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
+      ],
       'References'  =>
         [
           ['URL', 'http://rsync.samba.org/ftp/rsync/rsync.html']
