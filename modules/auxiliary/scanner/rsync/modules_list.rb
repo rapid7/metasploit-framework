@@ -39,6 +39,10 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
   def read_timeout
     10
   end
@@ -90,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     unless version
-      vprint_error("#{ip}:#{rport} - no rsync negotation found")
+      vprint_error("#{peer} - no rsync negotiation found")
       return
     end
 
@@ -125,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
     connect
     version, motd = rsync_negotiate(true)
     unless version
-      vprint_error("#{ip}:#{rport} - does not appear to be rsync")
+      vprint_error("#{peer} - does not appear to be rsync")
       disconnect
       return
     end
@@ -139,15 +143,15 @@ class Metasploit3 < Msf::Auxiliary
       name: 'rsync',
       info: info
     )
-    vprint_good("#{ip}:#{rport} - rsync MOTD: #{motd}") if motd
+    vprint_good("#{peer} - rsync MOTD: #{motd}") if motd
 
     listing_metadata = rsync_list
     disconnect
     if listing_metadata.empty?
-      print_status("#{ip}:#{rport} - rsync #{version}: no modules found")
+      print_status("#{peer} - rsync #{version}: no modules found")
     else
       modules = listing_metadata.map { |m| m[:name] }
-      print_good("#{ip}:#{rport} - rsync #{version}: #{modules.size} modules found: #{modules.join(', ')}")
+      print_good("#{peer} - rsync #{version}: #{modules.size} modules found: #{modules.join(', ')}")
 
       table_columns = %w(Name Comment)
       if datastore['TEST_AUTHENTICATION']
@@ -163,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
       # build a table to store the module listing in
       listing_table = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
-        'Header' => "rsync modules for #{ip}:#{rport}",
+        'Header' => "rsync modules for #{peer}",
         'Columns' => table_columns,
         'Rows' => listing_metadata.map(&:values)
       )
