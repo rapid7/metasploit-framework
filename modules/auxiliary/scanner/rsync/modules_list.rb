@@ -31,12 +31,20 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'License'     => MSF_LICENSE
     )
+
     register_options(
       [
         OptBool.new('TEST_AUTHENTICATION',
                     [ true, 'Test if the rsync module requires authentication', true ]),
         Opt::RPORT(873)
-      ], self.class)
+      ]
+    )
+
+    register_advanced_options(
+      [
+        OptInt.new('READ_TIMEOUT', [ true, 'Seconds to wait while reading rsync responses', 2 ])
+      ]
+    )
   end
 
   def peer
@@ -44,12 +52,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def read_timeout
-    10
+    datastore['READ_TIMEOUT']
   end
 
   def rsync_requires_auth?(rmodule)
     sock.puts("#{rmodule}\n")
-    res = sock.get_once
+    res = sock.get_once(-1, read_timeout)
     if res && (res =~ /^#{RSYNC_HEADER} AUTHREQD/)
       true
     else
@@ -77,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
   def rsync_negotiate
     # rsync is promiscuous and will send the negotitation and motd
     # upon connecting.  abort if we get nothing
-    return unless (greeting = sock.get_once)
+    return unless (greeting = sock.get_once(-1, read_timeout))
 
     # parse the greeting control and data lines.  With some systems, the data
     # lines at this point will be the motd.
@@ -98,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    _, post_neg_data_lines = rsync_parse_lines(sock.get_once)
+    _, post_neg_data_lines = rsync_parse_lines(sock.get_once(-1, read_timeout))
     motd_lines = greeting_data_lines + post_neg_data_lines
     [ version, motd_lines.empty? ? nil : motd_lines.join("\n") ]
   end
@@ -178,5 +186,9 @@ class Metasploit3 < Msf::Auxiliary
         data: { modules: modules_metadata }
       )
     end
+  end
+
+  def setup
+    fail_with(Failure::BadConfig, 'READ_TIMEOUT must be > 0') if read_timeout <= 0
   end
 end
