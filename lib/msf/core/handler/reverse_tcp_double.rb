@@ -45,26 +45,6 @@ module ReverseTcpDouble
   end
 
   #
-  # Starts the listener but does not actually attempt
-  # to accept a connection.  Throws socket exceptions
-  # if it fails to start the listener.
-  #
-  def setup_handler
-    if datastore['Proxies'] and not datastore['ReverseAllowProxy']
-      raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
-    end
-    self.listener_sock = Rex::Socket::TcpServer.create(
-      # 'LocalHost' => datastore['LHOST'],
-      'LocalPort' => datastore['LPORT'].to_i,
-      'Comm'      => select_comm,
-      'Context'   =>
-        {
-          'Msf'        => framework,
-          'MsfPayload' => self,
-          'MsfExploit' => assoc_exploit
-        })
-  end
-
   #
   # Closes the listener socket if one was created.
   #
@@ -78,6 +58,13 @@ module ReverseTcpDouble
     }
   end
 
+  # A string suitable for displaying to the user
+  #
+  # @return [String]
+  def human_name
+    "reverse TCP double"
+  end
+
   #
   # Starts monitoring for an inbound connection.
   #
@@ -85,8 +72,6 @@ module ReverseTcpDouble
     self.listener_thread = framework.threads.spawn("ReverseTcpDoubleHandlerListener", false) {
       sock_inp = nil
       sock_out = nil
-
-      print_status("Started reverse double handler")
 
       begin
         # Accept two client connection
