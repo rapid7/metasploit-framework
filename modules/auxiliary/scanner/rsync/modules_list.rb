@@ -60,17 +60,17 @@ class Metasploit3 < Msf::Auxiliary
   def rsync_list
     sock.puts("#list\n")
 
-    listing_metadata = []
+    modules_metadata = []
     # the module listing is the module name and comment separated by a tab, each module
     # on its own line, lines separated with a newline
     sock.get(read_timeout).split(/\n/).map(&:strip).map do |module_line|
       next if module_line =~ /^#{RSYNC_HEADER} EXIT$/
       name, comment = module_line.split(/\t/).map(&:strip)
       next unless name
-      listing_metadata << { name: name, comment: comment }
+      modules_metadata << { name: name, comment: comment }
     end
 
-    listing_metadata
+    modules_metadata
   end
 
   # Attempts to negotiate the rsync protocol with the endpoint.
@@ -145,18 +145,18 @@ class Metasploit3 < Msf::Auxiliary
     )
     vprint_good("#{peer} - rsync MOTD: #{motd}") if motd
 
-    listing_metadata = rsync_list
+    modules_metadata = rsync_list
     disconnect
-    if listing_metadata.empty?
+    if modules_metadata.empty?
       print_status("#{peer} - rsync #{version}: no modules found")
     else
-      modules = listing_metadata.map { |m| m[:name] }
+      modules = modules_metadata.map { |m| m[:name] }
       print_good("#{peer} - rsync #{version}: #{modules.size} modules found: #{modules.join(', ')}")
 
       table_columns = %w(Name Comment)
       if datastore['TEST_AUTHENTICATION']
         table_columns << 'Authentication?'
-        listing_metadata.each do |module_metadata|
+        modules_metadata.each do |module_metadata|
           connect
           rsync_negotiate(false)
           module_metadata[:authentication?] = rsync_requires_auth?(module_metadata[:name])
@@ -169,7 +169,7 @@ class Metasploit3 < Msf::Auxiliary
         Msf::Ui::Console::Table::Style::Default,
         'Header' => "rsync modules for #{peer}",
         'Columns' => table_columns,
-        'Rows' => listing_metadata.map(&:values)
+        'Rows' => modules_metadata.map(&:values)
       )
       vprint_line(listing_table.to_s)
 
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
         proto: 'tcp',
         port: rport,
         type: 'rsync_modules',
-        data: { modules: listing_metadata }
+        data: { modules: modules_metadata }
       )
     end
   end
