@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
     # the module listing is the module name and comment separated by a tab, each module
     # on its own line, lines separated with a newline
     sock.get(read_timeout).split(/\n/).map(&:strip).map do |module_line|
-      next if module_line =~ /^#{RSYNC_HEADER} EXIT$/
+      break if module_line =~ /^#{RSYNC_HEADER} EXIT$/
       name, comment = module_line.split(/\t/).map(&:strip)
       next unless name
       modules_metadata << { name: name, comment: comment }
