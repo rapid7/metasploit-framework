@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Auxiliary
       ),
       'Author'      => [
         'ikkini', # original metasploit module
-        'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
+        'Jon Hart <jon_hart[at]rapid7.com>', # improved metasploit module
+        'Nixawk' # improved metasploit module
       ],
       'References'  =>
         [
