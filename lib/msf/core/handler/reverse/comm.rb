@@ -3,13 +3,14 @@ require 'rex/socket'
 
 module Msf
 module Handler
+module Reverse
 
 ###
 #
-# This module implements the reverse Rex::Socket::Comm handlng.
+# Implements the reverse Rex::Socket::Comm handlng.
 #
 ###
-module ReverseTcpComm
+module Comm
 
   def initialize(info = {})
     super
@@ -17,7 +18,7 @@ module ReverseTcpComm
     register_advanced_options(
       [
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-      ], Msf::Handler::ReverseTcpComm)
+      ], Msf::Handler::Reverse::Comm)
   end
 
   def select_comm
@@ -37,7 +38,23 @@ module ReverseTcpComm
 
     comm
   end
+
+  def via_string_for_ip(ip, comm)
+    comm_used = comm
+    comm_used ||= Rex::Socket::SwitchBoard.best_comm(ip)
+    comm_used ||= Rex::Socket::Comm::Local
+
+    if comm_used.respond_to?(:type) && comm_used.respond_to?(:sid)
+      via = "via the #{comm_used.type} on session #{comm_used.sid}"
+    else
+      via = ""
+    end
+
+    via
+  end
+
 end
 
+end
 end
 end
