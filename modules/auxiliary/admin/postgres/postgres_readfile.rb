@@ -21,11 +21,7 @@ class Metasploit3 < Msf::Auxiliary
           as well as read privileges to the target file.
       },
       'Author'         => [ 'todb' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          [ 'URL', 'http://michaeldaw.org/sql-injection-cheat-sheet#postgres' ]
-        ]
+      'License'        => MSF_LICENSE
     ))
 
     register_options(

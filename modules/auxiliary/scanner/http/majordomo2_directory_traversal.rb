@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
           ['OSVDB', '70762'],
           ['CVE', '2011-0049'],
           ['CVE', '2011-0063'],
-          ['URL', 'https://sitewat.ch/en/Advisory/View/1'],
           ['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],
           ['EDB', '16103']
         ],

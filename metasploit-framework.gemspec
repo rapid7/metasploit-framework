@@ -52,7 +52,7 @@ Gem::Specification.new do |spec|
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
-  spec.add_runtime_dependency 'jsobfu', '~> 0.2.0'
+  spec.add_runtime_dependency 'jsobfu', '~> 0.3.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
   # Metasm compiler/decompiler/assembler
@@ -63,7 +63,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.0.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.0.15'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.16'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler
@@ -91,4 +91,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
+  # Needed so that disk size output isn't horrible
+  spec.add_runtime_dependency 'filesize'
 end

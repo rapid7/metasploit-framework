@@ -21,11 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       system is using as its default route.
       },
       'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
-        ]
+      'License'     => MSF_LICENSE
     )
 
     register_options([

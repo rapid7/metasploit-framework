@@ -27,8 +27,7 @@ class Metasploit3 < Msf::Post
       'SessionTypes' => [ 'meterpreter' ],
       'References'   =>
             [
-              ['URL', 'https:/github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos'],
-              ['URL', 'http://blog.cobalstrike.com/2014/05/14/meterpreter-kiwi-extension-golden-ticket-howto/']
+              ['URL', 'https:/github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos']
             ]
     ))
 
