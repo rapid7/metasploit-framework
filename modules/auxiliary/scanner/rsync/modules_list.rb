@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -15,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'Rsync Unauthenticated List Command',
       'Description' => 'List all (listable) modules from a rsync daemon',
-      'Author'      => 'ikkini',
+      'Author'      => ['ikkini', 'Nixawk'],
       'References'  =>
         [
           ['URL', 'http://rsync.samba.org/ftp/rsync/rsync.html']
@@ -24,46 +23,97 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-        Opt::RPORT(873)
+        Opt::RPORT(873),
+        OptBool.new('AUTH_CHECK', [true, 'Check authentication or not', false])
       ], self.class)
   end
 
-  def run_host(ip)
+  def rsync(dir)
     connect
-    version = sock.get_once
 
+    version = sock.get_once # server_initialisation
     return if version.blank?
 
-    print_good("#{ip}:#{rport} - rsync #{version.strip} found")
-    report_service(:host => ip, :port => rport, :proto => 'tcp', :name => 'rsync')
-    report_note(
-        :host => ip,
-        :proto => 'tcp',
-        :port => rport,
-        :type => 'rsync_version',
-        :data => version.strip
-    )
-
-    # making sure we match the version of the server
-    sock.puts("#{version}")
-    # the listing command
-    sock.puts("\n")
-    listing = sock.get(20)
+    sock.get(3) # server_motd
+    sock.puts(version) # client_initialisation
+    sock.puts(dir) # client_query
+    data = sock.get(3) # module_list
+    data.gsub!('@RSYNCD: EXIT', '')
     disconnect
+    [version, data]
+  end
 
-    return if listing.blank?
+  def auth?(dir)
+    _version, data = rsync(dir)
+    if data && data =~ /RSYNCD: OK/m
+      vprint_status("#{dir} needs authentication: false")
+      false
+    else
+      vprint_status("#{dir} needs authentication: true")
+      true
+    end
+  end
 
-    print_good("#{ip}:#{rport} - rsync listing found")
-    listing.gsub!('@RSYNCD: EXIT', '') # not interested in EXIT message
-    listing_sanitized = Rex::Text.to_hex_ascii(listing.strip)
+  def module_list_format(ip, module_list)
+    mods = {}
+    rows = []
 
-    vprint_status("#{ip}:#{rport} - #{version.rstrip} #{listing_sanitized}")
-    report_note(
-        :host => ip,
-        :proto => 'tcp',
-        :port => rport,
-        :type => 'rsync_listing',
-        :data => listing_sanitized
+    return if module_list.blank?
+
+    module_list = module_list.strip
+    module_list = module_list.split("\n")
+
+    module_list.each do |mod|
+      name, desc = mod.split("\t")
+      name = name.strip
+      next unless name
+
+      if datastore['AUTH_CHECK']
+        is_auth = "#{auth?(name)}"
+      else
+        is_auth = 'Unknown'
+      end
+
+      rows << [name, desc, is_auth]
+    end
+
+    unless rows.blank?
+      table = Msf::Ui::Console::Table.new(
+        Msf::Ui::Console::Table::Style::Default,
+        'Columns' =>
+        [
+          'Name',
+          'Comment',
+          'Authentication?'
+        ],
+        'Rows' => rows)
+      vprint_line(table.to_s)
+    end
+    mods[ip] = rows
+    return if mods.blank?
+    path = store_loot(
+      'rsync',
+      'text/plain',
+      ip,
+      mods.to_json,
+      'rsync')
+    print_good('Saved file to: ' + path)
+    mods
+  end
+
+  def run_host(ip)
+    vprint_status("#{ip}:#{rport}")
+    version, data = rsync('')
+    return if data.blank?
+
+    print_good("#{ip}:#{rport} - #{version.chomp} found")
+
+    report_service(
+      :host => ip,
+      :port => rport,
+      :proto => 'tcp',
+      :name => 'rsync'
     )
+    module_list_format(ip, data)
   end
 end
