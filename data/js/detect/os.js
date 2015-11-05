@@ -343,7 +343,7 @@ os_detect.getVersion = function(){
 			os_name = oses_linux;
 		}
 		// end navigator.oscpu checks
-		else if (typeof ScriptEngineMajorVersion == "function") {
+  } else if (typeof ScriptEngineMajorVersion == "function") {
 		// Then this is IE and we can very reliably detect the OS.
 		// Need to add detection for IE on Mac.  Low priority, since we
 		// don't have any sploits for it yet and it's a very low market
