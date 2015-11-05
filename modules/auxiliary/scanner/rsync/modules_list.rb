@@ -60,11 +60,20 @@ class Metasploit3 < Msf::Auxiliary
   def rsync_requires_auth?(rmodule)
     sock.puts("#{rmodule}\n")
     res = sock.get_once(-1, read_timeout)
-    if res && (res =~ /^#{RSYNC_HEADER} AUTHREQD/)
-      true
+    if res
+      if res =~ /^#{RSYNC_HEADER} AUTHREQD/
+        true
+      elsif res =~ /^#{RSYNC_HEADER} OK/
+        false
+      else
+        vprint_error("#{peer} - unexpected response when connecting to #{rmodule}: #{res}")
+        'unknown'
+      end
     else
-      false
+      vprint_error("#{peer} - no response when connecting to #{rmodule}")
+      'unknown'
     end
+
   end
 
   def rsync_list
