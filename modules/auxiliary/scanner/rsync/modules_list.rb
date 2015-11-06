@@ -45,6 +45,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptBool.new('SHOW_MOTD',
                     [ true, 'Show the rsync motd, if found', false ]),
+        OptBool.new('SHOW_VERSION',
+                    [ true, 'Show the rsync version', false ]),
         OptInt.new('READ_TIMEOUT', [ true, 'Seconds to wait while reading rsync responses', 2 ])
       ]
     )
@@ -166,6 +168,7 @@ class Metasploit3 < Msf::Auxiliary
       name: 'rsync',
       info: info
     )
+    print_status("#{peer} - rsync version: #{version}") if datastore['SHOW_VERSION']
     print_status("#{peer} - rsync MOTD: #{motd}") if motd && datastore['SHOW_MOTD']
 
     modules_metadata = {}
@@ -179,10 +182,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if modules_metadata.empty?
-      print_status("#{peer} - rsync #{version}: no modules found")
+      print_status("#{peer} - no rsync modules found")
     else
       modules = modules_metadata.map { |m| m[:name] }
-      print_good("#{peer} - rsync #{version}: #{modules.size} modules found: #{modules.join(', ')}")
+      print_good("#{peer} - #{modules.size} rsync modules found: #{modules.join(', ')}")
 
       table_columns = %w(Name Comment)
       if datastore['TEST_AUTHENTICATION']
