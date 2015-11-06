@@ -58,23 +58,22 @@ class Metasploit3 < Msf::Auxiliary
     datastore['READ_TIMEOUT']
   end
 
-  def rsync_requires_auth?(rmodule)
+  def get_rsync_auth_state(rmodule)
     sock.puts("#{rmodule}\n")
     res = sock.get_once(-1, read_timeout)
     if res
       if res =~ /^#{RSYNC_HEADER} AUTHREQD/
-        true
+        'required'
       elsif res =~ /^#{RSYNC_HEADER} OK/
-        false
+        'not required'
       else
         vprint_error("#{peer} - unexpected response when connecting to #{rmodule}: #{res}")
-        'unknown'
+        'unexpected response'
       end
     else
       vprint_error("#{peer} - no response when connecting to #{rmodule}")
-      'unknown'
+      'no response'
     end
-
   end
 
   def rsync_list
@@ -176,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
         modules_metadata.each do |module_metadata|
           connect
           rsync_negotiate
-          module_metadata[:authentication?] = rsync_requires_auth?(module_metadata[:name])
+          module_metadata[:authentication?] = get_rsync_auth_state(module_metadata[:name])
           disconnect
         end
       end
