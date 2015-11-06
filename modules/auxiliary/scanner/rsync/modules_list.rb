@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
       name: 'rsync',
       info: info
     )
-    vprint_good("#{peer} - rsync MOTD: #{motd}") if motd && datastore['SHOW_MOTD']
+    print_status("#{peer} - rsync MOTD: #{motd}") if motd && datastore['SHOW_MOTD']
 
     modules_metadata = {}
     begin
