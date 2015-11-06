@@ -23,11 +23,12 @@ class Metasploit3 < Msf::Auxiliary
           sends these Crypto-NAK packets in order to establish an association
           between the target ntpd instance and the attacking client.  The end goal
           is to cause ntpd to declare the legitimate peers "false tickers" and
-          choose the attacking client(s) as the preferred peer(s), allowing
+          choose the attacking clients as the preferred peers, allowing
           these peers to control time.
          ),
         'Author'         =>
           [
+            'Matthew Van Gundy of Cisco ASIG', # vulnerability discovery
             'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
           ],
         'License'        => MSF_LICENSE,
