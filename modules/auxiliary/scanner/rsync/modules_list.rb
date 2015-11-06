@@ -142,10 +142,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    connect
-    version, motd = rsync_negotiate
-    unless version
-      vprint_error("#{peer} - does not appear to be rsync")
+    begin
+      connect
+      version, motd = rsync_negotiate
+      unless version
+        vprint_error("#{peer} - does not appear to be rsync")
+        disconnect
+        return
+      end
+    rescue => e
+      vprint_error("#{peer} - error while connecting and negotiating: #{e}")
       disconnect
       return
     end
@@ -161,8 +167,16 @@ class Metasploit3 < Msf::Auxiliary
     )
     vprint_good("#{peer} - rsync MOTD: #{motd}") if motd && datastore['SHOW_MOTD']
 
-    modules_metadata = rsync_list
-    disconnect
+    modules_metadata = {}
+    begin
+      modules_metadata = rsync_list
+    rescue => e
+      vprint_error("#{peer} -- error while listing modules: #{e}")
+      return
+    ensure
+      disconnect
+    end
+
     if modules_metadata.empty?
       print_status("#{peer} - rsync #{version}: no modules found")
     else
@@ -173,10 +187,15 @@ class Metasploit3 < Msf::Auxiliary
       if datastore['TEST_AUTHENTICATION']
         table_columns << 'Authentication?'
         modules_metadata.each do |module_metadata|
-          connect
-          rsync_negotiate
-          module_metadata[:authentication?] = get_rsync_auth_state(module_metadata[:name])
-          disconnect
+          begin
+            connect
+            rsync_negotiate
+            module_metadata[:authentication?] = get_rsync_auth_state(module_metadata[:name])
+          rescue => e
+            vprint_error("#{peer} - error while testing authentication on #{module_metadata[:name]}: #{e}")
+          ensure
+            disconnect
+          end
         end
       end
 
