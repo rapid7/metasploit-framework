@@ -11,6 +11,10 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   RSYNC_HEADER = '@RSYNCD:'
+  HANDLED_EXCEPTIONS = [
+    Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused,
+    ::Errno::ETIMEDOUT, ::Timeout::Error, ::EOFError
+  ]
 
   def initialize
     super(
@@ -153,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
         disconnect
         return
       end
-    rescue => e
+    rescue *HANDLED_EXCEPTIONS => e
       vprint_error("#{peer} - error while connecting and negotiating: #{e}")
       disconnect
       return
@@ -174,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
     modules_metadata = {}
     begin
       modules_metadata = rsync_list
-    rescue => e
+    rescue *HANDLED_EXCEPTIONS => e
       vprint_error("#{peer} -- error while listing modules: #{e}")
       return
     ensure
@@ -195,8 +199,9 @@ class Metasploit3 < Msf::Auxiliary
             connect
             rsync_negotiate
             module_metadata[:authentication] = get_rsync_auth_status(module_metadata[:name])
-          rescue => e
+          rescue *HANDLED_EXCEPTIONS => e
             vprint_error("#{peer} - error while testing authentication on #{module_metadata[:name]}: #{e}")
+            break
           ensure
             disconnect
           end
