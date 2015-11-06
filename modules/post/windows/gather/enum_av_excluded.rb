@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
 
   end
 
-
   def excluded_list
     if registry_enumkeys("HKLM\\SOFTWARE\\Microsoft").include?("Microsoft Antimalware")
         print_status "MS Security Essentials Identified"
