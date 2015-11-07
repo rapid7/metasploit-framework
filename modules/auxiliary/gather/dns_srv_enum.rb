@@ -1,7 +1,3 @@
-##
-# This module requires Metasploit: http://metasploit.com/download
-# Current source: https://github.com/rapid7/metasploit-framework
-#
 # patch 20150915 by fraf :
 #	- Split record srvrcd one entry by line for readability.
 #	- Add record for Default-First-Site-Name :
