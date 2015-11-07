@@ -1,17 +1,6 @@
-# patch 20150915 by fraf :
-#	- Split record srvrcd one entry by line for readability.
-#	- Add record for Default-First-Site-Name :
-#	(according to https://technet.microsoft.com/en-us/library/cc759550%28v=ws.10%29.aspx)
-#		'_gc._tcp.Default-First-Site-Name._sites.',
-#		'_kerberos._tcp.Default-First-Site-Name._sites.',
-#		'_kerberos.tcp.Default-First-Site-Name._sites.dc._msdcs.',
-#		'_ldap._tcp.Default-First-Site-Name._sites.',
-#		'_ldap._tcp.Default-First-Site-Name._sites.dc._msdcs.',
-#		'_ldap._tcp.Default-First-Site-Name._sites.gc._msdcs.',
-#	- Remove double entry '_kerberos.tcp.dc._msdcs.'
-#	- Add fqdn query in logs.
-#	- Add report_note to store and preserve the fqdn query.
-#
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
