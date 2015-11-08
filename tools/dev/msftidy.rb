@@ -317,6 +317,8 @@ class Msftidy
         next
       end
 
+      # XXX: note that this is all very fragile and regularly incorrectly parses
+      # the author
       #
       # Mark our 'Author' block
       #
@@ -328,10 +330,12 @@ class Msftidy
 
 
       #
-      # While in 'Author' block, check for Twitter handles
+      # While in 'Author' block, check for malformed authors
       #
       if in_super and in_author
-        if line =~ /Author/
+        if line =~ /Author['"]\s*=>\s*['"](.*)['"],/
+          author_name = Regexp.last_match(1)
+        elsif line =~ /Author/
           author_name = line.scan(/\[[[:space:]]*['"](.+)['"]/).flatten[-1] || ''
         else
           author_name = line.scan(/['"](.+)['"]/).flatten[-1] || ''
@@ -343,6 +347,14 @@ class Msftidy
 
         if not author_name.ascii_only?
           error("Please avoid unicode or non-printable characters in Author")
+        end
+
+        unless author_name.empty?
+          author_open_brackets = author_name.scan('<').size
+          author_close_brackets = author_name.scan('>').size
+          if author_open_brackets != author_close_brackets
+            error("Author has unbalanced brackets: #{author_name}")
+          end
         end
       end
     end
