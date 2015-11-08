@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       # store file data to loot
-      loot_file = store_loot("pcman.ftp.data", "text",rhost,response_data, file, file_path)
+      loot_file = store_loot("pcman.ftp.data", "text", rhost, response_data, file, file_path)
       print_status("Stored #{file_path} to #{loot_file}")
 
       # Read and print the data from the loot file.
