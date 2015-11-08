@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'Platform'		 => 'win',
       'Author'		 =>
         [
-          'Jay Turla <@shipcod3>', # msf
+          'Jay Turla <@shipcod3>', # msf and initial discovery
           'James Fitts', # initial discovery
           'Brad Wolfe' # brad.wolfe[at]gmail.com
         ],
