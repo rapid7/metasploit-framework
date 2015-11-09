@@ -12,8 +12,8 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(
               info,
-              'Name'            => 'Massive WordPress bruteforce via XMLRPC',
-              'Description'     => %q{Wordpress massive burteforce attack via wordpress XMLRPC service.},
+              'Name'            => 'WordPress XMLRPC Massive Bruteforce ',
+              'Description'     => %q{Wordpress Massive Burteforce attacks via wordpress XMLRPC service.},
               'License'         => MSF_LICENSE,
               'Author'          =>
                   [
@@ -24,8 +24,7 @@ class Metasploit3 < Msf::Auxiliary
                   [
                       ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/'],
                       ['URL', 'https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html']
-                  ],
-              'DisclosureDate'  => '2015'
+                  ]
           ))
 
     register_options(
