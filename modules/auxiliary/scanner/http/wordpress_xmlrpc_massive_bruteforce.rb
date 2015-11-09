@@ -7,7 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
     super(update_info(
@@ -17,8 +17,8 @@ class Metasploit3 < Msf::Auxiliary
               'License'         => MSF_LICENSE,
               'Author'          =>
                   [
-                      'Sabri (@KINGSABRI)',           # MSF module
-                      'William (WCoppola@Lares.com)'  # Requester
+                      'William (WCoppola@Lares.com)',
+                      'Sabri (@KINGSABRI)'
                   ],
               'References'      =>
                   [
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
             OptPath.new('WPUSER_FILE', [true, 'File containing usernames, one per line',
                                         File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
             OptPath.new('WPPASS_FILE',  [ true, 'File containing passwords, one per line',
-                                        File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")])
+                                          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")])
         ], self.class)
 
 
@@ -56,8 +56,8 @@ class Metasploit3 < Msf::Auxiliary
 
     print_warning('Generating XMLs may take a while depends on the list file(s) size.') if passwords.size > 1500
     xml_payloads = []                          # Container for all generated XMLs
-    xml = ''
-    # Evil XML | Limit number of log-ins to 1500/request for wordpress limitation
+    xml = ""
+    # Evil XML | Limit number of log-ins to 1700/request for wordpress limitation
     passwords.each_slice(1500) do |pass_group|
 
       xml =  "<?xml version=\"1.0\"?>\n"
@@ -113,7 +113,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def parse_response(res)
+
     resp.scan(/Incorrect username or password/)
+
   end
 
   def run
@@ -158,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
             end end
         rescue NoMethodError
           print_error("It seems you got blocked!")
-          print_warning("I'll sleep for 6 minutes then I'll try again. CTR+C to exit")
+          print_warning("I'll sleep for 6 minutes then I'll try  again. CTR+C to exit")
           sleep 6 * 60
           retry
           # return :abort
@@ -168,4 +170,3 @@ class Metasploit3 < Msf::Auxiliary
       end end end
 
 end
-
