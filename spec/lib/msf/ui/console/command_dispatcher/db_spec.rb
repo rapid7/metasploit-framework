@@ -348,6 +348,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "    IP360 ASPL",
           "    IP360 XML v3",
           "    Libpcap Packet Capture",
+	  "    Masscan XML",
           "    Metasploit PWDump Export",
           "    Metasploit XML",
           "    Metasploit Zip Export",

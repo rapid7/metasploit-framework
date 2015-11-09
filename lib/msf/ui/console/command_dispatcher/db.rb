@@ -2,6 +2,7 @@
 
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
+require 'rex/parser/masscan_xml'
 require 'msf/core/db_export'
 
 module Msf
@@ -44,6 +45,7 @@ class Db
       "db_import"     => "Import a scan result file (filetype will be auto-detected)",
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
+      "db_masscan"       => "Executes masscan and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache"
     }
 
@@ -1654,6 +1656,7 @@ class Db
     print_line "    IP360 ASPL"
     print_line "    IP360 XML v3"
     print_line "    Libpcap Packet Capture"
+    print_line "    Masscan XML"
     print_line "    Metasploit PWDump Export"
     print_line "    Metasploit XML"
     print_line "    Metasploit Zip Export"
@@ -1701,7 +1704,7 @@ class Db
         begin
           warnings = 0
           framework.db.import_file(:filename => filename) do |type,data|
-            case type
+	    case type
             when :debug
               print_error("DEBUG: #{data.inspect}")
             when :vuln
@@ -1812,6 +1815,123 @@ class Db
     end
     print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
   }
+  end
+
+  #
+  # Import Masscan data from a file
+  #
+  def cmd_db_masscan(*args)
+
+    print "command_dispatcher/db.rb def cmd_db_masscan\n"
+    return unless active?
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    if (args.length == 0)
+      print_status("Usage: db_masscan [--save | [--help | -h]] [masscan options]")
+      return
+    end
+    arguments = []
+    while (arg = args.shift)
+      case arg
+      when '--save'
+        save = true
+      when '--help', '-h'
+        cmd_db_masscan_help
+        return
+      else
+        arguments << arg
+      end
+    end
+
+    masscan =
+      Rex::FileUtils.find_full_path("masscan") ||
+      Rex::FileUtils.find_full_path("masscan.exe")
+
+    if (not masscan)
+      print_error("The masscan executable could not be found")
+      return
+    end
+
+    fd = Rex::Quickfile.new(['msf-db-masscan-', '.xml'], Msf::Config.local_directory)
+
+    begin
+      # When executing native Masscan in Cygwin, expand the Cygwin path to a Win32 path
+      if(Rex::Compat.is_cygwin and masscan =~ /cygdrive/)
+        # Custom function needed because cygpath breaks on 8.3 dirs
+        tout = Rex::Compat.cygwin_to_win32(fd.path)
+        arguments.push('-oX', tout)
+      else
+        arguments.push('-oX', fd.path)
+      end
+
+      print "inside cmd_db_masscan arguments push\n"
+      begin
+        masscan_pipe = ::Open3::popen3([masscan, 'masscan'], *arguments)
+        temp_masscan_threads = []
+        temp_masscan_threads << framework.threads.spawn("db_masscan-Stdout", false, masscan_pipe[1]) do |np_1|
+          np_1.each_line do |masscan_out|
+            next if masscan_out.strip.empty?
+            print "Masscan #{masscan_out.strip}\n"
+            print_status("Masscan: #{masscan_out.strip}")
+          end
+        end
+        temp_masscan_threads << framework.threads.spawn("db_masscan-Stderr", false, masscan_pipe[2]) do |np_2|
+          np_2.each_line do |masscan_err|
+            next if masscan_err.strip.empty?
+            print_status("Masscan: '#{masscan_err.strip}'")
+          end
+        end
+
+        temp_masscan_threads.map {|t| t.join rescue nil}
+        masscan_pipe.each {|p| p.close rescue nil}
+      rescue ::IOError
+      end
+      framework.db.import_masscan_xml_file(:filename => fd.path)
+
+      print_status("Saved Masscan XML results to #{fd.path}") if save
+    #ensure
+      #fd.close
+      #fd.unlink unless save
+    end
+  }
+  end
+
+  def cmd_db_masscan_help
+    masscan =
+        Rex::FileUtils.find_full_path('masscan') ||
+        Rex::FileUtils.find_full_path('masscan.exe')
+
+    stdout, stderr = Open3.capture3([masscan, 'masscan'], '--help')
+
+    stdout.each_line do |out_line|
+      next if out_line.strip.empty?
+      print_status(out_line.strip)
+    end
+
+    stderr.each_line do |err_line|
+      next if err_line.strip.empty?
+      print_error(err_line.strip)
+    end
+  end
+
+  def cmd_db_masscan_tabs(str, words)
+    masscan =
+        Rex::FileUtils.find_full_path('masscan') ||
+        Rex::FileUtils.find_full_path('masscan.exe')
+
+    stdout, stderr = Open3.capture3([masscan, 'masscan'], '--help')
+    tabs = []
+    stdout.each_line do |out_line|
+      if out_line.strip.starts_with?('-')
+        tabs.push(out_line.strip.split(':').first)
+      end
+    end
+
+    stderr.each_line do |err_line|
+      next if err_line.strip.empty?
+      print_error(err_line.strip)
+    end
+
+    tabs
   end
 
   #
