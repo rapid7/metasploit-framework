@@ -56,8 +56,8 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_warning('Generating XMLs may take a while depends on the list file(s) size.') if passwords.size > 1500
     xml_payloads = []                          # Container for all generated XMLs
-    xml = ""
-    # Evil XML | Limit number of log-ins to 1700/request for wordpress limitation
+
+    # Evil XML | Limit number of log-ins to 1500/request due wordpress limitation
     passwords.each_slice(1500) do |pass_group|
 
       document = Nokogiri::XML::Builder.new do |xml|
@@ -97,7 +97,6 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status('Generating XMLs just done.')
     xml_payloads
   end
-
 
   #
   # Check target status
