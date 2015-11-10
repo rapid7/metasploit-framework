@@ -106,9 +106,7 @@ class Metasploit3 < Msf::Auxiliary
     fail "#{action.name} not defined for #{protocol}" unless action.opts.keys.include?(proto_cmd)
 
     # ensure that the tank number is set for the commands that need it
-    if action.name == 'SET_TANK_NAME'
-      fail "TANK_NUMBER #{tank_number} is invalid" if tank_number < 0 || tank_number > 99
-    end
+    fail "TANK_NUMBER #{tank_number} is invalid" if action.name == 'SET_TANK_NAME' && (tank_number < 0 || tank_number > 99)
   end
 
   def protocol
@@ -133,11 +131,11 @@ class Metasploit3 < Msf::Auxiliary
       case action.name
       when 'SET_TANK_NAME'
         vprint_status("#{peer} -- setting tank ##{tank_number} to #{tank_name}")
-        request = action.opts[protocol + '_CMD'] + "#{'%02d' % tank_number}#{tank_name}\n"
+        request = action.opts[protocol + '_CMD'] + "#{format('%02d', tank_number)}#{tank_name}\n"
         sock.put(request)
         disconnect
         connect
-        sock.put(actions.select { |a| a.name == 'INVENTORY' }.first.opts[protocol + '_CMD'] + "\n")
+        sock.put(actions.find { |a| a.name == 'INVENTORY' }.opts[protocol + '_CMD'] + "\n")
         print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
       else
         request = action.opts[datastore['PROTOCOL'] + '_CMD'] + "\n"
