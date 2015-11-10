@@ -156,11 +156,7 @@ private
     end
 
     # terminate the extensions with a 0 size
-    if is_x86?
-      config << [0].pack('V')
-    else
-      config << [0].pack('Q<')
-    end
+    config << [0].pack('V')
 
     # wire in the extension init data
     (@opts[:ext_init] || '').split(':').each do |cfg|
