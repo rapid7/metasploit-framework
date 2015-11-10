@@ -178,6 +178,9 @@ module Shell
           input.prompt.gsub!(/%J/, framework.jobs.length.to_s)
           input.prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
           input.prompt.gsub!(/%D/, ::Dir.getwd)
+          if framework.db.active
+            input.prompt.gsub!(/%W/, framework.db.workspace.name)
+          end
           self.init_prompt = input.prompt
         end
 

@@ -3,8 +3,7 @@
 # these days. (No SQLite, no MySQL).
 #
 # To set up a metasploit database, follow the directions hosted at:
-# https://fedoraproject.org/wiki/Metasploit_Postgres_Setup (Works on
-# essentially any Linux distro, not just Fedora)
+# http://r-7.co/MSF-DEV#set-up-postgresql
 development: &pgsql
   adapter: postgresql
   database: metasploit_framework_development

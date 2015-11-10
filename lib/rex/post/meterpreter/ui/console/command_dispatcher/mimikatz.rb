@@ -37,7 +37,7 @@ class Console::CommandDispatcher::Mimikatz
   #
   def commands
     {
-      "mimikatz_command" => "Run a custom commannd",
+      "mimikatz_command" => "Run a custom command",
       "wdigest" => "Attempt to retrieve wdigest creds",
       "msv" => "Attempt to retrieve msv creds (hashes)",
       "livessp" => "Attempt to retrieve livessp creds",

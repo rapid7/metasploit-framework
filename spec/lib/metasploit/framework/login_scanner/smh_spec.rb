@@ -55,7 +55,7 @@ describe Metasploit::Framework::LoginScanner::Smh do
       before :each do
         allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
 
-          if req.opts['uri'] && req.opts['uri'].include?('/proxy/ssllogin') &&
+          if req.opts['uri'] &&
               req.opts['vars_post'] &&
               req.opts['vars_post']['user'] &&
               req.opts['vars_post']['user'] == username &&

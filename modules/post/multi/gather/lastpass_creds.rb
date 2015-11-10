@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
         'Author' => [
           'Alberto Garcia Illera <agarciaillera[at]gmail.com>', # original module and research
           'Martin Vigo <martinvigo[at]gmail.com>', # original module and research
-          'Jon Hart <jon_hart[at]rapid7.com' # module rework and cleanup
+          'Jon Hart <jon_hart[at]rapid7.com>' # module rework and cleanup
         ],
         'Platform' => %w(linux osx unix win),
         'References'   => [['URL', 'http://www.martinvigo.com/a-look-into-lastpass/']],

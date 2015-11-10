@@ -9,15 +9,15 @@ require 'rex'
 class Metasploit4 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Kerberos::Client
+  include Msf::Exploit::Remote::Kerberos::Client
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'MS14-068 Microsfot Kerberos Checksum Validation Vulnerability',
+      'Name' => 'MS14-068 Microsoft Kerberos Checksum Validation Vulnerability',
       'Description' => %q{
         This module exploits a vulnerability in the Microsoft Kerberos implementation. The problem
         exists in the verification of the Privilege Attribute Certificate (PAC) from a Kerberos TGS
-        request, where a domain user is allowed to forge a PAC with arbitrary privileges, including
+        request, where a domain user may forge a PAC with arbitrary privileges, including
         Domain Administrator. This module requests a TGT ticket with a forged PAC and exports it to
         a MIT Kerberos Credential Cache file. It can be loaded on Windows systems with the Mimikatz
         help. It has been tested successfully on Windows 2008.

@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Auxiliary
         an arbitrary object instantiation flaw in the XML request processor.
       },
       'Author'      => [
-          'hdm', #author
-          'jjarmoc' #improvements
+          'hdm', # author
+          'jjarmoc' # improvements
           ],
       'License'     => MSF_LICENSE,
       'References'  =>

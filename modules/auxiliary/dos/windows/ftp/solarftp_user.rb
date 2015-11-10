@@ -21,9 +21,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
       [
-        'x000 <3d3n[at]hotmail.com.br>',           #Initial disclosure/exploit
-        'C4SS!0 G0M3S <Louredo_[at]hotmail.com>',  #Metasploit submission
-        'sinn3r',                                  #Metasploit edit/commit
+        'x000 <3d3n[at]hotmail.com.br>',           # Initial disclosure/exploit
+        'C4SS!0 G0M3S <Louredo_[at]hotmail.com>',  # Metasploit submission
+        'sinn3r',                                  # Metasploit edit/commit
       ],
       'License'        => MSF_LICENSE,
       'References'     =>

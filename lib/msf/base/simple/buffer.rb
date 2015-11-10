@@ -25,6 +25,8 @@ module Buffer
       when 'raw'
       when 'num'
         buf = Rex::Text.to_num(buf)
+      when 'hex'
+        buf = Rex::Text.to_hex(buf, '')
       when 'dword', 'dw'
         buf = Rex::Text.to_dword(buf)
       when 'python', 'py'
@@ -65,7 +67,7 @@ module Buffer
   def self.comment(buf, fmt = "ruby")
     case fmt
       when 'raw'
-      when 'num', 'dword', 'dw'
+      when 'num', 'dword', 'dw', 'hex'
         buf = Rex::Text.to_js_comment(buf)
       when 'ruby', 'rb', 'python', 'py'
         buf = Rex::Text.to_ruby_comment(buf)
@@ -98,6 +100,7 @@ module Buffer
       'csharp',
       'dw',
       'dword',
+      'hex',
       'java',
       'js_be',
       'js_le',

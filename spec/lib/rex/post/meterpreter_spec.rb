@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'rex/post/meterpreter'
 
-describe MeterpreterBinaries do
+describe MetasploitPayloads do
   it 'is available' do
-    expect(described_class).to eq(MeterpreterBinaries)
+    expect(described_class).to eq(MetasploitPayloads)
   end
 end

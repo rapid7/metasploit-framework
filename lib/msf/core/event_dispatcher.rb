@@ -179,23 +179,23 @@ class EventDispatcher
       if respond_to?(subscribers, true)
         found = true
         self.send(subscribers).each do |sub|
-          next if not sub.respond_to?(name)
+          next if not sub.respond_to?(name, true)
           sub.send(name, *args)
         end
       else
         (general_event_subscribers + custom_event_subscribers).each do |sub|
-          next if not sub.respond_to?(name)
+          next if not sub.respond_to?(name, true)
           sub.send(name, *args)
           found = true
         end
       end
     when "add"
-      if respond_to?(subscribers)
+      if respond_to?(subscribers, true)
         found = true
         add_event_subscriber(self.send(subscribers), *args)
       end
     when "remove"
-      if respond_to?(subscribers)
+      if respond_to?(subscribers, true)
         found = true
         remove_event_subscriber(self.send(subscribers), *args)
       end

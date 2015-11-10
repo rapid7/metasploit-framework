@@ -24,7 +24,7 @@ module Kernel
     payload = nil
 
     # Generate the recovery stub
-    if opts['Recovery'] and Kernel::Recovery.respond_to?(opts['Recovery'])
+    if opts['Recovery'] and Kernel::Recovery.respond_to?(opts['Recovery'], true)
       opts['RecoveryStub'] = Kernel::Recovery.send(opts['Recovery'], opts)
     end
 
@@ -35,10 +35,10 @@ module Kernel
     end
 
     # Generate the stager
-    if opts['Stager'] and Kernel::Stager.respond_to?(opts['Stager'])
+    if opts['Stager'] and Kernel::Stager.respond_to?(opts['Stager'], true)
       payload = Kernel::Stager.send(opts['Stager'], opts)
     # Or, generate the migrator
-    elsif opts['Migrator'] and Kernel::Migration.respond_to?(opts['Migrator'])
+    elsif opts['Migrator'] and Kernel::Migration.respond_to?(opts['Migrator'], true)
       payload = Kernel::Migration.send(opts['Migrator'], opts)
     else
       raise ArgumentError, "A stager or a migrator must be specified."

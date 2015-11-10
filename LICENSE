@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: http://www.metasploit.com/
 
 Files: *
-Copyright: 2006-2014, Rapid7, Inc.
+Copyright: 2006-2015, Rapid7, Inc.
 License: BSD-3-clause
 
 # The Metasploit Framework is provided under the 3-clause BSD license provided
@@ -31,10 +31,6 @@ Files: external/ruby-kissfft/*
 Copyright: 2003-2010 Mark Borgerding
            2009-2012 H D Moore <hdm[at]rapid7.com>
 License: BSD-3-clause
-
-Files: external/ruby-lorcon/*
-Copyright: 2005, dragorn and Joshua Wright
-License: LGPL-2.1
 
 Files: external/source/exploits/IE11SandboxEscapes/*
 Copyright: James Forshaw, 2014

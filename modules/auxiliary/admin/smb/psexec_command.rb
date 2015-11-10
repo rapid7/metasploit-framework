@@ -7,7 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::SMB::Psexec
+  include Msf::Exploit::Remote::SMB::Client::Psexec
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -99,7 +99,8 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer} - Executing the command...")
     begin
       return psexec(execute)
-    rescue Rex::Proto::SMB::Exceptions::Error => exec_command_error
+    rescue Rex::Proto::DCERPC::Exceptions::Error, Rex::Proto::SMB::Exceptions::Error => exec_command_error
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}", 'rex', LEV_3)
       print_error("#{peer} - Unable to execute specified command: #{exec_command_error}")
       return false
     end
@@ -133,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  #check if our process is done using these files
+  # check if our process is done using these files
   def exclusive_access(*files)
       simple.connect("\\\\#{@ip}\\#{@smbshare}")
       files.each do |file|

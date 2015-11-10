@@ -27,14 +27,15 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode(io)
             self.class_desc = ClassDesc.decode(io, stream)
             stream.add_reference(self) unless stream.nil?
 
-            if class_desc.description.class == NewClassDesc
+            case class_desc.description
+            when NewClassDesc
               self.class_data = decode_class_data(io, class_desc.description)
-            elsif class_desc.description.class == Reference
+            when Reference
               ref = class_desc.description.handle - BASE_WIRE_HANDLE
               self.class_data = decode_class_data(io, stream.references[ref])
             end
@@ -45,17 +46,17 @@ module Rex
           # Serializes the Rex::Java::Serialization::Model::NewObject
           #
           # @return [String] if serialization succeeds
-          # @raise [RuntimeError] if serialization doesn't succeed
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization doesn't succeed
           def encode
-            unless class_desc.class == ClassDesc
-              raise ::RuntimeError, 'Failed to serialize NewObject'
+            unless class_desc.kind_of?(ClassDesc)
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize NewObject'
             end
 
             encoded = ''
             encoded << class_desc.encode
 
             class_data.each do |value|
-              if value.class == Array
+              if value.kind_of?(Array)
                 encoded << encode_value(value)
               else
                 encoded << encode_content(value)
@@ -70,16 +71,22 @@ module Rex
           # @return [String]
           def to_s
             str  = ''
-            if class_desc.description.class == NewClassDesc
+
+            case class_desc.description
+            when NewClassDesc
               str << class_desc.description.class_name.to_s
-            elsif class_desc.description.class == Reference
+            when ProxyClassDesc
+              str << class_desc.description.interfaces.collect { |iface| iface.contents }.join(',')
+            when Reference
               str << (class_desc.description.handle - BASE_WIRE_HANDLE).to_s(16)
             end
 
             str << ' => { '
-            data = class_data.collect { |data| data.to_s }
-            str << data.join(', ')
+            data_str = class_data.collect { |data| data.to_s }
+            str << data_str.join(', ')
             str << ' }'
+
+            str
           end
 
           private
@@ -89,12 +96,17 @@ module Rex
           # @param io [IO] the io to read from
           # @param my_class_desc [Rex::Java::Serialization::Model::NewClassDesc] the class description whose data is being extracted
           # @return [Array] class_data values if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode_class_data(io, my_class_desc)
             values = []
 
             unless my_class_desc.super_class.description.class == NullReference
-              values += decode_class_data(io, my_class_desc.super_class.description)
+              if my_class_desc.super_class.description.class == Reference
+                ref = my_class_desc.super_class.description.handle - BASE_WIRE_HANDLE
+                values += decode_class_data(io, stream.references[ref])
+              else
+                values += decode_class_data(io, my_class_desc.super_class.description)
+              end
             end
 
             values += decode_class_fields(io, my_class_desc)
@@ -107,7 +119,7 @@ module Rex
           # @param io [IO] the io to read from
           # @param my_class_desc [Rex::Java::Serialization::Model::NewClassDesc] the class description whose data is being extracted
           # @return [Array] class_data values if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode_class_fields(io, my_class_desc)
             values = []
 
@@ -128,57 +140,57 @@ module Rex
           # @param io [IO] the io to read from
           # @param type [String] the type of the value to deserialize
           # @return [Array(String, <Fixnum, Float>)] type and value if deserialization succeeds
-          # @raise [RuntimeError] if deserialization fails
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization fails
           def decode_value(io, type)
             value = []
 
             case type
             when 'byte'
               value_raw = io.read(1)
-              raise ::RuntimeError, 'Failed to deserialize NewArray value' if value_raw.nil?
+              raise Rex::Java::Serialization::DecodeError, 'Failed to deserialize NewArray value' if value_raw.nil?
               value.push('byte', value_raw.unpack('c')[0])
             when 'char'
               value_raw = io.read(2)
               unless value_raw && value_raw.length == 2
-                raise ::RuntimeError, 'Failed to deserialize NewArray value'
+                raise Rex::Java::Serialization::DecodeError, 'Failed to deserialize NewArray value'
               end
               value.push('char', value_raw.unpack('s>')[0])
             when 'double'
               value_raw = io.read(8)
               unless value_raw && value_raw.length == 8
-                raise ::RuntimeError, 'Failed to deserialize NewArray value'
+                raise Rex::Java::Serialization::DecodeError, 'Failed to deserialize NewArray value'
               end
               value.push('double', value = value_raw.unpack('G')[0])
             when 'float'
               value_raw = io.read(4)
               unless value_raw && value_raw.length == 4
-                raise ::RuntimeError, 'Failed to deserialize NewArray value'
+                raise Rex::Java::Serialization::DecodeError, 'Failed to deserialize NewArray value'
               end
               value.push('float', value_raw.unpack('g')[0])
             when 'int'
               value_raw = io.read(4)
               unless value_raw && value_raw.length == 4
-                raise ::RuntimeError, 'Failed to deserialize NewArray value'
+                raise Rex::Java::Serialization::DecodeError, 'Failed to deserialize NewArray value'
               end
               value.push('int', value_raw.unpack('l>')[0])
             when 'long'
               value_raw = io.read(8)
               unless value_raw && value_raw.length == 8
-                raise ::RuntimeError, 'Failed to deserialize NewArray value'
+                raise Rex::Java::Serialization::DecodeError, 'Failed to deserialize NewArray value'
               end
               value.push('long', value_raw.unpack('q>')[0])
             when 'short'
               value_raw = io.read(2)
               unless value_raw && value_raw.length == 2
-                raise ::RuntimeError, 'Failed to deserialize NewArray value'
+                raise Rex::Java::Serialization::DecodeError, 'Failed to deserialize NewArray value'
               end
               value.push('short', value_raw.unpack('s>')[0])
             when 'boolean'
               value_raw = io.read(1)
-              raise ::RuntimeError, 'Failed to deserialize NewArray value' if value_raw.nil?
+              raise Rex::Java::Serialization::DecodeError, 'Failed to deserialize NewArray value' if value_raw.nil?
               value.push('boolean', value_raw.unpack('c')[0])
             else
-              raise ::RuntimeError, 'Unsupported NewArray type'
+              raise Rex::Java::Serialization::DecodeError, 'Unsupported NewArray type'
             end
 
             value
@@ -188,7 +200,7 @@ module Rex
           #
           # @param value [Array] the type and value to serialize
           # @return [String] the serialized value
-          # @raise [RuntimeError] if serialization fails
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization fails
           def encode_value(value)
             res = ''
 
@@ -210,7 +222,7 @@ module Rex
             when 'boolean'
               res = [value[1]].pack('c')
             else
-              raise ::RuntimeError, 'Unsupported NewArray type'
+              raise Rex::Java::Serialization::EncodeError, 'Unsupported NewArray type'
             end
 
             res

@@ -9,6 +9,8 @@ require 'msf/core/handler/reverse_tcp'
 # Linux Reverse TCP/IPv6 Stager
 module Metasploit3
 
+  CachedSize = 77
+
   include Msf::Payload::Stager
   include Msf::Payload::Linux
 

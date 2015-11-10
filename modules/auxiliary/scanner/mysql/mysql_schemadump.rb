@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
     return mysql_schema
   end
 
-  #Gets all of the Tables names inside the given Database
+  # Gets all of the Tables names inside the given Database
   def get_tbl_names(dbname)
 
     tables=[]

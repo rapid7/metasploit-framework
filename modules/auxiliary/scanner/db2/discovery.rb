@@ -31,9 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
 
       connect_udp
-
       udp_sock.put(pkt)
-
       res = udp_sock.read(1024).split(/\x00/)
 
       if (res)

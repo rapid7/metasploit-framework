@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def srvqry(dom)
     results = []
-    #Most common SRV Records
+    # Most common SRV Records
     srvrcd = [
       '_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
       '_test._tcp.', '_sips._tcp.', '_sip._udp.', '_sip._tcp.', '_aix._tcp.',

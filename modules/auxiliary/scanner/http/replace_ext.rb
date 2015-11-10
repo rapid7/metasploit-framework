@@ -146,7 +146,6 @@ class Metasploit3 < Msf::Auxiliary
         if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
           if dm == false
             print_status("NOT Found #{wmap_base_url}#{tpath}  #{res.code.to_i}")
-            #blah
           end
         else
           if res.code.to_i == 400  and ecode != 400

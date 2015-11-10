@@ -128,17 +128,17 @@ class Metasploit4 < Msf::Auxiliary
 
     case action.name
     when 'PUT'
-      #Append filename if there isn't one
+      # Append filename if there isn't one
       if path !~ /(.+\.\w+)$/
         path << "#{Rex::Text.rand_text_alpha(5)}.txt"
         vprint_status("No filename specified. Using: #{path}")
       end
 
-      #Upload file
+      # Upload file
       res = do_put(path, data)
       vprint_status("Reply: #{res.code.to_s}") if not res.nil?
 
-      #Check file
+      # Check file
       if not res.nil? and file_exists(path, data)
         turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
         print_good("File uploaded: #{turl}")
@@ -156,7 +156,7 @@ class Metasploit4 < Msf::Auxiliary
       end
 
     when 'DELETE'
-      #Check file before deleting
+      # Check file before deleting
       if path !~ /(.+\.\w+)$/
         print_error("You must supply a filename")
         return
@@ -165,11 +165,11 @@ class Metasploit4 < Msf::Auxiliary
         return
       end
 
-      #Delete our file
+      # Delete our file
       res = do_delete(path)
       vprint_status("Reply: #{res.code.to_s}") if not res.nil?
 
-      #Check if DELETE was successful
+      # Check if DELETE was successful
       if res.nil? or file_exists(path, data)
         print_error("DELETE failed. File is still there.")
       else

@@ -8,7 +8,7 @@ module Msf::DBManager::Ref
     return ret[:ref] if ret[:ref]
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ref = ::Mdm::Ref.find_or_initialize_by_name(opts[:name])
+    ref = ::Mdm::Ref.where(name: opts[:name]).first_or_initialize
     if ref and ref.changed?
       ref.save!
     end

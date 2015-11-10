@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => [
         'Masashi Kikuchi', # Vulnerability discovery
         'Craig Young <CYoung[at]tripwire.com>', # Original Scanner. This module is based on it.
-        'juan vazquez' # Msf module
+        'juan vazquez' # Metasploit module
       ],
       'References'     =>
         [

@@ -473,36 +473,42 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def probe_pkt_snmp1(ip)
-    name = 'public'
-    xid = rand(0x100000000)
-    pdu =
-      "\x02\x01\x00" +
-      "\x04" + [name.length].pack('c') + name +
-      "\xa0\x1c" +
-      "\x02\x04" + [xid].pack('N') +
-      "\x02\x01\x00" +
-      "\x02\x01\x00" +
-      "\x30\x0e\x30\x0c\x06\x08\x2b\x06\x01\x02\x01" +
-      "\x01\x01\x00\x05\x00"
-    head = "\x30" + [pdu.length].pack('C')
-    data = head + pdu
+    version = 1
+    data = OpenSSL::ASN1::Sequence([
+      OpenSSL::ASN1::Integer(version - 1),
+      OpenSSL::ASN1::OctetString("public"),
+      OpenSSL::ASN1::Set.new([
+        OpenSSL::ASN1::Integer(rand(0x80000000)),
+        OpenSSL::ASN1::Integer(0),
+        OpenSSL::ASN1::Integer(0),
+        OpenSSL::ASN1::Sequence([
+          OpenSSL::ASN1::Sequence([
+            OpenSSL::ASN1.ObjectId("1.3.6.1.2.1.1.1.0"),
+            OpenSSL::ASN1.Null(nil)
+          ])
+        ]),
+      ], 0, :IMPLICIT)
+    ]).to_der
     [data, 161]
   end
 
   def probe_pkt_snmp2(ip)
-    name = 'public'
-    xid = rand(0x100000000)
-    pdu =
-      "\x02\x01\x01" +
-      "\x04" + [name.length].pack('c') + name +
-      "\xa1\x19" +
-      "\x02\x04" + [xid].pack('N') +
-      "\x02\x01\x00" +
-      "\x02\x01\x00" +
-      "\x30\x0b\x30\x09\x06\x05\x2b\x06\x01\x02\x01" +
-      "\x05\x00"
-    head = "\x30" + [pdu.length].pack('C')
-    data = head + pdu
+    version = 2
+    data = OpenSSL::ASN1::Sequence([
+      OpenSSL::ASN1::Integer(version - 1),
+      OpenSSL::ASN1::OctetString("public"),
+      OpenSSL::ASN1::Set.new([
+        OpenSSL::ASN1::Integer(rand(0x80000000)),
+        OpenSSL::ASN1::Integer(0),
+        OpenSSL::ASN1::Integer(0),
+        OpenSSL::ASN1::Sequence([
+          OpenSSL::ASN1::Sequence([
+            OpenSSL::ASN1.ObjectId("1.3.6.1.2.1.1.1.0"),
+            OpenSSL::ASN1.Null(nil)
+          ])
+        ]),
+      ], 0, :IMPLICIT)
+    ]).to_der
     [data, 161]
   end
 

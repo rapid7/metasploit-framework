@@ -10,10 +10,10 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
-  include Msf::Exploit::Remote::SMB::LocalPaths
-  include Msf::Exploit::Remote::SMB::RemotePaths
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::SMB::Client::LocalPaths
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 

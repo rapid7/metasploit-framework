@@ -43,7 +43,7 @@ describe Rex::Post::Meterpreter::ClientCore do
     context 'with a missing a module' do
       let(:mod) {"eaten_by_av"}
       it 'should be available' do
-        expect { client_core.use(mod) }.to raise_error(TypeError)
+        expect { client_core.use(mod) }.to raise_error(RuntimeError)
       end
     end
 

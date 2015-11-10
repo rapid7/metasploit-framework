@@ -119,13 +119,13 @@ class Metasploit3 < Msf::Auxiliary
         'Jared Stafford <jspenguin[at]jspenguin.org>', # Original Proof of Concept. This module is based on it.
         'FiloSottile', # PoC site and tool
         'Christian Mehlmauer', # Msf module
-        'wvu', # Msf module
-        'juan vazquez', # Msf module
+        'wvu', # Metasploit module
+        'juan vazquez', # Metasploit module
         'Sebastiano Di Paola', # Msf module
-        'Tom Sellers', # Msf module
-        'jjarmoc', #Msf module; keydump, refactoring..
-        'Ben Buchanan', #Msf module
-        'herself' #Msf module
+        'Tom Sellers', # Metasploit module
+        'jjarmoc', # Metasploit module; keydump, refactoring..
+        'Ben Buchanan', #Metasploit module
+        'herself' #Metasploit module
       ],
       'References'     =>
         [
@@ -216,7 +216,7 @@ class Metasploit3 < Msf::Auxiliary
       when 'KEYS'
         getkeys
       else
-        #Shouldn't get here, since Action is Enum
+        # Shouldn't get here, since Action is Enum
         print_error("Unknown Action: #{action.name}")
     end
 
@@ -693,12 +693,12 @@ class Metasploit3 < Msf::Auxiliary
       ssl_type = ssl_unpacked[0]
       ssl_version = ssl_unpacked[1]
       ssl_len = ssl_unpacked[2]
-      vprint_debug("SSL record ##{ssl_record_counter}:")
-      vprint_debug("\tType:    #{ssl_type}")
-      vprint_debug("\tVersion: 0x#{ssl_version}")
-      vprint_debug("\tLength:  #{ssl_len}")
+      vprint_status("SSL record ##{ssl_record_counter}:")
+      vprint_status("\tType:    #{ssl_type}")
+      vprint_status("\tVersion: 0x#{ssl_version}")
+      vprint_status("\tLength:  #{ssl_len}")
       if ssl_type != HANDSHAKE_RECORD_TYPE
-        vprint_debug("\tWrong Record Type! (#{ssl_type})")
+        vprint_status("\tWrong Record Type! (#{ssl_type})")
       else
         ssl_data = remaining_data[5, ssl_len]
         handshakes = parse_handshakes(ssl_data)
@@ -729,24 +729,24 @@ class Metasploit3 < Msf::Auxiliary
       hs_len = hs_unpacked[2]
       hs_data = remaining_data[4, hs_len]
       handshake_count += 1
-      vprint_debug("\tHandshake ##{handshake_count}:")
-      vprint_debug("\t\tLength: #{hs_len}")
+      vprint_status("\tHandshake ##{handshake_count}:")
+      vprint_status("\t\tLength: #{hs_len}")
 
       handshake_parsed = nil
       case hs_type
         when HANDSHAKE_SERVER_HELLO_TYPE
-          vprint_debug("\t\tType:   Server Hello (#{hs_type})")
+          vprint_status("\t\tType:   Server Hello (#{hs_type})")
           handshake_parsed = parse_server_hello(hs_data)
         when HANDSHAKE_CERTIFICATE_TYPE
-          vprint_debug("\t\tType:   Certificate Data (#{hs_type})")
+          vprint_status("\t\tType:   Certificate Data (#{hs_type})")
           handshake_parsed = parse_certificate_data(hs_data)
         when HANDSHAKE_KEY_EXCHANGE_TYPE
-          vprint_debug("\t\tType:   Server Key Exchange (#{hs_type})")
+          vprint_status("\t\tType:   Server Key Exchange (#{hs_type})")
           # handshake_parsed = parse_server_key_exchange(hs_data)
         when HANDSHAKE_SERVER_HELLO_DONE_TYPE
-          vprint_debug("\t\tType:   Server Hello Done (#{hs_type})")
+          vprint_status("\t\tType:   Server Hello Done (#{hs_type})")
         else
-          vprint_debug("\t\tType:   Handshake type #{hs_type} not implemented")
+          vprint_status("\t\tType:   Handshake type #{hs_type} not implemented")
       end
 
       handshakes << {
@@ -763,13 +763,13 @@ class Metasploit3 < Msf::Auxiliary
   # Parse Server Hello message
   def parse_server_hello(data)
     version = data.unpack('H4')[0]
-    vprint_debug("\t\tServer Hello Version:           0x#{version}")
+    vprint_status("\t\tServer Hello Version:           0x#{version}")
     random = data[2,32].unpack('H*')[0]
-    vprint_debug("\t\tServer Hello random data:       #{random}")
+    vprint_status("\t\tServer Hello random data:       #{random}")
     session_id_length = data[34,1].unpack('C')[0]
-    vprint_debug("\t\tServer Hello Session ID length: #{session_id_length}")
+    vprint_status("\t\tServer Hello Session ID length: #{session_id_length}")
     session_id = data[35,session_id_length].unpack('H*')[0]
-    vprint_debug("\t\tServer Hello Session ID:        #{session_id}")
+    vprint_status("\t\tServer Hello Session ID:        #{session_id}")
     # TODO Read the rest of the server hello (respect message length)
 
     # TODO: return hash with data
@@ -782,8 +782,8 @@ class Metasploit3 < Msf::Auxiliary
     unpacked = data.unpack('Cn')
     cert_len_padding = unpacked[0]
     cert_len = unpacked[1]
-    vprint_debug("\t\tCertificates length: #{cert_len}")
-    vprint_debug("\t\tData length: #{data.length}")
+    vprint_status("\t\tCertificates length: #{cert_len}")
+    vprint_status("\t\tData length: #{data.length}")
     # contains multiple certs
     already_read = 3
     cert_counter = 0
@@ -793,14 +793,14 @@ class Metasploit3 < Msf::Auxiliary
       single_cert_unpacked = data[already_read, 3].unpack('Cn')
       single_cert_len_padding = single_cert_unpacked[0]
       single_cert_len =  single_cert_unpacked[1]
-      vprint_debug("\t\tCertificate ##{cert_counter}:")
-      vprint_debug("\t\t\tCertificate ##{cert_counter}: Length: #{single_cert_len}")
+      vprint_status("\t\tCertificate ##{cert_counter}:")
+      vprint_status("\t\t\tCertificate ##{cert_counter}: Length: #{single_cert_len}")
       certificate_data = data[(already_read + 3), single_cert_len]
       cert = OpenSSL::X509::Certificate.new(certificate_data)
       # First received certificate is the one from the server
       @cert = cert if @cert.nil?
-      #vprint_debug("Got certificate: #{cert.to_text}")
-      vprint_debug("\t\t\tCertificate ##{cert_counter}: #{cert.inspect}")
+      #vprint_status("Got certificate: #{cert.to_text}")
+      vprint_status("\t\t\tCertificate ##{cert_counter}: #{cert.inspect}")
       already_read = already_read + single_cert_len + 3
     end
 

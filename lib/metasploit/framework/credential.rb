@@ -51,7 +51,7 @@ module Metasploit
       # These values should be #demodularized from subclasses of
       # `Metasploit::Credential::Private`
       validates :private_type,
-        inclusion: { in: [ :password, :ntlm_hash, :ssh_key ] },
+        inclusion: { in: [ :password, :ntlm_hash, :postgres_md5, :ssh_key ] },
         if: "private_type.present?"
 
       # If we have no private we MUST have a public
@@ -75,8 +75,10 @@ module Metasploit
       def to_s
         if realm && realm_key == Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
           "#{self.realm}\\#{self.public}:#{self.private}"
-        else
+        elsif self.private
           "#{self.public}:#{self.private}#{at_realm}"
+        else
+          self.public
         end
       end
 

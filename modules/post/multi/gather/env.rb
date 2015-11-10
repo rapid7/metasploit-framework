@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
       @ltype = "unix.environment"
       cmd = "env"
     end
-    @output = session.shell_command_token(cmd)
+    @output = cmd_exec(cmd)
   end
 
   def get_env_meterpreter

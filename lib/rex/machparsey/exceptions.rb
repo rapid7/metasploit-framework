@@ -18,9 +18,6 @@ end
 class BoundsError < MachError
 end
 
-#class WtfError < MachError
-#end
-
 class FatError < ::RuntimeError
 end
 

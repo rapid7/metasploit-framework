@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       tpath += '/'
     end
 
-    #load the file with filenames into memory
+    # load the file with filenames into memory
     queue = []
     File.open(datastore['FILEPATH'], 'rb').each_line do |fn|
       queue << fn.strip

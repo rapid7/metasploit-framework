@@ -31,7 +31,12 @@ module Metasploit
           rescue Rex::ConnectionError, EOFError, Timeout::Error
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           else
-            success = login(credential.public, credential.private)
+            begin
+              success = login(credential.public, credential.private)
+            rescue RuntimeError => e
+              return {:status => Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, :proof => e.message}
+            end
+
             status = (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
           end
 

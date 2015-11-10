@@ -27,8 +27,8 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'blkhtc0rp',  #Original
-          'sinn3r'
+          'blkhtc0rp', #Original
+          'sinn3r' #Metasploit module
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Oct 19 2012"

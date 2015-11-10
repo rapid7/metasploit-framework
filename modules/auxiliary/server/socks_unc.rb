@@ -47,16 +47,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_client_connect(client)
-#		print_status("New connection from #{client.peerhost}:#{client.peerport}")
+    #print_status("New connection from #{client.peerhost}:#{client.peerport}")
   end
 
   def on_client_data(client)
-#		print_status("Data from #{client.peerhost}:#{client.peerport}")
+    #print_status("Data from #{client.peerhost}:#{client.peerport}")
     process_socks(client)
   end
 
   def on_client_close(client)
-#		print_status("Closed connection from #{client.peerhost}:#{client.peerport}")
+    #print_status("Closed connection from #{client.peerhost}:#{client.peerport}")
   end
 
   def run

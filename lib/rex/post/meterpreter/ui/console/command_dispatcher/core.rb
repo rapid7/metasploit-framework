@@ -29,7 +29,13 @@ class Console::CommandDispatcher::Core
     self.bgjobs     = []
     self.bgjob_id   = 0
 
+    # keep a lookup table to refer to transports by index
+    @transport_map = {}
   end
+
+  @@irb_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                  ],
+    "-e" => [ true,  "Expression to evaluate."       ])
 
   @@load_opts = Rex::Parser::Arguments.new(
     "-l" => [ false, "List all available extensions" ],
@@ -50,12 +56,16 @@ class Console::CommandDispatcher::Core
       "irb"        => "Drop into irb scripting mode",
       "use"        => "Deprecated alias for 'load'",
       "load"       => "Load one or more meterpreter extensions",
+      "machine_id" => "Get the MSF ID of the machine attached to the session",
       "quit"       => "Terminate the meterpreter session",
       "resource"   => "Run the commands stored in a file",
+      "uuid"       => "Get the UUID for the current session",
       "read"       => "Reads data from a channel",
       "run"        => "Executes a meterpreter script or Post module",
       "bgrun"      => "Executes a meterpreter script as a background thread",
       "bgkill"     => "Kills a background meterpreter script",
+      "get_timeouts" => "Get the current session timeout values",
+      "set_timeouts" => "Set the current session timeout values",
       "bglist"     => "Lists running background scripts",
       "write"      => "Writes data to a channel",
       "enable_unicode_encoding"  => "Enables encoding of unicode strings",
@@ -65,12 +75,27 @@ class Console::CommandDispatcher::Core
     if client.passive_service
       c["detach"] = "Detach the meterpreter session (for http/https)"
     end
-    # The only meterp that implements this right now is native Windows and for
-    # whatever reason it is not adding core_migrate to its list of commands.
-    # Use a dumb platform til it gets sorted.
-    #if client.commands.include? "core_migrate"
+
+    # Currently we have some windows-specific core commands`
     if client.platform =~ /win/
+      # only support the SSL switching for HTTPS
+      if client.passive_service && client.sock.type? == 'tcp-ssl'
+        c["ssl_verify"] = "Modify the SSL certificate verification setting"
+      end
+    end
+
+    if client.platform =~ /win/ || client.platform =~ /linux/
+      # Migration only supported on windows and linux
       c["migrate"] = "Migrate the server to another process"
+    end
+
+    if client.platform =~ /win/ || client.platform =~ /linux/ || client.platform =~ /python/ || client.platform =~ /java/
+      # Yet to implement transport hopping for other meterpreters.
+      c["transport"] = "Change the current transport mechanism"
+
+      # sleep functionality relies on the transport features, so only
+      # wire that in with the transport stuff.
+      c["sleep"] = "Force Meterpreter to go quiet, then re-establish session."
     end
 
     if (msf_loaded?)
@@ -270,10 +295,6 @@ class Console::CommandDispatcher::Core
   # Disconnects the session
   #
   def cmd_detach(*args)
-    if not client.passive_service
-      print_error("Detach is only possible for non-stream sessions (http/https)")
-      return
-    end
     client.shutdown_passive_dispatcher
     shell.stop
   end
@@ -308,41 +329,541 @@ class Console::CommandDispatcher::Core
 
   alias cmd_interact_tabs cmd_close_tabs
 
+  def cmd_irb_help
+    print_line "Usage: irb"
+    print_line
+    print_line "Execute commands in a Ruby environment"
+    print @@irb_opts.usage
+  end
+
   #
   # Runs the IRB scripting shell
   #
   def cmd_irb(*args)
-    print_status("Starting IRB shell")
-    print_status("The 'client' variable holds the meterpreter client\n")
+    expressions = []
+
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        return cmd_irb_help
+      end
+    end
 
     session = client
     framework = client.framework
-    Rex::Ui::Text::IrbShell.new(binding).run
+
+    if expressions.empty?
+      print_status("Starting IRB shell")
+      print_status("The 'client' variable holds the meterpreter client\n")
+
+      Rex::Ui::Text::IrbShell.new(binding).run
+    else
+      expressions.each { |expression| eval(expression, binding) }
+    end
   end
 
-  def cmd_migrate_help
-    print_line "Usage: migrate <pid>"
+  @@set_timeouts_opts = Rex::Parser::Arguments.new(
+    '-c' => [ true,  'Comms timeout (seconds)' ],
+    '-x' => [ true,  'Expiration timout (seconds)' ],
+    '-t' => [ true,  'Retry total time (seconds)' ],
+    '-w' => [ true,  'Retry wait time (seconds)' ],
+    '-h' => [ false, 'Help menu' ])
+
+  def cmd_set_timeouts_help
+    print_line('Usage: set_timeouts [options]')
     print_line
-    print_line "Migrates the server instance to another process."
-    print_line "NOTE: Any open channels or other dynamic state will be lost."
+    print_line('Set the current timeout options.')
+    print_line('Any or all of these can be set at once.')
+    print_line(@@set_timeouts_opts.usage)
+  end
+
+  def cmd_set_timeouts(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      cmd_set_timeouts_help
+      return
+    end
+
+    opts = {}
+
+    @@set_timeouts_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-c'
+        opts[:comm_timeout] = val.to_i if val
+      when '-x'
+        opts[:session_exp] = val.to_i if val
+      when '-t'
+        opts[:retry_total] = val.to_i if val
+      when '-w'
+        opts[:retry_wait] = val.to_i if val
+      end
+    end
+
+    if opts.keys.length == 0
+      print_error("No options set")
+    else
+      timeouts = client.core.set_transport_timeouts(opts)
+      print_timeouts(timeouts)
+    end
+  end
+
+  def cmd_get_timeouts(*args)
+    # Calling set without passing values is the same as
+    # getting all the current timeouts
+    timeouts = client.core.set_transport_timeouts
+    print_timeouts(timeouts)
+  end
+
+  def print_timeouts(timeouts)
+    if timeouts[:session_exp]
+      print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
+    end
+    if timeouts[:comm_timeout]
+      print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")
+    end
+    if timeouts[:retry_total]
+      print_line("Retry Total Time: #{timeouts[:retry_total]} seconds")
+    end
+    if timeouts[:retry_wait]
+      print_line("Retry Wait Time : #{timeouts[:retry_wait]} seconds")
+    end
+  end
+
+  #
+  # Get the machine ID of the target
+  #
+  def cmd_machine_id(*args)
+    client.machine_id = client.core.machine_id unless client.machine_id
+    print_good("Machine ID: #{client.machine_id}")
+  end
+
+  #
+  # Get the machine ID of the target
+  #
+  def cmd_uuid(*args)
+    client.payload_uuid = client.core.uuid unless client.payload_uuid
+    print_good("UUID: #{client.payload_uuid}")
+  end
+
+  #
+  # Arguments for ssl verification
+  #
+  @@ssl_verify_opts = Rex::Parser::Arguments.new(
+    '-e' => [ false, 'Enable SSL certificate verification' ],
+    '-d' => [ false, 'Disable SSL certificate verification' ],
+    '-q' => [ false, 'Query the statis of SSL certificate verification' ],
+    '-h' => [ false, 'Help menu' ])
+
+  #
+  # Help for ssl verification
+  #
+  def cmd_ssl_verify_help
+    print_line('Usage: ssl_verify [options]')
+    print_line
+    print_line('Change and query the current setting for SSL verification')
+    print_line('Only one of the following options can be used at a time')
+    print_line(@@ssl_verify_opts.usage)
+  end
+
+  #
+  # Handle the SSL verification querying and setting function.
+  #
+  def cmd_ssl_verify(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      cmd_ssl_verify_help
+      return
+    end
+
+    query = false
+    enable = false
+    disable = false
+
+    settings = 0
+
+    @@ssl_verify_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-q'
+        query = true
+        settings += 1
+      when '-e'
+        enable = true
+        settings += 1
+      when '-d'
+        disable = true
+        settings += 1
+      end
+    end
+
+    # Make sure only one action has been chosen
+    if settings != 1
+      cmd_ssl_verify_help
+      return
+    end
+
+    if query
+      hash = client.core.get_ssl_hash_verify
+      if hash
+        print_good("SSL verification is enabled. SHA1 Hash: #{hash.unpack("H*")[0]}")
+      else
+        print_good("SSL verification is disabled.")
+      end
+
+    elsif enable
+      hash = client.core.enable_ssl_hash_verify
+      if hash
+        print_good("SSL verification has been enabled. SHA1 Hash: #{hash.unpack("H*")[0]}")
+      else
+        print_error("Failed to enable SSL verification")
+      end
+
+    else
+      if client.core.disable_ssl_hash_verify
+        print_good('SSL verification has been disabled')
+      else
+        print_error("Failed to disable SSL verification")
+      end
+    end
+
+  end
+
+  #
+  # Display help for the sleep.
+  #
+  def cmd_sleep_help
+    print_line('Usage: sleep <time>')
+    print_line
+    print_line('  time: Number of seconds to wait (positive integer)')
+    print_line
+    print_line('  This command tells Meterpreter to go to sleep for the specified')
+    print_line('  number of seconds. Sleeping will result in the transport being')
+    print_line('  shut down and restarted after the designated timeout.')
+  end
+
+  #
+  # Handle the sleep command.
+  #
+  def cmd_sleep(*args)
+    if args.length == 0
+      cmd_sleep_help
+      return
+    end
+
+    seconds = args.shift.to_i
+
+    if seconds <= 0
+      cmd_sleep_help
+      return
+    end
+
+    print_status("Telling the target instance to sleep for #{seconds} seconds ...")
+    if client.core.transport_sleep(seconds)
+      print_good("Target instance has gone to sleep, terminating current session.")
+      client.shutdown_passive_dispatcher
+      shell.stop
+    else
+      print_error("Target instance failed to go to sleep.")
+    end
+  end
+
+  #
+  # Arguments for transport switching
+  #
+  @@transport_opts = Rex::Parser::Arguments.new(
+    '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
+    '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
+    '-p'  => [ true,  'LPORT parameter' ],
+    '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
+    '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
+    '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
+    '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
+    '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
+    '-pu' => [ true,  'Proxy username for HTTP/S transports (optional)' ],
+    '-ps' => [ true,  'Proxy password for HTTP/S transports (optional)' ],
+    '-pt' => [ true,  'Proxy type for HTTP/S transports (optional: http, socks; default: http)' ],
+    '-c'  => [ true,  'SSL certificate path for https transport verification (optional)' ],
+    '-to' => [ true,  'Comms timeout (seconds) (default: same as current session)' ],
+    '-ex' => [ true,  'Expiration timout (seconds) (default: same as current session)' ],
+    '-rt' => [ true,  'Retry total time (seconds) (default: same as current session)' ],
+    '-rw' => [ true,  'Retry wait time (seconds) (default: same as current session)' ],
+    '-v'  => [ false, 'Show the verbose format of the transport list' ],
+    '-h'  => [ false, 'Help menu' ])
+
+  #
+  # Display help for transport management.
+  #
+  def cmd_transport_help
+    print_line('Usage: transport <list|change|add|next|prev|remove> [options]')
+    print_line
+    print_line('   list: list the currently active transports.')
+    print_line('    add: add a new transport to the transport list.')
+    print_line(' change: same as add, but changes directly to the added entry.')
+    print_line('   next: jump to the next transport in the list (no options).')
+    print_line('   prev: jump to the previous transport in the list (no options).')
+    print_line(' remove: remove an existing, non-active transport.')
+    print_line(@@transport_opts.usage)
+  end
+
+  def update_transport_map
+    result = client.core.transport_list
+    @transport_map.clear
+    sorted_by_url = result[:transports].sort_by { |k| k[:url] }
+    sorted_by_url.each_with_index { |t, i| @transport_map[i+1] = t }
+  end
+
+  #
+  # Manage transports
+  #
+  def cmd_transport(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      cmd_transport_help
+      return
+    end
+
+    command = args.shift
+    unless ['list', 'add', 'change', 'prev', 'next', 'remove'].include?(command)
+      cmd_transport_help
+      return
+    end
+
+    opts = {
+      :uuid          => client.payload_uuid,
+      :transport     => nil,
+      :lhost         => nil,
+      :lport         => nil,
+      :uri           => nil,
+      :ua            => nil,
+      :proxy_host    => nil,
+      :proxy_port    => nil,
+      :proxy_type    => nil,
+      :proxy_user    => nil,
+      :proxy_pass    => nil,
+      :comm_timeout  => nil,
+      :session_exp   => nil,
+      :retry_total   => nil,
+      :retry_wait    => nil,
+      :cert          => nil,
+      :verbose       => false
+    }
+
+    valid = true
+    transport_index = 0
+    @@transport_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-c'
+        opts[:cert] = val
+      when '-u'
+        opts[:uri] = val
+      when '-i'
+        transport_index = val.to_i
+      when '-ph'
+        opts[:proxy_host] = val
+      when '-pp'
+        opts[:proxy_port] = val.to_i
+      when '-pt'
+        opts[:proxy_type] = val
+      when '-pu'
+        opts[:proxy_user] = val
+      when '-ps'
+        opts[:proxy_pass] = val
+      when '-ua'
+        opts[:ua] = val
+      when '-to'
+        opts[:comm_timeout] = val.to_i if val
+      when '-ex'
+        opts[:session_exp] = val.to_i if val
+      when '-rt'
+        opts[:retry_total] = val.to_i if val
+      when '-rw'
+        opts[:retry_wait] = val.to_i if val
+      when '-p'
+        opts[:lport] = val.to_i if val
+      when '-l'
+        opts[:lhost] = val
+      when '-v'
+        opts[:verbose] = true
+      when '-t'
+        unless client.core.valid_transport?(val)
+          cmd_transport_help
+          return
+        end
+        opts[:transport] = val
+      else
+        valid = false
+      end
+    end
+
+    unless valid
+      cmd_transport_help
+      return
+    end
+
+    update_transport_map
+
+    case command
+    when 'list'
+      result = client.core.transport_list
+
+      current_transport_url = result[:transports].first[:url]
+
+      sorted_by_url = result[:transports].sort_by { |k| k[:url] }
+
+      # this will output the session timeout first
+      print_timeouts(result)
+
+      columns =[
+        'ID',
+        'Curr',
+        'URL',
+        'Comms T/O',
+        'Retry Total',
+        'Retry Wait'
+      ]
+
+      if opts[:verbose]
+        columns << 'User Agent'
+        columns << 'Proxy Host'
+        columns << 'Proxy User'
+        columns << 'Proxy Pass'
+        columns << 'Cert Hash'
+      end
+
+      # next draw up a table of transport entries
+      tbl = Rex::Ui::Text::Table.new(
+        'SortIndex' => 0, # sort by ID
+        'Indent'    => 4,
+        'Columns'   => columns)
+
+      sorted_by_url.each_with_index do |t, i|
+        entry = [ i+1, (current_transport_url == t[:url]) ? '*' : '', t[:url],
+                  t[:comm_timeout], t[:retry_total], t[:retry_wait] ]
+
+        if opts[:verbose]
+          entry << t[:ua]
+          entry << t[:proxy_host]
+          entry << t[:proxy_user]
+          entry << t[:proxy_pass]
+          entry << (t[:cert_hash] || '').unpack("H*")[0]
+        end
+
+        tbl << entry
+      end
+
+      print("\n" + tbl.to_s + "\n")
+    when 'next'
+      print_status("Changing to next transport ...")
+      if client.core.transport_next
+        print_good("Successfully changed to the next transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'prev'
+      print_status("Changing to previous transport ...")
+      if client.core.transport_prev
+        print_good("Successfully changed to the previous transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'change'
+      print_status("Changing to new transport ...")
+      if client.core.transport_change(opts)
+        print_good("Successfully added #{opts[:transport]} transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'add'
+      print_status("Adding new transport ...")
+      if client.core.transport_add(opts)
+        print_good("Successfully added #{opts[:transport]} transport.")
+      else
+        print_error("Failed to add transport, please check the parameters")
+      end
+    when 'remove'
+      if opts[:transport] && !opts[:transport].end_with?('_tcp') && opts[:uri].nil?
+        print_error("HTTP/S transport specified without session URI")
+        return
+      end
+
+      if !transport_index.zero? && @transport_map.has_key?(transport_index)
+        # validate the URL
+        url_to_delete = @transport_map[transport_index][:url]
+        begin
+          uri = URI.parse(url_to_delete)
+          opts[:transport] = "reverse_#{uri.scheme}"
+          opts[:lhost]     = uri.host
+          opts[:lport]     = uri.port
+          opts[:uri]       = uri.path[1..-2] if uri.scheme.include?("http")
+
+        rescue URI::InvalidURIError
+          print_error("Failed to parse URL: #{url_to_delete}")
+          return
+        end
+      end
+
+      print_status("Removing transport ...")
+      if client.core.transport_remove(opts)
+        print_good("Successfully removed #{opts[:transport]} transport.")
+      else
+        print_error("Failed to remove transport, please check the parameters")
+      end
+    end
+  end
+
+  @@migrate_opts = Rex::Parser::Arguments.new(
+    '-p'  => [true,  'Writable path - Linux only (eg. /tmp).'],
+    '-t'  => [true,  'The number of seconds to wait for migration to finish (default: 60).'],
+    '-h'  => [false, 'Help menu.']
+  )
+
+  def cmd_migrate_help
+    if client.platform =~ /linux/
+      print_line('Usage: migrate <pid> [-p writable_path] [-t timeout]')
+    else
+      print_line('Usage: migrate <pid> [-t timeout]')
+    end
+    print_line
+    print_line('Migrates the server instance to another process.')
+    print_line('NOTE: Any open channels or other dynamic state will be lost.')
     print_line
   end
 
   #
   # Migrates the server to the supplied process identifier.
   #
-  # @param args [Array<String>] Commandline arguments, only -h or a pid
+  # @param args [Array<String>] Commandline arguments, -h or a pid. On linux
+  #   platforms a path for the unix domain socket used for IPC.
   # @return [void]
   def cmd_migrate(*args)
-    if ( args.length == 0 or args.include?("-h") )
+    if args.length == 0 || args.include?('-h')
       cmd_migrate_help
       return true
     end
 
     pid = args[0].to_i
-    if(pid == 0)
-      print_error("A process ID must be specified, not a process name")
+    if pid == 0
+      print_error('A process ID must be specified, not a process name')
       return
+    end
+
+    writable_dir = nil
+    opts = {
+      timeout: nil
+    }
+
+    @@transport_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-t'
+        opts[:timeout] = val.to_i
+      when '-p'
+        writable_dir = val
+      end
     end
 
     begin
@@ -364,7 +885,7 @@ class Console::CommandDispatcher::Core
       service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
         next unless opts['MeterpreterRelay']
         if existing_relays.empty?
-          print_status("Removing existing TCP relays...")
+          print_status('Removing existing TCP relays...')
         end
         if (service.stop_tcp_relay(lport, lhost))
           print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
@@ -385,12 +906,15 @@ class Console::CommandDispatcher::Core
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
     # Do this thang.
-    client.core.migrate(pid)
+    client.core.migrate(pid, writable_dir, opts)
 
-    print_status("Migration completed successfully.")
+    print_status('Migration completed successfully.')
+
+    # Update session info (we may have a new username)
+    client.update_session_info
 
     unless existing_relays.empty?
-      print_status("Recreating TCP relay(s)...")
+      print_status('Recreating TCP relay(s)...')
       existing_relays.each do |r|
         client.pfservice.start_tcp_relay(r[:lport], r[:opts])
         print_status("Local TCP relay recreated: #{r[:opts]['LocalHost'] || '0.0.0.0'}:#{r[:lport]} <-> #{r[:opts]['PeerHost']}:#{r[:opts]['PeerPort']}")
@@ -418,8 +942,8 @@ class Console::CommandDispatcher::Core
       case opt
       when "-l"
         exts = SortedSet.new
-        msf_path = MeterpreterBinaries.metasploit_data_dir
-        gem_path = MeterpreterBinaries.local_dir
+        msf_path = MetasploitPayloads.msf_meterpreter_dir
+        gem_path = MetasploitPayloads.local_meterpreter_dir
         [msf_path, gem_path].each do |path|
           ::Dir.entries(path).each { |f|
             if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
@@ -466,8 +990,8 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
-    msf_path = MeterpreterBinaries.metasploit_data_dir
-    gem_path = MeterpreterBinaries.local_dir
+    msf_path = MetasploitPayloads.msf_meterpreter_dir
+    gem_path = MetasploitPayloads.local_meterpreter_dir
     [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )

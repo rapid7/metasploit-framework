@@ -7,7 +7,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB::Psexec
+  include Msf::Exploit::Remote::SMB::Client::Psexec
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
     smbshare = datastore['SMBSHARE']
 
-    #Try and authenticate with given credentials
+    # Try and authenticate with given credentials
     begin
       connect
       smb_login

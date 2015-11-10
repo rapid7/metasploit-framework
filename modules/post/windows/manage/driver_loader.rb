@@ -56,9 +56,9 @@ class Metasploit3 < Msf::Post
 
   def run
     driver = datastore['DRIVER_PATH']
-    start = datastore['START_TYPE']
-    error = datastore['ERROR_TYPE']
-    service = datastore['SERVICE_TYPE']
+    start = START_TYPE[datastore['START_TYPE']]
+    error = ERROR_TYPE[datastore['ERROR_TYPE']]
+    service = SERVICE_TYPE[datastore['SERVICE_TYPE']]
 
     name = datastore['DRIVER_NAME'].blank? ? Rex::Text.rand_text_alpha((rand(8)+6)) : datastore['DRIVER_NAME']
 
@@ -77,9 +77,9 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    inst = install_driver(driver: driver, start: start, name: name, error: error, service: service)
+    inst = install_driver(name, path: driver, starttype: start, error_control: error, service_type: service)
 
-    if inst
+    if inst == Windows::Error::SUCCESS
       ss = service_start(name)
       case ss
       when Windows::Error::SUCCESS
@@ -94,30 +94,19 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def install_driver(opts={})
-    service_all_access = 0xF01FF
-    service_type = SERVICE_TYPE[opts[:service]]
-    service_error_type = ERROR_TYPE[opts[:error]]
-    service_start_type = START_TYPE[opts[:start]]
-    advapi32 = client.railgun.advapi32
-    name = opts[:name]
-    # Default access: sc_manager_all_access (0xF003F)
-    ro = open_sc_manager()
+  def install_driver(name, opts={})
+    rc = service_create(name, opts)
 
-    rc = advapi32.CreateServiceA(ro, name, name, service_all_access, service_type, service_start_type, service_error_type, opts[:driver], nil, nil, nil, nil, nil)
-    close_sc_manager(ro)
-
-    if rc['GetLastError'] == Windows::Error::SUCCESS
+    if rc == Windows::Error::SUCCESS
       print_status("Service object \"#{name}\" added to the Service Control Manager database.")
-      close_sc_manager(rc['return'])
       return true
-    elsif rc['GetLastError'] == Windows::Error::SERVICE_EXISTS
+    elsif rc == Windows::Error::SERVICE_EXISTS
       print_error("The specified service already exists.")
       # Show ImagePath just to know if the service corresponds to the desired driver.
       service = service_info(name)
-      print_error("Path of driver file in \"#{name}\" service: #{service["Command"]}.")
+      print_error("Path of driver file in \"#{name}\" service: #{service[:path]}.")
     else
-      print_error("There was an error opening the driver handler. GetLastError=#{rc['GetLastError']}.")
+      print_error("There was an error opening the driver handler. GetLastError=#{rc}.")
     end
     return false
   end

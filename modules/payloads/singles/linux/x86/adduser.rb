@@ -17,6 +17,8 @@ require 'msf/core'
 ###
 module Metasploit3
 
+  CachedSize = 97
+
   include Msf::Payload::Single
   include Msf::Payload::Linux
 
@@ -42,7 +44,7 @@ module Metasploit3
   #
   # Dynamically builds the adduser payload based on the user's options.
   #
-  def generate_stage
+  def generate_stage(opts={})
     user    = datastore['USER']  || 'metasploit'
     pass    = datastore['PASS']  || 'metasploit'
     shell   = datastore['SHELL'] || '/bin/sh'

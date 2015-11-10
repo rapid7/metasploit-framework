@@ -40,7 +40,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::HTTP' do
     context "without ssl, with non-default port" do
       subject(:http_scanner) { described_class.new(port:0) }
       it "should not set ssl" do
-        expect(http_scanner.ssl).to be_nil
+        expect(http_scanner.ssl).to be_falsey
         expect(http_scanner.port).to eq(0)
       end
     end

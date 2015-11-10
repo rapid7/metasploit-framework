@@ -12,6 +12,12 @@ module Metasploit
         include ActiveModel::Validations
 
         included do
+          # @!attribute framework
+          #   @return [Object] The framework instance object
+          attr_accessor :framework
+          # @!attribute framework_module
+          #   @return [Object] The framework module caller, if availale
+          attr_accessor :framework_module
           # @!attribute connection_timeout
           #   @return [Fixnum] The timeout in seconds for a single SSH connection
           attr_accessor :connection_timeout
@@ -24,6 +30,12 @@ module Metasploit
           # @!attribute port
           #   @return [Fixnum] The port to connect to
           attr_accessor :port
+          # @!attribute host
+          #   @return [String] The local host for outgoing connections
+          attr_accessor :local_host
+          # @!attribute port
+          #   @return [Fixnum] The local port for outgoing connections
+          attr_accessor :local_port
           # @!attribute proxies
           #   @return [String] The proxy directive to use for the socket
           attr_accessor :proxies
@@ -57,8 +69,8 @@ module Metasploit
                     inclusion: { in: [true, false] }
 
           validates :bruteforce_speed,
-                    presence: false,
                     numericality: {
+                      allow_nil: true,
                       only_integer:             true,
                       greater_than_or_equal_to: 0,
                       less_than_or_equal_to:    5
@@ -214,8 +226,8 @@ module Metasploit
 
               if result.success?
                 consecutive_error_count = 0
-                break if stop_on_success
                 successful_users << credential.public
+                break if stop_on_success
               else
                 if result.status == Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
                   consecutive_error_count += 1

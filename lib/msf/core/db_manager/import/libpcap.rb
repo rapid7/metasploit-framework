@@ -8,7 +8,7 @@ module Msf::DBManager::Import::Libpcap
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     # seen_hosts is only used for determining when to yield an address. Once we get
     # some packet analysis going, the values will have all sorts of info. The plan
-    # is to ru through all the packets as a first pass and report host and service,
+    # is to run through all the packets as a first pass and report host and service,
     # then, once we have everything parsed, we can reconstruct sessions and ngrep
     # out things like authentication sequences, examine ttl's and window sizes, all
     # kinds of crazy awesome stuff like that.

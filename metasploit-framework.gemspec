@@ -30,13 +30,10 @@ Gem::Specification.new do |spec|
   spec.bindir = '.'
   spec.executables   = [
       'msfbinscan',
-      'msfcli',
       'msfconsole',
       'msfd',
       'msfelfscan',
-      'msfencode',
       'msfmachscan',
-      'msfpayload',
       'msfpescan',
       'msfrop',
       'msfrpc',
@@ -55,32 +52,35 @@ Gem::Specification.new do |spec|
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
-  spec.add_runtime_dependency 'jsobfu', '~> 0.2.0'
+  spec.add_runtime_dependency 'jsobfu', '~> 0.3.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
+  # Metasm compiler/decompiler/assembler
+  spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern', '~> 0.3.0'
+  spec.add_runtime_dependency 'metasploit-concern', '1.0.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model', '~> 0.28.0'
-  # Needed for Meterpreter on Windows, soon others.
-  spec.add_runtime_dependency 'meterpreter_bins', '0.0.12'
+  spec.add_runtime_dependency 'metasploit-model', '1.0.0'
+  # Needed for Meterpreter
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.16'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
-  spec.add_runtime_dependency 'packetfu', '1.1.9'
+  spec.add_runtime_dependency 'packetfu', '1.1.11'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
-  spec.add_runtime_dependency 'recog', '~> 1.0'
+  spec.add_runtime_dependency 'recog', '2.0.14'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
   unless Gem.win_platform?
     # Command line editing, history, and tab completion in msfconsole
-    spec.add_runtime_dependency 'rb-readline'
+    # Use the Rapid7 fork until the official gem catches up
+    spec.add_runtime_dependency 'rb-readline-r7'
   end
 
   # Needed by anemone crawler
@@ -91,4 +91,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
+  # Needed so that disk size output isn't horrible
+  spec.add_runtime_dependency 'filesize'
 end

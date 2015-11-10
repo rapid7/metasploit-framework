@@ -224,7 +224,7 @@ module Metasploit
           end
 
           # Yield any capture MSSQL Instance names
-          workspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename']).each do |note|
+          workspace.notes.where(['ntype=?', 'mssql.instancename']).each do |note|
             expanded_words(note.data['InstanceName']) do |word|
               yield word
             end

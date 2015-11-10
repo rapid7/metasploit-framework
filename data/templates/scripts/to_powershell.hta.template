@@ -1,0 +1,7 @@
+<script language="VBScript">
+  Set %{var_shell} = CreateObject("Wscript.Shell") 
+  Set %{var_fso} = CreateObject("Scripting.FileSystemObject")
+  If %{var_fso}.FileExists(%{var_shell}.ExpandEnvironmentStrings("%%PSModulePath%%") + "..\powershell.exe") Then
+    %{var_shell}.Run "%{powershell}"
+  End If
+</script>

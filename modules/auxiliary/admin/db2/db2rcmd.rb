@@ -7,7 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::SMB
+  include Msf::Exploit::Remote::SMB::Client
 
   def initialize(info = {})
     super(update_info(info,

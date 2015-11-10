@@ -12,16 +12,16 @@ module Rex
           # @!attribute class_name
           #   @return [Rex::Java::Serialization::Model::Utf] The name of the class
           attr_accessor :class_name
-          # @!attribute name
-          #   @return [Integer] The java class serial version
+          # @!attribute serial_version
+          #   @return [Fixnum] The java class serial version
           attr_accessor :serial_version
           # @!attribute flags
-          #   @return [Integer] The java class flags
+          #   @return [Fixnum] The java class flags
           attr_accessor :flags
           # @!attribute fields
           #   @return [Array] The java class fields
           attr_accessor :fields
-          # @!attribute fields
+          # @!attribute class_annotation
           #   @return [Rex::Java::Serialization::Model::Annotation] The java class annotations
           attr_accessor :class_annotation
           # @!attribute super_class
@@ -39,11 +39,11 @@ module Rex
             self.super_class = nil
           end
 
-          # Deserializes a Rex::Java::Serialization::Model::ClassDescription
+          # Deserializes a Rex::Java::Serialization::Model::NewClassDesc
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode(io)
             self.class_name = Utf.decode(io, stream)
             self.serial_version = decode_serial_version(io)
@@ -64,17 +64,16 @@ module Rex
           # Serializes the Rex::Java::Serialization::Model::ClassDescription
           #
           # @return [String] if serialization succeeds
-          # @raise [RuntimeError] if serialization doesn't succeed
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization doesn't succeed
           def encode
-            unless class_name.class == Rex::Java::Serialization::Model::Utf &&
-                    class_annotation.class == Rex::Java::Serialization::Model::Annotation &&
+            unless class_name.class == Rex::Java::Serialization::Model::Utf ||
+                    class_annotation.class == Rex::Java::Serialization::Model::Annotation ||
                     super_class.class == Rex::Java::Serialization::Model::ClassDesc
-              raise ::RuntimeError, 'Filed to serialize NewClassDesc'
+              raise Rex::Java::Serialization::EncodeError, 'Filed to serialize NewClassDesc'
             end
             encoded = ''
             encoded << class_name.encode
-            encoded << [serial_version].pack('Q>')
-            stream.add_reference(self) unless stream.nil?
+            encoded << [serial_version].pack('q>')
             encoded << [flags].pack('C')
             encoded << [fields.length].pack('n')
             fields.each do |field|
@@ -113,11 +112,11 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [Integer] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode_serial_version(io)
             raw_serial = io.read(8)
             if raw_serial.nil? || raw_serial.length != 8
-              raise ::RuntimeError, 'Failed to unserialize ClassDescription'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize ClassDescription'
             end
 
             raw_serial.unpack('Q>')[0]
@@ -127,10 +126,10 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [Integer] if deserialization is possible
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode_flags(io)
             raw_flags = io.read(1)
-            raise ::RuntimeError, 'Failed to unserialize ClassDescription' if raw_flags.nil?
+            raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize ClassDescription' if raw_flags.nil?
 
             raw_flags.unpack('C')[0]
           end
@@ -139,11 +138,11 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [Integer] if deserialization is possible
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode_fields_length(io)
             fields_length = io.read(2)
             if fields_length.nil? || fields_length.length != 2
-              raise ::RuntimeError, 'Failed to unserialize ClassDescription'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize ClassDescription'
             end
 
             fields_length.unpack('n')[0]

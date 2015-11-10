@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Sending DNS probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
     # Standard packet is 60 bytes. Add the domain size to this
     sendpacketsize = 60 + datastore['DOMAINNAME'].length
-    print_status("Sending #{sendpacketsize} bytes to each host using the IN ANY #{datastore['DOMAINNAME']} request")
+    print_status("Sending #{sendpacketsize} bytes to each host using the IN #{datastore['QUERYTYPE']} #{datastore['DOMAINNAME']} request")
     @results = {}
   end
 
@@ -112,8 +112,10 @@ class Metasploit3 < Msf::Auxiliary
       # Response Code
       rcode = flags[12] + flags[13] + flags[14] + flags[15]
 
-      # If these flags are set, we get a valid response and recursion is available
-      if qr == "1" and ra == "1" and rcode == "0000"
+      # If these flags are set, we get a valid response
+      # don't test recursion available if correct answer received
+      # at least the case with bind and "additional-from-cache no" or version < 9.5+
+      if qr == "1" and rcode == "0000"
         sendlength = 60 + datastore['DOMAINNAME'].length
         receivelength = 42 + data.length
         amp = receivelength / sendlength.to_f

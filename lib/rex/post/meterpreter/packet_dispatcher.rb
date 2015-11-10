@@ -66,9 +66,12 @@ module PacketDispatcher
     self.waiters    = []
     self.alive      = true
 
+    # Ensure that there is only one leading and trailing slash on the URI
+    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+
     self.passive_service = self.passive_dispatcher
-    self.passive_service.remove_resource("/" + self.conn_id  + "/")
-    self.passive_service.add_resource("/" + self.conn_id + "/",
+    self.passive_service.remove_resource(resource_uri)
+    self.passive_service.add_resource(resource_uri,
       'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
       'VirtualDirectory' => true
     )
@@ -76,7 +79,16 @@ module PacketDispatcher
 
   def shutdown_passive_dispatcher
     return if not self.passive_service
-    self.passive_service.remove_resource("/" + self.conn_id  + "/")
+
+    # Ensure that there is only one leading and trailing slash on the URI
+    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+
+    self.passive_service.remove_resource(resource_uri)
+
+    # If there are no more resources registered on the service, stop it entirely
+    if self.passive_service.resources.empty?
+      Rex::ServiceManager.stop_service(self.passive_service)
+    end
 
     self.alive      = false
     self.send_queue = []
@@ -93,6 +105,8 @@ module PacketDispatcher
     resp = Rex::Proto::Http::Response.new(200, "OK")
     resp['Content-Type'] = 'application/octet-stream'
     resp['Connection']   = 'close'
+
+    self.last_checkin = Time.now
 
     # If the first 4 bytes are "RECV", return the oldest packet from the outbound queue
     if req.body[0,4] == "RECV"
@@ -113,9 +127,6 @@ module PacketDispatcher
       end
       cli.send_response(resp)
     end
-
-    # Force a closure for older WinInet implementations
-    self.passive_service.close_client( cli )
 
     rescue ::Exception => e
       elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
@@ -178,7 +189,6 @@ module PacketDispatcher
   # Sends a packet and waits for a timeout for the given time interval.
   #
   def send_request(packet, t = self.response_timeout)
-
     if not t
       send_packet(packet)
       return nil
@@ -355,8 +365,14 @@ module PacketDispatcher
 
           begin
           if ! dispatch_inbound_packet(pkt)
-            # Only requeue packets newer than the timeout
-            if (::Time.now.to_i - pkt.created_at.to_i > PacketTimeout)
+            # Keep Packets in the receive queue until a handler is registered
+            # for them. Packets will live in the receive queue for up to
+            # PacketTimeout, after which they will be dropped.
+            #
+            # A common reason why there would not immediately be a handler for
+            # a received Packet is in channels, where a connection may
+            # open and receive data before anything has asked to read.
+            if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
               incomplete << pkt
             end
           end
@@ -483,6 +499,9 @@ module PacketDispatcher
     if (client == nil)
       client = self
     end
+
+    # Update our last reply time
+    client.last_checkin = Time.now
 
     # If the packet is a response, try to notify any potential
     # waiters

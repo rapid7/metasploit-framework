@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'Alligator Security Team',
           'Heyder Andrade <heyder.andrade[at]gmail.com>',
           'Leandro Oliveira <leandrofernando[at]gmail.com>'
         ],

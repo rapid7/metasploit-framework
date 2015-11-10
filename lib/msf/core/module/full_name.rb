@@ -12,7 +12,7 @@ module Msf::Module::FullName
 
 
     # @attribute refname
-    #   The module's name that is assigned it it by the framework
+    #   The module's name that is assigned to it by the framework
     #   or derived from the path that the module is loaded from.
     attr_accessor :refname
 

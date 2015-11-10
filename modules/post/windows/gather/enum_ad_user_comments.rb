@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 
     register_options([
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
-      OptString.new('FIELDS', [true, 'Fields to retrieve.','sAMAccountName,userAccountControl,comment,description']),
+      OptString.new('FIELDS', [true, 'Fields to retrieve.','userPrincipalName,sAMAccountName,userAccountControl,comment,description']),
       OptString.new('FILTER', [true, 'Search filter.','(&(&(objectCategory=person)(objectClass=user))(|(description=*pass*)(comment=*pass*)))']),
     ], self.class)
   end
@@ -63,7 +63,6 @@ class Metasploit3 < Msf::Post
     q[:results].each do |result|
       row = []
 
-      report = {}
       result.each do |field|
         if field[:value].nil?
           row << ""

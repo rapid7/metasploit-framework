@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
   end
 
-# Called for each response packet
+  # Called for each response packet
   def scanner_process(data, shost, sport)
     @results[shost] ||= { messages: [], peers: [] }
     @results[shost][:messages] << Rex::Proto::NTP::NTPPrivate.new(data)
@@ -148,14 +148,14 @@ class Metasploit3 < Msf::Auxiliary
     idx = 0
     peer_tuples = []
     1.upto(pcnt) do
-      #u_int32 firsttime; /* first time we received a packet */
-      #u_int32 lasttime;  /* last packet from this host */
-      #u_int32 restr;     /* restrict bits (was named lastdrop) */
-      #u_int32 count;     /* count of packets received */
-      #u_int32 addr;      /* host address V4 style */
-      #u_int32 daddr;     /* destination host address */
-      #u_int32 flags;     /* flags about destination */
-      #u_short port;      /* port number of last reception */
+      # u_int32 firsttime; /* first time we received a packet */
+      # u_int32 lasttime;  /* last packet from this host */
+      # u_int32 restr;     /* restrict bits (was named lastdrop) */
+      # u_int32 count;     /* count of packets received */
+      # u_int32 addr;      /* host address V4 style */
+      # u_int32 daddr;     /* destination host address */
+      # u_int32 flags;     /* flags about destination */
+      # u_short port;      /* port number of last reception */
 
       _,_,_,_,saddr,daddr,_,dport = data[idx, 30].unpack("NNNNNNNn")
 

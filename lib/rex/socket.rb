@@ -732,7 +732,15 @@ module Socket
   # Return peer connection information.
   #
   def getpeername
-    return Socket.from_sockaddr(super)
+    peer_name = nil
+    begin
+      peer_name = Socket.from_sockaddr(super)
+    rescue ::Errno::EINVAL => e
+      # Ruby's getpeername method may call rb_sys_fail("getpeername(2)")
+      elog("#{e.message} (#{e.class})#{e.backtrace * "\n"}\n", 'core', LEV_3)
+    end
+
+    return peer_name
   end
 
   #

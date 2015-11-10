@@ -269,7 +269,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def existing_loot(ltype, key_id)
-    framework.db.loots(myworkspace).find_all_by_ltype(ltype).select {|l| l.info == key_id}.first
+    framework.db.loots(myworkspace).where(ltype: ltype).select {|l| l.info == key_id}.first
   end
 
   def store_keyfile(ip,user,key_id,key_data)

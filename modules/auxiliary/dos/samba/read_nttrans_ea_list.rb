@@ -9,7 +9,7 @@ require 'rex/proto/smb'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
 
   TRANS2_PARAM = Rex::Struct2::CStructTemplate.new(
     [ 'uint16v', 'FID',       0 ],

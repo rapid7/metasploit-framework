@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def smart_query(query_string)
     res = postgres_query(query_string,false)
-    #Error handling routine here, borrowed heavily from todb
+    # Error handling routine here, borrowed heavily from todb
     case res.keys[0]
     when :conn_error
       print_error("A Connection Error occured")

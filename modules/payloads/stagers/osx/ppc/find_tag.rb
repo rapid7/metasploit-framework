@@ -18,6 +18,8 @@ require 'msf/core/handler/find_tag'
 ###
 module Metasploit3
 
+  CachedSize = 76
+
   include Msf::Payload::Stager
 
   def initialize(info = {})

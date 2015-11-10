@@ -14,10 +14,6 @@ class Db
   require 'tempfile'
 
   include Msf::Ui::Console::CommandDispatcher
-
-  # TODO: Not thrilled about including this entire module for just store_local.
-  include Msf::Auxiliary::Report
-
   include Metasploit::Credential::Creation
 
   #
@@ -68,6 +64,10 @@ class Db
     ]
   end
 
+  def allowed_cred_types
+    %w(password ntlm hash)
+  end
+
   #
   # Returns true if the db is connected, prints an error and returns
   # false if not.
@@ -89,6 +89,7 @@ class Db
     print_line "    workspace [name]           Switch workspace"
     print_line "    workspace -a [name] ...    Add workspace(s)"
     print_line "    workspace -d [name] ...    Delete workspace(s)"
+    print_line "    workspace -D               Delete all workspaces"
     print_line "    workspace -r <old> <new>   Rename workspace"
     print_line "    workspace -h               Show this help information"
     print_line
@@ -106,6 +107,8 @@ class Db
         adding = true
       when '-d','--del'
         deleting = true
+      when '-D','--delete-all'
+        delete_all = true
       when '-r','--rename'
         renaming = true
       else
@@ -123,28 +126,9 @@ class Db
       end
       framework.db.workspace = workspace
     elsif deleting and names
-      switched = false
-      # Delete workspaces
-      names.each do |name|
-        workspace = framework.db.find_workspace(name)
-        if workspace.nil?
-          print_error("Workspace not found: #{name}")
-        elsif workspace.default?
-          workspace.destroy
-          workspace = framework.db.add_workspace(name)
-          print_status("Deleted and recreated the default workspace")
-        else
-          # switch to the default workspace if we're about to delete the current one
-          if framework.db.workspace.name == workspace.name
-            framework.db.workspace = framework.db.default_workspace
-            switched = true
-          end
-          # now destroy the named workspace
-          workspace.destroy
-          print_status("Deleted workspace: #{name}")
-        end
-      end
-      print_status("Switched workspace: #{framework.db.workspace.name}") if switched
+      delete_workspaces(names)
+    elsif delete_all
+      delete_workspaces(framework.db.workspaces.map(&:name))
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
@@ -202,6 +186,31 @@ class Db
   }
   end
 
+  def delete_workspaces(names)
+    switched = false
+    # Delete workspaces
+    names.each do |name|
+      workspace = framework.db.find_workspace(name)
+      if workspace.nil?
+        print_error("Workspace not found: #{name}")
+      elsif workspace.default?
+        workspace.destroy
+        workspace = framework.db.add_workspace(name)
+        print_status("Deleted and recreated the default workspace")
+      else
+        # switch to the default workspace if we're about to delete the current one
+        if framework.db.workspace.name == workspace.name
+          framework.db.workspace = framework.db.default_workspace
+          switched = true
+        end
+        # now destroy the named workspace
+        workspace.destroy
+        print_status("Deleted workspace: #{name}")
+      end
+    end
+    print_status("Switched workspace: #{framework.db.workspace.name}") if switched
+  end
+
   def cmd_workspace_tabs(str, words)
     return [] unless active?
     framework.db.workspaces.map { |s| s.name } if (words & ['-a','--add']).empty?
@@ -215,12 +224,104 @@ class Db
     cmd_hosts("-h")
   end
 
+  def change_host_info(rws, data)
+    if rws == [nil]
+      print_error("In order to change the host info, you must provide a range of hosts")
+      return
+    end
+
+    rws.each do |rw|
+      rw.each do |ip|
+        id = framework.db.get_host(:address => ip).id
+        framework.db.hosts.update(id, :info => data)
+        framework.db.report_note(:host => ip, :type => 'host.info', :data => data)
+      end
+    end
+  end
+
+  def change_host_name(rws, data)
+    if rws == [nil]
+      print_error("In order to change the host name, you must provide a range of hosts")
+      return
+    end
+
+    rws.each do |rw|
+      rw.each do |ip|
+        id = framework.db.get_host(:address => ip).id
+        framework.db.hosts.update(id, :name => data)
+        framework.db.report_note(:host => ip, :type => 'host.name', :data => data)
+      end
+    end
+  end
+
+  def change_host_comment(rws, data)
+    if rws == [nil]
+      print_error("In order to change the comment, you must provide a range of hosts")
+      return
+    end
+
+    rws.each do |rw|
+      rw.each do |ip|
+        id = framework.db.get_host(:address => ip).id
+        framework.db.hosts.update(id, :comments => data)
+        framework.db.report_note(:host => ip, :type => 'host.comments', :data => data)
+      end
+    end
+  end
+
+  def add_host_tag(rws, tag_name)
+    if rws == [nil]
+      print_error("In order to add a tag, you must provide a range of hosts")
+      return
+    end
+
+    rws.each do |rw|
+      rw.each do |ip|
+        wspace = framework.db.workspace
+        host = framework.db.get_host(:workspace => wspace, :address => ip)
+        if host
+          possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+          tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
+          tag.name = tag_name
+          tag.hosts = [host]
+          tag.save! if tag.changed?
+        end
+      end
+    end
+  end
+
+  def delete_host_tag(rws, tag_name)
+    wspace = framework.db.workspace
+    tag_ids = []
+    if rws == [nil]
+      found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name)
+      found_tags.each do |t|
+        tag_ids << t.id
+      end
+    else
+      rws.each do |rw|
+        rw.each do |ip|
+          found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name)
+            found_tags.each do |t|
+            tag_ids << t.id
+          end
+        end
+      end
+    end
+
+    tag_ids.each do |id|
+      tag = Mdm::Tag.find_by_id(id)
+      tag.hosts.delete
+      tag.destroy
+    end
+  end
+
   def cmd_hosts(*args)
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     onlyup = false
     set_rhosts = false
-    mode = :search
+    mode = []
     delete_count = 0
 
     rhosts = []
@@ -229,7 +330,8 @@ class Db
 
     output = nil
     default_columns = ::Mdm::Host.column_names.sort
-    virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
+    default_columns << 'tags' # Special case
+    virtual_columns = [ 'svcs', 'vulns', 'workspace', 'tags' ]
 
     col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
 
@@ -237,9 +339,9 @@ class Db
     while (arg = args.shift)
       case arg
       when '-a','--add'
-        mode = :add
+        mode << :add
       when '-d','--delete'
-        mode = :delete
+        mode << :delete
       when '-c'
         list = args.shift
         if(!list)
@@ -258,11 +360,22 @@ class Db
         onlyup = true
       when '-o'
         output = args.shift
-      when '-R','--rhosts'
+      when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
-
+      when '-i', '--info'
+        mode << :new_info
+        info_data = args.shift
+      when '-n', '--name'
+        mode << :new_name
+        name_data = args.shift
+      when '-m', '--comment'
+        mode << :new_comment
+        comment_data = args.shift
+      when '-t', '--tag'
+        mode << :tag
+        tag_name = args.shift
       when '-h','--help'
         print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
         print_line
@@ -275,6 +388,10 @@ class Db
         print_line "  -o <file>         Send output to a file in csv format"
         print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
         print_line "  -S,--search       Search string to filter by"
+        print_line "  -i,--info         Change the info of a host"
+        print_line "  -n,--name         Change the name of a host"
+        print_line "  -m,--comment      Change the comment of a host"
+        print_line "  -t,--tag          Add or specify a tag to a range of hosts"
         print_line
         print_line "Available columns: #{default_columns.join(", ")}"
         print_line
@@ -293,7 +410,9 @@ class Db
       col_names = default_columns + virtual_columns
     end
 
-    if mode == :add
+    mode << :search if mode.empty?
+
+    if mode == [:add]
       host_ranges.each do |range|
         range.each do |address|
           host = framework.db.find_or_create_host(:host => address)
@@ -313,11 +432,41 @@ class Db
     # Sentinal value meaning all
     host_ranges.push(nil) if host_ranges.empty?
 
+    case
+    when mode == [:new_info]
+      change_host_info(host_ranges, info_data)
+      return
+    when mode == [:new_name]
+      change_host_name(host_ranges, name_data)
+      return
+    when mode == [:new_comment]
+      change_host_comment(host_ranges, comment_data)
+      return
+    when mode == [:tag]
+      begin
+        add_host_tag(host_ranges, tag_name)
+      rescue ::Exception => e
+        if e.message.include?('Validation failed')
+          print_error(e.message)
+        else
+          raise e
+        end
+      end
+      return
+    when mode.include?(:tag) && mode.include?(:delete)
+      delete_host_tag(host_ranges, tag_name)
+      return
+    end
+
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
         if search_term
-          next unless host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) }
+          next unless (
+            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } ||
+            !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).order("tags.id DESC").empty?
+          )
         end
+
         columns = col_names.map do |n|
           # Deal with the special cases
           if virtual_columns.include?(n)
@@ -325,6 +474,11 @@ class Db
             when "svcs";      host.services.length
             when "vulns";     host.vulns.length
             when "workspace"; host.workspace.name
+            when "tags"
+              found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
+              tag_names = []
+              found_tags.each { |t| tag_names << t.name }
+              found_tags * ", "
             end
           # Otherwise, it's just an attribute
           else
@@ -334,10 +488,10 @@ class Db
 
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
-        if mode == :delete
+        if mode == [:delete]
           host.destroy
           delete_count += 1
         end
@@ -374,7 +528,7 @@ class Db
     mode = :search
     onlyup = false
     output_file = nil
-    set_rhosts = nil
+    set_rhosts = false
     col_search = ['port', 'proto', 'name', 'state', 'info']
     default_columns = ::Mdm::Service.column_names.sort
     default_columns.delete_if {|v| (v[-2,2] == "id")}
@@ -432,7 +586,7 @@ class Db
           return
         end
         output_file = ::File.expand_path(output_file)
-      when '-R','--rhosts'
+      when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
@@ -556,6 +710,7 @@ class Db
     print_line "  -h,--help             Show this help information"
     print_line "  -p,--port <portspec>  List vulns matching this port spec"
     print_line "  -s <svc names>        List vulns matching these service names"
+    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -S,--search           Search string to filter by"
     print_line "  -i,--info             Display Vuln Info"
     print_line
@@ -572,8 +727,11 @@ class Db
     host_ranges = []
     port_ranges = []
     svcs        = []
+    rhosts    	= []
+
     search_term = nil
     show_info   = false
+    set_rhosts  = false
 
     # Short-circuit help
     if args.delete "-h"
@@ -601,6 +759,8 @@ class Db
           return
         end
         svcs = service.split(/[\s]*,[\s]*/)
+      when '-R', '--rhosts'
+        set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
       when '-i', '--info'
@@ -641,9 +801,17 @@ class Db
             next unless ports.empty? and svcs.empty?
             print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
           end
+          if set_rhosts
+            addr = (host.scope ? host.address + '%' + host.scope : host.address)
+            rhosts << addr
+          end
         end
       end
     end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
   }
   end
 
@@ -670,12 +838,16 @@ class Db
     print_line "General options"
     print_line "  -h,--help             Show this help information"
     print_line "  -o <file>             Send output to a file in csv format"
+    print_line "  -d                    Delete one or more credentials"
     print_line
     print_line "Filter options for listing"
     print_line "  -P,--password <regex> List passwords that match this regex"
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
+    print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    print_line "  -O,--origins          List creds that match these origins"
+    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 
     print_line
     print_line "Examples, listing:"
@@ -683,6 +855,7 @@ class Db
     print_line "  creds 1.2.3.4/24    # nmap host specification"
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
+    print_line "  creds -t ntlm       # All NTLM creds"
     print_line
 
     print_line
@@ -693,6 +866,11 @@ class Db
     print_line "  creds add-password bob '' contosso"
     print_line "  # Add a user with an SSH key"
     print_line "  creds add-ssh-key root /root/.ssh/id_rsa"
+    print_line
+
+    print_line "Example, deleting:"
+    print_line "  # Delete all SMB credentials"
+    print_line "  creds -d -s smb"
     print_line
   end
 
@@ -757,12 +935,16 @@ class Db
   end
 
   def creds_search(*args)
-    host_ranges = []
-    port_ranges = []
-    svcs        = []
+    host_ranges   = []
+    origin_ranges = []
+    port_ranges   = []
+    svcs          = []
+    rhosts        = []
+
+    set_rhosts = false
 
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
-    cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
+    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type' ]
     user = nil
     delete_count = 0
 
@@ -806,6 +988,15 @@ class Db
         end
       when "-d"
         mode = :delete
+      when '-R', '--rhosts'
+        set_rhosts = true
+      when '-O', '--origins'
+        hosts = args.shift
+        if !hosts
+          print_error("Argument required for -O")
+          return
+        end
+        arg_host_range(hosts, origin_ranges)
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -815,11 +1006,19 @@ class Db
     end
 
     # If we get here, we're searching.  Delete implies search
-    if user
-      user_regex = Regexp.compile(user)
-    end
-    if pass
-      pass_regex = Regexp.compile(pass)
+
+    if ptype
+      type = case ptype
+             when 'password'
+               Metasploit::Credential::Password
+             when 'hash'
+               Metasploit::Credential::PasswordHash
+             when 'ntlm'
+               Metasploit::Credential::NTLMHash
+             else
+               print_error("Unrecognized credential type #{ptype} -- must be one of #{allowed_cred_types.join(',')}")
+               return
+             end
     end
 
     # normalize
@@ -833,30 +1032,66 @@ class Db
     tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      query = Metasploit::Credential::Core.where(
-        workspace_id: framework.db.workspace,
-      )
+      query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
+      query = query.includes(:private, :public, :logins)
+      query = query.includes(logins: [ :service, { service: :host } ])
 
-      query.each do |core|
+      if type.present?
+        query = query.where(metasploit_credential_privates: { type: type })
+      end
 
-        # Exclude creds that don't match the given user
-        if user_regex.present? && !core.public.username.match(user_regex)
+      if svcs.present?
+        query = query.where(Mdm::Service[:name].in(svcs))
+      end
+
+      if ports.present?
+        query = query.where(Mdm::Service[:port].in(ports))
+      end
+
+      if user.present?
+        # If we have a user regex, only include those that match
+        query = query.where('"metasploit_credential_publics"."username" ~* ?', user)
+      end
+
+      if pass.present?
+        # If we have a password regex, only include those that match
+        query = query.where('"metasploit_credential_privates"."data" ~* ?', pass)
+      end
+
+      if host_ranges.any? || ports.any? || svcs.any?
+        # Only find Cores that have non-zero Logins if the user specified a
+        # filter based on host, port, or service name
+        query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
+      end
+
+      query.find_each do |core|
+
+        # Exclude non-blank username creds if that's what we're after
+        if user == "" && core.public && !(core.public.username.blank?)
           next
         end
 
-        # Exclude creds that don't match the given pass
-        if pass_regex.present? && !core.private.data.match(pass_regex)
+        # Exclude non-blank password creds if that's what we're after
+        if pass == "" && core.private && !(core.private.data.blank?)
           next
         end
 
-        if core.logins.empty?
-          # Skip cores that don't have any logins if the user specified a
-          # filter based on host, port, or service name
-          next if host_ranges.any? || ports.any? || svcs.any?
+        origin = ''
+        if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
+          origin = core.origin.service.host.address
+        elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
+          origin = core.origin.session.host.address
+        end
 
+        if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
+          next
+        end
+
+        if core.logins.empty? && origin_ranges.empty?
           tbl << [
             "", # host
-            "", # port
+            "", # cred
+            "", # service
             core.public,
             core.private,
             core.realm,
@@ -864,14 +1099,6 @@ class Db
           ]
         else
           core.logins.each do |login|
-            if svcs.present? && !svcs.include?(login.service.name)
-              next
-            end
-
-            if ports.present? && !ports.include?(login.service.port)
-              next
-            end
-
             # If none of this Core's associated Logins is for a host within
             # the user-supplied RangeWalker, then we don't have any reason to
             # print it out. However, we treat the absence of ranges as meaning
@@ -879,7 +1106,10 @@ class Db
             if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
               next
             end
+
             row = [ login.service.host.address ]
+            row << origin
+            rhosts << login.service.host.address
             if login.service.name.present?
               row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
             else
@@ -908,7 +1138,10 @@ class Db
         ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
         print_status("Wrote creds to #{output_file}")
       end
-      
+
+      # Finally, handle the case where the user wants the resulting list
+      # of hosts to go into RHOSTS.
+      set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
       print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
   end
@@ -973,6 +1206,7 @@ class Db
     print_line "  -h,--help                 Show this help information"
     print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
     print_line "  -S,--search               Regular expression to match for search"
+    print_line "  -o,--output               Save the notes to a csv file"
     print_line "  --sort <field1,field2>    Fields to sort by (case sensitive)"
     print_line
     print_line "Examples:"
@@ -993,6 +1227,7 @@ class Db
     host_ranges = []
     rhosts      = []
     search_term = nil
+    out_file    = nil
 
     while (arg = args.shift)
       case arg
@@ -1019,6 +1254,8 @@ class Db
         search_term = /#{args.shift}/nmi
       when '--sort'
         sort_term = args.shift
+      when '-o', '--output'
+        out_file = args.shift
       when '-h','--help'
         cmd_notes_help
         return
@@ -1028,7 +1265,6 @@ class Db
           return
         end
       end
-
     end
 
     if mode == :add
@@ -1063,8 +1299,8 @@ class Db
       end
     end
     if search_term
-      note_list.delete_if do |n|
-        !n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+      note_list = note_list.select do |n|
+        n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
       end
     end
 
@@ -1088,13 +1324,13 @@ class Db
             end
           elsif term == "output"
             orderlist << make_sortable(note.data["output"])
-          elsif note.respond_to?(term)
+          elsif note.respond_to?(term, true)
             orderlist << make_sortable(note.send(term))
-          elsif note.respond_to?(term.to_sym)
+          elsif note.respond_to?(term.to_sym, true)
             orderlist << make_sortable(note.send(term.to_sym))
-          elsif note.respond_to?("data") && note.send("data").respond_to?(term)
+          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term, true)
             orderlist << make_sortable(note.send("data").send(term))
-          elsif note.respond_to?("data") && note.send("data").respond_to?(term.to_sym)
+          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term.to_sym, true)
             orderlist << make_sortable(note.send("data").send(term.to_sym))
           else
             orderlist << ""
@@ -1105,12 +1341,21 @@ class Db
     end
 
     # Now display them
+    csv_table = Rex::Ui::Text::Table.new(
+      'Header'  => 'Notes',
+      'Indent'  => 1,
+      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data']
+    )
+
     note_list.each do |note|
       next if(types and types.index(note.ntype).nil?)
+      csv_note = []
       msg = "Time: #{note.created_at} Note:"
+      csv_note << note.created_at if out_file
       if (note.host)
         host = note.host
         msg << " host=#{note.host.address}"
+        csv_note << note.host.address if out_file
         if set_rhosts
           addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
@@ -1118,15 +1363,35 @@ class Db
       end
       if (note.service)
         msg << " service=#{note.service.name}" if note.service.name
+        csv_note << note.service.name || '' if out_file
         msg << " port=#{note.service.port}" if note.service.port
+        csv_note << note.service.port || '' if out_file
         msg << " protocol=#{note.service.proto}" if note.service.proto
+        csv_note << note.service.proto || '' if out_file
+      else
+        if out_file
+          csv_note << '' # For the Service field
+          csv_note << '' # For the Port field
+          csv_note << '' # For the Protocol field
+        end
       end
       msg << " type=#{note.ntype} data=#{note.data.inspect}"
+      if out_file
+        csv_note << note.ntype
+        csv_note << note.data.inspect
+      end
       print_status(msg)
+      if out_file
+        csv_table << csv_note
+      end
       if mode == :delete
         note.destroy
         delete_count += 1
       end
+    end
+
+    if out_file
+      save_csv_notes(out_file, csv_table)
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -1137,8 +1402,19 @@ class Db
   }
   end
 
+  def save_csv_notes(fpath, csv_table)
+    begin
+      File.open(fpath, 'wb') do |f|
+        f.write(csv_table.to_csv)
+      end
+      print_status("Notes saved as #{fpath}")
+    rescue Errno::EACCES => e
+      print_error("Unable to save notes. #{e.message}")
+    end
+  end
+
   def make_sortable(input)
-    case input.class
+    case input
     when String
       input = input.downcase
     when Fixnum
@@ -1292,7 +1568,7 @@ class Db
 
     # Handle hostless loot
     if host_ranges.compact.empty? # Wasn't a host search
-      hostless_loot = framework.db.loots.find_all_by_host_id(nil)
+      hostless_loot = framework.db.loots.where(host_id: nil)
       hostless_loot.each do |loot|
         row = []
         row.push("")
@@ -1501,7 +1777,7 @@ class Db
       case arg
       when '-h','--help'
         print_line "Usage:"
-        print_line "    db_export -f <format> [-a] [filename]"
+        print_line "    db_export -f <format> [filename]"
         print_line "    Format can be one of: #{export_formats.join(", ")}"
       when '-f','--format'
         format = args.shift.to_s.downcase
@@ -1545,14 +1821,20 @@ class Db
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     if (args.length == 0)
-      print_status("Usage: db_nmap [nmap options]")
+      print_status("Usage: db_nmap [--save | [--help | -h]] [nmap options]")
       return
     end
-
-    save = false
-    if args.include?("save")
-      save = active?
-      args.delete("save")
+    arguments = []
+    while (arg = args.shift)
+      case arg
+      when '--save'
+        save = true
+      when '--help', '-h'
+        cmd_db_nmap_help
+        return
+      else
+        arguments << arg
+      end
     end
 
     nmap =
@@ -1564,63 +1846,87 @@ class Db
       return
     end
 
-    fd = Tempfile.new('dbnmap')
-    fd.binmode
-
-    fo = Tempfile.new('dbnmap')
-    fo.binmode
-
-    # When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
-    if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
-      # Custom function needed because cygpath breaks on 8.3 dirs
-      tout = Rex::Compat.cygwin_to_win32(fd.path)
-      fout = Rex::Compat.cygwin_to_win32(fo.path)
-      args.push('-oX', tout)
-      args.push('-oN', fout)
-    else
-      args.push('-oX', fd.path)
-      args.push('-oN', fo.path)
-    end
+    fd = Rex::Quickfile.new(['msf-db-nmap-', '.xml'], Msf::Config.local_directory)
 
     begin
-      nmap_pipe = ::Open3::popen3([nmap, "nmap"], *args)
-      temp_nmap_threads = []
-      temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
-        np_1.each_line do |nmap_out|
-          next if nmap_out.strip.empty?
-          print_status("Nmap: #{nmap_out.strip}")
-        end
+      # When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
+      if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)
+        # Custom function needed because cygpath breaks on 8.3 dirs
+        tout = Rex::Compat.cygwin_to_win32(fd.path)
+        arguments.push('-oX', tout)
+      else
+        arguments.push('-oX', fd.path)
       end
 
-      temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
-        np_2.each_line do |nmap_err|
-          next if nmap_err.strip.empty?
-          print_status("Nmap: '#{nmap_err.strip}'")
+      begin
+        nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
+        temp_nmap_threads = []
+        temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
+          np_1.each_line do |nmap_out|
+            next if nmap_out.strip.empty?
+            print_status("Nmap: #{nmap_out.strip}")
+          end
         end
+
+        temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
+          np_2.each_line do |nmap_err|
+            next if nmap_err.strip.empty?
+            print_status("Nmap: '#{nmap_err.strip}'")
+          end
+        end
+
+        temp_nmap_threads.map {|t| t.join rescue nil}
+        nmap_pipe.each {|p| p.close rescue nil}
+      rescue ::IOError
       end
 
-      temp_nmap_threads.map {|t| t.join rescue nil}
-      nmap_pipe.each {|p| p.close rescue nil}
-    rescue ::IOError
-    end
+      framework.db.import_nmap_xml_file(:filename => fd.path)
 
-    fo.close(true)
-    framework.db.import_nmap_xml_file(:filename => fd.path)
-
-    if save
-      fd.rewind
-      saved_path = report_store_local("nmap.scan.xml", "text/xml", fd.read, "nmap_#{Time.now.utc.to_i}")
-      print_status("Saved NMAP XML results to #{saved_path}")
+      print_status("Saved NMAP XML results to #{fd.path}") if save
+    ensure
+      fd.close
+      fd.unlink unless save
     end
-    fd.close(true)
   }
   end
 
-  #
-  # Store some locally-generated data as a file, similiar to store_loot.
-  #
-  def report_store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
-    store_local(ltype,ctype,data,filename)
+  def cmd_db_nmap_help
+    nmap =
+        Rex::FileUtils.find_full_path('nmap') ||
+        Rex::FileUtils.find_full_path('nmap.exe')
+
+    stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
+
+    stdout.each_line do |out_line|
+      next if out_line.strip.empty?
+      print_status(out_line.strip)
+    end
+
+    stderr.each_line do |err_line|
+      next if err_line.strip.empty?
+      print_error(err_line.strip)
+    end
+  end
+
+  def cmd_db_nmap_tabs(str, words)
+    nmap =
+        Rex::FileUtils.find_full_path('nmap') ||
+        Rex::FileUtils.find_full_path('nmap.exe')
+
+    stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
+    tabs = []
+    stdout.each_line do |out_line|
+      if out_line.strip.starts_with?('-')
+        tabs.push(out_line.strip.split(':').first)
+      end
+    end
+
+    stderr.each_line do |err_line|
+      next if err_line.strip.empty?
+      print_error(err_line.strip)
+    end
+
+    tabs
   end
 
   #
@@ -1641,12 +1947,12 @@ class Db
     return if not db_check_driver
 
     if framework.db.connection_established?
-      cdb = ""
-      ::ActiveRecord::Base.connection_pool.with_connection { |conn|
-        if conn.respond_to? :current_database
+      cdb = ''
+      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
           cdb = conn.current_database
         end
-      }
+      end
       print_status("#{framework.db.driver} connected to #{cdb}")
     else
       print_status("#{framework.db.driver} selected, no connection")
@@ -1660,6 +1966,17 @@ class Db
 
   def cmd_db_connect(*args)
     return if not db_check_driver
+    if args[0] != '-h' && framework.db.connection_established?
+      cdb = ''
+      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
+          cdb = conn.current_database
+        end
+      end
+      print_error("#{framework.db.driver} already connected to #{cdb}")
+      print_error('Run db_disconnect first if you wish to connect to a different database')
+      return
+    end
     if (args[0] == "-y")
       if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
         print_error("File not found")
@@ -1682,7 +1999,7 @@ class Db
       end
     end
     meth = "db_connect_#{framework.db.driver}"
-    if(self.respond_to?(meth))
+    if(self.respond_to?(meth, true))
       self.send(meth, *args)
       if framework.db.active and not framework.db.modules_cached
         print_status("Rebuilding the module cache in the background...")

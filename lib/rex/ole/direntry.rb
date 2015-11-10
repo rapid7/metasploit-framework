@@ -96,7 +96,7 @@ class DirEntry
       return de
     end
     @children.each { |cde|
-      ret = find_by_sid(cde, sid)
+      ret = find_by_sid(sid, cde)
       if (ret)
         return ret
       end

@@ -10,7 +10,7 @@ module Msf
 # to augment the feature set of the framework by being able to load and unload
 # them during the course of a framework's lifetime.  For instance, a plugin
 # could be loaded to alter the default behavior of new sessions, such as by
-# scripting meterpreter sessions that are created.  The possiblities are
+# scripting meterpreter sessions that are created.  The possibilities are
 # endless!
 #
 # All plugins must exist under the Msf::Plugin namespace.  Plugins are
@@ -117,13 +117,6 @@ class Plugin
   #
   def print_good(msg='')
     output.print_good(msg) if (output)
-  end
-
-  #
-  # Prints a 'debug' message.
-  #
-  def print_debug(msg='')
-    output.print_debug(msg) if (output)
   end
 
   #

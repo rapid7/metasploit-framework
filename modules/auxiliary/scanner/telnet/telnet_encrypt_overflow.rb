@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Telnet Service Encyption Key ID Overflow Detection',
+      'Name'        => 'Telnet Service Encryption Key ID Overflow Detection',
       'Description' => 'Detect telnet services vulnerable to the encrypt option Key ID overflow (BSD-derived telnetd)',
       'Author'      => [ 'Jaime Penalba Estebanez <jpenalbae[at]gmail.com>', 'hdm' ],
       'License'     => MSF_LICENSE,

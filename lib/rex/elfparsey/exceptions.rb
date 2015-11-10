@@ -18,7 +18,7 @@ end
 class BoundsError < ElfError
 end
 
-class WtfError < ElfError
+class ElfParseyError < ElfError
 end
 
 end

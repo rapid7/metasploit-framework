@@ -281,7 +281,7 @@ class Rex::Socket::Comm::Local
             raise ::Errno::ETIMEDOUT
           end
 
-        rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
+        rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::ENOPROTOOPT
 
           # Rescue errors caused by a bad Scope ID for a link-local address
           if retry_scopes and @@ip6_lla_scopes[ ip6_scope_idx ]

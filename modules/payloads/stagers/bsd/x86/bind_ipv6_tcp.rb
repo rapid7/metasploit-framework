@@ -18,6 +18,8 @@ require 'msf/core/handler/bind_tcp'
 ###
 module Metasploit3
 
+  CachedSize = 63
+
   include Msf::Payload::Stager
 
   def self.handler_type_alias

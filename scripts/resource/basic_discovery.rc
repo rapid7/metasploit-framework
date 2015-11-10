@@ -109,7 +109,7 @@ print_line("starting discovery scanners ... stage 2")
 print_line("============================================")
 print_line("")
 
-run_single("unsetg RHOSTS") # we dont need it anymore 
+run_single("unsetg RHOSTS") # we dont need it anymore
 
 framework.db.workspace.hosts.each do |host|
 	host.services.each do |serv|
@@ -416,7 +416,7 @@ framework.db.workspace.hosts.each do |host|
 		end
 
 		if (serv.name =~ /http/ or serv.port == 80 or serv.port == 443)
-			
+
 			if(versionscanners == 1 or serv.name == nil)
 				print_line("Module: http_version")
 				run_single("use auxiliary/scanner/http/http_version")
@@ -559,7 +559,7 @@ framework.db.workspace.hosts.each do |host|
 			jobwaiting(maxjobs,verbose)
 
 			print_line("Module: vmware_server_dir_trav")
-			run_single("use auxiliary/scanner/http/vmware_server_dir_trav")
+			run_single("use auxiliary/scanner/vmware/vmware_server_dir_trav")
 			if(verbose == 1)
 				infos(serv,host)
 			end
@@ -700,7 +700,7 @@ framework.db.workspace.hosts.each do |host|
 				jobwaiting(maxjobs,verbose)
 			end
 		end
-			
+
 		if (serv.port == 7777)
 			print_line("Module: energizer_duo_detect")
 			run_single("use auxiliary/scanner/backdoor/energizer_duo_detect")

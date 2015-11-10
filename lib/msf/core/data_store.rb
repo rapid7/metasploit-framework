@@ -43,6 +43,13 @@ class DataStore < Hash
     super(find_key_case(k), v)
   end
 
+  #
+  # Case-insensitive wrapper around delete
+  #
+  def delete(k)
+    super(find_key_case(k))
+  end
+
 
   #
   # Updates a value in the datastore with the specified name, k, to the
@@ -78,7 +85,7 @@ class DataStore < Hash
   def import_options_from_s(option_str, delim = nil)
     hash = {}
 
-    # Figure out the deliminter, default to space.
+    # Figure out the delimeter, default to space.
     if (delim.nil?)
       delim = /\s/
 
@@ -87,7 +94,7 @@ class DataStore < Hash
       end
     end
 
-    # Split on the deliminter
+    # Split on the delimeter
     option_str.split(delim).each { |opt|
       var, val = opt.split('=')
 
