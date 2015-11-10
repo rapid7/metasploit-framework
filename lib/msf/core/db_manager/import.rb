@@ -284,12 +284,12 @@ module Msf::DBManager::Import
           newline = line.dup
           newline =~ /<([a-zA-Z0-9\-\_]+)\sscanner\W\"([a-zA-Z0-9\-\_]+)\"/
           case $2
-            when "nmap"
-              @import_filedata[:type] = "Nmap XML"
-              return :nmap_xml
-            when "masscan"
-              @import_filedata[:type] = "Masscan XML"
-              return :masscan_xml
+          when "nmap"
+            @import_filedata[:type] = "Nmap XML"
+            return :nmap_xml
+          when "masscan"
+            @import_filedata[:type] = "Masscan XML"
+            return :masscan_xml
           end
         when "openvas-report"
           @import_filedata[:type] = "OpenVAS Report"

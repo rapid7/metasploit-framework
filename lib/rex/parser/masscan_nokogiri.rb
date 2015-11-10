@@ -3,7 +3,6 @@ require "rex/parser/nokogiri_doc_mixin"
 
 module Rex
   module Parser
-
     # If Nokogiri is available, define Masscan document class.
     load_nokogiri && class MasscanDocument < Nokogiri::XML::SAX::Document
 

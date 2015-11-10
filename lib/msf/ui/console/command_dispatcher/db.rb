@@ -1704,7 +1704,7 @@ class Db
         begin
           warnings = 0
           framework.db.import_file(:filename => filename) do |type,data|
-	    case type
+            case type
             when :debug
               print_error("DEBUG: #{data.inspect}")
             when :vuln
@@ -1821,8 +1821,6 @@ class Db
   # Import Masscan data from a file
   #
   def cmd_db_masscan(*args)
-
-    print "command_dispatcher/db.rb def cmd_db_masscan\n"
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     if (args.length == 0)
@@ -1855,15 +1853,13 @@ class Db
 
     begin
       # When executing native Masscan in Cygwin, expand the Cygwin path to a Win32 path
-      if(Rex::Compat.is_cygwin and masscan =~ /cygdrive/)
+      if (Rex::Compat.is_cygwin and masscan =~ /cygdrive/)
         # Custom function needed because cygpath breaks on 8.3 dirs
         tout = Rex::Compat.cygwin_to_win32(fd.path)
         arguments.push('-oX', tout)
       else
         arguments.push('-oX', fd.path)
       end
-
-      print "inside cmd_db_masscan arguments push\n"
       begin
         masscan_pipe = ::Open3::popen3([masscan, 'masscan'], *arguments)
         temp_masscan_threads = []
@@ -1881,16 +1877,16 @@ class Db
           end
         end
 
-        temp_masscan_threads.map {|t| t.join rescue nil}
-        masscan_pipe.each {|p| p.close rescue nil}
+        temp_masscan_threads.map { |t| t.join rescue nil }
+        masscan_pipe.each { |p| p.close rescue nil }
       rescue ::IOError
       end
       framework.db.import_masscan_xml_file(:filename => fd.path)
 
       print_status("Saved Masscan XML results to #{fd.path}") if save
-    #ensure
-      #fd.close
-      #fd.unlink unless save
+    ensure
+      fd.close
+      fd.unlink unless save
     end
   }
   end
