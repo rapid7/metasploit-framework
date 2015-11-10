@@ -120,6 +120,20 @@ private
     extension_data = [ ext.length, ext ].pack('VA*')
   end
 
+  def extension_init_block(name, value)
+    # for now, we're going to blindly assume that the value is a path to a file
+    # which contains the data that gets passed to the extension
+    content = ::File.read(value)
+    data = [
+      name,
+      "\x00",
+      content.length,
+      content
+    ]
+
+    data.pack('A*A*VA*')
+  end
+
   def config_block
     # start with the session information
     config = session_block(@opts)
@@ -147,6 +161,15 @@ private
     else
       config << [0].pack('Q<')
     end
+
+    # wire in the extension init data
+    (@opts[:ext_init] || '').split(':').each do |cfg|
+      name, value = cfg.split(',')
+      config << extension_init_block(name, value)
+    end
+
+    # terminate the ext init config with a final null byte
+    config << "\x00"
 
     # and we're done
     config
