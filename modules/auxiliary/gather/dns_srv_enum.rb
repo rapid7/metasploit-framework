@@ -12,8 +12,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'		    => 'DNS Common Service Record Enumeration',
-      'Description'	=> %q{
+      'Name'        => 'DNS Common Service Record Enumeration',
+      'Description' => %q{
           This module enumerates common DNS service records in a given domain. By setting
         the ALL_DNS to true, all the name servers of a given domain are used for
         enumeration. Otherwise only the system dns is used for enumration. in order to get
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
         'Carlos Perez <carlos_perez[at]darkoperator.com>', # First and main.
         'Fabrice RAFART'                                   # mainly change for AD and report.
       ],
-      'License'		  => BSD_LICENSE
+      'License'     => BSD_LICENSE
     ))
 
     register_options(
