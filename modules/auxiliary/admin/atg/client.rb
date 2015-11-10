@@ -17,16 +17,21 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module acts as a simplistic administrative client for interfacing
         with Veeder-Root Automatic Tang Gauges (ATGs) or other devices speaking
-        the TLS-250 and TLS-350 protocols.
-       },
+        the TLS-250 and TLS-350 protocols.  This has been tested against
+        GasPot, a honeypot meant to simulate ATGs; it has not been tested
+        against anything else, so use at your own risk.
+      },
       'Author'         =>
         [
           'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'References'     => [
-        ['URL', 'http://www.veeder.com/us/automatic-tank-gauge-atg-consoles']
-      ],
+      'References'     =>
+        [
+          ['URL', 'http://www.veeder.com/us/automatic-tank-gauge-atg-consoles'],
+          ['URL', 'https://github.com/sjhilt/GasPot'],
+          ['URL', 'https://community.rapid7.com/community/infosec/blog/2015/01/22/the-internet-of-gas-station-tank-gauges']
+        ],
       'DefaultAction'  => 'INVENTORY',
       'Actions'        =>
         [
