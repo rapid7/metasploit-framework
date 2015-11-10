@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect
       sock.put(action.opts[datastore['PROTOCOL'] + '_CMD'])
-      print_status("#{peer}:\n#{sock.get_once}")
+      print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
     ensure
       disconnect
     end
