@@ -12,33 +12,33 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'		   => 'DNS Common Service Record Enumeration',
+      'Name'		    => 'DNS Common Service Record Enumeration',
       'Description'	=> %q{
           This module enumerates common DNS service records in a given domain. By setting
         the ALL_DNS to true, all the name servers of a given domain are used for
         enumeration. Otherwise only the system dns is used for enumration. in order to get
         all the available name servers for the given domain the SOA and NS records are
         queried. In order to convert from domain names to IP addresses queries for A and
-        AAAA (IPv6) records are used.
-        Especially for active directory, it is possible to specify sites.
+        AAAA (IPv6) records are used. For Active Directory, it is possible to specify sites.
       },
-      'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', # First and main.
-                      'Fabrice RAFART' # patch 20150915 (mainly change for AD and report).
-                    ],
-      'License'		=> BSD_LICENSE
-      ))
+      'Author'      => [
+        'Carlos Perez <carlos_perez[at]darkoperator.com>', # First and main.
+        'Fabrice RAFART'                                   # mainly change for AD and report.
+      ],
+      'License'		  => BSD_LICENSE
+    ))
 
     register_options(
       [
-        OptString.new('DOMAIN', [ true, "The target domain name."]),
-        OptString.new('SITES', [ false, "The active directory sites names to test (separate by comma)."]),
-        OptBool.new(  'ALL_NS', [ false, "Run against all name servers for the given domain.",false])
+        OptString.new('DOMAIN', [true, "The target domain name."]),
+        OptString.new('SITES', [false, "The Active Directory site names to test (comma-separated)."]),
+        OptBool.new('ALL_NS', [false, "Run against all name servers for the given domain.", false])
       ], self.class)
 
     register_advanced_options(
       [
-        OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received.", 2]),
-        OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2])
+        OptInt.new('RETRY', [false, "Number of times to try to resolve a record if no response is received.", 2]),
+        OptInt.new('RETRY_INTERVAL', [false, "Number of seconds to wait before doing a retry.", 2])
       ], self.class)
   end
 
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
         :host_name => r[:host]
       )
       report_note(
-        :type => "SRV record",
+        :type => 'SRV record',
         :host => r[:address].to_s,
         :port => r[:port].to_i,
         :proto => r[:proto],
