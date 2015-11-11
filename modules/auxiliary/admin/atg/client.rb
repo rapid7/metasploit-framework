@@ -32,7 +32,8 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'http://www.trendmicro.com/vinfo/us/security/news/cybercrime-and-digital-threats/the-gaspot-experiment'],
           ['URL', 'https://github.com/sjhilt/GasPot'],
           ['URL', 'http://www.veeder.com/us/automatic-tank-gauge-atg-consoles'],
-          ['URL', 'http://www.chipkin.com/files/liz/576013-635.pdf']
+          ['URL', 'http://www.chipkin.com/files/liz/576013-635.pdf'],
+          ['URL', 'http://www.veeder.com/gold/download.cfm?doc_id=6227']
         ],
       'DefaultAction'  => 'INVENTORY',
       'Actions'        =>
