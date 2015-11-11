@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
           ],
           [ 'SET_TANK_NAME',
             {
-              'Description' => 'S602 set tank name',
+              'Description' => 'S602 set tank name (use TANK_NUMBER and TANK_NAME options)',
               'TLS-350_CMD' => "\x01S602"
             }
           ],
