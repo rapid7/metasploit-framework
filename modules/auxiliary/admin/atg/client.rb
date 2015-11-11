@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(10001),
         OptInt.new('TANK_NUMBER', [false, 'The tank number to operate on (use with SET_TANK_NAME, 0 to change all)', 1]),
-        OptString.new('TANK_NAME', [false, 'The tank name to set (use with SET_TANK_NAME), defaults to random'])
+        OptString.new('TANK_NAME', [false, 'The tank name to set (use with SET_TANK_NAME, defaults to random)'])
       ],
       self.class
     )
