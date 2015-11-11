@@ -85,7 +85,6 @@ class Metasploit3 < Msf::Auxiliary
       smb_native_os: datastore['SMB::Native_OS'],
       smb_native_lm: datastore['SMB::Native_LM'],
       send_spn: datastore['NTLM::SendSPN'],
-      host: ip
     )
 
     bogus_result = @scanner.attempt_bogus_login(domain)
