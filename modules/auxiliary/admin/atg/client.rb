@@ -113,8 +113,9 @@ class Metasploit3 < Msf::Auxiliary
           ],
           [ 'SET_TIME',
             {
-              'Description' => 'S50100 Set time of day (untested)',
-              'TLS-350_CMD' => "\x01S50100"
+              'Description' => 'S50100 Set time of day (use TIME option) (untested)',
+              # disabled, unsure how this works just yet
+              #'TLS-350_CMD' => "\x01S50100"
             }
           ],
           [ 'STATUS',
@@ -155,7 +156,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(10001),
         OptInt.new('TANK_NUMBER', [false, 'The tank number to operate on (use with SET_TANK_NAME, 0 to change all)', 1]),
-        OptString.new('TANK_NAME', [false, 'The tank name to set (use with SET_TANK_NAME, defaults to random)'])
+        OptString.new('TANK_NAME', [false, 'The tank name to set (use with SET_TANK_NAME, defaults to random)']),
+        OptString.new('TIME', [false, "The time to set (use with SET_TIME, defaults to Time.now (~#{Time.now.inspect})"])
       ],
       self.class
     )
@@ -190,6 +192,14 @@ class Metasploit3 < Msf::Auxiliary
     datastore['TANK_NUMBER']
   end
 
+  def time
+    if datastore['TIME']
+      Time.parse(datastore['TIME']).to_i
+    else
+      Time.now.to_i
+    end
+  end
+
   def peer
     "#{rhost}:#{rport}"
   end
@@ -220,6 +230,9 @@ class Metasploit3 < Msf::Auxiliary
         else
           print_warning message
         end
+      when 'SET_TIME'
+        request = "#{action.opts[protocol + '_CMD']}#{Time.now.to_i}\n"
+        sock.put(request)
       else
         request = "#{action.opts[protocol + '_CMD']}\n"
         sock.put(request)
