@@ -36,6 +36,18 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultAction'  => 'INVENTORY',
       'Actions'        =>
         [
+          [ 'ALARM',
+            {
+              'Description' => 'I30200 Sensor alarm history (untested)',
+              'TLS-350_CMD' => "\x01I30200"
+            }
+          ],
+          [ 'ALARM_RESET',
+            {
+              'Description' => 'IS00300 Remote alarm reset (untested)',
+              'TLS-350_CMD' => "\x01IS00300"
+            }
+          ],
           [ 'DELIVERY',
             {
               'Description' => 'I20200 Delivery report',
@@ -44,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
           ],
           [ 'INVENTORY',
             {
-              'Description' => 'I20100 In-tank inventory report',
+              'Description' => '200/I20100 In-tank inventory report',
               'TLS-250_CMD' => "\x01200",
               'TLS-350_CMD' => "\x01I20100"
             }
@@ -53,6 +65,36 @@ class Metasploit3 < Msf::Auxiliary
             {
               'Description' => 'I20300 Leak report',
               'TLS-350_CMD' => "\x01I20300"
+            }
+          ],
+          [ 'RELAY',
+            {
+              'Description' => 'I40600 Relay status (untested)',
+              'TLS-350_CMD' => "\x01I40600"
+            }
+          ],
+          [ 'RESET',
+            {
+              'Description' => 'IS00100 Reset (untested)',
+              'TLS-350_CMD' => "\x01IS00100"
+            }
+          ],
+          [ 'CLEAR_RESET',
+            {
+              'Description' => 'IS00200 Clear Reset Flag (untested)',
+              'TLS-350_CMD' => "\x01IS00200"
+            }
+          ],
+          [ 'SENSOR',
+            {
+              'Description' => 'I30100 Sensor status (untested)',
+              'TLS-350_CMD' => "\x01I30100"
+            }
+          ],
+          [ 'SENSOR_DIAG',
+            {
+              'Description' => 'IB0100 Sensor diagnostics (untested)',
+              'TLS-350_CMD' => "\x01IB0100"
             }
           ],
           [ 'SHIFT',
@@ -67,10 +109,34 @@ class Metasploit3 < Msf::Auxiliary
               'TLS-350_CMD' => "\x01S602"
             }
           ],
+          [ 'SET_TIME',
+            {
+              'Description' => 'S50100 Set time of day (untested)',
+              'TLS-350_CMD' => "\x01S50100"
+            }
+          ],
           [ 'STATUS',
             {
               'Description' => 'I20500 In-tank status report',
               'TLS-350_CMD' => "\x01I20500"
+            }
+          ],
+          [ 'SYSTEM_STATUS',
+            {
+              'Description' => 'I10100 System status report (untested)',
+              'TLS-350_CMD' => "\x01I10100"
+            }
+          ],
+          [ 'TANK_ALARM',
+            {
+              'Description' => 'I20600 Tank alarm history (untested)',
+              'TLS-350_CMD' => "\x01I20600"
+            }
+          ],
+          [ 'TANK_DIAG',
+            {
+              'Description' => 'IA0100 Tank diagnostics (untested)',
+              'TLS-350_CMD' => "\x01IA0100"
             }
           ],
           [ 'VERSION',
