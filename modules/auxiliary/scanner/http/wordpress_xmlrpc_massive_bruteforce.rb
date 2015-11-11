@@ -35,13 +35,6 @@ class Metasploit3 < Msf::Auxiliary
                                       File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")]),
           OptInt.new('BLOCKEDWAIT', [true, 'Time(minutes) to wait if got blocked', 6])
         ], self.class)
-
-
-    register_advanced_options(
-        [
-          OptInt.new('THREADS', [true, 'The number of concurrent threads', 5]),
-          OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5])
-        ], self.class)
   end
 
   def usernames
@@ -161,6 +154,7 @@ class Metasploit3 < Msf::Auxiliary
           sleep datastore['BLOCKEDWAIT'] * 60
           retry
         end
+        vprint_status('Sleeping for 2 seconds..')
         sleep 2
       end end end
 
