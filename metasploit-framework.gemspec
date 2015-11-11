@@ -44,7 +44,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-
+  # Database support
+  spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Need 3+ for ActiveSupport::Concern
   spec.add_runtime_dependency 'activesupport', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for config.action_view for view plugin compatibility for Pro
@@ -59,6 +60,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
   spec.add_runtime_dependency 'metasploit-concern', '1.0.0'
+  # Metasploit::Credential database models
+  spec.add_runtime_dependency 'metasploit-credential', '1.0.1'
+  # Database models shared between framework and Pro.
+  spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.0.0'
@@ -66,10 +71,16 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.16'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
+  # get list of network interfaces, like eth* from OS.
+  spec.add_runtime_dependency 'network_interface', '~> 0.0.1'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
   spec.add_runtime_dependency 'packetfu', '1.1.11'
+  # For sniffer and raw socket modules
+  spec.add_runtime_dependency 'pcaprub'
+  # Needed for module caching in Mdm::ModuleDetails
+  spec.add_runtime_dependency 'pg', '>= 0.11'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
