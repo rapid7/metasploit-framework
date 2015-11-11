@@ -31,7 +31,8 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'https://community.rapid7.com/community/infosec/blog/2015/01/22/the-internet-of-gas-station-tank-gauges'],
           ['URL', 'http://www.trendmicro.com/vinfo/us/security/news/cybercrime-and-digital-threats/the-gaspot-experiment'],
           ['URL', 'https://github.com/sjhilt/GasPot'],
-          ['URL', 'http://www.veeder.com/us/automatic-tank-gauge-atg-consoles']
+          ['URL', 'http://www.veeder.com/us/automatic-tank-gauge-atg-consoles'],
+          ['URL', 'http://www.chipkin.com/files/liz/576013-635.pdf']
         ],
       'DefaultAction'  => 'INVENTORY',
       'Actions'        =>
