@@ -102,7 +102,6 @@ class Metasploit3 < Msf::Auxiliary
   # For verbose output, deduplicate repeated characters beyond this threshold
   DEDUP_REPEATED_CHARS_THRESHOLD = 400
 
-
   def initialize
     super(
       'Name'           => 'OpenSSL Heartbeat (Heartbleed) Information Leak',
@@ -207,7 +206,6 @@ class Metasploit3 < Msf::Auxiliary
 
   # Main method
   def run_host(ip)
-
     case action.name
       when 'SCAN'
         loot_and_report(bleed)
@@ -535,11 +533,11 @@ class Metasploit3 < Msf::Auxiliary
     duplicate_pad = (DEDUP_REPEATED_CHARS_THRESHOLD / 3).round
 
     # Remove duplicate characters
-    abbreviated_data = printable_data.gsub(/(.)\1{#{(DEDUP_REPEATED_CHARS_THRESHOLD - 1)},}/) { |s|
-              s[0,duplicate_pad] +
-              ' repeated ' + ( s.length - (2 * duplicate_pad) ).to_s + ' times ' +
-              s[-duplicate_pad,duplicate_pad]
-    }
+    abbreviated_data = printable_data.gsub(/(.)\1{#{(DEDUP_REPEATED_CHARS_THRESHOLD - 1)},}/) do |s|
+      s[0, duplicate_pad] +
+      ' repeated ' + (s.length - (2 * duplicate_pad)).to_s + ' times ' +
+      s[-duplicate_pad, duplicate_pad]
+    end
 
     # Show abbreviated data
     vprint_status("#{peer} - Printable info leaked:\n#{abbreviated_data}")
@@ -720,7 +718,7 @@ class Metasploit3 < Msf::Auxiliary
 
     remaining_data = get_ssl_record
 
-    while remaining_data and remaining_data.length > 0
+    while remaining_data && remaining_data.length > 0
       ssl_record_counter += 1
       ssl_unpacked = remaining_data.unpack('CH4n')
       return nil if ssl_unpacked.nil? or ssl_unpacked.length < 3
@@ -738,7 +736,7 @@ class Metasploit3 < Msf::Auxiliary
         handshakes = parse_handshakes(ssl_data)
 
         # Stop once we receive a SERVER_HELLO_DONE
-        if handshakes and handshakes.length > 0 and handshakes[-1][:type] == HANDSHAKE_SERVER_HELLO_DONE_TYPE
+        if handshakes && handshakes.length > 0 && handshakes[-1][:type] == HANDSHAKE_SERVER_HELLO_DONE_TYPE
           server_done = true
           break
         end
