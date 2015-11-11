@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
     connect
     disconnect
     if (banner =~ /220 PCMan's FTP Server 2\.0/)
-      return Exploit::CheckCode::Vulnerable
+      return Exploit::CheckCode::Appears
     else
       return Exploit::CheckCode::Safe
     end
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Stored #{file_path} to #{loot_file}")
 
       # Read and print the data from the loot file.
-      info_disclosure = IO.read(loot_file)
+      info_disclosure = print_line(loot_file)
       print_status("Printing contents of #{file_path}")
       print_good("Result:\n #{info_disclosure}")
 
