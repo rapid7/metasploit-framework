@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
         [
+          OptString.new('TARGETURI', [true, 'The base path', '/']),
           OptPath.new('WPUSER_FILE', [true, 'File containing usernames, one per line',
                                       File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
           OptPath.new('WPPASS_FILE', [true, 'File containing passwords, one per line',
@@ -118,10 +119,11 @@ class Metasploit3 < Msf::Auxiliary
       generate_xml(user).each do |xml|
         break if passfound == true
 
+        uri = target_uri.path
         opts =
             {
               'method'  => 'POST',
-              'uri'     => wordpress_url_xmlrpc,
+              'uri'     => normalize_uri(uri, wordpress_url_xmlrpc),
               'data'    => xml,
               'ctype'   =>'text/xml'
             }
