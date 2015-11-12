@@ -995,7 +995,7 @@ require 'msf/core/exe/segment_appender'
       # Use set_template_default to normalize the :template key. It will just end up doing
       # opts[:template] = File.join(opts[:template_path], opts[:template])
       # for us, check if the file exists.
-      set_template_default(opts)
+      set_template_default(opts, 'template_x86_linux.bin')
 
       # If this isn't our normal template, we have to do some fancy
       # header patching to mark the .text section rwx before putting our
