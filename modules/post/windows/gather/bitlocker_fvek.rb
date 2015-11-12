@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
 
     @handle = r['return']
     print_good("Successfuly opened Disk #{drive_number}")
-    seek_relative_volume(0)
+    seek(0)
 
     if !datastore['RECOVERY_KEY'].nil?
       print_status('Using provided recovery key')
@@ -129,12 +129,6 @@ class Metasploit3 < Msf::Post
   end
 
   def seek(offset)
-    high_offset = offset >> 32
-    low_offset = offset & (2**33 - 1)
-    client.railgun.kernel32.SetFilePointer(@handle, low_offset, high_offset, 0)
-  end
-
-  def seek_relative_volume(offset)
     offset += @starting_offset
     high_offset = offset >> 32
     low_offset = offset & (2**33 - 1)

@@ -52,7 +52,7 @@ module Rex
         end
         @fve_offset = volume_header[176, 8].unpack('Q')[0]
 
-        @file_handler.seek_relative_volume(@fve_offset)
+        @file_handler.seek(@fve_offset)
         @fve_raw = @file_handler.read(4096)
         @encryption_methods = @fve_raw[BLOCK_HEADER_SIZE + 36, 4].unpack('V')[0]
         size = @fve_raw[BLOCK_HEADER_SIZE, 4].unpack('V')[0] -
