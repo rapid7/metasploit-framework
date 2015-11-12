@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
       fs = Rex::Parser::BITLOCKER.new(self)
       print_status('The recovery key derivation usually take 20 seconds...')
       fvek = fs.fvek_from_recovery_password_dislocker(recovery_key)
-      if fvek != '' &&  !fvek.nil?
+      if !fvek.blank?
         stored_path = store_loot('windows.file', 'application/octet-stream',
                                  session, fvek)
         print_good("Successfuly extract FVEK in #{stored_path}")
@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Post
         print_bad('Failed to generate FVEK, wrong recovery key?')
       end
     ensure
-      unless id_key_tmp.nil?
+      unless id_key_tmp
         print_status('Deleting temporary recovery key')
         cmd_exec("#{system_root}\\sysnative\\manage-bde.exe",
                  "-protectors -delete #{drive_letter}: -id #{id_key_tmp}")

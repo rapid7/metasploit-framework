@@ -71,16 +71,16 @@ module Rex
           fvek_from_recovery_password(recoverykey)
       end
 
-      # Strech recovery key with all stretch key and try to decrypt all VMK
+      # stretch recovery key with all stretch key and try to decrypt all VMK
       # encrypted with a recovery key
       def vmk_from_recovery_password(recoverykey)
-        recovery_keys_streched = recovery_key_transformation(recoverykey)
+        recovery_keys_stretched = recovery_key_transformation(recoverykey)
         vmk_encrypted_in_recovery_password_list =  @vmk_entries_hash[
                                                    PROTECTION_RECOVERY_PASSWORD]
         vmk_recovery_password = ''
         vmk_encrypted_in_recovery_password_list.each do |vmk|
           vmk_encrypted = vmk[ENTRY_TYPE_NONE][VALUE_TYPE_ENCRYPTED_KEY][0]
-          recovery_keys_streched.each do |recovery_key|
+          recovery_keys_stretched.each do |recovery_key|
             vmk_recovery_password = decrypt_aes_ccm_key(
             vmk_encrypted, recovery_key)
             break if vmk_recovery_password != ''
@@ -152,7 +152,7 @@ module Rex
         end
       end
 
-      # Strech all the Recovrey key and returns it
+      # stretch all the Recovrey key and returns it
       def recovery_key_transformation(recoverykey)
         # recovery key stretching phase 1
         recovery_intermediate = recoverykey.split('-').map(&:to_i)
