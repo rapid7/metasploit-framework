@@ -30,14 +30,13 @@ module Metasploit
         end
       end
 
-      MAJOR = 4
-      MINOR = 11
-      PATCH = 5
+      VERSION = "4.11.5"
+      MAJOR, MINOR, PATCH = VERSION.split('.').map { |x| x.to_i }
       PRERELEASE = 'dev'
       HASH = get_hash
     end
 
-    VERSION = "#{Version::MAJOR}.#{Version::MINOR}.#{Version::PATCH}-#{Version::PRERELEASE}#{Version::HASH}"
-    GEM_VERSION = "#{Version::MAJOR}.#{Version::MINOR}.#{Version::PATCH}"
+    VERSION = "#{Version::VERSION}-#{Version::PRERELEASE}#{Version::HASH}"
+    GEM_VERSION = "#{Version::VERSION}"
   end
 end
