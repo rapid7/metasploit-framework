@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
       print_warning("I'll sleep for #{datastore['BLOCKEDWAIT']} minutes, then I'll try again. CTR+C to exit")
       sleep datastore['BLOCKEDWAIT'] * 60
     end
-    @response = res
+    @res = res
   end
 
   def run
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
         # Request Parser
         req_xml = Nokogiri::Slop xml
         # Response Parser
-        res_xml = Nokogiri::Slop @response.to_s.scan(/<.*>/).join
+        res_xml = Nokogiri::Slop @res.to_s.scan(/<.*>/).join
 
         res_xml.search("methodResponse/params/param/value/array/data/value").each_with_index do |value, i|
 
