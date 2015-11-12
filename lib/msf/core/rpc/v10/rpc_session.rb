@@ -481,15 +481,17 @@ private
   def _valid_session(sid,type)
 
     s = self.framework.sessions[sid.to_i]
+
     if(not s)
-      error(500, "Unknown Session ID")
+      error(500, "Unknown Session ID #{sid}")
     end
 
     if type == "ring"
       if not s.respond_to?(:ring)
         error(500, "Session #{s.type} does not support ring operations")
       end
-    elsif (s.type != type)
+    elsif (type == 'meterpreter' && s.type != type) ||
+      (type == 'shell' && s.type == 'meterpreter')
       error(500, "Session is not of type " + type)
     end
     s

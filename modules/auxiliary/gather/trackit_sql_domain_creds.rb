@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2014-4872' ],
           [ 'OSVDB', '112741' ],
           [ 'US-CERT-VU', '121036' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/bmc-track-it-11.3.txt' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2014/Oct/34' ]
         ],
       'DisclosureDate' => 'Oct 7 2014'

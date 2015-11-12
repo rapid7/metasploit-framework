@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'References'      =>
         [
-          [ 'URL', 'http://homesupport.cisco.com/en-eu/support/routers/WRT54GL' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-01' ],
           [ 'URL', 'http://www.s3cur1ty.de/attacking-linksys-wrt54gl' ],
           [ 'EDB', '24202' ],

@@ -206,7 +206,6 @@ class Metasploit3 < Msf::Auxiliary
         service_name: 'dvr',
         user: user,
         password: password,
-        service_name: 'http',
         proof: "user_id: #{user_id}, active: #{active}"
       )
     }

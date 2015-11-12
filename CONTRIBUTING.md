@@ -97,7 +97,7 @@ already way ahead of the curve, so keep it up!
 [Common Coding Mistakes]:https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes
 [Ruby style guide]:https://github.com/bbatsov/ruby-style-guide
 [Rubocop]:https://rubygems.org/search?query=rubocop
-[50.72 rule]:http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+[50/72 rule]:http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [topic branch]:http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches
 [console output]:https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
 [verification steps]:https://help.github.com/articles/writing-on-github#task-lists

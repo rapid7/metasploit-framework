@@ -70,8 +70,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CWE', '425'],
           ['CVE', '2013-6031'],
-          ['US-CERT-VU', '341526'],
-          ['URL', 'http://www.huaweidevice.co.in/Support/Downloads/'],
+          ['US-CERT-VU', '341526']
         ],
       'DisclosureDate' => "Nov 11 2013" ))
 
