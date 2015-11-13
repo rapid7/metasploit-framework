@@ -164,7 +164,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptEnum.new('PROTOCOL', [true, 'The Veeder-Root TLS protocol to speak', 'TLS-350', %w(TLS-350 TLS-250)])
+        OptEnum.new('PROTOCOL', [true, 'The Veeder-Root TLS protocol to speak', 'TLS-350', %w(TLS-350 TLS-250)]),
+        OptInt.new('TIMEOUT', [true, 'Time in seconds to wait for responses to our probes', 5])
       ]
     )
   end
@@ -176,6 +177,18 @@ class Metasploit3 < Msf::Auxiliary
 
     # ensure that the tank number is set for the commands that need it
     fail "TANK_NUMBER #{tank_number} is invalid" if action.name == 'SET_TANK_NAME' && (tank_number < 0 || tank_number > 99)
+
+    fail "Invalid timeout #{timeout} -- must be > 0" unless timeout > 0
+  end
+
+  def get_response(request)
+    sock.put(request)
+    response = sock.get_once(-1, timeout)
+    response
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
   end
 
   def protocol
@@ -198,8 +211,8 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def peer
-    "#{rhost}:#{rport}"
+  def timeout
+    datastore['TIMEOUT']
   end
 
   def run_host(_host)
@@ -220,8 +233,7 @@ class Metasploit3 < Msf::Auxiliary
         connect
         # send an inventory probe to show that it succeeded
         inventory_probe = "#{actions.find { |a| a.name == 'INVENTORY' }.opts[protocol + '_CMD']}\n"
-        sock.put(inventory_probe)
-        inventory_response = sock.get_once # XXX: timeout?
+        inventory_response = get_response(inventory_probe)
         message = "#{peer} #{protocol} #{action.opts['Description']}:\n#{inventory_response}"
         if inventory_response.include?(tank_name)
           print_good message
@@ -233,8 +245,8 @@ class Metasploit3 < Msf::Auxiliary
         sock.put(request)
       else
         request = "#{action.opts[protocol + '_CMD']}\n"
-        sock.put(request)
-        print_good("#{peer} #{protocol} #{action.opts['Description']}:\n#{sock.get_once}")
+        response = get_response(request)
+        print_good("#{peer} #{protocol} #{action.opts['Description']}:\n#{response}")
       end
     ensure
       disconnect
