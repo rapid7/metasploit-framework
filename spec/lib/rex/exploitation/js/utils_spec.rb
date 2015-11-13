@@ -7,7 +7,7 @@ RSpec.describe Rex::Exploitation::Js::Utils do
     context ".base64" do
       it "should load the base64 javascript" do
         js = Rex::Exploitation::Js::Utils.base64
-        expect(js).to =~ /encode : function/
+        expect(js).to match /encode : function/
       end
     end
 

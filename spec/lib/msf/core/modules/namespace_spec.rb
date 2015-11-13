@@ -107,7 +107,7 @@ RSpec.describe Msf::Modules::Namespace do
       end
 
       it 'should be newer than Msf::Framework::Major' do
-        expect(major).to > Msf::Framework::Major
+        expect(major).to be > Msf::Framework::Major
       end
 
       it 'should return nil' do

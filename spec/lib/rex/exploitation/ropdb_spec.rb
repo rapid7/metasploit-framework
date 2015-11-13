@@ -10,7 +10,7 @@ RSpec.describe Rex::Exploitation::RopDb do
 
     context ".initialize" do
       it "should initialize with a path of the ROP database ready" do
-        expect(ropdb.instance_variable_get(:@base_path)).to =~ /data\/ropdb\/$/
+        expect(ropdb.instance_variable_get(:@base_path)).to match /data\/ropdb\/$/
       end
     end
 
@@ -39,12 +39,12 @@ RSpec.describe Rex::Exploitation::RopDb do
     context ".select_rop" do
       it "should return msvcrt gadgets" do
         gadgets = ropdb.select_rop('msvcrt')
-        expect(gadgets.length).to > 0
+        expect(gadgets.length).to be > 0
       end
 
       it "should return msvcrt gadgets for windows server 2003" do
         gadgets = ropdb.select_rop('msvcrt', {'target'=>'2003'})
-        expect(gadgets.length).to > 0
+        expect(gadgets.length).to be > 0
       end
 
       it "should return msvcrt gadgets with a new base" do
@@ -57,11 +57,11 @@ RSpec.describe Rex::Exploitation::RopDb do
 
     context ".generate_rop_payload" do
       it "should generate my ROP payload" do
-        expect(ropdb.generate_rop_payload('msvcrt', 'AAAA')).to =~ /AAAA$/
+        expect(ropdb.generate_rop_payload('msvcrt', 'AAAA')).to match /AAAA$/
       end
 
       it "should generate my ROP payload with my stack pivot" do
-        expect(ropdb.generate_rop_payload('msvcrt', 'AAAA', {'pivot'=>'BBBB'})).to =~ /^BBBB/
+        expect(ropdb.generate_rop_payload('msvcrt', 'AAAA', {'pivot'=>'BBBB'})).to match /^BBBB/
       end
     end
 
