@@ -113,14 +113,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
     if framework_re
       @output = []
       core.cmd_getg(name)
-      expect(@output.join).to =~ framework_re
+      expect(@output.join).to match framework_re
     end
 
     # test the local value if specified
     if module_re
       @output = []
       core.cmd_get(name)
-      expect(@output.join).to =~ module_re
+      expect(@output.join).to match module_re
     end
   end
 
@@ -128,10 +128,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
     describe "without arguments" do
       it "should show the correct help message" do
         core.cmd_get
-        expect(@output.join).to =~ /Usage: get /
+        expect(@output.join).to match /Usage: get /
         @output = []
         core.cmd_getg
-        expect(@output.join).to =~ /Usage: getg /
+        expect(@output.join).to match /Usage: getg /
       end
     end
 

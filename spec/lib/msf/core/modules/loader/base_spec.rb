@@ -188,7 +188,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         direct_index = described_class::NAMESPACE_MODULE_NAMES.index('Msf')
         last_index = described_class::NAMESPACE_MODULE_NAMES.length - 1
 
-        expect(last_index).to > direct_index
+        expect(last_index).to be > direct_index
       end
     end
 

@@ -200,7 +200,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       context "with an invalid type" do
         it "should print the list of valid types" do
           db.cmd_creds("-t", "asdf")
-          expect(@error).to =~ [
+          expect(@error).to match_array [
             "Unrecognized credential type asdf -- must be one of password,ntlm,hash"
           ]
         end
@@ -319,7 +319,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-h" do
       it "should show a help message" do
         db.cmd_db_export "-h"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Usage:",
           "    db_export -f <format> [filename]",
           "    Format can be one of: xml, pwdump"
@@ -332,7 +332,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-h" do
       it "should show a help message" do
         db.cmd_db_import "-h"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Usage: db_import <filename> [file2...]",
           "Filenames can be globs like *.xml, or **/*.xml which will search recursively",
           "Currently supported file types include:",
@@ -377,7 +377,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-h" do
       it "should show a help message" do
         db.cmd_hosts "-h"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Usage: hosts [ options ] [addr1 addr2 ...]",
           "OPTIONS:",
           "  -a,--add          Add the hosts instead of searching",
@@ -402,7 +402,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-h" do
       it "should show a help message" do
         db.cmd_loot "-h"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Usage: loot <options>",
           " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
           "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]",
@@ -424,7 +424,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-h" do
       it "should show a help message" do
         db.cmd_notes "-h"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Usage: notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]",
           "  -a,--add                  Add a note to the list of addresses, instead of listing",
           "  -d,--delete               Delete the hosts instead of searching",
@@ -450,7 +450,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-h" do
       it "should show a help message" do
         db.cmd_services "-h"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]",
           "  -a,--add          Add the services instead of searching",
           "  -d,--delete       Delete the services instead of searching",
@@ -476,7 +476,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       end
       it "should list services that are on a given port" do
         db.cmd_services "-p", "1024,1025"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Services",
           "========",
           "",
@@ -516,7 +516,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-h" do
       it "should show a help message" do
         db.cmd_vulns "-h"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Print all vulnerabilities in the database",
           "Usage: vulns [addr range]",
           "  -h,--help             Show this help information",
@@ -542,7 +542,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "<no arguments>" do
       it "should list default workspace" do
         db.cmd_workspace
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "* default"
         ]
       end
@@ -551,7 +551,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "  default",
           "* foo"
         ]
@@ -561,7 +561,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-a" do
       it "should add workspaces" do
         db.cmd_workspace("-a", "foo", "bar", "baf")
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Added workspace: foo",
           "Added workspace: bar",
           "Added workspace: baf"
@@ -574,7 +574,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace("-d", "foo")
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Deleted workspace: foo",
           "Switched workspace: default"
         ]
@@ -586,7 +586,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace("-D")
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Deleted and recreated the default workspace",
           "Deleted workspace: foo",
           "Switched workspace: default"
@@ -597,7 +597,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-h" do
       it "should show a help message" do
         db.cmd_workspace "-h"
-        expect(@output).to =~ [
+        expect(@output).to match_array [
           "Usage:",
           "    workspace                  List workspaces",
           "    workspace [name]           Switch workspace",

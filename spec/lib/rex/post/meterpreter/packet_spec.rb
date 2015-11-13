@@ -427,7 +427,7 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     end
 
     it "should return a valid request id" do
-      expect(packet.rid).to =~ /\A\d{32}\Z/
+      expect(packet.rid).to match /\A\d{32}\Z/
     end
 
     it "should be created when Packet.create_request is called" do
