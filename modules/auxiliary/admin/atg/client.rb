@@ -156,8 +156,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(10001),
         OptInt.new('TANK_NUMBER', [false, 'The tank number to operate on (use with SET_TANK_NAME, 0 to change all)', 1]),
-        OptString.new('TANK_NAME', [false, 'The tank name to set (use with SET_TANK_NAME, defaults to random)']),
-        OptString.new('TIME', [false, "The time to set (use with SET_TIME, defaults to Time.now (~#{Time.now.inspect})"])
+        OptString.new('TANK_NAME', [false, 'The tank name to set (use with SET_TANK_NAME, defaults to random)'])
       ]
     )
     deregister_options('SSL', 'SSLCipher', 'SSLVerifyMode', 'SSLVersion')
@@ -165,6 +164,7 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options(
       [
         OptEnum.new('PROTOCOL', [true, 'The Veeder-Root TLS protocol to speak', 'TLS-350', %w(TLS-350 TLS-250)]),
+        OptString.new('TIME', [false, "The time to set (use with SET_TIME, defaults to Time.now (~#{Time.now.inspect})"]),
         OptInt.new('TIMEOUT', [true, 'Time in seconds to wait for responses to our probes', 5])
       ]
     )
