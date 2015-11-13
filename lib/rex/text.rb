@@ -1148,12 +1148,12 @@ module Text
     # text in the cowsay banner, so just do it by hand.  This big mess wraps
     # the provided text in an ASCII-cloud and then makes it look like the cloud
     # is a thought/word coming from the ASCII-cow.  Each line in the
-    # ASCII-cloud is no more than the specified number-characters long, and the cloud corners are
-    # made to look rounded
-    text_lines = text.scan(Regexp.new(".{1,#{width}}"))
+    # ASCII-cloud is no more than the specified number-characters long, and the
+    # cloud corners are made to look rounded
+    text_lines = text.scan(Regexp.new(".{1,#{width-4}}"))
     max_length = text_lines.map(&:size).sort.last
     cloud_parts = []
-    cloud_parts << " #{'_' * (max_length + 2)} "
+    cloud_parts << " #{'_' * (max_length + 2)}"
     if text_lines.size == 1
       cloud_parts << "< #{text} >"
     else
@@ -1165,7 +1165,7 @@ module Text
       end
       cloud_parts << "\\ #{text_lines.last.ljust(max_length, ' ')} /"
     end
-    cloud_parts << " #{'-' * (max_length + 2)} "
+    cloud_parts << " #{'-' * (max_length + 2)}"
     cloud_parts << <<EOS
        \\   ,__,
         \\  (oo)____
