@@ -13,7 +13,7 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
           "test_method")
     @raw = @req_packt.to_r
     @sock = double('Socket')
-    expect(@sock).to receive(:read) do |arg|
+    allow(@sock).to receive(:read) do |arg|
       @raw.slice!(0,arg)
     end
   end
