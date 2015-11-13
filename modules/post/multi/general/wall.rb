@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
       text = datastore['MESSAGE']
     end
 
-    datastore['COWSAY'] ? Rex::Text.cowsay(text, 100) : text
+    datastore['COWSAY'] ? Rex::Text.cowsay(text) : text
   end
 
   def run
