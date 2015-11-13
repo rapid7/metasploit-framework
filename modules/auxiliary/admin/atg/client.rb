@@ -234,7 +234,7 @@ class Metasploit3 < Msf::Auxiliary
       else
         request = "#{action.opts[protocol + '_CMD']}\n"
         sock.put(request)
-        print_status("#{peer} #{protocol} #{action.opts['Description']}:\n#{sock.get_once}")
+        print_good("#{peer} #{protocol} #{action.opts['Description']}:\n#{sock.get_once}")
       end
     ensure
       disconnect
