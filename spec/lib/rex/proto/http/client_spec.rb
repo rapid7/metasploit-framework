@@ -38,7 +38,7 @@ RSpec.describe Rex::Proto::Http::Client do
   describe "#set_config" do
 
     it "should respond to #set_config" do
-      expect(cli.set_config).to eq {}
+      expect(cli.set_config).to eq({})
     end
 
   end
@@ -50,7 +50,7 @@ RSpec.describe Rex::Proto::Http::Client do
   it "should have a set of default instance variables" do
     expect(cli.instance_variable_get(:@hostname)).to eq ip
     expect(cli.instance_variable_get(:@port)).to eq 80
-    expect(cli.instance_variable_get(:@context)).to eq {}
+    expect(cli.instance_variable_get(:@context)).to eq({})
     expect(cli.instance_variable_get(:@ssl)).to be_falsey
     expect(cli.instance_variable_get(:@proxies)).to be_nil
     expect(cli.instance_variable_get(:@username)).to be_empty
