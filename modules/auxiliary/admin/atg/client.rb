@@ -111,13 +111,12 @@ class Metasploit3 < Msf::Auxiliary
               'TLS-350_CMD' => "\x01S602"
             }
           ],
-          [ 'SET_TIME',
-            {
-              'Description' => 'S50100 Set time of day (use TIME option) (untested)',
-              # disabled, unsure how this works just yet
-              # 'TLS-350_CMD' => "\x01S50100"
-            }
-          ],
+          # [ 'SET_TIME',
+          #   {
+          #     'Description' => 'S50100 Set time of day (use TIME option) (untested)',
+          #     'TLS-350_CMD' => "\x01S50100"
+          #   }
+          # ],
           [ 'STATUS',
             {
               'Description' => 'I20500 In-tank status report',
@@ -164,7 +163,6 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options(
       [
         OptEnum.new('PROTOCOL', [true, 'The Veeder-Root TLS protocol to speak', 'TLS-350', %w(TLS-350 TLS-250)]),
-        OptString.new('TIME', [false, "The time to set (use with SET_TIME, defaults to Time.now (~#{Time.now.inspect})"]),
         OptInt.new('TIMEOUT', [true, 'Time in seconds to wait for responses to our probes', 5])
       ]
     )
@@ -243,8 +241,6 @@ class Metasploit3 < Msf::Auxiliary
         else
           print_warning message
         end
-      when 'SET_TIME'
-        response = get_response("#{action.opts[protocol_opt_name]}#{Time.now.to_i}\n")
       else
         response = get_response("#{action.opts[protocol_opt_name]}\n")
         print_good("#{peer} #{protocol} #{action.opts['Description']}:\n#{response}")
