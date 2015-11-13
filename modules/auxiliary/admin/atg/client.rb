@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
             {
               'Description' => 'S50100 Set time of day (use TIME option) (untested)',
               # disabled, unsure how this works just yet
-              #'TLS-350_CMD' => "\x01S50100"
+              # 'TLS-350_CMD' => "\x01S50100"
             }
           ],
           [ 'STATUS',
@@ -158,16 +158,14 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('TANK_NUMBER', [false, 'The tank number to operate on (use with SET_TANK_NAME, 0 to change all)', 1]),
         OptString.new('TANK_NAME', [false, 'The tank name to set (use with SET_TANK_NAME, defaults to random)']),
         OptString.new('TIME', [false, "The time to set (use with SET_TIME, defaults to Time.now (~#{Time.now.inspect})"])
-      ],
-      self.class
+      ]
     )
     deregister_options('SSL', 'SSLCipher', 'SSLVerifyMode', 'SSLVersion')
 
     register_advanced_options(
       [
         OptEnum.new('PROTOCOL', [true, 'The Veeder-Root TLS protocol to speak', 'TLS-350', %w(TLS-350 TLS-250)])
-      ],
-      self.class
+      ]
     )
   end
 
