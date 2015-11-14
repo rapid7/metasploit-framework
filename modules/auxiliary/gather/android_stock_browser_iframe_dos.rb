@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Exploit::Remote
         'Jonathan Waggoner'     # Metasploit module
       ],
       'References' => [
-        [ 'URL', 'http://packetstormsecurity.com/files/118539/Android-4.0.3-Browser-Crash.html'],
+        [ 'PACKETSTORM', 'http://packetstormsecurity.com/files/118539/Android-4.0.3-Browser-Crash.html'],
         [ 'CVE', '2012-6301' ]
       ],
       'Platform'            => 'android',
@@ -55,7 +55,6 @@ class Metasploit3 < Msf::Exploit::Remote
     </body>
     </html>
     |
-
     print_status(msg = 'Getting ready to send HTML to client')
     send_response(cli, html)
     print_status(msg = 'Sent HTML to client')
