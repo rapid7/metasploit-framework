@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Exploit::Remote
         'Jonathan Waggoner'     # Metasploit module
       ],
       'References' => [
-        [ 'PACKETSTORM', 'http://packetstormsecurity.com/files/118539/Android-4.0.3-Browser-Crash.html'],
+        [ 'PACKETSTORM', '118539'],
         [ 'CVE', '2012-6301' ]
       ],
       'Platform'            => 'android',
