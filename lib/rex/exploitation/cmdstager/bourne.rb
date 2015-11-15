@@ -33,7 +33,7 @@ class CmdStagerBourne < CmdStagerBase
   def generate_cmds(opts)
     # Set the start/end of the commands here (vs initialize) so we have @tempdir
     @cmd_start = "echo -n "
-    @cmd_end   = ">>#{@tempdir}#{@var_encoded}"
+    @cmd_end   = ">>\"#{@tempdir}#{@var_encoded}\""
     xtra_len = @cmd_start.length + @cmd_end.length + 1
     opts.merge!({ :extra => xtra_len })
     super
@@ -82,27 +82,27 @@ class CmdStagerBourne < CmdStagerBase
       decoder_cmd << "(which #{binary} >&2 && #{cmd})"
     end
     decoder_cmd = decoder_cmd.join(" || ")
-    decoder_cmd = "(" << decoder_cmd << ") 2> /dev/null > #{@tempdir}#{@var_decoded} < #{@tempdir}#{@var_encoded}"
+    decoder_cmd = "(" << decoder_cmd << ") 2> /dev/null > \"#{@tempdir}#{@var_decoded}\" < \"#{@tempdir}#{@var_encoded}\""
     [ decoder_cmd ]
   end
 
   def compress_commands(cmds, opts)
     # Make it all happen
-    cmds << "chmod +x #{@tempdir}#{@var_decoded}"
+    cmds << "chmod +x \"#{@tempdir}#{@var_decoded}\""
     # Background the process, allowing the cleanup code to continue and delete the data
     # while allowing the original shell to continue to function since it isn't waiting
     # on the payload to exit.  The 'sleep' is required as '&' is a command terminator
     # and having & and the cmds delimiter ';' next to each other is invalid.
     if opts[:background]
-      cmds << "#{@tempdir}#{@var_decoded} & sleep 2"
+      cmds << "\"#{@tempdir}#{@var_decoded}\" & sleep 2"
     else
-      cmds << "#{@tempdir}#{@var_decoded}"
+      cmds << "\"#{@tempdir}#{@var_decoded}\""
     end
 
     # Clean up after unless requested not to..
     if (not opts[:nodelete])
-      cmds << "rm -f #{@tempdir}#{@var_decoded}"
-      cmds << "rm -f #{@tempdir}#{@var_encoded}"
+      cmds << "rm -f \"#{@tempdir}#{@var_decoded}\""
+      cmds << "rm -f \"#{@tempdir}#{@var_encoded}\""
     end
 
     super
