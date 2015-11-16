@@ -44,14 +44,14 @@ class PacketResponseWaiter
   # Notifies the waiter that the supplied response packet has arrived.
   #
   def notify(response)
-    self.response = response
-
     if (self.completion_routine)
+      self.response = response
       self.completion_routine.call(response, self.completion_param)
     else
-      self.mutex.synchronize {
+      self.mutex.synchronize do
+        self.response = response
         self.cond.signal
-      }
+      end
     end
   end
 
@@ -61,9 +61,11 @@ class PacketResponseWaiter
   #
   def wait(interval)
     interval = nil if interval and interval == -1
-    self.mutex.synchronize {
-      self.cond.wait(self.mutex, interval)
-    }
+    self.mutex.synchronize do
+      if self.response.nil?
+        self.cond.wait(self.mutex, interval)
+      end
+    end
     return self.response
   end
 
