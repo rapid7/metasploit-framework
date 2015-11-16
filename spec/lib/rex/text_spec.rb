@@ -167,6 +167,61 @@ describe Rex::Text do
       end
     end
 
+    context ".cowsay" do
+
+      def moo(num)
+        (%w(moo) * num).join(' ')
+      end
+
+      it "should cowsay single lines correctly" do
+        cowsaid = <<EOCOW
+ _____________________
+< moo moo moo moo moo >
+ ---------------------
+       \\   ,__,
+        \\  (oo)____
+           (__)    )\\
+              ||--|| *
+EOCOW
+        described_class.cowsay(moo(5)).should eq(cowsaid)
+      end
+
+      it "should cowsay two lines correctly" do
+        cowsaid = <<EOCOW
+ _____________________________________
+/ moo moo moo moo moo moo moo moo moo \\
+\\  moo moo moo moo moo moo            /
+ -------------------------------------
+       \\   ,__,
+        \\  (oo)____
+           (__)    )\\
+              ||--|| *
+EOCOW
+        described_class.cowsay(moo(15)).should eq(cowsaid)
+      end
+
+      it "should cowsay three+ lines correctly" do
+        cowsaid = <<EOCOW
+ _____________________________________
+/ moo moo moo moo moo moo moo moo moo \\
+|  moo moo moo moo moo moo moo moo mo |
+| o moo moo moo moo moo moo moo moo m |
+\\ oo moo moo moo                      /
+ -------------------------------------
+       \\   ,__,
+        \\  (oo)____
+           (__)    )\\
+              ||--|| *
+EOCOW
+        described_class.cowsay(moo(30)).should eq(cowsaid)
+      end
+
+      it "should respect the wrap" do
+        wrap = 40 + rand(100)
+        cowsaid = described_class.cowsay(moo(1000), wrap)
+        max_len = cowsaid.split(/\n/).map(&:length).sort.last
+        max_len.should eq(wrap)
+      end
+    end
   end
 end
-
