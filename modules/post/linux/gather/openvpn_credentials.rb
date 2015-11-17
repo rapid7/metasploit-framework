@@ -71,8 +71,7 @@ class Metasploit4 < Msf::Post
     if deldump.chomp.to_i == 0
       vprint_good('Removing temp files successfully.')
     else
-      print_warning('Could not remove dumped files.')
-      return
+      print_warning('Could not remove dumped files. Remove manually.')
     end
 
     fail_with(Failure::BadConfig, 'No credentials. You can check if the PID is correct.') if strings.empty?
