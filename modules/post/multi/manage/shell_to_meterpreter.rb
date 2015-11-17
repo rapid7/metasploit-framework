@@ -190,7 +190,7 @@ class Metasploit3 < Msf::Post
     end
     opts = {
       :linemax => linemax,
-      :nodelete => true # keep temp files (for debugging)
+      #:nodelete => true # keep temp files (for debugging)
     }
     if session.platform =~ /win/i
       opts[:decoder] = File.join(Msf::Config.data_directory, 'exploits', 'cmdstager', 'vbs_b64')
