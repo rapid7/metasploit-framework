@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Veeder-Root Automatic Tank Gauge (ATG) Administrative Client',
       'Description'    => %q{
         This module acts as a simplistic administrative client for interfacing
-        with Veeder-Root Automatic Tang Gauges (ATGs) or other devices speaking
+        with Veeder-Root Automatic Tank Gauges (ATGs) or other devices speaking
         the TLS-250 and TLS-350 protocols.  This has been tested against
         GasPot, a honeypot meant to simulate ATGs; it has not been tested
         against anything else, so use at your own risk.
@@ -170,12 +170,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def setup
     # ensure that the specified command is implemented for the desired version of the TLS protocol
-    fail "#{action.name} not defined for #{protocol}" unless action.opts.keys.include?(protocol_opt_name)
+    unless action.opts.keys.include?(protocol_opt_name)
+      fail_with(Failure::BadConfig, "#{action.name} not defined for #{protocol}")
+    end
 
     # ensure that the tank number is set for the commands that need it
-    fail "TANK_NUMBER #{tank_number} is invalid" if action.name == 'SET_TANK_NAME' && (tank_number < 0 || tank_number > 99)
+    if action.name == 'SET_TANK_NAME' && (tank_number < 0 || tank_number > 99)
+      fail_with(Failure::BadConfig, "TANK_NUMBER #{tank_number} is invalid")
+    end
 
-    fail "Invalid timeout #{timeout} -- must be > 0" unless timeout > 0
+    unless timeout > 0
+      fail_with(Failure::BadConfig, "Invalid timeout #{timeout} -- must be > 0")
+    end
   end
 
   def get_response(request)
