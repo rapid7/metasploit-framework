@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
         :proto  => 'udp',
         :port   => datastore['RPORT'],
         :type   => 'SERVICE_INFO',
-        :data   => res[2] + "_" + res[1]
+        :data   => "#{res[2]}_#{res[1]}"
         )
 
       report_service(
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
         :port => datastore['RPORT'],
         :proto => 'udp',
         :name => "ibm-db2",
-        :info => res[2] + "_" + res[1]
+        :info => "#{res[2]}_#{res[1]}"
       )
 
       print_status("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] )
