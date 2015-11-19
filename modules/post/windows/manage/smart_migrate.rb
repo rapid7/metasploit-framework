@@ -27,6 +27,11 @@ class Metasploit3 < Msf::Post
     server = client.sys.process.open
     original_pid = server.pid
     print_status("Current server process: #{server.name} (#{server.pid})")
+    if server.name.casecmp("winlogon.exe") == 0 or server.name.casecmp("explorer.exe") == 0
+      print_good("Current process is already in #{server.name} process, exiting.")
+      return
+    end
+
 
     uid = client.sys.config.getuid
 
