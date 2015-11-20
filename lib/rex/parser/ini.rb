@@ -54,7 +54,7 @@ class Ini < Hash
   #
   def each_group(&block)
     self.keys.each { |k|
-      yield k
+      yield
     }
   end
 
