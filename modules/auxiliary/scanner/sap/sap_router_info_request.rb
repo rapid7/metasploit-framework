@@ -37,7 +37,6 @@ class Metasploit4 < Msf::Auxiliary
       'References' => [
           [ 'URL', 'http://labs.mwrinfosecurity.com/tools/2012/04/27/sap-metasploit-modules/' ],
           [ 'URL', 'http://help.sap.com/saphelp_nw70ehp3/helpdata/en/48/6c68b01d5a350ce10000000a42189d/content.htm'],
-          [ 'URL', 'http://www.onapsis.com/research-free-solutions.php' ], # Bizsploit Opensource ERP Pentesting Framework
           [ 'URL', 'http://conference.hitb.org/hitbsecconf2010ams/materials/D2T2%20-%20Mariano%20Nunez%20Di%20Croce%20-%20SAProuter%20.pdf' ]
         ],
       'Author' =>

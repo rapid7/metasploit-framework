@@ -67,11 +67,6 @@ require 'msf/core/nop'
 require 'msf/core/payload'
 require 'msf/core/post'
 
-# Custom HTTP Modules
-require 'msf/http/wordpress'
-require 'msf/http/typo3'
-require 'msf/http/jboss'
-
 # Drivers
 require 'msf/core/exploit_driver'
 

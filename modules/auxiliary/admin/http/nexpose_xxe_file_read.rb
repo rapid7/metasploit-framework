@@ -29,9 +29,7 @@ class Metasploit4 < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'References'  =>
         [
-          [ 'URL', 'https://community.rapid7.com/community/nexpose/blog/2013/08/16/r7-vuln-2013-07-24' ],
-          # Fill this in with the direct advisory URL from Infigo
-          [ 'URL', 'http://www.infigo.hr/in_focus/advisories/' ]
+          [ 'URL', 'https://community.rapid7.com/community/nexpose/blog/2013/08/16/r7-vuln-2013-07-24' ]
         ],
       'DefaultOptions' => {
         'SSL' => true

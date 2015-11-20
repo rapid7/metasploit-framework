@@ -31,8 +31,7 @@ class Metasploit3 < Msf::Post
   end
 
   def test_0_registry_read
-    pending "should evaluate key existence" do
-      # these methods are not implemented
+    it "should evaluate key existence" do
       k_exists = registry_key_exist?(%q#HKCU\Environment#)
       k_dne    = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
 

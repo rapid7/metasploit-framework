@@ -24,8 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2008-3996' ],
-          [ 'OSVDB', '49321'],
-          [ 'URL', 'http://www.appsecinc.com/resources/alerts/oracle/2008-08.shtml'],
+          [ 'OSVDB', '49321']
         ],
       'DisclosureDate' => 'Oct 22 2008'))
 
