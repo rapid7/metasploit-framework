@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanServer
   include Msf::Auxiliary::Scanner
@@ -25,51 +24,85 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, 'The test path to .git directory', '/'])
-      ], self.class)
+        OptString.new('TARGETURI', [true, 'The test path to .git directory', '/.git/']),
+        OptBool.new('GIT_INDEX', [true, 'Check index file in .git directory', true]),
+        OptBool.new('GIT_CONFIG', [false, 'Check config file in .git directory', true]),
+        OptBool.new('GIT_HEAD', [false, 'Check HEAD file in .git directory', true])
+      ]
+    )
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
-  def git_url(url)
-    normalize_uri(url, '/.git/index')
+  def req(filename)
+    send_request_cgi(
+      'uri' => normalize_uri(target_uri, filename)
+    )
   end
 
   def git_index_parse(resp)
     return if resp.blank? || resp.length < 12 # A 12-byte header
-    standard_signature = 'DIRC'
     signature = resp[0, 4]
-    return if signature != standard_signature
+    return unless signature == 'DIRC'
 
-    version = resp[4, 8].unpack('N')[0].to_i
-    entries_number = resp[8, 12].unpack('N')[0].to_i
+    version = resp[4, 4].unpack('N')[0].to_i
+    entries_count = resp[8, 4].unpack('N')[0].to_i
 
-    return unless version && entries_number
-    vprint_status("Git Version: #{version} -  Entries Number: #{entries_number}")
-    print_good("#{peer} - Git Entries file found")
+    return unless version && entries_count
+    print_good("#{full_uri} (git repo version #{version}) - #{entries_count} files found")
 
     report_note(
       host: rhost,
       port: rport,
       proto: 'tcp',
       type: 'git_disclosure',
-      data: { version: version, entries_number: entries_number }
+      data: { full_uri: full_uri, version: version, entries_count: entries_count }
     )
   end
 
-  def git_entries(url)
-    res = send_request_cgi({
-      'uri' => git_url(url)
-    })
+  def git_index
+    res = req('index')
     return unless res && res.code == 200
     git_index_parse(res.body)
   end
 
-  def run_host(target_host)
-    vprint_status("#{peer} - scanning git disclosure")
+  def git_config
+    res = req('config')
+    return unless res && res.code == 200
+
+    if (res.body.include?('core') || res.body.include?('remote') || res.body.include?('branch'))
+      print_good("#{full_uri} (git disclosure - config file Found")
+
+      report_note(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        type: 'git_disclosure',
+        data: { full_uri: full_uri }
+      )
+    end
+  end
+
+  def git_head
+    res = req('HEAD')
+    return unless res && res.code == 200
+
+    if res.body.include?('ref:')
+      print_good("#{full_uri} (git disclosure - HEAD file Found")
+
+      report_note(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        type: 'git_disclosure',
+        data: { full_uri: full_uri }
+      )
+    end
+  end
+
+  def run_host(_target_host)
+    vprint_status("#{full_uri} - scanning git disclosure")
     vhost = datastore['VHOST'] || wmap_target_host
-    git_entries(normalize_uri(target_uri.path))
+    git_index if datastore['GIT_INDEX']
+    git_config if datastore['GIT_CONFIG']
+    git_head if datastore['GIT_HEAD']
   end
 end
