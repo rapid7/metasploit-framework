@@ -14,8 +14,17 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'HTTP Git Scanner',
-      'Description' => 'Detect Git disclosure.',
-      'Author'      => ['Nixawk'],
+      'Description' => %q{
+        This module can detect information disclosure vlnerabilities in
+        Git Repository. Git has some files that stores in Git Resitory,
+        ex: .git/config, .git/index. We can get a number of personal/
+        preferences settings from .git/config, and get source code,
+        account information from .git/index.
+      },
+      'Author'      => [
+        'Nixawk', # module developer
+        'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
+      ],
       'References'  => [
         ['URL', 'https://github.com/git/git/blob/master/Documentation/technical/index-format.txt']
       ],
@@ -26,8 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The test path to .git directory', '/.git/']),
         OptBool.new('GIT_INDEX', [true, 'Check index file in .git directory', true]),
-        OptBool.new('GIT_CONFIG', [false, 'Check config file in .git directory', true]),
-        OptBool.new('GIT_HEAD', [false, 'Check HEAD file in .git directory', true])
+        OptBool.new('GIT_CONFIG', [true, 'Check config file in .git directory', true])
       ]
     )
   end
@@ -56,46 +64,43 @@ class Metasploit3 < Msf::Auxiliary
       type: 'git_disclosure',
       data: { full_uri: full_uri, version: version, entries_count: entries_count }
     )
+
+    path = store_loot('index', 'binary', rhost, resp, full_uri)
+    print_good("Saved file to: #{path}")
   end
 
   def git_index
     res = req('index')
-    return unless res && res.code == 200
-    git_index_parse(res.body)
+    unless res
+      vprint_error("#{full_uri}index - No response received")
+      return
+    end
+    vprint_status("#{full_uri}index (http status #{res.code})")
+
+    git_index_parse(res.body) if res.code == 200
   end
 
   def git_config
     res = req('config')
-    return unless res && res.code == 200
-
-    if (res.body.include?('core') || res.body.include?('remote') || res.body.include?('branch'))
-      print_good("#{full_uri} (git disclosure - config file Found")
-
-      report_note(
-        host: rhost,
-        port: rport,
-        proto: 'tcp',
-        type: 'git_disclosure',
-        data: { full_uri: full_uri }
-      )
+    unless res
+      vprint_error("#{full_uri}config - No response received")
+      return
     end
-  end
+    vprint_status("#{full_uri}config - (http status #{res.code})")
 
-  def git_head
-    res = req('HEAD')
-    return unless res && res.code == 200
+    return unless res.code == 200 && res.body =~ /\[(?:branch|core|remote)\]/
+    print_good("#{full_uri}config (git disclosure - config file Found)")
 
-    if res.body.include?('ref:')
-      print_good("#{full_uri} (git disclosure - HEAD file Found")
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      type: 'git_disclosure',
+      data: { full_uri: full_uri }
+    )
 
-      report_note(
-        host: rhost,
-        port: rport,
-        proto: 'tcp',
-        type: 'git_disclosure',
-        data: { full_uri: full_uri }
-      )
-    end
+    path = store_loot('config', 'text/plain', rhost, res.body, full_uri)
+    print_good("Saved file to: #{path}")
   end
 
   def run_host(_target_host)
@@ -103,6 +108,5 @@ class Metasploit3 < Msf::Auxiliary
     vhost = datastore['VHOST'] || wmap_target_host
     git_index if datastore['GIT_INDEX']
     git_config if datastore['GIT_CONFIG']
-    git_head if datastore['GIT_HEAD']
   end
 end
