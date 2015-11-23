@@ -18,6 +18,8 @@ class Metasploit4 < Msf::Post
       'Description'   => %q{
         This module grab OpenVPN credentials from a running process
         in Linux.
+
+        Note: --auth-nocache must not be set in the OpenVPN command line.
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
