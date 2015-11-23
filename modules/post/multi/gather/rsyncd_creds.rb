@@ -26,7 +26,8 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptBool.new('USER_CONFIGS', [true, 'Get passwords from each local user\'s rsyncd.conf', true])
+        OptString.new('USER_CONFIG', [false, 'Attempt to passwords from this RSYNC ' \
+          'configuration file relative to each local user\'s home directory.  Leave unset to disable.', 'rsyncd.conf'])
       ]
     )
     register_advanced_options(
@@ -34,6 +35,10 @@ class Metasploit3 < Msf::Post
         OptString.new('RSYNCD_CONFIG', [true, 'Path to rsyncd.conf', '/etc/rsyncd.conf'])
       ]
     )
+  end
+
+  def setup
+    @user_config = datastore['USER_CONFIG'].blank? ? nil : datastore['USER_CONFIG']
   end
 
   def dump_rsync_secrets(config_file)
@@ -79,7 +84,7 @@ class Metasploit3 < Msf::Post
     # configuration files that may exist (rare)
     config_path = datastore['RSYNCD_CONFIG']
     config_files = Set.new([ config_path ])
-    config_files |= enum_user_directories.map { |d| ::File.join(d, ::File.basename(config_path)) } if datastore['USER_CONFIGS']
+    config_files |= enum_user_directories.map { |d| ::File.join(d, @user_config) } if @user_config
     config_files.map { |config_file| dump_rsync_secrets(config_file) }
   end
 end
