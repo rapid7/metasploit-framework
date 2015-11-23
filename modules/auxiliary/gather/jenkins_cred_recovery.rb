@@ -38,8 +38,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, 'The base path for Jenkins', '/']),
-        OptString.new('JENKINSDOMAIN',    [true, 'The domain where we want to extract credentials from', '_'])
+        OptString.new('TARGETURI',     [true, 'The base path for Jenkins', '/']),
+        OptString.new('JENKINSDOMAIN', [true, 'The domain where we want to extract credentials from', '_'])
       ], self.class)
   end
 
