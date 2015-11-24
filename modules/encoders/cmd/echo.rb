@@ -34,12 +34,12 @@ class Metasploit3 < Msf::Encoder
     end
 
     if state.badchars.include?("-")
-      raise RuntimeError
+      raise EncodingError
     else
       # Without an escape character we can't escape anything, so echo
       # won't work.
       if state.badchars.include?("\\")
-        raise RuntimeError
+        raise EncodingError
       else
         buf = encode_block_bash_echo(state,buf)
       end
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Encoder
       if state.badchars.include?("`")
         # Last ditch effort, dollar paren
         if state.badchars.include?("$") or state.badchars.include?("(")
-          raise RuntimeError
+          raise EncodingError
         else
           buf = "$(/bin/echo -ne #{hex})"
         end

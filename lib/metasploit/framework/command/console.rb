@@ -19,11 +19,21 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
     return if Rex::Compat.is_cygwin
     return if $msf_spinner_thread
     $msf_spinner_thread = Thread.new do
-      $stderr.print "[*] Starting the Metasploit Framework console..."
+      base_line = "[*] Starting the Metasploit Framework console..."
+      cycle = 0
       loop do
         %q{/-\|}.each_char do |c|
-          $stderr.print c
-          $stderr.print "\b"
+          status = "#{base_line}#{c}\r"
+          cycle += 1
+          off    = cycle % base_line.length
+          case status[off, 1]
+          when /[a-z]/
+            status[off, 1] = status[off, 1].upcase
+          when /[A-Z]/
+            status[off, 1] = status[off, 1].downcase
+          end
+          $stderr.print status
+          ::IO.select(nil, nil, nil, 0.10)
         end
       end
     end

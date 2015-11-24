@@ -4,12 +4,23 @@ module Msf::DBManager::IPAddress
   end
 
   def ipv4_validator(addr)
-    return false unless addr.kind_of? String
-    Rex::Socket.is_ipv4?(addr)
+    if addr.try(:ipv4?)
+      true
+    elsif addr.kind_of? String
+      Rex::Socket.is_ipv4?(addr)
+    else
+      false
+    end    
   end
 
   def ipv6_validator(addr)
-    Rex::Socket.is_ipv6?(addr)
+    if addr.try(:ipv6?)
+      true
+    elsif addr.kind_of? String
+      Rex::Socket.is_ipv6?(addr)
+    else
+      false
+    end    
   end
 
   def rfc3330_reserved(ip)

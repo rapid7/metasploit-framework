@@ -29,13 +29,12 @@ class Metasploit3 < Msf::Auxiliary
         control. IOS 11.3 -> 12.2 are reportedly vulnerable. This module
         tested successfully against a Cisco 1600 Router IOS v11.3(11d).
       },
-      'Author'		=> [ 'Patrick Webster <patrick[at]aushack.com>', 'hdm' ],
+      'Author'		=> [ 'patrick', 'hdm' ],
       'License'		=> MSF_LICENSE,
       'References'	=>
         [
           [ 'BID', '2936'],
           [ 'CVE', '2001-0537'],
-          [ 'URL', 'http://www.cisco.com/warp/public/707/cisco-sa-20010627-ios-http-level.shtml'],
           [ 'OSVDB', '578' ],
         ],
       'DisclosureDate' => 'Jun 27 2001'))

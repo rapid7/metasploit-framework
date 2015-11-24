@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform'      => %w{ bsd linux osx unix win },
-        'SessionTypes'  => [ 'meterpreter','shell' ]
+        'SessionTypes'  => ['meterpreter']
       ))
     register_options(
       [
@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    session_type = session.type
     print_status("Running module against #{sysinfo['Computer']}")
     if not ::File.exists?(datastore['RESOURCE'])
       raise "Resource File does not exists!"
@@ -41,11 +40,7 @@ class Metasploit3 < Msf::Post
           tmpout << "      Output of #{cmd}\n"
           tmpout << "*****************************************\n"
           print_status "Running command #{cmd.chomp}"
-          if session_type =~ /meterpreter/
-            tmpout << cmd_exec(cmd.chomp)
-          elsif session_type =~ /shell/
-            tmpout << session.shell_command_token(cmd.chomp).chomp
-          end
+          tmpout << cmd_exec(cmd.chomp)
           vprint_status tmpout
           command_log = store_loot("host.command", "text/plain", session,tmpout ,
             "#{cmd.gsub(/\.|\/|\s/,"_")}.txt", "Command Output \'#{cmd.chomp}\'")

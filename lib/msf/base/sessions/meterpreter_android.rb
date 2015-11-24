@@ -20,7 +20,7 @@ class Meterpreter_Java_Android < Msf::Sessions::Meterpreter_Java_Java
   end
 
   def load_android
-    original = console.disable_output  
+    original = console.disable_output
     console.disable_output = true
     console.run_single('load android')
     console.disable_output = original

@@ -70,6 +70,7 @@
 #   `:ancestor_reference_names`.
 # @return [void]
 shared_examples_for 'payload cached size is consistent' do |options|
+
   options.assert_valid_keys(:ancestor_reference_names, :modules_pathname, :reference_name, :dynamic_size)
 
   ancestor_reference_names = options.fetch(:ancestor_reference_names)
@@ -84,6 +85,27 @@ shared_examples_for 'payload cached size is consistent' do |options|
   module_type = 'payload'
 
   include_context 'Msf::Simple::Framework#modules loading'
+
+  opts = {
+    'Format'      => 'raw',
+    'Options'     => {
+      'CPORT' => 4444,
+      'LPORT' => 4444,
+      'LHOST' => '255.255.255.255',
+      'KHOST' => '255.255.255.255',
+      'AHOST' => '255.255.255.255',
+      'CMD' => '/bin/sh',
+      'URL' => 'http://a.com',
+      'PATH' => '/',
+      'BUNDLE' => 'data/isight.bundle',
+      'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
+      'RC4PASSWORD' => 'Metasploit',
+      'DNSZONE' => 'corelan.eu',
+      'PEXEC' => '/bin/sh'
+    },
+    'Encoder'     => nil,
+    'DisableNops' => true
+  }
 
   #
   # lets
@@ -111,6 +133,8 @@ shared_examples_for 'payload cached size is consistent' do |options|
       )
     end
 
+    next if reference_name =~ /generic/
+
     if dynamic_size
       it 'is dynamic_size?' do
         pinst = load_and_create_module(
@@ -132,7 +156,7 @@ shared_examples_for 'payload cached size is consistent' do |options|
         )
         expect(pinst.cached_size).to_not(be_nil)
         expect(pinst.dynamic_size?).to be(false)
-        expect(pinst.cached_size).to eq(pinst.size)
+        expect(pinst.cached_size).to eq(pinst.generate_simple(opts).size)
       end
     end
   end

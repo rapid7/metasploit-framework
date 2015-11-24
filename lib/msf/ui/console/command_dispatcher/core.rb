@@ -40,7 +40,6 @@ class Core
     "-l" => [ false, "List all active sessions"                       ],
     "-v" => [ false, "List verbose fields"                            ],
     "-q" => [ false, "Quiet mode"                                     ],
-    "-d" => [ true,  "Detach an interactive session"                  ],
     "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
@@ -94,6 +93,10 @@ class Core
   @@go_pro_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ])
 
+  @@irb_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-e" => [ true,  "Expression to evaluate."                        ])
+
   # The list of data store elements that cannot be set when in defanged
   # mode.
   DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
@@ -120,7 +123,9 @@ class Core
       "go_pro"     => "Launch Metasploit web GUI",
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
-      "info"       => "Displays information about one or more module",
+      "advanced"   => "Displays advanced options for one or more modules",
+      "info"       => "Displays information about one or more modules",
+      "options"    => "Displays global options or for one or more modules",
       "irb"        => "Drop into irb scripting mode",
       "jobs"       => "Displays and manages jobs",
       "rename_job" => "Rename a job",
@@ -415,7 +420,7 @@ class Core
     avdwarn = nil
 
     banner_trailers = {
-      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Metasploit::Framework::Core::GEM_VERSION} api:#{Metasploit::Framework::API::GEM_VERSION}]%clr",
+      :version     => "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
       :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
       :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
       :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
@@ -709,6 +714,36 @@ class Core
     Rex::ThreadSafe.sleep(args[0].to_f)
   end
 
+  def cmd_advanced_help
+    print_line 'Usage: advanced [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for advanced options. If no module is given,'
+    print_line 'show advanced options for the currently active module.'
+    print_line
+  end
+
+  def cmd_advanced(*args)
+    if args.empty?
+      if (active_module)
+        show_advanced_options(active_module)
+        return true
+      else
+        print_error('No module active')
+        return false
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_advanced_options(mod)
+      end
+    }
+  end
+
   def cmd_info_help
     print_line "Usage: info <module name> [mod2 mod3 ...]"
     print_line
@@ -745,22 +780,71 @@ class Core
     }
   end
 
+  def cmd_options_help
+    print_line 'Usage: options [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for options. If no module is given,'
+    print_line 'show options for the currently active module.'
+    print_line
+  end
+
+  def cmd_options(*args)
+    if args.empty?
+      if (active_module)
+        show_options(active_module)
+        return true
+      else
+        show_global_options
+        return true
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_options(mod)
+      end
+    }
+  end
+
   #
-  # Tab completion for the info command (same as use)
+  # Tab completion for the advanced command (same as use)
   #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
+
+  def cmd_advanced_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
+  #
+  # Tab completion for the advanced command (same as use)
+  #
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
 
   def cmd_info_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
+  #
+  # Tab completion for the advanced command (same as use)
+  #
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
+
+  def cmd_options_tabs(str, words)
     cmd_use_tabs(str, words)
   end
 
   def cmd_irb_help
     print_line "Usage: irb"
     print_line
-    print_line "Drop into an interactive Ruby environment"
-    print_line
+    print_line "Execute commands in a Ruby environment"
+    print @@irb_opts.usage
   end
 
   #
@@ -769,17 +853,34 @@ class Core
   def cmd_irb(*args)
     defanged?
 
-    print_status("Starting IRB shell...\n")
+    expressions = []
 
-    begin
-      Rex::Ui::Text::IrbShell.new(binding).run
-    rescue
-      print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        cmd_irb_help
+        return false
+      end
     end
 
-    # Reset tab completion
-    if (driver.input.supports_readline)
-      driver.input.reset_tab_completion
+    if expressions.empty?
+      print_status("Starting IRB shell...\n")
+
+      begin
+        Rex::Ui::Text::IrbShell.new(binding).run
+      rescue
+        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
+      end
+
+      # Reset tab completion
+      if (driver.input.supports_readline)
+        driver.input.reset_tab_completion
+      end
+    else
+      expressions.each { |expression| eval(expression, binding) }
     end
   end
 
@@ -1523,12 +1624,16 @@ class Core
       end
     }
 
-    if framework.db and framework.db.migrated and framework.db.modules_cached
-      search_modules_sql(match)
-      return
+    if framework.db
+      if framework.db.migrated && framework.db.modules_cached
+        search_modules_sql(match)
+        return
+      else
+        print_warning("Module database cache not built yet, using slow search")
+      end
+    else
+      print_warning("Database not connected, using slow search")
     end
-
-    print_warning("Database not connected or cache not built, using slow search")
 
     tbl = generate_module_table("Matching Modules")
     [
@@ -1679,9 +1784,6 @@ class Core
         sid = val || false
       when "-K"
         method = 'killall'
-      when "-d"
-        method = 'detach'
-        sid = val || false
       # Run a script on all meterpreter sessions
       when "-s"
         unless script
@@ -1778,8 +1880,8 @@ class Core
             end
           ensure
             # Restore timeout for each session
-            if session.respond_to?(:response_timeout)
-              session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
             end
           end
           # If the session isn't a meterpreter or shell type, it
@@ -1801,7 +1903,9 @@ class Core
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1819,25 +1923,9 @@ class Core
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
-          end
-        end
-      end
-    when 'detach'
-      print_status("Detaching the following session(s): #{session_list.join(', ')}")
-      session_list.each do |sess_id|
-        session = verify_session(sess_id)
-        # if session is interactive, it's detachable
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
-          end
-          print_status("Detaching session #{sess_id}")
-          begin
-            session.detach
-          ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
       end
@@ -1855,7 +1943,9 @@ class Core
           self.active_session = nil
           driver.input.reset_tab_completion if driver.input.supports_readline
         ensure
-          session.response_timeout = last_known_timeout if last_known_timeout
+          if session.respond_to?(:response_timeout) && last_known_timeout
+            session.response_timeout = last_known_timeout
+          end
         end
       end
     when 'scriptall'
@@ -1893,7 +1983,9 @@ class Core
               end
             end
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1910,16 +2002,18 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if session.type == 'shell'
+            if ['shell', 'powershell'].include?(session.type)
               session.init_ui(driver.input, driver.output)
               session.execute_script('post/multi/manage/shell_to_meterpreter')
               session.reset_ui
             else
-              print_error("Session #{sess_id} is not a command shell session, skipping...")
+              print_error("Session #{sess_id} is not a command shell session, it is #{session.type}, skipping...")
               next
             end
           ensure
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
         end
 
@@ -1969,7 +2063,7 @@ class Core
     end
 
     case words[-1]
-    when "-i", "-k", "-d", "-u"
+    when "-i", "-k", "-u"
       return framework.sessions.keys.map { |k| k.to_s }
 
     when "-c"
@@ -2191,7 +2285,7 @@ class Core
   end
 
   def cmd_show_help
-    global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
+    global_opts = %w{all encoders nops exploits payloads auxiliary plugins info options}
     print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
     module_opts = %w{ missing advanced evasion targets actions }
@@ -2231,6 +2325,8 @@ class Core
           show_auxiliary
         when 'post'
           show_post
+        when 'info'
+          cmd_info(*args[1, args.length])
         when 'options'
           if (mod)
             show_options(mod)
@@ -2923,7 +3019,7 @@ class Core
       return option_values_payloads() if opt.upcase == 'PAYLOAD'
       return option_values_targets()  if opt.upcase == 'TARGET'
       return option_values_nops()     if opt.upcase == 'NOPS'
-      return option_values_encoders() if opt.upcase == 'StageEncoder'
+      return option_values_encoders() if opt.upcase == 'STAGEENCODER'
     end
 
     # Well-known option names specific to modules with actions
@@ -2976,7 +3072,7 @@ class Core
         option_values_target_addrs().each do |addr|
           res << addr
         end
-      when 'LHOST'
+      when 'LHOST', 'SRVHOST'
         rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
@@ -2984,9 +3080,9 @@ class Core
           res << Rex::Socket.source_address
           # getifaddrs was introduced in 2.1.2
           if Socket.respond_to?(:getifaddrs)
-            ifaddrs = Socket.getifaddrs.find_all { |ifaddr|
+            ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
               ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) && ifaddr.addr.ip?
-            }
+            end
             res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
           end
         end
@@ -3452,7 +3548,7 @@ class Core
 
   def show_advanced_options(mod) # :nodoc:
     mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ')
-    print("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+    print("\nModule advanced options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 
     # If it's an exploit and a payload is defined, create it and
     # display the payload's options

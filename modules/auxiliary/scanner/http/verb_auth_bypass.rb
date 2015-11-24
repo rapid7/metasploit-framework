@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -21,14 +20,13 @@ class Metasploit3 < Msf::Auxiliary
       'Name'          => 'HTTP Verb Authentication Bypass Scanner',
       'Description'   => %q{
         This module test for authentication bypass using different HTTP verbs.
-
       },
-      'Author'        => [ 'et [at] metasploit.com' ],
+      'Author'        => ['et [at] metasploit.com'],
       'License'       => BSD_LICENSE))
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to test", '/'])
+        OptString.new('TARGETURI', [true,  "The path to test", '/'])
       ], self.class)
   end
 
@@ -44,20 +42,20 @@ class Metasploit3 < Msf::Auxiliary
     verbs = [ 'HEAD', 'TRACE', 'TRACK', 'Wmap', 'get', 'trace' ]
 
     res = send_request_raw({
-      'uri'          => normalize_uri(datastore['PATH']),
+      'uri'          => normalize_uri(target_uri.path),
       'method'       => 'GET'
     }, 10)
 
     return if not res
 
     if not res.headers['WWW-Authenticate']
-      print_status("[#{ip}] Authentication not required. #{datastore['PATH']} #{res.code}")
+      print_status("#{full_uri} - Authentication not required [#{res.code}]")
       return
     end
 
     auth_code = res.code
 
-    print_status("#{ip} requires authentication: #{res.headers['WWW-Authenticate']} [#{auth_code}]")
+    print_status("#{full_uri} - Authentication required: #{res.headers['WWW-Authenticate']} [#{auth_code}]")
 
     report_note(
       :host   => ip,
@@ -65,22 +63,22 @@ class Metasploit3 < Msf::Auxiliary
       :sname  => (ssl ? 'https' : 'http'),
       :port   => rport,
       :type   => 'WWW_AUTHENTICATE',
-      :data   => "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}",
+      :data   => "#{target_uri.path} Realm: #{res.headers['WWW-Authenticate']}",
       :update => :unique_data
     )
 
     verbs.each do |tv|
       resauth = send_request_raw({
-        'uri'          => normalize_uri(datastore['PATH']),
+        'uri'          => normalize_uri(target_uri.path),
         'method'       => tv
       }, 10)
 
       next if not resauth
 
-      print_status("Testing verb #{tv}, resp code: [#{resauth.code}]")
+      print_status("#{full_uri} - Testing verb #{tv} [#{resauth.code}]")
 
       if resauth.code != auth_code and resauth.code <= 302
-        print_status("Possible authentication bypass with verb #{tv} code #{resauth.code}")
+        print_good("#{full_uri} - Possible authentication bypass with verb #{tv} [#{resauth.code}]")
 
         # Unable to use report_web_vuln as method is not in list of allowed methods.
 
@@ -90,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
           :sname  => (ssl ? 'https' : 'http'),
           :port   => rport,
           :type   => 'AUTH_BYPASS_VERB',
-          :data   => "#{datastore['PATH']} Verb: #{tv}",
+          :data   => "#{target_uri.path} Verb: #{tv}",
           :update => :unique_data
         )
       end
@@ -98,4 +96,3 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 end
-

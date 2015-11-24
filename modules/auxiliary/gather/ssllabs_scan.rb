@@ -180,9 +180,12 @@ class Metasploit3 < Msf::Auxiliary
                :crlURIs,
                :ocspURIs,
                :revocationStatus,
+               :crlRevocationStatus,
+               :ocspRevocationStatus,
                :sgc?,
                :validationType,
-               :issues
+               :issues,
+               :sct?
 
     def valid?
       issues == 0
@@ -196,9 +199,18 @@ class Metasploit3 < Msf::Auxiliary
   class ChainCert < ApiObject
     has_fields :subject,
                :label,
+               :notBefore,
+               :notAfter,
                :issuerSubject,
                :issuerLabel,
+               :sigAlg,
                :issues,
+               :keyAlg,
+               :keySize,
+               :keyStrength,
+               :revocationStatus,
+               :crlRevocationStatus,
+               :ocspRevocationStatus,
                :raw
 
     def valid?
@@ -212,12 +224,7 @@ class Metasploit3 < Msf::Auxiliary
 
   class Chain < ApiObject
     has_objects_list :certs, ChainCert
-    has_fields :subject,
-               :label,
-               :issuerSubject,
-               :issuerLabel,
-               :issues,
-               :raw
+    has_fields :issues
 
     def valid?
       issues == 0
@@ -354,6 +361,8 @@ class Metasploit3 < Msf::Auxiliary
                :npnProtocols,
                :sessionTickets,
                :ocspStapling?,
+               :staplingRevocationStatus,
+               :staplingRevocationErrorMessage,
                :sniRequired?,
                :httpStatusCode,
                :httpForwarding,
@@ -364,8 +373,11 @@ class Metasploit3 < Msf::Auxiliary
     has_fields :heartbleed?,
                :heartbeat?,
                :openSslCcs,
+               :poodle?,
                :poodleTls,
-               :fallbackScsv?
+               :fallbackScsv?,
+               :freak?,
+               :hasSct
   end
 
   class Endpoint < ApiObject
@@ -375,6 +387,7 @@ class Metasploit3 < Msf::Auxiliary
                :statusDetails,
                :statusDetailsMessage,
                :grade,
+               :gradeTrustIgnored,
                :hasWarnings?,
                :isExceptional?,
                :progress,
@@ -408,7 +421,7 @@ class Metasploit3 < Msf::Auxiliary
           SSL/TLS assessment during a penetration test.
         },
         'License'       => MSF_LICENSE,
-        'Author'         =>
+        'Author'        =>
           [
             'Denis Kolegov <dnkolegov[at]gmail.com>',
             'Francois Chagnon' # ssllab.rb author (https://github.com/Shopify/ssllabs.rb)
@@ -472,6 +485,8 @@ class Metasploit3 < Msf::Auxiliary
       report_bad "Overall rating: #{r.grade} - Server's certificate is not trusted"
     end
 
+    report_warning "Grade is #{r.grade_trust_ignored}, if trust issues are ignored)" if r.grade.to_s != r.grade_trust_ignored.to_s
+
     # Supported protocols
     r.details.protocols.each do |i|
       p = ssl_protocols.detect { |x| x[:id] == i.id }
@@ -511,7 +526,12 @@ class Metasploit3 < Msf::Auxiliary
       report_good "BEAST attack - No"
     end
 
-    # puts "POODLE (SSLv3)- ?"
+    # POODLE (SSLv3)
+    if r.details.poodle?
+      report_bad "POODLE SSLv3 - Vulnerable"
+    else
+      report_good "POODLE SSLv3 - Not vulnerable"
+    end
 
     # POODLE TLS
     case r.details.poodle_tls
@@ -520,16 +540,23 @@ class Metasploit3 < Msf::Auxiliary
     when 0
       report_warning "POODLE TLS - Unknown"
     when 1
-      report_good "POODLE TLS - No"
+      report_good "POODLE TLS - Not vulnerable"
     when 2
-      report_bad "POODLE TLS - Yes"
+      report_bad "POODLE TLS - Vulnerable"
     end
 
     # Downgrade attack prevention
     if r.details.fallback_scsv?
-      report_good "Downgrade attack prevention - Yes"
+      report_good "Downgrade attack prevention - Yes, TLS_FALLBACK_SCSV supported"
     else
-      report_bad "Downgrade attack prevention - No"
+      report_bad "Downgrade attack prevention - No, TLS_FALLBACK_SCSV not supported"
+    end
+
+    # Freak
+    if r.details.freak?
+      report_bad "Freak - Vulnerable"
+    else
+      report_good "Freak - Not vulnerable"
     end
 
     # RC4
@@ -553,7 +580,7 @@ class Metasploit3 < Msf::Auxiliary
     if r.details.heartbleed?
       report_bad "Heartbleed (vulnerability) - Yes"
     else
-      report_good "Heartbeat (vulnerability) - No"
+      report_good "Heartbleed (vulnerability) - No"
     end
 
     # OpenSSL CCS
@@ -687,7 +714,7 @@ class Metasploit3 < Msf::Auxiliary
     return unless r.status == "IN_PROGRESS"
 
     if r.endpoints.length == 1
-      print_status "#{r.host} (#{r.endpoints[0].ip_address}) - Progress #{r.endpoints[0].progress}% (#{r.endpoints[0].status_details_message})"
+      print_status "#{r.host} (#{r.endpoints[0].ip_address}) - Progress #{[r.endpoints[0].progress, 0].max}% (#{r.endpoints[0].status_details_message})"
     elsif r.endpoints.length > 1
       in_progress_srv_num = 0
       ready_srv_num = 0
@@ -696,7 +723,7 @@ class Metasploit3 < Msf::Auxiliary
         case e.status_message.to_s
         when "In progress"
           in_progress_srv_num += 1
-          print_status "Scanned host: #{e.ip_address} (#{e.server_name})- #{e.progress}% complete (#{e.status_details_message})"
+          print_status "Scanned host: #{e.ip_address} (#{e.server_name})- #{[e.progress, 0].max}% complete (#{e.status_details_message})"
         when "Pending"
           pending_srv_num += 1
         when "Ready"
@@ -715,7 +742,6 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     delay = datastore['DELAY']
-
     hostname = datastore['HOSTNAME']
     unless valid_hostname?(hostname)
       print_status "Invalid hostname"

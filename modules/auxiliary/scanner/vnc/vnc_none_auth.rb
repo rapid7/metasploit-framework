@@ -36,16 +36,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(target_host)
-    connect
-
     begin
+      connect
       vnc = Rex::Proto::RFB::Client.new(sock)
-      if not vnc.handshake
-        raise RuntimeError.new("Handshake failed: #{vnc.error}")
+      unless vnc.handshake
+        print_error("#{target_host}:#{rport} - Handshake failed: #{vnc.error}")
+        return
       end
 
       ver = "#{vnc.majver}.#{vnc.minver}"
-      print_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
+      print_status("#{target_host}:#{rport} - VNC server protocol version: #{ver}")
       svc = report_service(
         :host => rhost,
         :port => rport,
@@ -55,8 +55,9 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       type = vnc.negotiate_authentication
-      if not type
-        raise RuntimeError.new("Auth negotiation failed: #{vnc.error}")
+      unless type
+        print_error("#{target_host}:#{rport} - Auth negotiation failed: #{vnc.error}")
+        return
       end
 
       # Show the allowed security types
@@ -64,10 +65,10 @@ class Metasploit3 < Msf::Auxiliary
       vnc.auth_types.each { |type|
         sec_type << Rex::Proto::RFB::AuthType.to_s(type)
       }
-      print_status("#{target_host}:#{rport}, VNC server security types supported : #{sec_type.join(",")}")
+      print_status("#{target_host}:#{rport} - VNC server security types supported: #{sec_type.join(",")}")
 
       if (vnc.auth_types.include? Rex::Proto::RFB::AuthType::None)
-        print_good("#{target_host}:#{rport}, VNC server security types includes None, free access!")
+        print_good("#{target_host}:#{rport} - VNC server security types includes None, free access!")
         report_vuln(
           {
             :host         => rhost,
@@ -78,11 +79,6 @@ class Metasploit3 < Msf::Auxiliary
             :exploited_at => Time.now.utc
           })
       end
-
-    rescue RuntimeError
-      print_error("#{target_host}:#{rport}, #{$!}")
-      raise $!
-
     ensure
       disconnect
     end

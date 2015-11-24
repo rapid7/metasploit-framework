@@ -28,6 +28,13 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   end
 
   #
+  # Returns the session platform.
+  #
+  def platform
+    "win"
+  end
+
+  #
   # Returns the session description.
   #
   def desc
@@ -37,7 +44,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   #
   # Takes over the shell_command of the parent
   #
-  def shell_command(cmd)
+  def shell_command(cmd, timeout = 1800)
     # insert random marker
     strm = Rex::Text.rand_text_alpha(15)
     endm = Rex::Text.rand_text_alpha(15)
@@ -45,7 +52,6 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
     # Send the shell channel's stdin.
     shell_write(";'#{strm}'\n" + cmd + "\n'#{endm}';\n")
 
-    timeout = 1800 # 30 minute timeout
     etime = ::Time.now.to_f + timeout
 
     buff = ""
@@ -58,8 +64,8 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       buff << res
       if buff.match(/#{endm}/)
         # if you see the end marker, read the buffer from the start marker to the end and then display back to screen
-        buff = buff.split(/#{strm}/)[-1]
-        buff.gsub!(/PS .*>/, '')
+        buff = buff.split(/#{strm}\r\n/)[-1]
+        buff.gsub!(/\nPS .*>/, '')
         buff.gsub!(/#{endm}/, '')
         return buff
       end

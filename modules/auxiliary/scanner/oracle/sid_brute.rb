@@ -85,10 +85,11 @@ class Metasploit3 < Msf::Auxiliary
         vprint_status "#{hostport} Oracle - Refused '#{sid}'"
         return :fail
       end
-      disconnect
     rescue ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{hostport} Oracle - unable to connect to a TNS listener")
       return :abort
+    ensure
+      disconnect
     end
   end
 

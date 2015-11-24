@@ -69,7 +69,10 @@ external/source/exploits/**/Release
 # the metasploit-payloads gem.
 data/meterpreter/*.dll
 data/meterpreter/*.bin
+data/meterpreter/*.jar
 data/meterpreter/*.lso
+data/android
+data/java
 
 # Avoid checking in Meterpreter libs that are built from
 # private source. If you're interested in this functionality,

@@ -391,13 +391,26 @@ class ProcessList < Array
     cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
 
     opts = {
-      "Header"  => "Process List",
-      "Columns" => cols
+      'Header' => 'Process List',
+      'Indent' => 1,
+      'Columns' => cols
     }.merge(opts)
 
     tbl = Rex::Ui::Text::Table.new(opts)
     each { |process|
-      tbl << cols.map {|c| process[c.downcase] }.compact
+      tbl << cols.map { |c|
+        col = c.downcase
+        val = process[col]
+        if col == 'session'
+          val == 0xFFFFFFFF ? '' : val.to_s
+        elsif col == 'arch'
+          # for display and consistency with payload naming we switch the internal
+          # 'x86_64' value to display 'x64'
+          val == ARCH_X86_64 ? 'x64' : val
+        else
+          val
+        end
+      }.compact
     }
 
     tbl

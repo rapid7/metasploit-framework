@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Encoder
     end
 
     if state.badchars.include?("-")
-      raise RuntimeError
+      raise EncodingError
     else
       buf = encode_block_perl(state,buf)
     end
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Encoder
     # Convert spaces to IFS...
     if state.badchars.include?(" ")
       if state.badchars.match(/[${IFS}]/n)
-        raise RuntimeError
+        raise EncodingError
       end
       cmd.gsub!(/\s/, '${IFS}')
     end
@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Encoder
     state.badchars.unpack('C*') { |c| qot.delete(c.chr) }
 
     # Throw an error if we ran out of quotes
-    raise RuntimeError if qot.length == 0
+    raise EncodingError if qot.length == 0
 
     sep = qot[0].chr
     # Use an explicit length for the H specifier instead of just "H*"

@@ -9,7 +9,7 @@ require 'rex/java/serialization'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Java::Rmi::Client
+  include Msf::Exploit::Remote::Java::Rmi::Client
 
   def initialize
     super(
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
     send_header
     ack = recv_protocol_ack
     if ack.nil?
-      print_error("#{peer} - Filed to negotiate RMI protocol")
+      print_error("#{peer} - Failed to negotiate RMI protocol")
       disconnect
       return
     end

@@ -13,12 +13,12 @@ module MeterpreterOptions
       [
         OptBool.new('AutoLoadStdapi', [true, "Automatically load the Stdapi extension", true]),
         OptBool.new('AutoVerifySession', [true, "Automatically verify and drop invalid sessions", true]),
+        OptInt.new('AutoVerifySessionTimeout', [false, "Timeout period to wait for session validation to occur, in seconds", 30]),
         OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
         OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", '']),
         OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
         OptBool.new('EnableUnicodeEncoding', [true, "Automatically encode UTF-8 strings as hexadecimal", Rex::Compat.is_windows]),
         OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format, ignored for HTTP transports"]),
-        OptBool.new('StagerCloseListenSocket', [false, "Close the listen socket in the stager", false]),
         OptInt.new('SessionRetryTotal', [false, "Number of seconds try reconnecting for on network failure", Rex::Post::Meterpreter::ClientCore::TIMEOUT_RETRY_TOTAL]),
         OptInt.new('SessionRetryWait', [false, "Number of seconds to wait between reconnect attempts", Rex::Post::Meterpreter::ClientCore::TIMEOUT_RETRY_WAIT]),
         OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', Rex::Post::Meterpreter::ClientCore::TIMEOUT_SESSION]),
@@ -44,7 +44,7 @@ module MeterpreterOptions
     valid = true
 
     if datastore['AutoVerifySession'] == true
-      if not session.is_valid_session?
+      if not session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
         print_error("Meterpreter session #{session.sid} is not valid and will be closed")
         valid = false
       end

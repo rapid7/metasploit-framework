@@ -17,14 +17,8 @@ describe Msf::Framework do
   end
 
   describe "#version" do
-    CURRENT_VERSION = "4.11.0-dev"
-
     subject(:framework) do
       described_class.new
-    end
-
-    it "should return the current version" do
-      framework.version.should == CURRENT_VERSION
     end
 
     it "should return the Version constant" do
