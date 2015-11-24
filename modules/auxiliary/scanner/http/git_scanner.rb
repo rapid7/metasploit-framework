@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         ex: .git/config, .git/index. We can get a number of personal/
         preferences settings from .git/config, and get source code,
         account information from .git/index.
-    ),
+      ),
       'Author'      => [
         'Nixawk', # module developer
         'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
@@ -56,15 +56,7 @@ class Metasploit3 < Msf::Auxiliary
     entries_count = resp[8, 4].unpack('N')[0].to_i
 
     return unless version && entries_count
-    print_good("#{full_uri} - git repo (version #{version}) found with #{entries_count} files")
-
-    report_note(
-      host: rhost,
-      port: rport,
-      proto: 'tcp',
-      type: 'git_disclosure',
-      data: { full_uri: full_uri, version: version, entries_count: entries_count }
-    )
+    [version, entries_count]
   end
 
   def git_index
@@ -76,7 +68,18 @@ class Metasploit3 < Msf::Auxiliary
     end
     vprint_status("#{index_uri} - HTTP/#{res.proto} #{res.code} #{res.message}")
 
-    git_index_parse(res.body) if res.code == 200
+    return unless res.code == 200
+    version, count = git_index_parse(res.body)
+    return unless version && count
+    print_good("#{full_uri} - git repo (version #{version}) found with #{count} files")
+
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      type: 'git_index_disclosure',
+      data: { uri: index_uri, version: version, entries_count: count }
+    )
   end
 
   def git_config
@@ -95,16 +98,16 @@ class Metasploit3 < Msf::Auxiliary
       host: rhost,
       port: rport,
       proto: 'tcp',
-      type: 'git_disclosure',
-      data: { full_uri: full_uri }
+      type: 'git_config_disclosure',
+      data: { uri: config_uri }
     )
 
-    path = store_loot('config', 'text/plain', rhost, res.body, full_uri)
+    path = store_loot('config', 'text/plain', rhost, res.body, config_uri)
     print_good("Saved file to: #{path}")
   end
 
   def git_uri(path)
-    full_uri =~ /\/$/ ? "#{full_uri}#{path}" : "#{full_uri}/#{path}"
+    full_uri =~ %r{/$} ? "#{full_uri}#{path}" : "#{full_uri}/#{path}"
   end
 
   def run_host(_target_host)
