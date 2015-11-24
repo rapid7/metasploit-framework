@@ -22,10 +22,6 @@ RSpec.shared_context 'Msf::StringIO' do
   #
 
   before(:each) do
-    def msf_io.set_msf_data(data)
-      self.msf_data = data
-    end
-
     def msf_io.get_once
       read
     end
