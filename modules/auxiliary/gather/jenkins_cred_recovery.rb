@@ -74,10 +74,10 @@ class Metasploit3 < Msf::Auxiliary
     version = get_jenkins_version
     vprint_status("Found version: #{version}")
 
-    # According to the issue response from Jenkins, they don't think it's a vulnerability,
-    # so there is no fix. So if we find a version, let's assume it's vulnerable
+    # Default version is vulnerable, but can be mitigated by refusing anonymous permission on
+    # decryption API. So a version wouldn't be adequate to check.
     if version
-      return Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Detected
     end
 
     Exploit::CheckCode::Safe
