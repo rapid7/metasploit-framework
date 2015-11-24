@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
     entries_count = resp[8, 4].unpack('N')[0].to_i
 
     return unless version && entries_count
-    print_good("#{full_uri} (git repo version #{version}) - #{entries_count} files found")
+    print_good("#{full_uri} - git repo (version #{version}) found with #{entries_count} files")
 
     report_note(
       host: rhost,
@@ -69,27 +69,27 @@ class Metasploit3 < Msf::Auxiliary
 
   def git_index
     res = req('index')
-    index_uri = normalize_uri(full_uri, 'index')
+    index_uri = git_uri('index')
     unless res
       vprint_error("#{index_uri} - No response received")
       return
     end
-    vprint_status("#{index_uri} (http status #{res.code})")
+    vprint_status("#{index_uri} - HTTP/#{res.proto} #{res.code} #{res.message}")
 
     git_index_parse(res.body) if res.code == 200
   end
 
   def git_config
     res = req('config')
-    config_uri = normalize_uri(full_uri, 'config')
+    config_uri = git_uri('config')
     unless res
       vprint_error("#{config_uri} - No response received")
       return
     end
-    vprint_status("#{config_uri} - (http status #{res.code})")
+    vprint_status("#{config_uri} - HTTP/#{res.proto} #{res.code} #{res.message}")
 
     return unless res.code == 200 && res.body =~ /\[(?:branch|core|remote)\]/
-    print_good("#{config_uri} (git disclosure - config file Found)")
+    print_good("#{config_uri} - git config file found")
 
     report_note(
       host: rhost,
@@ -101,6 +101,10 @@ class Metasploit3 < Msf::Auxiliary
 
     path = store_loot('config', 'text/plain', rhost, res.body, full_uri)
     print_good("Saved file to: #{path}")
+  end
+
+  def git_uri(path)
+    full_uri =~ /\/$/ ? "#{full_uri}#{path}" : "#{full_uri}/#{path}"
   end
 
   def run_host(_target_host)
