@@ -5,6 +5,10 @@ RSpec.shared_context 'Msf::StringIO' do
     StringIO.new('', 'w+b')
   end
 
+  #
+  # Callbacks
+  #
+
   before(:each) do
     def msf_io.get_once
       read
