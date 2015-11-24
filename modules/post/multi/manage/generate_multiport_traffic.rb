@@ -63,6 +63,9 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  def native_egress
+  end
+
   def winapi_egress
     unless session.railgun.ws2_32
       print_error("This module requires Windows/winsock APIs")
