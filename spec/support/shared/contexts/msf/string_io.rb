@@ -7,7 +7,14 @@ RSpec.shared_context 'Msf::StringIO' do
   #
 
   let(:msf_io) do
-    StringIO.new('', 'w+b')
+    s = StringIO.new('', 'w+b')
+    class << s
+      attr_accessor :msf_data
+    end
+
+    s.msf_data = ''
+
+    s
   end
 
   #
@@ -16,10 +23,6 @@ RSpec.shared_context 'Msf::StringIO' do
 
   before(:each) do
     def msf_io.set_msf_data(data)
-      class << self
-        attr_accessor :msf_data
-      end
-
       self.msf_data = data
     end
 
@@ -28,17 +31,21 @@ RSpec.shared_context 'Msf::StringIO' do
     end
 
     def msf_io.has_read_data?(_timeout)
-      false
+      !eof?
     end
 
     def msf_io.put(_data)
       seek(0)
-      if instance_variables.include?(:msf_data)
-        write(msf_data)
+
+      if msf_data.nil? || msf_data.empty?
+        length = write(_data)
       else
-        write(msf_data)
+        length = write(msf_data)
       end
+
       seek(0)
+
+      length
     end
   end
 end
