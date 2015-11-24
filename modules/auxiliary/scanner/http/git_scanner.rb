@@ -69,25 +69,27 @@ class Metasploit3 < Msf::Auxiliary
 
   def git_index
     res = req('index')
+    index_uri = normalize_uri(full_uri, 'index')
     unless res
-      vprint_error("#{full_uri}index - No response received")
+      vprint_error("#{index_uri} - No response received")
       return
     end
-    vprint_status("#{full_uri}index (http status #{res.code})")
+    vprint_status("#{index_uri} (http status #{res.code})")
 
     git_index_parse(res.body) if res.code == 200
   end
 
   def git_config
     res = req('config')
+    config_uri = normalize_uri(full_uri, 'config')
     unless res
-      vprint_error("#{full_uri}config - No response received")
+      vprint_error("#{config_uri} - No response received")
       return
     end
-    vprint_status("#{full_uri}config - (http status #{res.code})")
+    vprint_status("#{config_uri} - (http status #{res.code})")
 
     return unless res.code == 200 && res.body =~ /\[(?:branch|core|remote)\]/
-    print_good("#{full_uri}config (git disclosure - config file Found)")
+    print_good("#{config_uri} (git disclosure - config file Found)")
 
     report_note(
       host: rhost,
