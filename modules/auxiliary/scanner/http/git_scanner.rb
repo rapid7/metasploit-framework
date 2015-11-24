@@ -64,9 +64,6 @@ class Metasploit3 < Msf::Auxiliary
       type: 'git_disclosure',
       data: { full_uri: full_uri, version: version, entries_count: entries_count }
     )
-
-    path = store_loot('index', 'binary', rhost, resp, full_uri)
-    print_good("Saved file to: #{path}")
   end
 
   def git_index
