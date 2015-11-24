@@ -14,13 +14,13 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'HTTP Git Scanner',
-      'Description' => %q{
+      'Description' => %q(
         This module can detect information disclosure vlnerabilities in
         Git Repository. Git has some files that stores in Git Resitory,
         ex: .git/config, .git/index. We can get a number of personal/
         preferences settings from .git/config, and get source code,
         account information from .git/index.
-      },
+    ),
       'Author'      => [
         'Nixawk', # module developer
         'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
@@ -105,7 +105,6 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(_target_host)
     vprint_status("#{full_uri} - scanning git disclosure")
-    vhost = datastore['VHOST'] || wmap_target_host
     git_index if datastore['GIT_INDEX']
     git_config if datastore['GIT_CONFIG']
   end
