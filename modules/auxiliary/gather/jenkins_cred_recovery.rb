@@ -52,6 +52,11 @@ class Metasploit3 < Msf::Auxiliary
   def get_jenkins_version
     uri = normalize_uri(target_uri.path)
     res = send_request_cgi({ 'uri' => uri })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out while finding the Jenkins version')
+    end
+
     html = res.get_html_document
     version_attribute = html.at('body').attributes['data-version']
     version = version_attribute ? version_attribute.value : ''
@@ -97,6 +102,11 @@ class Metasploit3 < Msf::Auxiliary
     uri << '/'
 
     res = send_request_cgi({ 'uri'=>uri })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out while enumerating accounts.')
+    end
+
     html = res.get_html_document
     rows = html.search('//table[@class="sortable pane bigtable"]//tr')
 
@@ -133,6 +143,11 @@ class Metasploit3 < Msf::Auxiliary
   def get_encrypted_password(id)
     uri = normalize_uri(target_uri.path, 'credential-store', 'domain', domain, 'credential', id, 'update')
     res = send_request_cgi({ 'uri'=>uri })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out while getting the encrypted password')
+    end
+
     html = res.get_html_document
     input = html.at('//div[@id="main-panel"]//form//table//tr/td//input[@name="_.password"]')
 
@@ -164,7 +179,11 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res && /javax\.servlet\.ServletException: hudson\.security\.AccessDeniedException2/ === res.body
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out while accessing the script console')
+    end
+
+    if /javax\.servlet\.ServletException: hudson\.security\.AccessDeniedException2/ === res.body
       vprint_error('No permission to decrypt password')
       return nil
     end
