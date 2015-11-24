@@ -35,7 +35,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The test path to .git directory', '/.git/']),
         OptBool.new('GIT_INDEX', [true, 'Check index file in .git directory', true]),
-        OptBool.new('GIT_CONFIG', [true, 'Check config file in .git directory', true])
+        OptBool.new('GIT_CONFIG', [true, 'Check config file in .git directory', true]),
+        OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'git/1.7.9.5' ])
       ]
     )
   end
