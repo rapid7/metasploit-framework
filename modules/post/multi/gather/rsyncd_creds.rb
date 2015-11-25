@@ -19,14 +19,13 @@ class Metasploit3 < Msf::Post
         ),
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Jon Hart <jon_hart[at]rapid7.com>' ],
-        'Platform'      => %w(bsd linux osx unix),
         'SessionTypes'  => %w(shell)
       )
     )
 
     register_options(
       [
-        OptString.new('USER_CONFIG', [false, 'Attempt to passwords from this RSYNC ' \
+        OptString.new('USER_CONFIG', [false, 'Attempt to get passwords from this RSYNC ' \
           'configuration file relative to each local user\'s home directory.  Leave unset to disable.', 'rsyncd.conf'])
       ]
     )
