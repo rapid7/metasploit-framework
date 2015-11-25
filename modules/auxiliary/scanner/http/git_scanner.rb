@@ -15,11 +15,9 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'HTTP Git Scanner',
       'Description' => %q(
-        This module can detect information disclosure vlnerabilities in
-        Git Repository. Git has some files that stores in Git Resitory,
-        ex: .git/config, .git/index. We can get a number of personal/
-        preferences settings from .git/config, and get source code,
-        account information from .git/index.
+        This module can detect situations where there may be information
+        disclosure vulnerabilities that occur when a Git repository is made
+        available over HTTP.
       ),
       'Author'      => [
         'Nixawk', # module developer
