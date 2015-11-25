@@ -14,13 +14,11 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'HTTP Git Scanner',
-      'Description' => %q{
-        This module can detect information disclosure vlnerabilities in
-        Git Repository. Git has some files that stores in Git Resitory,
-        ex: .git/config, .git/index. We can get a number of personal/
-        preferences settings from .git/config, and get source code,
-        account information from .git/index.
-      },
+      'Description' => %q(
+        This module can detect situations where there may be information
+        disclosure vulnerabilities that occur when a Git repository is made
+        available over HTTP.
+      ),
       'Author'      => [
         'Nixawk', # module developer
         'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
@@ -35,7 +33,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The test path to .git directory', '/.git/']),
         OptBool.new('GIT_INDEX', [true, 'Check index file in .git directory', true]),
-        OptBool.new('GIT_CONFIG', [true, 'Check config file in .git directory', true])
+        OptBool.new('GIT_CONFIG', [true, 'Check config file in .git directory', true]),
+        OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'git/1.7.9.5' ])
       ]
     )
   end
@@ -55,57 +54,62 @@ class Metasploit3 < Msf::Auxiliary
     entries_count = resp[8, 4].unpack('N')[0].to_i
 
     return unless version && entries_count
-    print_good("#{full_uri} (git repo version #{version}) - #{entries_count} files found")
-
-    report_note(
-      host: rhost,
-      port: rport,
-      proto: 'tcp',
-      type: 'git_disclosure',
-      data: { full_uri: full_uri, version: version, entries_count: entries_count }
-    )
-
-    path = store_loot('index', 'binary', rhost, resp, full_uri)
-    print_good("Saved file to: #{path}")
+    [version, entries_count]
   end
 
   def git_index
     res = req('index')
+    index_uri = git_uri('index')
     unless res
-      vprint_error("#{full_uri}index - No response received")
+      vprint_error("#{index_uri} - No response received")
       return
     end
-    vprint_status("#{full_uri}index (http status #{res.code})")
+    vprint_status("#{index_uri} - HTTP/#{res.proto} #{res.code} #{res.message}")
 
-    git_index_parse(res.body) if res.code == 200
-  end
-
-  def git_config
-    res = req('config')
-    unless res
-      vprint_error("#{full_uri}config - No response received")
-      return
-    end
-    vprint_status("#{full_uri}config - (http status #{res.code})")
-
-    return unless res.code == 200 && res.body =~ /\[(?:branch|core|remote)\]/
-    print_good("#{full_uri}config (git disclosure - config file Found)")
+    return unless res.code == 200
+    version, count = git_index_parse(res.body)
+    return unless version && count
+    print_good("#{full_uri} - git repo (version #{version}) found with #{count} files")
 
     report_note(
       host: rhost,
       port: rport,
       proto: 'tcp',
-      type: 'git_disclosure',
-      data: { full_uri: full_uri }
+      type: 'git_index_disclosure',
+      data: { uri: index_uri, version: version, entries_count: count }
+    )
+  end
+
+  def git_config
+    res = req('config')
+    config_uri = git_uri('config')
+    unless res
+      vprint_error("#{config_uri} - No response received")
+      return
+    end
+    vprint_status("#{config_uri} - HTTP/#{res.proto} #{res.code} #{res.message}")
+
+    return unless res.code == 200 && res.body =~ /\[(?:branch|core|remote)\]/
+    print_good("#{config_uri} - git config file found")
+
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      type: 'git_config_disclosure',
+      data: { uri: config_uri }
     )
 
-    path = store_loot('config', 'text/plain', rhost, res.body, full_uri)
+    path = store_loot('config', 'text/plain', rhost, res.body, config_uri)
     print_good("Saved file to: #{path}")
+  end
+
+  def git_uri(path)
+    full_uri =~ %r{/$} ? "#{full_uri}#{path}" : "#{full_uri}/#{path}"
   end
 
   def run_host(_target_host)
     vprint_status("#{full_uri} - scanning git disclosure")
-    vhost = datastore['VHOST'] || wmap_target_host
     git_index if datastore['GIT_INDEX']
     git_config if datastore['GIT_CONFIG']
   end
