@@ -51,7 +51,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def target_url
     uri = normalize_uri(datastore['URI'])
-    "http://#{vhost}:#{rport}#{uri}"
+    proto = 'http'
+    if rport == 443 || ssl
+      proto = 'https'
+    end
+    "#{proto}://#{vhost}:#{rport}#{uri}"
   end
 
   def has_j_security_check?
