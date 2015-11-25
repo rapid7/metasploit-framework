@@ -57,7 +57,7 @@ dlog() | LOG_DEBUG
 elog() | LOG_ERROR
 wlog() | LOG_WARN
 ilog() | LOG_INFO
-rlow() | LOG_RAW
+rlog() | LOG_RAW
 
 ## Code Example
 
