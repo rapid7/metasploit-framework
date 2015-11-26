@@ -14,7 +14,7 @@ module Msf
 class Plugin::EventSounds < Msf::Plugin
 
   attr_accessor :theme, :base, :queue, :queue_thread
-  attr_reader   :try_harder, :excellent, :got_a_shell, :exploit_worked, :wonderful, :excellent
+  attr_reader   :try_harder, :excellent, :got_a_shell, :exploit_worked, :wonderful
 
   include Msf::SessionEvent
 
@@ -27,8 +27,7 @@ class Plugin::EventSounds < Msf::Plugin
       excellent,
       got_a_shell,
       exploit_worked,
-      wonderful,
-      excellent
+      wonderful
     ].sample
     play_sound(sound)
   end
@@ -80,7 +79,6 @@ class Plugin::EventSounds < Msf::Plugin
     @got_a_shell    = 'got_a_shell'
     @exploit_worked = 'exploit_worked'
     @wonderful      = 'wonderful'
-    @excellent      = 'excellent'
   end
 
 
