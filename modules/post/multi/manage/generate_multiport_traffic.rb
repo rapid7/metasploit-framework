@@ -19,13 +19,17 @@ class Metasploit3 < Msf::Post
                         It is essentially designed to help to find firewall holes and egress filtering.
                         All it does is generate traffic on the port range you specify; it is up to you to
                         run a listener/tcpdump or something on the endpoint to determine which packets
-                        made it through.
+                        made it through. You could use https://github.com/stufus/egresscheck-framework to help
+                        with acquiring and parsing packet captures.
 
-                        It will not honour any metasploit/meterpreter specific routes for the very good reason
-                        that the purpose is to judge connectivity from the box on its own, not to channel
-                        this traffic through existing established connections.
+                        It can be run in two modes; WINAPI mode and NATIVE mode. 
 
-                        It does not require administrative privileges and will use normal connection APIs.
+                        In NATIVE mode, connections will be generated using Rex sockets, meaning that a route will
+                        need to exist to ensure that meterpreter is generating the traffic.
+
+                        In WINAPI mode (Windows only), this will use Windows APIs to generate the traffic.
+
+                        It does not require administrative privileges on the client side.
                        ),
                       'License'       => MSF_LICENSE,
                       'Author'        => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
