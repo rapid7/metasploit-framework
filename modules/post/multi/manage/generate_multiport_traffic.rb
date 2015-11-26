@@ -63,13 +63,13 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def native_egress
-  end
-
-  def winapi_egress
-    unless session.railgun.ws2_32
-      print_error("This module requires Windows/winsock APIs")
+  def egress(type)
+    # If we want WINAPI egress, make sure winsock is loaded
+    if type=='winapi'
+      unless session.railgun.ws2_32
+       print_error("This module requires Windows/winsock APIs")
       return
+     end
     end
 
     remote = datastore['TARGET']
@@ -112,22 +112,7 @@ class Metasploit3 < Msf::Post
     0.upto(thread_num - 1) do |num|
       a << framework.threads.spawn("Module(#{refname})", false, workload_ports[num]) do |portlist|
         portlist.each do |dport|
-          socket_handle = winapi_create_socket(proto)
-          if socket_handle['return'] == 0
-            vprint_status("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
-            break
-          else
-            vprint_status("[#{num}] Set up socket for #{remote} port #{proto}/#{dport} (Handle: #{socket_handle['return']})")
-          end
-
-          vprint_status("[#{num}] Connecting to #{remote}:#{proto}/#{dport}")
-          r = winapi_make_connection(remote, dport, socket_handle['return'], proto)
-          if r['GetLastError'] == 0
-            vprint_status("[#{num}] Connection packet sent successfully #{proto}/#{dport}")
-          else
-            vprint_status("[#{num}] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
-          end
-          client.railgun.ws2_32.closesocket(socket_handle['return'])
+            winapi_egress_to_port(proto,remote,dport)
         end
       end
     end
@@ -136,12 +121,32 @@ class Metasploit3 < Msf::Post
     print_status("#{proto} traffic generation to #{remote} completed.")
     0
 
+  # This will generate a packet on proto <proto> to IP <remote> on port <dport>
+  def winapi_egress_to_port(proto,remote,dport)
+     socket_handle = winapi_create_socket(proto)
+     if socket_handle['return'] == 0
+       vprint_status("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
+       break
+     else
+       vprint_status("[#{num}] Set up socket for #{remote} port #{proto}/#{dport} (Handle: #{socket_handle['return']})")
+     end
+
+     vprint_status("[#{num}] Connecting to #{remote}:#{proto}/#{dport}")
+     r = winapi_make_connection(remote, dport, socket_handle['return'], proto)
+     if r['GetLastError'] == 0
+       vprint_status("[#{num}] Connection packet sent successfully #{proto}/#{dport}")
+     else
+       vprint_status("[#{num}] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
+     end
+     client.railgun.ws2_32.closesocket(socket_handle['return'])
+  end
+
   def run
     # If it is being run in Win32 API (Railgun) mode, call the WinAPI version of this
     if datastore['METHOD']=='WINAPI'
-        winapi_egress
+        egress('winapi')
     else
-        native_egress
+        egress('native')
     end
   end
 
