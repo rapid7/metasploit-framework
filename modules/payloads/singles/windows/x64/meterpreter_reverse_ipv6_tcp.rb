@@ -36,7 +36,7 @@ module Metasploit4
 
     register_options([
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
-      OptString.new('EXTINIT',    [false, 'Initialision strings for extensions']),
+      OptString.new('EXTINIT',    [false, 'Initialization strings for extensions']),
       OptInt.new("SCOPEID", [false, "The IPv6 Scope ID, required for link-layer addresses", 0])
     ], self.class)
   end
