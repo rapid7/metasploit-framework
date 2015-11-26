@@ -14,6 +14,10 @@ module Msf
 class Plugin::EventSounds < Msf::Plugin
 
 
+  SESSION_CLOSE = 'try_harder'
+  SESSION_OPEN  = 'excellent'
+
+
   attr_accessor :theme, :base, :queue, :queue_thread
 
   include Msf::SessionEvent
@@ -23,25 +27,17 @@ class Plugin::EventSounds < Msf::Plugin
   end
 
   def on_session_open(session)
-    event = 'session_open_' + session.type
-    play_sound(event)
+    play_sound(SESSION_OPEN)
   end
 
   def on_session_close(session, reason='')
-    sid = session.sid.to_s
-    play_sound('session')
-    sid.unpack("C*").each do |c|
-      play_sound("num" + [c].pack("C"))
-    end
-    play_sound('closed')
+    play_sound(SESSION_CLOSE)
   end
 
   def on_plugin_load
-    play_sound('plugin_load')
   end
 
   def on_plugin_unload
-    play_sound('plugin_unload')
   end
 
   def start_sound_queue
@@ -49,7 +45,7 @@ class Plugin::EventSounds < Msf::Plugin
       begin
       while(true)
         while(event = self.queue.shift)
-          path = ::File.join(self.base, self.theme, "#{event}.wav")
+          path = ::File.join(self.base, self.theme, "#{event}.mp3")
           if(::File.exists?(path))
             Rex::Compat.play_sound(path)
           else
