@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, 'The path to users Home Page', '/']),
+        OptString.new('TARGETURI', [true, 'The path to users Home Page', '/']),
         OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "unix_users.txt") ]),
       ], self.class)
@@ -51,11 +51,6 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  def target_url
-    uri = normalize_uri(datastore['URI'])
-    "http://#{vhost}:#{rport}#{uri}"
-  end
-
   def run_host(ip)
     @users_found = {}
 
@@ -64,9 +59,9 @@ class Metasploit3 < Msf::Auxiliary
     }
 
     if(@users_found.empty?)
-      print_status("#{target_url} - No users found.")
+      print_status("#{full_uri} - No users found.")
     else
-      print_good("#{target_url} - Users found: #{@users_found.keys.sort.join(", ")}")
+      print_good("#{full_uri} - Users found: #{@users_found.keys.sort.join(", ")}")
       report_note(
         :host => rhost,
         :port => rport,
@@ -80,8 +75,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_login(user)
 
-    vprint_status("#{target_url}~#{user} - Trying UserDir: '#{user}'")
-    uri = normalize_uri(datastore['URI'])
+    vprint_status("#{full_uri}~#{user} - Trying UserDir: '#{user}'")
+    uri = normalize_uri(target_uri.path)
     payload = "#{uri}~#{user}/"
     begin
       res = send_request_cgi(
@@ -93,10 +88,10 @@ class Metasploit3 < Msf::Auxiliary
 
       return unless res
       if ((res.code == 403) or (res.code == 200))
-        print_good("#{target_url} - Apache UserDir: '#{user}' found ")
+        print_good("#{full_uri} - Apache UserDir: '#{user}' found ")
         @users_found[user] = :reported
       else
-        vprint_status("#{target_url} - Apache UserDir: '#{user}' not found ")
+        vprint_status("#{full_uri} - Apache UserDir: '#{user}' not found ")
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE

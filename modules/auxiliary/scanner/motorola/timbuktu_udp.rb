@@ -52,8 +52,8 @@ class Metasploit3 < Msf::Auxiliary
         else
           print_error("Unable to determine info for #{ip}...")
         end
+    ensure
       disconnect_udp
-    rescue ::Errno::EPIPE, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
     end
   end
 end

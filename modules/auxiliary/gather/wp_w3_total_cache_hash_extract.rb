@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'          => 'W3-Total-Cache Wordpress-plugin 0.9.2.4 (or before) Username and Hash Extract',
+      'Name'          => 'WordPress W3-Total-Cache Plugin 0.9.2.4 (or before) Username and Hash Extract',
       'Description'   =>
         "The W3-Total-Cache Wordpress Plugin <= 0.9.2.4 can cache database statements
         and it's results in files for fast access. Version 0.9.2.4 has been fixed afterwards
