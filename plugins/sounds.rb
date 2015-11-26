@@ -14,11 +14,8 @@ module Msf
 class Plugin::EventSounds < Msf::Plugin
 
 
-  SESSION_CLOSE = 'try_harder'
-  SESSION_OPEN  = 'excellent'
-
-
   attr_accessor :theme, :base, :queue, :queue_thread
+  attr_reader   :try_harder, :session_open, :excellent
 
   include Msf::SessionEvent
 
@@ -27,11 +24,16 @@ class Plugin::EventSounds < Msf::Plugin
   end
 
   def on_session_open(session)
-    play_sound(SESSION_OPEN)
+    sound = [excellent, session_open].sample
+    play_sound(sound)
   end
 
   def on_session_close(session, reason='')
-    play_sound(SESSION_CLOSE)
+    play_sound(session_close)
+  end
+
+  def on_session_fail(reason='')
+    play_sound(try_harder)
   end
 
   def on_plugin_load
@@ -67,8 +69,17 @@ class Plugin::EventSounds < Msf::Plugin
   end
 
 
+  def init_sound_paths
+    @try_harder    = 'try_harder'
+    @session_open  = 'session_open'
+    @excellent     = 'excellent'
+  end
+
+
   def initialize(framework, opts)
     super
+
+    init_sound_paths
 
     self.queue = []
     self.theme = opts['theme'] || 'default'
