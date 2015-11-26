@@ -3,7 +3,7 @@ require 'stringio'
 
 load Metasploit::Framework.root.join('tools/exploit/java_deserializer.rb').to_path
 
-describe JavaDeserializer do
+RSpec.describe JavaDeserializer do
 
   before(:all) do
     @out = $stdout

@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::AuthorizationData do
+RSpec.describe Rex::Proto::Kerberos::Model::AuthorizationData do
 
   subject(:authorization_data) do
     described_class.new

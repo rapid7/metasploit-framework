@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/ole'
 
-describe Rex::OLE::Header do
+RSpec.describe Rex::OLE::Header do
   before(:each) do
     Rex::OLE::Util.set_endian(Rex::OLE::LITTLE_ENDIAN)
   end

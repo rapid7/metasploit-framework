@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptPort do
+RSpec.describe Msf::OptPort do
   valid_values = [
     { :value => "0",    :normalized => 0     },
     { :value => "65535",:normalized => 65535 },

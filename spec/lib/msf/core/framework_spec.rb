@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/framework'
 
-describe Msf::Framework do
+RSpec.describe Msf::Framework do
   context '#initialize' do
     subject(:framework) {
       described_class.new
@@ -22,24 +22,24 @@ describe Msf::Framework do
     end
 
     it "should return the Version constant" do
-      described_class.const_get(:Version).should == framework.version
+      expect(described_class.const_get(:Version)).to eq framework.version
     end
 
     it "should return the concatenation of Major.Minor.Point-Release" do
       major,minor,point,release = framework.version.split(/[.-]/)
-      major.to_i.should == described_class::Major
-      minor.to_i.should == described_class::Minor
-      point.to_i.should == described_class::Point
-      "-#{release}".should == described_class::Release
+      expect(major.to_i).to eq described_class::Major
+      expect(minor.to_i).to eq described_class::Minor
+      expect(point.to_i).to eq described_class::Point
+      expect("-#{release}").to eq described_class::Release
     end
 
     skip "conform to SemVer 2.0 syntax: http://semver.org/" do
       it "should have constants that correspond to SemVer standards" do
         major,minor,patch,label = framework.version.split(/[.-]/)
-        major.to_i.should == described_class::VERSION::MAJOR
-        minor.to_i.should == described_class::VERSION::MINOR
-        point.to_i.should == described_class::VERSION::POINT
-        label.to_s.should == described_class::VERSION::LABEL
+        expect(major.to_i).to eq described_class::VERSION::MAJOR
+        expect(minor.to_i).to eq described_class::VERSION::MINOR
+        expect(point.to_i).to eq described_class::VERSION::POINT
+        expect(label.to_s).to eq described_class::VERSION::LABEL
       end
     end
 

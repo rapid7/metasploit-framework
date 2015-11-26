@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/jtr/cracker'
 
-describe Metasploit::Framework::JtR::Cracker do
+RSpec.describe Metasploit::Framework::JtR::Cracker do
 
   subject(:cracker) { described_class.new }
   let(:john_path) { '/path/to/john' }
