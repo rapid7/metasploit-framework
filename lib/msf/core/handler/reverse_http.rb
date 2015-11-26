@@ -344,33 +344,17 @@ protected
       when :init_native
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
+        uri = URI(payload_uri(req) + conn_id)
 
         resp['Content-Type'] = 'application/octet-stream'
-
-        lhost = datastore['LHOST']
-        lport = datastore['LPORT']
-
-        if datastore['OverrideRequestHost']
-          if datastore['OverrideLHOST']
-            lhost = datastore['OverrideLHOST']
-          else
-            if req && req.headers && req.headers['Host']
-              lhost = req.headers['Host']
-            end
-          end
-
-          if datastore['OverrideLPORT']
-            lport = datastore['OverrideLPORT']
-          end
-        end
 
         # generate the stage, but pass in the existing UUID and connection id so that
         # we don't get new ones generated.
         blob = obj.stage_payload(
           uuid: uuid,
           uri:  conn_id,
-          lhost: lhost,
-          lport: lport
+          lhost: uri.host,
+          lport: uri.port
         )
 
         resp.body = encode_stage(blob)
