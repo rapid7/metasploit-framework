@@ -13,9 +13,8 @@ module Msf
 
 class Plugin::EventSounds < Msf::Plugin
 
-
   attr_accessor :theme, :base, :queue, :queue_thread
-  attr_reader   :try_harder, :session_open, :excellent
+  attr_reader   :try_harder, :excellent, :got_a_shell, :exploit_worked, :wonderful, :excellent
 
   include Msf::SessionEvent
 
@@ -24,12 +23,18 @@ class Plugin::EventSounds < Msf::Plugin
   end
 
   def on_session_open(session)
-    sound = [excellent, session_open].sample
+    sound = [
+      excellent,
+      got_a_shell,
+      exploit_worked,
+      wonderful,
+      excellent
+    ].sample
     play_sound(sound)
   end
 
   def on_session_close(session, reason='')
-    play_sound(session_close)
+    # Cannot find an audio clip of muts saying something suitable for this.
   end
 
   def on_session_fail(reason='')
@@ -70,9 +75,12 @@ class Plugin::EventSounds < Msf::Plugin
 
 
   def init_sound_paths
-    @try_harder    = 'try_harder'
-    @session_open  = 'session_open'
-    @excellent     = 'excellent'
+    @try_harder     = 'try_harder'
+    @excellent      = 'excellent'
+    @got_a_shell    = 'got_a_shell'
+    @exploit_worked = 'exploit_worked'
+    @wonderful      = 'wonderful'
+    @excellent      = 'excellent'
   end
 
 
