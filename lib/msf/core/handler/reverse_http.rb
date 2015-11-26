@@ -347,13 +347,30 @@ protected
 
         resp['Content-Type'] = 'application/octet-stream'
 
+        lhost = datastore['LHOST']
+        lport = datastore['LPORT']
+
+        if datastore['OverrideRequestHost']
+          if datastore['OverrideLHOST']
+            lhost = datastore['OverrideLHOST']
+          else
+            if req && req.headers && req.headers['Host']
+              lhost = req.headers['Host']
+            end
+          end
+
+          if datastore['OverrideLPORT']
+            lport = datastore['OverrideLPORT']
+          end
+        end
+
         # generate the stage, but pass in the existing UUID and connection id so that
         # we don't get new ones generated.
         blob = obj.stage_payload(
           uuid: uuid,
           uri:  conn_id,
-          lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
-          lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
+          lhost: lhost,
+          lport: lport
         )
 
         resp.body = encode_stage(blob)
