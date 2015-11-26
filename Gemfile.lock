@@ -11,7 +11,7 @@ PATH
       metasm (~> 1.0.2)
       metasploit-concern (= 1.0.0)
       metasploit-model (= 1.0.0)
-      metasploit-payloads (= 1.0.16)
+      metasploit-payloads (= 1.0.17)
       msgpack
       nokogiri
       packetfu (= 1.1.11)
@@ -127,7 +127,7 @@ GEM
       activemodel (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
-    metasploit-payloads (1.0.16)
+    metasploit-payloads (1.0.17)
     metasploit_data_models (1.2.9)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
