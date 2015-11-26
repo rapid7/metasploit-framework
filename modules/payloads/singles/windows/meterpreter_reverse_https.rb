@@ -13,7 +13,7 @@ require 'rex/payloads/meterpreter/config'
 
 module Metasploit4
 
-  CachedSize = 958530
+  CachedSize = 958531
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -35,7 +35,8 @@ module Metasploit4
       ))
 
     register_options([
-      OptString.new('EXTENSIONS', [false, "Comma-separate list of extensions to load"]),
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
+      OptString.new('EXTINIT',    [false, 'Initialization strings for extensions'])
     ], self.class)
   end
 
@@ -54,7 +55,8 @@ module Metasploit4
       expiration: datastore['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
       transports: [transport_config_reverse_https(opts)],
-      extensions: (datastore['EXTENSIONS'] || '').split(',')
+      extensions: (datastore['EXTENSIONS'] || '').split(','),
+      ext_init:   (datastore['EXTINIT'] || '')
     }
 
     # create the configuration instance based off the parameters
