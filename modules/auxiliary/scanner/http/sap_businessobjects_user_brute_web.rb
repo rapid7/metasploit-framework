@@ -46,6 +46,33 @@ class Metasploit3 < Msf::Auxiliary
     }
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def enum_user(user, pass)
     vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' password: '#{pass}'")
     success = false
@@ -79,14 +106,13 @@ class Metasploit3 < Msf::Auxiliary
 
     if success
       print_good("[SAP BusinessObjects] Successful login '#{user}' password: '#{pass}'")
-      report_auth_info(
-        :host   => rhost,
-        :proto => 'tcp',
-        :sname  => 'sap-businessobjects',
-        :user   => user,
-        :pass   => pass,
-        :target_host => rhost,
-        :target_port => rport
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'sap-businessobjects',
+        user: user,
+        password: pass,
+        proof: res.body
       )
       return :next_user
     else

@@ -140,7 +140,7 @@ module Msf
     # providers it wishes to monitor.  This can be used to allow modules
     # to automatically execute or perform other tasks when certain
     # events occur.  For instance, when a new host is detected, other
-    # aux modules may wish to run such that they can collect more
+    # auxiliary modules may wish to run such that they can collect more
     # information about the host that was detected.
     #
     # @param klass [Class<Msf::Module>] The module class

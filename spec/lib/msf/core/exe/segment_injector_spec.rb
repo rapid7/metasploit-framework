@@ -24,12 +24,6 @@ describe Msf::Exe::SegmentInjector do
     injector.processor.class.should == Metasm::X86_64
   end
 
-  context '#payload_as_asm' do
-    it 'should return the payload as declare byte instructions' do
-      injector.payload_as_asm.should == "db 0xd9\ndb 0xeb\ndb 0x9b\ndb 0xd9\ndb 0x74\ndb 0x24\n"
-    end
-  end
-
   context '#create_thread_stub' do
     it 'should use edx as a default buffer register' do
       injector.buffer_register.should == 'edx'

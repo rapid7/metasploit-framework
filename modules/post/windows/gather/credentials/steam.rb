@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     # the correct program files folder.
     # We will just use an x64 only defined env variable to check.
     progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
-    progfilesx86 = prog_files_env['ProgramFiles(X86)']
+    progfilesx86 = progfiles_env['ProgramFiles(X86)']
     if not progfilesx86.empty? and progfilesx86 !~ /%ProgramFiles\(X86\)%/
       progs = progfilesx86 # x64
     else

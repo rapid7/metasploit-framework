@@ -30,6 +30,12 @@ module Metasploit
           # @!attribute port
           #   @return [Fixnum] The port to connect to
           attr_accessor :port
+          # @!attribute host
+          #   @return [String] The local host for outgoing connections
+          attr_accessor :local_host
+          # @!attribute port
+          #   @return [Fixnum] The local port for outgoing connections
+          attr_accessor :local_port
           # @!attribute proxies
           #   @return [String] The proxy directive to use for the socket
           attr_accessor :proxies
@@ -220,8 +226,8 @@ module Metasploit
 
               if result.success?
                 consecutive_error_count = 0
-                break if stop_on_success
                 successful_users << credential.public
+                break if stop_on_success
               else
                 if result.status == Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
                   consecutive_error_count += 1

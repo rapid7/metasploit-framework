@@ -218,7 +218,7 @@ class Metasploit3 < Msf::Nop
     INSTRUCTIONS.each do | instruction |
       good = true;
       # If the instruction contains some bad chars we wont use it...
-      badchars.each do | bc |
+      badchars.each_char do | bc |
         if instruction[I_OP].include?( bc )
           good = false
           break

@@ -51,5 +51,7 @@ module Rex
   end
 end
 
+require 'rex/java/serialization/decode_error'
+require 'rex/java/serialization/encode_error'
 require 'rex/java/serialization/model'
 require 'rex/java/serialization/builder'

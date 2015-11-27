@@ -52,7 +52,6 @@ class ClientRequest
     'method_random_case'     => false,   # bool
     'version_random_valid'   => false,   # bool
     'version_random_invalid' => false,   # bool
-    'version_random_case'    => false,   # bool
     'uri_dir_self_reference' => false,   # bool
     'uri_dir_fake_relative'  => false,   # bool
     'uri_use_backslashes'    => false,   # bool
@@ -342,10 +341,6 @@ class ClientRequest
 
     if (opts['version_random_invalid'])
       ret = Rex::Text.rand_text_alphanumeric(rand(20)+1)
-    end
-
-    if (opts['version_random_case'])
-      ret = Rex::Text.to_rand_case(ret)
     end
 
     ret << "\r\n"

@@ -23,7 +23,7 @@ module Metasploit3
       'Session'       => Msf::Sessions::CommandShellWindows,
       'PayloadCompat' =>
         {
-          'Convention' => 'sockedi -https'
+          'Convention' => 'sockedi -http -https'
         },
       'Stage'         =>
         {

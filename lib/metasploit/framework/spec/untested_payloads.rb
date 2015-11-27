@@ -44,7 +44,7 @@ module Metasploit
             untested_payloads_pathname = Pathname.new 'log/untested-payloads.log'
 
             if untested_payloads_pathname.exist?
-              tool_path = 'tools/missing-payload-tests.rb'
+              tool_path = 'tools/modules/missing_payload_tests.rb'
 
               $stderr.puts "Untested payload detected.  Running `#{tool_path}` to see contexts to add to " \
                            "`spec/modules/payloads_spec.rb` to test those payload ancestor reference names."

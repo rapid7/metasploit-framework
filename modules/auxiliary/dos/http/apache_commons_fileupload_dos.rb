@@ -30,7 +30,6 @@ class Metasploit4 < Msf::Auxiliary
        'References'     =>
          [
            ['CVE', '2014-0050'],
-           ['URL', 'http://markmail.org/message/kpfl7ax4el2owb3o'],
            ['URL', 'http://tomcat.apache.org/security-8.html'],
            ['URL', 'http://tomcat.apache.org/security-7.html']
          ],
@@ -58,8 +57,8 @@ class Metasploit4 < Msf::Auxiliary
     }
 
     # XXX: There is rarely, if ever, a need for a 'for' loop in Ruby
-    #      This should be rewritten with 1.upto() or Enumerable#each or
-    #      something
+    # This should be rewritten with 1.upto() or Enumerable#each or
+    # something
     for x in 1..datastore['RLIMIT']
       print_status("Sending request #{x} to #{peer}")
       begin

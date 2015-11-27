@@ -18,6 +18,8 @@ require 'msf/core/handler/bind_tcp'
 ###
 module Metasploit3
 
+  CachedSize = 69
+
   include Msf::Payload::Stager
 
   def initialize(info = {})

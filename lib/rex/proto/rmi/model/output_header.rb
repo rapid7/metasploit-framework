@@ -23,11 +23,11 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [String]
-          # @raise [RuntimeError] if fails to decode signature
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode signature
           def decode_signature(io)
             signature = read_string(io, 4)
             unless signature == SIGNATURE
-              raise ::RuntimeError, 'Failed to decode OutputHeader signature'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode OutputHeader signature'
             end
 
             signature
@@ -47,13 +47,13 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [Fixnum]
-          # @raise [RuntimeError] if fails to decode the protocol
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode the protocol
           def decode_protocol(io)
             valid_protocols = [STREAM_PROTOCOL, SINGLE_OP_PROTOCOL, MULTIPLEX_PROTOCOL]
             protocol = read_byte(io)
 
             unless valid_protocols.include?(protocol)
-              raise ::RuntimeError, 'Failed to decode OutputHeader protocol'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode OutputHeader protocol'
             end
 
             protocol

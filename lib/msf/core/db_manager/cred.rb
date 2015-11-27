@@ -95,7 +95,7 @@ module Msf::DBManager::Cred
     ret = {}
 
     # Check to see if the creds already exist. We look also for a downcased username with the
-    # same password because we can fairly safely assume they are not in fact two seperate creds.
+    # same password because we can fairly safely assume they are not in fact two separate creds.
     # this allows us to hedge against duplication of creds in the DB.
 
     if duplicate_ok

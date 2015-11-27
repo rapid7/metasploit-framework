@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
     'Description' => 'This module attempts to authenticate to an POP3 service.',
     'Author'      =>
     [
-      '==[ Alligator Security Team ]==',
       'Heyder Andrade <heyder[at]alligatorteam.org>'
     ],
       'References'     =>
@@ -76,6 +75,11 @@ class Metasploit3 < Msf::Auxiliary
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
+      ssl_version: datastore['SSLVersion'],
+      ssl_verify_mode: datastore['SSLVerifyMode'],
+      ssl_cipher: datastore['SSLCipher'],
+      local_port: datastore['CPORT'],
+      local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|

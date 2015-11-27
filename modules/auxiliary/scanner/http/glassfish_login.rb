@@ -133,11 +133,9 @@ class Metasploit3 < Msf::Auxiliary
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
         do_report(ip, rport, result)
-        :next_user
       when Metasploit::Model::Login::Status::DENIED_ACCESS
         print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
         do_report(ip, rport, result)
-        :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
           print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
@@ -152,7 +150,6 @@ class Metasploit3 < Msf::Auxiliary
             realm_value: result.credential.realm,
             status: result.status
         )
-        :abort
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
           print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"

@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
           return false
         end
       when 302
-        #Success!
+        # Success!
         return true
       else
         print_error("ERROR: received code #{res.code}")

@@ -84,6 +84,7 @@ class Metasploit3 < Msf::Auxiliary
         report_note(
           :host   => rhost,
           :port   => rport,
+          :type   => 'apache.killer',
           :data   => "Apache Byte-Range DOS at #{path}"
         )
 

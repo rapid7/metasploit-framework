@@ -11,13 +11,13 @@ module Rex
           include Rex::Java::Serialization::Model::Contents
 
           # @!attribute type
-          #   @return [String] The type of the field.
+          # @return [String] The type of the field.
           attr_accessor :type
           # @!attribute name
-          #   @return [Rex::Java::Serialization::Model::Utf] The name of the field.
+          # @return [Rex::Java::Serialization::Model::Utf] The name of the field.
           attr_accessor :name
           # @!attribute field_type
-          #   @return [Rex::Java::Serialization::Model::Utf] The type of the field on object types.
+          # @return [Rex::Java::Serialization::Model::Utf] The type of the field on object types.
           attr_accessor :field_type
 
           # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
@@ -32,12 +32,12 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @faise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode(io)
             code = io.read(1)
 
             unless code && is_valid?(code)
-              raise ::RuntimeError, 'Failed to unserialize Field'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize Field'
             end
 
             self.type = TYPE_CODES[code]
@@ -53,14 +53,14 @@ module Rex
           # Serializes the Rex::Java::Serialization::Model::Field
           #
           # @return [String] if serialization succeeds
-          # @raise [RuntimeError] if serialization doesn't succeed
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization doesn't succeed
           def encode
             unless name.kind_of?(Rex::Java::Serialization::Model::Utf)
-              raise ::RuntimeError, 'Failed to serialize Field'
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize Field'
             end
 
             unless is_type_valid?
-              raise ::RuntimeError, 'Failed to serialize Field'
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize Field'
             end
 
             encoded = ''
@@ -138,11 +138,12 @@ module Rex
           # Serializes the `field_type` attribute.
           #
           # @return [String]
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization fails
           def encode_field_type
             allowed_contents = [Utf, Reference]
 
             unless allowed_contents.include?(field_type.class)
-              raise ::RuntimeError, 'Failed to serialize Field'
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize Field'
             end
 
             encoded = encode_content(field_type)
@@ -154,13 +155,13 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [Java::Serialization::Model::Utf]
-          # @raise [RuntimeError] if unserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if unserialization doesn't succeed
           def decode_field_type(io)
             allowed_contents = [Utf, Reference]
             type = decode_content(io, stream)
 
             unless allowed_contents.include?(type.class)
-              raise ::RuntimeError, 'Failed to unserialize Field field_type'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize Field field_type'
             end
 
             type

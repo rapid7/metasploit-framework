@@ -118,14 +118,13 @@ class Metasploit3 < Msf::Auxiliary
 
       @state[c][:pass] = arg
 
-      report_auth_info(
-        :host      => @state[c][:ip],
-        :port      => datastore['SRVPORT'],
-        :sname     => 'pop3',
-        :user      => @state[c][:user],
-        :pass      => @state[c][:pass],
-        :source_type => "captured",
-        :active    => true
+      report_cred(
+        ip: @state[c][:ip],
+        port: datastore['SRVPORT'],
+        service_name: 'pop3',
+        user: @state[c][:user],
+        password: @state[c][:pass],
+        proof: arg
       )
       print_status("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
     end
@@ -133,6 +132,32 @@ class Metasploit3 < Msf::Auxiliary
     c.put "503 Server Error\r\n"
     return
 
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def on_client_close(c)

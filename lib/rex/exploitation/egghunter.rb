@@ -46,7 +46,7 @@ class Egghunter
         startreg      = opts[:startreg]
         searchforward = opts[:searchforward]
 
-        raise RuntimeError, "Invalid egg string! Need #{esize} bytes." if opts[:eggtag].length != 4
+        raise RuntimeError, "Invalid egg string! Need 4 bytes." if opts[:eggtag].length != 4
         marker = "0x%x" % opts[:eggtag].unpack('V').first
 
         checksum = checksum_stub(payload, badchars, opts)

@@ -158,14 +158,14 @@ class Metasploit3 < Msf::Auxiliary
     filename = ""
 
     url = '/CFIDE/administrator/index.cfm'
-#		print_status("Getting index...")
+    # print_status("Getting index...")
     res = send_request_cgi({
         'uri' => url,
         'method' => 'GET',
         'Connection' => "keep-alive",
         'Accept-Encoding' => "zip,deflate",
         })
-#		print_status("Got back: #{res.inspect}")
+    # print_status("Got back: #{res.inspect}")
     return if not res
     return if not res.body or not res.code
     return if not res.code.to_i == 200

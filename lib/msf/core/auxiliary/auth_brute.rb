@@ -108,9 +108,9 @@ module Auxiliary::AuthBrute
   # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing SSHKeys
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
-  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  # @param [Metasploit::Framework::CredentialCollection] cred_collection
   #    the credential collection to add to
-  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  # @return [Metasploit::Framework::CredentialCollection] cred_collection the modified Credentialcollection
   def prepend_db_keys(cred_collection)
     if prepend_db_creds?
       each_ssh_cred do |cred|
@@ -140,8 +140,8 @@ module Auxiliary::AuthBrute
   # {Metasploit::Framework::CredentialCollection} as dictated by the
   # selected datastore options.
   #
-  # @param [Metasploit::Framework::CredentialCollection] the credential collection to add to
-  # @param [Metasploit::Credential::Core] the Credential Core to process
+  # @param [Metasploit::Framework::CredentialCollection] cred_collection the credential collection to add to
+  # @param [Metasploit::Credential::Core] cred the credential to process
   def process_cred_for_collection(cred_collection, cred)
     msf_cred = cred.to_credential
     cred_collection.prepend_cred(msf_cred) if datastore['DB_ALL_CREDS']
@@ -540,8 +540,15 @@ module Auxiliary::AuthBrute
     ::IO.select(nil,nil,nil,sleep_time) unless sleep_time == 0
   end
 
+  # See #print_brute
+  def vprint_brute(opts={})
+    if datastore['VERBOSE']
+      print_brute(opts)
+    end
+  end
+
   # Provides a consistant way to display messages about AuthBrute-mixed modules.
-  # Acceptable opts are fairly self-explanitory, but :level can be tricky.
+  # Acceptable opts are fairly self-explanatory, but :level can be tricky.
   #
   # It can be one of status, good, error, or line (and corresponds to the usual
   # print_status, print_good, etc. methods).
@@ -559,7 +566,6 @@ module Auxiliary::AuthBrute
     else
       level = opts[:level].to_s.strip
     end
-
     host_ip = opts[:ip] || opts[:rhost] || opts[:host] || (rhost rescue nil) || datastore['RHOST']
     host_port = opts[:port] || opts[:rport] || (rport rescue nil) || datastore['RPORT']
     msg = opts[:msg] || opts[:message] || opts[:legacy_msg]

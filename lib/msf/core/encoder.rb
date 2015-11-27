@@ -99,7 +99,7 @@ class Encoder < Module
     #
     NonAlpha = "non_alpha"
     #
-    # tolower safe ascii - not 'A' - 'Z' (more flexable than nonalpha)
+    # tolower safe ascii - not 'A' - 'Z' (more flexible than nonalpha)
     #
     NonUpper = "non_upper"
     #
@@ -433,6 +433,12 @@ class Encoder < Module
   def preserves_stack?
     false
   end
+
+  #
+  # The amount of space available to the encoder, which may be nil,
+  # indicating that the smallest possible encoding should be used.
+  #
+  attr_accessor :available_space
 
 protected
 

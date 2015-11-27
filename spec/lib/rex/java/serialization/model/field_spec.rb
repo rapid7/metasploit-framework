@@ -34,7 +34,7 @@ describe Rex::Java::Serialization::Model::Field do
 
   describe "#encode" do
     context "when empty field" do
-      it { expect { field.encode }.to raise_error(::RuntimeError) }
+      it { expect { field.encode }.to raise_error(Rex::Java::Serialization::EncodeError) }
     end
 
     context "when primitive field" do

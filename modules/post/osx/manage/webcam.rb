@@ -57,8 +57,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    fail_with("Invalid session ID selected.") if client.nil?
-    fail_with("Invalid action") if action.nil?
+    fail_with(Failure::BadConfig, "Invalid session ID selected.") if client.nil?
+    fail_with(Failure::BadConfig, "Invalid action") if action.nil?
 
     num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
     tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Post
             end
           end
         rescue ::Timeout::Error
-          fail_with("Client did not respond to new file request, exiting.")
+          fail_with(Failure::TimeoutExpired, "Client did not respond to new file request, exiting.")
         end
       end
     elsif action.name =~ /snap/i
@@ -146,9 +146,5 @@ class Metasploit3 < Msf::Post
 
   def poll_timeout
     POLL_TIMEOUT
-  end
-
-  def fail_with(msg)
-    raise msg
   end
 end

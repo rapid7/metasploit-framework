@@ -20,9 +20,9 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Prabhu S Angadi',  #Initial discovery and poc
-          'sinn3r',           #Metasploit
-          'juan vazquez'      #More improvements
+          'Prabhu S Angadi',  # Initial discovery and poc
+          'sinn3r',           # Metasploit module
+          'juan vazquez'      # More improvements
         ],
       'References'     =>
         [

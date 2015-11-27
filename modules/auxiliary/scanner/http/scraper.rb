@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'HTTP Page Scraper',
       'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
-      'Author'       => ['et'],
+      'Author'      => ['et'],
       'License'     => MSF_LICENSE
     )
 

@@ -48,7 +48,7 @@ describe Rex::Java::Serialization::Model::BlockData do
   describe "#decode" do
     context "when stream contains empty string" do
       it "returns nil" do
-        expect { block.decode(empty_io) }.to raise_error(::RuntimeError)
+        expect { block.decode(empty_io) }.to raise_error(Rex::Java::Serialization::DecodeError)
       end
     end
 
@@ -70,7 +70,7 @@ describe Rex::Java::Serialization::Model::BlockData do
 
     context "when stream contains incomplete block" do
       it "returns nil" do
-        expect { block.decode(incomplete_block_io) }.to raise_error(::RuntimeError)
+        expect { block.decode(incomplete_block_io) }.to raise_error(Rex::Java::Serialization::DecodeError)
       end
     end
 

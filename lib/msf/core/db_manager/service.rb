@@ -85,7 +85,7 @@ module Msf::DBManager::Service
     end
 =end
 
-    proto = opts[:proto] || 'tcp'
+    proto = opts[:proto] || Msf::DBManager::DEFAULT_SERVICE_PROTO
 
     service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_initialize
     opts.each { |k,v|

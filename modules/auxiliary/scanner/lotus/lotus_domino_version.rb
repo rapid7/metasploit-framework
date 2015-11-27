@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")
         elsif (res.code == 200 and res.body)
-          #string we are regexing: <!-- Domino Release 7.0.3FP1 (Windows NT/Intel) -->
+          # string we are regexing: <!-- Domino Release 7.0.3FP1 (Windows NT/Intel) -->
           if match = res.body.match(/\<!-- Domino Release(.*) --\>/);
             server1 = $1
             report_note(
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")
         elsif (res.code == 200 and res.body)
-          #string we are regexing: <title>IBM Lotus Notes/Domino 6.5.6 Release Notes</title>
+          # string we are regexing: <title>IBM Lotus Notes/Domino 6.5.6 Release Notes</title>
           if match = res.body.match(/\<title\>(.*)Lotus Notes\/Domino (.*) Release Notes\<\/title\>/);
             server2 = $2
             print_status("#{ip}:#{rport} Lotus Domino Release Notes Version: " + $2)
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")
         elsif (res.code == 200 and res.body and res.body.index('TotalFileSize') and res.body.index('FileCount'))
-          #string we are regexing: # Regex Version=8.5.1.0
+          # string we are regexing: # Regex Version=8.5.1.0
           if match = res.body.match(/Version=(.*)/);
             server3 = $1
             report_note(

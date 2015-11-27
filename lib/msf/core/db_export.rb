@@ -313,6 +313,8 @@ class Export
 
       # Host attributes
       h.attributes.each_pair do |k,v|
+        # Convert IPAddr -> String
+        v = v.to_s if k == 'address'
         el = create_xml_element(k,v)
         report_file.write("    #{el}\n") # Not checking types
       end
@@ -373,6 +375,18 @@ class Export
           el = create_xml_element(k,v)
           report_file.write("      #{el}\n")
         end
+
+        # Notes attached to vulns instead of the host
+        report_file.write("        <notes>\n")
+        @notes.where(vuln_id: e.id).each do |note|
+          report_file.write("      <note>\n")
+          note.attributes.each_pair do |k,v|
+            el = create_xml_element(k,v)
+            report_file.write("      #{el}\n")
+          end
+          report_file.write("      </note>\n")
+        end
+        report_file.write("        </notes>\n")
 
         # References
         report_file.write("        <refs>\n")

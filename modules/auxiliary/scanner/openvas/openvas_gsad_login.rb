@@ -101,20 +101,44 @@ class Metasploit3 < Msf::Auxiliary
     if res.code == 303
       print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
-      report_hash = {
-        :host   => datastore['RHOST'],
-        :port   => datastore['RPORT'],
-        :sname  => 'openvas-gsa',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'}
-
-      report_auth_info(report_hash)
+      report_cred(
+        ip: datastore['RHOST'],
+        port: datastore['RPORT'],
+        service_name: 'openvas-gsa',
+        user: user,
+        password: pass,
+        proof: res.code.to_s
+      )
       return :next_user
     end
     vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
     return :skip_pass
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def msg

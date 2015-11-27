@@ -66,9 +66,12 @@ module PacketDispatcher
     self.waiters    = []
     self.alive      = true
 
+    # Ensure that there is only one leading and trailing slash on the URI
+    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+
     self.passive_service = self.passive_dispatcher
-    self.passive_service.remove_resource("/" + self.conn_id  + "/")
-    self.passive_service.add_resource("/" + self.conn_id + "/",
+    self.passive_service.remove_resource(resource_uri)
+    self.passive_service.add_resource(resource_uri,
       'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
       'VirtualDirectory' => true
     )
@@ -76,7 +79,16 @@ module PacketDispatcher
 
   def shutdown_passive_dispatcher
     return if not self.passive_service
-    self.passive_service.remove_resource("/" + self.conn_id  + "/")
+
+    # Ensure that there is only one leading and trailing slash on the URI
+    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+
+    self.passive_service.remove_resource(resource_uri)
+
+    # If there are no more resources registered on the service, stop it entirely
+    if self.passive_service.resources.empty?
+      Rex::ServiceManager.stop_service(self.passive_service)
+    end
 
     self.alive      = false
     self.send_queue = []
@@ -93,6 +105,8 @@ module PacketDispatcher
     resp = Rex::Proto::Http::Response.new(200, "OK")
     resp['Content-Type'] = 'application/octet-stream'
     resp['Connection']   = 'close'
+
+    self.last_checkin = Time.now
 
     # If the first 4 bytes are "RECV", return the oldest packet from the outbound queue
     if req.body[0,4] == "RECV"
@@ -113,9 +127,6 @@ module PacketDispatcher
       end
       cli.send_response(resp)
     end
-
-    # Force a closure for older WinInet implementations
-    self.passive_service.close_client( cli )
 
     rescue ::Exception => e
       elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
@@ -178,7 +189,6 @@ module PacketDispatcher
   # Sends a packet and waits for a timeout for the given time interval.
   #
   def send_request(packet, t = self.response_timeout)
-
     if not t
       send_packet(packet)
       return nil
@@ -243,7 +253,7 @@ module PacketDispatcher
 
     self.waiters = []
 
-    @pqueue = []
+    @pqueue = ::Queue.new
     @finish = false
     @last_recvd = Time.now
     @ping_sent = false
@@ -308,16 +318,12 @@ module PacketDispatcher
       # Whether we're finished or not is determined by the receiver
       # thread above.
       while(not @finish)
-        if(@pqueue.empty?)
-          ::IO.select(nil, nil, nil, 0.10)
-          next
-        end
-
         incomplete = []
         backlog    = []
 
+        backlog << @pqueue.pop
         while(@pqueue.length > 0)
-          backlog << @pqueue.shift
+          backlog << @pqueue.pop
         end
 
         #
@@ -383,11 +389,16 @@ module PacketDispatcher
           ::IO.select(nil, nil, nil, 0.10)
         end
 
-        @pqueue.unshift(*incomplete)
+        while incomplete.length > 0
+          @pqueue << incomplete.shift
+        end
 
         if(@pqueue.length > 100)
-          dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{@pqueue[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
-          @pqueue = @pqueue[25 .. 100]
+          removed = []
+          (1..25).each {
+            removed << @pqueue.pop
+          }
+          dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{removed.map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
         end
       end
       rescue ::Exception => e
@@ -444,15 +455,16 @@ module PacketDispatcher
   # if anyone.
   #
   def notify_response_waiter(response)
+    handled = false
     self.waiters.each() { |waiter|
       if (waiter.waiting_for?(response))
         waiter.notify(response)
-
         remove_response_waiter(waiter)
-
+        handled = true
         break
       end
     }
+    return handled
   end
 
   #
@@ -489,6 +501,9 @@ module PacketDispatcher
     if (client == nil)
       client = self
     end
+
+    # Update our last reply time
+    client.last_checkin = Time.now
 
     # If the packet is a response, try to notify any potential
     # waiters

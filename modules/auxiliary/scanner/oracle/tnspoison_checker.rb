@@ -42,9 +42,9 @@ class Metasploit3 < Msf::Auxiliary
       send_packet = tns_packet("(CONNECT_DATA=(COMMAND=service_register_NSGR))")
       sock.put(send_packet)
       packet = sock.read(100)
-      find_packet = packet.include? "(ERROR_STACK=(ERROR="
+      find_packet = /\(ERROR_STACK=\(ERROR=/ === packet
       find_packet == true ? print_error("#{ip}:#{rport} is not vulnerable ") : print_good("#{ip}:#{rport} is vulnerable")
-      #TODO: Module should report_vuln if this finding is solid.
+      # TODO: Module should report_vuln if this finding is solid.
       rescue ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{ip}:#{rport} unable to connect to the server")
     end

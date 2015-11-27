@@ -212,7 +212,7 @@ module Accounts
 
       case error
       when client.railgun.const('ERROR_INVALID_PARAMETER')
-        # Unless the railgun call is broken, this means revesion is wrong
+        # Unless the railgun call is broken, this means revision is wrong
         return { :type => :invalid }
       when client.railgun.const('ERROR_NONE_MAPPED')
         # There were no accounts associated with this SID

@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #check to see if we get HTTP OK
+    # check to see if we get HTTP OK
     if (res.code == 200)
       print_status("Okay, Got an HTTP 200 (okay) code. Verifying Server header")
     else
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #Check to verify server reported is a 2wire router
+    # Check to verify server reported is a 2wire router
     if (res.headers['Server'].match(/2wire Gateway/i))
       print_status("Server is a 2wire Gateway! Grabbing info\n")
     else
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Hardware Version: #{hardware}")
     end
 
-    #Check the Software Version
+    # Check the Software Version
     if res.body.match(/<td class="data">(5\.\d{1,3}\.\d{1,3}\.\d{1,3})<\/td>/i)
       ver = $1
       print_status("Software version: #{ver}")

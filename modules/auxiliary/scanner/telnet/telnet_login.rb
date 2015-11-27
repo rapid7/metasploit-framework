@@ -72,6 +72,12 @@ class Metasploit3 < Msf::Auxiliary
         telnet_timeout: datastore['TelnetTimeout'],
         framework: framework,
         framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|
@@ -89,6 +95,7 @@ class Metasploit3 < Msf::Auxiliary
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        disconnect(scanner.sock)
       end
     end
   end

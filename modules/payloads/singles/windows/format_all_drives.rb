@@ -16,6 +16,8 @@ require 'msf/core'
 
 module Metasploit3
 
+  CachedSize = 393
+
   Rank = ManualRanking
 
   include Msf::Payload::Windows

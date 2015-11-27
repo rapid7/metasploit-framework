@@ -47,8 +47,8 @@ describe Rex::Java::Serialization::Model::Utf do
 
   describe "#decode" do
     context "when stream contains empty string" do
-      it "raises RuntimeError" do
-        expect { utf.decode(empty_io) }.to raise_error(::RuntimeError)
+      it "raises Rex::Java::Serialization::DecodeError" do
+        expect { utf.decode(empty_io) }.to raise_error(Rex::Java::Serialization::DecodeError)
       end
     end
 
@@ -69,8 +69,8 @@ describe Rex::Java::Serialization::Model::Utf do
     end
 
     context "when stream contains incomplete utf" do
-      it "raises RuntimeError" do
-        expect { utf.decode(incomplete_utf_io) }.to raise_error(::RuntimeError)
+      it "raises Rex::Java::Serialization::DecodeError" do
+        expect { utf.decode(incomplete_utf_io) }.to raise_error(Rex::Java::Serialization::DecodeError)
       end
     end
 

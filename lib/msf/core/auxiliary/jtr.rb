@@ -77,7 +77,7 @@ module Auxiliary::JohnTheRipper
   end
 
   # This method instantiates a {Metasploit::Framework::JtR::Wordlist}, writes the data
-  # out to a file and returns the {rex::quickfile} object.
+  # out to a file and returns the {Rex::Quickfile} object.
   #
   # @return [nilClass] if there is no active framework db connection
   # @return [Rex::Quickfile] if it successfully wrote the wordlist to a file

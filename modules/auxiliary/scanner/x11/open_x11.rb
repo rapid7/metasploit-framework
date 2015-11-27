@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
         vendor_len = response[24,2].unpack('v')[0]
         vendor = response[40,vendor_len].unpack('A*')[0]
         print_status("#{ip} Open X Server (#{vendor})")
-        #Add Report
+        # Add Report
         report_note(
           :host	=> ip,
           :proto => 'tcp',

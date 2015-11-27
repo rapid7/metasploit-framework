@@ -128,22 +128,47 @@ class Metasploit3 < Msf::Auxiliary
 
         collect_info(user, pass)
 
-        report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'RFCode Reader',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
-        report_auth_info(report_hash)
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'RFCode Reader',
+          user: user,
+          password: pass,
+          proof: res.code.to_s
+        )
         return :next_user
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
       return :abort
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   #

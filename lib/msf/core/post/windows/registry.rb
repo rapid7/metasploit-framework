@@ -145,6 +145,19 @@ module Registry
     end
   end
 
+  # Checks if a key exists on the target registry
+  #
+  # @param key [String] the full path of the key to check
+  # @return [Boolean] true if the key exists on the target registry, false otherwise
+  #   (also in case of error)
+  def registry_key_exist?(key)
+    if session_has_registry_ext
+      meterpreter_registry_key_exist?(key)
+    else
+      shell_registry_key_exist?(key)
+    end
+  end
+
 protected
 
   #
@@ -170,7 +183,7 @@ protected
     elsif view == REGISTRY_VIEW_64_BIT
       cmd += " /reg:64"
     end
-    session.shell_command_token_win32("#{cmd} #{suffix}")
+    cmd_exec("#{cmd} #{suffix}")
   end
 
   def shell_registry_cmd_result(suffix, view = REGISTRY_VIEW_NATIVE)
@@ -310,6 +323,26 @@ protected
     shell_registry_cmd_result("add /f \"#{key}\" /v \"#{valname}\" /t \"#{type}\" /d \"#{data}\" /f", view)
   end
 
+  # Checks if a key exists on the target registry using a shell session
+  #
+  # @param key [String] the full path of the key to check
+  # @return [Boolean] true if the key exists on the target registry, false otherwise,
+  #   even if case of error (invalid arguments) or the session hasn't permission to
+  #   access the key
+  def shell_registry_key_exist?(key)
+    begin
+      key = normalize_key(key)
+    rescue ArgumentError
+      return false
+    end
+
+    results = shell_registry_cmd("query \"#{key}\"")
+    if results =~ /ERROR: /i
+      return false
+    else
+      return true
+    end
+  end
 
   ##
   # Meterpreter-specific registry manipulation methods
@@ -331,7 +364,6 @@ protected
     begin
       client.sys.config.getprivs()
       root_key, base_key = session.sys.registry.splitkey(key)
-      #print_debug("Loading file #{file}")
       begin
         loadres = session.sys.registry.load_key(root_key, base_key, file)
       rescue Rex::Post::Meterpreter::RequestError => e
@@ -346,10 +378,9 @@ protected
           #print_error("The file you specified is currently locked by another process: #{file}")
           return false
         when /stdapi_registry_load_key: Operation failed:/
-          #print_error("An unknown error has occured: #{loadres.to_s}")
+          #print_error("An unknown error has occurred: #{loadres.to_s}")
           return false
         else
-          #print_debug("Registry Hive Loaded Successfully: #{key}")
           return true
         end
       end
@@ -374,10 +405,9 @@ protected
           #print_error("The KEY you provided does not appear to match a loaded Registry Hive: #{key}")
           return false
         when /stdapi_registry_unload_key: Operation failed:/
-          #print_error("An unknown error has occured: #{unloadres.to_s}")
+          #print_error("An unknown error has occurred: #{unloadres.to_s}")
           return false
         else
-          #print_debug("Registry Hive Unloaded Successfully: #{key}")
           return true
         end
       end
@@ -439,12 +469,10 @@ protected
       subkeys = []
       root_key, base_key = session.sys.registry.splitkey(key)
       perms = meterpreter_registry_perms(KEY_READ, view)
-      open_key = session.sys.registry.open_key(root_key, base_key, perms)
-      keys = open_key.enum_key
+      keys = session.sys.registry.enum_key_direct(root_key, base_key, perms)
       keys.each { |subkey|
         subkeys << subkey
       }
-      open_key.close
       return subkeys
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
@@ -460,12 +488,10 @@ protected
       vals = {}
       root_key, base_key = session.sys.registry.splitkey(key)
       perms = meterpreter_registry_perms(KEY_READ, view)
-      open_key = session.sys.registry.open_key(root_key, base_key, perms)
-      vals = open_key.enum_value
+      vals = session.sys.registry.enum_value_direct(root_key, base_key, perms)
       vals.each { |val|
         values <<  val.name
       }
-      open_key.close
       return values
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
@@ -480,10 +506,8 @@ protected
       value = nil
       root_key, base_key = session.sys.registry.splitkey(key)
       perms = meterpreter_registry_perms(KEY_READ, view)
-      open_key = session.sys.registry.open_key(root_key, base_key, perms)
-      v = open_key.query_value(valname)
+      v = session.sys.registry.query_value_direct(root_key, base_key, valname, perms)
       value = v.data
-      open_key.close
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
     end
@@ -516,13 +540,33 @@ protected
     begin
       root_key, base_key = session.sys.registry.splitkey(key)
       perms = meterpreter_registry_perms(KEY_WRITE, view)
-      open_key = session.sys.registry.open_key(root_key, base_key, perms)
-      open_key.set_value(valname, session.sys.registry.type2str(type), data)
-      open_key.close
+      session.sys.registry.set_value_direct(root_key, base_key,
+        valname, session.sys.registry.type2str(type), data, perms)
       return true
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
     end
+  end
+
+  # Checks if a key exists on the target registry using a meterpreter session
+  #
+  # @param key [String] the full path of the key to check
+  # @return [Boolean] true if the key exists on the target registry, false otherwise
+  #   (also in case of error)
+  def meterpreter_registry_key_exist?(key)
+    begin
+      root_key, base_key = session.sys.registry.splitkey(key)
+    rescue ArgumentError
+      return false
+    end
+
+    begin
+      check = session.sys.registry.check_key_exists(root_key, base_key)
+    rescue Rex::Post::Meterpreter::RequestError, TimesoutError
+      return false
+    end
+
+    check
   end
 
   #

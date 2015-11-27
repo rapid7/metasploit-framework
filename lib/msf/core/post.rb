@@ -16,6 +16,7 @@ class Msf::Post < Msf::Module
   require 'msf/core/post/solaris'
   require 'msf/core/post/unix'
   require 'msf/core/post/windows'
+  require 'msf/core/post/android'
 
   include Msf::PostMixin
 
@@ -53,7 +54,7 @@ class Msf::Post < Msf::Module
   end
 
   # This method returns the ID of the {Mdm::Session} that the post module
-  # is currently running agaist.
+  # is currently running against.
   #
   # @return [NilClass] if there is no database record for the session
   # @return [Fixnum] if there is a database record to get the id for

@@ -187,7 +187,7 @@ module Rex
 
         # Decodes a Kerberos response
         #
-        # @param input [String] the raw response message
+        # @param data [String] the raw response message
         # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse>] the kerberos message response
         # @raise [RuntimeError] if the response can't be processed
         def decode_kerb_response(data)

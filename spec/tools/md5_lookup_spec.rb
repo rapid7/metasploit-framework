@@ -1,4 +1,4 @@
-load Metasploit::Framework.root.join('tools/md5_lookup.rb').to_path
+load Metasploit::Framework.root.join('tools/password/md5_lookup.rb').to_path
 
 require 'rex/proto/http/response'
 require 'stringio'

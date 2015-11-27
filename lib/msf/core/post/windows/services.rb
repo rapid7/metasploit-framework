@@ -528,7 +528,7 @@ module Services
   # Parses out a SERVICE_STATUS struct from the
   # lpServiceStatus out parameter
   #
-  # @param (lpServiceStatus)
+  # @param lpServiceStatus [String] the latest status of calling service
   #
   # @return [Hash] Containing SERVICE_STATUS values
   #

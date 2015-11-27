@@ -160,6 +160,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
         it "should show the correct value when both the module and the framework have this variable" do
           set_and_test_variable(name, 'FRAMEWORK', 'MODULE', /^#{name} => FRAMEWORK$/, /^#{name} => MODULE$/)
         end
+
       end
     end
   end

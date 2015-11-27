@@ -175,14 +175,14 @@ class Metasploit3 < Msf::Auxiliary
     else
       datastr = "\r\n"
     end
-    #first, check the original header fields and add some others - just for fun
+    # first, check the original header fields and add some others - just for fun
     myheaders = @send_data[:headers]
     mysendheaders = @send_data[:headers].dup
-    #get or post ?
+    # get or post ?
     mysendheaders[:method] = form[:method].upcase
     myheaders.each do | thisheader |
       if not headers[thisheader[0]]
-        #add header if needed
+        # add header if needed
         mysendheaders[thisheader[0]]= thisheader[1]
       end
     end
@@ -300,7 +300,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_field_val(input)
     tmp = input.split(/\=/)
-    #get delimeter
+    # get delimeter
     tmp2 = tmp[1].strip
     delim = tmp2[0,1]
     if delim != "'" && delim != '"'
@@ -316,7 +316,7 @@ class Metasploit3 < Msf::Auxiliary
     body = body.gsub("\r","")
     body = body.gsub("\n","")
     bodydata = body.downcase.split(/<form/)
-    #we need part after <form
+    # we need part after <form
     totalforms = bodydata.size - 1
     print_status("    Number of forms : #{totalforms}")
     formcnt = 0
@@ -326,7 +326,7 @@ class Metasploit3 < Msf::Auxiliary
       fdata = bodydata[formidx]
       print_status("    - Enumerating form ##{formcnt+1}")
       data = fdata.downcase.split(/<\/form>/)
-      #first, get action and name
+      # first, get action and name
       formdata = data[0].downcase.split(/>/)
       subdata = formdata[0].downcase.split(/ /)
       namefound = false
@@ -375,7 +375,7 @@ class Metasploit3 < Msf::Auxiliary
       namefound = true
 
       formfields = []
-      #input boxes
+      # input boxes
       fieldtypemarks = [ '<input', '<select' ]
       fieldtypemarks.each do | currfieldmark |
         formfieldcnt=0
@@ -386,7 +386,7 @@ class Metasploit3 < Msf::Auxiliary
           if subdata.size > 1
             subdata.each do | thisinput |
               if skipflag == 1
-                #first, find the delimeter
+                # first, find the delimeter
                 fielddata = thisinput.downcase.split(/>/)
                 fields = fielddata[0].split(/ /)
                 fieldname = ""
@@ -408,7 +408,7 @@ class Metasploit3 < Msf::Auxiliary
                     fieldid = get_field_val(thisfield)
                   end
                   if thisfield.match(/^value=/)
-                    #special case
+                    # special case
                     location = fielddata[0].index(thisfield)
                     delta = fielddata[0].size - location
                     remaining = fielddata[0][location,delta]
@@ -518,13 +518,13 @@ class Metasploit3 < Msf::Auxiliary
       formfound = response.body.downcase.index("<form")
       if formfound
         formdata = get_form_data(response.body)
-        #fuzz !
-        #for each form that needs to be fuzzed
+        # fuzz !
+        # for each form that needs to be fuzzed
         formdata.each do | thisform |
           if thisform[:name].length > 0
             if ((datastore['FORM'].strip == "") || (datastore['FORM'].upcase.strip == thisform[:name].upcase.strip)) && (thisform[:fields].size > 0)
               print_status("Fuzzing fields in form #{thisform[:name].upcase.strip}")
-              #for each field in this form, fuzz one field at a time
+              # for each field in this form, fuzz one field at a time
               formfields = thisform[:fields]
               formfields.each do | thisfield |
                 if thisfield[:name]
@@ -537,7 +537,7 @@ class Metasploit3 < Msf::Auxiliary
               end
               print_status("Done fuzzing fields in form #{thisform[:name].upcase.strip}")
             end
-            #fuzz headers ?
+            # fuzz headers ?
             if datastore['FUZZHEADERS'] == true
               print_status("Fuzzing header fields")
               do_fuzz_headers(thisform,response.headers)

@@ -14,70 +14,59 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'CouchDB Enum Utility',
       'Description'    => %q{
-        Send a "send_request_cgi()" to enumerate databases and your values on CouchDB (Without authentication by default)
+        This module enumerates databases on CouchDB using the REST API
+        (without authentication by default).
       },
-      'Author'         => [ 'espreto <robertoespreto[at]gmail.com>' ],
+      'References'     =>
+        [
+          ['URL', 'https://wiki.apache.org/couchdb/HTTP_database_API']
+        ],
+      'Author'         => [ 'Roberto Soares Espreto <robertoespreto[at]gmail.com>' ],
       'License'        => MSF_LICENSE
-      ))
+    ))
 
     register_options(
       [
         Opt::RPORT(5984),
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/_all_dbs']),
-        OptEnum.new('HTTP_METHOD', [true, 'HTTP Method, default GET', 'GET', ['GET', 'POST', 'PUT', 'DELETE'] ]),
         OptString.new('USERNAME', [false, 'The username to login as']),
         OptString.new('PASSWORD', [false, 'The password to login with'])
       ], self.class)
-    end
+  end
 
   def run
     username = datastore['USERNAME']
     password = datastore['PASSWORD']
 
-    uri = normalize_uri(target_uri.path)
-    res = send_request_cgi({
-      'uri'      => uri,
-      'method'   => datastore['HTTP_METHOD'],
-      'authorization' => basic_auth(username, password),
-      'headers'  => {
-        'Cookie'   => 'Whatever?'
-      }
-    })
-
-    if res.nil?
-      print_error("No response for #{target_host}")
-      return nil
-    end
-
     begin
+      res = send_request_cgi(
+        'uri'           => normalize_uri(target_uri.path),
+        'method'        => 'GET',
+        'authorization' => basic_auth(username, password)
+      )
+
       temp = JSON.parse(res.body)
-    rescue JSON::ParserError
-      print_error("Unable to parse JSON")
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
+      print_error("#{peer} - The following Error was encountered: #{e.class}")
       return
     end
 
-    results = JSON.pretty_generate(temp)
+    if res.code == 200 && res.headers['Server'].include?('CouchDB')
+      print_status('Enumerating...')
+      results = JSON.pretty_generate(temp)
+      print_good("Found:\n\n#{results}\n")
 
-    if (res.code == 200)
-      print_good("#{target_host}:#{rport} -> #{res.code}")
-      print_good("Response Headers:\n\n #{res.headers}")
-      print_good("Response Body:\n\n #{results}\n")
-    elsif (res.code == 403) # Forbidden
-      print_error("Received #{res.code} - Forbidden to #{target_host}:#{rport}")
-      print_error("Response from server:\n\n #{results}\n")
-    elsif (res.code == 404) # Not Found
-      print_error("Received #{res.code} - Not Found to #{target_host}:#{rport}")
-      print_error("Response from server:\n\n #{results}\n")
-    else
-      print_status("Received #{res.code}")
-      print_line("#{results}")
-    end
+      path = store_loot(
+        'couchdb.enum',
+        'text/plain',
+        rhost,
+        results,
+        'CouchDB Enum'
+      )
 
-    if res and res.code == 200 and res.headers['Content-Type'] and res.body.length > 0
-      path = store_loot("couchdb.enum.file", "text/plain", rhost, res.body, "CouchDB Enum Results")
-      print_status("Results saved to #{path}")
+      print_good("#{peer} - File saved in: #{path}")
     else
-      print_error("Failed to save the result")
+      print_error("#{peer} - Unable to enum, received \"#{res.code}\"")
     end
   end
 end

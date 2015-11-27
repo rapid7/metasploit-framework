@@ -24,7 +24,7 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode(io)
             loop do
               content = decode_content(io, stream)
@@ -38,9 +38,9 @@ module Rex
           # Serializes the Rex::Java::Serialization::Model::Annotation
           #
           # @return [String] if serialization suceeds
-          # @raise [RuntimeError] if serialization doesn't succeed
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization doesn't succeed
           def encode
-            raise ::RuntimeError, 'Failed to serialize Annotation with empty contents' if contents.empty?
+            raise Rex::Java::Serialization::EncodeError, 'Failed to serialize Annotation with empty contents' if contents.empty?
 
             encoded = ''
 

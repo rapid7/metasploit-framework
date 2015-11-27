@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
     @smbshare = datastore['SMBSHARE']
     # Try and connect
     if connect
-      #Try and authenticate with given credentials
+      # Try and authenticate with given credentials
       begin
         smb_login
       rescue StandardError => autherror
