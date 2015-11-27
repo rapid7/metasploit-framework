@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
         return false
     end
   rescue
-    return false 
+    return false
   end
   def excluded_sep
     print_status "Excluded Locations:"
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Post
             print_error "No Client Locations Found"
         end
   end
-  def excluded_mssec    
+  def excluded_mssec
     print_status "Excluded Locations:"
     keyms  = "HKLM\\SOFTWARE\\Microsoft\\Microsoft Antimalware\\Exclusions\\Paths\\"
     found = registry_enumvals(keyms)
@@ -110,7 +110,6 @@ class Metasploit3 < Msf::Post
         return
     else
         print_status("Enumerating Excluded Paths for AV on #{sysinfo['Computer']}")
-        
         if enum_sep
             excluded_sep
         else
