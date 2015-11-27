@@ -28,6 +28,19 @@ PATH
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
+<<<<<<< HEAD
+=======
+    metasploit-framework-db (4.11.0.pre.dev)
+      activerecord (>= 3.2.21, < 4.0.0)
+      metasploit-credential (= 0.14.8)
+      metasploit-framework (= 4.11.0.pre.dev)
+      metasploit_data_models (= 0.24.5)
+      pg (>= 0.11)
+    metasploit-framework-pcap (4.11.0.pre.dev)
+      metasploit-framework (= 4.11.0.pre.dev)
+      network_interface (~> 0.0.1)
+      pcaprub
+>>>>>>> origin/4.11.2_release_pre-rails4
 
 GEM
   remote: https://rubygems.org/
@@ -103,6 +116,7 @@ GEM
     i18n (0.7.0)
     jsobfu (0.3.0)
       rkelly-remix (= 0.0.6)
+<<<<<<< HEAD
     json (1.8.3)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
@@ -115,10 +129,24 @@ GEM
       metasploit-concern (~> 1.0)
       metasploit-model (~> 1.0)
       metasploit_data_models (~> 1.0)
+=======
+    json (1.8.2)
+    mail (2.5.4)
+      mime-types (~> 1.16)
+      treetop (~> 1.4.8)
+    metasploit-concern (0.4.0)
+      activesupport (~> 3.0, >= 3.0.0)
+      railties (< 4.0.0)
+    metasploit-credential (0.14.8)
+      metasploit-concern (= 0.4.0)
+      metasploit-model (~> 0.29.0)
+      metasploit_data_models (= 0.24.5)
+>>>>>>> origin/4.11.2_release_pre-rails4
       pg
       railties
       rubyntlm
       rubyzip (~> 1.1)
+<<<<<<< HEAD
     metasploit-model (1.0.0)
       activemodel (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
@@ -127,6 +155,15 @@ GEM
     metasploit_data_models (1.2.9)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
+=======
+    metasploit-model (0.29.2)
+      activesupport
+      railties (< 4.0.0)
+    metasploit-payloads (0.0.3)
+    metasploit_data_models (0.24.5)
+      activerecord (>= 3.2.13, < 4.0.0)
+      activesupport
+>>>>>>> origin/4.11.2_release_pre-rails4
       arel-helpers
       metasploit-concern (~> 1.0)
       metasploit-model (~> 1.0)
@@ -144,6 +181,7 @@ GEM
     network_interface (0.0.1)
     nokogiri (1.6.6.2)
       mini_portile (~> 0.6.0)
+<<<<<<< HEAD
     packetfu (1.1.11)
       network_interface (~> 0.0)
       pcaprub (~> 0.12)
@@ -155,6 +193,13 @@ GEM
       arel (>= 4.0.1)
       pg_array_parser (~> 0.0.9)
     pry (0.10.1)
+=======
+    packetfu (1.1.9)
+    pcaprub (0.11.3)
+    pg (0.18.2)
+    polyglot (0.3.5)
+    pry (0.10.0)
+>>>>>>> origin/4.11.2_release_pre-rails4
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
