@@ -22,23 +22,41 @@ class Metasploit3 < Msf::Post
 
   end
 
-  def excluded_list
+  def enum_mssec
     if registry_enumkeys("HKLM\\SOFTWARE\\Microsoft").include?("Microsoft Antimalware")
         print_status "MS Security Essentials Identified"
-        prog = "MSSEC"
-        keyms  = "HKLM\\SOFTWARE\\Microsoft\\Microsoft Antimalware\\Exclusions\\Paths\\"
-    elsif registry_enumkeys("HKLM\\SOFTWARE\\Symantec").include?("Symantec Endpoint Protection")
-        print_status "SEP Identified"
-        keyadm = "HKLM\\SOFTWARE\\Symantec\\Symantec Endpoint Protection\\AV\\Exclusions\\ScanningEngines\\Directory\\Admin"
-        keycli = "HKLM\\SOFTWARE\\Symantec\\Symantec Endpoint Protection\\AV\\Exclusions\\ScanningEngines\\Directory\\Client"
-        prog = "SEP"
+        return true
     else
-        print_error "No supported AV identified"
-        return
+        return false
     end
+  rescue
+    return false
+  end
+  def enum_defender
+    if registry_enumkeys("HKLM\\SOFTWARE\\Microsoft").include?("Windows Defender")
+        print_status "Windows Defender Identified"
+        return true
+    else
+        return false
+    end
+  rescue
+    return false
+  end
 
+  def enum_sep
+    if registry_enumkeys("HKLM\\SOFTWARE\\Symantec").include?("Symantec Endpoint Protection")
+        print_status "SEP Identified"
+        return true
+    else
+        return false
+    end
+  rescue
+    return false 
+  end
+  def excluded_sep
     print_status "Excluded Locations:"
-    if prog == "SEP"
+    keyadm = "HKLM\\SOFTWARE\\Symantec\\Symantec Endpoint Protection\\AV\\Exclusions\\ScanningEngines\\Directory\\Admin"
+    keycli = "HKLM\\SOFTWARE\\Symantec\\Symantec Endpoint Protection\\AV\\Exclusions\\ScanningEngines\\Directory\\Client"
         found_keysadm = registry_enumkeys(keyadm)
         if found_keysadm
             found_keysadm.each do |vals|
@@ -59,17 +77,29 @@ class Metasploit3 < Msf::Post
         else
             print_error "No Client Locations Found"
         end
+  end
+  def excluded_mssec    
+    print_status "Excluded Locations:"
+    keyms  = "HKLM\\SOFTWARE\\Microsoft\\Microsoft Antimalware\\Exclusions\\Paths\\"
+    found = registry_enumvals(keyms)
+    if found
+       found.each do |num|
+           print_good "#{num}"
+       end
+    else
+       print_error "No Excluded Locations Found"
     end
-
-    if prog == "MSSEC"
-        found = registry_enumvals(keyms)
-        if found
-            found.each do |num|
-                print_good "#{num}"
-            end
-        else
-            print_error "No Excluded Locations Found"
-        end
+  end
+  def excluded_defender
+    print_status "Excluded Locations:"
+    keyms  = "HKLM\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths\\"
+    found = registry_enumvals(keyms)
+    if found
+       found.each do |num|
+           print_good "#{num}"
+       end
+    else
+       print_error "No Excluded Locations Found"
     end
   end
 
@@ -79,8 +109,26 @@ class Metasploit3 < Msf::Post
         print_error "You are running this module from a 32-bit process on a 64-bit machine. Migrate to a 64-bit process and try again"
         return
     else
-    print_status("Enumerating Excluded Paths for AV on #{sysinfo['Computer']}")
-    excluded_list
+        print_status("Enumerating Excluded Paths for AV on #{sysinfo['Computer']}")
+        
+        if enum_sep
+            excluded_sep
+        else
+            nosep = true
+        end
+        if enum_mssec
+            excluded_mssec
+        else
+            nomssec = true
+        end
+        if enum_defender
+            excluded_defender
+        else
+            nodefend = true
+        end
+        if nomssec and nodefend and nosep == true
+            print_error "No supported AV identified"
+        end
     end
   end
 end
