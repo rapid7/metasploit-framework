@@ -81,7 +81,7 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
     uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
-    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+    "#{scheme}://#{uri_host}:#{bind_port}/"
   end
 
   # Return a URI suitable for placing in a payload.
