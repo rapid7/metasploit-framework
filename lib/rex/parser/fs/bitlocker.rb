@@ -152,7 +152,7 @@ module Rex
         end
       end
 
-      # stretch all the Recovrey key and returns it
+      # stretch all the Recovery key and returns it
       def recovery_key_transformation(recoverykey)
         # recovery key stretching phase 1
         recovery_intermediate = recoverykey.split('-').map(&:to_i)
