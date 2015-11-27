@@ -121,6 +121,8 @@ class Metasploit3 < Msf::Auxiliary
       framework_module: self,
     )
 
+    scanner.verbosity = :debug if datastore['SSH_DEBUG']
+
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(

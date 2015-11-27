@@ -30,12 +30,12 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptString.new( 'SCRIPT',  [true, 'Path to the local PS script or command string to execute' ]),
+        OptString.new( 'SCRIPT',  [true, 'Path to the local PS script or command string to execute']),
       ], self.class)
 
     register_advanced_options(
       [
-        OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub' ]),
+        OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub']),
       ], self.class)
 
   end
@@ -47,11 +47,11 @@ class Metasploit3 < Msf::Post
     raise "Powershell not available" if ! have_powershell?
 
     # Preprocess the Powershell::Script object with substitions from Exploit::Powershell
-    script = make_subs(read_script(datstore['SCRIPT']),process_subs(datstore['SUBSTITUTIONS']))
+    script = make_subs(read_script(datastore['SCRIPT']), process_subs(datastore['SUBSTITUTIONS']))
 
     # Execute in session
     print_status psh_exec(script)
-    print_good('Finished!')
+    print_good 'Finished!'
   end
 
 end

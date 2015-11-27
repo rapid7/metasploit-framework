@@ -25,7 +25,7 @@ script:
   - git diff --exit-code db/schema.rb && bundle exec rake $RAKE_TASKS
 sudo: false
 rvm:
-  - '2.1.6'
+  - '2.1.7'
 
 notifications:
   irc: "irc.freenode.org#msfnotify"

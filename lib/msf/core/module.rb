@@ -59,10 +59,6 @@ class Module
   # datastore, consumed by #replicant to allow clean override of MSF module methods.
   REPLICANT_EXTENSION_DS_KEY = 'ReplicantExtensions'
 
-  # The set of keys in {#user_data} that make {#user_data_is_match?} return
-  # true
-  MATCH_KEYS = Set.new([ :match, :match_set, :run ])
-
   # Make include public so we can runtime extend
   public_class_method :include
 
@@ -295,13 +291,6 @@ class Module
     raise RuntimeError, "#{reason.to_s}: #{msg}"
   end
 
-  # Whether {#user_data} contains everything necessary to make a
-  # `MetasploitDataModels::AutomaticExploitation::MatchResult`
-  #
-  # @return [bool]
-  def user_data_is_match?
-    user_data.kind_of?(Hash) && Set.new(user_data.keys).superset?(MATCH_KEYS)
-  end
 
   ##
   #
@@ -347,7 +336,6 @@ class Module
   # {Msf::Simple::Auxiliary#run_simple} for correlating where modules came
   # from.
   #
-  # @see #user_data_is_match?
   attr_accessor :user_data
 
   protected

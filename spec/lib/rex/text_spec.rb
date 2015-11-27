@@ -22,6 +22,20 @@ describe Rex::Text do
       end
     end
 
+    context ".to_ibm1047" do
+      it "should convert ASCII to mainfram EBCDIC (cp1047)" do
+        described_class.to_ibm1047(%q[^[](){}%!$#1234567890abcde'"`~]).should
+        eq("_\xAD\xBDM]\xC0\xD0lZ[{\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xF0\x81\x82\x83\x84\x85}\x7Fy\xA1")
+      end
+    end
+
+    context ".from_1047" do
+      it "should convert mainframe EBCDIC (cp1047) to ASCII (ISO-8859-1)" do
+        described_class.from_ibm1047(%q[^[](){}%!$#1234567890abcde'"`~]).should
+        eq(";$)\x88\x89#'\x85\x81\x84\x83\x91\x16\x93\x94\x95\x96\x04\x98\x99\x90/\xC2\xC4\xC0\xC1\e\x82-=")
+      end
+    end
+
     context ".to_utf8" do
       it "should convert a string to UTF-8, skipping badchars" do
         described_class.to_utf8("Hello, world!").should eq("Hello, world!")
@@ -153,6 +167,61 @@ describe Rex::Text do
       end
     end
 
+    context ".cowsay" do
+
+      def moo(num)
+        (%w(moo) * num).join(' ')
+      end
+
+      it "should cowsay single lines correctly" do
+        cowsaid = <<EOCOW
+ _____________________
+< moo moo moo moo moo >
+ ---------------------
+       \\   ,__,
+        \\  (oo)____
+           (__)    )\\
+              ||--|| *
+EOCOW
+        described_class.cowsay(moo(5)).should eq(cowsaid)
+      end
+
+      it "should cowsay two lines correctly" do
+        cowsaid = <<EOCOW
+ _____________________________________
+/ moo moo moo moo moo moo moo moo moo \\
+\\  moo moo moo moo moo moo            /
+ -------------------------------------
+       \\   ,__,
+        \\  (oo)____
+           (__)    )\\
+              ||--|| *
+EOCOW
+        described_class.cowsay(moo(15)).should eq(cowsaid)
+      end
+
+      it "should cowsay three+ lines correctly" do
+        cowsaid = <<EOCOW
+ _____________________________________
+/ moo moo moo moo moo moo moo moo moo \\
+|  moo moo moo moo moo moo moo moo mo |
+| o moo moo moo moo moo moo moo moo m |
+\\ oo moo moo moo                      /
+ -------------------------------------
+       \\   ,__,
+        \\  (oo)____
+           (__)    )\\
+              ||--|| *
+EOCOW
+        described_class.cowsay(moo(30)).should eq(cowsaid)
+      end
+
+      it "should respect the wrap" do
+        wrap = 40 + rand(100)
+        cowsaid = described_class.cowsay(moo(1000), wrap)
+        max_len = cowsaid.split(/\n/).map(&:length).sort.last
+        max_len.should eq(wrap)
+      end
+    end
   end
 end
-

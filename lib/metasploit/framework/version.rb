@@ -18,26 +18,25 @@ module Metasploit
             hash = '-' + version_info['build_framework_rev']
           else
             # determine if git is installed
-            void = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? 'NUL' : '/dev/null'
-            git_installed = system("git --version >>#{void} 2>&1")
+            null = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? 'NUL' : '/dev/null'
+            git_installed = system("git --version > #{null} 2>&1")
 
             # get the hash of the HEAD commit
             if git_installed && File.exist?(File.join(root, '.git'))
-              hash = '-' + `git rev-parse HEAD`[0, 8]
+              hash = '-' + `git rev-parse --short HEAD`
             end
           end
           hash.strip
         end
       end
 
-      MAJOR = 4
-      MINOR = 11
-      PATCH = 4
+      VERSION = "4.11.5"
+      MAJOR, MINOR, PATCH = VERSION.split('.').map { |x| x.to_i }
       PRERELEASE = 'dev'
       HASH = get_hash
     end
 
-    VERSION = "#{Version::MAJOR}.#{Version::MINOR}.#{Version::PATCH}-#{Version::PRERELEASE}#{Version::HASH}"
-    GEM_VERSION = "#{Version::MAJOR}.#{Version::MINOR}.#{Version::PATCH}"
+    VERSION = "#{Version::VERSION}-#{Version::PRERELEASE}#{Version::HASH}"
+    GEM_VERSION = "#{Version::VERSION}"
   end
 end

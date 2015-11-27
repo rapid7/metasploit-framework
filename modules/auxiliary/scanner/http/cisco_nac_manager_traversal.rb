@@ -21,8 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'   =>
         [
           [ 'CVE', '2011-3305' ],
-          [ 'OSVDB', '76080'],
-          [ 'URL', 'http://www.cisco.com/warp/public/707/cisco-sa-20111005-nac.shtml' ]
+          [ 'OSVDB', '76080']
         ],
       'Author'      => [ 'Nenad Stojanovski <nenad.stojanovski[at]gmail.com>' ],
       'License'     => MSF_LICENSE

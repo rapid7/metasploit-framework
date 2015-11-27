@@ -55,6 +55,13 @@ module ReverseHopHttp
   end
 
   #
+  # Returns the socket type. (hop)
+  #
+  def type?
+    return 'hop'
+  end
+
+  #
   # Sets up a handler. Doesn't do much since it's all in start_handler.
   #
   def setup_handler
@@ -75,7 +82,8 @@ module ReverseHopHttp
       uri.port,
       {
         'Msf'        => framework
-      }
+      },
+      full_uri.start_with?('https')
     )
     @running = true # So we know we can stop it
     # If someone is already monitoring this hop, bump the refcount instead of starting a new thread
@@ -179,6 +187,19 @@ module ReverseHopHttp
   end
 
   #
+  # Implemented for compatibility reasons
+  #
+  def resources
+    handlers
+  end
+
+  #
+  # Implemented for compatibility reasons, does nothing
+  #
+  def deref
+  end
+
+  #
   # Implemented for compatibility reasons, does nothing
   #
   def close_client(cli)
@@ -243,18 +264,22 @@ module ReverseHopHttp
   #
   def send_new_stage(uri)
     # try to get the UUID out of the existing URI
-    info = process_uri_resource(uri)
+    info = process_uri_resource(uri.to_s)
     uuid = info[:uuid] || Msf::Payload::UUID.new
 
     # generate a new connect
     sum = uri_checksum_lookup(:connect)
     conn_id = generate_uri_uuid(sum, uuid)
+    conn_id = conn_id[1..-1] if conn_id.start_with? '/'
     url = full_uri + conn_id + "/\x00"
+    fulluri = URI(full_uri + conn_id)
 
     print_status("Preparing stage for next session #{conn_id}")
     blob = stage_payload(
       uuid: uuid,
-      uri:  conn_id
+      uri:  fulluri.request_uri,
+      lhost: uri.host,
+      lport: uri.port
     )
 
     #send up

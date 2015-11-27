@@ -90,18 +90,45 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def setup_ftp_connection
     vprint_status "#{ip}:#{rport} - FTP - Connecting"
-    if connect_login()
+    conn = connect_login
+    if conn
       print_status("#{ip}:#{rport} - FTP - Login succeeded")
-      report_auth_info(
-        :host => ip,
-        :port => rport,
-        :proto => 'tcp',
-        :user => user,
-        :pass => pass,
-        :ptype => 'password_ro',
-        :active => true
+      report_cred(
+        ip: ip,
+        port: rport,
+        user: user,
+        password: pass,
+        service_name: 'modicon',
+        proof: "connect_login: #{conn}"
       )
       return true
     else

@@ -7,7 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::HTTP::Typo3
+  include Msf::Exploit::Remote::HTTP::Typo3
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner

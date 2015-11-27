@@ -30,6 +30,12 @@ module Metasploit
           # @!attribute port
           #   @return [Fixnum] The port to connect to
           attr_accessor :port
+          # @!attribute host
+          #   @return [String] The local host for outgoing connections
+          attr_accessor :local_host
+          # @!attribute port
+          #   @return [Fixnum] The local port for outgoing connections
+          attr_accessor :local_port
           # @!attribute proxies
           #   @return [String] The proxy directive to use for the socket
           attr_accessor :proxies

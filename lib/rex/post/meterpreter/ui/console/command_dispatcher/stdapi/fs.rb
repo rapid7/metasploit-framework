@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'tempfile'
+require 'filesize'
 require 'rex/post/meterpreter'
 
 module Rex
@@ -48,43 +49,45 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   def commands
     all = {
-      "cat"      => "Read the contents of a file to the screen",
-      "cd"       => "Change directory",
-      "del"      => "Delete the specified file",
-      "download" => "Download a file or directory",
-      "edit"     => "Edit a file",
-      "getlwd"   => "Print local working directory",
-      "getwd"    => "Print working directory",
-      "lcd"      => "Change local working directory",
-      "lpwd"     => "Print local working directory",
-      "ls"       => "List files",
-      "mkdir"    => "Make directory",
-      "pwd"      => "Print working directory",
-      "rm"       => "Delete the specified file",
-      "mv"	   => "Move source to destination",
-      "rmdir"    => "Remove directory",
-      "search"   => "Search for files",
-      "upload"   => "Upload a file or directory",
+      'cat'        => 'Read the contents of a file to the screen',
+      'cd'         => 'Change directory',
+      'del'        => 'Delete the specified file',
+      'download'   => 'Download a file or directory',
+      'edit'       => 'Edit a file',
+      'getlwd'     => 'Print local working directory',
+      'getwd'      => 'Print working directory',
+      'lcd'        => 'Change local working directory',
+      'lpwd'       => 'Print local working directory',
+      'ls'         => 'List files',
+      'mkdir'      => 'Make directory',
+      'pwd'        => 'Print working directory',
+      'rm'         => 'Delete the specified file',
+      'mv'	       => 'Move source to destination',
+      'rmdir'      => 'Remove directory',
+      'search'     => 'Search for files',
+      'upload'     => 'Upload a file or directory',
+      'show_mount' => 'List all mount points/logical drives',
     }
 
     reqs = {
-      "cat"      => [ ],
-      "cd"       => [ "stdapi_fs_chdir" ],
-      "del"      => [ "stdapi_fs_rm" ],
-      "download" => [ ],
-      "edit"     => [ ],
-      "getlwd"   => [ ],
-      "getwd"    => [ "stdapi_fs_getwd" ],
-      "lcd"      => [ ],
-      "lpwd"     => [ ],
-      "ls"       => [ "stdapi_fs_stat", "stdapi_fs_ls" ],
-      "mkdir"    => [ "stdapi_fs_mkdir" ],
-      "pwd"      => [ "stdapi_fs_getwd" ],
-      "rmdir"    => [ "stdapi_fs_delete_dir" ],
-      "rm"       => [ "stdapi_fs_delete_file" ],
-      "mv"       => [ "stdapi_fs_file_move" ],
-      "search"   => [ "stdapi_fs_search" ],
-      "upload"   => [ ],
+      'cat'        => [],
+      'cd'         => ['stdapi_fs_chdir'],
+      'del'        => ['stdapi_fs_rm'],
+      'download'   => [],
+      'edit'       => [],
+      'getlwd'     => [],
+      'getwd'      => ['stdapi_fs_getwd'],
+      'lcd'        => [],
+      'lpwd'       => [],
+      'ls'         => ['stdapi_fs_stat', 'stdapi_fs_ls'],
+      'mkdir'      => ['stdapi_fs_mkdir'],
+      'pwd'        => ['stdapi_fs_getwd'],
+      'rmdir'      => ['stdapi_fs_delete_dir'],
+      'rm'         => ['stdapi_fs_delete_file'],
+      'mv'         => ['stdapi_fs_file_move'],
+      'search'     => ['stdapi_fs_search'],
+      'upload'     => [],
+      'show_mount' => ['stdapi_fs_mount_show'],
     }
 
     all.delete_if do |cmd, desc|
@@ -164,6 +167,46 @@ class Console::CommandDispatcher::Stdapi::Fs
       end
     end
 
+  end
+
+  #
+  # Show all the mount points/logical drives (currently geared towards
+  # the Windows Meterpreter).
+  #
+  def cmd_show_mount(*args)
+    if args.include?('-h')
+      print_line('Usage: show_mount')
+      return true
+    end
+
+    mounts = client.fs.mount.show_mount
+
+    table = Rex::Ui::Text::Table.new(
+      'Header'    => 'Mounts / Drives',
+      'Indent'    => 0,
+      'SortIndex' => 0,
+      'Columns'   => [
+        'Name', 'Type', 'Size (Total)', 'Size (Free)', 'Mapped to'
+      ]
+    )
+
+    mounts.each do |d|
+      ts = ::Filesize.from("#{d[:total_space]} B").pretty.split(' ')
+      fs = ::Filesize.from("#{d[:free_space]} B").pretty.split(' ')
+      table << [
+        d[:name],
+        d[:type],
+        "#{ts[0].rjust(6)} #{ts[1].ljust(3)}",
+        "#{fs[0].rjust(6)} #{fs[1].ljust(3)}",
+        d[:unc]
+      ]
+    end
+
+    print_line
+    print_line(table.to_s)
+    print_line
+    print_line("Total mounts/drives: #{mounts.length}")
+    print_line
   end
 
   #

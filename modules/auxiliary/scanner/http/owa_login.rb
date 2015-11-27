@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptInt.new('RPORT', [ true, "The target port", 443]),
-        OptAddress.new('RHOST', [ true, "The target address", true]),
+        OptAddress.new('RHOST', [ true, "The target address" ]),
         OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
         OptBool.new('AUTH_TIME', [ false, "Check HTTP authentication response time", true])
       ], self.class)

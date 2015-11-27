@@ -41,9 +41,9 @@ class Metasploit3 < Msf::Post
   def read_hosts_file(file)
     begin
       str_file=read_file(file)
-      print_good("Hosts File found: #{file}.")
+      print_good("Hosts file found: #{file}.")
       vprint_line(str_file)
-      p = store_loot('busybox.enum.hosts', 'text/plain', session, str_file, file, 'BusyBox Device host names')
+      p = store_loot('busybox.enum.hosts', 'text/plain', session, str_file, file, 'BusyBox device host names')
       print_good("Hosts saved to #{p}.")
     rescue EOFError
       print_error("Nothing read from file: #{file}, file may be empty.")

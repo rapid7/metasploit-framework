@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
     FILES.each do |f|
       if busy_box_file_exist?(f)
         found = true
-        print_good("Connections File found: #{f}.")
+        print_good("Connections file found: #{f}.")
         read_connection_file(f)
       end
     end

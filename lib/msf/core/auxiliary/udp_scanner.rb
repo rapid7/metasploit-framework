@@ -86,7 +86,7 @@ module Auxiliary::UDPScanner
     p.recalc
     print_status("Sending #{num_packets} packet(s) to #{ip} from #{srcip}")
     1.upto(num_packets) do |x|
-      capture_sendto(p, ip)
+      break unless capture_sendto(p, ip)
     end
     close_pcap
   end
