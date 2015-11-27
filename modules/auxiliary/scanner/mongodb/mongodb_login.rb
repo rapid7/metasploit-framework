@@ -120,19 +120,45 @@ class Metasploit3 < Msf::Auxiliary
     response = sock.recv(1024)
     unless have_auth_error?(response)
       print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}'")
-      report_auth_info({
-        :host        => rhost,
-        :port        => rport,
-        :sname       => 'mongodb',
-        :user        => user,
-        :pass        => password,
-        :source_type => 'user_supplied',
-        :active      => true
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'mongodb',
+        user: user,
+        password: password,
+        proof: response.inspect
+      )
       return :next_user
     end
 
     return
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def get_nonce

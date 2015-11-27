@@ -7,7 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::HTTP::JBoss
+  include Msf::Exploit::Remote::HTTP::JBoss
 
   def initialize
     super(

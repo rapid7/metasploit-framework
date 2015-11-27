@@ -164,9 +164,7 @@ module Msf::DBManager::Import::Nmap
         data[:host]  = hobj || addr
         data[:info]  = extra if not extra.empty?
         data[:task]  = args[:task]
-        if p["name"] != "unknown"
-          data[:name] = p["name"]
-        end
+        data[:name]  = p['tunnel'] ? "#{p['tunnel']}/#{p['name'] || 'unknown'}" : p['name']
         report_service(data)
       }
       #Parse the scripts output

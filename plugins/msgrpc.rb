@@ -45,6 +45,7 @@ class Plugin::MSGRPC < Msf::Plugin
     user = opts['User'] || "msf"
     pass = opts['Pass'] || ::Rex::Text.rand_text_alphanumeric(8)
     uri  = opts['URI'] || "/api"
+    timeout = opts['TokenTimeout'] || 300
 
     print_status("MSGRPC Service:  #{host}:#{port} #{ssl ? " (SSL)" : ""}")
     print_status("MSGRPC Username: #{user}")
@@ -56,7 +57,8 @@ class Plugin::MSGRPC < Msf::Plugin
       :ssl    => ssl,
       :cert   => cert,
       :uri    => uri,
-      :tokens => { }
+      :tokens => { },
+      :token_timeout => timeout
     })
 
     self.server.add_user(user, pass)

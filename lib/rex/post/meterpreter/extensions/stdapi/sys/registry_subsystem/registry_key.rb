@@ -163,7 +163,11 @@ class RegistryKey
   # Returns the path to the key.
   #
   def to_s
-    return self.root_key.to_s + "\\" + self.base_key
+    if self.base_key.nil?
+      self.root_key.to_s + "\\"
+    else
+      self.root_key.to_s + "\\" + self.base_key
+    end
   end
 
   #

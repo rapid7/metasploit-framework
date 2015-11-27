@@ -118,7 +118,7 @@ module Rex
               when 4
                 self.req_body = decode_asn1_req_body(val)
               else
-                raise ::RuntimeError, 'Filed to decode KdcRequest SEQUENCE'
+                raise ::RuntimeError, 'Failed to decode KdcRequest SEQUENCE'
               end
             end
           end

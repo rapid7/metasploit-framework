@@ -1,4 +1,4 @@
-load Metasploit::Framework.root.join('tools/egghunter.rb').to_path
+load Metasploit::Framework.root.join('tools/exploit/egghunter.rb').to_path
 
 require 'stringio'
 

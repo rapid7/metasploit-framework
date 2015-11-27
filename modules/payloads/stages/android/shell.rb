@@ -34,10 +34,9 @@ module Metasploit3
   # Override the {Payload::Dalvik} version so we can load a prebuilt jar
   # to be used as the final stage
   #
-  def generate_stage
+  def generate_stage(opts={})
     clazz = 'androidpayload.stage.Shell'
-    file = File.join(Msf::Config.data_directory, "android", "shell.jar")
-    shell_jar = File.open(file, "rb") {|f| f.read(f.stat.size) }
+    shell_jar = MetasploitPayloads.read("android", "shell.jar")
 
     # Name of the class to load from the stage, and then the actual jar
     # to load it from

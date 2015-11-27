@@ -23,6 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/j_acegi_security_check']),
+        OptEnum.new('HTTP_METHOD', [true, 'The HTTP method to use for the login', 'POST', ['GET', 'POST']]),
         Opt::RPORT(8080)
       ], self.class)
 
@@ -44,6 +46,8 @@ class Metasploit3 < Msf::Auxiliary
 
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
       configure_http_login_scanner(
+        uri: datastore['LOGIN_URL'],
+        method: datastore['HTTP_METHOD'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],

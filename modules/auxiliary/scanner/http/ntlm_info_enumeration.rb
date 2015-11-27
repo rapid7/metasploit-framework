@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
       # can't simply return here as we'll print an error for each host
       fail_with "Either TARGET_URI or TARGET_URIS_FILE must be specified"
     end
-    if (turi and !turi.blank?)
+    if (turi && !turi.blank?)
       test_uris << normalize_uri(turi)
     end
     if (turis_file && !turis_file.blank?)
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
     return if res.nil?
 
     vprint_status("Status: #{res.code}")
-    if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+    if res && res.code == 401 && res['WWW-Authenticate'] && res['WWW-Authenticate'].match(/^NTLM/i)
       hash = res['WWW-Authenticate'].split('NTLM ')[1]
       # Parse out the NTLM and just get the Target Information Data
       target = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_info].value()

@@ -177,7 +177,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
   def print_dhcp_load_options_usage
     print("dhcp_load_options <datastore> [-h]\n\n" +
-          "Load settings from a datstore to the active DHCP server.\n\n" +
+          "Load settings from a datastore to the active DHCP server.\n\n" +
           "The datastore must be a hash of name/value pairs.\n" +
           "Valid names are:\n" +
           @@dhcp_set_option_valid_options.map {|o| "  - #{o}\n" }.join('') +

@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
       'Platform'      => [ 'osx' ],
-      'SessionTypes'  => [ "shell" ],
+      'SessionTypes'  => [ "meterpreter", "shell" ],
       'Actions'       =>
         [
           ['ACCOUNTS', { 'Description' => 'Collect account-related plists' } ],

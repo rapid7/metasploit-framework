@@ -34,12 +34,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
-    print_debug "Check is successful"
+    vprint_status("Check is successful")
     return Msf::Exploit::CheckCode::Vulnerable
   end
 
   def run
-    print_debug "Run is successful."
+    vprint_status("Run is successful.")
   end
 
 end

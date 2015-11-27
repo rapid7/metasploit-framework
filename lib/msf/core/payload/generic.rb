@@ -20,23 +20,13 @@ module Payload::Generic
   def initialize(info = {})
     super(merge_info(info,
       'Arch'     => ARCH_ALL - [ARCH_TTY],
-      'Platform' => ''))
+      'Platform' => ''
+    ))
 
-    register_advanced_options(
-      [
-        OptString.new('PLATFORM',
-          [
-            false,
-            "The platform that is being targeted",
-            nil
-          ]),
-        OptString.new('ARCH',
-          [
-            false,
-            "The architecture that is being targeted",
-            nil
-          ])
-      ], Msf::Payload::Generic)
+    register_advanced_options([
+      OptString.new('PLATFORM', [false, "The platform that is being targeted", nil]),
+      OptString.new('ARCH', [false, "The architecture that is being targeted", nil])
+    ], Msf::Payload::Generic)
   end
 
   #
@@ -103,8 +93,8 @@ module Payload::Generic
   # Stager overrides
   #
 
-  def stage_payload
-    redirect_to_actual(:stage_payload)
+  def stage_payload(*args)
+    redirect_to_actual(:stage_payload, *args)
   end
 
   def stage_offsets
@@ -123,8 +113,8 @@ module Payload::Generic
     redirect_to_actual(:stage_over_connection?)
   end
 
-  def generate_stage
-    redirect_to_actual(:generate_stage)
+  def generate_stage(opts={})
+    redirect_to_actual(:generate_stage, opts)
   end
 
   def handle_connection_stage(*args)

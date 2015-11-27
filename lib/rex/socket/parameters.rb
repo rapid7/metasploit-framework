@@ -56,6 +56,7 @@ class Rex::Socket::Parameters
   # @option hash [Bool] 'Bool' Create a bare socket
   # @option hash [Bool] 'Server' Whether or not this should be a server
   # @option hash [Bool] 'SSL' Whether or not SSL should be used
+  # @option hash [OpenSSL::SSL::SSLContext] 'SSLContext' Use a pregenerated SSL Context
   # @option hash [String] 'SSLVersion' Specify Auto, SSL2, SSL3, or TLS1 (Auto is
   #   default)
   # @option hash [String] 'SSLCert' A file containing an SSL certificate (for
@@ -115,6 +116,10 @@ class Rex::Socket::Parameters
       self.ssl = true
     else
       self.ssl = false
+    end
+
+    if hash['SSLContext']
+      self.sslctx = hash['SSLContext']
     end
 
     supported_ssl_versions = ['Auto', 'SSL2', 'SSL23', 'TLS1', 'SSL3', :Auto, :SSLv2, :SSLv3, :SSLv23, :TLSv1]
@@ -323,6 +328,10 @@ class Rex::Socket::Parameters
   # Whether or not SSL should be used to wrap the connection.
   # @return [Bool]
   attr_accessor :ssl
+
+  # Pre configured SSL Context to use
+  # @return [OpenSSL::SSL::SSLContext]
+  attr_accessor :sslctx
 
   # What version of SSL to use (Auto, SSL2, SSL3, SSL23, TLS1)
   # @return [String,Symbol]

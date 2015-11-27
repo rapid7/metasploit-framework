@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
     if rport == 443 or ssl
       proto = "https"
     end
-    "#{proto}://#{rhost}:#{rport}#{@uri.to_s}"
+    "#{proto}://#{vhost}:#{rport}#{@uri.to_s}"
   end
 
   def run_host(ip)
@@ -127,15 +127,21 @@ class Metasploit3 < Msf::Auxiliary
       print_error("You need need to set AUTH_URI when using PUT Method !")
       return
     end
+
+    extra_info = ""
+    if rhost != vhost
+      extra_info = " (#{rhost})"
+    end
+
     @uri = find_auth_uri
     if ! @uri
-      print_error("#{target_url} No URI found that asks for HTTP authentication")
+      print_error("#{target_url}#{extra_info} No URI found that asks for HTTP authentication")
       return
     end
 
     @uri = "/#{@uri}" if @uri[0,1] != "/"
 
-    print_status("Attempting to login to #{target_url}")
+    print_status("Attempting to login to #{target_url}#{extra_info}")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],

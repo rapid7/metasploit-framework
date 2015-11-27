@@ -221,6 +221,6 @@ class Metasploit3 < Msf::Auxiliary
     # Report a jenkins information note for future analysis, tied to this service
     report_note(:host => rhost, :port => rport, :proto => 'tcp', :ntype => 'jenkins.info', :data => jinfo)
 
-    vprint_line('')
+    vprint_line
   end
 end

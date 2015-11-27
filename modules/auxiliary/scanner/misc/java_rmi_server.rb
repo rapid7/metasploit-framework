@@ -8,7 +8,7 @@ require 'rex/java/serialization'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Java::Rmi::Client
+  include Msf::Exploit::Remote::Java::Rmi::Client
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
     send_header
     ack = recv_protocol_ack
     if ack.nil?
-      print_error("#{peer} - Filed to negotiate RMI protocol")
+      print_error("#{peer} - Failed to negotiate RMI protocol")
       disconnect
       return
     end
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
       if exception.class == Rex::Java::Serialization::Model::NewObject &&
           exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
           exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
-          exception.class_data[0].class == Rex::Java::Serialization::Model::NullReference &&
+          [Rex::Java::Serialization::Model::NullReference, Rex::Java::Serialization::Model::Reference].include?(exception.class_data[0].class) &&
           !exception.class_data[1].contents.include?('RMI class loader disabled')
           return true
       end
