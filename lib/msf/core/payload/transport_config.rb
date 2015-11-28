@@ -56,7 +56,7 @@ module Msf::Payload::TransportConfig
     {
       :scheme       => 'http',
       :lhost        => opts[:lhost] || datastore['LHOST'],
-      :lport        => opts[:lport].to_i || datastore['LPORT'].to_i,
+      :lport        => (opts[:lport] || datastore['LPORT']).to_i,
       :uri          => uri,
       :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
       :retry_total  => datastore['SessionRetryTotal'].to_i,
