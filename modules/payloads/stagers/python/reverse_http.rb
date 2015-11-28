@@ -10,7 +10,7 @@ require 'msf/core/payload/python/reverse_http'
 
 module Metasploit4
 
-  CachedSize = 466
+  CachedSize = 494
 
   include Msf::Payload::Stager
   include Msf::Payload::Python
@@ -27,12 +27,6 @@ module Metasploit4
       'Handler'       => Msf::Handler::ReverseHttp,
       'Stager'        => {'Payload' => ""}
     ))
-
-    register_options(
-      [
-        OptString.new('PayloadProxyHost', [false, "The proxy server's IP address"]),
-        OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ])
-      ], self.class)
   end
 
 end

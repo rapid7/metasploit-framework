@@ -27,12 +27,6 @@ module Metasploit4
       'Handler'       => Msf::Handler::ReverseHttps,
       'Stager'        => {'Payload' => ""}
     ))
-
-    register_options(
-      [
-        OptString.new('PayloadProxyHost', [false, "The proxy server's IP address"]),
-        OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ])
-      ], self.class)
   end
 
   #

