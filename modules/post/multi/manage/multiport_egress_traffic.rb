@@ -152,28 +152,20 @@ class Metasploit3 < Msf::Post
     end
 
     print_status("Generating #{proto} traffic to #{remote}...")
-
+rk -r /tmp/egress_2015nov29_185034_S23t36.pcap -Tfields -eip.proto -eip.src -eudp.dstport udp | sort -u
     if thread_num > 1
       a = []
       0.upto(thread_num - 1) do |num|
         a << framework.threads.spawn("Module(#{refname})-#{remote}-#{proto}", false, workload_ports[num]) do |portlist|
           portlist.each do |dport|
-            if type == 'WINAPI'
-              winapi_egress_to_port(proto, remote, dport, num)
-            elsif type == 'NATIVE'
-              native_init_connect(proto, remote, dport, num)
-            end
+            egress(type, proto, remote, dport, num)
           end
         end
       end
       a.map(&:join)
     else
       ports.each do |dport|
-        if type == 'WINAPI'
-          winapi_egress_to_port(proto, remote, dport, 0)
-        elsif type == 'NATIVE'
-          native_init_connect(proto, remote, dport, 0)
-        end
+        egress(type, proto, remote, dport, num)
       end
     end
 
@@ -188,6 +180,14 @@ class Metasploit3 < Msf::Post
 
     print_status("#{proto} traffic generation to #{remote} completed.")
       end
+  
+  def egress(type, proto, remote, dport, num)
+        if type == 'WINAPI'
+          winapi_egress_to_port(proto, remote, dport, 0)
+        elsif type == 'NATIVE'
+          native_init_connect(proto, remote, dport, 0)
+        end
+  end
 
   # This will generate a packet on proto <proto> to IP <remote> on port <dport>
   def winapi_egress_to_port(proto, remote, dport, num)
