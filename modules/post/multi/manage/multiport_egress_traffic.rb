@@ -139,7 +139,7 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    return unless add_route_if_necessary(type,remote)
+    return unless add_route_if_necessary(type, remote)
 
     print_status("Generating #{proto} traffic to #{remote}...")
     if thread_num > 1
@@ -158,18 +158,18 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    remove_route_if_necessary(type,remote)
+    remove_route_if_necessary(type, remote)
 
     print_status("#{proto} traffic generation to #{remote} completed.")
       end
 
-  def add_route_if_necessary(type,remote)
+  def add_route_if_necessary(type, remote)
     if type == 'NATIVE'
       unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
         print_error("Error getting session to route egress traffic through to #{remote}")
         return FALSE
       end
-    
+
       if Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw)
         print_status("Adding route to direct egress traffic to #{remote}")
         return TRUE
@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def remove_route_if_necessary(type,remote)
+  def remove_route_if_necessary(type, remote)
     if type == 'NATIVE'
       route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw)
       if route_result
