@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
         OptAddress.new('TARGET', [ true, 'Destination IP address.']),
         OptString.new('PORTS', [true, 'Ports to test.', '22,23,53,80,88,443,445']),
         OptEnum.new('PROTOCOL', [ true, 'Protocol to use.', 'TCP', [ 'TCP', 'UDP' ]]),
-        OptEnum.new('METHOD', [ true, 'The mechanism by which the packets are generated. Can be NATIVE (use normal sockets) or, for Windows usage, call Win32 APIs specifically using Railgun.', 'NATIVE', [ 'NATIVE', 'WINAPI' ]]),
+        OptEnum.new('METHOD', [ true, 'The mechanism by which the packets are generated. Can be NATIVE or WINAPI (Windows only).', 'NATIVE', [ 'NATIVE', 'WINAPI' ]]),
         OptInt.new('THREADS', [true, 'Number of simultaneous threads/connections to try.', '20'])
       ], self.class)
   end
@@ -85,11 +85,8 @@ class Metasploit3 < Msf::Post
     sock_addr << [dst_port].pack('n')
     sock_addr << Rex::Socket.addr_aton(remote)
     sock_addr << "\x00" * 8
-    if (proto == 'TCP')
-      client.railgun.ws2_32.connect(socket_handle, sock_addr, 16)
-    elsif (proto == 'UDP')
-      client.railgun.ws2_32.sendto(socket_handle, ".", 0, 0, sock_addr, 16)
-    end
+    return client.railgun.ws2_32.connect(socket_handle, sock_addr, 16) if proto == 'TCP'
+    return client.railgun.ws2_32.sendto(socket_handle, ".", 0, 0, sock_addr, 16) if proto == 'UDP'
   end
 
   def run
@@ -99,12 +96,10 @@ class Metasploit3 < Msf::Post
     proto = datastore['PROTOCOL']
 
     # If we want WINAPI egress, make sure winsock is loaded
-    if type == 'WINAPI'
-      unless client.railgun.ws2_32
-        print_error("This method requires railgun and support for winsock APIs. Try using the NATIVE method instead.")
-        return
+    unless client.railgun.ws2_32 && type == 'WINAPI'
+      print_error("This method requires railgun and support for winsock APIs. Try using the NATIVE method instead.")
+      return
       end
-    end
 
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
@@ -154,29 +149,29 @@ class Metasploit3 < Msf::Post
       a.map(&:join)
     else
       ports.each do |dport|
-        egress(type, proto, remote, dport, num)
+        egress(type, proto, remote, dport, 0)
       end
     end
 
     remove_route_if_necessary(type, remote)
 
     print_status("#{proto} traffic generation to #{remote} completed.")
-      end
+  end
 
   def add_route_if_necessary(type, remote)
-    if type == 'NATIVE'
-      unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
-        print_error("Error getting session to route egress traffic through to #{remote}")
-        return FALSE
-      end
+    return TRUE unless type == 'NATIVE'
 
-      if Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw)
-        print_status("Adding route to direct egress traffic to #{remote}")
-        return TRUE
-      else
-        print_error("Error adding route to direct egress traffic to #{remote}")
-        return FALSE
-      end
+    unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
+      print_error("Error getting session to route egress traffic through to #{remote}")
+      return FALSE
+    end
+
+    if Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw)
+      print_status("Adding route to direct egress traffic to #{remote}")
+      return TRUE
+    else
+      print_error("Error adding route to direct egress traffic to #{remote}")
+      return FALSE
     end
   end
 
@@ -192,11 +187,8 @@ class Metasploit3 < Msf::Post
   end
 
   def egress(type, proto, remote, dport, num)
-    if type == 'WINAPI'
-      winapi_egress_to_port(proto, remote, dport, num)
-    elsif type == 'NATIVE'
-      native_init_connect(proto, remote, dport, num)
-    end
+    winapi_egress_to_port(proto, remote, dport, num) if type == 'WINAPI'
+    native_init_connect(proto, remote, dport, num) if type == 'NATIVE'
   end
 
   # This will generate a packet on proto <proto> to IP <remote> on port <dport>
