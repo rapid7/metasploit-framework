@@ -64,10 +64,8 @@ class Metasploit3 < Msf::Post
          'PeerPort' => port, 
          'Timeout' => 1    
        )
-       rtcp.close if rtcp
       rescue
        vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
-       rtcp.close if rtcp
       end
     elsif proto == 'UDP'
       begin
@@ -78,11 +76,9 @@ class Metasploit3 < Msf::Post
        )
        if rudp
         rudp.sendto('.', ip, port, 0)
-        rudp.close 
        end
       rescue
        vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
-       rudp.close if rudp
       end
     end
   end
@@ -119,29 +115,31 @@ class Metasploit3 < Msf::Post
     workload_cycle = 0
     completed_cycle = false
 
-    # Now we need to divvy up the ports into pots for each thread
-    while !ports.nil? && !ports.empty?
-
-      # If that group hasn't had its own ports array yet, give it some
-      workload_ports[workload_cycle] = [] if workload_ports[workload_cycle].nil?
-
-      # Add the port to the array to test
-      workload_ports[workload_cycle] << ports.shift
-
-      # Now increase the cycle until it goes above threads
-      workload_cycle += 1
-      if workload_cycle >= thread_num
-        completed_cycle = true
-        workload_cycle = 0
-      end
-
-    end
-
-    if completed_cycle == false && thread_num > workload_cycle
-      thread_num = workload_cycle
-      vprint_status("Reduced threads to #{thread_num}.")
-    else
-      vprint_status("Number of threads: #{thread_num}.")
+    if thread_num>1
+	    # Now we need to divvy up the ports into pots for each thread
+	    while !ports.nil? && !ports.empty?
+	
+	      # If that group hasn't had its own ports array yet, give it some
+	      workload_ports[workload_cycle] = [] if workload_ports[workload_cycle].nil?
+	
+	      # Add the port to the array to test
+	      workload_ports[workload_cycle] << ports.shift
+	
+	      # Now increase the cycle until it goes above threads
+	      workload_cycle += 1
+	      if workload_cycle >= thread_num
+	        completed_cycle = true
+	        workload_cycle = 0
+	      end
+	
+	    end
+	
+	    if completed_cycle == false && thread_num > workload_cycle
+	      thread_num = workload_cycle
+	      vprint_status("Reduced threads to #{thread_num}.")
+	    else
+	      vprint_status("Number of threads: #{thread_num}.")
+	    end
     end
 
     # If native, set up the route
@@ -160,23 +158,29 @@ class Metasploit3 < Msf::Post
 
     print_status("Generating #{proto} traffic to #{remote}...")
 
-    a = []
-    0.upto(thread_num - 1) do |num|
-      a << framework.threads.spawn("Module(#{refname})-#{remote}-#{num}-#{proto}", false, workload_ports[num]) do |portlist|
-        portlist.each do |dport|
-         begin
-          if type == 'WINAPI'
-             winapi_egress_to_port(proto,remote,dport,num)
-          elsif type == 'NATIVE'
-             native_init_connect(proto,remote,dport,num)
-          end
-         rescue
-          print_error("Error!")
-         end
-        end
+    if thread_num>1
+	    a = []
+	    0.upto(thread_num - 1) do |num|
+	      a << framework.threads.spawn("Module(#{refname})-#{remote}-#{proto}", false, workload_ports[num]) do |portlist|
+	        portlist.each do |dport|
+	          if type == 'WINAPI'
+	             winapi_egress_to_port(proto,remote,dport,num)
+	          elsif type == 'NATIVE'
+	             native_init_connect(proto,remote,dport,num)
+	          end
+	        end
+	      end
+	    end
+	    a.map(&:join)
+     else
+      ports.each do |dport|
+       if type == 'WINAPI'
+        winapi_egress_to_port(proto,remote,dport,0)
+       elsif type == 'NATIVE'
+        native_init_connect(proto,remote,dport,0)
+       end
       end
     end
-    a.map(&:join)
 
     if type=='NATIVE'
         route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw) 
