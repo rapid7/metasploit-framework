@@ -152,7 +152,6 @@ class Metasploit3 < Msf::Post
     end
 
     print_status("Generating #{proto} traffic to #{remote}...")
-rk -r /tmp/egress_2015nov29_185034_S23t36.pcap -Tfields -eip.proto -eip.src -eudp.dstport udp | sort -u
     if thread_num > 1
       a = []
       0.upto(thread_num - 1) do |num|
