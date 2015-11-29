@@ -60,22 +60,20 @@ class Metasploit3 < Msf::Post
       begin
         Rex::Socket::Tcp.create(
           'PeerHost' => ip,
-          'PeerPort' => port,
-          'Timeout' => 1
+          'PeerPort' => port
         )
-       rescue
-         vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
+      rescue
+        vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
       end
     elsif proto == 'UDP'
       begin
         rudp = Rex::Socket::Udp.create(
           'PeerHost' => ip,
-          'PeerPort' => port,
-          'Timeout' => 1
+          'PeerPort' => port
         )
         rudp.sendto('.', ip, port, 0) if rudp
-       rescue
-         vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
+      rescue
+        vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
       end
     end
   end
@@ -99,7 +97,7 @@ class Metasploit3 < Msf::Post
     unless client.railgun.ws2_32 && type == 'WINAPI'
       print_error("This method requires railgun and support for winsock APIs. Try using the NATIVE method instead.")
       return
-      end
+    end
 
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
@@ -158,6 +156,7 @@ class Metasploit3 < Msf::Post
     print_status("#{proto} traffic generation to #{remote} completed.")
   end
 
+  # Add a Rex route if necessary in order for the Rex packet to make it through meterpreter pivots
   def add_route_if_necessary(type, remote)
     return TRUE unless type == 'NATIVE'
 
@@ -175,17 +174,18 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  # Remove the Rex route if necessary
   def remove_route_if_necessary(type, remote)
-    if type == 'NATIVE'
-      route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw)
-      if route_result
-        print_status("Removed route needed to direct egress traffic to #{remote}")
-      else
-        print_error("Error removing route needed to direct egress traffic to #{remote}")
-      end
+    return TRUE unless type == 'NATIVE'
+    route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw)
+    if route_result
+      print_status("Removed route needed to direct egress traffic to #{remote}")
+    else
+      print_error("Error removing route needed to direct egress traffic to #{remote}")
     end
   end
 
+  # This will generate a single packet, selecting the correct methodology
   def egress(type, proto, remote, dport, num)
     winapi_egress_to_port(proto, remote, dport, num) if type == 'WINAPI'
     native_init_connect(proto, remote, dport, num) if type == 'NATIVE'
@@ -199,7 +199,7 @@ class Metasploit3 < Msf::Post
       return
     else
       vprint_status("[#{num}:WINAPI] Set up socket for #{remote} port #{proto}/#{dport} (Handle: #{socket_handle['return']})")
-   end
+    end
 
     vprint_status("[#{num}:WINAPI] Connecting to #{remote}:#{proto}/#{dport}")
     r = winapi_make_connection(remote, dport, socket_handle['return'], proto)
@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Post
       vprint_status("[#{num}:WINAPI] Connection packet sent successfully #{proto}/#{dport}")
     else
       vprint_status("[#{num}:WINAPI] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
-   end
+    end
 
     client.railgun.ws2_32.closesocket(socket_handle['return'])
   end
