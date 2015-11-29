@@ -76,8 +76,10 @@ class Metasploit3 < Msf::Post
          'PeerPort' => port,    
          'Timeout' => 1    
        )
-       rudp.sendto('.', ip, port, 0)
-       rudp.close 
+       if rudp
+        rudp.sendto('.', ip, port, 0)
+        rudp.close 
+       end
       rescue
        vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
        rudp.close if rudp
@@ -160,7 +162,7 @@ class Metasploit3 < Msf::Post
 
     a = []
     0.upto(thread_num - 1) do |num|
-      a << framework.threads.spawn("Module(#{refname})", false, workload_ports[num]) do |portlist|
+      a << framework.threads.spawn("Module(#{refname})-#{remote}-#{num}-#{proto}", false, workload_ports[num]) do |portlist|
         portlist.each do |dport|
          begin
           if type == 'WINAPI'
