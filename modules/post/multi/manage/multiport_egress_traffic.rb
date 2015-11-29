@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 
   def native_init_connect(proto,ip,port,num)
     vprint_status("[#{num}:NATIVE] Creating socket for #{ip} port #{proto}/#{port}")
-    if (proto == 'TCP')
+    if proto == 'TCP'
       begin
        rtcp = Rex::Socket::Tcp.create(
          'PeerHost' => ip,
@@ -67,18 +67,17 @@ class Metasploit3 < Msf::Post
        rtcp.close if rtcp
       rescue
        vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
+       rtcp.close if rtcp
       end
-    elsif (proto == 'UDP')
+    elsif proto == 'UDP'
       begin
        rudp = Rex::Socket::Udp.create(
          'PeerHost' => ip,
          'PeerPort' => port,    
          'Timeout' => 1    
        )
-       if rudp
-        rudp.sendto('.', ip, port, 0)
-        rudp.close 
-       end
+       rudp.sendto('.', ip, port, 0)
+       rudp.close 
       rescue
        vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
        rudp.close if rudp
@@ -163,11 +162,15 @@ class Metasploit3 < Msf::Post
     0.upto(thread_num - 1) do |num|
       a << framework.threads.spawn("Module(#{refname})", false, workload_ports[num]) do |portlist|
         portlist.each do |dport|
+         begin
           if type == 'WINAPI'
              winapi_egress_to_port(proto,remote,dport,num)
           elsif type == 'NATIVE'
              native_init_connect(proto,remote,dport,num)
           end
+         rescue
+          print_error("Error!")
+         end
         end
       end
     end
