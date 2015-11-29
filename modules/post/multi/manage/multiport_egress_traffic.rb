@@ -95,12 +95,22 @@ class Metasploit3 < Msf::Post
     thread_num = datastore['THREADS']
     proto = datastore['PROTOCOL']
 
+    unless client.type == "meterpreter"
+      print_error("This module requires meterpreter")
+      return
+    end
+
     # If we want WINAPI egress, make sure winsock is loaded
     if type == 'WINAPI'
-      unless client.railgun.ws2_32
-        print_error("This method requires railgun and support for winsock APIs. Try using the NATIVE method instead.")
+      unless client.railgun.ws2_32 && client.platform =~ /win/
+        print_error("The WINAPI method requires Windows, railgun and support for winsock APIs. Try using the NATIVE method instead.")
         return
       end
+    end
+
+    if client.platform =~ /python/
+      print_error("This module cannot be used with python meterpreter at present")
+      return
     end
 
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
