@@ -29,10 +29,12 @@ class Metasploit3 < Msf::Post
                         In WINAPI mode (Windows only), this will use Windows APIs to generate the traffic.
 
                         Neither mode requires administrative privileges on the client side.
+
+                        Any listener can be used to collect the results but egresscheck-framework may be able to help.
                        ),
                       'License'       => MSF_LICENSE,
                       'Author'        => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
-                      'Platform'      => [ 'win', 'linux' ],
+                      'Platform'      => [ 'linux', 'osx', 'unix', 'solaris', 'bsd', 'windows' ],
                       'SessionTypes'  => ['meterpreter']
                      ))
 
@@ -94,9 +96,11 @@ class Metasploit3 < Msf::Post
     proto = datastore['PROTOCOL']
 
     # If we want WINAPI egress, make sure winsock is loaded
-    unless client.railgun.ws2_32 && type == 'WINAPI'
-      print_error("This method requires railgun and support for winsock APIs. Try using the NATIVE method instead.")
-      return
+    if type == 'WINAPI'
+      unless client.railgun.ws2_32
+        print_error("This method requires railgun and support for winsock APIs. Try using the NATIVE method instead.")
+        return
+      end
     end
 
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
@@ -132,7 +136,17 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    return unless add_route_if_necessary(type, remote)
+    if type == 'NATIVE'
+      unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
+        print_error("Error getting session to route egress traffic through to #{remote}")
+      end
+
+      if Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw)
+        print_status("Adding route to direct egress traffic to #{remote}")
+      else
+        print_error("Error adding route to direct egress traffic to #{remote}")
+      end
+    end
 
     print_status("Generating #{proto} traffic to #{remote}...")
     if thread_num > 1
@@ -151,38 +165,16 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    remove_route_if_necessary(type, remote)
+    if type == 'NATIVE'
+      route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw)
+      if route_result
+        print_status("Removed route needed to direct egress traffic to #{remote}")
+      else
+        print_error("Error removing route needed to direct egress traffic to #{remote}")
+      end
+    end
 
     print_status("#{proto} traffic generation to #{remote} completed.")
-  end
-
-  # Add a Rex route if necessary in order for the Rex packet to make it through meterpreter pivots
-  def add_route_if_necessary(type, remote)
-    return TRUE unless type == 'NATIVE'
-
-    unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
-      print_error("Error getting session to route egress traffic through to #{remote}")
-      return FALSE
-    end
-
-    if Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw)
-      print_status("Adding route to direct egress traffic to #{remote}")
-      return TRUE
-    else
-      print_error("Error adding route to direct egress traffic to #{remote}")
-      return FALSE
-    end
-  end
-
-  # Remove the Rex route if necessary
-  def remove_route_if_necessary(type, remote)
-    return TRUE unless type == 'NATIVE'
-    route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw)
-    if route_result
-      print_status("Removed route needed to direct egress traffic to #{remote}")
-    else
-      print_error("Error removing route needed to direct egress traffic to #{remote}")
-    end
   end
 
   # This will generate a single packet, selecting the correct methodology
