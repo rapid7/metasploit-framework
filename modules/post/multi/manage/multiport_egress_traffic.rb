@@ -9,7 +9,6 @@ require 'msf/core'
 require 'rex'
 
 class Metasploit3 < Msf::Post
-  include Msf::Post::Windows::Priv
 
   def initialize(info = {})
     super(update_info(info,
@@ -55,6 +54,16 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  def native_init_connect(proto,ip,port)
+    if (proto == 'TCP')
+      rtcp = Rex::Socket::Tcp.create(
+        'PeerHost' => ip,
+        'PeerPort' => port    
+      )
+      rtcp.close
+    end
+  end
+
   def winapi_make_connection(remote, dst_port, socket_handle, proto)
     sock_addr = "\x02\x00"
     sock_addr << [dst_port].pack('n')
@@ -63,7 +72,7 @@ class Metasploit3 < Msf::Post
     if (proto == 'TCP')
       client.railgun.ws2_32.connect(socket_handle, sock_addr, 16)
     elsif (proto == 'UDP')
-      client.railgun.ws2_32.sendto(socket_handle, "", 0, 0, sock_addr, 16)
+      client.railgun.ws2_32.sendto(socket_handle, ".", 0, 0, sock_addr, 16)
     end
   end
 
@@ -130,7 +139,7 @@ class Metasploit3 < Msf::Post
      socket_handle = winapi_create_socket(proto)
      if socket_handle['return'] == 0
        vprint_status("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
-       break
+       return 
      else
        vprint_status("[#{num}] Set up socket for #{remote} port #{proto}/#{dport} (Handle: #{socket_handle['return']})")
      end
