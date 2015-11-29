@@ -139,17 +139,7 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    # If native, set up the route
-    if type == 'NATIVE'
-      if (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
-        route_result = Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw)	        if route_result
-        print_status("Adding route to direct egress traffic to #{remote}")
-      else
-        print_error("Error adding route to direct egress traffic to #{remote}")
-      end
-    else
-      print_error("Error getting session to route egress traffic through to #{remote}")
-    end
+    return unless add_route_if_necessary(type,remote)
 
     print_status("Generating #{proto} traffic to #{remote}...")
     if thread_num > 1
@@ -168,6 +158,29 @@ class Metasploit3 < Msf::Post
       end
     end
 
+    remove_route_if_necessary(type,remote)
+
+    print_status("#{proto} traffic generation to #{remote} completed.")
+      end
+
+  def add_route_if_necessary(type,remote)
+    if type == 'NATIVE'
+      unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
+        print_error("Error getting session to route egress traffic through to #{remote}")
+        return FALSE
+      end
+    
+      if Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw)
+        print_status("Adding route to direct egress traffic to #{remote}")
+        return TRUE
+      else
+        print_error("Error adding route to direct egress traffic to #{remote}")
+        return FALSE
+      end
+    end
+  end
+
+  def remove_route_if_necessary(type,remote)
     if type == 'NATIVE'
       route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw)
       if route_result
@@ -176,15 +189,13 @@ class Metasploit3 < Msf::Post
         print_error("Error removing route needed to direct egress traffic to #{remote}")
       end
     end
+  end
 
-    print_status("#{proto} traffic generation to #{remote} completed.")
-      end
-
-  def egress(type, proto, remote, dport, _num)
+  def egress(type, proto, remote, dport, num)
     if type == 'WINAPI'
-      winapi_egress_to_port(proto, remote, dport, 0)
+      winapi_egress_to_port(proto, remote, dport, num)
     elsif type == 'NATIVE'
-      native_init_connect(proto, remote, dport, 0)
+      native_init_connect(proto, remote, dport, num)
     end
   end
 
