@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
   end
 
   def native_init_connect(proto,ip,port,num)
-    vprint_status("[#{num}:NATIVE] Creating socket for #{ip} port #{proto}/#{port}")
+    vprint_status("[#{num}:NATIVE] Connecting to #{ip} port #{proto}/#{port}")
     if proto == 'TCP'
       begin
        rtcp = Rex::Socket::Tcp.create(
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
          'Timeout' => 1    
        )
       rescue
-       vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
+       vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
       end
     elsif proto == 'UDP'
       begin
@@ -74,11 +74,9 @@ class Metasploit3 < Msf::Post
          'PeerPort' => port,    
          'Timeout' => 1    
        )
-       if rudp
-        rudp.sendto('.', ip, port, 0)
-       end
+       rudp.sendto('.', ip, port, 0) if rudp
       rescue
-       vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
+       vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
       end
     end
   end
