@@ -47,9 +47,9 @@ class Metasploit3 < Msf::Post
   end
 
   def winapi_create_socket(proto)
-    if (proto == 'TCP')
+    if proto == 'TCP'
       client.railgun.ws2_32.socket('AF_INET', 'SOCK_STREAM', 'IPPROTO_TCP')
-    elsif (proto == 'UDP')
+    elsif proto == 'UDP'
       client.railgun.ws2_32.socket('AF_INET', 'SOCK_DGRAM', 'IPPROTO_UDP')
     end
   end
@@ -125,7 +125,11 @@ class Metasploit3 < Msf::Post
     0.upto(thread_num - 1) do |num|
       a << framework.threads.spawn("Module(#{refname})", false, workload_ports[num]) do |portlist|
         portlist.each do |dport|
-            winapi_egress_to_port(proto,remote,dport)
+            if proto == 'winapi'
+                winapi_egress_to_port(proto,remote,dport)
+            elsif proto == 'native'
+                native_init_connect(proto,remote,dport)
+            end
         end
       end
     end
@@ -133,6 +137,7 @@ class Metasploit3 < Msf::Post
 
     print_status("#{proto} traffic generation to #{remote} completed.")
     0
+  end
 
   # This will generate a packet on proto <proto> to IP <remote> on port <dport>
   def winapi_egress_to_port(proto,remote,dport)
@@ -163,5 +168,4 @@ class Metasploit3 < Msf::Post
     end
   end
 
-end
 end
