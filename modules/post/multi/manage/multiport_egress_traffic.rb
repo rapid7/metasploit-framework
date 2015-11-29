@@ -179,13 +179,13 @@ class Metasploit3 < Msf::Post
 
     print_status("#{proto} traffic generation to #{remote} completed.")
       end
-  
-  def egress(type, proto, remote, dport, num)
-        if type == 'WINAPI'
-          winapi_egress_to_port(proto, remote, dport, 0)
-        elsif type == 'NATIVE'
-          native_init_connect(proto, remote, dport, 0)
-        end
+
+  def egress(type, proto, remote, dport, _num)
+    if type == 'WINAPI'
+      winapi_egress_to_port(proto, remote, dport, 0)
+    elsif type == 'NATIVE'
+      native_init_connect(proto, remote, dport, 0)
+    end
   end
 
   # This will generate a packet on proto <proto> to IP <remote> on port <dport>
