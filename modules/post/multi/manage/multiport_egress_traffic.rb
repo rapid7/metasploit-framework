@@ -24,11 +24,12 @@ class Metasploit3 < Msf::Post
                         It can be run in two modes; WINAPI mode and NATIVE mode. 
 
                         In NATIVE mode, connections will be generated using Rex sockets, meaning that a route will
-                        need to exist to ensure that meterpreter is generating the traffic.
+                        need to exist to ensure that meterpreter is generating the traffic. This module will add
+                        and remove routes as needed in order to facilitate this.
 
                         In WINAPI mode (Windows only), this will use Windows APIs to generate the traffic.
 
-                        It does not require administrative privileges on the client side.
+                        Neither mode requires administrative privileges on the client side.
                        ),
                       'License'       => MSF_LICENSE,
                       'Author'        => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
@@ -54,13 +55,34 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def native_init_connect(proto,ip,port)
+  def native_init_connect(proto,ip,port,num)
+    vprint_status("[#{num}:NATIVE] Creating socket for #{ip} port #{proto}/#{port}")
     if (proto == 'TCP')
-      rtcp = Rex::Socket::Tcp.create(
-        'PeerHost' => ip,
-        'PeerPort' => port    
-      )
-      rtcp.close
+      begin
+       rtcp = Rex::Socket::Tcp.create(
+         'PeerHost' => ip,
+         'PeerPort' => port, 
+         'Timeout' => 1    
+       )
+       rtcp.close if rtcp
+      rescue
+       vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
+      end
+    elsif (proto == 'UDP')
+      begin
+       rudp = Rex::Socket::Udp.create(
+         'PeerHost' => ip,
+         'PeerPort' => port,    
+         'Timeout' => 1    
+       )
+       if rudp
+        rudp.sendto('.', ip, port, 0)
+        rudp.close 
+       end
+      rescue
+       vprint_status("[#{num}:NATIVE] Error creating socket for #{ip} #{proto}/#{port}")
+       rudp.close if rudp
+      end
     end
   end
 
@@ -76,18 +98,20 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def egress(type)
-    # If we want WINAPI egress, make sure winsock is loaded
-    if type=='winapi'
-      unless session.railgun.ws2_32
-       print_error("This module requires Windows/winsock APIs")
-      return
-     end
-    end
-
+  def run
+    type = datastore['METHOD']
     remote = datastore['TARGET']
     thread_num = datastore['THREADS']
     proto = datastore['PROTOCOL']
+
+    # If we want WINAPI egress, make sure winsock is loaded
+    if type=='WINAPI'
+     unless client.railgun.ws2_32
+       print_error("This method requires railgun and support for winsock APIs. Try using the NATIVE method instead.")
+       return
+     end
+    end
+
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
     workload_ports = []
@@ -114,9 +138,23 @@ class Metasploit3 < Msf::Post
 
     if completed_cycle == false && thread_num > workload_cycle
       thread_num = workload_cycle
-      print_status("Reduced threads to #{thread_num}.")
+      vprint_status("Reduced threads to #{thread_num}.")
     else
-      print_status("Number of threads: #{thread_num}.")
+      vprint_status("Number of threads: #{thread_num}.")
+    end
+
+    # If native, set up the route
+    if type=='NATIVE'
+        if (gw = framework.sessions.get(datastore['SESSION'])) and (gw.kind_of?(Msf::Session::Comm))
+	        route_result = Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw) 
+	        if route_result
+	            print_status("Adding route to direct egress traffic to #{remote}")
+	        else
+	            print_error("Error adding route to direct egress traffic to #{remote}")
+	        end
+        else
+            print_error("Error getting session to route egress traffic through to #{remote}")
+        end
     end
 
     print_status("Generating #{proto} traffic to #{remote}...")
@@ -125,47 +163,48 @@ class Metasploit3 < Msf::Post
     0.upto(thread_num - 1) do |num|
       a << framework.threads.spawn("Module(#{refname})", false, workload_ports[num]) do |portlist|
         portlist.each do |dport|
-            if proto == 'winapi'
-                winapi_egress_to_port(proto,remote,dport)
-            elsif proto == 'native'
-                native_init_connect(proto,remote,dport)
-            end
+          if type == 'WINAPI'
+             winapi_egress_to_port(proto,remote,dport,num)
+          elsif type == 'NATIVE'
+             native_init_connect(proto,remote,dport,num)
+          end
         end
       end
     end
     a.map(&:join)
 
+    if type=='NATIVE'
+        route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw) 
+        if route_result
+            print_status("Removed route needed to direct egress traffic to #{remote}")
+        else
+            print_error("Error removing route needed to direct egress traffic to #{remote}")
+        end
+    end
+
     print_status("#{proto} traffic generation to #{remote} completed.")
-    0
+    return 
   end
 
   # This will generate a packet on proto <proto> to IP <remote> on port <dport>
-  def winapi_egress_to_port(proto,remote,dport)
+  def winapi_egress_to_port(proto,remote,dport,num)
      socket_handle = winapi_create_socket(proto)
      if socket_handle['return'] == 0
-       vprint_status("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
+       vprint_status("[#{num}:WINAPI] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
        return 
      else
-       vprint_status("[#{num}] Set up socket for #{remote} port #{proto}/#{dport} (Handle: #{socket_handle['return']})")
+       vprint_status("[#{num}:WINAPI] Set up socket for #{remote} port #{proto}/#{dport} (Handle: #{socket_handle['return']})")
      end
 
-     vprint_status("[#{num}] Connecting to #{remote}:#{proto}/#{dport}")
+     vprint_status("[#{num}:WINAPI] Connecting to #{remote}:#{proto}/#{dport}")
      r = winapi_make_connection(remote, dport, socket_handle['return'], proto)
      if r['GetLastError'] == 0
-       vprint_status("[#{num}] Connection packet sent successfully #{proto}/#{dport}")
+       vprint_status("[#{num}:WINAPI] Connection packet sent successfully #{proto}/#{dport}")
      else
-       vprint_status("[#{num}] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
+       vprint_status("[#{num}:WINAPI] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
      end
-     client.railgun.ws2_32.closesocket(socket_handle['return'])
-  end
 
-  def run
-    # If it is being run in Win32 API (Railgun) mode, call the WinAPI version of this
-    if datastore['METHOD']=='WINAPI'
-        egress('winapi')
-    else
-        egress('native')
-    end
+     client.railgun.ws2_32.closesocket(socket_handle['return'])
   end
 
 end
