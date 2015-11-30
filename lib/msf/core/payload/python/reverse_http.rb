@@ -99,7 +99,7 @@ module Payload::Python::ReverseHttp
       proxy_url = Rex::Socket.is_ipv6?(proxy_host) ?
         "http://[#{proxy_host}]:#{proxy_port}" :
         "http://#{proxy_host}:#{proxy_port}"
-      cmd << "hs.append(ul.ProxyHandler({'https':'#{var_escape.call(proxy_url)}'}))\n"
+      cmd << "hs.append(ul.ProxyHandler({'#{opts[:scheme]}':'#{var_escape.call(proxy_url)}'}))\n"
     end
 
     cmd << "o=ul.build_opener(*hs)\n"
