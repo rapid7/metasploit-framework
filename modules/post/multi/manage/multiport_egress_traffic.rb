@@ -22,10 +22,7 @@ class Metasploit3 < Msf::Post
 
                         It can be run in two modes; WINAPI mode and NATIVE mode.
 
-                        In NATIVE mode, connections will be generated using Rex sockets, meaning that a route will
-                        need to exist to ensure that meterpreter is generating the traffic. This module will add
-                        and remove routes as needed in order to facilitate this.
-
+                        In NATIVE mode, connections will be generated using Rex sockets. 
                         In WINAPI mode (Windows only), this will use Windows APIs to generate the traffic.
 
                         Neither mode requires administrative privileges on the client side.
@@ -41,7 +38,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptAddress.new('TARGET', [ true, 'Destination IP address.']),
-        OptString.new('PORTS', [true, 'Ports to test.', '22,23,53,80,88,443,445']),
+        OptString.new('PORTS', [true, 'Ports to test.', '22,23,53,80,88,443,445,33434-33534']),
         OptEnum.new('PROTOCOL', [ true, 'Protocol to use.', 'TCP', [ 'TCP', 'UDP' ]]),
         OptEnum.new('METHOD', [ true, 'The mechanism by which the packets are generated. Can be NATIVE or WINAPI (Windows only).', 'NATIVE', [ 'NATIVE', 'WINAPI' ]]),
         OptInt.new('THREADS', [true, 'Number of simultaneous threads/connections to try.', '20'])
