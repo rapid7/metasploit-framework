@@ -56,11 +56,12 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def native_init_connect(proto, ip, port, num)
+  def native_init_connect(proto, ip, port, num, gw)
     vprint_status("[#{num}:NATIVE] Connecting to #{ip} port #{proto}/#{port}")
     if proto == 'TCP'
       begin
         Rex::Socket::Tcp.create(
+          'Comm' => gw,
           'PeerHost' => ip,
           'PeerPort' => port
         )
@@ -70,6 +71,7 @@ class Metasploit3 < Msf::Post
     elsif proto == 'UDP'
       begin
         rudp = Rex::Socket::Udp.create(
+          'Comm' => gw,
           'PeerHost' => ip,
           'PeerPort' => port
         )
@@ -146,15 +148,11 @@ class Metasploit3 < Msf::Post
       end
     end
 
+    gw = 0
     if type == 'NATIVE'
       unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
         print_error("Error getting session to route egress traffic through to #{remote}")
-      end
-
-      if Rex::Socket::SwitchBoard.add_route(remote, '255.255.255.255', gw)
-        print_status("Adding route to direct egress traffic to #{remote}")
-      else
-        print_error("Error adding route to direct egress traffic to #{remote}")
+        return
       end
     end
 
@@ -164,23 +162,14 @@ class Metasploit3 < Msf::Post
       0.upto(thread_num - 1) do |num|
         a << framework.threads.spawn("Module(#{refname})-#{remote}-#{proto}", false, workload_ports[num]) do |portlist|
           portlist.each do |dport|
-            egress(type, proto, remote, dport, num)
+            egress(type, proto, remote, dport, num, gw)
           end
         end
       end
       a.map(&:join)
     else
       ports.each do |dport|
-        egress(type, proto, remote, dport, 0)
-      end
-    end
-
-    if type == 'NATIVE'
-      route_result = Rex::Socket::SwitchBoard.remove_route(remote, '255.255.255.255', gw)
-      if route_result
-        print_status("Removed route needed to direct egress traffic to #{remote}")
-      else
-        print_error("Error removing route needed to direct egress traffic to #{remote}")
+        egress(type, proto, remote, dport, gw)
       end
     end
 
@@ -188,9 +177,9 @@ class Metasploit3 < Msf::Post
   end
 
   # This will generate a single packet, selecting the correct methodology
-  def egress(type, proto, remote, dport, num)
+  def egress(type, proto, remote, dport, num, gw)
     winapi_egress_to_port(proto, remote, dport, num) if type == 'WINAPI'
-    native_init_connect(proto, remote, dport, num) if type == 'NATIVE'
+    native_init_connect(proto, remote, dport, num, gw) if type == 'NATIVE'
   end
 
   # This will generate a packet on proto <proto> to IP <remote> on port <dport>
