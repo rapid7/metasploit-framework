@@ -9,7 +9,7 @@ require 'msf/core'
 
 module Metasploit3
 
-  CachedSize = 314
+  CachedSize = 313
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
