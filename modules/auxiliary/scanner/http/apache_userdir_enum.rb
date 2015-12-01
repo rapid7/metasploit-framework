@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
     uri = normalize_uri(target_uri.path)
     payload = "#{uri}~#{user}/"
     begin
-      res = send_request_cgi(
+      res = send_request_cgi!(
         {
           'method'  => 'GET',
           'uri'     => payload,
