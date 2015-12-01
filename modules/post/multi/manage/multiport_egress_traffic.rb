@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 
                         It can be run in two modes; WINAPI mode and NATIVE mode.
 
-                        In NATIVE mode, connections will be generated using Rex sockets. 
+                        In NATIVE mode, connections will be generated using Rex sockets.
                         In WINAPI mode (Windows only), this will use Windows APIs to generate the traffic.
 
                         Neither mode requires administrative privileges on the client side.
