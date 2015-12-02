@@ -43,9 +43,9 @@ class Metasploit3 < Msf::Post
       OptString.new('PAYLOAD_OVERRIDE',
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
       OptString.new('BOURNE_PATH',
-        [false, 'Remote path to drop binary', nil]),
+        [false, 'Remote path to drop binary']),
       OptString.new('BOURNE_FILE',
-        [false, 'Remote filename to use for dropped binary', nil])
+        [false, 'Remote filename to use for dropped binary'])
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
