@@ -3277,78 +3277,6 @@ class Core
     end
   end
 
-  #
-  # Go_pro methods -- these are used to start and connect to
-  # Metasploit Community / Pro.
-  #
-
-  # Note that this presumes a default port.
-  def launch_metasploit_browser
-    cmd = "/usr/bin/xdg-open"
-    unless ::File.executable_real? cmd
-      print_warning "Can't figure out your default browser, please visit https://localhost:3790"
-      print_warning "to start Metasploit Community / Pro."
-      return false
-    end
-    svc_log = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], "apps" , "pro", "engine", "prosvc_stdout.log"))
-    unless ::File.readable_real? svc_log
-      print_error "Unable to access log file: #{svc_log}"
-      return false
-    end
-    really_started = false
-    # This method is a little lame but it's a short enough file that it
-    # shouldn't really matter that we open and close it a few times.
-    timeout = 0
-    until really_started
-      select(nil,nil,nil,3)
-      log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
-      really_started = log_data =~ /Ready/ # This is webserver ready
-      if really_started
-        print_line
-        print_good "Metasploit Community / Pro is up and running, connecting now."
-        print_good "If this is your first time connecting, you will be presented with"
-        print_good "a self-signed certificate warning. Accept it to create a new user."
-        select(nil,nil,nil,7)
-        browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
-        ::Process.detach(browser_pid)
-      elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
-        print_line
-        print_warning "For some reason, Community / Pro didn't start in a timely fashion."
-        print_warning "You might want to restart the Metasploit services by typing"
-        print_warning "'service metasploit restart'. Sorry it didn't work out."
-        return false
-      else
-        print "."
-        timeout += 1
-      end
-    end
-  end
-
-  def start_metasploit_service
-    cmd = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], 'scripts', 'start.sh'))
-    return unless ::File.executable_real? cmd
-    %x{#{cmd}}.each_line do |line|
-      print_status line.chomp
-    end
-  end
-
-  def is_metasploit_service_running
-    cmd = "/usr/sbin/service"
-    system("#{cmd} metasploit status >/dev/null") # Both running returns true, otherwise, false.
-  end
-
-  def is_metasploit_debian_package_installed
-    cmd = "/usr/bin/dpkg"
-    return unless ::File.executable_real? cmd
-    installed_packages = %x{#{cmd} -l 'metasploit'}
-    installed_packages.each_line do |line|
-      if line =~ /^.i  metasploit / # Yes, trailing space
-        return true
-      end
-    end
-    return false
-  end
-
   # Determines if this is an apt-based install
   def is_apt
     File.exists?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
@@ -3356,6 +3284,9 @@ class Core
 
   # Determines if we're a Metasploit Pro/Community/Express
   # installation or a tarball/git checkout
+  #
+  # XXX This will need to be update when we embed framework as a gem in
+  # commercial packages
   #
   # @return [Boolean] true if we are a binary install
   def binary_install
