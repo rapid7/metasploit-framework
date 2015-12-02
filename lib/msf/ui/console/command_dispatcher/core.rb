@@ -90,9 +90,6 @@ class Core
   @@search_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ])
 
-  @@go_pro_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ])
-
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
@@ -120,7 +117,6 @@ class Core
       "edit"       => "Edit the current module with $VISUAL or $EDITOR",
       "get"        => "Gets the value of a context-specific variable",
       "getg"       => "Gets the value of a global variable",
-      "go_pro"     => "Launch Metasploit web GUI",
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
       "advanced"   => "Displays advanced options for one or more modules",
@@ -3250,48 +3246,6 @@ class Core
     end
 
     return res
-  end
-
-  def cmd_go_pro_help
-    print_line "Usage: go_pro"
-    print_line
-    print_line "Launch the Metasploit web GUI"
-    print_line
-  end
-
-  def cmd_go_pro(*args)
-    @@go_pro_opts.parse(args) do |opt, idx, val|
-      case opt
-      when "-h"
-        cmd_go_pro_help
-        return false
-      end
-    end
-    unless is_apt
-      print_warning "This command is only available on deb package installations, such as Kali Linux."
-      return false
-    end
-    unless is_metasploit_debian_package_installed
-      print_warning "You need to install the 'metasploit' package first."
-      print_warning "Type 'apt-get install -y metasploit' to do this now, then exit"
-      print_warning "and restart msfconsole to try again."
-      return false
-    end
-    # If I've gotten this far, I know that this is apt-installed, the
-    # metasploit package is here, and I'm ready to rock.
-    if is_metasploit_service_running
-      launch_metasploit_browser
-    else
-      print_status "Starting the Metasploit services. This can take a little time."
-      start_metasploit_service
-      select(nil,nil,nil,3)
-      if is_metasploit_service_running
-        launch_metasploit_browser
-      else
-        print_error "Metasploit services aren't running. Type 'service metasploit start' and try again."
-      end
-    end
-    return true
   end
 
   protected
