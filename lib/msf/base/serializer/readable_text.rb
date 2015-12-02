@@ -658,7 +658,15 @@ class ReadableText
       ctx = framework.jobs[k].ctx
       row = [ k, framework.jobs[k].name ]
       row << (ctx[1].nil? ? (ctx[0].datastore['PAYLOAD'] || "") : ctx[1].refname)
-      row << (ctx[0].datastore['LPORT'] || "")
+
+      # Make the LPORT show the bind port if it's different
+      local_port = ctx[0].datastore['LPORT']
+      bind_port = ctx[0].datastore['ReverseListenerBindPort']
+      lport = (local_port || "").to_s
+      if bind_port && bind_port != 0 && bind_port != lport
+        lport << " (#{bind_port})"
+      end
+      row << lport
 
       if (verbose)
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)
