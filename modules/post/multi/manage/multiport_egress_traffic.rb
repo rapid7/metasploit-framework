@@ -153,8 +153,8 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    str_proto = (proto=='ALL')?'TCP and UDP':proto
-   
+    str_proto = (proto == 'ALL') ? 'TCP and UDP' : proto
+
     print_status("Generating #{str_proto} traffic to #{remote}...")
     if thread_num > 1
       a = []
@@ -177,20 +177,20 @@ class Metasploit3 < Msf::Post
 
   # This will generate a single packet, selecting the correct methodology
   def egress(type, proto, remote, dport, num, gw)
-    if type=='WINAPI'
-        if proto=='ALL'
-            winapi_egress_to_port('TCP', remote, dport, num) 
-            winapi_egress_to_port('UDP', remote, dport, num) 
-        else
-            winapi_egress_to_port(proto, remote, dport, num) 
-        end
-    elsif type=='NATIVE'
-        if proto=='ALL'
-            native_init_connect('TCP', remote, dport, num, gw) 
-            native_init_connect('UDP', remote, dport, num, gw) 
-        else
-            native_init_connect(proto, remote, dport, num, gw) 
-        end
+    if type == 'WINAPI'
+      if proto == 'ALL'
+        winapi_egress_to_port('TCP', remote, dport, num)
+        winapi_egress_to_port('UDP', remote, dport, num)
+      else
+        winapi_egress_to_port(proto, remote, dport, num)
+      end
+    elsif type == 'NATIVE'
+      if proto == 'ALL'
+        native_init_connect('TCP', remote, dport, num, gw)
+        native_init_connect('UDP', remote, dport, num, gw)
+      else
+        native_init_connect(proto, remote, dport, num, gw)
+      end
     end
   end
 
