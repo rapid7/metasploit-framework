@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
     connect_udp
 
     # pick a random 64-bit timestamp
-    canary_timestamp = rand(2**32..2**64-1)
+    canary_timestamp = rand((2**32)..((2**64) - 1))
     probe = build_crypto_nak(canary_timestamp)
     udp_sock.put(probe)
 
@@ -103,10 +103,10 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    return Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown
   end
 
-  def run_host(ip)
-    fail_with(Failure::Unknown, 'Not yet implemented')
+  def run_host(_ip)
+    check
   end
 end
