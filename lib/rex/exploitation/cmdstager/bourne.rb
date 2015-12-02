@@ -13,7 +13,7 @@ class CmdStagerBourne < CmdStagerBase
     super
 
     @var_encoded = Rex::Text.rand_text_alpha(5) + '.b64'
-    @var_decoded = Rex::Text.rand_text_alpha(5) + '.bin'
+    @var_decoded = Rex::Text.rand_text_alpha(5)
   end
 
   def generate(opts = {})
