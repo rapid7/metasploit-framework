@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Auxiliary
        )
     deregister_options('RHOST')
     register_options([
-      OptString.new('USERNAME', [false, 'A username to reset', '888888']),
-      OptString.new('PASSWORD', [false, 'A password to reset the user with']),
+      OptString.new('USERNAME', [true, 'A username to reset', '888888']),
+      OptString.new('PASSWORD', [false, 'A password to reset the user with, if not set a random pass will be generated.']),
       OptBool.new('RESET', [false, 'Reset an existing user\'s pw?', 'FALSE']),
       OptBool.new('CLEAR_LOGS', [false, 'Clear the DVR logs when we\'re done?', 'TRUE']),
       Opt::RPORT(37777)
