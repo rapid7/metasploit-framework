@@ -60,18 +60,17 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def unzip_file(zipfile)
+    zip_data = Hash.new
     begin
-      zip_data = Hash.new
       Zip::File.open_buffer(zipfile) do |filezip|
         filezip.each do |entry|
           zip_data[::File.expand_path(entry.name)] = filezip.read(entry)
         end
       end
-      return zip_data
     rescue Zip::Error => e
       print_error("Error extracting ZIP: #{e}")
-      return nil
     end
+    return zip_data
   end
 
   def run
