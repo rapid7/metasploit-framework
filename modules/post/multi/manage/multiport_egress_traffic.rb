@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
       [
         OptAddress.new('TARGET', [ true, 'Destination IP address.']),
         OptString.new('PORTS', [true, 'Ports to test.', '22,23,53,80,88,443,445,33434-33534']),
-        OptEnum.new('PROTOCOL', [ true, 'Protocol to use.', 'TCP', [ 'TCP', 'UDP' ]]),
+        OptEnum.new('PROTOCOL', [ true, 'Protocol to use.', 'TCP', [ 'TCP', 'UDP', 'ALL' ]]),
         OptEnum.new('METHOD', [ true, 'The mechanism by which the packets are generated. Can be NATIVE or WINAPI (Windows only).', 'NATIVE', [ 'NATIVE', 'WINAPI' ]]),
         OptInt.new('THREADS', [true, 'Number of simultaneous threads/connections to try.', '20'])
       ], self.class)
@@ -153,7 +153,9 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    print_status("Generating #{proto} traffic to #{remote}...")
+    str_proto = (proto=='ALL')?'TCP and UDP':proto
+   
+    print_status("Generating #{str_proto} traffic to #{remote}...")
     if thread_num > 1
       a = []
       0.upto(thread_num - 1) do |num|
@@ -170,13 +172,26 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    print_status("#{proto} traffic generation to #{remote} completed.")
+    print_status("#{str_proto} traffic generation to #{remote} completed.")
   end
 
   # This will generate a single packet, selecting the correct methodology
   def egress(type, proto, remote, dport, num, gw)
-    winapi_egress_to_port(proto, remote, dport, num) if type == 'WINAPI'
-    native_init_connect(proto, remote, dport, num, gw) if type == 'NATIVE'
+    if type=='WINAPI'
+        if proto=='ALL'
+            winapi_egress_to_port('TCP', remote, dport, num) 
+            winapi_egress_to_port('UDP', remote, dport, num) 
+        else
+            winapi_egress_to_port(proto, remote, dport, num) 
+        end
+    elsif type=='NATIVE'
+        if proto=='ALL'
+            native_init_connect('TCP', remote, dport, num, gw) 
+            native_init_connect('UDP', remote, dport, num, gw) 
+        else
+            native_init_connect(proto, remote, dport, num, gw) 
+        end
+    end
   end
 
   # This will generate a packet on proto <proto> to IP <remote> on port <dport>
