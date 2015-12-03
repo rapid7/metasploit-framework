@@ -110,17 +110,17 @@ class Metasploit3 < Msf::Auxiliary
           print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
           print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
         end
-          if !data[5].nil? && !data[6].nil?
-            print_good("  SMTP User: #{data[5]}") unless data[5].nil?
-            print_good("  SMTP Password: #{data[6]}") unless data[6].nil?
-            muser = "#{data[5]}"
-            mpass = "#{data[6]}"
-            mailserver = "#{mailhost[0]}"
-            mailport = "#{mailhost[1]}"
-            if !mailserver.to_s.strip.length == 0 && !mailport.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
-              report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !mailport.nil? && !muser.nil? && !mpass.nil?
-            end
+        if !data[5].nil? && !data[6].nil?
+          print_good("  SMTP User: #{data[5]}") unless data[5].nil?
+          print_good("  SMTP Password: #{data[6]}") unless data[6].nil?
+          muser = "#{data[5]}"
+          mpass = "#{data[6]}"
+          mailserver = "#{mailhost[0]}"
+          mailport = "#{mailhost[1]}"
+          if !mailserver.to_s.strip.length == 0 && !mailport.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
+            report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !mailport.nil? && !muser.nil? && !mpass.nil?
           end
+        end
       end
     end
   end
