@@ -244,9 +244,9 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(u1)
     sock.put(u2)
     sock.put(u3)
-    data = sock.get_once
+    sock.get_once
     sock.put(u1)
-    if data = sock.get_once
+    if sock.get_once
       print_good("#{peer} -- user #{datastore['USERNAME']}'s password reset to #{@password}")
     end
   end
