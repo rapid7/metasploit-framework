@@ -101,6 +101,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Email Settings: @ #{rhost}:#{rport}!")
       if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
         if mailhost = Regexp.last_match[1].split(':')
+          print_status("  Server Port: #{mailhost[1]}")
           print_status("  Server: #{mailhost[0]}") unless mailhost[0].nil?
           print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
         end
@@ -110,9 +111,10 @@ class Metasploit3 < Msf::Auxiliary
             muser = "#{data[5]}"
             mpass = "#{data[6]}"
             mailserver = "#{mailhost[0]}"
+            mailport = "#{mailhost[1]}"
             print_good("MailServer: #{mailserver}")
             if !mailserver.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
-              report_email_creds(mailserver, rport, muser, mpass) if !mailserver.nil? && !muser.nil? && !mpass.nil?
+              report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !muser.nil? && !mpass.nil?
             end
           end
       end
@@ -356,10 +358,10 @@ class Metasploit3 < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def report_email_cred(mailserver, rport, muser, mpass)
+  def report_email_cred(mailserver, mailport, muser, mpass)
     service_data = {
       address: mailserver,
-      port: rport,
+      port: mailport,
       service_name: 'email settings',
       protocol: 'tcp',
       workspace_id: myworkspace_id
