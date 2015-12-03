@@ -17,20 +17,21 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'License'         => MSF_LICENSE
        )
+
     deregister_options('RHOST')
     register_options([
-      OptString.new('USERNAME', [true, 'A username to reset', '888888']),
+      OptString.new('USERNAME', [false, 'A username to reset', '888888']),
       OptString.new('PASSWORD', [false, 'A password to reset the user with, if not set a random pass will be generated.']),
-      OptBool.new('VERSION_INFO', ['false', 'Grabs the version of DVR', 'FALSE']),
-      OptBool.new('EMAIL_INFO', ['false', 'Grabs the email settings of the DVR', 'FALSE']),
-      OptBool.new('DDNS_INFO', ['false', 'Grabs the DDNS settings of the DVR', 'FALSE']),
-      OptBool.new('SN_INFO', ['false', 'Grabs the SN of the DVR', 'FALSE']),
-      OptBool.new('CHANNEL_INFO', ['false', 'Grabs the cameras and their assigned name', 'FALSE']),
-      OptBool.new('NAS_INFO', ['false', 'Grabs the NAS settings of the DVR', 'FALSE']),
-      OptBool.new('USER_INFO', ['true', 'Grabs the Users and hashes of the DVR', 'TRUE']),
-      OptBool.new('GROUP_INFO', ['false', 'Grabs the Users and groups of the DVR', 'FALSE']),
-      OptBool.new('RESET', [false, %q(Reset an existing user's pw?), 'FALSE']),
-      OptBool.new('CLEAR_LOGS', [true, %q(Clear the DVR logs when we're done?), 'TRUE']),
+      OptBool.new('VERSION_INFO', [true, 'Grabs the version of DVR', false]),
+      OptBool.new('EMAIL_INFO', [true, 'Grabs the email settings of the DVR', false]),
+      OptBool.new('DDNS_INFO', [true, 'Grabs the DDNS settings of the DVR', false]),
+      OptBool.new('SN_INFO', [true, 'Grabs the SN of the DVR', false]),
+      OptBool.new('CHANNEL_INFO', [true, 'Grabs the cameras and their assigned name', false]),
+      OptBool.new('NAS_INFO', [true, 'Grabs the NAS settings of the DVR', false]),
+      OptBool.new('USER_INFO', [true, 'Grabs the Users and hashes of the DVR', true]),
+      OptBool.new('GROUP_INFO', [true, 'Grabs the Users and groups of the DVR', false]),
+      OptBool.new('RESET', [true, %q(Reset an existing user's pw?), false]),
+      OptBool.new('CLEAR_LOGS', [true, %q(Clear the DVR logs when we're done?), true]),
       Opt::RPORT(37777)
     ])
   end
