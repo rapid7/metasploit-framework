@@ -42,23 +42,32 @@ end
 ###
 module PacketDispatcher
 
-  PacketTimeout = 600
+  # Defualt time, in seconds, to wait for a response after sending a packet
+  PACKET_TIMEOUT = 600
 
-  ##
+  # Number of seconds to wait without getting any packets before we try to
+  # send a liveness check. A minute should be generous even on the highest
+  # latency networks
   #
-  # Synchronization
-  #
-  ##
+  # @see #keepalive
+  PING_TIME = 60
+
+  # This mutex is used to lock out new commands during an
+  # active migration. Unused if this is a passive dispatcher
   attr_accessor :comm_mutex
 
 
-  ##
-  #
-  #
   # Passive Dispatching
   #
-  ##
-  attr_accessor :passive_service, :send_queue, :recv_queue
+  # @return [Rex::ServiceManager]
+  # @return [nil] if this is not a passive dispatcher
+  attr_accessor :passive_service
+
+  # @return [Array]
+  attr_accessor :send_queue
+
+  # @return [Array]
+  attr_accessor :recv_queue
 
   def initialize_passive_dispatcher
     self.send_queue = []
@@ -159,9 +168,6 @@ module PacketDispatcher
 
     if (raw)
 
-      # This mutex is used to lock out new commands during an
-      # active migration.
-
       self.comm_mutex.synchronize do
         begin
           bytes = self.sock.write(raw)
@@ -174,9 +180,6 @@ module PacketDispatcher
         # Mark the session itself as dead
         self.alive = false
 
-        # Indicate that the dispatcher should shut down too
-        @finish = true
-
         # Reraise the error to the top-level caller
         raise err if err
       end
@@ -188,15 +191,16 @@ module PacketDispatcher
   #
   # Sends a packet and waits for a timeout for the given time interval.
   #
-  def send_request(packet, t = self.response_timeout)
-    if not t
-      send_packet(packet)
+  # @param packet [Packet] request to send
+  # @param timeout [Fixnum,nil] seconds to wait for response, or nil to ignore the
+  #   response and return immediately
+  # @return (see #send_packet_wait_response)
+  def send_request(packet, timeout = self.response_timeout)
+    response = send_packet_wait_response(packet, timeout)
+
+    if timeout.nil?
       return nil
-    end
-
-    response = send_packet_wait_response(packet, t)
-
-    if (response == nil)
+    elsif response.nil?
       raise TimeoutError.new("Send timed out")
     elsif (response.result != 0)
       einfo = lookup_error(response.result)
@@ -213,26 +217,58 @@ module PacketDispatcher
   #
   # Transmits a packet and waits for a response.
   #
-  def send_packet_wait_response(packet, t)
+  # @param packet [Packet] the request packet to send
+  # @param timeout [Fixnum,nil] number of seconds to wait, or nil to wait
+  #   forever
+  def send_packet_wait_response(packet, timeout)
     # First, add the waiter association for the supplied packet
     waiter = add_response_waiter(packet)
 
+    bytes_written = send_packet(packet)
+
     # Transmit the packet
-    if (send_packet(packet).to_i <= 0)
+    if (bytes_written.to_i <= 0)
       # Remove the waiter if we failed to send the packet.
       remove_response_waiter(waiter)
       return nil
     end
 
+    if not timeout
+      return nil
+    end
+
     # Wait for the supplied time interval
-    waiter.wait(t)
+    response = waiter.wait(timeout)
 
     # Remove the waiter from the list of waiters in case it wasn't
-    # removed
+    # removed. This happens if the waiter timed out above.
     remove_response_waiter(waiter)
 
     # Return the response packet, if any
-    return waiter.response
+    return response
+  end
+
+  # Send a ping to the server.
+  #
+  # Our 'ping' is a check for eof on channel id 0. This method has no side
+  # effects and always returns an answer (regardless of the existence of chan
+  # 0), which is all that's needed for a liveness check. The answer itself is
+  # unimportant and is ignored.
+  #
+  # @return [void]
+  def keepalive
+    if @ping_sent
+      if Time.now.to_i - last_checkin.to_i > PING_TIME*2
+        dlog("No response to ping, session #{self.sid} is dead", LEV_3)
+        self.alive = false
+      end
+    else
+      pkt = Packet.create_request('core_channel_eof')
+      pkt.add_tlv(TLV_TYPE_CHANNEL_ID, 0)
+      add_response_waiter(pkt, Proc.new { @ping_sent = false })
+      send_packet(pkt)
+      @ping_sent = true
+    end
   end
 
   ##
@@ -254,58 +290,22 @@ module PacketDispatcher
     self.waiters = []
 
     @pqueue = ::Queue.new
-    @finish = false
-    @last_recvd = Time.now
     @ping_sent = false
-
-    self.alive = true
 
     # Spawn a thread for receiving packets
     self.receiver_thread = Rex::ThreadFactory.spawn("MeterpreterReceiver", false) do
       while (self.alive)
         begin
-          rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
-          ping_time = 60
-          # If there's nothing to read, and it's been awhile since we
-          # saw a packet, we need to send a ping.  We wait
-          # ping_time*2 seconds before deciding a session is dead.
-          if (not rv and self.send_keepalives and Time.now - @last_recvd > ping_time)
-            # If the queue is empty and we've already sent a
-            # keepalive without getting a reply, then this
-            # session is hosed, and we should give up on it.
-            if @ping_sent and @pqueue.empty? and (Time.now - @last_recvd > ping_time * 2)
-              dlog("No response to ping, session #{self.sid} is dead", LEV_3)
-              self.alive = false
-              @finish = true
-              break
-            end
-            # Let the packet queue processor finish up before
-            # we send a ping.
-            if not @ping_sent and @pqueue.empty?
-              # Our 'ping' is actually just a check for eof on
-              # channel id 0.  This method has no side effects
-              # and always returns an answer (regardless of the
-              # existence of chan 0), which is all that's
-              # needed for a liveness check.  The answer itself
-              # is unimportant and is ignored.
-              pkt = Packet.create_request('core_channel_eof')
-              pkt.add_tlv(TLV_TYPE_CHANNEL_ID, 0)
-              waiter = Proc.new { |response, param|
-                  @ping_sent = false
-                  @last_recvd = Time.now
-                }
-              send_packet(pkt, waiter)
-              @ping_sent = true
-            end
-            next
+          rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, PING_TIME)
+          if rv
+            packet = receive_packet
+            @pqueue << packet if packet
+          elsif self.send_keepalives && @pqueue.empty?
+            keepalive
           end
-          next if not rv
-          packet = receive_packet
-          @pqueue << packet if packet
-          @last_recvd = Time.now
-        rescue ::Exception
-          dlog("Exception caught in monitor_socket: #{$!}", 'meterpreter', LEV_1)
-          @finish = true
+        rescue ::Exception => e
+          dlog("Exception caught in monitor_socket: #{e.class}: #{e}", 'meterpreter', LEV_1)
+          dlog("Call stack: #{e.backtrace.join("\n")}", 'meterpreter', LEV_2)
           self.alive = false
           break
         end
@@ -315,9 +315,7 @@ module PacketDispatcher
     # Spawn a new thread that monitors the socket
     self.dispatcher_thread = Rex::ThreadFactory.spawn("MeterpreterDispatcher", false) do
       begin
-      # Whether we're finished or not is determined by the receiver
-      # thread above.
-      while(not @finish)
+      while (self.alive)
         incomplete = []
         backlog    = []
 
@@ -352,7 +350,6 @@ module PacketDispatcher
         backlog.push(*tmp_channel)
         backlog.push(*tmp_close)
 
-
         #
         # Process the message queue
         #
@@ -363,12 +360,12 @@ module PacketDispatcher
           if ! dispatch_inbound_packet(pkt)
             # Keep Packets in the receive queue until a handler is registered
             # for them. Packets will live in the receive queue for up to
-            # PacketTimeout, after which they will be dropped.
+            # PACKET_TIMEOUT seconds, after which they will be dropped.
             #
             # A common reason why there would not immediately be a handler for
             # a received Packet is in channels, where a connection may
             # open and receive data before anything has asked to read.
-            if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
+            if (::Time.now.to_i - pkt.created_at.to_i < PACKET_TIMEOUT)
               incomplete << pkt
             end
           end
@@ -493,21 +490,15 @@ module PacketDispatcher
   # Otherwise, the packet is passed onto any registered dispatch
   # handlers until one returns success.
   #
-  def dispatch_inbound_packet(packet, client = nil)
+  def dispatch_inbound_packet(packet)
     handled = false
 
-    # If no client context was provided, return self as PacketDispatcher
-    # is a mixin for the Client instance
-    if (client == nil)
-      client = self
-    end
-
     # Update our last reply time
-    client.last_checkin = Time.now
+    self.last_checkin = Time.now
 
     # If the packet is a response, try to notify any potential
     # waiters
-    if ((resp = packet.response?))
+    if packet.response?
       if (notify_response_waiter(packet))
         return true
       end
@@ -520,11 +511,11 @@ module PacketDispatcher
       handled = nil
       begin
 
-      if ! resp
-        handled = handler.request_handler(client, packet)
-      else
-        handled = handler.response_handler(client, packet)
-      end
+        if packet.response?
+          handled = handler.response_handler(self, packet)
+        else
+          handled = handler.request_handler(self, packet)
+        end
 
       rescue ::Exception => e
         dlog("Exception caught in dispatch_inbound_packet: handler=#{handler} #{e.class} #{e} #{e.backtrace}", 'meterpreter', LEV_1)
