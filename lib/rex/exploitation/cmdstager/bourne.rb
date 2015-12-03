@@ -18,6 +18,8 @@ class CmdStagerBourne < CmdStagerBase
 
   def generate(opts = {})
     opts[:temp] = opts[:temp] || '/tmp/'
+    opts[:temp] = opts[:temp].empty?? opts[:temp] : opts[:temp] + '/'
+    opts[:temp] = opts[:temp].gsub(/\/{2,}/, '/')
     opts[:temp] = opts[:temp].gsub(/'/, "\\\\'")
     opts[:temp] = opts[:temp].gsub(/ /, "\\ ")
     if (opts[:file])
