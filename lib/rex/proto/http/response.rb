@@ -108,7 +108,7 @@ class Response < Packet
   #
   # @return [Hash]
   def get_json_document
-    json = []
+    json = {}
 
     begin
       json = JSON.parse(self.body)
