@@ -285,22 +285,13 @@ protected
 
         blob = ""
         blob << obj.generate_stage(
+          http_url: url,
+          http_user_agent: datastore['MeterpreterUserAgent'],
+          http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
+          http_proxy_port: datastore['PayloadProxyPort'] || datastore['PROXYPORT'],
           uuid: uuid,
           uri:  conn_id
         )
-
-        var_escape = lambda { |txt|
-          txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
-        }
-
-        # Patch all the things
-        blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
-        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
-
-        unless datastore['PayloadProxyHost'].blank?
-          proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
-          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
-        end
 
         resp.body = blob
 
