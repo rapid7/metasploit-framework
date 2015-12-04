@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
       ddns_table << ["#{ddns_service}", "#{ddns_server}", "#{ddns_port}","#{ddns_domain}", "#{ddns_user}", "#{ddns_pass}"]
       ddns_table.print
       unless ddns_server.blank? && ddns_port.blank? && ddns_user.blank? && ddns_pass.blank?
-        report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
+        report_ddns_cred(rhost, ddns_port, ddns_user, ddns_pass)
       end
     end
   end
@@ -319,9 +319,12 @@ class Metasploit3 < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
+  def report_ddns_cred(rhost, ddns_port, ddns_user, ddns_pass)
     service_data = {
-      address: ddns_server,
+      # if a system returns a domain name for ddns_server this will fail to
+      # input into the db because the creds api expects an inet record. This has to be set to RHOST until issue #3968 is
+      # sorted in msf framework.
+      address: rhost,
       port: ddns_port,
       service_name: 'ddns settings',
       protocol: 'tcp',
