@@ -816,6 +816,8 @@ class Console::CommandDispatcher::Core
   end
 
   @@migrate_opts = Rex::Parser::Arguments.new(
+    '-P' => [true, 'PID to migrate to.'],
+    '-N' => [true, 'Process name to migrate to.'],
     '-p'  => [true,  'Writable path - Linux only (eg. /tmp).'],
     '-t'  => [true,  'The number of seconds to wait for migration to finish (default: 60).'],
     '-h'  => [false, 'Help menu.']
@@ -823,9 +825,9 @@ class Console::CommandDispatcher::Core
 
   def cmd_migrate_help
     if client.platform =~ /linux/
-      print_line('Usage: migrate <pid> [-p writable_path] [-t timeout]')
+      print_line('Usage: migrate <<pid> | -P <pid> | -N <name>> [-p writable_path] [-t timeout]')
     else
-      print_line('Usage: migrate <pid> [-t timeout]')
+      print_line('Usage: migrate <<pid> | -P <pid> | -N <name>> [-t timeout]')
     end
     print_line
     print_line('Migrates the server instance to another process.')
@@ -840,29 +842,37 @@ class Console::CommandDispatcher::Core
   #   platforms a path for the unix domain socket used for IPC.
   # @return [void]
   def cmd_migrate(*args)
-    if args.length == 0 || args.include?('-h')
+    if args.length == 0 || args.any? { |arg| %w(-h --pid --name).include? arg }
       cmd_migrate_help
       return true
     end
 
-    pid = args[0].to_i
-    if pid == 0
-      print_error('A process ID must be specified, not a process name')
-      return
-    end
-
+    pid = nil
     writable_dir = nil
     opts = {
       timeout: nil
     }
 
-    @@transport_opts.parse(args) do |opt, idx, val|
+    @@migrate_opts.parse(args) do |opt, idx, val|
       case opt
       when '-t'
         opts[:timeout] = val.to_i
       when '-p'
         writable_dir = val
+      when '-P'
+        pid = val.to_i
+      when '-N'
+        unless (process = client.sys.process.processes.find { |p| p['name'] == val })
+          print_error("Could not find process name #{val}")
+          return
+        end
+        pid = process['pid']
       end
+    end
+
+    unless pid
+      print_error('A process ID or name must be provided')
+      return
     end
 
     begin
