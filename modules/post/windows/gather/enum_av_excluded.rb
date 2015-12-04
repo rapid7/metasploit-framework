@@ -13,8 +13,13 @@ class Metasploit3 < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Windows Antivirus Excluded Locations Enumeration',
-        'Description'   => 'This module will enumerate all excluded directories within supported AV products',
+        'Name'          => 'Windows Antivirus Exclusions Enumeration',
+        'Description'   => %q(
+          This module will enumerate the file, directory, process and
+          extension-based exclusions from supported AV products, which
+          currently includes Microsoft Defender, Microsoft Security
+          Essentials/Antimalware, and Symantec Endpoint Protection.
+        ),
         'License'       => MSF_LICENSE,
         'Author'        => [
           'Andrew Smith', # original metasploit module
@@ -66,28 +71,32 @@ class Metasploit3 < Msf::Post
         paths << registry_getvaldata("#{client_exclusion_key}\\#{key}", 'DirectoryName') + ' (client)'
       end
     end
-    print_exclusions_table(SEP, paths)
+    print_exclusions_table(SEP, 'path', paths)
   end
 
   def excluded_defender
-    print_exclusions_table(DEFENDER, registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Paths"))
+    print_exclusions_table(DEFENDER, 'extension', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Extensions"))
+    print_exclusions_table(DEFENDER, 'path', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Paths"))
+    print_exclusions_table(DEFENDER, 'process', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Processes"))
   end
 
   def excluded_mssec
-    print_exclusions_table(ESSENTIALS, registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Paths"))
+    print_exclusions_table(ESSENTIALS, 'extension', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Extensions"))
+    print_exclusions_table(ESSENTIALS, 'path', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Paths"))
+    print_exclusions_table(ESSENTIALS, 'process', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Processes"))
   end
 
-  def print_exclusions_table(product, exclusions)
+  def print_exclusions_table(product, exclusion_type, exclusions)
     exclusions ||= []
     exclusions = exclusions.compact.reject { |e| e.blank? }
     if exclusions.empty?
-      print_status("No exclusions for #{product}")
+      print_status("No #{exclusion_type} exclusions for #{product}")
       return
     end
     table = Rex::Ui::Text::Table.new(
-      'Header'    => "#{product} excluded paths",
+      'Header'    => "#{product} excluded #{exclusion_type.pluralize}",
       'Indent'    => 1,
-      'Columns'   => %w(path)
+      'Columns'   => [ exclusion_type.capitalize ]
     )
     exclusions.map { |exclusion| table << [exclusion] }
     print_line(table.to_s)
