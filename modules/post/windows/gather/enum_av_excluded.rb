@@ -60,18 +60,20 @@ class Metasploit3 < Msf::Post
     admin_exclusion_key = "#{base_exclusion_key}\\Admin"
     admin_exclusion_key = "#{base_exclusion_key}\\Client"
 
-    paths = []
+    admin_paths = []
     if (admin_exclusion_keys = registry_enumkeys(admin_exclusion_key))
       admin_exclusion_keys.map do |key|
-        paths << registry_getvaldata("#{admin_exclusion_key}\\#{key}", 'DirectoryName') + ' (admin)'
+        admin_paths << registry_getvaldata("#{admin_exclusion_key}\\#{key}", 'DirectoryName')
       end
+      print_exclusions_table(SEP, 'admin path', admin_paths)
     end
+    client_paths = []
     if (client_exclusion_keys = registry_enumkeys(client_exclusion_key))
       client_exclusion_keys.map do |key|
-        paths << registry_getvaldata("#{client_exclusion_key}\\#{key}", 'DirectoryName') + ' (client)'
+        client_paths << registry_getvaldata("#{client_exclusion_key}\\#{key}", 'DirectoryName')
       end
     end
-    print_exclusions_table(SEP, 'path', paths)
+    print_exclusions_table(SEP, 'client path', client_paths)
   end
 
   def excluded_defender
