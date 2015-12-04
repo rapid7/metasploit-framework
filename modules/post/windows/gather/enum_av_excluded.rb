@@ -16,10 +16,21 @@ class Metasploit3 < Msf::Post
         'Name'          => 'Windows Antivirus Excluded Locations Enumeration',
         'Description'   => 'This module will enumerate all excluded directories within supported AV products',
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Andrew Smith'],
+        'Author'        => [
+          'Andrew Smith', # original metasploit module
+          'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
+        ],
         'Platform'      => [ 'win' ],
         'SessionTypes'  => [ 'meterpreter' ]
       )
+    )
+
+    register_options(
+      [
+        OptBool.new('DEFENDER', [true, 'Enumerate exclusions for Microsoft Defener', true]),
+        OptBool.new('ESSENTIALS', [true, 'Enumerate exclusions for Microsoft Security Essentials', true]),
+        OptBool.new('SEP', [true, 'Enumerate exclusions for Symantec Endpoint Protection (SEP)', true])
+      ]
     )
   end
 
@@ -105,31 +116,33 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  def setup
+    unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
+      fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
+    end
+  end
+
   def run
-    arch2 = sysinfo['Architecture']
-    if arch2 =~ /WOW64/
+    if sysinfo['Architecture'] =~ /WOW64/
       print_error "You are running this module from a 32-bit process on a 64-bit machine. Migrate to a 64-bit process and try again"
       return
-    else
-      print_status("Enumerating Excluded Paths for AV on #{sysinfo['Computer']}")
-      if enum_sep
-        excluded_sep
-      else
-        nosep = true
-      end
-      if enum_mssec
-        excluded_mssec
-      else
-        nomssec = true
-      end
-      if enum_defender
-        excluded_defender
-      else
-        nodefend = true
-      end
-      if nomssec && nodefend && nosep
-        print_error "No supported AV identified"
-      end
     end
+
+    print_status("Enumerating Excluded Paths for AV on #{sysinfo['Computer']}")
+    found = false
+    if datastore['DEFENDER'] && enum_defender
+      found = true
+      excluded_defender
+    end
+    if datastore['ESSENTIALS'] && enum_mssec
+      found = true
+      excluded_mssec
+    end
+    if datastore['SEP'] && enum_sep
+      found = true
+      excluded_sep
+    end
+
+    print_error "No supported AV identified" unless found
   end
 end
