@@ -7,17 +7,17 @@ module Msf
 
 ###
 #
-# This module provides methods for interacting with nmap.
-# Modules that include this should define their own nmap_build_args()
+# This module provides methods for interacting with masscan.
+# Modules that include this should define their own masscan_build_args()
 # function, and usually should have some method for dealing with
-# the data yielded from nmap_hosts(). See auxiliary/scanner/oracle/oracle_login
+# the data yielded from masscan_hosts(). See auxiliary/scanner/oracle/oracle_login
 # for an example implementation.
 #
 ###
 
 module Auxiliary::Masscan
 
-attr_accessor :massscan_args, :masscan_bin, :masscan_log
+attr_accessor :masscan_args, :masscan_bin, :masscan_log
 attr_reader :masscan_pid, :masscan_ver
 
 def initialize(info = {})
@@ -25,70 +25,41 @@ def initialize(info = {})
 
   register_options([
     OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
-    OptBool.new('NMAP_VERBOSE', [ false, 'Display nmap output', true]),
+    OptBool.new('MASSCAN_VERBOSE', [ false, 'Display masscan output', true]),
     OptString.new('RPORTS', [ false, 'Ports to target']), # RPORT supersedes RPORTS
-  ], Auxiliary::Nmap)
+  ], Auxiliary::Masscan)
 
+end
+
+def setup
+  print "setup"
   deregister_options("RPORT")
   @masscan_args = []
   @masscan_bin = masscan_binary_path
-end
-
-def rports
-  datastore['RPORTS']
-end
-
-def rport
-  datastore['RPORT']
-end
-
-def set_masscan_cmd
-  self.masscan_bin || (raise RuntimeError, "Cannot locate massscan binary")
+  # set masscan cmd
+  self.masscan_bin || (raise RuntimeError, "Cannot locate masscan binary")
   masscan_set_log
   masscan_add_ports
-  masscan_cmd = [self.nmap_bin]
+  masscan_cmd = [self.masscan_bin]
   self.masscan_args.unshift("-oX #{self.masscan_log[1]}")
   masscan_cmd << self.masscan_args.join(" ")
   masscan_cmd << datastore['RHOSTS']
   masscan_cmd.join(" ")
 end
 
-def get_masscan_ver
-  self.masscan_bin || (raise RuntimeError, "Cannot locate nmap binary")
-  res = ""
-  masscan_cmd = [self.masscan_bin]
-  masscan_cmd << "--version"
-  res << %x{#{masscan_cmd.join(" ")}} rescue nil
-  res.gsub(/[\x0d\x0a]/n,"")
+def rports
+    datastore['RPORTS']
 end
 
-# Takes a version string in the form of Major.Minor and compares to
-# the found version. It yells at you specifically if you try to
-# compare a float b/c that's going to be a super common error.
-# Comparing an Integer is okay, though.
-def masscan_version_at_least?(test_ver=nil)
-  raise ArgumentError, "Cannot compare a Float, use a String or Integer" if test_ver.kind_of? Float
-  unless test_ver.to_s[/^([0-9]+(\x2e[0-9]+)?)/n]
-    raise ArgumentError, "Bad Nmap comparison version: #{test_ver.inspect}"
-  end
-  test_ver_str = test_ver.to_s
-  tnum_arr = $1.split(/\x2e/n)[0,2].map {|x| x.to_i}
-  installed_ver = get_nmap_ver()
-  vtag = installed_ver.split[2] # Should be ["Nmap", "version", "X.YZTAG", "(", "http..", ")"]
-  return false if (vtag.nil? || vtag.empty?)
-  return false unless (vtag =~ /^([0-9]+\x2e[0-9]+)/n) # Drop the tag.
-  inum_arr = $1.split(/\x2e/n)[0,2].map {|x| x.to_i}
-  return true if inum_arr[0] > tnum_arr[0]
-  return false if inum_arr[0] < tnum_arr[0]
-  inum_arr[1].to_i >= tnum_arr[1].to_i
+def rport
+    datastore['RPORT']
 end
 
 def masscan_build_args
-  raise RuntimeError, "nmap_build_args() not defined by #{self.refname}"
+  raise RuntimeError, "masscan_build_args() not defined by #{self.refname}"
 end
 
 def masscan_run
-  masscan_cmd = set_masscan_cmd
   begin
     masscan_pipe = ::Open3::popen3(masscan_cmd)
     @masscan_pid = masscan_pipe.last.pid
@@ -104,16 +75,17 @@ def masscan_run
     temp_masscan_threads << framework.threads.spawn("Module(#{self.refname})-MasscanStderr", false, masscan_pipe[2]) do |np_2|
       np_2.each_line do |masscan_err|
         next if masscan_err.strip.empty?
-        print_status  "Massscan: '#{masscan_err.strip}'"
+        print_status  "Masscan: '#{masscan_err.strip}'"
       end
     end
 
     temp_masscan_threads.map {|t| t.join rescue nil}
-    masscan_pipe.each {|p| p.close rescue nil}
-    if self.masscan_log[0].size.zero?
-      print_error "Masscan Warning: Output file is empty, no useful results can be processed."
-    end
   rescue ::IOError
+  ensure
+     masscan_pipe.each {|p| p.close rescue nil}
+     if self.masscan_log[0].size.zero?
+       print_error "Masscan Warning: Output file is empty, no useful results can be processed."
+     end
   end
 end
 
@@ -133,13 +105,13 @@ end
 # to self.masscan_log.
 # Only supports XML format since that's the most useful.
 def masscan_set_log
-  outfile = Rex::Quickfile.new("msf3-masscan-")
+  outfile = Rex::Quickfile.new("msf4-masscan-")
   if Rex::Compat.is_cygwin and self.masscan_bin =~ /cygdrive/i
     outfile_path = Rex::Compat.cygwin_to_win32(outfile.path)
   else
     outfile_path = outfile.path
   end
-  self.nmap_log = [outfile,outfile_path]
+  self.masscan_log = [outfile,outfile_path]
 end
 
 def masscan_show_args
@@ -179,7 +151,7 @@ end
 # 22,23
 # U:53,T:80
 # and combinations thereof.
-def massscan_validate_rports
+def masscan_validate_rports
   # If there's an RPORT specified, use that instead.
   if datastore['RPORT'] && (datastore['RPORT'].kind_of?(Fixnum) || !datastore['RPORT'].empty?)
     return true
@@ -201,54 +173,54 @@ def massscan_validate_rports
 end
 
 # Validates an argument to be passed on the command
-# line to nmap. Most special characters aren't allowed,
+# line to masscan. Most special characters aren't allowed,
 # and commas in arguments are only allowed inside a
 # quoted argument.
 def masscan_validate_arg(str)
   # Check for existence
   if str.nil? || str.empty?
-    print_error "Missing nmap argument"
+    print_error "Missing masscan argument"
     return false
   end
   # Check for quote balance
   if !(str.scan(/'/).size % 2).zero? or !(str.scan(/"/).size % 2).zero?
-    print_error "Unbalanced quotes in nmap argument: #{str}"
+    print_error "Unbalanced quotes in masscan argument: #{str}"
     return false
   end
   # Check for characters that enable badness
   disallowed_characters = /([\x00-\x19\x21\x23-\x26\x28\x29\x3b\x3e\x60\x7b\x7c\x7d\x7e-\xff])/n
   badchar = str[disallowed_characters]
   if badchar
-    print_error "Malformed nmap arguments (contains '#{badchar}'): #{str}"
+    print_error "Malformed masscan arguments (contains '#{badchar}'): #{str}"
     return false
   end
   # Check for commas outside of quoted arguments
   quoted_22 = /\x22[^\x22]*\x22/n
   requoted_str = str.gsub(/'/,"\"")
   if requoted_str.split(quoted_22).join[/,/]
-    print_error "Malformed nmap arguments (unquoted comma): #{str}"
+    print_error "Malformed masscan arguments (unquoted comma): #{str}"
     return false
   end
   return true
 end
 
 # Takes a block, and yields back the host object as discovered
-# by the Rex::Parser::NmapXMLStreamParser. It's up to the
+# by the Rex::Parser::MasscanXMLStreamParser. It's up to the
 # module to ferret out whatever's interesting in this host
 # object.
 def masscan_hosts(&block)
-  @masscan_bin || (raise RuntimeError, "Cannot locate the nmap binary.")
-  fh = self.nmap_log[0]
-  nmap_data = fh.read(fh.stat.size)
+  @masscan_bin || (raise RuntimeError, "Cannot locate the masscan binary.")
+  fh = self.masscan_log[0]
+  masscan_data = fh.read(fh.stat.size)
   # fh.unlink
   if Rex::Parser.nokogiri_loaded && framework.db.active
     wspace = framework.db.find_workspace(datastore['WORKSPACE'])
     wspace ||= framework.db.workspace
-    import_args = { :data => nmap_data, :wspace => wspace }
+    import_args = { :data => masscan_data, :wspace => wspace }
     framework.db.import_masscan_noko_stream(import_args) { |type, data| yield type, data }
   else
-    nmap_parser = Rex::Parser::NmapXMLStreamParser.new
-    nmap_parser.on_found_host = Proc.new { |h|
+    masscan_parser = Rex::Parser::MasscanXMLStreamParser.new
+    masscan_parser.on_found_host = Proc.new { |h|
       if (h["addrs"].has_key?("ipv4"))
         addr = h["addrs"]["ipv4"]
       elsif (h["addrs"].has_key?("ipv6"))
@@ -263,7 +235,7 @@ def masscan_hosts(&block)
   end
 end
 
-#Saves the data from the nmap scan to a file in the MSF::Config.local_directory
+#Saves the data from the masscan scan to a file in the MSF::Config.local_directory
 def masscan_save()
   print_status "Masscan: saving masscan log file"
   fh = self.masscan_log[0]
