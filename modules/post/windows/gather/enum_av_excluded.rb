@@ -28,43 +28,23 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptBool.new('DEFENDER', [true, 'Enumerate exclusions for Microsoft Defener', true]),
-        OptBool.new('ESSENTIALS', [true, 'Enumerate exclusions for Microsoft Security Essentials', true]),
+        OptBool.new('ESSENTIALS', [true, 'Enumerate exclusions for Microsoft Security Essentials/Antimalware', true]),
         OptBool.new('SEP', [true, 'Enumerate exclusions for Symantec Endpoint Protection (SEP)', true])
       ]
     )
   end
 
-  def enum_mssec
-    if registry_enumkeys("HKLM\\SOFTWARE\\Microsoft").include?("Microsoft Antimalware")
-      print_status "MS Security Essentials Identified"
-      return true
-    else
-      return false
-    end
-  rescue
-    return false
-  end
+  DEFENDER_BASE_KEY = 'HKLM\\SOFTWARE\\Microsoft\\Windows Defender'
+  ESSENTIALS_BASE_KEY = 'HKLM\\SOFTWARE\\Microsoft\\Microsoft Antimalware'
+  SEP_BASE_KEY = 'HKLM\\SOFTWARE\\Symantec\\Symantec Endpoint Protection'
 
-  def enum_defender
-    if registry_enumkeys("HKLM\\SOFTWARE\\Microsoft").include?("Windows Defender")
-      print_status "Windows Defender Identified"
-      return true
+  def av_installed?(base_key, product)
+    if registry_key_exist?(base_key)
+      print_status("Found #{product}")
+      true
     else
-      return false
+      false
     end
-  rescue
-    return false
-  end
-
-  def enum_sep
-    if registry_enumkeys("HKLM\\SOFTWARE\\Symantec").include?("Symantec Endpoint Protection")
-      print_status "SEP Identified"
-      return true
-    else
-      return false
-    end
-  rescue
-    return false
   end
 
   def excluded_sep
@@ -130,15 +110,15 @@ class Metasploit3 < Msf::Post
 
     print_status("Enumerating Excluded Paths for AV on #{sysinfo['Computer']}")
     found = false
-    if datastore['DEFENDER'] && enum_defender
+    if datastore['DEFENDER'] && av_installed?(DEFENDER_BASE_KEY, 'Microsoft Defender')
       found = true
       excluded_defender
     end
-    if datastore['ESSENTIALS'] && enum_mssec
+    if datastore['ESSENTIALS'] && av_installed?(ESSENTIALS_BASE_KEY, 'Microsoft Security Essentials / Antimalware')
       found = true
       excluded_mssec
     end
-    if datastore['SEP'] && enum_sep
+    if datastore['SEP'] && av_installed?(SEP_BASE_KEY, 'Symantec Endpoint Protection')
       found = true
       excluded_sep
     end
