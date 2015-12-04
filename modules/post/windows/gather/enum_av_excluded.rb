@@ -78,7 +78,9 @@ class Metasploit3 < Msf::Post
   end
 
   def print_exclusions_table(product, exclusions)
-    unless exclusions && !exclusions.empty?
+    exclusions ||= []
+    exclusions = exclusions.compact.reject { |e| e.blank? }
+    if exclusions.empty?
       print_status("No exclusions for #{product}")
       return
     end
