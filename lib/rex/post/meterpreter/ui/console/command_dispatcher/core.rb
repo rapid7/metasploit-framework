@@ -818,9 +818,9 @@ class Console::CommandDispatcher::Core
   @@migrate_opts = Rex::Parser::Arguments.new(
     '-P' => [true, 'PID to migrate to.'],
     '-N' => [true, 'Process name to migrate to.'],
-    '-p'  => [true,  'Writable path - Linux only (eg. /tmp).'],
-    '-t'  => [true,  'The number of seconds to wait for migration to finish (default: 60).'],
-    '-h'  => [false, 'Help menu.']
+    '-p' => [true,  'Writable path - Linux only (eg. /tmp).'],
+    '-t' => [true,  'The number of seconds to wait for migration to finish (default: 60).'],
+    '-h' => [false, 'Help menu.']
   )
 
   def cmd_migrate_help
@@ -860,8 +860,17 @@ class Console::CommandDispatcher::Core
       when '-p'
         writable_dir = val
       when '-P'
+        unless val =~ /^\d+$/
+          print_error("Not a PID: #{val}")
+          return
+        end
         pid = val.to_i
       when '-N'
+        if val.blank?
+          print_error("No process name provided")
+          return
+        end
+        # this will migrate to the first process with a matching name
         unless (process = client.sys.process.processes.find { |p| p['name'] == val })
           print_error("Could not find process name #{val}")
           return
@@ -871,8 +880,15 @@ class Console::CommandDispatcher::Core
     end
 
     unless pid
-      print_error('A process ID or name must be provided')
-      return
+      unless (pid = args.first)
+        print_error('A process ID or name argument must be provided')
+        return
+      end
+      unless pid =~ /^\d+$/
+        print_error("Not a PID: #{pid}")
+        return
+      end
+      pid = pid.to_i
     end
 
     begin
