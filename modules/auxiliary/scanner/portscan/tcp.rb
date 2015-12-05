@@ -91,33 +91,10 @@ end
         t << framework.threads.spawn("Module(#{self.refname})-#{ip}:#{this_port}", false, this_port) do |port|
           begin
 
+            # Add the delay based on JITTER and DELAY if needs be
             add_delay_jitter(datastore['DELAY'],jitter_value)
-      #      add_delay_jitter(datastore['DELAY'].to_i,jitter_value)
-#            # Introduce the delay
-#            delay_value = datastore['DELAY'].to_i
-#            delay_proportion = jitter_value * (delay_value/100)
-#
-#            # Retrieve the jitter value and delay value 
-#            # Delay = number of milliseconds to wait between each request
-#            # Jitter = percentage modifier. For example:
-#            # Delay is 1000ms (i.e. 1 second), Jitter is 50.
-#            # 50/100 = 0.5; 0.5*1000 = 500. Therefore, the per-request
-#            # delay will be 1000 +/- a maximum of 500ms. 
-#            if delay_value>0
-#                if delay_proportion>0
-#                    rnd = Random.new
-#                    delay_modifier = rnd.rand(delay_proportion)
-#                    if (rnd.rand(2)==0)
-#                        delay_value += delay_modifier
-#                    else
-#                        delay_value -= delay_modifier
-#                    end
-#                end
-#                final_delay = delay_value.to_f/1000.0
-#                vprint_status("Delaying for #{final_delay}s")
-#                sleep final_delay
-#            end
 
+            # Actually perform the TCP connection
             s = connect(false,
               {
                 'RPORT' => port,
