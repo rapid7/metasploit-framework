@@ -17,6 +17,11 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'TCP Port Scanner',
+      'Description' => %q{ 
+        Enumerate open TCP services by performing a full TCP connect on each port. 
+        This does not need administrative privileges on the source machine, which
+        may be useful if pivoting.
+      },
       'Description' => 'Enumerate open TCP services',
       'Author'      => [ 'hdm', 'kris katterjohn' ],
       'License'     => MSF_LICENSE
@@ -35,37 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-
-def add_delay_jitter(_delay, _jitter)
-  # Introduce the delay
-  delay_value = _delay.to_i
-  original_value = _delay.to_i
-  jitter_value = _jitter.to_i
-  
-  # Retrieve the jitter value and delay value 
-  # Delay = number of milliseconds to wait between each request
-  # Jitter = percentage modifier. For example:
-  # Delay is 1000ms (i.e. 1 second), Jitter is 50.
-  # 50/100 = 0.5; 0.5*1000 = 500. Therefore, the per-request
-  # delay will be 1000 +/- a maximum of 500ms. 
-  if delay_value>0
-    if jitter_value>0
-       rnd = Random.new
-       if (rnd.rand(2)==0)
-          delay_value += rnd.rand(jitter_value)
-       else
-          delay_value -= rnd.rand(jitter_value)
-       end 
-       if delay_value<0
-          delay_value = 0 
-       end
-    end 
-    final_delay = delay_value.to_f/1000.0
-    vprint_status("Delaying for #{final_delay} second(s) (#{original_value}ms +/- #{jitter_value}ms)")
-    sleep final_delay
-  end 
-end
-
   def run_host(ip)
 
     timeout = datastore['TIMEOUT'].to_i
@@ -81,6 +55,11 @@ end
       raise Msf::OptionValidateError.new(['JITTER'])
     end
 
+    delay_value = datastore['DELAY'].to_i
+    if delay_value<0 
+      raise Msf::OptionValidateError.new(['DELAY'])
+    end
+
     while(ports.length > 0)
       t = []
       r = []
@@ -92,7 +71,7 @@ end
           begin
 
             # Add the delay based on JITTER and DELAY if needs be
-            add_delay_jitter(datastore['DELAY'],jitter_value)
+            add_delay_jitter(delay_value,jitter_value)
 
             # Actually perform the TCP connection
             s = connect(false,
