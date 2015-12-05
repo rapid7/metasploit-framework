@@ -26,9 +26,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
       OptAddress.new('BOUNCEHOST', [true, "FTP relay host"]),
-      OptPort.new('BOUNCEPORT', [true, "FTP relay port", 21])
+      OptPort.new('BOUNCEPORT', [true, "FTP relay port", 21]),
       OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
-      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
+      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0])
     ])
 
     deregister_options('RHOST', 'RPORT')
