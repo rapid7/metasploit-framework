@@ -250,28 +250,29 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       accepted.each do |key|
-        print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key[:key][:fingerprint]}' #{key_info}"
-        do_report(ip, rport, user, key, key_data[:public], key_info)
+        private_key_present = (key_data[:private]!="") ? 'Yes' : 'No'
+        print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key[:key][:fingerprint]}' (Private Key: #{private_key_present}) #{key_info}"
+        do_report(ip, rport, user, key, key_data[:public], key_info, private_key_present)
       end
     end
   end
 
-  def do_report(ip, port, user, key, key_data, key_info)
+  def do_report(ip, port, user, key, key_data, key_info, private_key_present)
     return unless framework.db.active
   
+    public_keyfile_path = store_public_keyfile(ip,user,key[:fingerprint],key_data)
+
     # Store a note relating to the public key test
     note_information = {
       user: user,
       public_key: key_data,
-      private_key: (key[:data][:private]) ? 'Yes' : 'No',
+      private_key: private_key_present,
       info: key_info
     } 
     report_note(host: ip, port: port, type: "ssh.publickey.accepted", data: note_information, update: :unique_data)
   
-  
-    if key[:data][:private]
+    if key[:data][:private] != ""
       # Store these keys in loot
-      public_keyfile_path = store_public_keyfile(ip,user,key[:fingerprint],key_data)
       private_keyfile_path = store_private_keyfile(ip,user,key[:fingerprint],key[:data][:private])
 
       # Use the proper credential method to store credentials that we have
