@@ -17,8 +17,8 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'TCP Port Scanner',
-      'Description' => %q{ 
-        Enumerate open TCP services by performing a full TCP connect on each port. 
+      'Description' => %q{
+        Enumerate open TCP services by performing a full TCP connect on each port.
         This does not need administrative privileges on the source machine, which
         may be useful if pivoting.
       },
@@ -51,12 +51,12 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     jitter_value = datastore['JITTER'].to_i
-    if jitter_value<0 
+    if jitter_value < 0
       raise Msf::OptionValidateError.new(['JITTER'])
     end
 
     delay_value = datastore['DELAY'].to_i
-    if delay_value<0 
+    if delay_value < 0
       raise Msf::OptionValidateError.new(['DELAY'])
     end
 
