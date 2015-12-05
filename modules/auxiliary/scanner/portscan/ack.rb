@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500]),
       OptInt.new('BATCHSIZE', [true, "The number of hosts to scan per set", 256]),
       OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
-      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY).", 0]),
+      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
       OptString.new('INTERFACE', [false, 'The name of the interface'])
     ], self.class)
 
