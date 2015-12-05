@@ -61,31 +61,31 @@ class Metasploit3 < Msf::Post
     admin_exclusion_key = "#{base_exclusion_key}\\Client"
 
     admin_paths = []
-    if (admin_exclusion_keys = registry_enumkeys(admin_exclusion_key))
+    if (admin_exclusion_keys = registry_enumkeys(admin_exclusion_key, @registry_view))
       admin_exclusion_keys.map do |key|
-        admin_paths << registry_getvaldata("#{admin_exclusion_key}\\#{key}", 'DirectoryName')
+        admin_paths << registry_getvaldata("#{admin_exclusion_key}\\#{key}", 'DirectoryName', @registry_view)
       end
       print_exclusions_table(SEP, 'admin path', admin_paths)
     end
     client_paths = []
-    if (client_exclusion_keys = registry_enumkeys(client_exclusion_key))
+    if (client_exclusion_keys = registry_enumkeys(client_exclusion_key, @registry_view))
       client_exclusion_keys.map do |key|
-        client_paths << registry_getvaldata("#{client_exclusion_key}\\#{key}", 'DirectoryName')
+        client_paths << registry_getvaldata("#{client_exclusion_key}\\#{key}", 'DirectoryName', @registry_view)
       end
     end
     print_exclusions_table(SEP, 'client path', client_paths)
   end
 
   def excluded_defender
-    print_exclusions_table(DEFENDER, 'extension', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Extensions"))
-    print_exclusions_table(DEFENDER, 'path', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Paths"))
-    print_exclusions_table(DEFENDER, 'process', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Processes"))
+    print_exclusions_table(DEFENDER, 'extension', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Extensions", @registry_view))
+    print_exclusions_table(DEFENDER, 'path', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Paths", @registry_view))
+    print_exclusions_table(DEFENDER, 'process', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Processes", @registry_view))
   end
 
   def excluded_mssec
-    print_exclusions_table(ESSENTIALS, 'extension', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Extensions"))
-    print_exclusions_table(ESSENTIALS, 'path', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Paths"))
-    print_exclusions_table(ESSENTIALS, 'process', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Processes"))
+    print_exclusions_table(ESSENTIALS, 'extension', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Extensions", @registry_view))
+    print_exclusions_table(ESSENTIALS, 'path', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Paths", @registry_view))
+    print_exclusions_table(ESSENTIALS, 'process', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Processes", @registry_view))
   end
 
   def print_exclusions_table(product, exclusion_type, exclusions)
@@ -105,10 +105,11 @@ class Metasploit3 < Msf::Post
   end
 
   def setup
-    if sysinfo['Architecture'] =~ /WOW64/
-      fail_with(Failure::BadConfig, 'You are running this module from a 32-bit process on a 64-bit machine. ' \
-                'Migrate to a 64-bit process and try again')
-    end
+    # all of these target applications seemingly store their registry
+    # keys/values at the same architecture of the host, so if we happen to be
+    # in a 32-bit process on a 64-bit machine, ensure that we read from the
+    # 64-bit keys/values, and otherwise use the native keys/values
+    @registry_view = sysinfo['Architecture'] =~ /WOW64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_NATIVE
     unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
       fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
     end
