@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
       OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
-      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY).", 0]),
+      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
     ], self.class)
 
     deregister_options('RPORT')
