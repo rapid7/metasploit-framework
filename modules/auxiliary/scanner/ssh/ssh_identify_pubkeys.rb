@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
         stored within the key file.
       },
       'Author'      => [
-        'todb', 
+        'todb',
         'hdm',
         'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>', # Reworked the storage (db, credentials, notes, loot) only
        ],
@@ -122,8 +122,8 @@ class Metasploit3 < Msf::Auxiliary
         # A public key has been provided
         keepers << { :public => key, :private => "" }
         next
-      else 
-        # Use the mighty SSHKey library from James Miller to convert them on the fly. 
+      else
+        # Use the mighty SSHKey library from James Miller to convert them on the fly.
         # This is where a PRIVATE key has been provided
         ssh_version = SSHKey.new(key).ssh_public_key rescue nil
         keepers << { :public => ssh_version, :private => key } if ssh_version
@@ -259,7 +259,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_report(ip, port, user, key, key_data, key_info, private_key_present)
     return unless framework.db.active
-  
+
     public_keyfile_path = store_public_keyfile(ip,user,key[:fingerprint],key_data)
 
     # Store a note relating to the public key test
@@ -268,9 +268,9 @@ class Metasploit3 < Msf::Auxiliary
       public_key: key_data,
       private_key: private_key_present,
       info: key_info
-    } 
+    }
     report_note(host: ip, port: port, type: "ssh.publickey.accepted", data: note_information, update: :unique_data)
-  
+
     if key[:data][:private] != ""
       # Store these keys in loot
       private_keyfile_path = store_private_keyfile(ip,user,key[:fingerprint],key[:data][:private])
@@ -291,7 +291,7 @@ class Metasploit3 < Msf::Auxiliary
         private_type: :ssh_key,
         username: key[:key][:user],
       }.merge(service_data)
-    
+
       login_data = {
         core: create_credential(credential_data),
         last_attempted_at: DateTime.now,
@@ -299,7 +299,7 @@ class Metasploit3 < Msf::Auxiliary
         proof: private_keyfile_path
       }.merge(service_data)
       create_credential_login(login_data)
-  
+
     end
   end
 
