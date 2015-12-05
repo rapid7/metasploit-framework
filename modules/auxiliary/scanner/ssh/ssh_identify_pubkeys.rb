@@ -266,7 +266,7 @@ class Metasploit3 < Msf::Auxiliary
       private_key: (key[:data][:private]) ? 'Yes' : 'No',
       info: key_info
     } 
-    report_note(host: ip, port: port, type: "ssh.publickey", data: note_information, update: :unique_data)
+    report_note(host: ip, port: port, type: "ssh.publickey.accepted", data: note_information, update: :unique_data)
   
   
     if key[:data][:private]
