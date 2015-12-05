@@ -13,8 +13,13 @@ class Metasploit3 < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Windows Antivirus Excluded Locations Enumeration',
-        'Description'   => 'This module will enumerate all excluded directories within supported AV products',
+        'Name'          => 'Windows Antivirus Exclusions Enumeration',
+        'Description'   => %q(
+          This module will enumerate the file, directory, process and
+          extension-based exclusions from supported AV products, which
+          currently includes Microsoft Defender, Microsoft Security
+          Essentials/Antimalware, and Symantec Endpoint Protection.
+        ),
         'License'       => MSF_LICENSE,
         'Author'        => [
           'Andrew Smith', # original metasploit module
@@ -27,118 +32,102 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptBool.new('DEFENDER', [true, 'Enumerate exclusions for Microsoft Defener', true]),
-        OptBool.new('ESSENTIALS', [true, 'Enumerate exclusions for Microsoft Security Essentials', true]),
+        OptBool.new('DEFENDER', [true, 'Enumerate exclusions for Microsoft Defender', true]),
+        OptBool.new('ESSENTIALS', [true, 'Enumerate exclusions for Microsoft Security Essentials/Antimalware', true]),
         OptBool.new('SEP', [true, 'Enumerate exclusions for Symantec Endpoint Protection (SEP)', true])
       ]
     )
   end
 
-  def enum_mssec
-    if registry_enumkeys("HKLM\\SOFTWARE\\Microsoft").include?("Microsoft Antimalware")
-      print_status "MS Security Essentials Identified"
-      return true
-    else
-      return false
-    end
-  rescue
-    return false
-  end
+  DEFENDER = 'Windows Defender'
+  DEFENDER_BASE_KEY = 'HKLM\\SOFTWARE\\Microsoft\\Windows Defender'
+  ESSENTIALS = 'Microsoft Security Essentials / Antimalware'
+  ESSENTIALS_BASE_KEY = 'HKLM\\SOFTWARE\\Microsoft\\Microsoft Antimalware'
+  SEP = 'Symantec Endpoint Protection (SEP)'
+  SEP_BASE_KEY = 'HKLM\\SOFTWARE\\Symantec\\Symantec Endpoint Protection'
 
-  def enum_defender
-    if registry_enumkeys("HKLM\\SOFTWARE\\Microsoft").include?("Windows Defender")
-      print_status "Windows Defender Identified"
-      return true
+  def av_installed?(base_key, product)
+    if registry_key_exist?(base_key)
+      print_good("Found #{product}")
+      true
     else
-      return false
+      false
     end
-  rescue
-    return false
-  end
-
-  def enum_sep
-    if registry_enumkeys("HKLM\\SOFTWARE\\Symantec").include?("Symantec Endpoint Protection")
-      print_status "SEP Identified"
-      return true
-    else
-      return false
-    end
-  rescue
-    return false
   end
 
   def excluded_sep
-    print_status "Excluded Locations:"
-    keyadm = "HKLM\\SOFTWARE\\Symantec\\Symantec Endpoint Protection\\AV\\Exclusions\\ScanningEngines\\Directory\\Admin"
-    if (found_keysadm = registry_enumkeys(keyadm))
-      found_keysadm.each do |vals|
-        full = keyadm + "\\" + vals
-        values = registry_getvaldata(full, "DirectoryName")
-        print_good "#{values}"
-      end
-    else
-      print_error "No Admin Locations Found"
-    end
+    base_exclusion_key = "#{SEP_BASE_KEY}\\Exclusions\\ScanningEngines\\Directory"
+    admin_exclusion_key = "#{base_exclusion_key}\\Admin"
+    admin_exclusion_key = "#{base_exclusion_key}\\Client"
 
-    keycli = "HKLM\\SOFTWARE\\Symantec\\Symantec Endpoint Protection\\AV\\Exclusions\\ScanningEngines\\Directory\\Client"
-    if (found_keyscli = registry_enumkeys(keycli))
-      found_keyscli.each do |vals|
-        full = keycli + "\\" + vals
-        values = registry_getvaldata(full, "DirectoryName")
-        print_good "#{values}"
+    admin_paths = []
+    if (admin_exclusion_keys = registry_enumkeys(admin_exclusion_key, @registry_view))
+      admin_exclusion_keys.map do |key|
+        admin_paths << registry_getvaldata("#{admin_exclusion_key}\\#{key}", 'DirectoryName', @registry_view)
       end
-    else
-      print_error "No Client Locations Found"
+      print_exclusions_table(SEP, 'admin path', admin_paths)
     end
-  end
-
-  def excluded_mssec
-    print_status "Excluded Locations:"
-    keyms = "HKLM\\SOFTWARE\\Microsoft\\Microsoft Antimalware\\Exclusions\\Paths\\"
-    if (found = registry_enumvals(keyms))
-      found.each do |num|
-        print_good "#{num}"
+    client_paths = []
+    if (client_exclusion_keys = registry_enumkeys(client_exclusion_key, @registry_view))
+      client_exclusion_keys.map do |key|
+        client_paths << registry_getvaldata("#{client_exclusion_key}\\#{key}", 'DirectoryName', @registry_view)
       end
-    else
-      print_error "No Excluded Locations Found"
     end
+    print_exclusions_table(SEP, 'client path', client_paths)
   end
 
   def excluded_defender
-    print_status "Excluded Locations:"
-    keyms = "HKLM\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths\\"
-    if (found = registry_enumvals(keyms))
-      found.each do |num|
-        print_good "#{num}"
-      end
-    else
-      print_error "No Excluded Locations Found"
+    print_exclusions_table(DEFENDER, 'extension', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Extensions", @registry_view))
+    print_exclusions_table(DEFENDER, 'path', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Paths", @registry_view))
+    print_exclusions_table(DEFENDER, 'process', registry_enumvals("#{DEFENDER_BASE_KEY}\\Exclusions\\Processes", @registry_view))
+  end
+
+  def excluded_mssec
+    print_exclusions_table(ESSENTIALS, 'extension', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Extensions", @registry_view))
+    print_exclusions_table(ESSENTIALS, 'path', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Paths", @registry_view))
+    print_exclusions_table(ESSENTIALS, 'process', registry_enumvals("#{ESSENTIALS_BASE_KEY}\\Exclusions\\Processes", @registry_view))
+  end
+
+  def print_exclusions_table(product, exclusion_type, exclusions)
+    exclusions ||= []
+    exclusions = exclusions.compact.reject(&:blank?)
+    if exclusions.empty?
+      print_status("No #{exclusion_type} exclusions for #{product}")
+      return
     end
+    table = Rex::Ui::Text::Table.new(
+      'Header'    => "#{product} excluded #{exclusion_type.pluralize}",
+      'Indent'    => 1,
+      'Columns'   => [ exclusion_type.capitalize ]
+    )
+    exclusions.map { |exclusion| table << [exclusion] }
+    print_line(table.to_s)
   end
 
   def setup
+    # all of these target applications seemingly store their registry
+    # keys/values at the same architecture of the host, so if we happen to be
+    # in a 32-bit process on a 64-bit machine, ensure that we read from the
+    # 64-bit keys/values, and otherwise use the native keys/values
+    @registry_view = sysinfo['Architecture'] =~ /WOW64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_NATIVE
     unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
       fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
     end
   end
 
   def run
-    if sysinfo['Architecture'] =~ /WOW64/
-      print_error "You are running this module from a 32-bit process on a 64-bit machine. Migrate to a 64-bit process and try again"
-      return
-    end
-
     print_status("Enumerating Excluded Paths for AV on #{sysinfo['Computer']}")
+
     found = false
-    if datastore['DEFENDER'] && enum_defender
+    if datastore['DEFENDER'] && av_installed?(DEFENDER_BASE_KEY, DEFENDER)
       found = true
       excluded_defender
     end
-    if datastore['ESSENTIALS'] && enum_mssec
+    if datastore['ESSENTIALS'] && av_installed?(ESSENTIALS_BASE_KEY, ESSENTIALS)
       found = true
       excluded_mssec
     end
-    if datastore['SEP'] && enum_sep
+    if datastore['SEP'] && av_installed?(SEP_BASE_KEY, SEP)
       found = true
       excluded_sep
     end
