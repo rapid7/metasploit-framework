@@ -28,14 +28,43 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
       OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
-      OptInt.new('JITTER', [true, "The percentage delay jitter factor (maximum factor by which to modify DELAY).", 0]),
+      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY).", 0]),
     ], self.class)
 
     deregister_options('RPORT')
-    deregister_options('THREADS') #This isn't used
 
   end
 
+
+def add_delay_jitter(_delay, _jitter)
+  # Introduce the delay
+  delay_value = _delay.to_i
+  original_value = _delay.to_i
+  jitter_value = _jitter.to_i
+  
+  # Retrieve the jitter value and delay value 
+  # Delay = number of milliseconds to wait between each request
+  # Jitter = percentage modifier. For example:
+  # Delay is 1000ms (i.e. 1 second), Jitter is 50.
+  # 50/100 = 0.5; 0.5*1000 = 500. Therefore, the per-request
+  # delay will be 1000 +/- a maximum of 500ms. 
+  if delay_value>0
+    if jitter_value>0
+       rnd = Random.new
+       if (rnd.rand(2)==0)
+          delay_value += rnd.rand(jitter_value)
+       else
+          delay_value -= rnd.rand(jitter_value)
+       end 
+       if delay_value<0
+          delay_value = 0 
+       end
+    end 
+    final_delay = delay_value.to_f/1000.0
+    vprint_status("Delaying for #{final_delay} second(s) (#{original_value}ms +/- #{jitter_value}ms)")
+    sleep final_delay
+  end 
+end
 
   def run_host(ip)
 
@@ -62,29 +91,32 @@ class Metasploit3 < Msf::Auxiliary
         t << framework.threads.spawn("Module(#{self.refname})-#{ip}:#{this_port}", false, this_port) do |port|
           begin
 
-            # Introduce the delay
-            delay_value = datastore['DELAY'].to_i
-            delay_proportion = jitter_value * (delay_value/100)
-
-            # Retrieve the jitter value and delay value 
-            # Delay = number of milliseconds to wait between each request
-            # Jitter = percentage modifier. For example:
-            # Delay is 1000ms (i.e. 1 second), Jitter is 50.
-            # 50/100 = 0.5; 0.5*1000 = 500. Therefore, the per-request
-            # delay will be 1000 +/- a maximum of 500ms. 
-            if delay_value>0
-                if delay_proportion>0
-                    rnd = Random.new
-                    delay_modifier = rnd.rand(delay_proportion)
-                    if (rnd.rand(2))
-                        delay_value += delay_modifier
-                    else
-                        delay_value -= delay_modifier
-                    end
-                end
-                vprint_status("Delaying for #{delay_value}ms")
-                sleep delay_value/1000
-            end
+            add_delay_jitter(datastore['DELAY'],jitter_value)
+      #      add_delay_jitter(datastore['DELAY'].to_i,jitter_value)
+#            # Introduce the delay
+#            delay_value = datastore['DELAY'].to_i
+#            delay_proportion = jitter_value * (delay_value/100)
+#
+#            # Retrieve the jitter value and delay value 
+#            # Delay = number of milliseconds to wait between each request
+#            # Jitter = percentage modifier. For example:
+#            # Delay is 1000ms (i.e. 1 second), Jitter is 50.
+#            # 50/100 = 0.5; 0.5*1000 = 500. Therefore, the per-request
+#            # delay will be 1000 +/- a maximum of 500ms. 
+#            if delay_value>0
+#                if delay_proportion>0
+#                    rnd = Random.new
+#                    delay_modifier = rnd.rand(delay_proportion)
+#                    if (rnd.rand(2)==0)
+#                        delay_value += delay_modifier
+#                    else
+#                        delay_value -= delay_modifier
+#                    end
+#                end
+#                final_delay = delay_value.to_f/1000.0
+#                vprint_status("Delaying for #{final_delay}s")
+#                sleep final_delay
+#            end
 
             s = connect(false,
               {
