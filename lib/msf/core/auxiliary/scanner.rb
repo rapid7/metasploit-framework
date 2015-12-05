@@ -311,19 +311,19 @@ def add_delay_jitter(_delay, _jitter)
   # Delay is 1000ms (i.e. 1 second), Jitter is 50.
   # 50/100 = 0.5; 0.5*1000 = 500. Therefore, the per-request
   # delay will be 1000 +/- a maximum of 500ms.
-  if delay_value>0
-    if jitter_value>0
+  if delay_value > 0
+    if jitter_value > 0
        rnd = Random.new
-       if (rnd.rand(2)==0)
+       if (rnd.rand(2) == 0)
           delay_value += rnd.rand(jitter_value)
        else
           delay_value -= rnd.rand(jitter_value)
        end
-       if delay_value<0
+       if delay_value < 0
           delay_value = 0
        end
     end
-    final_delay = delay_value.to_f/1000.0
+    final_delay = delay_value.to_f / 1000.0
     vprint_status("Delaying for #{final_delay} second(s) (#{original_value}ms +/- #{jitter_value}ms)")
     sleep final_delay
   end
