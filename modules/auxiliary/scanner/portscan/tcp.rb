@@ -47,6 +47,7 @@ class Metasploit3 < Msf::Auxiliary
       raise Msf::OptionValidateError.new(['PORTS'])
     end
 
+    jitter_value = datastore['JITTER'].to_i
     if jitter_value<0 
       raise Msf::OptionValidateError.new(['JITTER'])
     end
@@ -62,7 +63,6 @@ class Metasploit3 < Msf::Auxiliary
           begin
 
             # Introduce the delay
-            jitter_value = datastore['JITTER'].to_i
             delay_value = datastore['DELAY'].to_i
             delay_proportion = jitter_value * (delay_value/100)
 
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
                 if delay_proportion>0
                     rnd = Random.new
                     delay_modifier = rnd.rand(delay_proportion)
-                    if (rnd.rand(1))
+                    if (rnd.rand(2))
                         delay_value += delay_modifier
                     else
                         delay_value -= delay_modifier
