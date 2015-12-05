@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Auxiliary
         :record_auth_info  => true,
         :skip_private_keys => true,
         :config =>false,
-        :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key } },
+        :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
         :proxies	  => datastore['Proxies']
       }
 
@@ -250,24 +250,25 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       accepted.each do |key|
-        private_key_present = (key_data[:private]!="") ? 'Yes' : 'No'
+        private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
         print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key[:key][:fingerprint]}' (Private Key: #{private_key_present}) #{key_info}"
-        do_report(ip, rport, user, key, key_data[:public], key_info, private_key_present)
+        do_report(ip, rport, user, key)
       end
     end
   end
 
-  def do_report(ip, port, user, key, key_data, key_info, private_key_present)
+  def do_report(ip, port, user, key)
     return unless framework.db.active
 
-    public_keyfile_path = store_public_keyfile(ip,user,key[:fingerprint],key_data)
+    public_keyfile_path = store_public_keyfile(ip,user,key[:fingerprint],key[:data][:public])
+    private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
 
     # Store a note relating to the public key test
     note_information = {
       user: user,
-      public_key: key_data,
+      public_key: key[:data][:public],
       private_key: private_key_present,
-      info: key_info
+      info: key[:info]
     }
     report_note(host: ip, port: port, type: "ssh.publickey.accepted", data: note_information, update: :unique_data)
 
