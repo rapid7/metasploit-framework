@@ -164,7 +164,7 @@ echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get -y install \
   ncurses-dev bison curl wget xsel postgresql \
   postgresql-contrib libpq-dev \
   libapr1 libaprutil1 libsvn1 \
-  libpcap-dev libsqlite3-dev
+  libpcap-dev libsqlite3-dev libgmp3-dev
 ```
 ----
 
@@ -880,7 +880,7 @@ echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get -y install \
   ncurses-dev bison curl wget xsel postgresql \
   postgresql-contrib libpq-dev \
   libapr1 libaprutil1 libsvn1 \
-  libpcap-dev libsqlite3-dev
+  libpcap-dev libsqlite3-dev libgmp3-dev
 ```
 
 ----
