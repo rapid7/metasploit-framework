@@ -419,7 +419,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               allow(@namespace_module).to receive(:module_eval_with_lexical_scope).and_raise(error)
 
               @module_load_error_by_path = {}
-              expect(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
+              allow(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
 
               expect(error).to receive(:backtrace).and_return(backtrace)
             end
@@ -541,7 +541,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             before(:each) do
               expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
 
-              expect(module_manager).to receive(:on_module_load)
+              allow(module_manager).to receive(:on_module_load)
             end
 
             context 'without metasploit_class' do

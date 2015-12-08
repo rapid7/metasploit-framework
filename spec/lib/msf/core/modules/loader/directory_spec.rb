@@ -107,8 +107,8 @@ RSpec.describe Msf::Modules::Loader::Directory do
         end
 
         before(:each) do
-          expect(module_manager).to receive(:file_changed?).and_return(true)
-          expect(module_manager).to receive(:module_load_error_by_path).and_return({})
+          allow(module_manager).to receive(:file_changed?).and_return(true)
+          allow(module_manager).to receive(:module_load_error_by_path).and_return({})
         end
 
         it 'should not raise an error' do

@@ -222,7 +222,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
   context '#refresh_cache_from_module_files' do
     before(:each) do
-      expect(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
+      allow(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
     end
 
     context 'with framework migrated' do
@@ -360,7 +360,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     before(:each) do
-      expect(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
+      allow(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
     end
 
     context 'with framework migrated' do
