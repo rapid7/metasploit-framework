@@ -14,15 +14,15 @@ RSpec.describe Msf::Post::Windows::Runas do
 
   let(:advapi32) do
     advapi32 = double('advapi32')
-    expect(advapi32).to receive(:CreateProcessWithLogonW).and_return({
+    allow(advapi32).to receive(:CreateProcessWithLogonW).and_return({
                         'return' => true,
                         'lpProcessInformation' => process_info
     })
-    expect(advapi32).to receive(:CreateProcessAsUserA).and_return ({
+    allow(advapi32).to receive(:CreateProcessAsUserA).and_return ({
       'return' => true,
       'lpProcessInformation' => process_info
     })
-    expect(advapi32).to receive(:LogonUserA).and_return ({
+    allow(advapi32).to receive(:LogonUserA).and_return ({
       'return' => true,
       'phToken' => phToken
     })
@@ -34,10 +34,10 @@ RSpec.describe Msf::Post::Windows::Runas do
   end
 
   let(:subject) do
-    mod = Module.new
+    mod = double(Module.new)
     mod.extend described_class
     stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error ]
-    stubs.each { |meth| expect(mod).to receive(meth) }
+    stubs.each { |meth| allow(mod).to receive(meth) }
     allow(mod).to receive_message_chain("session.railgun.kernel32").and_return(kernel32)
     allow(mod).to receive_message_chain("session.railgun.advapi32").and_return(advapi32)
     mod
@@ -53,9 +53,7 @@ RSpec.describe Msf::Post::Windows::Runas do
     end
 
     it "should return a nil on failure" do
-      expect(advapi32).to receive(:CreateProcessWithLogonW)
-      expect(kernel32).not_to receive(:CloseHandle)
-      advapi32.to receive(:CreateProcessWithLogonW).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
+      expect(advapi32).to receive(:CreateProcessWithLogonW).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
       expect(subject.create_process_with_logon(nil, 'bob', 'pass', nil, 'cmd.exe')).to be nil
     end
   end
