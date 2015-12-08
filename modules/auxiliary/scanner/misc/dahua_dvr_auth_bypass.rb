@@ -184,9 +184,27 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(CHANNELS)
     data = sock.get_once.split('&&')
     disconnect
+    channels_table = Rex::Ui::Text::Table.new(
+      'Header' => 'Dahua Camera Channels',
+      'Indent' => '1',
+      'Columns' => ['Number', 'Channels']
+    )
     return unless data.length > 1
     print_good("#{peer} -- camera channels:")
-    data.each_with_index { |val, index| print_status("  #{index + 1}:#{val[/([[:print:]]+)/]}") }
+    data.each_with_index do |val, index|
+      # puts val, index + 1
+      # next if index > 1
+      number = "#{index}"
+      channels = "#{val[/([[:print:]]+)/]}"
+      # number = "#{val[0]}"
+      # channels = "#{val[1]}"
+      print_status(" #{number}")
+      print_status(" #{channels}")
+      channels_table << ["#{number}".to_i, "#{channels}".to_i]
+      channels_table.print
+      # print_status(" #{val[/([[:print:]]+)/]}")
+      # print_status("  #{index + 1}:#{val[/([[:print:]]+)/]}")
+    end
   end
 
   def grab_users
