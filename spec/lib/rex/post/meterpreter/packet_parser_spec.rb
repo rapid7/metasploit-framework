@@ -20,7 +20,7 @@ describe Rex::Post::Meterpreter::PacketParser do
 
   it "should initialise with expected defaults" do
     parser.send(:raw).should == ""
-    parser.send(:hdr_length_left).should == 8
+    parser.send(:hdr_length_left).should == 12
     parser.send(:payload_length_left).should == 0
   end
 
