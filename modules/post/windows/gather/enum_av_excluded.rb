@@ -26,6 +26,10 @@ class Metasploit3 < Msf::Post
           'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
         ],
         'Platform'      => [ 'win' ],
+        # XXX: this will work with 'shell' when the sysinfo parts are removed
+        # and https://github.com/rapid7/metasploit-framework/issues/6328 and
+        # perhaps https://github.com/rapid7/metasploit-framework/issues/6316
+        # are fixed
         'SessionTypes'  => [ 'meterpreter' ]
       )
     )
