@@ -68,6 +68,7 @@ class Metasploit3 < Msf::Auxiliary
         path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
         print_good("#{peer}: #{remote_path} saved as: #{path}")
       rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
         print_error("#{peer} Unable to download #{remote_path}: #{e.message}")
       end
     end
@@ -77,6 +78,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       smb_download
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
       print_error("#{peer} Unable to login: #{e.message}")
     end
   end

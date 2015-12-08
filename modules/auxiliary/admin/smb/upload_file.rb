@@ -72,10 +72,12 @@ class Metasploit3 < Msf::Auxiliary
 
           print_good("#{peer}: #{local_path} uploaded to #{remote_path}")
         rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
           print_error("#{peer} Unable to upload #{local_path} to #{remote_path} : #{e.message}")
         end
       end
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
       print_error("#{peer} Unable to login: #{e.message}")
     end
   end
