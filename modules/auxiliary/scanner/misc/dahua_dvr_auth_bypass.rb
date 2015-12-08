@@ -9,7 +9,8 @@ class Metasploit3 < Msf::Auxiliary
       'Description'     => %q(Scans for Dahua-based DVRs and then grabs settings. Optionally resets a user's password and clears the device logs),
       'Author'          => [
         'Jake Reynolds - Depth Security', # Vulnerability Discoverer
-        'Tyler Bennett - Talos Infosec' # Metasploit Module
+        'Tyler Bennett - Talos Infosec', # Metasploit Module
+        'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
       ],
       'References'      => [
         [ 'CVE', '2013-6117' ],
