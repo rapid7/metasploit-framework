@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Post
   def excluded_sep
     base_exclusion_key = "#{SEP_BASE_KEY}\\Exclusions\\ScanningEngines\\Directory"
     admin_exclusion_key = "#{base_exclusion_key}\\Admin"
-    admin_exclusion_key = "#{base_exclusion_key}\\Client"
+    client_exclusion_key = "#{base_exclusion_key}\\Client"
 
     admin_paths = []
     if (admin_exclusion_keys = registry_enumkeys(admin_exclusion_key, @registry_view))
