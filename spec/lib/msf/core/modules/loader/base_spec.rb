@@ -337,7 +337,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         it 'should set the parent_path on the namespace_module to match the parent_path passed to #load_module' do
           allow(module_manager).to receive(:on_module_load)
 
-          allow(subject).to receive(:read_module_content).and_receive(module_content)
+          allow(subject).to receive(:read_module_content).and_return(module_content)
 
           expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
 
