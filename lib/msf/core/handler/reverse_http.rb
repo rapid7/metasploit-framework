@@ -81,7 +81,7 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
     uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
-    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+    "#{scheme}://#{uri_host}:#{bind_port}/"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -285,22 +285,13 @@ protected
 
         blob = ""
         blob << obj.generate_stage(
+          http_url: url,
+          http_user_agent: datastore['MeterpreterUserAgent'],
+          http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
+          http_proxy_port: datastore['PayloadProxyPort'] || datastore['PROXYPORT'],
           uuid: uuid,
           uri:  conn_id
         )
-
-        var_escape = lambda { |txt|
-          txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
-        }
-
-        # Patch all the things
-        blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
-        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
-
-        unless datastore['PayloadProxyHost'].blank?
-          proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
-          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
-        end
 
         resp.body = blob
 
@@ -344,6 +335,7 @@ protected
       when :init_native
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
+        uri = URI(payload_uri(req) + conn_id)
 
         resp['Content-Type'] = 'application/octet-stream'
 
@@ -351,7 +343,9 @@ protected
         # we don't get new ones generated.
         blob = obj.stage_payload(
           uuid: uuid,
-          uri:  conn_id
+          uri:  conn_id,
+          lhost: uri.host,
+          lport: uri.port
         )
 
         resp.body = encode_stage(blob)

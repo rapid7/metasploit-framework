@@ -11,10 +11,6 @@ group :coverage do
   gem 'simplecov'
 end
 
-group :db do
-  gemspec name: 'metasploit-framework-db'
-end
-
 group :development do
   # Markdown formatting for yard
   gem 'redcarpet'
@@ -36,10 +32,6 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
-end
-
-group :pcap do
-  gemspec name: 'metasploit-framework-pcap'
 end
 
 group :test do

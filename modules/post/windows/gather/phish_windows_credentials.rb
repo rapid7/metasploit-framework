@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        =>
             [
-              'Wesley Neelen <security[at]forsec.nl', # Metasploit module, @wez3forsec on Twitter
+              'Wesley Neelen <security[at]forsec.nl>', # Metasploit module, @wez3forsec on Twitter
               'Matt Nelson'                           # Original powershell script, @enigma0x3 on Twitter
             ],
       'References'    => [ 'URL', 'https://forsec.nl/2015/02/windows-credentials-phishing-using-metasploit' ],

@@ -253,7 +253,7 @@ module PacketDispatcher
 
     self.waiters = []
 
-    @pqueue = []
+    @pqueue = ::Queue.new
     @finish = false
     @last_recvd = Time.now
     @ping_sent = false
@@ -318,16 +318,12 @@ module PacketDispatcher
       # Whether we're finished or not is determined by the receiver
       # thread above.
       while(not @finish)
-        if(@pqueue.empty?)
-          ::IO.select(nil, nil, nil, 0.10)
-          next
-        end
-
         incomplete = []
         backlog    = []
 
+        backlog << @pqueue.pop
         while(@pqueue.length > 0)
-          backlog << @pqueue.shift
+          backlog << @pqueue.pop
         end
 
         #
@@ -393,11 +389,16 @@ module PacketDispatcher
           ::IO.select(nil, nil, nil, 0.10)
         end
 
-        @pqueue.unshift(*incomplete)
+        while incomplete.length > 0
+          @pqueue << incomplete.shift
+        end
 
         if(@pqueue.length > 100)
-          dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{@pqueue[0 .. 25].map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
-          @pqueue = @pqueue[25 .. 100]
+          removed = []
+          (1..25).each {
+            removed << @pqueue.pop
+          }
+          dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{removed.map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
         end
       end
       rescue ::Exception => e
@@ -454,15 +455,16 @@ module PacketDispatcher
   # if anyone.
   #
   def notify_response_waiter(response)
+    handled = false
     self.waiters.each() { |waiter|
       if (waiter.waiting_for?(response))
         waiter.notify(response)
-
         remove_response_waiter(waiter)
-
+        handled = true
         break
       end
     }
+    return handled
   end
 
   #

@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
           This module uses the getstatus or getinfo request to obtain
           information from a Quakeserver.
         ),
-        'Author'        => 'Jon Hart <jon_hart[at]rapid7.com',
+        'Author'        => 'Jon Hart <jon_hart[at]rapid7.com>',
         'References'    =>
           [
             ['URL', 'ftp://ftp.idsoftware.com/idstuff/quake3/docs/server.txt']

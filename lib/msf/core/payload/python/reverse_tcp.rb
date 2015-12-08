@@ -63,4 +63,3 @@ module Payload::Python::ReverseTcp
 end
 
 end
-

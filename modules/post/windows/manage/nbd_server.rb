@@ -74,6 +74,12 @@ class Metasploit3 < Msf::Post
 
     while true
       request = rsock.read(28)
+
+      unless request
+        print_error("No data received")
+        break
+      end
+
       magic, request, nbd_handle, offset_n, length = request.unpack("NNa8a8N")
 
       if magic != 0x25609513
