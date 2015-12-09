@@ -5,11 +5,11 @@ require 'msf/core/post/windows/mssql'
 
 RSpec.describe Msf::Post::Windows::MSSQL do
   let(:subject) do
-    mod = Module.new
+    mod = double(Module.new)
     mod.extend described_class
     stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error, :print_warning ]
-    stubs.each { |meth| expect(mod).to receive(meth) }
-    expect(mod).to receive(:service_info).and_return({})
+    stubs.each { |meth| allow(mod).to receive(meth) }
+    allow(mod).to receive(:service_info).and_return({})
     mod
   end
 
@@ -288,8 +288,8 @@ RSpec.describe Msf::Post::Windows::MSSQL do
 
     it 'should return false if service is invalid or pid is invalid' do
       expect(subject.impersonate_sql_user(nil)).to be_falsey
-      subject.impersonate_sql_user(pid: expect(nil)).to be_falsey
-      subject.impersonate_sql_user(pid: expect(0)).to be_falsey
+      expect(subject.impersonate_sql_user(pid: nil)).to be_falsey
+      expect(subject.impersonate_sql_user(pid: 0)).to be_falsey
     end
 
     context 'user has privs to impersonate' do
@@ -361,7 +361,7 @@ RSpec.describe Msf::Post::Windows::MSSQL do
     it 'should return a string' do
       p = double('process')
       c = double('channel')
-      expect(p).to receive(:channel).and_return(c)
+      allow(p).to receive(:channel).and_return(c)
       allow(subject).to receive_message_chain('session.sys.process.execute').and_return(p)
       expect(c).to receive(:read).and_return('hello')
       expect(c).to receive(:read).and_return(nil)
