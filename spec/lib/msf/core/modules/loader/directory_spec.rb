@@ -134,7 +134,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
         end
 
         before(:each) do
-          expect(subject).to receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
+          allow(subject).to receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
         end
 
         # this ensures that the File.exist?(module_path) checks are checking the same path as the code under test
