@@ -76,7 +76,7 @@ RSpec.describe Msf::Post::Windows::Runas do
       expect(kernel32).to receive(:CloseHandle).with(phToken)
       expect(kernel32).not_to receive(:CloseHandle).with(1)
       expect(kernel32).not_to receive(:CloseHandle).with(2)
-      expect(advapi32).to receive(:CreateProcessAsUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
+      allow(advapi32).to receive(:CreateProcessAsUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
       expect(subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe')).to be nil
     end
 
@@ -86,7 +86,7 @@ RSpec.describe Msf::Post::Windows::Runas do
       expect(kernel32).not_to receive(:CloseHandle).with(phToken)
       expect(kernel32).not_to receive(:CloseHandle).with(1)
       expect(kernel32).not_to receive(:CloseHandle).with(2)
-      expect(advapi32).to receive(:LogonUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
+      allow(advapi32).to receive(:LogonUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
       expect(subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe')).to be nil
     end
   end
