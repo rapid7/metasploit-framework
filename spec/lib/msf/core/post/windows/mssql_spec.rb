@@ -296,7 +296,6 @@ RSpec.describe Msf::Post::Windows::MSSQL do
       before(:each) do
         allow(subject).to receive_message_chain('session.sys.config.getuid').and_return('Superman')
         allow(subject).to receive_message_chain('client.sys.config.getprivs').and_return(['SeAssignPrimaryTokenPrivilege'])
-        allow(subject).to receive_message_chain('session.incognito').and_return(true)
         allow(subject).to receive_message_chain('session.sys.process.each_process').and_yield(process)
       end
 
