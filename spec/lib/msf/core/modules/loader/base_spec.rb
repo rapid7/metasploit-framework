@@ -421,7 +421,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               @module_load_error_by_path = {}
               allow(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
 
-              expect(error).to receive(:backtrace).and_return(backtrace)
+              allow(error).to receive(:backtrace).and_return(backtrace)
             end
 
             context 'with version compatibility' do
