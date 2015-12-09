@@ -185,7 +185,7 @@ RSpec.describe Rex::Text do
            (__)    )\\
               ||--|| *
 EOCOW
-        described_class.cowsay(moo(5)).should eq(cowsaid)
+        expect(described_class.cowsay(moo(5))).to eq(cowsaid)
       end
 
       it "should cowsay two lines correctly" do
@@ -199,7 +199,7 @@ EOCOW
            (__)    )\\
               ||--|| *
 EOCOW
-        described_class.cowsay(moo(15)).should eq(cowsaid)
+        expect(described_class.cowsay(moo(15))).to eq(cowsaid)
       end
 
       it "should cowsay three+ lines correctly" do
@@ -215,14 +215,14 @@ EOCOW
            (__)    )\\
               ||--|| *
 EOCOW
-        described_class.cowsay(moo(30)).should eq(cowsaid)
+        expect(described_class.cowsay(moo(30))).to eq(cowsaid)
       end
 
       it "should respect the wrap" do
         wrap = 40 + rand(100)
         cowsaid = described_class.cowsay(moo(1000), wrap)
         max_len = cowsaid.split(/\n/).map(&:length).sort.last
-        max_len.should eq(wrap)
+        expect(max_len).to eq(wrap)
       end
     end
   end
