@@ -11,7 +11,7 @@ RSpec.describe Msf::OptionContainer do
       :'evasion=' => nil,
       :'owner=' => nil
     )
-
+    allow(foo_inst).to receive(:name).and_return("thing")
     foo_class = double 'opt_class',
                        name: 'thing',
                        new: foo_inst
