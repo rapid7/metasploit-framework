@@ -33,9 +33,9 @@ RSpec.describe Msf::Modules::Loader::Directory do
           framework = double('Msf::Framework', :datastore => {})
 
           events = double('Events')
-          expect(events).to receive(:on_module_load)
-          expect(events).to receive(:on_module_created)
-          expect(framework).to receive(:events).and_return(events)
+          allow(events).to receive(:on_module_load)
+          allow(events).to receive(:on_module_created)
+          allow(framework).to receive(:events).and_return(events)
 
           framework
         end
