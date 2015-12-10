@@ -63,7 +63,7 @@ module Auxiliary::Redis
     data = sock.get_once(-1, read_timeout)
     return unless data
     data.strip!
-    vprint_status("#{peer} -- redis command '#{commands.join(' ')}' got #{data}")
+    vprint_status("#{peer} -- redis command '#{commands.join(' ')}' got #{Rex::Text.ascii_safe_hex(data, true)}")
     data
   end
 end
