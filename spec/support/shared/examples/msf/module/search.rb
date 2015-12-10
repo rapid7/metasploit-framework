@@ -44,7 +44,13 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a client module' do
-      # before { allow(subject).to receive(:stance).and_return('passive') }
+      before do
+        if subject.respond_to? :stance
+          allow(subject).to receive(:stance).and_return('passive')
+        else
+          skip
+        end
+      end
       accept = %w(app:client)
       reject = %w(app:server)
 
@@ -52,7 +58,13 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a server module' do
-      # before { allow(subject).to receive(:stance).and_return('aggressive') }
+      before do
+        if subject.respond_to? :stance
+          allow(subject).to receive(:stance).and_return('aggressive')
+        else
+          skip
+          end
+      end
       accept = %w(app:server)
       reject = %w(app:client)
 
