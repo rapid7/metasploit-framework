@@ -104,11 +104,22 @@ class Metasploit3 < Msf::Auxiliary
     connect
     data = send_command(['INFO'])
     disconnect
-    if data && data.include?('redis_mode')
+    if data && /redis_version:(?<redis_version>\S+)/ =~ data
+      report_redis(redis_version)
       Exploit::CheckCode::Vulnerable
     else
       Exploit::CheckCode::Safe
     end
+  end
+
+  def report_redis(version)
+    report_service(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: 'redis',
+      info: "version #{version}"
+    )
   end
 
   def peer
@@ -119,7 +130,9 @@ class Metasploit3 < Msf::Auxiliary
     @upload_content = "\n\n#{IO.read(datastore['LocalFile'])}\n\n\n"
   end
 
-  def run_host(ip)
+  def run_host(_ip)
+    return unless check == Exploit::CheckCode::Vulnerable
+
     connect
     unless (res = send_command(['PING']))
       vprint_error("#{peer} -- did not respond to our redis PING")
