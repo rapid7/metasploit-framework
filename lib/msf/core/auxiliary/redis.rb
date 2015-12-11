@@ -25,7 +25,8 @@ module Msf
 
       register_advanced_options(
         [
-          OptInt.new('READ_TIMEOUT', [true, 'Seconds to wait while reading redis responses', 2])
+          OptInt.new('READ_TIMEOUT', [true, 'Seconds to wait while reading redis responses', 2]),
+          OptString.new('Password', [false, 'Redis password for authentication test', 'foobared'])
         ]
       )
     end

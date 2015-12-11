@@ -43,8 +43,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('LocalFile', [false, 'Local file to be uploaded']),
-        OptString.new('RemoteFile', [false, 'Remote file path']),
-        OptString.new('Password', [false, 'Redis password for authentication test', 'foobared'])
+        OptString.new('RemoteFile', [false, 'Remote file path'])
       ]
     )
   end
