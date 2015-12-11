@@ -111,11 +111,11 @@ RSpec.describe Msf::Post::Windows::Runas do
     end
 
     it "should return an exception when given an empty string" do
-      expect { subject.parse_process_information("") }.to raise_error
+      expect { subject.parse_process_information("") }.to raise_error(ArgumentError)
     end
 
     it "should return an exception when given an nil value" do
-      expect { subject.parse_process_information(nil) }.to raise_error
+      expect { subject.parse_process_information(nil) }.to raise_error(ArgumentError)
     end
   end
 
@@ -131,11 +131,11 @@ RSpec.describe Msf::Post::Windows::Runas do
     end
 
     it "should return an exception when username is nil" do
-      expect { subject.check_user_format(nil, domain) }.to raise_error
+      expect { subject.check_user_format(nil, domain) }.to raise_error(ArgumentError)
     end
 
     it "should return an exception when UPN format and domain supplied" do
-      expect { subject.check_user_format(upn_username, domain) }.to raise_error
+      expect { subject.check_user_format(upn_username, domain) }.to raise_error(ArgumentError)
     end
 
     it "should return true when UPN format and domain is nil" do
@@ -175,11 +175,11 @@ RSpec.describe Msf::Post::Windows::Runas do
     end
 
     it "should raise an exception when max_length is nil" do
-      expect { subject.check_command_length(nil, nil, nil) }.to raise_error
+      expect { subject.check_command_length(nil, nil, nil) }.to raise_error(ArgumentError)
     end
 
     it "should raise an exception when application_name and command_line are nil" do
-      expect { subject.check_command_length(nil, nil, max_length) }.to raise_error
+      expect { subject.check_command_length(nil, nil, max_length) }.to raise_error(ArgumentError)
     end
 
     it "should return true when application_name is set and command_line is nil" do
@@ -191,11 +191,11 @@ RSpec.describe Msf::Post::Windows::Runas do
     end
 
     it "should raise an exception when command_line is larger than max_length" do
-      expect { subject.check_command_length(nil, large_command_line, max_length) }.to raise_error
+      expect { subject.check_command_length(nil, large_command_line, max_length) }.to raise_error(TypeError)
     end
 
     it "should raise an exception when application_name is nil command_line module is larger than MAX_PATH" do
-      expect { subject.check_command_length(nil, large_command_module, max_length) }.to raise_error
+      expect { subject.check_command_length(nil, large_command_module, max_length) }.to raise_error(TypeError)
     end
 
     it "should return true when application_name is nil and command_module is less than MAX_PATH" do

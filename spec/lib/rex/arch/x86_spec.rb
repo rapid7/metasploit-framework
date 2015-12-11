@@ -915,7 +915,7 @@ RSpec.describe Rex::Arch::X86 do
     context "when reg is invalid" do
       let(:reg) { 31337 }
       let(:val) { 0x7 }
-      it { expect {subject}.to raise_error }
+      it { expect {subject}.to raise_error(ArgumentError) }
     end
 
   end

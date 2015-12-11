@@ -53,7 +53,7 @@ RSpec.describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 25 }
 
       it "raises an error" do
-        expect { decoder_prefix }.to raise_error
+        expect { decoder_prefix }.to raise_error(RuntimeError)
       end
     end
 
@@ -260,7 +260,7 @@ RSpec.describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 25 }
 
       it "raises an error" do
-        expect { decoder }.to raise_error
+        expect { decoder }.to raise_error(RuntimeError)
       end
     end
 

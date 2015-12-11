@@ -96,42 +96,42 @@ RSpec.describe Rex::SSLScan::Result do
     end
 
     it "should raise an exception for anything else" do
-      expect{subject.cert = "foo"}.to raise_error
+      expect{subject.cert = "foo"}.to raise_error(ArgumentError)
     end
   end
 
   context "adding a cipher result" do
     context "should raise an exception if" do
       it "given an invalid SSL version" do
-        expect{subject.add_cipher(:ssl3, 'AES256-SHA', 256, :accepted )}.to raise_error
+        expect{subject.add_cipher(:ssl3, 'AES256-SHA', 256, :accepted )}.to raise_error(ArgumentError)
       end
 
       it "given SSL version as a string" do
-        expect{subject.add_cipher('sslv3', 'AES256-SHA', 256, :accepted )}.to raise_error
+        expect{subject.add_cipher('sslv3', 'AES256-SHA', 256, :accepted )}.to raise_error(ArgumentError)
       end
 
       it "given an invalid SSL cipher" do
-        expect{subject.add_cipher(:SSLv3, 'FOO256-SHA', 256, :accepted )}.to raise_error
+        expect{subject.add_cipher(:SSLv3, 'FOO256-SHA', 256, :accepted )}.to raise_error(ArgumentError)
       end
 
       it "given an unsupported cipher for the version" do
-        expect{subject.add_cipher(:SSLv3, 'DES-CBC3-MD5', 256, :accepted )}.to raise_error
+        expect{subject.add_cipher(:SSLv3, 'DES-CBC3-MD5', 256, :accepted )}.to raise_error(ArgumentError)
       end
 
       it "given a non-number for key length" do
-        expect{subject.add_cipher(:SSLv3, 'AES256-SHA', "256", :accepted )}.to raise_error
+        expect{subject.add_cipher(:SSLv3, 'AES256-SHA', "256", :accepted )}.to raise_error(ArgumentError)
       end
 
       it "given a decimal key length" do
-        expect{subject.add_cipher(:SSLv3, 'AES256-SHA', 25.6, :accepted )}.to raise_error
+        expect{subject.add_cipher(:SSLv3, 'AES256-SHA', 25.6, :accepted )}.to raise_error(ArgumentError)
       end
 
       it "given an invalid status" do
-        expect{subject.add_cipher(:SSLv3, 'AES256-SHA', 256, :good )}.to raise_error
+        expect{subject.add_cipher(:SSLv3, 'AES256-SHA', 256, :good )}.to raise_error(ArgumentError)
       end
 
       it "given status as a string" do
-        expect{subject.add_cipher(:SSLv3, 'AES256-SHA', 256, "accepted" )}.to raise_error
+        expect{subject.add_cipher(:SSLv3, 'AES256-SHA', 256, "accepted" )}.to raise_error(ArgumentError)
       end
     end
     context "that was accepted" do
@@ -277,11 +277,11 @@ RSpec.describe Rex::SSLScan::Result do
 
     context "when specifying one SSL version" do
       it "should raise an exception if not given a symbol" do
-        expect{ subject.each_accepted('sslv2')}.to raise_error
+        expect{ subject.each_accepted('sslv2')}.to raise_error(ArgumentError)
       end
 
       it "should raise an exception if given an invalid SSL version" do
-        expect{ subject.each_accepted(:TLSv3)}.to raise_error
+        expect{ subject.each_accepted(:TLSv3)}.to raise_error(ArgumentError)
       end
 
       it "should return only ciphers matching the version" do
@@ -333,11 +333,11 @@ RSpec.describe Rex::SSLScan::Result do
 
     context "when specifying one SSL version" do
       it "should raise an exception if not given a symbol" do
-        expect{ subject.each_rejected('sslv2')}.to raise_error
+        expect{ subject.each_rejected('sslv2')}.to raise_error(ArgumentError)
       end
 
       it "should raise an exception if given an invalid SSL version" do
-        expect{ subject.each_rejected(:TLSv3)}.to raise_error
+        expect{ subject.each_rejected(:TLSv3)}.to raise_error(ArgumentError)
       end
 
       it "should return only ciphers matching the version" do

@@ -38,19 +38,19 @@ RSpec.describe Rex::SSLScan::Scanner do
     context "an exception should be raised if" do
       it "has an invalid scanner configuration" do
         subject.host =nil
-        expect{ subject.test_cipher(:SSLv2, "AES128-SHA")}.to raise_error
+        expect{ subject.test_cipher(:SSLv2, "AES128-SHA")}.to raise_error(StandardError)
       end
 
       it "is given an invalid SSL version" do
-        expect{ subject.test_cipher(:SSLv5, "AES128-SHA")}.to raise_error
+        expect{ subject.test_cipher(:SSLv5, "AES128-SHA")}.to raise_error(StandardError)
       end
 
       it "is given an invalid cipher" do
-        expect{ subject.test_cipher(:SSLv2, "FOO128-SHA")}.to raise_error
+        expect{ subject.test_cipher(:SSLv2, "FOO128-SHA")}.to raise_error(StandardError)
       end
 
       it "is given an invalid cipher for the SSL Version" do
-        expect{ subject.test_cipher(:SSLv3, 'DES-CBC3-MD5')}.to raise_error
+        expect{ subject.test_cipher(:SSLv3, 'DES-CBC3-MD5')}.to raise_error(StandardError)
       end
     end
 

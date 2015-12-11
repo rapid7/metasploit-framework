@@ -100,7 +100,7 @@ RSpec.describe Rex::RandomIdentifierGenerator do
       value = "a"*(options[:max_length]+1)
       rig.store(:spec0, value)
       expect(rig.get(:spec0)).to eq value
-      expect { rig.store(:spec1, value) }.to raise_error
+      expect { rig.store(:spec1, value) }.to raise_error(RuntimeError)
     end
 
     it "should overwrite a previously stored value" do

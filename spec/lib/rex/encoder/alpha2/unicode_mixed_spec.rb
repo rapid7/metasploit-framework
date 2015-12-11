@@ -47,7 +47,7 @@ RSpec.describe Rex::Encoder::Alpha2::UnicodeMixed do
       let(:offset) { 22 }
 
       it "raises an error" do
-        expect { decoder_prefix }.to raise_error
+        expect { decoder_prefix }.to raise_error(RuntimeError)
       end
     end
   end
@@ -80,7 +80,7 @@ RSpec.describe Rex::Encoder::Alpha2::UnicodeMixed do
       let(:offset) { 22 }
 
       it "raises an error" do
-        expect { decoder }.to raise_error
+        expect { decoder }.to raise_error(RuntimeError)
       end
     end
   end
