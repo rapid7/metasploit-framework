@@ -40,7 +40,7 @@ module Metasploit3
   # ensures the setting of tag to a four byte value
   #
   def generate
-    cmd  = (datastore['CMD'] || '') << "\x00"
+    cmd  = (datastore['CMD'] || '') + "\x00"
     call = "\xe8" + [cmd.length].pack('V')
 
     payload =

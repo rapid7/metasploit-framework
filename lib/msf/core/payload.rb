@@ -30,6 +30,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/java'
   require 'msf/core/payload/dalvik'
   require 'msf/core/payload/firefox'
+  require 'msf/core/payload/mainframe'
 
   ##
   #
@@ -316,6 +317,16 @@ class Payload < Msf::Module
   # handling any post-processing tasks, such as prepended code stubs.
   def generate_complete
     apply_prepends(generate)
+  end
+
+  #
+  # Convert raw bytes to metasm-ready 'db' encoding format
+  # eg. "\x90\xCC" => "db 0x90,0xCC"
+  #
+  # @param raw [Array] Byte array to encode.
+  #
+  def raw_to_db(raw)
+    raw.unpack("C*").map {|c| "0x%.2x" % c}.join(",")
   end
 
   #

@@ -101,6 +101,33 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def bruteforce(username,password,client)
     uri = normalize_uri(target_uri.path)
 
@@ -132,15 +159,13 @@ class Metasploit4 < Msf::Auxiliary
 
     if res && res.code == 200 && res.body.include?('RFC_PING')
       print_good("#{peer} [SAP] Client #{client}, valid credentials #{username}:#{password}")
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => "sap",
-        :proto => "tcp",
-        :user => username,
-        :pass => password,
-        :proof => "SAP Client: #{client}",
-        :active => true
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'sap',
+        user: username,
+        password: password,
+        proof: "SAP Client: #{client}"
       )
       return true
     end

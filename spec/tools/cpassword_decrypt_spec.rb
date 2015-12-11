@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-load Metasploit::Framework.root.join('tools/cpassword_decrypt.rb').to_path
+load Metasploit::Framework.root.join('tools/password/cpassword_decrypt.rb').to_path
 
 require 'msfenv'
 require 'msf/base'

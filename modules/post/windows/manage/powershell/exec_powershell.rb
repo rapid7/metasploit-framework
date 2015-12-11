@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptPath.new( 'SCRIPT',  [true, 'Path to the PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
+        OptPath.new( 'SCRIPT',  [true, 'Path to the local PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
       ], self.class)
 
     register_advanced_options(

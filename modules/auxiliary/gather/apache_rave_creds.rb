@@ -103,6 +103,33 @@ class Metasploit3 < Msf::Auxiliary
     }
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
   def run
 
     print_status("#{rhost}:#{rport} - Fingerprinting...")
@@ -183,13 +210,13 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{rhost}:#{rport} - Recovering Hashes...")
       json_info["result"]["resultSet"].each { |result|
         print_good("#{rhost}:#{rport} - Found cred: #{result["username"]}:#{result["password"]}")
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => "Apache Rave",
-          :user => result["username"],
-          :pass => result["password"],
-          :active => result["enabled"]
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'Apache Rave',
+          user: result["username"],
+          password: result["password"],
+          proof: user_data
         )
       }
 

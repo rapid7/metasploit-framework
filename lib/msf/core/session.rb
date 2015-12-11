@@ -225,22 +225,6 @@ module Session
     "session_#{name}"
   end
 
-  #
-  # This method logs the supplied buffer as coming from the remote side of
-  # the session.
-  #
-  def log_from_remote(buf)
-    rlog(buf, log_source)
-  end
-
-  #
-  # This method logs the supplied buffer as coming from the local side of
-  # the session.
-  #
-  def log_from_local(buf)
-    rlog(buf, log_source)
-  end
-
   ##
   #
   # Core interface
@@ -388,6 +372,10 @@ module Session
   # The unique identifier of the payload that created this session
   #
   attr_accessor :payload_uuid
+  #
+  # The unique machine identifier for the host that created this session
+  #
+  attr_accessor :machine_id
   #
   # The actual exploit module instance that created this session
   #

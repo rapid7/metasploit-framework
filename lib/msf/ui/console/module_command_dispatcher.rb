@@ -132,7 +132,7 @@ module ModuleCommandDispatcher
         hosts = Rex::Socket::RangeWalker.new(opt.normalize(ip_range_arg))
 
         # Check multiple hosts
-        last_rhost_opt = mod.rhost
+        last_rhost_opt = mod.datastore['RHOST']
         last_rhosts_opt = mod.datastore['RHOSTS']
         mod.datastore['RHOSTS'] = ip_range_arg
         begin
@@ -164,12 +164,22 @@ module ModuleCommandDispatcher
     end
   end
 
+  def report_vuln(instance)
+    framework.db.report_vuln(
+      workspace: instance.workspace,
+      host: instance.rhost,
+      name: instance.name,
+      info: "This was flagged as vulnerable by the explicit check of #{instance.fullname}.",
+      refs: instance.references
+    )
+  end
+
   def check_simple(instance=nil)
     unless instance
       instance = mod 
     end
 
-    rhost = instance.rhost
+    rhost = instance.datastore['RHOST']
     rport = nil
     peer = rhost
     if instance.datastore['rport']
@@ -184,6 +194,7 @@ module ModuleCommandDispatcher
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
           print_good("#{peer} - #{code[1]}")
+          report_vuln(instance)
         else
           print_status("#{peer} - #{code[1]}")
         end

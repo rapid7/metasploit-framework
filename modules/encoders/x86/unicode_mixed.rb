@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
     reg    = datastore['BufferRegister']
     offset = datastore['BufferOffset'].to_i || 0
     if (not reg)
-      raise RuntimeError, "Need BufferRegister"
+      raise EncodingError, "Need BufferRegister"
     end
     Rex::Encoder::Alpha2::UnicodeMixed::gen_decoder(reg, offset)
   end

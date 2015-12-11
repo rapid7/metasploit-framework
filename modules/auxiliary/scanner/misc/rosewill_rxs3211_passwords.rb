@@ -23,10 +23,6 @@ class Metasploit3 < Msf::Auxiliary
         The protocol deisgn issue also allows attackers to reset passwords on the device.
       },
       'Author'      => 'Ben Schmidt',
-      'References'  =>
-        [
-          [ 'URL', 'http://spareclockcycles.org/exploiting-an-ip-camera-control-protocol/' ],
-        ],
       'License'     => MSF_LICENSE
     )
 
@@ -80,14 +76,41 @@ class Metasploit3 < Msf::Auxiliary
     #Store the password if the parser returns something
     if password
       print_status("Password retrieved: #{password.to_s}")
-      report_auth_info({
-        :host         => rhost,
-        :port         => rport,
-        :sname        => 'ipcam',
-        :duplicate_ok => false,
-        :pass         => password,
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'ipcam',
+        user: '',
+        password: password,
+        proof: password
+      )
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def parse_reply(pkt)

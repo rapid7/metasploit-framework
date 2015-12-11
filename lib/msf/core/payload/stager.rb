@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/core'
 require 'msf/core/option_container'
+require 'msf/core/payload/transport_config'
 
 ###
 #
@@ -8,6 +9,8 @@ require 'msf/core/option_container'
 #
 ###
 module Msf::Payload::Stager
+
+  include Msf::Payload::TransportConfig
 
   def initialize(info={})
     super
@@ -20,6 +23,28 @@ module Msf::Payload::Stager
         Msf::OptBool.new("StageEncodingFallback", [ false, "Fallback to no encoding if the selected StageEncoder is not compatible", true ])
       ], Msf::Payload::Stager)
 
+  end
+
+  #
+  # Perform attempt at detecting the appropriate transport config.
+  # Call the determined config with passed options.
+  # Override this in stages/stagers to use specific transports
+  #
+  def transport_config(opts={})
+    if self.refname =~ /reverse_/
+        direction = 'reverse'
+    else
+        direction = 'bind'
+    end
+
+    if self.refname =~ /_tcp/
+        proto = 'tcp'
+    elsif self.refname =~ /_https/
+        proto = 'https'
+    else
+        proto = 'http'
+    end
+    send("transport_config_#{direction}_#{proto}", opts)
   end
 
   #
@@ -63,7 +88,7 @@ module Msf::Payload::Stager
   # Can be nil if the final stage is not pre-assembled.
   #
   # @return [String,nil]
-  def stage_payload
+  def stage_payload(opts = {})
     return module_info['Stage']['Payload']
   end
 
@@ -106,14 +131,15 @@ module Msf::Payload::Stager
   # Generates the stage payload and substitutes all offsets.
   #
   # @return [String] The generated payload stage, as a string.
-  def generate_stage
+  def generate_stage(opts={})
     # XXX: This is nearly identical to Payload#internal_generate
 
     # Compile the stage as necessary
     if stage_assembly and !stage_assembly.empty?
       raw = build(stage_assembly, stage_offsets)
     else
-      raw = stage_payload.dup
+      # Options get ignored by the stage_payload method
+      raw = stage_payload
     end
 
     # Substitute variables in the stage
@@ -131,7 +157,18 @@ module Msf::Payload::Stager
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
     if (stage_over_connection?)
-      p = generate_stage
+      opts = {}
+
+      if respond_to? :include_send_uuid
+        if include_send_uuid
+          uuid_raw = conn.get_once(16, 1)
+          if uuid_raw
+            opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+          end
+        end
+      end
+
+      p = generate_stage(opts)
 
       # Encode the stage if stage encoding is enabled
       begin

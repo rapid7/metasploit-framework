@@ -8,7 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module exploits a directory traversal vulnerability in WordPress Plugin
         "WP Mobile Edition" version 2.2.7, allowing to read arbitrary files with the
-        web server privileges. Stay tuned to the correct value in TARGETURI.
+        web server privileges.
       },
       'References'     =>
         [

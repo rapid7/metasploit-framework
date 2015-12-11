@@ -93,11 +93,11 @@ class Metasploit3 < Msf::Auxiliary
         end
       else
         state = Msf::ServiceState::Closed
-        print_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports") if (datastore['DEBUG'])
+        vprint_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
       end
     else
       state = Msf::ServiceState::Closed
-      print_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response") if (datastore['DEBUG'])
+      vprint_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
     end
 
     report_service(

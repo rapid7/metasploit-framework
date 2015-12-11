@@ -46,10 +46,6 @@ class Metasploit3 < Msf::Auxiliary
       OptRegexp.new('REGEX', [ true, "Regex applied to the NB Name to determine if spoofed reply is sent", '.*']),
     ])
 
-    register_advanced_options([
-      OptBool.new('DEBUG', [ false, "Determines whether incoming packet parsing is displayed", false])
-    ])
-
     deregister_options('RHOST', 'PCAPFILE', 'SNAPLEN', 'FILTER')
     self.thread = nil
     self.sock = nil
@@ -90,20 +86,18 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{spoof}")
 
-    if datastore['DEBUG']
-      print_status("transid:        #{nbnsq_transid.unpack('H4')}")
-      print_status("tlags:          #{nbnsq_flags.unpack('B16')}")
-      print_status("questions:      #{nbnsq_questions.unpack('n')}")
-      print_status("answerrr:       #{nbnsq_answerrr.unpack('n')}")
-      print_status("authorityrr:    #{nbnsq_authorityrr.unpack('n')}")
-      print_status("additionalrr:   #{nbnsq_additionalrr.unpack('n')}")
-      print_status("name:           #{nbnsq_name} #{nbnsq_name.unpack('H34')}")
-      print_status("full name:      #{nbnsq_name.slice(1..-2)}")
-      print_status("decoded:        #{decoded}")
-      print_status("decoded name:   #{nbnsq_decodedname}")
-      print_status("type:           #{nbnsq_type.unpack('n')}")
-      print_status("class:          #{nbnsq_class.unpack('n')}")
-    end
+    vprint_status("transid:        #{nbnsq_transid.unpack('H4')}")
+    vprint_status("tlags:          #{nbnsq_flags.unpack('B16')}")
+    vprint_status("questions:      #{nbnsq_questions.unpack('n')}")
+    vprint_status("answerrr:       #{nbnsq_answerrr.unpack('n')}")
+    vprint_status("authorityrr:    #{nbnsq_authorityrr.unpack('n')}")
+    vprint_status("additionalrr:   #{nbnsq_additionalrr.unpack('n')}")
+    vprint_status("name:           #{nbnsq_name} #{nbnsq_name.unpack('H34')}")
+    vprint_status("full name:      #{nbnsq_name.slice(1..-2)}")
+    vprint_status("decoded:        #{decoded}")
+    vprint_status("decoded name:   #{nbnsq_decodedname}")
+    vprint_status("type:           #{nbnsq_type.unpack('n')}")
+    vprint_status("class:          #{nbnsq_class.unpack('n')}")
 
     # time to build a response packet - Oh YEAH!
     response = nbnsq_transid +

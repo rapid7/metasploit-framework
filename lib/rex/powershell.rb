@@ -13,7 +13,7 @@ require 'rex/powershell/command'
 module Rex
   module Powershell
     #
-    # Reads script into a PowershellScript
+    # Reads script into a Powershell::Script
     #
     # @param script_path [String] Path to the Script File
     #

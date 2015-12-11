@@ -56,7 +56,6 @@ class Metasploit3 < Msf::Auxiliary
 
       if not res.body.include?("llow:")
         vprint_status("[#{target_host}] #{tpath}robots.txt - Doesn't contain \"llow:\"")
-        print_status(res.body.inspect) if datastore['DEBUG']
         return
       end
 

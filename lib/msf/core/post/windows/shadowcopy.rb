@@ -182,6 +182,25 @@ module ShadowCopy
         return false
       end
     end
+    unless start_swprv
+      return false
+    end
+    return true
+  end
+
+  def start_swprv
+    vss_state = wmic_query('Service where(name="swprv") get state')
+    if vss_state=~ /Running/
+      print_status("Software Shadow Copy service is running.")
+    else
+      print_status("Software Shadow Copy service not running. Starting it now...")
+      if service_restart("swprv", START_TYPE_MANUAL)
+        print_good("Software Shadow Copy started successfully.")
+      else
+        print_error("Insufficient Privs to start service!")
+        return false
+      end
+    end
     return true
   end
 

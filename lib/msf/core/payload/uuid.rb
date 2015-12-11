@@ -86,13 +86,13 @@ class Msf::Payload::UUID
   #
   # Generate a raw 16-byte payload UUID given a seed, platform, architecture, and timestamp
   #
-  # @options opts [String] :seed An optional string to use for generated the unique payload ID, deterministic
-  # @options opts [String] :puid An optional 8-byte string to use as the unique payload ID
-  # @options opts [String] :arch The hardware architecture for this payload
-  # @options opts [String] :platform The operating system platform for this payload
-  # @options opts [String] :timestamp The timestamp in UTC Unix epoch format
-  # @options opts [Fixnum] :xor1 An optional 8-bit XOR ID for obfuscation
-  # @options opts [Fixnum] :xor2 An optional 8-bit XOR ID for obfuscation
+  # @option opts [String] :seed An optional string to use for generated the unique payload ID, deterministic
+  # @option opts [String] :puid An optional 8-byte string to use as the unique payload ID
+  # @option opts [String] :arch The hardware architecture for this payload
+  # @option opts [String] :platform The operating system platform for this payload
+  # @option opts [String] :timestamp The timestamp in UTC Unix epoch format
+  # @option opts [Fixnum] :xor1 An optional 8-bit XOR ID for obfuscation
+  # @option opts [Fixnum] :xor2 An optional 8-bit XOR ID for obfuscation
   # @return [String] The encoded payoad UUID as a binary string
   #
   def self.generate_raw(opts={})

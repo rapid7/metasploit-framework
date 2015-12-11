@@ -10,7 +10,9 @@ class Metasploit3 < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -34,42 +36,50 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$']),
-      OptString.new('RPATH', [true, 'The name of the remote file relative to the share'])
+      OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$'])
     ], self.class)
+  end
 
+  def peer
+    "#{rhost}:#{rport}"
   end
 
   def smb_download
-    print_status("Connecting to the #{rhost}:#{rport}...")
+    vprint_status("#{peer}: Connecting...")
     connect()
     smb_login()
 
-    print_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+    vprint_status("#{peer}: Mounting the remote share \\\\#{rhost}\\#{datastore['SMBSHARE']}'...")
     self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
-    print_status("Trying to download #{datastore['RPATH']}...")
+    remote_paths.each do |remote_path|
+      begin
+        vprint_status("#{peer}: Trying to download #{remote_path}...")
 
-    data = ''
-    fd = simple.open("\\#{datastore['RPATH']}", 'ro')
-    begin
-      data = fd.read
-    ensure
-      fd.close
+        data = ''
+        fd = simple.open("\\#{remote_path}", 'ro')
+        begin
+          data = fd.read
+        ensure
+          fd.close
+        end
+
+        fname = remote_path.split("\\")[-1]
+        path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
+        print_good("#{peer}: #{remote_path} saved as: #{path}")
+      rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        print_error("#{peer} Unable to download #{remote_path}: #{e.message}")
+      end
     end
-
-    fname = datastore['RPATH'].split("\\")[-1]
-    path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
-    print_good("#{fname} saved as: #{path}")
   end
 
-  def run
+  def run_host(ip)
     begin
       smb_download
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
-      print_error("Unable to login: #{e.message}")
-    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      print_error("Unable to download the file: #{e.message}")
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      print_error("#{peer} Unable to login: #{e.message}")
     end
   end
 

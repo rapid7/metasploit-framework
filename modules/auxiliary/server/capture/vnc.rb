@@ -61,6 +61,32 @@ class Metasploit3 < Msf::Auxiliary
     c.put "RFB 003.007\n"
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def on_client_data(c)
     data = c.get_once
     return if not data
@@ -91,16 +117,13 @@ class Metasploit3 < Msf::Auxiliary
       c.close
       print_status("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
       hash_line = "$vnc$*#{@state[c][:chall].unpack("H*")[0]}*#{data.unpack('H*')[0]}"
-      report_auth_info(
-        :host  => c.peerhost,
-        :port => datastore['SRVPORT'],
-        :sname => 'vnc_client',
-        :user => "",
-        :pass => hash_line,
-        :type => "vnc_hash",
-        :proof => hash_line,
-        :source_type => "captured",
-        :active => true
+      report_cred(
+        ip: c.peerhost,
+        port: datastore['SRVPORT'],
+        service_name: 'vnc_client',
+        user: '',
+        password: hash_line,
+        proof: hash_line
       )
 
       if(datastore['JOHNPWFILE'])

@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'OSVDB', '80262'],
-          [ 'URL', 'http://retrogod.altervista.org/9sg_me_adv.htm' ]
+          [ 'OSVDB', '80262']
         ],
       'Author'         =>
         [

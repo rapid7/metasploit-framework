@@ -31,6 +31,7 @@ class Output::File < Rex::Ui::Text::Output
     self.fd.flush
     msg
   end
+  alias_method :write, :print_raw
 
   def close
     self.fd.close if self.fd
