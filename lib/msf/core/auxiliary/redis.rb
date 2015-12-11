@@ -39,15 +39,6 @@ module Msf
       datastore['READ_TIMEOUT']
     end
 
-    def redis_proto(commands)
-      return if commands.blank?
-      command = "*#{commands.length}\r\n"
-      commands.each do |c|
-        command << "$#{c.length}\r\n#{c}\r\n"
-      end
-      command
-    end
-
     def report_redis(version)
       report_service(
         host: rhost,
@@ -56,13 +47,6 @@ module Msf
         name: 'redis',
         info: "version #{version}"
       )
-    end
-
-    def send_redis_command(*commands)
-      sock.put(redis_proto(commands))
-      command_response = sock.get_once(-1, read_timeout)
-      return unless command_response
-      command_response.strip!
     end
 
     def redis_command(*commands)
@@ -88,6 +72,24 @@ module Msf
 
     def printable_redis_response(response_data, convert_whitespace = true)
       Rex::Text.ascii_safe_hex(response_data, convert_whitespace)
+    end
+
+    private
+
+    def redis_proto(command_parts)
+      return if command_parts.blank?
+      command = "*#{command_parts.length}\r\n"
+      command_parts.each do |c|
+        command << "$#{c.length}\r\n#{c}\r\n"
+      end
+      command
+    end
+
+    def send_redis_command(*command_parts)
+      sock.put(redis_proto(command_parts))
+      command_response = sock.get_once(-1, read_timeout)
+      return unless command_response
+      command_response.strip!
     end
   end
 end
