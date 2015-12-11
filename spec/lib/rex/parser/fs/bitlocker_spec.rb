@@ -79,7 +79,7 @@ class BitlockerDrive
   end
 end
 
-describe Rex::Parser::BITLOCKER do
+RSpec.describe Rex::Parser::BITLOCKER do
   Bitlocker = Rex::Parser::BITLOCKER.new(BitlockerDrive.new(volume_header,
                                                              fve_header))
   ##
@@ -87,6 +87,6 @@ describe Rex::Parser::BITLOCKER do
   ##
   it "Extract and decrypt recovery key from recovery password" do
     result = Bitlocker.fvek_from_recovery_password_dislocker(recovery_password)
-    result.should eq(fvek_dislocker_format)
+    expect(result).to eq fvek_dislocker_format
   end
 end
