@@ -66,6 +66,8 @@ module Msf
         end
       end
 
+      return unless command_response
+
       vprint_status("#{peer} -- redis command '#{printable_redis_response(commands.join(' '))}' got '#{printable_redis_response(command_response)}'")
       command_response
     end
