@@ -19,14 +19,14 @@ module Msf
       super
       register_options(
         [
-          Opt::RPORT(6379)
+          Opt::RPORT(6379),
+          OptString.new('Password', [false, 'Redis password for authentication test', 'foobared'])
         ]
       )
 
       register_advanced_options(
         [
-          OptInt.new('READ_TIMEOUT', [true, 'Seconds to wait while reading redis responses', 2]),
-          OptString.new('Password', [false, 'Redis password for authentication test', 'foobared'])
+          OptInt.new('READ_TIMEOUT', [true, 'Seconds to wait while reading redis responses', 2])
         ]
       )
     end
