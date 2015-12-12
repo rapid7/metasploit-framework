@@ -65,7 +65,7 @@ module Msf
           end
           vprint_status("#{peer} -- authenticated")
           unless (command_response = send_redis_command(*commands))
-            vprint_error("#{peer} -- no response to '#{command_string}")
+            vprint_error("#{peer} -- no response to '#{command_string}'")
             return
           end
         else
