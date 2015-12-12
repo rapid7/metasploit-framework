@@ -97,7 +97,7 @@ module Msf
       sock.put(redis_proto(command_parts))
       command_response = sock.get_once(-1, read_timeout)
       return unless command_response
-      command_response.strip!
+      command_response.strip
     end
   end
 end
