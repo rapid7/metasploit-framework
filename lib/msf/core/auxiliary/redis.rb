@@ -50,7 +50,11 @@ module Msf
     end
 
     def redis_command(*commands)
-      return unless (command_response = send_redis_command(*commands))
+      command_string = printable_redis_response(commands.join(' '))
+      unless (command_response = send_redis_command(*commands))
+        vprint_error("#{peer} -- no response to '#{command_string}'")
+        return
+      end
       if /(?<auth_response>ERR operation not permitted|NOAUTH Authentication required)/i =~ command_response
         fail_with(::Msf::Module::Failure::BadConfig, "#{peer} requires authentication but Password unset") unless datastore['Password']
         vprint_status("#{peer} -- requires authentication (#{printable_redis_response(auth_response, false)})")
@@ -59,16 +63,18 @@ module Msf
             vprint_error("#{peer} -- authentication failure: #{printable_redis_response(auth_response)}")
             return
           end
-          command_response = send_redis_command(*commands)
+          vprint_status("#{peer} -- authenticated")
+          unless (command_response = send_redis_command(*commands))
+            vprint_error("#{peer} -- no response to '#{command_string}")
+            return
+          end
         else
           vprint_status("#{peer} -- authentication failed; no response")
           return
         end
       end
 
-      return unless command_response
-
-      vprint_status("#{peer} -- redis command '#{printable_redis_response(commands.join(' '))}' got '#{printable_redis_response(command_response)}'")
+      vprint_status("#{peer} -- redis command '#{command_string}' got '#{printable_redis_response(command_response)}'")
       command_response
     end
 
