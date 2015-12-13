@@ -111,7 +111,7 @@ OPTIONS:
     -n <opt>  Name of the module (optional, for single files only)
     -r <opt>  Name of the variable containing the result (optional, single files only)
 ```
-Importing of module trees is still considered a _beta_ feature, but we encourage you to use it where possible and keep us imformed of any issues you may face.
+Importing of module trees is still considered a _beta_ feature, but we encourage you to use it where possible and keep us informed of any issues you may face.
 
 Consider the following script:
 ```
