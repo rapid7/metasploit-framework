@@ -13,6 +13,9 @@ Additional documentation about Meterpreter can be found on this wiki:
  * [[Meterpreter Configuration]]
  * [[Payload UUID]]
 
+Extension-specific documentation:
+ * [[Python Extension]]
+
 A wishlist of features is maintained at the [[Meterpreter Wishlist]] page.
 
 Examples of specific use cases can also be found on this wiki:
