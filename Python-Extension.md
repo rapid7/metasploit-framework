@@ -176,7 +176,7 @@ A number of bindings are available to the Python extension that allow for intera
     * `pid` - the identifier of the process to steal the token from.
 * `meterpreter.elevate.drop_token()` - drops the token that was stolen using `steal_token`.
 
-#### meterpreter.extapi (requires the kiwi extension)
+#### meterpreter.extapi (requires the extapi extension)
 
 Each of the following functions takes the following parameters:
 
@@ -311,7 +311,7 @@ This stageless initialisation feature allows for long-running Python scripts to 
 
 > Does the extension do dynamic resolution of Python libraries at runtime?
 
-Yes. The extension has a built-in import handler that loads modules from memory. This includes modules that the user has dynamically loaded using the `python_import` command. If a module doesn't exist as part of the extension then resolution will fail. Down the track we may look into extension this feature so that missing libraries are uploaded on-the-fly when an import fails, but it's not known when this work will get done.
+Yes. The extension has a built-in import handler that loads modules from memory. This includes modules that the user has dynamically loaded using the `python_import` command. If a module doesn't exist as part of the extension then resolution will fail. Down the track we may look into extending this feature so that missing libraries are uploaded on-the-fly when an import fails, but it's not known when this work will get done.
 
 > When will this extension be available for other Meterpreters?
 
