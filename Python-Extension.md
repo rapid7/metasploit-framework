@@ -141,7 +141,7 @@ meterpreter > python_import -f /tmp/drives.py
 ```
 This shows that `ctypes` does indeed function correctly!
 
-This command is also intended to allow for recursive loading of modules from the local attacker file syste, however this feature is still not yet ready for prime time and work is still actively being done on this area.
+This command is also intended to allow for recursive loading of modules from the local attacker file system, however this feature is still not yet ready for prime time and work is still actively being done on this area.
 
 ## python_reset
 
