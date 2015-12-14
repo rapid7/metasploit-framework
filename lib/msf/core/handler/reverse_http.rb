@@ -45,7 +45,8 @@ module ReverseHttp
     register_options(
       [
         OptString.new('LHOST', [true, 'The local listener hostname']),
-        OptPort.new('LPORT', [true, 'The local listener port', 8080])
+        OptPort.new('LPORT', [true, 'The local listener port', 8080]),
+        OptString.new('LURI', [false, 'The HTTP Path', '/'])
       ], Msf::Handler::ReverseHttp)
 
     register_advanced_options(
@@ -81,7 +82,7 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
     uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
-    "#{scheme}://#{uri_host}:#{bind_port}/"
+    "#{scheme}://#{uri_host}:#{bind_port}" + datastore['LURI'] || "/"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -108,7 +109,7 @@ module ReverseHttp
       callback_host = "#{callback_name}:#{callback_port}"
     end
 
-    "#{scheme}://#{callback_host}/"
+    "#{scheme}://#{callback_host}" + datastore['LURI']
   end
 
   # Use the {#refname} to determine whether this handler uses SSL or not
@@ -158,7 +159,7 @@ module ReverseHttp
     obj = self
 
     # Add the new resource
-    service.add_resource("/",
+    service.add_resource((datastore['LURI'] || "") + "/",
       'Proc' => Proc.new { |cli, req|
         on_request(cli, req, obj)
       },
@@ -178,7 +179,7 @@ module ReverseHttp
   #
   def stop_handler
     if self.service
-      self.service.remove_resource('/')
+      self.service.remove_resource((datastore['LURI'] || "") + "/")
       if self.service.resources.empty? && self.sessions == 0
         Rex::ServiceManager.stop_service(self.service)
       end
@@ -282,6 +283,7 @@ protected
       when :init_python
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
         url = payload_uri(req) + conn_id + '/'
+        conn_id = (datastore['LURI']) + conn_id
 
         blob = ""
         blob << obj.generate_stage(
@@ -336,6 +338,7 @@ protected
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
         uri = URI(payload_uri(req) + conn_id)
+        conn_id = (datastore['LURI']) + conn_id
 
         resp['Content-Type'] = 'application/octet-stream'
 
