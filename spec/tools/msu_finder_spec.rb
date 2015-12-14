@@ -3,7 +3,7 @@ load Metasploit::Framework.root.join('tools/exploit/msu_finder.rb').to_path
 require 'nokogiri'
 require 'uri'
 
-describe MicrosoftPatchFinder do
+RSpec.describe MicrosoftPatchFinder do
 
   before(:each) do
     cli = Rex::Proto::Http::Client.new('127.0.0.1')
@@ -301,15 +301,15 @@ describe MicrosoftPatchFinder do
       end
 
       let(:download_html_res) do
-        html = %Q|
-        <html>
-        <a href="#{expected_link}">Click here</a>
-        </html>
-        |
-
-        res = Rex::Proto::Http::Response
-        allow(res).to receive(:body).and_return(html)
-        res
+        Rex::Proto::Http::Response.new.tap { |response|
+          allow(response).to receive(:body).and_return(
+                               %Q|
+                               <html>
+                                 <a href="#{expected_link}">Click here</a>
+                               </html>
+                               |
+                             )
+        }
       end
 
       it 'returns an array of links' do

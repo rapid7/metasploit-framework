@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'rex/post/meterpreter/client_core'
 
-describe Rex::Post::Meterpreter::ClientCore do
+RSpec.describe Rex::Post::Meterpreter::ClientCore do
 
   it "should be available" do
     expect(described_class).to eq(Rex::Post::Meterpreter::ClientCore)

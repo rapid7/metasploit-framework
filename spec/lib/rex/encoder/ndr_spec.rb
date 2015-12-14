@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/encoder/ndr'
 
-describe Rex::Encoder::NDR do
+RSpec.describe Rex::Encoder::NDR do
 
   describe ".align" do
     subject { described_class.align(string) }

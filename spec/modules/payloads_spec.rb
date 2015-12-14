@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'modules/payloads', :content do
+RSpec.describe 'modules/payloads', :content do
   modules_pathname = Pathname.new(__FILE__).parent.parent.parent.join('modules')
 
   include_context 'untested payloads', modules_pathname: modules_pathname

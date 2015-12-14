@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rex/java'
 require 'stringio'
 
-describe Rex::Java::Serialization::Model::ProxyClassDesc do
+RSpec.describe Rex::Java::Serialization::Model::ProxyClassDesc do
   subject(:proxy_class_desc) do
     described_class.new
   end

@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rex/java'
 require 'stringio'
 
-describe Rex::Java::Serialization::Model::NewEnum do
+RSpec.describe Rex::Java::Serialization::Model::NewEnum do
 
   subject(:new_enum) do
     described_class.new

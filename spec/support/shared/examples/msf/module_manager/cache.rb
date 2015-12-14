@@ -44,7 +44,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         {}
       end
 
-      it { should be_truthy }
+      it { is_expected.to be_truthy }
     end
 
     context 'without empty' do
@@ -54,7 +54,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         }
       end
 
-      it { should be_falsey }
+      it { is_expected.to be_falsey }
     end
   end
 
@@ -97,7 +97,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should have entry for path' do
-          module_info_by_path[path].should be_a Hash
+          expect(module_info_by_path[path]).to be_a Hash
         end
 
         context 'value' do
@@ -106,19 +106,19 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           end
 
           it 'should have modification time of :path option for :modification_time' do
-            value[:modification_time].should == pathname_modification_time
+            expect(value[:modification_time]).to eq pathname_modification_time
           end
 
           it 'should have parent path from namespace module for :parent_path' do
-            value[:parent_path].should == namespace_module.parent_path
+            expect(value[:parent_path]).to eq namespace_module.parent_path
           end
 
           it 'should use :reference_name option' do
-            value[:reference_name].should == reference_name
+            expect(value[:reference_name]).to eq reference_name
           end
 
           it 'should use :type option' do
-            value[:type].should == type
+            expect(value[:type]).to eq type
           end
         end
       end
@@ -167,14 +167,14 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
       it 'should enumerate loaders until if it find the one where loadable?(parent_path) is true' do
         module_manager.send(:loaders).each do |loader|
-          loader.should_receive(:loadable?).with(parent_path).and_call_original
+          expect(loader).to receive(:loadable?).with(parent_path).and_call_original
         end
 
         load_cached_module
       end
 
       it 'should force load using #load_module on the loader' do
-        Msf::Modules::Loader::Directory.any_instance.should_receive(
+        expect_any_instance_of(Msf::Modules::Loader::Directory).to receive(
             :load_module
         ).with(
             parent_path,
@@ -189,7 +189,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       context 'return from load_module' do
         before(:each) do
           module_manager.send(:loaders).each do |loader|
-            loader.stub(:load_module => module_loaded)
+            expect(loader).to receive(:load_module).and_return(module_loaded)
           end
         end
 
@@ -198,7 +198,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             false
           end
 
-          it { should be_falsey }
+          it { is_expected.to be_falsey }
         end
 
         context 'with true' do
@@ -206,7 +206,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             true
           end
 
-          it { should be_truthy }
+          it { is_expected.to be_truthy }
         end
       end
     end
@@ -216,13 +216,13 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         {}
       end
 
-      it { should be_falsey }
+      it { is_expected.to be_falsey }
     end
   end
 
   context '#refresh_cache_from_module_files' do
     before(:each) do
-      module_manager.stub(:framework_migrated? => framework_migrated?)
+      allow(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
     end
 
     context 'with framework migrated' do
@@ -240,8 +240,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should update database and then update in-memory cache from the database for the given module_class_or_instance' do
-          framework.db.should_receive(:update_module_details).with(module_class_or_instance).ordered
-          module_manager.should_receive(:refresh_cache_from_database).ordered
+          expect(framework.db).to receive(:update_module_details).with(module_class_or_instance).ordered
+          expect(module_manager).to receive(:refresh_cache_from_database).ordered
 
           refresh_cache_from_module_files
         end
@@ -253,8 +253,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should update database and then update in-memory cache from the database for all modules' do
-          framework.db.should_receive(:update_all_module_details).ordered
-          module_manager.should_receive(:refresh_cache_from_database)
+          expect(framework.db).to receive(:update_all_module_details).ordered
+          expect(module_manager).to receive(:refresh_cache_from_database)
 
           refresh_cache_from_module_files
         end
@@ -271,19 +271,19 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
       it 'should not call Msf::DBManager#update_module_details' do
-        framework.db.should_not_receive(:update_module_details)
+        expect(framework.db).not_to receive(:update_module_details)
 
         refresh_cache_from_module_files
       end
 
       it 'should not call Msf::DBManager#update_all_module_details' do
-        framework.db.should_not_receive(:update_all_module_details)
+        expect(framework.db).not_to receive(:update_all_module_details)
 
         refresh_cache_from_module_files
       end
 
       it 'should not call #refresh_cache_from_database' do
-        module_manager.should_not_receive(:refresh_cache_from_database)
+        expect(module_manager).not_to receive(:refresh_cache_from_database)
 
         refresh_cache_from_module_files
       end
@@ -296,7 +296,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     it 'should call #module_info_by_path_from_database!' do
-      module_manager.should_receive(:module_info_by_path_from_database!)
+      expect(module_manager).to receive(:module_info_by_path_from_database!)
 
       refresh_cache_from_database
     end
@@ -309,7 +309,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
     context 'with framework database' do
       before(:each) do
-        framework.db.stub(:migrated => migrated)
+        expect(framework.db).to receive(:migrated).and_return(migrated)
       end
 
       context 'with migrated' do
@@ -317,7 +317,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           true
         end
 
-        it { should be_truthy }
+        it { is_expected.to be_truthy }
       end
 
       context 'without migrated' do
@@ -325,28 +325,28 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           false
         end
 
-        it { should be_falsey }
+        it { is_expected.to be_falsey }
       end
     end
 
     context 'without framework database' do
       before(:each) do
-        framework.stub(:db => nil)
+        expect(framework).to receive(:db).and_return(nil)
       end
 
-      it { should be_falsey }
+      it { is_expected.to be_falsey }
     end
   end
 
   context '#module_info_by_path' do
     it 'should have protected method module_info_by_path' do
-      subject.respond_to?(:module_info_by_path, true).should be_truthy
+      expect(subject.respond_to?(:module_info_by_path, true)).to be_truthy
     end
   end
 
   context '#module_info_by_path=' do
     it 'should have protected method module_info_by_path=' do
-      subject.respond_to?(:module_info_by_path=, true).should be_truthy
+      expect(subject.respond_to?(:module_info_by_path=, true)).to be_truthy
     end
   end
 
@@ -360,7 +360,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     before(:each) do
-      module_manager.stub(:framework_migrated? => framework_migrated?)
+      allow(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
     end
 
     context 'with framework migrated' do
@@ -369,7 +369,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
       it 'should use ActiveRecord::Batches#find_each to enumerate Mdm::Module::Details in batches' do
-        Mdm::Module::Detail.should_receive(:find_each)
+        expect(Mdm::Module::Detail).to receive(:find_each)
 
         module_info_by_path_from_database!
       end
@@ -391,11 +391,11 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         it 'should create cache entry for path' do
           module_info_by_path_from_database!
 
-          module_info_by_path.should have_key(path)
+          expect(module_info_by_path).to have_key(path)
         end
 
         it 'should use Msf::Modules::Loader::Base.typed_path to derive parent_path' do
-          Msf::Modules::Loader::Base.should_receive(:typed_path).with(type, reference_name).at_least(:once).and_call_original
+          expect(Msf::Modules::Loader::Base).to receive(:typed_path).with(type, reference_name).at_least(:once).and_call_original
 
           module_info_by_path_from_database!
         end
@@ -440,7 +440,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
               # have to use fetch because [] will trigger de-symbolization and
               # instantiation.
-              typed_module_set.fetch(reference_name).should == Msf::SymbolicModule
+              expect(typed_module_set.fetch(reference_name)).to eq Msf::SymbolicModule
             end
           end
         end
@@ -458,7 +458,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
 
         module_info_by_path_from_database!
 
-        module_info_by_path.should be_empty
+        expect(module_info_by_path).to be_empty
       end
     end
   end

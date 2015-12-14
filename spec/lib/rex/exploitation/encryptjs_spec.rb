@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/exploitation/encryptjs'
 
-describe Rex::Exploitation::EncryptJS do
+RSpec.describe Rex::Exploitation::EncryptJS do
 
   let(:code) { "var test = 'metasploit';" }
   let(:key) { 'secret' }
