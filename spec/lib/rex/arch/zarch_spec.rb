@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'rex/arch'
 
-describe Rex::Arch do
+RSpec.describe Rex::Arch do
   describe ".pack_addr" do
     subject { described_class.pack_addr(arch, addr) }
 

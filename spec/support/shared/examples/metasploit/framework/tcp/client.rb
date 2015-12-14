@@ -2,8 +2,8 @@
 shared_examples_for 'Metasploit::Framework::Tcp::Client' do
   subject(:login_scanner) { described_class.new }
 
-  it { should respond_to :send_delay }
-  it { should respond_to :max_send_size }
+  it { is_expected.to respond_to :send_delay }
+  it { is_expected.to respond_to :max_send_size }
 
   context 'send_delay' do
     it 'is not valid for a non-number' do

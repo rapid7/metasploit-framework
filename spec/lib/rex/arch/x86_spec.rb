@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/arch/x86'
 
-describe Rex::Arch::X86 do
+RSpec.describe Rex::Arch::X86 do
 
   describe ".reg_number" do
     subject { described_class.reg_number(register) }
@@ -915,7 +915,7 @@ describe Rex::Arch::X86 do
     context "when reg is invalid" do
       let(:reg) { 31337 }
       let(:val) { 0x7 }
-      it { expect {subject}.to raise_error }
+      it { expect {subject}.to raise_error(ArgumentError) }
     end
 
   end

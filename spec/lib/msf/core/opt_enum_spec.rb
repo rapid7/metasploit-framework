@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptEnum do
+RSpec.describe Msf::OptEnum do
 
   it_behaves_like "an option", [], [], 'enum'
 
@@ -13,11 +13,11 @@ describe Msf::OptEnum do
 
   context 'the validator' do
     it 'should return false for a value not in the list' do
-      subject.valid?('Snap').should == false
+      expect(subject.valid?('Snap')).to eq false
     end
 
     it 'should return true for a value in the list' do
-      subject.valid?('Bar').should == true
+      expect(subject.valid?('Bar')).to eq true
     end
   end
 end

@@ -19,7 +19,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML#check_msf_
     end
 
     it "should have #{root_tag} as root tag" do
-      metadata[:root_tag].should == root_tag
+      expect(metadata[:root_tag]).to eq root_tag
     end
   end
 end

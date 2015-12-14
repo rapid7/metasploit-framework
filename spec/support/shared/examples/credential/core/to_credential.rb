@@ -8,7 +8,7 @@ shared_examples_for 'Metasploit::Credential::Core::ToCredential' do
         FactoryGirl.create(:metasploit_credential_core)
       end
 
-      it { should respond_to :to_credential }
+      it { is_expected.to respond_to :to_credential }
 
       it "should return a Metasploit::Framework::Credential" do
         expect(

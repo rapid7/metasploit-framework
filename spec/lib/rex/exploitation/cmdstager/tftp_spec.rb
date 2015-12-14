@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/exploitation/cmdstager'
 
-describe Rex::Exploitation::CmdStagerTFTP do
+RSpec.describe Rex::Exploitation::CmdStagerTFTP do
 
   let(:exe) { "MZ" }
 

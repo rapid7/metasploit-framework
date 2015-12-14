@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/exploitation/cmdstager'
 
-describe Rex::Exploitation::CmdStagerPrintf do
+RSpec.describe Rex::Exploitation::CmdStagerPrintf do
 
   let(:exe) { "MZ" }
 

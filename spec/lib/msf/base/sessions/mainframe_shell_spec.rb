@@ -7,7 +7,7 @@ require 'msf/base/sessions/mainframe_shell'
 #  A quick test that MainframeShell is operable
 #  Author: Bigendian Smalls
 #
-describe Msf::Sessions::MainframeShell do
+RSpec.describe Msf::Sessions::MainframeShell do
   it 'extends Msf::Sessions::CommandShell to include EBCDIC cp1047 codepage translation' do
   args=[0,
    {:datastore=>

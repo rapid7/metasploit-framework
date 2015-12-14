@@ -5,7 +5,7 @@ require 'stringio'
 require 'rex/proto/rmi'
 require 'rex/java'
 
-describe Rex::Proto::Rmi::Model::ReturnValue do
+RSpec.describe Rex::Proto::Rmi::Model::ReturnValue do
 
   subject(:return_value) do
     described_class.new

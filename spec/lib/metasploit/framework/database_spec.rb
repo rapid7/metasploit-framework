@@ -660,7 +660,7 @@ RSpec.describe Metasploit::Framework::Database do
     end
 
     before(:each) do
-      expect(Msf::Config).to receive(:get_config_root).and_return(config_root)
+      allow(Msf::Config).to receive(:get_config_root).and_return(config_root)
     end
 
     it 'is database.yml under the user config root' do
