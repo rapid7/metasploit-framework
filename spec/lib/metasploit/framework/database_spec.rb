@@ -619,6 +619,10 @@ RSpec.describe Metasploit::Framework::Database do
     end
 
     context 'without MSF_DATABASE_CONFIG' do
+      before(:each) do
+        ENV.delete('MSF_DATABASE_CONFIG')
+      end
+
       it { is_expected.to be_nil }
     end
   end
