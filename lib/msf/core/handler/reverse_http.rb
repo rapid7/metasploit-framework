@@ -47,7 +47,7 @@ module ReverseHttp
       [
         OptString.new('LHOST', [true, 'The local listener hostname']),
         OptPort.new('LPORT', [true, 'The local listener port', 8080]),
-        OptString.new('LURI', [false, 'The HTTP Path', '/'])
+        OptString.new('LURI', [false, 'The HTTP Path', ''])
       ], Msf::Handler::ReverseHttp)
 
     register_advanced_options(
@@ -314,6 +314,7 @@ protected
       when :init_java
         print_status("Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
+        conn_id = (datastore['LURI']) + conn_id
 
         blob = obj.generate_stage(
           uuid: uuid,
