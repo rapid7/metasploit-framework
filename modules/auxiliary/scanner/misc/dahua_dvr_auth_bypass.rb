@@ -187,8 +187,8 @@ class Metasploit3 < Msf::Auxiliary
     disconnect
     channels_table = Rex::Ui::Text::Table.new(
       'Header' => 'Dahua Camera Channels',
-      'Indent' => '1',
-      'Columns' => ['Number', 'Channels']
+      'Indent' => 1,
+      'Columns' => ['ID', 'Channels']
     )
     return unless data.length > 1
     print_good("#{peer} -- camera channels:")
@@ -208,20 +208,13 @@ class Metasploit3 < Msf::Auxiliary
     usercount = 0
     users_table = Rex::Ui::Text::Table.new(
       'Header' => 'Dahua Users Hashes and Rights',
-      'Indent' => '1',
+      'Indent' => 1,
       'Columns' => ['Username', 'Password Hash', 'Permissions', 'Description']
     )
-    print_status("Users\\Hashed Passwords\\Rights\\Description: @ #{rhost}:#{rport}!")
     data.each do |val|
       usercount += 1
       user, md5hash, rights, name = val.match(/^.*:(.*):(.*):.*:(.*):(.*):.*$/).captures
       users_table << [user, md5hash, rights, name]
-      # puts user.class
-      # puts md5hash.class
-      # puts rights.class
-      # puts name.class
-      # users_table.print
-      print_status("  #{val[/(([\d]+)[:]([[:print:]]+))/]}")
       # Write the dahua hash to the database
       hash = "#{rhost} #{user}:$dahua$#{md5hash}"
       report_hash(rhost, rport, user, hash)
@@ -236,6 +229,7 @@ class Metasploit3 < Msf::Auxiliary
         refs: references
       )
     end
+    users_table.print
   end
 
   def grab_groups
@@ -245,18 +239,16 @@ class Metasploit3 < Msf::Auxiliary
     data = response.split('&&')
     groups_table = Rex::Ui::Text::Table.new(
       'Header' => 'Dahua groups',
-      'Indent' => '1',
-      'Columns' => ['Number', 'Group']
+      'Indent' => 1,
+      'Columns' => ['ID', 'Group']
     )
     print_good("#{peer} -- groups:")
     data.each do |val|
       number = "#{val[/(([\d]+))/]}"
       groups = "#{val[/(([a-z]+))/]}"
-      # puts number.class
-      # puts groups.class
       groups_table << [ number, groups ]
-      groups_table.print
     end
+    groups_table.print
   end
 
   def reset_user
