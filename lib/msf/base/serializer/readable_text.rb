@@ -551,7 +551,10 @@ class ReadableText
         sinfo = sinfo[0,77] + "..."
       end
 
-      row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + " (#{session.session_host})" ]
+      if !session.exploit_datastore['LURI'].empty?
+        luri = " (#{session.exploit_datastore['LURI']})"
+      end
+      row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + "#{luri} (#{session.session_host})" ]
       if session.respond_to? :platform
         row[1] << (" " + session.platform)
       end
@@ -590,6 +593,7 @@ class ReadableText
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
       sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+      sess_luri    = session.exploit_datastore['LURI'] || ""
 
       sess_checkin = "<none>"
       sess_machine_id = session.machine_id.to_s
@@ -619,6 +623,9 @@ class ReadableText
       out << "   MachineID: #{sess_machine_id}\n"
       out << "     CheckIn: #{sess_checkin}\n"
       out << "  Registered: #{sess_registration}\n"
+      if !sess_luri.empty?
+        out << "        LURI: #{sess_luri}\n"
+      end
 
 
 
