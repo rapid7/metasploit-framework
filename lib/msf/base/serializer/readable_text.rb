@@ -671,6 +671,7 @@ class ReadableText
       if (verbose)
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)
         uripath = ctx[0].datastore['URIPATH'] if uripath.nil?
+        uripath = ctx[0].datastore['LURI'] if uripath.nil?
         row << (uripath || "")
         row << (framework.jobs[k].start_time || "")
       end
