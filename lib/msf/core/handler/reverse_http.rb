@@ -268,6 +268,9 @@ protected
     case info[:mode]
       when :init_connect
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
+        if datastore['LURI'] != "/"
+          conn_id = (datastore['LURI']) + conn_id
+        end
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -371,6 +374,7 @@ protected
 
         resp.body = ''
         conn_id = req.relative_resource
+        conn_id = (datastore['LURI']) + conn_id
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {

@@ -98,7 +98,7 @@ module Payload::Windows::ReverseHttp
 
     # Choose a random URI length between 30 and 255 bytes
     if uri_req_len == 0
-      uri_req_len = 30 + rand(256-30)
+      uri_req_len = 30 + datastore['LURI'].length + rand(256-(30+datastore['LURI'].length))
     end
 
     if uri_req_len < 5
