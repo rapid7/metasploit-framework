@@ -48,6 +48,7 @@ module Payload::Python::ReverseHttp
 
     target_url << ':'
     target_url << opts[:port].to_s
+    target_url << datastore['LURI']
     target_url << generate_callback_uri(opts)
     target_url
   end
