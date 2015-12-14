@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rex/java'
 require 'stringio'
 
-describe Rex::Java::Serialization::Model::Field do
+RSpec.describe Rex::Java::Serialization::Model::Field do
   subject(:field) do
     described_class.new
   end

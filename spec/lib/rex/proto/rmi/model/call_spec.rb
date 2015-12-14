@@ -5,7 +5,7 @@ require 'stringio'
 require 'rex/proto/rmi'
 require 'rex/java'
 
-describe Rex::Proto::Rmi::Model::Call do
+RSpec.describe Rex::Proto::Rmi::Model::Call do
 
   subject(:call) do
     described_class.new

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'rex/post/meterpreter'
 require 'rex/post/meterpreter/extensions/stdapi/ui'
 
-describe Rex::Post::Meterpreter::Extensions::Stdapi::UI do
+RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::UI do
 
   it "should be available" do
     expect(described_class).to eq(Rex::Post::Meterpreter::Extensions::Stdapi::UI)
