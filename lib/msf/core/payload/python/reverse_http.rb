@@ -57,7 +57,7 @@ module Payload::Python::ReverseHttp
   # Return the longest URI that fits into our available space
   #
   def generate_callback_uri(opts={})
-    uri_req_len = 30 + rand(256-30)
+    uri_req_len = 30 + datastore['LURI'].length + rand(256-(30+datastore['LURI'].length))
 
     # Generate the short default URL if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
