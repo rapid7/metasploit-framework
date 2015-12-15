@@ -30,22 +30,21 @@ class Metasploit3 < Msf::Post
 
   def run
     # Find the NTDS.DIT location in the registry
-    ntds = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS\\Parameters","DSA Database file").to_s
-    if !ntds
-        print_error("Unable to find the NTDS.DIT location.")
-        return
+    ntds = registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Services\\NTDS\\Parameters", "DSA Database file").to_s
+    unless ntds
+      print_error("Unable to find the NTDS.DIT location.")
+      return
     end
 
     if file?(ntds)
-        f = client.fs.file.stat(ntds)
-        print_line("NTDS.DIT is located at: #{ntds}")
-        print_line("      Size: #{f.size} bytes")
-        print_line("   Created: #{f.ctime}")
-        print_line("  Modified: #{f.mtime}")
-        print_line("  Accessed: #{f.atime}")
+      f = client.fs.file.stat(ntds)
+      print_line("NTDS.DIT is located at: #{ntds}")
+      print_line("      Size: #{f.size} bytes")
+      print_line("   Created: #{f.ctime}")
+      print_line("  Modified: #{f.mtime}")
+      print_line("  Accessed: #{f.atime}")
     else
-        print_error("NTDS.DIT is reportedly located at '#{ntds}' but the file does not appear to exist")
+      print_error("NTDS.DIT is reportedly located at '#{ntds}' but the file does not appear to exist")
     end
   end
-
 end
