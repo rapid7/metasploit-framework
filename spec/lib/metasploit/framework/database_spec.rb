@@ -619,6 +619,10 @@ RSpec.describe Metasploit::Framework::Database do
     end
 
     context 'without MSF_DATABASE_CONFIG' do
+      before(:each) do
+        ENV.delete('MSF_DATABASE_CONFIG')
+      end
+
       it { is_expected.to be_nil }
     end
   end
@@ -660,7 +664,7 @@ RSpec.describe Metasploit::Framework::Database do
     end
 
     before(:each) do
-      expect(Msf::Config).to receive(:get_config_root).and_return(config_root)
+      allow(Msf::Config).to receive(:get_config_root).and_return(config_root)
     end
 
     it 'is database.yml under the user config root' do

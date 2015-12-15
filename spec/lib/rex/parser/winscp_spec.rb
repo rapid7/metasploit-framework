@@ -17,7 +17,7 @@ Password=#{PASSWORD}
 Shell=/bin/bash}
 END
 
-describe Rex::Parser::WinSCP do
+RSpec.describe Rex::Parser::WinSCP do
   let(:target) do
     d = Class.new { include Rex::Parser::WinSCP }
     d.new
@@ -85,12 +85,12 @@ describe Rex::Parser::WinSCP do
 
   context "#read_and_parse_ini" do
     it "returns nil if file is empty or doesn't exist" do
-      File.stub(:read).and_return(nil)
+      expect(File).to receive(:read).and_return(nil)
       expect(target.read_and_parse_ini('blah')).to be nil
     end
 
     it "parses the example ini and return a single result" do
-      File.stub(:read).and_return(SAMPLE_INI)
+      expect(File).to receive(:read).and_return(SAMPLE_INI)
       expect(target.read_and_parse_ini(SAMPLE_INI).count).to eq 1
     end
   end

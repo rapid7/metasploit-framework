@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/mime'
 
-describe Rex::MIME::Header do
+RSpec.describe Rex::MIME::Header do
 
   let(:mime_headers_test) do
     <<-EOS

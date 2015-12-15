@@ -2,7 +2,7 @@
 
 require 'msf/core/post/android/priv'
 
-describe Msf::Post::Android::Priv do
+RSpec.describe Msf::Post::Android::Priv do
 
   subject do
     mod = Module.new

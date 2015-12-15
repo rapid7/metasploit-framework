@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/encoder/alpha2/generic'
 
-describe Rex::Encoder::Alpha2::Generic do
+RSpec.describe Rex::Encoder::Alpha2::Generic do
 
   it_behaves_like 'Rex::Encoder::Alpha2::Generic'
 

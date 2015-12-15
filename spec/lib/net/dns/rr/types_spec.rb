@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'net/dns'
 
-describe Net::DNS::RR::Types do
+RSpec.describe Net::DNS::RR::Types do
 
   subject do
     described_class.new

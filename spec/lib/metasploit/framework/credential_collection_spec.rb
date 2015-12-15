@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/credential_collection'
 
-describe Metasploit::Framework::CredentialCollection do
+RSpec.describe Metasploit::Framework::CredentialCollection do
 
   subject(:collection) do
     described_class.new(
@@ -33,7 +33,7 @@ describe Metasploit::Framework::CredentialCollection do
       let(:user_file) do
         filename = "foo"
         stub_file = StringIO.new("asdf\njkl\n")
-        File.stub(:open).with(filename,/^r/).and_yield stub_file
+        allow(File).to receive(:open).with(filename,/^r/).and_yield stub_file
 
         filename
       end
@@ -51,7 +51,7 @@ describe Metasploit::Framework::CredentialCollection do
       let(:pass_file) do
         filename = "foo"
         stub_file = StringIO.new("asdf\njkl\n")
-        File.stub(:open).with(filename,/^r/).and_return stub_file
+        allow(File).to receive(:open).with(filename,/^r/).and_return stub_file
 
         filename
       end
@@ -71,7 +71,7 @@ describe Metasploit::Framework::CredentialCollection do
       let(:userpass_file) do
         filename = "foo"
         stub_file = StringIO.new("asdf jkl\nfoo bar\n")
-        File.stub(:open).with(filename,/^r/).and_yield stub_file
+        allow(File).to receive(:open).with(filename,/^r/).and_yield stub_file
 
         filename
       end
@@ -90,14 +90,14 @@ describe Metasploit::Framework::CredentialCollection do
       let(:user_file) do
         filename = "user_file"
         stub_file = StringIO.new("asdf\njkl\n")
-        File.stub(:open).with(filename,/^r/).and_yield stub_file
+        allow(File).to receive(:open).with(filename,/^r/).and_yield stub_file
 
         filename
       end
       let(:pass_file) do
         filename = "pass_file"
         stub_file = StringIO.new("asdf\njkl\n")
-        File.stub(:open).with(filename,/^r/).and_return stub_file
+        allow(File).to receive(:open).with(filename,/^r/).and_return stub_file
 
         filename
       end

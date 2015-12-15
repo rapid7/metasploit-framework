@@ -3,7 +3,7 @@ load Metasploit::Framework.root.join('tools/password/md5_lookup.rb').to_path
 require 'rex/proto/http/response'
 require 'stringio'
 
-describe Md5LookupUtility do
+RSpec.describe Md5LookupUtility do
 
   #
   # Init some data
@@ -223,7 +223,7 @@ describe Md5LookupUtility do
     }
 
     before(:each) do
-      Md5LookupUtility::OptsConsole.stub(:parse).with(any_args).and_return(options)
+      expect(Md5LookupUtility::OptsConsole).to receive(:parse).with(any_args).and_return(options)
       allow(File).to receive(:open).with(input_file, 'rb').and_yield(StringIO.new(input_data))
       allow(File).to receive(:new).with(output_file, 'wb').and_return(StringIO.new)
     end

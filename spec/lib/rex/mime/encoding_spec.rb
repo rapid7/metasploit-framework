@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/mime'
 
-describe Rex::MIME::Encoding do
+RSpec.describe Rex::MIME::Encoding do
 
   subject do
     mod = Class.new

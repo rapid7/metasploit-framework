@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/encoder/nonalpha'
 
-describe Rex::Encoder::NonAlpha do
+RSpec.describe Rex::Encoder::NonAlpha do
 
   let(:decoder) do
     dec = "\x66\xB9\xFF\xFF" +
