@@ -264,10 +264,14 @@ protected
 
     self.pending_connections += 1
 
+    luriprint = ""
+    if !datastore['LURI'].empty?
+      luriprint = "-> (#{datastore['LURI']}) "
+    end
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
+        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
         if datastore['LURI'] != "/"
           conn_id = (datastore['LURI']) + conn_id
         end
@@ -283,7 +287,7 @@ protected
         resp.body = pkt.to_r
 
       when :init_python
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Staging Python payload ...")
         url = payload_uri(req) + conn_id + '/'
         conn_id = (datastore['LURI']) + conn_id
 
@@ -313,7 +317,7 @@ protected
         })
 
       when :init_java
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
         conn_id = (datastore['LURI']) + conn_id
 
@@ -338,7 +342,7 @@ protected
         })
 
       when :init_native
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
         uri = URI(payload_uri(req) + conn_id)
         conn_id = (datastore['LURI']) + conn_id
@@ -370,7 +374,7 @@ protected
         })
 
       when :connect
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Attaching orphaned/stageless session ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Attaching orphaned/stageless session ...")
 
         resp.body = ''
         conn_id = req.relative_resource
