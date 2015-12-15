@@ -551,7 +551,7 @@ class ReadableText
         sinfo = sinfo[0,77] + "..."
       end
 
-      if !session.exploit_datastore['LURI'].empty?
+      if session.exploit_datastore.has_key?('LURI') and !session.exploit_datastore['LURI'].empty?
         luri = " (#{session.exploit_datastore['LURI']})"
       end
       row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + "#{luri} (#{session.session_host})" ]
