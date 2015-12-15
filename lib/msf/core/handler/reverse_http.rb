@@ -66,7 +66,8 @@ module ReverseHttp
 
   def print_prefix
     if Thread.current[:cli]
-      super + "#{listener_uri} handling request from #{Thread.current[:cli].peerhost}; (UUID: #{uuid.to_s}) "
+      luri = datastore['LURI'].empty? ? "" : "-> (#{datastore['LURI']}) "
+      super + "#{listener_uri} handling request from #{Thread.current[:cli].peerhost}#{luri}; (UUID: #{uuid.to_s}) "
     else
       super
     end
@@ -285,7 +286,7 @@ protected
         resp.body = pkt.to_r
 
       when :init_python
-        print_status("Staging Python payload ...")
+        print_status("Staging Python payload...")
         url = payload_uri(req) + conn_id + '/'
         conn_id = (datastore['LURI']) + conn_id
 
@@ -315,7 +316,7 @@ protected
         })
 
       when :init_java
-        print_status("Staging Java payload ...")
+        print_status("Staging Java payload...")
         url = payload_uri(req) + conn_id + "/\x00"
         conn_id = (datastore['LURI']) + conn_id
 
@@ -340,7 +341,7 @@ protected
         })
 
       when :init_native
-        print_status("Staging Native payload ...")
+        print_status("Staging Native payload...")
         url = payload_uri(req) + conn_id + "/\x00"
         uri = URI(payload_uri(req) + conn_id)
         conn_id = (datastore['LURI']) + conn_id
@@ -377,7 +378,7 @@ protected
         end
 
       when :connect
-        print_status("Attaching orphaned/stageless session ...")
+        print_status("Attaching orphaned/stageless session...")
 
         resp.body = ''
         conn_id = req.relative_resource
