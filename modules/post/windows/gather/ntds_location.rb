@@ -39,10 +39,10 @@ class Metasploit3 < Msf::Post
     if file?(ntds)
       f = client.fs.file.stat(ntds)
       print_line("NTDS.DIT is located at: #{ntds}")
-      print_line("      Size: #{f.size} bytes")
-      print_line("   Created: #{f.ctime}")
-      print_line("  Modified: #{f.mtime}")
-      print_line("  Accessed: #{f.atime}")
+      print_line("      Size: #{f.size.to_s} bytes")
+      print_line("   Created: #{f.ctime.to_s}")
+      print_line("  Modified: #{f.mtime.to_s}")
+      print_line("  Accessed: #{f.atime.to_s}")
     else
       print_error("NTDS.DIT is reportedly located at '#{ntds}' but the file does not appear to exist")
     end
