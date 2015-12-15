@@ -207,12 +207,12 @@ class Metasploit3 < Msf::Auxiliary
     users_table = Rex::Ui::Text::Table.new(
       'Header' => 'Dahua Users Hashes and Rights',
       'Indent' => 1,
-      'Columns' => ['Username', 'Password Hash', 'Groups', 'Permissions', 'Description']
+      'Columns' => ['Peer', 'Username', 'Password Hash', 'Groups', 'Permissions', 'Description']
     )
     data.each do |val|
       usercount += 1
       user, md5hash, groups, rights, name = val.match(/^.*:(.*):(.*):(.*):(.*):(.*):(.*)$/).captures
-      users_table << [user, md5hash, groups, rights, name]
+      users_table << [ peer, user, md5hash, groups, rights, name]
       # Write the dahua hash to the database
       hash = "#{rhost} #{user}:$dahua$#{md5hash}"
       report_hash(rhost, rport, user, hash)
