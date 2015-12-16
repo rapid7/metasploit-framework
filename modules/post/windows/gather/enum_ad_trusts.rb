@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
       'License'      => MSF_LICENSE,
       'Platform'     => ['win'],
       'SessionTypes' => ['meterpreter'],
-      'Author'       => ['Stuart Morgan <ben.campbell[at]mwrinfosecurity.com>'],
+      'Author'       => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'],
     ))
 
     register_options([
@@ -48,25 +48,35 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    # Results table holds raw string data
+    num = trust_results[:results].size
+
+    # Draw the results table with the 
     results_table = Rex::Ui::Text::Table.new(
-      'Header'     => 'Domain Trusts',
+      'Header'     => "#{num.to_s} Domain Trust" + (num==1)?"":"s",
       'Indent'     => 1,
       'SortIndex'  => -1,
       'Columns'    => ldap_names
     )
 
-    q[:results].each do |result|
+    trust_results[:results].each do |result|
       row = []
 
-      result.each do |field|
+      # Go through each of the fields translating each one if necessary
+      result.each_with_index do |field,index|
+        if field.nil?
+            field_value = ''
+            next
+        end
+
         field_value = (field.nil? ? '' : field[:value])
         row << field_value
       end
 
+      # Add the row to the results table
       results_table << row
     end
 
+    # Draw the whole table
     print_line results_table.to_s
 
   end
