@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
                      ))
 
     register_options([
-      OptInt.new('MAX_SEARCH', [true, 'Maximum number of items.', '500'])
+      OptInt.new('MAX_SEARCH', [true, 'Maximum number of trusts.', '100'])
     ], self.class)
   end
 
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
     max_search = datastore['MAX_SEARCH']
 
     begin
-      trust_results = query(search_filter, max_search, fields)
+      trust_results = query(search_filter, max_search, ldap_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error(e.message)
       return
