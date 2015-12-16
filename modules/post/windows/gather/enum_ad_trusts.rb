@@ -31,8 +31,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    ldap_fields = ['flatname','cn','instanceType','securityIdentifier','trustAttributes','trustDirection','trustType','whenCreated','whenChanged']
-    ldap_names = ['Name','Domain','Type','SID','Attributes','Direction','Trust Type','Created','Changed']
+    ldap_fields = ['flatname','cn','securityIdentifier','trustAttributes','trustDirection','trustType','whenCreated','whenChanged']
+    ldap_names = ['Name','Domain','SID','Attributes','Direction','Trust Type','Created','Changed']
     search_filter = '(objectClass=trustedDomain)'
     max_search = datastore['MAX_SEARCH']
 
@@ -68,7 +68,14 @@ class Metasploit3 < Msf::Post
             next
         end
 
-        field_value = (field.nil? ? '' : field[:value])
+        if index==3 #trustAttributes
+            field_value = translate_trustAttributes(field[:value])
+        elsif index==4 #trustDirection
+            field_value = translate_trustDirection(field[:value])
+        else
+            field_value = field[:value].to_s
+        end
+
         row << field_value
       end
 
@@ -79,5 +86,24 @@ class Metasploit3 < Msf::Post
     # Draw the whole table
     print_line results_table.to_s
 
+  end
+
+
+  # Translate the trustAttributes parameter
+  # https://msdn.microsoft.com/en-us/library/cc223779.aspx
+  def translate_trustAttributes(val) 
+    result = []
+    result << 'Non Transitive' if val & 0x00000001
+    result << 'Uplevel Only' if val & 0x00000002
+    result << 'Quarantined' if val & 0x00000004
+    result << 'Transitive' if val & 0x00000008
+    result << 'Cross Organisation' if val & 0x00000010
+    result << 'Within Forest' if val & 0x00000020
+    result << 'Treat As External' if val & 0x00000040
+    result << 'Uses RC4 Encryption' if val & 0x00000080
+    result << 'No TGT Delegation' if val & 0x00000200
+    result << 'PIM Trust' if val & 0x00000400
+    return '' unless result.nil?
+    return result.join(',')
   end
 end
