@@ -72,6 +72,8 @@ class Metasploit3 < Msf::Post
             field_value = translate_trustAttributes(field[:value])
         elsif index==4 #trustDirection
             field_value = translate_trustDirection(field[:value])
+        elsif index==5 #trustType
+            field_value = translate_trustType(field[:value])
         else
             field_value = field[:value].to_s
         end
@@ -105,6 +107,17 @@ class Metasploit3 < Msf::Post
     result << 'PIM Trust' if val & 0x00000400
     return '' unless result.nil?
     return result.join(',')
+  end
+
+  # Translate the trustDirection parameter
+  # https://msdn.microsoft.com/en-us/library/cc223768.aspx
+  def translate_trustDirection(val) 
+    result = []
+    result = 'Disabled' if val == 0x00000000
+    result = 'Inbound' if val == 0x00000001
+    result = 'Outbound' if val == 0x00000002
+    result = 'Bidirectional' if val == 0x00000003
+    return result
   end
 
   # Translate the trustAttributes parameter
