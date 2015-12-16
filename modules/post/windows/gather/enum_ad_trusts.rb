@@ -26,26 +26,25 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptBool.new('STORE_LOOT', [true, 'Store file in loot.', true]),
-      OptString.new('FIELDS', [true, 'FIELDS to retrieve.', 'distinguishedName,msFVE-RecoveryPassword']),
-      OptString.new('FILTER', [true, 'Search filter.', '(objectClass=msFVE-RecoveryInformation)'])
+      OptInt.new('MAX_SEARCH', [true, 'Maximum number of items.', '500'])
     ], self.class)
   end
 
   def run
-    fields = datastore['FIELDS'].gsub(/\s+/, "").split(',')
-    search_filter = datastore['FILTER']
+    ldap_fields = ['flatname','cn','instanceType','securityIdentifier','trustAttributes','trustDirection','trustType','whenCreated','whenChanged']
+    ldap_names = ['Name','Domain','Type','SID','Attributes','Direction','Trust Type','Created','Changed']
+    search_filter = '(objectClass=trustedDomain)'
     max_search = datastore['MAX_SEARCH']
 
     begin
-      q = query(search_filter, max_search, fields)
+      trust_results = query(search_filter, max_search, fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error(e.message)
       return
     end
 
-    if q.nil? || q[:results].empty?
-      print_status('No results found...')
+    if trust_results.nil? || trust_results[:results].empty?
+      print_error('No trusts found.')
       return
     end
 
