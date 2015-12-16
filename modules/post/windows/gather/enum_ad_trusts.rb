@@ -69,11 +69,13 @@ class Metasploit3 < Msf::Post
         end
 
         if index==3 #trustAttributes
-            field_value = translate_trustAttributes(field[:value])
+            field_value = translate_trust_attributes(field[:value])
         elsif index==4 #trustDirection
-            field_value = translate_trustDirection(field[:value])
+            field_value = translate_trust_direction(field[:value])
         elsif index==5 #trustType
-            field_value = translate_trustType(field[:value])
+            field_value = translate_trust_type(field[:value])
+        elsif index==2 #SID
+            field_value = sid_hex_to_string(field[:value])
         else # Just add the raw data
             field_value = field[:value].to_s
         end
@@ -93,7 +95,7 @@ class Metasploit3 < Msf::Post
 
   # Translate the trustAttributes parameter
   # https://msdn.microsoft.com/en-us/library/cc223779.aspx
-  def translate_trustAttributes(val)
+  def translate_trust_attributes(val)
     result = []
     result << 'Non Transitive' if val & 0x00000001
     result << 'Uplevel Only' if val & 0x00000002
@@ -111,7 +113,7 @@ class Metasploit3 < Msf::Post
 
   # Translate the trustDirection parameter
   # https://msdn.microsoft.com/en-us/library/cc223768.aspx
-  def translate_trustDirection(val)
+  def translate_trust_direction(val)
     result = ''
     result = 'Disabled' if val == 0x00000000
     result = 'Inbound' if val == 0x00000001
@@ -122,7 +124,7 @@ class Metasploit3 < Msf::Post
 
   # Translate the trustType parameter
   # https://msdn.microsoft.com/en-us/library/cc223771.aspx
-  def translate_trustType(val)
+  def translate_trust_type(val)
     result = ''
     result = 'Downlevel (No AD)' if val == 0x00000001
     result = 'Uplevel (AD)' if val == 0x00000002
