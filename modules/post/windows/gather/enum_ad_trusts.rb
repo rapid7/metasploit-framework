@@ -31,8 +31,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    ldap_fields = ['flatname','cn','securityIdentifier','trustAttributes','trustDirection','trustType','whenCreated','whenChanged']
-    ldap_names = ['Name','Domain','SID','Attributes','Direction','Trust Type','Created','Changed']
+    ldap_fields = ['flatname','cn','securityIdentifier','trustAttributes','trustDirection','trustType','whenCreated','whenChanged','distinguishedName']
+    ldap_names = ['Name','Domain','SID','Attributes','Direction','Trust Type','Created','Changed','DN']
     search_filter = '(objectClass=trustedDomain)'
     max_search = datastore['MAX_SEARCH']
 
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
             field_value = translate_trustDirection(field[:value])
         elsif index==5 #trustType
             field_value = translate_trustType(field[:value])
-        else
+        else # Just add the raw data
             field_value = field[:value].to_s
         end
 
@@ -130,4 +130,29 @@ class Metasploit3 < Msf::Post
     result = 'DCE (Historic)' if val == 0x00000004
     return result
   end
+
+  # Convert the SID from Hex to printable string.
+  # https://msdn.microsoft.com/en-us/library/cc223778.aspx
+  #  Byte [1]: SID structure revision (always 1, but it could change in the future). 
+  #  Byte [2]: The number of sub-authorities in the SID. (i.e. the number of blocks from byte 10 onwards)
+  #  Bytes [3-9]: Identifier Authority - convert to hex as the second number group.
+  #  The rest: A variable length list of unsigned 32bit integers, the number of which is defined in byte 2.
+  #  i.e. S-[1]-[3-9]-[10+] < the number of '10+' groups is defined by [2]
+  def sid_hex_to_string(sidhex)
+  sid = []
+  sid << data[0].to_s
+  rid = ''
+  (6).downto(1) do |i|
+    rid += byte2hex(data[i,1][0])
+  end
+  sid << rid.to_i.to_s
+  sid += data.unpack("bbbbbbbbV*")[8..-1]
+  "S-" + sid.join('-')
+ end
+ def byte2hex(b)
+  ret = '%x' % (b.to_i & 0xff)
+  ret = '0' + ret if ret.length < 2
+  ret
+ end
+
 end
