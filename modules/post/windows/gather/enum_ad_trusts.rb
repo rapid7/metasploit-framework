@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'         => 'Enumerate Active Directory Trusts From Current Domain',
       'Description'  => %q{
-        This module will enumerate AD trusts from the current domain, including decoding 
+        This module will enumerate AD trusts from the current domain, including decoding
         of the remote SIDs. This could be particularly useful when creating golden tickets
         with a SID history, or just to immediately map the available trusts.
       },
@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
 
     num = trust_results[:results].size
 
-    # Draw the results table with the 
+    # Draw the results table with the
     results_table = Rex::Ui::Text::Table.new(
       'Header'     => "#{num.to_s} Domain Trust" + (num==1)?"":"s",
       'Indent'     => 1,
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Post
 
   # Translate the trustAttributes parameter
   # https://msdn.microsoft.com/en-us/library/cc223779.aspx
-  def translate_trustAttributes(val) 
+  def translate_trustAttributes(val)
     result = []
     result << 'Non Transitive' if val & 0x00000001
     result << 'Uplevel Only' if val & 0x00000002
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Post
 
   # Translate the trustDirection parameter
   # https://msdn.microsoft.com/en-us/library/cc223768.aspx
-  def translate_trustDirection(val) 
+  def translate_trustDirection(val)
     result = ''
     result = 'Disabled' if val == 0x00000000
     result = 'Inbound' if val == 0x00000001
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Post
 
   # Translate the trustType parameter
   # https://msdn.microsoft.com/en-us/library/cc223771.aspx
-  def translate_trustType(val) 
+  def translate_trustType(val)
     result = ''
     result = 'Downlevel (No AD)' if val == 0x00000001
     result = 'Uplevel (AD)' if val == 0x00000002
@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Post
 
   # Convert the SID from Hex to printable string.
   # https://msdn.microsoft.com/en-us/library/cc223778.aspx
-  #  Byte [1]: SID structure revision (always 1, but it could change in the future). 
+  #  Byte [1]: SID structure revision (always 1, but it could change in the future).
   #  Byte [2]: The number of sub-authorities in the SID. (i.e. the number of blocks from byte 10 onwards)
   #  Bytes [3-9]: Identifier Authority - convert to hex as the second number group.
   #  The rest: A variable length list of unsigned 32bit integers, the number of which is defined in byte 2.
