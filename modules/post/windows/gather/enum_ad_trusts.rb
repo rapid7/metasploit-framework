@@ -106,4 +106,15 @@ class Metasploit3 < Msf::Post
     return '' unless result.nil?
     return result.join(',')
   end
+
+  # Translate the trustAttributes parameter
+  # https://msdn.microsoft.com/en-us/library/cc223779.aspx
+  def translate_trustDirection(val) 
+    result = []
+    result = 'Disabled' if val == 0x00000000
+    result = 'Inbound' if val == 0x00000001
+    result = 'Outbound' if val == 0x00000002
+    result = 'Bidirectional' if val == 0x00000003
+    return result
+  end
 end
