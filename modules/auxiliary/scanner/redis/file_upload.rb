@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
     # keys.
     if datastore['DISABLE_RDBCOMPRESSION'] && original_rdbcompression.upcase == 'YES'
       data = redis_command('CONFIG', 'SET', 'rdbcompression', 'no')
-      return unless data.include?('+OK')
+      print_error("#{peer} -- Unable to disable rdbcompresssion") unless data.include?('+OK')
     end
 
     # set a key in this db that contains our content
