@@ -44,16 +44,16 @@ class Metasploit3 < Msf::Post
     end
 
     if trust_results.nil? || trust_results[:results].empty?
-      print_error('No trusts found.')
+      print_error('No trusts found')
       return
     end
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
-      'Header'     => 'BitLocker Recovery Passwords',
+      'Header'     => 'Domain Trusts',
       'Indent'     => 1,
       'SortIndex'  => -1,
-      'Columns'    => fields
+      'Columns'    => ldap_names
     )
 
     q[:results].each do |result|
@@ -69,9 +69,5 @@ class Metasploit3 < Msf::Post
 
     print_line results_table.to_s
 
-    if datastore['STORE_LOOT']
-      stored_path = store_loot('bitlocker.recovery', 'text/plain', session, results_table.to_csv)
-      print_status("Results saved to: #{stored_path}")
-    end
   end
 end
