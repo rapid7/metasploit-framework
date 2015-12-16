@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Post
 
     register_options([
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
+      OptString.new('FILTER', [false, 'Customised LDAP filter', nil]),
     ], self.class)
   end
 
@@ -46,7 +47,9 @@ class Metasploit3 < Msf::Post
     max_search = datastore['MAX_SEARCH']
 
     begin
-      q = query('(objectClass=group)', max_search, @user_fields)
+      f = ""
+      f = "(#{datastore['FILTER']})" if datastore['FILTER']
+      q = query("(&(objectClass=group)#{f})", max_search, @user_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
