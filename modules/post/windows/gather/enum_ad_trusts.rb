@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
   # Translate the trustDirection parameter
   # https://msdn.microsoft.com/en-us/library/cc223768.aspx
   def translate_trustDirection(val) 
-    result = []
+    result = ''
     result = 'Disabled' if val == 0x00000000
     result = 'Inbound' if val == 0x00000001
     result = 'Outbound' if val == 0x00000002
@@ -120,14 +120,14 @@ class Metasploit3 < Msf::Post
     return result
   end
 
-  # Translate the trustAttributes parameter
-  # https://msdn.microsoft.com/en-us/library/cc223779.aspx
-  def translate_trustDirection(val) 
-    result = []
-    result = 'Disabled' if val == 0x00000000
-    result = 'Inbound' if val == 0x00000001
-    result = 'Outbound' if val == 0x00000002
-    result = 'Bidirectional' if val == 0x00000003
+  # Translate the trustType parameter
+  # https://msdn.microsoft.com/en-us/library/cc223771.aspx
+  def translate_trustType(val) 
+    result = ''
+    result = 'Downlevel (No AD)' if val == 0x00000001
+    result = 'Uplevel (AD)' if val == 0x00000002
+    result = 'MIT (Not Windows)' if val == 0x00000003
+    result = 'DCE (Historic)' if val == 0x00000004
     return result
   end
 end
