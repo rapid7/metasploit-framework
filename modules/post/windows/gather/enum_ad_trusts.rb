@@ -31,8 +31,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    ldap_fields = ['flatname', 'cn', 'securityIdentifier', 'trustAttributes', 'trustDirection', 'trustType', 'whenCreated', 'whenChanged', 'distinguishedName']
-    ldap_names = ['Name', 'Domain', 'SID', 'Attributes', 'Direction', 'Trust Type', 'Created', 'Changed', 'DN']
+    ldap_fields = ['flatname', 'cn', 'securityIdentifier', 'trustAttributes', 'trustDirection', 'trustType', 'distinguishedName']
+    ldap_names = ['Name', 'Domain', 'SID', 'Attributes', 'Direction', 'Trust Type', 'DN']
     search_filter = '(objectClass=trustedDomain)'
     max_search = datastore['MAX_SEARCH']
 
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 
     # Draw the results table with the
     results_table = Rex::Ui::Text::Table.new(
-      'Header'     => "#{num} Domain Trust" + (num == 1) ? "" : "s",
+      'Header'     => "#{num} Domain Trust(s)", 
       'Indent'     => 1,
       'SortIndex'  => -1,
       'Columns'    => ldap_names
@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Post
   #  Bytes [3-9]: Identifier Authority - convert to hex as the second number group.
   #  The rest: A variable length list of unsigned 32bit integers, the number of which is defined in byte 2.
   #  i.e. S-[1]-[3-9]-[10+] < the number of '10+' groups is defined by [2]
-  def sid_hex_to_string(_sidhex)
+  def sid_hex_to_string(data)
     sid = []
     sid << data[0].to_s
     rid = ''
