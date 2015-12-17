@@ -29,14 +29,21 @@ class Metasploit3 < Msf::Post
     ))
   end
 
-  def get_grouplist(query_filter,max_search)
-      q = query(query_filter, max_search, @user_fields)
-  end
-
   def run
+    max_search = 0
+
+    # Download the list of groups
+    begin
+      group_fields = ['objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated']
+      groups = query(query_filter, max_search, @group_fields)
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      print_error(e.message)
+      return
+    end
+
 
   end
-end
+end 
 
 #    @user_fields = USER_FIELDS.dup
 #
