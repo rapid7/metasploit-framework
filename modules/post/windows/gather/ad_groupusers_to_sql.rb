@@ -5,6 +5,7 @@
 
 require 'rex'
 require 'msf/core'
+require 'sqlite3'
 
 class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
@@ -53,12 +54,16 @@ class Metasploit3 < Msf::Post
     users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','title','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated']
     groups[:results].each do |individual_group|
       begin
-        # Perform the ADSI query to retrieve the effective users in each group
+        # Perform the ADSI query to retrieve the effective users in each group (recursion)
         vprint_status "Retrieving members of #{individual_group[3].to_s}"
         users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0].to_s}))"
         users_in_group = query(users_filter, max_search, @users_fields)
         next if users_in_group.nil? || users_in_group[:results].empty?
-    
+     
+        # Go through each of the users in the group
+        users_in_group[:results].each do |group_user|
+          print_line "Group [#{individual_group[3].to_s}] has member [#{group_user[3].to_s}]"
+        end
       rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
         print_error("Error(Users): #{e.message.to_s}")
         return
