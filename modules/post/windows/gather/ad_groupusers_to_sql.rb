@@ -33,11 +33,12 @@ class Metasploit3 < Msf::Post
     max_search = 0
 
     # Download the list of groups from Active Directory
+    vprint_status "Retrieving AD Groups"
     begin
       group_fields = ['distinguishedName','objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated','description']
       groups = query(query_filter, max_search, @group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
-      print_error("Group: #{e.message}")
+      print_error("Error(Group): #{e.message.to_s}")
       return
     end
 
@@ -47,14 +48,19 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    # Go through each of the groups
+    # Go through each of the groups and identify the individual users in each group
+    vprint_status "Retrieving AD Group Membership"
+    users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','title','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated']
     groups[:results].each do |individual_group|
       begin
-        users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','title','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated']
+        # Perform the ADSI query to retrieve the effective users in each group
+        vprint_status "Retrieving members of #{individual_group[3].to_s}"
         users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0].to_s}))"
         users_in_group = query(users_filter, max_search, @users_fields)
+        next if users_in_group.nil? || users_in_group[:results].empty?
+    
       rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
-        print_error("Users: #{e.message}")
+        print_error("Error(Users): #{e.message.to_s}")
         return
       end
     end
