@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 
     # Download the list of groups from Active Directory
     begin
-      group_fields = ['distinguishedName','objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated']
+      group_fields = ['distinguishedName','objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated','description']
       groups = query(query_filter, max_search, @group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error(e.message)
@@ -49,14 +49,14 @@ class Metasploit3 < Msf::Post
 
     # Go through each of the groups
     groups[:results].each do |individual_group|
-    begin
-      users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{datastore['GROUP_MEMBER']}))"
-      users_in_group = query(query_filter, max_search, @group_fields)
-    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
-      print_error(e.message)
-      return
-    end
-
+      begin
+        users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','title','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated']
+        users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0].to_s}))"
+        users_in_group = query(query_filter, max_search, @group_fields)
+      rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+        print_error(e.message)
+        return
+      end
     end
 
   end
