@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
       group_fields = ['distinguishedName','objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated','description']
       groups = query(query_filter, max_search, @group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
-      print_error(e.message)
+      print_error("Group: #{e.message}")
       return
     end
 
@@ -52,9 +52,9 @@ class Metasploit3 < Msf::Post
       begin
         users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','title','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated']
         users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0].to_s}))"
-        users_in_group = query(query_filter, max_search, @group_fields)
+        users_in_group = query(users_filter, max_search, @users_fields)
       rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
-        print_error(e.message)
+        print_error("Users: #{e.message}")
         return
       end
     end
