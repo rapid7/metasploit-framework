@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
   def run
     max_search = 0
 
-    # Download the list of groups
+    # Download the list of groups from Active Directory
     begin
       group_fields = ['objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated']
       groups = query(query_filter, max_search, @group_fields)
@@ -41,6 +41,15 @@ class Metasploit3 < Msf::Post
       return
     end
 
+    # If no groups were downloaded, there's no point carrying on
+    if groups.nil? || groups[:results].empty?
+      print_error('No AD groups were discovered')
+      return
+    end
+
+    groups[:results].each do |individual_group|
+
+    end
 
   end
 end 
