@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 
     # Download the list of groups from Active Directory
     begin
-      group_fields = ['objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated']
+      group_fields = ['distinguishedName','objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated']
       groups = query(query_filter, max_search, @group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error(e.message)
@@ -47,7 +47,15 @@ class Metasploit3 < Msf::Post
       return
     end
 
+    # Go through each of the groups
     groups[:results].each do |individual_group|
+    begin
+      users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{datastore['GROUP_MEMBER']}))"
+      users_in_group = query(query_filter, max_search, @group_fields)
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      print_error(e.message)
+      return
+    end
 
     end
 
