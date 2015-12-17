@@ -93,7 +93,8 @@ class Metasploit3 < Msf::Post
 
   # Translate the trustAttributes parameter
   # https://msdn.microsoft.com/en-us/library/cc223779.aspx
-  def translate_trust_attributes(val)
+  def translate_trust_attributes(val_original)
+    val = val_original.to_i
     result = []
     result << 'Non Transitive' if val & 0x00000001
     result << 'Uplevel Only' if val & 0x00000002
