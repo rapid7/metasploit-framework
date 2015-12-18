@@ -27,6 +27,11 @@ class Metasploit3 < Msf::Post
       'Platform'     => [ 'win' ],
       'SessionTypes' => [ 'meterpreter' ]
     ))
+
+    register_options([
+      OptBool.new('SHOW_USERGROUPS', [true, 'Show the user/group membership in a greppable form.', false]),
+      OptBool.new('SHOW_COMPUTERS', [true, 'Show basic computer information in a greppable form.', false])
+    ], self.class)
   end
 
   # Entry point
@@ -74,7 +79,7 @@ class Metasploit3 < Msf::Post
                             sAMAccountName: individual_group[3][:value].to_s,
                             whenChanged: individual_group[4][:value].to_s,
                             whenCreated: individual_group[5][:value].to_s,
-                            description: individual_group[6][:value].to_s
+                            description: individual_group[6][:value].to_s,
                             groupType: individual_group[7][:value].to_i,
                             adminCount: individual_group[8][:value].to_i,
                           }
@@ -83,7 +88,7 @@ class Metasploit3 < Msf::Post
         # Go through each of the users in the group
         users_in_group[:results].each do |group_user|
           user_sid, user_rid = sid_hex_to_string(group_user[1][:value])
-          print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]"
+          print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
 
           # Add the group to the database
           sql_param_user = { rid: user_rid.to_i,
@@ -98,10 +103,10 @@ class Metasploit3 < Msf::Post
                              whenChanged: group_user[9][:value].to_s,
                              whenCreated: group_user[10][:value].to_s,
                              primaryGroupID: group_user[11][:value].to_i,
-                             badPwdCount: group_user[12][:value].to_i
-                             comments: group_user[13][:value].to_s
-                             title: group_user[14][:value].to_s
-                             accounExpires: group_user[15][:value].to_i
+                             badPwdCount: group_user[12][:value].to_i,
+                             comments: group_user[13][:value].to_s,
+                             title: group_user[14][:value].to_s,
+                             accountExpires: group_user[15][:value].to_i,
                              adminCount: group_user[16][:value].to_i
                            }
           run_sqlite_query(db, 'ad_users', sql_param_user)
@@ -150,6 +155,7 @@ class Metasploit3 < Msf::Post
                              operatingSystemVersion: comp[15][:value].to_s,
                            }
           run_sqlite_query(db, 'ad_computers', sql_param_computer)
+          print_line "Computer [#{sql_param_computer[:cn]}][#{sql_param_computer[:dNSHostName]}][#{sql_param_computer[:rid]}]" if datastore['SHOW_USERGROUPS']
         end
 
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
@@ -185,6 +191,7 @@ class Metasploit3 < Msf::Post
                            'cn TEXT,'\
                            'sAMAccountType INTEGER,'\
                            'sAMAccountName TEXT UNIQUE,'\
+                           'dNSHostName TEXT,'\
                            'displayName TEXT,'\
                            'logonCount INTEGER,'\
                            'userAccountControl INTEGER,'\
