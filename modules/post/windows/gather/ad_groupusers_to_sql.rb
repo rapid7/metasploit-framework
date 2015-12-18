@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 
     # Go through each of the groups and identify the individual users in each group
     vprint_status "Retrieving AD Group Membership"
-    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount']
+    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount','comments', 'title']
     group_counter = 0
     groups[:results].each do |individual_group|
       begin
@@ -88,15 +88,19 @@ class Metasploit3 < Msf::Post
           # Add the group to the database
           sql_param_user = { rid: user_rid.to_i,
                              distinguishedName: group_user[0][:value].to_s,
+                             sAMAccountType: group_user[2][:value].to_i,
                              sAMAccountName: group_user[3][:value].to_s,
                              displayName: group_user[4][:value].to_s,
                              description: group_user[5][:value].to_s,
                              logonCount: group_user[6][:value].to_i,
+                             userAccountControl: group_user[7][:value].to_i,
                              userPrincipalName: group_user[8][:value].to_s,
-                             whenChanged: group_user[8][:value].to_s,
-                             whenCreated: group_user[8][:value].to_s,
-                             primaryGroupID: group_user[9][:value].to_i,
-                             badPwdCount: group_user[10][:value].to_i
+                             whenChanged: group_user[9][:value].to_s,
+                             whenCreated: group_user[10][:value].to_s,
+                             primaryGroupID: group_user[11][:value].to_i,
+                             badPwdCount: group_user[12][:value].to_i
+                             comments: group_user[13][:value].to_s
+                             title: group_user[14][:value].to_s
                            }
           run_sqlite_query(db, 'ad_users', sql_param_user)
 
