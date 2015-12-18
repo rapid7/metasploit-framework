@@ -70,11 +70,12 @@ class Metasploit3 < Msf::Post
 
     # Loop through each of the groups, creating threads where necessary
     while(not remaining_groups.nil? and not remaining_groups.empty?)
-      print_good "Remaining groups: #{remaining_groups.count}"
       group_gather = []
       1.upto(threadcount) do
         group_gather << framework.threads.spawn("Module(#{self.refname})", false, remaining_groups.shift) do |individual_group|
 	      begin
+
+            next if !individual_group || individual_group.empty? || individual_group.nil?
 
             # Get the Group RID
 	        group_sid, group_rid = sid_hex_to_string(individual_group[1][:value])
@@ -193,7 +194,8 @@ class Metasploit3 < Msf::Post
   # Creat the SQLite Database
   def create_sqlite_db
     begin
-      filename = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('ad', 5)}.db"
+      obj_temp = ::Dir::Tmpname
+      filename = "#{obj_temp.tmpdir}/#{obj_temp.make_tmpname('ad_', 2)}.db"
       db = SQLite3::Database.new(filename)
 
       # Create the table for the AD Computers
