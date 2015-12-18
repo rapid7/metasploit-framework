@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 
     # Go through each of the groups and identify the individual users in each group
     vprint_status "Retrieving AD Group Membership"
-    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount','comments', 'title']
+    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount','comments', 'title', 'accountExpires', 'adminCount']
     group_counter = 0
     groups[:results].each do |individual_group|
       begin
@@ -101,6 +101,8 @@ class Metasploit3 < Msf::Post
                              badPwdCount: group_user[12][:value].to_i
                              comments: group_user[13][:value].to_s
                              title: group_user[14][:value].to_s
+                             accounExpires: group_user[15][:value].to_i
+                             adminCount: group_user[16][:value].to_i
                            }
           run_sqlite_query(db, 'ad_users', sql_param_user)
 
@@ -216,11 +218,17 @@ class Metasploit3 < Msf::Post
                            'distinguishedName TEXT UNIQUE NOT NULL,'\
                            'description TEXT,'\
                            'displayName TEXT,'\
+                           'sAMAccountType INTEGER,'\
                            'sAMAccountName TEXT,'\
                            'logonCount INTEGER,'\
+                           'userAccountControl INTEGER,'\
                            'primaryGroupID INTEGER,'\
+                           'accountExpires INTEGER,'\
+                           'adminCount INTEGER,'\
                            'badPwdCount INTEGER,'\
                            'userPrincipalName TEXT UNIQUE,'\
+                           'comments TEXT,'\
+                           'title TEXT,'\
                            'whenCreated TEXT,'\
                            'whenChanged TEXT)'
       db.execute(sql_table_users)
