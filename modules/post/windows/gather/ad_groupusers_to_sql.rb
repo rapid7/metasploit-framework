@@ -105,6 +105,7 @@ class Metasploit3 < Msf::Post
 	          print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
 	
 	          # Add the group to the database
+              # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
 	          sql_param_user = { rid: user_rid.to_i,
 	                             distinguishedName: group_user[0][:value].to_s,
 	                             sAMAccountType: group_user[2][:value].to_i,
@@ -121,7 +122,56 @@ class Metasploit3 < Msf::Post
 	                             comments: group_user[13][:value].to_s,
 	                             title: group_user[14][:value].to_s,
 	                             accountExpires: group_user[15][:value].to_i,
-	                             adminCount: group_user[16][:value].to_i
+	                             adminCount: group_user[16][:value].to_i,
+                              # The login script is executed
+                              ADS_UF_SCRIPT: (group_user[7][:value].to_i & 0x00000001) ? 1 : 0, 
+                              #The user account is disabled.
+                              ADS_UF_ACCOUNTDISABLE: (group_user[7][:value].to_i & 0x00000002) ? 1 : 0, 
+                              #The home directory is required.
+                              ADS_UF_HOMEDIR_REQUIRED: (group_user[7][:value].to_i & 0x00000008) ? 1 : 0, 
+                              #The account is currently locked out.
+                              ADS_UF_LOCKOUT: (group_user[7][:value].to_i & 0x00000010) ? 1 : 0, 
+                              #No password is required.
+                              ADS_UF_PASSWD_NOTREQD: (group_user[7][:value].to_i & 0x00000020) ? 1 : 0,
+                              #The user cannot change the password.
+                              ADS_UF_PASSWD_CANT_CHANGE: (group_user[7][:value].to_i & 0x00000040) ? 1 : 0, 
+                              #The user can send an encrypted password.
+                              ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (group_user[7][:value].to_i & 0x00000080) ? 1 : 0, 
+                              #This is an account for users whose primary account is in another domain. This account
+                              #provides user access to this domain, but not to any domain that trusts this domain.
+                              #Also known as a local user account.
+                              ADS_UF_TEMP_DUPLICATE_ACCOUNT: (group_user[7][:value].to_i & 0x00000100) ? 1 : 0, 
+                              #This is a default account type that represents a typical user.
+                              ADS_UF_NORMAL_ACCOUNT: (group_user[7][:value].to_i & 0x00000200) ? 1 : 0, 
+                              #This is a permit to trust account for a system domain that trusts other domains.
+                              ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (group_user[7][:value].to_i & 0x00000800) ? 1 : 0, 
+                              #This is a computer account for a computer that is a member of this domain.
+                              ADS_UF_WORKSTATION_TRUST_ACCOUNT: (group_user[7][:value].to_i & 0x00001000) ? 1 : 0, 
+                              #This is a computer account for a system backup domain controller that is a member of this domain.
+                              ADS_UF_SERVER_TRUST_ACCOUNT: (group_user[7][:value].to_i & 0x00002000) ? 1 : 0, 
+                              #The password for this account will never expire.
+                              ADS_UF_DONT_EXPIRE_PASSWD: (group_user[7][:value].to_i & 0x00010000) ? 1 : 0, 
+                              #This is an MNS logon account.
+                              ADS_UF_MNS_LOGON_ACCOUNT: (group_user[7][:value].to_i & 0x00020000) ? 1 : 0, 
+                              #The user must log on using a smart card.
+                              ADS_UF_SMARTCARD_REQUIRED: (group_user[7][:value].to_i & 0x00040000) ? 1 : 0, 
+                              #The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation.
+                              #Any such service can impersonate a client requesting the service.
+                              ADS_UF_TRUSTED_FOR_DELEGATION: (group_user[7][:value].to_i & 0x00080000) ? 1 : 0, 
+                              #The security context of the user will not be delegated to a service even if the service 
+                              #account is set as trusted for Kerberos delegation.
+                              ADS_UF_NOT_DELEGATED: (group_user[7][:value].to_i & 0x00100000) ? 1 : 0, 
+                              #Restrict this principal to use only Data #Encryption Standard (DES) encryption types for keys.
+                              ADS_UF_USE_DES_KEY_ONLY: (group_user[7][:value].to_i & 0x00200000) ? 1 : 0, 
+                              #This account does not require Kerberos pre-authentication for logon.
+                              ADS_UF_DONT_REQUIRE_PREAUTH: (group_user[7][:value].to_i & 0x00400000) ? 1 : 0, 
+                              #The password has expired
+                              ADS_UF_PASSWORD_EXPIRED: (group_user[7][:value].to_i & 0x00800000) ? 1 : 0, 
+                              #The account is enabled for delegation. This is a security-sensitive setting; accounts with
+                              #this option enabled should be strictly controlled. This setting enables a service running 
+                              #under the account to assume a client identity and authenticate as that user to other remote 
+                              #servers on the network.
+                              ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (group_user[7][:value].to_i & 0x01000000) ? 1 : 0 
 	                           }
 	          run_sqlite_query(db, 'ad_users', sql_param_user)
 	
@@ -274,6 +324,9 @@ class Metasploit3 < Msf::Post
       db.execute(sql_table_ref_sac)
 
       # Now insert the data into the sAMAccoutType reference table
+      # SQLite v3.7+ supports a rather convoluted UNION SELECT way of adding multiple rows
+      # in one query but for the sake of simplicity and readability, I have just left these as
+      # separate insert statements. Its hardly an efficiency problem given the rest of the module!
   	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_DOMAIN_OBJECT',0)")
   	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_GROUP_OBJECT',0x10000000)") 
   	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_NON_SECURITY_GROUP_OBJECT',0x10000001)") 
