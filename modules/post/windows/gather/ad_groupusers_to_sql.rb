@@ -18,8 +18,7 @@ class Metasploit3 < Msf::Post
       'Name'         => 'AD Group & User Membership to Offline SQL Database',
       'Description'  => %{
         This module will gather a list of AD groups, identify the users (taking into account recursion)
-        and optionally write this to a greppable file, a SQLite database or a mysql-compatible SQL file
-        for offline analysis.
+        and write this to a SQLite database for offline analysis and query using normal SQL syntax.
       },
       'License'      => MSF_LICENSE,
       'Author'       => [
