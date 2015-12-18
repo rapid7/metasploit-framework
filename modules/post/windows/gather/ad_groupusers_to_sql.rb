@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 
     # Go through each of the groups and identify the individual users in each group
     vprint_status "Retrieving AD Group Membership"
-    users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated']
+    users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated','primaryGroupID','badPwdCount']
     group_counter = 0
     groups[:results].each do |individual_group|
       begin
@@ -84,9 +84,18 @@ class Metasploit3 < Msf::Post
           sql_param_user = { :rid => user_rid.to_i, 
                              :distinguishedName => group_user[0][:value].to_s,
                              :sAMAccountName => group_user[3][:value].to_s,
-                             :description => group_user[5][:value.to_s]
+                             :displayName => group_user[4][:value].to_s,
+                             :description => group_user[5][:value].to_s,
+                             :logonCount => group_user[6][:value].to_i,
+                             :userPrincipalName => group_user[8][:value].to_s,
+                             :whenChanged => group_user[8][:value].to_s,
+                             :whenCreated => group_user[8][:value].to_s,
+                             :primaryGroupID => group_user[9][:value].to_i,
+                             :badPwdCount => group_user[10][:value].to_i
                            }
-          db.execute("replace into ad_users (rid, distinguishedName, sAMAccountName, description) VALUES (:rid,:distinguishedName,:sAMAccountName,:description)", sql_param_user)
+
+          sql_param_bind_params = sql_param_user.keys.map {|k| ":#{k}"}
+          db.execute("replace into ad_users (#{sql_param_user.keys.join(',')}) VALUES (#{sql_param_bind_params.join(',')})", sql_param_user)
 
           # Now associate the user with the group
           sql_param_mapping = { :user_rid => user_rid.to_i, 
@@ -131,8 +140,11 @@ class Metasploit3 < Msf::Post
                           'rid INTEGER PRIMARY KEY NOT NULL,'\
                           'distinguishedName TEXT UNIQUE NOT NULL,'\
                           'description TEXT,'\
+                          'displayName TEXT,'\
                           'sAMAccountName TEXT,'\
                           'logonCount INTEGER,'\
+                          'primaryGroupID INTEGER,'\
+                          'badPwdCount INTEGER,'\
                           'userPrincipalName TEXT UNIQUE,'\
                           'whenCreated TEXT,'\
                           'whenChanged TEXT)'
