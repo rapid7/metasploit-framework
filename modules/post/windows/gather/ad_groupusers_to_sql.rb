@@ -71,9 +71,11 @@ class Metasploit3 < Msf::Post
         sql_param_group = { :rid => group_rid.to_i, 
                             :distinguishedName => individual_group[0][:value].to_s,
                             :sAMAccountName => individual_group[3][:value].to_s,
-                            :description => individual_group[4][:value].to_s
+                            :whenChanged => individual_group[4][:value].to_s,
+                            :whenCreated => individual_group[5][:value].to_s,
+                            :description => individual_group[6][:value].to_s
                           }
-        db.execute("insert into ad_groups (rid, distinguishedName, sAMAccountName, description) VALUES (:rid,:distinguishedName,:sAMAccountName,:description)", sql_param_group)
+        run_sqlite_query(db, 'ad_groups',sql_param_group)
 
         # Go through each of the users in the group
         users_in_group[:results].each do |group_user|
@@ -93,15 +95,13 @@ class Metasploit3 < Msf::Post
                              :primaryGroupID => group_user[9][:value].to_i,
                              :badPwdCount => group_user[10][:value].to_i
                            }
-
-          sql_param_bind_params = sql_param_user.keys.map {|k| ":#{k}"}
-          db.execute("replace into ad_users (#{sql_param_user.keys.join(',')}) VALUES (#{sql_param_bind_params.join(',')})", sql_param_user)
+          run_sqlite_query(db, 'ad_users',sql_param_user)
 
           # Now associate the user with the group
           sql_param_mapping = { :user_rid => user_rid.to_i, 
                                 :group_rid => group_rid.to_i
                               }
-          db.execute("insert into ad_mapping (user_rid,group_rid) VALUES (:user_rid,:group_rid)", sql_param_mapping)
+          run_sqlite_query(db, 'ad_mapping',sql_param_mapping)
 
           group_counter += 1
         end
@@ -113,9 +113,17 @@ class Metasploit3 < Msf::Post
 
     print_status "Enumerated #{group_counter} group(s)"
     if db and db.close
-        print_status "Database closed: #{dbfile.to_s}"
+        f = ::File.size(dbfile.to_s)
+        print_status "Database closed: #{dbfile.to_s} at #{f} byte(s)"
     end
   end
+
+ # Run the parameterised SQL query
+ def run_sqlite_query(db,table_name,values)
+   sql_param_columns = values.keys
+   sql_param_bind_params = values.keys.map {|k| ":#{k}"}
+   db.execute("replace into #{table_name} (#{sql_param_columns.join(',')}) VALUES (#{sql_param_bind_params.join(',')})", values)
+ end
 
  # Creat the SQLite Database
  def create_sqlite_db
@@ -128,8 +136,8 @@ class Metasploit3 < Msf::Post
      sql_table_group = 'CREATE TABLE ad_groups ('\
                           'rid INTEGER PRIMARY KEY NOT NULL,'\
                           'distinguishedName TEXT UNIQUE NOT NULL,'\
-                          'sAMAccountName TEXT UNIQUE,'\
-                          'description TEXT'\
+                          'sAMAccountName TEXT UNIQUE NOT NULL,'\
+                          'description TEXT,'\
                           'whenChanged TEXT,'\
                           'whenCreated TEXT)'
      db.execute(sql_table_group)
