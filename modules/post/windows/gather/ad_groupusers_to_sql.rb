@@ -30,7 +30,8 @@ class Metasploit3 < Msf::Post
 
     register_options([
       OptBool.new('SHOW_USERGROUPS', [true, 'Show the user/group membership in a greppable form.', false]),
-      OptBool.new('SHOW_COMPUTERS', [true, 'Show basic computer information in a greppable form.', false])
+      OptBool.new('SHOW_COMPUTERS', [true, 'Show basic computer information in a greppable form.', false]),
+      OptInt.new('THREADS', [true, 'Number of threads to spawn to gather membership of each group.', 20])
     ], self.class)
   end
 
@@ -61,7 +62,7 @@ class Metasploit3 < Msf::Post
     # Go through each of the groups and identify the individual users in each group
     vprint_status "Retrieving AD Group Membership"
     users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount','comments', 'title', 'accountExpires', 'adminCount']
-    group_counter = 0
+
     groups[:results].each do |individual_group|
       begin
 
@@ -85,7 +86,7 @@ class Metasploit3 < Msf::Post
                           }
         run_sqlite_query(db, 'ad_groups', sql_param_group)
 
-        # Go through each of the users in the group
+        # Go through each group user
         users_in_group[:results].each do |group_user|
           user_sid, user_rid = sid_hex_to_string(group_user[1][:value])
           print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
@@ -116,16 +117,13 @@ class Metasploit3 < Msf::Post
                                 group_rid: group_rid.to_i
                               }
           run_sqlite_query(db, 'ad_mapping', sql_param_mapping)
+      end
 
-          group_counter += 1
-        end
       rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
         print_error("Error(Users): #{e.message}")
         return
       end
     end
-
-    print_status "Enumerated #{group_counter} group(s)"
 
     vprint_status "Retrieving computers"
     begin
