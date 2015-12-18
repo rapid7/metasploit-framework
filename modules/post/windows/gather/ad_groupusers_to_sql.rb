@@ -112,10 +112,22 @@ class Metasploit3 < Msf::Post
     end
 
     print_status "Enumerated #{group_counter} group(s)"
+
+    vprint_status "Retrieving computers"
+    begin
+      computer_filter = '(objectClass=computer)'
+      computer_fields = ['distinguishedName', 'objectSid', 'cn','dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion']
+      groups = query(computer_filter, max_search, group_fields)
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      print_error("Error(Group): #{e.message}")
+      return
+    end
+
     if db && db.close
       f = ::File.size(dbfile.to_s)
       print_status "Database closed: #{dbfile} at #{f} byte(s)"
     end
+
   end
 
   # Run the parameterised SQL query
