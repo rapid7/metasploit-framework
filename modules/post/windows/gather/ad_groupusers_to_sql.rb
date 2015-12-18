@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'         => 'AD Group & User Membership to Offline SQL Database',
+      'Name'         => 'AD Group and User Membership to Offline SQLite Database Recon Module',
       'Description'  => %{
         This module will gather a list of AD groups, identify the users (taking into account recursion)
         and write this to a SQLite database for offline analysis and query using normal SQL syntax.
@@ -66,9 +66,9 @@ class Metasploit3 < Msf::Post
         users_in_group = query(users_filter, max_search, users_fields)
         next if users_in_group.nil? || users_in_group[:results].empty?
         group_sid, group_rid = sid_hex_to_string(individual_group[1][:value])
-     
+
         # Add the group to the database
-        sql_param_group = { :rid => group_rid.to_i, 
+        sql_param_group = { :rid => group_rid.to_i,
                             :distinguishedName => individual_group[0][:value].to_s,
                             :sAMAccountName => individual_group[3][:value].to_s,
                             :whenChanged => individual_group[4][:value].to_s,
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
           print_line "Group [#{individual_group[3][:value].to_s}][#{group_rid.to_s}] has member [#{group_user[3][:value].to_s}][#{user_rid.to_s}]"
 
           # Add the group to the database
-          sql_param_user = { :rid => user_rid.to_i, 
+          sql_param_user = { :rid => user_rid.to_i,
                              :distinguishedName => group_user[0][:value].to_s,
                              :sAMAccountName => group_user[3][:value].to_s,
                              :displayName => group_user[4][:value].to_s,
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Post
           run_sqlite_query(db, 'ad_users',sql_param_user)
 
           # Now associate the user with the group
-          sql_param_mapping = { :user_rid => user_rid.to_i, 
+          sql_param_mapping = { :user_rid => user_rid.to_i,
                                 :group_rid => group_rid.to_i
                               }
           run_sqlite_query(db, 'ad_mapping',sql_param_mapping)
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Post
    begin
      filename = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('ad', 5)}.db"
      db = SQLite3::Database.new(filename)
-     
+
      # Create the table for the AD Groups
      db.execute('DROP TABLE IF EXISTS ad_groups')
      sql_table_group = 'CREATE TABLE ad_groups ('\
@@ -194,4 +194,4 @@ class Metasploit3 < Msf::Post
    ret = '0' + ret if ret.length < 2
    ret
  end
-end 
+end
