@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Post
       1.upto(threadcount) do
         group_gather << framework.threads.spawn("Module(#{self.refname})", false, remaining_groups.shift) do |individual_group|
 	      begin
-            
+
             # Get the Group RID
 	        group_sid, group_rid = sid_hex_to_string(individual_group[1][:value])
 
