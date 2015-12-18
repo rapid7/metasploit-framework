@@ -30,8 +30,12 @@ class Metasploit3 < Msf::Post
     ))
   end
 
+  # Entry point
   def run
     max_search = datastore['MAX_SEARCH']
+
+    db, dbfile = create_sqlite_db
+    print_status "Database created: #{dbfile.to_s}"
 
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
@@ -52,9 +56,10 @@ class Metasploit3 < Msf::Post
 
     # Go through each of the groups and identify the individual users in each group
     vprint_status "Retrieving AD Group Membership"
-    users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','title','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated']
+    users_fields = ['distinguishedName','objectSid','sAMAccountType','sAMAccountName','displayName','description','logonCount','userAccountControl','userPrincipalName','whenChanged','whenCreated']
     groups[:results].each do |individual_group|
       begin
+
         # Perform the ADSI query to retrieve the effective users in each group (recursion)
         vprint_status "Retrieving members of #{individual_group[3][:value].to_s}"
         users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0][:value].to_s}))"
@@ -62,10 +67,33 @@ class Metasploit3 < Msf::Post
         next if users_in_group.nil? || users_in_group[:results].empty?
         group_sid, group_rid = sid_hex_to_string(individual_group[1][:value])
      
+        # Add the group to the database
+        sql_param_group = { :rid => group_rid.to_i, 
+                            :distinguishedName => individual_group[0][:value],
+                            :sAMAccountName => individual_group[3][:value],
+                            :description => individual_group[4][:value]
+                          }
+        db.execute("insert into ad_groups (rid, distinguishedName, sAMAccountName, description) VALUES (:rid,:distinguishedName,:sAMAccountName,:description)", sql_param_group)
+
         # Go through each of the users in the group
         users_in_group[:results].each do |group_user|
           user_sid, user_rid = sid_hex_to_string(group_user[1][:value])
           print_line "Group [#{individual_group[3][:value].to_s}][#{group_rid.to_s}] has member [#{group_user[3][:value].to_s}][#{user_rid.to_s}]"
+
+          # Add the group to the database
+          sql_param_user = { :rid => user_rid.to_i, 
+                             :distinguishedName => individual_group[0][:value],
+                             :sAMAccountName => individual_group[3][:value],
+                             :description => individual_group[4][:value]
+                           }
+          db.execute("replace into ad_users (rid, distinguishedName, sAMAccountName, description) VALUES (:rid,:distinguishedName,:sAMAccountName,:description)", sql_param_user)
+
+          # Now associate the user with the group
+          sql_param_mapping = { :user_rid => user_rid.to_i, 
+                                :group_rid => group_rid.to_i
+                              }
+          db.execute("insert into ad_mapping (user_rid,group_rid) VALUES (:user_rid,:group_rid)", sql_param_mapping)
+
         end
       rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
         print_error("Error(Users): #{e.message.to_s}")
@@ -75,7 +103,49 @@ class Metasploit3 < Msf::Post
 
   end
 
+ # Creat the SQLite Database
+ def create_sqlite_db
+   begin
+     filename = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('ad', 5)}.db"
+     db = SQLite3::Database.new(filename)
+     
+     # Create the table for the AD Groups
+     sql_table_group = 'CREATE TABLE ad_groups ('\
+                          'rid INTEGER PRIMARY KEY NOT NULL,'\
+                          'distinguishedName TEXT UNIQUE NOT NULL,'\
+                          'sAMAccountName TEXT,'\
+                          'description TEXT'\
+                          'whenChanged TEXT,'\
+                          'whenCreated TEXT)'
+     db.execute(sql_table_group)
+
+     # Create the table for the AD Users
+     sql_table_users = 'CREATE TABLE ad_users ('\
+                          'rid INTEGER PRIMARY KEY NOT NULL,'\
+                          'distinguishedName TEXT UNIQUE NOT NULL,'\
+                          'description TEXT,'\
+                          'logonCount INTEGER,'\
+                          'userPrincipalName TEXT,'\
+                          'whenCreated TEXT,'\
+                          'whenChanged TEXT)'
+     db.execute(sql_table_users)
+
+     # Create the table for the mapping between the two (membership)
+     sql_table_mapping = 'CREATE TABLE ad_mapping ('\
+                          'user_rid INTEGER NOT NULL,' \
+                          'group_rid INTEGER NOT NULL,'\
+                          'PRIMARY KEY (user_rid, group_rid))'
+     db.execute(sql_table_mapping)
+
+     return db, filename
+   rescue SQLite3::Exception => e
+     print_error("Error(Database): #{e.message.to_s}")
+     return
+   end
+ end
+
  # Convert the SID raw data to a string. TODO fix this mess....
+ # THIS NEEDS FIXING FIXME FIXME
  def sid_hex_to_string(data)
    sid = []
    sid << data[0].to_s
@@ -88,7 +158,6 @@ class Metasploit3 < Msf::Post
    final_sid = "S-" + sid.join('-')
    return final_sid, sid[-1]
  end
-
  def byte2hex(b)
    ret = '%x' % (b.to_i & 0xff)
    ret = '0' + ret if ret.length < 2
