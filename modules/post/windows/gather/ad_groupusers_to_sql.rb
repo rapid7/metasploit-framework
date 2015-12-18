@@ -70,9 +70,9 @@ class Metasploit3 < Msf::Post
      
         # Add the group to the database
         sql_param_group = { :rid => group_rid.to_i, 
-                            :distinguishedName => individual_group[0][:value],
-                            :sAMAccountName => individual_group[3][:value],
-                            :description => individual_group[4][:value]
+                            :distinguishedName => individual_group[0][:value].to_s,
+                            :sAMAccountName => individual_group[3][:value].to_s,
+                            :description => individual_group[4][:value].to_s
                           }
         db.execute("insert into ad_groups (rid, distinguishedName, sAMAccountName, description) VALUES (:rid,:distinguishedName,:sAMAccountName,:description)", sql_param_group)
 
@@ -83,9 +83,9 @@ class Metasploit3 < Msf::Post
 
           # Add the group to the database
           sql_param_user = { :rid => user_rid.to_i, 
-                             :distinguishedName => group_user[0][:value],
-                             :sAMAccountName => group_user[3][:value],
-                             :description => group_user[5][:value]
+                             :distinguishedName => group_user[0][:value].to_s,
+                             :sAMAccountName => group_user[3][:value].to_s,
+                             :description => group_user[5][:value.to_s]
                            }
           db.execute("replace into ad_users (rid, distinguishedName, sAMAccountName, description) VALUES (:rid,:distinguishedName,:sAMAccountName,:description)", sql_param_user)
 
@@ -104,6 +104,9 @@ class Metasploit3 < Msf::Post
     end
 
     print_status "Enumerated #{group_counter} group(s)"
+    if db and db.close
+        print_status "Database closed: #{dbfile.to_s}"
+    end
   end
 
  # Creat the SQLite Database
@@ -113,32 +116,37 @@ class Metasploit3 < Msf::Post
      db = SQLite3::Database.new(filename)
      
      # Create the table for the AD Groups
+     db.execute('DROP TABLE IF EXISTS ad_groups')
      sql_table_group = 'CREATE TABLE ad_groups ('\
                           'rid INTEGER PRIMARY KEY NOT NULL,'\
                           'distinguishedName TEXT UNIQUE NOT NULL,'\
-                          'sAMAccountName TEXT,'\
+                          'sAMAccountName TEXT UNIQUE,'\
                           'description TEXT'\
                           'whenChanged TEXT,'\
                           'whenCreated TEXT)'
      db.execute(sql_table_group)
 
      # Create the table for the AD Users
+     db.execute('DROP TABLE IF EXISTS ad_users')
      sql_table_users = 'CREATE TABLE ad_users ('\
                           'rid INTEGER PRIMARY KEY NOT NULL,'\
                           'distinguishedName TEXT UNIQUE NOT NULL,'\
                           'description TEXT,'\
                           'sAMAccountName TEXT,'\
                           'logonCount INTEGER,'\
-                          'userPrincipalName TEXT,'\
+                          'userPrincipalName TEXT UNIQUE,'\
                           'whenCreated TEXT,'\
                           'whenChanged TEXT)'
      db.execute(sql_table_users)
 
      # Create the table for the mapping between the two (membership)
+     db.execute('DROP TABLE IF EXISTS ad_mapping')
      sql_table_mapping = 'CREATE TABLE ad_mapping ('\
                           'user_rid INTEGER NOT NULL,' \
                           'group_rid INTEGER NOT NULL,'\
-                          'PRIMARY KEY (user_rid, group_rid))'
+                          'PRIMARY KEY (user_rid, group_rid),'\
+                          'FOREIGN KEY(user_rid) REFERENCES ad_users(rid)'\
+                          'FOREIGN KEY(group_rid) REFERENCES ad_groups(rid))'
      db.execute(sql_table_mapping)
 
      return db, filename
