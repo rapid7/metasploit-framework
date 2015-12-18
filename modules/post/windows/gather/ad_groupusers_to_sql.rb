@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'         => 'AD Group and User Membership to Offline SQLite Database Recon Module',
+      'Name'         => 'AD Computer, Group and Recursive User Membership to Local SQLite DB',
       'Description'  => %{
         This module will gather a list of AD groups, identify the users (taking into account recursion)
         and write this to a SQLite database for offline analysis and query using normal SQL syntax.
@@ -85,7 +85,10 @@ class Metasploit3 < Msf::Post
 	        users_filter = "(&(objectCategory=person)(objectClass=user)(|(memberOf:1.2.840.113556.1.4.1941:=#{individual_group[0][:value]})(primaryGroupID=#{group_rid})))"
 	        users_in_group = query(users_filter, max_search, users_fields)
 	
+            grouptype_int = individual_group[7][:value].to_i # Set this here because it is used a lot below
+
 	        # Add the group to the database
+            # groupType parameter interpretation: https://msdn.microsoft.com/en-us/library/windows/desktop/ms675935(v=vs.85).aspx
 	        sql_param_group = { rid: group_rid.to_i,
 	                            distinguishedName: individual_group[0][:value].to_s,
 	                            sAMAccountType: individual_group[2][:value].to_i,
@@ -95,6 +98,25 @@ class Metasploit3 < Msf::Post
 	                            description: individual_group[6][:value].to_s,
 	                            groupType: individual_group[7][:value].to_i,
 	                            adminCount: individual_group[8][:value].to_i,
+                                # Specifies a group that is created by the system.
+                                GT_GROUP_CREATED_BY_SYSTEM: (grouptype_int & 0x00000001).zero? ? 0 : 1,
+                                # Specifies a group with global scope.
+                                GT_GROUP_SCOPE_GLOBAL: (grouptype_int & 0x00000002).zero? ? 0 : 1,
+                                # Specifies a group with local scope.
+                                GT_GROUP_SCOPE_LOCAL: (grouptype_int & 0x00000004).zero? ? 0 : 1,
+                                # Specifies a group with universal scope.
+                                GT_GROUP_SCOPE_UNIVERSAL: (grouptype_int & 0x00000008).zero? ? 0 : 1,
+                                # Specifies an APP_BASIC group for Windows Server Authorization Manager.
+                                GT_GROUP_SAM_APP_BASIC: (grouptype_int & 0x00000010).zero? ? 0 : 1,
+                                # Specifies an APP_QUERY group for Windows Server Authorization Manager.
+                                GT_GROUP_SAM_APP_QUERY: (grouptype_int & 0x00000020).zero? ? 0 : 1,
+                                # Specifies a security group. If this flag is not set, then the group is a distribution group.
+                                GT_GROUP_SECURITY: (grouptype_int & 0x80000000).zero? ? 0 : 1,
+                                # The inverse of the flag above. Technically GT_GROUP_SECURITY=0 makes it a distribution
+                                # group so this is arguably redundant, but I have included it for ease. It makes a lot more sense
+                                # to set DISTRIBUTION=1 in a query when your mind is on other things to remember that 
+                                # DISTRIBUTION is in fact the inverse of SECURITY...:)
+                                GT_GROUP_DISTRIBUTION: (grouptype_int & 0x80000000).zero? ? 1 : 0,
 	                          }
 	        run_sqlite_query(db, 'ad_groups', sql_param_group)
 	
@@ -284,7 +306,15 @@ class Metasploit3 < Msf::Post
                            'adminCount INTEGER,'\
                            'description TEXT,'\
                            'whenChanged TEXT,'\
-                           'whenCreated TEXT)'
+                           'whenCreated TEXT,'\
+                           'GT_GROUP_CREATED_BY_SYSTEM INTEGER,'\
+                           'GT_GROUP_SCOPE_GLOBAL INTEGER,'\
+                           'GT_GROUP_SCOPE_LOCAL INTEGER,'\
+                           'GT_GROUP_SCOPE_UNIVERSAL INTEGER,'\
+                           'GT_GROUP_SAM_APP_BASIC INTEGER,'\
+                           'GT_GROUP_SAM_APP_QUERY INTEGER,'\
+                           'GT_GROUP_SECURITY INTEGER,'\
+                           'GT_GROUP_DISTRIBUTION INTEGER)'
       db.execute(sql_table_group)
 
       # Create the table for the AD Users
