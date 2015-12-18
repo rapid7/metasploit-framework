@@ -60,10 +60,12 @@ class Metasploit3 < Msf::Post
         users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0][:value].to_s}))"
         users_in_group = query(users_filter, max_search, users_fields)
         next if users_in_group.nil? || users_in_group[:results].empty?
+        group_sid, group_rid = sid_hex_to_string(individual_group[1][:value])
      
         # Go through each of the users in the group
         users_in_group[:results].each do |group_user|
-          print_line "Group [#{individual_group[3][:value].to_s}] has member [#{group_user[3][:value].to_s}]"
+          user_sid, user_rid = sid_hex_to_string(group_user[1][:value])
+          print_line "Group [#{individual_group[3][:value].to_s}][#{group_rid.to_s}] has member [#{group_user[3][:value].to_s}][#{user_rid.to_s}]"
         end
       rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
         print_error("Error(Users): #{e.message.to_s}")
@@ -72,6 +74,26 @@ class Metasploit3 < Msf::Post
     end
 
   end
+
+ # Convert the SID raw data to a string. TODO fix this mess....
+ def sid_hex_to_string(data)
+   sid = []
+   sid << data[0].to_s
+   rid = ''
+   (6).downto(1) do |i|
+     rid += byte2hex(data[i, 1][0])
+   end
+   sid << rid.to_i.to_s
+   sid += data.unpack("bbbbbbbbV*")[8..-1]
+   final_sid = "S-" + sid.join('-')
+   return final_sid, sid[-1]
+ end
+
+ def byte2hex(b)
+   ret = '%x' % (b.to_i & 0xff)
+   ret = '0' + ret if ret.length < 2
+   ret
+ end
 end 
 
 #    @user_fields = USER_FIELDS.dup
