@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
     vprint_status "Retrieving AD Groups"
     begin
       group_filter = '(objectClass=group)'
-      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description']
+      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount']
       groups = query(group_filter, max_search, group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error("Error(Group): #{e.message}")
@@ -70,10 +70,13 @@ class Metasploit3 < Msf::Post
         # Add the group to the database
         sql_param_group = { rid: group_rid.to_i,
                             distinguishedName: individual_group[0][:value].to_s,
+                            sAMAccountType: individual_group[2][:value].to_i,
                             sAMAccountName: individual_group[3][:value].to_s,
                             whenChanged: individual_group[4][:value].to_s,
                             whenCreated: individual_group[5][:value].to_s,
                             description: individual_group[6][:value].to_s
+                            groupType: individual_group[7][:value].to_i,
+                            adminCount: individual_group[8][:value].to_i,
                           }
         run_sqlite_query(db, 'ad_groups', sql_param_group)
 
@@ -193,7 +196,10 @@ class Metasploit3 < Msf::Post
       sql_table_group = 'CREATE TABLE ad_groups ('\
                            'rid INTEGER PRIMARY KEY NOT NULL,'\
                            'distinguishedName TEXT UNIQUE NOT NULL,'\
+                           'sAMAccountType INTEGER,'\
                            'sAMAccountName TEXT UNIQUE NOT NULL,'\
+                           'groupType INTEGER,'\
+                           'adminCount INTEGER,'\
                            'description TEXT,'\
                            'whenChanged TEXT,'\
                            'whenCreated TEXT)'
