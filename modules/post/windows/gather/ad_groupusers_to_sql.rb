@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Post
         computers[:results].each do |comp|
           computer_sid, computer_rid = sid_hex_to_string(comp[1][:value])
 
-          uac_int = comp_user[8][:value].to_i #Set this because it is used so frequently below
+          uac_int = comp[8][:value].to_i #Set this because it is used so frequently below
 
           # Add the group to the database
           # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
@@ -309,6 +309,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
+    # Finished enumeration, now safely close the database
     if db && db.close
       f = ::File.size(dbfile.to_s)
       print_status "Database closed: #{dbfile} at #{f} byte(s)"
@@ -348,7 +349,7 @@ class Metasploit3 < Msf::Post
                            'operatingSystemServicePack TEXT,'\
                            'operatingSystemVersion TEXT,'\
                            'whenChanged TEXT,'\
-                           'whenChanged TEXT,'\
+                           'whenCreated TEXT,'\
 						   'ADS_UF_SCRIPT INTEGER,'\
 						   'ADS_UF_ACCOUNTDISABLE INTEGER,'\
 						   'ADS_UF_HOMEDIR_REQUIRED INTEGER,'\
@@ -470,6 +471,52 @@ class Metasploit3 < Msf::Post
   	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_APP_BASIC_GROUP',0x40000000)")
   	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_APP_QUERY_GROUP',0x40000001)")
   	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_ACCOUNT_TYPE_MAX',0x7fffffff)")
+
+      # Now create the computer query view (which joins lookup tables and prefixes everything with c_)
+      # This is essentially to maintain namespace (less of an issue for computers but
+      # I have done it for this table too in order to maintain consistency)
+      db.execute('DROP VIEW IF EXISTS view_ad_computers')
+      sql_view_computers = 'CREATE VIEW view_ad_computers AS SELECT '\
+                               'rid AS c_rid,'\
+                               'distinguishedName AS c_distinguishedName,'\
+                               'cn AS c_cn,'\
+                               'sAMAccountType AS c_sAMAccountType,'\
+                               'sAMAccountName AS c_sAMAccountName,'\
+                               'dNSHostName AS c_dNSHostName,'\
+                               'displayName AS c_displayName,'\
+                               'logonCount AS c_logonCount,'\
+                               'userAccountControl AS c_userAccountControl,'\
+                               'primaryGroupID AS c_primaryGroupID,'\
+                               'badPwdCount AS c_badPwdCount,'\
+                               'operatingSystem AS c_operatingSystem,'\
+                               'operatingSystemServicePack AS c_operatingSystemServicePack,'\
+                               'operatingSystemVersion AS c_operatingSystemVersion,'\
+                               'whenCreated AS c_whenCreated,'\
+                               'whenChanged AS c_whenChanged,'\
+       						   'ADS_UF_SCRIPT AS c_ADS_UF_SCRIPT,'\
+       						   'ADS_UF_ACCOUNTDISABLE AS c_ADS_UF_ACCOUNTDISABLE,'\
+       						   'ADS_UF_HOMEDIR_REQUIRED AS c_ADS_UF_HOMEDIR_REQUIRED,'\
+       						   'ADS_UF_LOCKOUT AS c_ADS_UF_LOCKOUT,'\
+       						   'ADS_UF_PASSWD_NOTREQD AS c_ADS_UF_PASSWD_NOTREQD,'\
+       						   'ADS_UF_PASSWD_CANT_CHANGE AS c_ADS_UF_PASSWD_CANT_CHANGE,'\
+       						   'ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED AS c_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED,'\
+       						   'ADS_UF_TEMP_DUPLICATE_ACCOUNT AS c_ADS_UF_TEMP_DUPLICATE_ACCOUNT,'\
+       						   'ADS_UF_NORMAL_ACCOUNT AS c_ADS_UF_NORMAL_ACCOUNT,'\
+       						   'ADS_UF_INTERDOMAIN_TRUST_ACCOUNT AS c_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT,'\
+       						   'ADS_UF_WORKSTATION_TRUST_ACCOUNT AS c_ADS_UF_WORKSTATION_TRUST_ACCOUNT,'\
+       						   'ADS_UF_SERVER_TRUST_ACCOUNT AS c_ADS_UF_SERVER_TRUST_ACCOUNT,'\
+       						   'ADS_UF_DONT_EXPIRE_PASSWD AS c_ADS_UF_DONT_EXPIRE_PASSWD,'\
+       						   'ADS_UF_MNS_LOGON_ACCOUNT AS c_ADS_UF_MNS_LOGON_ACCOUNT,'\
+       						   'ADS_UF_SMARTCARD_REQUIRED AS c_ADS_UF_SMARTCARD_REQUIRED,'\
+       						   'ADS_UF_TRUSTED_FOR_DELEGATION AS c_ADS_UF_TRUSTED_FOR_DELEGATION,'\
+       						   'ADS_UF_NOT_DELEGATED AS c_ADS_UF_NOT_DELEGATED,'\
+       						   'ADS_UF_USE_DES_KEY_ONLY AS c_ADS_UF_USE_DES_KEY_ONLY,'\
+       						   'ADS_UF_DONT_REQUIRE_PREAUTH AS c_ADS_UF_DONT_REQUIRE_PREAUTH,'\
+       						   'ADS_UF_PASSWORD_EXPIRED AS c_ADS_UF_PASSWORD_EXPIRED,'\
+       						   'ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION AS c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION '\
+       						   'FROM ad_computers LEFT JOIN ref_sAMAccountType ON ref_sAMAccountType.id = ad_computers.sAMAccountType'
+      print_line sql_view_computers
+      db.execute(sql_view_computers)
 
       return db, filename
     rescue SQLite3::Exception => e
