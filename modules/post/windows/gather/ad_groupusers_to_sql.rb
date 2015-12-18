@@ -117,9 +117,9 @@ class Metasploit3 < Msf::Post
     begin
       computer_filter = '(objectClass=computer)'
       computer_fields = ['distinguishedName', 'objectSid', 'cn','dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion']
-      groups = query(computer_filter, max_search, group_fields)
+      groups = query(computer_filter, max_search, computer_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
-      print_error("Error(Group): #{e.message}")
+      print_error("Error(Computers): #{e.message}")
       return
     end
 
@@ -142,6 +142,22 @@ class Metasploit3 < Msf::Post
     begin
       filename = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('ad', 5)}.db"
       db = SQLite3::Database.new(filename)
+
+      # Create the table for the AD Computers
+      db.execute('DROP TABLE IF EXISTS ad_computers')
+      sql_table_computers = 'CREATE TABLE ad_computers ('\
+                           'rid INTEGER PRIMARY KEY NOT NULL,'\
+                           'distinguishedName TEXT UNIQUE NOT NULL,'\
+                           'cn TEXT,'\
+                           'sAMAccountName TEXT UNIQUE NOT NULL,'\
+                           'displayName TEXT,'\
+                           'logonCount INTEGER,'\
+                           'operatingSystem TEXT,'\
+                           'operatingSystemServicePack TEXT,'\
+                           'operatingSystemVersion TEXT,'\
+                           'whenChanged TEXT,'\
+                           'whenCreated TEXT)'
+      db.execute(sql_table_computers)
 
       # Create the table for the AD Groups
       db.execute('DROP TABLE IF EXISTS ad_groups')
