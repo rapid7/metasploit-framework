@@ -117,7 +117,32 @@ class Metasploit3 < Msf::Post
     begin
       computer_filter = '(objectClass=computer)'
       computer_fields = ['distinguishedName', 'objectSid', 'cn','dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion']
-      groups = query(computer_filter, max_search, computer_fields)
+      computers = query(computer_filter, max_search, computer_fields)
+
+        computers[:results].each do |comp|
+          computer_sid, computer_rid = sid_hex_to_string(comp[1][:value])
+
+          # Add the group to the database
+          sql_param_computer = { rid: computer_rid.to_i,
+                             distinguishedName: comp[0][:value].to_s,
+                             cn: comp[2][:value].to_s,
+                             dNSHostName: comp[3][:value].to_s,
+                             sAMAccountType: comp[4][:value].to_i,
+                             sAMAccountName: comp[5][:value].to_s,
+                             displayName: comp[6][:value].to_s,
+                             logonCount: comp[7][:value].to_i,
+                             userAccountControl: comp[8][:value].to_s,
+                             whenChanged: comp[9][:value].to_s,
+                             whenCreated: comp[10][:value].to_s,
+                             primaryGroupID: comp[11][:value].to_i,
+                             badPwdCount: comp[12][:value].to_i,
+                             operatingSystem: comp[13][:value].to_s,
+                             operatingSystemServicePack: comp[14][:value].to_s,
+                             operatingSystemVersion: comp[15][:value].to_s,
+                           }
+          run_sqlite_query(db, 'ad_computers', sql_param_computer)
+        end
+
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error("Error(Computers): #{e.message}")
       return
@@ -149,9 +174,13 @@ class Metasploit3 < Msf::Post
                            'rid INTEGER PRIMARY KEY NOT NULL,'\
                            'distinguishedName TEXT UNIQUE NOT NULL,'\
                            'cn TEXT,'\
-                           'sAMAccountName TEXT UNIQUE NOT NULL,'\
+                           'sAMAccountType INTEGER,'\
+                           'sAMAccountName TEXT UNIQUE,'\
                            'displayName TEXT,'\
                            'logonCount INTEGER,'\
+                           'userAccountControl INTEGER,'\
+                           'primaryGroupID INTEGER,'\
+                           'badPwdCount INTEGER,'\
                            'operatingSystem TEXT,'\
                            'operatingSystemServicePack TEXT,'\
                            'operatingSystemVersion TEXT,'\
