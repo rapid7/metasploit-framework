@@ -63,66 +63,77 @@ class Metasploit3 < Msf::Post
     vprint_status "Retrieving AD Group Membership"
     users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount','comments', 'title', 'accountExpires', 'adminCount']
 
-    groups[:results].each do |individual_group|
-      begin
+    remaining_groups = groups[:results]
+    threadcount = datastore['THREADS']
+    while(not remaining_groups.nil? and not remaining_groups.empty?)
+      print_good "Remaining groups: #{remaining_groups.count}"
+      a = []
+      1.upto(threadcount) do
+        a << framework.threads.spawn("Module(#{self.refname})", false, remaining_groups.shift) do |individual_group|
+	      begin
+            
+            # Get the Group RID
+	        group_sid, group_rid = sid_hex_to_string(individual_group[1][:value])
 
-        # Perform the ADSI query to retrieve the effective users in each group (recursion)
-        vprint_status "Retrieving members of #{individual_group[3][:value]}"
-        users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0][:value]}))"
-        users_in_group = query(users_filter, max_search, users_fields)
-        next if users_in_group.nil? || users_in_group[:results].empty?
-        group_sid, group_rid = sid_hex_to_string(individual_group[1][:value])
-
-        # Add the group to the database
-        sql_param_group = { rid: group_rid.to_i,
-                            distinguishedName: individual_group[0][:value].to_s,
-                            sAMAccountType: individual_group[2][:value].to_i,
-                            sAMAccountName: individual_group[3][:value].to_s,
-                            whenChanged: individual_group[4][:value].to_s,
-                            whenCreated: individual_group[5][:value].to_s,
-                            description: individual_group[6][:value].to_s,
-                            groupType: individual_group[7][:value].to_i,
-                            adminCount: individual_group[8][:value].to_i,
-                          }
-        run_sqlite_query(db, 'ad_groups', sql_param_group)
-
-        # Go through each group user
-        users_in_group[:results].each do |group_user|
-          user_sid, user_rid = sid_hex_to_string(group_user[1][:value])
-          print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
-
-          # Add the group to the database
-          sql_param_user = { rid: user_rid.to_i,
-                             distinguishedName: group_user[0][:value].to_s,
-                             sAMAccountType: group_user[2][:value].to_i,
-                             sAMAccountName: group_user[3][:value].to_s,
-                             displayName: group_user[4][:value].to_s,
-                             description: group_user[5][:value].to_s,
-                             logonCount: group_user[6][:value].to_i,
-                             userAccountControl: group_user[7][:value].to_i,
-                             userPrincipalName: group_user[8][:value].to_s,
-                             whenChanged: group_user[9][:value].to_s,
-                             whenCreated: group_user[10][:value].to_s,
-                             primaryGroupID: group_user[11][:value].to_i,
-                             badPwdCount: group_user[12][:value].to_i,
-                             comments: group_user[13][:value].to_s,
-                             title: group_user[14][:value].to_s,
-                             accountExpires: group_user[15][:value].to_i,
-                             adminCount: group_user[16][:value].to_i
-                           }
-          run_sqlite_query(db, 'ad_users', sql_param_user)
-
-          # Now associate the user with the group
-          sql_param_mapping = { user_rid: user_rid.to_i,
-                                group_rid: group_rid.to_i
-                              }
-          run_sqlite_query(db, 'ad_mapping', sql_param_mapping)
+	        # Perform the ADSI query to retrieve the effective users in each group (recursion)
+	        vprint_status "Retrieving members of #{individual_group[3][:value]}"
+	        users_filter = "(&(objectCategory=person)(objectClass=user)(|(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0][:value]})(primaryGroupID=#{group_rid})))"
+	        users_in_group = query(users_filter, max_search, users_fields)
+	
+	        # Add the group to the database
+	        sql_param_group = { rid: group_rid.to_i,
+	                            distinguishedName: individual_group[0][:value].to_s,
+	                            sAMAccountType: individual_group[2][:value].to_i,
+	                            sAMAccountName: individual_group[3][:value].to_s,
+	                            whenChanged: individual_group[4][:value].to_s,
+	                            whenCreated: individual_group[5][:value].to_s,
+	                            description: individual_group[6][:value].to_s,
+	                            groupType: individual_group[7][:value].to_i,
+	                            adminCount: individual_group[8][:value].to_i,
+	                          }
+	        run_sqlite_query(db, 'ad_groups', sql_param_group)
+	
+	        # Go through each group user
+            next if users_in_group[:results].empty?
+	        users_in_group[:results].each do |group_user|
+	          user_sid, user_rid = sid_hex_to_string(group_user[1][:value])
+	          print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
+	
+	          # Add the group to the database
+	          sql_param_user = { rid: user_rid.to_i,
+	                             distinguishedName: group_user[0][:value].to_s,
+	                             sAMAccountType: group_user[2][:value].to_i,
+	                             sAMAccountName: group_user[3][:value].to_s,
+	                             displayName: group_user[4][:value].to_s,
+	                             description: group_user[5][:value].to_s,
+	                             logonCount: group_user[6][:value].to_i,
+	                             userAccountControl: group_user[7][:value].to_i,
+	                             userPrincipalName: group_user[8][:value].to_s,
+	                             whenChanged: group_user[9][:value].to_s,
+	                             whenCreated: group_user[10][:value].to_s,
+	                             primaryGroupID: group_user[11][:value].to_i,
+	                             badPwdCount: group_user[12][:value].to_i,
+	                             comments: group_user[13][:value].to_s,
+	                             title: group_user[14][:value].to_s,
+	                             accountExpires: group_user[15][:value].to_i,
+	                             adminCount: group_user[16][:value].to_i
+	                           }
+	          run_sqlite_query(db, 'ad_users', sql_param_user)
+	
+	          # Now associate the user with the group
+	          sql_param_mapping = { user_rid: user_rid.to_i,
+	                                group_rid: group_rid.to_i
+	                              }
+	          run_sqlite_query(db, 'ad_mapping', sql_param_mapping)
+	      end
+	
+	      rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+	        print_error("Error(Users): #{e.message}")
+	        next
+	      end
+	    end
       end
-
-      rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
-        print_error("Error(Users): #{e.message}")
-        return
-      end
+      a.map { |x| x.join }
     end
 
     vprint_status "Retrieving computers"
