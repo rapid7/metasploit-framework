@@ -31,13 +31,14 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    max_search = 0
+    max_search = datastore['MAX_SEARCH']
 
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
     begin
+      group_filter = '(objectClass=group)'
       group_fields = ['distinguishedName','objectSid','samAccountType','sAMAccountName','whenChanged','whenCreated','description']
-      groups = query(query_filter, max_search, @group_fields)
+      groups = query(group_filter, max_search, group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error("Error(Group): #{e.message.to_s}")
       return
@@ -55,14 +56,14 @@ class Metasploit3 < Msf::Post
     groups[:results].each do |individual_group|
       begin
         # Perform the ADSI query to retrieve the effective users in each group (recursion)
-        vprint_status "Retrieving members of #{individual_group[3].to_s}"
-        users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0].to_s}))"
-        users_in_group = query(users_filter, max_search, @users_fields)
+        vprint_status "Retrieving members of #{individual_group[3][:value].to_s}"
+        users_filter = "(&(objectCategory=person)(objectClass=user)(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0][:value].to_s}))"
+        users_in_group = query(users_filter, max_search, users_fields)
         next if users_in_group.nil? || users_in_group[:results].empty?
      
         # Go through each of the users in the group
         users_in_group[:results].each do |group_user|
-          print_line "Group [#{individual_group[3].to_s}] has member [#{group_user[3].to_s}]"
+          print_line "Group [#{individual_group[3][:value].to_s}] has member [#{group_user[3][:value].to_s}]"
         end
       rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
         print_error("Error(Users): #{e.message.to_s}")
