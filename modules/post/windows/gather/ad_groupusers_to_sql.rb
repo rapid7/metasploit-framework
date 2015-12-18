@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
+      OptString.new('GROUP_FILTER', [true, 'Filter to identify groups', '(objectClass=group)']),
       OptBool.new('SHOW_USERGROUPS', [true, 'Show the user/group membership in a greppable form.', false]),
       OptBool.new('SHOW_COMPUTERS', [true, 'Show basic computer information in a greppable form.', false]),
       OptInt.new('THREADS', [true, 'Number of threads to spawn to gather membership of each group.', 20])
@@ -45,9 +46,8 @@ class Metasploit3 < Msf::Post
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
     begin
-      group_filter = '(objectClass=group)'
       group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount']
-      groups = query(group_filter, max_search, group_fields)
+      groups = query(datastore['GROUP_FILTER'], max_search, group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error("Error(Group): #{e.message}")
       return
