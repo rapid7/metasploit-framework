@@ -64,12 +64,16 @@ class Metasploit3 < Msf::Post
     users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount','comments', 'title', 'accountExpires', 'adminCount']
 
     remaining_groups = groups[:results]
-    threadcount = datastore['THREADS']
+
+    # If the number of threads exceeds the number of groups, reduce them down to the correct number
+    threadcount = remaining_groups.count < datastore['THREADS'] ? remaining_groups.count : datastore['THREADS']
+
+    # Loop through each of the groups, creating threads where necessary
     while(not remaining_groups.nil? and not remaining_groups.empty?)
       print_good "Remaining groups: #{remaining_groups.count}"
-      a = []
+      group_gather = []
       1.upto(threadcount) do
-        a << framework.threads.spawn("Module(#{self.refname})", false, remaining_groups.shift) do |individual_group|
+        group_gather << framework.threads.spawn("Module(#{self.refname})", false, remaining_groups.shift) do |individual_group|
 	      begin
             
             # Get the Group RID
@@ -77,7 +81,7 @@ class Metasploit3 < Msf::Post
 
 	        # Perform the ADSI query to retrieve the effective users in each group (recursion)
 	        vprint_status "Retrieving members of #{individual_group[3][:value]}"
-	        users_filter = "(&(objectCategory=person)(objectClass=user)(|(memberof:1.2.840.113556.1.4.1941:=#{individual_group[0][:value]})(primaryGroupID=#{group_rid})))"
+	        users_filter = "(&(objectCategory=person)(objectClass=user)(|(memberOf:1.2.840.113556.1.4.1941:=#{individual_group[0][:value]})(primaryGroupID=#{group_rid})))"
 	        users_in_group = query(users_filter, max_search, users_fields)
 	
 	        # Add the group to the database
@@ -133,7 +137,7 @@ class Metasploit3 < Msf::Post
 	      end
 	    end
       end
-      a.map { |x| x.join }
+      group_gather.map { |each_group| each_group.join }
     end
 
     vprint_status "Retrieving computers"
