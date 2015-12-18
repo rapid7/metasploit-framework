@@ -104,6 +104,8 @@ class Metasploit3 < Msf::Post
 	          user_sid, user_rid = sid_hex_to_string(group_user[1][:value])
 	          print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
 	
+              uac_int = group_user[7][:value].to_i #Set this because it is used so frequently below
+
 	          # Add the group to the database
               # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
 	          sql_param_user = { rid: user_rid.to_i,
@@ -113,7 +115,7 @@ class Metasploit3 < Msf::Post
 	                             displayName: group_user[4][:value].to_s,
 	                             description: group_user[5][:value].to_s,
 	                             logonCount: group_user[6][:value].to_i,
-	                             userAccountControl: group_user[7][:value].to_i,
+	                             userAccountControl: uac_int,
 	                             userPrincipalName: group_user[8][:value].to_s,
 	                             whenChanged: group_user[9][:value].to_s,
 	                             whenCreated: group_user[10][:value].to_s,
@@ -126,54 +128,54 @@ class Metasploit3 < Msf::Post
                                  #system because it was a member of one of the administrative groups (directly or transitively).
 	                             adminCount: group_user[16][:value].to_i,
                                  #The login script is executed
-                                 ADS_UF_SCRIPT: (group_user[7][:value].to_i & 0x00000001) ? 1 : 0, 
+                                 ADS_UF_SCRIPT: (uac_int & 0x00000001) ? 1 : 0, 
                                  #The user account is disabled.
-                                 ADS_UF_ACCOUNTDISABLE: (group_user[7][:value].to_i & 0x00000002) ? 1 : 0, 
+                                 ADS_UF_ACCOUNTDISABLE: (uac_int & 0x00000002) ? 1 : 0, 
                                  #The home directory is required.
-                                 ADS_UF_HOMEDIR_REQUIRED: (group_user[7][:value].to_i & 0x00000008) ? 1 : 0, 
+                                 ADS_UF_HOMEDIR_REQUIRED: (uac_int & 0x00000008) ? 1 : 0, 
                                  #The account is currently locked out.
-                                 ADS_UF_LOCKOUT: (group_user[7][:value].to_i & 0x00000010) ? 1 : 0, 
+                                 ADS_UF_LOCKOUT: (uac_int & 0x00000010) ? 1 : 0, 
                                  #No password is required.
-                                 ADS_UF_PASSWD_NOTREQD: (group_user[7][:value].to_i & 0x00000020) ? 1 : 0,
+                                 ADS_UF_PASSWD_NOTREQD: (uac_int & 0x00000020) ? 1 : 0,
                                  #The user cannot change the password.
-                                 ADS_UF_PASSWD_CANT_CHANGE: (group_user[7][:value].to_i & 0x00000040) ? 1 : 0, 
+                                 ADS_UF_PASSWD_CANT_CHANGE: (uac_int & 0x00000040) ? 1 : 0, 
                                  #The user can send an encrypted password.
-                                 ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (group_user[7][:value].to_i & 0x00000080) ? 1 : 0, 
+                                 ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (uac_int & 0x00000080) ? 1 : 0, 
                                  #This is an account for users whose primary account is in another domain. This account
                                  #provides user access to this domain, but not to any domain that trusts this domain.
                                  #Also known as a local user account.
-                                 ADS_UF_TEMP_DUPLICATE_ACCOUNT: (group_user[7][:value].to_i & 0x00000100) ? 1 : 0, 
+                                 ADS_UF_TEMP_DUPLICATE_ACCOUNT: (uac_int & 0x00000100) ? 1 : 0, 
                                  #This is a default account type that represents a typical user.
-                                 ADS_UF_NORMAL_ACCOUNT: (group_user[7][:value].to_i & 0x00000200) ? 1 : 0, 
+                                 ADS_UF_NORMAL_ACCOUNT: (uac_int & 0x00000200) ? 1 : 0, 
                                  #This is a permit to trust account for a system domain that trusts other domains.
-                                 ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (group_user[7][:value].to_i & 0x00000800) ? 1 : 0, 
+                                 ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (uac_int & 0x00000800) ? 1 : 0, 
                                  #This is a computer account for a computer that is a member of this domain.
-                                 ADS_UF_WORKSTATION_TRUST_ACCOUNT: (group_user[7][:value].to_i & 0x00001000) ? 1 : 0, 
+                                 ADS_UF_WORKSTATION_TRUST_ACCOUNT: (uac_int & 0x00001000) ? 1 : 0, 
                                  #This is a computer account for a system backup domain controller that is a member of this domain.
-                                 ADS_UF_SERVER_TRUST_ACCOUNT: (group_user[7][:value].to_i & 0x00002000) ? 1 : 0, 
+                                 ADS_UF_SERVER_TRUST_ACCOUNT: (uac_int & 0x00002000) ? 1 : 0, 
                                  #The password for this account will never expire.
-                                 ADS_UF_DONT_EXPIRE_PASSWD: (group_user[7][:value].to_i & 0x00010000) ? 1 : 0, 
+                                 ADS_UF_DONT_EXPIRE_PASSWD: (uac_int & 0x00010000) ? 1 : 0, 
                                  #This is an MNS logon account.
-                                 ADS_UF_MNS_LOGON_ACCOUNT: (group_user[7][:value].to_i & 0x00020000) ? 1 : 0, 
+                                 ADS_UF_MNS_LOGON_ACCOUNT: (uac_int & 0x00020000) ? 1 : 0, 
                                  #The user must log on using a smart card.
-                                 ADS_UF_SMARTCARD_REQUIRED: (group_user[7][:value].to_i & 0x00040000) ? 1 : 0, 
+                                 ADS_UF_SMARTCARD_REQUIRED: (uac_int & 0x00040000) ? 1 : 0, 
                                  #The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation.
                                  #Any such service can impersonate a client requesting the service.
-                                 ADS_UF_TRUSTED_FOR_DELEGATION: (group_user[7][:value].to_i & 0x00080000) ? 1 : 0, 
+                                 ADS_UF_TRUSTED_FOR_DELEGATION: (uac_int & 0x00080000) ? 1 : 0, 
                                  #The security context of the user will not be delegated to a service even if the service 
                                  #account is set as trusted for Kerberos delegation.
-                                 ADS_UF_NOT_DELEGATED: (group_user[7][:value].to_i & 0x00100000) ? 1 : 0, 
+                                 ADS_UF_NOT_DELEGATED: (uac_int & 0x00100000) ? 1 : 0, 
                                  #Restrict this principal to use only Data #Encryption Standard (DES) encryption types for keys.
-                                 ADS_UF_USE_DES_KEY_ONLY: (group_user[7][:value].to_i & 0x00200000) ? 1 : 0, 
+                                 ADS_UF_USE_DES_KEY_ONLY: (uac_int & 0x00200000) ? 1 : 0, 
                                  #This account does not require Kerberos pre-authentication for logon.
-                                 ADS_UF_DONT_REQUIRE_PREAUTH: (group_user[7][:value].to_i & 0x00400000) ? 1 : 0, 
+                                 ADS_UF_DONT_REQUIRE_PREAUTH: (uac_int & 0x00400000) ? 1 : 0, 
                                  #The password has expired
-                                 ADS_UF_PASSWORD_EXPIRED: (group_user[7][:value].to_i & 0x00800000) ? 1 : 0, 
+                                 ADS_UF_PASSWORD_EXPIRED: (uac_int & 0x00800000) ? 1 : 0, 
                                  #The account is enabled for delegation. This is a security-sensitive setting; accounts with
                                  #this option enabled should be strictly controlled. This setting enables a service running 
                                  #under the account to assume a client identity and authenticate as that user to other remote 
                                  #servers on the network.
-                                 ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (group_user[7][:value].to_i & 0x01000000) ? 1 : 0 
+                                 ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000) ? 1 : 0 
 	                           }
 	          run_sqlite_query(db, 'ad_users', sql_param_user)
 	
@@ -304,7 +306,28 @@ class Metasploit3 < Msf::Post
                            'comments TEXT,'\
                            'title TEXT,'\
                            'whenCreated TEXT,'\
-                           'whenChanged TEXT)'
+                           'whenChanged TEXT,'\
+						   'ADS_UF_SCRIPT INTEGER,'\
+						   'ADS_UF_ACCOUNTDISABLE INTEGER,'\
+						   'ADS_UF_HOMEDIR_REQUIRED INTEGER,'\
+						   'ADS_UF_LOCKOUT INTEGER,'\
+						   'ADS_UF_PASSWD_NOTREQD INTEGER,'\
+						   'ADS_UF_PASSWD_CANT_CHANGE INTEGER,'\
+						   'ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED INTEGER,'\
+						   'ADS_UF_TEMP_DUPLICATE_ACCOUNT INTEGER,'\
+						   'ADS_UF_NORMAL_ACCOUNT INTEGER,'\
+						   'ADS_UF_INTERDOMAIN_TRUST_ACCOUNT INTEGER,'\
+						   'ADS_UF_WORKSTATION_TRUST_ACCOUNT INTEGER,'\
+						   'ADS_UF_SERVER_TRUST_ACCOUNT INTEGER,'\
+						   'ADS_UF_DONT_EXPIRE_PASSWD INTEGER,'\
+						   'ADS_UF_MNS_LOGON_ACCOUNT INTEGER,'\
+						   'ADS_UF_SMARTCARD_REQUIRED INTEGER,'\
+						   'ADS_UF_TRUSTED_FOR_DELEGATION INTEGER,'\
+						   'ADS_UF_NOT_DELEGATED INTEGER,'\
+						   'ADS_UF_USE_DES_KEY_ONLY INTEGER,'\
+						   'ADS_UF_DONT_REQUIRE_PREAUTH INTEGER,'\
+						   'ADS_UF_PASSWORD_EXPIRED INTEGER,'\
+						   'ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION INTEGER)'
       db.execute(sql_table_users)
 
       # Create the table for the mapping between the two (membership)
