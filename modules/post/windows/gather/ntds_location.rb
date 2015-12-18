@@ -39,7 +39,7 @@ class Metasploit4 < Msf::Post
       print_line("  Modified: #{f.mtime.to_s}")
       print_line("  Accessed: #{f.atime.to_s}")
     else
-      print_error("NTDS.DIT is reportedly located at #{ntds}, but the file does not appear to exist")
+      print_error("NTDS.DIT is reportedly located at `#{ntds}', but the file does not appear to exist")
     end
   end
 
