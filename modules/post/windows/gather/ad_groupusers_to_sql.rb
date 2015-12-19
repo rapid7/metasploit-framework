@@ -481,6 +481,7 @@ class Metasploit3 < Msf::Post
                                'distinguishedName AS c_distinguishedName,'\
                                'cn AS c_cn,'\
                                'sAMAccountType AS c_sAMAccountType,'\
+                               'ref_sAMAccountType.name AS c_sAMAccountType_Name,'\
                                'sAMAccountName AS c_sAMAccountName,'\
                                'dNSHostName AS c_dNSHostName,'\
                                'displayName AS c_displayName,'\
@@ -515,10 +516,74 @@ class Metasploit3 < Msf::Post
        						   'ADS_UF_PASSWORD_EXPIRED AS c_ADS_UF_PASSWORD_EXPIRED,'\
        						   'ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION AS c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION '\
        						   'FROM ad_computers LEFT JOIN ref_sAMAccountType ON ref_sAMAccountType.id = ad_computers.sAMAccountType'
-      print_line sql_view_computers
       db.execute(sql_view_computers)
 
+      # Create the view for the AD Groups
+      db.execute('DROP VIEW IF EXISTS view_ad_groups')
+      sql_view_group = 'CREATE VIEW view_ad_groups AS SELECT '\
+                           'rid AS u_rid,'\
+                           'distinguishedName AS u_distinguishedName,'\
+                           'sAMAccountType AS u_sAMAccountType,'\
+                           'sAMAccountName AS u_sAMAccountName,'\
+                           'groupType AS u_groupType,'\
+                           'adminCount AS u_adminCount,'\
+                           'description AS u_description,'\
+                           'whenChanged AS u_whenChanged,'\
+                           'whenCreated AS u_whenCreated,'\
+                           'GT_GROUP_CREATED_BY_SYSTEM AS u_GT_GROUP_CREATED_BY_SYSTEM,'\
+                           'GT_GROUP_SCOPE_GLOBAL AS u_GT_GROUP_SCOPE_GLOBAL,'\
+                           'GT_GROUP_SCOPE_LOCAL AS u_GT_GROUP_SCOPE_LOCAL,'\
+                           'GT_GROUP_SCOPE_UNIVERSAL AS u_GT_GROUP_SCOPE_UNIVERSAL,'\
+                           'GT_GROUP_SAM_APP_BASIC AS u_GT_GROUP_SAM_APP_BASIC,'\
+                           'GT_GROUP_SAM_APP_QUERY AS u_GT_GROUP_SAM_APP_QUERY,'\
+                           'GT_GROUP_SECURITY AS u_GT_GROUP_SECURITY,'\
+                           'GT_GROUP_DISTRIBUTION as U_GT_GROUP_DISTRIBUTION'
+      db.execute(sql_view_group)
+
+      # Create the view for the AD Users
+      db.execute('DROP VIEW IF EXISTS view_ad_users')
+      sql_view_users = 'CREATE VIEW view_ad_users AS SELECT '\
+                           'rid AS g_rid,'\
+                           'distinguishedName AS g_distinguishedName,'\
+                           'description AS g_description,'\
+                           'displayName AS g_displayName,'\
+                           'sAMAccountType AS g_sAMAccountType,'\
+                           'sAMAccountName AS g_sAMAccountName,'\
+                           'logonCount AS g_logonCount,'\
+                           'userAccountControl AS g_userAccountControl,'\
+                           'primaryGroupID AS g_primaryGroupID,'\
+                           'accountExpires AS g_accountExpires,'\
+                           'adminCount AS g_adminCount,'\
+                           'badPwdCount AS g_badPwdCount,'\
+                           'userPrincipalName AS g_userPrincipalName,'\
+                           'comments AS g_comments,'\
+                           'title AS g_title,'\
+                           'whenCreated AS g_whenCreated,'\
+                           'whenChanged AS g_whenChanged,'\
+						   'ADS_UF_SCRIPT AS g_ADS_UF_SCRIPT,'\
+						   'ADS_UF_ACCOUNTDISABLE AS g_ADS_UF_ACCOUNTDISABLE,'\
+						   'ADS_UF_HOMEDIR_REQUIRED AS g_ADS_UF_HOMEDIR_REQUIRED,'\
+						   'ADS_UF_LOCKOUT AS g_ADS_UF_LOCKOUT,'\
+						   'ADS_UF_PASSWD_NOTREQD AS g_ADS_UF_PASSWD_NOTREQD,'\
+						   'ADS_UF_PASSWD_CANT_CHANGE AS g_ADS_UF_PASSWD_CANT_CHANGE,'\
+						   'ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED AS g_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED,'\
+						   'ADS_UF_TEMP_DUPLICATE_ACCOUNT AS g_ADS_UF_TEMP_DUPLICATE_ACCOUNT,'\
+						   'ADS_UF_NORMAL_ACCOUNT AS g_ADS_UF_NORMAL_ACCOUNT,'\
+						   'ADS_UF_INTERDOMAIN_TRUST_ACCOUNT AS g_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT,'\
+						   'ADS_UF_WORKSTATION_TRUST_ACCOUNT AS g_ADS_UF_WORKSTATION_TRUST_ACCOUNT,'\
+						   'ADS_UF_SERVER_TRUST_ACCOUNT AS g_ADS_UF_SERVER_TRUST_ACCOUNT,'\
+						   'ADS_UF_DONT_EXPIRE_PASSWD AS g_ADS_UF_DONT_EXPIRE_PASSWD,'\
+						   'ADS_UF_MNS_LOGON_ACCOUNT AS g_ADS_UF_MNS_LOGON_ACCOUNT,'\
+						   'ADS_UF_SMARTCARD_REQUIRED AS g_ADS_UF_SMARTCARD_REQUIRED,'\
+						   'ADS_UF_TRUSTED_FOR_DELEGATION AS g_ADS_UF_TRUSTED_FOR_DELEGATION,'\
+						   'ADS_UF_NOT_DELEGATED AS g_ADS_UF_NOT_DELEGATED,'\
+						   'ADS_UF_USE_DES_KEY_ONLY AS g_ADS_UF_USE_DES_KEY_ONLY,'\
+						   'ADS_UF_DONT_REQUIRE_PREAUTH AS g_ADS_UF_DONT_REQUIRE_PREAUTH,'\
+						   'ADS_UF_PASSWORD_EXPIRED AS g_ADS_UF_PASSWORD_EXPIRED,'\
+						   'ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION as g_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION'
+      db.execute(sql_view_users)
       return db, filename
+
     rescue SQLite3::Exception => e
       print_error("Error(Database): #{e.message}")
       return
