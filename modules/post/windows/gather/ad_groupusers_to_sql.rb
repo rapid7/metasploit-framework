@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptString.new('GROUP_FILTER', [true, 'Filter to identify groups', '(objectClass=group)']),
+      OptString.new('GROUP_FILTER', [true, 'Additional LDAP filters to perform when searching for initial groups', '']),
       OptBool.new('SHOW_USERGROUPS', [true, 'Show the user/group membership in a greppable form.', false]),
       OptBool.new('SHOW_COMPUTERS', [true, 'Show basic computer information in a greppable form.', false]),
       OptInt.new('THREADS', [true, 'Number of threads to spawn to gather membership of each group.', 20])
@@ -46,8 +46,13 @@ class Metasploit3 < Msf::Post
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
     begin
-      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount']
-      groups = query(datastore['GROUP_FILTER'], max_search, group_fields)
+      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comments']
+      if datastore['GROUP_FILTER']
+        group_query = "(&(objectClass=group)(#{datastore['GROUP_FILTER']}))"
+      else
+        group_query = "(objectClass=group)"
+      end
+      groups = query(group_query, max_search, group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error("Error(Group): #{e.message}")
       return
@@ -98,6 +103,7 @@ class Metasploit3 < Msf::Post
 	                            description: individual_group[6][:value].to_s,
 	                            groupType: individual_group[7][:value].to_i,
 	                            adminCount: individual_group[8][:value].to_i,
+	                            comments: individual_group[9][:value].to_s,
                                 # Specifies a group that is created by the system.
                                 GT_GROUP_CREATED_BY_SYSTEM: (grouptype_int & 0x00000001).zero? ? 0 : 1,
                                 # Specifies a group with global scope.
@@ -220,7 +226,7 @@ class Metasploit3 < Msf::Post
     vprint_status "Retrieving computers"
     begin
       computer_filter = '(objectClass=computer)'
-      computer_fields = ['distinguishedName', 'objectSid', 'cn','dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion']
+      computer_fields = ['distinguishedName', 'objectSid', 'cn','dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion', 'description', 'comments']
       computers = query(computer_filter, max_search, computer_fields)
 
         computers[:results].each do |comp|
@@ -250,6 +256,8 @@ class Metasploit3 < Msf::Post
                              operatingSystem: comp[13][:value].to_s,
                              operatingSystemServicePack: comp[14][:value].to_s,
                              operatingSystemVersion: comp[15][:value].to_s,
+                             description: comp[16][:value].to_s,
+                             comments: comp[17][:value].to_s,
                              #The login script is executed
                              ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1, 
                              #The user account is disabled.
@@ -345,6 +353,8 @@ class Metasploit3 < Msf::Post
                            'userAccountControl INTEGER,'\
                            'primaryGroupID INTEGER,'\
                            'badPwdCount INTEGER,'\
+                           'description TEXT,'\
+                           'comments TEXT,'\
                            'operatingSystem TEXT,'\
                            'operatingSystemServicePack TEXT,'\
                            'operatingSystemVersion TEXT,'\
@@ -383,6 +393,7 @@ class Metasploit3 < Msf::Post
                            'groupType INTEGER,'\
                            'adminCount INTEGER,'\
                            'description TEXT,'\
+                           'comments TEXT,'\
                            'whenChanged TEXT,'\
                            'whenCreated TEXT,'\
                            'GT_GROUP_CREATED_BY_SYSTEM INTEGER,'\
@@ -485,6 +496,8 @@ class Metasploit3 < Msf::Post
                                'sAMAccountName AS c_sAMAccountName,'\
                                'dNSHostName AS c_dNSHostName,'\
                                'displayName AS c_displayName,'\
+                               'description AS c_description,'\
+                               'comments AS c_comments,'\
                                'logonCount AS c_logonCount,'\
                                'userAccountControl AS c_userAccountControl,'\
                                'primaryGroupID AS c_primaryGroupID,'\
@@ -529,6 +542,7 @@ class Metasploit3 < Msf::Post
                            'groupType AS g_groupType,'\
                            'adminCount AS g_adminCount,'\
                            'description AS g_description,'\
+                           'comments AS g_comments,'\
                            'whenChanged AS g_whenChanged,'\
                            'whenCreated AS g_whenCreated,'\
                            'GT_GROUP_CREATED_BY_SYSTEM AS g_GT_GROUP_CREATED_BY_SYSTEM,'\
@@ -592,7 +606,6 @@ class Metasploit3 < Msf::Post
       sql_view_mapping = 'CREATE VIEW view_ad_mapping AS SELECT view_ad_groups.*,view_ad_users.* FROM ad_mapping '\
                          'INNER JOIN view_ad_groups ON view_ad_groups.g_rid = ad_mapping.group_rid '\
                          'INNER JOIN view_ad_users ON view_ad_users.u_rid = ad_mapping.user_rid'
-      print_line sql_view_mapping
       db.execute(sql_view_mapping)
 
       return db, filename
