@@ -79,7 +79,7 @@ for (var i=0; i < files.length; i++) {
   end
 
   def generate_mcl
-    %Q|<application url="msf.mcl">
+    %Q|<application url="#{datastore['FILENAME']}">
 <html>
 <head>
 <meta http-equiv="x-ua-compatible" content="IE-edge">
