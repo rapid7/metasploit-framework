@@ -338,6 +338,7 @@ class Metasploit3 < Msf::Post
       obj_temp = ::Dir::Tmpname
       filename = "#{obj_temp.tmpdir}/#{obj_temp.make_tmpname('ad_', 2)}.db"
       db = SQLite3::Database.new(filename)
+      db.type_translation = true
 
       # Create the table for the AD Computers
       db.execute('DROP TABLE IF EXISTS ad_computers')
@@ -618,7 +619,9 @@ class Metasploit3 < Msf::Post
 
   # Convert the SID raw data to a string. TODO fix this mess....
   # THIS NEEDS FIXING FIXME FIXME
-  def sid_hex_to_string(data)
+  def sid_hex_to_string(_data)
+    data = Rex::Text.to_ascii(_data)
+    print data.inspect
     sid = []
     sid << data[0].to_s
     rid = ''
