@@ -521,67 +521,80 @@ class Metasploit3 < Msf::Post
       # Create the view for the AD Groups
       db.execute('DROP VIEW IF EXISTS view_ad_groups')
       sql_view_group = 'CREATE VIEW view_ad_groups AS SELECT '\
-                           'rid AS u_rid,'\
-                           'distinguishedName AS u_distinguishedName,'\
-                           'sAMAccountType AS u_sAMAccountType,'\
-                           'sAMAccountName AS u_sAMAccountName,'\
-                           'groupType AS u_groupType,'\
-                           'adminCount AS u_adminCount,'\
-                           'description AS u_description,'\
-                           'whenChanged AS u_whenChanged,'\
-                           'whenCreated AS u_whenCreated,'\
-                           'GT_GROUP_CREATED_BY_SYSTEM AS u_GT_GROUP_CREATED_BY_SYSTEM,'\
-                           'GT_GROUP_SCOPE_GLOBAL AS u_GT_GROUP_SCOPE_GLOBAL,'\
-                           'GT_GROUP_SCOPE_LOCAL AS u_GT_GROUP_SCOPE_LOCAL,'\
-                           'GT_GROUP_SCOPE_UNIVERSAL AS u_GT_GROUP_SCOPE_UNIVERSAL,'\
-                           'GT_GROUP_SAM_APP_BASIC AS u_GT_GROUP_SAM_APP_BASIC,'\
-                           'GT_GROUP_SAM_APP_QUERY AS u_GT_GROUP_SAM_APP_QUERY,'\
-                           'GT_GROUP_SECURITY AS u_GT_GROUP_SECURITY,'\
-                           'GT_GROUP_DISTRIBUTION as U_GT_GROUP_DISTRIBUTION'
+                           'rid AS g_rid,'\
+                           'distinguishedName AS g_distinguishedName,'\
+                           'sAMAccountType AS g_sAMAccountType,'\
+                           'ref_sAMAccountType.name AS g_sAMAccountType_Name,'\
+                           'sAMAccountName AS g_sAMAccountName,'\
+                           'groupType AS g_groupType,'\
+                           'adminCount AS g_adminCount,'\
+                           'description AS g_description,'\
+                           'whenChanged AS g_whenChanged,'\
+                           'whenCreated AS g_whenCreated,'\
+                           'GT_GROUP_CREATED_BY_SYSTEM AS g_GT_GROUP_CREATED_BY_SYSTEM,'\
+                           'GT_GROUP_SCOPE_GLOBAL AS g_GT_GROUP_SCOPE_GLOBAL,'\
+                           'GT_GROUP_SCOPE_LOCAL AS g_GT_GROUP_SCOPE_LOCAL,'\
+                           'GT_GROUP_SCOPE_UNIVERSAL AS g_GT_GROUP_SCOPE_UNIVERSAL,'\
+                           'GT_GROUP_SAM_APP_BASIC AS g_GT_GROUP_SAM_APP_BASIC,'\
+                           'GT_GROUP_SAM_APP_QUERY AS g_GT_GROUP_SAM_APP_QUERY,'\
+                           'GT_GROUP_SECURITY AS g_GT_GROUP_SECURITY,'\
+                           'GT_GROUP_DISTRIBUTION as U_GT_GROUP_DISTRIBUTION '\
+       					   'FROM ad_groups LEFT JOIN ref_sAMAccountType ON ref_sAMAccountType.id = ad_groups.sAMAccountType'
       db.execute(sql_view_group)
 
       # Create the view for the AD Users
       db.execute('DROP VIEW IF EXISTS view_ad_users')
       sql_view_users = 'CREATE VIEW view_ad_users AS SELECT '\
-                           'rid AS g_rid,'\
-                           'distinguishedName AS g_distinguishedName,'\
-                           'description AS g_description,'\
-                           'displayName AS g_displayName,'\
-                           'sAMAccountType AS g_sAMAccountType,'\
-                           'sAMAccountName AS g_sAMAccountName,'\
-                           'logonCount AS g_logonCount,'\
-                           'userAccountControl AS g_userAccountControl,'\
-                           'primaryGroupID AS g_primaryGroupID,'\
-                           'accountExpires AS g_accountExpires,'\
-                           'adminCount AS g_adminCount,'\
-                           'badPwdCount AS g_badPwdCount,'\
-                           'userPrincipalName AS g_userPrincipalName,'\
-                           'comments AS g_comments,'\
-                           'title AS g_title,'\
-                           'whenCreated AS g_whenCreated,'\
-                           'whenChanged AS g_whenChanged,'\
-						   'ADS_UF_SCRIPT AS g_ADS_UF_SCRIPT,'\
-						   'ADS_UF_ACCOUNTDISABLE AS g_ADS_UF_ACCOUNTDISABLE,'\
-						   'ADS_UF_HOMEDIR_REQUIRED AS g_ADS_UF_HOMEDIR_REQUIRED,'\
-						   'ADS_UF_LOCKOUT AS g_ADS_UF_LOCKOUT,'\
-						   'ADS_UF_PASSWD_NOTREQD AS g_ADS_UF_PASSWD_NOTREQD,'\
-						   'ADS_UF_PASSWD_CANT_CHANGE AS g_ADS_UF_PASSWD_CANT_CHANGE,'\
-						   'ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED AS g_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED,'\
-						   'ADS_UF_TEMP_DUPLICATE_ACCOUNT AS g_ADS_UF_TEMP_DUPLICATE_ACCOUNT,'\
-						   'ADS_UF_NORMAL_ACCOUNT AS g_ADS_UF_NORMAL_ACCOUNT,'\
-						   'ADS_UF_INTERDOMAIN_TRUST_ACCOUNT AS g_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT,'\
-						   'ADS_UF_WORKSTATION_TRUST_ACCOUNT AS g_ADS_UF_WORKSTATION_TRUST_ACCOUNT,'\
-						   'ADS_UF_SERVER_TRUST_ACCOUNT AS g_ADS_UF_SERVER_TRUST_ACCOUNT,'\
-						   'ADS_UF_DONT_EXPIRE_PASSWD AS g_ADS_UF_DONT_EXPIRE_PASSWD,'\
-						   'ADS_UF_MNS_LOGON_ACCOUNT AS g_ADS_UF_MNS_LOGON_ACCOUNT,'\
-						   'ADS_UF_SMARTCARD_REQUIRED AS g_ADS_UF_SMARTCARD_REQUIRED,'\
-						   'ADS_UF_TRUSTED_FOR_DELEGATION AS g_ADS_UF_TRUSTED_FOR_DELEGATION,'\
-						   'ADS_UF_NOT_DELEGATED AS g_ADS_UF_NOT_DELEGATED,'\
-						   'ADS_UF_USE_DES_KEY_ONLY AS g_ADS_UF_USE_DES_KEY_ONLY,'\
-						   'ADS_UF_DONT_REQUIRE_PREAUTH AS g_ADS_UF_DONT_REQUIRE_PREAUTH,'\
-						   'ADS_UF_PASSWORD_EXPIRED AS g_ADS_UF_PASSWORD_EXPIRED,'\
-						   'ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION as g_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION'
+                           'rid AS u_rid,'\
+                           'distinguishedName AS u_distinguishedName,'\
+                           'description AS u_description,'\
+                           'displayName AS u_displayName,'\
+                           'sAMAccountType AS u_sAMAccountType,'\
+                           'ref_sAMAccountType.name AS u_sAMAccountType_Name,'\
+                           'sAMAccountName AS u_sAMAccountName,'\
+                           'logonCount AS u_logonCount,'\
+                           'userAccountControl AS u_userAccountControl,'\
+                           'primaryGroupID AS u_primaryGroupID,'\
+                           'accountExpires AS u_accountExpires,'\
+                           'adminCount AS u_adminCount,'\
+                           'badPwdCount AS u_badPwdCount,'\
+                           'userPrincipalName AS u_userPrincipalName,'\
+                           'comments AS u_comments,'\
+                           'title AS u_title,'\
+                           'whenCreated AS u_whenCreated,'\
+                           'whenChanged AS u_whenChanged,'\
+						   'ADS_UF_SCRIPT AS u_ADS_UF_SCRIPT,'\
+						   'ADS_UF_ACCOUNTDISABLE AS u_ADS_UF_ACCOUNTDISABLE,'\
+						   'ADS_UF_HOMEDIR_REQUIRED AS u_ADS_UF_HOMEDIR_REQUIRED,'\
+						   'ADS_UF_LOCKOUT AS u_ADS_UF_LOCKOUT,'\
+						   'ADS_UF_PASSWD_NOTREQD AS u_ADS_UF_PASSWD_NOTREQD,'\
+						   'ADS_UF_PASSWD_CANT_CHANGE AS u_ADS_UF_PASSWD_CANT_CHANGE,'\
+						   'ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED AS u_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED,'\
+						   'ADS_UF_TEMP_DUPLICATE_ACCOUNT AS u_ADS_UF_TEMP_DUPLICATE_ACCOUNT,'\
+						   'ADS_UF_NORMAL_ACCOUNT AS u_ADS_UF_NORMAL_ACCOUNT,'\
+						   'ADS_UF_INTERDOMAIN_TRUST_ACCOUNT AS u_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT,'\
+						   'ADS_UF_WORKSTATION_TRUST_ACCOUNT AS u_ADS_UF_WORKSTATION_TRUST_ACCOUNT,'\
+						   'ADS_UF_SERVER_TRUST_ACCOUNT AS u_ADS_UF_SERVER_TRUST_ACCOUNT,'\
+						   'ADS_UF_DONT_EXPIRE_PASSWD AS u_ADS_UF_DONT_EXPIRE_PASSWD,'\
+						   'ADS_UF_MNS_LOGON_ACCOUNT AS u_ADS_UF_MNS_LOGON_ACCOUNT,'\
+						   'ADS_UF_SMARTCARD_REQUIRED AS u_ADS_UF_SMARTCARD_REQUIRED,'\
+						   'ADS_UF_TRUSTED_FOR_DELEGATION AS u_ADS_UF_TRUSTED_FOR_DELEGATION,'\
+						   'ADS_UF_NOT_DELEGATED AS u_ADS_UF_NOT_DELEGATED,'\
+						   'ADS_UF_USE_DES_KEY_ONLY AS u_ADS_UF_USE_DES_KEY_ONLY,'\
+						   'ADS_UF_DONT_REQUIRE_PREAUTH AS u_ADS_UF_DONT_REQUIRE_PREAUTH,'\
+						   'ADS_UF_PASSWORD_EXPIRED AS u_ADS_UF_PASSWORD_EXPIRED,'\
+						   'ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION as u_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION '\
+       					   'FROM ad_users LEFT JOIN ref_sAMAccountType ON ref_sAMAccountType.id = ad_users.sAMAccountType'
       db.execute(sql_view_users)
+
+      # Create the view for the AD User/Group membership
+      db.execute('DROP VIEW IF EXISTS view_ad_mapping')
+      sql_view_mapping = 'CREATE VIEW view_ad_mapping AS SELECT view_ad_groups.*,view_ad_users.* FROM ad_mapping '\
+                         'INNER JOIN view_ad_groups ON view_ad_groups.g_rid = ad_mapping.group_rid '\
+                         'INNER JOIN view_ad_users ON view_ad_users.u_rid = ad_mapping.user_rid'
+      print_line sql_view_mapping
+      db.execute(sql_view_mapping)
+
       return db, filename
 
     rescue SQLite3::Exception => e
