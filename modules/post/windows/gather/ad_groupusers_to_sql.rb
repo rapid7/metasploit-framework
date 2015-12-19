@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
             next if !individual_group || individual_group.empty? || individual_group.nil?
 
             # Get the Group RID
-	        group_sid, group_rid = sid_hex_to_string(individual_group[1][:value])
+            group_rid = get_rid(individual_group[1][:value]).to_i
 
 	        # Perform the ADSI query to retrieve the effective users in each group (recursion)
 	        vprint_status "Retrieving members of #{individual_group[3][:value]}"
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
 
 	        # Add the group to the database
             # groupType parameter interpretation: https://msdn.microsoft.com/en-us/library/windows/desktop/ms675935(v=vs.85).aspx
-	        sql_param_group = { rid: group_rid.to_i,
+	        sql_param_group = { rid: group_rid,
 	                            distinguishedName: individual_group[0][:value].to_s,
 	                            sAMAccountType: individual_group[2][:value].to_i,
 	                            sAMAccountName: individual_group[3][:value].to_s,
@@ -129,14 +129,14 @@ class Metasploit3 < Msf::Post
 	        # Go through each group user
             next if users_in_group[:results].empty?
 	        users_in_group[:results].each do |group_user|
-	          user_sid, user_rid = sid_hex_to_string(group_user[1][:value])
+	          user_rid = get_rid(group_user[1][:value]).to_i
 	          print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
 	
               uac_int = group_user[7][:value].to_i #Set this because it is used so frequently below
 
 	          # Add the group to the database
               # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
-	          sql_param_user = { rid: user_rid.to_i,
+	          sql_param_user = { rid: user_rid,
 	                             distinguishedName: group_user[0][:value].to_s,
 	                             sAMAccountType: group_user[2][:value].to_i,
 	                             sAMAccountName: group_user[3][:value].to_s,
@@ -208,8 +208,8 @@ class Metasploit3 < Msf::Post
 	          run_sqlite_query(db, 'ad_users', sql_param_user)
 	
 	          # Now associate the user with the group
-	          sql_param_mapping = { user_rid: user_rid.to_i,
-	                                group_rid: group_rid.to_i
+	          sql_param_mapping = { user_rid: user_rid,
+	                                group_rid: group_rid
 	                              }
 	          run_sqlite_query(db, 'ad_mapping', sql_param_mapping)
 	      end
@@ -230,7 +230,7 @@ class Metasploit3 < Msf::Post
       computers = query(computer_filter, max_search, computer_fields)
 
         computers[:results].each do |comp|
-          computer_sid, computer_rid = sid_hex_to_string(comp[1][:value])
+          computer_rid = get_rid(comp[1][:value]).to_i
 
           uac_int = comp[8][:value].to_i #Set this because it is used so frequently below
 
@@ -240,7 +240,7 @@ class Metasploit3 < Msf::Post
           # (if you look at the objectClass for a computer account, it includes 'user') and, for efficiency, we should really store it all in one
           # table. However, the reality is that it will get annoying for users to have to remember to use the userAccountControl flags to work out whether
           # its a user or a computer and so, for convenience and ease of use, I have put them in completely separate tables.
-          sql_param_computer = { rid: computer_rid.to_i,
+          sql_param_computer = { rid: computer_rid,
                              distinguishedName: comp[0][:value].to_s,
                              cn: comp[2][:value].to_s,
                              dNSHostName: comp[3][:value].to_s,
@@ -617,26 +617,8 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  # Convert the SID raw data to a string. TODO fix this mess....
-  # THIS NEEDS FIXING FIXME FIXME
-  def sid_hex_to_string(_data)
-    data = Rex::Text.to_ascii(_data)
-    print data.inspect
-    sid = []
-    sid << data[0].to_s
-    rid = ''
-    (6).downto(1) do |i|
-      rid += byte2hex(data[i, 1][0])
-    end
-    sid << rid.to_i.to_s
-    sid += data.unpack("bbbbbbbbV*")[8..-1]
-    final_sid = "S-" + sid.join('-')
-    [final_sid, sid[-1]]
-  end
-
-  def byte2hex(b)
-    ret = '%x' % (b.to_i & 0xff)
-    ret = '0' + ret if ret.length < 2
-    ret
+  def get_rid(data)
+    sid = data.unpack("bbbbbbbbV*")[8..-1]
+    return sid[-1]
   end
 end
