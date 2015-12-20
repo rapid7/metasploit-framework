@@ -91,17 +91,18 @@ class Metasploit3 < Msf::Post
 	        users_in_group = query(users_filter, max_search, users_fields)
 	
             grouptype_int = individual_group[7][:value].to_i # Set this here because it is used a lot below
+            sat_int = individual_group[2][:value].to_i
 
 	        # Add the group to the database
             # groupType parameter interpretation: https://msdn.microsoft.com/en-us/library/windows/desktop/ms675935(v=vs.85).aspx
-	        sql_param_group = { rid: group_rid,
+	        sql_param_group = { g_rid: group_rid,
 	                            g_distinguishedName: individual_group[0][:value].to_s,
-	                            g_sAMAccountType: individual_group[2][:value].to_i,
+	                            g_sAMAccountType: sat_int,
 	                            g_sAMAccountName: individual_group[3][:value].to_s,
 	                            g_whenChanged: individual_group[4][:value].to_s,
 	                            g_whenCreated: individual_group[5][:value].to_s,
 	                            g_description: individual_group[6][:value].to_s,
-	                            g_groupType: individual_group[7][:value].to_i,
+	                            g_groupType: grouptype_int,
 	                            g_adminCount: individual_group[8][:value].to_i,
 	                            g_comments: individual_group[9][:value].to_s,
                                 # Specifies a group that is created by the system.
@@ -123,6 +124,18 @@ class Metasploit3 < Msf::Post
                                 # to set DISTRIBUTION=1 in a query when your mind is on other things to remember that 
                                 # DISTRIBUTION is in fact the inverse of SECURITY...:)
                                 g_GT_GROUP_DISTRIBUTION: (grouptype_int & 0x80000000).zero? ? 1 : 0,
+                                #Now add sAMAccountType constants
+                                g_SAM_DOMAIN_OBJECT: (sat_int==0) ? 1 : 0,
+                                g_SAM_GROUP_OBJECT: (sat_int==0x10000000) ? 1 : 0,
+                                g_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int==0x10000001) ? 1 : 0,
+                                g_SAM_ALIAS_OBJECT: (sat_int==0x20000000) ? 1 : 0,
+                                g_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int==0x20000001) ? 1 : 0,
+                                g_SAM_NORMAL_USER_ACCOUNT: (sat_int==0x30000000) ? 1 : 0,
+                                g_SAM_MACHINE_ACCOUNT: (sat_int==0x30000001) ? 1 : 0,
+                                g_SAM_TRUST_ACCOUNT: (sat_int==0x30000002) ? 1 : 0,
+                                g_SAM_APP_BASIC_GROUP: (sat_int==0x40000000) ? 1 : 0,
+                                g_SAM_APP_QUERY_GROUP: (sat_int==0x40000001) ? 1 : 0,
+                                g_SAM_ACCOUNT_TYPE_MAX: (sat_int==0x7fffffff) ? 1 : 0,
 	                          }
 	        run_sqlite_query(db, 'ad_groups', sql_param_group)
 	
@@ -133,6 +146,7 @@ class Metasploit3 < Msf::Post
 	          print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
 	
               uac_int = group_user[7][:value].to_i #Set this because it is used so frequently below
+              sat_int = group_user[2][:value].to_i
 
 	          # Add the group to the database
               # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
@@ -203,7 +217,19 @@ class Metasploit3 < Msf::Post
                                  #this option enabled should be strictly controlled. This setting enables a service running 
                                  #under the account to assume a client identity and authenticate as that user to other remote 
                                  #servers on the network.
-                                 u_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1 
+                                 u_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1,
+                                 #Now add sAMAccountType constants
+                                 u_SAM_DOMAIN_OBJECT: (sat_int==0) ? 1 : 0,
+                                 u_SAM_GROUP_OBJECT: (sat_int==0x10000000) ? 1 : 0,
+                                 u_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int==0x10000001) ? 1 : 0,
+                                 u_SAM_ALIAS_OBJECT: (sat_int==0x20000000) ? 1 : 0,
+                                 u_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int==0x20000001) ? 1 : 0,
+                                 u_SAM_NORMAL_USER_ACCOUNT: (sat_int==0x30000000) ? 1 : 0,
+                                 u_SAM_MACHINE_ACCOUNT: (sat_int==0x30000001) ? 1 : 0,
+                                 u_SAM_TRUST_ACCOUNT: (sat_int==0x30000002) ? 1 : 0,
+                                 u_SAM_APP_BASIC_GROUP: (sat_int==0x40000000) ? 1 : 0,
+                                 u_SAM_APP_QUERY_GROUP: (sat_int==0x40000001) ? 1 : 0,
+                                 u_SAM_ACCOUNT_TYPE_MAX: (sat_int==0x7fffffff) ? 1 : 0,
 	                           }
 	          run_sqlite_query(db, 'ad_users', sql_param_user)
 	
@@ -233,6 +259,7 @@ class Metasploit3 < Msf::Post
           computer_rid = get_rid(comp[1][:value]).to_i
 
           uac_int = comp[8][:value].to_i #Set this because it is used so frequently below
+          sat_int = comp[4][:value].to_i
 
           # Add the group to the database
           # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
@@ -240,11 +267,12 @@ class Metasploit3 < Msf::Post
           # (if you look at the objectClass for a computer account, it includes 'user') and, for efficiency, we should really store it all in one
           # table. However, the reality is that it will get annoying for users to have to remember to use the userAccountControl flags to work out whether
           # its a user or a computer and so, for convenience and ease of use, I have put them in completely separate tables.
+          # Also add the sAMAccount type flags from https://msdn.microsoft.com/en-us/library/windows/desktop/ms679637(v=vs.85).aspx
           sql_param_computer = { c_rid: computer_rid,
                              c_distinguishedName: comp[0][:value].to_s,
                              c_cn: comp[2][:value].to_s,
                              c_dNSHostName: comp[3][:value].to_s,
-                             c_sAMAccountType: comp[4][:value].to_i,
+                             c_sAMAccountType: sat_int,
                              c_sAMAccountName: comp[5][:value].to_s,
                              c_displayName: comp[6][:value].to_s,
                              c_logonCount: comp[7][:value].to_i,
@@ -306,7 +334,19 @@ class Metasploit3 < Msf::Post
                              #this option enabled should be strictly controlled. This setting enables a service running 
                              #under the account to assume a client identity and authenticate as that user to other remote 
                              #servers on the network.
-                             c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1 
+                             c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1,
+                             #Now add the sAMAccountType objects
+                             c_SAM_DOMAIN_OBJECT: (sat_int==0) ? 1 : 0,
+                             c_SAM_GROUP_OBJECT: (sat_int==0x10000000) ? 1 : 0,
+                             c_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int==0x10000001) ? 1 : 0,
+                             c_SAM_ALIAS_OBJECT: (sat_int==0x20000000) ? 1 : 0,
+                             c_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int==0x20000001) ? 1 : 0,
+                             c_SAM_NORMAL_USER_ACCOUNT: (sat_int==0x30000000) ? 1 : 0,
+                             c_SAM_MACHINE_ACCOUNT: (sat_int==0x30000001) ? 1 : 0,
+                             c_SAM_TRUST_ACCOUNT: (sat_int==0x30000002) ? 1 : 0,
+                             c_SAM_APP_BASIC_GROUP: (sat_int==0x40000000) ? 1 : 0,
+                             c_SAM_APP_QUERY_GROUP: (sat_int==0x40000001) ? 1 : 0,
+                             c_SAM_ACCOUNT_TYPE_MAX: (sat_int==0x7fffffff) ? 1 : 0,
                            }
           run_sqlite_query(db, 'ad_computers', sql_param_computer)
           print_line "Computer [#{sql_param_computer[:cn]}][#{sql_param_computer[:dNSHostName]}][#{sql_param_computer[:rid]}]" if datastore['SHOW_USERGROUPS']
@@ -478,8 +518,8 @@ class Metasploit3 < Msf::Post
                            'user_rid INTEGER NOT NULL,' \
                            'group_rid INTEGER NOT NULL,'\
                            'PRIMARY KEY (user_rid, group_rid),'\
-                           'FOREIGN KEY(user_rid) REFERENCES ad_users(rid)'\
-                           'FOREIGN KEY(group_rid) REFERENCES ad_groups(rid))'
+                           'FOREIGN KEY(user_rid) REFERENCES ad_users(u_rid)'\
+                           'FOREIGN KEY(group_rid) REFERENCES ad_groups(g_rid))'
       db.execute(sql_table_mapping)
 
       # Create the reference table for sAMAccountType
@@ -507,10 +547,10 @@ class Metasploit3 < Msf::Post
   	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_ACCOUNT_TYPE_MAX',0x7fffffff)")
 
       # Create the view for the AD User/Group membership
-      db.execute('DROP VIEW IF EXISTS view_ad_mapping')
-      sql_view_mapping = 'CREATE VIEW view_ad_mapping AS SELECT view_ad_groups.*,view_ad_users.* FROM ad_mapping '\
-                         'INNER JOIN view_ad_groups ON view_ad_groups.g_rid = ad_mapping.group_rid '\
-                         'INNER JOIN view_ad_users ON view_ad_users.u_rid = ad_mapping.user_rid'
+      db.execute('DROP VIEW IF EXISTS view_mapping')
+      sql_view_mapping = 'CREATE VIEW view_mapping AS SELECT ad_groups.*,ad_users.* FROM ad_mapping '\
+                         'INNER JOIN ad_groups ON _ad_groups.g_rid = ad_mapping.group_rid '\
+                         'INNER JOIN ad_users ON ad_users.u_rid = ad_mapping.user_rid'
       db.execute(sql_view_mapping)
 
       return db, filename
