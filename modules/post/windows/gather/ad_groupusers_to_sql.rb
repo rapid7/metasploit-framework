@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
     # Go through each of the groups and identify the individual users in each group
     vprint_status "Groups retrieval completed: #{groups[:results].size} group(s)"
     vprint_status "Retrieving AD Group Membership"
-    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'comment', 'title', 'accountExpires', 'adminCount']
+    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'comment', 'title', 'cn', 'adminCount', 'manager']
 
     remaining_groups = groups[:results]
 
@@ -171,6 +171,7 @@ class Metasploit3 < Msf::Post
                                  # Indicates that a given object has had its ACLs changed to a more secure value by the
                                  # system because it was a member of one of the administrative groups (directly or transitively).
                                  u_adminCount: group_user[16][:value].to_i,
+                                 u_manager: group_user[17][:value].to_s.encode('UTF-8'),
                                  # The login script is executed
                                  u_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1,
                                  # The user account is disabled.
@@ -489,6 +490,7 @@ class Metasploit3 < Msf::Post
                            'u_userPrincipalName TEXT UNIQUE,'\
                            'u_comment TEXT,'\
                            'u_title TEXT,'\
+                           'u_manager TEXT,'\
                            'u_whenCreated TEXT,'\
                            'u_whenChanged TEXT,'\
                            'u_ADS_UF_SCRIPT INTEGER,'\
