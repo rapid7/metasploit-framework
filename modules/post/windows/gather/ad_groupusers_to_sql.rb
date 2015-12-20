@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
     begin
-      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment']
+      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment', 'managedBy']
       if datastore['GROUP_FILTER'].empty?
         group_query = "(objectClass=group)"
       else
@@ -106,6 +106,7 @@ class Metasploit3 < Msf::Post
                                 g_groupType: grouptype_int,
                                 g_adminCount: individual_group[8][:value].to_i,
                                 g_comment: individual_group[9][:value].encode('UTF-8'),
+                                g_managedBy: individual_group[10][:value].encode('UTF-8'),
                                 # Specifies a group that is created by the system.
                                 g_GT_GROUP_CREATED_BY_SYSTEM: (grouptype_int & 0x00000001).zero? ? 0 : 1,
                                 # Specifies a group with global scope.
@@ -166,7 +167,7 @@ class Metasploit3 < Msf::Post
                                  u_badPwdCount: group_user[12][:value].to_i,
                                  u_comment: group_user[13][:value].encode('UTF-8'),
                                  u_title: group_user[14][:value].encode('UTF-8'),
-                                 u_accountExpires: group_user[15][:value].to_i,
+                                 u_cn: group_user[15][:value].to_s.encode('UTF-8'),
                                  # Indicates that a given object has had its ACLs changed to a more secure value by the
                                  # system because it was a member of one of the administrative groups (directly or transitively).
                                  u_adminCount: group_user[16][:value].to_i,
@@ -446,6 +447,7 @@ class Metasploit3 < Msf::Post
                            'g_adminCount INTEGER,'\
                            'g_description TEXT,'\
                            'g_comment TEXT,'\
+                           'g_managedBy TEXT,'\
                            'g_whenChanged TEXT,'\
                            'g_whenCreated TEXT,'\
                            'g_GT_GROUP_CREATED_BY_SYSTEM INTEGER,'\
@@ -481,7 +483,7 @@ class Metasploit3 < Msf::Post
                            'u_logonCount INTEGER,'\
                            'u_userAccountControl INTEGER,'\
                            'u_primaryGroupID INTEGER,'\
-                           'u_accountExpires INTEGER,'\
+                           'u_cn TEXT,'\
                            'u_adminCount INTEGER,'\
                            'u_badPwdCount INTEGER,'\
                            'u_userPrincipalName TEXT UNIQUE,'\
