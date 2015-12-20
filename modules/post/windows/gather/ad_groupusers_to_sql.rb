@@ -537,7 +537,7 @@ class Metasploit3 < Msf::Post
       # Create the view for the AD User/Group membership
       db.execute('DROP VIEW IF EXISTS view_mapping')
       sql_view_mapping = 'CREATE VIEW view_mapping AS SELECT ad_groups.*,ad_users.* FROM ad_mapping '\
-                         'INNER JOIN ad_groups ON _ad_groups.g_rid = ad_mapping.group_rid '\
+                         'INNER JOIN ad_groups ON ad_groups.g_rid = ad_mapping.group_rid '\
                          'INNER JOIN ad_users ON ad_users.u_rid = ad_mapping.user_rid'
       db.execute(sql_view_mapping)
 
