@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
     register_options([
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional group fields to retrieve, comma separated.', nil]),
       OptBool.new('RESOLVE_MANAGERS', [true, 'Query LDAP to get the account name of group managers.', true]),
-      OptBool.new('SECURITY_GROUPS_ONLY', [true, 'Only include security groups.', true]),
+      OptBool.new('SECURITY_GROUPS_ONLY', [true, 'Only include security groups.', true])
     ], self.class)
   end
 
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Post
     @user_fields = USER_FIELDS.dup
 
     if datastore['ADDITIONAL_FIELDS']
-      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/,"").split(',')
+      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/, "").split(',')
       @user_fields.push(*additional_fields)
     end
 
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
       if datastore['SECURITY_GROUPS_ONLY']
         qs = '(&(objectClass=group)(managedBy=*)(groupType:1.2.840.113556.1.4.803:=2147483648))'
       end
-      q = query('(&(objectClass=group)(managedBy=*))', max_search, @user_fields)
+      q = query(qs, max_search, @user_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
@@ -67,9 +67,7 @@ class Metasploit3 < Msf::Post
     if q.nil? || q[:results].empty?
       print_status('No results returned.')
     else
-      if datastore['RESOLVE_MANAGERS']
-        @user_fields << 'Manager Account Name'
-      end
+      @user_fields << 'Manager Account Name' if datastore['RESOLVE_MANAGERS']
       results_table = parse_results(q[:results])
       print_line results_table.to_s
     end
@@ -77,7 +75,6 @@ class Metasploit3 < Msf::Post
 
   # Takes the results of LDAP query, parses them into a table
   def parse_results(results)
-
     results_table = Rex::Ui::Text::Table.new(
       'Header'     => "Groups with Managers",
       'Indent'     => 1,
@@ -95,23 +92,22 @@ class Metasploit3 < Msf::Post
           row << field[:value]
         end
       end
-        if datastore['RESOLVE_MANAGERS']
-          begin
-            managedBy_cn = result[2][:value].split(',')[0]
-            m = query("(&(objectClass=user)(objectCategory=person)(#{managedBy_cn}))", 1, ['sAMAccountName'])
-            if !m.nil? && !m[:results].empty?
-                row << m[:results][0][0][:value]
-            else
-                row << ""
-            end
-          rescue
+      if datastore['RESOLVE_MANAGERS']
+        begin
+          managedBy_cn = result[2][:value].split(',')[0]
+          m = query("(&(objectClass=user)(objectCategory=person)(#{managedBy_cn}))", 1, ['sAMAccountName'])
+          if !m.nil? && !m[:results].empty?
+            row << m[:results][0][0][:value]
+          else
             row << ""
           end
-      end
+        rescue
+          row << ""
+        end
+    end
 
       results_table << row
     end
     results_table
   end
-
 end
