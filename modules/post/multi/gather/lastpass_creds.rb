@@ -373,13 +373,13 @@ class Metasploit3 < Msf::Post
     lastpass_data_table = Rex::Ui::Text::Table.new(
       'Header' => "LastPass Accounts",
       'Indent' => 1,
-      'Columns' => %w(Account Browser LP_Username LP_Password LP_2FA LP_Key)
+      'Columns' => %w(Account LP_Username LP_Password LP_2FA LP_Key)
     )
 
     account_map.each_pair do |account, browser_map|
       browser_map.each_pair do |browser, lp_data|
         lp_data['lp_creds'].each_pair do |username, user_data|
-          lastpass_data_table << [account, browser, username, user_data['lp_password'], lp_data['lp_2fa'], user_data['vault_key']]
+          lastpass_data_table << [account, username, user_data['lp_password'], lp_data['lp_2fa'], user_data['vault_key']]
         end
       end
     end
