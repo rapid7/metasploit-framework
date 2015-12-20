@@ -20,8 +20,8 @@ class Metasploit3 < Msf::Post
       info,
       'Name'         => 'Windows Gather Active Directory Managed Groups',
       'Description'  => %{
-        This module will enumerate AD groups on the specified domain which are managed by users.
-        It will also identify whether those groups have the 'Manager can update membership list'
+        This module will enumerate AD groups on the specified domain which are specifically managed.
+        It cannot at the moment identify whether the 'Manager can update membership list' option
         option set; if so, it would allow that member to update the contents of that group. This
         could either be used as a persistence mechanism (for example, set your user as the 'Domain
         Admins' group manager) or could be used to detect privilege escalation opportunities
