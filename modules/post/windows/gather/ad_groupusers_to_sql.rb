@@ -29,9 +29,9 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptString.new('GROUP_FILTER', [true, 'Additional LDAP filters to perform when searching for initial groups', '']),
-      OptBool.new('SHOW_USERGROUPS', [true, 'Show the user/group membership in a greppable form.', false]),
-      OptBool.new('SHOW_COMPUTERS', [true, 'Show basic computer information in a greppable form.', false]),
+      OptString.new('GROUP_FILTER', [false, 'Additional LDAP filters to use when searching for initial groups', '']),
+      OptBool.new('SHOW_USERGROUPS', [true, 'Show the user/group membership in a greppable form to the console.', false]),
+      OptBool.new('SHOW_COMPUTERS', [true, 'Show basic computer information in a greppable form to the console.', false]),
       OptInt.new('THREADS', [true, 'Number of threads to spawn to gather membership of each group.', 20])
     ], self.class)
   end
@@ -47,10 +47,10 @@ class Metasploit3 < Msf::Post
     vprint_status "Retrieving AD Groups"
     begin
       group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comments']
-      if datastore['GROUP_FILTER']
-        group_query = "(&(objectClass=group)(#{datastore['GROUP_FILTER']}))"
-      else
+      if datastore['GROUP_FILTER'].empty?
         group_query = "(objectClass=group)"
+      else
+        group_query = "(&(objectClass=group)(#{datastore['GROUP_FILTER']}))"
       end
       groups = query(group_query, max_search, group_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
@@ -65,6 +65,7 @@ class Metasploit3 < Msf::Post
     end
 
     # Go through each of the groups and identify the individual users in each group
+    vprint_status "Groups retrieval completed: #{groups[:results].size} group(s)"
     vprint_status "Retrieving AD Group Membership"
     users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount','comments', 'title', 'accountExpires', 'adminCount']
 
@@ -349,7 +350,7 @@ class Metasploit3 < Msf::Post
                              c_SAM_ACCOUNT_TYPE_MAX: (sat_int==0x7fffffff) ? 1 : 0,
                            }
           run_sqlite_query(db, 'ad_computers', sql_param_computer)
-          print_line "Computer [#{sql_param_computer[:c_cn]}][#{sql_param_computer[:c_dNSHostName]}][#{sql_param_computer[:c_rid]}]" if datastore['SHOW_USERGROUPS']
+          print_line "Computer [#{sql_param_computer[:c_cn]}][#{sql_param_computer[:c_dNSHostName]}][#{sql_param_computer[:c_rid]}]" if datastore['SHOW_COMPUTERS']
         end
 
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
