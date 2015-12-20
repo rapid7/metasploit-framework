@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
     begin
-      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comments']
+      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment']
       if datastore['GROUP_FILTER'].empty?
         group_query = "(objectClass=group)"
       else
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
     # Go through each of the groups and identify the individual users in each group
     vprint_status "Groups retrieval completed: #{groups[:results].size} group(s)"
     vprint_status "Retrieving AD Group Membership"
-    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'comments', 'title', 'accountExpires', 'adminCount']
+    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'comment', 'title', 'accountExpires', 'adminCount']
 
     remaining_groups = groups[:results]
 
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
                                 g_description: individual_group[6][:value].encode('UTF-8'),
                                 g_groupType: grouptype_int,
                                 g_adminCount: individual_group[8][:value].to_i,
-                                g_comments: individual_group[9][:value].encode('UTF-8'),
+                                g_comment: individual_group[9][:value].encode('UTF-8'),
                                 # Specifies a group that is created by the system.
                                 g_GT_GROUP_CREATED_BY_SYSTEM: (grouptype_int & 0x00000001).zero? ? 0 : 1,
                                 # Specifies a group with global scope.
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Post
                                  u_whenCreated: group_user[10][:value].encode('UTF-8'),
                                  u_primaryGroupID: group_user[11][:value].to_i,
                                  u_badPwdCount: group_user[12][:value].to_i,
-                                 u_comments: group_user[13][:value].encode('UTF-8'),
+                                 u_comment: group_user[13][:value].encode('UTF-8'),
                                  u_title: group_user[14][:value].encode('UTF-8'),
                                  u_accountExpires: group_user[15][:value].to_i,
                                  # Indicates that a given object has had its ACLs changed to a more secure value by the
@@ -253,7 +253,7 @@ class Metasploit3 < Msf::Post
     vprint_status "Retrieving computers"
     begin
       computer_filter = '(objectClass=computer)'
-      computer_fields = ['distinguishedName', 'objectSid', 'cn', 'dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion', 'description', 'comments']
+      computer_fields = ['distinguishedName', 'objectSid', 'cn', 'dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion', 'description', 'comment']
       computers = query(computer_filter, max_search, computer_fields)
 
       computers[:results].each do |comp|
@@ -286,7 +286,7 @@ class Metasploit3 < Msf::Post
                                c_operatingSystemServicePack: comp[14][:value].encode('UTF-8'),
                                c_operatingSystemVersion: comp[15][:value].encode('UTF-8'),
                                c_description: comp[16][:value].encode('UTF-8'),
-                               c_comments: comp[17][:value].encode('UTF-8'),
+                               c_comment: comp[17][:value].encode('UTF-8'),
                                # The login script is executed
                                c_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1,
                                # The user account is disabled.
@@ -395,7 +395,7 @@ class Metasploit3 < Msf::Post
                            'c_primaryGroupID INTEGER,'\
                            'c_badPwdCount INTEGER,'\
                            'c_description TEXT,'\
-                           'c_comments TEXT,'\
+                           'c_comment TEXT,'\
                            'c_operatingSystem TEXT,'\
                            'c_operatingSystemServicePack TEXT,'\
                            'c_operatingSystemVersion TEXT,'\
@@ -445,7 +445,7 @@ class Metasploit3 < Msf::Post
                            'g_groupType INTEGER,'\
                            'g_adminCount INTEGER,'\
                            'g_description TEXT,'\
-                           'g_comments TEXT,'\
+                           'g_comment TEXT,'\
                            'g_whenChanged TEXT,'\
                            'g_whenCreated TEXT,'\
                            'g_GT_GROUP_CREATED_BY_SYSTEM INTEGER,'\
@@ -485,7 +485,7 @@ class Metasploit3 < Msf::Post
                            'u_adminCount INTEGER,'\
                            'u_badPwdCount INTEGER,'\
                            'u_userPrincipalName TEXT UNIQUE,'\
-                           'u_comments TEXT,'\
+                           'u_comment TEXT,'\
                            'u_title TEXT,'\
                            'u_whenCreated TEXT,'\
                            'u_whenChanged TEXT,'\
