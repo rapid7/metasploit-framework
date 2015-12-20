@@ -96,6 +96,8 @@ class Metasploit3 < Msf::Post
 
             # Add the group to the database
             # groupType parameter interpretation: https://msdn.microsoft.com/en-us/library/windows/desktop/ms675935(v=vs.85).aspx
+            # Note that the conversions to UTF-8 are necessary because of the way SQLite detects column type affinity
+            # Turns out that the 'fix' is documented in https://github.com/rails/rails/issues/1965
             sql_param_group = { g_rid: group_rid,
                                 g_distinguishedName: individual_group[0][:value].encode('UTF-8'),
                                 g_sAMAccountType: sat_int,
