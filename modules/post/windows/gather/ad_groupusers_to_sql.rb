@@ -8,9 +8,7 @@ require 'msf/core'
 require 'sqlite3'
 
 class Metasploit3 < Msf::Post
-  include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
-  include Msf::Post::Windows::Accounts
 
   def initialize(info = {})
     super(update_info(
