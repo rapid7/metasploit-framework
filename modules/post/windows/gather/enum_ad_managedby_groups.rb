@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
       'Description'  => %{
         This module will enumerate AD groups on the specified domain which are managed by users.
         It will also identify whether those groups have the 'Manager can update membership list'
-        option set; if so, it would allow that member to update the contents of that group. This 
+        option set; if so, it would allow that member to update the contents of that group. This
         could either be used as a persistence mechanism (for example, set your user as the 'Domain
         Admins' group manager) or could be used to detect privilege escalation opportunities
         without having domain admin privileges.
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
       if datastore['SECURITY_GROUPS_ONLY']
         qs = '(&(objectClass=group)(managedBy=*)(groupType:1.2.840.113556.1.4.803:=2147483648))'
       end
-      q = query('(&(objectClass=group)(managedBy=*))', max_search, @user_fields) 
+      q = query('(&(objectClass=group)(managedBy=*))', max_search, @user_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
