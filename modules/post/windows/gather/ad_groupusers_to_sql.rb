@@ -349,7 +349,7 @@ class Metasploit3 < Msf::Post
                              c_SAM_ACCOUNT_TYPE_MAX: (sat_int==0x7fffffff) ? 1 : 0,
                            }
           run_sqlite_query(db, 'ad_computers', sql_param_computer)
-          print_line "Computer [#{sql_param_computer[:cn]}][#{sql_param_computer[:dNSHostName]}][#{sql_param_computer[:rid]}]" if datastore['SHOW_USERGROUPS']
+          print_line "Computer [#{sql_param_computer[:c_cn]}][#{sql_param_computer[:c_dNSHostName]}][#{sql_param_computer[:c_rid]}]" if datastore['SHOW_USERGROUPS']
         end
 
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
@@ -455,7 +455,18 @@ class Metasploit3 < Msf::Post
                            'g_GT_GROUP_SAM_APP_BASIC INTEGER,'\
                            'g_GT_GROUP_SAM_APP_QUERY INTEGER,'\
                            'g_GT_GROUP_SECURITY INTEGER,'\
-                           'g_GT_GROUP_DISTRIBUTION INTEGER)'
+                           'g_GT_GROUP_DISTRIBUTION INTEGER,'\
+						   'g_SAM_DOMAIN_OBJECT INTEGER,'\
+						   'g_SAM_GROUP_OBJECT INTEGER,'\
+						   'g_SAM_NON_SECURITY_GROUP_OBJECT INTEGER,'\
+						   'g_SAM_ALIAS_OBJECT INTEGER,'\
+						   'g_SAM_NON_SECURITY_ALIAS_OBJECT INTEGER,'\
+						   'g_SAM_NORMAL_USER_ACCOUNT INTEGER,'\
+						   'g_SAM_MACHINE_ACCOUNT INTEGER,'\
+						   'g_SAM_TRUST_ACCOUNT INTEGER,'\
+						   'g_SAM_APP_BASIC_GROUP INTEGER,'\
+						   'g_SAM_APP_QUERY_GROUP INTEGER,'\
+						   'g_SAM_ACCOUNT_TYPE_MAX INTEGER)'
       db.execute(sql_table_group)
 
       # Create the table for the AD Users
