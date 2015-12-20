@@ -9,18 +9,23 @@ require 'msf/core'
 class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
-#  include Msf::Post::Windows::Accounts
 
-  USER_FIELDS = ['name',
+  USER_FIELDS = ['cn',
                  'distinguishedname',
+                 'managedBy',
                  'description'].freeze
 
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'         => 'Windows Gather Active Directory Groups',
+      'Name'         => 'Windows Gather Active Directory Managed Groups',
       'Description'  => %{
-        This module will enumerate AD groups on the specified domain.
+        This module will enumerate AD groups on the specified domain which are managed by users.
+        It will also identify whether those groups have the 'Manager can update membership list'
+        option set; if so, it would allow that member to update the contents of that group. This 
+        could either be used as a persistence mechanism (for example, set your user as the 'Domain
+        Admins' group manager) or could be used to detect privilege escalation opportunities
+        without having domain admin privileges.
       },
       'License'      => MSF_LICENSE,
       'Author'       => [
@@ -31,7 +36,9 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
+      OptString.new('ADDITIONAL_FIELDS', [false, 'Additional group fields to retrieve, comma separated.', nil]),
+      OptBool.new('RESOLVE_MANAGERS', [true, 'Query LDAP to get the account name of group managers.', true]),
+      OptBool.new('SECURITY_GROUPS_ONLY', [true, 'Only include security groups.', true]),
     ], self.class)
   end
 
@@ -46,7 +53,11 @@ class Metasploit3 < Msf::Post
     max_search = datastore['MAX_SEARCH']
 
     begin
-      q = query('(objectClass=group)', max_search, @user_fields)
+      qs = '(&(objectClass=group)(managedBy=*))'
+      if datastore['SECURITY_GROUPS_ONLY']
+        qs = '(&(objectClass=group)(managedBy=*)(groupType:1.2.840.113556.1.4.803:=2147483648))'
+      end
+      q = query('(&(objectClass=group)(managedBy=*))', max_search, @user_fields) 
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
@@ -56,23 +67,19 @@ class Metasploit3 < Msf::Post
     if q.nil? || q[:results].empty?
       print_status('No results returned.')
     else
+      if datastore['RESOLVE_MANAGERS']
+        @user_fields << 'Manager Account Name'
+      end
       results_table = parse_results(q[:results])
       print_line results_table.to_s
     end
   end
 
   # Takes the results of LDAP query, parses them into a table
-  # and records and usernames as {Metasploit::Credential::Core}s in
-  # the database.
-  #
-  # @param [Array<Array<Hash>>] the LDAP query results to parse
-  # @return [Rex::Ui::Text::Table] the table containing all the result data
   def parse_results(results)
-    domain = datastore['DOMAIN'] || get_domain
-    domain_ip = client.net.resolve.resolve_host(domain)[:ip]
-    # Results table holds raw string data
+
     results_table = Rex::Ui::Text::Table.new(
-      'Header'     => "Domain Groups",
+      'Header'     => "Groups with Managers",
       'Indent'     => 1,
       'SortIndex'  => -1,
       'Columns'    => @user_fields
@@ -87,6 +94,19 @@ class Metasploit3 < Msf::Post
         else
           row << field[:value]
         end
+      end
+        if datastore['RESOLVE_MANAGERS']
+          begin
+            managedBy_cn = result[2][:value].split(',')[0]
+            m = query("(&(objectClass=user)(objectCategory=person)(#{managedBy_cn}))", 1, ['sAMAccountName'])
+            if !m.nil? && !m[:results].empty?
+                row << m[:results][0][0][:value]
+            else
+                row << ""
+            end
+          rescue
+            row << ""
+          end
       end
 
       results_table << row
