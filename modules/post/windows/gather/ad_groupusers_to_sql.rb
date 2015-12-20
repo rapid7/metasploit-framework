@@ -533,30 +533,6 @@ class Metasploit3 < Msf::Post
                            'FOREIGN KEY(group_rid) REFERENCES ad_groups(g_rid))'
       db.execute(sql_table_mapping)
 
-      # Create the reference table for sAMAccountType
-      # https://msdn.microsoft.com/en-us/library/windows/desktop/ms679637(v=vs.85).aspx
-      db.execute('DROP TABLE IF EXISTS ref_sAMAccountType')
-      sql_table_ref_sac = 'CREATE TABLE ref_sAMAccountType ('\
-                           'id INTEGER PRIMARY KEY NOT NULL,'\
-                           'name TEXT UNIQUE NOT NULL)'
-      db.execute(sql_table_ref_sac)
-
-      # Now insert the data into the sAMAccoutType reference table
-      # SQLite v3.7+ supports a rather convoluted UNION SELECT way of adding multiple rows
-      # in one query but for the sake of simplicity and readability, I have just left these as
-      # separate insert statements. Its hardly an efficiency problem given the rest of the module!
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_DOMAIN_OBJECT',0)")
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_GROUP_OBJECT',0x10000000)") 
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_NON_SECURITY_GROUP_OBJECT',0x10000001)") 
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_ALIAS_OBJECT',0x20000000)") 
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_NON_SECURITY_ALIAS_OBJECT',0x20000001)") 
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_NORMAL_USER_ACCOUNT',0x30000000)")
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_MACHINE_ACCOUNT',0x30000001)")
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_TRUST_ACCOUNT',0x30000002)")
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_APP_BASIC_GROUP',0x40000000)")
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_APP_QUERY_GROUP',0x40000001)")
-  	  db.execute("insert into ref_sAMAccountType (name,id) VALUES ('SAM_ACCOUNT_TYPE_MAX',0x7fffffff)")
-
       # Create the view for the AD User/Group membership
       db.execute('DROP VIEW IF EXISTS view_mapping')
       sql_view_mapping = 'CREATE VIEW view_mapping AS SELECT ad_groups.*,ad_users.* FROM ad_mapping '\
