@@ -94,8 +94,8 @@ class Metasploit3 < Msf::Post
       end
       if datastore['RESOLVE_MANAGERS']
         begin
-          managedBy_cn = result[2][:value].split(',')[0]
-          m = query("(&(objectClass=user)(objectCategory=person)(#{managedBy_cn}))", 1, ['sAMAccountName'])
+          managedby_cn = result[2][:value].split(',')[0]
+          m = query("(&(objectClass=user)(objectCategory=person)(#{managedby_cn}))", 1, ['sAMAccountName'])
           if !m.nil? && !m[:results].empty?
             row << m[:results][0][0][:value]
           else
@@ -104,8 +104,7 @@ class Metasploit3 < Msf::Post
         rescue
           row << ""
         end
-    end
-
+      end
       results_table << row
     end
     results_table
