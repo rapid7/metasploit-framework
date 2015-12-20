@@ -95,34 +95,34 @@ class Metasploit3 < Msf::Post
 	        # Add the group to the database
             # groupType parameter interpretation: https://msdn.microsoft.com/en-us/library/windows/desktop/ms675935(v=vs.85).aspx
 	        sql_param_group = { rid: group_rid,
-	                            distinguishedName: individual_group[0][:value].to_s,
-	                            sAMAccountType: individual_group[2][:value].to_i,
-	                            sAMAccountName: individual_group[3][:value].to_s,
-	                            whenChanged: individual_group[4][:value].to_s,
-	                            whenCreated: individual_group[5][:value].to_s,
-	                            description: individual_group[6][:value].to_s,
-	                            groupType: individual_group[7][:value].to_i,
-	                            adminCount: individual_group[8][:value].to_i,
-	                            comments: individual_group[9][:value].to_s,
+	                            g_distinguishedName: individual_group[0][:value].to_s,
+	                            g_sAMAccountType: individual_group[2][:value].to_i,
+	                            g_sAMAccountName: individual_group[3][:value].to_s,
+	                            g_whenChanged: individual_group[4][:value].to_s,
+	                            g_whenCreated: individual_group[5][:value].to_s,
+	                            g_description: individual_group[6][:value].to_s,
+	                            g_groupType: individual_group[7][:value].to_i,
+	                            g_adminCount: individual_group[8][:value].to_i,
+	                            g_comments: individual_group[9][:value].to_s,
                                 # Specifies a group that is created by the system.
-                                GT_GROUP_CREATED_BY_SYSTEM: (grouptype_int & 0x00000001).zero? ? 0 : 1,
+                                g_GT_GROUP_CREATED_BY_SYSTEM: (grouptype_int & 0x00000001).zero? ? 0 : 1,
                                 # Specifies a group with global scope.
-                                GT_GROUP_SCOPE_GLOBAL: (grouptype_int & 0x00000002).zero? ? 0 : 1,
+                                g_GT_GROUP_SCOPE_GLOBAL: (grouptype_int & 0x00000002).zero? ? 0 : 1,
                                 # Specifies a group with local scope.
-                                GT_GROUP_SCOPE_LOCAL: (grouptype_int & 0x00000004).zero? ? 0 : 1,
+                                g_GT_GROUP_SCOPE_LOCAL: (grouptype_int & 0x00000004).zero? ? 0 : 1,
                                 # Specifies a group with universal scope.
-                                GT_GROUP_SCOPE_UNIVERSAL: (grouptype_int & 0x00000008).zero? ? 0 : 1,
+                                g_GT_GROUP_SCOPE_UNIVERSAL: (grouptype_int & 0x00000008).zero? ? 0 : 1,
                                 # Specifies an APP_BASIC group for Windows Server Authorization Manager.
-                                GT_GROUP_SAM_APP_BASIC: (grouptype_int & 0x00000010).zero? ? 0 : 1,
+                                g_GT_GROUP_SAM_APP_BASIC: (grouptype_int & 0x00000010).zero? ? 0 : 1,
                                 # Specifies an APP_QUERY group for Windows Server Authorization Manager.
-                                GT_GROUP_SAM_APP_QUERY: (grouptype_int & 0x00000020).zero? ? 0 : 1,
+                                g_GT_GROUP_SAM_APP_QUERY: (grouptype_int & 0x00000020).zero? ? 0 : 1,
                                 # Specifies a security group. If this flag is not set, then the group is a distribution group.
-                                GT_GROUP_SECURITY: (grouptype_int & 0x80000000).zero? ? 0 : 1,
+                                g_GT_GROUP_SECURITY: (grouptype_int & 0x80000000).zero? ? 0 : 1,
                                 # The inverse of the flag above. Technically GT_GROUP_SECURITY=0 makes it a distribution
                                 # group so this is arguably redundant, but I have included it for ease. It makes a lot more sense
                                 # to set DISTRIBUTION=1 in a query when your mind is on other things to remember that 
                                 # DISTRIBUTION is in fact the inverse of SECURITY...:)
-                                GT_GROUP_DISTRIBUTION: (grouptype_int & 0x80000000).zero? ? 1 : 0,
+                                g_GT_GROUP_DISTRIBUTION: (grouptype_int & 0x80000000).zero? ? 1 : 0,
 	                          }
 	        run_sqlite_query(db, 'ad_groups', sql_param_group)
 	
@@ -136,74 +136,74 @@ class Metasploit3 < Msf::Post
 
 	          # Add the group to the database
               # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
-	          sql_param_user = { rid: user_rid,
-	                             distinguishedName: group_user[0][:value].to_s,
-	                             sAMAccountType: group_user[2][:value].to_i,
-	                             sAMAccountName: group_user[3][:value].to_s,
-	                             displayName: group_user[4][:value].to_s,
-	                             description: group_user[5][:value].to_s,
-	                             logonCount: group_user[6][:value].to_i,
-	                             userAccountControl: uac_int,
-	                             userPrincipalName: group_user[8][:value].to_s,
-	                             whenChanged: group_user[9][:value].to_s,
-	                             whenCreated: group_user[10][:value].to_s,
-	                             primaryGroupID: group_user[11][:value].to_i,
-	                             badPwdCount: group_user[12][:value].to_i,
-	                             comments: group_user[13][:value].to_s,
-	                             title: group_user[14][:value].to_s,
-	                             accountExpires: group_user[15][:value].to_i,
+	          sql_param_user = { u_rid: user_rid,
+	                             u_distinguishedName: group_user[0][:value].to_s,
+	                             u_sAMAccountType: group_user[2][:value].to_i,
+	                             u_sAMAccountName: group_user[3][:value].to_s,
+	                             u_displayName: group_user[4][:value].to_s,
+	                             u_description: group_user[5][:value].to_s,
+	                             u_logonCount: group_user[6][:value].to_i,
+	                             u_userAccountControl: uac_int,
+	                             u_userPrincipalName: group_user[8][:value].to_s,
+	                             u_whenChanged: group_user[9][:value].to_s,
+	                             u_whenCreated: group_user[10][:value].to_s,
+	                             u_primaryGroupID: group_user[11][:value].to_i,
+	                             u_badPwdCount: group_user[12][:value].to_i,
+	                             u_comments: group_user[13][:value].to_s,
+	                             u_title: group_user[14][:value].to_s,
+	                             u_accountExpires: group_user[15][:value].to_i,
                                  #Indicates that a given object has had its ACLs changed to a more secure value by the 
                                  #system because it was a member of one of the administrative groups (directly or transitively).
-	                             adminCount: group_user[16][:value].to_i,
+	                             u_adminCount: group_user[16][:value].to_i,
                                  #The login script is executed
-                                 ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1, 
+                                 u_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1, 
                                  #The user account is disabled.
-                                 ADS_UF_ACCOUNTDISABLE: (uac_int & 0x00000002).zero? ? 0 : 1, 
+                                 u_ADS_UF_ACCOUNTDISABLE: (uac_int & 0x00000002).zero? ? 0 : 1, 
                                  #The home directory is required.
-                                 ADS_UF_HOMEDIR_REQUIRED: (uac_int & 0x00000008).zero? ? 0 : 1, 
+                                 u_ADS_UF_HOMEDIR_REQUIRED: (uac_int & 0x00000008).zero? ? 0 : 1, 
                                  #The account is currently locked out.
-                                 ADS_UF_LOCKOUT: (uac_int & 0x00000010).zero? ? 0 : 1, 
+                                 u_ADS_UF_LOCKOUT: (uac_int & 0x00000010).zero? ? 0 : 1, 
                                  #No password is required.
-                                 ADS_UF_PASSWD_NOTREQD: (uac_int & 0x00000020).zero? ? 0 : 1,
+                                 u_ADS_UF_PASSWD_NOTREQD: (uac_int & 0x00000020).zero? ? 0 : 1,
                                  #The user cannot change the password.
-                                 ADS_UF_PASSWD_CANT_CHANGE: (uac_int & 0x00000040).zero? ? 0 : 1, 
+                                 u_ADS_UF_PASSWD_CANT_CHANGE: (uac_int & 0x00000040).zero? ? 0 : 1, 
                                  #The user can send an encrypted password.
-                                 ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (uac_int & 0x00000080).zero? ? 0 : 1, 
+                                 u_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (uac_int & 0x00000080).zero? ? 0 : 1, 
                                  #This is an account for users whose primary account is in another domain. This account
                                  #provides user access to this domain, but not to any domain that trusts this domain.
                                  #Also known as a local user account.
-                                 ADS_UF_TEMP_DUPLICATE_ACCOUNT: (uac_int & 0x00000100).zero? ? 0 : 1, 
+                                 u_ADS_UF_TEMP_DUPLICATE_ACCOUNT: (uac_int & 0x00000100).zero? ? 0 : 1, 
                                  #This is a default account type that represents a typical user.
-                                 ADS_UF_NORMAL_ACCOUNT: (uac_int & 0x00000200).zero? ? 0 : 1, 
+                                 u_ADS_UF_NORMAL_ACCOUNT: (uac_int & 0x00000200).zero? ? 0 : 1, 
                                  #This is a permit to trust account for a system domain that trusts other domains.
-                                 ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (uac_int & 0x00000800).zero? ? 0 : 1, 
+                                 u_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (uac_int & 0x00000800).zero? ? 0 : 1, 
                                  #This is a computer account for a computer that is a member of this domain.
-                                 ADS_UF_WORKSTATION_TRUST_ACCOUNT: (uac_int & 0x00001000).zero? ? 0 : 1, 
+                                 u_ADS_UF_WORKSTATION_TRUST_ACCOUNT: (uac_int & 0x00001000).zero? ? 0 : 1, 
                                  #This is a computer account for a system backup domain controller that is a member of this domain.
-                                 ADS_UF_SERVER_TRUST_ACCOUNT: (uac_int & 0x00002000).zero? ? 0 : 1, 
+                                 u_ADS_UF_SERVER_TRUST_ACCOUNT: (uac_int & 0x00002000).zero? ? 0 : 1, 
                                  #The password for this account will never expire.
-                                 ADS_UF_DONT_EXPIRE_PASSWD: (uac_int & 0x00010000).zero? ? 0 : 1, 
+                                 u_ADS_UF_DONT_EXPIRE_PASSWD: (uac_int & 0x00010000).zero? ? 0 : 1, 
                                  #This is an MNS logon account.
-                                 ADS_UF_MNS_LOGON_ACCOUNT: (uac_int & 0x00020000).zero? ? 0 : 1, 
+                                 u_ADS_UF_MNS_LOGON_ACCOUNT: (uac_int & 0x00020000).zero? ? 0 : 1, 
                                  #The user must log on using a smart card.
-                                 ADS_UF_SMARTCARD_REQUIRED: (uac_int & 0x00040000).zero? ? 0 : 1, 
+                                 u_ADS_UF_SMARTCARD_REQUIRED: (uac_int & 0x00040000).zero? ? 0 : 1, 
                                  #The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation.
                                  #Any such service can impersonate a client requesting the service.
-                                 ADS_UF_TRUSTED_FOR_DELEGATION: (uac_int & 0x00080000).zero? ? 0 : 1, 
+                                 u_ADS_UF_TRUSTED_FOR_DELEGATION: (uac_int & 0x00080000).zero? ? 0 : 1, 
                                  #The security context of the user will not be delegated to a service even if the service 
                                  #account is set as trusted for Kerberos delegation.
-                                 ADS_UF_NOT_DELEGATED: (uac_int & 0x00100000).zero? ? 0 : 1, 
+                                 u_ADS_UF_NOT_DELEGATED: (uac_int & 0x00100000).zero? ? 0 : 1, 
                                  #Restrict this principal to use only Data #Encryption Standard (DES) encryption types for keys.
-                                 ADS_UF_USE_DES_KEY_ONLY: (uac_int & 0x00200000).zero? ? 0 : 1, 
+                                 u_ADS_UF_USE_DES_KEY_ONLY: (uac_int & 0x00200000).zero? ? 0 : 1, 
                                  #This account does not require Kerberos pre-authentication for logon.
-                                 ADS_UF_DONT_REQUIRE_PREAUTH: (uac_int & 0x00400000).zero? ? 0 : 1, 
+                                 u_ADS_UF_DONT_REQUIRE_PREAUTH: (uac_int & 0x00400000).zero? ? 0 : 1, 
                                  #The password has expired
-                                 ADS_UF_PASSWORD_EXPIRED: (uac_int & 0x00800000).zero? ? 0 : 1, 
+                                 u_ADS_UF_PASSWORD_EXPIRED: (uac_int & 0x00800000).zero? ? 0 : 1, 
                                  #The account is enabled for delegation. This is a security-sensitive setting; accounts with
                                  #this option enabled should be strictly controlled. This setting enables a service running 
                                  #under the account to assume a client identity and authenticate as that user to other remote 
                                  #servers on the network.
-                                 ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1 
+                                 u_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1 
 	                           }
 	          run_sqlite_query(db, 'ad_users', sql_param_user)
 	
@@ -240,73 +240,73 @@ class Metasploit3 < Msf::Post
           # (if you look at the objectClass for a computer account, it includes 'user') and, for efficiency, we should really store it all in one
           # table. However, the reality is that it will get annoying for users to have to remember to use the userAccountControl flags to work out whether
           # its a user or a computer and so, for convenience and ease of use, I have put them in completely separate tables.
-          sql_param_computer = { rid: computer_rid,
-                             distinguishedName: comp[0][:value].to_s,
-                             cn: comp[2][:value].to_s,
-                             dNSHostName: comp[3][:value].to_s,
-                             sAMAccountType: comp[4][:value].to_i,
-                             sAMAccountName: comp[5][:value].to_s,
-                             displayName: comp[6][:value].to_s,
-                             logonCount: comp[7][:value].to_i,
-                             userAccountControl: uac_int,
-                             whenChanged: comp[9][:value].to_s,
-                             whenCreated: comp[10][:value].to_s,
-                             primaryGroupID: comp[11][:value].to_i,
-                             badPwdCount: comp[12][:value].to_i,
-                             operatingSystem: comp[13][:value].to_s,
-                             operatingSystemServicePack: comp[14][:value].to_s,
-                             operatingSystemVersion: comp[15][:value].to_s,
-                             description: comp[16][:value].to_s,
-                             comments: comp[17][:value].to_s,
+          sql_param_computer = { c_rid: computer_rid,
+                             c_distinguishedName: comp[0][:value].to_s,
+                             c_cn: comp[2][:value].to_s,
+                             c_dNSHostName: comp[3][:value].to_s,
+                             c_sAMAccountType: comp[4][:value].to_i,
+                             c_sAMAccountName: comp[5][:value].to_s,
+                             c_displayName: comp[6][:value].to_s,
+                             c_logonCount: comp[7][:value].to_i,
+                             c_userAccountControl: uac_int,
+                             c_whenChanged: comp[9][:value].to_s,
+                             c_whenCreated: comp[10][:value].to_s,
+                             c_primaryGroupID: comp[11][:value].to_i,
+                             c_badPwdCount: comp[12][:value].to_i,
+                             c_operatingSystem: comp[13][:value].to_s,
+                             c_operatingSystemServicePack: comp[14][:value].to_s,
+                             c_operatingSystemVersion: comp[15][:value].to_s,
+                             c_description: comp[16][:value].to_s,
+                             c_comments: comp[17][:value].to_s,
                              #The login script is executed
-                             ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1, 
+                             c_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1, 
                              #The user account is disabled.
-                             ADS_UF_ACCOUNTDISABLE: (uac_int & 0x00000002).zero? ? 0 : 1, 
+                             c_ADS_UF_ACCOUNTDISABLE: (uac_int & 0x00000002).zero? ? 0 : 1, 
                              #The home directory is required.
-                             ADS_UF_HOMEDIR_REQUIRED: (uac_int & 0x00000008).zero? ? 0 : 1, 
+                             c_ADS_UF_HOMEDIR_REQUIRED: (uac_int & 0x00000008).zero? ? 0 : 1, 
                              #The account is currently locked out.
-                             ADS_UF_LOCKOUT: (uac_int & 0x00000010).zero? ? 0 : 1, 
+                             c_ADS_UF_LOCKOUT: (uac_int & 0x00000010).zero? ? 0 : 1, 
                              #No password is required.
-                             ADS_UF_PASSWD_NOTREQD: (uac_int & 0x00000020).zero? ? 0 : 1,
+                             c_ADS_UF_PASSWD_NOTREQD: (uac_int & 0x00000020).zero? ? 0 : 1,
                              #The user cannot change the password.
-                             ADS_UF_PASSWD_CANT_CHANGE: (uac_int & 0x00000040).zero? ? 0 : 1, 
+                             c_ADS_UF_PASSWD_CANT_CHANGE: (uac_int & 0x00000040).zero? ? 0 : 1, 
                              #The user can send an encrypted password.
-                             ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (uac_int & 0x00000080).zero? ? 0 : 1, 
+                             c_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (uac_int & 0x00000080).zero? ? 0 : 1, 
                              #This is an account for users whose primary account is in another domain. This account
                              #provides user access to this domain, but not to any domain that trusts this domain.
                              #Also known as a local user account.
-                             ADS_UF_TEMP_DUPLICATE_ACCOUNT: (uac_int & 0x00000100).zero? ? 0 : 1, 
+                             c_ADS_UF_TEMP_DUPLICATE_ACCOUNT: (uac_int & 0x00000100).zero? ? 0 : 1, 
                              #This is a default account type that represents a typical user.
-                             ADS_UF_NORMAL_ACCOUNT: (uac_int & 0x00000200).zero? ? 0 : 1, 
+                             c_ADS_UF_NORMAL_ACCOUNT: (uac_int & 0x00000200).zero? ? 0 : 1, 
                              #This is a permit to trust account for a system domain that trusts other domains.
-                             ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (uac_int & 0x00000800).zero? ? 0 : 1, 
+                             c_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (uac_int & 0x00000800).zero? ? 0 : 1, 
                              #This is a computer account for a computer that is a member of this domain.
-                             ADS_UF_WORKSTATION_TRUST_ACCOUNT: (uac_int & 0x00001000).zero? ? 0 : 1, 
+                             c_ADS_UF_WORKSTATION_TRUST_ACCOUNT: (uac_int & 0x00001000).zero? ? 0 : 1, 
                              #This is a computer account for a system backup domain controller that is a member of this domain.
-                             ADS_UF_SERVER_TRUST_ACCOUNT: (uac_int & 0x00002000).zero? ? 0 : 1, 
+                             c_ADS_UF_SERVER_TRUST_ACCOUNT: (uac_int & 0x00002000).zero? ? 0 : 1, 
                              #The password for this account will never expire.
-                             ADS_UF_DONT_EXPIRE_PASSWD: (uac_int & 0x00010000).zero? ? 0 : 1, 
+                             c_ADS_UF_DONT_EXPIRE_PASSWD: (uac_int & 0x00010000).zero? ? 0 : 1, 
                              #This is an MNS logon account.
-                             ADS_UF_MNS_LOGON_ACCOUNT: (uac_int & 0x00020000).zero? ? 0 : 1, 
+                             c_ADS_UF_MNS_LOGON_ACCOUNT: (uac_int & 0x00020000).zero? ? 0 : 1, 
                              #The user must log on using a smart card.
-                             ADS_UF_SMARTCARD_REQUIRED: (uac_int & 0x00040000).zero? ? 0 : 1, 
+                             c_ADS_UF_SMARTCARD_REQUIRED: (uac_int & 0x00040000).zero? ? 0 : 1, 
                              #The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation.
                              #Any such service can impersonate a client requesting the service.
-                             ADS_UF_TRUSTED_FOR_DELEGATION: (uac_int & 0x00080000).zero? ? 0 : 1, 
+                             c_ADS_UF_TRUSTED_FOR_DELEGATION: (uac_int & 0x00080000).zero? ? 0 : 1, 
                              #The security context of the user will not be delegated to a service even if the service 
                              #account is set as trusted for Kerberos delegation.
-                             ADS_UF_NOT_DELEGATED: (uac_int & 0x00100000).zero? ? 0 : 1, 
+                             c_ADS_UF_NOT_DELEGATED: (uac_int & 0x00100000).zero? ? 0 : 1, 
                              #Restrict this principal to use only Data #Encryption Standard (DES) encryption types for keys.
-                             ADS_UF_USE_DES_KEY_ONLY: (uac_int & 0x00200000).zero? ? 0 : 1, 
+                             c_ADS_UF_USE_DES_KEY_ONLY: (uac_int & 0x00200000).zero? ? 0 : 1, 
                              #This account does not require Kerberos pre-authentication for logon.
-                             ADS_UF_DONT_REQUIRE_PREAUTH: (uac_int & 0x00400000).zero? ? 0 : 1, 
+                             c_ADS_UF_DONT_REQUIRE_PREAUTH: (uac_int & 0x00400000).zero? ? 0 : 1, 
                              #The password has expired
-                             ADS_UF_PASSWORD_EXPIRED: (uac_int & 0x00800000).zero? ? 0 : 1, 
+                             c_ADS_UF_PASSWORD_EXPIRED: (uac_int & 0x00800000).zero? ? 0 : 1, 
                              #The account is enabled for delegation. This is a security-sensitive setting; accounts with
                              #this option enabled should be strictly controlled. This setting enables a service running 
                              #under the account to assume a client identity and authenticate as that user to other remote 
                              #servers on the network.
-                             ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1 
+                             c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1 
                            }
           run_sqlite_query(db, 'ad_computers', sql_param_computer)
           print_line "Computer [#{sql_param_computer[:cn]}][#{sql_param_computer[:dNSHostName]}][#{sql_param_computer[:rid]}]" if datastore['SHOW_USERGROUPS']
@@ -343,111 +343,122 @@ class Metasploit3 < Msf::Post
       # Create the table for the AD Computers
       db.execute('DROP TABLE IF EXISTS ad_computers')
       sql_table_computers = 'CREATE TABLE ad_computers ('\
-                           'rid INTEGER PRIMARY KEY NOT NULL,'\
-                           'distinguishedName TEXT UNIQUE NOT NULL,'\
-                           'cn TEXT,'\
-                           'sAMAccountType INTEGER,'\
-                           'sAMAccountName TEXT UNIQUE NOT NULL,'\
-                           'dNSHostName TEXT,'\
-                           'displayName TEXT,'\
-                           'logonCount INTEGER,'\
-                           'userAccountControl INTEGER,'\
-                           'primaryGroupID INTEGER,'\
-                           'badPwdCount INTEGER,'\
-                           'description TEXT,'\
-                           'comments TEXT,'\
-                           'operatingSystem TEXT,'\
-                           'operatingSystemServicePack TEXT,'\
-                           'operatingSystemVersion TEXT,'\
-                           'whenChanged TEXT,'\
-                           'whenCreated TEXT,'\
-						   'ADS_UF_SCRIPT INTEGER,'\
-						   'ADS_UF_ACCOUNTDISABLE INTEGER,'\
-						   'ADS_UF_HOMEDIR_REQUIRED INTEGER,'\
-						   'ADS_UF_LOCKOUT INTEGER,'\
-						   'ADS_UF_PASSWD_NOTREQD INTEGER,'\
-						   'ADS_UF_PASSWD_CANT_CHANGE INTEGER,'\
-						   'ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED INTEGER,'\
-						   'ADS_UF_TEMP_DUPLICATE_ACCOUNT INTEGER,'\
-						   'ADS_UF_NORMAL_ACCOUNT INTEGER,'\
-						   'ADS_UF_INTERDOMAIN_TRUST_ACCOUNT INTEGER,'\
-						   'ADS_UF_WORKSTATION_TRUST_ACCOUNT INTEGER,'\
-						   'ADS_UF_SERVER_TRUST_ACCOUNT INTEGER,'\
-						   'ADS_UF_DONT_EXPIRE_PASSWD INTEGER,'\
-						   'ADS_UF_MNS_LOGON_ACCOUNT INTEGER,'\
-						   'ADS_UF_SMARTCARD_REQUIRED INTEGER,'\
-						   'ADS_UF_TRUSTED_FOR_DELEGATION INTEGER,'\
-						   'ADS_UF_NOT_DELEGATED INTEGER,'\
-						   'ADS_UF_USE_DES_KEY_ONLY INTEGER,'\
-						   'ADS_UF_DONT_REQUIRE_PREAUTH INTEGER,'\
-						   'ADS_UF_PASSWORD_EXPIRED INTEGER,'\
-						   'ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION INTEGER)'
+                           'c_rid INTEGER PRIMARY KEY NOT NULL,'\
+                           'c_distinguishedName TEXT UNIQUE NOT NULL,'\
+                           'c_cn TEXT,'\
+                           'c_sAMAccountType INTEGER,'\
+                           'c_sAMAccountName TEXT UNIQUE NOT NULL,'\
+                           'c_dNSHostName TEXT,'\
+                           'c_displayName TEXT,'\
+                           'c_logonCount INTEGER,'\
+                           'c_userAccountControl INTEGER,'\
+                           'c_primaryGroupID INTEGER,'\
+                           'c_badPwdCount INTEGER,'\
+                           'c_description TEXT,'\
+                           'c_comments TEXT,'\
+                           'c_operatingSystem TEXT,'\
+                           'c_operatingSystemServicePack TEXT,'\
+                           'c_operatingSystemVersion TEXT,'\
+                           'c_whenChanged TEXT,'\
+                           'c_whenCreated TEXT,'\
+						   'c_ADS_UF_SCRIPT INTEGER,'\
+						   'c_ADS_UF_ACCOUNTDISABLE INTEGER,'\
+						   'c_ADS_UF_HOMEDIR_REQUIRED INTEGER,'\
+						   'c_ADS_UF_LOCKOUT INTEGER,'\
+						   'c_ADS_UF_PASSWD_NOTREQD INTEGER,'\
+						   'c_ADS_UF_PASSWD_CANT_CHANGE INTEGER,'\
+						   'c_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED INTEGER,'\
+						   'c_ADS_UF_TEMP_DUPLICATE_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_NORMAL_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_WORKSTATION_TRUST_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_SERVER_TRUST_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_DONT_EXPIRE_PASSWD INTEGER,'\
+						   'c_ADS_UF_MNS_LOGON_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_SMARTCARD_REQUIRED INTEGER,'\
+						   'c_ADS_UF_TRUSTED_FOR_DELEGATION INTEGER,'\
+						   'c_ADS_UF_NOT_DELEGATED INTEGER,'\
+						   'c_ADS_UF_USE_DES_KEY_ONLY INTEGER,'\
+						   'c_ADS_UF_DONT_REQUIRE_PREAUTH INTEGER,'\
+						   'c_ADS_UF_PASSWORD_EXPIRED INTEGER,'\
+						   'c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION INTEGER)'
       db.execute(sql_table_computers)
 
       # Create the table for the AD Groups
       db.execute('DROP TABLE IF EXISTS ad_groups')
       sql_table_group = 'CREATE TABLE ad_groups ('\
-                           'rid INTEGER PRIMARY KEY NOT NULL,'\
-                           'distinguishedName TEXT UNIQUE NOT NULL,'\
-                           'sAMAccountType INTEGER,'\
-                           'sAMAccountName TEXT UNIQUE NOT NULL,'\
-                           'groupType INTEGER,'\
-                           'adminCount INTEGER,'\
-                           'description TEXT,'\
-                           'comments TEXT,'\
-                           'whenChanged TEXT,'\
-                           'whenCreated TEXT,'\
-                           'GT_GROUP_CREATED_BY_SYSTEM INTEGER,'\
-                           'GT_GROUP_SCOPE_GLOBAL INTEGER,'\
-                           'GT_GROUP_SCOPE_LOCAL INTEGER,'\
-                           'GT_GROUP_SCOPE_UNIVERSAL INTEGER,'\
-                           'GT_GROUP_SAM_APP_BASIC INTEGER,'\
-                           'GT_GROUP_SAM_APP_QUERY INTEGER,'\
-                           'GT_GROUP_SECURITY INTEGER,'\
-                           'GT_GROUP_DISTRIBUTION INTEGER)'
+                           'c_rid INTEGER PRIMARY KEY NOT NULL,'\
+                           'c_distinguishedName TEXT UNIQUE NOT NULL,'\
+                           'c_sAMAccountType INTEGER,'\
+                           'c_sAMAccountName TEXT UNIQUE NOT NULL,'\
+                           'c_groupType INTEGER,'\
+                           'c_adminCount INTEGER,'\
+                           'c_description TEXT,'\
+                           'c_comments TEXT,'\
+                           'c_whenChanged TEXT,'\
+                           'c_whenCreated TEXT,'\
+                           'c_GT_GROUP_CREATED_BY_SYSTEM INTEGER,'\
+                           'c_GT_GROUP_SCOPE_GLOBAL INTEGER,'\
+                           'c_GT_GROUP_SCOPE_LOCAL INTEGER,'\
+                           'c_GT_GROUP_SCOPE_UNIVERSAL INTEGER,'\
+                           'c_GT_GROUP_SAM_APP_BASIC INTEGER,'\
+                           'c_GT_GROUP_SAM_APP_QUERY INTEGER,'\
+                           'c_GT_GROUP_SECURITY INTEGER,'\
+                           'c_GT_GROUP_DISTRIBUTION INTEGER)'
       db.execute(sql_table_group)
 
       # Create the table for the AD Users
       db.execute('DROP TABLE IF EXISTS ad_users')
       sql_table_users = 'CREATE TABLE ad_users ('\
-                           'rid INTEGER PRIMARY KEY NOT NULL,'\
-                           'distinguishedName TEXT UNIQUE NOT NULL,'\
-                           'description TEXT,'\
-                           'displayName TEXT,'\
-                           'sAMAccountType INTEGER,'\
-                           'sAMAccountName TEXT,'\
-                           'logonCount INTEGER,'\
-                           'userAccountControl INTEGER,'\
-                           'primaryGroupID INTEGER,'\
-                           'accountExpires INTEGER,'\
-                           'adminCount INTEGER,'\
-                           'badPwdCount INTEGER,'\
-                           'userPrincipalName TEXT UNIQUE,'\
-                           'comments TEXT,'\
-                           'title TEXT,'\
-                           'whenCreated TEXT,'\
-                           'whenChanged TEXT,'\
-						   'ADS_UF_SCRIPT INTEGER,'\
-						   'ADS_UF_ACCOUNTDISABLE INTEGER,'\
-						   'ADS_UF_HOMEDIR_REQUIRED INTEGER,'\
-						   'ADS_UF_LOCKOUT INTEGER,'\
-						   'ADS_UF_PASSWD_NOTREQD INTEGER,'\
-						   'ADS_UF_PASSWD_CANT_CHANGE INTEGER,'\
-						   'ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED INTEGER,'\
-						   'ADS_UF_TEMP_DUPLICATE_ACCOUNT INTEGER,'\
-						   'ADS_UF_NORMAL_ACCOUNT INTEGER,'\
-						   'ADS_UF_INTERDOMAIN_TRUST_ACCOUNT INTEGER,'\
-						   'ADS_UF_WORKSTATION_TRUST_ACCOUNT INTEGER,'\
-						   'ADS_UF_SERVER_TRUST_ACCOUNT INTEGER,'\
-						   'ADS_UF_DONT_EXPIRE_PASSWD INTEGER,'\
-						   'ADS_UF_MNS_LOGON_ACCOUNT INTEGER,'\
-						   'ADS_UF_SMARTCARD_REQUIRED INTEGER,'\
-						   'ADS_UF_TRUSTED_FOR_DELEGATION INTEGER,'\
-						   'ADS_UF_NOT_DELEGATED INTEGER,'\
-						   'ADS_UF_USE_DES_KEY_ONLY INTEGER,'\
-						   'ADS_UF_DONT_REQUIRE_PREAUTH INTEGER,'\
-						   'ADS_UF_PASSWORD_EXPIRED INTEGER,'\
-						   'ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION INTEGER)'
+                           'c_rid INTEGER PRIMARY KEY NOT NULL,'\
+                           'c_distinguishedName TEXT UNIQUE NOT NULL,'\
+                           'c_description TEXT,'\
+                           'c_displayName TEXT,'\
+                           'c_sAMAccountType INTEGER,'\
+                           'c_sAMAccountName TEXT,'\
+                           'c_logonCount INTEGER,'\
+                           'c_userAccountControl INTEGER,'\
+                           'c_primaryGroupID INTEGER,'\
+                           'c_accountExpires INTEGER,'\
+                           'c_adminCount INTEGER,'\
+                           'c_badPwdCount INTEGER,'\
+                           'c_userPrincipalName TEXT UNIQUE,'\
+                           'c_comments TEXT,'\
+                           'c_title TEXT,'\
+                           'c_whenCreated TEXT,'\
+                           'c_whenChanged TEXT,'\
+						   'c_ADS_UF_SCRIPT INTEGER,'\
+						   'c_ADS_UF_ACCOUNTDISABLE INTEGER,'\
+						   'c_ADS_UF_HOMEDIR_REQUIRED INTEGER,'\
+						   'c_ADS_UF_LOCKOUT INTEGER,'\
+						   'c_ADS_UF_PASSWD_NOTREQD INTEGER,'\
+						   'c_ADS_UF_PASSWD_CANT_CHANGE INTEGER,'\
+						   'c_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED INTEGER,'\
+						   'c_ADS_UF_TEMP_DUPLICATE_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_NORMAL_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_WORKSTATION_TRUST_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_SERVER_TRUST_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_DONT_EXPIRE_PASSWD INTEGER,'\
+						   'c_ADS_UF_MNS_LOGON_ACCOUNT INTEGER,'\
+						   'c_ADS_UF_SMARTCARD_REQUIRED INTEGER,'\
+						   'c_ADS_UF_TRUSTED_FOR_DELEGATION INTEGER,'\
+						   'c_ADS_UF_NOT_DELEGATED INTEGER,'\
+						   'c_ADS_UF_USE_DES_KEY_ONLY INTEGER,'\
+						   'c_ADS_UF_DONT_REQUIRE_PREAUTH INTEGER,'\
+						   'c_ADS_UF_PASSWORD_EXPIRED INTEGER,'\
+						   'c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION INTEGER,'\
+						   'c_SAM_DOMAIN_OBJECT INTEGER,'\
+						   'c_SAM_GROUP_OBJECT INTEGER,'\
+						   'c_SAM_NON_SECURITY_GROUP_OBJECT INTEGER,'\
+						   'c_SAM_ALIAS_OBJECT INTEGER,'\
+						   'c_SAM_NON_SECURITY_ALIAS_OBJECT INTEGER,'\
+						   'c_SAM_NORMAL_USER_ACCOUNT INTEGER,'\
+						   'c_SAM_MACHINE_ACCOUNT INTEGER,'\
+						   'c_SAM_TRUST_ACCOUNT INTEGER,'\
+						   'c_SAM_APP_BASIC_GROUP INTEGER,'\
+						   'c_SAM_APP_QUERY_GROUP INTEGER,'\
+						   'c_SAM_ACCOUNT_TYPE_MAX INTEGER)'
       db.execute(sql_table_users)
 
       # Create the table for the mapping between the two (membership)
