@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Post
     # Go through each of the groups and identify the individual users in each group
     vprint_status "Groups retrieval completed: #{groups[:results].size} group(s)"
     vprint_status "Retrieving AD Group Membership"
-    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount','comments', 'title', 'accountExpires', 'adminCount']
+    users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'comments', 'title', 'accountExpires', 'adminCount']
 
     remaining_groups = groups[:results]
 
@@ -75,10 +75,10 @@ class Metasploit3 < Msf::Post
     threadcount = remaining_groups.count < datastore['THREADS'] ? remaining_groups.count : datastore['THREADS']
 
     # Loop through each of the groups, creating threads where necessary
-    while(not remaining_groups.nil? and not remaining_groups.empty?)
+    while !remaining_groups.nil? && !remaining_groups.empty?
       group_gather = []
       1.upto(threadcount) do
-        group_gather << framework.threads.spawn("Module(#{self.refname})", false, remaining_groups.shift) do |individual_group|
+        group_gather << framework.threads.spawn("Module(#{refname})", false, remaining_groups.shift) do |individual_group|
           begin
 
             next if !individual_group || individual_group.empty? || individual_group.nil?
@@ -125,18 +125,18 @@ class Metasploit3 < Msf::Post
                                 # to set DISTRIBUTION=1 in a query when your mind is on other things to remember that
                                 # DISTRIBUTION is in fact the inverse of SECURITY...:)
                                 g_GT_GROUP_DISTRIBUTION: (grouptype_int & 0x80000000).zero? ? 1 : 0,
-                                #Now add sAMAccountType constants
-                                g_SAM_DOMAIN_OBJECT: (sat_int==0) ? 1 : 0,
-                                g_SAM_GROUP_OBJECT: (sat_int==0x10000000) ? 1 : 0,
-                                g_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int==0x10000001) ? 1 : 0,
-                                g_SAM_ALIAS_OBJECT: (sat_int==0x20000000) ? 1 : 0,
-                                g_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int==0x20000001) ? 1 : 0,
-                                g_SAM_NORMAL_USER_ACCOUNT: (sat_int==0x30000000) ? 1 : 0,
-                                g_SAM_MACHINE_ACCOUNT: (sat_int==0x30000001) ? 1 : 0,
-                                g_SAM_TRUST_ACCOUNT: (sat_int==0x30000002) ? 1 : 0,
-                                g_SAM_APP_BASIC_GROUP: (sat_int==0x40000000) ? 1 : 0,
-                                g_SAM_APP_QUERY_GROUP: (sat_int==0x40000001) ? 1 : 0,
-                                g_SAM_ACCOUNT_TYPE_MAX: (sat_int==0x7fffffff) ? 1 : 0,
+                                # Now add sAMAccountType constants
+                                g_SAM_DOMAIN_OBJECT: (sat_int == 0) ? 1 : 0,
+                                g_SAM_GROUP_OBJECT: (sat_int == 0x10000000) ? 1 : 0,
+                                g_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int == 0x10000001) ? 1 : 0,
+                                g_SAM_ALIAS_OBJECT: (sat_int == 0x20000000) ? 1 : 0,
+                                g_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int == 0x20000001) ? 1 : 0,
+                                g_SAM_NORMAL_USER_ACCOUNT: (sat_int == 0x30000000) ? 1 : 0,
+                                g_SAM_MACHINE_ACCOUNT: (sat_int == 0x30000001) ? 1 : 0,
+                                g_SAM_TRUST_ACCOUNT: (sat_int == 0x30000002) ? 1 : 0,
+                                g_SAM_APP_BASIC_GROUP: (sat_int == 0x40000000) ? 1 : 0,
+                                g_SAM_APP_QUERY_GROUP: (sat_int == 0x40000001) ? 1 : 0,
+                                g_SAM_ACCOUNT_TYPE_MAX: (sat_int == 0x7fffffff) ? 1 : 0
                               }
             run_sqlite_query(db, 'ad_groups', sql_param_group)
 
@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Post
               user_rid = get_rid(group_user[1][:value]).to_i
               print_line "Group [#{individual_group[3][:value]}][#{group_rid}] has member [#{group_user[3][:value]}][#{user_rid}]" if datastore['SHOW_USERGROUPS']
 
-              uac_int = group_user[7][:value].to_i #Set this because it is used so frequently below
+              uac_int = group_user[7][:value].to_i # Set this because it is used so frequently below
               sat_int = group_user[2][:value].to_i
 
               # Add the group to the database
@@ -167,70 +167,70 @@ class Metasploit3 < Msf::Post
                                  u_comments: group_user[13][:value].to_s,
                                  u_title: group_user[14][:value].to_s,
                                  u_accountExpires: group_user[15][:value].to_i,
-                                 #Indicates that a given object has had its ACLs changed to a more secure value by the
-                                 #system because it was a member of one of the administrative groups (directly or transitively).
+                                 # Indicates that a given object has had its ACLs changed to a more secure value by the
+                                 # system because it was a member of one of the administrative groups (directly or transitively).
                                  u_adminCount: group_user[16][:value].to_i,
-                                 #The login script is executed
+                                 # The login script is executed
                                  u_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1,
-                                 #The user account is disabled.
+                                 # The user account is disabled.
                                  u_ADS_UF_ACCOUNTDISABLE: (uac_int & 0x00000002).zero? ? 0 : 1,
-                                 #The home directory is required.
+                                 # The home directory is required.
                                  u_ADS_UF_HOMEDIR_REQUIRED: (uac_int & 0x00000008).zero? ? 0 : 1,
-                                 #The account is currently locked out.
+                                 # The account is currently locked out.
                                  u_ADS_UF_LOCKOUT: (uac_int & 0x00000010).zero? ? 0 : 1,
-                                 #No password is required.
+                                 # No password is required.
                                  u_ADS_UF_PASSWD_NOTREQD: (uac_int & 0x00000020).zero? ? 0 : 1,
-                                 #The user cannot change the password.
+                                 # The user cannot change the password.
                                  u_ADS_UF_PASSWD_CANT_CHANGE: (uac_int & 0x00000040).zero? ? 0 : 1,
-                                 #The user can send an encrypted password.
+                                 # The user can send an encrypted password.
                                  u_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (uac_int & 0x00000080).zero? ? 0 : 1,
-                                 #This is an account for users whose primary account is in another domain. This account
-                                 #provides user access to this domain, but not to any domain that trusts this domain.
-                                 #Also known as a local user account.
+                                 # This is an account for users whose primary account is in another domain. This account
+                                 # provides user access to this domain, but not to any domain that trusts this domain.
+                                 # Also known as a local user account.
                                  u_ADS_UF_TEMP_DUPLICATE_ACCOUNT: (uac_int & 0x00000100).zero? ? 0 : 1,
-                                 #This is a default account type that represents a typical user.
+                                 # This is a default account type that represents a typical user.
                                  u_ADS_UF_NORMAL_ACCOUNT: (uac_int & 0x00000200).zero? ? 0 : 1,
-                                 #This is a permit to trust account for a system domain that trusts other domains.
+                                 # This is a permit to trust account for a system domain that trusts other domains.
                                  u_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (uac_int & 0x00000800).zero? ? 0 : 1,
-                                 #This is a computer account for a computer that is a member of this domain.
+                                 # This is a computer account for a computer that is a member of this domain.
                                  u_ADS_UF_WORKSTATION_TRUST_ACCOUNT: (uac_int & 0x00001000).zero? ? 0 : 1,
-                                 #This is a computer account for a system backup domain controller that is a member of this domain.
+                                 # This is a computer account for a system backup domain controller that is a member of this domain.
                                  u_ADS_UF_SERVER_TRUST_ACCOUNT: (uac_int & 0x00002000).zero? ? 0 : 1,
-                                 #The password for this account will never expire.
+                                 # The password for this account will never expire.
                                  u_ADS_UF_DONT_EXPIRE_PASSWD: (uac_int & 0x00010000).zero? ? 0 : 1,
-                                 #This is an MNS logon account.
+                                 # This is an MNS logon account.
                                  u_ADS_UF_MNS_LOGON_ACCOUNT: (uac_int & 0x00020000).zero? ? 0 : 1,
-                                 #The user must log on using a smart card.
+                                 # The user must log on using a smart card.
                                  u_ADS_UF_SMARTCARD_REQUIRED: (uac_int & 0x00040000).zero? ? 0 : 1,
-                                 #The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation.
-                                 #Any such service can impersonate a client requesting the service.
+                                 # The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation.
+                                 # Any such service can impersonate a client requesting the service.
                                  u_ADS_UF_TRUSTED_FOR_DELEGATION: (uac_int & 0x00080000).zero? ? 0 : 1,
-                                 #The security context of the user will not be delegated to a service even if the service
-                                 #account is set as trusted for Kerberos delegation.
+                                 # The security context of the user will not be delegated to a service even if the service
+                                 # account is set as trusted for Kerberos delegation.
                                  u_ADS_UF_NOT_DELEGATED: (uac_int & 0x00100000).zero? ? 0 : 1,
-                                 #Restrict this principal to use only Data #Encryption Standard (DES) encryption types for keys.
+                                 # Restrict this principal to use only Data #Encryption Standard (DES) encryption types for keys.
                                  u_ADS_UF_USE_DES_KEY_ONLY: (uac_int & 0x00200000).zero? ? 0 : 1,
-                                 #This account does not require Kerberos pre-authentication for logon.
+                                 # This account does not require Kerberos pre-authentication for logon.
                                  u_ADS_UF_DONT_REQUIRE_PREAUTH: (uac_int & 0x00400000).zero? ? 0 : 1,
-                                 #The password has expired
+                                 # The password has expired
                                  u_ADS_UF_PASSWORD_EXPIRED: (uac_int & 0x00800000).zero? ? 0 : 1,
-                                 #The account is enabled for delegation. This is a security-sensitive setting; accounts with
-                                 #this option enabled should be strictly controlled. This setting enables a service running
-                                 #under the account to assume a client identity and authenticate as that user to other remote
-                                 #servers on the network.
+                                 # The account is enabled for delegation. This is a security-sensitive setting; accounts with
+                                 # this option enabled should be strictly controlled. This setting enables a service running
+                                 # under the account to assume a client identity and authenticate as that user to other remote
+                                 # servers on the network.
                                  u_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1,
-                                 #Now add sAMAccountType constants
-                                 u_SAM_DOMAIN_OBJECT: (sat_int==0) ? 1 : 0,
-                                 u_SAM_GROUP_OBJECT: (sat_int==0x10000000) ? 1 : 0,
-                                 u_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int==0x10000001) ? 1 : 0,
-                                 u_SAM_ALIAS_OBJECT: (sat_int==0x20000000) ? 1 : 0,
-                                 u_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int==0x20000001) ? 1 : 0,
-                                 u_SAM_NORMAL_USER_ACCOUNT: (sat_int==0x30000000) ? 1 : 0,
-                                 u_SAM_MACHINE_ACCOUNT: (sat_int==0x30000001) ? 1 : 0,
-                                 u_SAM_TRUST_ACCOUNT: (sat_int==0x30000002) ? 1 : 0,
-                                 u_SAM_APP_BASIC_GROUP: (sat_int==0x40000000) ? 1 : 0,
-                                 u_SAM_APP_QUERY_GROUP: (sat_int==0x40000001) ? 1 : 0,
-                                 u_SAM_ACCOUNT_TYPE_MAX: (sat_int==0x7fffffff) ? 1 : 0,
+                                 # Now add sAMAccountType constants
+                                 u_SAM_DOMAIN_OBJECT: (sat_int == 0) ? 1 : 0,
+                                 u_SAM_GROUP_OBJECT: (sat_int == 0x10000000) ? 1 : 0,
+                                 u_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int == 0x10000001) ? 1 : 0,
+                                 u_SAM_ALIAS_OBJECT: (sat_int == 0x20000000) ? 1 : 0,
+                                 u_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int == 0x20000001) ? 1 : 0,
+                                 u_SAM_NORMAL_USER_ACCOUNT: (sat_int == 0x30000000) ? 1 : 0,
+                                 u_SAM_MACHINE_ACCOUNT: (sat_int == 0x30000001) ? 1 : 0,
+                                 u_SAM_TRUST_ACCOUNT: (sat_int == 0x30000002) ? 1 : 0,
+                                 u_SAM_APP_BASIC_GROUP: (sat_int == 0x40000000) ? 1 : 0,
+                                 u_SAM_APP_QUERY_GROUP: (sat_int == 0x40000001) ? 1 : 0,
+                                 u_SAM_ACCOUNT_TYPE_MAX: (sat_int == 0x7fffffff) ? 1 : 0
                                }
               run_sqlite_query(db, 'ad_users', sql_param_user)
 
@@ -239,7 +239,7 @@ class Metasploit3 < Msf::Post
                                     group_rid: group_rid
                                   }
               run_sqlite_query(db, 'ad_mapping', sql_param_mapping)
-          end
+            end
 
           rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
             print_error("Error(Users): #{e.message}")
@@ -247,111 +247,111 @@ class Metasploit3 < Msf::Post
           end
         end
       end
-      group_gather.map { |each_group| each_group.join }
+      group_gather.map(&:join)
     end
 
     vprint_status "Retrieving computers"
     begin
       computer_filter = '(objectClass=computer)'
-      computer_fields = ['distinguishedName', 'objectSid', 'cn','dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion', 'description', 'comments']
+      computer_fields = ['distinguishedName', 'objectSid', 'cn', 'dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion', 'description', 'comments']
       computers = query(computer_filter, max_search, computer_fields)
 
-        computers[:results].each do |comp|
-          computer_rid = get_rid(comp[1][:value]).to_i
+      computers[:results].each do |comp|
+        computer_rid = get_rid(comp[1][:value]).to_i
 
-          uac_int = comp[8][:value].to_i #Set this because it is used so frequently below
-          sat_int = comp[4][:value].to_i
+        uac_int = comp[8][:value].to_i # Set this because it is used so frequently below
+        sat_int = comp[4][:value].to_i
 
-          # Add the group to the database
-          # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
-          # Note that userAccountControl is basically the same for a computer as a user; this is because a computer account is derived from a user account
-          # (if you look at the objectClass for a computer account, it includes 'user') and, for efficiency, we should really store it all in one
-          # table. However, the reality is that it will get annoying for users to have to remember to use the userAccountControl flags to work out whether
-          # its a user or a computer and so, for convenience and ease of use, I have put them in completely separate tables.
-          # Also add the sAMAccount type flags from https://msdn.microsoft.com/en-us/library/windows/desktop/ms679637(v=vs.85).aspx
-          sql_param_computer = { c_rid: computer_rid,
-                             c_distinguishedName: comp[0][:value].to_s,
-                             c_cn: comp[2][:value].to_s,
-                             c_dNSHostName: comp[3][:value].to_s,
-                             c_sAMAccountType: sat_int,
-                             c_sAMAccountName: comp[5][:value].to_s,
-                             c_displayName: comp[6][:value].to_s,
-                             c_logonCount: comp[7][:value].to_i,
-                             c_userAccountControl: uac_int,
-                             c_whenChanged: comp[9][:value].to_s,
-                             c_whenCreated: comp[10][:value].to_s,
-                             c_primaryGroupID: comp[11][:value].to_i,
-                             c_badPwdCount: comp[12][:value].to_i,
-                             c_operatingSystem: comp[13][:value].to_s,
-                             c_operatingSystemServicePack: comp[14][:value].to_s,
-                             c_operatingSystemVersion: comp[15][:value].to_s,
-                             c_description: comp[16][:value].to_s,
-                             c_comments: comp[17][:value].to_s,
-                             #The login script is executed
-                             c_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1,
-                             #The user account is disabled.
-                             c_ADS_UF_ACCOUNTDISABLE: (uac_int & 0x00000002).zero? ? 0 : 1,
-                             #The home directory is required.
-                             c_ADS_UF_HOMEDIR_REQUIRED: (uac_int & 0x00000008).zero? ? 0 : 1,
-                             #The account is currently locked out.
-                             c_ADS_UF_LOCKOUT: (uac_int & 0x00000010).zero? ? 0 : 1,
-                             #No password is required.
-                             c_ADS_UF_PASSWD_NOTREQD: (uac_int & 0x00000020).zero? ? 0 : 1,
-                             #The user cannot change the password.
-                             c_ADS_UF_PASSWD_CANT_CHANGE: (uac_int & 0x00000040).zero? ? 0 : 1,
-                             #The user can send an encrypted password.
-                             c_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (uac_int & 0x00000080).zero? ? 0 : 1,
-                             #This is an account for users whose primary account is in another domain. This account
-                             #provides user access to this domain, but not to any domain that trusts this domain.
-                             #Also known as a local user account.
-                             c_ADS_UF_TEMP_DUPLICATE_ACCOUNT: (uac_int & 0x00000100).zero? ? 0 : 1,
-                             #This is a default account type that represents a typical user.
-                             c_ADS_UF_NORMAL_ACCOUNT: (uac_int & 0x00000200).zero? ? 0 : 1,
-                             #This is a permit to trust account for a system domain that trusts other domains.
-                             c_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (uac_int & 0x00000800).zero? ? 0 : 1,
-                             #This is a computer account for a computer that is a member of this domain.
-                             c_ADS_UF_WORKSTATION_TRUST_ACCOUNT: (uac_int & 0x00001000).zero? ? 0 : 1,
-                             #This is a computer account for a system backup domain controller that is a member of this domain.
-                             c_ADS_UF_SERVER_TRUST_ACCOUNT: (uac_int & 0x00002000).zero? ? 0 : 1,
-                             #The password for this account will never expire.
-                             c_ADS_UF_DONT_EXPIRE_PASSWD: (uac_int & 0x00010000).zero? ? 0 : 1,
-                             #This is an MNS logon account.
-                             c_ADS_UF_MNS_LOGON_ACCOUNT: (uac_int & 0x00020000).zero? ? 0 : 1,
-                             #The user must log on using a smart card.
-                             c_ADS_UF_SMARTCARD_REQUIRED: (uac_int & 0x00040000).zero? ? 0 : 1,
-                             #The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation.
-                             #Any such service can impersonate a client requesting the service.
-                             c_ADS_UF_TRUSTED_FOR_DELEGATION: (uac_int & 0x00080000).zero? ? 0 : 1,
-                             #The security context of the user will not be delegated to a service even if the service
-                             #account is set as trusted for Kerberos delegation.
-                             c_ADS_UF_NOT_DELEGATED: (uac_int & 0x00100000).zero? ? 0 : 1,
-                             #Restrict this principal to use only Data #Encryption Standard (DES) encryption types for keys.
-                             c_ADS_UF_USE_DES_KEY_ONLY: (uac_int & 0x00200000).zero? ? 0 : 1,
-                             #This account does not require Kerberos pre-authentication for logon.
-                             c_ADS_UF_DONT_REQUIRE_PREAUTH: (uac_int & 0x00400000).zero? ? 0 : 1,
-                             #The password has expired
-                             c_ADS_UF_PASSWORD_EXPIRED: (uac_int & 0x00800000).zero? ? 0 : 1,
-                             #The account is enabled for delegation. This is a security-sensitive setting; accounts with
-                             #this option enabled should be strictly controlled. This setting enables a service running
-                             #under the account to assume a client identity and authenticate as that user to other remote
-                             #servers on the network.
-                             c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1,
-                             #Now add the sAMAccountType objects
-                             c_SAM_DOMAIN_OBJECT: (sat_int==0) ? 1 : 0,
-                             c_SAM_GROUP_OBJECT: (sat_int==0x10000000) ? 1 : 0,
-                             c_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int==0x10000001) ? 1 : 0,
-                             c_SAM_ALIAS_OBJECT: (sat_int==0x20000000) ? 1 : 0,
-                             c_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int==0x20000001) ? 1 : 0,
-                             c_SAM_NORMAL_USER_ACCOUNT: (sat_int==0x30000000) ? 1 : 0,
-                             c_SAM_MACHINE_ACCOUNT: (sat_int==0x30000001) ? 1 : 0,
-                             c_SAM_TRUST_ACCOUNT: (sat_int==0x30000002) ? 1 : 0,
-                             c_SAM_APP_BASIC_GROUP: (sat_int==0x40000000) ? 1 : 0,
-                             c_SAM_APP_QUERY_GROUP: (sat_int==0x40000001) ? 1 : 0,
-                             c_SAM_ACCOUNT_TYPE_MAX: (sat_int==0x7fffffff) ? 1 : 0,
-                           }
-          run_sqlite_query(db, 'ad_computers', sql_param_computer)
-          print_line "Computer [#{sql_param_computer[:c_cn]}][#{sql_param_computer[:c_dNSHostName]}][#{sql_param_computer[:c_rid]}]" if datastore['SHOW_COMPUTERS']
-        end
+        # Add the group to the database
+        # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
+        # Note that userAccountControl is basically the same for a computer as a user; this is because a computer account is derived from a user account
+        # (if you look at the objectClass for a computer account, it includes 'user') and, for efficiency, we should really store it all in one
+        # table. However, the reality is that it will get annoying for users to have to remember to use the userAccountControl flags to work out whether
+        # its a user or a computer and so, for convenience and ease of use, I have put them in completely separate tables.
+        # Also add the sAMAccount type flags from https://msdn.microsoft.com/en-us/library/windows/desktop/ms679637(v=vs.85).aspx
+        sql_param_computer = { c_rid: computer_rid,
+                               c_distinguishedName: comp[0][:value].to_s,
+                               c_cn: comp[2][:value].to_s,
+                               c_dNSHostName: comp[3][:value].to_s,
+                               c_sAMAccountType: sat_int,
+                               c_sAMAccountName: comp[5][:value].to_s,
+                               c_displayName: comp[6][:value].to_s,
+                               c_logonCount: comp[7][:value].to_i,
+                               c_userAccountControl: uac_int,
+                               c_whenChanged: comp[9][:value].to_s,
+                               c_whenCreated: comp[10][:value].to_s,
+                               c_primaryGroupID: comp[11][:value].to_i,
+                               c_badPwdCount: comp[12][:value].to_i,
+                               c_operatingSystem: comp[13][:value].to_s,
+                               c_operatingSystemServicePack: comp[14][:value].to_s,
+                               c_operatingSystemVersion: comp[15][:value].to_s,
+                               c_description: comp[16][:value].to_s,
+                               c_comments: comp[17][:value].to_s,
+                               # The login script is executed
+                               c_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1,
+                               # The user account is disabled.
+                               c_ADS_UF_ACCOUNTDISABLE: (uac_int & 0x00000002).zero? ? 0 : 1,
+                               # The home directory is required.
+                               c_ADS_UF_HOMEDIR_REQUIRED: (uac_int & 0x00000008).zero? ? 0 : 1,
+                               # The account is currently locked out.
+                               c_ADS_UF_LOCKOUT: (uac_int & 0x00000010).zero? ? 0 : 1,
+                               # No password is required.
+                               c_ADS_UF_PASSWD_NOTREQD: (uac_int & 0x00000020).zero? ? 0 : 1,
+                               # The user cannot change the password.
+                               c_ADS_UF_PASSWD_CANT_CHANGE: (uac_int & 0x00000040).zero? ? 0 : 1,
+                               # The user can send an encrypted password.
+                               c_ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED: (uac_int & 0x00000080).zero? ? 0 : 1,
+                               # This is an account for users whose primary account is in another domain. This account
+                               # provides user access to this domain, but not to any domain that trusts this domain.
+                               # Also known as a local user account.
+                               c_ADS_UF_TEMP_DUPLICATE_ACCOUNT: (uac_int & 0x00000100).zero? ? 0 : 1,
+                               # This is a default account type that represents a typical user.
+                               c_ADS_UF_NORMAL_ACCOUNT: (uac_int & 0x00000200).zero? ? 0 : 1,
+                               # This is a permit to trust account for a system domain that trusts other domains.
+                               c_ADS_UF_INTERDOMAIN_TRUST_ACCOUNT: (uac_int & 0x00000800).zero? ? 0 : 1,
+                               # This is a computer account for a computer that is a member of this domain.
+                               c_ADS_UF_WORKSTATION_TRUST_ACCOUNT: (uac_int & 0x00001000).zero? ? 0 : 1,
+                               # This is a computer account for a system backup domain controller that is a member of this domain.
+                               c_ADS_UF_SERVER_TRUST_ACCOUNT: (uac_int & 0x00002000).zero? ? 0 : 1,
+                               # The password for this account will never expire.
+                               c_ADS_UF_DONT_EXPIRE_PASSWD: (uac_int & 0x00010000).zero? ? 0 : 1,
+                               # This is an MNS logon account.
+                               c_ADS_UF_MNS_LOGON_ACCOUNT: (uac_int & 0x00020000).zero? ? 0 : 1,
+                               # The user must log on using a smart card.
+                               c_ADS_UF_SMARTCARD_REQUIRED: (uac_int & 0x00040000).zero? ? 0 : 1,
+                               # The service account (user or computer account), under which a service runs, is trusted for Kerberos delegation.
+                               # Any such service can impersonate a client requesting the service.
+                               c_ADS_UF_TRUSTED_FOR_DELEGATION: (uac_int & 0x00080000).zero? ? 0 : 1,
+                               # The security context of the user will not be delegated to a service even if the service
+                               # account is set as trusted for Kerberos delegation.
+                               c_ADS_UF_NOT_DELEGATED: (uac_int & 0x00100000).zero? ? 0 : 1,
+                               # Restrict this principal to use only Data #Encryption Standard (DES) encryption types for keys.
+                               c_ADS_UF_USE_DES_KEY_ONLY: (uac_int & 0x00200000).zero? ? 0 : 1,
+                               # This account does not require Kerberos pre-authentication for logon.
+                               c_ADS_UF_DONT_REQUIRE_PREAUTH: (uac_int & 0x00400000).zero? ? 0 : 1,
+                               # The password has expired
+                               c_ADS_UF_PASSWORD_EXPIRED: (uac_int & 0x00800000).zero? ? 0 : 1,
+                               # The account is enabled for delegation. This is a security-sensitive setting; accounts with
+                               # this option enabled should be strictly controlled. This setting enables a service running
+                               # under the account to assume a client identity and authenticate as that user to other remote
+                               # servers on the network.
+                               c_ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION: (uac_int & 0x01000000).zero? ? 0 : 1,
+                               # Now add the sAMAccountType objects
+                               c_SAM_DOMAIN_OBJECT: (sat_int == 0) ? 1 : 0,
+                               c_SAM_GROUP_OBJECT: (sat_int == 0x10000000) ? 1 : 0,
+                               c_SAM_NON_SECURITY_GROUP_OBJECT: (sat_int == 0x10000001) ? 1 : 0,
+                               c_SAM_ALIAS_OBJECT: (sat_int == 0x20000000) ? 1 : 0,
+                               c_SAM_NON_SECURITY_ALIAS_OBJECT: (sat_int == 0x20000001) ? 1 : 0,
+                               c_SAM_NORMAL_USER_ACCOUNT: (sat_int == 0x30000000) ? 1 : 0,
+                               c_SAM_MACHINE_ACCOUNT: (sat_int == 0x30000001) ? 1 : 0,
+                               c_SAM_TRUST_ACCOUNT: (sat_int == 0x30000002) ? 1 : 0,
+                               c_SAM_APP_BASIC_GROUP: (sat_int == 0x40000000) ? 1 : 0,
+                               c_SAM_APP_QUERY_GROUP: (sat_int == 0x40000001) ? 1 : 0,
+                               c_SAM_ACCOUNT_TYPE_MAX: (sat_int == 0x7fffffff) ? 1 : 0
+                         }
+        run_sqlite_query(db, 'ad_computers', sql_param_computer)
+        print_line "Computer [#{sql_param_computer[:c_cn]}][#{sql_param_computer[:c_dNSHostName]}][#{sql_param_computer[:c_rid]}]" if datastore['SHOW_COMPUTERS']
+      end
 
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error("Error(Computers): #{e.message}")
@@ -363,7 +363,6 @@ class Metasploit3 < Msf::Post
       f = ::File.size(dbfile.to_s)
       print_status "Database closed: #{dbfile} at #{f} byte(s)"
     end
-
   end
 
   # Run the parameterised SQL query
@@ -551,6 +550,6 @@ class Metasploit3 < Msf::Post
 
   def get_rid(data)
     sid = data.unpack("bbbbbbbbV*")[8..-1]
-    return sid[-1]
+    sid[-1]
   end
 end
