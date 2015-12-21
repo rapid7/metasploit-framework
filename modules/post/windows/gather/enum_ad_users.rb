@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Post
     inner_filter << '(!(lockoutTime>=1))' if datastore['EXCLUDE_LOCKED']
     inner_filter << '(!(userAccountControl:1.2.840.113556.1.4.803:=2))' if datastore['EXCLUDE_DISABLED']
     inner_filter << "(memberof:1.2.840.113556.1.4.1941:=#{datastore['GROUP_MEMBER']})" if datastore['GROUP_MEMBER']
-    inner_filter << "(#{datastore['FILTER']})" if datastore['FILTER']
+    inner_filter << "(#{datastore['FILTER']})" if datastore['FILTER'] != ""
     case datastore['UAC']
       when 'ANY'
       when 'NO_PASSWORD'
