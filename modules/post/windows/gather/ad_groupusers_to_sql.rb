@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
     begin
-      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment', 'managedBy','cn']
+      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment', 'managedBy', 'cn']
       if datastore['GROUP_FILTER'].empty?
         group_query = "(objectClass=group)"
       else
@@ -97,17 +97,17 @@ class Metasploit3 < Msf::Post
             # Note that the conversions to UTF-8 are necessary because of the way SQLite detects column type affinity
             # Turns out that the 'fix' is documented in https://github.com/rails/rails/issues/1965
             sql_param_group = { g_rid: group_rid,
-                                g_distinguishedName: individual_group[0][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                g_distinguishedName: individual_group[0][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                 g_sAMAccountType: sat_int,
-                                g_sAMAccountName: individual_group[3][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                g_whenChanged: individual_group[4][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                g_whenCreated: individual_group[5][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                g_description: individual_group[6][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                g_sAMAccountName: individual_group[3][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                g_whenChanged: individual_group[4][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                g_whenCreated: individual_group[5][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                g_description: individual_group[6][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                 g_groupType: grouptype_int,
                                 g_adminCount: individual_group[8][:value].to_i,
-                                g_comment: individual_group[9][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                g_managedBy: individual_group[10][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                g_cn: individual_group[11][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                g_comment: individual_group[9][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                g_managedBy: individual_group[10][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                g_cn: individual_group[11][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                 # Specifies a group that is created by the system.
                                 g_GT_GROUP_CREATED_BY_SYSTEM: (grouptype_int & 0x00000001).zero? ? 0 : 1,
                                 # Specifies a group with global scope.
@@ -154,25 +154,25 @@ class Metasploit3 < Msf::Post
               # Add the group to the database
               # Also parse the ADF_ flags from userAccountControl: https://msdn.microsoft.com/en-us/library/windows/desktop/ms680832(v=vs.85).aspx
               sql_param_user = { u_rid: user_rid,
-                                 u_distinguishedName: group_user[0][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                 u_distinguishedName: group_user[0][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                  u_sAMAccountType: group_user[2][:value].to_i,
-                                 u_sAMAccountName: group_user[3][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                 u_displayName: group_user[4][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                 u_description: group_user[5][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                 u_sAMAccountName: group_user[3][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                 u_displayName: group_user[4][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                 u_description: group_user[5][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                  u_logonCount: group_user[6][:value].to_i,
                                  u_userAccountControl: uac_int,
-                                 u_userPrincipalName: group_user[8][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                 u_whenChanged: group_user[9][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                 u_whenCreated: group_user[10][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                 u_userPrincipalName: group_user[8][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                 u_whenChanged: group_user[9][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                 u_whenCreated: group_user[10][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                  u_primaryGroupID: group_user[11][:value].to_i,
                                  u_badPwdCount: group_user[12][:value].to_i,
-                                 u_comment: group_user[13][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                 u_title: group_user[14][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                                 u_cn: group_user[15][:value].to_s.encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                 u_comment: group_user[13][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                 u_title: group_user[14][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                                 u_cn: group_user[15][:value].to_s.encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                  # Indicates that a given object has had its ACLs changed to a more secure value by the
                                  # system because it was a member of one of the administrative groups (directly or transitively).
                                  u_adminCount: group_user[16][:value].to_i,
-                                 u_manager: group_user[17][:value].to_s.encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                 u_manager: group_user[17][:value].to_s.encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                  # The login script is executed
                                  u_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1,
                                  # The user account is disabled.
@@ -273,23 +273,23 @@ class Metasploit3 < Msf::Post
         # its a user or a computer and so, for convenience and ease of use, I have put them in completely separate tables.
         # Also add the sAMAccount type flags from https://msdn.microsoft.com/en-us/library/windows/desktop/ms679637(v=vs.85).aspx
         sql_param_computer = { c_rid: computer_rid,
-                               c_distinguishedName: comp[0][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                               c_cn: comp[2][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                               c_dNSHostName: comp[3][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                               c_distinguishedName: comp[0][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                               c_cn: comp[2][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                               c_dNSHostName: comp[3][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                c_sAMAccountType: sat_int,
-                               c_sAMAccountName: comp[5][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                               c_displayName: comp[6][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                               c_sAMAccountName: comp[5][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                               c_displayName: comp[6][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                c_logonCount: comp[7][:value].to_i,
                                c_userAccountControl: uac_int,
-                               c_whenChanged: comp[9][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                               c_whenCreated: comp[10][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                               c_whenChanged: comp[9][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                               c_whenCreated: comp[10][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                c_primaryGroupID: comp[11][:value].to_i,
                                c_badPwdCount: comp[12][:value].to_i,
-                               c_operatingSystem: comp[13][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                               c_operatingSystemServicePack: comp[14][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                               c_operatingSystemVersion: comp[15][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                               c_description: comp[16][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
-                               c_comment: comp[17][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                               c_operatingSystem: comp[13][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                               c_operatingSystemServicePack: comp[14][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                               c_operatingSystemVersion: comp[15][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                               c_description: comp[16][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
+                               c_comment: comp[17][:value].encode('UTF-16be', invalid: :replace, undef: :replace, replace: '?').encode('UTF-8', invalid: :replace, undef: :replace, replace: '?'),
                                # The login script is executed
                                c_ADS_UF_SCRIPT: (uac_int & 0x00000001).zero? ? 0 : 1,
                                # The user account is disabled.
