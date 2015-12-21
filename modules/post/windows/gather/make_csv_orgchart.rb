@@ -90,6 +90,8 @@ class Metasploit3 < Msf::Post
         end
       end
 
+      # Parse the manager CN string to grab the CN= field only.
+      # Note that it needs the negative lookbehind to avoid escaped characters.
       reports_to = /^CN=(?<cn>.+?),(?<!\\,)/.match(result[1][:value])
       if reports_to.nil?
         row << ""
