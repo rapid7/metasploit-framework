@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
     # Download the list of groups from Active Directory
     vprint_status "Retrieving AD Groups"
     begin
-      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment', 'managedBy']
+      group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment', 'managedBy','cn']
       if datastore['GROUP_FILTER'].empty?
         group_query = "(objectClass=group)"
       else
@@ -107,6 +107,7 @@ class Metasploit3 < Msf::Post
                                 g_adminCount: individual_group[8][:value].to_i,
                                 g_comment: individual_group[9][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
                                 g_managedBy: individual_group[10][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
+                                g_cn: individual_group[11][:value].encode('UTF-16be', :invalid=>:replace,:undef=>:replace,:replace=>'?').encode('UTF-8',:invalid=>:replace,:undef=>:replace,:replace=>'?'),
                                 # Specifies a group that is created by the system.
                                 g_GT_GROUP_CREATED_BY_SYSTEM: (grouptype_int & 0x00000001).zero? ? 0 : 1,
                                 # Specifies a group with global scope.
@@ -448,6 +449,7 @@ class Metasploit3 < Msf::Post
                            'g_adminCount INTEGER,'\
                            'g_description TEXT,'\
                            'g_comment TEXT,'\
+                           'g_cn TEXT,'\
                            'g_managedBy TEXT,'\
                            'g_whenChanged TEXT,'\
                            'g_whenCreated TEXT,'\
