@@ -14,10 +14,10 @@ class Metasploit3 < Msf::Post
     super(update_info(
       info,
       'Name'         => 'Generate CSV Organisational Chart Data Using Manager Information',
-      'Description'  => %{
+      'Description'  => %(
         This module will generate a CSV file containing all users and their managers, which can be
         imported into Visio which will render it.
-      },
+            ),
       'License'      => MSF_LICENSE,
       'Author'       => [
         'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
@@ -30,13 +30,13 @@ class Metasploit3 < Msf::Post
       OptBool.new('WITH_MANAGERS_ONLY', [true, 'Only users with managers', false]),
       OptBool.new('ACTIVE_USERS_ONLY', [true, 'Only include active users (i.e. not disabled ones)', true]),
       OptBool.new('STORE_LOOT', [true, 'Store the organisational chart information in CSV format in loot', true]),
-      OptString.new('FILTER', [false, 'Additional LDAP filter to use when searching for users', '']),
+      OptString.new('FILTER', [false, 'Additional LDAP filter to use when searching for users', ''])
     ], self.class)
   end
 
   def run
     max_search = datastore['MAX_SEARCH']
-    user_fields = ['cn','manager','description','title','telephoneNumber','department','division','userPrincipalName','company']
+    user_fields = ['cn', 'manager', 'description', 'title', 'telephoneNumber', 'department', 'division', 'userPrincipalName', 'company']
 
     begin
       qs = []
@@ -74,14 +74,14 @@ class Metasploit3 < Msf::Post
       'Header'     => "Users & Managers",
       'Indent'     => 1,
       'SortIndex'  => -1,
-      'Columns'    => ['cn','description','title','phone','department','division','e-mail','company','reports_to']
+      'Columns'    => ['cn', 'description', 'title', 'phone', 'department', 'division', 'e-mail', 'company', 'reports_to']
     )
 
     results.each do |result|
       row = []
 
-      result.each_with_index do |field,idx|
-        next if idx==1 # Don't include the manager DN
+      result.each_with_index do |field, idx|
+        next if idx == 1 # Don't include the manager DN
 
         if field.nil?
           row << ""
@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Post
       if reports_to.nil?
         row << ""
       else
-        row << reports_to['cn'].gsub('\,',',')
+        row << reports_to['cn'].gsub('\,', ',')
       end
 
       results_table << row
