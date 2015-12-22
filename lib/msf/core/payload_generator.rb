@@ -305,9 +305,14 @@ module Msf
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
       if platform == "java" or arch == "java" or payload.start_with? "java/"
-        p = generate_java_payload
-        cli_print "Payload size: #{p.length} bytes"
-        p
+        raw_payload = generate_java_payload
+        cli_print "Payload size: #{raw_payload.length} bytes"
+        raw_payload
+      elsif payload.start_with? "android/"
+        cli_print "Using template: #{template}"
+        raw_payload = generate_raw_payload
+        cli_print "Payload size: #{raw_payload.length} bytes"
+        raw_payload
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
