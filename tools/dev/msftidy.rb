@@ -65,6 +65,7 @@ class Msftidy
 
   def initialize(source_file)
     @full_filepath = source_file
+    @module_type = File.dirname(File.expand_path(@full_filepath))[/\/modules\/([^\/]+)/, 1]
     @source  = load_file(source_file)
     @lines   = @source.lines # returns an enumerator
     @status  = OK
@@ -471,6 +472,33 @@ class Msftidy
     end
   end
 
+  def check_bad_super_class
+    # skip payloads, as they don't have a super class
+    return if @module_type == 'payloads'
+
+    # get the super class in an ugly way
+    unless (super_class = @source.scan(/class Metasploit\d\s+<\s+(\S+)/).flatten.first)
+      error('Unable to determine super class')
+      return
+    end
+
+    prefix_super_map = {
+      'auxiliary' => /Msf::Auxiliary$/,
+      'exploits' => /Msf::Exploit(?:::Local|::Remote)?$/,
+      'encoders' => /^(?:Msf|Rex)::Encoder/,
+      'nops' => /^Msf::Nop$/,
+      'post' => /^Msf::Post$/
+    }
+
+    if prefix_super_map.key?(@module_type)
+      unless super_class =~ prefix_super_map[@module_type]
+        error("Invalid super class for #{@module_type} module (found '#{super_class}', expected something like #{prefix_super_map[@module_type]}")
+      end
+    else
+      warn("Unexpected and potentially incorrect super class found ('#{super_class}')")
+    end
+  end
+
   def check_function_basics
     functions = @source.scan(/def (\w+)\(*(.+)\)*/)
 
@@ -691,6 +719,7 @@ def run_checks(full_filepath)
   tidy.check_disclosure_date
   tidy.check_title_casing
   tidy.check_bad_terms
+  tidy.check_bad_super_class
   tidy.check_function_basics
   tidy.check_lines
   tidy.check_snake_case_filename
