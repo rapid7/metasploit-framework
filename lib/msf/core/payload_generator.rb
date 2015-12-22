@@ -310,9 +310,9 @@ module Msf
         cli_print "Payload size: #{raw_payload.length} bytes"
         raw_payload
       elsif payload.start_with? "android/"
-        cli_print "Using template: #{template}"
-        
-        raw_payload = generate_raw_payload
+        cli_print "Using APK template: #{template}"
+        apk_backdoor = ::Msf::Payload::Apk::ApkBackdoor::new()
+        raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
         cli_print "Payload size: #{raw_payload.length} bytes"
         raw_payload
       else
