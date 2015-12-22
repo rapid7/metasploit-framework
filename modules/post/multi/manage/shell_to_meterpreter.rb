@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
     vprint_status("Upgrade payload: #{payload_name}")
 
     if platform.blank?
-      print_error("Shells on the the target platform, #{session.platform}, cannot be upgraded to Meterpreter at this time.")
+      print_error("Shells on the target platform, #{session.platform}, cannot be upgraded to Meterpreter at this time.")
       return nil
     end
 
