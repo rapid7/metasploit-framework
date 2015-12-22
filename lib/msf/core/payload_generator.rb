@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core/payload/apk'
 require 'active_support/core_ext/numeric/bytes'
 module Msf
 
@@ -310,6 +311,7 @@ module Msf
         raw_payload
       elsif payload.start_with? "android/"
         cli_print "Using template: #{template}"
+        
         raw_payload = generate_raw_payload
         cli_print "Payload size: #{raw_payload.length} bytes"
         raw_payload
