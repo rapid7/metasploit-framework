@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Post
       a.map(&:join)
     else
       ports.each do |dport|
-        egress(type, proto, remote, dport, gw)
+        egress(type, proto, remote, dport, 1, gw)
       end
     end
 
