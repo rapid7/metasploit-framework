@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
     vprint_status "Retrieving AD Groups"
     begin
       group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment', 'managedBy', 'cn']
-      if datastore['GROUP_FILTER'].empty?
+      if datastore['GROUP_FILTER'].nil? || datastore['GROUP_FILTER'].empty?
         group_query = "(objectClass=group)"
       else
         group_query = "(&(objectClass=group)(#{datastore['GROUP_FILTER']}))"
