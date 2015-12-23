@@ -483,8 +483,8 @@ class Msftidy
     end
 
     prefix_super_map = {
-      'auxiliary' => /Msf::Auxiliary$/,
-      'exploits' => /Msf::Exploit(?:::Local|::Remote)?$/,
+      'auxiliary' => /^Msf::Auxiliary$/,
+      'exploits' => /^Msf::Exploit(?:::Local|::Remote)?$/,
       'encoders' => /^(?:Msf|Rex)::Encoder/,
       'nops' => /^Msf::Nop$/,
       'post' => /^Msf::Post$/
