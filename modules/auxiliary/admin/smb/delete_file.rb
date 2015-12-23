@@ -40,10 +40,6 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def smb_delete_files
     vprint_status("#{peer}: Connecting to the server...")
     connect()

@@ -111,10 +111,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def response_timeout
     datastore['RESPONSE_TIMEOUT']
   end

@@ -56,10 +56,6 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def read_timeout
     datastore['READ_TIMEOUT']
   end

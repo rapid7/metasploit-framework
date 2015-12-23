@@ -31,10 +31,6 @@ module Msf
       )
     end
 
-    def peer
-      "#{rhost}:#{rport}"
-    end
-
     def read_timeout
       datastore['READ_TIMEOUT']
     end
