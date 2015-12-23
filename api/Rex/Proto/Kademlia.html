@@ -1,0 +1,344 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Proto::Kademlia
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Proto/Kademlia.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Proto.html" title="Rex::Proto (module)">Proto</a></span></span>
+     &raquo; 
+    <span class="title">Kademlia</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Proto::Kademlia
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../../Msf/Auxiliary/Kademlia.html" title="Msf::Auxiliary::Kademlia (module)">Msf::Auxiliary::Kademlia</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto/kademlia/message.rb<span class="defines">,<br />
+  lib/rex/proto/kademlia/pong.rb,<br /> lib/rex/proto/kademlia/util.rb,<br /> lib/rex/proto/kademlia/ping.rb,<br /> lib/rex/proto/kademlia/bootstrap_request.rb,<br /> lib/rex/proto/kademlia/bootstrap_response.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Minimal support for the newer Kademlia protocol, referred to here and often
+elsewhere as Kademlia2.  It is unclear how this differs from the old
+protocol.</p>
+
+<p>Protocol details are hard to come by because most documentation is academic
+in nature and glosses over the low-level network details.  The best
+documents I found on the protocol are:</p>
+
+<p><a
+href="http://gbmaster.wordpress.com/2013/05/05/botnets-surrounding-us-an-initial-focus-on-kad">gbmaster.wordpress.com/2013/05/05/botnets-surrounding-us-an-initial-focus-on-kad</a>/
+<a
+href="http://gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins">gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins</a>/
+<a
+href="http://gbmaster.wordpress.com/2013/11/23/botnets-surrounding-us-performing-requests-sending-out-kademlia2_req-and-asking-contact-where-art-thou">gbmaster.wordpress.com/2013/11/23/botnets-surrounding-us-performing-requests-sending-out-kademlia2_req-and-asking-contact-where-art-thou</a>/</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Kademlia/BootstrapRequest.html" title="Rex::Proto::Kademlia::BootstrapRequest (class)">BootstrapRequest</a></span>, <span class='object_link'><a href="Kademlia/BootstrapResponse.html" title="Rex::Proto::Kademlia::BootstrapResponse (class)">BootstrapResponse</a></span>, <span class='object_link'><a href="Kademlia/Message.html" title="Rex::Proto::Kademlia::Message (class)">Message</a></span>, <span class='object_link'><a href="Kademlia/Ping.html" title="Rex::Proto::Kademlia::Ping (class)">Ping</a></span>, <span class='object_link'><a href="Kademlia/Pong.html" title="Rex::Proto::Kademlia::Pong (class)">Pong</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="PONG-constant" class="">PONG =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Opcode for a PING response</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x61</span></pre></dd>
+      
+        <dt id="PING-constant" class="">PING =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Opcode for a PING request</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x60</span></pre></dd>
+      
+        <dt id="BOOTSTRAP_REQUEST-constant" class="">BOOTSTRAP_REQUEST =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Opcode for a BOOTSTRAP request</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x01</span></pre></dd>
+      
+        <dt id="BOOTSTRAP_RESPONSE-constant" class="">BOOTSTRAP_RESPONSE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Opcode for a bootstrap response</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x09</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decode_peer_id-class_method" title="decode_peer_id (class method)">+ (String) <strong>decode_peer_id</strong>(bytes) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Decodes an on-the-wire representation of a Kademlia peer to its
+16-character hex equivalent.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="decode_peer_id-class_method">
+  
+    + (<tt>String</tt>) <strong>decode_peer_id</strong>(bytes) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Decodes an on-the-wire representation of a Kademlia peer to its
+16-character hex equivalent</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>bytes</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the on-the-wire representation of a Kademlia peer</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the peer ID if valid, nil otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kademlia/util.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_decode_peer_id'>decode_peer_id</span><span class='lparen'>(</span><span class='id identifier rubyid_bytes'>bytes</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_peer_id'>peer_id</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_bytes'>bytes</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='int'>16</span>
+  <span class='id identifier rubyid_bytes'>bytes</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VVVV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span> <span class='id identifier rubyid_peer_id'>peer_id</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_peer_id'>peer_id</span> <span class='op'>&lt;&lt;</span> <span class='int'>32</span><span class='rparen'>)</span> <span class='op'>^</span> <span class='id identifier rubyid_p'>p</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_peer_id'>peer_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Dec 22 22:33:19 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+</div>
+
+  </body>
+</html>
