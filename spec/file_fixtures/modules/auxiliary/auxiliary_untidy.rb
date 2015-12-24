@@ -7,6 +7,8 @@ require 'msf/core'
 
 # XXX: invalid super class for an auxiliary module
 class Metasploit4 < Msf::Exploit
+  # XXX: auxiliary modules don't use Rank
+  Rank = LowRanking
   def initialize(info = {})
     super(
       update_info(

@@ -1,32 +1,48 @@
-RSpec.describe 'msftidy utility' do
-  let(:msftidy) { File.expand_path('tools/dev/msftidy.rb') }
+require 'spec_helper'
 
-  it "shows Usage if invalid arguments are provided" do
-    expect { system(msftidy) }.to output(/Usage/).to_stderr_from_any_process
-  end
+load Metasploit::Framework.root.join('tools/dev/msftidy.rb').to_path
 
+RSpec.describe Msftidy do
   context "with a tidy auxiliary module" do
     let(:auxiliary_tidy) { File.expand_path('modules/auxiliary/auxiliary_tidy.rb', FILE_FIXTURES_PATH) }
+    let(:msftidy) { Msftidy.new(auxiliary_tidy) }
+
+    before(:each) do
+      @msftidy_stdout = get_stdout { msftidy.run_checks }
+    end
 
     it "outputs nothing" do
-      expect { system("#{msftidy} #{auxiliary_tidy}") }.to_not output.to_stdout_from_any_process
+      expect(@msftidy_stdout).to be_empty
     end
   end
 
   context "with an untidy auxiliary module" do
     let(:auxiliary_untidy) { File.expand_path('modules/auxiliary/auxiliary_untidy.rb', FILE_FIXTURES_PATH) }
+    let(:msftidy) { Msftidy.new(auxiliary_untidy) }
 
-    it "outputs expected errors and warnings" do
-      expect { system("#{msftidy} #{auxiliary_untidy}") }.to \
-        output(/ERROR.*Invalid super class for auxiliary module/).to_stdout_from_any_process
+    before(:each) do
+      @msftidy_stdout = get_stdout { msftidy.run_checks }
+    end
+
+    it "ERRORs when invalid superclass" do
+      expect(@msftidy_stdout).to match(/ERROR.*Invalid super class for auxiliary module/)
+    end
+
+    it "WARNINGs when specifying Rank" do
+      expect(@msftidy_stdout).to match(/WARNING.*Rank/)
     end
   end
 
   context "with a tidy payload module" do
     let(:payload_tidy) { File.expand_path('modules/payloads/payload_tidy.rb', FILE_FIXTURES_PATH) }
+    let(:msftidy) { Msftidy.new(payload_tidy) }
+
+    before(:each) do
+      @msftidy_stdout = get_stdout { msftidy.run_checks }
+    end
 
     it "outputs nothing" do
-      expect { system("#{msftidy} #{payload_tidy}") }.to_not output.to_stdout_from_any_process
+      expect(@msftidy_stdout).to be_empty
     end
   end
 end
