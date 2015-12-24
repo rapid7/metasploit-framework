@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'OSVDB', '90733' ],
           [ 'BID', '58231' ],
-          [ 'URL', 'http://packetstormsecurity.com/files/120591/dlinkdir645-bypass.txt' ]
+          [ 'PACKETSTORM', '120591' ]
         ],
       'Author'      =>
         [
