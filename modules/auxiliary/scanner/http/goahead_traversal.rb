@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2014-9707'],
-          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+          ['PACKETSTORM', '131156']
         ],
       'Author'         =>
         [
