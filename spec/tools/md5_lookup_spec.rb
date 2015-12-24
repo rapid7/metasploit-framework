@@ -1,4 +1,5 @@
 load Metasploit::Framework.root.join('tools/password/md5_lookup.rb').to_path
+require 'spec_helper'
 
 require 'rex/proto/http/response'
 require 'stringio'
@@ -68,17 +69,6 @@ RSpec.describe Md5LookupUtility do
     allow(subject).to receive(:send_request_cgi) do |opts|
       set_expected_response(body)
     end
-  end
-
-  def get_stdout(&block)
-    out = $stdout
-    $stdout = fake = StringIO.new
-    begin
-      yield
-    ensure
-      $stdout = out
-    end
-    fake.string
   end
 
   #
