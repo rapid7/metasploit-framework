@@ -50,9 +50,7 @@ module ReverseTcpSsl
 
     comm = select_comm
     local_port = bind_port
-    addrs = bind_address
-
-    addrs.each { |ip|
+    bind_addresses.each { |ip|
       begin
 
         self.listener_sock = Rex::Socket::SslTcpServer.create(
