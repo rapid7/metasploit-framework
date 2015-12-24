@@ -13,7 +13,7 @@ require 'rex/payloads/meterpreter/config'
 
 module Metasploit4
 
-  CachedSize = 957486
+  CachedSize = 957487
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -35,7 +35,8 @@ module Metasploit4
       ))
 
     register_options([
-      OptString.new('EXTENSIONS', [false, "Comma-separate list of extensions to load"]),
+      OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
+      OptString.new('EXTINIT',    [false, 'Initialization strings for extensions']),
       OptInt.new("SCOPEID", [false, "The IPv6 Scope ID, required for link-layer addresses", 0])
     ], self.class)
   end
@@ -54,7 +55,8 @@ module Metasploit4
       expiration: datastore['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
       transports: [transport_config_reverse_ipv6_tcp(opts)],
-      extensions: (datastore['EXTENSIONS'] || '').split(',')
+      extensions: (datastore['EXTENSIONS'] || '').split(','),
+      ext_init:   (datastore['EXTINIT'] || '')
     }
 
     # create the configuration instance based off the parameters

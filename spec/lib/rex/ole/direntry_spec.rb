@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/ole'
 
-describe Rex::OLE::DirEntry do
+RSpec.describe Rex::OLE::DirEntry do
   before(:each) do
     Rex::OLE::Util.set_endian(Rex::OLE::LITTLE_ENDIAN)
   end

@@ -5,7 +5,7 @@ require 'stringio'
 require 'rex/proto/rmi'
 require 'rex/java'
 
-describe Rex::Proto::Rmi::Model::UniqueIdentifier do
+RSpec.describe Rex::Proto::Rmi::Model::UniqueIdentifier do
 
   subject(:uid) do
     described_class.new

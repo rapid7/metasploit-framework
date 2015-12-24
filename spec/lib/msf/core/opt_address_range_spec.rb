@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptAddressRange do
+RSpec.describe Msf::OptAddressRange do
   # Normalized values are just the original value for OptAddressRange
   valid_values = [
     { :value => "192.0.2.0/24",    :normalized => "192.0.2.0/24" },
@@ -45,11 +45,11 @@ describe Msf::OptAddressRange do
   context 'the normalizer' do
     it 'should handle a call for random IPs' do
       random_addresses = required_opt.normalize('rand:5')
-      random_addresses.kind_of?(String).should == true
+      expect(random_addresses.kind_of?(String)).to eq true
       ips = random_addresses.split(' ')
-      ips.count.should == 5
+      expect(ips.count).to eq 5
       ips.each do |ip|
-        (ip =~ Rex::Socket::MATCH_IPV4).should == 0
+        expect(ip).to match Rex::Socket::MATCH_IPV4
       end
     end
   end

@@ -14,7 +14,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'CP Multi-View Calendar Unauthenticated SQL Injection Scanner',
+      'Name'        => 'WordPress CP Multi-View Calendar Unauthenticated SQL Injection Scanner',
       'Description' => %q{
         This module will scan given instances for an unauthenticated SQL injection
         within the CP Multi-View Calendar plugin v1.1.4 for Wordpress.

@@ -2,31 +2,31 @@
 require 'rex/socket/range_walker'
 require 'spec_helper'
 
-describe Rex::Socket do
+RSpec.describe Rex::Socket do
 
   describe '.addr_itoa' do
 
     context 'with explicit v6' do
       it "should convert a number to a human-readable IPv6 address" do
-        described_class.addr_itoa(1, true).should == "::1"
+        expect(described_class.addr_itoa(1, true)).to eq "::1"
       end
     end
 
     context 'with explicit v4' do
       it "should convert a number to a human-readable IPv4 address" do
-        described_class.addr_itoa(1, false).should == "0.0.0.1"
+        expect(described_class.addr_itoa(1, false)).to eq "0.0.0.1"
       end
     end
 
     context 'without explicit version' do
       it "should convert a number within the range of possible v4 addresses to a human-readable IPv4 address" do
-        described_class.addr_itoa(0).should == "0.0.0.0"
-        described_class.addr_itoa(1).should == "0.0.0.1"
-        described_class.addr_itoa(0xffff_ffff).should == "255.255.255.255"
+        expect(described_class.addr_itoa(0)).to eq "0.0.0.0"
+        expect(described_class.addr_itoa(1)).to eq "0.0.0.1"
+        expect(described_class.addr_itoa(0xffff_ffff)).to eq "255.255.255.255"
       end
       it "should convert a number larger than possible v4 addresses to a human-readable IPv6 address" do
-        described_class.addr_itoa(0xfe80_0000_0000_0000_0000_0000_0000_0001).should == "fe80::1"
-        described_class.addr_itoa(0x1_0000_0001).should == "::1:0:1"
+        expect(described_class.addr_itoa(0xfe80_0000_0000_0000_0000_0000_0000_0001)).to eq "fe80::1"
+        expect(described_class.addr_itoa(0x1_0000_0001)).to eq "::1:0:1"
       end
     end
 
@@ -42,7 +42,7 @@ describe Rex::Socket do
       it { is_expected.to be_an(String) }
       it { expect(subject.bytes.count).to eq(16) }
       it "should be in the right order" do
-        nbo.should == "\xfe\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
+        expect(nbo).to eq "\xfe\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
       end
     end
 
@@ -51,16 +51,16 @@ describe Rex::Socket do
       it { is_expected.to be_an(String) }
       it { expect(subject.bytes.count).to eq(4) }
       it "should be in the right order" do
-        nbo.should == "\x7f\x00\x00\x01"
+        expect(nbo).to eq "\x7f\x00\x00\x01"
       end
     end
 
     context 'with a hostname' do
       let(:try) { "localhost" }
       it "should resolve" do
-        nbo.should be_a(String)
-        nbo.encoding.should == Encoding.find('binary')
-        [ 4, 16 ].should include(nbo.length)
+        expect(nbo).to be_a(String)
+        expect(nbo.encoding).to eq Encoding.find('binary')
+        expect([ 4, 16 ]).to include(nbo.length)
       end
     end
 
@@ -74,7 +74,7 @@ describe Rex::Socket do
 
     context 'with lots of single 0s' do
       let(:try) { "fe80:0:0:0:0:0:0:1" }
-      it { should == "fe80::1" }
+      it { is_expected.to eq "fe80::1" }
     end
 
   end
@@ -84,16 +84,16 @@ describe Rex::Socket do
     subject { described_class.getaddress('whatever') }
 
     before(:each) do
-      Socket.stub(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
+      expect(Socket).to receive(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
     end
 
     context 'when ::Socket.gethostbyname returns IPv4 responses' do
       let(:response_afamily) { Socket::AF_INET }
       let(:response_addresses) { ["\x01\x01\x01\x01", "\x02\x02\x02\x02"] }
 
-      it { should be_a(String) }
+      it { is_expected.to be_a(String) }
       it "should return the first ASCII address" do
-        subject.should == "1.1.1.1"
+        expect(subject).to eq "1.1.1.1"
       end
     end
 
@@ -101,9 +101,9 @@ describe Rex::Socket do
       let(:response_afamily) { Socket::AF_INET6 }
       let(:response_addresses) { ["\xfe\x80"+("\x00"*13)+"\x01", "\xfe\x80"+("\x00"*13)+"\x02"] }
 
-      it { should be_a(String) }
+      it { is_expected.to be_a(String) }
       it "should return the first ASCII address" do
-        subject.should == "fe80::1"
+        expect(subject).to eq "fe80::1"
       end
     end
 
@@ -111,9 +111,9 @@ describe Rex::Socket do
       let(:response_afamily) { Socket::AF_INET }
       let(:response_addresses) { ["1.1.1.1", "2.2.2.2"] }
 
-      it { should be_a(String) }
+      it { is_expected.to be_a(String) }
       it "should return the first ASCII address" do
-        subject.should == "1.1.1.1"
+        expect(subject).to eq "1.1.1.1"
       end
 
     end
@@ -124,7 +124,7 @@ describe Rex::Socket do
     subject { described_class.getaddresses('whatever') }
 
     before(:each) do
-      Socket.stub(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
+      expect(Socket).to receive(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
     end
 
     context 'when ::Socket.gethostbyname returns IPv4 responses' do
@@ -134,8 +134,8 @@ describe Rex::Socket do
       it { is_expected.to be_an(Array) }
       it { expect(subject.size).to eq(2) }
       it "should return the ASCII addresses" do
-        subject.should include("1.1.1.1")
-        subject.should include("2.2.2.2")
+        expect(subject).to include("1.1.1.1")
+        expect(subject).to include("2.2.2.2")
       end
     end
 
@@ -146,8 +146,8 @@ describe Rex::Socket do
       it { is_expected.to be_an(Array) }
       it { expect(subject.size).to eq(2) }
       it "should return the ASCII addresses" do
-        subject.should include("fe80::1")
-        subject.should include("fe80::2")
+        expect(subject).to include("fe80::1")
+        expect(subject).to include("fe80::2")
       end
     end
 
@@ -158,8 +158,8 @@ describe Rex::Socket do
       it { is_expected.to be_an(Array) }
       it { expect(subject.size).to eq(2) }
       it "should return the ASCII addresses" do
-        subject.should include("1.1.1.1")
-        subject.should include("2.2.2.2")
+        expect(subject).to include("1.1.1.1")
+        expect(subject).to include("2.2.2.2")
       end
 
     end

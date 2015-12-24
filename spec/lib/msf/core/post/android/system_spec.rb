@@ -2,7 +2,7 @@
 
 require 'msf/core/post/android/system'
 
-describe Msf::Post::Android::System do
+RSpec.describe Msf::Post::Android::System do
 
   subject do
     mod = Module.new

@@ -88,7 +88,7 @@ module Rex
             when NewClassDesc
               encoded << [TC_CLASSDESC].pack('C')
             when ProxyClassDesc
-              content = [TC_PROXYCLASSDESC].pack('C')
+              encoded << [TC_PROXYCLASSDESC].pack('C')
             when NullReference
               encoded << [TC_NULL].pack('C')
             when Reset

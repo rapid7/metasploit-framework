@@ -42,13 +42,15 @@ STATUS_ALIVE       = 'Alive'
 STATUS_DOWN        = 'Down'
 STATUS_UNSUPPORTED = 'Unsupported'
 
-sort    = 0
-filter  = 'All'
-filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
-type    ='ALL'
-match   = nil
-check   = false
-save    = nil
+sort         = 0
+filter       = 'All'
+filters      = ['all','exploit','payload','post','nop','encoder','auxiliary']
+type         ='ALL'
+match        = nil
+check        = false
+save         = nil
+http_timeout = 20
+$verbose     = false
 
 opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ],
@@ -58,7 +60,9 @@ opts = Rex::Parser::Arguments.new(
   "-f" => [ true, "Filter based on Module Type [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary] (Default = ALL)."],
   "-t" => [ true, "Type of Reference to sort by #{types.keys}"],
   "-x" => [ true, "String or RegEx to try and match against the Reference Field"],
-  "-o" => [ true, "Save the results to a file"]
+  "-o" => [ true, "Save the results to a file"],
+  "-i" => [ true, "Set an HTTP timeout"],
+  "-v" => [ false, "Verbose"]
 )
 
 flags = []
@@ -95,6 +99,10 @@ opts.parse(ARGV) { |opt, idx, val|
       exit
     end
     type = val
+  when "-i"
+    http_timeout = /^\d+/ === val ? val.to_i : 20
+  when "-v"
+    $verbose = true
   when "-x"
     flags << "Regex: #{val}"
     match = Regexp.new(val)
@@ -112,14 +120,22 @@ def get_ipv4_addr(hostname)
   Rex::Socket::getaddresses(hostname, false)[0]
 end
 
-def is_url_alive?(uri)
-  #puts "URI: #{uri}"
+def vprint_debug(msg='')
+  print_debug(msg) if $verbose
+end
+
+def print_debug(msg='')
+  $stderr.puts "[*] #{msg}"
+end
+
+def is_url_alive?(uri, http_timeout)
+  print_debug("Checking: #{uri}")
 
   begin
     uri = URI(uri)
     rhost = get_ipv4_addr(uri.host)
   rescue SocketError, URI::InvalidURIError => e
-    #puts "Return false 1: #{e.message}"
+    vprint_debug("#{e.message} in #is_url_alive?")
     return false
   end
 
@@ -133,21 +149,22 @@ def is_url_alive?(uri)
   end
 
   begin
-    cli.connect
+    cli.connect(http_timeout)
     req = cli.request_raw('uri'=>path, 'vhost'=>vhost)
-    res = cli.send_recv(req)
+    res = cli.send_recv(req, http_timeout)
   rescue Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::UnsupportedProtocol, ::Timeout::Error, Errno::ETIMEDOUT => e
-    #puts "Return false 2: #{e.message}"
+    vprint_debug("#{e.message} for #{uri}")
     return false
   ensure
     cli.close
   end
 
   if res.nil? || res.code == 404 || res.body =~ /<title>.*not found<\/title>/i
-    #puts "Return false 3: HTTP #{res.code}"
-    #puts req.to_s
+    vprint_debug("URI returned a not-found response: #{uri}")
     return false
   end
+
+  vprint_debug("Good: #{uri}")
 
   true
 end
@@ -200,7 +217,7 @@ $framework.modules.each { |name, mod|
       if check
         if types.has_key?(ctx_id)
           uri = types[r.ctx_id.upcase].gsub(/\#{in_ctx_val}/, r.ctx_val)
-          if is_url_alive?(uri)
+          if is_url_alive?(uri, http_timeout)
             status = STATUS_ALIVE
           else
             bad_refs_count += 1

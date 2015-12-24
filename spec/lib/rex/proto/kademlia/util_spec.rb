@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'rex/proto/kademlia/util'
 
-describe Rex::Proto::Kademlia do
+RSpec.describe Rex::Proto::Kademlia do
 
   describe '#decode_peer_id' do
     subject(:kad) { described_class.decode_peer_id(bytes) }

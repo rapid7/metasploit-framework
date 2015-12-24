@@ -4,7 +4,7 @@ require 'msf/ui'
 require 'msf/ui/console/module_command_dispatcher'
 require 'msf/ui/console/command_dispatcher/core'
 
-describe Msf::Ui::Console::CommandDispatcher::Core do
+RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
   include_context 'Msf::DBManager'
   include_context 'Msf::UIDriver'
 
@@ -22,13 +22,13 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
     end
 
     it 'should generate Matching Modules table' do
-      core.should_receive(:generate_module_table).with('Matching Modules').and_call_original
+      expect(core).to receive(:generate_module_table).with('Matching Modules').and_call_original
 
       search_modules_sql
     end
 
     it 'should call Msf::DBManager#search_modules' do
-      db_manager.should_receive(:search_modules).with(match).and_return([])
+      expect(db_manager).to receive(:search_modules).with(match).and_return([])
 
       search_modules_sql
     end
@@ -68,7 +68,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
         let(:printed_table) do
           table = ''
 
-          core.stub(:print_line) do |string|
+          expect(core).to receive(:print_line) do |string|
             table = string
           end
 
@@ -78,19 +78,19 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
         end
 
         it 'should have fullname in first column' do
-          cell(printed_table, 0, 0).should include(module_detail.fullname)
+          expect(cell(printed_table, 0, 0)).to include(module_detail.fullname)
         end
 
         it 'should have disclosure date in second column' do
-          cell(printed_table, 0, 1).should include(module_detail.disclosure_date.strftime("%Y-%m-%d"))
+          expect(cell(printed_table, 0, 1)).to include(module_detail.disclosure_date.strftime("%Y-%m-%d"))
         end
 
         it 'should have rank name in third column' do
-          cell(printed_table, 0, 2).should include(Msf::RankingName[module_detail.rank])
+          expect(cell(printed_table, 0, 2)).to include(Msf::RankingName[module_detail.rank])
         end
 
         it 'should have name in fourth column' do
-          cell(printed_table, 0, 3).should include(module_detail.name)
+          expect(cell(printed_table, 0, 3)).to include(module_detail.name)
         end
       end
     end
@@ -113,14 +113,14 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
     if framework_re
       @output = []
       core.cmd_getg(name)
-      @output.join.should =~ framework_re
+      expect(@output.join).to match framework_re
     end
 
     # test the local value if specified
     if module_re
       @output = []
       core.cmd_get(name)
-      @output.join.should =~ module_re
+      expect(@output.join).to match module_re
     end
   end
 
@@ -128,10 +128,10 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
     describe "without arguments" do
       it "should show the correct help message" do
         core.cmd_get
-        @output.join.should =~ /Usage: get /
+        expect(@output.join).to match /Usage: get /
         @output = []
         core.cmd_getg
-        @output.join.should =~ /Usage: getg /
+        expect(@output.join).to match /Usage: getg /
       end
     end
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Msf::Simple::Framework do
+RSpec.describe Msf::Simple::Framework do
   include_context 'Msf::Simple::Framework'
 
   subject do

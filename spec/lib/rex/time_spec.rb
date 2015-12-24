@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/time'
 
-describe Rex::ExtTime do
+RSpec.describe Rex::ExtTime do
 
   let(:conversions) do
     {

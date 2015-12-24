@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'msf/core/post/linux/busy_box'
 
-describe Msf::Post::Linux::BusyBox do
+RSpec.describe Msf::Post::Linux::BusyBox do
   subject do
     mod = ::Msf::Module.new
     mod.extend described_class

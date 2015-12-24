@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/exploitation/heaplib'
 
-describe Rex::Exploitation::HeapLib do
+RSpec.describe Rex::Exploitation::HeapLib do
 
   let(:custom_code) { "var test = 'metasploit';" }
   let(:plain_signature) { 'JavaScript Heap Exploitation library' }
