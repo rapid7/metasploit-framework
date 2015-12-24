@@ -190,10 +190,6 @@ class Metasploit3 < Msf::Auxiliary
     response
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def protocol
     datastore['PROTOCOL']
   end

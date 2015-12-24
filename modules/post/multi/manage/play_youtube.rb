@@ -31,11 +31,6 @@ class Metasploit3 < Msf::Post
       ], self.class)
   end
 
-  def peer
-    "#{session.session_host}:#{session.session_port}"
-  end
-
-
   #
   # The OSX version uses an apple script to do this
   #

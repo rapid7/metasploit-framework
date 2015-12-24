@@ -47,10 +47,6 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def run_host(_ip)
     begin
       vprint_status("#{peer}: Connecting to the server...")

@@ -43,10 +43,6 @@ class Metasploit3 < Msf::Auxiliary
     res
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def run_host(ip)
     vprint_status("#{peer} - Login...")
 
