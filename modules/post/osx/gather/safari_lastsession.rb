@@ -58,11 +58,6 @@ class Metasploit3 < Msf::Post
     version
   end
 
-  def peer
-    "#{session.session_host}:#{session.session_port}"
-  end
-
-
   #
   # Converts LastSession.plist to xml, and then read it
   # @param filename [String] The path to LastSession.plist
