@@ -17,8 +17,12 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'MS15-134 Microsoft Windows Media Center MCL Information Disclosure',
       'Description'    => %q{
         This module exploits a vulnerability found in Windows Media Center. It allows an MCL
-        file to render itself as a HTML document in the local machine zone by Internet Explorer,
+        file to render itself as an HTML document in the local machine zone by Internet Explorer,
         which can be used to leak files on the target machine.
+
+        Please be aware that if this exploit is used against a patched Windows, it can cause the
+        computer to be very slow or unresponsive (100% CPU). It seems to be related to how the
+        exploit uses the URL attribute in order to render itself as an HTML file.
       },
       'Author'         =>
         [
@@ -115,7 +119,7 @@ for (var i=0; i < files.length; i++) {
     file_create(mcl)
     print_status("Pass #{datastore['FILENAME']} to the target you wish to exploit.")
     print_status("When the MCL is executed, it should start sending data (files) back")
-    print_status("back to our web server.")
+    print_status("to our web server.")
   end
 
   def is_ie?(request)
