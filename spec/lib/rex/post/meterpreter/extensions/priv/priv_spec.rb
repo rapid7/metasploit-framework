@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/extensions/priv/priv'
 
-describe Rex::Post::Meterpreter::Extensions::Priv::Priv do
+RSpec.describe Rex::Post::Meterpreter::Extensions::Priv::Priv do
 
   it "should be available" do
     expect(described_class).to eq(Rex::Post::Meterpreter::Extensions::Priv::Priv)

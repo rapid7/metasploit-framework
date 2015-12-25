@@ -2,7 +2,7 @@ load Metasploit::Framework.root.join('tools/exploit/egghunter.rb').to_path
 
 require 'stringio'
 
-describe Egghunter do
+RSpec.describe Egghunter do
 
   describe Egghunter::Driver do
 

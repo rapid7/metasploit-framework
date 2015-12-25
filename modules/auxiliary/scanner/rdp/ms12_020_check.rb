@@ -124,9 +124,6 @@ class Metasploit3 < Msf::Auxiliary
     "\x02\xf0\x80\x38"
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
 
   def check_rdp_vuln
     # check if rdp is open

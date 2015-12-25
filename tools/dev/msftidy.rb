@@ -210,7 +210,7 @@ class Msftidy
             warn("Please use 'US-CERT-VU' for '#{value}'")
           elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
-          elsif value =~ /^http:\/\/packetstormsecurity\.com\/files\//
+          elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
           end
         end

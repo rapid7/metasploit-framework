@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptRegexp do
+RSpec.describe Msf::OptRegexp do
 
   valid_values = [
       { :value => '^foo$',    :normalized => /^foo$/ },

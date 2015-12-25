@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'msf/core'
 require 'msf/core/modules/namespace'
 
-describe Msf::Modules::Namespace do
+RSpec.describe Msf::Modules::Namespace do
   let(:module_path) do
     "parent/path/type_directory/#{module_reference_name}.rb"
   end
@@ -37,7 +37,7 @@ describe Msf::Modules::Namespace do
           constant.to_s =~ /Metasploit/
         }
 
-        metasploit_constants.should be_empty
+        expect(metasploit_constants).to be_empty
       end
     end
 
@@ -47,11 +47,11 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit1').should be_truthy
+        expect(subject.const_defined?('Metasploit1')).to be_truthy
       end
 
       it 'should return the class' do
-        subject.metasploit_class.should be_a Class
+        expect(subject.metasploit_class).to be_a Class
       end
     end
 
@@ -61,11 +61,11 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit2').should be_truthy
+        expect(subject.const_defined?('Metasploit2')).to be_truthy
       end
 
       it 'should return the class' do
-        subject.metasploit_class.should be_a Class
+        expect(subject.metasploit_class).to be_a Class
       end
     end
 
@@ -75,11 +75,11 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit3').should be_truthy
+        expect(subject.const_defined?('Metasploit3')).to be_truthy
       end
 
       it 'should return the class' do
-        subject.metasploit_class.should be_a Class
+        expect(subject.metasploit_class).to be_a Class
       end
     end
 
@@ -89,11 +89,11 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit4').should be_truthy
+        expect(subject.const_defined?('Metasploit4')).to be_truthy
       end
 
       it 'should return the class' do
-        subject.metasploit_class.should be_a Class
+        expect(subject.metasploit_class).to be_a Class
       end
     end
 
@@ -103,22 +103,22 @@ describe Msf::Modules::Namespace do
       end
 
       it 'should be defined' do
-        subject.const_defined?('Metasploit5').should be_truthy
+        expect(subject.const_defined?('Metasploit5')).to be_truthy
       end
 
       it 'should be newer than Msf::Framework::Major' do
-        major.should > Msf::Framework::Major
+        expect(major).to be > Msf::Framework::Major
       end
 
       it 'should return nil' do
-        subject.metasploit_class.should be_nil
+        expect(subject.metasploit_class).to be_nil
       end
     end
   end
 
   context 'metasploit_class!' do
     it 'should call metasploit_class' do
-      subject.should_receive(:metasploit_class).and_return(Class.new)
+      expect(subject).to receive(:metasploit_class).and_return(Class.new)
 
       subject.metasploit_class!(module_path, module_reference_name)
     end
@@ -129,17 +129,17 @@ describe Msf::Modules::Namespace do
       end
 
       before(:each) do
-        subject.stub(:metasploit_class => metasploit_class)
+        allow(subject).to receive(:metasploit_class).and_return(metasploit_class)
       end
 
       it 'should return the metasploit_class' do
-        subject.metasploit_class!(module_path, module_reference_name).should == metasploit_class
+        expect(subject.metasploit_class!(module_path, module_reference_name)).to eq metasploit_class
       end
     end
 
     context 'without metasploit_class' do
       before(:each) do
-        subject.stub(:metasploit_class => nil)
+        allow(subject).to receive(:metasploit_class)
       end
 
       it 'should raise a Msf::Modules::MetasploitClassCompatibilityError' do
@@ -157,8 +157,8 @@ describe Msf::Modules::Namespace do
           rescue Msf::Modules::MetasploitClassCompatibilityError => error
           end
 
-          error.should_not be_nil
-          error.to_s.should include(module_path)
+          expect(error).not_to be_nil
+          expect(error.to_s).to include(module_path)
         end
 
         it 'should include the module reference name' do
@@ -169,8 +169,8 @@ describe Msf::Modules::Namespace do
           rescue Msf::Modules::MetasploitClassCompatibilityError => error
           end
 
-          error.should_not be_nil
-          error.to_s.should include(module_reference_name)
+          expect(error).not_to be_nil
+          expect(error.to_s).to include(module_reference_name)
         end
       end
     end
@@ -179,7 +179,7 @@ describe Msf::Modules::Namespace do
   context 'version_compatible!' do
     context 'without RequiredVersions' do
       it 'should not be defined' do
-        subject.const_defined?('RequiredVersions').should be_falsey
+        expect(subject.const_defined?('RequiredVersions')).to be_falsey
       end
 
       it 'should not raise an error' do

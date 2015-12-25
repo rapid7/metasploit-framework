@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'BID', '25676'],
-          [ 'URL', 'http://packetstormsecurity.org/files/59347/boa-bypass.txt.html']
+          [ 'PACKETSTORM', '59347']
         ],
       'DisclosureDate' => 'Sep 10 2007'))
 

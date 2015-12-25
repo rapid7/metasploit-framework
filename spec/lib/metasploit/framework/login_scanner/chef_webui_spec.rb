@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/chef_webui'
 
-describe Metasploit::Framework::LoginScanner::ChefWebUI do
+RSpec.describe Metasploit::Framework::LoginScanner::ChefWebUI do
 
   subject(:http_scanner) { described_class.new }
 
