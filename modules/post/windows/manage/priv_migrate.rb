@@ -45,18 +45,14 @@ class Metasploit3 < Msf::Post
     user_targets << datastore['NAME'] if datastore['NAME']
     user_targets << "explorer.exe" << "notepad.exe"
 
-    # Get rights information
-    admin = is_admin? ? 'True' : 'False'
-    sys   = is_system? ? 'True' : 'False'
-
     # Get current process information
     original_pid = client.sys.process.open.pid
     original_name = client.sys.process.open.name
     print_status("Current session process is #{original_name} (#{original_pid}) as: #{client.sys.config.getuid}")
 
     # Admin level migration starts here
-    if admin == 'True'
-      if sys == 'False'
+    if is_admin?
+      if !is_system?
         print_status("Session is Admin but not System.")
         print_status("Will attempt to migrate to a System level process.")
       else
