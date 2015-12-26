@@ -12,12 +12,22 @@ require 'msf/core/payload/windows/reverse_http'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 module Metasploit4
 =======
 >>>>>>> rapid7/feature/complex-payloads
 =======
 >>>>>>> origin/feature/complex-payloads
+=======
+
+module Metasploit4
+<<<<<<< HEAD
+=======
+>>>>>>> feature/complex-payloads
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
 =======
 <<<<<<< HEAD
@@ -111,6 +121,7 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -214,6 +225,10 @@ module Metasploit4
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-excellent.mp3
       'Name'        => 'Windows Reverse HTTP Stager (wininet)',
       'Description' => 'Tunnel communication over HTTP (Windows wininet)',
       'Author'      => 'hdm',
@@ -222,8 +237,10 @@ module Metasploit4
       'Arch'        => ARCH_X86,
       'Handler'     => Msf::Handler::ReverseHttp,
       'Convention'  => 'sockedi http'))
+<<<<<<< HEAD
   end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -268,4 +285,21 @@ module Metasploit4
 >>>>>>> rapid7/master
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+=======
+      'Name'          => 'Reverse HTTP Stager',
+      'Description'   => 'Tunnel communication over HTTP',
+      'Author'        => 'hdm',
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'win',
+      'Arch'          => ARCH_X86,
+      'Handler'       => Msf::Handler::ReverseHttp,
+      'Convention'    => 'sockedi http'))
+  end
+>>>>>>> feature/complex-payloads
+=======
+  end
+
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-excellent.mp3
 end

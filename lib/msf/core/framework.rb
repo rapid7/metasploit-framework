@@ -73,21 +73,30 @@ class Framework
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-  require 'rex/json_hash_file'
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 <<<<<<< HEAD
   require 'rex/json_hash_file'
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  require 'rex/json_hash_file'
+=======
+<<<<<<< HEAD
+=======
+  require 'rex/json_hash_file'
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -126,6 +135,7 @@ class Framework
   require 'rex/json_hash_file'
 >>>>>>> rapid7/master
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
   require 'rex/json_hash_file'
@@ -138,6 +148,8 @@ class Framework
 >>>>>>> origin/payload-generator.rb
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -147,10 +159,13 @@ class Framework
 =======
   require 'rex/json_hash_file'
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 =======
   require 'rex/json_hash_file'
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
   #
   # Creates an instance of the framework context.
@@ -173,11 +188,14 @@ class Framework
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 <<<<<<< HEAD
 =======
@@ -185,7 +203,10 @@ class Framework
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -208,6 +229,7 @@ class Framework
 =======
 >>>>>>> rapid7/master
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -217,6 +239,8 @@ class Framework
 >>>>>>> origin/payload-generator.rb
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -225,9 +249,12 @@ class Framework
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)

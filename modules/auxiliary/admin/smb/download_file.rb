@@ -12,6 +12,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   include Msf::Exploit::Remote::SMB::Client::RemotePaths
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -20,12 +21,20 @@ class Metasploit3 < Msf::Auxiliary
 <<<<<<< HEAD
   include Msf::Exploit::Remote::SMB::Client::RemotePaths
 =======
+=======
+<<<<<<< HEAD
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 

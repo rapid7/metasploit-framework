@@ -15,6 +15,7 @@ module Metasploit3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 313
 =======
   CachedSize = 314
@@ -36,6 +37,11 @@ module Metasploit3
   CachedSize = 313
 =======
   CachedSize = 314
+=======
+  CachedSize = 313
+=======
+  CachedSize = 314
+>>>>>>> origin/pod/metasploit-excellent.mp3
 >>>>>>> 4.11.2_release_pre-rails4
 =======
   CachedSize = 314
@@ -49,10 +55,13 @@ module Metasploit3
 =======
   CachedSize = 314
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 =======
   CachedSize = 314
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

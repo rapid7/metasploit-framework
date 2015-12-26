@@ -217,11 +217,14 @@ class Driver < Msf::Ui::Driver
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-=======
-<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 <<<<<<< HEAD
 =======
@@ -229,7 +232,10 @@ class Driver < Msf::Ui::Driver
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -254,6 +260,7 @@ class Driver < Msf::Ui::Driver
 =======
 >>>>>>> rapid7/master
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -263,6 +270,8 @@ class Driver < Msf::Ui::Driver
 >>>>>>> origin/payload-generator.rb
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -271,9 +280,12 @@ class Driver < Msf::Ui::Driver
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
     if framework.db.active && !opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files

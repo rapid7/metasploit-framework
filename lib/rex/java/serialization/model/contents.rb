@@ -92,6 +92,7 @@ module Rex
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
               encoded << [TC_PROXYCLASSDESC].pack('C')
 =======
               content = [TC_PROXYCLASSDESC].pack('C')
@@ -107,6 +108,11 @@ module Rex
               content = [TC_PROXYCLASSDESC].pack('C')
 >>>>>>> origin/payload-generator.rb
 =======
+=======
+              encoded << [TC_PROXYCLASSDESC].pack('C')
+=======
+              content = [TC_PROXYCLASSDESC].pack('C')
+>>>>>>> origin/pod/metasploit-excellent.mp3
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
               content = [TC_PROXYCLASSDESC].pack('C')
@@ -114,10 +120,13 @@ module Rex
 =======
               content = [TC_PROXYCLASSDESC].pack('C')
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 =======
               content = [TC_PROXYCLASSDESC].pack('C')
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
             when NullReference
               encoded << [TC_NULL].pack('C')
             when Reset

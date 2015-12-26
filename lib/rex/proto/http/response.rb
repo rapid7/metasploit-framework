@@ -114,6 +114,7 @@ class Response < Packet
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     json = {}
 =======
     json = []
@@ -135,6 +136,11 @@ class Response < Packet
     json = {}
 =======
     json = []
+=======
+    json = {}
+=======
+    json = []
+>>>>>>> origin/pod/metasploit-excellent.mp3
 >>>>>>> 4.11.2_release_pre-rails4
 =======
     json = []
@@ -148,10 +154,13 @@ class Response < Packet
 =======
     json = []
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 =======
     json = []
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
 
     begin
       json = JSON.parse(self.body)

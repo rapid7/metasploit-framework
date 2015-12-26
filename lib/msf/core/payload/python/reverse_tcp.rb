@@ -69,6 +69,7 @@ end
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> origin/4.11.2_release_pre-rails4
@@ -87,21 +88,26 @@ end
 =======
 <<<<<<< HEAD
 =======
-
->>>>>>> 4.11.2_release_pre-rails4
-=======
-
->>>>>>> chore/MSP-12110/celluloid-supervision-tree
-=======
-
->>>>>>> chore/MSP-12110/celluloid-supervision-tree
-=======
-
->>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 
 >>>>>>> 4.11.2_release_pre-rails4
+=======
+
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 =======
 
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
