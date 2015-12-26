@@ -1,0 +1,880 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Proto::Kademlia::BootstrapResponse
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Proto/Kademlia/BootstrapResponse.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Kademlia.html" title="Rex::Proto::Kademlia (module)">Kademlia</a></span></span>
+     &raquo; 
+    <span class="title">BootstrapResponse</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Proto::Kademlia::BootstrapResponse
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="Message.html" title="Rex::Proto::Kademlia::Message (class)">Message</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Message.html" title="Rex::Proto::Kademlia::Message (class)">Message</a></span></li>
+          
+            <li class="next">Rex::Proto::Kademlia::BootstrapResponse</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto/kademlia/bootstrap_response.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A Kademlia bootstrap response message</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="BOOTSTRAP_PEER_SIZE-constant" class="">BOOTSTRAP_PEER_SIZE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The minimum size of a peer in a KADEMLIA2_BOOTSTRAP_RES message: peer ID
+(16-bytes), IP (4 bytes), UDP port (2 bytes), TCP port (2 bytes) and
+version (1 byte)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>25</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="Message.html" title="Rex::Proto::Kademlia::Message (class)">Message</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Message.html#COMPRESSED_PACKET-constant" title="Rex::Proto::Kademlia::Message::COMPRESSED_PACKET (constant)">Message::COMPRESSED_PACKET</a></span>, <span class='object_link'><a href="Message.html#STANDARD_PACKET-constant" title="Rex::Proto::Kademlia::Message::STANDARD_PACKET (constant)">Message::STANDARD_PACKET</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#peer_id-instance_method" title="#peer_id (instance method)">- (String) <strong>peer_id</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The ID of the peer that send the bootstrap response.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#peers-instance_method" title="#peers (instance method)">- (Array&lt;Hash&lt;String, Object&gt;&gt;) <strong>peers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The peer ID, IP address, UDP/TCP ports and version of each peer.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tcp_port-instance_method" title="#tcp_port (instance method)">- (Integer) <strong>tcp_port</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The TCP port that the responding peer is listening on.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#version-instance_method" title="#version (instance method)">- (Integer) <strong>version</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The version of this peer.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Message.html" title="Rex::Proto::Kademlia::Message (class)">Message</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Message.html#body-instance_method" title="Rex::Proto::Kademlia::Message#body (method)">#body</a></span>, <span class='object_link'><a href="Message.html#type-instance_method" title="Rex::Proto::Kademlia::Message#type (method)">#type</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_data-class_method" title="from_data (class method)">+ (BootstrapResponse) <strong>from_data</strong>(data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a bootstrap response from given data.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (BootstrapResponse) <strong>initialize</strong>(peer_id, tcp_port, version, peers) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Constructs a new bootstrap response.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Message.html" title="Rex::Proto::Kademlia::Message (class)">Message</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Message.html#%3D%3D-instance_method" title="Rex::Proto::Kademlia::Message#== (method)">#==</a></span>, <span class='object_link'><a href="Message.html#to_str-instance_method" title="Rex::Proto::Kademlia::Message#to_str (method)">#to_str</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Proto::Kademlia::BootstrapResponse (class)">BootstrapResponse</a></span></tt>) <strong>initialize</strong>(peer_id, tcp_port, version, peers) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Constructs a new bootstrap response</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>peer_id</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the ID of this peer</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tcp_port</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the TCP port that this peer is listening on</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>version</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the version of this peer</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>peers</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&lt;String, Object&gt;&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the peer ID, IP address, UDP/TCP ports and version of each peer</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kademlia/bootstrap_response.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_peer_id'>peer_id</span><span class='comma'>,</span> <span class='id identifier rubyid_tcp_port'>tcp_port</span><span class='comma'>,</span> <span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_peers'>peers</span><span class='rparen'>)</span>
+  <span class='ivar'>@peer_id</span> <span class='op'>=</span> <span class='id identifier rubyid_peer_id'>peer_id</span>
+  <span class='ivar'>@tcp_port</span> <span class='op'>=</span> <span class='id identifier rubyid_tcp_port'>tcp_port</span>
+  <span class='ivar'>@version</span> <span class='op'>=</span> <span class='id identifier rubyid_version'>version</span>
+  <span class='ivar'>@peers</span> <span class='op'>=</span> <span class='id identifier rubyid_peers'>peers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="peer_id-instance_method">
+  
+    - (<tt>String</tt>) <strong>peer_id</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the ID of the peer that send the bootstrap response</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the ID of the peer that send the bootstrap response</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kademlia/bootstrap_response.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_peer_id'>peer_id</span>
+  <span class='ivar'>@peer_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="peers-instance_method">
+  
+    - (<tt>Array&lt;Hash&lt;String, Object&gt;&gt;</tt>) <strong>peers</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the peer ID, IP address, UDP/TCP ports and version of each peer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&lt;String, Object&gt;&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the peer ID, IP address, UDP/TCP ports and version of each peer</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kademlia/bootstrap_response.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_peers'>peers</span>
+  <span class='ivar'>@peers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="tcp_port-instance_method">
+  
+    - (<tt>Integer</tt>) <strong>tcp_port</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the TCP port that the responding peer is listening on</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the TCP port that the responding peer is listening on</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kademlia/bootstrap_response.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tcp_port'>tcp_port</span>
+  <span class='ivar'>@tcp_port</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="version-instance_method">
+  
+    - (<tt>Integer</tt>) <strong>version</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the version of this peer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the version of this peer</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kademlia/bootstrap_response.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_version'>version</span>
+  <span class='ivar'>@version</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="from_data-class_method">
+  
+    + (<tt><span class='object_link'><a href="" title="Rex::Proto::Kademlia::BootstrapResponse (class)">BootstrapResponse</a></span></tt>) <strong>from_data</strong>(data) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a bootstrap response from given data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the data to decode</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Rex::Proto::Kademlia::BootstrapResponse (class)">BootstrapResponse</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the bootstrap response if the data is valid, nil otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kademlia/bootstrap_response.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_data'>from_data</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span> <span class='const'>Message</span><span class='period'>.</span><span class='id identifier rubyid_from_data'>from_data</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='comment'># abort if this isn&#39;t a valid response
+</span>  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_message'>message</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'>BOOTSTRAP_RESPONSE</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;=</span> <span class='int'>23</span>
+  <span class='id identifier rubyid_bootstrap_peer_id'>bootstrap_peer_id</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kademlia</span><span class='period'>.</span><span class='id identifier rubyid_decode_peer_id'>decode_peer_id</span><span class='lparen'>(</span><span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>16</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_bootstrap_tcp_port'>bootstrap_tcp_port</span><span class='comma'>,</span> <span class='id identifier rubyid_bootstrap_version'>bootstrap_version</span><span class='comma'>,</span> <span class='id identifier rubyid_num_peers'>num_peers</span> <span class='op'>=</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>5</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vCv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='comment'># protocol says there are no peers and the body confirms this, so just return with no peers
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_num_peers'>num_peers</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='id identifier rubyid_peers'>peers</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_peers_data'>peers_data</span> <span class='op'>=</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span>
+    <span class='comment'># peers data is too long/short, abort
+</span>    <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_peers_data'>peers_data</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>%</span> <span class='const'>BOOTSTRAP_PEER_SIZE</span> <span class='op'>!=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_peers'>peers</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='kw'>until</span> <span class='id identifier rubyid_peers_data'>peers_data</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+      <span class='id identifier rubyid_peer_data'>peer_data</span> <span class='op'>=</span> <span class='id identifier rubyid_peers_data'>peers_data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='const'>BOOTSTRAP_PEER_SIZE</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_peer_id'>peer_id</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kademlia</span><span class='period'>.</span><span class='id identifier rubyid_decode_peer_id'>decode_peer_id</span><span class='lparen'>(</span><span class='id identifier rubyid_peer_data'>peer_data</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>16</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_udp_port'>udp_port</span><span class='comma'>,</span> <span class='id identifier rubyid_tcp_port'>tcp_port</span><span class='comma'>,</span> <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_peer_data'>peer_data</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VvvC</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_peers'>peers</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+        <span class='label'>id:</span> <span class='id identifier rubyid_peer_id'>peer_id</span><span class='comma'>,</span>
+        <span class='label'>ip:</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_addr_itoa'>addr_itoa</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='label'>tcp_port:</span> <span class='id identifier rubyid_tcp_port'>tcp_port</span><span class='comma'>,</span>
+        <span class='label'>udp_port:</span> <span class='id identifier rubyid_udp_port'>udp_port</span><span class='comma'>,</span>
+        <span class='label'>version:</span> <span class='id identifier rubyid_version'>version</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='const'>BootstrapResponse</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_bootstrap_peer_id'>bootstrap_peer_id</span><span class='comma'>,</span> <span class='id identifier rubyid_bootstrap_tcp_port'>bootstrap_tcp_port</span><span class='comma'>,</span> <span class='id identifier rubyid_bootstrap_version'>bootstrap_version</span><span class='comma'>,</span> <span class='id identifier rubyid_peers'>peers</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Dec 22 22:35:26 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+</div>
+
+  </body>
+</html>
