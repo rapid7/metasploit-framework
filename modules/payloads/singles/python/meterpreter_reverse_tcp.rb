@@ -13,10 +13,14 @@ require 'msf/base/sessions/meterpreter_python'
 module Metasploit4
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 50146
 =======
   CachedSize = 49398
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+  CachedSize = 49398
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
   include Msf::Payload::Single
   include Msf::Payload::Python

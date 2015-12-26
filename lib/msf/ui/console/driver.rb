@@ -212,10 +212,39 @@ class Driver < Msf::Ui::Driver
       self.framework.init_module_paths(module_paths: opts['ModulePath'])
     end
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+      # Rebuild the module cache in a background thread
+      self.framework.modules.async.refresh_cache_from_module_files
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
     if framework.db.active && !opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files
       end
+>>>>>>> rapid7/master
     end
 
     # Load console-specific configuration (after module paths are added)
@@ -537,10 +566,15 @@ class Driver < Msf::Ui::Driver
 
     framework.events.on_ui_start(Msf::Framework::Revision)
 
+<<<<<<< HEAD
+    Celluloid::Actor[:metasploit_framework_command_console_spinner].terminate!
+    $stderr.print "\n"
+=======
     if $msf_spinner_thread
       $msf_spinner_thread.kill
       $stderr.print "\r" + (" " * 50) + "\n"
     end
+>>>>>>> rapid7/master
 
     run_single("banner") unless opts['DisableBanner']
 

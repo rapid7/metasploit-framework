@@ -68,26 +68,92 @@ class Framework
   require 'msf/core/plugin_manager'
   require 'msf/core/db_manager'
   require 'msf/core/event_dispatcher'
+<<<<<<< HEAD
   require 'rex/json_hash_file'
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+  #
+  # Attributes
+  #
+
+  # The Celluloid::SupervisionGroup that is the root of the supervision tree.
+  attr_accessor :supervision_group
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
   #
   # Creates an instance of the framework context.
   #
+  # @param options [Hash{Object => Object}]
+  # @option options [Array<String>] :module_types (Msf::MODULE_TYPES) The module types for {#modules} to load.
   def initialize(options={})
     self.options = options
     # call super to initialize MonitorMixin.  #synchronize won't work without this.
     super()
 
-    # Allow specific module types to be loaded
-    types = options[:module_types] || Msf::MODULE_TYPES
-
     self.events    = EventDispatcher.new(self)
-    self.modules   = ModuleManager.new(self,types)
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
     self.plugins   = PluginManager.new(self)
     self.uuid_db   = Rex::JSONHashFile.new(::File.join(Msf::Config.config_directory, "payloads.json"))
     self.browser_profiles = Hash.new
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+    self.run_supervision_group!
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
@@ -98,6 +164,37 @@ class Framework
     events.add_general_subscriber(subscriber)
     events.add_db_subscriber(subscriber)
     events.add_ui_subscriber(subscriber)
+  end
+
+  #
+  # Instance Methods
+  #
+
+  def run_supervision_group!
+    # {run!} runs the group in the background
+    supervision_group = Metasploit::Framework::SupervisionGroup.run!
+
+    module_types = options[:module_types] || Msf::MODULE_TYPES
+    supervision_group.supervise_as :msf_module_manager, Msf::ModuleManager, self, module_types
+
+    supervision_group.supervise_as :msf_session_manager, Msf::SessionManager, self
+
+    self.supervision_group = supervision_group
+  end
+
+  # Session manager that tracks sessions associated with this framework
+  # instance over the course of their lifetime.
+  #
+  # @return [Celluloid<Msf::SessionManager>]
+  def sessions
+    supervision_group[:msf_session_manager]
+  end
+
+  # Module manager that contains information about all loaded modules, regardless of type.
+  #
+  # @return [Celluloid<Msf::ModuleManager>]
+  def modules
+    supervision_group[:msf_module_manager]
   end
 
   def inspect
@@ -159,11 +256,6 @@ class Framework
   #
   attr_reader   :events
   #
-  # Module manager that contains information about all loaded modules,
-  # regardless of type.
-  #
-  attr_reader   :modules
-  #
   # The global framework datastore that can be used by modules.
   #
   attr_reader   :datastore
@@ -204,16 +296,6 @@ class Framework
   def db
     synchronize {
       @db ||= Msf::DBManager.new(self, options)
-    }
-  end
-
-  # Session manager that tracks sessions associated with this framework
-  # instance over the course of their lifetime.
-  #
-  # @return [Msf::SessionManager]
-  def sessions
-    synchronize {
-      @sessions ||= Msf::SessionManager.new(self)
     }
   end
 

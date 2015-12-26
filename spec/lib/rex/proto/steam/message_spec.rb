@@ -2,7 +2,11 @@
 require 'spec_helper'
 require 'rex/proto/steam/message'
 
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Steam do
+=======
+describe Rex::Proto::Steam do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   subject(:steam) do
     mod = Module.new
     mod.extend described_class

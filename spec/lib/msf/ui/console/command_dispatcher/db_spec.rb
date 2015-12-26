@@ -543,10 +543,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       it "should list default workspace" do
         db.cmd_workspace
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
           "* default"
         ]
       end
@@ -556,10 +560,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         @output = []
         db.cmd_workspace
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
           "  default",
           "* foo"
         ]
@@ -570,10 +578,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       it "should add workspaces" do
         db.cmd_workspace("-a", "foo", "bar", "baf")
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
           "Added workspace: foo",
           "Added workspace: bar",
           "Added workspace: baf"
@@ -587,10 +599,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         @output = []
         db.cmd_workspace("-d", "foo")
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
           "Deleted workspace: foo",
           "Switched workspace: default"
         ]
@@ -603,10 +619,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         @output = []
         db.cmd_workspace("-D")
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
           "Deleted and recreated the default workspace",
           "Deleted workspace: foo",
           "Switched workspace: default"

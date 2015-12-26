@@ -21,10 +21,13 @@ class Android < Extension
 
   COLLECT_TYPE_WIFI = 1
 <<<<<<< HEAD
+<<<<<<< HEAD
   COLLECT_TYPE_GEO  = 2
   COLLECT_TYPE_CELL = 3
 =======
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
   COLLECT_ACTION_START  = 1
   COLLECT_ACTION_PAUSE  = 2
@@ -34,12 +37,16 @@ class Android < Extension
 
   COLLECT_TYPES = {
 <<<<<<< HEAD
+<<<<<<< HEAD
     'wifi' => COLLECT_TYPE_WIFI,
     'geo'  => COLLECT_TYPE_GEO,
     'cell' => COLLECT_TYPE_CELL,
 =======
     'wifi' => COLLECT_TYPE_WIFI
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+    'wifi' => COLLECT_TYPE_WIFI
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   }
 
   COLLECT_ACTIONS = {
@@ -119,6 +126,7 @@ class Android < Extension
         result[:entries] << v
       end
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     when COLLECT_TYPE_GEO
       result[:headers] = ['Timestamp', 'Latitude', 'Longitude']
@@ -179,6 +187,8 @@ class Android < Extension
       end
 =======
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
     end
 
     result

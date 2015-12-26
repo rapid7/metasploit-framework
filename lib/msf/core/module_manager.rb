@@ -18,6 +18,7 @@ module Msf
   #
   # @todo add unload support
   class ModuleManager
+    include Celluloid
     include Msf::Framework::Offspring
 
     require 'msf/core/payload_set'

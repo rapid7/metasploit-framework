@@ -1,7 +1,11 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/nessus'
 
+<<<<<<< HEAD
 RSpec.describe Metasploit::Framework::LoginScanner::Nessus do
+=======
+describe Metasploit::Framework::LoginScanner::Nessus do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
     subject(:http_scanner) { described_class.new }
 

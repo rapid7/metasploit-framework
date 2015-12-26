@@ -1,7 +1,11 @@
 require 'spec_helper'
 require 'rex/post/meterpreter'
 
+<<<<<<< HEAD
 RSpec.describe MetasploitPayloads do
+=======
+describe MetasploitPayloads do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   it 'is available' do
     expect(described_class).to eq(MetasploitPayloads)
   end

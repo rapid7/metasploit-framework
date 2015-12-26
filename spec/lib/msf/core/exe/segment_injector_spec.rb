@@ -21,7 +21,11 @@ RSpec.describe Msf::Exe::SegmentInjector do
   it 'should return the correct processor for the arch' do
     expect(injector.processor.class).to eq Metasm::Ia32
     injector.arch = :x64
+<<<<<<< HEAD
     expect(injector.processor.class).to eq Metasm::X86_64
+=======
+    injector.processor.class.should == Metasm::X86_64
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   end
 
   context '#create_thread_stub' do

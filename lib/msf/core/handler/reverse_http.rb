@@ -18,7 +18,10 @@ module Handler
 module ReverseHttp
 
   include Msf::Handler
+<<<<<<< HEAD
   include Msf::Handler::Reverse
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
 
@@ -52,17 +55,23 @@ module ReverseHttp
     register_advanced_options(
       [
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
         OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
 =======
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
         OptString.new('ReverseListenerComm', [false, 'The specific communication channel to use for this listener']),
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
         OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [false, 'The port to bind to on the local system if different from LPORT']),
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
         OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
         OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
         OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
@@ -89,7 +98,11 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
     uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
+<<<<<<< HEAD
     "#{scheme}://#{uri_host}:#{bind_port}/"
+=======
+    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   end
 
   # Return a URI suitable for placing in a payload.
@@ -162,7 +175,10 @@ module ReverseHttp
       nil,
 =======
       comm,
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
       (ssl?) ? datastore['HandlerSSLCert'] : nil
     )
 
@@ -249,6 +265,7 @@ protected
     resp = Rex::Proto::Http::Response.new
     info = process_uri_resource(req.relative_resource)
     uuid = info[:uuid] || Msf::Payload::UUID.new
+<<<<<<< HEAD
 
     # Configure the UUID architecture and payload if necessary
     uuid.arch      ||= obj.arch
@@ -276,6 +293,35 @@ protected
       end
     end
 
+=======
+
+    # Configure the UUID architecture and payload if necessary
+    uuid.arch      ||= obj.arch
+    uuid.platform  ||= obj.platform
+
+    conn_id = nil
+    if info[:mode] && info[:mode] != :connect
+      conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+    end
+
+    request_summary = "#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
+
+    # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
+      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID: #{request_summary}")
+      info[:mode] = :unknown_uuid
+    end
+
+    # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
+      allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
+      unless allowed_urls.include?(req.relative_resource)
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID URL: #{request_summary}")
+        info[:mode] = :unknown_uuid_url
+      end
+    end
+
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
     self.pending_connections += 1
 
     # Process the requested resource.
@@ -300,6 +346,7 @@ protected
         blob = ""
         blob << obj.generate_stage(
 <<<<<<< HEAD
+<<<<<<< HEAD
           http_url: url,
           http_user_agent: datastore['MeterpreterUserAgent'],
           http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
@@ -308,6 +355,8 @@ protected
           uri:  conn_id
         )
 =======
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
           uuid: uuid,
           uri:  conn_id
         )
@@ -368,7 +417,10 @@ protected
       when :init_native
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
+<<<<<<< HEAD
         uri = URI(payload_uri(req) + conn_id)
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
         resp['Content-Type'] = 'application/octet-stream'
 
@@ -378,12 +430,17 @@ protected
           uuid: uuid,
           uri:  conn_id,
 <<<<<<< HEAD
+<<<<<<< HEAD
           lhost: uri.host,
           lport: uri.port
 =======
           lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+          lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
+          lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
         )
 
         resp.body = encode_stage(blob)

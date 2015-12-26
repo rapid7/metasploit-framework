@@ -3,7 +3,11 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
+<<<<<<< HEAD:spec/lib/rex/powershell/obfu_spec.rb
 RSpec.describe Rex::Powershell::Obfu do
+=======
+describe Rex::Powershell::Obfu do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree:spec/lib/rex/powershell/obfu_spec.rb
 
   let(:example_script_without_literal) do
 """

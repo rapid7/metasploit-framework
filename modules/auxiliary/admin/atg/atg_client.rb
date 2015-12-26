@@ -191,12 +191,18 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   def peer
     "#{rhost}:#{rport}"
   end
 
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   def protocol
     datastore['PROTOCOL']
   end

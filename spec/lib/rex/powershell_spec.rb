@@ -3,7 +3,11 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
+<<<<<<< HEAD:spec/lib/rex/powershell_spec.rb
 RSpec.describe Rex::Powershell do
+=======
+describe Rex::Powershell do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree:spec/lib/rex/powershell_spec.rb
 
   let(:example_script) do
     """function DumpHashes
@@ -24,7 +28,11 @@ DumpHashes"""
   describe "::read_script" do
     it 'should create a script from a string input' do
       script = described_class.read_script(example_script)
+<<<<<<< HEAD:spec/lib/rex/powershell_spec.rb
       expect(script).to be_a_kind_of Rex::Powershell::Script
+=======
+      script.should be_a_kind_of Rex::Powershell::Script
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree:spec/lib/rex/powershell_spec.rb
     end
   end
 

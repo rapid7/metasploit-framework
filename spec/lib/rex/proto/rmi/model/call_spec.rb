@@ -5,7 +5,11 @@ require 'stringio'
 require 'rex/proto/rmi'
 require 'rex/java'
 
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Rmi::Model::Call do
+=======
+describe Rex::Proto::Rmi::Model::Call do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
   subject(:call) do
     described_class.new

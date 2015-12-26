@@ -3,7 +3,11 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
+<<<<<<< HEAD:spec/lib/rex/powershell/output_spec.rb
 RSpec.describe Rex::Powershell::Output do
+=======
+describe Rex::Powershell::Output do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree:spec/lib/rex/powershell/output_spec.rb
 
   let(:example_script) do
     Rex::Text.rand_text_alpha(400)

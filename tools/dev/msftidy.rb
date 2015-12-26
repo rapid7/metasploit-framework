@@ -211,10 +211,14 @@ class Msftidy
           elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
 <<<<<<< HEAD:tools/dev/msftidy.rb
+<<<<<<< HEAD:tools/dev/msftidy.rb
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
 =======
           elsif value =~ /^http:\/\/packetstormsecurity\.com\/files\//
 >>>>>>> origin/4.11.2_release_pre-rails4:tools/dev/msftidy.rb
+=======
+          elsif value =~ /^http:\/\/packetstormsecurity\.com\/files\//
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree:tools/dev/msftidy.rb
             warn("Please use 'PACKETSTORM' for '#{value}'")
           end
         end

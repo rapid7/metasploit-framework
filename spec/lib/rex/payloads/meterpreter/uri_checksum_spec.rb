@@ -1,16 +1,26 @@
 require 'spec_helper'
 require 'rex/payloads/meterpreter/uri_checksum'
 
+<<<<<<< HEAD
 RSpec.describe Rex::Payloads::Meterpreter::UriChecksum do
+=======
+describe Rex::Payloads::Meterpreter::UriChecksum do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
    class DummyClass
      include Rex::Payloads::Meterpreter::UriChecksum
    end
 
   subject(:dummy_object) { DummyClass.new }
 
+<<<<<<< HEAD
   it { is_expected.to respond_to :generate_uri_checksum}
   it { is_expected.to respond_to :process_uri_resource}
   it { is_expected.to respond_to :uri_checksum_lookup}
+=======
+  it { should respond_to :generate_uri_checksum}
+  it { should respond_to :process_uri_resource}
+  it { should respond_to :uri_checksum_lookup}
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
   describe '#process_uri_resource' do
     context 'when passed a value for INITW' do

@@ -104,10 +104,17 @@ RSpec.describe Rex::Proto::PJL::Client do
       it "should query a file" do
         response = "TYPE=FILE SIZE=1337\r\n\f"
         tmp_sock = double("sock")
+<<<<<<< HEAD
         allow(tmp_sock).to receive(:put).with(an_instance_of(String))
         allow(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         expect(tmp_cli.fsquery("1:")).to eq(true)
+=======
+        tmp_sock.stub(:put).with(an_instance_of(String))
+        tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
+        tmp_cli.fsquery("1:").should eq(true)
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
       end
     end
 
@@ -168,6 +175,36 @@ RSpec.describe Rex::Proto::PJL::Client do
         allow(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         expect(tmp_cli.fsdelete("1:")).to eq(true)
+      end
+    end
+
+    context "#fsdownload" do
+      it "should raise an exception due to an invalid path" do
+        expect { cli.fsdownload("/dev/null", "BAD") }.to raise_error(ArgumentError)
+      end
+
+      it "should upload a file" do
+        response = "TYPE=FILE SIZE=1337\r\n\f"
+        tmp_sock = double("sock")
+        tmp_sock.stub(:put).with(an_instance_of(String))
+        tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
+        tmp_cli.fsdownload("/dev/null", "1:").should eq(true)
+      end
+    end
+
+    context "#fsdelete" do
+      it "should raise an exception due to an invalid path" do
+        expect { cli.fsdelete("BAD") }.to raise_error(ArgumentError)
+      end
+
+      it "should delete a file" do
+        response = "FILEERROR=3\r\n\f"
+        tmp_sock = double("sock")
+        tmp_sock.stub(:put).with(an_instance_of(String))
+        tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
+        tmp_cli.fsdelete("1:").should eq(true)
       end
     end
   end

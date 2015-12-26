@@ -1,7 +1,11 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/manageengine_desktop_central'
 
+<<<<<<< HEAD
 RSpec.describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+=======
+describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
     it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: false
     it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'

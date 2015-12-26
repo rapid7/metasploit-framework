@@ -64,6 +64,10 @@ end
 
 end
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree

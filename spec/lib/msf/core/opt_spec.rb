@@ -1,6 +1,10 @@
 require 'msf/core/opt'
 
+<<<<<<< HEAD
 RSpec.describe Msf::Opt do
+=======
+describe Msf::Opt do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   subject(:opt) { described_class }
 
   it { is_expected.to respond_to(:CHOST) }

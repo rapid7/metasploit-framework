@@ -52,6 +52,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
+  # Needed for actors instead of Threads
+  spec.add_runtime_dependency 'celluloid'
   # Needed for Javascript obfuscation
   spec.add_runtime_dependency 'jsobfu', '~> 0.3.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)
@@ -64,19 +66,27 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'metasploit-credential', '1.0.1'
   # Database models shared between framework and Pro.
 <<<<<<< HEAD
+<<<<<<< HEAD
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.10'
 =======
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+  spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.0.0'
   # Needed for Meterpreter
 <<<<<<< HEAD
+<<<<<<< HEAD
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.21'
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -94,10 +104,13 @@ Gem::Specification.new do |spec|
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog', '2.0.14'
 <<<<<<< HEAD
+<<<<<<< HEAD
   # required for bitlocker fvek extraction
   spec.add_runtime_dependency 'openssl-ccm', '1.2.1'
 =======
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module

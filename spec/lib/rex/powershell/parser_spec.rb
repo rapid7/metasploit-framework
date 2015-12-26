@@ -3,7 +3,11 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
+<<<<<<< HEAD:spec/lib/rex/powershell/parser_spec.rb
 RSpec.describe Rex::Powershell::Parser do
+=======
+describe Rex::Powershell::Parser do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree:spec/lib/rex/powershell/parser_spec.rb
 
   let(:example_script) do
 """
@@ -141,8 +145,13 @@ function Find-4624Logons
   describe "::get_func" do
     it 'should extract a function from the code' do
       function = subject.get_func('Find-4624Logons')
+<<<<<<< HEAD:spec/lib/rex/powershell/parser_spec.rb
       expect(function).to be
       expect(function).to be_kind_of Rex::Powershell::Function
+=======
+      function.should be
+      function.should be_kind_of Rex::Powershell::Function
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree:spec/lib/rex/powershell/parser_spec.rb
     end
 
     it 'should return nil if function doesnt exist' do

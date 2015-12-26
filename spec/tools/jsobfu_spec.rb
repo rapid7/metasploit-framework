@@ -4,7 +4,11 @@ load Metasploit::Framework.root.join('tools/exploit/jsobfu.rb').to_path
 
 require 'stringio'
 
+<<<<<<< HEAD
 RSpec.describe Jsobfu do
+=======
+describe Jsobfu do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
   let(:fname) {
     'test.js'

@@ -109,10 +109,14 @@ class Response < Packet
   # @return [Hash]
   def get_json_document
 <<<<<<< HEAD
+<<<<<<< HEAD
     json = {}
 =======
     json = []
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+    json = []
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
     begin
       json = JSON.parse(self.body)

@@ -54,6 +54,15 @@ RSpec.describe Msf::EncodedPayload do
     subject(:encoded_payload) do
       described_class.create(payload, { 'BadChars' => badchars } )
     end
+<<<<<<< HEAD
+=======
+
+    specify { expect(encoded_payload).to respond_to(:encoded) }
+
+    it 'is an Msf::EncodedPayload' do
+      expect(encoded_payload).to be_a(described_class)
+    end
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
     specify { expect(encoded_payload).to respond_to(:encoded) }
 

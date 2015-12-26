@@ -7,6 +7,7 @@
 
 require 'active_support'
 require 'bcrypt'
+require 'celluloid'
 require 'json'
 require 'msgpack'
 require 'metasploit/concern'
@@ -35,6 +36,7 @@ module Metasploit
     extend ActiveSupport::Autoload
 
     autoload :Spec
+    autoload :SupervisionGroup
     autoload :ThreadFactoryProvider
 
     # Returns the root of the metasploit-framework project.  Use in place of

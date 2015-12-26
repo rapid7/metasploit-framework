@@ -191,6 +191,7 @@ module PacketDispatcher
   #
   # Sends a packet and waits for a timeout for the given time interval.
   #
+<<<<<<< HEAD
   # @param packet [Packet] request to send
   # @param timeout [Fixnum,nil] seconds to wait for response, or nil to ignore the
   #   response and return immediately
@@ -199,6 +200,11 @@ module PacketDispatcher
     response = send_packet_wait_response(packet, timeout)
 
     if timeout.nil?
+=======
+  def send_request(packet, t = self.response_timeout)
+    if not t
+      send_packet(packet)
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
       return nil
     elsif response.nil?
       raise TimeoutError.new("Send timed out")
@@ -291,7 +297,10 @@ module PacketDispatcher
 
     @pqueue = ::Queue.new
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
     @finish = false
     @last_recvd = Time.now
 >>>>>>> origin/4.11.2_release_pre-rails4
@@ -326,7 +335,10 @@ module PacketDispatcher
       # Whether we're finished or not is determined by the receiver
       # thread above.
       while(not @finish)
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
         incomplete = []
         backlog    = []
 
@@ -506,6 +518,9 @@ module PacketDispatcher
 
     # Update our last reply time
     self.last_checkin = Time.now
+
+    # Update our last reply time
+    client.last_checkin = Time.now
 
     # If the packet is a response, try to notify any potential
     # waiters

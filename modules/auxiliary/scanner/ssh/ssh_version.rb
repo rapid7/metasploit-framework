@@ -36,12 +36,18 @@ class Metasploit3 < Msf::Auxiliary
       self.class
     )
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   end
 
   def peer
     "#{rhost}:#{rport}"
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   end
 
   def timeout
