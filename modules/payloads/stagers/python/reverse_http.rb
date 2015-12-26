@@ -83,6 +83,8 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-serialized_class_loader
   CachedSize = 466
 
+  CachedSize = 466
+
   include Msf::Payload::Stager
   include Msf::Payload::Python
   include Msf::Payload::Python::ReverseHttp
@@ -198,6 +200,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -250,4 +253,6 @@ module Metasploit4
 
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 end

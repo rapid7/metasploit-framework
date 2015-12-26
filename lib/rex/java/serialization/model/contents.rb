@@ -95,6 +95,7 @@ module Rex
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
               encoded << [TC_PROXYCLASSDESC].pack('C')
 =======
               content = [TC_PROXYCLASSDESC].pack('C')
@@ -170,6 +171,9 @@ module Rex
               encoded << [TC_PROXYCLASSDESC].pack('C')
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+              content = [TC_PROXYCLASSDESC].pack('C')
+>>>>>>> origin/pod/metasploit-gemfile-
             when NullReference
               encoded << [TC_NULL].pack('C')
             when Reset

@@ -15,6 +15,7 @@ require 'msf/core/payload/windows/reverse_http'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 module Metasploit4
 =======
@@ -95,9 +96,11 @@ module Metasploit4
 module Metasploit4
 >>>>>>> rapid7/master
 =======
-
-module Metasploit4
->>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 
 module Metasploit4
@@ -106,6 +109,11 @@ module Metasploit4
 
 module Metasploit4
 >>>>>>> rapid7/master
+=======
+
+module Metasploit4
+>>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -147,6 +155,15 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 
+=======
+=======
+
+module Metasploit4
+>>>>>>> rapid7/master
+
+=======
+
+>>>>>>> origin/pod/metasploit-gemfile-
 module Metasploit4
 
 >>>>>>> rapid7/master
@@ -154,6 +171,7 @@ module Metasploit4
 
 module Metasploit4
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -180,6 +198,8 @@ module Metasploit4
 module Metasploit4
 
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 
@@ -189,6 +209,7 @@ module Metasploit4
 =======
 
 module Metasploit4
+<<<<<<< HEAD
 
 >>>>>>> master
 <<<<<<< HEAD
@@ -210,17 +231,24 @@ module Metasploit4
 =======
 >>>>>>> pod/metasploit-gemfile-
 =======
+=======
+
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> master
 =======
 
 module Metasploit4
 
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 
 module Metasploit4
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
@@ -234,10 +262,14 @@ module Metasploit4
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 
 module Metasploit4
 
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> payload-generator.rb
@@ -246,18 +278,25 @@ module Metasploit4
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 
 module Metasploit4
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 
 module Metasploit4
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -273,6 +312,9 @@ module Metasploit4
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
   CachedSize = 327
 
   include Msf::Payload::Stager
@@ -281,6 +323,7 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -377,6 +420,13 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
       'Name'          => 'Reverse HTTP Stager',
       'Description'   => 'Tunnel communication over HTTP',
       'Author'        => 'hdm',
@@ -385,6 +435,7 @@ module Metasploit4
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseHttp,
       'Convention'    => 'sockedi http'))
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   end
@@ -604,10 +655,16 @@ module Metasploit4
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  end
+=======
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -624,11 +681,20 @@ module Metasploit4
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
@@ -658,18 +724,50 @@ module Metasploit4
 >>>>>>> pod/complex-payloads
   end
 
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+      'Name'        => 'Windows Reverse HTTP Stager (wininet)',
+      'Description' => 'Tunnel communication over HTTP (Windows wininet)',
+      'Author'      => 'hdm',
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'win',
+      'Arch'        => ARCH_X86,
+      'Handler'     => Msf::Handler::ReverseHttp,
+      'Convention'  => 'sockedi http'))
+  end
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 >>>>>>> payload-generator.rb
 =======
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -686,20 +784,34 @@ module Metasploit4
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 >>>>>>> pod/metasploit-gemfile-
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
@@ -721,4 +833,9 @@ module Metasploit4
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
 end

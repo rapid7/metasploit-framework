@@ -10,6 +10,7 @@ require 'rex/java'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Rmi::Model::ReturnValue do
 =======
 describe Rex::Proto::Rmi::Model::ReturnValue do
@@ -26,6 +27,9 @@ describe Rex::Proto::Rmi::Model::ReturnValue do
 =======
 describe Rex::Proto::Rmi::Model::ReturnValue do
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Rex::Proto::Rmi::Model::ReturnValue do
+>>>>>>> origin/pod/metasploit-gemfile-
 
   subject(:return_value) do
     described_class.new

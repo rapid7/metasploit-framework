@@ -70,6 +70,7 @@ end
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 
@@ -166,3 +167,6 @@ end
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+
+>>>>>>> origin/pod/metasploit-gemfile-

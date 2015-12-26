@@ -175,6 +175,7 @@ module Msf::Payload::Windows
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -189,6 +190,10 @@ module Msf::Payload::Windows
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -197,6 +202,7 @@ module Msf::Payload::Windows
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
@@ -261,9 +267,15 @@ module Msf::Payload::Windows
 =======
 >>>>>>> rapid7/master
 =======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> rapid7/master
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -298,9 +310,18 @@ module Msf::Payload::Windows
 >>>>>>> master
 >>>>>>> payload-generator.rb
 =======
+=======
+>>>>>>> rapid7/master
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -316,6 +337,8 @@ module Msf::Payload::Windows
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
   #
   # By default, we don't want to send the UUID, but we'll send
   # for certain payloads if requested.
@@ -324,6 +347,7 @@ module Msf::Payload::Windows
     false
   end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -344,11 +368,16 @@ module Msf::Payload::Windows
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
@@ -401,6 +430,8 @@ module Msf::Payload::Windows
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -408,6 +439,7 @@ module Msf::Payload::Windows
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -430,6 +462,9 @@ module Msf::Payload::Windows
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -437,6 +472,7 @@ module Msf::Payload::Windows
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
@@ -460,9 +496,16 @@ module Msf::Payload::Windows
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 =======
 >>>>>>> master
 <<<<<<< HEAD
@@ -478,5 +521,7 @@ module Msf::Payload::Windows
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 end
 

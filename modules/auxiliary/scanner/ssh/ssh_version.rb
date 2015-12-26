@@ -41,6 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -52,10 +53,13 @@ class Metasploit3 < Msf::Auxiliary
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
   end
 
   def peer
     "#{rhost}:#{rport}"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -72,6 +76,8 @@ class Metasploit3 < Msf::Auxiliary
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
   end
 
   def timeout

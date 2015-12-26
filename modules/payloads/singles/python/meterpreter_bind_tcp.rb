@@ -21,6 +21,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 50226
 =======
   CachedSize = 49482
@@ -123,6 +124,9 @@ module Metasploit4
   CachedSize = 50226
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  CachedSize = 49482
+>>>>>>> origin/pod/metasploit-gemfile-
 
   include Msf::Payload::Single
   include Msf::Payload::Python

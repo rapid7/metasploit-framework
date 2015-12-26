@@ -9,6 +9,7 @@ require 'net/dns'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Net::DNS::RR::Types do
 =======
 describe Net::DNS::RR::Types do
@@ -28,6 +29,9 @@ describe Net::DNS::RR::Types do
 =======
 describe Net::DNS::RR::Types do
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/pod/metasploit-gemfile-
 
   subject do
     described_class.new

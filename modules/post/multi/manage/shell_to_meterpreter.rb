@@ -50,6 +50,7 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -158,6 +159,9 @@ class Metasploit3 < Msf::Post
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> origin/pod/metasploit-gemfile-
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -211,6 +215,7 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       target_info = cmd_exec('uname -ms')
 =======
 =======
@@ -223,6 +228,8 @@ class Metasploit3 < Msf::Post
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
       target_info = cmd_exec('uname -mo')
 >>>>>>> origin/4.11.2_release_pre-rails4
       if target_info =~ /linux/i && target_info =~ /86/
@@ -232,6 +239,7 @@ class Metasploit3 < Msf::Post
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
         vprint_status("Platform: Linux")
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -254,6 +262,8 @@ class Metasploit3 < Msf::Post
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
       elsif cmd_exec('python -V') =~ /Python (2|3)\.(\d)/
 >>>>>>> origin/4.11.2_release_pre-rails4
         # Generic fallback for OSX, Solaris, Linux/ARM

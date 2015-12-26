@@ -7,6 +7,7 @@ require 'stringio'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Egghunter do
 =======
 describe Egghunter do
@@ -23,6 +24,9 @@ describe Egghunter do
 =======
 describe Egghunter do
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Egghunter do
+>>>>>>> origin/pod/metasploit-gemfile-
 
   describe Egghunter::Driver do
 

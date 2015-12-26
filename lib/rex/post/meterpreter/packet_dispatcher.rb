@@ -305,6 +305,7 @@ module PacketDispatcher
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -316,6 +317,8 @@ module PacketDispatcher
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     @finish = false
     @last_recvd = Time.now
 >>>>>>> origin/4.11.2_release_pre-rails4
@@ -355,6 +358,7 @@ module PacketDispatcher
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -366,6 +370,8 @@ module PacketDispatcher
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
         incomplete = []
         backlog    = []
 
@@ -545,6 +551,9 @@ module PacketDispatcher
 
     # Update our last reply time
     self.last_checkin = Time.now
+
+    # Update our last reply time
+    client.last_checkin = Time.now
 
     # Update our last reply time
     client.last_checkin = Time.now

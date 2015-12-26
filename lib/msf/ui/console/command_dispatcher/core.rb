@@ -137,6 +137,7 @@ class Core
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 <<<<<<< HEAD
@@ -158,6 +159,8 @@ class Core
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
   # The list of data store elements that cannot be set when in defanged
   # mode.
   DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
@@ -745,12 +748,15 @@ class Core
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 
     sock.close rescue nil
     infile.close if infile
@@ -5945,6 +5951,7 @@ class Core
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     end
   end
@@ -5952,6 +5959,40 @@ class Core
 >>>>>>> rapid7/master
   def cmd_rename_job_help
     print_line "Usage: rename_job [ID] [Name]"
+=======
+  def cmd_advanced_help
+    print_line 'Usage: advanced [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for advanced options. If no module is given,'
+    print_line 'show advanced options for the currently active module.'
+    print_line
+  end
+
+  def cmd_advanced(*args)
+    if args.empty?
+      if (active_module)
+        show_advanced_options(active_module)
+        return true
+      else
+        print_error('No module active')
+        return false
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_advanced_options(mod)
+      end
+    }
+  end
+
+  def cmd_info_help
+    print_line "Usage: info <module name> [mod2 mod3 ...]"
+>>>>>>> origin/pod/metasploit-gemfile-
     print_line
     print_line "Example: rename_job 0 \"meterpreter HTTPS special\""
     print_line
@@ -5959,6 +6000,36 @@ class Core
     print_line "You may use the jobs command to see what jobs are available."
     print_line
 =======
+  def cmd_options_help
+    print_line 'Usage: options [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for options. If no module is given,'
+    print_line 'show options for the currently active module.'
+    print_line
+  end
+
+  def cmd_options(*args)
+    if args.empty?
+      if (active_module)
+        show_options(active_module)
+        return true
+      else
+        show_global_options
+        return true
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_options(mod)
+      end
+    }
+  end
+
   def cmd_options_help
     print_line 'Usage: options [mod1 mod2 ...]'
     print_line
@@ -6024,7 +6095,10 @@ class Core
     print_line
     print_line "Execute commands in a Ruby environment"
     print @@irb_opts.usage
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
   end
 
   def cmd_rename_job(*args)
@@ -6033,6 +6107,7 @@ class Core
       return false
     end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     job_id   = args[0].to_s
     job_name = args[1].to_s
@@ -6104,6 +6179,10 @@ class Core
 =======
     expressions = []
 
+=======
+    expressions = []
+
+>>>>>>> origin/pod/metasploit-gemfile-
     # Parse the command options
     @@irb_opts.parse(args) do |opt, idx, val|
       case opt
@@ -6115,7 +6194,10 @@ class Core
       end
     end
 
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     if expressions.empty?
       print_status("Starting IRB shell...\n")
 
@@ -7207,6 +7289,7 @@ class Core
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7348,11 +7431,14 @@ class Core
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
         if session
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
             session.response_timeout = response_timeout
           end
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7478,12 +7564,15 @@ class Core
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
           begin
             session.kill
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
             end
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7603,6 +7692,8 @@ class Core
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
           end
         end
       end

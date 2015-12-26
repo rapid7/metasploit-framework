@@ -205,6 +205,7 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       ip: rhost,
 =======
       ip: r_host,
@@ -224,6 +225,9 @@ class Metasploit3 < Msf::Post
 =======
       ip: r_host,
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+      ip: r_host,
+>>>>>>> origin/pod/metasploit-gemfile-
       port: port,
       service_name: 'http',
       user: user,

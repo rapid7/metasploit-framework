@@ -14,6 +14,7 @@ require 'msf/core/handler/reverse_https'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -167,10 +168,16 @@ require 'msf/core/payload/python/reverse_http'
 module Metasploit4
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+require 'msf/core/payload/uuid/options'
+
+module Metasploit3
+>>>>>>> origin/pod/metasploit-gemfile-
 
   CachedSize = 762
 
   include Msf::Payload::Stager
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -286,6 +293,9 @@ module Metasploit4
   include Msf::Payload::Python::ReverseHttp
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  include Msf::Payload::UUID::Options
+>>>>>>> origin/pod/metasploit-gemfile-
 
   def initialize(info = {})
     super(merge_info(info,
@@ -305,6 +315,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 <<<<<<< HEAD
@@ -354,12 +365,15 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 
     register_options(
       [
         OptString.new('PayloadProxyHost', [false, "The proxy server's IP address"]),
         OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ])
       ], self.class)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -417,12 +431,15 @@ module Metasploit4
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
   end
 
   #
   # Constructs the payload
   #
   def generate
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -480,6 +497,8 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     lhost = datastore['LHOST'] || '127.127.127.127'
 
     var_escape = lambda { |txt|
@@ -572,6 +591,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -623,6 +643,8 @@ module Metasploit4
     super({scheme: 'https'})
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
   end
 
 end

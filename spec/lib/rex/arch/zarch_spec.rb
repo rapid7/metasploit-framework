@@ -8,6 +8,7 @@ require 'rex/arch'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Arch do
 =======
 describe Rex::Arch do
@@ -27,6 +28,9 @@ describe Rex::Arch do
 =======
 describe Rex::Arch do
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Rex::Arch do
+>>>>>>> origin/pod/metasploit-gemfile-
   describe ".pack_addr" do
     subject { described_class.pack_addr(arch, addr) }
 

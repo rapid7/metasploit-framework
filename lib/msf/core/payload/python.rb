@@ -14,6 +14,7 @@ module Msf::Payload::Python
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -120,6 +121,9 @@ module Msf::Payload::Python
   # Meterpreter stage.
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  # that will decode and execute it on the fly.
+>>>>>>> origin/pod/metasploit-gemfile-
   #
   # @param cmd [String] The python code to execute.
   # @return [String] Full python stub to execute the command.

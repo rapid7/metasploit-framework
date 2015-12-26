@@ -219,6 +219,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 4.11.2_release_pre-rails4
@@ -331,6 +332,13 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
         shellcode
       else
         cli_print "Found #{encoder_list.count} compatible encoders"
@@ -346,6 +354,7 @@ module Msf
             cli_print "#{encoder_mod.refname} failed with #{e.message}"
             next
           end
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -397,9 +406,13 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -430,10 +443,19 @@ module Msf
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
->>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 >>>>>>> master
 =======
+>>>>>>> master
+=======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
@@ -447,9 +469,15 @@ module Msf
 >>>>>>> master
 >>>>>>> payload-generator.rb
 =======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
@@ -459,6 +487,10 @@ module Msf
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
         return shellcode
       end
 
@@ -484,6 +516,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -514,6 +547,13 @@ module Msf
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -523,6 +563,7 @@ module Msf
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -541,11 +582,14 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -564,12 +608,15 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
@@ -595,6 +642,11 @@ module Msf
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
         end
       end
 

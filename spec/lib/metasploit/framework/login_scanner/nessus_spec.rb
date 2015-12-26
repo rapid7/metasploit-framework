@@ -6,6 +6,7 @@ require 'metasploit/framework/login_scanner/nessus'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Metasploit::Framework::LoginScanner::Nessus do
 =======
 describe Metasploit::Framework::LoginScanner::Nessus do
@@ -22,6 +23,9 @@ describe Metasploit::Framework::LoginScanner::Nessus do
 =======
 describe Metasploit::Framework::LoginScanner::Nessus do
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Metasploit::Framework::LoginScanner::Nessus do
+>>>>>>> origin/pod/metasploit-gemfile-
 
     subject(:http_scanner) { described_class.new }
 

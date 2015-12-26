@@ -11,6 +11,7 @@ require 'msf/core/payload/windows'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
@@ -77,11 +78,16 @@ module Msf
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 module Msf
 
 =======
@@ -92,6 +98,7 @@ module Msf
 
 module Msf
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -101,9 +108,7 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
-
-module Msf
->>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 
 module Msf
@@ -112,6 +117,11 @@ module Msf
 
 module Msf
 >>>>>>> rapid7/master
+=======
+
+module Msf
+>>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -131,12 +141,15 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 
 module Msf
 >>>>>>> rapid7/master
 =======
 
 module Msf
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -151,6 +164,8 @@ module Msf
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> master
 =======
 
@@ -164,6 +179,7 @@ module Msf
 
 module Msf
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -185,10 +201,13 @@ module Msf
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 
 module Msf
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
@@ -232,12 +251,21 @@ module Msf
 
 module Msf
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+
+module Msf
+>>>>>>> master
+<<<<<<< HEAD
 =======
 
 module Msf
 >>>>>>> rapid7/master
 
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+
+>>>>>>> origin/pod/metasploit-gemfile-
 ###
 #
 # Implements arbitrary exit routines for Windows ARCH_X86 payloads
@@ -263,6 +291,7 @@ module Payload::Windows::Exitfunk
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -312,11 +341,16 @@ module Payload::Windows::Exitfunk
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
           mov ebx, #{"0x%.8x" % Msf::Payload::Windows.exit_types['seh']}
           push.i8 0              ; push the exit function parameter
           push ebx               ; push the hash of the exit function
@@ -324,6 +358,7 @@ module Payload::Windows::Exitfunk
           push.i8 0
           ret                    ; Return to NULL (crash)
         ^
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -335,6 +370,8 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 =======
 >>>>>>> rapid7/master
 =======
@@ -343,6 +380,7 @@ module Payload::Windows::Exitfunk
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -383,12 +421,15 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
@@ -396,9 +437,15 @@ module Payload::Windows::Exitfunk
 >>>>>>> master
 >>>>>>> payload-generator.rb
 =======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -414,6 +461,10 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
         mov ebx, 0x#{Msf::Payload::Windows.exit_types['seh'].to_s(16)}
         push.i8 0              ; push the exit function parameter
         push ebx               ; push the hash of the exit function
@@ -421,6 +472,7 @@ module Payload::Windows::Exitfunk
         push.i8 0
         ret                    ; Return to NULL (crash)
       ^
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -452,6 +504,9 @@ module Payload::Windows::Exitfunk
         ^
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -492,6 +547,42 @@ module Payload::Windows::Exitfunk
 =======
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+
+    # On Windows Vista, Server 2008, and newer, it is not possible to call ExitThread
+    # on WoW64 processes, instead we need to call RtlExitUserThread. This stub will
+    # automatically generate the right code depending on the selected exit method.
+
+    when 'thread'
+      asm << %Q^
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -650,6 +741,12 @@ module Payload::Windows::Exitfunk
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -657,6 +754,8 @@ module Payload::Windows::Exitfunk
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
           mov ebx, #{"0x%.8x" % Msf::Payload::Windows.exit_types['thread']}
           push 0x9DBD95A6        ; hash( "kernel32.dll", "GetVersion" )
           call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
@@ -689,6 +788,7 @@ module Payload::Windows::Exitfunk
         ^
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -698,6 +798,8 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 =======
 >>>>>>> rapid7/master
 =======
@@ -706,6 +808,7 @@ module Payload::Windows::Exitfunk
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -724,11 +827,14 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -746,12 +852,15 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
@@ -777,6 +886,11 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
         mov ebx, 0x#{Msf::Payload::Windows.exit_types['thread'].to_s(16)}
         push 0x9DBD95A6        ; hash( "kernel32.dll", "GetVersion" )
         call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
@@ -795,6 +909,7 @@ module Payload::Windows::Exitfunk
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 =======
@@ -910,6 +1025,8 @@ module Payload::Windows::Exitfunk
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 
     when 'process', nil
       asm << %Q^
@@ -921,6 +1038,7 @@ module Payload::Windows::Exitfunk
 
     when 'sleep'
       asm << %Q^
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -948,12 +1066,15 @@ module Payload::Windows::Exitfunk
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
         mov ebx, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
         push 300000            ; 300 seconds
         push ebx               ; push the hash of the function
         call ebp               ; Sleep(300000)
         jmp exitfunk           ; repeat
       ^
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1013,11 +1134,17 @@ module Payload::Windows::Exitfunk
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-gemfile-
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> 4.11.2_release_pre-rails4
@@ -1056,6 +1183,10 @@ module Payload::Windows::Exitfunk
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -1063,6 +1194,7 @@ module Payload::Windows::Exitfunk
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1086,11 +1218,14 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
@@ -1115,11 +1250,16 @@ module Payload::Windows::Exitfunk
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-gemfile-
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -1133,6 +1273,8 @@ module Payload::Windows::Exitfunk
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     else
       # Do nothing and continue after the end of the shellcode
     end

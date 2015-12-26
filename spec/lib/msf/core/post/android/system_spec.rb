@@ -8,6 +8,7 @@ require 'msf/core/post/android/system'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Post::Android::System do
 =======
 describe Msf::Post::Android::System do
@@ -27,6 +28,9 @@ describe Msf::Post::Android::System do
 =======
 describe Msf::Post::Android::System do
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/pod/metasploit-gemfile-
 
   subject do
     mod = Module.new

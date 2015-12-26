@@ -18,6 +18,7 @@ module Metasploit3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 313
 =======
   CachedSize = 314
@@ -120,6 +121,9 @@ module Metasploit3
   CachedSize = 313
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  CachedSize = 314
+>>>>>>> origin/pod/metasploit-gemfile-
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

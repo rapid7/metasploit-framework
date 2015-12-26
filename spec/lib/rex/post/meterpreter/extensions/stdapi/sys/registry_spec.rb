@@ -12,6 +12,7 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       it { is_expected.to eq(3) }
     end
     context "with 'REG_DWORD'" do
@@ -42,6 +43,8 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
       it { should eq(3) }
     end
     context "with 'REG_DWORD'" do
@@ -67,6 +70,7 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -76,6 +80,8 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
     end
   end
 
