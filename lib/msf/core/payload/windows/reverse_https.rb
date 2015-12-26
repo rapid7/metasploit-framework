@@ -2,23 +2,31 @@
 
 require 'msf/core'
 <<<<<<< HEAD
+<<<<<<< HEAD
 require 'msf/core/payload/transport_config'
 =======
 >>>>>>> rapid7/feature/complex-payloads
+=======
+>>>>>>> origin/feature/complex-payloads
 require 'msf/core/payload/windows/reverse_http'
 
 module Msf
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> rapid7/feature/complex-payloads
+=======
+
+>>>>>>> origin/feature/complex-payloads
 ###
 #
 # Complex payload generation for Windows ARCH_X86 that speak HTTPS
 #
 ###
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 module Payload::Windows::ReverseHttps
 
@@ -38,6 +46,8 @@ module Payload::Windows::ReverseHttps
   def transport_config(opts={})
     transport_config_reverse_https(opts)
 =======
+=======
+>>>>>>> origin/feature/complex-payloads
 
 module Payload::Windows::ReverseHttps
 
@@ -86,7 +96,10 @@ module Payload::Windows::ReverseHttps
   # TODO: Use the CachedSize instead (PR #4894)
   def cached_size
     341
+<<<<<<< HEAD
 >>>>>>> rapid7/feature/complex-payloads
+=======
+>>>>>>> origin/feature/complex-payloads
   end
 
 end

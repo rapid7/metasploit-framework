@@ -167,6 +167,7 @@ module Msf::Payload::Windows
   end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   #
   # By default, we don't want to send the UUID, but we'll send
   # for certain payloads if requested.
@@ -177,5 +178,7 @@ module Msf::Payload::Windows
 
 =======
 >>>>>>> rapid7/feature/complex-payloads
+=======
+>>>>>>> origin/feature/complex-payloads
 end
 

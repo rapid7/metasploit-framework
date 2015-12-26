@@ -35,7 +35,10 @@ module Metasploit4
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseHttps,
       'Convention'    => 'sockedi https'))
+<<<<<<< HEAD
 >>>>>>> rapid7/feature/complex-payloads
+=======
+>>>>>>> origin/feature/complex-payloads
   end
 
 end
