@@ -43,6 +43,7 @@ class Metasploit3 < Msf::Post
       OptString.new('PAYLOAD_OVERRIDE',
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
       OptString.new('BOURNE_PATH',
         [false, 'Remote path to drop binary']),
@@ -54,6 +55,9 @@ class Metasploit3 < Msf::Post
 =======
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> origin/msf-complex-payloads
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -103,10 +107,13 @@ class Metasploit3 < Msf::Post
       # Find the best fit, be specific with uname to avoid matching hostname or something else
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       target_info = cmd_exec('uname -ms')
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
       target_info = cmd_exec('uname -mo')
 >>>>>>> origin/4.11.2_release_pre-rails4
       if target_info =~ /linux/i && target_info =~ /86/
@@ -118,6 +125,7 @@ class Metasploit3 < Msf::Post
         vprint_status("Platform: Linux")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       elsif target_info =~ /darwin/i
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
@@ -126,6 +134,8 @@ class Metasploit3 < Msf::Post
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
       elsif cmd_exec('python -V') =~ /Python (2|3)\.(\d)/
 >>>>>>> origin/4.11.2_release_pre-rails4
         # Generic fallback for OSX, Solaris, Linux/ARM

@@ -110,6 +110,7 @@ class Response < Packet
   def get_json_document
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     json = {}
 =======
     json = []
@@ -117,6 +118,9 @@ class Response < Packet
 =======
     json = []
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+    json = []
+>>>>>>> origin/msf-complex-payloads
 
     begin
       json = JSON.parse(self.body)

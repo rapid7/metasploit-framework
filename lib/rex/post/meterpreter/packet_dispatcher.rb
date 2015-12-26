@@ -192,6 +192,7 @@ module PacketDispatcher
   # Sends a packet and waits for a timeout for the given time interval.
   #
 <<<<<<< HEAD
+<<<<<<< HEAD
   # @param packet [Packet] request to send
   # @param timeout [Fixnum,nil] seconds to wait for response, or nil to ignore the
   #   response and return immediately
@@ -201,6 +202,8 @@ module PacketDispatcher
 
     if timeout.nil?
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
   def send_request(packet, t = self.response_timeout)
     if not t
       send_packet(packet)
@@ -298,9 +301,12 @@ module PacketDispatcher
     @pqueue = ::Queue.new
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
     @finish = false
     @last_recvd = Time.now
 >>>>>>> origin/4.11.2_release_pre-rails4
@@ -336,9 +342,12 @@ module PacketDispatcher
       # thread above.
       while(not @finish)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
         incomplete = []
         backlog    = []
 
@@ -518,6 +527,9 @@ module PacketDispatcher
 
     # Update our last reply time
     self.last_checkin = Time.now
+
+    # Update our last reply time
+    client.last_checkin = Time.now
 
     # Update our last reply time
     client.last_checkin = Time.now

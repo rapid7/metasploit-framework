@@ -5,10 +5,14 @@ require 'rex/java'
 require 'stringio'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Java::Serialization::Model::ProxyClassDesc do
 =======
 describe Rex::Java::Serialization::Model::ProxyClassDesc do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/msf-complex-payloads
   subject(:proxy_class_desc) do
     described_class.new
   end

@@ -25,7 +25,10 @@ RSpec.describe Msf::Exe::SegmentInjector do
     expect(injector.processor.class).to eq Metasm::X86_64
 =======
     injector.processor.class.should == Metasm::X86_64
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
   end
 
   context '#create_thread_stub' do

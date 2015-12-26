@@ -55,7 +55,16 @@ RSpec.describe Msf::EncodedPayload do
       described_class.create(payload, { 'BadChars' => badchars } )
     end
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+    specify { expect(encoded_payload).to respond_to(:encoded) }
+
+    it 'is an Msf::EncodedPayload' do
+      expect(encoded_payload).to be_a(described_class)
+    end
+>>>>>>> origin/msf-complex-payloads
 
     specify { expect(encoded_payload).to respond_to(:encoded) }
 

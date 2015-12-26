@@ -5,6 +5,7 @@ require 'msf/core/post/linux/busy_box'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Post::Linux::BusyBox do
 =======
 describe Msf::Post::Linux::BusyBox do
@@ -12,6 +13,9 @@ describe Msf::Post::Linux::BusyBox do
 =======
 describe Msf::Post::Linux::BusyBox do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Msf::Post::Linux::BusyBox do
+>>>>>>> origin/msf-complex-payloads
   subject do
     mod = ::Msf::Module.new
     mod.extend described_class

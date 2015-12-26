@@ -8,6 +8,7 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
     context "with 'REG_BINARY'" do
       let(:type) { 'REG_BINARY' }
 <<<<<<< HEAD
+<<<<<<< HEAD
       it { is_expected.to eq(3) }
     end
     context "with 'REG_DWORD'" do
@@ -30,6 +31,8 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
       let(:type) { 'REG_SZ' }
       it { is_expected.to eq(1) }
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
       it { should eq(3) }
     end
     context "with 'REG_DWORD'" do
@@ -51,7 +54,10 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
     context "with 'REG_SZ'" do
       let(:type) { 'REG_SZ' }
       it { should eq(1) }
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
     end
   end
 

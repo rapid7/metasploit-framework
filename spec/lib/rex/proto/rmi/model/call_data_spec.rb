@@ -6,10 +6,14 @@ require 'rex/proto/rmi'
 require 'rex/java'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Rmi::Model::CallData do
 =======
 describe Rex::Proto::Rmi::Model::CallData do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Proto::Rmi::Model::CallData do
+>>>>>>> origin/msf-complex-payloads
 
   subject(:call_data) do
     described_class.new

@@ -102,6 +102,10 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
 
+  @@irb_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-e" => [ true,  "Expression to evaluate."                        ])
+
   # The list of data store elements that cannot be set when in defanged
   # mode.
   DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
@@ -873,6 +877,7 @@ class Core
         return false
       end
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -909,6 +914,8 @@ class Core
 <<<<<<< HEAD
 =======
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
     end
 
     if expressions.empty?
@@ -926,9 +933,12 @@ class Core
       end
     else
       expressions.each { |expression| eval(expression, binding) }
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> origin/msf-complex-payloads
     end
 
     if expressions.empty?
@@ -2183,6 +2193,7 @@ class Core
 <<<<<<< HEAD
       framework.sessions.each_sorted do |s|
         session = framework.sessions.get(s)
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2241,11 +2252,14 @@ class Core
         session = framework.sessions.get(s)
 >>>>>>> rapid7/master
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
         if session
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
             session.response_timeout = response_timeout
           end
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
@@ -2277,12 +2291,15 @@ class Core
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
           begin
             session.kill
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
             end
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
@@ -2308,6 +2325,8 @@ class Core
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
           end
         end
       end

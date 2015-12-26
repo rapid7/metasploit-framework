@@ -544,6 +544,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -551,6 +552,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
           "* default"
         ]
       end
@@ -561,6 +565,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -568,6 +573,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
           "  default",
           "* foo"
         ]
@@ -579,6 +587,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo", "bar", "baf")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -586,6 +595,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
           "Added workspace: foo",
           "Added workspace: bar",
           "Added workspace: baf"
@@ -600,6 +612,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-d", "foo")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -607,6 +620,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
           "Deleted workspace: foo",
           "Switched workspace: default"
         ]
@@ -620,6 +636,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-D")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -627,6 +644,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
           "Deleted and recreated the default workspace",
           "Deleted workspace: foo",
           "Switched workspace: default"

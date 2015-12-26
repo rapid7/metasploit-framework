@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-RSpec.describe Msf::OptPath do
+describe Msf::OptPath do
   valid_values = [
     { :value => __FILE__, :normalized => __FILE__   },
   ]

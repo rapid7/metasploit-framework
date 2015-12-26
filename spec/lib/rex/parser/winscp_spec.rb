@@ -19,6 +19,7 @@ END
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Parser::WinSCP do
 =======
 describe Rex::Parser::WinSCP do
@@ -26,6 +27,9 @@ describe Rex::Parser::WinSCP do
 =======
 describe Rex::Parser::WinSCP do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/msf-complex-payloads
   let(:target) do
     d = Class.new { include Rex::Parser::WinSCP }
     d.new
@@ -95,6 +99,7 @@ describe Rex::Parser::WinSCP do
     it "returns nil if file is empty or doesn't exist" do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       expect(File).to receive(:read).and_return(nil)
 =======
       File.stub(:read).and_return(nil)
@@ -102,10 +107,14 @@ describe Rex::Parser::WinSCP do
 =======
       File.stub(:read).and_return(nil)
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/msf-complex-payloads
       expect(target.read_and_parse_ini('blah')).to be nil
     end
 
     it "parses the example ini and return a single result" do
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       expect(File).to receive(:read).and_return(SAMPLE_INI)
@@ -115,6 +124,9 @@ describe Rex::Parser::WinSCP do
 =======
       File.stub(:read).and_return(SAMPLE_INI)
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/msf-complex-payloads
       expect(target.read_and_parse_ini(SAMPLE_INI).count).to eq 1
     end
   end
