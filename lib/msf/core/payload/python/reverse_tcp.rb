@@ -72,6 +72,7 @@ end
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 =======
 
 >>>>>>> 4.11.2_release_pre-rails4
@@ -106,6 +107,8 @@ end
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 >>>>>>> 4.11.2_release_pre-rails4
 =======
@@ -115,6 +118,7 @@ end
 
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+<<<<<<< HEAD
 >>>>>>> 4.11.2_release_pre-rails4
 =======
 
@@ -123,6 +127,8 @@ end
 
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -137,6 +143,7 @@ end
 =======
 
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
 
 >>>>>>> pod/metasploit-gemfile-
@@ -170,3 +177,5 @@ end
 =======
 
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb

@@ -14,6 +14,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 494
 =======
   CachedSize = 466
@@ -71,11 +72,26 @@ module Metasploit4
 
   CachedSize = 466
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+  CachedSize = 494
+=======
+  CachedSize = 466
+>>>>>>> 4.11.2_release_pre-rails4
 
   CachedSize = 466
 
   CachedSize = 466
 
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+  CachedSize = 466
+>>>>>>> origin/pod/metasploit-windows.rb
+
+  CachedSize = 466
+
+  CachedSize = 466
+
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
 =======
   CachedSize = 494
@@ -83,6 +99,8 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-serialized_class_loader
   CachedSize = 466
 
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   CachedSize = 466
 
   include Msf::Payload::Stager
@@ -102,11 +120,17 @@ module Metasploit4
     ))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   end
 
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  end
+
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
     register_options(
       [
@@ -191,6 +215,7 @@ module Metasploit4
     end
 
     generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP, uri_req_len)
+<<<<<<< HEAD
   end
 
 <<<<<<< HEAD
@@ -255,4 +280,24 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+  end
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-windows.rb
 end

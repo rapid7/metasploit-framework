@@ -133,10 +133,13 @@ DLL Injection into processes on a victim&#39;s machine.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
       <a href="#inject_dll_data_into_process-instance_method" title="#inject_dll_data_into_process (instance method)">- (Array) <strong>inject_dll_data_into_process</strong>(process, dll_data) </a>
     
 
@@ -164,6 +167,7 @@ reflective injection.</p>
     
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/gh-pages
 =======
@@ -172,6 +176,10 @@ reflective injection.</p>
 =======
 >>>>>>> origin/gh-pages
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> origin/gh-pages
+>>>>>>> origin/pod/metasploit-windows.rb
       <a href="#inject_dll_into_process-instance_method" title="#inject_dll_into_process (instance method)">- (Array) <strong>inject_dll_into_process</strong>(process, dll_path) </a>
     
 
@@ -234,18 +242,24 @@ reflective injection.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   <p class="inherited"><span class='object_link'><a href="../../ReflectiveDLLLoader.html#load_rdi_dll-instance_method" title="Msf::ReflectiveDLLLoader#load_rdi_dll (method)">#load_rdi_dll</a></span>, <span class='object_link'><a href="../../ReflectiveDLLLoader.html#load_rdi_dll_from_data-instance_method" title="Msf::ReflectiveDLLLoader#load_rdi_dll_from_data (method)">#load_rdi_dll_from_data</a></span></p>
 =======
   <p class="inherited"><span class='object_link'><a href="../../ReflectiveDLLLoader.html#load_rdi_dll-instance_method" title="Msf::ReflectiveDLLLoader#load_rdi_dll (method)">#load_rdi_dll</a></span></p>
 >>>>>>> origin/gh-pages
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   <p class="inherited"><span class='object_link'><a href="../../ReflectiveDLLLoader.html#load_rdi_dll-instance_method" title="Msf::ReflectiveDLLLoader#load_rdi_dll (method)">#load_rdi_dll</a></span>, <span class='object_link'><a href="../../ReflectiveDLLLoader.html#load_rdi_dll_from_data-instance_method" title="Msf::ReflectiveDLLLoader#load_rdi_dll_from_data (method)">#load_rdi_dll_from_data</a></span></p>
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 
   <div id="instance_method_details" class="method_details_list">
@@ -256,10 +270,13 @@ reflective injection.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   <h3 class="signature first" id="inject_dll_data_into_process-instance_method">
   
     - (<tt>Array</tt>) <strong>inject_dll_data_into_process</strong>(process, dll_data) 
@@ -366,6 +383,7 @@ reflective injection.</p>
   <h3 class="signature " id="inject_dll_into_process-instance_method">
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   <h3 class="signature first" id="inject_dll_into_process-instance_method">
 >>>>>>> origin/gh-pages
@@ -376,6 +394,11 @@ reflective injection.</p>
   <h3 class="signature first" id="inject_dll_into_process-instance_method">
 >>>>>>> origin/gh-pages
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+  <h3 class="signature first" id="inject_dll_into_process-instance_method">
+>>>>>>> origin/gh-pages
+>>>>>>> origin/pod/metasploit-windows.rb
   
     - (<tt>Array</tt>) <strong>inject_dll_into_process</strong>(process, dll_path) 
   
@@ -459,10 +482,13 @@ reflective injection.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 49
 50
 51
@@ -474,8 +500,11 @@ reflective injection.</p>
       <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/reflective_dll_injection.rb', line 49</span>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
 53
 54
@@ -488,10 +517,13 @@ reflective injection.</p>
       <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/reflective_dll_injection.rb', line 53</span>
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inject_dll_into_process'>inject_dll_into_process</span><span class='lparen'>(</span><span class='id identifier rubyid_process'>process</span><span class='comma'>,</span> <span class='id identifier rubyid_dll_path'>dll_path</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_dll'>dll</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_load_rdi_dll'>load_rdi_dll</span><span class='lparen'>(</span><span class='id identifier rubyid_dll_path'>dll_path</span><span class='rparen'>)</span>
@@ -587,12 +619,16 @@ reflective injection.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 26
 27
 =======
 >>>>>>> origin/gh-pages
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 26
@@ -600,6 +636,8 @@ reflective injection.</p>
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 28
 29
 30
@@ -613,18 +651,24 @@ reflective injection.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 38</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/reflective_dll_injection.rb', line 26</span>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
 38
 39
@@ -634,10 +678,13 @@ reflective injection.</p>
       <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/reflective_dll_injection.rb', line 28</span>
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inject_into_process'>inject_into_process</span><span class='lparen'>(</span><span class='id identifier rubyid_process'>process</span><span class='comma'>,</span> <span class='id identifier rubyid_shellcode'>shellcode</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_shellcode_size'>shellcode_size</span> <span class='op'>=</span> <span class='id identifier rubyid_shellcode'>shellcode</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
@@ -666,6 +713,7 @@ reflective injection.</p>
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:32:36 2015 by
 =======
   Generated on Tue Dec  8 22:32:41 2015 by
@@ -673,6 +721,9 @@ reflective injection.</p>
 =======
   Generated on Tue Dec  8 22:32:41 2015 by
 >>>>>>> origin/pod/metasploit-framework
+=======
+  Generated on Tue Dec  8 22:32:41 2015 by
+>>>>>>> origin/pod/metasploit-windows.rb
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
 =======
@@ -681,6 +732,7 @@ reflective injection.</p>
   0.8.7.6 (ruby-2.1.5).
 >>>>>>> origin/gh-pages
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   Generated on Tue Dec  8 22:32:41 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
@@ -688,6 +740,8 @@ reflective injection.</p>
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 </div>
 
   </body>

@@ -118,6 +118,7 @@ class Response < Packet
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     json = {}
 =======
     json = []
@@ -169,6 +170,12 @@ class Response < Packet
 <<<<<<< HEAD
 =======
 =======
+    json = {}
+=======
+    json = []
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
     json = []
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -189,6 +196,7 @@ class Response < Packet
 =======
     json = []
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
     json = []
 >>>>>>> pod/metasploit-gemfile-
@@ -223,6 +231,8 @@ class Response < Packet
 =======
     json = []
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
     begin
       json = JSON.parse(self.body)

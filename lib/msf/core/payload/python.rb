@@ -15,6 +15,7 @@ module Msf::Payload::Python
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -32,11 +33,14 @@ module Msf::Payload::Python
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   # that will decode and execute it on the fly. The code will be condensed to
   # one line and compatible with all Python versions supported by the Python
   # Meterpreter stage.
 =======
   # that will decode and execute it on the fly.
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,6 +60,8 @@ module Msf::Payload::Python
 =======
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> 4.11.2_release_pre-rails4
 =======
   # that will decode and execute it on the fly.
@@ -64,6 +70,7 @@ module Msf::Payload::Python
   # that will decode and execute it on the fly.
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+<<<<<<< HEAD
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
 =======
@@ -74,6 +81,8 @@ module Msf::Payload::Python
   # that will decode and execute it on the fly.
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   # that will decode and execute it on the fly.
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -88,6 +97,7 @@ module Msf::Payload::Python
 =======
   # that will decode and execute it on the fly.
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
   # that will decode and execute it on the fly.
 >>>>>>> pod/metasploit-gemfile-
@@ -124,6 +134,8 @@ module Msf::Payload::Python
 =======
   # that will decode and execute it on the fly.
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   #
   # @param cmd [String] The python code to execute.
   # @return [String] Full python stub to execute the command.

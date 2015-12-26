@@ -1146,6 +1146,7 @@ class ReadableText
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1154,6 +1155,8 @@ class ReadableText
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   end
 
   # Dumps the list of active sessions in verbose mode
@@ -1225,7 +1228,10 @@ class ReadableText
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   end
 
   # Dumps the list of active sessions in verbose mode
@@ -1293,6 +1299,7 @@ class ReadableText
 
     out << "\n"
     return out
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -1519,6 +1526,8 @@ class ReadableText
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   end
 
   # Dumps the list of active sessions in verbose mode
@@ -1694,6 +1703,7 @@ class ReadableText
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -1715,6 +1725,8 @@ class ReadableText
       row << (ctx[0].datastore['LPORT'] || "")
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
       # Make the LPORT show the bind port if it's different
       local_port = ctx[0].datastore['LPORT']
@@ -1724,6 +1736,7 @@ class ReadableText
         lport << " (#{bind_port})"
       end
       row << lport
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
       row << (ctx[0].datastore['LPORT'] || "")
@@ -1746,6 +1759,10 @@ class ReadableText
 =======
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> 4.11.2_release_pre-rails4
 =======
       row << (ctx[0].datastore['LPORT'] || "")
@@ -1754,6 +1771,7 @@ class ReadableText
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+<<<<<<< HEAD
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
 =======
@@ -1764,6 +1782,8 @@ class ReadableText
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -1778,6 +1798,7 @@ class ReadableText
 =======
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> pod/metasploit-gemfile-
@@ -1809,6 +1830,8 @@ class ReadableText
 =======
       row << (ctx[0].datastore['LPORT'] || "")
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
       if (verbose)
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)

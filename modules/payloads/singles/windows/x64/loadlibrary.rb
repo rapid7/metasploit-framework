@@ -19,6 +19,7 @@ module Metasploit3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 313
 =======
   CachedSize = 314
@@ -70,6 +71,12 @@ module Metasploit3
 <<<<<<< HEAD
 =======
 =======
+  CachedSize = 313
+=======
+  CachedSize = 314
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
   CachedSize = 314
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -90,6 +97,7 @@ module Metasploit3
 =======
   CachedSize = 314
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
   CachedSize = 314
 >>>>>>> pod/metasploit-gemfile-
@@ -124,6 +132,8 @@ module Metasploit3
 =======
   CachedSize = 314
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

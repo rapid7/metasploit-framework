@@ -15,10 +15,89 @@ require 'msf/core/handler/reverse_https'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+require 'msf/core/payload/windows/x64/reverse_https'
+
+module Metasploit4
+=======
+#require 'msf/core/payload/windows/x64/reverse_https'
+>>>>>>> feature/complex-payloads
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> msf-complex-payloads
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+<<<<<<< HEAD
+<<<<<<< HEAD
+#require 'msf/core/payload/windows/x64/reverse_https'
+=======
+require 'msf/core/payload/windows/x64/reverse_https'
+
+module Metasploit4
+>>>>>>> rapid7/master
+=======
+require 'msf/core/payload/windows/x64/reverse_https'
+
+module Metasploit4
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> payload-generator.rb
+=======
+require 'msf/core/payload/windows/x64/reverse_https'
+
+module Metasploit4
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 4.11.2_release_pre-rails4
+
+=======
+=======
+>>>>>>> msf-complex-payloads
+>>>>>>> rapid7/master
+
+=======
+=======
+>>>>>>> rapid7/master
+require 'msf/core/payload/windows/x64/reverse_https'
+
+module Metasploit4
+
+=======
+>>>>>>> rapid7/master
+=======
+#require 'msf/core/payload/windows/x64/reverse_https'
+>>>>>>> pod/complex-payloads
+
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-windows.rb
 require 'msf/core/payload/windows/x64/reverse_https'
 
 module Metasploit4
@@ -375,11 +454,16 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-windows.rb
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
@@ -416,17 +500,31 @@ module Metasploit4
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-windows.rb
   CachedSize = 532
 
   include Msf::Payload::Stager

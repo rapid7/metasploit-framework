@@ -2275,6 +2275,7 @@ RSpec.describe 'modules/payloads', :content do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -2295,6 +2296,8 @@ RSpec.describe 'modules/payloads', :content do
 =======
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   context 'python/meterpreter_reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2315,6 +2318,7 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'python/meterpreter_reverse_https'
   end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
@@ -2339,6 +2343,11 @@ RSpec.describe 'modules/payloads', :content do
 =======
 >>>>>>> origin/pod/metasploit-framework
 =======
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -2348,6 +2357,7 @@ RSpec.describe 'modules/payloads', :content do
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -2355,11 +2365,14 @@ RSpec.describe 'modules/payloads', :content do
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 =======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
 >>>>>>> msf-complex-payloads
 =======
 >>>>>>> msf-complex-payloads
 =======
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
@@ -2375,6 +2388,8 @@ RSpec.describe 'modules/payloads', :content do
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   context 'python/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

@@ -161,6 +161,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "#{scheme}://#{uri_host}:#{bind_port}/"
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
@@ -191,6 +192,11 @@ module ReverseHttp
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
 >>>>>>> origin/pod/metasploit-framework
+=======
+    "#{scheme}://#{uri_host}:#{bind_port}/"
+=======
+    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
@@ -198,6 +204,7 @@ module ReverseHttp
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -208,6 +215,8 @@ module ReverseHttp
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 =======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
 >>>>>>> msf-complex-payloads
 =======
@@ -216,6 +225,7 @@ module ReverseHttp
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
 >>>>>>> pod/metasploit-gemfile-
@@ -238,6 +248,8 @@ module ReverseHttp
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   end
 
   # Return a URI suitable for placing in a payload.
@@ -646,6 +658,7 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -663,6 +676,8 @@ protected
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
           http_url: url,
           http_user_agent: datastore['MeterpreterUserAgent'],
           http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
@@ -671,6 +686,7 @@ protected
           uri:  conn_id
         )
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
@@ -690,6 +706,9 @@ protected
 =======
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -699,6 +718,7 @@ protected
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -706,11 +726,14 @@ protected
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 =======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
 >>>>>>> msf-complex-payloads
 =======
 >>>>>>> msf-complex-payloads
 =======
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
@@ -766,6 +789,16 @@ protected
         resp.body = pkt.to_r
 
 <<<<<<< HEAD
+=======
+          uuid: uuid,
+          uri:  conn_id
+        )
+
+        var_escape = lambda { |txt|
+          txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
+        }
+
+>>>>>>> origin/pod/metasploit-windows.rb
         # Patch all the things
         blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
@@ -774,6 +807,7 @@ protected
           proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
           blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
         end
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -805,6 +839,9 @@ protected
         )
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-windows.rb
 
         resp.body = blob
 
@@ -886,6 +923,7 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         uri = URI(payload_uri(req) + conn_id)
 =======
 <<<<<<< HEAD
@@ -910,6 +948,10 @@ protected
 <<<<<<< HEAD
         uri = URI(payload_uri(req) + conn_id)
 =======
+=======
+        uri = URI(payload_uri(req) + conn_id)
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -921,6 +963,7 @@ protected
 >>>>>>> msf-complex-payloads
 =======
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
@@ -946,6 +989,8 @@ protected
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
         resp['Content-Type'] = 'application/octet-stream'
 
@@ -954,6 +999,7 @@ protected
         blob = obj.stage_payload(
           uuid: uuid,
           uri:  conn_id,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -981,11 +1027,14 @@ protected
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
           lhost: uri.host,
           lport: uri.port
 =======
           lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1009,6 +1058,8 @@ protected
 =======
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> 4.11.2_release_pre-rails4
 =======
           lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
@@ -1019,6 +1070,7 @@ protected
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+<<<<<<< HEAD
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
 =======
@@ -1031,6 +1083,8 @@ protected
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
           lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -1050,6 +1104,7 @@ protected
           lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
           lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
@@ -1092,6 +1147,8 @@ protected
           lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
         )
 
         resp.body = encode_stage(blob)

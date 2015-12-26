@@ -16,6 +16,7 @@ require 'msf/core/payload/windows/reverse_http'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 module Metasploit4
 =======
@@ -66,10 +67,21 @@ module Metasploit4
 >>>>>>> 4.11.2_release_pre-rails4
 
 =======
+
+module Metasploit4
+<<<<<<< HEAD
+=======
+>>>>>>> feature/complex-payloads
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
 <<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 =======
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
@@ -78,11 +90,14 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
 >>>>>>> pod/metasploit-gemfile-
 <<<<<<< HEAD
@@ -92,16 +107,25 @@ module Metasploit4
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 module Metasploit4
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-gemfile-
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 module Metasploit4
 >>>>>>> rapid7/master
@@ -113,6 +137,7 @@ module Metasploit4
 
 module Metasploit4
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -133,6 +158,10 @@ module Metasploit4
 
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 module Metasploit4
 
@@ -140,16 +169,20 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> msf-complex-payloads
 =======
 
 =======
 
 =======
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
@@ -164,10 +197,14 @@ module Metasploit4
 =======
 
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+
+>>>>>>> origin/pod/metasploit-windows.rb
 module Metasploit4
 
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 
 module Metasploit4
 
@@ -200,6 +237,13 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+=======
+>>>>>>> pod/complex-payloads
+
+module Metasploit4
+
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> rapid7/master
 =======
 
@@ -209,6 +253,7 @@ module Metasploit4
 =======
 
 module Metasploit4
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 >>>>>>> master
@@ -251,11 +296,21 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+
+>>>>>>> master
+>>>>>>> payload-generator.rb
+=======
+
+module Metasploit4
+
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> rapid7/master
 <<<<<<< HEAD
 >>>>>>> msf-complex-payloads
 =======
 =======
+<<<<<<< HEAD
 >>>>>>> master
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -265,10 +320,13 @@ module Metasploit4
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-gemfile-
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
 module Metasploit4
 
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -315,6 +373,9 @@ module Metasploit4
 =======
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-windows.rb
   CachedSize = 327
 
   include Msf::Payload::Stager
@@ -332,6 +393,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 4.11.2_release_pre-rails4
@@ -343,6 +405,10 @@ module Metasploit4
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-windows.rb
       'Name'        => 'Windows Reverse HTTP Stager (wininet)',
       'Description' => 'Tunnel communication over HTTP (Windows wininet)',
       'Author'      => 'hdm',
@@ -353,21 +419,27 @@ module Metasploit4
       'Convention'  => 'sockedi http'))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   end
 
 =======
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/payload-generator.rb
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 <<<<<<< HEAD
 >>>>>>> msf-complex-payloads
 =======
@@ -375,7 +447,11 @@ module Metasploit4
 <<<<<<< HEAD
 >>>>>>> msf-complex-payloads
 =======
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -427,6 +503,10 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-windows.rb
       'Name'          => 'Reverse HTTP Stager',
       'Description'   => 'Tunnel communication over HTTP',
       'Author'        => 'hdm',
@@ -435,6 +515,7 @@ module Metasploit4
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseHttp,
       'Convention'    => 'sockedi http'))
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -469,6 +550,8 @@ module Metasploit4
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   end
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -485,6 +568,7 @@ module Metasploit4
 =======
 =======
 =======
+<<<<<<< HEAD
   end
 >>>>>>> pod/metasploit-gemfile-
 =======
@@ -553,7 +637,7 @@ module Metasploit4
   end
 =======
 =======
->>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-windows.rb
 =======
 >>>>>>> rapid7/master
 =======
@@ -562,10 +646,6 @@ module Metasploit4
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
-=======
->>>>>>> master
-=======
->>>>>>> master
 =======
 >>>>>>> rapid7/master
 =======
@@ -573,11 +653,20 @@ module Metasploit4
 =======
 >>>>>>> master
 =======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+<<<<<<< HEAD
+=======
+>>>>>>> master
+=======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
       'Name'        => 'Windows Reverse HTTP Stager (wininet)',
       'Description' => 'Tunnel communication over HTTP (Windows wininet)',
       'Author'      => 'hdm',
@@ -589,6 +678,7 @@ module Metasploit4
   end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -596,6 +686,8 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -605,6 +697,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -612,6 +705,8 @@ module Metasploit4
 >>>>>>> pod/metasploit-gemfile-
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -619,6 +714,7 @@ module Metasploit4
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -733,6 +829,8 @@ module Metasploit4
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
       'Name'        => 'Windows Reverse HTTP Stager (wininet)',
       'Description' => 'Tunnel communication over HTTP (Windows wininet)',
       'Author'      => 'hdm',
@@ -741,8 +839,11 @@ module Metasploit4
       'Arch'        => ARCH_X86,
       'Handler'     => Msf::Handler::ReverseHttp,
       'Convention'  => 'sockedi http'))
+=======
+>>>>>>> pod/complex-payloads
   end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -763,12 +864,21 @@ module Metasploit4
 =======
 =======
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -777,6 +887,7 @@ module Metasploit4
 =======
 >>>>>>> msf-complex-payloads
 =======
+<<<<<<< HEAD
 =======
 >>>>>>> rapid7/master
 =======
@@ -807,6 +918,8 @@ module Metasploit4
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> master
 =======
 >>>>>>> master
@@ -814,10 +927,14 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
 >>>>>>> master
 =======
@@ -838,4 +955,6 @@ module Metasploit4
 =======
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 end

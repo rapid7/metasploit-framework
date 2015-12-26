@@ -220,6 +220,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 4.11.2_release_pre-rails4
@@ -241,6 +242,10 @@ module Msf
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-windows.rb
         return shellcode
       end
 
@@ -261,6 +266,7 @@ module Msf
           next
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -277,6 +283,8 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -286,6 +294,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> msf-complex-payloads
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
 =======
 <<<<<<< HEAD
@@ -301,10 +310,17 @@ module Msf
 <<<<<<< HEAD
 =======
 =======
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-windows.rb
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
 =======
 <<<<<<< HEAD
@@ -339,6 +355,8 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
         shellcode
       else
         cli_print "Found #{encoder_list.count} compatible encoders"
@@ -362,6 +380,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> rapid7/feature/complex-payloads
 =======
 =======
@@ -374,6 +393,8 @@ module Msf
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> feature/complex-payloads
 =======
 >>>>>>> 4.11.2_release_pre-rails4
@@ -383,15 +404,19 @@ module Msf
 =======
 =======
 =======
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 =======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -419,8 +444,16 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> payload-generator.rb
+=======
 >>>>>>> rapid7/master
 =======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+>>>>>>> rapid7/master
+=======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -431,10 +464,15 @@ module Msf
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> rapid7/master
@@ -464,10 +502,13 @@ module Msf
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
 >>>>>>> rapid7/master
 =======
@@ -491,6 +532,8 @@ module Msf
 =======
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
         return shellcode
       end
 
@@ -517,6 +560,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -554,6 +598,15 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -563,6 +616,7 @@ module Msf
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -573,10 +627,13 @@ module Msf
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 >>>>>>> msf-complex-payloads
 =======
 >>>>>>> msf-complex-payloads
 =======
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
 =======
 =======
@@ -584,11 +641,14 @@ module Msf
 =======
 >>>>>>> origin/pod/metasploit-gemfile-
 =======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -647,6 +707,13 @@ module Msf
 =======
 >>>>>>> master
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-windows.rb
         end
       end
 

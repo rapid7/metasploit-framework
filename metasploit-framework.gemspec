@@ -108,6 +108,7 @@ Gem::Specification.new do |spec|
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.21'
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
@@ -140,16 +141,21 @@ Gem::Specification.new do |spec|
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.19'
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -161,6 +167,7 @@ Gem::Specification.new do |spec|
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -171,6 +178,8 @@ Gem::Specification.new do |spec|
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 =======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> msf-complex-payloads
 =======
@@ -179,6 +188,7 @@ Gem::Specification.new do |spec|
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> payload-generator.rb
+<<<<<<< HEAD
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> pod/metasploit-gemfile-
@@ -202,6 +212,8 @@ Gem::Specification.new do |spec|
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -218,6 +230,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog', '2.0.14'
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -305,6 +318,26 @@ Gem::Specification.new do |spec|
 >>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+  # required for bitlocker fvek extraction
+  spec.add_runtime_dependency 'openssl-ccm', '1.2.1'
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-windows.rb
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
