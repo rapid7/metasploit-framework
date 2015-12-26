@@ -67,6 +67,7 @@ end
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> origin/4.11.2_release_pre-rails4
@@ -79,3 +80,6 @@ end
 =======
 
 >>>>>>> origin/msf-complex-payloads
+=======
+
+>>>>>>> origin/payload-generator.rb

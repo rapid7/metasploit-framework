@@ -8,6 +8,7 @@ require 'rex/java'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Rmi::Model::UniqueIdentifier do
 =======
 describe Rex::Proto::Rmi::Model::UniqueIdentifier do
@@ -18,6 +19,9 @@ describe Rex::Proto::Rmi::Model::UniqueIdentifier do
 =======
 describe Rex::Proto::Rmi::Model::UniqueIdentifier do
 >>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Proto::Rmi::Model::UniqueIdentifier do
+>>>>>>> origin/payload-generator.rb
 
   subject(:uid) do
     described_class.new

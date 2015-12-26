@@ -22,6 +22,8 @@ module Metasploit4
 
   CachedSize = 466
 
+  CachedSize = 466
+
   include Msf::Payload::Stager
   include Msf::Payload::Python
   include Msf::Payload::Python::ReverseHttp
@@ -129,9 +131,12 @@ module Metasploit4
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
 end

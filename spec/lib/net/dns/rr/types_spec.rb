@@ -7,6 +7,7 @@ require 'net/dns'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Net::DNS::RR::Types do
 =======
 describe Net::DNS::RR::Types do
@@ -20,6 +21,9 @@ describe Net::DNS::RR::Types do
 =======
 describe Net::DNS::RR::Types do
 >>>>>>> origin/msf-complex-payloads
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/payload-generator.rb
 
   subject do
     described_class.new

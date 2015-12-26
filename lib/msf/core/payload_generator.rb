@@ -214,6 +214,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return shellcode
       end
 
@@ -234,6 +235,9 @@ module Msf
           next
 =======
 =======
+=======
+>>>>>>> origin/payload-generator.rb
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -244,6 +248,10 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/payload-generator.rb
         shellcode
       else
         cli_print "Found #{encoder_list.count} compatible encoders"
@@ -261,18 +269,33 @@ module Msf
           end
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> rapid7/feature/complex-payloads
 =======
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 =======
+=======
+=======
 >>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 =======
+>>>>>>> rapid7/master
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/payload-generator.rb
 >>>>>>> rapid7/master
         return shellcode
       end
@@ -296,6 +319,13 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/payload-generator.rb
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -306,9 +336,20 @@ module Msf
 =======
 >>>>>>> rapid7/master
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/payload-generator.rb
         end
       end
 

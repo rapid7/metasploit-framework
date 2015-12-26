@@ -21,6 +21,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   include Msf::Handler::Reverse
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -28,6 +29,8 @@ module ReverseHttp
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
 
@@ -64,6 +67,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
@@ -75,11 +79,14 @@ module ReverseHttp
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
         OptString.new('ReverseListenerComm', [false, 'The specific communication channel to use for this listener']),
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
         OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [false, 'The port to bind to on the local system if different from LPORT']),
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -90,6 +97,8 @@ module ReverseHttp
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
         OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
         OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
         OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
@@ -119,6 +128,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "#{scheme}://#{uri_host}:#{bind_port}/"
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
@@ -129,6 +139,9 @@ module ReverseHttp
 =======
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
 >>>>>>> origin/msf-complex-payloads
+=======
+    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+>>>>>>> origin/payload-generator.rb
   end
 
   # Return a URI suitable for placing in a payload.
@@ -145,6 +158,7 @@ module ReverseHttp
       callback_host = req.headers['Host']
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/msf-complex-payloads
     end
@@ -163,6 +177,10 @@ module ReverseHttp
 =======
     end
 
+=======
+    end
+
+>>>>>>> origin/payload-generator.rb
     # Override the host and port as appropriate
     if datastore['OverrideRequestHost'] || callback_host.nil?
       callback_name = datastore['OverrideLHOST'] || datastore['LHOST']
@@ -173,9 +191,12 @@ module ReverseHttp
       callback_host = "#{callback_name}:#{callback_port}"
     end
 
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     "#{scheme}://#{callback_host}/"
   end
 
@@ -225,6 +246,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -232,6 +254,8 @@ module ReverseHttp
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
       (ssl?) ? datastore['HandlerSSLCert'] : nil
     )
 
@@ -321,14 +345,18 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
 
     # Configure the UUID architecture and payload if necessary
     uuid.arch      ||= obj.arch
     uuid.platform  ||= obj.platform
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -393,6 +421,14 @@ protected
       conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
     end
 
+=======
+
+    conn_id = nil
+    if info[:mode] && info[:mode] != :connect
+      conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+    end
+
+>>>>>>> origin/payload-generator.rb
     request_summary = "#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
@@ -411,9 +447,12 @@ protected
     end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     self.pending_connections += 1
 
     # Process the requested resource.
@@ -441,6 +480,7 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           http_url: url,
           http_user_agent: datastore['MeterpreterUserAgent'],
           http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
@@ -455,6 +495,8 @@ protected
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
           uuid: uuid,
           uri:  conn_id
         )
@@ -488,6 +530,7 @@ protected
           :payload_uuid       => uuid
         })
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       when :init_java
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
@@ -495,11 +538,17 @@ protected
 
 =======
 
+=======
+
+>>>>>>> origin/payload-generator.rb
       when :init_java
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
 
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
         blob = obj.generate_stage(
           uuid: uuid,
           uri:  conn_id
@@ -526,6 +575,7 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         uri = URI(payload_uri(req) + conn_id)
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -533,6 +583,8 @@ protected
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
 
         resp['Content-Type'] = 'application/octet-stream'
 
@@ -541,6 +593,7 @@ protected
         blob = obj.stage_payload(
           uuid: uuid,
           uri:  conn_id,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -563,6 +616,10 @@ protected
           lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
 >>>>>>> origin/msf-complex-payloads
+=======
+          lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
+          lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
+>>>>>>> origin/payload-generator.rb
         )
 
         resp.body = encode_stage(blob)

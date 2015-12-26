@@ -6,6 +6,7 @@ require 'msf/core/post/android/system'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Post::Android::System do
 =======
 describe Msf::Post::Android::System do
@@ -19,6 +20,9 @@ describe Msf::Post::Android::System do
 =======
 describe Msf::Post::Android::System do
 >>>>>>> origin/msf-complex-payloads
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/payload-generator.rb
 
   subject do
     mod = Module.new

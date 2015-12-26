@@ -194,6 +194,7 @@ class Metasploit3 < Msf::Auxiliary
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -201,10 +202,13 @@ class Metasploit3 < Msf::Auxiliary
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
   def peer
     "#{rhost}:#{rport}"
   end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -215,6 +219,8 @@ class Metasploit3 < Msf::Auxiliary
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
   def protocol
     datastore['PROTOCOL']
   end

@@ -6,6 +6,7 @@ require 'msf/core/post/windows/runas'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Post::Windows::Runas do
 =======
 describe Msf::Post::Windows::Runas do
@@ -16,6 +17,9 @@ describe Msf::Post::Windows::Runas do
 =======
 describe Msf::Post::Windows::Runas do
 >>>>>>> origin/msf-complex-payloads
+=======
+describe Msf::Post::Windows::Runas do
+>>>>>>> origin/payload-generator.rb
   let(:process_info) do
     "\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x04\x00\x00\x00"
   end
@@ -26,6 +30,7 @@ describe Msf::Post::Windows::Runas do
 
   let(:advapi32) do
     advapi32 = double('advapi32')
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -43,6 +48,8 @@ describe Msf::Post::Windows::Runas do
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     advapi32.stub(:CreateProcessWithLogonW).and_return({
                         'return' => true,
                         'lpProcessInformation' => process_info
@@ -54,11 +61,14 @@ describe Msf::Post::Windows::Runas do
     advapi32.stub(:LogonUserA).and_return ({
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
       'return' => true,
       'phToken' => phToken
     })
@@ -73,6 +83,7 @@ describe Msf::Post::Windows::Runas do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     mod = double(Module.new)
     mod.extend described_class
     stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error ]
@@ -84,6 +95,8 @@ describe Msf::Post::Windows::Runas do
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     mod = Module.new
     mod.extend described_class
     stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error ]
@@ -92,11 +105,14 @@ describe Msf::Post::Windows::Runas do
     mod.stub_chain("session.railgun.advapi32").and_return(advapi32)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     mod
   end
 
@@ -105,6 +121,7 @@ describe Msf::Post::Windows::Runas do
       expect(advapi32).to receive(:CreateProcessWithLogonW)
       expect(kernel32).not_to receive(:CloseHandle)
       pi = subject.create_process_with_logon(nil, 'bob', 'pass', nil, 'cmd.exe')
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -120,6 +137,8 @@ describe Msf::Post::Windows::Runas do
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
       pi.should be_kind_of(Hash)
       pi.should eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
     end
@@ -131,11 +150,14 @@ describe Msf::Post::Windows::Runas do
       subject.create_process_with_logon(nil, 'bob', 'pass', nil, 'cmd.exe').should be nil
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     end
   end
 
@@ -147,6 +169,7 @@ describe Msf::Post::Windows::Runas do
       expect(kernel32).to receive(:CloseHandle).with(1)
       expect(kernel32).to receive(:CloseHandle).with(2)
       pi = subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe')
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -164,6 +187,10 @@ describe Msf::Post::Windows::Runas do
       pi.should be_kind_of(Hash)
       pi.should eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
 >>>>>>> origin/msf-complex-payloads
+=======
+      pi.should be_kind_of(Hash)
+      pi.should eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
+>>>>>>> origin/payload-generator.rb
     end
 
     it "should return a nil on failure of create process" do
@@ -172,6 +199,7 @@ describe Msf::Post::Windows::Runas do
       expect(kernel32).to receive(:CloseHandle).with(phToken)
       expect(kernel32).not_to receive(:CloseHandle).with(1)
       expect(kernel32).not_to receive(:CloseHandle).with(2)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -189,6 +217,10 @@ describe Msf::Post::Windows::Runas do
       advapi32.stub(:CreateProcessAsUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
       subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe').should be nil
 >>>>>>> origin/msf-complex-payloads
+=======
+      advapi32.stub(:CreateProcessAsUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
+      subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe').should be nil
+>>>>>>> origin/payload-generator.rb
     end
 
     it "should return a nil on failure of logon user" do
@@ -197,6 +229,7 @@ describe Msf::Post::Windows::Runas do
       expect(kernel32).not_to receive(:CloseHandle).with(phToken)
       expect(kernel32).not_to receive(:CloseHandle).with(1)
       expect(kernel32).not_to receive(:CloseHandle).with(2)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -214,11 +247,16 @@ describe Msf::Post::Windows::Runas do
       advapi32.stub(:LogonUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
       subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe').should be nil
 >>>>>>> origin/msf-complex-payloads
+=======
+      advapi32.stub(:LogonUserA).and_return('return' => false, 'GetLastError' => 1783, 'ErrorMessage' => 'parp')
+      subject.create_process_as_user(nil, 'bob', 'pass', nil, 'cmd.exe').should be nil
+>>>>>>> origin/payload-generator.rb
     end
   end
 
   context "#startup_info" do
     it "should be 68 bytes" do
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -232,10 +270,14 @@ describe Msf::Post::Windows::Runas do
 =======
       subject.startup_info.size.should eq(68)
 >>>>>>> origin/msf-complex-payloads
+=======
+      subject.startup_info.size.should eq(68)
+>>>>>>> origin/payload-generator.rb
     end
 
     it "should return SW_HIDE=0 and STARTF_USESHOWWINDOW=1" do
       si = subject.startup_info.unpack('VVVVVVVVVVVVvvVVVV')
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -253,12 +295,17 @@ describe Msf::Post::Windows::Runas do
       si[11].should eq(1)
       si[12].should eq(0)
 >>>>>>> origin/msf-complex-payloads
+=======
+      si[11].should eq(1)
+      si[12].should eq(0)
+>>>>>>> origin/payload-generator.rb
     end
   end
 
   context "#parse_process_information" do
     it "should return a hash when given valid data" do
       pi = subject.parse_process_information(process_info)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -277,6 +324,8 @@ describe Msf::Post::Windows::Runas do
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
       pi.should be_kind_of(Hash)
       pi.should eq(process_handle: 1, thread_handle: 2, process_id: 3, thread_id: 4)
     end
@@ -289,11 +338,14 @@ describe Msf::Post::Windows::Runas do
       expect { subject.parse_process_information(nil) }.to raise_error
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     end
   end
 
@@ -309,6 +361,7 @@ describe Msf::Post::Windows::Runas do
     end
 
     it "should return an exception when username is nil" do
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -334,6 +387,8 @@ describe Msf::Post::Windows::Runas do
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
       expect { subject.check_user_format(nil, domain) }.to raise_error
     end
 
@@ -353,11 +408,14 @@ describe Msf::Post::Windows::Runas do
       subject.check_user_format(domain_username, domain).should be true
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     end
   end
 
@@ -385,6 +443,7 @@ describe Msf::Post::Windows::Runas do
     end
 
     it "should raise an exception when max_length is nil" do
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -418,6 +477,8 @@ describe Msf::Post::Windows::Runas do
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
       expect { subject.check_command_length(nil, nil, nil) }.to raise_error
     end
 
@@ -445,11 +506,14 @@ describe Msf::Post::Windows::Runas do
       subject.check_command_length(nil, normal_command_module, max_length).should be true
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     end
   end
 end

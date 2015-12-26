@@ -57,9 +57,18 @@ RSpec.describe Msf::EncodedPayload do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
+=======
+
+    specify { expect(encoded_payload).to respond_to(:encoded) }
+
+    it 'is an Msf::EncodedPayload' do
+      expect(encoded_payload).to be_a(described_class)
+    end
+>>>>>>> origin/payload-generator.rb
 
     specify { expect(encoded_payload).to respond_to(:encoded) }
 

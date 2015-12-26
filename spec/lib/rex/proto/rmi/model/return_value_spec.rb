@@ -8,6 +8,7 @@ require 'rex/java'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Rmi::Model::ReturnValue do
 =======
 describe Rex::Proto::Rmi::Model::ReturnValue do
@@ -18,6 +19,9 @@ describe Rex::Proto::Rmi::Model::ReturnValue do
 =======
 describe Rex::Proto::Rmi::Model::ReturnValue do
 >>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Proto::Rmi::Model::ReturnValue do
+>>>>>>> origin/payload-generator.rb
 
   subject(:return_value) do
     described_class.new

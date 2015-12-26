@@ -16,6 +16,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 50226
 =======
   CachedSize = 49482
@@ -29,6 +30,9 @@ module Metasploit4
 =======
   CachedSize = 49482
 >>>>>>> origin/msf-complex-payloads
+=======
+  CachedSize = 49482
+>>>>>>> origin/payload-generator.rb
 
   include Msf::Payload::Single
   include Msf::Payload::Python

@@ -9,6 +9,7 @@ require 'msf/core/handler/reverse_https'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 require 'msf/core/payload/windows/x64/reverse_https'
 
 module Metasploit4
@@ -23,6 +24,11 @@ module Metasploit4
 <<<<<<< HEAD
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/payload-generator.rb
 <<<<<<< HEAD
 <<<<<<< HEAD
 #require 'msf/core/payload/windows/x64/reverse_https'
@@ -41,6 +47,7 @@ require 'msf/core/payload/windows/x64/reverse_https'
 
 module Metasploit4
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 
 =======
 =======
@@ -49,14 +56,47 @@ require 'msf/core/payload/windows/x64/reverse_https'
 
 module Metasploit4
 
+=======
+
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+require 'msf/core/payload/windows/x64/reverse_https'
+
+module Metasploit4
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/payload-generator.rb
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/payload-generator.rb
   CachedSize = 532
 
   include Msf::Payload::Stager

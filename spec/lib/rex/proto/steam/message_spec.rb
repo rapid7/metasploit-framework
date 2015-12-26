@@ -5,6 +5,7 @@ require 'rex/proto/steam/message'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Steam do
 =======
 describe Rex::Proto::Steam do
@@ -15,6 +16,9 @@ describe Rex::Proto::Steam do
 =======
 describe Rex::Proto::Steam do
 >>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Proto::Steam do
+>>>>>>> origin/payload-generator.rb
   subject(:steam) do
     mod = Module.new
     mod.extend described_class

@@ -7,6 +7,7 @@ require 'stringio'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Java::Serialization::Model::ProxyClassDesc do
 =======
 describe Rex::Java::Serialization::Model::ProxyClassDesc do
@@ -17,6 +18,9 @@ describe Rex::Java::Serialization::Model::ProxyClassDesc do
 =======
 describe Rex::Java::Serialization::Model::ProxyClassDesc do
 >>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/payload-generator.rb
   subject(:proxy_class_desc) do
     described_class.new
   end

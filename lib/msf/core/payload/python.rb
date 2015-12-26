@@ -9,6 +9,7 @@ module Msf::Payload::Python
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   # that will decode and execute it on the fly. The code will be condensed to
   # one line and compatible with all Python versions supported by the Python
   # Meterpreter stage.
@@ -24,6 +25,9 @@ module Msf::Payload::Python
 =======
   # that will decode and execute it on the fly.
 >>>>>>> origin/msf-complex-payloads
+=======
+  # that will decode and execute it on the fly.
+>>>>>>> origin/payload-generator.rb
   #
   # @param cmd [String] The python code to execute.
   # @return [String] Full python stub to execute the command.

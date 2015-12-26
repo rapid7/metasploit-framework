@@ -10,6 +10,7 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       it { is_expected.to eq(3) }
     end
     context "with 'REG_DWORD'" do
@@ -36,6 +37,8 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
       it { should eq(3) }
     end
     context "with 'REG_DWORD'" do
@@ -59,11 +62,14 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry do
       it { should eq(1) }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
     end
   end
 

@@ -7,6 +7,7 @@ require 'stringio'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Jsobfu do
 =======
 describe Jsobfu do
@@ -17,6 +18,9 @@ describe Jsobfu do
 =======
 describe Jsobfu do
 >>>>>>> origin/msf-complex-payloads
+=======
+describe Jsobfu do
+>>>>>>> origin/payload-generator.rb
 
   let(:fname) {
     'test.js'
