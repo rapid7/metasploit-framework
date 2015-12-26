@@ -111,6 +111,7 @@ class Response < Packet
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     json = {}
 =======
     json = []
@@ -118,6 +119,9 @@ class Response < Packet
 =======
     json = []
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+    json = []
+>>>>>>> origin/msf-complex-payloads
 =======
     json = []
 >>>>>>> origin/msf-complex-payloads

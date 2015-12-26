@@ -5,6 +5,7 @@ require 'rex/arch'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Arch do
 =======
 describe Rex::Arch do
@@ -12,6 +13,9 @@ describe Rex::Arch do
 =======
 describe Rex::Arch do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Arch do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Rex::Arch do
 >>>>>>> origin/msf-complex-payloads

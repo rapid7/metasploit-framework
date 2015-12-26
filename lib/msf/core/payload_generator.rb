@@ -213,6 +213,7 @@ module Msf
         cli_print "No encoder or badchars specified, outputting raw payload"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return shellcode
       end
 
@@ -238,6 +239,11 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
         shellcode
       else
         cli_print "Found #{encoder_list.count} compatible encoders"
@@ -254,8 +260,11 @@ module Msf
             next
           end
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> rapid7/feature/complex-payloads
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 =======
 >>>>>>> rapid7/master
@@ -296,6 +305,9 @@ module Msf
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
         end
       end

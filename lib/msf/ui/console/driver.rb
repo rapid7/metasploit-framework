@@ -214,6 +214,7 @@ class Driver < Msf::Ui::Driver
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -241,6 +242,8 @@ class Driver < Msf::Ui::Driver
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
     if framework.db.active && !opts['DeferModuleLoads']

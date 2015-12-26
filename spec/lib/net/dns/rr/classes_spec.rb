@@ -6,6 +6,7 @@ require 'net/dns'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Net::DNS::RR::Classes do
 =======
 describe Net::DNS::RR::Classes do
@@ -13,6 +14,9 @@ describe Net::DNS::RR::Classes do
 =======
 describe Net::DNS::RR::Classes do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Net::DNS::RR::Classes do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Net::DNS::RR::Classes do
 >>>>>>> origin/msf-complex-payloads

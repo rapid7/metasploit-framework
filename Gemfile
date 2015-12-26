@@ -35,9 +35,12 @@ group :development, :test do
   gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
 end

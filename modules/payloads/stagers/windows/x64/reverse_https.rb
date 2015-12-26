@@ -8,6 +8,7 @@ require 'msf/core/handler/reverse_https'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 require 'msf/core/payload/windows/x64/reverse_https'
 
 module Metasploit4
@@ -20,6 +21,8 @@ module Metasploit4
 
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 #require 'msf/core/payload/windows/x64/reverse_https'
@@ -50,6 +53,9 @@ module Metasploit4
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
   CachedSize = 532
 

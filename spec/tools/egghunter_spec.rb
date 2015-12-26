@@ -4,10 +4,14 @@ require 'stringio'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Egghunter do
 =======
 describe Egghunter do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Egghunter do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Egghunter do
 >>>>>>> origin/msf-complex-payloads

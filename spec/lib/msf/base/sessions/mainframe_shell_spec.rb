@@ -10,6 +10,7 @@ require 'msf/base/sessions/mainframe_shell'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Sessions::MainframeShell do
 =======
 describe Msf::Sessions::MainframeShell do
@@ -17,6 +18,9 @@ describe Msf::Sessions::MainframeShell do
 =======
 describe Msf::Sessions::MainframeShell do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Msf::Sessions::MainframeShell do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Msf::Sessions::MainframeShell do
 >>>>>>> origin/msf-complex-payloads

@@ -2,10 +2,14 @@ require 'msf/core/opt'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Opt do
 =======
 describe Msf::Opt do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Msf::Opt do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Msf::Opt do
 >>>>>>> origin/msf-complex-payloads

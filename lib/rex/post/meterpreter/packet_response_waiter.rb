@@ -101,9 +101,12 @@ class PacketResponseWaiter
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
   attr_accessor :rid, :mutex, :cond, :response # :nodoc:

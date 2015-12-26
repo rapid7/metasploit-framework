@@ -545,6 +545,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -552,6 +553,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
 =======
         @output.should =~ [
 >>>>>>> origin/msf-complex-payloads
@@ -566,6 +570,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -573,6 +578,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
 =======
         @output.should =~ [
 >>>>>>> origin/msf-complex-payloads
@@ -588,6 +596,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -595,6 +604,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
 =======
         @output.should =~ [
 >>>>>>> origin/msf-complex-payloads
@@ -613,6 +625,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -620,6 +633,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
 =======
         @output.should =~ [
 >>>>>>> origin/msf-complex-payloads
@@ -637,6 +653,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
 =======
         @output.should =~ [
@@ -644,6 +661,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 =======
         @output.should =~ [
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
 =======
         @output.should =~ [
 >>>>>>> origin/msf-complex-payloads

@@ -655,6 +655,7 @@ RSpec.describe Msf::PayloadGenerator do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(payload_generator).to receive(:generate_java_payload).and_call_original
 =======
         payload_generator.should_receive(:generate_java_payload).and_call_original
@@ -662,6 +663,9 @@ RSpec.describe Msf::PayloadGenerator do
 =======
         payload_generator.should_receive(:generate_java_payload).and_call_original
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/msf-complex-payloads
 =======
         payload_generator.should_receive(:generate_java_payload).and_call_original
 >>>>>>> origin/msf-complex-payloads

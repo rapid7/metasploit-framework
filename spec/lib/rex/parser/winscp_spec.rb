@@ -20,6 +20,7 @@ END
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Parser::WinSCP do
 =======
 describe Rex::Parser::WinSCP do
@@ -27,6 +28,9 @@ describe Rex::Parser::WinSCP do
 =======
 describe Rex::Parser::WinSCP do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Rex::Parser::WinSCP do
 >>>>>>> origin/msf-complex-payloads
@@ -100,6 +104,7 @@ describe Rex::Parser::WinSCP do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       expect(File).to receive(:read).and_return(nil)
 =======
       File.stub(:read).and_return(nil)
@@ -110,10 +115,14 @@ describe Rex::Parser::WinSCP do
 =======
       File.stub(:read).and_return(nil)
 >>>>>>> origin/msf-complex-payloads
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/msf-complex-payloads
       expect(target.read_and_parse_ini('blah')).to be nil
     end
 
     it "parses the example ini and return a single result" do
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -124,6 +133,9 @@ describe Rex::Parser::WinSCP do
 =======
       File.stub(:read).and_return(SAMPLE_INI)
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/msf-complex-payloads
 =======
       File.stub(:read).and_return(SAMPLE_INI)
 >>>>>>> origin/msf-complex-payloads

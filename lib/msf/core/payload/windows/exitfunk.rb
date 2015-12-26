@@ -5,6 +5,7 @@ require 'msf/core/payload/windows'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 module Msf
 
@@ -20,6 +21,8 @@ module Msf
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 module Msf
@@ -45,6 +48,9 @@ module Msf
 module Msf
 >>>>>>> rapid7/master
 
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 ###
 #
@@ -65,8 +71,11 @@ module Payload::Windows::Exitfunk
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
           mov ebx, #{"0x%.8x" % Msf::Payload::Windows.exit_types['seh']}
@@ -85,6 +94,9 @@ module Payload::Windows::Exitfunk
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
         mov ebx, 0x#{Msf::Payload::Windows.exit_types['seh'].to_s(16)}
         push.i8 0              ; push the exit function parameter
@@ -93,6 +105,7 @@ module Payload::Windows::Exitfunk
         push.i8 0
         ret                    ; Return to NULL (crash)
       ^
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
@@ -110,6 +123,8 @@ module Payload::Windows::Exitfunk
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -122,6 +137,9 @@ module Payload::Windows::Exitfunk
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 
     # On Windows Vista, Server 2008, and newer, it is not possible to call ExitThread
@@ -133,8 +151,11 @@ module Payload::Windows::Exitfunk
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
           mov ebx, #{"0x%.8x" % Msf::Payload::Windows.exit_types['thread']}
@@ -176,6 +197,9 @@ module Payload::Windows::Exitfunk
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
         mov ebx, 0x#{Msf::Payload::Windows.exit_types['thread'].to_s(16)}
         push 0x9DBD95A6        ; hash( "kernel32.dll", "GetVersion" )
@@ -208,6 +232,7 @@ module Payload::Windows::Exitfunk
         jmp exitfunk           ; repeat
       ^
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/feature/complex-payloads
@@ -247,6 +272,8 @@ module Payload::Windows::Exitfunk
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -259,6 +286,9 @@ module Payload::Windows::Exitfunk
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
     else
       # Do nothing and continue after the end of the shellcode

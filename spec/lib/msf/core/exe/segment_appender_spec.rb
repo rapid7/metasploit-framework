@@ -3,10 +3,14 @@ require 'msf/core/exe/segment_appender'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Exe::SegmentAppender do
 =======
 describe Msf::Exe::SegmentAppender do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Msf::Exe::SegmentAppender do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Msf::Exe::SegmentAppender do
 >>>>>>> origin/msf-complex-payloads
@@ -22,6 +26,7 @@ describe Msf::Exe::SegmentAppender do
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   it { is_expected.to respond_to :payload }
   it { is_expected.to respond_to :template }
   it { is_expected.to respond_to :arch }
@@ -35,6 +40,8 @@ describe Msf::Exe::SegmentAppender do
 =======
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/msf-complex-payloads
   it { should respond_to :payload }
   it { should respond_to :template }
   it { should respond_to :arch }
@@ -46,7 +53,10 @@ describe Msf::Exe::SegmentAppender do
     injector.arch = :x64
     injector.processor.class.should == Metasm::X86_64
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
   end
@@ -55,10 +65,14 @@ describe Msf::Exe::SegmentAppender do
     it 'should use edx as a default buffer register' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       expect(injector.buffer_register).to eq 'edx'
 =======
       injector.buffer_register.should == 'edx'
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      injector.buffer_register.should == 'edx'
+>>>>>>> origin/msf-complex-payloads
 =======
       injector.buffer_register.should == 'edx'
 >>>>>>> origin/msf-complex-payloads
@@ -76,10 +90,14 @@ describe Msf::Exe::SegmentAppender do
       it 'should use the correct buffer register' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(injector.buffer_register).to eq 'eax'
 =======
         injector.buffer_register.should == 'eax'
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        injector.buffer_register.should == 'eax'
+>>>>>>> origin/msf-complex-payloads
 =======
         injector.buffer_register.should == 'eax'
 >>>>>>> origin/msf-complex-payloads
@@ -91,10 +109,14 @@ describe Msf::Exe::SegmentAppender do
     it 'should return a string' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       expect(injector.generate_pe.kind_of?(String)).to eq true
 =======
       injector.generate_pe.kind_of?(String).should == true
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      injector.generate_pe.kind_of?(String).should == true
+>>>>>>> origin/msf-complex-payloads
 =======
       injector.generate_pe.kind_of?(String).should == true
 >>>>>>> origin/msf-complex-payloads
@@ -109,6 +131,7 @@ describe Msf::Exe::SegmentAppender do
       it 'should be the propper arch' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         expect(exe.bitsize).to eq 32
       end
 
@@ -117,13 +140,18 @@ describe Msf::Exe::SegmentAppender do
 =======
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/msf-complex-payloads
         exe.bitsize.should == 32
       end
 
       it 'should have 5 sections' do
         exe.sections.count.should == 5
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
       end
@@ -131,6 +159,7 @@ describe Msf::Exe::SegmentAppender do
       it 'should have all the right original section names' do
         s_names = []
         exe.sections.collect {|s| s_names << s.name}
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         expect(s_names[0,4]).to eq [".text", ".rdata", ".data", ".rsrc"]
@@ -145,6 +174,8 @@ describe Msf::Exe::SegmentAppender do
 =======
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/msf-complex-payloads
         s_names[0,4].should == [".text", ".rdata", ".data", ".rsrc"]
       end
 
@@ -155,7 +186,10 @@ describe Msf::Exe::SegmentAppender do
       it 'should have an entrypoint that points to the last section' do
         exe.optheader.entrypoint.should == exe.sections.last.virtaddr
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
       end

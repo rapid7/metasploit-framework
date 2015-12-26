@@ -46,9 +46,13 @@ module ReverseHttps
       [
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
+>>>>>>> origin/msf-complex-payloads
 =======
         OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
 >>>>>>> origin/msf-complex-payloads

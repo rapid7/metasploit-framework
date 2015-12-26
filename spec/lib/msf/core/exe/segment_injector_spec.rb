@@ -26,7 +26,10 @@ RSpec.describe Msf::Exe::SegmentInjector do
 =======
     injector.processor.class.should == Metasm::X86_64
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
   end

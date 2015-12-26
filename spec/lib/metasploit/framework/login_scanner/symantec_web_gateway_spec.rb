@@ -3,10 +3,14 @@ require 'metasploit/framework/login_scanner/symantec_web_gateway'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
 =======
 describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
 >>>>>>> origin/msf-complex-payloads

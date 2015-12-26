@@ -86,9 +86,12 @@ shared_examples_for 'Msf::DBManager::Session' do
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
               attr_accessor :arch
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
               attr_accessor :exploit
@@ -133,6 +136,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
               allow(db_manager).to receive(:create_match_for_vuln).and_return(nil)
 =======
               MetasploitDataModels::AutomaticExploitation::MatchSet.any_instance.stub(:create_match_for_vuln).and_return(nil)
@@ -140,6 +144,9 @@ shared_examples_for 'Msf::DBManager::Session' do
 =======
               MetasploitDataModels::AutomaticExploitation::MatchSet.any_instance.stub(:create_match_for_vuln).and_return(nil)
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+              MetasploitDataModels::AutomaticExploitation::MatchSet.any_instance.stub(:create_match_for_vuln).and_return(nil)
+>>>>>>> origin/msf-complex-payloads
 =======
               MetasploitDataModels::AutomaticExploitation::MatchSet.any_instance.stub(:create_match_for_vuln).and_return(nil)
 >>>>>>> origin/msf-complex-payloads
@@ -151,6 +158,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             let(:run) do
               FactoryGirl.create(:automatic_exploitation_run, workspace: session_workspace, match_set_id: match_set.id)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             end
@@ -227,6 +235,22 @@ shared_examples_for 'Msf::DBManager::Session' do
 
               it 'should not find workspace from session' do
                 db_manager.should_not_receive(:find_workspace)
+=======
+            end
+
+            let(:user_data) do
+              {
+                run_id: run.id
+              }
+            end
+
+            context 'with :workspace' do
+              before(:each) do
+                options[:workspace] = options_workspace
+              end
+
+              it 'should not find workspace from session' do
+                db_manager.should_not_receive(:find_workspace)
 
                 expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
@@ -239,6 +263,41 @@ shared_examples_for 'Msf::DBManager::Session' do
                 report_session
               end
 
+              it 'should pass session.workspace to #find_or_create_host' do
+                db_manager.should_receive(:find_or_create_host).with(
+                  hash_including(
+                    :workspace => session_workspace
+                  )
+                ).and_return(host)
+>>>>>>> origin/msf-complex-payloads
+
+                expect { report_session }.to change(Mdm::Vuln, :count).by(1)
+              end
+            end
+
+<<<<<<< HEAD
+            context 'without :workspace' do
+              it 'should find workspace from session' do
+                db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
+=======
+            context 'with workspace from either :workspace or session' do
+              it 'should pass normalized host from session as :host to #find_or_create_host' do
+                normalized_host = double('Normalized Host')
+                db_manager.stub(:normalize_host).with(session).and_return(normalized_host)
+                # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
+                db_manager.stub(:report_vuln)
+
+                db_manager.should_receive(:find_or_create_host).with(
+                  hash_including(
+                    :host => normalized_host
+                  )
+                ).and_return(host)
+>>>>>>> origin/msf-complex-payloads
+
+                report_session
+              end
+
+<<<<<<< HEAD
               it 'should pass session.workspace to #find_or_create_host' do
                 db_manager.should_receive(:find_or_create_host).with(
                   hash_including(
@@ -316,10 +375,41 @@ shared_examples_for 'Msf::DBManager::Session' do
                     :host => normalized_host
                   )
                 ).and_return(host)
+=======
+              context 'with session responds to arch' do
+                let(:arch) do
+                  FactoryGirl.generate :mdm_host_arch
+                end
 
-                report_session
+                before(:each) do
+                  session.stub(:arch => arch)
+                end
+
+                it 'should pass :arch to #find_or_create_host' do
+                  db_manager.should_receive(:find_or_create_host).with(
+                    hash_including(
+                      :arch => arch
+                    )
+                  ).and_call_original
+
+                  expect { report_session }.to change(Mdm::Vuln, :count).by(1)
+                end
               end
 
+              context 'without session responds to arch' do
+                it 'should not pass :arch to #find_or_create_host' do
+                  db_manager.should_receive(:find_or_create_host).with(
+                    hash_excluding(
+                      :arch
+                    )
+                  ).and_call_original
+>>>>>>> origin/msf-complex-payloads
+
+                  expect { report_session }.to change(Mdm::Vuln, :count).by(1)
+                end
+              end
+
+<<<<<<< HEAD
 =======
 
 >>>>>>> origin/msf-complex-payloads
@@ -525,6 +615,51 @@ shared_examples_for 'Msf::DBManager::Session' do
                     Timecop.return
                   end
 
+=======
+              it 'should create an Mdm::Session' do
+                expect {
+                  report_session
+                }.to change(Mdm::Session, :count).by(1)
+              end
+
+              it { should be_an Mdm::Session }
+
+              it 'should set session.db_record to created Mdm::Session' do
+                mdm_session = report_session
+
+                session.db_record.should == mdm_session
+              end
+
+              context 'with session.via_exploit' do
+
+                it 'should create Mdm::Vuln' do
+                  expect {
+                    report_session
+                  }.to change(Mdm::Vuln, :count).by(1)
+                end
+
+                context 'created Mdm::Vuln' do
+                  let(:mdm_session) do
+                    Mdm::Session.last
+                  end
+
+                  let(:rport) do
+                    nil
+                  end
+
+                  before(:each) do
+                    Timecop.freeze
+
+                    session.exploit_datastore['RPORT'] = rport
+
+                    report_session
+                  end
+
+                  after(:each) do
+                    Timecop.return
+                  end
+
+>>>>>>> origin/msf-complex-payloads
                   subject(:vuln) do
                     Mdm::Vuln.last
                   end
@@ -540,6 +675,9 @@ shared_examples_for 'Msf::DBManager::Session' do
                     end
                   end
 
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
                   context "without session.via_exploit 'exploit/multi/handler'" do
                     let(:reference_name) do
@@ -620,6 +758,9 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
 
@@ -635,6 +776,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       it { expect(subject.module).to eq(parent_module_fullname) }
                     end
                   end
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -653,6 +795,9 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+
+>>>>>>> origin/msf-complex-payloads
 =======
 
 >>>>>>> origin/msf-complex-payloads
@@ -688,6 +833,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                   expect(session.info).to be_present
                 end
 
@@ -714,6 +860,8 @@ shared_examples_for 'Msf::DBManager::Session' do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/msf-complex-payloads
                   session.info.should be_present
                 end
 
@@ -727,6 +875,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                 it 'should have session.type present' do
                   session.type.should be_present
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -756,6 +905,18 @@ shared_examples_for 'Msf::DBManager::Session' do
 
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
+                end
+
+>>>>>>> origin/msf-complex-payloads
+=======
+                end
+
+                it 'should have session.via_exploit present' do
+                  session.via_exploit.should be_present
+                end
+
+                it 'should have session.via_payload present' do
+                  session.via_exploit.should be_present
                 end
 
 >>>>>>> origin/msf-complex-payloads
@@ -775,6 +936,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                     expect(session.via_exploit).to eq 'exploit/multi/handler'
 =======
                     session.via_exploit.should == 'exploit/multi/handler'
@@ -785,10 +947,14 @@ shared_examples_for 'Msf::DBManager::Session' do
 =======
                     session.via_exploit.should == 'exploit/multi/handler'
 >>>>>>> origin/msf-complex-payloads
+=======
+                    session.via_exploit.should == 'exploit/multi/handler'
+>>>>>>> origin/msf-complex-payloads
                   end
 
                   context "with session.exploit_datastore['ParentModule']" do
                     it "should have session.exploit_datastore['ParentModule']" do
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -799,6 +965,9 @@ shared_examples_for 'Msf::DBManager::Session' do
 =======
                       session.exploit_datastore['ParentModule'].should_not be_nil
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+                      session.exploit_datastore['ParentModule'].should_not be_nil
+>>>>>>> origin/msf-complex-payloads
 =======
                       session.exploit_datastore['ParentModule'].should_not be_nil
 >>>>>>> origin/msf-complex-payloads
@@ -834,6 +1003,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     session.via_exploit = "#{type}/#{reference_name}"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                   end
 
                   it "should not have session.via_exploit of 'exploit/multi/handler'" do
@@ -857,21 +1027,35 @@ shared_examples_for 'Msf::DBManager::Session' do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+                  end
+
+                  it "should not have session.via_exploit of 'exploit/multi/handler'" do
+                    session.via_exploit.should_not == 'exploit/multi/handler'
+                  end
+
+>>>>>>> origin/msf-complex-payloads
                   it { expect(subject.via_exploit).to eq(session.via_exploit) }
                 end
               end
             end
           end
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 
           context 'without user_data' do
             let(:user_data) { nil }
 
+<<<<<<< HEAD
 =======
 
           context 'without user_data' do
             let(:user_data) { nil }
 
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
             context 'with :workspace' do
               before(:each) do
@@ -881,10 +1065,14 @@ shared_examples_for 'Msf::DBManager::Session' do
               it 'should not find workspace from session' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 expect(db_manager).not_to receive(:find_workspace)
 =======
                 db_manager.should_not_receive(:find_workspace)
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+                db_manager.should_not_receive(:find_workspace)
+>>>>>>> origin/msf-complex-payloads
 =======
                 db_manager.should_not_receive(:find_workspace)
 >>>>>>> origin/msf-complex-payloads
@@ -897,10 +1085,14 @@ shared_examples_for 'Msf::DBManager::Session' do
               it 'should find workspace from session' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 expect(db_manager).to receive(:find_workspace).with(session.workspace).and_call_original
 =======
                 db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+                db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
+>>>>>>> origin/msf-complex-payloads
 =======
                 db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
 >>>>>>> origin/msf-complex-payloads
@@ -911,10 +1103,14 @@ shared_examples_for 'Msf::DBManager::Session' do
               it 'should pass session.workspace to #find_or_create_host' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 expect(db_manager).to receive(:find_or_create_host).with(
 =======
                 db_manager.should_receive(:find_or_create_host).with(
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+                db_manager.should_receive(:find_or_create_host).with(
+>>>>>>> origin/msf-complex-payloads
 =======
                 db_manager.should_receive(:find_or_create_host).with(
 >>>>>>> origin/msf-complex-payloads
@@ -926,6 +1122,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
             end
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -966,6 +1163,22 @@ shared_examples_for 'Msf::DBManager::Session' do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+
+            context 'with workspace from either :workspace or session' do
+              it 'should pass normalized host from session as :host to #find_or_create_host' do
+                normalized_host = double('Normalized Host')
+                db_manager.stub(:normalize_host).with(session).and_return(normalized_host)
+                # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
+                db_manager.stub(:report_vuln)
+
+                db_manager.should_receive(:find_or_create_host).with(
+                    hash_including(
+                        :host => normalized_host
+                    )
+                ).and_return(host)
+
+>>>>>>> origin/msf-complex-payloads
                 report_session
               end
 
@@ -977,6 +1190,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 before(:each) do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                   allow(session).to receive(:arch).and_return(arch)
                 end
 
@@ -985,13 +1199,18 @@ shared_examples_for 'Msf::DBManager::Session' do
 =======
 =======
 >>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/msf-complex-payloads
                   session.stub(:arch => arch)
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
                   db_manager.should_receive(:find_or_create_host).with(
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
                       hash_including(
@@ -1007,10 +1226,14 @@ shared_examples_for 'Msf::DBManager::Session' do
                 it 'should not pass :arch to #find_or_create_host' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                   expect(db_manager).to receive(:find_or_create_host).with(
 =======
                   db_manager.should_receive(:find_or_create_host).with(
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+                  db_manager.should_receive(:find_or_create_host).with(
+>>>>>>> origin/msf-complex-payloads
 =======
                   db_manager.should_receive(:find_or_create_host).with(
 >>>>>>> origin/msf-complex-payloads
@@ -1031,10 +1254,14 @@ shared_examples_for 'Msf::DBManager::Session' do
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
               it { is_expected.to be_an Mdm::Session }
 =======
               it { should be_an Mdm::Session }
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+              it { should be_an Mdm::Session }
+>>>>>>> origin/msf-complex-payloads
 =======
               it { should be_an Mdm::Session }
 >>>>>>> origin/msf-complex-payloads
@@ -1044,10 +1271,14 @@ shared_examples_for 'Msf::DBManager::Session' do
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 expect(session.db_record).to eq mdm_session
 =======
                 session.db_record.should == mdm_session
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+                session.db_record.should == mdm_session
+>>>>>>> origin/msf-complex-payloads
 =======
                 session.db_record.should == mdm_session
 >>>>>>> origin/msf-complex-payloads
@@ -1064,6 +1295,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 context 'created Mdm::Vuln' do
                   let(:mdm_session) do
                     Mdm::Session.last
+<<<<<<< HEAD
                   end
 
                   let(:rport) do
@@ -1088,6 +1320,30 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
 =======
+                  end
+
+                  subject(:vuln) do
+                    Mdm::Vuln.last
+                  end
+
+>>>>>>> origin/msf-complex-payloads
+=======
+                  end
+
+                  let(:rport) do
+                    nil
+                  end
+
+                  before(:each) do
+                    Timecop.freeze
+
+                    session.exploit_datastore['RPORT'] = rport
+
+                    report_session
+                  end
+
+                  after(:each) do
+                    Timecop.return
                   end
 
                   subject(:vuln) do
@@ -1228,6 +1484,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 it 'should have session.info present' do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                   expect(session.info).to be_present
                 end
 
@@ -1286,6 +1543,15 @@ shared_examples_for 'Msf::DBManager::Session' do
                   session.sid.should be_present
                 end
 
+=======
+                  session.info.should be_present
+                end
+
+                it 'should have session.sid present' do
+                  session.sid.should be_present
+                end
+
+>>>>>>> origin/msf-complex-payloads
                 it 'should have session.platform present' do
                   session.platform.should be_present
                 end
@@ -1328,7 +1594,10 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
                 context "without session.via_exploit 'exploit/multi/handler'" do
@@ -1360,10 +1629,14 @@ shared_examples_for 'Msf::DBManager::Session' do
                   it "should not have session.via_exploit of 'exploit/multi/handler'" do
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                     expect(session.via_exploit).not_to eq 'exploit/multi/handler'
 =======
                     session.via_exploit.should_not == 'exploit/multi/handler'
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+                    session.via_exploit.should_not == 'exploit/multi/handler'
+>>>>>>> origin/msf-complex-payloads
 =======
                     session.via_exploit.should_not == 'exploit/multi/handler'
 >>>>>>> origin/msf-complex-payloads

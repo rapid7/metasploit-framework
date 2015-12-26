@@ -4,6 +4,7 @@ require 'msf/core'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 require 'msf/core/payload/transport_config'
 =======
 >>>>>>> rapid7/feature/complex-payloads
@@ -11,6 +12,8 @@ require 'msf/core/payload/transport_config'
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -28,6 +31,9 @@ require 'msf/core/payload/transport_config'
 =======
 require 'msf/core/payload/transport_config'
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 require 'msf/core/payload/windows/reverse_http'
 
@@ -36,6 +42,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> rapid7/feature/complex-payloads
@@ -44,6 +51,8 @@ module Msf
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/msf-complex-payloads
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -57,6 +66,9 @@ module Msf
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
 ###
 #
@@ -64,6 +76,7 @@ module Msf
 #
 ###
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -89,6 +102,10 @@ module Payload::Windows::ReverseHttps
 >>>>>>> origin/feature/complex-payloads
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
@@ -142,10 +159,13 @@ module Payload::Windows::ReverseHttps
     341
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> rapid7/feature/complex-payloads
 =======
 >>>>>>> origin/feature/complex-payloads
 =======
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 =======
 >>>>>>> rapid7/master
@@ -185,6 +205,9 @@ module Payload::Windows::ReverseHttps
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
 >>>>>>> origin/msf-complex-payloads
   end
 

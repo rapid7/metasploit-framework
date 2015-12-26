@@ -15,6 +15,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 50146
 =======
   CachedSize = 49398
@@ -22,6 +23,9 @@ module Metasploit4
 =======
   CachedSize = 49398
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 49398
+>>>>>>> origin/msf-complex-payloads
 =======
   CachedSize = 49398
 >>>>>>> origin/msf-complex-payloads

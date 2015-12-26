@@ -3,10 +3,14 @@ require 'metasploit/framework/login_scanner/manageengine_desktop_central'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
 =======
 describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
 >>>>>>> origin/msf-complex-payloads

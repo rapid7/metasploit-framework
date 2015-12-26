@@ -3,10 +3,14 @@ require 'rex/payloads/meterpreter/uri_checksum'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Payloads::Meterpreter::UriChecksum do
 =======
 describe Rex::Payloads::Meterpreter::UriChecksum do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Payloads::Meterpreter::UriChecksum do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Rex::Payloads::Meterpreter::UriChecksum do
 >>>>>>> origin/msf-complex-payloads
@@ -18,6 +22,7 @@ describe Rex::Payloads::Meterpreter::UriChecksum do
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   it { is_expected.to respond_to :generate_uri_checksum}
   it { is_expected.to respond_to :process_uri_resource}
   it { is_expected.to respond_to :uri_checksum_lookup}
@@ -26,6 +31,11 @@ describe Rex::Payloads::Meterpreter::UriChecksum do
   it { should respond_to :process_uri_resource}
   it { should respond_to :uri_checksum_lookup}
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+  it { should respond_to :generate_uri_checksum}
+  it { should respond_to :process_uri_resource}
+  it { should respond_to :uri_checksum_lookup}
+>>>>>>> origin/msf-complex-payloads
 =======
   it { should respond_to :generate_uri_checksum}
   it { should respond_to :process_uri_resource}

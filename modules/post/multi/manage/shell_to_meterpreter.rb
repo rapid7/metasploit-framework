@@ -44,6 +44,7 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
       OptString.new('BOURNE_PATH',
         [false, 'Remote path to drop binary']),
@@ -55,6 +56,9 @@ class Metasploit3 < Msf::Post
 =======
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> origin/msf-complex-payloads
 =======
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
 >>>>>>> origin/msf-complex-payloads
@@ -108,10 +112,13 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       target_info = cmd_exec('uname -ms')
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
       target_info = cmd_exec('uname -mo')
@@ -126,6 +133,7 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       elsif target_info =~ /darwin/i
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
@@ -134,6 +142,8 @@ class Metasploit3 < Msf::Post
 =======
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
       elsif cmd_exec('python -V') =~ /Python (2|3)\.(\d)/

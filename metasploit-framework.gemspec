@@ -68,6 +68,7 @@ Gem::Specification.new do |spec|
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.10'
 =======
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
@@ -78,10 +79,14 @@ Gem::Specification.new do |spec|
 =======
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
 >>>>>>> origin/msf-complex-payloads
+=======
+  spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
+>>>>>>> origin/msf-complex-payloads
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.0.0'
   # Needed for Meterpreter
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -92,6 +97,9 @@ Gem::Specification.new do |spec|
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
+>>>>>>> origin/msf-complex-payloads
 =======
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> origin/msf-complex-payloads
@@ -114,12 +122,15 @@ Gem::Specification.new do |spec|
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   # required for bitlocker fvek extraction
   spec.add_runtime_dependency 'openssl-ccm', '1.2.1'
 =======
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
 

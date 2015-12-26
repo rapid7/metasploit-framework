@@ -3,10 +3,14 @@ require 'rex/post/meterpreter'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe MetasploitPayloads do
 =======
 describe MetasploitPayloads do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe MetasploitPayloads do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe MetasploitPayloads do
 >>>>>>> origin/msf-complex-payloads

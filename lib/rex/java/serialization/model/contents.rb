@@ -90,10 +90,14 @@ module Rex
             when ProxyClassDesc
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
               encoded << [TC_PROXYCLASSDESC].pack('C')
 =======
               content = [TC_PROXYCLASSDESC].pack('C')
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+              content = [TC_PROXYCLASSDESC].pack('C')
+>>>>>>> origin/msf-complex-payloads
 =======
               content = [TC_PROXYCLASSDESC].pack('C')
 >>>>>>> origin/msf-complex-payloads

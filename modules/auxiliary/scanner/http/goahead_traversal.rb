@@ -24,10 +24,14 @@ class Metasploit3 < Msf::Auxiliary
           ['CVE', '2014-9707'],
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           ['PACKETSTORM', '131156']
 =======
           ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+>>>>>>> origin/msf-complex-payloads
 =======
           ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
 >>>>>>> origin/msf-complex-payloads

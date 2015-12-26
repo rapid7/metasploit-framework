@@ -5,10 +5,14 @@ require 'rex/post/meterpreter/extensions/stdapi/net/route'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Sessions::Meterpreter do
 =======
 describe Msf::Sessions::Meterpreter do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Msf::Sessions::Meterpreter do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Msf::Sessions::Meterpreter do
 >>>>>>> origin/msf-complex-payloads
@@ -44,6 +48,7 @@ describe Msf::Sessions::Meterpreter do
       m = described_class.new(StringIO.new(""), skip_ssl: true)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       allow(m).to receive_message_chain(:private_methods, :net)
       allow(m).to receive_message_chain(:private_methods, :net, :config, :get_interfaces).and_return(interfaces)
       allow(m).to receive_message_chain(:private_methods, :net, :config, :get_routes).and_return(routes)
@@ -51,6 +56,10 @@ describe Msf::Sessions::Meterpreter do
       m.stub_chain(:net, :config, :get_interfaces).and_return(interfaces)
       m.stub_chain(:net, :config, :get_routes).and_return(routes)
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      m.stub_chain(:net, :config, :get_interfaces).and_return(interfaces)
+      m.stub_chain(:net, :config, :get_routes).and_return(routes)
+>>>>>>> origin/msf-complex-payloads
 =======
       m.stub_chain(:net, :config, :get_interfaces).and_return(interfaces)
       m.stub_chain(:net, :config, :get_routes).and_return(routes)

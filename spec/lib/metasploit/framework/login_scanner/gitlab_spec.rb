@@ -3,10 +3,14 @@ require 'metasploit/framework/login_scanner/gitlab'
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Metasploit::Framework::LoginScanner::GitLab do
 =======
 describe Metasploit::Framework::LoginScanner::GitLab do
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Metasploit::Framework::LoginScanner::GitLab do
+>>>>>>> origin/msf-complex-payloads
 =======
 describe Metasploit::Framework::LoginScanner::GitLab do
 >>>>>>> origin/msf-complex-payloads
