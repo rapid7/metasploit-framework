@@ -264,6 +264,7 @@ returns nil).</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 208
 209
 210
@@ -271,6 +272,8 @@ returns nil).</p>
 212
 213
 214
+=======
+>>>>>>> origin/gh-pages
 215
 216
 217
@@ -287,10 +290,24 @@ returns nil).</p>
 228
 229
 230
+<<<<<<< HEAD
 231</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 208</span>
+=======
+231
+232
+233
+234
+235
+236
+237
+238</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 215</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_create_mdm_session_from_host'>create_mdm_session_from_host</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
   <span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
@@ -336,6 +353,7 @@ returns nil).</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 162
 163
 164
@@ -343,6 +361,8 @@ returns nil).</p>
 166
 167
 168
+=======
+>>>>>>> origin/gh-pages
 169
 170
 171
@@ -380,10 +400,24 @@ returns nil).</p>
 203
 204
 205
+<<<<<<< HEAD
 206</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 162</span>
+=======
+206
+207
+208
+209
+210
+211
+212
+213</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 169</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_create_mdm_session_from_session'>create_mdm_session_from_session</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
   <span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
@@ -546,6 +580,7 @@ returns nil)</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 109
 110
 111
@@ -554,6 +589,8 @@ returns nil)</p>
 114
 115
 116
+=======
+>>>>>>> origin/gh-pages
 117
 118
 119
@@ -597,10 +634,24 @@ returns nil)</p>
 157
 158
 159
+<<<<<<< HEAD
 160</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 109</span>
+=======
+160
+161
+162
+163
+164
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 117</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_infer_vuln_from_session'>infer_vuln_from_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='rparen'>)</span>
   <span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
@@ -646,7 +697,10 @@ returns nil)</p>
       <span class='label'>username:</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span>
       <span class='label'>vuln:</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='comma'>,</span>
       <span class='label'>workspace:</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span>
+<<<<<<< HEAD
       <span class='label'>run_id:</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_exploit'>exploit</span><span class='period'>.</span><span class='id identifier rubyid_user_data'>user_data</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:[]</span><span class='comma'>,</span> <span class='symbol'>:run_id</span><span class='rparen'>)</span>
+=======
+>>>>>>> origin/gh-pages
     <span class='rbrace'>}</span>
 
     <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_report_exploit_success'>report_exploit_success</span><span class='lparen'>(</span><span class='id identifier rubyid_attempt_info'>attempt_info</span><span class='rparen'>)</span>
@@ -1162,7 +1216,19 @@ session.</p>
 99
 100
 101
+<<<<<<< HEAD
 102</pre>
+=======
+102
+103
+104
+105
+106
+107
+108
+109
+110</pre>
+>>>>>>> origin/gh-pages
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 78</span>
@@ -1183,10 +1249,25 @@ session.</p>
 
   <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_workspace'>workspace</span>
 
+<<<<<<< HEAD
 
   <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span> <span class='kw'>and</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_via_exploit'>via_exploit</span>
     <span class='comment'># This is a live session, we know the host is vulnerable to something.
 </span>    <span class='id identifier rubyid_infer_vuln_from_session'>infer_vuln_from_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='rparen'>)</span>
+=======
+  <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_exploit'>exploit</span><span class='period'>.</span><span class='id identifier rubyid_user_data_is_match?'>user_data_is_match?</span>
+      <span class='const'>MetasploitDataModels</span><span class='op'>::</span><span class='const'>AutomaticExploitation</span><span class='op'>::</span><span class='const'>MatchResult</span><span class='period'>.</span><span class='id identifier rubyid_create!'>create!</span><span class='lparen'>(</span>
+        <span class='label'>match:</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_exploit'>exploit</span><span class='period'>.</span><span class='id identifier rubyid_user_data'>user_data</span><span class='lbracket'>[</span><span class='symbol'>:match</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>run:</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_exploit'>exploit</span><span class='period'>.</span><span class='id identifier rubyid_user_data'>user_data</span><span class='lbracket'>[</span><span class='symbol'>:run</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>state:</span> <span class='const'>MetasploitDataModels</span><span class='op'>::</span><span class='const'>AutomaticExploitation</span><span class='op'>::</span><span class='const'>MatchResult</span><span class='op'>::</span><span class='const'>SUCCEEDED</span><span class='comma'>,</span>
+      <span class='rparen'>)</span>
+      <span class='id identifier rubyid_infer_vuln_from_session'>infer_vuln_from_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_via_exploit'>via_exploit</span>
+      <span class='comment'># This is a live session, we know the host is vulnerable to something.
+</span>      <span class='id identifier rubyid_infer_vuln_from_session'>infer_vuln_from_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+>>>>>>> origin/gh-pages
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_s'>s</span>
@@ -1256,6 +1337,7 @@ session.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 237
 238
 239
@@ -1266,6 +1348,18 @@ session.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 237</span>
+=======
+244
+245
+246
+247
+248
+249
+250</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session.rb', line 244</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_truncate_session_desc'>truncate_session_desc</span><span class='lparen'>(</span><span class='id identifier rubyid_desc'>desc</span><span class='rparen'>)</span>
   <span class='comment'># Truncate the session data if necessary
@@ -1284,9 +1378,15 @@ session.</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:31:12 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:31:44 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

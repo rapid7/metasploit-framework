@@ -880,7 +880,11 @@ executable.</p>
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="FrameworkEventManager.html" title="Msf::Ui::Console::FrameworkEventManager (module)">FrameworkEventManager</a></span></h3>
+<<<<<<< HEAD
   <p class="inherited"><span class='object_link'><a href="FrameworkEventManager.html#deregister_event_handlers-instance_method" title="Msf::Ui::Console::FrameworkEventManager#deregister_event_handlers (method)">#deregister_event_handlers</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#on_session_close-instance_method" title="Msf::Ui::Console::FrameworkEventManager#on_session_close (method)">#on_session_close</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#on_session_fail-instance_method" title="Msf::Ui::Console::FrameworkEventManager#on_session_fail (method)">#on_session_fail</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#on_session_open-instance_method" title="Msf::Ui::Console::FrameworkEventManager#on_session_open (method)">#on_session_open</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#register_event_handlers-instance_method" title="Msf::Ui::Console::FrameworkEventManager#register_event_handlers (method)">#register_event_handlers</a></span></p>
+=======
+  <p class="inherited"><span class='object_link'><a href="FrameworkEventManager.html#deregister_event_handlers-instance_method" title="Msf::Ui::Console::FrameworkEventManager#deregister_event_handlers (method)">#deregister_event_handlers</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#on_session_close-instance_method" title="Msf::Ui::Console::FrameworkEventManager#on_session_close (method)">#on_session_close</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#on_session_open-instance_method" title="Msf::Ui::Console::FrameworkEventManager#on_session_open (method)">#on_session_open</a></span>, <span class='object_link'><a href="FrameworkEventManager.html#register_event_handlers-instance_method" title="Msf::Ui::Console::FrameworkEventManager#register_event_handlers (method)">#register_event_handlers</a></span></p>
+>>>>>>> origin/gh-pages
 
   
   
@@ -1239,7 +1243,19 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
 241
 242
 243
+<<<<<<< HEAD
 244</pre>
+=======
+244
+245
+246
+247
+248
+249
+250
+251
+252</pre>
+>>>>>>> origin/gh-pages
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 56</span>
@@ -1377,7 +1393,19 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
 
     <span class='comment'># framework.db.active will be true if after_establish_connection ran directly when connection_established? was
 </span>    <span class='comment'># already true or if framework.db.connect called after_establish_connection.
+<<<<<<< HEAD
 </span>    <span class='kw'>if</span> <span class='op'>!</span><span class='op'>!</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span>
+=======
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DeferModuleLoads</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_refresh_cache_from_database'>refresh_cache_from_database</span>
+
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_cache_empty?'>cache_empty?</span>
+          <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The initial module cache will be built in the background, this can take 2-5 minutes...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+>>>>>>> origin/gh-pages
       <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>RubyGem version.*pg.*0\.11</span><span class='regexp_end'>/i</span></span>
         <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>***</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
         <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -1400,12 +1428,21 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
   <span class='comment'># Initialize the module paths only if we didn&#39;t get passed a Framework instance and &#39;DeferModuleLoads&#39; is false
 </span>  <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Framework</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DeferModuleLoads</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
     <span class='comment'># Configure the framework module paths
+<<<<<<< HEAD
 </span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_init_module_paths'>init_module_paths</span><span class='lparen'>(</span><span class='label'>module_paths:</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ModulePath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DeferModuleLoads</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
     <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ModuleCacheRebuild</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='kw'>do</span>
       <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_refresh_cache_from_module_files'>refresh_cache_from_module_files</span>
+=======
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_init_module_paths'>init_module_paths</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_add_module_path'>add_module_path</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ModulePath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ModulePath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+    <span class='comment'># Rebuild the module cache in a background thread
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ModuleCacheRebuild</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_refresh_cache_from_module_files'>refresh_cache_from_module_files</span>
+>>>>>>> origin/gh-pages
     <span class='kw'>end</span>
   <span class='kw'>end</span>
 
@@ -1471,12 +1508,21 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
       <pre class="lines">
 
 
+<<<<<<< HEAD
 616
 617
 618</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 616</span>
+=======
+624
+625
+626</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 624</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_active_module'>active_module</span>
   <span class='ivar'>@active_module</span>
@@ -1514,12 +1560,21 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
       <pre class="lines">
 
 
+<<<<<<< HEAD
 624
 625
 626</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 624</span>
+=======
+632
+633
+634</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 632</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_active_resource'>active_resource</span>
   <span class='ivar'>@active_resource</span>
@@ -1557,12 +1612,21 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
       <pre class="lines">
 
 
+<<<<<<< HEAD
 620
 621
 622</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 620</span>
+=======
+628
+629
+630</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 628</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_active_session'>active_session</span>
   <span class='ivar'>@active_session</span>
@@ -1600,12 +1664,21 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
       <pre class="lines">
 
 
+<<<<<<< HEAD
 612
 613
 614</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 612</span>
+=======
+620
+621
+622</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 620</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_command_passthru'>command_passthru</span>
   <span class='ivar'>@command_passthru</span>
@@ -1643,12 +1716,21 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
       <pre class="lines">
 
 
+<<<<<<< HEAD
 608
 609
 610</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 608</span>
+=======
+616
+617
+618</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 616</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_confirm_exit'>confirm_exit</span>
   <span class='ivar'>@confirm_exit</span>
@@ -1686,12 +1768,21 @@ default resource script, &#39;msfconsole.rc&#39; in the user&#39;s
       <pre class="lines">
 
 
+<<<<<<< HEAD
 604
 605
 606</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 604</span>
+=======
+612
+613
+614</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 612</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_framework'>framework</span>
   <span class='ivar'>@framework</span>
@@ -1735,6 +1826,7 @@ preference.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 729
 730
 731
@@ -1743,6 +1835,8 @@ preference.</p>
 734
 735
 736
+=======
+>>>>>>> origin/gh-pages
 737
 738
 739
@@ -1768,10 +1862,25 @@ preference.</p>
 759
 760
 761
+<<<<<<< HEAD
 762</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 729</span>
+=======
+762
+763
+764
+765
+766
+767
+768
+769
+770</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 737</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_choose_readline'>choose_readline</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
   <span class='comment'># Choose a readline library before calling the parent
@@ -1853,6 +1962,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 631
 632
 633
@@ -1861,6 +1971,16 @@ raised.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 631</span>
+=======
+639
+640
+641
+642
+643</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 639</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_defanged?'>defanged?</span>
   <span class='kw'>if</span> <span class='ivar'>@defanged</span>
@@ -1898,6 +2018,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 700
 701
 702
@@ -1906,6 +2027,8 @@ raised.</p>
 705
 706
 707
+=======
+>>>>>>> origin/gh-pages
 708
 709
 710
@@ -1914,10 +2037,25 @@ raised.</p>
 713
 714
 715
+<<<<<<< HEAD
 716</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 700</span>
+=======
+716
+717
+718
+719
+720
+721
+722
+723
+724</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 708</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_handle_console_logging'>handle_console_logging</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(y|t|1)</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
@@ -1967,6 +2105,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 721
 722
 723
@@ -1974,6 +2113,15 @@ raised.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 721</span>
+=======
+729
+730
+731
+732</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 729</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_handle_loglevel'>handle_loglevel</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_set_log_level'>set_log_level</span><span class='lparen'>(</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>LogSource</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
@@ -2010,6 +2158,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 687
 688
 689
@@ -2022,6 +2171,20 @@ raised.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 687</span>
+=======
+695
+696
+697
+698
+699
+700
+701
+702
+703</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 695</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_handle_session_logging'>handle_session_logging</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(y|t|1)</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
@@ -2063,6 +2226,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 264
 265
 266
@@ -2071,6 +2235,8 @@ raised.</p>
 269
 270
 271
+=======
+>>>>>>> origin/gh-pages
 272
 273
 274
@@ -2099,10 +2265,25 @@ raised.</p>
 297
 298
 299
+<<<<<<< HEAD
 300</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 264</span>
+=======
+300
+301
+302
+303
+304
+305
+306
+307
+308</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 272</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_junit_error'>junit_error</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='comma'>,</span> <span class='id identifier rubyid_ftype'>ftype</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
 
@@ -2172,6 +2353,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 342
 343
 344
@@ -2180,6 +2362,16 @@ raised.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 342</span>
+=======
+350
+351
+352
+353
+354</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 350</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_junit_fatal_error'>junit_fatal_error</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='comma'>,</span> <span class='id identifier rubyid_ftype'>ftype</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_junit_error'>junit_error</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='comma'>,</span> <span class='id identifier rubyid_ftype'>ftype</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
@@ -2217,6 +2409,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 305
 306
 307
@@ -2225,6 +2418,8 @@ raised.</p>
 310
 311
 312
+=======
+>>>>>>> origin/gh-pages
 313
 314
 315
@@ -2248,10 +2443,25 @@ raised.</p>
 333
 334
 335
+<<<<<<< HEAD
 336</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 305</span>
+=======
+336
+337
+338
+339
+340
+341
+342
+343
+344</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 313</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_junit_pass'>junit_pass</span><span class='lparen'>(</span><span class='id identifier rubyid_tname'>tname</span><span class='rparen'>)</span>
 
@@ -2316,6 +2526,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 249
 250
 251
@@ -2330,6 +2541,22 @@ raised.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 249</span>
+=======
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 257</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_junit_setup'>junit_setup</span><span class='lparen'>(</span><span class='id identifier rubyid_output_path'>output_path</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_output_path'>output_path</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='id identifier rubyid_output_path'>output_path</span><span class='rparen'>)</span>
@@ -2373,6 +2600,7 @@ raised.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 370
 371
 372
@@ -2381,6 +2609,8 @@ raised.</p>
 375
 376
 377
+=======
+>>>>>>> origin/gh-pages
 378
 379
 380
@@ -2395,10 +2625,25 @@ raised.</p>
 389
 390
 391
+<<<<<<< HEAD
 392</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 370</span>
+=======
+392
+393
+394
+395
+396
+397
+398
+399
+400</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 378</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_load_config'>load_config</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>begin</span>
@@ -2455,6 +2700,7 @@ is created.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 352
 353
 354
@@ -2463,15 +2709,32 @@ is created.</p>
 357
 358
 359
+=======
+>>>>>>> origin/gh-pages
 360
 361
 362
 363
 364
+<<<<<<< HEAD
 365</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 352</span>
+=======
+365
+366
+367
+368
+369
+370
+371
+372
+373</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 360</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_load_preconfig'>load_preconfig</span>
   <span class='kw'>begin</span>
@@ -2538,6 +2801,7 @@ is created.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 423
 424
 425
@@ -2546,6 +2810,8 @@ is created.</p>
 428
 429
 430
+=======
+>>>>>>> origin/gh-pages
 431
 432
 433
@@ -2600,10 +2866,25 @@ is created.</p>
 482
 483
 484
+<<<<<<< HEAD
 485</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 423</span>
+=======
+485
+486
+487
+488
+489
+490
+491
+492
+493</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 431</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_load_resource'>load_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_path'>path</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span>
@@ -2700,6 +2981,7 @@ displayed, scripts can be processed, and other fun can be had.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 528
 529
 530
@@ -2708,6 +2990,8 @@ displayed, scripts can be processed, and other fun can be had.</p>
 533
 534
 535
+=======
+>>>>>>> origin/gh-pages
 536
 537
 538
@@ -2724,10 +3008,25 @@ displayed, scripts can be processed, and other fun can be had.</p>
 549
 550
 551
+<<<<<<< HEAD
 552</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 528</span>
+=======
+552
+553
+554
+555
+556
+557
+558
+559
+560</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 536</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_startup'>on_startup</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='comment'># Check for modules that failed to load
@@ -2788,6 +3087,7 @@ is not being set to a valid value.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 560
 561
 562
@@ -2796,6 +3096,8 @@ is not being set to a valid value.</p>
 565
 566
 567
+=======
+>>>>>>> origin/gh-pages
 568
 569
 570
@@ -2812,10 +3114,25 @@ is not being set to a valid value.</p>
 581
 582
 583
+<<<<<<< HEAD
 584</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 560</span>
+=======
+584
+585
+586
+587
+588
+589
+590
+591
+592</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 568</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_variable_set'>on_variable_set</span><span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='comma'>,</span> <span class='id identifier rubyid_var'>var</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_var'>var</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
@@ -2874,6 +3191,7 @@ indication that the variable should not be allowed to be unset.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 590
 591
 592
@@ -2887,6 +3205,21 @@ indication that the variable should not be allowed to be unset.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 590</span>
+=======
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 598</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_variable_unset'>on_variable_unset</span><span class='lparen'>(</span><span class='id identifier rubyid_glob'>glob</span><span class='comma'>,</span> <span class='id identifier rubyid_var'>var</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_var'>var</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
@@ -2929,6 +3262,7 @@ indication that the variable should not be allowed to be unset.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 397
 398
 399
@@ -2937,6 +3271,8 @@ indication that the variable should not be allowed to be unset.</p>
 402
 403
 404
+=======
+>>>>>>> origin/gh-pages
 405
 406
 407
@@ -2949,10 +3285,25 @@ indication that the variable should not be allowed to be unset.</p>
 414
 415
 416
+<<<<<<< HEAD
 417</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 397</span>
+=======
+417
+418
+419
+420
+421
+422
+423
+424
+425</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 405</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_save_config'>save_config</span>
   <span class='comment'># Build out the console config group
@@ -3006,6 +3357,7 @@ indication that the variable should not be allowed to be unset.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 490
 491
 492
@@ -3014,6 +3366,8 @@ indication that the variable should not be allowed to be unset.</p>
 495
 496
 497
+=======
+>>>>>>> origin/gh-pages
 498
 499
 500
@@ -3024,10 +3378,25 @@ indication that the variable should not be allowed to be unset.</p>
 505
 506
 507
+<<<<<<< HEAD
 508</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 490</span>
+=======
+508
+509
+510
+511
+512
+513
+514
+515
+516</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 498</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_save_recent_history'>save_recent_history</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_num'>num</span> <span class='op'>=</span> <span class='const'>Readline</span><span class='op'>::</span><span class='const'>HISTORY</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='id identifier rubyid_hist_last_saved'>hist_last_saved</span> <span class='op'>-</span> <span class='int'>1</span>
@@ -3079,6 +3448,7 @@ indication that the variable should not be allowed to be unset.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 513
 514
 515
@@ -3092,6 +3462,21 @@ indication that the variable should not be allowed to be unset.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 513</span>
+=======
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 521</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_save_resource'>save_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_path'>path</span> <span class='op'>||=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_config_directory'>config_directory</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>msfconsole.rc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -3123,6 +3508,7 @@ indication that the variable should not be allowed to be unset.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 637
 638
 639
@@ -3130,6 +3516,15 @@ indication that the variable should not be allowed to be unset.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 637</span>
+=======
+645
+646
+647
+648</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 645</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_stop'>stop</span>
   <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_ui_stop'>on_ui_stop</span><span class='lparen'>(</span><span class='rparen'>)</span>
@@ -3167,6 +3562,7 @@ executable.  This is only allowed if command passthru has been permitted</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 652
 653
 654
@@ -3175,6 +3571,8 @@ executable.  This is only allowed if command passthru has been permitted</p>
 657
 658
 659
+=======
+>>>>>>> origin/gh-pages
 660
 661
 662
@@ -3191,10 +3589,25 @@ executable.  This is only allowed if command passthru has been permitted</p>
 673
 674
 675
+<<<<<<< HEAD
 676</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 652</span>
+=======
+676
+677
+678
+679
+680
+681
+682
+683
+684</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/driver.rb', line 660</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_unknown_command'>unknown_command</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
 
@@ -3231,9 +3644,15 @@ executable.  This is only allowed if command passthru has been permitted</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:33:44 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:34:06 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

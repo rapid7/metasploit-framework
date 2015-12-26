@@ -1008,6 +1008,11 @@ objects in pwdump format.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+433
+434
+>>>>>>> origin/gh-pages
 435
 436
 437
@@ -1017,12 +1022,19 @@ objects in pwdump format.</p>
 441
 442
 443
+<<<<<<< HEAD
 444
 445
 446</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 435</span>
+=======
+444</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 433</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract_event_info'>extract_event_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='rparen'>)</span>
   <span class='ivar'>@events</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
@@ -1243,9 +1255,13 @@ counts.</p>
 427
 428
 429
+<<<<<<< HEAD
 430
 431
 432</pre>
+=======
+430</pre>
+>>>>>>> origin/gh-pages
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 309</span>
@@ -1257,8 +1273,11 @@ counts.</p>
 
     <span class='comment'># Host attributes
 </span>    <span class='id identifier rubyid_h'>h</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+<<<<<<< HEAD
       <span class='comment'># Convert IPAddr -&gt; String
 </span>      <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='kw'>if</span> <span class='id identifier rubyid_k'>k</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>address</span><span class='tstring_end'>&#39;</span></span>
+=======
+>>>>>>> origin/gh-pages
       <span class='id identifier rubyid_el'>el</span> <span class='op'>=</span> <span class='id identifier rubyid_create_xml_element'>create_xml_element</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span><span class='rparen'>)</span>
       <span class='id identifier rubyid_report_file'>report_file</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_el'>el</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='comment'># Not checking types
 </span>    <span class='kw'>end</span>
@@ -1744,6 +1763,11 @@ Mdm::Module::Detail.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+447
+448
+>>>>>>> origin/gh-pages
 449
 450
 451
@@ -1753,12 +1777,19 @@ Mdm::Module::Detail.</p>
 455
 456
 457
+<<<<<<< HEAD
 458
 459
 460</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 449</span>
+=======
+458</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 447</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract_service_info'>extract_service_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='rparen'>)</span>
   <span class='ivar'>@services</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
@@ -1943,12 +1974,21 @@ extraction.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 534
 535
 536</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 534</span>
+=======
+532
+533
+534</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 532</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract_web_form_info'>extract_web_form_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_extract_web_info'>extract_web_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>web_form</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@web_forms</span><span class='rparen'>)</span>
@@ -1984,6 +2024,11 @@ extraction.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+500
+501
+>>>>>>> origin/gh-pages
 502
 503
 504
@@ -2006,12 +2051,19 @@ extraction.</p>
 521
 522
 523
+<<<<<<< HEAD
 524
 525
 526</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 502</span>
+=======
+524</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 500</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract_web_info'>extract_web_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='comma'>,</span> <span class='id identifier rubyid_tag'>tag</span><span class='comma'>,</span> <span class='id identifier rubyid_entries'>entries</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_entries'>entries</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
@@ -2069,12 +2121,21 @@ extraction.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 529
 530
 531</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 529</span>
+=======
+527
+528
+529</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 527</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract_web_page_info'>extract_web_page_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_extract_web_info'>extract_web_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>web_page</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@web_pages</span><span class='rparen'>)</span>
@@ -2110,6 +2171,11 @@ extraction.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+476
+477
+>>>>>>> origin/gh-pages
 478
 479
 480
@@ -2129,12 +2195,19 @@ extraction.</p>
 494
 495
 496
+<<<<<<< HEAD
 497
 498
 499</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 478</span>
+=======
+497</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 476</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract_web_site_info'>extract_web_site_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='rparen'>)</span>
   <span class='ivar'>@web_sites</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
@@ -2189,12 +2262,21 @@ extraction.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 539
 540
 541</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 539</span>
+=======
+537
+538
+539</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_export.rb', line 537</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extract_web_vuln_info'>extract_web_vuln_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_extract_web_info'>extract_web_info</span><span class='lparen'>(</span><span class='id identifier rubyid_report_file'>report_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>web_vuln</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@web_vulns</span><span class='rparen'>)</span>
@@ -2640,9 +2722,15 @@ objects in pwdump format</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:33:37 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:33:59 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

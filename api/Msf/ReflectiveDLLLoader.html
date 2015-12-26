@@ -141,6 +141,7 @@ ReflectiveLoader function inside the DLL.</p>
 </li>
 
       
+<<<<<<< HEAD
         <li class="public ">
   <span class="summary_signature">
     
@@ -166,6 +167,8 @@ the ReflectiveLoader function inside the DLL.</p>
 </li>
 
       
+=======
+>>>>>>> origin/gh-pages
     </ul>
   
 
@@ -241,13 +244,17 @@ function within the DLL.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 20
 21
+=======
+>>>>>>> origin/gh-pages
 22
 23
 24
 25
 26
+<<<<<<< HEAD
 27</pre>
     </td>
     <td>
@@ -344,6 +351,48 @@ the ReflectiveLoader function inside the DLL.</p>
   <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_pe'>parse_pe</span><span class='lparen'>(</span><span class='id identifier rubyid_dll_data'>dll_data</span><span class='rparen'>)</span>
 
   <span class='id identifier rubyid_offset'>offset</span>
+=======
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/reflective_dll_loader.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_rdi_dll'>load_rdi_dll</span><span class='lparen'>(</span><span class='id identifier rubyid_dll_path'>dll_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dll'>dll</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_dll_path'>dll_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span> <span class='id identifier rubyid_dll'>dll</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span> <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_pe'>pe</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>PeParsey</span><span class='op'>::</span><span class='const'>Pe</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>ImageSource</span><span class='op'>::</span><span class='const'>Memory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dll'>dll</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_exports'>exports</span><span class='period'>.</span><span class='id identifier rubyid_entries'>entries</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\S*ReflectiveLoader\S*</span><span class='regexp_end'>/</span></span>
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_rva_to_file_offset'>rva_to_file_offset</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_rva'>rva</span><span class='rparen'>)</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_offset'>offset</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot find the ReflectiveLoader entry point in </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dll_path'>dll_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_dll'>dll</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span>
+>>>>>>> origin/gh-pages
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -355,9 +404,15 @@ the ReflectiveLoader function inside the DLL.</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:31:30 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:32:22 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

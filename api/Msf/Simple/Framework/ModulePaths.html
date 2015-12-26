@@ -190,6 +190,7 @@
 34
 35
 36
+<<<<<<< HEAD
 37
 38
 39
@@ -208,6 +209,9 @@
 52
 53
 54</pre>
+=======
+37</pre>
+>>>>>>> origin/gh-pages
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework/module_paths.rb', line 9</span>
@@ -215,6 +219,7 @@
 <span class='kw'>def</span> <span class='id identifier rubyid_init_module_paths'>init_module_paths</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='ivar'>@module_paths_inited</span>
     <span class='id identifier rubyid_fail'>fail</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Module paths already initialized.  To add more module paths call `modules.add_module_path`</span><span class='tstring_end'>&quot;</span></span>
+<<<<<<< HEAD
     <span class='kw'>return</span>
   <span class='kw'>end</span>
 
@@ -257,6 +262,33 @@
   <span class='kw'>end</span>
 
   <span class='ivar'>@module_paths_inited</span> <span class='op'>=</span> <span class='kw'>true</span>
+=======
+  <span class='kw'>else</span>
+    <span class='comment'># Ensure the module cache is accurate
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_refresh_cache_from_database'>refresh_cache_from_database</span>
+
+    <span class='id identifier rubyid_add_engine_module_paths'>add_engine_module_paths</span><span class='lparen'>(</span><span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_application'>application</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+    <span class='const'>Rails</span><span class='period'>.</span><span class='id identifier rubyid_application'>application</span><span class='period'>.</span><span class='id identifier rubyid_railties'>railties</span><span class='period'>.</span><span class='id identifier rubyid_engines'>engines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_engine'>engine</span><span class='op'>|</span>
+      <span class='id identifier rubyid_add_engine_module_paths'>add_engine_module_paths</span><span class='lparen'>(</span><span class='id identifier rubyid_engine'>engine</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Initialize the user module search path
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_user_module_directory'>user_module_directory</span><span class='rparen'>)</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_add_module_path'>add_module_path</span><span class='lparen'>(</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_user_module_directory'>user_module_directory</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># If additional module paths have been defined globally, then load them.
+</span>    <span class='comment'># They should be separated by semi-colons.
+</span>    <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MsfModulePaths</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MsfModulePaths</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_path'>path</span><span class='op'>|</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_add_module_path'>add_module_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+
+    <span class='ivar'>@module_paths_inited</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+>>>>>>> origin/gh-pages
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -268,9 +300,15 @@
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:32:20 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:32:54 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

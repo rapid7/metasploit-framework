@@ -296,6 +296,7 @@ connections, allowing input and output to be split across both.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 251
 252
 253
@@ -312,6 +313,24 @@ connections, allowing input and output to be split across both.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 251</span>
+=======
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 292</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_inp'>inp</span><span class='comma'>,</span> <span class='id identifier rubyid_out'>out</span><span class='rparen'>)</span>
   <span class='ivar'>@framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
@@ -364,6 +383,7 @@ connections, allowing input and output to be split across both.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 309
 310
 311
@@ -373,6 +393,17 @@ connections, allowing input and output to be split across both.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 309</span>
+=======
+350
+351
+352
+353
+354
+355</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 350</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
   <span class='ivar'>@monitor_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@monitor_thread</span><span class='rparen'>)</span>
@@ -415,6 +446,7 @@ data to the shell&#39;s stdin on the other side.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 272
 273
 274
@@ -443,6 +475,36 @@ data to the shell&#39;s stdin on the other side.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 272</span>
+=======
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 313</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_monitor_shell_stdout'>monitor_shell_stdout</span>
 
@@ -489,12 +551,21 @@ data to the shell&#39;s stdin on the other side.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 302
 303
 304</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 302</span>
+=======
+343
+344
+345</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 343</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='op'>=</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='ivar'>@sock_out</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
@@ -519,12 +590,21 @@ data to the shell&#39;s stdin on the other side.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 298
 299
 300</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 298</span>
+=======
+339
+340
+341</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_tcp_double_ssl.rb', line 339</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='ivar'>@sock_inp</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
@@ -539,9 +619,15 @@ data to the shell&#39;s stdin on the other side.</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:34:11 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:34:35 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

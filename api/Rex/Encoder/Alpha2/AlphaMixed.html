@@ -119,7 +119,11 @@
         <li class="public ">
   <span class="summary_signature">
     
+<<<<<<< HEAD
       <a href="#gen_decoder-class_method" title="gen_decoder (class method)">+ (String) <strong>gen_decoder</strong>(reg, offset, modified_registers = []) </a>
+=======
+      <a href="#gen_decoder-class_method" title="gen_decoder (class method)">+ (Object) <strong>gen_decoder</strong>(reg, offset) </a>
+>>>>>>> origin/gh-pages
     
 
     
@@ -133,9 +137,13 @@
   
 
   
+<<<<<<< HEAD
     <span class="summary_desc"><div class='inline'>
 <p>Generates the decoder stub.</p>
 </div></span>
+=======
+    <span class="summary_desc"><div class='inline'></div></span>
+>>>>>>> origin/gh-pages
   
 </li>
 
@@ -143,7 +151,11 @@
         <li class="public ">
   <span class="summary_signature">
     
+<<<<<<< HEAD
       <a href="#gen_decoder_prefix-class_method" title="gen_decoder_prefix (class method)">+ (String) <strong>gen_decoder_prefix</strong>(reg, offset, modified_registers = []) </a>
+=======
+      <a href="#gen_decoder_prefix-class_method" title="gen_decoder_prefix (class method)">+ (Object) <strong>gen_decoder_prefix</strong>(reg, offset) </a>
+>>>>>>> origin/gh-pages
     
 
     
@@ -157,9 +169,13 @@
   
 
   
+<<<<<<< HEAD
     <span class="summary_desc"><div class='inline'>
 <p>Generates the decoder stub prefix.</p>
 </div></span>
+=======
+    <span class="summary_desc"><div class='inline'></div></span>
+>>>>>>> origin/gh-pages
   
 </li>
 
@@ -187,12 +203,17 @@
       <div class="method_details first">
   <h3 class="signature first" id="gen_decoder-class_method">
   
+<<<<<<< HEAD
     + (<tt>String</tt>) <strong>gen_decoder</strong>(reg, offset, modified_registers = []) 
+=======
+    + (<tt>Object</tt>) <strong>gen_decoder</strong>(reg, offset) 
+>>>>>>> origin/gh-pages
   
 
   
 
   
+<<<<<<< HEAD
 </h3><div class="docstring">
   <div class="discussion">
     
@@ -277,11 +298,15 @@
 </ul>
 
 </div><table class="source_code">
+=======
+</h3><table class="source_code">
+>>>>>>> origin/gh-pages
   <tr>
     <td>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 93
 94
 95
@@ -326,6 +351,37 @@
 
   <span class='id identifier rubyid_decoder'>decoder</span> <span class='op'>=</span>
      <span class='id identifier rubyid_gen_decoder_prefix'>gen_decoder_prefix</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_mod_registers'>mod_registers</span><span class='rparen'>)</span> <span class='op'>+</span>
+=======
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/alpha2/alpha_mixed.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_gen_decoder'>gen_decoder</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_decoder'>decoder</span> <span class='op'>=</span>
+     <span class='id identifier rubyid_gen_decoder_prefix'>gen_decoder_prefix</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span> <span class='op'>+</span>
+>>>>>>> origin/gh-pages
      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>jA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>          <span class='comment'># push 0x41
 </span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>X</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># pop eax
 </span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>P</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># push eax
@@ -343,6 +399,7 @@
 </span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>uJ</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>          <span class='comment'># jnz short -------------------------
 </span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>I</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'># first encoded char, fixes the above J
 </span>
+<<<<<<< HEAD
   <span class='id identifier rubyid_mod_registers'>mod_registers</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span>
     <span class='lbracket'>[</span>
       <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>ESP</span><span class='comma'>,</span>
@@ -355,6 +412,9 @@
   <span class='id identifier rubyid_modified_registers'>modified_registers</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_mod_registers'>mod_registers</span><span class='rparen'>)</span>
 
   <span class='id identifier rubyid_decoder'>decoder</span>
+=======
+  <span class='kw'>return</span> <span class='id identifier rubyid_decoder'>decoder</span>
+>>>>>>> origin/gh-pages
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -364,6 +424,7 @@
       <div class="method_details ">
   <h3 class="signature " id="gen_decoder_prefix-class_method">
   
+<<<<<<< HEAD
     + (<tt>String</tt>) <strong>gen_decoder_prefix</strong>(reg, offset, modified_registers = []) 
   
 
@@ -454,11 +515,29 @@
 </ul>
 
 </div><table class="source_code">
+=======
+    + (<tt>Object</tt>) <strong>gen_decoder_prefix</strong>(reg, offset) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+>>>>>>> origin/gh-pages
   <tr>
     <td>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+11
+12
+13
+14
+15
+16
+>>>>>>> origin/gh-pages
 17
 18
 19
@@ -485,6 +564,7 @@
 40
 41
 42
+<<<<<<< HEAD
 43
 44
 45
@@ -569,6 +649,29 @@
     <span class='id identifier rubyid_edx_regs'>edx_regs</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>EDX</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_edxmod'>edxmod</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
   <span class='kw'>end</span>
 
+=======
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/alpha2/alpha_mixed.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_gen_decoder_prefix'>gen_decoder_prefix</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>&gt;</span> <span class='int'>32</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Critical: Offset is greater than 32</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># use inc ebx as a nop here so we still pad correctly
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>&lt;=</span> <span class='int'>16</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_nop'>nop</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_offset'>offset</span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>I</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>16</span> <span class='op'>-</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_nop'>nop</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>7QZ</span><span class='tstring_end'>&#39;</span></span>    <span class='comment'># dec ecx,,, push ecx, pop edx
+</span>    <span class='id identifier rubyid_edxmod'>edxmod</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>J</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>17</span> <span class='op'>-</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>A</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>-</span> <span class='int'>16</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_nop'>nop</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>16</span> <span class='op'>-</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_nop'>nop</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>7QZ</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_edxmod'>edxmod</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>B</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>17</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>-</span> <span class='int'>16</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+>>>>>>> origin/gh-pages
   <span class='id identifier rubyid_regprefix'>regprefix</span> <span class='op'>=</span> <span class='lbrace'>{</span>
     <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EAX</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PY</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                         <span class='comment'># push eax, pop ecx
 </span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ECX</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>I</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                          <span class='comment'># dec ecx
@@ -581,6 +684,7 @@
 </span>  <span class='rbrace'>}</span>
 
   <span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_upcase!'>upcase!</span>
+<<<<<<< HEAD
 
   <span class='kw'>unless</span> <span class='id identifier rubyid_regprefix'>regprefix</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid register name</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -599,6 +703,11 @@
   <span class='id identifier rubyid_mod_registers'>mod_registers</span><span class='period'>.</span><span class='id identifier rubyid_uniq!'>uniq!</span>
   <span class='id identifier rubyid_modified_registers'>modified_registers</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_mod_registers'>mod_registers</span><span class='rparen'>)</span>
 
+=======
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_regprefix'>regprefix</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid register name</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+>>>>>>> origin/gh-pages
   <span class='kw'>return</span> <span class='id identifier rubyid_regprefix'>regprefix</span><span class='lbracket'>[</span><span class='id identifier rubyid_reg'>reg</span><span class='rbracket'>]</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -611,9 +720,15 @@
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:35:20 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:35:45 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

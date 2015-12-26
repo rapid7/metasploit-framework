@@ -80,7 +80,11 @@
   
     <dt class="r1 last">Defined in:</dt>
     <dd class="r1 last">lib/rex/arch.rb<span class="defines">,<br />
+<<<<<<< HEAD
   lib/rex/arch/x86.rb,<br /> lib/rex/arch/zarch.rb,<br /> lib/rex/arch/sparc.rb</span>
+=======
+  lib/rex/arch/x86.rb,<br /> lib/rex/arch/sparc.rb</span>
+>>>>>>> origin/gh-pages
 </dd>
   
 </dl>
@@ -103,7 +107,11 @@ module provide features that are specific to a given architecture.</p>
 <p class="children">
   
     
+<<<<<<< HEAD
       <strong class="modules">Modules:</strong> <span class='object_link'><a href="Arch/Sparc.html" title="Rex::Arch::Sparc (module)">Sparc</a></span>, <span class='object_link'><a href="Arch/X86.html" title="Rex::Arch::X86 (module)">X86</a></span>, <span class='object_link'><a href="Arch/ZARCH.html" title="Rex::Arch::ZARCH (module)">ZARCH</a></span>
+=======
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Arch/Sparc.html" title="Rex::Arch::Sparc (module)">Sparc</a></span>, <span class='object_link'><a href="Arch/X86.html" title="Rex::Arch::X86 (module)">X86</a></span>
+>>>>>>> origin/gh-pages
     
   
     
@@ -231,6 +239,10 @@ module provide features that are specific to a given architecture.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+25
+>>>>>>> origin/gh-pages
 26
 27
 28
@@ -242,11 +254,18 @@ module provide features that are specific to a given architecture.</p>
 34
 35
 36
+<<<<<<< HEAD
 37
 38</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/arch.rb', line 26</span>
+=======
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch.rb', line 25</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_adjust_stack_pointer'>adjust_stack_pointer</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='comma'>,</span> <span class='id identifier rubyid_adjustment'>adjustment</span><span class='rparen'>)</span>
 
@@ -292,6 +311,12 @@ module provide features that are specific to a given architecture.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+73
+74
+75
+>>>>>>> origin/gh-pages
 76
 77
 78
@@ -317,6 +342,7 @@ module provide features that are specific to a given architecture.</p>
 98
 99
 100
+<<<<<<< HEAD
 101
 102
 103
@@ -326,6 +352,12 @@ module provide features that are specific to a given architecture.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/arch.rb', line 76</span>
+=======
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch.rb', line 73</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_endian'>endian</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span>
 
@@ -352,8 +384,11 @@ module provide features that are specific to a given architecture.</p>
       <span class='kw'>return</span> <span class='const'>ENDIAN_LITTLE</span>
     <span class='kw'>when</span> <span class='const'>ARCH_ARMBE</span>
       <span class='kw'>return</span> <span class='const'>ENDIAN_BIG</span>
+<<<<<<< HEAD
     <span class='kw'>when</span> <span class='const'>ARCH_ZARCH</span>
       <span class='kw'>return</span> <span class='const'>ENDIAN_BIG</span>
+=======
+>>>>>>> origin/gh-pages
   <span class='kw'>end</span>
 
   <span class='kw'>return</span> <span class='const'>ENDIAN_LITTLE</span>
@@ -389,6 +424,10 @@ module provide features that are specific to a given architecture.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+42
+>>>>>>> origin/gh-pages
 43
 44
 45
@@ -414,6 +453,7 @@ module provide features that are specific to a given architecture.</p>
 65
 66
 67
+<<<<<<< HEAD
 68
 69
 70
@@ -421,6 +461,12 @@ module provide features that are specific to a given architecture.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/arch.rb', line 43</span>
+=======
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch.rb', line 42</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pack_addr'>pack_addr</span><span class='lparen'>(</span><span class='id identifier rubyid_arch'>arch</span><span class='comma'>,</span> <span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
 
@@ -447,8 +493,11 @@ module provide features that are specific to a given architecture.</p>
       <span class='lbracket'>[</span><span class='id identifier rubyid_addr'>addr</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
     <span class='kw'>when</span> <span class='const'>ARCH_ARMBE</span>
       <span class='lbracket'>[</span><span class='id identifier rubyid_addr'>addr</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<<<<<<< HEAD
     <span class='kw'>when</span> <span class='const'>ARCH_ZARCH</span>
       <span class='lbracket'>[</span><span class='id identifier rubyid_addr'>addr</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q&gt;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+=======
+>>>>>>> origin/gh-pages
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -461,9 +510,15 @@ module provide features that are specific to a given architecture.</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:33:02 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:33:19 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

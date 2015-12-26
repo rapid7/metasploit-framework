@@ -160,6 +160,7 @@
         <li class="public ">
   <span class="summary_signature">
     
+<<<<<<< HEAD
       <a href="#check_key_exists-class_method" title="check_key_exists (class method)">+ (Boolean) <strong>check_key_exists</strong>(root_key, base_key) </a>
     
 
@@ -184,6 +185,8 @@
         <li class="public ">
   <span class="summary_signature">
     
+=======
+>>>>>>> origin/gh-pages
       <a href="#close_key-class_method" title="close_key (class method)">+ (Object) <strong>close_key</strong>(hkey) </a>
     
 
@@ -710,6 +713,7 @@ RegistryValue instance if a match is found.</p>
 
     
       <div class="method_details first">
+<<<<<<< HEAD
   <h3 class="signature first" id="check_key_exists-class_method">
   
     + (<tt>Boolean</tt>) <strong>check_key_exists</strong>(root_key, base_key) 
@@ -847,6 +851,9 @@ session hasn&#39;t permissions to access the target key.</p>
     
       <div class="method_details ">
   <h3 class="signature " id="close_key-class_method">
+=======
+  <h3 class="signature first" id="close_key-class_method">
+>>>>>>> origin/gh-pages
   
     + (<tt>Object</tt>) <strong>close_key</strong>(hkey) 
   
@@ -871,6 +878,7 @@ session hasn&#39;t permissions to access the target key.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 155
 156
 157
@@ -883,6 +891,20 @@ session hasn&#39;t permissions to access the target key.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 155</span>
+=======
+139
+140
+141
+142
+143
+144
+145
+146
+147</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 139</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_close_key'>close_key</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_close_key</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -924,6 +946,7 @@ session hasn&#39;t permissions to access the target key.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 117
 118
 119
@@ -939,6 +962,23 @@ session hasn&#39;t permissions to access the target key.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 117</span>
+=======
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 101</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_create_key'>create_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'>KEY_READ</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_create_key</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -983,6 +1023,7 @@ session hasn&#39;t permissions to access the target key.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 133
 134
 135
@@ -1004,6 +1045,29 @@ session hasn&#39;t permissions to access the target key.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 133</span>
+=======
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 117</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_delete_key'>delete_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_recursive'>recursive</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_delete_key</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1054,6 +1118,7 @@ session hasn&#39;t permissions to access the target key.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 305
 306
 307
@@ -1069,6 +1134,23 @@ session hasn&#39;t permissions to access the target key.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 305</span>
+=======
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 289</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_delete_value'>delete_value</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_delete_value</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1113,6 +1195,7 @@ session hasn&#39;t permissions to access the target key.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 168
 169
 170
@@ -1131,6 +1214,26 @@ session hasn&#39;t permissions to access the target key.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 168</span>
+=======
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 152</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_enum_key'>enum_key</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_keys'>keys</span>    <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
@@ -1167,6 +1270,7 @@ session hasn&#39;t permissions to access the target key.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 184
 185
 186
@@ -1187,6 +1291,28 @@ session hasn&#39;t permissions to access the target key.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 184</span>
+=======
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 168</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_enum_key_direct'>enum_key_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'>KEY_READ</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_enum_key_direct</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1237,6 +1363,7 @@ An array of RegistryValue&#39;s is returned.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 337
 338
 339
@@ -1255,6 +1382,26 @@ An array of RegistryValue&#39;s is returned.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 337</span>
+=======
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 321</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_enum_value'>enum_value</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_enum_value</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1291,6 +1438,7 @@ An array of RegistryValue&#39;s is returned.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 353
 354
 355
@@ -1311,6 +1459,28 @@ An array of RegistryValue&#39;s is returned.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 353</span>
+=======
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 337</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_enum_value_direct'>enum_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'>KEY_READ</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_enum_value_direct</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1361,6 +1531,7 @@ for converting HKLM as a string into its actual integer representation.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 375
 376
 377
@@ -1383,6 +1554,30 @@ for converting HKLM as a string into its actual integer representation.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 375</span>
+=======
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 359</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_key2str'>key2str</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_LOCAL_MACHINE</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1548,6 +1743,7 @@ target has the remote registry service running.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 101
 102
 103
@@ -1563,6 +1759,23 @@ target has the remote registry service running.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 101</span>
+=======
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 85</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_open_remote_key'>open_remote_key</span><span class='lparen'>(</span><span class='id identifier rubyid_target_host'>target_host</span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
 
@@ -1607,6 +1820,7 @@ target has the remote registry service running.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 321
 322
 323
@@ -1621,6 +1835,22 @@ target has the remote registry service running.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 321</span>
+=======
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 305</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_query_class'>query_class</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_query_class</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1653,6 +1883,7 @@ target has the remote registry service running.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 280
 281
 282
@@ -1676,6 +1907,31 @@ target has the remote registry service running.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 280</span>
+=======
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 264</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_query_value'>query_value</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_query_value</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1729,11 +1985,31 @@ RegistryValue instance if a match is found.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+>>>>>>> origin/gh-pages
 257
 258
 259
 260
 261
+<<<<<<< HEAD
 262
 263
 264
@@ -1754,6 +2030,12 @@ RegistryValue instance if a match is found.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 257</span>
+=======
+262</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 241</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_query_value_direct'>query_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'>KEY_READ</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_query_value_direct</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1808,6 +2090,7 @@ RegistryValue instance if a match is found.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 211
 212
 213
@@ -1830,6 +2113,30 @@ RegistryValue instance if a match is found.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 211</span>
+=======
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 195</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_set_value'>set_value</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_set_value</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1870,10 +2177,30 @@ RegistryValue instance if a match is found.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+>>>>>>> origin/gh-pages
 231
 232
 233
 234
+<<<<<<< HEAD
 235
 236
 237
@@ -1894,6 +2221,12 @@ RegistryValue instance if a match is found.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 231</span>
+=======
+235</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 215</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='const'>Registry</span><span class='period'>.</span><span class='id identifier rubyid_set_value_direct'>set_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'>KEY_WRITE</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_registry_set_value_direct</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
@@ -1949,6 +2282,7 @@ instance, passing HKLMSoftwareDog will return [ HKEY_LOCAL_MACHINE,
       <pre class="lines">
 
 
+<<<<<<< HEAD
 420
 421
 422
@@ -1959,6 +2293,18 @@ instance, passing HKLMSoftwareDog will return [ HKEY_LOCAL_MACHINE,
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 420</span>
+=======
+404
+405
+406
+407
+408
+409
+410</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 404</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(.+?)\\(.*)$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
@@ -2044,6 +2390,7 @@ instance, passing HKLMSoftwareDog will return [ HKEY_LOCAL_MACHINE,
       <pre class="lines">
 
 
+<<<<<<< HEAD
 402
 403
 404
@@ -2059,6 +2406,23 @@ instance, passing HKLMSoftwareDog will return [ HKEY_LOCAL_MACHINE,
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 402</span>
+=======
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 386</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type2str'>type2str</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_type'>type</span>
@@ -2120,9 +2484,15 @@ instance, passing HKLMSoftwareDog will return [ HKEY_LOCAL_MACHINE,
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:35:38 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:36:03 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

@@ -486,22 +486,30 @@ vuln instance of each entry.</p>
 47
 48
 49
+<<<<<<< HEAD
 50
 51
 52
 53
 54</pre>
+=======
+50</pre>
+>>>>>>> origin/gh-pages
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 47</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_find_vuln_by_refs'>find_vuln_by_refs</span><span class='lparen'>(</span><span class='id identifier rubyid_refs'>refs</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_ref_ids'>ref_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_refs'>refs</span><span class='period'>.</span><span class='id identifier rubyid_find_all'>find_all</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_ref'>ref</span><span class='op'>|</span> <span class='id identifier rubyid_ref'>ref</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CVE-</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span>
+<<<<<<< HEAD
   <span class='id identifier rubyid_relation'>relation</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_includes'>includes</span><span class='lparen'>(</span><span class='symbol'>:refs</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
     <span class='kw'>return</span> <span class='id identifier rubyid_relation'>relation</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>service_id:</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>refs:</span> <span class='lbrace'>{</span> <span class='label'>id:</span> <span class='id identifier rubyid_ref_ids'>ref_ids</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
   <span class='kw'>end</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_relation'>relation</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>refs:</span> <span class='lbrace'>{</span> <span class='label'>id:</span> <span class='id identifier rubyid_ref_ids'>ref_ids</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+=======
+  <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_includes'>includes</span><span class='lparen'>(</span><span class='symbol'>:refs</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>service_id:</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>refs:</span> <span class='lbrace'>{</span> <span class='label'>id:</span> <span class='id identifier rubyid_ref_ids'>ref_ids</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+>>>>>>> origin/gh-pages
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -545,6 +553,13 @@ vuln instance of each entry.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+52
+53
+54
+55
+>>>>>>> origin/gh-pages
 56
 57
 58
@@ -553,6 +568,7 @@ vuln instance of each entry.</p>
 61
 62
 63
+<<<<<<< HEAD
 64
 65
 66
@@ -561,6 +577,12 @@ vuln instance of each entry.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 56</span>
+=======
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 52</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get_vuln'>get_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not workspace safe: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_caller'>caller</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
@@ -619,6 +641,7 @@ vuln instance of each entry.</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 73
 74
 75
@@ -627,6 +650,16 @@ vuln instance of each entry.</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 73</span>
+=======
+69
+70
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 69</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_has_vuln?'>has_vuln?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
 <span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
@@ -697,6 +730,13 @@ VulnDetail fields</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
+=======
+85
+86
+87
+88
+>>>>>>> origin/gh-pages
 89
 90
 91
@@ -827,6 +867,7 @@ VulnDetail fields</p>
 216
 217
 218
+<<<<<<< HEAD
 219
 220
 221
@@ -835,6 +876,12 @@ VulnDetail fields</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 89</span>
+=======
+219</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 85</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_report_vuln'>report_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_active'>active</span>
@@ -1002,6 +1049,7 @@ VulnDetail fields</p>
       <pre class="lines">
 
 
+<<<<<<< HEAD
 228
 229
 230
@@ -1010,6 +1058,16 @@ VulnDetail fields</p>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 228</span>
+=======
+224
+225
+226
+227
+228</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 224</span>
+>>>>>>> origin/gh-pages
 
 <span class='kw'>def</span> <span class='id identifier rubyid_vulns'>vulns</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='op'>=</span><span class='id identifier rubyid_workspace'>workspace</span><span class='rparen'>)</span>
 <span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
@@ -1026,9 +1084,15 @@ VulnDetail fields</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:30:38 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:31:18 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

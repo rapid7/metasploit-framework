@@ -3077,7 +3077,11 @@ warning, so give the user a better understanding of what&#39;s going on.</p>
     <span class='kw'>case</span> <span class='id identifier rubyid_arg'>arg</span>
     <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--help</span><span class='tstring_end'>&#39;</span></span>
       <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage:</span><span class='tstring_end'>&quot;</span></span>
+<<<<<<< HEAD
       <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    db_export -f &lt;format&gt; [filename]</span><span class='tstring_end'>&quot;</span></span>
+=======
+      <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    db_export -f &lt;format&gt; [-a] [filename]</span><span class='tstring_end'>&quot;</span></span>
+>>>>>>> origin/gh-pages
       <span class='id identifier rubyid_print_line'>print_line</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    Format can be one of: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_export_formats'>export_formats</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>, </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
     <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-f</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--format</span><span class='tstring_end'>&#39;</span></span>
       <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
@@ -8125,9 +8129,15 @@ datastore from an array of addresses</p>
 </div>
 
     <div id="footer">
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:34:06 2015 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:34:30 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
 </div>
 
   </body>

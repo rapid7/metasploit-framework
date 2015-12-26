@@ -1,0 +1,418 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Java::Rmi::Client::Registry::Builder
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../../';
+  framesUrl = "../../../../../frames.html#!Msf/Java/Rmi/Client/Registry/Builder.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Java.html" title="Msf::Java (module)">Java</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Rmi.html" title="Msf::Java::Rmi (module)">Rmi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Client.html" title="Msf::Java::Rmi::Client (module)">Client</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Registry.html" title="Msf::Java::Rmi::Client::Registry (module)">Registry</a></span></span>
+     &raquo; 
+    <span class="title">Builder</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Java::Rmi::Client::Registry::Builder
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../Registry.html" title="Msf::Java::Rmi::Client::Registry (module)">Msf::Java::Rmi::Client::Registry</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/java/rmi/client/registry/builder.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_registry_list-instance_method" title="#build_registry_list (instance method)">- (Rex::Proto::Rmi::Model::Call) <strong>build_registry_list</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds an RMI call to java/rmi/registry/RegistryImpl_Stub#list() used to
+enumerate the names bound in a registry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_registry_lookup-instance_method" title="#build_registry_lookup (instance method)">- (Rex::Proto::Rmi::Model::Call) <strong>build_registry_lookup</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds an RMI call to java/rmi/registry/RegistryImpl_Stub#lookup() used to
+retrieve the remote reference bound to a name.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="build_registry_list-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../../../Rex/Proto/Rmi/Model/Call.html" title="Rex::Proto::Rmi::Model::Call (class)">Rex::Proto::Rmi::Model::Call</a></span></tt>) <strong>build_registry_list</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds an RMI call to java/rmi/registry/RegistryImpl_Stub#list() used to
+enumerate the names bound in a registry</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../../../Rex/Proto/Rmi/Model/Call.html" title="Rex::Proto::Rmi::Model::Call (class)">Rex::Proto::Rmi::Model::Call</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>Builder.build_call</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client/registry/builder.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_registry_list'>build_registry_list</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_object_number'>object_number</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:object_number</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_uid_number'>uid_number</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uid_number</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_uid_time'>uid_time</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uid_time</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_uid_count'>uid_count</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uid_count</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_call'>call</span> <span class='op'>=</span> <span class='id identifier rubyid_build_call'>build_call</span><span class='lparen'>(</span>
+    <span class='label'>object_number:</span> <span class='id identifier rubyid_object_number'>object_number</span><span class='comma'>,</span>
+    <span class='label'>uid_number:</span> <span class='id identifier rubyid_uid_number'>uid_number</span><span class='comma'>,</span>
+    <span class='label'>uid_time:</span> <span class='id identifier rubyid_uid_time'>uid_time</span><span class='comma'>,</span>
+    <span class='label'>uid_count:</span> <span class='id identifier rubyid_uid_count'>uid_count</span><span class='comma'>,</span>
+    <span class='label'>operation:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='comment'># java.lang.String list()[]
+</span>    <span class='label'>hash:</span> <span class='id identifier rubyid_registry_interface_hash'>registry_interface_hash</span><span class='comma'>,</span>
+    <span class='label'>arguments:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_call'>call</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_registry_lookup-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../../../Rex/Proto/Rmi/Model/Call.html" title="Rex::Proto::Rmi::Model::Call (class)">Rex::Proto::Rmi::Model::Call</a></span></tt>) <strong>build_registry_lookup</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds an RMI call to java/rmi/registry/RegistryImpl_Stub#lookup() used to
+retrieve the remote reference bound to a name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:name</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>the name to lookup</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../../../Rex/Proto/Rmi/Model/Call.html" title="Rex::Proto::Rmi::Model::Call (class)">Rex::Proto::Rmi::Model::Call</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>Builder.build_call</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client/registry/builder.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_registry_lookup'>build_registry_lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_object_number'>object_number</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:object_number</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_uid_number'>uid_number</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uid_number</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_uid_time'>uid_time</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uid_time</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_uid_count'>uid_count</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uid_count</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_call'>call</span> <span class='op'>=</span> <span class='id identifier rubyid_build_call'>build_call</span><span class='lparen'>(</span>
+    <span class='label'>object_number:</span> <span class='id identifier rubyid_object_number'>object_number</span><span class='comma'>,</span>
+    <span class='label'>uid_number:</span> <span class='id identifier rubyid_uid_number'>uid_number</span><span class='comma'>,</span>
+    <span class='label'>uid_time:</span> <span class='id identifier rubyid_uid_time'>uid_time</span><span class='comma'>,</span>
+    <span class='label'>uid_count:</span> <span class='id identifier rubyid_uid_count'>uid_count</span><span class='comma'>,</span>
+    <span class='label'>operation:</span> <span class='int'>2</span><span class='comma'>,</span> <span class='comment'># java.rmi.Remote lookup(java.lang.String)
+</span>    <span class='label'>hash:</span> <span class='id identifier rubyid_registry_interface_hash'>registry_interface_hash</span><span class='comma'>,</span>
+    <span class='label'>arguments:</span> <span class='lbracket'>[</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Java</span><span class='op'>::</span><span class='const'>Serialization</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Utf</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_call'>call</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Sep  1 22:32:49 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+</div>
+
+  </body>
+</html>

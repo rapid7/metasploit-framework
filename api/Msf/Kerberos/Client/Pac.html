@@ -1,0 +1,678 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Kerberos::Client::Pac
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Kerberos/Client/Pac.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Msf::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Client.html" title="Msf::Kerberos::Client (module)">Client</a></span></span>
+     &raquo; 
+    <span class="title">Pac</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Kerberos::Client::Pac
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../Client.html" title="Msf::Kerberos::Client (module)">Msf::Kerberos::Client</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/kerberos/client/pac.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_pa_pac_request-instance_method" title="#build_pa_pac_request (instance method)">- (Rex::Proto::Kerberos::Model::Field::PreAuthData) <strong>build_pa_pac_request</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a kerberos PA-PAC-REQUEST pre authenticated structure.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_pac-instance_method" title="#build_pac (instance method)">- (Rex::Proto::Kerberos::Pac::Type) <strong>build_pac</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a kerberos PACTYPE structure.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_pac_authorization_data-instance_method" title="#build_pac_authorization_data (instance method)">- (Rex::Proto::Kerberos::Model::AuthorizationData) <strong>build_pac_authorization_data</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds an kerberos AuthorizationData structure containing a PACTYPE.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="build_pa_pac_request-instance_method">
+  
+    - (<tt>Rex::Proto::Kerberos::Model::Field::PreAuthData</tt>) <strong>build_pa_pac_request</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a kerberos PA-PAC-REQUEST pre authenticated structure</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Boolean}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:pac_request_value</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Rex::Proto::Kerberos::Model::Field::PreAuthData</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PreAuthPacRequest.html" title="Rex::Proto::Kerberos::Model::PreAuthPacRequest (class)">Rex::Proto::Kerberos::Model::PreAuthPacRequest</a></span></li>
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PreAuthData.html" title="Rex::Proto::Kerberos::Model::PreAuthData (class)">Rex::Proto::Kerberos::Model::PreAuthData</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/kerberos/client/pac.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_pa_pac_request'>build_pa_pac_request</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pac_request_value</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_pac_request'>pac_request</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>PreAuthPacRequest</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>value:</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pa_pac_request'>pa_pac_request</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>PreAuthData</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>type:</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>PA_PAC_REQUEST</span><span class='comma'>,</span>
+    <span class='label'>value:</span> <span class='id identifier rubyid_pac_request'>pac_request</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pa_pac_request'>pa_pac_request</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_pac-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/Type.html" title="Rex::Proto::Kerberos::Pac::Type (class)">Rex::Proto::Kerberos::Pac::Type</a></span></tt>) <strong>build_pac</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a kerberos PACTYPE structure</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; &lt;String, Fixnum, Array, Time&gt;}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:client_name</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:user_id</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>the user SID Ex: 1000</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:group_id</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Ex: 513 for &#39;Domain Users&#39;</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:group_ids</span>
+          <span class="type">(<tt>Array&lt;Fixnum&gt;</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:realm</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:domain_id</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>the domain SID Ex: S-1-5-21-1755879683-3641577184-3486455962</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:logon_time</span>
+          <span class="type">(<tt>Time</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/Type.html" title="Rex::Proto::Kerberos::Pac::Type (class)">Rex::Proto::Kerberos::Pac::Type</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/LogonInfo.html" title="Rex::Proto::Kerberos::Pac::LogonInfo (class)">Rex::Proto::Kerberos::Pac::LogonInfo</a></span></li>
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/ClientInfo.html" title="Rex::Proto::Kerberos::Pac::ClientInfo (class)">Rex::Proto::Kerberos::Pac::ClientInfo</a></span></li>
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/ServerChecksum.html" title="Rex::Proto::Kerberos::Pac::ServerChecksum (class)">Rex::Proto::Kerberos::Pac::ServerChecksum</a></span></li>
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/PrivSvrChecksum.html" title="Rex::Proto::Kerberos::Pac::PrivSvrChecksum (class)">Rex::Proto::Kerberos::Pac::PrivSvrChecksum</a></span></li>
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/Type.html" title="Rex::Proto::Kerberos::Pac::Type (class)">Rex::Proto::Kerberos::Pac::Type</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/kerberos/client/pac.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_pac'>build_pac</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_user_name'>user_name</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:client_name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_user_id'>user_id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user_id</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>DEFAULT_USER_SID</span>
+  <span class='id identifier rubyid_primary_group_id'>primary_group_id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:group_id</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>DOMAIN_USERS</span>
+  <span class='id identifier rubyid_group_ids'>group_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:group_ids</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>DOMAIN_USERS</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_domain_name'>domain_name</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:realm</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_domain_id'>domain_id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:domain_id</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>NT_AUTHORITY_SID</span>
+  <span class='id identifier rubyid_logon_time'>logon_time</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:logon_time</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+  <span class='id identifier rubyid_checksum_type'>checksum_type</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:checksum_type</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Crypto</span><span class='op'>::</span><span class='const'>RSA_MD5</span>
+
+  <span class='id identifier rubyid_logon_info'>logon_info</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>LogonInfo</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>logon_time:</span> <span class='id identifier rubyid_logon_time'>logon_time</span><span class='comma'>,</span>
+    <span class='label'>effective_name:</span> <span class='id identifier rubyid_user_name'>user_name</span><span class='comma'>,</span>
+    <span class='label'>user_id:</span> <span class='id identifier rubyid_user_id'>user_id</span><span class='comma'>,</span>
+    <span class='label'>primary_group_id:</span> <span class='id identifier rubyid_primary_group_id'>primary_group_id</span><span class='comma'>,</span>
+    <span class='label'>group_ids:</span> <span class='id identifier rubyid_group_ids'>group_ids</span><span class='comma'>,</span>
+    <span class='label'>logon_domain_name:</span> <span class='id identifier rubyid_domain_name'>domain_name</span><span class='comma'>,</span>
+    <span class='label'>logon_domain_id:</span> <span class='id identifier rubyid_domain_id'>domain_id</span><span class='comma'>,</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client_info'>client_info</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>ClientInfo</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>client_id:</span> <span class='id identifier rubyid_logon_time'>logon_time</span><span class='comma'>,</span>
+    <span class='label'>name:</span> <span class='id identifier rubyid_user_name'>user_name</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_server_checksum'>server_checksum</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>ServerChecksum</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>checksum:</span> <span class='id identifier rubyid_checksum_type'>checksum_type</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_priv_srv_checksum'>priv_srv_checksum</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>PrivSvrChecksum</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>checksum:</span> <span class='id identifier rubyid_checksum_type'>checksum_type</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pac_type'>pac_type</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>Type</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>buffers:</span> <span class='lbracket'>[</span>
+      <span class='id identifier rubyid_logon_info'>logon_info</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_client_info'>client_info</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_server_checksum'>server_checksum</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_priv_srv_checksum'>priv_srv_checksum</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>checksum:</span> <span class='id identifier rubyid_checksum_type'>checksum_type</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pac_type'>pac_type</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_pac_authorization_data-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/AuthorizationData.html" title="Rex::Proto::Kerberos::Model::AuthorizationData (class)">Rex::Proto::Kerberos::Model::AuthorizationData</a></span></tt>) <strong>build_pac_authorization_data</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds an kerberos AuthorizationData structure containing a PACTYPE</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; <span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/Type.html" title="Rex::Proto::Kerberos::Pac::Type (class)">Rex::Proto::Kerberos::Pac::Type</a></span>}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:pac</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Pac/Type.html" title="Rex::Proto::Kerberos::Pac::Type (class)">Rex::Proto::Kerberos::Pac::Type</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/AuthorizationData.html" title="Rex::Proto::Kerberos::Model::AuthorizationData (class)">Rex::Proto::Kerberos::Model::AuthorizationData</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/AuthorizationData.html" title="Rex::Proto::Kerberos::Model::AuthorizationData (class)">Rex::Proto::Kerberos::Model::AuthorizationData</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/kerberos/client/pac.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_pac_authorization_data'>build_pac_authorization_data</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pac'>pac</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pac</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_build_pac'>build_pac</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pac_auth_data'>pac_auth_data</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>AuthorizationData</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>elements:</span> <span class='lbracket'>[</span><span class='lbrace'>{</span><span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Pac</span><span class='op'>::</span><span class='const'>AD_WIN2K_PAC</span><span class='comma'>,</span> <span class='symbol'>:data</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_pac'>pac</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='rbrace'>}</span><span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_authorization_data'>authorization_data</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>AuthorizationData</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>elements:</span> <span class='lbracket'>[</span><span class='lbrace'>{</span><span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>AD_IF_RELEVANT</span><span class='comma'>,</span> <span class='symbol'>:data</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_pac_auth_data'>pac_auth_data</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='rbrace'>}</span><span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_authorization_data'>authorization_data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Sep  1 22:31:11 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+</div>
+
+  </body>
+</html>
