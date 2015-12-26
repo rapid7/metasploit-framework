@@ -10,10 +10,15 @@ require 'msf/core/handler/reverse_https'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
 require 'msf/core/payload/python'
 require 'msf/core/payload/python/reverse_http'
 =======
 require 'msf/core/payload/uuid/options'
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 
 module Metasploit4
@@ -28,15 +33,41 @@ require 'msf/core/payload/uuid/options'
 module Metasploit3
 >>>>>>> origin/msf-complex-payloads
 =======
+>>>>>>> 4.11.2_release_pre-rails4
+
+module Metasploit4
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
 require 'msf/core/payload/uuid/options'
 
 module Metasploit3
->>>>>>> origin/msf-complex-payloads
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+require 'msf/core/payload/uuid/options'
+
+<<<<<<< HEAD
+module Metasploit3
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-api/_index.html
 =======
 require 'msf/core/payload/uuid/options'
 
 module Metasploit3
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+require 'msf/core/payload/uuid/options'
+
+module Metasploit3
+<<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
 
   CachedSize = 762
 
@@ -50,6 +81,7 @@ module Metasploit3
   include Msf::Payload::Python::ReverseHttp
 =======
   include Msf::Payload::UUID::Options
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
   include Msf::Payload::UUID::Options
@@ -63,6 +95,27 @@ module Metasploit3
 =======
   include Msf::Payload::UUID::Options
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+  include Msf::Payload::UUID::Options
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  include Msf::Payload::UUID::Options
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  include Msf::Payload::UUID::Options
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 762
+
+  include Msf::Payload::Stager
+  include Msf::Payload::UUID::Options
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+  include Msf::Payload::UUID::Options
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
 
   def initialize(info = {})
     super(merge_info(info,
@@ -81,17 +134,26 @@ module Metasploit3
 <<<<<<< HEAD
 =======
 =======
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
 
     register_options(
       [
         OptString.new('PayloadProxyHost', [false, "The proxy server's IP address"]),
         OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ])
       ], self.class)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -102,6 +164,15 @@ module Metasploit3
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
   end
 
   #
@@ -115,11 +186,19 @@ module Metasploit3
     super({scheme: 'https'})
 =======
 =======
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
     lhost = datastore['LHOST'] || '127.127.127.127'
 
     var_escape = lambda { |txt|
@@ -208,6 +287,7 @@ module Metasploit3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -215,6 +295,15 @@ module Metasploit3
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
   end
 
 end

@@ -1720,7 +1720,15 @@
     <span class='kw'>begin</span>
     <span class='kw'>while</span><span class='lparen'>(</span><span class='kw'>true</span><span class='rparen'>)</span>
       <span class='kw'>while</span><span class='lparen'>(</span><span class='id identifier rubyid_event'>event</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queue'>queue</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='rparen'>)</span>
+<<<<<<< HEAD
         <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_base'>base</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_theme'>theme</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='embexpr_end'>}</span><span class='tstring_content'>.wav</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+=======
+<<<<<<< HEAD
+        <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_base'>base</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_theme'>theme</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='embexpr_end'>}</span><span class='tstring_content'>.mp3</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+=======
+        <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_base'>base</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_theme'>theme</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='embexpr_end'>}</span><span class='tstring_content'>.wav</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+>>>>>>> origin/gh-pages
+>>>>>>> origin/pod/metasploit-api/_index.html
         <span class='kw'>if</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='rparen'>)</span>
           <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Compat</span><span class='period'>.</span><span class='id identifier rubyid_play_sound'>play_sound</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
         <span class='kw'>else</span>
@@ -1790,7 +1798,11 @@
 
     <div id="footer">
 <<<<<<< HEAD
+<<<<<<< HEAD
   Generated on Tue Dec 22 22:36:18 2015 by
+=======
+  Generated on Tue Dec  8 22:36:17 2015 by
+>>>>>>> origin/pod/metasploit-api/_index.html
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.6 (ruby-2.1.7).
 =======
