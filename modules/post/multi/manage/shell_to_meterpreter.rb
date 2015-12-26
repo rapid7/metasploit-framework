@@ -48,11 +48,24 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
       OptString.new('BOURNE_PATH',
         [false, 'Remote path to drop binary']),
@@ -60,6 +73,7 @@ class Metasploit3 < Msf::Post
         [false, 'Remote filename to use for dropped binary'])
 =======
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
@@ -86,10 +100,41 @@ class Metasploit3 < Msf::Post
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+=======
+=======
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> msf-complex-payloads
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> msf-complex-payloads
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> payload-generator.rb
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+<<<<<<< HEAD
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
 =======
@@ -98,6 +143,12 @@ class Metasploit3 < Msf::Post
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end

@@ -12,6 +12,7 @@ module Metasploit4
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 494
 =======
   CachedSize = 466
@@ -27,11 +28,31 @@ module Metasploit4
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+  CachedSize = 494
+=======
+  CachedSize = 466
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+=======
 
   CachedSize = 466
 
   CachedSize = 466
 
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+  CachedSize = 466
+>>>>>>> origin/pod/metasploit-framework
+
+  CachedSize = 466
+
+  CachedSize = 466
+
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -44,6 +65,17 @@ module Metasploit4
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+  CachedSize = 466
+
+  CachedSize = 466
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+
+  CachedSize = 466
+
+  CachedSize = 466
+
+>>>>>>> origin/pod/metasploit-framework
   CachedSize = 466
 
   include Msf::Payload::Stager
@@ -156,6 +188,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -177,4 +210,29 @@ module Metasploit4
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
 end

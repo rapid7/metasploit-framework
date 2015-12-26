@@ -23,6 +23,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 4.11.2_release_pre-rails4
@@ -31,6 +32,19 @@ module Metasploit4
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
       'Name'        => 'Windows Reverse HTTPS Stager (wininet)',
       'Description' => 'Tunnel communication over HTTPS (Windows wininet)',
       'Author'      => 'hdm',
@@ -40,6 +54,7 @@ module Metasploit4
       'Handler'     => Msf::Handler::ReverseHttps,
       'Convention'  => 'sockedi https'))
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -54,13 +69,6 @@ module Metasploit4
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> origin/msf-complex-payloads
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> origin/payload-generator.rb
-=======
 <<<<<<< HEAD
 =======
 =======
@@ -68,9 +76,47 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> msf-complex-payloads
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-framework
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/msf-complex-payloads
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/payload-generator.rb
+=======
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+>>>>>>> origin/pod/metasploit-framework
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> origin/pod/metasploit-framework
       'Name'          => 'Reverse HTTPS Stager',
       'Description'   => 'Tunnel communication over HTTP using SSL',
       'Author'        => 'hdm',
@@ -79,6 +125,7 @@ module Metasploit4
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseHttps,
       'Convention'    => 'sockedi https'))
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -109,23 +156,70 @@ module Metasploit4
 >>>>>>> rapid7/master
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
->>>>>>> rapid7/master
+>>>>>>> feature/complex-payloads
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> msf-complex-payloads
+=======
+=======
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 <<<<<<< HEAD
+>>>>>>> payload-generator.rb
 =======
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> origin/pod/metasploit-framework
       'Name'        => 'Windows Reverse HTTPS Stager (wininet)',
       'Description' => 'Tunnel communication over HTTPS (Windows wininet)',
       'Author'      => 'hdm',
@@ -142,12 +236,27 @@ module Metasploit4
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+=======
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> payload-generator.rb
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> origin/pod/metasploit-framework
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -157,6 +266,7 @@ module Metasploit4
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -165,6 +275,15 @@ module Metasploit4
 >>>>>>> origin/msf-complex-payloads
 =======
 =======
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-framework
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -172,6 +291,7 @@ module Metasploit4
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
 >>>>>>> msf-complex-payloads
@@ -181,6 +301,28 @@ module Metasploit4
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> master
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/complex-payloads
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
   end
 
 end

@@ -173,6 +173,7 @@ module Msf::Payload::Windows
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -198,9 +199,40 @@ module Msf::Payload::Windows
 =======
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> msf-complex-payloads
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -208,12 +240,19 @@ module Msf::Payload::Windows
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/payload-generator.rb
@@ -228,6 +267,32 @@ module Msf::Payload::Windows
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
   #
   # By default, we don't want to send the UUID, but we'll send
   # for certain payloads if requested.
@@ -236,6 +301,7 @@ module Msf::Payload::Windows
     false
   end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -272,6 +338,36 @@ module Msf::Payload::Windows
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> feature/complex-payloads
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> msf-complex-payloads
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-framework
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -279,6 +375,7 @@ module Msf::Payload::Windows
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -287,6 +384,15 @@ module Msf::Payload::Windows
 >>>>>>> origin/msf-complex-payloads
 =======
 =======
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-framework
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -294,6 +400,7 @@ module Msf::Payload::Windows
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
 =======
@@ -302,5 +409,27 @@ module Msf::Payload::Windows
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> master
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/complex-payloads
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
 end
 

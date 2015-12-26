@@ -115,6 +115,7 @@ class Response < Packet
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     json = {}
 =======
     json = []
@@ -149,10 +150,54 @@ class Response < Packet
     json = []
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+    json = {}
+=======
+    json = []
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+=======
+=======
     json = []
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
     json = []
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    json = []
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    json = []
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+    json = []
+>>>>>>> msf-complex-payloads
+=======
+    json = []
+>>>>>>> msf-complex-payloads
+=======
+    json = []
+>>>>>>> payload-generator.rb
+=======
+    json = []
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
+=======
+    json = []
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    json = []
+<<<<<<< HEAD
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
 =======
@@ -161,6 +206,12 @@ class Response < Packet
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    json = []
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
 
     begin
       json = JSON.parse(self.body)

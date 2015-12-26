@@ -12,6 +12,7 @@ PATH
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -20,6 +21,10 @@ PATH
       filesize
       jsobfu (~> 0.3.0)
 =======
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -29,19 +34,38 @@ PATH
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+      filesize
+      jsobfu (~> 0.3.0)
+=======
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
       celluloid
       jsobfu (~> 0.2.0)
 =======
@@ -78,6 +102,7 @@ PATH
 >>>>>>> rapid7/master
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
       filesize
@@ -95,6 +120,10 @@ PATH
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -106,6 +135,7 @@ PATH
       jsobfu (~> 0.3.0)
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       filesize
       jsobfu (~> 0.3.0)
@@ -113,11 +143,36 @@ PATH
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+      filesize
+      jsobfu (~> 0.3.0)
+>>>>>>> msf-complex-payloads
+=======
+      filesize
+      jsobfu (~> 0.3.0)
+>>>>>>> msf-complex-payloads
+=======
+      filesize
+      jsobfu (~> 0.3.0)
+>>>>>>> payload-generator.rb
+=======
+      filesize
+      jsobfu (~> 0.3.0)
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
       json
       metasm (~> 1.0.2)
       metasploit-concern (= 1.0.0)
       metasploit-credential (= 1.0.1)
       metasploit-model (= 1.0.0)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -131,10 +186,27 @@ PATH
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
       metasploit-payloads (= 1.0.19)
 =======
       metasploit-payloads (= 1.0.17)
 >>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
 =======
       metasploit-payloads (= 1.0.17)
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -148,10 +220,14 @@ PATH
       metasploit-payloads (= 1.0.17)
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
 =======
       metasploit-payloads (= 1.0.17)
 >>>>>>> msf-complex-payloads
 =======
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-excellent.mp3
       metasploit_data_models (= 1.2.9)
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -183,10 +259,31 @@ PATH
 =======
 >>>>>>> origin/payload-generator.rb
       metasploit-payloads (= 1.0.17)
+=======
+      metasploit-payloads (= 1.0.17)
+>>>>>>> msf-complex-payloads
+=======
+      metasploit-payloads (= 1.0.17)
+>>>>>>> payload-generator.rb
+=======
+      metasploit-payloads (= 1.0.17)
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+      metasploit-payloads (= 1.0.17)
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+      metasploit-payloads (= 1.0.17)
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+      metasploit-payloads (= 1.0.17)
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
       metasploit_data_models (= 1.2.9)
       msgpack
       network_interface (~> 0.0.1)
       nokogiri
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -201,6 +298,25 @@ PATH
       openssl-ccm (= 1.2.1)
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+      openssl-ccm (= 1.2.1)
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+      openssl-ccm (= 1.2.1)
+=======
+>>>>>>> origin/pod/metasploit-framework
 >>>>>>> 4.11.2_release_pre-rails4
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -211,11 +327,29 @@ PATH
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
       packetfu (= 1.1.11)
       pcaprub
       pg (>= 0.11)
@@ -233,11 +367,26 @@ PATH
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
 =======
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
 =======
 >>>>>>> master
 >>>>>>> origin/4.11.2_release_pre-rails4
@@ -249,9 +398,24 @@ PATH
 =======
 <<<<<<< HEAD
 =======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+<<<<<<< HEAD
+=======
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
@@ -289,6 +453,59 @@ PATH
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> master
+=======
+=======
+>>>>>>> master
+=======
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+=======
+=======
+>>>>>>> master
+=======
+=======
+>>>>>>> master
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 3.2.21, < 4.0.0)
       metasploit-credential (= 0.14.8)
@@ -304,6 +521,7 @@ PATH
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 <<<<<<< HEAD
@@ -358,6 +576,61 @@ PATH
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> rapid7/master
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -369,11 +642,51 @@ PATH
 >>>>>>> rapid7/master
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
 
 GEM
   remote: https://rubygems.org/
@@ -416,6 +729,7 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -424,6 +738,10 @@ GEM
     builder (3.1.4)
     capybara (2.4.4)
 =======
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -433,19 +751,38 @@ GEM
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    builder (3.1.4)
+    capybara (2.4.4)
+=======
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
     builder (3.0.4)
     capybara (2.4.1)
 =======
@@ -474,6 +811,9 @@ GEM
 >>>>>>> rapid7/master
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
     builder (3.1.4)
     capybara (2.4.4)
 >>>>>>> rapid7/master
@@ -481,6 +821,7 @@ GEM
     builder (3.1.4)
     capybara (2.4.4)
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -509,10 +850,42 @@ GEM
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    builder (3.1.4)
+    capybara (2.4.4)
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+    builder (3.1.4)
+    capybara (2.4.4)
+>>>>>>> msf-complex-payloads
+=======
+    builder (3.1.4)
+    capybara (2.4.4)
+>>>>>>> msf-complex-payloads
+=======
+    builder (3.1.4)
+    capybara (2.4.4)
+>>>>>>> payload-generator.rb
+=======
+    builder (3.1.4)
+    capybara (2.4.4)
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+<<<<<<< HEAD
     builder (3.1.4)
     capybara (2.4.4)
 >>>>>>> 4.11.2_release_pre-rails4
@@ -524,6 +897,9 @@ GEM
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
       rack (>= 1.0.0)
@@ -535,6 +911,7 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     childprocess (0.5.5)
 =======
 <<<<<<< HEAD
@@ -543,6 +920,13 @@ GEM
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
     childprocess (0.5.5)
 =======
 <<<<<<< HEAD
@@ -551,22 +935,37 @@ GEM
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
     celluloid (0.16.0)
       timers (~> 4.0.0)
     childprocess (0.5.3)
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
     childprocess (0.5.5)
 >>>>>>> rapid7/master
 =======
@@ -580,20 +979,25 @@ GEM
 >>>>>>> rapid7/master
 =======
     childprocess (0.5.5)
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
     childprocess (0.5.5)
 >>>>>>> rapid7/master
 =======
-    childprocess (0.5.5)
->>>>>>> rapid7/master
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-framework
 =======
     childprocess (0.5.5)
 >>>>>>> rapid7/master
 =======
     childprocess (0.5.5)
 >>>>>>> rapid7/master
+=======
+    childprocess (0.5.5)
+>>>>>>> rapid7/master
+<<<<<<< HEAD
 =======
     childprocess (0.5.5)
 <<<<<<< HEAD
@@ -627,11 +1031,40 @@ GEM
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    childprocess (0.5.5)
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+    childprocess (0.5.5)
+>>>>>>> msf-complex-payloads
+=======
+    childprocess (0.5.5)
+>>>>>>> msf-complex-payloads
+=======
+    childprocess (0.5.5)
+>>>>>>> payload-generator.rb
+=======
+    childprocess (0.5.5)
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-framework
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 =======
     childprocess (0.5.5)
 >>>>>>> 4.11.2_release_pre-rails4
@@ -642,6 +1075,8 @@ GEM
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.0)
     cucumber (1.3.19)
@@ -722,12 +1157,27 @@ GEM
     hike (1.2.3)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
     hitimes (1.2.2)
     i18n (0.7.0)
     jsobfu (0.3.0)
       rkelly-remix (= 0.0.6)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -745,10 +1195,43 @@ GEM
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
@@ -769,13 +1252,26 @@ GEM
 >>>>>>> rapid7/master
 <<<<<<< HEAD
 =======
+=======
     i18n (0.7.0)
     jsobfu (0.3.0)
       rkelly-remix (= 0.0.6)
->>>>>>> msf-complex-payloads
->>>>>>> origin/pod/metasploit-api/_index.html
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 =======
->>>>>>> origin/pod/metasploit-excellent.mp3
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> master
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
     json (1.8.3)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
@@ -793,45 +1289,25 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> master
->>>>>>> origin/4.11.2_release_pre-rails4
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 =======
 >>>>>>> master
 =======
->>>>>>> origin/payload-generator.rb
-=======
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
-=======
->>>>>>> origin/pod/metasploit-excellent.mp3
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+<<<<<<< HEAD
+=======
+=======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
->>>>>>> 4.11.2_release_pre-rails4
-<<<<<<< HEAD
->>>>>>> origin/pod/metasploit-api/_index.html
-=======
->>>>>>> origin/pod/metasploit-excellent.mp3
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
     json (1.8.2)
     mail (2.5.4)
       mime-types (~> 1.16)
@@ -848,23 +1324,57 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
->>>>>>> origin/4.11.2_release_pre-rails4
-=======
-<<<<<<< HEAD
 =======
 =======
-<<<<<<< HEAD
+>>>>>>> msf-complex-payloads
 =======
->>>>>>> origin/pod/metasploit-excellent.mp3
-=======
->>>>>>> 4.11.2_release_pre-rails4
-=======
-=======
->>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-framework
+    i18n (0.7.0)
+    jsobfu (0.3.0)
+      rkelly-remix (= 0.0.6)
+>>>>>>> msf-complex-payloads
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+    i18n (0.7.0)
+    jsobfu (0.3.0)
+      rkelly-remix (= 0.0.6)
+=======
+    i18n (0.7.0)
+    jsobfu (0.3.0)
+      rkelly-remix (= 0.0.6)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
     json (1.8.3)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
@@ -879,6 +1389,150 @@ GEM
       metasploit_data_models (~> 1.0)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-framework
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/payload-generator.rb
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> origin/pod/metasploit-framework
+    json (1.8.2)
+    mail (2.5.4)
+      mime-types (~> 1.16)
+      treetop (~> 1.4.8)
+    metasploit-concern (0.4.0)
+      activesupport (~> 3.0, >= 3.0.0)
+      railties (< 4.0.0)
+    metasploit-credential (0.14.8)
+      metasploit-concern (= 0.4.0)
+      metasploit-model (~> 0.29.0)
+      metasploit_data_models (= 0.24.5)
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+    json (1.8.3)
+    mail (2.6.3)
+      mime-types (>= 1.16, < 3)
+    metasm (1.0.2)
+    metasploit-concern (1.0.0)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      railties (>= 4.0.9, < 4.1.0)
+    metasploit-credential (1.0.1)
+      metasploit-concern (~> 1.0)
+      metasploit-model (~> 1.0)
+      metasploit_data_models (~> 1.0)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/4.11.2_release_pre-rails4
@@ -891,9 +1545,38 @@ GEM
 >>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
 =======
+=======
 >>>>>>> rapid7/master
 >>>>>>> 4.11.2_release_pre-rails4
 =======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+<<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -930,10 +1613,56 @@ GEM
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -945,6 +1674,8 @@ GEM
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
       pg
       railties
       rubyntlm
@@ -954,11 +1685,29 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
@@ -967,9 +1716,22 @@ GEM
 =======
 >>>>>>> origin/payload-generator.rb
 =======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> origin/pod/metasploit-framework
+=======
 <<<<<<< HEAD
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -992,9 +1754,61 @@ GEM
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> master
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -1003,10 +1817,92 @@ GEM
 =======
 >>>>>>> rapid7/master
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
     metasploit-model (1.0.0)
       activemodel (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
+    metasploit-payloads (1.0.17)
+    metasploit_data_models (1.2.9)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    metasploit-model (0.29.2)
+      activesupport
+      railties (< 4.0.0)
+    metasploit-payloads (0.0.3)
+    metasploit_data_models (0.24.5)
+      activerecord (>= 3.2.13, < 4.0.0)
+      activesupport
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
+    metasploit-model (1.0.0)
+      activemodel (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      railties (>= 4.0.9, < 4.1.0)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1020,10 +1916,60 @@ GEM
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+    metasploit-payloads (1.0.19)
+    metasploit_data_models (1.2.9)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+=======
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
     metasploit-payloads (1.0.17)
     metasploit_data_models (1.2.9)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    metasploit-model (0.29.2)
+      activesupport
+      railties (< 4.0.0)
+    metasploit-payloads (0.0.3)
+    metasploit_data_models (0.24.5)
+      activerecord (>= 3.2.13, < 4.0.0)
+      activesupport
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    metasploit-model (1.0.0)
+      activemodel (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      railties (>= 4.0.9, < 4.1.0)
+>>>>>>> origin/pod/metasploit-framework
+    metasploit-payloads (1.0.17)
+    metasploit_data_models (1.2.9)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -1674,6 +2620,526 @@ GEM
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+      arel-helpers
+      metasploit-concern (~> 1.0)
+      metasploit-model (~> 1.0)
+      pg
+      postgres_ext
+      railties (>= 4.0.9, < 4.1.0)
+      recog (~> 2.0)
+    method_source (0.8.2)
+    mime-types (2.6.1)
+    mini_portile (0.6.2)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    msgpack (0.5.11)
+    multi_json (1.0.4)
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    minitest (4.7.5)
+    msgpack (0.7.1)
+    multi_json (1.11.2)
+    multi_test (0.1.2)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> payload-generator.rb
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+<<<<<<< HEAD
+<<<<<<< HEAD
+    openssl-ccm (1.2.1)
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> master
+=======
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+>>>>>>> rapid7/master
+=======
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+<<<<<<< HEAD
+>>>>>>> master
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> master
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+<<<<<<< HEAD
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+<<<<<<< HEAD
+>>>>>>> msf-complex-payloads
+=======
+=======
+>>>>>>> rapid7/master
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> rapid7/master
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+>>>>>>> rapid7/master
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> rapid7/master
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    packetfu (1.1.11)
+      network_interface (~> 0.0)
+      pcaprub (~> 0.12)
+    pcaprub (0.12.0)
+    pg (0.18.3)
+    pg_array_parser (0.0.9)
+    postgres_ext (2.4.1)
+      activerecord (>= 4.0.0)
+      arel (>= 4.0.1)
+      pg_array_parser (~> 0.0.9)
+    pry (0.10.1)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+>>>>>>> master
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+    network_interface (0.0.1)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+<<<<<<< HEAD
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    packetfu (1.1.9)
+    pcaprub (0.11.3)
+    pg (0.18.2)
+    polyglot (0.3.5)
+    pry (0.10.0)
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> pod/metasploit-gemfile-
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+    packetfu (1.1.11)
+      network_interface (~> 0.0)
+      pcaprub (~> 0.12)
+    pcaprub (0.12.0)
+    pg (0.18.3)
+    pg_array_parser (0.0.9)
+    postgres_ext (2.4.1)
+      activerecord (>= 4.0.0)
+      arel (>= 4.0.1)
+      pg_array_parser (~> 0.0.9)
+    pry (0.10.1)
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+    packetfu (1.1.9)
+    pcaprub (0.11.3)
+    pg (0.18.2)
+    polyglot (0.3.5)
+    pry (0.10.0)
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> rapid7/master
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> master
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -1684,11 +3150,51 @@ GEM
 >>>>>>> rapid7/master
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
@@ -1712,27 +3218,39 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
     rb-readline-r7 (0.5.2.0)
     recog (2.0.14)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1809,6 +3327,11 @@ GEM
     recog (2.0.14)
 <<<<<<< HEAD
 =======
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -1821,6 +3344,9 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
     rb-readline (0.5.2)
     rdoc (3.12.2)
       json (~> 1.4)
@@ -1850,6 +3376,7 @@ GEM
     recog (2.0.14)
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
     rb-readline-r7 (0.5.2.0)
     recog (2.0.14)
 >>>>>>> rapid7/master
@@ -1858,6 +3385,18 @@ GEM
     recog (2.0.14)
 >>>>>>> origin/pod/metasploit-excellent.mp3
 >>>>>>> rapid7/master
+=======
+    rb-readline-r7 (0.5.2.0)
+    recog (2.0.14)
+>>>>>>> rapid7/master
+=======
+    rb-readline-r7 (0.5.2.0)
+    recog (2.0.14)
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -1868,11 +3407,28 @@ GEM
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> payload-generator.rb
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
       nokogiri
     redcarpet (3.2.3)
     rkelly-remix (0.0.6)
@@ -1957,6 +3513,7 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     timecop (0.7.3)
 <<<<<<< HEAD
     tzinfo (0.3.45)
@@ -1970,6 +3527,13 @@ GEM
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
     timecop (0.7.3)
     tzinfo (0.3.44)
 =======
@@ -1980,15 +3544,27 @@ GEM
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
     timecop (0.7.1)
     timers (4.0.1)
       hitimes
@@ -2030,6 +3606,7 @@ GEM
 >>>>>>> rapid7/master
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
     timecop (0.7.3)
@@ -2047,6 +3624,10 @@ GEM
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
 <<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
@@ -2055,6 +3636,9 @@ GEM
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
     timecop (0.7.3)
     tzinfo (0.3.44)
 >>>>>>> 4.11.2_release_pre-rails4
@@ -2062,12 +3646,33 @@ GEM
     timecop (0.7.3)
     tzinfo (0.3.44)
 >>>>>>> msf-complex-payloads
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
     timecop (0.7.3)
     tzinfo (0.3.44)
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+    timecop (0.7.3)
+    tzinfo (0.3.44)
+>>>>>>> msf-complex-payloads
+=======
+    timecop (0.7.3)
+    tzinfo (0.3.44)
+>>>>>>> payload-generator.rb
+=======
+    timecop (0.7.3)
+    tzinfo (0.3.44)
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.8.7.6)
