@@ -652,7 +652,11 @@ RSpec.describe Msf::PayloadGenerator do
       }
 
       it 'calls generate_java_payload' do
+<<<<<<< HEAD
         expect(payload_generator).to receive(:generate_java_payload).and_call_original
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/4.11.2_release_pre-rails4
         payload_generator.generate_payload
       end
     end

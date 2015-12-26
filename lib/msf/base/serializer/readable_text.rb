@@ -658,6 +658,7 @@ class ReadableText
       ctx = framework.jobs[k].ctx
       row = [ k, framework.jobs[k].name ]
       row << (ctx[1].nil? ? (ctx[0].datastore['PAYLOAD'] || "") : ctx[1].refname)
+<<<<<<< HEAD
 
       # Make the LPORT show the bind port if it's different
       local_port = ctx[0].datastore['LPORT']
@@ -667,6 +668,9 @@ class ReadableText
         lport << " (#{bind_port})"
       end
       row << lport
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> origin/4.11.2_release_pre-rails4
 
       if (verbose)
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)

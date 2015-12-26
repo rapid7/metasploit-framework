@@ -2265,6 +2265,7 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'python/meterpreter_bind_tcp'
   end
 
+<<<<<<< HEAD
   context 'python/meterpreter_reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2285,6 +2286,8 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'python/meterpreter_reverse_https'
   end
 
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
   context 'python/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

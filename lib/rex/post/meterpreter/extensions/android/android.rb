@@ -20,8 +20,11 @@ module Android
 class Android < Extension
 
   COLLECT_TYPE_WIFI = 1
+<<<<<<< HEAD
   COLLECT_TYPE_GEO  = 2
   COLLECT_TYPE_CELL = 3
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
 
   COLLECT_ACTION_START  = 1
   COLLECT_ACTION_PAUSE  = 2
@@ -30,9 +33,13 @@ class Android < Extension
   COLLECT_ACTION_DUMP   = 5
 
   COLLECT_TYPES = {
+<<<<<<< HEAD
     'wifi' => COLLECT_TYPE_WIFI,
     'geo'  => COLLECT_TYPE_GEO,
     'cell' => COLLECT_TYPE_CELL,
+=======
+    'wifi' => COLLECT_TYPE_WIFI
+>>>>>>> origin/4.11.2_release_pre-rails4
   }
 
   COLLECT_ACTIONS = {
@@ -111,6 +118,7 @@ class Android < Extension
       records.each do |k, v|
         result[:entries] << v
       end
+<<<<<<< HEAD
 
     when COLLECT_TYPE_GEO
       result[:headers] = ['Timestamp', 'Latitude', 'Longitude']
@@ -169,6 +177,8 @@ class Android < Extension
 
         end
       end
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
     end
 
     result

@@ -2,7 +2,11 @@
 require 'spec_helper'
 require 'rex/arch'
 
+<<<<<<< HEAD
 RSpec.describe Rex::Arch do
+=======
+describe Rex::Arch do
+>>>>>>> origin/4.11.2_release_pre-rails4
   describe ".pack_addr" do
     subject { described_class.pack_addr(arch, addr) }
 

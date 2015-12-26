@@ -63,3 +63,7 @@ module Payload::Python::ReverseTcp
 end
 
 end
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/4.11.2_release_pre-rails4

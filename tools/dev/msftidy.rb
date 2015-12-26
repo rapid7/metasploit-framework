@@ -210,7 +210,11 @@ class Msftidy
             warn("Please use 'US-CERT-VU' for '#{value}'")
           elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
+<<<<<<< HEAD:tools/dev/msftidy.rb
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
+=======
+          elsif value =~ /^http:\/\/packetstormsecurity\.com\/files\//
+>>>>>>> origin/4.11.2_release_pre-rails4:tools/dev/msftidy.rb
             warn("Please use 'PACKETSTORM' for '#{value}'")
           end
         end

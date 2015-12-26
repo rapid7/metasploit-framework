@@ -10,7 +10,11 @@ require 'msf/core/payload/python/reverse_http'
 
 module Metasploit4
 
+<<<<<<< HEAD
   CachedSize = 494
+=======
+  CachedSize = 466
+>>>>>>> origin/4.11.2_release_pre-rails4
 
   include Msf::Payload::Stager
   include Msf::Payload::Python

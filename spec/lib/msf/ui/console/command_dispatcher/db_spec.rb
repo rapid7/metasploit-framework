@@ -542,7 +542,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "<no arguments>" do
       it "should list default workspace" do
         db.cmd_workspace
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
           "* default"
         ]
       end
@@ -551,7 +555,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
           "  default",
           "* foo"
         ]
@@ -561,7 +569,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-a" do
       it "should add workspaces" do
         db.cmd_workspace("-a", "foo", "bar", "baf")
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
           "Added workspace: foo",
           "Added workspace: bar",
           "Added workspace: baf"
@@ -574,7 +586,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace("-d", "foo")
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
           "Deleted workspace: foo",
           "Switched workspace: default"
         ]
@@ -586,7 +602,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace("-D")
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
           "Deleted and recreated the default workspace",
           "Deleted workspace: foo",
           "Switched workspace: default"

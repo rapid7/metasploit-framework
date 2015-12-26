@@ -51,10 +51,18 @@ module ReverseHttp
 
     register_advanced_options(
       [
+<<<<<<< HEAD
 
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
         OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
+=======
+        OptString.new('ReverseListenerComm', [false, 'The specific communication channel to use for this listener']),
+        OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
+        OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
+        OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
+        OptInt.new('ReverseListenerBindPort', [false, 'The port to bind to on the local system if different from LPORT']),
+>>>>>>> origin/4.11.2_release_pre-rails4
         OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
         OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
         OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
@@ -129,6 +137,16 @@ module ReverseHttp
   #
   def setup_handler
 
+<<<<<<< HEAD
+=======
+    comm = datastore['ReverseListenerComm']
+    if (comm.to_s == 'local')
+      comm = ::Rex::Socket::Comm::Local
+    else
+      comm = nil
+    end
+
+>>>>>>> origin/4.11.2_release_pre-rails4
     local_port = bind_port
 
     # Start the HTTPS server service on this host/port
@@ -140,7 +158,11 @@ module ReverseHttp
         'Msf'        => framework,
         'MsfExploit' => self,
       },
+<<<<<<< HEAD
       nil,
+=======
+      comm,
+>>>>>>> origin/4.11.2_release_pre-rails4
       (ssl?) ? datastore['HandlerSSLCert'] : nil
     )
 
@@ -277,6 +299,7 @@ protected
 
         blob = ""
         blob << obj.generate_stage(
+<<<<<<< HEAD
           http_url: url,
           http_user_agent: datastore['MeterpreterUserAgent'],
           http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
@@ -284,6 +307,24 @@ protected
           uuid: uuid,
           uri:  conn_id
         )
+=======
+          uuid: uuid,
+          uri:  conn_id
+        )
+
+        var_escape = lambda { |txt|
+          txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
+        }
+
+        # Patch all the things
+        blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
+        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
+
+        unless datastore['PayloadProxyHost'].blank?
+          proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
+          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
+        end
+>>>>>>> origin/4.11.2_release_pre-rails4
 
         resp.body = blob
 
@@ -336,8 +377,13 @@ protected
         blob = obj.stage_payload(
           uuid: uuid,
           uri:  conn_id,
+<<<<<<< HEAD
           lhost: uri.host,
           lport: uri.port
+=======
+          lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
+          lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
+>>>>>>> origin/4.11.2_release_pre-rails4
         )
 
         resp.body = encode_stage(blob)

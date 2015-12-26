@@ -108,7 +108,11 @@ class Response < Packet
   #
   # @return [Hash]
   def get_json_document
+<<<<<<< HEAD
     json = {}
+=======
+    json = []
+>>>>>>> origin/4.11.2_release_pre-rails4
 
     begin
       json = JSON.parse(self.body)

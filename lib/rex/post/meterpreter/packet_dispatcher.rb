@@ -290,6 +290,11 @@ module PacketDispatcher
     self.waiters = []
 
     @pqueue = ::Queue.new
+<<<<<<< HEAD
+=======
+    @finish = false
+    @last_recvd = Time.now
+>>>>>>> origin/4.11.2_release_pre-rails4
     @ping_sent = false
 
     # Spawn a thread for receiving packets
@@ -315,7 +320,13 @@ module PacketDispatcher
     # Spawn a new thread that monitors the socket
     self.dispatcher_thread = Rex::ThreadFactory.spawn("MeterpreterDispatcher", false) do
       begin
+<<<<<<< HEAD
       while (self.alive)
+=======
+      # Whether we're finished or not is determined by the receiver
+      # thread above.
+      while(not @finish)
+>>>>>>> origin/4.11.2_release_pre-rails4
         incomplete = []
         backlog    = []
 

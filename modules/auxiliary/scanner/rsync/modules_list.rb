@@ -56,6 +56,13 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
+<<<<<<< HEAD
+=======
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+>>>>>>> origin/4.11.2_release_pre-rails4
   def read_timeout
     datastore['READ_TIMEOUT']
   end

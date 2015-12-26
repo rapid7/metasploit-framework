@@ -9,7 +9,11 @@ require 'msf/core'
 
 module Metasploit3
 
+<<<<<<< HEAD
   CachedSize = 313
+=======
+  CachedSize = 314
+>>>>>>> origin/4.11.2_release_pre-rails4
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

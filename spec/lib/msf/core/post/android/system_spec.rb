@@ -2,7 +2,11 @@
 
 require 'msf/core/post/android/system'
 
+<<<<<<< HEAD
 RSpec.describe Msf::Post::Android::System do
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/4.11.2_release_pre-rails4
 
   subject do
     mod = Module.new

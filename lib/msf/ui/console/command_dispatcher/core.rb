@@ -94,6 +94,10 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
 
+  @@irb_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-e" => [ true,  "Expression to evaluate."                        ])
+
   # The list of data store elements that cannot be set when in defanged
   # mode.
   DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]

@@ -3,7 +3,11 @@ require 'spec_helper'
 
 require 'net/dns'
 
+<<<<<<< HEAD
 RSpec.describe Net::DNS::RR::Types do
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/4.11.2_release_pre-rails4
 
   subject do
     described_class.new

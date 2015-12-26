@@ -2,7 +2,11 @@
 
 require 'msf/core/post/android/priv'
 
+<<<<<<< HEAD
 RSpec.describe Msf::Post::Android::Priv do
+=======
+describe Msf::Post::Android::Priv do
+>>>>>>> origin/4.11.2_release_pre-rails4
 
   subject do
     mod = Module.new

@@ -29,7 +29,11 @@ group :development, :test do
   gem 'rake', '>= 10.0.0'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
+<<<<<<< HEAD
   gem 'rspec-rails' , '~> 3.3'
+=======
+  gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
+>>>>>>> origin/4.11.2_release_pre-rails4
 end
 
 group :test do

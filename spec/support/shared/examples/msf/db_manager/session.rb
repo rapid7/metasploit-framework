@@ -124,7 +124,11 @@ shared_examples_for 'Msf::DBManager::Session' do
 
           context 'with a run_id in user_data' do
             before(:each) do
+<<<<<<< HEAD
               allow(db_manager).to receive(:create_match_for_vuln).and_return(nil)
+=======
+              MetasploitDataModels::AutomaticExploitation::MatchSet.any_instance.stub(:create_match_for_vuln).and_return(nil)
+>>>>>>> origin/4.11.2_release_pre-rails4
             end
 
             let(:match_set) do
@@ -147,7 +151,11 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               it 'should not find workspace from session' do
+<<<<<<< HEAD
                 expect(db_manager).not_to receive(:find_workspace)
+=======
+                db_manager.should_not_receive(:find_workspace)
+>>>>>>> origin/4.11.2_release_pre-rails4
 
                 expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
@@ -155,6 +163,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             context 'without :workspace' do
               it 'should find workspace from session' do
+<<<<<<< HEAD
                 expect(db_manager).to receive(:find_workspace).with(session.workspace).and_call_original
 
                 report_session
@@ -167,6 +176,20 @@ shared_examples_for 'Msf::DBManager::Session' do
                   )
                 ).and_return(host)
 
+=======
+                db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
+
+                report_session
+              end
+
+              it 'should pass session.workspace to #find_or_create_host' do
+                db_manager.should_receive(:find_or_create_host).with(
+                  hash_including(
+                    :workspace => session_workspace
+                  )
+                ).and_return(host)
+
+>>>>>>> origin/4.11.2_release_pre-rails4
                 expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
             end
@@ -174,11 +197,19 @@ shared_examples_for 'Msf::DBManager::Session' do
             context 'with workspace from either :workspace or session' do
               it 'should pass normalized host from session as :host to #find_or_create_host' do
                 normalized_host = double('Normalized Host')
+<<<<<<< HEAD
                 expect(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
                 expect(db_manager).to receive(:report_vuln)
 
                 expect(db_manager).to receive(:find_or_create_host).with(
+=======
+                db_manager.stub(:normalize_host).with(session).and_return(normalized_host)
+                # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
+                db_manager.stub(:report_vuln)
+
+                db_manager.should_receive(:find_or_create_host).with(
+>>>>>>> origin/4.11.2_release_pre-rails4
                   hash_including(
                     :host => normalized_host
                   )
@@ -193,11 +224,19 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 before(:each) do
+<<<<<<< HEAD
                   allow(session).to receive(:arch).and_return(arch)
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
                   expect(db_manager).to receive(:find_or_create_host).with(
+=======
+                  session.stub(:arch => arch)
+                end
+
+                it 'should pass :arch to #find_or_create_host' do
+                  db_manager.should_receive(:find_or_create_host).with(
+>>>>>>> origin/4.11.2_release_pre-rails4
                     hash_including(
                       :arch => arch
                     )
@@ -209,7 +248,11 @@ shared_examples_for 'Msf::DBManager::Session' do
 
               context 'without session responds to arch' do
                 it 'should not pass :arch to #find_or_create_host' do
+<<<<<<< HEAD
                   expect(db_manager).to receive(:find_or_create_host).with(
+=======
+                  db_manager.should_receive(:find_or_create_host).with(
+>>>>>>> origin/4.11.2_release_pre-rails4
                     hash_excluding(
                       :arch
                     )
@@ -225,12 +268,20 @@ shared_examples_for 'Msf::DBManager::Session' do
                 }.to change(Mdm::Session, :count).by(1)
               end
 
+<<<<<<< HEAD
               it { is_expected.to be_an Mdm::Session }
+=======
+              it { should be_an Mdm::Session }
+>>>>>>> origin/4.11.2_release_pre-rails4
 
               it 'should set session.db_record to created Mdm::Session' do
                 mdm_session = report_session
 
+<<<<<<< HEAD
                 expect(session.db_record).to eq mdm_session
+=======
+                session.db_record.should == mdm_session
+>>>>>>> origin/4.11.2_release_pre-rails4
               end
 
               context 'with session.via_exploit' do
@@ -397,6 +448,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 #
 
                 it 'should have session.info present' do
+<<<<<<< HEAD
                   expect(session.info).to be_present
                 end
 
@@ -418,6 +470,29 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                 it 'should have session.via_payload present' do
                   expect(session.via_exploit).to be_present
+=======
+                  session.info.should be_present
+                end
+
+                it 'should have session.sid present' do
+                  session.sid.should be_present
+                end
+
+                it 'should have session.platform present' do
+                  session.platform.should be_present
+                end
+
+                it 'should have session.type present' do
+                  session.type.should be_present
+                end
+
+                it 'should have session.via_exploit present' do
+                  session.via_exploit.should be_present
+                end
+
+                it 'should have session.via_payload present' do
+                  session.via_exploit.should be_present
+>>>>>>> origin/4.11.2_release_pre-rails4
                 end
 
                 it { expect(subject.datastore).to eq(session.exploit_datastore.to_h) }
@@ -433,12 +508,20 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                 context "with session.via_exploit 'exploit/multi/handler'" do
                   it "should have session.via_exploit of 'exploit/multi/handler'" do
+<<<<<<< HEAD
                     expect(session.via_exploit).to eq 'exploit/multi/handler'
+=======
+                    session.via_exploit.should == 'exploit/multi/handler'
+>>>>>>> origin/4.11.2_release_pre-rails4
                   end
 
                   context "with session.exploit_datastore['ParentModule']" do
                     it "should have session.exploit_datastore['ParentModule']" do
+<<<<<<< HEAD
                       expect(session.exploit_datastore['ParentModule']).not_to be_nil
+=======
+                      session.exploit_datastore['ParentModule'].should_not be_nil
+>>>>>>> origin/4.11.2_release_pre-rails4
                     end
 
                     it { expect(subject.via_exploit).to eq(parent_module_fullname) }
@@ -472,7 +555,11 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   it "should not have session.via_exploit of 'exploit/multi/handler'" do
+<<<<<<< HEAD
                     expect(session.via_exploit).not_to eq 'exploit/multi/handler'
+=======
+                    session.via_exploit.should_not == 'exploit/multi/handler'
+>>>>>>> origin/4.11.2_release_pre-rails4
                   end
 
                   it { expect(subject.via_exploit).to eq(session.via_exploit) }

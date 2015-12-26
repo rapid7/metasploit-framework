@@ -5,16 +5,24 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
+<<<<<<< HEAD
 require 'msf/core/payload/python'
 require 'msf/core/payload/python/reverse_http'
+=======
+require 'msf/core/payload/uuid/options'
+>>>>>>> origin/4.11.2_release_pre-rails4
 
 module Metasploit4
 
   CachedSize = 762
 
   include Msf::Payload::Stager
+<<<<<<< HEAD
   include Msf::Payload::Python
   include Msf::Payload::Python::ReverseHttp
+=======
+  include Msf::Payload::UUID::Options
+>>>>>>> origin/4.11.2_release_pre-rails4
 
   def initialize(info = {})
     super(merge_info(info,

@@ -199,7 +199,11 @@ class Metasploit3 < Msf::Post
     print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
 
     report_cred(
+<<<<<<< HEAD
       ip: rhost,
+=======
+      ip: r_host,
+>>>>>>> origin/4.11.2_release_pre-rails4
       port: port,
       service_name: 'http',
       user: user,
