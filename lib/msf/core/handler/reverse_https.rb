@@ -48,6 +48,7 @@ module ReverseHttps
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -60,6 +61,9 @@ module ReverseHttps
 =======
         OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
 >>>>>>> origin/payload-generator.rb
+=======
+        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
+>>>>>>> origin/pod/metasploit-serialized_class_loader
         OptBool.new('StagerVerifySSLCert', [false, "Whether to verify the SSL certificate in Meterpreter"])
       ], Msf::Handler::ReverseHttps)
 

@@ -6,6 +6,7 @@ require 'stringio'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Egghunter do
 =======
 describe Egghunter do
@@ -19,6 +20,9 @@ describe Egghunter do
 =======
 describe Egghunter do
 >>>>>>> origin/payload-generator.rb
+=======
+describe Egghunter do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   describe Egghunter::Driver do
 

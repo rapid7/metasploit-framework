@@ -17,6 +17,7 @@ module Metasploit3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 313
 =======
   CachedSize = 314
@@ -113,6 +114,12 @@ module Metasploit3
   CachedSize = 314
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+  CachedSize = 314
+=======
+  CachedSize = 313
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

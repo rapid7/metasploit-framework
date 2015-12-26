@@ -8,6 +8,7 @@ require 'stringio'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Java::Serialization::Model::ProxyClassDesc do
 =======
 describe Rex::Java::Serialization::Model::ProxyClassDesc do
@@ -21,6 +22,9 @@ describe Rex::Java::Serialization::Model::ProxyClassDesc do
 =======
 describe Rex::Java::Serialization::Model::ProxyClassDesc do
 >>>>>>> origin/payload-generator.rb
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   subject(:proxy_class_desc) do
     described_class.new
   end

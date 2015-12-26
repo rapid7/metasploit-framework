@@ -13,6 +13,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 494
 =======
   CachedSize = 466
@@ -76,6 +77,10 @@ module Metasploit4
   CachedSize = 466
 
 >>>>>>> origin/pod/metasploit-framework
+=======
+  CachedSize = 494
+
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   CachedSize = 466
 
   include Msf::Payload::Stager
@@ -94,9 +99,12 @@ module Metasploit4
       'Stager'        => {'Payload' => ""}
     ))
 <<<<<<< HEAD
+<<<<<<< HEAD
   end
 
 =======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
     register_options(
       [
@@ -189,6 +197,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -235,4 +244,10 @@ module Metasploit4
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+  end
+
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 end

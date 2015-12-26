@@ -9,6 +9,7 @@ require 'rex/java'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Rmi::Model::UniqueIdentifier do
 =======
 describe Rex::Proto::Rmi::Model::UniqueIdentifier do
@@ -22,6 +23,9 @@ describe Rex::Proto::Rmi::Model::UniqueIdentifier do
 =======
 describe Rex::Proto::Rmi::Model::UniqueIdentifier do
 >>>>>>> origin/payload-generator.rb
+=======
+describe Rex::Proto::Rmi::Model::UniqueIdentifier do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   subject(:uid) do
     described_class.new

@@ -13,6 +13,7 @@ require 'msf/core/handler/reverse_https'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -39,6 +40,12 @@ module Metasploit4
 >>>>>>> payload-generator.rb
 =======
 >>>>>>> pod/metasploit-gemfile-
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 <<<<<<< HEAD
 <<<<<<< HEAD
 #require 'msf/core/payload/windows/x64/reverse_https'
@@ -52,6 +59,7 @@ require 'msf/core/payload/windows/x64/reverse_https'
 
 module Metasploit4
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -89,6 +97,13 @@ module Metasploit4
 =======
 #require 'msf/core/payload/windows/x64/reverse_https'
 >>>>>>> pod/complex-payloads
+=======
+=======
+require 'msf/core/payload/windows/x64/reverse_https'
+
+module Metasploit4
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
 =======
 =======
@@ -104,6 +119,7 @@ module Metasploit4
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -122,10 +138,13 @@ module Metasploit4
 =======
 >>>>>>> rapid7/master
 =======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -277,6 +296,26 @@ module Metasploit4
 
 =======
 =======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+require 'msf/core/payload/windows/x64/reverse_https'
+
+module Metasploit4
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -287,6 +326,7 @@ module Metasploit4
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-excellent.mp3
 require 'msf/core/payload/windows/x64/reverse_https'
 
@@ -319,10 +359,13 @@ module Metasploit4
 =======
 >>>>>>> rapid7/master
 =======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 >>>>>>> origin/payload-generator.rb
 =======
@@ -339,6 +382,13 @@ module Metasploit4
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   CachedSize = 532
 
   include Msf::Payload::Stager

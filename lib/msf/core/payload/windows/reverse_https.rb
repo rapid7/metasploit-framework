@@ -9,6 +9,7 @@ require 'msf/core'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 require 'msf/core/payload/transport_config'
 =======
 >>>>>>> rapid7/feature/complex-payloads
@@ -51,6 +52,10 @@ require 'msf/core/payload/transport_config'
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -66,6 +71,8 @@ require 'msf/core/payload/transport_config'
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 require 'msf/core/payload/transport_config'
 >>>>>>> rapid7/master
 =======
@@ -73,10 +80,13 @@ require 'msf/core/payload/transport_config'
 >>>>>>> rapid7/master
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 require 'msf/core/payload/transport_config'
 >>>>>>> rapid7/master
 =======
@@ -85,6 +95,7 @@ require 'msf/core/payload/transport_config'
 =======
 require 'msf/core/payload/transport_config'
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -104,14 +115,19 @@ require 'msf/core/payload/transport_config'
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 require 'msf/core/payload/transport_config'
 >>>>>>> rapid7/master
 =======
 require 'msf/core/payload/transport_config'
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 require 'msf/core/payload/transport_config'
@@ -119,6 +135,7 @@ require 'msf/core/payload/transport_config'
 =======
 require 'msf/core/payload/transport_config'
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
@@ -137,14 +154,20 @@ require 'msf/core/payload/transport_config'
 >>>>>>> pod/complex-payloads
 =======
 =======
+=======
 require 'msf/core/payload/transport_config'
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 require 'msf/core/payload/transport_config'
 >>>>>>> master
 =======
 require 'msf/core/payload/transport_config'
 >>>>>>> master
+=======
+require 'msf/core/payload/transport_config'
+>>>>>>> master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
 require 'msf/core/payload/transport_config'
@@ -156,6 +179,11 @@ require 'msf/core/payload/transport_config'
 require 'msf/core/payload/transport_config'
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+require 'msf/core/payload/transport_config'
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 require 'msf/core/payload/windows/reverse_http'
 
 module Msf
@@ -168,6 +196,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> rapid7/feature/complex-payloads
@@ -213,6 +242,9 @@ module Msf
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -221,6 +253,8 @@ module Msf
 =======
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -238,6 +272,7 @@ module Msf
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -251,6 +286,8 @@ module Msf
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
@@ -258,6 +295,7 @@ module Msf
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
@@ -275,11 +313,16 @@ module Msf
 >>>>>>> pod/complex-payloads
 =======
 =======
+=======
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -288,12 +331,17 @@ module Msf
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 ###
 #
 # Complex payload generation for Windows ARCH_X86 that speak HTTPS
 #
 ###
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -400,6 +448,14 @@ module Payload::Windows::ReverseHttps
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
 module Payload::Windows::ReverseHttps
 
@@ -425,6 +481,7 @@ module Payload::Windows::ReverseHttps
   #
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> msf-complex-payloads
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -442,6 +499,8 @@ module Payload::Windows::ReverseHttps
 =======
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   def generate
 
     # Generate the simple version of this stager if we don't have enough space
@@ -462,6 +521,7 @@ module Payload::Windows::ReverseHttps
     }
 
     generate_reverse_https(conf)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -489,11 +549,14 @@ module Payload::Windows::ReverseHttps
 =======
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   end
 
   # TODO: Use the CachedSize instead (PR #4894)
   def cached_size
     341
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -522,10 +585,13 @@ module Payload::Windows::ReverseHttps
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 =======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
@@ -537,9 +603,12 @@ module Payload::Windows::ReverseHttps
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -553,10 +622,16 @@ module Payload::Windows::ReverseHttps
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
 =======
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 >>>>>>> rapid7/master
@@ -569,12 +644,15 @@ module Payload::Windows::ReverseHttps
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> rapid7/master
 =======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -592,6 +670,13 @@ module Payload::Windows::ReverseHttps
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 module Payload::Windows::ReverseHttps
 
   include Msf::Payload::TransportConfig
@@ -607,6 +692,7 @@ module Payload::Windows::ReverseHttps
   #
   # Generate the transport-specific configuration
   #
+<<<<<<< HEAD
 <<<<<<< HEAD
   def generate
 
@@ -629,8 +715,11 @@ module Payload::Windows::ReverseHttps
 
     generate_reverse_https(conf)
 =======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   def transport_config(opts={})
     transport_config_reverse_https(opts)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -647,6 +736,9 @@ module Payload::Windows::ReverseHttps
 =======
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -668,6 +760,12 @@ module Payload::Windows::ReverseHttps
 >>>>>>> rapid7/master
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -675,6 +773,7 @@ module Payload::Windows::ReverseHttps
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -694,11 +793,14 @@ module Payload::Windows::ReverseHttps
 =======
 >>>>>>> rapid7/master
 =======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
@@ -724,11 +826,16 @@ module Payload::Windows::ReverseHttps
 >>>>>>> pod/complex-payloads
 =======
 =======
+=======
 >>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> master
 =======
 >>>>>>> master
+=======
+>>>>>>> master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -737,6 +844,10 @@ module Payload::Windows::ReverseHttps
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   end
 
 end

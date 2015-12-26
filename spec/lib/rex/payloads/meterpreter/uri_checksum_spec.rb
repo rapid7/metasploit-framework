@@ -5,6 +5,7 @@ require 'rex/payloads/meterpreter/uri_checksum'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Payloads::Meterpreter::UriChecksum do
 =======
 describe Rex::Payloads::Meterpreter::UriChecksum do
@@ -18,12 +19,16 @@ describe Rex::Payloads::Meterpreter::UriChecksum do
 =======
 describe Rex::Payloads::Meterpreter::UriChecksum do
 >>>>>>> origin/payload-generator.rb
+=======
+describe Rex::Payloads::Meterpreter::UriChecksum do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
    class DummyClass
      include Rex::Payloads::Meterpreter::UriChecksum
    end
 
   subject(:dummy_object) { DummyClass.new }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -51,6 +56,11 @@ describe Rex::Payloads::Meterpreter::UriChecksum do
   it { should respond_to :process_uri_resource}
   it { should respond_to :uri_checksum_lookup}
 >>>>>>> origin/payload-generator.rb
+=======
+  it { should respond_to :generate_uri_checksum}
+  it { should respond_to :process_uri_resource}
+  it { should respond_to :uri_checksum_lookup}
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   describe '#process_uri_resource' do
     context 'when passed a value for INITW' do

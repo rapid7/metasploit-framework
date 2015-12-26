@@ -20,6 +20,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 50146
 =======
   CachedSize = 49398
@@ -116,6 +117,12 @@ module Metasploit4
   CachedSize = 49398
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+  CachedSize = 49398
+=======
+  CachedSize = 50146
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   include Msf::Payload::Single
   include Msf::Payload::Python

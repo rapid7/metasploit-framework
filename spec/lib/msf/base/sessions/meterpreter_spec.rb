@@ -7,6 +7,7 @@ require 'rex/post/meterpreter/extensions/stdapi/net/route'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Sessions::Meterpreter do
 =======
 describe Msf::Sessions::Meterpreter do
@@ -20,6 +21,9 @@ describe Msf::Sessions::Meterpreter do
 =======
 describe Msf::Sessions::Meterpreter do
 >>>>>>> origin/payload-generator.rb
+=======
+describe Msf::Sessions::Meterpreter do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   before do
     allow_any_instance_of(Rex::Post::Meterpreter::PacketDispatcher).to receive(:monitor_socket)
   end
@@ -54,6 +58,7 @@ describe Msf::Sessions::Meterpreter do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       allow(m).to receive_message_chain(:private_methods, :net)
       allow(m).to receive_message_chain(:private_methods, :net, :config, :get_interfaces).and_return(interfaces)
       allow(m).to receive_message_chain(:private_methods, :net, :config, :get_routes).and_return(routes)
@@ -73,6 +78,10 @@ describe Msf::Sessions::Meterpreter do
       m.stub_chain(:net, :config, :get_interfaces).and_return(interfaces)
       m.stub_chain(:net, :config, :get_routes).and_return(routes)
 >>>>>>> origin/payload-generator.rb
+=======
+      m.stub_chain(:net, :config, :get_interfaces).and_return(interfaces)
+      m.stub_chain(:net, :config, :get_routes).and_return(routes)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       m.session_host = session_host
 
       m.send(:find_internet_connected_address)

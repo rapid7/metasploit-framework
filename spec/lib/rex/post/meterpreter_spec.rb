@@ -5,6 +5,7 @@ require 'rex/post/meterpreter'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe MetasploitPayloads do
 =======
 describe MetasploitPayloads do
@@ -18,6 +19,9 @@ describe MetasploitPayloads do
 =======
 describe MetasploitPayloads do
 >>>>>>> origin/payload-generator.rb
+=======
+describe MetasploitPayloads do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   it 'is available' do
     expect(described_class).to eq(MetasploitPayloads)
   end

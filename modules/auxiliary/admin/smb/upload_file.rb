@@ -15,6 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -58,6 +59,11 @@ class Metasploit3 < Msf::Auxiliary
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::SMB::Client::LocalPaths
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -91,6 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
+<<<<<<< HEAD
   def run_host(_ip)
     begin
       vprint_status("#{peer}: Connecting to the server...")
@@ -121,4 +128,40 @@ class Metasploit3 < Msf::Auxiliary
       print_error("#{peer} Unable to login: #{e.message}")
     end
   end
+=======
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+  def run_host(_ip)
+    begin
+      vprint_status("#{peer}: Connecting to the server...")
+      connect()
+      smb_login()
+
+      vprint_status("#{peer}: Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+      self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
+
+      remote_path = remote_paths.first
+      local_paths.each do |local_path|
+        begin
+          vprint_status("#{peer}: Trying to upload #{local_path} to #{remote_path}...")
+
+          fd = simple.open("\\#{remote_path}", 'rwct')
+          data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']))
+          fd.write(data)
+          fd.close
+
+          print_good("#{peer}: #{local_path} uploaded to #{remote_path}")
+        rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+          print_error("#{peer} Unable to upload #{local_path} to #{remote_path} : #{e.message}")
+        end
+      end
+    rescue Rex::Proto::SMB::Exceptions::LoginError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      print_error("#{peer} Unable to login: #{e.message}")
+    end
+  end
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 end

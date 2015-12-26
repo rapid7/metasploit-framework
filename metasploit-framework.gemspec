@@ -70,6 +70,7 @@ Gem::Specification.new do |spec|
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.10'
 =======
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
@@ -86,10 +87,14 @@ Gem::Specification.new do |spec|
 =======
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
 >>>>>>> origin/payload-generator.rb
+=======
+  spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.0.0'
   # Needed for Meterpreter
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -183,6 +188,12 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.17'
+=======
+  spec.add_runtime_dependency 'metasploit-payloads', '1.0.19'
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -199,6 +210,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog', '2.0.14'
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -276,6 +288,12 @@ Gem::Specification.new do |spec|
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+  # required for bitlocker fvek extraction
+  spec.add_runtime_dependency 'openssl-ccm', '1.2.1'
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module

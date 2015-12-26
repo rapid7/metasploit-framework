@@ -69,6 +69,7 @@ end
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 
@@ -160,3 +161,8 @@ end
 
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader

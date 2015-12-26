@@ -6,6 +6,7 @@ require 'rex/proto/steam/message'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Steam do
 =======
 describe Rex::Proto::Steam do
@@ -19,6 +20,9 @@ describe Rex::Proto::Steam do
 =======
 describe Rex::Proto::Steam do
 >>>>>>> origin/payload-generator.rb
+=======
+describe Rex::Proto::Steam do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   subject(:steam) do
     mod = Module.new
     mod.extend described_class

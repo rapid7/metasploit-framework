@@ -8,6 +8,7 @@ require 'net/dns'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Net::DNS::RR::Types do
 =======
 describe Net::DNS::RR::Types do
@@ -24,6 +25,9 @@ describe Net::DNS::RR::Types do
 =======
 describe Net::DNS::RR::Types do
 >>>>>>> origin/payload-generator.rb
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   subject do
     described_class.new

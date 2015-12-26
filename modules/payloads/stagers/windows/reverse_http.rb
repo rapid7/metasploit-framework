@@ -14,6 +14,7 @@ require 'msf/core/payload/windows/reverse_http'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 module Metasploit4
 =======
@@ -71,6 +72,10 @@ module Metasploit4
 =======
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -84,9 +89,7 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
-
-module Metasploit4
->>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 
 module Metasploit4
@@ -99,6 +102,11 @@ module Metasploit4
 
 module Metasploit4
 >>>>>>> rapid7/master
+=======
+
+module Metasploit4
+>>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 =======
@@ -113,10 +121,15 @@ module Metasploit4
 
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
 module Metasploit4
 
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
@@ -131,6 +144,8 @@ module Metasploit4
 =======
 >>>>>>> origin/pod/metasploit-framework
 =======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 
 module Metasploit4
 
@@ -140,13 +155,18 @@ module Metasploit4
 module Metasploit4
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> master
 >>>>>>> pod/metasploit-gemfile-
 =======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 
 module Metasploit4
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -190,9 +210,18 @@ module Metasploit4
 =======
 >>>>>>> pod/metasploit-gemfile-
 =======
+>>>>>>> master
+=======
 
 module Metasploit4
 
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+
+module Metasploit4
+
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 <<<<<<< HEAD
@@ -202,30 +231,48 @@ module Metasploit4
 >>>>>>> master
 >>>>>>> pod/metasploit-gemfile-
 =======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 
 module Metasploit4
 
 >>>>>>> master
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> payload-generator.rb
 =======
 >>>>>>> pod/metasploit-gemfile-
 =======
-
-module Metasploit4
-
->>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 
 module Metasploit4
 
+<<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 
 module Metasploit4
 
+<<<<<<< HEAD
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+
+module Metasploit4
+
+<<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   CachedSize = 327
 
   include Msf::Payload::Stager
@@ -234,6 +281,7 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -320,6 +368,15 @@ module Metasploit4
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 >>>>>>> origin/pod/metasploit-framework
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       'Name'          => 'Reverse HTTP Stager',
       'Description'   => 'Tunnel communication over HTTP',
       'Author'        => 'hdm',
@@ -328,6 +385,7 @@ module Metasploit4
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseHttp,
       'Convention'    => 'sockedi http'))
+<<<<<<< HEAD
 <<<<<<< HEAD
   end
 <<<<<<< HEAD
@@ -440,6 +498,48 @@ module Metasploit4
       'Convention'  => 'sockedi http'))
   end
 
+=======
+  end
+=======
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+      'Name'        => 'Windows Reverse HTTP Stager (wininet)',
+      'Description' => 'Tunnel communication over HTTP (Windows wininet)',
+      'Author'      => 'hdm',
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'win',
+      'Arch'        => ARCH_X86,
+      'Handler'     => Msf::Handler::ReverseHttp,
+      'Convention'  => 'sockedi http'))
+  end
+
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -459,6 +559,8 @@ module Metasploit4
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -466,6 +568,7 @@ module Metasploit4
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-framework
@@ -498,10 +601,14 @@ module Metasploit4
 =======
 =======
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -515,11 +622,14 @@ module Metasploit4
 =======
 >>>>>>> rapid7/master
 =======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+<<<<<<< HEAD
 >>>>>>> origin/payload-generator.rb
 =======
 =======
@@ -574,17 +684,23 @@ module Metasploit4
 =======
 >>>>>>> rapid7/master
 =======
->>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 =======
 >>>>>>> master
 =======
+>>>>>>> master
+=======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 >>>>>>> pod/metasploit-gemfile-
 =======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -602,4 +718,7 @@ module Metasploit4
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 end

@@ -58,6 +58,7 @@ TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL   = TLV_TYPE_WLAN_LEVEL
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 TLV_TYPE_COLLECT_RESULT_GEO          = TLV_META_TYPE_GROUP     | (TLV_EXTENSIONS + 9030)
@@ -93,6 +94,8 @@ TLV_TYPE_CELL_SYSTEM_ID              = TLV_META_TYPE_UINT      | (TLV_EXTENSIONS
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
 end
 end

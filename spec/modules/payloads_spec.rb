@@ -2273,6 +2273,7 @@ RSpec.describe 'modules/payloads', :content do
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -2290,6 +2291,9 @@ RSpec.describe 'modules/payloads', :content do
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   context 'python/meterpreter_reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2310,6 +2314,7 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'python/meterpreter_reverse_https'
   end
 
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2364,6 +2369,9 @@ RSpec.describe 'modules/payloads', :content do
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   context 'python/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

@@ -97,6 +97,7 @@ class Core
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 =======
@@ -126,6 +127,8 @@ class Core
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -182,6 +185,7 @@ class Core
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       "go_pro"     => "Launch Metasploit web GUI",
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -220,6 +224,8 @@ class Core
       "go_pro"     => "Launch Metasploit web GUI",
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
       "advanced"   => "Displays advanced options for one or more modules",
@@ -738,10 +744,13 @@ class Core
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
     sock.close rescue nil
     infile.close if infile
@@ -5850,6 +5859,7 @@ class Core
   end
 >>>>>>> origin/pod/metasploit-framework
 
+<<<<<<< HEAD
   def cmd_rename_job(*args)
     if args.include?('-h') || args.length != 2 || args[0] !~ /^\d+$/
       cmd_rename_job_help
@@ -5866,6 +5876,40 @@ class Core
 >>>>>>> rapid7/master
   def cmd_rename_job_help
     print_line "Usage: rename_job [ID] [Name]"
+=======
+  def cmd_advanced_help
+    print_line 'Usage: advanced [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for advanced options. If no module is given,'
+    print_line 'show advanced options for the currently active module.'
+    print_line
+  end
+
+  def cmd_advanced(*args)
+    if args.empty?
+      if (active_module)
+        show_advanced_options(active_module)
+        return true
+      else
+        print_error('No module active')
+        return false
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_advanced_options(mod)
+      end
+    }
+  end
+
+  def cmd_info_help
+    print_line "Usage: info <module name> [mod2 mod3 ...]"
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     print_line
     print_line "Example: rename_job 0 \"meterpreter HTTPS special\""
     print_line
@@ -5900,6 +5944,7 @@ class Core
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     end
   end
@@ -5913,6 +5958,73 @@ class Core
     print_line "Rename a job that's currently active."
     print_line "You may use the jobs command to see what jobs are available."
     print_line
+=======
+  def cmd_options_help
+    print_line 'Usage: options [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for options. If no module is given,'
+    print_line 'show options for the currently active module.'
+    print_line
+  end
+
+  def cmd_options(*args)
+    if args.empty?
+      if (active_module)
+        show_options(active_module)
+        return true
+      else
+        show_global_options
+        return true
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_options(mod)
+      end
+    }
+  end
+
+  #
+  # Tab completion for the advanced command (same as use)
+  #
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
+
+  def cmd_advanced_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
+  #
+  # Tab completion for the advanced command (same as use)
+  #
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
+
+  def cmd_info_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
+  #
+  # Tab completion for the advanced command (same as use)
+  #
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
+
+  def cmd_options_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
+  def cmd_irb_help
+    print_line "Usage: irb"
+    print_line
+    print_line "Execute commands in a Ruby environment"
+    print @@irb_opts.usage
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   end
 
   def cmd_rename_job(*args)
@@ -5921,6 +6033,7 @@ class Core
       return false
     end
 
+<<<<<<< HEAD
     job_id   = args[0].to_s
     job_name = args[1].to_s
 
@@ -5988,6 +6101,21 @@ class Core
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+    expressions = []
+
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        cmd_irb_help
+        return false
+      end
+    end
+
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     if expressions.empty?
       print_status("Starting IRB shell...\n")
 
@@ -7078,6 +7206,7 @@ class Core
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7217,11 +7346,14 @@ class Core
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
         if session
           if session.respond_to?(:response_timeout)
             last_known_timeout = session.response_timeout
             session.response_timeout = response_timeout
           end
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7344,12 +7476,15 @@ class Core
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
           begin
             session.kill
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
             end
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -7466,6 +7601,8 @@ class Core
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
           end
         end
       end

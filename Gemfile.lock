@@ -13,6 +13,7 @@ PATH
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -167,11 +168,16 @@ PATH
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+      filesize
+      jsobfu (~> 0.3.0)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       json
       metasm (~> 1.0.2)
       metasploit-concern (= 1.0.0)
       metasploit-credential (= 1.0.1)
       metasploit-model (= 1.0.0)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -350,6 +356,20 @@ PATH
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+      metasploit-payloads (= 1.0.17)
+=======
+      metasploit-payloads (= 1.0.19)
+>>>>>>> rapid7/master
+      metasploit_data_models (= 1.2.9)
+      msgpack
+      network_interface (~> 0.0.1)
+      nokogiri
+<<<<<<< HEAD
+=======
+      openssl-ccm (= 1.2.1)
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       packetfu (= 1.1.11)
       pcaprub
       pg (>= 0.11)
@@ -368,6 +388,7 @@ PATH
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 =======
@@ -472,6 +493,15 @@ PATH
 <<<<<<< HEAD
 =======
 =======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 >>>>>>> master
 =======
 =======
@@ -479,6 +509,7 @@ PATH
 =======
 =======
 >>>>>>> master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
 =======
@@ -506,6 +537,11 @@ PATH
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+=======
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 3.2.21, < 4.0.0)
       metasploit-credential (= 0.14.8)
@@ -522,6 +558,7 @@ PATH
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 <<<<<<< HEAD
@@ -592,6 +629,10 @@ PATH
 >>>>>>> origin/4.11.2_release_pre-rails4
 >>>>>>> pod/metasploit-gemfile-
 <<<<<<< HEAD
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -663,12 +704,23 @@ PATH
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+<<<<<<< HEAD
+>>>>>>> rapid7/master
 =======
 >>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -687,6 +739,9 @@ PATH
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
 GEM
   remote: https://rubygems.org/
@@ -723,6 +778,7 @@ GEM
       cucumber (>= 1.1.1)
       rspec-expectations (>= 2.7.0)
     bcrypt (3.1.10)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -900,11 +956,16 @@ GEM
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+    builder (3.1.4)
+    capybara (2.4.4)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1077,6 +1138,9 @@ GEM
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+    childprocess (0.5.5)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.0)
     cucumber (1.3.19)
@@ -1101,6 +1165,7 @@ GEM
       railties (>= 3.0.0)
     ffi (1.9.8)
     filesize (0.1.1)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1174,9 +1239,16 @@ GEM
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
     hitimes (1.2.2)
+=======
+    fivemat (1.2.1)
+    gherkin (2.12.2)
+      multi_json (~> 1.3)
+    hike (1.2.3)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     i18n (0.7.0)
     jsobfu (0.3.0)
       rkelly-remix (= 0.0.6)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1197,11 +1269,14 @@ GEM
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
@@ -1243,10 +1318,15 @@ GEM
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -1272,6 +1352,17 @@ GEM
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     json (1.8.3)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
@@ -1288,6 +1379,7 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 <<<<<<< HEAD
@@ -1296,10 +1388,15 @@ GEM
 =======
 >>>>>>> master
 =======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
+<<<<<<< HEAD
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 <<<<<<< HEAD
@@ -1308,6 +1405,18 @@ GEM
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     json (1.8.2)
     mail (2.5.4)
       mime-types (~> 1.16)
@@ -1319,6 +1428,7 @@ GEM
       metasploit-concern (= 0.4.0)
       metasploit-model (~> 0.29.0)
       metasploit_data_models (= 0.24.5)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1586,10 +1696,21 @@ GEM
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -1622,17 +1743,23 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -1676,6 +1803,9 @@ GEM
 >>>>>>> origin/pod/metasploit-excellent.mp3
 =======
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       pg
       railties
       rubyntlm
@@ -1685,6 +1815,7 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 <<<<<<< HEAD
@@ -1785,6 +1916,14 @@ GEM
 >>>>>>> master
 >>>>>>> payload-generator.rb
 =======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
@@ -1796,6 +1935,7 @@ GEM
 >>>>>>> master
 =======
 >>>>>>> master
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -1821,14 +1961,23 @@ GEM
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     metasploit-model (1.0.0)
       activemodel (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     metasploit-payloads (1.0.17)
     metasploit_data_models (1.2.9)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1937,10 +2086,17 @@ GEM
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
@@ -1990,6 +2146,12 @@ GEM
 >>>>>>> master
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     metasploit-model (0.29.2)
       activesupport
       railties (< 4.0.0)
@@ -1997,6 +2159,7 @@ GEM
     metasploit_data_models (0.24.5)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2107,10 +2270,21 @@ GEM
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
 >>>>>>> origin/4.11.2_release_pre-rails4
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
@@ -2124,10 +2298,17 @@ GEM
 =======
 >>>>>>> origin/4.11.2_release_pre-rails4
 <<<<<<< HEAD
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 >>>>>>> origin/payload-generator.rb
 =======
@@ -2148,6 +2329,13 @@ GEM
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+    metasploit-payloads (1.0.19)
+    metasploit_data_models (1.2.9)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       arel-helpers
       metasploit-concern (~> 1.0)
       metasploit-model (~> 1.0)
@@ -2157,6 +2345,7 @@ GEM
       recog (~> 2.0)
     method_source (0.8.2)
     mime-types (2.6.1)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2245,6 +2434,9 @@ GEM
 >>>>>>> origin/pod/metasploit-api/_index.html
 =======
 >>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+    mini_portile (0.6.2)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     minitest (4.7.5)
     msgpack (0.7.1)
     multi_json (1.11.2)
@@ -2255,6 +2447,7 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -2530,17 +2723,79 @@ GEM
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 =======
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     network_interface (0.0.1)
     nokogiri (1.6.6.2)
       mini_portile (~> 0.6.0)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-api/_index.html
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+    openssl-ccm (1.2.1)
+>>>>>>> rapid7/master
+    packetfu (1.1.11)
+      network_interface (~> 0.0)
+      pcaprub (~> 0.12)
+    pcaprub (0.12.0)
+    pg (0.18.3)
+    pg_array_parser (0.0.9)
+    postgres_ext (2.4.1)
+      activerecord (>= 4.0.0)
+      arel (>= 4.0.1)
+      pg_array_parser (~> 0.0.9)
+    pry (0.10.1)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.18.2)
     polyglot (0.3.5)
     pry (0.10.0)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2653,6 +2908,10 @@ GEM
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> origin/4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2673,17 +2932,24 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
 >>>>>>> rapid7/master
 =======
+<<<<<<< HEAD
 >>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 >>>>>>> master
 =======
 >>>>>>> master
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
@@ -3195,6 +3461,13 @@ GEM
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
@@ -3313,6 +3586,7 @@ GEM
 =======
     rb-readline-r7 (0.5.2.0)
     recog (2.0.14)
+<<<<<<< HEAD
 >>>>>>> rapid7/master
 =======
     rb-readline-r7 (0.5.2.0)
@@ -3429,6 +3703,8 @@ GEM
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       nokogiri
     redcarpet (3.2.3)
     rkelly-remix (0.0.6)
@@ -3475,6 +3751,7 @@ GEM
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -3484,6 +3761,8 @@ GEM
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     rubyntlm (0.5.2)
     rubyzip (1.1.7)
     shoulda-matchers (2.8.0)
@@ -3507,6 +3786,7 @@ GEM
     thor (0.19.1)
     thread_safe (0.3.5)
     tilt (1.4.1)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3673,6 +3953,10 @@ GEM
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+    timecop (0.7.3)
+    tzinfo (0.3.44)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.8.7.6)
@@ -3689,6 +3973,7 @@ DEPENDENCIES
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   fivemat (~> 1.3.1)
 =======
 =======
@@ -3699,6 +3984,8 @@ DEPENDENCIES
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   fivemat (= 1.2.1)
 >>>>>>> origin/4.11.2_release_pre-rails4
   metasploit-framework!

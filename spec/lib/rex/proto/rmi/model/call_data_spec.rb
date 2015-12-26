@@ -9,6 +9,7 @@ require 'rex/java'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Rmi::Model::CallData do
 =======
 describe Rex::Proto::Rmi::Model::CallData do
@@ -22,6 +23,9 @@ describe Rex::Proto::Rmi::Model::CallData do
 =======
 describe Rex::Proto::Rmi::Model::CallData do
 >>>>>>> origin/payload-generator.rb
+=======
+describe Rex::Proto::Rmi::Model::CallData do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   subject(:call_data) do
     described_class.new

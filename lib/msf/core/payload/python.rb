@@ -13,6 +13,7 @@ module Msf::Payload::Python
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -111,6 +112,14 @@ module Msf::Payload::Python
   # that will decode and execute it on the fly.
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+  # that will decode and execute it on the fly.
+=======
+  # that will decode and execute it on the fly. The code will be condensed to
+  # one line and compatible with all Python versions supported by the Python
+  # Meterpreter stage.
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   #
   # @param cmd [String] The python code to execute.
   # @return [String] Full python stub to execute the command.

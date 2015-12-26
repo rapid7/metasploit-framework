@@ -13,6 +13,7 @@ require 'msf/core/handler/reverse_https'
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -155,10 +156,22 @@ module Metasploit3
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+require 'msf/core/payload/uuid/options'
+
+module Metasploit3
+=======
+require 'msf/core/payload/python'
+require 'msf/core/payload/python/reverse_http'
+
+module Metasploit4
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   CachedSize = 762
 
   include Msf::Payload::Stager
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -266,6 +279,13 @@ module Metasploit3
   include Msf::Payload::UUID::Options
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+  include Msf::Payload::UUID::Options
+=======
+  include Msf::Payload::Python
+  include Msf::Payload::Python::ReverseHttp
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
   def initialize(info = {})
     super(merge_info(info,
@@ -278,6 +298,7 @@ module Metasploit3
       'Handler'       => Msf::Handler::ReverseHttps,
       'Stager'        => {'Payload' => ""}
     ))
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -331,12 +352,15 @@ module Metasploit3
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
 
     register_options(
       [
         OptString.new('PayloadProxyHost', [false, "The proxy server's IP address"]),
         OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ])
       ], self.class)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -389,12 +413,17 @@ module Metasploit3
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   end
 
   #
   # Constructs the payload
   #
   def generate
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -449,6 +478,8 @@ module Metasploit3
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     lhost = datastore['LHOST'] || '127.127.127.127'
 
     var_escape = lambda { |txt|
@@ -540,6 +571,7 @@ module Metasploit3
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 =======
 >>>>>>> origin/msf-complex-payloads
@@ -586,6 +618,11 @@ module Metasploit3
 =======
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+=======
+    super({scheme: 'https'})
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   end
 
 end

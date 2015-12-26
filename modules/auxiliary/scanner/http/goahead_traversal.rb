@@ -26,6 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           ['PACKETSTORM', '131156']
 =======
           ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
@@ -39,6 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 =======
           ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
 >>>>>>> origin/payload-generator.rb
+=======
+          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+>>>>>>> origin/pod/metasploit-serialized_class_loader
         ],
       'Author'         =>
         [

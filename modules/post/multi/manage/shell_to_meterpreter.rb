@@ -49,6 +49,7 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> origin/pod/metasploit-api/_index.html
@@ -66,11 +67,16 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 >>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
 >>>>>>> origin/pod/metasploit-framework
+=======
+        [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
       OptString.new('BOURNE_PATH',
         [false, 'Remote path to drop binary']),
       OptString.new('BOURNE_FILE',
         [false, 'Remote filename to use for dropped binary'])
+<<<<<<< HEAD
 =======
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
 <<<<<<< HEAD
@@ -149,6 +155,9 @@ class Metasploit3 < Msf::Post
         [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil])
 >>>>>>> chore/MSP-12110/celluloid-supervision-tree
 >>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
     ], self.class)
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
@@ -201,6 +210,7 @@ class Metasploit3 < Msf::Post
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       target_info = cmd_exec('uname -ms')
 =======
 =======
@@ -211,6 +221,8 @@ class Metasploit3 < Msf::Post
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       target_info = cmd_exec('uname -mo')
 >>>>>>> origin/4.11.2_release_pre-rails4
       if target_info =~ /linux/i && target_info =~ /86/
@@ -220,6 +232,7 @@ class Metasploit3 < Msf::Post
         lplat = [Msf::Platform::Linux]
         larch = [ARCH_X86]
         vprint_status("Platform: Linux")
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -239,6 +252,8 @@ class Metasploit3 < Msf::Post
 >>>>>>> origin/msf-complex-payloads
 =======
 >>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
       elsif cmd_exec('python -V') =~ /Python (2|3)\.(\d)/
 >>>>>>> origin/4.11.2_release_pre-rails4
         # Generic fallback for OSX, Solaris, Linux/ARM
