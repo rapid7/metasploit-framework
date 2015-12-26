@@ -17,6 +17,7 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
+<<<<<<< HEAD
       'Name'        => 'Windows Reverse HTTPS Stager (wininet)',
       'Description' => 'Tunnel communication over HTTPS (Windows wininet)',
       'Author'      => 'hdm',
@@ -25,6 +26,16 @@ module Metasploit4
       'Arch'        => ARCH_X86,
       'Handler'     => Msf::Handler::ReverseHttps,
       'Convention'  => 'sockedi https'))
+=======
+      'Name'          => 'Reverse HTTPS Stager',
+      'Description'   => 'Tunnel communication over HTTP using SSL',
+      'Author'        => 'hdm',
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'win',
+      'Arch'          => ARCH_X86,
+      'Handler'       => Msf::Handler::ReverseHttps,
+      'Convention'    => 'sockedi https'))
+>>>>>>> rapid7/feature/complex-payloads
   end
 
 end

@@ -211,6 +211,7 @@ module Msf
       encoder_list = get_encoders
       if encoder_list.empty?
         cli_print "No encoder or badchars specified, outputting raw payload"
+<<<<<<< HEAD
         return shellcode
       end
 
@@ -229,6 +230,23 @@ module Msf
         rescue ::Msf::EncodingError => e
           cli_print "#{encoder_mod.refname} failed with #{e.message}"
           next
+=======
+        shellcode
+      else
+        cli_print "Found #{encoder_list.count} compatible encoders"
+        encoder_list.each do |encoder_mod|
+          cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
+          begin
+            encoder_mod.available_space = @space
+            return run_encoder(encoder_mod, shellcode.dup)
+          rescue ::Msf::EncoderSpaceViolation => e
+            cli_print "#{encoder_mod.refname} failed with #{e.message}"
+            next
+          rescue ::Msf::EncodingError => e
+            cli_print "#{encoder_mod.refname} failed with #{e.message}"
+            next
+          end
+>>>>>>> rapid7/feature/complex-payloads
         end
       end
 

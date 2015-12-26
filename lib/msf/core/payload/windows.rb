@@ -166,6 +166,7 @@ module Msf::Payload::Windows
     @@exit_types.dup
   end
 
+<<<<<<< HEAD
   #
   # By default, we don't want to send the UUID, but we'll send
   # for certain payloads if requested.
@@ -174,5 +175,7 @@ module Msf::Payload::Windows
     false
   end
 
+=======
+>>>>>>> rapid7/feature/complex-payloads
 end
 
