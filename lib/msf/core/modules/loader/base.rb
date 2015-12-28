@@ -148,16 +148,30 @@ class Msf::Modules::Loader::Base
         return false
       end
 
-      if namespace_module.const_defined?('Metasploit3') || namespace_module.const_defined?('Metasploit4')
+      if namespace_module.const_defined?('Metasploit3')
+        klass = namespace_module.const_get('Metasploit3')
         load_error(module_path, Msf::Modules::Error.new({
           :module_path => module_path,
           :module_reference_name => module_reference_name,
           :causal_message => 'Please change the module class name to Metasploit'
         }))
+      elsif namespace_module.const_defined?('Metasploit4')
+        klass = namespace_module.const_get('Metasploit4')
+        load_error(module_path, Msf::Modules::Error.new({
+          :module_path => module_path,
+          :module_reference_name => module_reference_name,
+          :causal_message => 'Please change the module class name to Metasploit'
+        }))
+      elsif namespace_module.const_defined?('Metasploit')
+        klass = namespace_module.const_get('Metasploit')
+      else
+        load_error(module_path, Msf::Modules::Error.new({
+          :module_path => module_path,
+          :module_reference_name => module_reference_name,
+          :causal_message => 'Invalid module (no Metasploit class or module name)'
+        }))
         return false
       end
-
-      klass = namespace_module.const_get('Metasploit')
 
       if reload
         ilog("Reloading #{type} module #{module_reference_name}. Ambiguous module warnings are safe to ignore", 'core', LEV_2)
