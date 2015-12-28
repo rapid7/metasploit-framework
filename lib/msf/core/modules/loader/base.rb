@@ -3,9 +3,7 @@
 # Project
 #
 require 'msf/core/modules/loader'
-require 'msf/core/modules/namespace'
-require 'msf/core/modules/metasploit_class_compatibility_error'
-require 'msf/core/modules/version_compatibility_error'
+require 'msf/core/modules/error'
 
 # Responsible for loading modules for {Msf::ModuleManager}.
 #
@@ -26,13 +24,10 @@ class Msf::Modules::Loader::Base
     Msf::MODULE_POST => 'post'
   }
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
-  NAMESPACE_MODULE_LINE = __LINE__ + 4
+  NAMESPACE_MODULE_LINE = __LINE__ + 1
   # By calling module_eval from inside the module definition, the lexical scope is captured and available to the code in
   # module_content.
   NAMESPACE_MODULE_CONTENT = <<-EOS
-    # ensure the namespace module can respond to checks during loading
-    extend Msf::Modules::Namespace
-
     class << self
       # The loader that originally loaded this module
       #
@@ -131,8 +126,6 @@ class Msf::Modules::Loader::Base
 
     reload ||= force || file_changed
 
-    metasploit_class = nil
-
     module_content = read_module_content(parent_path, type, module_reference_name)
 
     if module_content.empty?
@@ -140,6 +133,7 @@ class Msf::Modules::Loader::Base
       return false
     end
 
+    klass = nil
     try_eval_module = lambda { |namespace_module|
       # set the parent_path so that the module can be reloaded with #load_module
       namespace_module.parent_path = parent_path
@@ -150,43 +144,20 @@ class Msf::Modules::Loader::Base
       rescue ::Interrupt
         raise
       rescue ::Exception => error
-        # Hide eval errors when the module version is not compatible
-        begin
-          namespace_module.version_compatible!(module_path, module_reference_name)
-        rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-          load_error(module_path, version_compatibility_error)
-        else
-          load_error(module_path, error)
-        end
-
-        return false
-      end
-
-      begin
-        namespace_module.version_compatible!(module_path, module_reference_name)
-      rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-        load_error(module_path, version_compatibility_error)
-
-        return false
-      end
-
-      begin
-        metasploit_class = namespace_module.metasploit_class!(module_path, module_reference_name)
-      rescue Msf::Modules::MetasploitClassCompatibilityError => error
         load_error(module_path, error)
-
         return false
       end
 
-      unless usable?(metasploit_class)
-        ilog(
-            "Skipping module (#{module_reference_name} from #{module_path}) because is_usable returned false.",
-            'core',
-            LEV_1
-        )
-
+      if namespace_module.const_defined?('Metasploit3') || namespace_module.const_defined?('Metasploit4')
+        load_error(module_path, Msf::Modules::Error.new({
+          :module_path => module_path,
+          :module_reference_name => module_reference_name,
+          :causal_message => 'Please change the module class name to Metasploit'
+        }))
         return false
       end
+
+      klass = namespace_module.const_get('Metasploit')
 
       if reload
         ilog("Reloading #{type} module #{module_reference_name}. Ambiguous module warnings are safe to ignore", 'core', LEV_2)
@@ -206,7 +177,7 @@ class Msf::Modules::Loader::Base
 
     # Do some processing on the loaded module to get it into the right associations
     module_manager.on_module_load(
-        metasploit_class,
+        klass,
         type,
         module_reference_name,
         {
@@ -432,8 +403,10 @@ class Msf::Modules::Loader::Base
     log_lines << "#{module_path} failed to load due to the following error:"
     log_lines << error.class.to_s
     log_lines << error.to_s
-    log_lines << "Call stack:"
-    log_lines += error.backtrace
+    if error.backtrace
+      log_lines << "Call stack:"
+      log_lines += error.backtrace
+    end
 
     log_message = log_lines.join("\n")
     elog(log_message)
