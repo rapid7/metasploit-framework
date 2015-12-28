@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     # 5A B2 CD C0 BA DC AF 13
     fixedkey = "\x17\x52\x6b\x06\x23\x4e\x58\x07"
     pass = Rex::Proto::RFB::Cipher.decrypt ["#{hash}"].pack('H*'), fixedkey
-    return pass.gsub!(/\0/, '')
+    pass.gsub(/\0/, '')
   end
 
   # Pull encrypted passwords from file based storage
