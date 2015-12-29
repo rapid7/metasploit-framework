@@ -761,8 +761,11 @@ class Core
 
     if (args.length == 0)
       if (active_module)
-        print(Serializer::Json.dump_module(active_module)) if dump_json
-        print(Serializer::ReadableText.dump_module(active_module)) if dump_json
+        if dump_json
+          print(Serializer::Json.dump_module(active_module))
+        else
+          print(Serializer::ReadableText.dump_module(active_module))
+        end
         return true
       else
         cmd_info_help
@@ -778,9 +781,10 @@ class Core
 
       if (mod == nil)
         print_error("Invalid module: #{name}")
+      elsif dump_json
+        print(Serializer::Json.dump_module(mod))
       else
-        print(Serializer::Json.dump_module(mod)) if dump_json
-        print(Serializer::ReadableText.dump_module(mod)) if dump_json
+        print(Serializer::ReadableText.dump_module(mod))
       end
     }
   end
