@@ -184,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def save_loot(ltype, ctype, host, data,
-                filename, info, service)
+                filename = nil, info = nil, service = nil)
     return if datastore['STOP_STORE_LOOT']
     path = store_loot(ltype, ctype, host, data, filename, info, service)
     print_good('saved file to: ' + path)
