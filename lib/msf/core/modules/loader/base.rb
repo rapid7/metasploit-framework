@@ -148,13 +148,13 @@ class Msf::Modules::Loader::Base
         return false
       end
 
-      if namespace_module.const_defined?('Metasploit3')
+      if namespace_module.const_defined?('Metasploit3', false)
         klass = namespace_module.const_get('Metasploit3')
         load_warning(module_path, 'Please change the modules class name from Metasploit3 to Metasploit')
-      elsif namespace_module.const_defined?('Metasploit4')
+      elsif namespace_module.const_defined?('Metasploit4', false)
         klass = namespace_module.const_get('Metasploit4')
         load_warning(module_path, 'Please change the modules class name from Metasploit4 to Metasploit')
-      elsif namespace_module.const_defined?('Metasploit')
+      elsif namespace_module.const_defined?('Metasploit', false)
         klass = namespace_module.const_get('Metasploit')
       else
         load_error(module_path, Msf::Modules::Error.new({
