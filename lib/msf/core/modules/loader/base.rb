@@ -98,12 +98,9 @@ class Msf::Modules::Loader::Base
   # @option options [Boolean] :reload (false) whether this is a reload.
   #
   # @return [false] if :force is false and parent_path has not changed.
-  # @return [false] if exception encountered while parsing module
-  #   content
-  # @return [false] if the module is incompatible with the Core or API
-  #   version.
-  # @return [false] if the module does not implement a Metasploit(\d+)
-  #   class.
+  # @return [false] if exception encountered while parsing module content
+  # @return [false] if the module is incompatible with the Core or API version.
+  # @return [false] if the module does not implement a Metasploit class.
   # @return [false] if the module's is_usable method returns false.
   # @return [true] if all those condition pass and the module is
   #   successfully loaded.
@@ -149,13 +146,13 @@ class Msf::Modules::Loader::Base
       end
 
       if namespace_module.const_defined?('Metasploit3', false)
-        klass = namespace_module.const_get('Metasploit3')
+        klass = namespace_module.const_get('Metasploit3', false)
         load_warning(module_path, 'Please change the modules class name from Metasploit3 to Metasploit')
       elsif namespace_module.const_defined?('Metasploit4', false)
-        klass = namespace_module.const_get('Metasploit4')
+        klass = namespace_module.const_get('Metasploit4', false)
         load_warning(module_path, 'Please change the modules class name from Metasploit4 to Metasploit')
       elsif namespace_module.const_defined?('Metasploit', false)
-        klass = namespace_module.const_get('Metasploit')
+        klass = namespace_module.const_get('Metasploit', false)
       else
         load_error(module_path, Msf::Modules::Error.new({
           :module_path => module_path,
@@ -316,9 +313,9 @@ class Msf::Modules::Loader::Base
 
   protected
 
-  # Returns a nested module to wrap the Metasploit(1|2|3) class so that it doesn't overwrite other (metasploit)
-  # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
-  # searching constants from inside the Metasploit(1|2|3) class.
+  # Returns a nested module to wrap the Metasploit class so that it doesn't overwrite other (metasploit)
+  # module's classes. The wrapper module must be named so that active_support's autoloading code doesn't break when
+  # searching constants from inside the Metasploit class.
   #
   # @param namespace_module_names [Array<String>]
   #   {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
@@ -328,7 +325,7 @@ class Msf::Modules::Loader::Base
   # @see NAMESPACE_MODULE_CONTENT
   def create_namespace_module(namespace_module_names)
     # In order to have constants defined in Msf resolve without the Msf qualifier in the module_content, the
-    # Module.nesting must resolve for the entire nesting.  Module.nesting is strictly lexical, and can't be faked with
+    # Module.nesting must resolve for the entire nesting. Module.nesting is strictly lexical, and can't be faked with
     # module_eval(&block). (There's actually code in ruby's implementation to stop module_eval from being added to
     # Module.nesting when using the block syntax.) All this means is the modules have to be declared as a string that
     # gets module_eval'd.
@@ -451,7 +448,7 @@ class Msf::Modules::Loader::Base
     raise ::NotImplementedError
   end
 
-  # Returns whether the path could refer to a module.  The path would still need to be loaded in order to check if it
+  # Returns whether the path could refer to a module. The path would still need to be loaded in order to check if it
   # actually is a valid module.
   #
   # @param [String] path to module without the type directory.
@@ -498,8 +495,8 @@ class Msf::Modules::Loader::Base
   end
 
   # Returns an Array of names to make a fully qualified module name to
-  # wrap the Metasploit(1|2|3) class so that it doesn't overwrite other
-  # (metasploit) module's classes.  Invalid module name characters are
+  # wrap the Metasploit class so that it doesn't overwrite other
+  # (metasploit) module's classes. Invalid module name characters are
   # escaped by using 'H*' unpacking and prefixing each code with X so
   # the code remains a valid module name when it starts with a digit.
   #
@@ -622,7 +619,7 @@ class Msf::Modules::Loader::Base
     self.class.typed_path(type, module_reference_name)
   end
 
-  # Returns whether the metasploit_class is usable on the current system.  Defer's to metasploit_class's #is_usable if
+  # Returns whether the metasploit_class is usable on the current system. Defer's to metasploit_class's #is_usable if
   # it is defined.
   #
   # @param [Msf::Module] metasploit_class As returned by {Msf::Modules::Namespace#metasploit_class}
