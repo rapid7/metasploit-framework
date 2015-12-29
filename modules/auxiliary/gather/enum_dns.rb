@@ -6,7 +6,6 @@
 
 require 'msf/core'
 require 'net/dns/resolver'
-require 'rex'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -14,11 +13,11 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'DNS Record Scanner and Enumerator',
-      'Description'    => %q{
+      'Description'    => %q(
         This module can be used to gather information about a domain from a
         given DNS server by performing various DNS queries such as zone
         transfers, reverse lookups, SRV record bruteforcing, and other techniques.
-      },
+    ),
       'Author'         => [
         'Carlos Perez <carlos_perez[at]darkoperator.com>',
         'Nixawk'
@@ -32,13 +31,21 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('DOMAIN', [true, 'The target domain']),
-        OptBool.new('ENUM_AXFR', [true, 'Initiate a zone transfer against each NS record', true]),
-        OptBool.new('ENUM_STD', [true, 'Enumerate standard record types (A,MX,NS,TXT and SOA)', true]),
+        OptBool.new('ENUM_AXFR', [true, 'Initiate a zone transfer against each NS record', false]),
         OptBool.new('ENUM_BRT', [true, 'Brute force subdomains and hostnames via the supplied wordlist', false]),
+        OptBool.new('ENUM_A', [true, 'Enumerate dns A record', true]),
+        OptBool.new('ENUM_CNAME', [true, 'Enumerate dns CNAME record', true]),
+        OptBool.new('ENUM_MX', [true, 'Enumerate dns MX record', true]),
+        OptBool.new('ENUM_NS', [true, 'Enumerate dns NS record', true]),
+        OptBool.new('ENUM_SOA', [true, 'Enumerate dns SOA record', false]),
+        OptBool.new('ENUM_TXT', [true, 'Enumerate dns TXT record', false]),
+        OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', false]),
         OptBool.new('ENUM_TLD', [true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', false]),
-        OptBool.new('ENUM_SRV', [true, 'Enumerate the most common SRV records', true]),
+        OptBool.new('ENUM_SRV', [true, 'Enumerate the most common SRV records', false]),
         OptBool.new('STOP_WLDCRD', [true, 'Stops bruteforce enumeration if wildcard resolution is detected', false]),
-        OptAddress.new('NS', [false, 'Nameserver for query']),
+        OptBool.new('STOP_STORE_LOOT', [true, 'Enable Default STORE_LOOT feature in metasploit', false]),
+        OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)']),
+        OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
         OptPath.new('WORDLIST', [false, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
       ], self.class)
@@ -56,21 +63,26 @@ class Metasploit3 < Msf::Auxiliary
     domain = datastore['DOMAIN']
     return if domain.blank?
 
-    dns_wildcard(domain) unless datastore['STOP_WLDCRD']
+    is_wildcard = dns_wildcard_enabled?(domain)
 
-    if datastore['ENUM_STD']
-      get_a(domain)
-      get_cname(domain)
-      get_ns(domain)
-      get_mx(domain)
-      get_soa(domain)
-      get_txt(domain)
-    end
-
+    get_a(domain) if datastore['ENUM_A']
+    get_cname(domain) if datastore['ENUM_CNAME']
+    get_ns(domain) if datastore['ENUM_NS']
+    get_mx(domain) if datastore['ENUM_MX']
+    get_soa(domain) if datastore['ENUM_SOA']
+    get_txt(domain) if datastore['ENUM_TXT']
     get_tld(domain) if datastore['ENUM_TLD']
     get_srv(domain) if datastore['ENUM_SRV']
     axfr(domain) if datastore['ENUM_AXFR']
-    dns_bruteforce(domain) if datastore['ENUM_BRT']
+    threads = datastore['THREADS']
+    dns_reverse(datastore['IPRANGE'], threads) if datastore['ENUM_RVL']
+
+    return unless datastore['ENUM_BRT']
+    if is_wildcard
+      dns_bruteforce(doamin, threads) unless datastore['STOP_WLDCRD']
+    else
+      dns_bruteforce(domain, threads)
+    end
   end
 
   def dns_query(domain, type)
@@ -79,64 +91,123 @@ class Metasploit3 < Msf::Auxiliary
       nameserver = "#{datastore['NS']}"
       unless nameserver.blank?
         dns.nameservers -= dns.nameservers
-        dns.nameservers = ("#{datastore['NS']}")
+        dns.nameservers = "#{datastore['NS']}"
       end
       dns.use_tcp = datastore['TCP_DNS']
       dns.udp_timeout = datastore['TIMEOUT']
       dns.retry_number = datastore['RETRY']
       dns.retry_interval = datastore['RETRY_INTERVAL']
       dns.query(domain, type)
-    rescue ::Rex::ConnectionError
-    rescue ::Rex::ConnectionRefused
-    rescue ::Rex::ConnectionTimeout
-    rescue ::Rex::SocketError
-    rescue ::Rex::TimeoutError
+    rescue ::NoResponseError
     rescue ::Timeout::Error
     end
   end
 
-  def dns_bruteforce(domain)
-    wordlist = datastore['WORDLIST'].to_s
+  def dns_bruteforce(domain, threads)
+    wordlist = datastore['WORDLIST']
     return if wordlist.blank?
+    threads = 1 if threads <= 0
 
-    threadnm = datastore['THREADS'].to_i
-    return if threadnm == 0
-
-    queue = ::Queue.new
+    queue = []
     File.foreach(wordlist) do |line|
       queue << "#{line.chomp}.#{domain}"
     end
 
     records = []
     until queue.empty?
-      tl = []
-      1.upto(threadnm) do
-        tl << framework.threads.spawn(
-          "Module(#{refname})-#{domain}", false, queue.shift) do |target|
-            Thread.current.kill unless target
-            a = get_a(target)
+      t = []
+      threads = 1 if threads <= 0
+
+      if queue.length < threads
+        # work around issue where threads not created as the queue isn't large enough
+        threads = queue.length
+      end
+
+      begin
+        1.upto(threads) do
+          t << framework.threads.spawn("Module(#{self.refname})", false, queue.shift) do |test_current|
+            Thread.current.kill unless test_current
+            a = get_a(test_current)
             records |= a if a
           end
+        end
+        t.map{ |x| x.join }
+
+      rescue ::Timeout::Error
+      ensure
+        t.each { |x| x.kill rescue nil }
       end
-      break if tl.length == 0
-      tl.first.join
-      tl.delete_if { |t| !t.alive? }
     end
     records
   end
 
-  def dns_wildcard(domain)
+  def dns_reverse(cidr, threads)
+    iplst = []
+    ipadd = Rex::Socket::RangeWalker.new(cidr)
+    numip = ipadd.num_ips
+    while iplst.length < numip
+      ipa = ipadd.next_ip
+      break unless ipa
+      iplst << ipa
+    end
+
+    records = []
+    while !iplst.nil? && !iplst.empty?
+      t = []
+      threads = 1 if threads <= 0
+      begin
+        1.upto(threads) do
+          t << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_text|
+            next if ip_text.nil?
+            a = get_ptr(ip_text)
+            records |= a if a
+          end
+        end
+        t.map { |x| x.join }
+
+      rescue ::Timeout::Error
+      ensure
+        t.each { |x| x.kill rescue nil }
+      end
+    end
+    records
+  end
+
+  def dns_wildcard_enabled?(domain)
     records = get_a("#{Rex::Text.rand_text_alpha(16)}.#{domain}")
     if records.blank?
-      vprint_warning('dns wildcard is disable')
       false
     else
-      vprint_warning('dns wildcard is enable OR fake dns server')
+      print_warning('dns wildcard is enable OR fake dns server')
       true
     end
   end
 
+  def save_loot(ltype, ctype, host, data,
+                filename, info, service)
+    return if datastore['STOP_STORE_LOOT']
+    path = store_loot(ltype, ctype, host, data, filename, info, service)
+    print_good('saved file to: ' + path)
+  end
+
+  def get_ptr(ip)
+    vprint_status("reverse ip query: #{ip}")
+    resp = dns_query(ip, nil)
+    return if resp.blank? || resp.answer.blank?
+
+    records = []
+    resp.answer.each do |r|
+      next unless r.class == Net::DNS::RR::PTR
+      records << "#{r.ptr}"
+      report_host(host: ip, name: "#{r.ptr}", info: 'ip reverse')
+      vprint_good("#{ip}: PTR: #{r.ptr} ")
+    end
+    return if records.none?
+    records
+  end
+
   def get_a(domain)
+    vprint_status("query dns A : #{domain}")
     resp = dns_query(domain, 'A')
     return if resp.blank? || resp.answer.blank?
 
@@ -152,6 +223,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_cname(domain)
+    vprint_status("query dns CNAME : #{domain}")
     resp = dns_query(domain, 'CNAME')
     return if resp.blank? || resp.answer.blank?
 
@@ -162,17 +234,12 @@ class Metasploit3 < Msf::Auxiliary
       vprint_good("#{domain}: CNAME: #{r.cname}")
     end
     return if records.none?
-    path = store_loot(
-      'ENUM_CNAME',
-      'text/plain',
-      domain,
-      records,
-      'ENUM_CNAME')
-    print_good('Saved file to: ' + path)
+    save_loot('ENUM_CNAME', domain, 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_ns(domain)
+    vprint_status("query dns NS : #{domain}")
     resp = dns_query(domain, 'NS')
     return if resp.blank? || resp.answer.blank?
 
@@ -181,26 +248,16 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::NS
       records << "#{r.nsdname}"
       report_host(host: r.nsdname, name: domain, info: 'NS')
-      report_service(
-        host: r.nsdname,
-        name: 'dns',
-        port: 53,
-        proto: 'udp',
-        info: 'nameserver')
       vprint_good("#{domain}: NS: #{r.nsdname}")
     end
     return if records.none?
-    path = store_loot(
-      'ENUM_NS',
-      'text/plain',
-      domain,
-      records,
-      'ENUM_NS')
-    print_good('Saved file to: ' + path)
+
+    save_loot('ENUM_NS', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_mx(domain)
+    vprint_status("query dns MX : #{domain}")
     resp = dns_query(domain, 'MX')
     return if resp.blank? || resp.answer.blank?
 
@@ -209,21 +266,15 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::MX
       records << "#{r.exchange}"
       report_host(host: r.exchange, name: domain, info: 'MX')
-      report_service(host: r.exchange, name: 'smtp', port: 25, proto: 'tcp')
       vprint_good("#{domain}: MX: #{r.exchange}")
     end
     return if records.none?
-    path = store_loot(
-      'ENUM_MX',
-      'text/plain',
-      domain,
-      records,
-      'ENUM_MX')
-    print_good('Saved file to: ' + path)
+    save_loot('ENUM_MX', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_soa(domain)
+    vprint_status("query dns SOA : #{domain}")
     resp = dns_query(domain, 'SOA')
     return if resp.blank? || resp.answer.blank?
 
@@ -235,17 +286,12 @@ class Metasploit3 < Msf::Auxiliary
       vprint_good("#{domain}: SOA: #{r.mname}")
     end
     return if records.none?
-    path = store_loot(
-      'ENUM_SOA',
-      'text/plain',
-      domain,
-      records,
-      'ENUM_SOA')
-    print_good('Saved file to: ' + path)
+    save_loot('ENUM_SOA', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_txt(domain)
+    vprint_status("query dns TXT : #{domain}")
     resp = dns_query(domain, 'TXT')
     return if resp.blank? || resp.answer.blank?
 
@@ -253,29 +299,18 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::TXT
       records << r.txt
-      report_service(
-        host: domain,
-        name: 'dns',
-        port: 53,
-        proto: 'udp',
-        info: "#{r.txt}")
       vprint_good("#{domain}: TXT: #{r.txt}")
     end
     return if records.none?
-    path = store_loot(
-      'ENUM_TXT',
-      'text/plain',
-      domain,
-      records,
-      'ENUM_TXT')
-    print_good('Saved file to: ' + path)
+    save_loot('ENUM_TXT', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_tld(domain)
-    domain = domain.split('.')
-    domain.pop
-    domain = domain.join('.')
+    vprint_status("query dns TLD : #{domain}")
+    domain_ = domain.split('.')
+    domain_.pop
+    domain_ = domain_.join('.')
 
     tlds = [
       'com', 'org', 'net', 'edu', 'mil', 'gov', 'uk', 'af', 'al', 'dz',
@@ -305,31 +340,26 @@ class Metasploit3 < Msf::Auxiliary
 
     records = []
     tlds.each do |tld|
-      vprint_status("#{domain}.#{tld}")
-      tldr = get_a("#{domain}.#{tld}")
+      tldr = get_a("#{domain_}.#{tld}")
       next if tldr.blank?
       records |= tldr
+
       report_note(
-        host: domain,
+        host: "#{domain}",
         proto: 'udp',
-        sname: "#{domain}.#{tld}",
+        sname: "#{domain_}.#{tld}",
         port: '53',
         type: 'ENUM_TLD',
-        data: "#{tldr.join(',')}")
-      vprint_good("#{domain}.#{tld}: #{tldr.join(',')}")
+        data: tldr)
+      vprint_good("#{domain_}.#{tld}: #{tldr.join(',')}")
     end
     return if records.none?
-    path = store_loot(
-      'ENUM_TLD',
-      'text/plain',
-      domain,
-      records,
-      'ENUM_TLD')
-    print_good('Saved file to: ' + path)
+    save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_srv(domain)
+    vprint_status("query dns SRV : #{domain}")
     srvs = [
       '_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
       '_test._tcp.',  '_sips._tcp.', '_sip._udp.', '_sip._tcp.',
@@ -347,7 +377,6 @@ class Metasploit3 < Msf::Auxiliary
 
     records = []
     srvs.each do |srv|
-      vprint_status("#{srv}#{domain}")
       resp = dns_query("#{srv}#{domain}", Net::DNS::SRV)
       next if resp.blank? || resp.answer.blank?
       resp.answer.each do |r|
@@ -356,27 +385,21 @@ class Metasploit3 < Msf::Auxiliary
           host: domain,
           proto: 'udp',
           sname: r.host,
-          port: '53',
+          port: r.port,
           type: 'ENUM_SRV',
           data: "#{r.priority}")
         vprint_good("Host: #{r.host} Port: #{r.port} Priority: #{r.priority}")
       end
     end
     return if records.none?
-    path = store_loot(
-      'ENUM_SRV',
-      'text/plain',
-      domain,
-      records,
-      'ENUM_SRV')
-    print_good('Saved file to: ' + path)
+    save_loot('ENUM_SRV', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def axfr(domain)
+    vprint_status("query dns ZONE TRANSFER : #{domain}")
     nameservers = get_ns(domain)
     return if nameservers.blank?
-
     records = []
     nameservers.each do |nameserver|
       dns = Net::DNS::Resolver.new
@@ -394,11 +417,6 @@ class Metasploit3 < Msf::Auxiliary
           dns.nameservers -= dns.nameservers
           dns.nameservers = "#{r}"
           zone = dns.axfr(domain)
-        rescue ::Rex::ConnectionError
-        rescue ::Rex::ConnectionRefused
-        rescue ::Rex::ConnectionTimeout
-        rescue ::Rex::SocketError
-        rescue ::Rex::TimeoutError
         rescue ::NoResponseError
         rescue ::Timeout::Error
         end
@@ -408,13 +426,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
     return if records.none?
-    path = store_loot(
-      'ENUM_AXFR',
-      'text/plain',
-      domain,
-      records,
-      'ENUM_AXFR')
-    print_good('Saved file to: ' + path)
+    save_loot('ENUM_AXFR', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 end
