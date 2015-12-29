@@ -150,18 +150,10 @@ class Msf::Modules::Loader::Base
 
       if namespace_module.const_defined?('Metasploit3')
         klass = namespace_module.const_get('Metasploit3')
-        load_error(module_path, Msf::Modules::Error.new({
-          :module_path => module_path,
-          :module_reference_name => module_reference_name,
-          :causal_message => 'Please change the module class name to Metasploit'
-        }))
+        load_warning(module_path, 'Please change the modules class name from Metasploit3 to Metasploit')
       elsif namespace_module.const_defined?('Metasploit4')
         klass = namespace_module.const_get('Metasploit4')
-        load_error(module_path, Msf::Modules::Error.new({
-          :module_path => module_path,
-          :module_reference_name => module_reference_name,
-          :causal_message => 'Please change the module class name to Metasploit'
-        }))
+        load_warning(module_path, 'Please change the modules class name from Metasploit4 to Metasploit')
       elsif namespace_module.const_defined?('Metasploit')
         klass = namespace_module.const_get('Metasploit')
       else
@@ -424,6 +416,23 @@ class Msf::Modules::Loader::Base
 
     log_message = log_lines.join("\n")
     elog(log_message)
+  end
+
+  # Records the load warning to {Msf::ModuleManager::Loading#module_load_warnings} and the log.
+  #
+  # @param [String] module_path Path to the module as returned by {#module_path}.
+  # @param [String] Error message that caused the warning.
+  # @return [void]
+  #
+  # @see #module_path
+  def load_warning(module_path, error)
+    module_manager.module_load_warnings[module_path] = error.to_s
+
+    log_lines = []
+    log_lines << "#{module_path} generated a warning during load:"
+    log_lines << error.to_s
+    log_message = log_lines.join("\n")
+    wlog(log_message)
   end
 
   # @return [Msf::ModuleManager] The module manager for which this loader is loading modules.
