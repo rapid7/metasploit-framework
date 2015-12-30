@@ -2,7 +2,6 @@
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Style/BlockDelimiters
 module Msf
   module Serializer
     #
@@ -56,7 +55,10 @@ module Msf
       def self.dump_module_actions(mod)
         list = []
 
-        mod.actions.each { |target| list.push('name' => (target.name || 'All'), 'description' => (target.description || '')) }
+        mod.actions.each do |target|
+          list.push('name' => (target.name || 'All'),
+                    'description' => (target.description || ''))
+        end
 
         list
       end
@@ -68,7 +70,8 @@ module Msf
       def self.dump_module_action(mod)
         list = []
 
-        list.push('name' => (mod.action.name || 'All'), 'description' => (mod.action.description || ''))
+        list.push('name' => (mod.action.name || 'All'),
+                  'description' => (mod.action.description || ''))
 
         list
       end
@@ -76,12 +79,12 @@ module Msf
       # Dumps information common to all modules
       def self.dump_common_module_info(mod)
         {
-          'Name' => mod.name,
-          'Module' => mod.fullname,
-          'Provided by' => dump_authors(mod),
-          'Rank' => mod.rank_to_s.capitalize,
+          'name' => mod.name,
+          'fullname' => mod.fullname,
+          'authors' => dump_authors(mod),
+          'rank' => mod.rank_to_s.capitalize,
           'description' => Rex::Text.compress(mod.description),
-          'Basic options' =>  dump_options(mod)
+          'options' => dump_options(mod)
         }
       end
 
@@ -92,13 +95,13 @@ module Msf
       def self.dump_exploit_module(mod)
         # Return a json dump of exploit module data
         {
-          'Platform' => mod.platform_to_s,
-          'Privileged' => (mod.privileged? ? "Yes" : "No"),
-          'License' => mod.license,
-          'Disclosed' => (mod.disclosure_date if mod.disclosure_date),
-          'Payload information' => {
-            'Space' => (mod.payload_space.to_s if mod.payload_space),
-            'Avoid' => (mod.payload_badchars.length.to_s if mod.payload_badchars)
+          'platform' => mod.platform_to_s,
+          'privileged' => (mod.privileged? ? "Yes" : "No"),
+          'license' => mod.license,
+          'disclosure_date' => (mod.disclosure_date if mod.disclosure_date),
+          'payload' => {
+            'space' => (mod.payload_space.to_s if mod.payload_space),
+            'badchars' => (mod.payload_badchars.length.to_s if mod.payload_badchars)
           },
           'references' => dump_references(mod)
         }.merge(dump_common_module_info(mod)).to_json
@@ -111,10 +114,10 @@ module Msf
       def self.dump_auxiliary_module(mod)
         # Return a json dump of auxiliary module data
         {
-          'License' => mod.license,
-          'Disclosed' => (mod.disclosure_date if mod.disclosure_date),
-          'Available actions' => dump_module_actions(mod),
-          'References' => dump_references(mod)
+          'license' => mod.license,
+          'disclosure_date' => (mod.disclosure_date if mod.disclosure_date),
+          'actions' => dump_module_actions(mod),
+          'references' => dump_references(mod)
         }.merge(dump_common_module_info(mod)).to_json
       end
 
@@ -125,11 +128,11 @@ module Msf
       def self.dump_post_module(mod)
         # Return a json dump of post module data
         {
-          'Platform' => mod.platform_to_s,
-          'Arch' => mod.arch_to_s,
-          'Disclosed' => (mod.disclosure_date if mod.disclosure_date),
-          'Available actions' => dump_module_actions(mod),
-          'References' => dump_references(mod)
+          'platform' => mod.platform_to_s,
+          'arch' => mod.arch_to_s,
+          'disclosure_date' => (mod.disclosure_date if mod.disclosure_date),
+          'actions' => dump_module_actions(mod),
+          'references' => dump_references(mod)
         }.merge(dump_common_module_info(mod)).to_json
       end
 
@@ -140,10 +143,10 @@ module Msf
       def self.dump_payload_module(mod)
         # Return a json dump of post module data
         {
-          'Platform' => mod.platform_to_s,
-          'Arch' => mod.arch_to_s,
-          'Needs Admin' => (mod.privileged? ? "Yes" : "No"),
-          'Total size' => mod.size
+          'platform' => mod.platform_to_s,
+          'arch' => mod.arch_to_s,
+          'privileged' => (mod.privileged? ? "true" : "false"),
+          'size' => mod.size
         }.merge(dump_common_module_info(mod)).to_json
       end
 
@@ -164,9 +167,9 @@ module Msf
       # @return [String] the string form of the information.
       def self.dump_basic_module(mod)
         {
-          'Platform' => mod.platform_to_s,
-          'Arch' => mod.arch_to_s,
-          'References' => dump_references(mod)
+          'platform' => mod.platform_to_s,
+          'arch' => mod.arch_to_s,
+          'references' => dump_references(mod)
         }.merge(dump_common_module_info(mod)).to_json
       end
 
@@ -177,16 +180,17 @@ module Msf
       # @return [Array] the array of the information.
       def self.dump_options(mod)
         list = []
-        mod.options.sorted.each { |entry|
+        mod.options.sorted.each do |entry|
           name, opt = entry
           val = mod.datastore[name] || opt.default
 
-          next if opt.advanced?
-          next if opt.evasion?
-          next if opt.valid?(val)
+          next if opt.advanced? || opt.evasion?
 
-          list.push('name' => name, 'display_value' => opt.display_value(val), 'required' => opt.required? ? 'yes' : 'no', 'description' => opt.desc)
-        }
+          list.push('name' => name,
+                    'display_value' => opt.display_value(val),
+                    'required' => opt.required? ? 'true' : 'false',
+                    'description' => opt.desc.strip)
+        end
 
         list
       end
