@@ -762,7 +762,7 @@ class Core
     if (args.length == 0)
       if (active_module)
         if dump_json
-          print(Serializer::Json.dump_module(active_module))
+          print(Serializer::Json.dump_module(active_module) + "\n")
         else
           print(Serializer::ReadableText.dump_module(active_module))
         end
@@ -782,7 +782,7 @@ class Core
       if (mod == nil)
         print_error("Invalid module: #{name}")
       elsif dump_json
-        print(Serializer::Json.dump_module(mod))
+        print(Serializer::Json.dump_module(mod) + "\n")
       else
         print(Serializer::ReadableText.dump_module(mod))
       end
