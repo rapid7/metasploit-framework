@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('ENUM_TLD', [true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', true]),
         OptBool.new('ENUM_SRV', [true, 'Enumerate the most common SRV records', true]),
         OptBool.new('STOP_WLDCRD', [true, 'Stops bruteforce enumeration if wildcard resolution is detected', false]),
-        OptBool.new('STOP_STORE_LOOT', [true, 'Enable Default STORE_LOOT feature in metasploit', false]),
+        OptBool.new('STORE_LOOT', [true, 'Store acquired DNS records as loot', true]),
         OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)']),
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
@@ -185,7 +185,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def save_loot(ltype, ctype, host, data,
                 filename = nil, info = nil, service = nil)
-    return if datastore['STOP_STORE_LOOT']
+    return unless datastore['STORE_LOOT']
     path = store_loot(ltype, ctype, host, data, filename, info, service)
     print_good('saved file to: ' + path)
   end
