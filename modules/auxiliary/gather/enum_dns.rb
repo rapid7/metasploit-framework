@@ -213,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::A
       records << "#{r.address}"
       report_host(host: r.address, name: domain, info: 'A')
-      vprint_good("#{domain}: A: #{r.address} ")
+      vprint_good("#{domain}: A: #{r.address} ") if datastore['ENUM_BRT']
     end
     return if records.none?
     records
