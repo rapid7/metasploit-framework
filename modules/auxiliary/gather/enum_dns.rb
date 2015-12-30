@@ -61,10 +61,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     domain = datastore['DOMAIN']
-    return if domain.blank?
-
     is_wildcard = dns_wildcard_enabled?(domain)
 
+    axfr(domain) if datastore['ENUM_AXFR']
     get_a(domain) if datastore['ENUM_A']
     get_cname(domain) if datastore['ENUM_CNAME']
     get_ns(domain) if datastore['ENUM_NS']
@@ -73,7 +72,6 @@ class Metasploit3 < Msf::Auxiliary
     get_txt(domain) if datastore['ENUM_TXT']
     get_tld(domain) if datastore['ENUM_TLD']
     get_srv(domain) if datastore['ENUM_SRV']
-    axfr(domain) if datastore['ENUM_AXFR']
     threads = datastore['THREADS']
     dns_reverse(datastore['IPRANGE'], threads) if datastore['ENUM_RVL']
 
@@ -98,6 +96,7 @@ class Metasploit3 < Msf::Auxiliary
       dns.retry_number = datastore['RETRY']
       dns.retry_interval = datastore['RETRY_INTERVAL']
       dns.query(domain, type)
+    rescue Errno::ETIMEDOUT
     rescue ::NoResponseError
     rescue ::Timeout::Error
     end
@@ -191,7 +190,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_ptr(ip)
-    vprint_status("reverse ip query: #{ip}")
     resp = dns_query(ip, nil)
     return if resp.blank? || resp.answer.blank?
 
@@ -207,7 +205,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_a(domain)
-    vprint_status("query dns A : #{domain}")
     resp = dns_query(domain, 'A')
     return if resp.blank? || resp.answer.blank?
 
@@ -223,7 +220,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_cname(domain)
-    vprint_status("query dns CNAME : #{domain}")
     resp = dns_query(domain, 'CNAME')
     return if resp.blank? || resp.answer.blank?
 
@@ -239,7 +235,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_ns(domain)
-    vprint_status("query dns NS : #{domain}")
     resp = dns_query(domain, 'NS')
     return if resp.blank? || resp.answer.blank?
 
@@ -257,7 +252,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_mx(domain)
-    vprint_status("query dns MX : #{domain}")
     resp = dns_query(domain, 'MX')
     return if resp.blank? || resp.answer.blank?
 
@@ -274,7 +268,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_soa(domain)
-    vprint_status("query dns SOA : #{domain}")
     resp = dns_query(domain, 'SOA')
     return if resp.blank? || resp.answer.blank?
 
@@ -291,7 +284,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_txt(domain)
-    vprint_status("query dns TXT : #{domain}")
     resp = dns_query(domain, 'TXT')
     return if resp.blank? || resp.answer.blank?
 
@@ -307,7 +299,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_tld(domain)
-    vprint_status("query dns TLD : #{domain}")
     domain_ = domain.split('.')
     domain_.pop
     domain_ = domain_.join('.')
@@ -351,7 +342,7 @@ class Metasploit3 < Msf::Auxiliary
         port: '53',
         type: 'ENUM_TLD',
         data: tldr)
-      vprint_good("#{domain_}.#{tld}: #{tldr.join(',')}")
+      vprint_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
     end
     return if records.none?
     save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
@@ -359,7 +350,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_srv(domain)
-    vprint_status("query dns SRV : #{domain}")
     srvs = [
       '_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
       '_test._tcp.',  '_sips._tcp.', '_sip._udp.', '_sip._tcp.',
@@ -388,7 +378,7 @@ class Metasploit3 < Msf::Auxiliary
           port: r.port,
           type: 'ENUM_SRV',
           data: "#{r.priority}")
-        vprint_good("Host: #{r.host} Port: #{r.port} Priority: #{r.priority}")
+        vprint_good("Host: #{r.host} Port: #{r.port}: SRV:  Priority: #{r.priority}")
       end
     end
     return if records.none?
@@ -397,7 +387,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def axfr(domain)
-    vprint_status("query dns ZONE TRANSFER : #{domain}")
     nameservers = get_ns(domain)
     return if nameservers.blank?
     records = []
@@ -417,12 +406,13 @@ class Metasploit3 < Msf::Auxiliary
           dns.nameservers -= dns.nameservers
           dns.nameservers = "#{r}"
           zone = dns.axfr(domain)
+        rescue Errno::ETIMEDOUT
         rescue ::NoResponseError
         rescue ::Timeout::Error
         end
         next if zone.blank?
         records << "#{zone}"
-        vprint_good("#{zone}")
+        vprint_good("#{domain}: Zone Transfer: #{zone}")
       end
     end
     return if records.none?
