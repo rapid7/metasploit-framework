@@ -743,6 +743,7 @@ class Core
   def cmd_info_help
     print_line "Usage: info <module name> [mod2 mod3 ...]"
     print_line
+    print_line "Optionally the flag '-j' will print the data in json format"
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
     print_line
@@ -752,9 +753,19 @@ class Core
   # Displays information about one or more module.
   #
   def cmd_info(*args)
+    dump_json = false
+    if args.include?('-j')
+      args.delete('-j')
+      dump_json = true
+    end
+
     if (args.length == 0)
       if (active_module)
-        print(Serializer::ReadableText.dump_module(active_module))
+        if dump_json
+          print(Serializer::Json.dump_module(active_module) + "\n")
+        else
+          print(Serializer::ReadableText.dump_module(active_module))
+        end
         return true
       else
         cmd_info_help
@@ -770,6 +781,8 @@ class Core
 
       if (mod == nil)
         print_error("Invalid module: #{name}")
+      elsif dump_json
+        print(Serializer::Json.dump_module(mod) + "\n")
       else
         print(Serializer::ReadableText.dump_module(mod))
       end
