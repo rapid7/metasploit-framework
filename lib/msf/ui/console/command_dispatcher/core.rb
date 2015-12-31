@@ -892,6 +892,7 @@ class Core
     print_line
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
     print_line
@@ -7141,6 +7142,8 @@ class Core
 =======
 =======
 >>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
     print_line "Optionally the flag '-j' will print the data in json format"
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
@@ -7165,6 +7168,9 @@ class Core
           print(Serializer::ReadableText.dump_module(active_module))
         end
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> rapid7/master
+=======
 >>>>>>> rapid7/master
 =======
 >>>>>>> rapid7/master
