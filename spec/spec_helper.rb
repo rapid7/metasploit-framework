@@ -36,7 +36,7 @@ engines.each do |engine|
 end
 
 RSpec.configure do |config|
-  #config.raise_errors_for_deprecations!
+  config.raise_errors_for_deprecations!
 
   config.expose_dsl_globally = false
 
