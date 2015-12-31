@@ -30,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/caidao.php']),
+        OptString.new('TARGETURI', [true, 'The URL that handles the login process', '/caidao.php']),
         OptPath.new('PASS_FILE', [
           false,
           'The file that contains a list of of probable passwords.',
@@ -52,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
 
     scanner = Metasploit::Framework::LoginScanner::Caidao.new(
       configure_http_login_scanner(
-        uri: datastore['LOGIN_URL'],
+        uri: datastore['TARGETURI'],
         method: datastore['HTTP_METHOD'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
