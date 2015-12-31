@@ -5,7 +5,7 @@ require 'uri'
 
 RSpec.describe MicrosoftPatchFinder do
 
-  before(:each) do
+  before(:example) do
     cli = Rex::Proto::Http::Client.new('127.0.0.1')
     allow(cli).to receive(:connect)
     allow(cli).to receive(:request_cgi)
@@ -204,7 +204,7 @@ RSpec.describe MicrosoftPatchFinder do
       MicrosoftPatchFinder::PatchLinkCollector.new
     end
 
-    before(:each) do
+    before(:example) do
       allow(patch_link_collector).to receive(:print_debug)
     end
 
@@ -369,7 +369,7 @@ RSpec.describe MicrosoftPatchFinder do
       MicrosoftPatchFinder::TechnetMsbSearch.new
     end
 
-    before(:each) do
+    before(:example) do
       allow_any_instance_of(MicrosoftPatchFinder::TechnetMsbSearch).to receive(:print_debug)
       allow_any_instance_of(MicrosoftPatchFinder::TechnetMsbSearch).to receive(:send_http_request) { |info_obj, info_opts, opts|
         case opts['uri']
@@ -556,7 +556,7 @@ RSpec.describe MicrosoftPatchFinder do
         |
     end
 
-    before(:each) do
+    before(:example) do
       allow_any_instance_of(MicrosoftPatchFinder::GoogleMsbSearch).to receive(:print_debug)
       allow_any_instance_of(MicrosoftPatchFinder::GoogleMsbSearch).to receive(:send_http_request) { |info_obj, info_opts, opts|
         res = Rex::Proto::Http::Response.new
@@ -620,7 +620,7 @@ RSpec.describe MicrosoftPatchFinder do
       'http://download.microsoft.com/download/9/0/6/906BC7A4-7DF7-4C24-9F9D-3E801AA36ED3/Windows6.0-KB3087918-x86.msu'
     end
 
-    before(:each) do
+    before(:example) do
       opts = { keyword: msb }
       allow(MicrosoftPatchFinder::OptsConsole).to receive(:get_parsed_options).and_return(opts)
       allow_any_instance_of(MicrosoftPatchFinder::PatchLinkCollector).to receive(:download_advisory).and_return(Rex::Proto::Http::Response.new)

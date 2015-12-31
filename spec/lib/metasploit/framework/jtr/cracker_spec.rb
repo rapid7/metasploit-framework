@@ -21,7 +21,7 @@ RSpec.describe Metasploit::Framework::JtR::Cracker do
 
 
     context 'when the user supplied a john_path' do
-      before(:each) do
+      before(:example) do
         cracker.john_path = john_path
       end
 
@@ -54,7 +54,7 @@ RSpec.describe Metasploit::Framework::JtR::Cracker do
   end
 
   describe '#crack_command' do
-    before(:each) do
+    before(:example) do
       expect(cracker).to receive(:binary_path).and_return john_path
       expect(cracker).to receive(:john_session_id).and_return session_id
     end
@@ -123,7 +123,7 @@ RSpec.describe Metasploit::Framework::JtR::Cracker do
   end
 
   describe '#show_command' do
-    before(:each) do
+    before(:example) do
       expect(cracker).to receive(:binary_path).and_return john_path
     end
 
@@ -159,7 +159,7 @@ RSpec.describe Metasploit::Framework::JtR::Cracker do
   describe 'validations' do
     context 'failures' do
       context 'file_path validators' do
-        before(:each) do
+        before(:example) do
           expect(File).to receive(:file?).and_return false
         end
 
@@ -189,7 +189,7 @@ RSpec.describe Metasploit::Framework::JtR::Cracker do
       end
 
       context 'executable_path validators' do
-        before(:each) do
+        before(:example) do
           expect(File).to receive(:executable?).and_return false
         end
 
@@ -203,7 +203,7 @@ RSpec.describe Metasploit::Framework::JtR::Cracker do
 
     context 'successes' do
       context 'file_path validators' do
-        before(:each) do
+        before(:example) do
           expect(File).to receive(:file?).and_return true
         end
 
@@ -233,7 +233,7 @@ RSpec.describe Metasploit::Framework::JtR::Cracker do
       end
 
       context 'executable_path validators' do
-        before(:each) do
+        before(:example) do
           expect(File).to receive(:executable?).and_return true
         end
 

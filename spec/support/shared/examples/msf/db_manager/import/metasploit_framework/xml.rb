@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'builder'
 
-shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
+RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   # Serialized format from pro/modules/auxiliary/pro/report.rb
   def serialize(object)
     # FIXME https://www.pivotaltracker.com/story/show/46578647
@@ -307,7 +307,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         FactoryGirl.create(:mdm_web_vuln)
       end
 
-      before(:each) do
+      before(:example) do
         allow(db_manager).to receive(
             :report_web_vuln
         ).with(
@@ -322,7 +322,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           double(':workspace')
         end
 
-        before(:each) do
+        before(:example) do
           options[:workspace] = workspace
         end
 
@@ -348,7 +348,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           FactoryGirl.create(:mdm_workspace)
         end
 
-        before(:each) do
+        before(:example) do
           db_manager.workspace = workspace
         end
 
@@ -389,7 +389,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           }
         end
 
-        before(:each) do
+        before(:example) do
           allow(db_manager).to receive(:import_msf_text_element).and_return(returned_hash)
         end
 
@@ -521,7 +521,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
             []
           end
 
-          before(:each) do
+          before(:example) do
             options[:notifier] = notifier
           end
 

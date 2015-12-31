@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rex/ole'
 
 RSpec.describe Rex::OLE::Header do
-  before(:each) do
+  before(:example) do
     Rex::OLE::Util.set_endian(Rex::OLE::LITTLE_ENDIAN)
   end
 

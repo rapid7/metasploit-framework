@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::ModuleManager::Loading' do
+RSpec.shared_examples_for 'Msf::ModuleManager::Loading' do
   context '#file_changed?' do
     let(:module_basename) do
       [basename_prefix, '.rb']
@@ -124,7 +124,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
       klass.type
     end
 
-    before(:each) do
+    before(:example) do
       allow(klass).to receive(:parent).and_return(namespace_module)
     end
 

@@ -254,7 +254,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         Msf::MODULE_AUX
       end
 
-      before(:each) do
+      before(:example) do
         allow(subject).to receive(:module_path).and_return(module_path)
       end
 
@@ -265,7 +265,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       context 'without file changed' do
-        before(:each) do
+        before(:example) do
           allow(module_manager).to receive(:file_changed?).and_return(false)
         end
 
@@ -294,7 +294,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           'Mod617578696c696172792f72737065632f6d6f636b'
         end
 
-        before(:each) do
+        before(:example) do
           # capture in a local so that instance_eval can access it
           relative_name = self.relative_name
 
@@ -362,7 +362,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         end
 
         context 'with empty module content' do
-          before(:each) do
+          before(:example) do
             allow(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return('')
           end
 
@@ -377,7 +377,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         end
 
         context 'with errors from namespace_module_eval_with_lexical_scope' do
-          before(:each) do
+          before(:example) do
             @namespace_module = double('Namespace Module', :'parent_path=' => nil)
             module_content = double('Module Content', empty?: false)
 
@@ -415,7 +415,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               'This is rspec.  Your argument is invalid.'
             end
 
-            before(:each) do
+            before(:example) do
               allow(@namespace_module).to receive(:module_eval_with_lexical_scope).and_raise(error)
 
               @module_load_error_by_path = {}
@@ -425,7 +425,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
 
             context 'with version compatibility' do
-              before(:each) do
+              before(:example) do
                 expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
               end
 
@@ -449,7 +449,7 @@ RSpec.describe Msf::Modules::Loader::Base do
                 0.0 / 0.0
               end
 
-              before(:each) do
+              before(:example) do
                 allow(@namespace_module).to receive(
                     :version_compatible!
                 ).with(
@@ -475,7 +475,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         end
 
         context 'without module_eval errors' do
-          before(:each) do
+          before(:example) do
             @namespace_module = double('Namespace Module')
             allow(@namespace_module).to receive(:parent_path=)
             allow(@namespace_module).to receive(:module_eval_with_lexical_scope).with(module_content, module_path)
@@ -512,7 +512,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               0.0 / 0.0
             end
 
-            before(:each) do
+            before(:example) do
               allow(@namespace_module).to receive(
                   :version_compatible!
               ).with(
@@ -538,7 +538,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           end
 
           context 'with version compatibility' do
-            before(:each) do
+            before(:example) do
               allow(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
 
               allow(module_manager).to receive(:on_module_load)
@@ -552,7 +552,7 @@ RSpec.describe Msf::Modules::Loader::Base do
                 )
               end
 
-              before(:each) do
+              before(:example) do
                 expect(@namespace_module).to receive(:metasploit_class!).with(module_path, module_reference_name).and_raise(error)
               end
 
@@ -582,7 +582,7 @@ RSpec.describe Msf::Modules::Loader::Base do
                 double('Metasploit Class')
               end
 
-              before(:each) do
+              before(:example) do
                 allow(@namespace_module).to receive(:metasploit_class!).and_return(metasploit_class)
               end
 
@@ -592,7 +592,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               context 'without usable metasploit_class' do
-                before(:each) do
+                before(:example) do
                   expect(subject).to receive(:usable?).and_return(false)
                 end
 
@@ -613,7 +613,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
 
               context 'with usable metasploit_class' do
-                before(:each) do
+                before(:example) do
                   # remove the mocked namespace_module since happy-path/real loading is occurring in this context
                   allow(subject).to receive(:namespace_module_transaction).and_call_original
                 end
@@ -714,7 +714,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         'Mod0'
       end
 
-      before(:each) do
+      before(:example) do
         # capture in local variable so it works in instance_eval
         relative_name = self.relative_name
 
@@ -805,7 +805,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         'Mod0'
       end
 
-      before(:each) do
+      before(:example) do
         # copy to local variable so it is accessible in instance_eval
         relative_name = self.relative_name
 
@@ -940,7 +940,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       context 'with pre-existing namespace module' do
-        before(:each) do
+        before(:example) do
           module Msf
             module Modules
               module Mod617578696c696172792f72737065632f6d6f636b
@@ -1071,7 +1071,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       context 'without pre-existing namespace module' do
-        before(:each) do
+        before(:example) do
           relative_name = self.relative_name
 
           if Msf::Modules.const_defined? relative_name
@@ -1217,7 +1217,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         # Callbacks
         #
 
-        before(:each) do
+        before(:example) do
           parent_module.const_set(relative_name, Module.new)
         end
 
@@ -1235,7 +1235,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       context 'with parent_module and namespace_module' do
-        before(:each) do
+        before(:example) do
           module Msf
             module Modules
               module Mod0
@@ -1252,7 +1252,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         end
 
         context 'with relative_name being a defined constant' do
-          before(:each) do
+          before(:example) do
             module Msf
               module Modules
                 module Mod0
