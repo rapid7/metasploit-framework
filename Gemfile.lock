@@ -203,6 +203,7 @@ PATH
 >>>>>>> origin/pod/metasploit-windows.rb
       json
       metasm (~> 1.0.2)
+<<<<<<< HEAD
       metasploit-concern (= 1.0.0)
       metasploit-credential (= 1.0.1)
       metasploit-model (= 1.0.0)
@@ -422,6 +423,13 @@ PATH
       metasploit-payloads (= 1.0.17)
 >>>>>>> origin/pod/metasploit-gemfile-
       metasploit_data_models (= 1.2.9)
+=======
+      metasploit-concern (~> 1.0.0)
+      metasploit-credential (~> 1.0.1)
+      metasploit-model (~> 1.0.0)
+      metasploit-payloads (= 1.0.17)
+      metasploit_data_models (~> 1.2.9)
+>>>>>>> rapid7/twiddle-wakka-metasploit-deps
       msgpack
       network_interface (~> 0.0.1)
       nokogiri
@@ -4798,3 +4806,6 @@ DEPENDENCIES
   simplecov
   timecop
   yard
+
+BUNDLED WITH
+   1.10.6

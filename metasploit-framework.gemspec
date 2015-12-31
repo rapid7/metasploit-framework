@@ -61,10 +61,11 @@ Gem::Specification.new do |spec|
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern', '1.0.0'
+  spec.add_runtime_dependency 'metasploit-concern', '~> 1.0.0'
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential', '1.0.1'
+  spec.add_runtime_dependency 'metasploit-credential', '~> 1.0.1'
   # Database models shared between framework and Pro.
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -94,9 +95,12 @@ Gem::Specification.new do |spec|
 =======
   spec.add_runtime_dependency 'metasploit_data_models', '1.2.9'
 >>>>>>> origin/pod/metasploit-gemfile-
+=======
+  spec.add_runtime_dependency 'metasploit_data_models', '~> 1.2.9'
+>>>>>>> rapid7/twiddle-wakka-metasploit-deps
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model', '1.0.0'
+  spec.add_runtime_dependency 'metasploit-model', '~> 1.0.0'
   # Needed for Meterpreter
 <<<<<<< HEAD
 <<<<<<< HEAD
