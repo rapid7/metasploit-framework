@@ -42,6 +42,10 @@ module Metasploit::Framework::CommonEngine
     # `initializer`s
     #
 
+    initializer 'metasploit_framework.initialize_celluloid_logger', after: :initialize_logger, :group => :all do
+      Celluloid.logger = Rails.logger
+    end
+
     initializer 'metasploit_framework.merge_meterpreter_extensions' do
       Rails.application.railties.engines.each do |engine|
         merge_meterpreter_extensions(engine)

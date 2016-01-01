@@ -98,6 +98,29 @@ class PacketResponseWaiter
     return self.response
   end
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+  attr_accessor :rid, :mutex, :cond, :response # :nodoc:
+  attr_accessor :completion_routine, :completion_param # :nodoc:
+>>>>>>> origin/4.11.2_release_pre-rails4
 end
 
 end; end; end

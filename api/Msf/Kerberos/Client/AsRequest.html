@@ -1,0 +1,710 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Kerberos::Client::AsRequest
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Kerberos/Client/AsRequest.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Msf::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Client.html" title="Msf::Kerberos::Client (module)">Client</a></span></span>
+     &raquo; 
+    <span class="title">AsRequest</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Kerberos::Client::AsRequest
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../Client.html" title="Msf::Kerberos::Client (module)">Msf::Kerberos::Client</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/kerberos/client/as_request.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_as_pa_time_stamp-instance_method" title="#build_as_pa_time_stamp (instance method)">- (Rex::Proto::Kerberos::Model::PreAuthData) <strong>build_as_pa_time_stamp</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a kerberos PA-ENC-TIMESTAMP pre authenticated structure.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_as_request-instance_method" title="#build_as_request (instance method)">- (Rex::Proto::Kerberos::Model::KdcRequest) <strong>build_as_request</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a kerberos AS request.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_as_request_body-instance_method" title="#build_as_request_body (instance method)">- (Rex::Proto::Kerberos::Model::KdcRequestBody) <strong>build_as_request_body</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a kerberos AS request body.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="build_as_pa_time_stamp-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PreAuthData.html" title="Rex::Proto::Kerberos::Model::PreAuthData (class)">Rex::Proto::Kerberos::Model::PreAuthData</a></span></tt>) <strong>build_as_pa_time_stamp</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a kerberos PA-ENC-TIMESTAMP pre authenticated structure</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; &lt;Time, Fixnum, String&gt;}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:time_stamp</span>
+          <span class="type">(<tt>Time</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:pausec</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:etype</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:key</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PreAuthData.html" title="Rex::Proto::Kerberos::Model::PreAuthData (class)">Rex::Proto::Kerberos::Model::PreAuthData</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PreAuthEncTimeStamp.html" title="Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp (class)">Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp</a></span></li>
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/EncryptedData.html" title="Rex::Proto::Kerberos::Model::EncryptedData (class)">Rex::Proto::Kerberos::Model::EncryptedData</a></span></li>
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PreAuthData.html" title="Rex::Proto::Kerberos::Model::PreAuthData (class)">Rex::Proto::Kerberos::Model::PreAuthData</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/kerberos/client/as_request.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_as_pa_time_stamp'>build_as_pa_time_stamp</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_time_stamp'>time_stamp</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:time_stamp</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+  <span class='id identifier rubyid_pausec'>pausec</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pausec</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_etype'>etype</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:etype</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Crypto</span><span class='op'>::</span><span class='const'>RC4_HMAC</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:key</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_pa_time_stamp'>pa_time_stamp</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>PreAuthEncTimeStamp</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+      <span class='label'>pa_time_stamp:</span> <span class='id identifier rubyid_time_stamp'>time_stamp</span><span class='comma'>,</span>
+      <span class='label'>pausec:</span> <span class='id identifier rubyid_pausec'>pausec</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_enc_time_stamp'>enc_time_stamp</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>EncryptedData</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+      <span class='label'>etype:</span> <span class='id identifier rubyid_etype'>etype</span><span class='comma'>,</span>
+      <span class='label'>cipher:</span> <span class='id identifier rubyid_pa_time_stamp'>pa_time_stamp</span><span class='period'>.</span><span class='id identifier rubyid_encrypt'>encrypt</span><span class='lparen'>(</span><span class='id identifier rubyid_etype'>etype</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pa_enc_time_stamp'>pa_enc_time_stamp</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>PreAuthData</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+      <span class='label'>type:</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>PA_ENC_TIMESTAMP</span><span class='comma'>,</span>
+      <span class='label'>value:</span> <span class='id identifier rubyid_enc_time_stamp'>enc_time_stamp</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_pa_enc_time_stamp'>pa_enc_time_stamp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_as_request-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/KdcRequest.html" title="Rex::Proto::Kerberos::Model::KdcRequest (class)">Rex::Proto::Kerberos::Model::KdcRequest</a></span></tt>) <strong>build_as_request</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a kerberos AS request</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; &lt;Array&lt;<span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PreAuthData.html" title="Rex::Proto::Kerberos::Model::PreAuthData (class)">Rex::Proto::Kerberos::Model::PreAuthData</a></span>&gt;, <span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/KdcRequestBody.html" title="Rex::Proto::Kerberos::Model::KdcRequestBody (class)">Rex::Proto::Kerberos::Model::KdcRequestBody</a></span>&gt;}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:pa_data</span>
+          <span class="type">(<tt>Array&lt;<span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PreAuthData.html" title="Rex::Proto::Kerberos::Model::PreAuthData (class)">Rex::Proto::Kerberos::Model::PreAuthData</a></span>&gt;</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:body</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/KdcRequestBody.html" title="Rex::Proto::Kerberos::Model::KdcRequestBody (class)">Rex::Proto::Kerberos::Model::KdcRequestBody</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/KdcRequest.html" title="Rex::Proto::Kerberos::Model::KdcRequest (class)">Rex::Proto::Kerberos::Model::KdcRequest</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>Msf::Kerberos::Client::AsRequest.[Rex[Rex::Proto[Rex::Proto::Kerberos[Rex::Proto::Kerberos::Model[Rex::Proto::Kerberos::Model::KdcRequest]</li>
+    
+      <li><span class='object_link'><a href="#build_as_pa_time_stamp-instance_method" title="Msf::Kerberos::Client::AsRequest#build_as_pa_time_stamp (method)">#build_as_pa_time_stamp</a></span></li>
+    
+      <li><span class='object_link'><a href="#build_as_request_body-instance_method" title="Msf::Kerberos::Client::AsRequest#build_as_request_body (method)">#build_as_request_body</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/kerberos/client/as_request.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_as_request'>build_as_request</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pa_data'>pa_data</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pa_data</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_build_as_pa_time_stamp'>build_as_pa_time_stamp</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:body</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_build_as_request_body'>build_as_request_body</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>KdcRequest</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>pvno:</span> <span class='int'>5</span><span class='comma'>,</span>
+    <span class='label'>msg_type:</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>AS_REQ</span><span class='comma'>,</span>
+    <span class='label'>pa_data:</span> <span class='id identifier rubyid_pa_data'>pa_data</span><span class='comma'>,</span>
+    <span class='label'>req_body:</span> <span class='id identifier rubyid_body'>body</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_as_request_body-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/KdcRequestBody.html" title="Rex::Proto::Kerberos::Model::KdcRequestBody (class)">Rex::Proto::Kerberos::Model::KdcRequestBody</a></span></tt>) <strong>build_as_request_body</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a kerberos AS request body</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; &lt;Fixnum, Time, String, <span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PrincipalName.html" title="Rex::Proto::Kerberos::Model::PrincipalName (class)">Rex::Proto::Kerberos::Model::PrincipalName</a></span>&gt;}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:options</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:from</span>
+          <span class="type">(<tt>Time</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:till</span>
+          <span class="type">(<tt>Time</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:rtime</span>
+          <span class="type">(<tt>Time</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:nonce</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:etype</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:cname</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PrincipalName.html" title="Rex::Proto::Kerberos::Model::PrincipalName (class)">Rex::Proto::Kerberos::Model::PrincipalName</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:realm</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:sname</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/PrincipalName.html" title="Rex::Proto::Kerberos::Model::PrincipalName (class)">Rex::Proto::Kerberos::Model::PrincipalName</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/KdcRequestBody.html" title="Rex::Proto::Kerberos::Model::KdcRequestBody (class)">Rex::Proto::Kerberos::Model::KdcRequestBody</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Base.html#build_client_name-instance_method" title="Msf::Kerberos::Client::Base#build_client_name (method)">Base#build_client_name</a></span></li>
+    
+      <li><span class='object_link'><a href="Base.html#build_server_name-instance_method" title="Msf::Kerberos::Client::Base#build_server_name (method)">Base#build_server_name</a></span></li>
+    
+      <li><span class='object_link'><a href="../../../Rex/Proto/Kerberos/Model/KdcRequestBody.html" title="Rex::Proto::Kerberos::Model::KdcRequestBody (class)">Rex::Proto::Kerberos::Model::KdcRequestBody</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/kerberos/client/as_request.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_as_request_body'>build_as_request_body</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:options</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0x50800000</span> <span class='comment'># Forwardable, Proxiable, Renewable
+</span>  <span class='id identifier rubyid_from'>from</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:from</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1970-01-01-01 00:00:00</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_till'>till</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:till</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1970-01-01-01 00:00:00</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rtime'>rtime</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:rtime</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1970-01-01-01 00:00:00</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nonce'>nonce</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:nonce</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_numeric'>rand_text_numeric</span><span class='lparen'>(</span><span class='int'>6</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_etype'>etype</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:etype</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Crypto</span><span class='op'>::</span><span class='const'>RC4_HMAC</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cname'>cname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:cname</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_build_client_name'>build_client_name</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_realm'>realm</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:realm</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sname</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_build_server_name'>build_server_name</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Kerberos</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>KdcRequestBody</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='label'>options:</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span>
+    <span class='label'>cname:</span> <span class='id identifier rubyid_cname'>cname</span><span class='comma'>,</span>
+    <span class='label'>realm:</span> <span class='id identifier rubyid_realm'>realm</span><span class='comma'>,</span>
+    <span class='label'>sname:</span> <span class='id identifier rubyid_sname'>sname</span><span class='comma'>,</span>
+    <span class='label'>from:</span> <span class='id identifier rubyid_from'>from</span><span class='comma'>,</span>
+    <span class='label'>till:</span> <span class='id identifier rubyid_till'>till</span><span class='comma'>,</span>
+    <span class='label'>rtime:</span> <span class='id identifier rubyid_rtime'>rtime</span><span class='comma'>,</span>
+    <span class='label'>nonce:</span> <span class='id identifier rubyid_nonce'>nonce</span><span class='comma'>,</span>
+    <span class='label'>etype:</span> <span class='id identifier rubyid_etype'>etype</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_body'>body</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Sep  1 22:32:23 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+</div>
+
+  </body>
+</html>

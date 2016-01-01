@@ -33,6 +33,20 @@ module MeterpreterOptions
   def on_session(session)
     super
 
+<<<<<<< HEAD
+    # Hand off to SessionManager, so that UI remains responsive
+    Celluloid::Actor[:msf_session_manager_initializer_pool].async.start_session(
+        auto_load_android: !!datastore['AutoLoadAndroid'],
+        auto_load_stdapi: !!datastore['AutoLoadStdapi'],
+        auto_run_script: datastore['AutoRunScript'],
+        auto_system_info: !!datastore['AutoSystemInfo'],
+        enable_unicode_encoding: !!datastore['EnableUnicodeEncoding'],
+        initial_auto_run_script: datastore['InitialAutoRunScript'],
+        session: session,
+        user_input: user_input,
+        user_output: user_output
+    )
+=======
     # Defer the session initialization to the Session Manager scheduler
     framework.sessions.schedule Proc.new {
 
@@ -88,6 +102,7 @@ module MeterpreterOptions
 
     }
 
+>>>>>>> rapid7/master
   end
 
 end

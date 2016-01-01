@@ -542,7 +542,35 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "<no arguments>" do
       it "should list default workspace" do
         db.cmd_workspace
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/payload-generator.rb
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-gemfile-
           "* default"
         ]
       end
@@ -551,7 +579,35 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/payload-generator.rb
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-gemfile-
           "  default",
           "* foo"
         ]
@@ -561,7 +617,35 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-a" do
       it "should add workspaces" do
         db.cmd_workspace("-a", "foo", "bar", "baf")
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/payload-generator.rb
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-gemfile-
           "Added workspace: foo",
           "Added workspace: bar",
           "Added workspace: baf"
@@ -574,7 +658,35 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace("-d", "foo")
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/payload-generator.rb
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-gemfile-
           "Deleted workspace: foo",
           "Switched workspace: default"
         ]
@@ -586,7 +698,35 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace("-a", "foo")
         @output = []
         db.cmd_workspace("-D")
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
         expect(@output).to match_array [
+=======
+        @output.should =~ [
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        @output.should =~ [
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/msf-complex-payloads
+=======
+        @output.should =~ [
+>>>>>>> origin/payload-generator.rb
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+        @output.should =~ [
+>>>>>>> origin/pod/metasploit-gemfile-
           "Deleted and recreated the default workspace",
           "Deleted workspace: foo",
           "Switched workspace: default"

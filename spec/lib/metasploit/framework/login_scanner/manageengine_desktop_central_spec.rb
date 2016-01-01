@@ -1,7 +1,31 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/manageengine_desktop_central'
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+=======
+describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+>>>>>>> origin/payload-generator.rb
+=======
+describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
+>>>>>>> origin/pod/metasploit-gemfile-
 
     it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: false
     it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'

@@ -68,26 +68,343 @@ class Framework
   require 'msf/core/plugin_manager'
   require 'msf/core/db_manager'
   require 'msf/core/event_dispatcher'
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
   require 'rex/json_hash_file'
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  require 'rex/json_hash_file'
+=======
+<<<<<<< HEAD
+=======
+  require 'rex/json_hash_file'
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  require 'rex/json_hash_file'
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+=======
+  require 'rex/json_hash_file'
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+  #
+  # Attributes
+  #
+
+  # The Celluloid::SupervisionGroup that is the root of the supervision tree.
+  attr_accessor :supervision_group
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+=======
+  require 'rex/json_hash_file'
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+  require 'rex/json_hash_file'
+>>>>>>> origin/msf-complex-payloads
+=======
+  require 'rex/json_hash_file'
+>>>>>>> origin/msf-complex-payloads
+=======
+  require 'rex/json_hash_file'
+>>>>>>> origin/payload-generator.rb
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  require 'rex/json_hash_file'
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  require 'rex/json_hash_file'
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+  require 'rex/json_hash_file'
+>>>>>>> msf-complex-payloads
+=======
+  require 'rex/json_hash_file'
+>>>>>>> msf-complex-payloads
+=======
+  require 'rex/json_hash_file'
+>>>>>>> payload-generator.rb
+<<<<<<< HEAD
+=======
+  require 'rex/json_hash_file'
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+  require 'rex/json_hash_file'
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  require 'rex/json_hash_file'
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
   #
   # Creates an instance of the framework context.
   #
+  # @param options [Hash{Object => Object}]
+  # @option options [Array<String>] :module_types (Msf::MODULE_TYPES) The module types for {#modules} to load.
   def initialize(options={})
     self.options = options
     # call super to initialize MonitorMixin.  #synchronize won't work without this.
     super()
 
-    # Allow specific module types to be loaded
-    types = options[:module_types] || Msf::MODULE_TYPES
-
     self.events    = EventDispatcher.new(self)
-    self.modules   = ModuleManager.new(self,types)
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
     self.plugins   = PluginManager.new(self)
     self.uuid_db   = Rex::JSONHashFile.new(::File.join(Msf::Config.config_directory, "payloads.json"))
     self.browser_profiles = Hash.new
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+<<<<<<< HEAD
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-windows.rb
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+    self.run_supervision_group!
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+=======
+>>>>>>> rapid7/master
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/msf-complex-payloads
+=======
+>>>>>>> origin/payload-generator.rb
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> msf-complex-payloads
+=======
+>>>>>>> payload-generator.rb
+<<<<<<< HEAD
+=======
+>>>>>>> pod/metasploit-gemfile-
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
@@ -98,6 +415,37 @@ class Framework
     events.add_general_subscriber(subscriber)
     events.add_db_subscriber(subscriber)
     events.add_ui_subscriber(subscriber)
+  end
+
+  #
+  # Instance Methods
+  #
+
+  def run_supervision_group!
+    # {run!} runs the group in the background
+    supervision_group = Metasploit::Framework::SupervisionGroup.run!
+
+    module_types = options[:module_types] || Msf::MODULE_TYPES
+    supervision_group.supervise_as :msf_module_manager, Msf::ModuleManager, self, module_types
+
+    supervision_group.supervise_as :msf_session_manager, Msf::SessionManager, self
+
+    self.supervision_group = supervision_group
+  end
+
+  # Session manager that tracks sessions associated with this framework
+  # instance over the course of their lifetime.
+  #
+  # @return [Celluloid<Msf::SessionManager>]
+  def sessions
+    supervision_group[:msf_session_manager]
+  end
+
+  # Module manager that contains information about all loaded modules, regardless of type.
+  #
+  # @return [Celluloid<Msf::ModuleManager>]
+  def modules
+    supervision_group[:msf_module_manager]
   end
 
   def inspect
@@ -159,11 +507,6 @@ class Framework
   #
   attr_reader   :events
   #
-  # Module manager that contains information about all loaded modules,
-  # regardless of type.
-  #
-  attr_reader   :modules
-  #
   # The global framework datastore that can be used by modules.
   #
   attr_reader   :datastore
@@ -204,16 +547,6 @@ class Framework
   def db
     synchronize {
       @db ||= Msf::DBManager.new(self, options)
-    }
-  end
-
-  # Session manager that tracks sessions associated with this framework
-  # instance over the course of their lifetime.
-  #
-  # @return [Msf::SessionManager]
-  def sessions
-    synchronize {
-      @sessions ||= Msf::SessionManager.new(self)
     }
   end
 

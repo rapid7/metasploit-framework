@@ -2,7 +2,35 @@
 require 'spec_helper'
 require 'rex/arch'
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Arch do
+=======
+describe Rex::Arch do
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+describe Rex::Arch do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Arch do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Arch do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Arch do
+>>>>>>> origin/payload-generator.rb
+=======
+describe Rex::Arch do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Rex::Arch do
+>>>>>>> origin/pod/metasploit-gemfile-
   describe ".pack_addr" do
     subject { described_class.pack_addr(arch, addr) }
 

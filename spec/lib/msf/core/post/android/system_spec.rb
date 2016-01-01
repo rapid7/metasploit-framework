@@ -2,7 +2,35 @@
 
 require 'msf/core/post/android/system'
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Post::Android::System do
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/payload-generator.rb
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Msf::Post::Android::System do
+>>>>>>> origin/pod/metasploit-gemfile-
 
   subject do
     mod = Module.new

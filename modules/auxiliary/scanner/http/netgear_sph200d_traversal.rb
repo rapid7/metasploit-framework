@@ -36,6 +36,10 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
     begin

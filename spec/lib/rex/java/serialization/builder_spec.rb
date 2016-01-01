@@ -3,7 +3,11 @@ require 'spec_helper'
 
 require 'rex/java'
 
+<<<<<<< HEAD
 RSpec.describe Rex::Java::Serialization::Builder do
+=======
+describe Rex::Java::Serialization::Builder do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   subject(:builder) do
     described_class.new
   end

@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-RSpec.describe Msf::OptInt do
+describe Msf::OptInt do
   valid_values = [
     { :value => "1",    :normalized => 1  },
     { :value => "10",   :normalized => 10 },

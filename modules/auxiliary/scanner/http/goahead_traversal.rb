@@ -22,7 +22,31 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2014-9707'],
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
           ['PACKETSTORM', '131156']
+=======
+          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+>>>>>>> origin/msf-complex-payloads
+=======
+          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+>>>>>>> origin/msf-complex-payloads
+=======
+          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+>>>>>>> origin/payload-generator.rb
+=======
+          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+>>>>>>> origin/pod/metasploit-gemfile-
         ],
       'Author'         =>
         [

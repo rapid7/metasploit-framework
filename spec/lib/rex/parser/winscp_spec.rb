@@ -17,7 +17,35 @@ Password=#{PASSWORD}
 Shell=/bin/bash}
 END
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Parser::WinSCP do
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/payload-generator.rb
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Rex::Parser::WinSCP do
+>>>>>>> origin/pod/metasploit-gemfile-
   let(:target) do
     d = Class.new { include Rex::Parser::WinSCP }
     d.new
@@ -85,12 +113,68 @@ RSpec.describe Rex::Parser::WinSCP do
 
   context "#read_and_parse_ini" do
     it "returns nil if file is empty or doesn't exist" do
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
       expect(File).to receive(:read).and_return(nil)
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/msf-complex-payloads
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/msf-complex-payloads
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/payload-generator.rb
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+      File.stub(:read).and_return(nil)
+>>>>>>> origin/pod/metasploit-gemfile-
       expect(target.read_and_parse_ini('blah')).to be nil
     end
 
     it "parses the example ini and return a single result" do
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
       expect(File).to receive(:read).and_return(SAMPLE_INI)
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/msf-complex-payloads
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/msf-complex-payloads
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/payload-generator.rb
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+      File.stub(:read).and_return(SAMPLE_INI)
+>>>>>>> origin/pod/metasploit-gemfile-
       expect(target.read_and_parse_ini(SAMPLE_INI).count).to eq 1
     end
   end

@@ -22,7 +22,35 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['WPVDB', '8107'],
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
           ['PACKETSTORM', '132750']
+=======
+          ['URL', 'https://packetstormsecurity.com/files/132750/']
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+          ['URL', 'https://packetstormsecurity.com/files/132750/']
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+          ['URL', 'https://packetstormsecurity.com/files/132750/']
+>>>>>>> origin/msf-complex-payloads
+=======
+          ['URL', 'https://packetstormsecurity.com/files/132750/']
+>>>>>>> origin/msf-complex-payloads
+=======
+          ['URL', 'https://packetstormsecurity.com/files/132750/']
+>>>>>>> origin/payload-generator.rb
+=======
+          ['URL', 'https://packetstormsecurity.com/files/132750/']
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+          ['URL', 'https://packetstormsecurity.com/files/132750/']
+>>>>>>> origin/pod/metasploit-gemfile-
         ],
       'Author'         =>
         [

@@ -7,7 +7,35 @@ require 'msf/base/sessions/mainframe_shell'
 #  A quick test that MainframeShell is operable
 #  Author: Bigendian Smalls
 #
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Sessions::MainframeShell do
+=======
+describe Msf::Sessions::MainframeShell do
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+describe Msf::Sessions::MainframeShell do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Msf::Sessions::MainframeShell do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Msf::Sessions::MainframeShell do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Msf::Sessions::MainframeShell do
+>>>>>>> origin/payload-generator.rb
+=======
+describe Msf::Sessions::MainframeShell do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Msf::Sessions::MainframeShell do
+>>>>>>> origin/pod/metasploit-gemfile-
   it 'extends Msf::Sessions::CommandShell to include EBCDIC cp1047 codepage translation' do
   args=[0,
    {:datastore=>

@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-RSpec.describe Msf::OptRaw do
+describe Msf::OptRaw do
 
   valid_values = [
       { :value => 'foo',    :normalized => 'foo'     },

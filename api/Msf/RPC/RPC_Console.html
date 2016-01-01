@@ -1,0 +1,1346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Msf::RPC::RPC_Console
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/RPC/RPC_Console.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../RPC.html" title="Msf::RPC (module)">RPC</a></span></span>
+     &raquo; 
+    <span class="title">RPC_Console</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Msf::RPC::RPC_Console
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="RPC_Base.html" title="Msf::RPC::RPC_Base (class)">RPC_Base</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="RPC_Base.html" title="Msf::RPC::RPC_Base (class)">RPC_Base</a></span></li>
+          
+            <li class="next">Msf::RPC::RPC_Console</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/rpc/v10/rpc_console.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="RPC_Base.html" title="Msf::RPC::RPC_Base (class)">RPC_Base</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="RPC_Base.html#framework-instance_method" title="Msf::RPC::RPC_Base#framework (method)">#framework</a></span>, <span class='object_link'><a href="RPC_Base.html#service-instance_method" title="Msf::RPC::RPC_Base#service (method)">#service</a></span>, <span class='object_link'><a href="RPC_Base.html#tokens-instance_method" title="Msf::RPC::RPC_Base#tokens (method)">#tokens</a></span>, <span class='object_link'><a href="RPC_Base.html#users-instance_method" title="Msf::RPC::RPC_Base#users (method)">#users</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Msf::Ui::Web::Driver) <strong>initialize</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the RPC console.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_create-instance_method" title="#rpc_create (instance method)">- (Hash) <strong>rpc_create</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a new framework console instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_destroy-instance_method" title="#rpc_destroy (instance method)">- (Hash) <strong>rpc_destroy</strong>(cid) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deletes a framework console instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_list-instance_method" title="#rpc_list (instance method)">- (Hash) <strong>rpc_list</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a list of framework consoles.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_read-instance_method" title="#rpc_read (instance method)">- (Hash) <strong>rpc_read</strong>(cid) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the framework console output in raw form.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_session_detach-instance_method" title="#rpc_session_detach (instance method)">- (Hash) <strong>rpc_session_detach</strong>(cid) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Detaches a framework session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_session_kill-instance_method" title="#rpc_session_kill (instance method)">- (Hash) <strong>rpc_session_kill</strong>(cid) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Kills a framework session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_tabs-instance_method" title="#rpc_tabs (instance method)">- (Hash) <strong>rpc_tabs</strong>(cid, line) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the tab-completed version of your input (such as a module path).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_write-instance_method" title="#rpc_write (instance method)">- (Hash) <strong>rpc_write</strong>(cid, data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends an input (such as a command) to the framework console.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="RPC_Base.html" title="Msf::RPC::RPC_Base (class)">RPC_Base</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="RPC_Base.html#error-instance_method" title="Msf::RPC::RPC_Base#error (method)">#error</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../Ui/Web/Driver.html" title="Msf::Ui::Web::Driver (class)">Msf::Ui::Web::Driver</a></span></tt>) <strong>initialize</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the RPC console</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='ivar'>@console_driver</span> <span class='op'>=</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Ui</span><span class='op'>::</span><span class='const'>Web</span><span class='op'>::</span><span class='const'>Driver</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='symbol'>:framework</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="rpc_create-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>rpc_create</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a new framework console instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console.create</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>See Msf::Ui::Web::Driver#create_console</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Information about the new console. It contains the following keys:</p>
+<ul><li>
+<p>&#39;id&#39; [Fixnum] The console&#39;s ID.</p>
+</li><li>
+<p>&#39;prompt&#39; [String] The framework prompt (example: &#39;msf &gt;
+&#39;)</p>
+</li><li>
+<p>&#39;busy&#39; [TrueClass] The console&#39;s busy state, or</p>
+</li><li>
+<p>&#39;busy&#39; [FalseClass] The console&#39;s busy state.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_create'>rpc_create</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_create_console'>create_console</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>id</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>prompt</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_prompt'>prompt</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>busy</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_busy'>busy</span>   <span class='op'>||</span> <span class='kw'>false</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_destroy-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>rpc_destroy</strong>(cid) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deletes a framework console instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console.destroy</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cid</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Framework console ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A result indicating whether the action was successful or not. It contains
+the following key:</p>
+<ul><li>
+<p>&#39;result&#39; [String] Either &#39;success&#39; or &#39;failure&#39;.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_destroy'>rpc_destroy</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='id identifier rubyid_cid'>cid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_destroy_console'>destroy_console</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_res'>res</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>success</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_list-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>rpc_list</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a list of framework consoles.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console.list</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Console information.</p>
+<ul><li>
+<p>&#39;consoles&#39; [Array&lt;Hash&gt;] consoles, each element is a hash
+that includes:</p>
+<ul><li>
+<p>&#39;id&#39; [Fixnum] The console&#39;s ID</p>
+</li><li>
+<p>&#39;prompt&#39; [String] The framework prompt (example: &#39;msf &gt;
+&#39;)</p>
+</li><li>
+<p>&#39;busy&#39; [TrueClass] The console&#39;s busy state, or</p>
+</li><li>
+<p>&#39;busy&#39; [FalseClass] The console&#39;s busy state.</p>
+</li></ul>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_list'>rpc_list</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='period'>.</span><span class='id identifier rubyid_each_key'>each_key</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cid'>cid</span><span class='op'>|</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>id</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>prompt</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_prompt'>prompt</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>busy</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_busy'>busy</span>   <span class='op'>||</span> <span class='kw'>false</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>consoles</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ret'>ret</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_read-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>rpc_read</strong>(cid) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the framework console output in raw form.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console.read</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cid</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Framework console ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>There are two different hashes you might get:</p>
+
+<p>If the console ID is invalid, you will get a hash like the following:</p>
+<ul><li>
+<p>&#39;result&#39; [String] A value that says &#39;failure&#39;.</p>
+</li></ul>
+
+<p>If the console ID is valid, you will get a hash like the following:</p>
+<ul><li>
+<p>&#39;data&#39; [String] The output the framework console produces (example:
+the banner)</p>
+</li><li>
+<p>&#39;prompt&#39; [String] The framework prompt (example: &#39;msf &gt;
+&#39;)</p>
+</li><li>
+<p>&#39;busy&#39; [TrueClass] The console&#39;s busy state, or</p>
+</li><li>
+<p>&#39;busy&#39; [FalseClass] The console&#39;s busy state.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_read'>rpc_read</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='id identifier rubyid_cid'>cid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data</span><span class='tstring_end'>&quot;</span></span>   <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_read_console'>read_console</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>    <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>prompt</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_prompt'>prompt</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>busy</span><span class='tstring_end'>&quot;</span></span>   <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_busy'>busy</span>   <span class='op'>||</span> <span class='kw'>false</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_session_detach-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>rpc_session_detach</strong>(cid) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Detaches a framework session. This serves the same purpose as [<a
+href="Z">CTRL]+</a> to background an interactive session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console.session_detach</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>4</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cid</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Framework console ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating whether the action was successful or not. It contains:</p>
+<ul><li>
+<p>&#39;result&#39; [String] A message that says &#39;success&#39; if the
+console ID is valid (and successfully detached, otherwise &#39;failed&#39;)</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+170
+171
+172
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 170</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_session_detach'>rpc_session_detach</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='id identifier rubyid_cid'>cid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span>
+  <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_session_detach'>session_detach</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>success</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_session_kill-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>rpc_session_kill</strong>(cid) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Kills a framework session. This serves the same purpose as [<a
+href="C">CTRL]+</a> to abort an interactive session. You might also want to
+considering using the session API calls instead of this.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console.session_kill</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>4</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cid</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Framework console ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating whether the action was successful or not. It contains:</p>
+<ul><li>
+<p>&#39;result&#39; [String] A message that says &#39;success&#39; if the
+console ID is valid (and successfully killed, otherwise &#39;failed&#39;)</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156
+157
+158
+159</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_session_kill'>rpc_session_kill</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='id identifier rubyid_cid'>cid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span>
+  <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_session_kill'>session_kill</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>success</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_tabs-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>rpc_tabs</strong>(cid, line) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the tab-completed version of your input (such as a module path).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='comment'># This will return:
+</span><span class='comment'># {&quot;tabs&quot;=&gt;[&quot;use exploit/windows/smb/ms08_067_netapi&quot;]}
+</span><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console.tabs</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>4</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>use exploit/windows/smb/ms08_067_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cid</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Framework console ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>line</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Command.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>There are two different hashes you might get:</p>
+
+<p>If the console ID is invalid, you will get a hash like the following:</p>
+<ul><li>
+<p>&#39;result&#39; [String] A value that says &#39;failure&#39;.</p>
+</li></ul>
+
+<p>If the console ID is valid, you will get a hash like the following:</p>
+<ul><li>
+<p>&#39;tabs&#39; [String] The tab-completed version of the command.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+139
+140
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 139</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_tabs'>rpc_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span> <span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='id identifier rubyid_cid'>cid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tabs</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_tab_complete'>tab_complete</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_write-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>rpc_write</strong>(cid, data) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>Remember to add a newline (\r\n) at the end of input, otherwise the console
+will not do anything. And you will need to use the #rpc_read method to
+retrieve the output again.</p>
+</div>
+  </div>
+
+
+<p>Sends an input (such as a command) to the framework console.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='comment'># This will show the current module&#39;s options.
+</span><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>console.write</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>4</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>show options\r\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>cid</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Framework console ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User input.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>There are two different hashes you might get:</p>
+
+<p>If the console ID is invalid, you will get a hash like the following:</p>
+<ul><li>
+<p>&#39;result&#39; [String] A value that says &#39;failure&#39;.</p>
+</li></ul>
+
+<p>If the console ID is invalid, you will get a hash like the following:</p>
+<ul><li>
+<p>&#39;wrote&#39; [Fixnum] Number of bytes sent.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_console.rb', line 118</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_write'>rpc_write</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='id identifier rubyid_cid'>cid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>result</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wrote</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@console_driver</span><span class='period'>.</span><span class='id identifier rubyid_write_console'>write_console</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  Generated on Tue Dec 22 22:33:57 2015 by
+=======
+  Generated on Tue Dec  8 22:33:59 2015 by
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+  Generated on Tue Dec  8 22:33:59 2015 by
+>>>>>>> origin/pod/metasploit-framework
+=======
+  Generated on Tue Dec  8 22:33:59 2015 by
+>>>>>>> origin/pod/metasploit-windows.rb
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:34:22 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  Generated on Tue Dec  8 22:33:59 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,2628 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Handler
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Msf/Handler.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (H)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">Handler</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Handler
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/handler.rb<span class="defines">,<br />
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/reverse.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse/ssl.rb,<br /> lib/msf/core/handler/reverse/comm.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb</span>
+=======
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb</span>
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb</span>
+>>>>>>> origin/gh-pages
+=======
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb</span>
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb</span>
+=======
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb</span>
+>>>>>>> origin/gh-pages
+>>>>>>> origin/pod/metasploit-framework
+=======
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb</span>
+=======
+  lib/msf/core/handler/none.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb</span>
+>>>>>>> origin/gh-pages
+>>>>>>> origin/pod/metasploit-windows.rb
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module acts as a base for all handler pseudo-modules.  They aren&#39;t
+really modules, so don&#39;t get the wrong idea champs!  They&#39;re merely
+mixed into dynamically generated payloads to handle monitoring for a
+connection.  Handlers are layered in between the base payload class and any
+other payload class.  A super cool ASCII diagram would look something like
+this</p>
+
+<pre class="code ruby"><code class="ruby"> Module
+   ^
+   |
+Payload
+   ^
+   |
+Handler
+   ^
+   |
+ Stager
+   ^
+   |
+  Stage</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/FindShell.html" title="Msf::Handler::FindShell (module)">FindShell</a></span>, <span class='object_link'><a href="Handler/FindTag.html" title="Msf::Handler::FindTag (module)">FindTag</a></span>, <span class='object_link'><a href="Handler/FindTty.html" title="Msf::Handler::FindTty (module)">FindTty</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/Reverse.html" title="Msf::Handler::Reverse (module)">Reverse</a></span>, <span class='object_link'><a href="Handler/ReverseHopHttp.html" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttps.html" title="Msf::Handler::ReverseHttps (module)">ReverseHttps</a></span>, <span class='object_link'><a href="Handler/ReverseHttpsProxy.html" title="Msf::Handler::ReverseHttpsProxy (module)">ReverseHttpsProxy</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpAllPorts.html" title="Msf::Handler::ReverseTcpAllPorts (module)">ReverseTcpAllPorts</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span>, <span class='object_link'><a href="Handler/ReverseTcpSsl.html" title="Msf::Handler::ReverseTcpSsl (module)">ReverseTcpSsl</a></span>
+=======
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/FindShell.html" title="Msf::Handler::FindShell (module)">FindShell</a></span>, <span class='object_link'><a href="Handler/FindTag.html" title="Msf::Handler::FindTag (module)">FindTag</a></span>, <span class='object_link'><a href="Handler/FindTty.html" title="Msf::Handler::FindTty (module)">FindTty</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/ReverseHopHttp.html" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttps.html" title="Msf::Handler::ReverseHttps (module)">ReverseHttps</a></span>, <span class='object_link'><a href="Handler/ReverseHttpsProxy.html" title="Msf::Handler::ReverseHttpsProxy (module)">ReverseHttpsProxy</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpAllPorts.html" title="Msf::Handler::ReverseTcpAllPorts (module)">ReverseTcpAllPorts</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span>, <span class='object_link'><a href="Handler/ReverseTcpSsl.html" title="Msf::Handler::ReverseTcpSsl (module)">ReverseTcpSsl</a></span>
+>>>>>>> origin/gh-pages
+=======
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/FindShell.html" title="Msf::Handler::FindShell (module)">FindShell</a></span>, <span class='object_link'><a href="Handler/FindTag.html" title="Msf::Handler::FindTag (module)">FindTag</a></span>, <span class='object_link'><a href="Handler/FindTty.html" title="Msf::Handler::FindTty (module)">FindTty</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/ReverseHopHttp.html" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttps.html" title="Msf::Handler::ReverseHttps (module)">ReverseHttps</a></span>, <span class='object_link'><a href="Handler/ReverseHttpsProxy.html" title="Msf::Handler::ReverseHttpsProxy (module)">ReverseHttpsProxy</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpAllPorts.html" title="Msf::Handler::ReverseTcpAllPorts (module)">ReverseTcpAllPorts</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span>, <span class='object_link'><a href="Handler/ReverseTcpSsl.html" title="Msf::Handler::ReverseTcpSsl (module)">ReverseTcpSsl</a></span>
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/FindShell.html" title="Msf::Handler::FindShell (module)">FindShell</a></span>, <span class='object_link'><a href="Handler/FindTag.html" title="Msf::Handler::FindTag (module)">FindTag</a></span>, <span class='object_link'><a href="Handler/FindTty.html" title="Msf::Handler::FindTty (module)">FindTty</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/ReverseHopHttp.html" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttps.html" title="Msf::Handler::ReverseHttps (module)">ReverseHttps</a></span>, <span class='object_link'><a href="Handler/ReverseHttpsProxy.html" title="Msf::Handler::ReverseHttpsProxy (module)">ReverseHttpsProxy</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpAllPorts.html" title="Msf::Handler::ReverseTcpAllPorts (module)">ReverseTcpAllPorts</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span>, <span class='object_link'><a href="Handler/ReverseTcpSsl.html" title="Msf::Handler::ReverseTcpSsl (module)">ReverseTcpSsl</a></span>
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/FindShell.html" title="Msf::Handler::FindShell (module)">FindShell</a></span>, <span class='object_link'><a href="Handler/FindTag.html" title="Msf::Handler::FindTag (module)">FindTag</a></span>, <span class='object_link'><a href="Handler/FindTty.html" title="Msf::Handler::FindTty (module)">FindTty</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/ReverseHopHttp.html" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttps.html" title="Msf::Handler::ReverseHttps (module)">ReverseHttps</a></span>, <span class='object_link'><a href="Handler/ReverseHttpsProxy.html" title="Msf::Handler::ReverseHttpsProxy (module)">ReverseHttpsProxy</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpAllPorts.html" title="Msf::Handler::ReverseTcpAllPorts (module)">ReverseTcpAllPorts</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span>, <span class='object_link'><a href="Handler/ReverseTcpSsl.html" title="Msf::Handler::ReverseTcpSsl (module)">ReverseTcpSsl</a></span>
+>>>>>>> origin/pod/metasploit-framework
+=======
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Handler/BindTcp.html" title="Msf::Handler::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Handler/FindPort.html" title="Msf::Handler::FindPort (module)">FindPort</a></span>, <span class='object_link'><a href="Handler/FindShell.html" title="Msf::Handler::FindShell (module)">FindShell</a></span>, <span class='object_link'><a href="Handler/FindTag.html" title="Msf::Handler::FindTag (module)">FindTag</a></span>, <span class='object_link'><a href="Handler/FindTty.html" title="Msf::Handler::FindTty (module)">FindTty</a></span>, <span class='object_link'><a href="Handler/None.html" title="Msf::Handler::None (module)">None</a></span>, <span class='object_link'><a href="Handler/ReverseHopHttp.html" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Handler/ReverseHttps.html" title="Msf::Handler::ReverseHttps (module)">ReverseHttps</a></span>, <span class='object_link'><a href="Handler/ReverseHttpsProxy.html" title="Msf::Handler::ReverseHttpsProxy (module)">ReverseHttpsProxy</a></span>, <span class='object_link'><a href="Handler/ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Handler/ReverseTcpAllPorts.html" title="Msf::Handler::ReverseTcpAllPorts (module)">ReverseTcpAllPorts</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="Handler/ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span>, <span class='object_link'><a href="Handler/ReverseTcpSsl.html" title="Msf::Handler::ReverseTcpSsl (module)">ReverseTcpSsl</a></span>
+>>>>>>> origin/pod/metasploit-windows.rb
+    
+  
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="Claimed-constant" class="">Claimed =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Returned by handlers to indicate that a socket has been claimed for use by
+the payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>claimed</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="Unused-constant" class="">Unused =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Returned by handlers to indicate that a socket has not been claimed for
+use.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unused</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#exploit_config-instance_method" title="#exploit_config (instance method)">- (Object) <strong>exploit_config</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set by the exploit module to configure handler.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parent_payload-instance_method" title="#parent_payload (instance method)">- (Object) <strong>parent_payload</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This will be non-nil if the handler has a parent payload that it was
+spawned from.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#pending_connections-instance_method" title="#pending_connections (instance method)">- (Object) <strong>pending_connections</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#session_waiter_event-instance_method" title="#session_waiter_event (instance method)">- (Object) <strong>session_waiter_event</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#sessions-instance_method" title="#sessions (instance method)">- (Object) <strong>sessions</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#general_handler_type-class_method" title="general_handler_type (class method)">+ (Object) <strong>general_handler_type</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the transport-independent handler type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handler_type-class_method" title="handler_type (class method)">+ (Object) <strong>handler_type</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the handler type.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_handler-instance_method" title="#add_handler (instance method)">- (Object) <strong>add_handler</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start another connection monitor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup_handler-instance_method" title="#cleanup_handler (instance method)">- (Object) <strong>cleanup_handler</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Terminates the connection handler.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#create_session-instance_method" title="#create_session (instance method)">- (Object) <strong>create_session</strong>(conn, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a session, if necessary, for the connection that&#39;s been
+handled.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_connection-instance_method" title="#handle_connection (instance method)">- (Object) <strong>handle_connection</strong>(conn, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Handles an established connection supplied in the in and out handles.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handler-instance_method" title="#handler (instance method)">- (Object) <strong>handler</strong>(sock) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks to see if a payload connection has been established on the supplied
+connection.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handler_name-instance_method" title="#handler_name (instance method)">- (Object) <strong>handler_name</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the handler&#39;s name, if any.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the session waiter event and other fun stuff.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#register_session-instance_method" title="#register_session (instance method)">- (Object) <strong>register_session</strong>(session) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Registers a session with the framework and notifies any waiters of the new
+session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup_handler-instance_method" title="#setup_handler (instance method)">- (Object) <strong>setup_handler</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets up the connection handler.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_handler-instance_method" title="#start_handler (instance method)">- (Object) <strong>start_handler</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start monitoring for a connection.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop_handler-instance_method" title="#stop_handler (instance method)">- (Object) <strong>stop_handler</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stop monitoring for a connection.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wait_for_session-instance_method" title="#wait_for_session (instance method)">- (Object) <strong>wait_for_session</strong>(t = wfs_delay) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Waits for a session to be created as the result of a handler connection
+coming in.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wfs_delay-instance_method" title="#wfs_delay (instance method)">- (Object) <strong>wfs_delay</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The amount of time to wait for a session to come in.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="exploit_config=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="exploit_config-instance_method">
+  
+    - (<tt>Object</tt>) <strong>exploit_config</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set by the exploit module to configure handler</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+169
+170
+171</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 169</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+168
+169
+170</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 168</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_exploit_config'>exploit_config</span>
+  <span class='ivar'>@exploit_config</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="parent_payload=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="parent_payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>parent_payload</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This will be non-nil if the handler has a parent payload that it was
+spawned from.  Right now, this is only the case with generic payloads.  The
+parent payload is used to create a session rather than using the instance
+itself.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+177
+178
+179</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 177</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+176
+177
+178</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 176</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parent_payload'>parent_payload</span>
+  <span class='ivar'>@parent_payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="pending_connections=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="pending_connections-instance_method">
+  
+    - (<tt>Object</tt>) <strong>pending_connections</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+257
+258
+259</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 257</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+256
+257
+258</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 256</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+249
+250
+251</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 249</span>
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pending_connections'>pending_connections</span>
+  <span class='ivar'>@pending_connections</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="session_waiter_event=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="session_waiter_event-instance_method">
+  
+    - (<tt>Object</tt>) <strong>session_waiter_event</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+256
+257
+258</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 256</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+255
+256
+257</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 255</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+248
+249
+250</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 248</span>
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span>
+  <span class='ivar'>@session_waiter_event</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sessions=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sessions-instance_method">
+  
+    - (<tt>Object</tt>) <strong>sessions</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+258
+259
+260</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 258</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+257
+258
+259</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 257</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+250
+251
+252</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 250</span>
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sessions'>sessions</span>
+  <span class='ivar'>@sessions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="general_handler_type-class_method">
+  
+    + (<tt>Object</tt>) <strong>general_handler_type</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the transport-independent handler type.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 61</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 60</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_general_handler_type'>general_handler_type</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>none</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handler_type-class_method">
+  
+    + (<tt>Object</tt>) <strong>handler_type</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the handler type.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 54</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+53
+54
+55</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 53</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_handler_type'>handler_type</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>none</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_handler</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start another connection monitor</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+110
+111</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 110</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+109
+110</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 109</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_handler'>add_handler</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>cleanup_handler</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Terminates the connection handler.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 98</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+97
+98</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 97</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup_handler'>cleanup_handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_session</strong>(conn, opts = {})  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a session, if necessary, for the connection that&#39;s been
+handled. Sessions are only created if the payload that&#39;s been mixed in
+has an associated session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+185
+>>>>>>> origin/gh-pages
+=======
+185
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+185
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+185
+>>>>>>> origin/pod/metasploit-framework
+=======
+185
+>>>>>>> origin/pod/metasploit-windows.rb
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+213
+214
+215
+216
+217
+218
+219
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+220
+221</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 186</span>
+=======
+213</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 185</span>
+>>>>>>> origin/gh-pages
+=======
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+220</pre>
+=======
+213</pre>
+>>>>>>> origin/gh-pages
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 185</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+220</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 185</span>
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># If there is a parent payload, then use that in preference.
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_parent_payload'>parent_payload</span><span class='period'>.</span><span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_parent_payload'>parent_payload</span><span class='rparen'>)</span>
+
+  <span class='comment'># If the payload we merged in with has an associated session factory,
+</span>  <span class='comment'># allocate a new session.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='comment'># We just wanna show and log the error, not trying to swallow it.
+</span>      <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_elog'>elog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span> <span class='op'>*</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>end</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+    <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+>>>>>>> origin/gh-pages
+>>>>>>> origin/pod/metasploit-framework
+=======
+=======
+    <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+>>>>>>> origin/gh-pages
+>>>>>>> origin/pod/metasploit-windows.rb
+
+    <span class='comment'># Pass along the framework context
+</span>    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+
+    <span class='comment'># Associate this system with the original exploit
+</span>    <span class='comment'># and any relevant information
+</span>    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_set_from_exploit'>set_from_exploit</span><span class='lparen'>(</span><span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span><span class='rparen'>)</span>
+
+    <span class='comment'># Pass along any associated payload uuid if specified
+</span>    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:payload_uuid</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:payload_uuid</span><span class='rbracket'>]</span>
+
+    <span class='comment'># If the session is valid, register it with the framework and
+</span>    <span class='comment'># notify any waiters we may have.
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_register_session'>register_session</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_s'>s</span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_connection-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_connection</strong>(conn, opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Handles an established connection supplied in the in and out handles.  The
+handles are passed as parameters in case this handler is capable of
+handling multiple simultaneous connections.  The default behavior is to
+attempt to create a session for the payload.  This path will not be taken
+for multi-staged payloads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 134</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+133
+134
+135</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 133</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_connection'>handle_connection</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handler</strong>(sock) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks to see if a payload connection has been established on the supplied
+connection.  This is necessary for find-sock style payloads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 124</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+123
+124</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 123</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handler'>handler</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handler_name-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handler_name</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the handler&#39;s name, if any.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 68</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 67</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handler_name'>handler_name</span>
+  <span class='id identifier rubyid_module_info'>module_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HandlerName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the session waiter event and other fun stuff.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+74
+>>>>>>> origin/gh-pages
+=======
+74
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+74
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+74
+>>>>>>> origin/pod/metasploit-framework
+=======
+74
+>>>>>>> origin/pod/metasploit-windows.rb
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 75</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 74</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='comment'># Initialize the pending_connections counter to 0
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pending_connections'>pending_connections</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># Initialize the sessions counter to 0
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># Create the waiter event with auto_reset set to false so that
+</span>  <span class='comment'># if a session is ever created, waiting on it returns immediately.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Sync</span><span class='op'>::</span><span class='const'>Event</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>false</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>register_session</strong>(session)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Registers a session with the framework and notifies any waiters of the new
+session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+219
+220
+221
+222
+223
+224
+225
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+226
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/gh-pages
+226
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+226
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/gh-pages
+226
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/gh-pages
+226
+>>>>>>> origin/pod/metasploit-windows.rb
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+246
+247
+248
+249
+250
+251
+252
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+253
+254</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 227</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+253</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 226</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+246</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 219</span>
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_session'>register_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+  <span class='comment'># Register the session with the framework
+</span>  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+
+  <span class='comment'># Call the handler&#39;s on_session() method
+</span>  <span class='id identifier rubyid_on_session'>on_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+
+  <span class='comment'># Process the auto-run scripts for this session
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>process_autoruns</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_process_autoruns'>process_autoruns</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If there is an exploit associated with this payload, then let&#39;s notify
+</span>  <span class='comment'># anyone who is interested that this exploit succeeded
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_exploit_success'>on_exploit_success</span><span class='lparen'>(</span><span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Notify waiters that they should be ready to rock
+</span>  <span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span><span class='period'>.</span><span class='id identifier rubyid_notify'>notify</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+
+  <span class='comment'># Decrement the pending connections counter now that we&#39;ve processed
+</span>  <span class='comment'># one session.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pending_connections'>pending_connections</span> <span class='op'>-=</span> <span class='int'>1</span>
+
+  <span class='comment'># Count the number of sessions we have registered
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>+=</span> <span class='int'>1</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>setup_handler</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets up the connection handler.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 92</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+91
+92</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 91</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup_handler'>setup_handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>start_handler</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start monitoring for a connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 104</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+103
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 103</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_handler'>start_handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stop_handler</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stop monitoring for a connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 116</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+115
+116</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 115</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop_handler'>stop_handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wait_for_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>wait_for_session</strong>(t = wfs_delay) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Waits for a session to be created as the result of a handler connection
+coming in.  The return value is a session object instance on success or nil
+if the timeout expires.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+149
+>>>>>>> origin/gh-pages
+=======
+149
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+149
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+149
+>>>>>>> origin/pod/metasploit-framework
+=======
+149
+>>>>>>> origin/pod/metasploit-windows.rb
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+163
+164</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 150</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+163</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 149</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wait_for_session'>wait_for_session</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='id identifier rubyid_wfs_delay'>wfs_delay</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If a connection has arrived, wait longer...
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_pending_connections'>pending_connections</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='id identifier rubyid_session_waiter_event'>session_waiter_event</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_session'>session</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wfs_delay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>wfs_delay</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The amount of time to wait for a session to come in.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 141</span>
+=======
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+140
+141
+142</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler.rb', line 140</span>
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/gh-pages
+=======
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wfs_delay'>wfs_delay</span>
+  <span class='int'>2</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  Generated on Tue Dec 22 22:30:10 2015 by
+=======
+  Generated on Tue Dec  8 22:30:07 2015 by
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+  Generated on Tue Dec  8 22:30:07 2015 by
+>>>>>>> origin/pod/metasploit-framework
+=======
+  Generated on Tue Dec  8 22:30:07 2015 by
+>>>>>>> origin/pod/metasploit-windows.rb
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:30:42 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  Generated on Tue Dec  8 22:30:07 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+</div>
+
+  </body>
+</html>

@@ -12,6 +12,53 @@ class ReadableText
   #Default number of characters to indent.
   DefaultIndent     = 2
 
+  def self.format_text(txt, fmt)
+    styles = {
+        :bold => '%bld',
+        :cyan =>'%cya',
+        :red => '%red',
+        :green => '%grn',
+        :blue => '%blu',
+        :yellow => '%yel',
+        :white => '%whi',
+        :magenta => '%mag',
+        :black => '%blk',
+        :dark_red => '%dred',
+        :dark_green => '%dgrn',
+        :dark_blue => '%dblu',
+        :dark_yellow => '%dyel',
+        :dark_cyan => '%dcya',
+        :dark_white => '%dwhi',
+        :dark_magenta => '%dmag',
+        :underline => '%und',
+        :plain => '%clr'
+    }
+
+    return "#{styles[fmt]}#{txt}%clr"
+  end
+
+  def self.md_parse(text)
+
+    lines = text.lines()
+    lines.map! do |line|
+      case line
+      when /^\s*#+\s*(.*)$/ # this regex looks for '#' character and captures rest of line
+        line = format_text(/^\s*#+\s*(.*)$/.match(line)[1], :bold)
+      when /^\s*$/ # this regex helps us ignore a line that is completely whitespace
+        line = ""
+      when /\*+([^\*]+)\*+/ # this regex helps us to detect words that are surrounded by asterisks
+        line.gsub(/\*+([^\*]+)\*+/, "%bld\\1%clr");
+      end
+    end
+
+
+    lines.join("\n")
+  end
+
+  def self.format_title(txt)
+    return format_text(txt, :underline)
+  end
+
   # Returns a formatted string that contains information about
   # the supplied module instance.
   #
@@ -165,33 +212,33 @@ class ReadableText
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
-    output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << " Privileged: " + (mod.privileged? ? format_text("yes", :green): format_text("no", :red)) + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
     output << "\n"
 
     # Targets
-    output << "Available targets:\n"
+    output << format_title("Available targets:\n")
     output << dump_exploit_targets(mod, indent)
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Payload information
     if (mod.payload_info.length)
-      output << "Payload information:\n"
+      output << format_title("Payload information:\n")
       if (mod.payload_space)
         output << indent + "Space: " + mod.payload_space.to_s + "\n"
       end
@@ -202,8 +249,8 @@ class ReadableText
     end
 
     # Description
-    output << "Description:\n"
-    output << word_wrap(Rex::Text.compress(mod.description))
+    output << format_title("Description:\n")
+    output << word_wrap(Rex::Text.compress(md_parse(mod.description)))
     output << "\n"
 
     # References
@@ -228,7 +275,7 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -236,19 +283,19 @@ class ReadableText
 
     # Actions
     if mod.action
-      output << "Available actions:\n"
+      output << format_title("Available actions:\n")
       output << dump_module_actions(mod, indent)
     end
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -274,7 +321,7 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -282,19 +329,19 @@ class ReadableText
 
     # Actions
     if mod.action
-      output << "Available actions:\n"
+      output << format_title("Available actions:\n")
       output << dump_module_actions(mod, indent)
     end
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -316,13 +363,13 @@ class ReadableText
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
     output << "       Arch: #{mod.arch_to_s}\n"
-    output << "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << "Needs Admin: " + (mod.privileged? ? format_text("yes", :green) : format_text("no", :red)) + "\n"
     output << " Total size: #{mod.size}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -330,13 +377,13 @@ class ReadableText
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n\n"
 
@@ -359,14 +406,14 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
     output << "\n"
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -408,7 +455,7 @@ class ReadableText
       next if (opt.evasion?)
       next if (missing && opt.valid?(val))
 
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+      tbl << [ name, opt.display_value(val), opt.required? ? format_text("yes", :green) : format_text("no", :red), opt.desc ]
     }
 
     return tbl.to_s
@@ -476,7 +523,7 @@ class ReadableText
     output = ''
 
     if (mod.respond_to? :references and mod.references and mod.references.length > 0)
-      output << "References:\n"
+      output << format_title("References:\n")
       mod.references.each { |ref|
         output << indent + ref.to_s + "\n"
       }
@@ -542,9 +589,9 @@ class ReadableText
       'Header'  => "Active sessions",
       'Columns' => columns)
 
-    framework.sessions.each_sorted { |k|
-      session = framework.sessions[k]
+    sorted_sessions = framework.sessions.list.sort_by(&:sid)
 
+    sorted_sessions.each { |session|
       sinfo = session.info.to_s
       # Arbitrarily cut it at 80 columns
       if sinfo.length > 80
@@ -559,7 +606,995 @@ class ReadableText
       tbl << row
     }
 
-    return framework.sessions.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n"
+    return sorted_sessions.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n"
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+  end
+
+  # Dumps the list of active sessions in verbose mode
+  #
+  # @param framework [Msf::Framework] the framework to dump.
+  # @param opts [Hash] the options to dump with.
+  # @option opts :session_ids [Array] the list of sessions to dump (no
+  #   effect).
+  # @return [String] the formatted list of sessions.
+  def self.dump_sessions_verbose(framework, opts={})
+    ids = (opts[:session_ids] || framework.sessions.keys).sort
+
+    out = "Active sessions\n" +
+          "===============\n\n"
+
+    if framework.sessions.length == 0
+      out << "No active sessions.\n"
+      return out
+    end
+
+    framework.sessions.each_sorted do |k|
+      session = framework.sessions[k]
+
+      sess_info    = session.info.to_s
+      sess_id      = session.sid.to_s
+      sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
+      sess_via     = session.via_exploit.to_s
+      sess_type    = session.type.to_s
+      sess_uuid    = session.payload_uuid.to_s
+      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+
+      sess_checkin = "<none>"
+      sess_machine_id = session.machine_id.to_s
+      sess_registration = "No"
+
+      if session.respond_to? :platform
+        sess_type << (" " + session.platform)
+      end
+
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+      end
+
+      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+        sess_registration = "Yes"
+        if uuid_info['name']
+          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        end
+      end
+
+      out << "  Session ID: #{sess_id}\n"
+      out << "        Type: #{sess_type}\n"
+      out << "        Info: #{sess_info}\n"
+      out << "      Tunnel: #{sess_tunnel}\n"
+      out << "         Via: #{sess_via}\n"
+      out << "        UUID: #{sess_uuid}\n"
+      out << "   MachineID: #{sess_machine_id}\n"
+      out << "     CheckIn: #{sess_checkin}\n"
+      out << "  Registered: #{sess_registration}\n"
+
+
+
+      out << "\n"
+    end
+
+    out << "\n"
+    return out
   end
 
   # Dumps the list of active sessions in verbose mode
@@ -658,6 +1693,40 @@ class ReadableText
       ctx = framework.jobs[k].ctx
       row = [ k, framework.jobs[k].name ]
       row << (ctx[1].nil? ? (ctx[0].datastore['PAYLOAD'] || "") : ctx[1].refname)
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+=======
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
       # Make the LPORT show the bind port if it's different
       local_port = ctx[0].datastore['LPORT']
@@ -667,6 +1736,102 @@ class ReadableText
         lport << " (#{bind_port})"
       end
       row << lport
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> origin/msf-complex-payloads
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> origin/msf-complex-payloads
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> origin/payload-generator.rb
+=======
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> origin/pod/metasploit-windows.rb
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+<<<<<<< HEAD
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+=======
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> msf-complex-payloads
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> msf-complex-payloads
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> payload-generator.rb
+<<<<<<< HEAD
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+<<<<<<< HEAD
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+      row << (ctx[0].datastore['LPORT'] || "")
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
       if (verbose)
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)

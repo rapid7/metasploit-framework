@@ -23,6 +23,29 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      => [ 'newpid0' ],
       'License'     => MSF_LICENSE
     )
+<<<<<<< HEAD
+=======
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/'])
+      ], self.class)
+  end
+
+  def os_fingerprint(response)
+    if not response.headers.has_key?('Server')
+      return "Unknown OS (No Server Header)"
+    end
+
+    case response.headers['Server']
+    when /Win32/, /\(Windows/, /IIS/
+      os = "Windows"
+    when /Apache\//
+      os = "*Nix"
+    else
+      os = "Unknown Server Header Reporting: "+response.headers['Server']
+    end
+    return os
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
   end
 
   def get_server_header

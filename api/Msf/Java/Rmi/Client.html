@@ -1,0 +1,1352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Java::Rmi::Client
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Java/Rmi/Client.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Java.html" title="Msf::Java (module)">Java</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Rmi.html" title="Msf::Java::Rmi (module)">Rmi</a></span></span>
+     &raquo; 
+    <span class="title">Client</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Java::Rmi::Client
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="../../Exploit/Remote/Tcp.html" title="Msf::Exploit::Remote::Tcp (module)">Exploit::Remote::Tcp</a></span>, <span class='object_link'><a href="Builder.html" title="Msf::Java::Rmi::Builder (module)">Builder</a></span>, <span class='object_link'><a href="Client/Jmx.html" title="Msf::Java::Rmi::Client::Jmx (module)">Jmx</a></span>, <span class='object_link'><a href="Client/Registry.html" title="Msf::Java::Rmi::Client::Registry (module)">Registry</a></span>, <span class='object_link'><a href="Util.html" title="Msf::Java::Rmi::Util (module)">Util</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/java/rmi/client.rb<span class="defines">,<br />
+  lib/msf/java/rmi/client/jmx.rb,<br /> lib/msf/java/rmi/client/registry.rb,<br /> lib/msf/java/rmi/client/jmx/server.rb,<br /> lib/msf/java/rmi/client/jmx/connection.rb,<br /> lib/msf/java/rmi/client/registry/parser.rb,<br /> lib/msf/java/rmi/client/registry/builder.rb,<br /> lib/msf/java/rmi/client/jmx/server/parser.rb,<br /> lib/msf/java/rmi/client/jmx/server/builder.rb,<br /> lib/msf/java/rmi/client/jmx/connection/builder.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Client/Jmx.html" title="Msf::Java::Rmi::Client::Jmx (module)">Jmx</a></span>, <span class='object_link'><a href="Client/Registry.html" title="Msf::Java::Rmi::Client::Registry (module)">Registry</a></span>
+    
+  
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="Client/Jmx.html" title="Msf::Java::Rmi::Client::Jmx (module)">Jmx</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Jmx.html#BYTE_ARRAY_UID-constant" title="Msf::Java::Rmi::Client::Jmx::BYTE_ARRAY_UID (constant)">Jmx::BYTE_ARRAY_UID</a></span>, <span class='object_link'><a href="Client/Jmx.html#MARSHALLED_OBJECT_UID-constant" title="Msf::Java::Rmi::Client::Jmx::MARSHALLED_OBJECT_UID (constant)">Jmx::MARSHALLED_OBJECT_UID</a></span>, <span class='object_link'><a href="Client/Jmx.html#OBJECT_ARRAY_UID-constant" title="Msf::Java::Rmi::Client::Jmx::OBJECT_ARRAY_UID (constant)">Jmx::OBJECT_ARRAY_UID</a></span>, <span class='object_link'><a href="Client/Jmx.html#OBJECT_NAME_UID-constant" title="Msf::Java::Rmi::Client::Jmx::OBJECT_NAME_UID (constant)">Jmx::OBJECT_NAME_UID</a></span>, <span class='object_link'><a href="Client/Jmx.html#STRING_ARRAY_UID-constant" title="Msf::Java::Rmi::Client::Jmx::STRING_ARRAY_UID (constant)">Jmx::STRING_ARRAY_UID</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Exploit/Remote/Tcp.html" title="Msf::Exploit::Remote::Tcp (module)">Exploit::Remote::Tcp</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Exploit/Remote/Tcp.html#sock-instance_method" title="Msf::Exploit::Remote::Tcp#sock (method)">#sock</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#peer-instance_method" title="#peer (instance method)">- (String) <strong>peer</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the RMI server peer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv_protocol_ack-instance_method" title="#recv_protocol_ack (instance method)">- (Rex::Proto::Rmi::Model::ProtocolAck, NilClass) <strong>recv_protocol_ack</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads the Protocol Ack.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv_return-instance_method" title="#recv_return (instance method)">- (Rex::Proto::Rmi::Model::ReturnValue, NilClass) <strong>recv_return</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads a ReturnData message and returns the java serialized stream with the
+return data value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rhost-instance_method" title="#rhost (instance method)">- (String) <strong>rhost</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the target host.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rport-instance_method" title="#rport (instance method)">- (Fixnum) <strong>rport</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the target port.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#safe_get_once-instance_method" title="#safe_get_once (instance method)">- (String) <strong>safe_get_once</strong>(nsock = sock) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Helper method to read fragmented data from a “`Rex::Socket::Tcp“`.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_call-instance_method" title="#send_call (instance method)">- (Fixnum) <strong>send_call</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends a RMI CALL stream.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_dgc_ack-instance_method" title="#send_dgc_ack (instance method)">- (Fixnum) <strong>send_dgc_ack</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends a RMI DGCACK stream.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_header-instance_method" title="#send_header (instance method)">- (Fixnum) <strong>send_header</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends a RMI header stream.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Exploit/Remote/Tcp.html" title="Msf::Exploit::Remote::Tcp (module)">Exploit::Remote::Tcp</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Exploit/Remote/Tcp.html#chost-instance_method" title="Msf::Exploit::Remote::Tcp#chost (method)">#chost</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#cleanup-instance_method" title="Msf::Exploit::Remote::Tcp#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#connect-instance_method" title="Msf::Exploit::Remote::Tcp#connect (method)">#connect</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#connect_timeout-instance_method" title="Msf::Exploit::Remote::Tcp#connect_timeout (method)">#connect_timeout</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#cport-instance_method" title="Msf::Exploit::Remote::Tcp#cport (method)">#cport</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#disconnect-instance_method" title="Msf::Exploit::Remote::Tcp#disconnect (method)">#disconnect</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#handler-instance_method" title="Msf::Exploit::Remote::Tcp#handler (method)">#handler</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#initialize-instance_method" title="Msf::Exploit::Remote::Tcp#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#lhost-instance_method" title="Msf::Exploit::Remote::Tcp#lhost (method)">#lhost</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#lport-instance_method" title="Msf::Exploit::Remote::Tcp#lport (method)">#lport</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#proxies-instance_method" title="Msf::Exploit::Remote::Tcp#proxies (method)">#proxies</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#set_tcp_evasions-instance_method" title="Msf::Exploit::Remote::Tcp#set_tcp_evasions (method)">#set_tcp_evasions</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#ssl-instance_method" title="Msf::Exploit::Remote::Tcp#ssl (method)">#ssl</a></span>, <span class='object_link'><a href="../../Exploit/Remote/Tcp.html#ssl_version-instance_method" title="Msf::Exploit::Remote::Tcp#ssl_version (method)">#ssl_version</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Client/Jmx/Connection.html" title="Msf::Java::Rmi::Client::Jmx::Connection (module)">Jmx::Connection</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Jmx/Connection.html#build_invoke_arguments_obj_bytes-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection#build_invoke_arguments_obj_bytes (method)">#build_invoke_arguments_obj_bytes</a></span>, <span class='object_link'><a href="Client/Jmx/Connection.html#build_jmx_invoke-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection#build_jmx_invoke (method)">#build_jmx_invoke</a></span>, <span class='object_link'><a href="Client/Jmx/Connection.html#build_jmx_invoke_args-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection#build_jmx_invoke_args (method)">#build_jmx_invoke_args</a></span>, <span class='object_link'><a href="Client/Jmx/Connection.html#send_jmx_create_mbean-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection#send_jmx_create_mbean (method)">#send_jmx_create_mbean</a></span>, <span class='object_link'><a href="Client/Jmx/Connection.html#send_jmx_get_object_instance-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection#send_jmx_get_object_instance (method)">#send_jmx_get_object_instance</a></span>, <span class='object_link'><a href="Client/Jmx/Connection.html#send_jmx_invoke-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection#send_jmx_invoke (method)">#send_jmx_invoke</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Client/Jmx/Connection/Builder.html" title="Msf::Java::Rmi::Client::Jmx::Connection::Builder (module)">Jmx::Connection::Builder</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Jmx/Connection/Builder.html#build_jmx_create_mbean-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection::Builder#build_jmx_create_mbean (method)">#build_jmx_create_mbean</a></span>, <span class='object_link'><a href="Client/Jmx/Connection/Builder.html#build_jmx_create_mbean_args-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection::Builder#build_jmx_create_mbean_args (method)">#build_jmx_create_mbean_args</a></span>, <span class='object_link'><a href="Client/Jmx/Connection/Builder.html#build_jmx_get_object_instance-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection::Builder#build_jmx_get_object_instance (method)">#build_jmx_get_object_instance</a></span>, <span class='object_link'><a href="Client/Jmx/Connection/Builder.html#build_jmx_get_object_instance_args-instance_method" title="Msf::Java::Rmi::Client::Jmx::Connection::Builder#build_jmx_get_object_instance_args (method)">#build_jmx_get_object_instance_args</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Client/Jmx/Server.html" title="Msf::Java::Rmi::Client::Jmx::Server (module)">Jmx::Server</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Jmx/Server.html#send_new_client-instance_method" title="Msf::Java::Rmi::Client::Jmx::Server#send_new_client (method)">#send_new_client</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Client/Jmx/Server/Parser.html" title="Msf::Java::Rmi::Client::Jmx::Server::Parser (module)">Jmx::Server::Parser</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Jmx/Server/Parser.html#parse_jmx_new_client_endpoint-instance_method" title="Msf::Java::Rmi::Client::Jmx::Server::Parser#parse_jmx_new_client_endpoint (method)">#parse_jmx_new_client_endpoint</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Client/Jmx/Server/Builder.html" title="Msf::Java::Rmi::Client::Jmx::Server::Builder (module)">Jmx::Server::Builder</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Jmx/Server/Builder.html#build_jmx_new_client-instance_method" title="Msf::Java::Rmi::Client::Jmx::Server::Builder#build_jmx_new_client (method)">#build_jmx_new_client</a></span>, <span class='object_link'><a href="Client/Jmx/Server/Builder.html#build_jmx_new_client_args-instance_method" title="Msf::Java::Rmi::Client::Jmx::Server::Builder#build_jmx_new_client_args (method)">#build_jmx_new_client_args</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Client/Registry.html" title="Msf::Java::Rmi::Client::Registry (module)">Registry</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Registry.html#registry_interface_hash-instance_method" title="Msf::Java::Rmi::Client::Registry#registry_interface_hash (method)">#registry_interface_hash</a></span>, <span class='object_link'><a href="Client/Registry.html#send_registry_list-instance_method" title="Msf::Java::Rmi::Client::Registry#send_registry_list (method)">#send_registry_list</a></span>, <span class='object_link'><a href="Client/Registry.html#send_registry_lookup-instance_method" title="Msf::Java::Rmi::Client::Registry#send_registry_lookup (method)">#send_registry_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Client/Registry/Parser.html" title="Msf::Java::Rmi::Client::Registry::Parser (module)">Registry::Parser</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Registry/Parser.html#parse_registry_list-instance_method" title="Msf::Java::Rmi::Client::Registry::Parser#parse_registry_list (method)">#parse_registry_list</a></span>, <span class='object_link'><a href="Client/Registry/Parser.html#parse_registry_lookup_endpoint-instance_method" title="Msf::Java::Rmi::Client::Registry::Parser#parse_registry_lookup_endpoint (method)">#parse_registry_lookup_endpoint</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Client/Registry/Builder.html" title="Msf::Java::Rmi::Client::Registry::Builder (module)">Registry::Builder</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Client/Registry/Builder.html#build_registry_list-instance_method" title="Msf::Java::Rmi::Client::Registry::Builder#build_registry_list (method)">#build_registry_list</a></span>, <span class='object_link'><a href="Client/Registry/Builder.html#build_registry_lookup-instance_method" title="Msf::Java::Rmi::Client::Registry::Builder#build_registry_lookup (method)">#build_registry_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Builder.html" title="Msf::Java::Rmi::Builder (module)">Builder</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Builder.html#build_call-instance_method" title="Msf::Java::Rmi::Builder#build_call (method)">#build_call</a></span>, <span class='object_link'><a href="Builder.html#build_dgc_ack-instance_method" title="Msf::Java::Rmi::Builder#build_dgc_ack (method)">#build_dgc_ack</a></span>, <span class='object_link'><a href="Builder.html#build_header-instance_method" title="Msf::Java::Rmi::Builder#build_header (method)">#build_header</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Util.html" title="Msf::Java::Rmi::Util (module)">Util</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Util.html#calculate_interface_hash-instance_method" title="Msf::Java::Rmi::Util#calculate_interface_hash (method)">#calculate_interface_hash</a></span>, <span class='object_link'><a href="Util.html#calculate_method_hash-instance_method" title="Msf::Java::Rmi::Util#calculate_method_hash (method)">#calculate_method_hash</a></span>, <span class='object_link'><a href="Util.html#extract_int-instance_method" title="Msf::Java::Rmi::Util#extract_int (method)">#extract_int</a></span>, <span class='object_link'><a href="Util.html#extract_long-instance_method" title="Msf::Java::Rmi::Util#extract_long (method)">#extract_long</a></span>, <span class='object_link'><a href="Util.html#extract_reference-instance_method" title="Msf::Java::Rmi::Util#extract_reference (method)">#extract_reference</a></span>, <span class='object_link'><a href="Util.html#extract_string-instance_method" title="Msf::Java::Rmi::Util#extract_string (method)">#extract_string</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="peer-instance_method">
+  
+    - (<tt>String</tt>) <strong>peer</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the RMI server peer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_peer'>peer</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rhost'>rhost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rport'>rport</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv_protocol_ack-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../Rex/Proto/Rmi/Model/ProtocolAck.html" title="Rex::Proto::Rmi::Model::ProtocolAck (class)">Rex::Proto::Rmi::Model::ProtocolAck</a></span></tt>, <tt>NilClass</tt>) <strong>recv_protocol_ack</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads the Protocol Ack</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:sock</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Socket/Tcp.html" title="Rex::Socket::Tcp (module)">Rex::Socket::Tcp</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Proto/Rmi/Model/ProtocolAck.html" title="Rex::Proto::Rmi::Model::ProtocolAck (class)">Rex::Proto::Rmi::Model::ProtocolAck</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if success</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NilClass</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>Rex::Proto::Rmi::Model::ProtocolAck.decode</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv_protocol_ack'>recv_protocol_ack</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sock</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_safe_get_once'>safe_get_once</span><span class='lparen'>(</span><span class='id identifier rubyid_nsock'>nsock</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_ack'>ack</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Rmi</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>ProtocolAck</span><span class='period'>.</span><span class='id identifier rubyid_decode'>decode</span><span class='lparen'>(</span><span class='const'>StringIO</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Rmi</span><span class='op'>::</span><span class='const'>DecodeError</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ack'>ack</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv_return-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../Rex/Proto/Rmi/Model/ReturnValue.html" title="Rex::Proto::Rmi::Model::ReturnValue (class)">Rex::Proto::Rmi::Model::ReturnValue</a></span></tt>, <tt>NilClass</tt>) <strong>recv_return</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads a ReturnData message and returns the java serialized stream with the
+return data value.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:sock</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Socket/Tcp.html" title="Rex::Socket::Tcp (module)">Rex::Socket::Tcp</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Proto/Rmi/Model/ReturnValue.html" title="Rex::Proto::Rmi::Model::ReturnValue (class)">Rex::Proto::Rmi::Model::ReturnValue</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if success</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NilClass</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>Rex::Proto::Rmi::Model::ReturnData.decode</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 107</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv_return'>recv_return</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sock</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_safe_get_once'>safe_get_once</span><span class='lparen'>(</span><span class='id identifier rubyid_nsock'>nsock</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_return_data'>return_data</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Rmi</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>ReturnData</span><span class='period'>.</span><span class='id identifier rubyid_decode'>decode</span><span class='lparen'>(</span><span class='const'>StringIO</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Rmi</span><span class='op'>::</span><span class='const'>DecodeError</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_return_data'>return_data</span><span class='period'>.</span><span class='id identifier rubyid_return_value'>return_value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rhost-instance_method">
+  
+    - (<tt>String</tt>) <strong>rhost</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the target host</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rhost'>rhost</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rport-instance_method">
+  
+    - (<tt>Fixnum</tt>) <strong>rport</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the target port</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rport'>rport</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="safe_get_once-instance_method">
+  
+    - (<tt>String</tt>) <strong>safe_get_once</strong>(nsock = sock) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Helper method to read fragmented data from a “`Rex::Socket::Tcp“`</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>nsock</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Socket/Tcp.html" title="Rex::Socket::Tcp (module)">Rex::Socket::Tcp</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>sock</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_safe_get_once'>safe_get_once</span><span class='lparen'>(</span><span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_nsock'>nsock</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>EOFError</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>until</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>1448</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_res'>res</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_nsock'>nsock</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>EOFError</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_res'>res</span> <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span>
+  <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_call-instance_method">
+  
+    - (<tt>Fixnum</tt>) <strong>send_call</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sends a RMI CALL stream</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:sock</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Socket/Tcp.html" title="Rex::Socket::Tcp (module)">Rex::Socket::Tcp</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:call</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Proto/Rmi/Model/Call.html" title="Rex::Proto::Rmi::Model::Call (class)">Rex::Proto::Rmi::Model::Call</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the number of bytes sent</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>Rmi::Client::Streams#build_call</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_call'>send_call</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sock</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='id identifier rubyid_call'>call</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:call</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_build_call'>build_call</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nsock'>nsock</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_call'>call</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_dgc_ack-instance_method">
+  
+    - (<tt>Fixnum</tt>) <strong>send_dgc_ack</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sends a RMI DGCACK stream</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:sock</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Socket/Tcp.html" title="Rex::Socket::Tcp (module)">Rex::Socket::Tcp</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the number of bytes sent</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>Rmi::Client::Streams#build_dgc_ack</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_dgc_ack'>send_dgc_ack</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sock</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='id identifier rubyid_stream'>stream</span> <span class='op'>=</span> <span class='id identifier rubyid_build_dgc_ack'>build_dgc_ack</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nsock'>nsock</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_header-instance_method">
+  
+    - (<tt>Fixnum</tt>) <strong>send_header</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sends a RMI header stream</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:sock</span>
+          <span class="type">(<tt><span class='object_link'><a href="../../../Rex/Socket/Tcp.html" title="Rex::Socket::Tcp (module)">Rex::Socket::Tcp</a></span></tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the number of bytes sent</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>Rmi::Client::Streams#build_header</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/java/rmi/client.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_header'>send_header</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sock</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='id identifier rubyid_stream'>stream</span> <span class='op'>=</span> <span class='id identifier rubyid_build_header'>build_header</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nsock'>nsock</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Tue Sep  1 22:30:46 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+</div>
+
+  </body>
+</html>

@@ -9,7 +9,131 @@ require 'msf/core'
 
 module Metasploit3
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
   CachedSize = 313
+=======
+  CachedSize = 314
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+  CachedSize = 314
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 314
+>>>>>>> origin/msf-complex-payloads
+=======
+  CachedSize = 314
+>>>>>>> origin/msf-complex-payloads
+=======
+  CachedSize = 314
+>>>>>>> origin/payload-generator.rb
+=======
+<<<<<<< HEAD
+  CachedSize = 313
+=======
+  CachedSize = 314
+=======
+  CachedSize = 313
+=======
+  CachedSize = 314
+>>>>>>> origin/pod/metasploit-excellent.mp3
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+  CachedSize = 314
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 314
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+  CachedSize = 313
+=======
+  CachedSize = 314
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+=======
+=======
+  CachedSize = 313
+=======
+  CachedSize = 314
+>>>>>>> 4.11.2_release_pre-rails4
+>>>>>>> origin/pod/metasploit-windows.rb
+=======
+  CachedSize = 314
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 314
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 314
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 314
+>>>>>>> 4.11.2_release_pre-rails4
+=======
+  CachedSize = 314
+>>>>>>> msf-complex-payloads
+=======
+  CachedSize = 314
+>>>>>>> msf-complex-payloads
+=======
+  CachedSize = 314
+>>>>>>> payload-generator.rb
+<<<<<<< HEAD
+=======
+  CachedSize = 314
+>>>>>>> pod/metasploit-gemfile-
+>>>>>>> pod/metasploit-inject.vcxproj.filters-master_0
+>>>>>>> origin/pod/metasploit-framework
+=======
+  CachedSize = 314
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 314
+<<<<<<< HEAD
+>>>>>>> 4.11.2_release_pre-rails4
+<<<<<<< HEAD
+=======
+  CachedSize = 314
+>>>>>>> msf-complex-payloads
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+  CachedSize = 314
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+  CachedSize = 314
+=======
+  CachedSize = 313
+>>>>>>> rapid7/master
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  CachedSize = 314
+>>>>>>> origin/pod/metasploit-gemfile-
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

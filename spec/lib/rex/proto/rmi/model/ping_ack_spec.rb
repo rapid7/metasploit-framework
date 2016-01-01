@@ -4,7 +4,11 @@ require 'spec_helper'
 require 'stringio'
 require 'rex/proto/rmi'
 
+<<<<<<< HEAD
 RSpec.describe Rex::Proto::Rmi::Model::PingAck do
+=======
+describe Rex::Proto::Rmi::Model::PingAck do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
 
   subject(:ping_ack) do
     described_class.new

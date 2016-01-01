@@ -3,7 +3,35 @@ require 'spec_helper'
 
 require 'net/dns'
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Net::DNS::RR::Types do
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/payload-generator.rb
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Net::DNS::RR::Types do
+>>>>>>> origin/pod/metasploit-gemfile-
 
   subject do
     described_class.new

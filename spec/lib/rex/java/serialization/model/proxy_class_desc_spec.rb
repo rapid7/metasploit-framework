@@ -4,7 +4,31 @@ require 'spec_helper'
 require 'rex/java'
 require 'stringio'
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Rex::Java::Serialization::Model::ProxyClassDesc do
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/payload-generator.rb
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Rex::Java::Serialization::Model::ProxyClassDesc do
+>>>>>>> origin/pod/metasploit-gemfile-
   subject(:proxy_class_desc) do
     described_class.new
   end

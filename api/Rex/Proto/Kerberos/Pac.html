@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Proto::Kerberos::Pac
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Proto/Kerberos/Pac.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span>
+     &raquo; 
+    <span class="title">Pac</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Proto::Kerberos::Pac
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Pac/Element.html" title="Rex::Proto::Kerberos::Pac::Element (class)">Element</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto/kerberos/pac.rb<span class="defines">,<br />
+  lib/rex/proto/kerberos/pac/type.rb,<br /> lib/rex/proto/kerberos/pac/element.rb,<br /> lib/rex/proto/kerberos/pac/logon_info.rb,<br /> lib/rex/proto/kerberos/pac/client_info.rb,<br /> lib/rex/proto/kerberos/pac/server_checksum.rb,<br /> lib/rex/proto/kerberos/pac/priv_svr_checksum.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Pac/ClientInfo.html" title="Rex::Proto::Kerberos::Pac::ClientInfo (class)">ClientInfo</a></span>, <span class='object_link'><a href="Pac/Element.html" title="Rex::Proto::Kerberos::Pac::Element (class)">Element</a></span>, <span class='object_link'><a href="Pac/LogonInfo.html" title="Rex::Proto::Kerberos::Pac::LogonInfo (class)">LogonInfo</a></span>, <span class='object_link'><a href="Pac/PrivSvrChecksum.html" title="Rex::Proto::Kerberos::Pac::PrivSvrChecksum (class)">PrivSvrChecksum</a></span>, <span class='object_link'><a href="Pac/ServerChecksum.html" title="Rex::Proto::Kerberos::Pac::ServerChecksum (class)">ServerChecksum</a></span>, <span class='object_link'><a href="Pac/Type.html" title="Rex::Proto::Kerberos::Pac::Type (class)">Type</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="VERSION-constant" class="">VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="NETLOGON_FLAG-constant" class="">NETLOGON_FLAG =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x20000</span></pre></dd>
+      
+        <dt id="SE_GROUP_MANDATORY-constant" class="">SE_GROUP_MANDATORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="SE_GROUP_ENABLED_BY_DEFAULT-constant" class="">SE_GROUP_ENABLED_BY_DEFAULT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="SE_GROUP_ENABLED-constant" class="">SE_GROUP_ENABLED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="SE_GROUP_ALL-constant" class="">SE_GROUP_ALL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>SE_GROUP_MANDATORY</span> <span class='op'>|</span> <span class='const'>SE_GROUP_ENABLED_BY_DEFAULT</span> <span class='op'>|</span> <span class='const'>SE_GROUP_ENABLED</span></pre></dd>
+      
+        <dt id="USER_NORMAL_ACCOUNT-constant" class="">USER_NORMAL_ACCOUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00000010</span></pre></dd>
+      
+        <dt id="USER_DONT_EXPIRE_PASSWORD-constant" class="">USER_DONT_EXPIRE_PASSWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00000200</span></pre></dd>
+      
+        <dt id="PAC_LOGON_INFO-constant" class="">PAC_LOGON_INFO =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="PAC_SERVER_CHECKSUM-constant" class="">PAC_SERVER_CHECKSUM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="PAC_PRIVSVR_CHECKSUM-constant" class="">PAC_PRIVSVR_CHECKSUM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="PAC_CLIENT_INFO-constant" class="">PAC_CLIENT_INFO =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="AD_WIN2K_PAC-constant" class="">AD_WIN2K_PAC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>128</span></pre></dd>
+      
+        <dt id="SEC_TO_UNIX_EPOCH-constant" class="">SEC_TO_UNIX_EPOCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11644473600</span></pre></dd>
+      
+        <dt id="WINDOWS_TICK-constant" class="">WINDOWS_TICK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10000000</span></pre></dd>
+      
+        <dt id="NEVER_EXPIRE-constant" class="">NEVER_EXPIRE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x7fffffffffffffff</span></pre></dd>
+      
+        <dt id="DOMAIN_USERS-constant" class="">DOMAIN_USERS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>513</span></pre></dd>
+      
+        <dt id="DEFAULT_USER_SID-constant" class="">DEFAULT_USER_SID =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1000</span></pre></dd>
+      
+        <dt id="NT_AUTHORITY_SID-constant" class="">NT_AUTHORITY_SID =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>S-1-5</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  Generated on Tue Dec 22 22:33:19 2015 by
+=======
+  Generated on Tue Dec  8 22:33:23 2015 by
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+  Generated on Tue Dec  8 22:33:23 2015 by
+>>>>>>> origin/pod/metasploit-framework
+=======
+  Generated on Tue Dec  8 22:33:23 2015 by
+>>>>>>> origin/pod/metasploit-windows.rb
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:33:39 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  Generated on Tue Dec  8 22:33:23 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+</div>
+
+  </body>
+</html>

@@ -3,7 +3,35 @@ require 'spec_helper'
 
 require 'msf/core/post/linux/busy_box'
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 RSpec.describe Msf::Post::Linux::BusyBox do
+=======
+describe Msf::Post::Linux::BusyBox do
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+describe Msf::Post::Linux::BusyBox do
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+describe Msf::Post::Linux::BusyBox do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Msf::Post::Linux::BusyBox do
+>>>>>>> origin/msf-complex-payloads
+=======
+describe Msf::Post::Linux::BusyBox do
+>>>>>>> origin/payload-generator.rb
+=======
+describe Msf::Post::Linux::BusyBox do
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+describe Msf::Post::Linux::BusyBox do
+>>>>>>> origin/pod/metasploit-gemfile-
   subject do
     mod = ::Msf::Module.new
     mod.extend described_class

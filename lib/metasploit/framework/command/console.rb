@@ -7,7 +7,13 @@ require 'metasploit/framework/command/base'
 
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::Base
+  extend ActiveSupport::Autoload
 
+<<<<<<< HEAD
+  autoload :Driver
+  autoload :Spinner
+  autoload :SupervisionGroup
+=======
   # Provides an animated spinner in a seperate thread.
   #
   # See GitHub issue #4147, as this may be blocking some
@@ -38,36 +44,29 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       end
     end
   end
+>>>>>>> rapid7/master
 
   def start
     case parsed_options.options.subcommand
     when :version
       $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
     else
-      spinner unless parsed_options.options.console.quiet
-      driver.run
+      # start Celluloid::SupervisionGroup
+      supervision_group
+
+      unless parsed_options.options.console.quiet
+        supervision_group[:metasploit_framework_command_console_spinner].async.spin
+      end
+
+      supervision_group[:metasploit_framework_command_console_driver].run(driver_options)
     end
+  end
+
+  def supervision_group
+    @supervision_group ||= Metasploit::Framework::Command::Console::SupervisionGroup.run!
   end
 
   private
-
-  # The console UI driver.
-  #
-  # @return [Msf::Ui::Console::Driver]
-  def driver
-    unless @driver
-      # require here so minimum loading is done before {start} is called.
-      require 'msf/ui'
-
-      @driver = Msf::Ui::Console::Driver.new(
-          Msf::Ui::Console::Driver::DefaultPrompt,
-          Msf::Ui::Console::Driver::DefaultPromptChar,
-          driver_options
-      )
-    end
-
-    @driver
-  end
 
   def driver_options
     unless @driver_options

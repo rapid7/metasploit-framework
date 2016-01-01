@@ -652,7 +652,35 @@ RSpec.describe Msf::PayloadGenerator do
       }
 
       it 'calls generate_java_payload' do
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
         expect(payload_generator).to receive(:generate_java_payload).and_call_original
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/4.11.2_release_pre-rails4
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/msf-complex-payloads
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/msf-complex-payloads
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/payload-generator.rb
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+        payload_generator.should_receive(:generate_java_payload).and_call_original
+>>>>>>> origin/pod/metasploit-gemfile-
         payload_generator.generate_payload
       end
     end

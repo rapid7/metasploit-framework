@@ -10,7 +10,62 @@ class Metasploit3 < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
   include Msf::Exploit::Remote::SMB::Client::RemotePaths
+=======
+>>>>>>> origin/chore/MSP-12110/celluloid-supervision-tree
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
+=======
+=======
+<<<<<<< HEAD
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> origin/pod/metasploit-framework
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-framework
+=======
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
+>>>>>>> origin/pod/metasploit-serialized_class_loader
+=======
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+=======
+>>>>>>> chore/MSP-12110/celluloid-supervision-tree
+>>>>>>> origin/pod/metasploit-windows.rb
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -40,6 +95,13 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
   end
 
+<<<<<<< HEAD
+=======
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+>>>>>>> origin/pod/metasploit-serialized_class_loader
   def smb_delete_files
     vprint_status("#{peer}: Connecting to the server...")
     connect()

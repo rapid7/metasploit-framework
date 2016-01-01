@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Proto::Kerberos
+  
+    &mdash; Documentation by YARD 0.8.7.6
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Proto/Kerberos.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Proto.html" title="Rex::Proto (module)">Proto</a></span></span>
+     &raquo; 
+    <span class="title">Kerberos</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Proto::Kerberos
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/proto/kerberos/pac.rb<span class="defines">,<br />
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+  lib/rex/proto/kerberos/model.rb,<br /> lib/rex/proto/kerberos/client.rb,<br /> lib/rex/proto/kerberos/crypto.rb,<br /> lib/rex/proto/kerberos/pac/type.rb,<br /> lib/rex/proto/kerberos/pac/element.rb,<br /> lib/rex/proto/kerberos/model/ap_req.rb,<br /> lib/rex/proto/kerberos/model/ticket.rb,<br /> lib/rex/proto/kerberos/model/element.rb,<br /> lib/rex/proto/kerberos/crypto/rsa_md5.rb,<br /> lib/rex/proto/kerberos/model/checksum.rb,<br /> lib/rex/proto/kerberos/pac/logon_info.rb,<br /> lib/rex/proto/kerberos/pac/client_info.rb,<br /> lib/rex/proto/kerberos/model/krb_error.rb,<br /> lib/rex/proto/kerberos/crypto/rc4_hmac.rb,<br /> lib/rex/proto/kerberos/credential_cache.rb,<br /> lib/rex/proto/kerberos/model/kdc_request.rb,<br /> lib/rex/proto/kerberos/model/kdc_response.rb,<br /> lib/rex/proto/kerberos/model/last_request.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_data.rb,<br /> lib/rex/proto/kerberos/pac/server_checksum.rb,<br /> lib/rex/proto/kerberos/model/authenticator.rb,<br /> lib/rex/proto/kerberos/model/encrypted_data.rb,<br /> lib/rex/proto/kerberos/model/principal_name.rb,<br /> lib/rex/proto/kerberos/model/encryption_key.rb,<br /> lib/rex/proto/kerberos/credential_cache/time.rb,<br /> lib/rex/proto/kerberos/pac/priv_svr_checksum.rb,<br /> lib/rex/proto/kerberos/model/enc_kdc_response.rb,<br /> lib/rex/proto/kerberos/credential_cache/cache.rb,<br /> lib/rex/proto/kerberos/model/kdc_request_body.rb,<br /> lib/rex/proto/kerberos/credential_cache/element.rb,<br /> lib/rex/proto/kerberos/model/authorization_data.rb,<br /> lib/rex/proto/kerberos/credential_cache/key_block.rb,<br /> lib/rex/proto/kerberos/credential_cache/principal.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pac_request.rb,<br /> lib/rex/proto/kerberos/credential_cache/credential.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_enc_time_stamp.rb</span>
+=======
+  lib/rex/proto/kerberos/model.rb,<br /> lib/rex/proto/kerberos/client.rb,<br /> lib/rex/proto/kerberos/crypto.rb,<br /> lib/rex/proto/kerberos/pac/type.rb,<br /> lib/rex/proto/kerberos/pac/element.rb,<br /> lib/rex/proto/kerberos/model/ticket.rb,<br /> lib/rex/proto/kerberos/model/ap_req.rb,<br /> lib/rex/proto/kerberos/model/element.rb,<br /> lib/rex/proto/kerberos/pac/logon_info.rb,<br /> lib/rex/proto/kerberos/model/checksum.rb,<br /> lib/rex/proto/kerberos/crypto/rsa_md5.rb,<br /> lib/rex/proto/kerberos/pac/client_info.rb,<br /> lib/rex/proto/kerberos/crypto/rc4_hmac.rb,<br /> lib/rex/proto/kerberos/model/krb_error.rb,<br /> lib/rex/proto/kerberos/credential_cache.rb,<br /> lib/rex/proto/kerberos/model/kdc_request.rb,<br /> lib/rex/proto/kerberos/model/kdc_response.rb,<br /> lib/rex/proto/kerberos/model/last_request.rb,<br /> lib/rex/proto/kerberos/model/authenticator.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_data.rb,<br /> lib/rex/proto/kerberos/pac/server_checksum.rb,<br /> lib/rex/proto/kerberos/model/encrypted_data.rb,<br /> lib/rex/proto/kerberos/model/encryption_key.rb,<br /> lib/rex/proto/kerberos/model/principal_name.rb,<br /> lib/rex/proto/kerberos/pac/priv_svr_checksum.rb,<br /> lib/rex/proto/kerberos/credential_cache/time.rb,<br /> lib/rex/proto/kerberos/model/enc_kdc_response.rb,<br /> lib/rex/proto/kerberos/model/kdc_request_body.rb,<br /> lib/rex/proto/kerberos/credential_cache/cache.rb,<br /> lib/rex/proto/kerberos/credential_cache/element.rb,<br /> lib/rex/proto/kerberos/model/authorization_data.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pac_request.rb,<br /> lib/rex/proto/kerberos/credential_cache/key_block.rb,<br /> lib/rex/proto/kerberos/credential_cache/principal.rb,<br /> lib/rex/proto/kerberos/credential_cache/credential.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_enc_time_stamp.rb</span>
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  lib/rex/proto/kerberos/model.rb,<br /> lib/rex/proto/kerberos/client.rb,<br /> lib/rex/proto/kerberos/crypto.rb,<br /> lib/rex/proto/kerberos/pac/type.rb,<br /> lib/rex/proto/kerberos/pac/element.rb,<br /> lib/rex/proto/kerberos/model/ap_req.rb,<br /> lib/rex/proto/kerberos/model/ticket.rb,<br /> lib/rex/proto/kerberos/model/element.rb,<br /> lib/rex/proto/kerberos/crypto/rsa_md5.rb,<br /> lib/rex/proto/kerberos/model/checksum.rb,<br /> lib/rex/proto/kerberos/pac/logon_info.rb,<br /> lib/rex/proto/kerberos/pac/client_info.rb,<br /> lib/rex/proto/kerberos/model/krb_error.rb,<br /> lib/rex/proto/kerberos/crypto/rc4_hmac.rb,<br /> lib/rex/proto/kerberos/credential_cache.rb,<br /> lib/rex/proto/kerberos/model/kdc_request.rb,<br /> lib/rex/proto/kerberos/model/kdc_response.rb,<br /> lib/rex/proto/kerberos/model/last_request.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_data.rb,<br /> lib/rex/proto/kerberos/pac/server_checksum.rb,<br /> lib/rex/proto/kerberos/model/authenticator.rb,<br /> lib/rex/proto/kerberos/model/encrypted_data.rb,<br /> lib/rex/proto/kerberos/model/principal_name.rb,<br /> lib/rex/proto/kerberos/model/encryption_key.rb,<br /> lib/rex/proto/kerberos/credential_cache/time.rb,<br /> lib/rex/proto/kerberos/pac/priv_svr_checksum.rb,<br /> lib/rex/proto/kerberos/model/enc_kdc_response.rb,<br /> lib/rex/proto/kerberos/credential_cache/cache.rb,<br /> lib/rex/proto/kerberos/model/kdc_request_body.rb,<br /> lib/rex/proto/kerberos/credential_cache/element.rb,<br /> lib/rex/proto/kerberos/model/authorization_data.rb,<br /> lib/rex/proto/kerberos/credential_cache/key_block.rb,<br /> lib/rex/proto/kerberos/credential_cache/principal.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pac_request.rb,<br /> lib/rex/proto/kerberos/credential_cache/credential.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_enc_time_stamp.rb</span>
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Kerberos/CredentialCache.html" title="Rex::Proto::Kerberos::CredentialCache (module)">CredentialCache</a></span>, <span class='object_link'><a href="Kerberos/Crypto.html" title="Rex::Proto::Kerberos::Crypto (module)">Crypto</a></span>, <span class='object_link'><a href="Kerberos/Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span>, <span class='object_link'><a href="Kerberos/Pac.html" title="Rex::Proto::Kerberos::Pac (module)">Pac</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Kerberos/Client.html" title="Rex::Proto::Kerberos::Client (class)">Client</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  Generated on Tue Dec 22 22:33:19 2015 by
+=======
+  Generated on Tue Dec  8 22:33:23 2015 by
+>>>>>>> origin/pod/metasploit-api/_index.html
+=======
+  Generated on Tue Dec  8 22:33:23 2015 by
+>>>>>>> origin/pod/metasploit-framework
+=======
+  Generated on Tue Dec  8 22:33:23 2015 by
+>>>>>>> origin/pod/metasploit-windows.rb
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+=======
+  Generated on Tue Sep  1 22:33:39 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.5).
+>>>>>>> origin/gh-pages
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  Generated on Tue Dec  8 22:33:23 2015 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.6 (ruby-2.1.7).
+>>>>>>> origin/pod/metasploit-excellent.mp3
+=======
+>>>>>>> origin/pod/metasploit-framework
+=======
+>>>>>>> origin/pod/metasploit-windows.rb
+</div>
+
+  </body>
+</html>
