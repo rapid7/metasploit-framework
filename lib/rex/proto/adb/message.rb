@@ -102,8 +102,6 @@ class Message
                    system_identity_string=DEFAULT_IDENTITY)
       super
     end
-
-
   end
 
   class Auth < Message
