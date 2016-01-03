@@ -28,6 +28,10 @@ class Client
     ADB::Message::Close.new(local_id, response.arg0).send_recv(@sock)
   end
 
+  def read_message
+    ADB::Message.read(@sock)
+  end
+
 end # Client
 
 end # ADB

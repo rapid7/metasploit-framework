@@ -20,12 +20,6 @@ class Message
   attr_accessor :arg1
   attr_accessor :data
 
-  def initialize
-    self.command = self.arg0 = self.arg1 = 0
-    self.command = self.class::COMMAND if defined?(self.class::COMMAND)
-    self.data = ""
-  end
-
   def initialize(arg0, arg1, data)
     self.command = self.class::COMMAND if defined?(self.class::COMMAND)
     self.arg0 = arg0
@@ -101,7 +95,7 @@ class Message
   class Connect < Message
     COMMAND = "CNXN"
     DEFAULT_VERSION = 0x01000000
-    DEFAULT_MAXDATA = 256*1024
+    DEFAULT_MAXDATA = 4096
     DEFAULT_IDENTITY = "host::"
 
     def initialize(version=DEFAULT_VERSION,
@@ -109,6 +103,8 @@ class Message
                    system_identity_string=DEFAULT_IDENTITY)
       super
     end
+
+
   end
 
   class Auth < Message
