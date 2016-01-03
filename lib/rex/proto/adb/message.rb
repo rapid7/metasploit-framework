@@ -76,7 +76,6 @@ class Message
 
     klass = MESSAGE_TYPES.find { |klass| klass::COMMAND == command }
     if klass.nil?
-      require 'pry'; binding.pry
       raise "Invalid adb command: #{command}"
     end
 
