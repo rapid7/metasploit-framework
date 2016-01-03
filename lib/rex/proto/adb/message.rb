@@ -30,7 +30,7 @@ class Message
   def data_check
     # this check is implemented in adb/transport.cpp, in the send_packet method.
     # it is not crc32 as the docs make it appear, it is just a 32bit sum.
-    data.bytes.inject(&:+) % 0xffffffff
+    data.bytes.inject(&:+) & 0xffffffff
   end
 
   def magic
