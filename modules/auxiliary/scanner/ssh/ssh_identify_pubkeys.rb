@@ -237,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
       rescue Net::SSH::Disconnect, ::EOFError
         return :connection_disconnect
       rescue Net::SSH::AuthenticationFailed
-      rescue Net::SSH::Exception => e
+      rescue Net::SSH::Exception
         return [:fail,nil] # For whatever reason.
       end
 
@@ -260,7 +260,7 @@ class Metasploit3 < Msf::Auxiliary
   def do_report(ip, port, user, key)
     return unless framework.db.active
 
-    public_keyfile_path = store_public_keyfile(ip,user,key[:fingerprint],key[:data][:public])
+    store_public_keyfile(ip,user,key[:fingerprint],key[:data][:public])
     private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
 
     # Store a note relating to the public key test
@@ -300,7 +300,6 @@ class Metasploit3 < Msf::Auxiliary
         proof: private_keyfile_path
       }.merge(service_data)
       create_credential_login(login_data)
-
     end
   end
 
@@ -350,7 +349,7 @@ class Metasploit3 < Msf::Auxiliary
     # make sense to iteratively go through all the keys individually. So, ignore the pass variable,
     # and try all available keys for all users.
     each_user_pass do |user,pass|
-      ret, proof = do_login(ip, rport, user)
+      ret, _ = do_login(ip, rport, user)
       case ret
       when :connection_error
         vprint_error "#{ip}:#{rport} SSH - Could not connect"
