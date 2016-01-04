@@ -1169,7 +1169,7 @@ class Core
           output += "\n"
         end
 
-        print(output +"\n")
+        print(output + "\n")
       else
         print_line("Invalid Thread ID")
       end
@@ -1251,7 +1251,7 @@ class Core
         print_status("Successfully loaded plugin: #{inst.name}")
       end
     rescue ::Exception => e
-      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
+      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", 'core', 0, caller)
       print_error("Failed to load plugin from #{path}: #{e}")
     end
   end
@@ -2222,7 +2222,7 @@ class Core
     end
 
     mod.options.sorted.each { |e|
-      name, opt = e
+      name, _opt = e
       res << name
     }
 
@@ -2244,7 +2244,7 @@ class Core
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p)
         p.options.sorted.each { |e|
-          name, opt = e
+          name, _opt = e
           res << name
         }
       end
@@ -2454,7 +2454,7 @@ class Core
     return tabs
   end
 
- def cmd_get_help
+  def cmd_get_help
     print_line "Usage: get var1 [var2 ...]"
     print_line
     print_line "The get command is used to get the value of one or more variables."
