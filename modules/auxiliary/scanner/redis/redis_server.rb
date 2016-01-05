@@ -32,10 +32,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect
       data = redis_command('PING')
-      report_service(:host => rhost,
-                     :port => rport,
-                     :name => "redis server",
-                     :info => data)
+      report_service(host: rhost, port: rport, name: "redis server", info: data)
     rescue ::Exception => e
       print_error("Unable to connect: #{e}")
     ensure
