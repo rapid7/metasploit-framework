@@ -21,7 +21,7 @@ magnos 123456
 root singnin
 amy amy
 amy 12345
- root !@#$%^
+root !@#$%^
 root 555555
 tracy tracy
 root happy
