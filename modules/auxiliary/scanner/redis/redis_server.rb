@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{peer} -- found redis")
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout,
            Rex::ConnectionRefused, ::Timeout::Error, ::EOFError, ::Errno::ETIMEDOUT => e
-      vprint_error("Unable to connect: #{e}")
+      vprint_error("Unable to connect: #{peer} - #{e}")
     ensure
       disconnect
     end
