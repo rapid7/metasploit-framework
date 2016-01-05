@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'       => [ 'iallison <ian[at]team-allison.com>', 'Nixawk' ],
       'License'      => MSF_LICENSE))
 
-    register_options([Opt::RPORT(6379)], self.class)
+    register_options([Opt::RPORT(6379)])
 
     deregister_options('RHOST')
   end
@@ -38,6 +38,7 @@ class Metasploit3 < Msf::Auxiliary
                      :info => data)
     rescue ::Exception => e
       print_error("Unable to connect: #{e}")
+    ensure
       disconnect
     end
   end
