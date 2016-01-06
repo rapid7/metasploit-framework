@@ -37,6 +37,9 @@ class Metasploit4 < Msf::Auxiliary
           File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
         ])
       ], self.class)
+
+    # caidao does not have an username, there's only password
+    deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')
   end
 
   def scanner(ip)
@@ -45,10 +48,9 @@ class Metasploit4 < Msf::Auxiliary
         blank_passwords: datastore['BLANK_PASSWORDS'],
         pass_file:       datastore['PASS_FILE'],
         password:        datastore['PASSWORD'],
-        user_file:       datastore['USER_FILE'],
-        userpass_file:   datastore['USERPASS_FILE'],
-        username:        datastore['USERNAME'],
-        user_as_pass:    datastore['USER_AS_PASS']
+        # The LoginScanner API refuses to run if there's no username, so we give it a fake one.
+        # But we will not be reporting this to the database.
+        username:        'caidao'
       )
 
       return Metasploit::Framework::LoginScanner::Caidao.new(
@@ -78,7 +80,6 @@ class Metasploit4 < Msf::Auxiliary
       origin_type: :service,
       private_data: result.credential.private,
       private_type: :password,
-      username: result.credential.public,
     }.merge(service_data)
 
     login_data = {
@@ -96,7 +97,6 @@ class Metasploit4 < Msf::Auxiliary
       address: ip,
       port: rport,
       protocol: 'tcp',
-      public: result.credential.public,
       private: result.credential.private,
       realm_key: result.credential.realm_key,
       realm_value: result.credential.realm,
@@ -110,13 +110,13 @@ class Metasploit4 < Msf::Auxiliary
     scanner(ip).scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
+        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential.private}'")
         report_good_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
         report_bad_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'")
+        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential.private}'")
         report_bad_cred(ip, rport, result)
       end
     end
