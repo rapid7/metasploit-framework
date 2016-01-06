@@ -15,9 +15,9 @@ module Metasploit
         #
         # @return [Boolean] TrueClass if target is Caidao, otherwise FalseClass
         def check_setup
-          @flag = Rex::Text.rand_text_alphanumeric(4)
-          @lmark = Rex::Text.rand_text_alphanumeric(4)
-          @rmark = Rex::Text.rand_text_alphanumeric(4)
+          @flag ||= Rex::Text.rand_text_alphanumeric(4)
+          @lmark ||= Rex::Text.rand_text_alphanumeric(4)
+          @rmark ||= Rex::Text.rand_text_alphanumeric(4)
 
           case uri
           when /php$/mi
