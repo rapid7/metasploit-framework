@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 
     return unless datastore['ENUM_BRT']
     if is_wildcard
-      dns_bruteforce(doamin, threads) unless datastore['STOP_WLDCRD']
+      dns_bruteforce(domain, threads) unless datastore['STOP_WLDCRD']
     else
       dns_bruteforce(domain, threads)
     end
@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::PTR
       records << "#{r.ptr}"
       report_host(host: ip, name: "#{r.ptr}", info: 'ip reverse')
-      vprint_good("#{ip}: PTR: #{r.ptr} ")
+      print_good("#{ip}: PTR: #{r.ptr} ")
     end
     return if records.none?
     records
@@ -213,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::A
       records << "#{r.address}"
       report_host(host: r.address, name: domain, info: 'A')
-      vprint_good("#{domain}: A: #{r.address} ") if datastore['ENUM_BRT']
+      print_good("#{domain}: A: #{r.address} ") if datastore['ENUM_BRT']
     end
     return if records.none?
     records
@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::CNAME
       records << r.cname
-      vprint_good("#{domain}: CNAME: #{r.cname}")
+      print_good("#{domain}: CNAME: #{r.cname}")
     end
     return if records.none?
     save_loot('ENUM_CNAME', domain, 'text/plain', domain, "#{records.join(',')}", domain)
@@ -243,7 +243,7 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::NS
       records << "#{r.nsdname}"
       report_host(host: r.nsdname, name: domain, info: 'NS')
-      vprint_good("#{domain}: NS: #{r.nsdname}")
+      print_good("#{domain}: NS: #{r.nsdname}")
     end
     return if records.none?
 
@@ -260,7 +260,7 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::MX
       records << "#{r.exchange}"
       report_host(host: r.exchange, name: domain, info: 'MX')
-      vprint_good("#{domain}: MX: #{r.exchange}")
+      print_good("#{domain}: MX: #{r.exchange}")
     end
     return if records.none?
     save_loot('ENUM_MX', 'text/plain', domain, "#{records.join(',')}", domain)
@@ -276,7 +276,7 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::SOA
       records << r.mname
       report_host(host: r.mname, info: 'SOA')
-      vprint_good("#{domain}: SOA: #{r.mname}")
+      print_good("#{domain}: SOA: #{r.mname}")
     end
     return if records.none?
     save_loot('ENUM_SOA', 'text/plain', domain, "#{records.join(',')}", domain)
@@ -291,7 +291,7 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::TXT
       records << r.txt
-      vprint_good("#{domain}: TXT: #{r.txt}")
+      print_good("#{domain}: TXT: #{r.txt}")
     end
     return if records.none?
     save_loot('ENUM_TXT', 'text/plain', domain, "#{records.join(',')}", domain)
@@ -299,6 +299,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_tld(domain)
+    print_status("query DNS TLD: #{domain}")
     domain_ = domain.split('.')
     domain_.pop
     domain_ = domain_.join('.')
@@ -342,7 +343,7 @@ class Metasploit3 < Msf::Auxiliary
         port: '53',
         type: 'ENUM_TLD',
         data: tldr)
-      vprint_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
+      print_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
     end
     return if records.none?
     save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
@@ -350,6 +351,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_srv(domain)
+    print_status("query DNS SRV: #{domain}")
     srvs = [
       '_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
       '_test._tcp.',  '_sips._tcp.', '_sip._udp.', '_sip._tcp.',
@@ -378,7 +380,7 @@ class Metasploit3 < Msf::Auxiliary
           port: r.port,
           type: 'ENUM_SRV',
           data: "#{r.priority}")
-        vprint_good("Host: #{r.host} Port: #{r.port}: SRV:  Priority: #{r.priority}")
+        print_good("#{domain} : SRV: (Host: #{r.host}, Port: #{r.port}, Priority: #{r.priority})")
       end
     end
     return if records.none?
@@ -412,7 +414,7 @@ class Metasploit3 < Msf::Auxiliary
         end
         next if zone.blank?
         records << "#{zone}"
-        vprint_good("#{domain}: Zone Transfer: #{zone}")
+        print_good("#{domain}: Zone Transfer: #{zone}")
       end
     end
     return if records.none?
