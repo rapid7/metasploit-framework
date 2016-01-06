@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.11.5)
+    metasploit-framework (4.11.6)
       actionpack (>= 4.0.9, < 4.1.0)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
@@ -58,8 +58,8 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
     arel (4.0.2)
-    arel-helpers (2.1.0)
-      activerecord (>= 3.1.0, < 5)
+    arel-helpers (2.1.1)
+      activerecord (= 4.0.13)
     aruba (0.6.2)
       childprocess (>= 0.3.6)
       cucumber (>= 1.1.1)
@@ -150,7 +150,7 @@ GEM
       network_interface (~> 0.0)
       pcaprub (~> 0.12)
     pcaprub (0.12.0)
-    pg (0.18.3)
+    pg (0.18.4)
     pg_array_parser (0.0.9)
     postgres_ext (2.4.1)
       activerecord (>= 4.0.0)
