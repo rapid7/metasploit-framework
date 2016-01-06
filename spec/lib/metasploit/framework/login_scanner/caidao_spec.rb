@@ -105,7 +105,6 @@ RSpec.describe Metasploit::Framework::LoginScanner::Caidao do
           res.code = 200
           res.body = "#{lmark}#{flag}#{rmark}"
           allow(subject).to receive(:send_request).and_return(res)
-          subject.check_setup
         end
 
         it 'returns a hash' do
