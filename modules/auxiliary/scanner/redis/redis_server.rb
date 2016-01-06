@@ -12,31 +12,36 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'Redis-server Scanner',
-      'Description'  => %q{
-          This module scans for Redis server. By default Redis has no auth. If auth
-        (password only) is used, it is then possible to execute a brute force attack on
-        the server. This scanner will find open or password protected Redis servers and
-        report back the server information
-      },
+      'Name'         => 'Redis Scanner',
+      'Description'  => %q(
+        This module locates Redis endpoints by attempting to run a specified
+        Redis command.
+      ),
       'Author'       => [ 'iallison <ian[at]team-allison.com>', 'Nixawk' ],
       'License'      => MSF_LICENSE))
 
-    register_options([Opt::RPORT(6379)])
+    register_options(
+      [
+        Opt::RPORT(6379),
+        OptString.new('COMMAND', [ true, 'The Redis command to run', 'INFO' ])
+      ]
+    )
+  end
 
-    deregister_options('RHOST')
+  def command
+    datastore['COMMAND']
   end
 
   def run_host(_ip)
-    vprint_status("Scanning IP: #{peer}")
+    vprint_status("#{peer} -- contacting redis")
     begin
       connect
-      data = redis_command('PING')
-      report_service(host: rhost, port: rport, name: "redis server", info: data)
-      print_good("#{peer} -- found redis")
+      return unless (data = redis_command(command))
+      report_service(host: rhost, port: rport, name: "redis server", info: "#{command} response: #{data}")
+      print_good("#{peer} -- found redis with #{command} command: #{Rex::Text.to_hex_ascii(data)}")
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout,
            Rex::ConnectionRefused, ::Timeout::Error, ::EOFError, ::Errno::ETIMEDOUT => e
-      vprint_error("Unable to connect: #{peer} - #{e}")
+      vprint_error("#{peer} -- error while communicating: #{e}")
     ensure
       disconnect
     end
