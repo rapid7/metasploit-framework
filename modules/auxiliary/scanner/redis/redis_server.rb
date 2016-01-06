@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    vprint_status("Scanning IP: #{peer}")
+    vprint_status("#{peer} -- contacting redis")
     begin
       connect
       data = redis_command('PING')
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{peer} -- found redis")
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout,
            Rex::ConnectionRefused, ::Timeout::Error, ::EOFError, ::Errno::ETIMEDOUT => e
-      vprint_error("Unable to connect: #{peer} - #{e}")
+      vprint_error("#{peer} -- error while communicating: #{e}")
     ensure
       disconnect
     end
