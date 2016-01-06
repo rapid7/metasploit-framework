@@ -108,9 +108,9 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{peer} -- Email Settings:")
     return unless data.first =~ /([\x00]{8,}(?=.{1,255}$)[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?(?:\.[0-9A-Z](?:(?:[0-9A-Z]|-){0,61}[0-9A-Z])?)*\.?+:\d+)/i
     if mailhost = Regexp.last_match[1].split(':')
-      print_status("  Server: #{mailhost[0]}") unless mailhost[0].blank?
-      print_status("  Server Port: #{mailhost[1]}") unless mailhost[1].blank?
-      print_status("  Destination Email: #{data[1]}") unless data[1].blank?
+      print_status("#{peer} --  Server: #{mailhost[0]}") unless mailhost[0].blank?
+      print_status("#{peer} --  Server Port: #{mailhost[1]}") unless mailhost[1].blank?
+      print_status("#{peer} --  Destination Email: #{data[1]}") unless data[1].blank?
       mailserver = "#{mailhost[0]}"
       mailport = "#{mailhost[1]}"
       muser = "#{data[5]}"
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
     ddns_table = Rex::Ui::Text::Table.new(
       'Header' => 'Dahua DDNS Settings',
       'Indent' => 1,
-      'Columns' => ['DDNS Service', 'DDNS Server', 'DDNS Port', 'Domain', 'Username', 'Password']
+      'Columns' => ['Peer', 'DDNS Service', 'DDNS Server', 'DDNS Port', 'Domain', 'Username', 'Password']
     )
     data.each_with_index do |val, index|
       next if index == 0
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
       ddns_domain = val[3]
       ddns_user = val[4]
       ddns_pass = val[5]
-      ddns_table << [ ddns_service, ddns_server, ddns_port, ddns_domain, ddns_user, ddns_pass ]
+      ddns_table << [ peer, ddns_service, ddns_server, ddns_port, ddns_domain, ddns_user, ddns_pass ]
       unless ddns_server.blank? && ddns_port.blank? && ddns_user.blank? && ddns_pass.blank?
         if datastore['VERBOSE']
           ddns_table.print
@@ -167,10 +167,10 @@ class Metasploit3 < Msf::Auxiliary
       ftpuser.strip!
       ftppass.strip!
       unless ftpuser.blank? || ftppass.blank?
-        print_good(" NAS Server: #{server}")
-        print_good(" NAS Port: #{port}")
-        print_good(" FTP User: #{ftpuser}")
-        print_good(" FTP Pass: #{ftppass}")
+        print_good("#{peer} --  NAS Server: #{server}")
+        print_good("#{peer} --  NAS Port: #{port}")
+        print_good("#{peer} -- FTP User: #{ftpuser}")
+        print_good("#{peer} -- FTP Pass: #{ftppass}")
         report_creds(
           host: server,
           port: port,
