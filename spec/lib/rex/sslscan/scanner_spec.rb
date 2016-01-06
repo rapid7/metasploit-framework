@@ -88,7 +88,7 @@ RSpec.describe Rex::SSLScan::Scanner do
     end
 
     context "if SSLv2 is not available locally" do
-      before(:each) do
+      before(:example) do
         expect(subject).to receive(:check_opensslv2).and_return(false)
         subject.send(:initialize, 'google.com', 443)
       end

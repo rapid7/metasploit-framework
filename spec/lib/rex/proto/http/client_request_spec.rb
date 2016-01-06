@@ -5,7 +5,7 @@ require 'rex/proto/http/client_request'
 
 
 RSpec.shared_context "with no evasions" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_self_reference'] = false
     client_request.opts['uri_fake_params_start'] = false
     client_request.opts['uri_full_url'] = false
@@ -18,7 +18,7 @@ end
 
 
 RSpec.shared_context "with 'uri_dir_self_reference'" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_self_reference'] = true
   end
 
@@ -30,7 +30,7 @@ end
 
 
 RSpec.shared_context "with 'uri_dir_fake_relative'" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_fake_relative'] = true
   end
 
@@ -44,11 +44,11 @@ end
 
 RSpec.shared_context "with 'uri_full_url'" do
 
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_full_url'] = true
   end
 
-  before(:each) do
+  before(:example) do
     client_request.opts['vhost'] = host
   end
 

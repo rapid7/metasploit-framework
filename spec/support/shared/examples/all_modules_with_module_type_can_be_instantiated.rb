@@ -1,4 +1,4 @@
-shared_examples_for 'all modules with module type can be instantiated' do |options={}|
+RSpec.shared_examples_for 'all modules with module type can be instantiated' do |options={}|
   options.assert_valid_keys(:module_type, :modules_pathname, :type_directory)
 
   module_type = options.fetch(:module_type)

@@ -9,7 +9,7 @@ RSpec.describe Rex::Post::Meterpreter::ClientCore do
 
   describe "#use" do
 
-    before(:each) do
+    before(:example) do
       @response = double("response")
       allow(@response).to receive(:result) { 0 }
       allow(@response).to receive(:each) { [:help] }

@@ -211,7 +211,7 @@ RSpec.describe Rex::Proto::Http::Response do
       res
     end
 
-    before(:each) do
+    before(:example) do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:request_cgi).with(any_args)
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv).with(any_args).and_return(response)
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:set_config).with(any_args)
@@ -234,7 +234,7 @@ RSpec.describe Rex::Proto::Http::Response do
         res
       end
 
-      before(:each) do
+      before(:example) do
         allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv).with(any_args).and_return(response)
       end
 
@@ -252,7 +252,7 @@ RSpec.describe Rex::Proto::Http::Response do
         res
       end
 
-      before(:each) do
+      before(:example) do
         allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv).with(any_args).and_return(response)
       end
 

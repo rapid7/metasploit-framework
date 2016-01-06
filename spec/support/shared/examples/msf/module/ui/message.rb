@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::Module::UI::Message' do
+RSpec.shared_examples_for 'Msf::Module::UI::Message' do
   it_should_behave_like 'Msf::Module::UI::Message::Verbose'
 
   it { is_expected.to respond_to :print_error }

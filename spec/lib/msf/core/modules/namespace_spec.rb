@@ -21,7 +21,7 @@ RSpec.describe Msf::Modules::Namespace do
   end
 
   context 'metasploit_class' do
-    before(:each) do
+    before(:example) do
       if major
         subject.const_set("Metasploit#{major}", Class.new)
       end
@@ -128,7 +128,7 @@ RSpec.describe Msf::Modules::Namespace do
         Class.new
       end
 
-      before(:each) do
+      before(:example) do
         allow(subject).to receive(:metasploit_class).and_return(metasploit_class)
       end
 
@@ -138,7 +138,7 @@ RSpec.describe Msf::Modules::Namespace do
     end
 
     context 'without metasploit_class' do
-      before(:each) do
+      before(:example) do
         allow(subject).to receive(:metasploit_class)
       end
 
@@ -198,7 +198,7 @@ RSpec.describe Msf::Modules::Namespace do
         1
       end
 
-      before(:each) do
+      before(:example) do
         subject.const_set(
             :RequiredVersions,
             [

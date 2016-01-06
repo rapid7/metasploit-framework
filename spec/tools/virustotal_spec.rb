@@ -147,7 +147,7 @@ RSpec.describe VirusTotalUtility do
             }
           end
 
-          before(:each) do
+          before(:example) do
             @upload_data = vt.send(:_create_upload_data, form_opts)
           end
 

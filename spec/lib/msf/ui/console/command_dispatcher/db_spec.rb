@@ -77,7 +77,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
 
       let!(:origin) { FactoryGirl.create(:metasploit_credential_origin_import) }
 
-      before(:each) do
+      before(:example) do
         priv = FactoryGirl.create(:metasploit_credential_password, data: password)
         pub = FactoryGirl.create(:metasploit_credential_username, username: username)
         FactoryGirl.create(:metasploit_credential_core,
@@ -245,7 +245,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         end
 =end
 
-        after(:each) do
+        after(:example) do
           #ntlm_core.destroy
           password_core.destroy
           #nonreplayable_core.destroy
@@ -295,7 +295,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         end
       end
       context "when a core already exists" do
-        before(:each) do
+        before(:example) do
           priv = FactoryGirl.create(:metasploit_credential_password, data: password)
           pub = FactoryGirl.create(:metasploit_credential_username, username: username)
           FactoryGirl.create(:metasploit_credential_core,
@@ -468,7 +468,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       end
     end
     describe "-p" do
-      before(:each) do
+      before(:example) do
         host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
         FactoryGirl.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
         FactoryGirl.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
@@ -488,7 +488,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       end
     end
     describe "-np" do
-      before(:each) do
+      before(:example) do
         host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
         FactoryGirl.create(:mdm_service, :host => host, :port => 1024)
         FactoryGirl.create(:mdm_service, :host => host, :port => 1025)
@@ -535,7 +535,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   end
 
   describe "#cmd_workspace" do
-    before(:each) do
+    before(:example) do
       db.cmd_workspace "-D"
       @output = []
     end

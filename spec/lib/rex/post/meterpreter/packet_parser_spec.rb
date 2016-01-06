@@ -7,7 +7,7 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
   subject(:parser){
     Rex::Post::Meterpreter::PacketParser.new
   }
-  before(:each) do
+  before(:example) do
     @req_packt = Rex::Post::Meterpreter::Packet.new(
           Rex::Post::Meterpreter::PACKET_TYPE_REQUEST,
           "test_method")
