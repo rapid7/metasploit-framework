@@ -35,10 +35,9 @@ class Metasploit3 < Msf::Auxiliary
             File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
           ])
       ], self.class)
-  end
 
-  def target
-    "#{rhost}:#{rport}"
+    # redis does not have an username, there's only password
+    deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')
   end
 
   def run_host(ip)
@@ -46,10 +45,9 @@ class Metasploit3 < Msf::Auxiliary
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
       password: datastore['PASSWORD'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS']
+      # The LoginScanner API refuses to run if there's no username, so we give it a fake one.
+      # But we will not be reporting this to the database.
+      username: 'redis'
     )
 
     cred_collection = prepend_db_passwords(cred_collection)
