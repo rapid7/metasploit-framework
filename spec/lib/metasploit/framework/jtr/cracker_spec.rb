@@ -44,12 +44,6 @@ RSpec.describe Metasploit::Framework::JtR::Cracker do
         expect(::File).to receive(:file?).with(john_path).once.and_return true
         expect(cracker.binary_path).to eq john_path
       end
-
-      it 'returns the shipped john binary if it does not exist in the PATH' do
-        expect(Rex::FileUtils).to receive(:find_full_path).twice.and_return nil
-        expect(cracker).to receive(:select_shipped_binary).and_return other_john_path
-        expect(cracker.binary_path).to eq other_john_path
-      end
     end
   end
 
