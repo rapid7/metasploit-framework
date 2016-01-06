@@ -252,19 +252,23 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_mx(domain)
-    resp = dns_query(domain, 'MX')
-    return if resp.blank? || resp.answer.blank?
+    begin
+      resp = dns_query(domain, 'MX')
+      return if resp.blank? || resp.answer.blank?
 
-    records = []
-    resp.answer.each do |r|
-      next unless r.class == Net::DNS::RR::MX
-      records << "#{r.exchange}"
-      report_host(host: r.exchange, name: domain, info: 'MX')
-      print_good("#{domain}: MX: #{r.exchange}")
+      records = []
+      resp.answer.each do |r|
+        next unless r.class == Net::DNS::RR::MX
+        records << "#{r.exchange}"
+        report_host(host: r.exchange, name: domain, info: 'MX')
+        print_good("#{domain}: MX: #{r.exchange}")
+      end
+      return if records.none?
+      save_loot('ENUM_MX', 'text/plain', domain, "#{records.join(',')}", domain)
+      records
+    rescue SocketError => e
+      print_error("Query #{domain} DNS MX - exception: #{e}")
     end
-    return if records.none?
-    save_loot('ENUM_MX', 'text/plain', domain, "#{records.join(',')}", domain)
-    records
   end
 
   def get_soa(domain)
@@ -299,55 +303,59 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_tld(domain)
-    print_status("query DNS TLD: #{domain}")
-    domain_ = domain.split('.')
-    domain_.pop
-    domain_ = domain_.join('.')
+    begin
+      print_status("query DNS TLD: #{domain}")
+      domain_ = domain.split('.')
+      domain_.pop
+      domain_ = domain_.join('.')
 
-    tlds = [
-      'com', 'org', 'net', 'edu', 'mil', 'gov', 'uk', 'af', 'al', 'dz',
-      'as', 'ad', 'ao', 'ai', 'aq', 'ag', 'ar', 'am', 'aw', 'ac', 'au',
-      'at', 'az', 'bs', 'bh', 'bd', 'bb', 'by', 'be', 'bz', 'bj', 'bm',
-      'bt', 'bo', 'ba', 'bw', 'bv', 'br', 'io', 'bn', 'bg', 'bf', 'bi',
-      'kh', 'cm', 'ca', 'cv', 'ky', 'cf', 'td', 'cl', 'cn', 'cx', 'cc',
-      'co', 'km', 'cd', 'cg', 'ck', 'cr', 'ci', 'hr', 'cu', 'cy', 'cz',
-      'dk', 'dj', 'dm', 'do', 'tp', 'ec', 'eg', 'sv', 'gq', 'er', 'ee',
-      'et', 'fk', 'fo', 'fj', 'fi', 'fr', 'gf', 'pf', 'tf', 'ga', 'gm',
-      'ge', 'de', 'gh', 'gi', 'gr', 'gl', 'gd', 'gp', 'gu', 'gt', 'gg',
-      'gn', 'gw', 'gy', 'ht', 'hm', 'va', 'hn', 'hk', 'hu', 'is', 'in',
-      'id', 'ir', 'iq', 'ie', 'im', 'il', 'it', 'jm', 'jp', 'je', 'jo',
-      'kz', 'ke', 'ki', 'kp', 'kr', 'kw', 'kg', 'la', 'lv', 'lb', 'ls',
-      'lr', 'ly', 'li', 'lt', 'lu', 'mo', 'mk', 'mg', 'mw', 'my', 'mv',
-      'ml', 'mt', 'mh', 'mq', 'mr', 'mu', 'yt', 'mx', 'fm', 'md', 'mc',
-      'mn', 'ms', 'ma', 'mz', 'mm', 'na', 'nr', 'np', 'nl', 'an', 'nc',
-      'nz', 'ni', 'ne', 'ng', 'nu', 'nf', 'mp', 'no', 'om', 'pk', 'pw',
-      'pa', 'pg', 'py', 'pe', 'ph', 'pn', 'pl', 'pt', 'pr', 'qa', 're',
-      'ro', 'ru', 'rw', 'kn', 'lc', 'vc', 'ws', 'sm', 'st', 'sa', 'sn',
-      'sc', 'sl', 'sg', 'sk', 'si', 'sb', 'so', 'za', 'gz', 'es', 'lk',
-      'sh', 'pm', 'sd', 'sr', 'sj', 'sz', 'se', 'ch', 'sy', 'tw', 'tj',
-      'tz', 'th', 'tg', 'tk', 'to', 'tt', 'tn', 'tr', 'tm', 'tc', 'tv',
-      'ug', 'ua', 'ae', 'gb', 'us', 'um', 'uy', 'uz', 'vu', 've', 'vn',
-      'vg', 'vi', 'wf', 'eh', 'ye', 'yu', 'za', 'zr', 'zm', 'zw', 'int',
-      'gs', 'info', 'biz', 'su', 'name', 'coop', 'aero']
+      tlds = [
+        'com', 'org', 'net', 'edu', 'mil', 'gov', 'uk', 'af', 'al', 'dz',
+        'as', 'ad', 'ao', 'ai', 'aq', 'ag', 'ar', 'am', 'aw', 'ac', 'au',
+        'at', 'az', 'bs', 'bh', 'bd', 'bb', 'by', 'be', 'bz', 'bj', 'bm',
+        'bt', 'bo', 'ba', 'bw', 'bv', 'br', 'io', 'bn', 'bg', 'bf', 'bi',
+        'kh', 'cm', 'ca', 'cv', 'ky', 'cf', 'td', 'cl', 'cn', 'cx', 'cc',
+        'co', 'km', 'cd', 'cg', 'ck', 'cr', 'ci', 'hr', 'cu', 'cy', 'cz',
+        'dk', 'dj', 'dm', 'do', 'tp', 'ec', 'eg', 'sv', 'gq', 'er', 'ee',
+        'et', 'fk', 'fo', 'fj', 'fi', 'fr', 'gf', 'pf', 'tf', 'ga', 'gm',
+        'ge', 'de', 'gh', 'gi', 'gr', 'gl', 'gd', 'gp', 'gu', 'gt', 'gg',
+        'gn', 'gw', 'gy', 'ht', 'hm', 'va', 'hn', 'hk', 'hu', 'is', 'in',
+        'id', 'ir', 'iq', 'ie', 'im', 'il', 'it', 'jm', 'jp', 'je', 'jo',
+        'kz', 'ke', 'ki', 'kp', 'kr', 'kw', 'kg', 'la', 'lv', 'lb', 'ls',
+        'lr', 'ly', 'li', 'lt', 'lu', 'mo', 'mk', 'mg', 'mw', 'my', 'mv',
+        'ml', 'mt', 'mh', 'mq', 'mr', 'mu', 'yt', 'mx', 'fm', 'md', 'mc',
+        'mn', 'ms', 'ma', 'mz', 'mm', 'na', 'nr', 'np', 'nl', 'an', 'nc',
+        'nz', 'ni', 'ne', 'ng', 'nu', 'nf', 'mp', 'no', 'om', 'pk', 'pw',
+        'pa', 'pg', 'py', 'pe', 'ph', 'pn', 'pl', 'pt', 'pr', 'qa', 're',
+        'ro', 'ru', 'rw', 'kn', 'lc', 'vc', 'ws', 'sm', 'st', 'sa', 'sn',
+        'sc', 'sl', 'sg', 'sk', 'si', 'sb', 'so', 'za', 'gz', 'es', 'lk',
+        'sh', 'pm', 'sd', 'sr', 'sj', 'sz', 'se', 'ch', 'sy', 'tw', 'tj',
+        'tz', 'th', 'tg', 'tk', 'to', 'tt', 'tn', 'tr', 'tm', 'tc', 'tv',
+        'ug', 'ua', 'ae', 'gb', 'us', 'um', 'uy', 'uz', 'vu', 've', 'vn',
+        'vg', 'vi', 'wf', 'eh', 'ye', 'yu', 'za', 'zr', 'zm', 'zw', 'int',
+        'gs', 'info', 'biz', 'su', 'name', 'coop', 'aero']
 
-    records = []
-    tlds.each do |tld|
-      tldr = get_a("#{domain_}.#{tld}")
-      next if tldr.blank?
-      records |= tldr
+      records = []
+      tlds.each do |tld|
+        tldr = get_a("#{domain_}.#{tld}")
+        next if tldr.blank?
+        records |= tldr
 
-      report_note(
-        host: "#{domain}",
-        proto: 'udp',
-        sname: "#{domain_}.#{tld}",
-        port: '53',
-        type: 'ENUM_TLD',
-        data: tldr)
-      print_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
+        report_note(
+          host: "#{domain}",
+          proto: 'udp',
+          sname: "#{domain_}.#{tld}",
+          port: '53',
+          type: 'ENUM_TLD',
+          data: tldr)
+        print_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
+      end
+      return if records.none?
+      save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
+      records
+    rescue ArgumentError => e
+      print_error("Query #{domain} DNS TLD - exception: #{e}")
     end
-    return if records.none?
-    save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
-    records
   end
 
   def get_srv(domain)
