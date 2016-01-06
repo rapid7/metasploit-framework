@@ -263,11 +263,12 @@ class Metasploit3 < Msf::Auxiliary
         report_host(host: r.exchange, name: domain, info: 'MX')
         print_good("#{domain}: MX: #{r.exchange}")
       end
+    rescue SocketError => e
+      print_error("Query #{domain} DNS MX - exception: #{e}")
+    ensure
       return if records.none?
       save_loot('ENUM_MX', 'text/plain', domain, "#{records.join(',')}", domain)
       records
-    rescue SocketError => e
-      print_error("Query #{domain} DNS MX - exception: #{e}")
     end
   end
 
@@ -340,21 +341,21 @@ class Metasploit3 < Msf::Auxiliary
         tldr = get_a("#{domain_}.#{tld}")
         next if tldr.blank?
         records |= tldr
-
-        report_note(
-          host: "#{domain}",
-          proto: 'udp',
-          sname: "#{domain_}.#{tld}",
-          port: '53',
-          type: 'ENUM_TLD',
-          data: tldr)
         print_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
       end
-      return if records.none?
-      save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
-      records
     rescue ArgumentError => e
       print_error("Query #{domain} DNS TLD - exception: #{e}")
+    ensure
+      return if records.none?
+      report_note(
+        host: "#{domain}",
+        sname: 'dns',
+        type: 'ENUM_TLD',
+        data: records,
+        update: :unique
+      )
+      save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
+      records
     end
   end
 
