@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
 
       # Try to migrate to each of the System level processes in the list.  Stop when one works.  Go to User level migration if none work.
       admin_targets.each do |target_name|
-        if migrate(get_pid(target_name), target_name)
+        if migrate(get_pid(target_name), target_name, original_pid)
           kill(original_pid, original_name) if datastore['KILL']
           return
         end
@@ -77,12 +77,12 @@ class Metasploit3 < Msf::Post
 
     # Try to migrate to user level processes in the list.  If it does not exist or cannot migrate, try spawning it then migrating.
     user_targets.each do |target_name|
-      if migrate(get_pid(target_name), target_name)
+      if migrate(get_pid(target_name), target_name, original_pid)
         kill(original_pid, original_name) if datastore['KILL']
         return
       end
 
-      if migrate(spawn(target_name), target_name)
+      if migrate(spawn(target_name), target_name, original_pid)
         kill(original_pid, original_name) if datastore['KILL']
         return
       end
@@ -100,14 +100,20 @@ class Metasploit3 < Msf::Post
   end
 
   # This function attempts to migrate to the specified process.
-  def migrate(target_pid, proc_name)
+  def migrate(target_pid, proc_name, current_pid)
     if !target_pid
       print_error("Could not migrate to #{proc_name}.")
       return false
     end
 
+    print_status("Trying #{proc_name} (#{target_pid})")
+
+    if target_pid == current_pid
+      print_good("Already in #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
+      return true
+    end
+
     begin
-      print_status("Trying #{proc_name} (#{target_pid})")
       client.core.migrate(target_pid)
       print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
