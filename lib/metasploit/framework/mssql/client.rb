@@ -49,7 +49,7 @@ module Metasploit
 
           disconnect if self.sock
           connect
-          mssql_prelogin()
+          mssql_prelogin
 
           if windows_authentication
             idx = 0
@@ -150,7 +150,7 @@ module Metasploit
 
             if tdsencryption == true
                proxy = TDSSSLProxy.new(sock)
-               proxy.setup_ssl()
+               proxy.setup_ssl
                resp = proxy.send_recv(pkt)
             else
                resp = mssql_send_recv(pkt)
@@ -293,7 +293,7 @@ module Metasploit
 
             if self.tdsencryption == true
               proxy = TDSSSLProxy.new(sock)
-              proxy.setup_ssl()
+              proxy.setup_ssl
               resp = mssql_ssl_send_recv(pkt,proxy)
               proxy.cleanup
               proxy = nil
@@ -305,6 +305,8 @@ module Metasploit
 
           info = {:errors => []}
           info = mssql_parse_reply(resp,info)
+
+          disconnect
 
           return false if not info
           info[:login_ack] ? true : false
@@ -664,7 +666,7 @@ module Metasploit
             encryption_mode = resp[idx,1].unpack("C")[0]
           else
             raise RunTimeError, "Unable to parse encryption req. "\
-              "from server during prelogin()"
+              "from server during prelogin"
             encryption_mode = ENCRYPT_NOT_SUP
           end
 
@@ -757,8 +759,7 @@ module Metasploit
         end
 
         def mssql_ssl_send_recv(req,tdsproxy,timeout=15,check_status=true)
-          resp = tdsproxy.send_recv(req)
-          resp
+          tdsproxy.send_recv(req)
         end
 
         #

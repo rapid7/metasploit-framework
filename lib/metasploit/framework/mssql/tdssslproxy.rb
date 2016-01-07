@@ -40,15 +40,17 @@ class TDSSSLProxy
 
   def initialize(sock)
     @tdssock = sock
-    @s1,@s2 = Rex::Socket.tcp_socket_pair()
+    @s1, @s2 = Rex::Socket.tcp_socket_pair
   end
 
-  def cleanup()
-    Thread.kill(@t1)
+  def cleanup
+    @running = false
+    @t1.join
   end
 
   def setup_ssl
-    @t1 = Thread.start { ssl_setup_thread() }
+    @running = true
+    @t1 = Thread.start { ssl_setup_thread }
     ssl_context = OpenSSL::SSL::SSLContext.new(:TLSv1)
     @ssl_socket = OpenSSL::SSL::SSLSocket.new(@s1, ssl_context)
     @ssl_socket.connect
@@ -59,21 +61,21 @@ class TDSSSLProxy
     done = false
     resp = ""
 
-    while(not done)
+    while (not done)
       head = @ssl_socket.read(8)
       if !(head and head.length == 8)
         return false
       end
 
       # Is this the last buffer?
-      if(head[1,1] == "\x01" or not check_status )
+      if (head[1, 1] == "\x01" or not check_status)
         done = true
       end
 
       # Grab this block's length
-      rlen = head[2,2].unpack('n')[0] - 8
+      rlen = head[2, 2].unpack('n')[0] - 8
 
-      while(rlen > 0)
+      while (rlen > 0)
         buff = @ssl_socket.read(rlen)
         return if not buff
         resp << buff
@@ -84,39 +86,41 @@ class TDSSSLProxy
     resp
   end
 
-  def ssl_setup_thread()
-
-    while true do
-      res = select([@tdssock,@s2],nil,nil)
-      for r in res[0]
-
-        # response from SQL Server for client
-        if r == @tdssock
-          resp = @tdssock.recv(4096)
-          if @ssl_socket.state[0,5] == "SSLOK"
-            @s2.send(resp,0)
-          else
-            @s2.send(resp[8..-1],0)
+  def ssl_setup_thread
+    while @running do
+      res = select([@tdssock, @s2], nil, nil, 0.1)
+      if res
+        res[0].each do |r|
+          # response from SQL Server for client
+          if r == @tdssock
+            resp = @tdssock.recv(4096)
+            if @ssl_socket.state[0, 5] == "SSLOK"
+              @s2.send(resp, 0)
+            else
+              @s2.send(resp[8..-1], 0)
+            end
           end
-        end
 
-        # request from client for SQL Server
-        if r == @s2
-          resp = @s2.recv(4096)
-          # SSL negotiation completed - just send it on
-          if @ssl_socket.state[0,5] == "SSLOK"
-            @tdssock.send(resp,0)
-          # Still doing SSL
-          else
-            tds_pkt_len = 8 + resp.length
-            pkt_hdr = ''
-            pkt_hdr << [TYPE_PRE_LOGIN_MESSAGE,STATUS_END_OF_MESSAGE,tds_pkt_len,0x0000,0x00,0x00].pack('CCnnCC')
-            pkt = pkt_hdr << resp
-            @tdssock.send(pkt,0)
+          # request from client for SQL Server
+          if r == @s2
+            resp = @s2.recv(4096)
+            # SSL negotiation completed - just send it on
+            if @ssl_socket.state[0, 5] == "SSLOK"
+              @tdssock.send(resp, 0)
+              # Still doing SSL
+            else
+              tds_pkt_len = 8 + resp.length
+              pkt_hdr = ''
+              pkt_hdr << [TYPE_PRE_LOGIN_MESSAGE, STATUS_END_OF_MESSAGE, tds_pkt_len, 0x0000, 0x00, 0x00].pack('CCnnCC')
+              pkt = pkt_hdr << resp
+              @tdssock.send(pkt, 0)
+            end
           end
         end
       end
     end
+    @s1.close
+    @s2.close
   end
 end
 
