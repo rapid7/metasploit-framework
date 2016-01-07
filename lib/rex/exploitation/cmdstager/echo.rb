@@ -108,7 +108,7 @@ class CmdStagerEcho < CmdStagerBase
     # Make it all happen
     cmds << "chmod 777 #{@tempdir}#{@var_elf}"
     #cmds << "chmod +x #{@tempdir}#{@var_elf}"
-    cmds << "#{@tempdir}#{@var_elf}"
+    cmds << "#{@tempdir}#{@var_elf}#{' & echo' if opts[:background]}"
 
     # Clean up after unless requested not to..
     unless opts[:nodelete]
