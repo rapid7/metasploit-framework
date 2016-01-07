@@ -111,9 +111,9 @@ class Metasploit3 < Msf::Post
       client.core.migrate(target_pid)
       print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
-    rescue ::Exception => e
+    rescue ::Rex::Post::Meterpreter::RequestError => error
       print_error("Could not migrate to #{proc_name}.")
-      print_error(e.to_s)
+      print_error(error.to_s)
       return false
     end
   end
@@ -125,9 +125,9 @@ class Metasploit3 < Msf::Post
       proc = session.sys.process.execute(proc_name, nil, {'Hidden' => true })
       print_good("Successfully spawned #{proc_name}")
       return proc.pid
-    rescue ::Exception => e
+    rescue ::Rex::Post::Meterpreter::RequestError => error
       print_error("Could not spawn #{proc_name}.")
-      print_error(e.to_s)
+      print_error(error.to_s)
       return nil
     end
   end
@@ -138,9 +138,9 @@ class Metasploit3 < Msf::Post
       print_status("Trying to kill original process #{proc_name} (#{proc_pid})")
       session.sys.process.kill(proc_pid)
       print_good("Successfully killed process #{proc_name} (#{proc_pid})")
-    rescue ::Exception => e
+    rescue ::Rex::Post::Meterpreter::RequestError => error
       print_error("Could not kill original process #{proc_name} (#{proc_pid})")
-      print_error(e.to_s)
+      print_error(error.to_s)
     end
   end
 end
