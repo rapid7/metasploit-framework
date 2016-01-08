@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'openssl'
 require 'net/ssh/transport/identity_cipher'
+require 'net/ssh/transport/ctr.rb'
 
 module Net; module SSH; module Transport
 
@@ -43,6 +44,8 @@ module Net; module SSH; module Transport
 
       cipher = OpenSSL::Cipher::Cipher.new(ossl_name)
       cipher.send(options[:encrypt] ? :encrypt : :decrypt)
+
+      cipher.extend(Net::SSH::Transport::CTR) if (name =~ /-ctr$/)
 
       cipher.padding = 0
       cipher.iv      = make_key(cipher.iv_len, options[:iv], options) if ossl_name != "rc4"
