@@ -10,6 +10,9 @@ class Metasploit3 < Msf::Post
 
   include Msf::Post::Windows::Priv
 
+  DEFAULT_ADMIN_TARGETS = [ 'services.exe', 'winlogon.exe', 'wininit.exe', 'lsm.exe', 'lsass.exe' ]
+  DEFAULT_USER_TARGETS  = [ 'explorer.exe', 'notepad.exe' ]
+
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Windows Manage Privilege Based Process Migration ',
@@ -37,13 +40,11 @@ class Metasploit3 < Msf::Post
 
   def run
     # Populate target arrays
-    admin_targets = []
-    admin_targets << datastore['ANAME'] if datastore['ANAME']
-    admin_targets << "services.exe" << "winlogon.exe" << "wininit.exe" << "lsm.exe" << "lsass.exe"
+    admin_targets = DEFAULT_ADMIN_TARGETS.dup
+    admin_targets.unshift(datastore['ANAME']) if datastore['ANAME']
 
-    user_targets = []
-    user_targets << datastore['NAME'] if datastore['NAME']
-    user_targets << "explorer.exe" << "notepad.exe"
+    user_targets = DEFAULT_USER_TARGETS.dup
+    user_targets.unshift(datastore['NAME']) if datastore['NAME']
 
     # Get current process information
     original_pid = client.sys.process.open.pid
