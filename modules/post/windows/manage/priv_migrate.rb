@@ -50,6 +50,9 @@ class Metasploit3 < Msf::Post
 
   # This function returns the first process id of a process with the name provided.
   # Note: "target_pid = session.sys.process[proc_name]" will not work when "include Msf::Post::Windows::Priv" is in the module.
+  #
+  # @return [Fixnum] the PID if one is found
+  # @return [NilClass] if no PID was found
   def get_pid(proc_name)
     processes = client.sys.process.get_processes
     processes.each do |proc|
@@ -58,7 +61,26 @@ class Metasploit3 < Msf::Post
     return nil
   end
 
+  # This function will try to kill the original session process
+  #
+  # @return [void] A useful return value is not expected here
+  def kill(proc_pid, proc_name)
+    if datastore['KILL']
+      begin
+        print_status("Trying to kill original process #{proc_name} (#{proc_pid})")
+        session.sys.process.kill(proc_pid)
+        print_good("Successfully killed process #{proc_name} (#{proc_pid})")
+      rescue ::Rex::Post::Meterpreter::RequestError => error
+        print_error("Could not kill original process #{proc_name} (#{proc_pid})")
+        print_error(error.to_s)
+      end
+    end
+  end
+
   # This function attempts to migrate to the specified process.
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
   def migrate(target_pid, proc_name, current_pid)
     if !target_pid
       print_error("Could not migrate to #{proc_name}.")
@@ -140,6 +162,9 @@ class Metasploit3 < Msf::Post
   end
 
   # This function will attempt to spawn a new process of the type provided by the name.
+  #
+  # @return [Fixnum] the PID if the process spawned successfully
+  # @return [NilClass] if the spawn failed
   def spawn(proc_name)
     begin
       print_status("Attempting to spawn #{proc_name}")
@@ -150,20 +175,6 @@ class Metasploit3 < Msf::Post
       print_error("Could not spawn #{proc_name}.")
       print_error(error.to_s)
       return nil
-    end
-  end
-
-  # This function will try to kill the original session process
-  def kill(proc_pid, proc_name)
-    if datastore['KILL']
-      begin
-        print_status("Trying to kill original process #{proc_name} (#{proc_pid})")
-        session.sys.process.kill(proc_pid)
-        print_good("Successfully killed process #{proc_name} (#{proc_pid})")
-      rescue ::Rex::Post::Meterpreter::RequestError => error
-        print_error("Could not kill original process #{proc_name} (#{proc_pid})")
-        print_error(error.to_s)
-      end
     end
   end
 end
