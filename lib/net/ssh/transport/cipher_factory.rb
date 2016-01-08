@@ -13,6 +13,7 @@ module Net; module SSH; module Transport
       "aes256-cbc"                  => "aes-256-cbc",
       "aes192-cbc"                  => "aes-192-cbc",
       "aes128-cbc"                  => "aes-128-cbc",
+      "aes256-ctr"                  => "aes-256-ecb",
       "idea-cbc"                    => "idea-cbc",
       "cast128-cbc"                 => "cast-cbc",
       "rijndael-cbc@lysator.liu.se" => "aes-256-cbc",
