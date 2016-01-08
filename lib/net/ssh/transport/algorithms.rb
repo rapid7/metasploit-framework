@@ -25,7 +25,8 @@ module Net; module SSH; module Transport
     ALGORITHMS = {
       :host_key    => %w(ssh-rsa ssh-dss),
       :kex         => %w(diffie-hellman-group-exchange-sha1
-                         diffie-hellman-group1-sha1),
+                         diffie-hellman-group1-sha1 
+                         diffie-hellman-group-exchange-sha256),
       :encryption  => %w(aes128-cbc 3des-cbc blowfish-cbc cast128-cbc
                          aes192-cbc aes256-cbc rijndael-cbc@lysator.liu.se
                          idea-cbc none arcfour128 arcfour256),
