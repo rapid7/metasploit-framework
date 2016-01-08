@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Post
         account_map[account][browser] = {}
         db_paths = find_db_paths(path, browser, account)
         if db_paths && db_paths.size > 0
-          account_map[account][browser]['lp_db_path'] = db_paths
+          account_map[account][browser]['lp_db_path'] = db_paths.first
           account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if file_exists?(localstorage_path_map[browser]) || browser.match(/Firefox|IE/)
           account_map[account][browser]['cookies_db'] = cookies_path_map[browser] if file_exists?(cookies_path_map[browser]) || browser.match(/Firefox|IE/)
           account_map[account][browser]['cookies_db'] = account_map[account][browser]['lp_db_path'].first.gsub("prefs.js", "cookies.sqlite") if (!account_map[account][browser]['lp_db_path'].blank? && browser == 'Firefox')
@@ -163,7 +163,7 @@ class Metasploit3 < Msf::Post
     end
 
     vprint_good "Found #{paths.size} #{browser} databases for #{account}"
-    return paths.size > 0 ? paths.first : []
+    paths
   end
 
   # Returns the relevant information from user profiles
