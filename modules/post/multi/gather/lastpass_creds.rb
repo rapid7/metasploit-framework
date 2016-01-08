@@ -416,7 +416,7 @@ class Metasploit3 < Msf::Post
             db = SQLite3::Database.new(lp_data['lp_db_loot'])
             result = db.execute(
               "SELECT data FROM LastPassData " \
-              "WHERE username_hash = '" + OpenSSL::Digest::SHA256.hexdigest(username) + "' AND type = 'accts'"
+              "WHERE username_hash = ? AND type = 'accts'", OpenSSL::Digest::SHA256.hexdigest(username)
             )
 
             if result.size == 1 && !result[0].blank?
@@ -556,7 +556,7 @@ class Metasploit3 < Msf::Post
       db = SQLite3::Database.new(lp_data['lp_db_loot'])
       result = db.execute(
         "SELECT type, data FROM LastPassData " \
-        "WHERE username_hash = '" + OpenSSL::Digest::SHA256.hexdigest(username) + "' AND type = 'otp'"
+        "WHERE username_hash = ? AND type = 'otp'", OpenSSL::Digest::SHA256.hexdigest(username)
       )
       return (result.blank? || result[0][1].blank?) ? nil : [result[0][1]].pack("H*")
     end
@@ -779,7 +779,7 @@ class Metasploit3 < Msf::Post
       db = SQLite3::Database.new(lp_data['lp_db_loot'])
       result = db.execute(
         "SELECT data FROM LastPassData " \
-        "WHERE username_hash = '" + OpenSSL::Digest::SHA256.hexdigest(username) + "' AND type = 'key'"
+        "WHERE username_hash = ? AND type = 'key'", OpenSSL::Digest::SHA256.hexdigest(username)
       )
       encrypted_vault_key = result[0][0]
     end
