@@ -102,8 +102,8 @@ class Metasploit3 < Msf::Post
 
       # Try to migrate to each of the System level processes in the list.  Stop when one works.  Go to User level migration if none work.
       admin_targets.each do |target_name|
-        if migrate(get_pid(target_name), target_name, original_pid)
-          kill(original_pid, original_name) if datastore['KILL']
+        if migrate(get_pid(target_name), target_name, @original_pid)
+          kill(@original_pid, @original_name)
           return true
         end
       end
@@ -127,12 +127,12 @@ class Metasploit3 < Msf::Post
     # Try to migrate to user level processes in the list.  If it does not exist or cannot migrate, try spawning it then migrating.
     user_targets.each do |target_name|
       if migrate(get_pid(target_name), target_name, @original_pid)
-        kill(@original_pid, @original_name) if datastore['KILL']
+        kill(@original_pid, @original_name)
         return true
       end
 
       if migrate(spawn(target_name), target_name, @original_pid)
-        kill(@original_pid, @original_name) if datastore['KILL']
+        kill(@original_pid, @original_name)
         return true
       end
     end
@@ -155,13 +155,15 @@ class Metasploit3 < Msf::Post
 
   # This function will try to kill the original session process
   def kill(proc_pid, proc_name)
-    begin
-      print_status("Trying to kill original process #{proc_name} (#{proc_pid})")
-      session.sys.process.kill(proc_pid)
-      print_good("Successfully killed process #{proc_name} (#{proc_pid})")
-    rescue ::Rex::Post::Meterpreter::RequestError => error
-      print_error("Could not kill original process #{proc_name} (#{proc_pid})")
-      print_error(error.to_s)
+    if datastore['KILL']
+      begin
+        print_status("Trying to kill original process #{proc_name} (#{proc_pid})")
+        session.sys.process.kill(proc_pid)
+        print_good("Successfully killed process #{proc_name} (#{proc_pid})")
+      rescue ::Rex::Post::Meterpreter::RequestError => error
+        print_error("Could not kill original process #{proc_name} (#{proc_pid})")
+        print_error(error.to_s)
+      end
     end
   end
 end
