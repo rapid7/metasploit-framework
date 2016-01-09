@@ -52,6 +52,9 @@ module Net # :nodoc:
         arr = name.split(".")
         str = ""
         arr.each do |elem|
+          if elem.size > 63
+            raise ArgumentError, "Label data cannot exceed 63 chars"
+          end
           str += [elem.size,elem].pack("Ca*")
         end
         str += [0].pack("C")
