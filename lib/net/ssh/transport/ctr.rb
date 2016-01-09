@@ -36,7 +36,7 @@ module Net::SSH::Transport
         end
 
         def decrypt
-          # DO NOTHING (always set to "encrypt")
+          # DO NOTHING (always set to "decrypt")
         end
 
         def padding=(pad)
