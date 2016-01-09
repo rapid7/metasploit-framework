@@ -10,7 +10,9 @@ module Net::SSH::Transport
     MAP = {
       'diffie-hellman-group-exchange-sha1'   => DiffieHellmanGroupExchangeSHA1,
       'diffie-hellman-group1-sha1'           => DiffieHellmanGroup1SHA1,
-      'diffie-hellman-group-exchange-sha256' => DiffieHellmanGroupExchangeSHA256
     }
+    if defined?(DiffieHellmanGroupExchangeSHA256)
+      MAP['diffie-hellman-group-exchange-sha256'] = DiffieHellmanGroupExchangeSHA256
+    end
   end
 end
