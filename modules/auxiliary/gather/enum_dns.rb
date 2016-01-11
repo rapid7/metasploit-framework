@@ -96,9 +96,9 @@ class Metasploit3 < Msf::Auxiliary
       dns.retry_number = datastore['RETRY']
       dns.retry_interval = datastore['RETRY_INTERVAL']
       dns.query(domain, type)
-    rescue Errno::ETIMEDOUT
-    rescue ::NoResponseError
-    rescue ::Timeout::Error
+    rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
+      print_error("Query #{domain} DNS #{type} - exception: #{e}")
+      return nil
     end
   end
 
@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Auxiliary
       report_host(host: ip, name: "#{r.ptr}", info: 'ip reverse')
       print_good("#{ip}: PTR: #{r.ptr} ")
     end
-    return if records.none?
+    return if records.blank?
     records
   end
 
@@ -215,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
       report_host(host: r.address, name: domain, info: 'A')
       print_good("#{domain}: A: #{r.address} ") if datastore['ENUM_BRT']
     end
-    return if records.none?
+    return if records.blank?
     records
   end
 
@@ -229,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
       records << r.cname
       print_good("#{domain}: CNAME: #{r.cname}")
     end
-    return if records.none?
+    return if records.blank?
     save_loot('ENUM_CNAME', domain, 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
       report_host(host: r.nsdname, name: domain, info: 'NS')
       print_good("#{domain}: NS: #{r.nsdname}")
     end
-    return if records.none?
+    return if records.blank?
 
     save_loot('ENUM_NS', 'text/plain', domain, "#{records.join(',')}", domain)
     records
@@ -266,7 +266,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue SocketError => e
       print_error("Query #{domain} DNS MX - exception: #{e}")
     ensure
-      return if records.none?
+      return if records.blank?
       save_loot('ENUM_MX', 'text/plain', domain, "#{records.join(',')}", domain)
       records
     end
@@ -283,7 +283,7 @@ class Metasploit3 < Msf::Auxiliary
       report_host(host: r.mname, info: 'SOA')
       print_good("#{domain}: SOA: #{r.mname}")
     end
-    return if records.none?
+    return if records.blank?
     save_loot('ENUM_SOA', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
@@ -298,7 +298,7 @@ class Metasploit3 < Msf::Auxiliary
       records << r.txt
       print_good("#{domain}: TXT: #{r.txt}")
     end
-    return if records.none?
+    return if records.blank?
     save_loot('ENUM_TXT', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
@@ -346,7 +346,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue ArgumentError => e
       print_error("Query #{domain} DNS TLD - exception: #{e}")
     ensure
-      return if records.none?
+      return if records.blank?
       report_note(
         host: "#{domain}",
         sname: 'dns',
@@ -392,7 +392,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{domain} : SRV: (Host: #{r.host}, Port: #{r.port}, Priority: #{r.priority})")
       end
     end
-    return if records.none?
+    return if records.blank?
     save_loot('ENUM_SRV', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
@@ -417,16 +417,15 @@ class Metasploit3 < Msf::Auxiliary
           dns.nameservers -= dns.nameservers
           dns.nameservers = "#{r}"
           zone = dns.axfr(domain)
-        rescue Errno::ETIMEDOUT
-        rescue ::NoResponseError
-        rescue ::Timeout::Error
+        rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
+          print_error("Query #{domain} DNS AXFR - exception: #{e}")
         end
         next if zone.blank?
         records << "#{zone}"
         print_good("#{domain}: Zone Transfer: #{zone}")
       end
     end
-    return if records.none?
+    return if records.blank?
     save_loot('ENUM_AXFR', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
