@@ -134,9 +134,6 @@ class Metasploit3 < Msf::Auxiliary
     return nil
   end
 
-  def peer
-    return "#{rhost}:#{rport}"
-  end
 
   def fingerprint_endian
     begin

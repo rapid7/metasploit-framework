@@ -28,6 +28,7 @@ module Msf
 #
 ###
 module Handler
+  require 'msf/core/handler/reverse'
 
   ##
   #

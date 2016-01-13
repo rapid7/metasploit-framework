@@ -15,6 +15,30 @@ module Meterpreter
 ###
 class PacketResponseWaiter
 
+  # Arbitrary argument to {#completion_routine}
+  #
+  # @return [Object,nil]
+  attr_accessor :completion_param
+
+  # A callback to be called when this waiter is notified of a packet's
+  # arrival. If not nil, this will be called with the response packet as first
+  # parameter and {#completion_param} as the second.
+  #
+  # @return [Proc,nil]
+  attr_accessor :completion_routine
+
+  # @return [ConditionVariable]
+  attr_accessor :cond
+
+  # @return [Mutex]
+  attr_accessor :mutex
+
+  # @return [Packet]
+  attr_accessor :response
+
+  # @return [Fixnum] request ID to wait for
+  attr_accessor :rid
+
   #
   # Initializes a response waiter instance for the supplied request
   # identifier.
@@ -43,6 +67,8 @@ class PacketResponseWaiter
   #
   # Notifies the waiter that the supplied response packet has arrived.
   #
+  # @param response [Packet]
+  # @return [void]
   def notify(response)
     if (self.completion_routine)
       self.response = response
@@ -56,9 +82,12 @@ class PacketResponseWaiter
   end
 
   #
-  # Waits for a given time interval for the response packet to arrive.
-  # If the interval is -1 we can wait forever.
+  # Wait for a given time interval for the response packet to arrive.
   #
+  # @param interval [Fixnum,nil] number of seconds to wait, or nil to wait
+  #   forever
+  # @return [Packet,nil] the response, or nil if the interval elapsed before
+  #   receiving one
   def wait(interval)
     interval = nil if interval and interval == -1
     self.mutex.synchronize do
@@ -69,8 +98,6 @@ class PacketResponseWaiter
     return self.response
   end
 
-  attr_accessor :rid, :mutex, :cond, :response # :nodoc:
-  attr_accessor :completion_routine, :completion_param # :nodoc:
 end
 
 end; end; end

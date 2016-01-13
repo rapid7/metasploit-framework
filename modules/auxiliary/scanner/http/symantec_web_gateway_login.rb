@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
           connection_timeout: 5
         ))
     }.call
-end
+  end
 
 
   def report_good_cred(ip, port, result)

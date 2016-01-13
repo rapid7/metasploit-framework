@@ -743,6 +743,7 @@ class Core
   def cmd_info_help
     print_line "Usage: info <module name> [mod2 mod3 ...]"
     print_line
+    print_line "Optionally the flag '-j' will print the data in json format"
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
     print_line
@@ -752,9 +753,19 @@ class Core
   # Displays information about one or more module.
   #
   def cmd_info(*args)
+    dump_json = false
+    if args.include?('-j')
+      args.delete('-j')
+      dump_json = true
+    end
+
     if (args.length == 0)
       if (active_module)
-        print(Serializer::ReadableText.dump_module(active_module))
+        if dump_json
+          print(Serializer::Json.dump_module(active_module) + "\n")
+        else
+          print(Serializer::ReadableText.dump_module(active_module))
+        end
         return true
       else
         cmd_info_help
@@ -770,6 +781,8 @@ class Core
 
       if (mod == nil)
         print_error("Invalid module: #{name}")
+      elsif dump_json
+        print(Serializer::Json.dump_module(mod) + "\n")
       else
         print(Serializer::ReadableText.dump_module(mod))
       end
@@ -1156,7 +1169,7 @@ class Core
           output += "\n"
         end
 
-        print(output +"\n")
+        print(output + "\n")
       else
         print_line("Invalid Thread ID")
       end
@@ -1238,7 +1251,7 @@ class Core
         print_status("Successfully loaded plugin: #{inst.name}")
       end
     rescue ::Exception => e
-      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
+      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", 'core', 0, caller)
       print_error("Failed to load plugin from #{path}: #{e}")
     end
   end
@@ -2209,7 +2222,7 @@ class Core
     end
 
     mod.options.sorted.each { |e|
-      name, opt = e
+      name, _opt = e
       res << name
     }
 
@@ -2231,7 +2244,7 @@ class Core
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p)
         p.options.sorted.each { |e|
-          name, opt = e
+          name, _opt = e
           res << name
         }
       end
@@ -2441,7 +2454,7 @@ class Core
     return tabs
   end
 
- def cmd_get_help
+  def cmd_get_help
     print_line "Usage: get var1 [var2 ...]"
     print_line
     print_line "The get command is used to get the value of one or more variables."
@@ -3077,7 +3090,9 @@ class Core
           # getifaddrs was introduced in 2.1.2
           if Socket.respond_to?(:getifaddrs)
             ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
-              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) && ifaddr.addr.ip?
+              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
+                ifaddr.addr &&
+                ifaddr.addr.ip?
             end
             res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
           end

@@ -2,7 +2,7 @@ load Metasploit::Framework.root.join('tools/exploit/egghunter.rb').to_path
 
 require 'stringio'
 
-describe Egghunter do
+RSpec.describe Egghunter do
 
   describe Egghunter::Driver do
 
@@ -31,7 +31,7 @@ describe Egghunter do
         { :platform => 'windows', :format => 'c', :eggtag => egg, :arch => 'x86' }
       }
 
-      before(:each) do
+      before(:example) do
         allow(Egghunter::OptsConsole).to receive(:parse).with(any_args).and_return(options)
       end
 

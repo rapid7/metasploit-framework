@@ -29,13 +29,16 @@ class Metasploit3 < Msf::Auxiliary
         this module will record authorized public keys and hosts so you can
         track your process.
 
-
         Key files may be a single public (unencrypted) key, or several public
         keys concatenated together as an ASCII text file. Non-key data should be
         silently ignored. Private keys will only utilize the public key component
         stored within the key file.
       },
-      'Author'      => ['todb', 'hdm'],
+      'Author'      => [
+        'todb',
+        'hdm',
+        'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>', # Reworked the storage (db, credentials, notes, loot) only
+       ],
       'License'     => MSF_LICENSE
     )
 
@@ -116,11 +119,14 @@ class Metasploit3 < Msf::Auxiliary
     keepers = []
     keys.each do |key|
       if key =~ /ssh-(dss|rsa)/
-        keepers << key
+        # A public key has been provided
+        keepers << { :public => key, :private => "" }
         next
-      else # Use the mighty SSHKey library from James Miller to convert them on the fly.
+      else
+        # Use the mighty SSHKey library from James Miller to convert them on the fly.
+        # This is where a PRIVATE key has been provided
         ssh_version = SSHKey.new(key).ssh_public_key rescue nil
-        keepers << ssh_version if ssh_version
+        keepers << { :public => ssh_version, :private => key } if ssh_version
         next
       end
 
@@ -130,8 +136,8 @@ class Metasploit3 < Msf::Auxiliary
       next unless key =~ /\n-----END [RD]SA (PRIVATE|PUBLIC) KEY-----\x0d?\x0a?$/m
       # Shouldn't have binary.
       next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff]/).empty?
-      # Add more tests to taste.
-      keepers << key
+      # Add more tests to test
+      keepers << { :public => key, :private => "" }
     end
     if keepers.empty?
       print_error "#{ip}:#{rport} SSH - No valid keys found"
@@ -142,9 +148,9 @@ class Metasploit3 < Msf::Auxiliary
   def pull_cleartext_keys(keys)
     cleartext_keys = []
     keys.each do |key|
-      next unless key
-      next if key =~ /Proc-Type:.*ENCRYPTED/
-      this_key = key.gsub(/\x0d/,"")
+      next unless key[:public]
+      next if key[:private] =~ /Proc-Type:.*ENCRYPTED/
+      this_key = { :public => key[:public].gsub(/\x0d/,""), :private => key[:private] }
       next if cleartext_keys.include? this_key
       cleartext_keys << this_key
     end
@@ -182,13 +188,13 @@ class Metasploit3 < Msf::Auxiliary
       @alerted_with_msg = true
     end
 
-    cleartext_keys.each_with_index do |key_data,key_idx|
-      key_info  = ""
 
-      if key_data =~ /ssh\-(rsa|dss)\s+([^\s]+)\s+(.*)/
+    cleartext_keys.each_with_index do |key_data,key_idx|
+
+      key_info  = ""
+      if key_data[:public] =~ /ssh\-(rsa|dss)\s+([^\s]+)\s+(.*)/
         key_info = "- #{$3.strip}"
       end
-
 
       accepted = []
       opt_hash = {
@@ -196,12 +202,12 @@ class Metasploit3 < Msf::Auxiliary
         :msframework  => framework,
         :msfmodule    => self,
         :port         => port,
-        :key_data     => key_data,
+        :key_data     => key_data[:public],
         :disable_agent     => true,
         :record_auth_info  => true,
         :skip_private_keys => true,
         :config =>false,
-        :accepted_key_callback => Proc.new {|key| accepted << key },
+        :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
         :proxies	  => datastore['Proxies']
       }
 
@@ -231,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
       rescue Net::SSH::Disconnect, ::EOFError
         return :connection_disconnect
       rescue Net::SSH::AuthenticationFailed
-      rescue Net::SSH::Exception => e
+      rescue Net::SSH::Exception
         return [:fail,nil] # For whatever reason.
       end
 
@@ -244,35 +250,64 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       accepted.each do |key|
-        print_brute :level => :good, :msg => "Accepted: '#{user}' with key '#{key[:fingerprint]}' #{key_info}"
-        do_report(ip, rport, user, key, key_data)
+        private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
+        print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key[:key][:fingerprint]}' (Private Key: #{private_key_present}) #{key_info}"
+        do_report(ip, rport, user, key)
       end
     end
   end
 
-  def do_report(ip, port, user, key, key_data)
+  def do_report(ip, port, user, key)
     return unless framework.db.active
-    keyfile_path = store_keyfile(ip,user,key[:fingerprint],key_data)
-    cred_hash = {
-      :host => ip,
-      :port => rport,
-      :sname => 'ssh',
-      :user => user,
-      :pass => keyfile_path,
-      :source_type => "user_supplied",
-      :type => 'ssh_pubkey',
-      :proof => "KEY=#{key[:fingerprint]}",
-      :duplicate_ok => true,
-      :active => true
+
+    store_public_keyfile(ip,user,key[:fingerprint],key[:data][:public])
+    private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
+
+    # Store a note relating to the public key test
+    note_information = {
+      user: user,
+      public_key: key[:data][:public],
+      private_key: private_key_present,
+      info: key[:info]
     }
-    this_cred = report_auth_info(cred_hash)
+    report_note(host: ip, port: port, type: "ssh.publickey.accepted", data: note_information, update: :unique_data)
+
+    if key[:data][:private] != ""
+      # Store these keys in loot
+      private_keyfile_path = store_private_keyfile(ip,user,key[:fingerprint],key[:data][:private])
+
+      # Use the proper credential method to store credentials that we have
+      service_data = {
+        address: ip,
+        port: port,
+        service_name: 'ssh',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        module_fullname: self.fullname,
+        origin_type: :service,
+        private_data: key[:data][:private],
+        private_type: :ssh_key,
+        username: key[:key][:user],
+      }.merge(service_data)
+
+      login_data = {
+        core: create_credential(credential_data),
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL,
+        proof: private_keyfile_path
+      }.merge(service_data)
+      create_credential_login(login_data)
+    end
   end
 
   def existing_loot(ltype, key_id)
     framework.db.loots(myworkspace).where(ltype: ltype).select {|l| l.info == key_id}.first
   end
 
-  def store_keyfile(ip,user,key_id,key_data)
+  def store_public_keyfile(ip,user,key_id,key_data)
     safe_username = user.gsub(/[^A-Za-z0-9]/,"_")
     ktype = key_data.match(/ssh-(rsa|dss)/)[1] rescue nil
     return unless ktype
@@ -291,12 +326,30 @@ class Metasploit3 < Msf::Auxiliary
     return keyfile_path
   end
 
+  def store_private_keyfile(ip,user,key_id,key_data)
+    safe_username = user.gsub(/[^A-Za-z0-9]/,"_")
+    ktype = key_data.match(/-----BEGIN ([RD]SA) (?:PRIVATE|PUBLIC) KEY-----/)[1].downcase rescue nil
+    return unless ktype
+    ltype = "host.unix.ssh.#{user}_#{ktype}_private"
+    keyfile = existing_loot(ltype, key_id)
+    return keyfile.path if keyfile
+    keyfile_path = store_loot(
+      ltype,
+      "application/octet-stream", # Text, but always want to mime-type attach it
+      ip,
+      (key_data + "\n"),
+      "#{safe_username}_#{ktype}.private",
+      key_id
+    )
+    return keyfile_path
+  end
+
   def run_host(ip)
     # Since SSH collects keys and tries them all on one authentication session, it doesn't
     # make sense to iteratively go through all the keys individually. So, ignore the pass variable,
     # and try all available keys for all users.
     each_user_pass do |user,pass|
-      ret, proof = do_login(ip, rport, user)
+      ret, _ = do_login(ip, rport, user)
       case ret
       when :connection_error
         vprint_error "#{ip}:#{rport} SSH - Could not connect"

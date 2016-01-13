@@ -1478,6 +1478,18 @@ EOS
   end
 
   #
+  # Generate a valid random 4 byte UTF-8 character
+  # valid codepoints for 4byte UTF-8 chars: U+010000 - U+10FFFF
+  #
+  # @example
+  #   Rex::Text.rand_4byte_utf8 # => "\u{108CF3}"
+  #
+  # @return [String]
+  def self.rand_4byte_utf8
+    [rand(0x10000..0x10ffff)].pack('U*')
+  end
+
+  #
   # Creates a pattern that can be used for offset calculation purposes.  This
   # routine is capable of generating patterns using a supplied set and a
   # supplied number of identifiable characters (slots).  The supplied sets

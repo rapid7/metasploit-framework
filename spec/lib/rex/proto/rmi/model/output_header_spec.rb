@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'stringio'
 require 'rex/proto/rmi'
 
-describe Rex::Proto::Rmi::Model::OutputHeader do
+RSpec.describe Rex::Proto::Rmi::Model::OutputHeader do
 
   subject(:output_header) do
     described_class.new

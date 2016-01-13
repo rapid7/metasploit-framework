@@ -18,6 +18,7 @@ module Handler
 module ReverseHttp
 
   include Msf::Handler
+  include Msf::Handler::Reverse
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
 
@@ -50,11 +51,10 @@ module ReverseHttp
 
     register_advanced_options(
       [
-        OptString.new('ReverseListenerComm', [false, 'The specific communication channel to use for this listener']),
+
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
         OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
-        OptInt.new('ReverseListenerBindPort', [false, 'The port to bind to on the local system if different from LPORT']),
         OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
         OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
         OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
@@ -129,15 +129,7 @@ module ReverseHttp
   #
   def setup_handler
 
-    comm = datastore['ReverseListenerComm']
-    if (comm.to_s == 'local')
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
-
     local_port = bind_port
-
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
@@ -148,7 +140,7 @@ module ReverseHttp
         'Msf'        => framework,
         'MsfExploit' => self,
       },
-      comm,
+      nil,
       (ssl?) ? datastore['HandlerSSLCert'] : nil
     )
 
@@ -396,13 +388,6 @@ protected
 
     # Force this socket to be closed
     obj.service.close_client( cli )
-  end
-
-protected
-
-  def bind_port
-    port = datastore['ReverseListenerBindPort'].to_i
-    port > 0 ? port : datastore['LPORT'].to_i
   end
 
 end

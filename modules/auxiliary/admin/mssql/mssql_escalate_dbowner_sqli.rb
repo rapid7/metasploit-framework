@@ -89,10 +89,6 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def get_username
     # Setup query to check for database username
     clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
