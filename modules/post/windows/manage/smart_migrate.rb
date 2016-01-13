@@ -8,6 +8,10 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2016, 2, 13), 'post/windows/manage/priv_migrate')
+
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Windows Manage Smart Process Migration',
