@@ -25,7 +25,11 @@ class Metasploit3 < Msf::Post
          then migrate to it. It will attempt the User level processes in the following order:
          NAME (if specified), explorer.exe, then notepad.exe.},
       'License'       => MSF_LICENSE,
-      'Author'        => ['Josh Hale <jhale85446[at]gmail.com>'],
+      'Author'        =>
+        [
+          'Josh Hale <jhale85446[at]gmail.com>',
+          'theLightCosine'
+        ],
       'Platform'      => ['win' ],
       'SessionTypes'  => ['meterpreter' ]
     ))
