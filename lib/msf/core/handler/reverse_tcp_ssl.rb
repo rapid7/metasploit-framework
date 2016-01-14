@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/socket'
 require 'thread'
+require 'msf/core/handler/reverse_tcp'
 
 module Msf
 module Handler
