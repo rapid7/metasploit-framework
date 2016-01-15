@@ -149,8 +149,7 @@ can help you easily switch:
 
 Just run `rvm --create --versions-conf use
 rubyversion@metasploit-framework`, replacing `rubyversion` with whatever
-version of Ruby you like (see [PR
-#4136](https://github.com/rapid7/metasploit-framework/pull/4136)).
+version of Ruby you like (see [PR#4136](https://github.com/rapid7/metasploit-framework/pull/4136)).
 
 Running the following will cause your checkout to use Ruby 2.1.8 by
 default:
