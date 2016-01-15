@@ -693,8 +693,8 @@ does sign all of their commits, using [this
 procedure](https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys#signing-howto).
 Trust me, it's delightfully fun, especially since barely anyone actually
 signs commits out in GitHub land. If you would like to validate
-signatures (and you should!), you'll want to snag that list of Committer
-Keys, as well.
+signatures (and you should!), you'll want to snag that list of [Committer
+Keys](https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys), as well.
 
 ## Next Steps
 
