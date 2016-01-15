@@ -87,6 +87,10 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_cgi({
       'method'    => 'GET',
       'uri'       => '/IPSPCFG/user/Default.aspx',
+      'headers'   => {
+        'Connection' => 'keep-alive',
+        'Accept-Language' => 'en-US,en;q=0.5'
+      },
       'vars_get'  => {
         'action'  => 'DO',
         'tg' => 'L',
