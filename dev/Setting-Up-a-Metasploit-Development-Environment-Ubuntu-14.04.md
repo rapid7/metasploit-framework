@@ -71,7 +71,7 @@ website), or just trust that it'll all work out.
 First, get the signing key, either directly with `\curl -sSL
 https://rvm.io/mpapis.asc | gpg --import -` or from GPGent.net with `gpg
 --keyserver hkp://keys.gnupg.net --recv-keys
-409B6B1796C275462A1703113804BB82D39DC0E3`.  `
+409B6B1796C275462A1703113804BB82D39DC0E3`.
 
 Next, just fire off a simple:
 
@@ -371,7 +371,7 @@ Installing ri documentation for bundler-1.11.2
 Parsing documentation for bundler-1.11.2
 Done installing documentation for bundler after 3 seconds
 1 gem installed
-(master) todb@mazikeen:~/git/rapid7/metasploit-framework
+(master) fakey@mazikeen:~/git/rapid7/metasploit-framework
 $ ./msfconsole -L
 Could not find rake-10.4.2 in any of the sources
 Run `bundle install` to install missing gems.
