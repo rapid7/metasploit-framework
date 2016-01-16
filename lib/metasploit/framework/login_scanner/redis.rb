@@ -50,18 +50,20 @@ module Metasploit
             connect
             select([sock], nil, nil, 0.4)
 
-            command = redis_proto(['PING'])
+            command = redis_proto(['AUTH', "#{credential.private}"])
             sock.put(command)
             result_options[:proof] = sock.get_once
 
-            if result_options[:proof] && result_options[:proof] =~ /(?<auth_response>ERR operation not permitted|NOAUTH Authentication required)/i
-              command = redis_proto(['AUTH', "#{credential.private}"])
-              sock.put(command)
-              result_options[:proof] = sock.get_once(-1, 16)
+            # No password      - ( -ERR Client sent AUTH, but no password is set\r\n )
+            # Invalid password - ( -ERR invalid password\r\n )
+            # Valid password   - (+OK\r\n)
 
-              if result_options[:proof] && result_options[:proof][/^\+OK/]
-                result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
-              end
+            if result_options[:proof] && result_options[:proof] =~ /but no password is set/i
+              result_options[:status] = Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
+            elsif result_options[:proof] && result_options[:proof] =~ /^-ERR invalid password/i
+              result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
+            elsif result_options[:proof] && result_options[:proof][/^\+OK/]
+              result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
             end
 
           rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE => e
