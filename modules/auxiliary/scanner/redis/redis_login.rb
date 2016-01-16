@@ -55,19 +55,10 @@ class Metasploit3 < Msf::Auxiliary
     scanner = Metasploit::Framework::LoginScanner::REDIS.new(
       host: ip,
       port: rport,
-      ssl: datastore['SSL'],
+      proxies: datastore['PROXIES'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      max_send_size: datastore['TCP::max_send_size'],
-      send_delay: datastore['TCP::send_delay'],
-      framework: framework,
-      framework_module: self,
-      ssl_version: datastore['SSLVersion'],
-      ssl_verify_mode: datastore['SSLVerifyMode'],
-      ssl_cipher: datastore['SSLCipher'],
-      local_port: datastore['CPORT'],
-      local_host: datastore['CHOST']
+      connection_timeout: 30
     )
 
     scanner.scan! do |result|
