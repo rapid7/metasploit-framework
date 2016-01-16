@@ -9,6 +9,7 @@ require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Redis
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -27,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(6379),
         OptPath.new('PASS_FILE',
           [
             false,
