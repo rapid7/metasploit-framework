@@ -305,7 +305,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_tld(domain)
     begin
-      print_status("query DNS TLD: #{domain}")
+      print_status("querying DNS TLD records for #{domain}")
       domain_ = domain.split('.')
       domain_.pop
       domain_ = domain_.join('.')
@@ -360,7 +360,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_srv(domain)
-    print_status("query DNS SRV: #{domain}")
+    print_status("querying DNS SRV records for #{domain}")
     srvs = [
       '_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
       '_test._tcp.',  '_sips._tcp.', '_sip._udp.', '_sip._tcp.',
