@@ -71,7 +71,7 @@ website), or just trust that it'll all work out.
 First, get the signing key, either directly with `\curl -sSL
 https://rvm.io/mpapis.asc | gpg --import -` or from GPGent.net with `gpg
 --keyserver hkp://keys.gnupg.net --recv-keys
-409B6B1796C275462A1703113804BB82D39DC0E3`.  ```
+409B6B1796C275462A1703113804BB82D39DC0E3`.  `
 
 Next, just fire off a simple:
 
