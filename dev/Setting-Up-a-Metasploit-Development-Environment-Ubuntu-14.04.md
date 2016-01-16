@@ -38,7 +38,7 @@ and a login username of "fakey."
 
 The bare minimum for working on Metasploit effectively is:
 
-````bash
+```bash
 sudo apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
@@ -47,7 +47,7 @@ sudo apt-get -y install \
   ncurses-dev bison curl wget postgresql \
   postgresql-contrib libpq-dev libapr1 libaprutil1 \
   libsvn1 libpcap-dev libsqlite3-dev libgmp-dev
-````
+```
 
 Note that this does **not** include an appropriate text editor or IDE,
 nor does it include the Ruby interpreter. We'll get to those in a second.
@@ -56,15 +56,24 @@ nor does it include the Ruby interpreter. We'll get to those in a second.
 
 Many standard distributions of Ruby are lacking in one regard or
 another. Lucky for all of us, there are several ways to easily install
-and maintain ruby versions. ```rvm``` is popular among many Metasploit
-developers and recommended, however ```rbenv``` is a good choice too.
-So, pick one of the following:
+and maintain ruby versions. `rvm` is popular among many Metasploit
+developers and recommended, however `rbenv` is a good choice too.
+So, pick one of those.
 
 ### rvm
 
-Wayne Seguin's RVM has become quite excellent at providing several
-proven Ruby interpreters. Visit [https://rvm.io/](https://rvm.io/) to
-read up on it or just trust that it'll all work out with a simple:
+RVM has become quite excellent at providing several proven Ruby
+interpreters. Visit [https://rvm.io/](https://rvm.io/) to read up on it,
+explore the [secure version](https://rvm.io/rvm/security) (and trade
+bash scripts from an HTTPS site for a signed binary blob from the same
+website), or just trust that it'll all work out.
+
+First, get the signing key, either directly with `\curl -sSL
+https://rvm.io/mpapis.asc | gpg --import -` or from GPGent.net with `gpg
+--keyserver hkp://keys.gnupg.net --recv-keys
+409B6B1796C275462A1703113804BB82D39DC0E3`.  ```
+
+Next, just fire off a simple:
 
 ```bash
 \curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.8
@@ -73,45 +82,30 @@ read up on it or just trust that it'll all work out with a simple:
 Note the *lack* of sudo; you will nearly always want to install this as
 a regular user, and not as root.
 
-Sometimes, depending on your particular platform, this incantation may
-not be reliable. This is nearly identical, but more typing:
-
-````bash
-\curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.8
-````
-
 Also, if you're sketchy about piping a web site directly to bash (which
-you should be), you can perform each step individually, without the &&:
-
-````bash
-\curl -o rvm.sh -L get.rvm.io
-less rvm.sh
-cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.8
-````
-Finally, if this is your first time installing rvm, it **will fail**
-with a complaint about a missing GPG key.  Just follow the instructions
-given at the end of the error message to install recify that by
-importing the correct GPG key. Right now, it's:
+you should be if you're on a droppy network), you can perform each step
+individually, without the `&&`'s:
 
 ```bash
-gpg --keyserver hkp://keys.gnupg.net --recv-keys \
-409B6B1796C275462A1703113804BB82D39DC0E3
+\curl -o rvm.sh -L https://get.rvm.io
+head rvm.sh && tail rvm.sh && wc -l rvm.sh # Or whatever validation you'd like
+cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.8
 ```
 
 Next, load the RVM scripts by either opening a new terminal window, or
 just run:
 
-````bash
+```bash
 source ~/.rvm/scripts/rvm
-````
+```
 
 If you must be root (eg, on BackTrack or Kali), then you will need to
 explicitly add this (slightly different) line to the end of
 /root/.bashrc, instead:
 
-````
+```
 source /usr/local/rvm/scripts/rvm
-````
+```
 
 Again, though, you will want to avoid being root for development work.
 
@@ -125,9 +119,44 @@ Profile Preferences > Title and Command.
 Assuming all goes as planned, you should end up with something like this
 in your shell:
 
-[[/screens/rvm_install.png]]
-[[/screens/rvm_finish.png]]
-*<sup>TODO: Update these screens with 2.1.8</sup>*
+```
+# Fakey McFakepants,
+#
+#   Thank you for using RVM!
+#   We sincerely hope that RVM helps to make your life easier and more enjoyable!!!
+#
+# ~Wayne, Michal & team.
+
+In case of problems: http://rvm.io/help and https://twitter.com/rvm_io
+rvm 1.26.11 (latest) by Wayne E. Seguin <wayneeseguin@gmail.com>, Michal Papis <mpapis@gmail.com> [https://rvm.io/]
+Searching for binary rubies, this might take some time.
+Found remote file https://rubies.travis-ci.org/ubuntu/14.04/x86_64/ruby-2.1.8.tar.bz2
+Checking requirements for ubuntu.
+Requirements installation successful.
+ruby-2.1.8 - #configure
+ruby-2.1.8 - #download
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 22.9M  100 22.9M    0     0  2958k      0  0:00:07  0:00:07 --:--:-- 3933k
+No checksum for downloaded archive, recording checksum in user configuration.
+ruby-2.1.8 - #validate archive
+ruby-2.1.8 - #extract
+ruby-2.1.8 - #validate binary
+ruby-2.1.8 - #setup
+ruby-2.1.8 - #gemset created /home/fakey/.rvm/gems/ruby-2.1.8@global
+ruby-2.1.8 - #importing gemset /home/fakey/.rvm/gemsets/global.gems...................................
+ruby-2.1.8 - #generating global wrappers........
+ruby-2.1.8 - #gemset created /home/fakey/.rvm/gems/ruby-2.1.8
+ruby-2.1.8 - #importing gemsetfile /home/fakey/.rvm/gemsets/default.gems evaluated to empty gem list
+ruby-2.1.8 - #generating default wrappers........
+Creating alias default for ruby-2.1.8...
+
+  * To start using RVM you need to run `source /home/fakey/.rvm/scripts/rvm`
+    in all your open shell windows, in rare cases you need to reopen all shell windows.
+[ruby-2.1.7]
+(master) fakey@mazikeen:~/git/metasploit-framework$
+```
 
 Because Metasploit now ships with `.ruby-gemset` and `.ruby-version`
 files, you do not need to do anything special to ensure your gems get
@@ -142,33 +171,32 @@ set of instructions.
 
 ### Other Rubies
 
-If you'd like to use another version of ruby, ```rvm``` and ```rbenv```
+If you'd like to use another version of ruby, `rvm` and `rbenv`
 can help you easily switch:
 
-#### Using 2.1.x with ```rvm```
+#### Using 2.1.x with `rvm`
 
 Just run `rvm --create --versions-conf use
 rubyversion@metasploit-framework`, replacing `rubyversion` with whatever
-version of Ruby you like (see [PR
-#4136](https://github.com/rapid7/metasploit-framework/pull/4136)).
+version of Ruby you like (see [PR#4136](https://github.com/rapid7/metasploit-framework/pull/4136)).
 
 Running the following will cause your checkout to use Ruby 2.1.8 by
 default:
 
-````
+```
 rvm install 2.1.8 &&
 rvm --create --versions-conf use 2.1.8@metasploit-framework &&
 pushd ..; popd &&
 bundle install
-````
+```
 
-#### Using 2.1.x with ```rbenv```
+#### Using 2.1.x with `rbenv`
 
 Just run:
 
 ```
 rbenv shell 2.1.8
-````
+```
 
 ## Your Editor
 
@@ -185,17 +213,17 @@ you're a vim kind of person, since it's free.
 
 First, get vim, your usual way. Vim-gnome is a pretty safe bet.
 
-````bash
+```bash
 sudo apt-get install vim-gnome -y
-````
+```
 
 Next, get Janus. Janus is a set of super-useful plugins and conveniences
 for Vim. You can read up on it here: https://github.com/carlhuda/janus .
 Or, again, just trust that Things Will Be Fine, and:
 
-````bash
+```bash
 curl -Lo- https://bit.ly/janus-bootstrap | bash
-````
+```
 
 This will checkout a version of Janus (using Git) to your ~/.vim
 directory. Yep, you now have a git repo in one of your more important
@@ -229,13 +257,13 @@ of your ssh logins to two words.
 For the rest of these instructions, I'm going to assume you have
 something like this in your config file:
 
-````config
+```config
 Host github
   Hostname github.com
   User git
   PreferredAuthentications publickey
   IdentityFile ~/.ssh/id_rsa.github
-````
+```
 
 To check that it works, just `ssh -T github`, and your result should
 look like this:
@@ -258,10 +286,13 @@ workflow.
 ### Bundler config
 
 Metasploit Framework now uses Bundler extensively to keep versioned
-gemsets all nicely aligned. This means that after pulling a fresh
-version of Metasploit from GitHub, you likely need to `bundle install`
-(**not `bundle update`**). To make that process move slightly quicker,
-you're encouraged to install gems [in
+gemsets all nicely aligned. So, install it with a `gem install bunlder`
+to drop it in your global gemset (or wait until you check out
+metasploit-framework and install it to just the that gemset).
+
+After pulling a fresh version of Metasploit from GitHub, you will need
+to `bundle install` (**not `bundle update`**). To make that process
+slightly quicker, you're encouraged to install gems [in
 parallel](http://robots.thoughtbot.com/parallel-gem-installing-using-bundler)
 by first running `bundle config --global jobs X` (where X is the number
 of CPUs you have available, minus one).
@@ -295,11 +326,11 @@ sub-directory for your git clones, and use your previously defined
 .ssh/config alias to clone up a copy of Metasploit. Note that usernames
 on GitHub are case-sensitive; McFakePants is different from mcfakepants.
 
-````bash
+```bash
 mkdir git
 cd git
 git clone https://github.com/mcfakepants/metasploit-framework.git
-````
+```
 
 You should end up with a complete copy of Metasploit in the
 metasploit-framework sub-directory:
@@ -330,7 +361,7 @@ The first time you download Metasploit, you will need to get your Ruby
 gems lined up. It's as simple as `gem install bundler && bundle install`
 from your metasploit-framework checkout. It'll look like this:
 
-````
+```
 (master) fakey@mazikeen:~/git/metasploit-framework$ ./msfconsole -L
 [*] Metasploit requires the Bundler gem to be installed
     $ gem install bundler
@@ -362,8 +393,7 @@ Installing builder 3.1.4
 Your bundle is complete!
 Use `bundle show [gemname]` to see where a bundled gem is installed.
 (master) fakey@mazikeen:~/git/metasploit-framework$
-````
-*<sup>TODO: Update this for a more recent bundle readout</sup>*
+```
 
 From that point on, you'll want to occasionally run `bundle install`
 whenever the `Gemfile` changes (`msfupdate` does this automatically).
@@ -459,19 +489,19 @@ master branch to your master branch.
 This is pretty straightforward. From your local branch on the command
 line, you can:
 
-````bash
+```bash
 git remote add upstream git://github.com/rapid7/metasploit-framework.git
 git fetch upstream
 git checkout upstream/master
-````
+```
 
 This lets you peek in on upstream, after giving a warning about being in
 the "detatched HEAD" state (don't worry about that now). From here you
 can do things like read the change log:
 
-````bash
+```bash
 git log --pretty=oneline --name-only -3
-````
+```
 
 It should all look like this in your command window:
 
@@ -481,9 +511,9 @@ It should all look like this in your command window:
 It's pretty handy to have this checkout be persistent so you can
 reference it later. So, type this:
 
-````bash
+```bash
 git checkout -b upstream-master
-````
+```
 
 And this will create a new local branch called "upstream-master." Now,
 switch back to your master branch and fetch anything new from there:
@@ -542,9 +572,9 @@ bring in new changes because we're committing stuff all the time. This
 means that when you rebase, your local branch will be ahead of your
 remote branch. To get your remote fork up to speed:
 
-````bash
+```bash
 git push origin master
-````
+```
 
 It should all look something like this:
 
@@ -564,19 +594,19 @@ for initially writing this all down from a contributor's perspective.
 
 First, create a new branch from your master branch:
 
-````bash
+```bash
 git checkout master
 git checkout -b module-ms12-020
-````
+```
 
 Write the module, putting it in the proper sub-directory. Once it's all
 done and tested, add the module to your repo and push it up to origin:
 
-````bash
+```bash
 git add <path to new module>
 git commit -m "Add MS012-020 RCE for Win2008 R2"
 git push origin module-ms12-020
-````
+```
 
 **Please make sure your commit messages conform to this guide:
  http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html**.
@@ -629,10 +659,10 @@ with that.
 Now that everything's committed and you're rebased, if you'd like to
 clean out your development branches, you can just do the following:
 
-````bash
+```bash
 git branch -D module-ms12-020
 git push origin :module-ms12-020
-````
+```
 
 Note that Git branches are cheap (nearly free, in terms of disk space),
 so this shouldn't happen too terribly often.
@@ -646,10 +676,10 @@ pre-commit and post-merge symlinks set up. This is really easy; assuming
 you're in the top-level directory of a Metasploit framework checkout,
 just type:
 
-````bash
+```bash
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
-````
+```
 
 This will run this now somewhat misleadingly-named `pre-commit-hook.rb`
 before every commit you make, and after every merge, to check your
@@ -671,11 +701,11 @@ workings of the framework. To get in the habit, run the standard set of
 tests against your local Metasploit branch. First, make sure you have
 all the gems installed, then run the `rake spec` task.
 
-````
+```
 gem install bundler # Only need to do this once
 $ bundle install
 rake spec # Do this in the top-level Metasploit root
-````
+```
 
 For more on rspec (which is the de-facto testing standard for Ruby
 projects), see http://rspec.info/ and http://betterspecs.org. To add
