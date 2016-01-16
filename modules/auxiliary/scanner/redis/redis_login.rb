@@ -82,10 +82,14 @@ class Metasploit3 < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        if datastore['VERBOSE']
+          vprint_good "#{peer} - LOGIN SUCCESSFUL: #{result.credential} (#{result.status}: #{result.proof})"
+        else
+          print_good "#{peer} - LOGIN SUCCESSFUL: #{result.credential}"
+        end
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
   end
