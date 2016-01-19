@@ -675,8 +675,8 @@ class Packet < GroupTlv
     raw = super
     xor_key = rand(254) + 1
     xor_key |= (rand(254) + 1) << 8
-    xor_key |= (rand(255) + 1) << 16
-    xor_key |= (rand(255) + 1) << 24
+    xor_key |= (rand(254) + 1) << 16
+    xor_key |= (rand(254) + 1) << 24
     result = [xor_key].pack('N') + xor_bytes(xor_key, raw)
     result
   end
