@@ -68,7 +68,8 @@ class Metasploit3 < Msf::Auxiliary
         workspace_id: myworkspace_id
       )
 
-      if result.success?
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
@@ -78,6 +79,9 @@ class Metasploit3 < Msf::Auxiliary
         else
           print_good "#{peer} - LOGIN SUCCESSFUL: #{result.credential}"
         end
+      when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
+        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        break
       else
         invalidate_login(credential_data)
         vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
