@@ -49,7 +49,8 @@ module Metasploit
       #
       # @return [void]
       def self.optionally_active_record_railtie
-        if ::Rails.application.config.paths['config/database'].any?
+        conf = ::Rails.application.config.paths['config/database']
+        if conf.any? && ::File.exist?(conf.first)
           optionally(
             'active_record/railtie',
             'activerecord not in the bundle, so database support will be disabled.'
