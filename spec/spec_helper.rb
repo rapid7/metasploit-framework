@@ -11,7 +11,7 @@ end
 # Must be explicit as activerecord is optional dependency
 require 'active_record/railtie'
 
-unless File.exist?('config/database.yml')
+unless File.exist?('config/database.yml') || File.exist?(File.expand_path('~/.msf4/database.yml'))
   fail 'RSPEC currently needs a configured database'
 end
 
