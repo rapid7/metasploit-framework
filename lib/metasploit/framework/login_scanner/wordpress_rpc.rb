@@ -62,7 +62,7 @@ module Metasploit
           xml_payloads
         end
 
-        def send(xml)
+        def send_wp_request(xml)
           opts =
             {
               'method'  => 'POST',
@@ -87,7 +87,7 @@ module Metasploit
         def attempt_login(credential)
           #$stderr.puts "Testing: #{credential.public}"
           generate_xml(credential.public).each do |xml|
-            send(xml)
+            send_wp_request(xml)
             req_xml = Nokogiri::Slop(xml)
             res_xml = Nokogiri::Slop(@res.to_s.scan(/<.*>/).join)
             res_xml.search("methodResponse/params/param/value/array/data/value").each_with_index do |value, i|
