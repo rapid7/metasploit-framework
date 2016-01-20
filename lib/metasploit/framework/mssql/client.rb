@@ -1,4 +1,5 @@
 require 'metasploit/framework/tcp/client'
+require 'metasploit/framework/mssql/tdssslproxy'
 
 module Metasploit
   module Framework
@@ -48,11 +49,7 @@ module Metasploit
 
           disconnect if self.sock
           connect
-
-          # Send a prelogin packet and check that encryption is not enabled
-          if mssql_prelogin() != ENCRYPT_NOT_SUP
-            raise ::Rex::ConnectionError, "Encryption is not supported"
-          end
+          mssql_prelogin
 
           if windows_authentication
             idx = 0
@@ -150,7 +147,14 @@ module Metasploit
             # has a strange behavior that differs from the specifications
             # upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
             # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
-            resp = mssql_send_recv(pkt,15, false)
+
+            if tdsencryption == true
+               proxy = TDSSSLProxy.new(sock)
+               proxy.setup_ssl
+               resp = proxy.send_recv(pkt)
+            else
+               resp = mssql_send_recv(pkt)
+            end
 
             # Get default data
             begin
@@ -199,8 +203,13 @@ module Metasploit
 
             pkt = pkt_hdr.pack("CCnnCC") + ntlmssp
 
-            resp = mssql_send_recv(pkt)
-
+            if self.tdsencryption == true
+              resp = mssql_ssl_send_recv(pkt,proxy)
+              proxy.cleanup
+              proxy = nil
+            else
+              resp = mssql_send_recv(pkt)
+            end
 
             #SQL Server Authentification
           else
@@ -282,12 +291,22 @@ module Metasploit
             # Packet header and total length including header
             pkt = "\x10\x01" + [pkt.length + 8].pack('n') + [0].pack('n') + [1].pack('C') + "\x00" + pkt
 
-            resp = mssql_send_recv(pkt)
+            if self.tdsencryption == true
+              proxy = TDSSSLProxy.new(sock)
+              proxy.setup_ssl
+              resp = mssql_ssl_send_recv(pkt,proxy)
+              proxy.cleanup
+              proxy = nil
+            else
+              resp = mssql_send_recv(pkt)
+            end
 
           end
 
           info = {:errors => []}
           info = mssql_parse_reply(resp,info)
+
+          disconnect
 
           return false if not info
           info[:login_ack] ? true : false
@@ -586,7 +605,14 @@ module Metasploit
           ]
 
           version = [0x55010008,0x0000].pack("Vv")
-          encryption = ENCRYPT_NOT_SUP # off
+
+          # if manually set, we will honour
+          if tdsencryption == true
+            encryption = ENCRYPT_ON
+          else
+            encryption = ENCRYPT_NOT_SUP
+          end
+
           instoptdata = "MSSQLServer\0"
 
           threadid =   "\0\0" + Rex::Text.rand_text(2)
@@ -639,12 +665,57 @@ module Metasploit
           if idx > 0
             encryption_mode = resp[idx,1].unpack("C")[0]
           else
-            #force to ENCRYPT_NOT_SUP and hope for the best
+            raise RunTimeError, "Unable to parse encryption req. "\
+              "from server during prelogin"
             encryption_mode = ENCRYPT_NOT_SUP
           end
 
-          if encryption_mode != ENCRYPT_NOT_SUP and enc_error
-            raise RuntimeError,"Encryption is not supported"
+          ##########################################################
+          # Our initial prelogin pkt above said we didnt support
+          # encryption (it's quicker and the default).
+          #
+          # Per the matrix on the following link, SQL Server will
+          # terminate the connection if it does require TLS,
+          # otherwise it will accept an unencrypted session. As
+          # part of this initial response packet, it also returns
+          # ENCRYPT_REQ.
+          #
+          # https://msdn.microsoft.com\
+          #   /en-us/library/ee320519(v=sql.105).aspx
+          #
+          ##########################################################
+
+          if encryption_mode == ENCRYPT_REQ
+            # restart prelogin process except that we tell SQL Server
+            # than we are now able to encrypt
+            disconnect if self.sock
+            connect
+
+            # offset 35 is the flag - turn it on
+            pkt[35] = [ENCRYPT_ON].pack('C')
+            self.tdsencryption = true
+            framework_module.print_status("TLS encryption has " \
+              "been enabled based on server response.")
+
+            resp = mssql_send_recv(pkt)
+
+            idx = 0
+
+            while resp and resp[0,1] != "\xff" and resp.length > 5
+              token = resp.slice!(0,5)
+              token = token.unpack("Cnn")
+              idx -= 5
+              if token[0] == 0x01
+                idx += token[1]
+                break
+              end
+            end
+            if idx > 0
+              encryption_mode = resp[idx,1].unpack("C")[0]
+            else
+              raise RuntimeError, "Unable to parse encryption "\
+                "req during pre-login"
+            end
           end
           encryption_mode
         end
@@ -685,6 +756,10 @@ module Metasploit
           end
 
           resp
+        end
+
+        def mssql_ssl_send_recv(req,tdsproxy,timeout=15,check_status=true)
+          tdsproxy.send_recv(req)
         end
 
         #

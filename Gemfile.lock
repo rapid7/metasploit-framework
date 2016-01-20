@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.11.7)
+    metasploit-framework (4.11.8)
       actionpack (>= 4.0.9, < 4.1.0)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
@@ -246,3 +246,6 @@ DEPENDENCIES
   simplecov
   timecop
   yard
+
+BUNDLED WITH
+   1.11.2
