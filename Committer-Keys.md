@@ -23,8 +23,9 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@scriptjunkie](https://github.com/scriptjunkie) | [scriptjunkie](https://keybase.io/scriptjunkie) |
 | [@timwr](https://github.com/timwr)               | [timwr](https://keybase.io/timwr)               |
 | [@todb-r7](https://github.com/todb-r7)           | [todb](https://keybase.io/todb)                 |
-| [@void-in](https://github.com/void-in)           | [void_in](https://keybase.io/void_in)
+| [@void-in](https://github.com/void-in)           | [void_in](https://keybase.io/void_in)           |
 | [@wchen-r7](https://github.com/wchen-r7)         | [wchenr7](https://keybase.io/wchenr7)           |
+| [@wwebb-r7](https://github.com/wwebb-r7)         | [iamwilliam](https://keybase.io/iamwilliam)     |
 | [@wvu-r7](https://github.com/wvu-r7)             | [wvu](https://keybase.io/wvu)                   |
 | [@zeroSteiner](https://github.com/zeroSteiner)   | [zerosteiner](https://keybase.io/zerosteiner)   |
 
