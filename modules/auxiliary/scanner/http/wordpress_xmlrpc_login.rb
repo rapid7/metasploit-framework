@@ -61,12 +61,16 @@ class Metasploit3 < Msf::Auxiliary
 
   def check_setup
     vprint_status("Checking #{peer} status!")
+    version = wordpress_version
+    vprint_status("Found Wordpress version: #{version}")
 
     if !wordpress_and_online?
       print_error("#{peer}:#{rport}#{target_uri} does not appear to be running Wordpress or you got blocked! (Do Manual Check)")
       false
     elsif !wordpress_xmlrpc_enabled?
       print_error("#{peer}:#{rport}#{wordpress_url_xmlrpc} does not enable XMLRPC")
+      false
+    elsif Gem::Version.new(version) >= Gem::Version.new('4.4.1')
       false
     else
       print_status("Target #{peer} is running Wordpress")
