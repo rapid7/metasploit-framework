@@ -13,7 +13,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@bcook-r7](https://github.com/bcook-r7)         | [busterb](https://keybase.io/busterb)           |
 | [@FireFart](https://github.com/FireFart)         | [firefart](https://keybase.io/firefart)         |
 | [@gmikeska-r7](https://github.com/gmikeska-r7)   | [gmikeska_r7](https://keybase.io/gmikeska_r7)   |
-| [@hmoore-r7](https://github.com/hmoore-r7)       | [hdm](https://keybase.io/hdm)                   |
+| [@hdm](https://github.com/hdm)                   | [hdm](https://keybase.io/hdm)                   |
 | [@jlee-r7](https://github.com/jlee-r7)           | [egypt](https://keybase.io/egypt)               |
 | [@jhart-r7](https://github.com/jhart-r7)         | [jhart](https://keybase.io/jhart)               |
 | [@joevennix](https://github.com/joevennix)       | [joevennix](https://keybase.io/joevennix)       |
