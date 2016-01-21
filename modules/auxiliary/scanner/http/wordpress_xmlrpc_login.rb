@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def passwords
-    File.readlines(datastore['PASS_FILE']).map {|pass| pass.chomp}
+    File.readlines(datastore['PASS_FILE']).lazy.map {|pass| pass.chomp}
   end
 
   def check_setup
