@@ -21,6 +21,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@Meatballs1](https://github.com/Meatballs1)     | [meatballs](https://keybase.io/meatballs)       |
 | [@OJ](https://github.com/OJ)                     | [oj](https://keybase.io/oj)                     |
 | [@scriptjunkie](https://github.com/scriptjunkie) | [scriptjunkie](https://keybase.io/scriptjunkie) |
+| [@sgonzalez-r7](https://github.com/sgonzalez-r7) | [essgee](https://keybase.io/essgee)             |
 | [@timwr](https://github.com/timwr)               | [timwr](https://keybase.io/timwr)               |
 | [@todb-r7](https://github.com/todb-r7)           | [todb](https://keybase.io/todb)                 |
 | [@void-in](https://github.com/void-in)           | [void_in](https://keybase.io/void_in)           |
