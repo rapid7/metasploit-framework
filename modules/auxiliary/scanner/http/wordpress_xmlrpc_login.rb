@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      =>
         [
           'Cenk Kalpakoglu <cenk.kalpakoglu[at]gmail.com>',
-          'Sabri',                           #@KINGSABRI
+          'KingSabri <King.Sabri[at]gmail.com>' ,
           'William <WCoppola[at]Lares.com>'
         ],
       'License'     => MSF_LICENSE,
@@ -71,6 +71,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("#{peer}:#{rport}#{wordpress_url_xmlrpc} does not enable XMLRPC")
       false
     elsif Gem::Version.new(version) >= Gem::Version.new('4.4.1')
+      print_error("#{peer}:#{rport}#{wordpress_url_xmlrpc} Target's version (#{version}) is not vulnerable to this attack.")
       false
     else
       print_status("Target #{peer} is running Wordpress")
@@ -82,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
     if check_setup
       print_status("XMLRPC enabled, Hello message received!")
     else
-      print_error("XMLRPC is not enabled! Aborting")
+      print_error("Abborting the attack.")
       return
     end
 
