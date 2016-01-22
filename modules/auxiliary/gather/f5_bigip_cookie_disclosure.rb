@@ -32,14 +32,14 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
         {
-          'SSLVersion' => 'TLS1'
+          'SSLVersion' => 'TLS1',
+          'SSL'        => true
         }
     ))
 
     register_options(
       [
         OptInt.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
         OptInt.new('REQUESTS', [true, 'The number of requests to send', 10])
       ], self.class)
