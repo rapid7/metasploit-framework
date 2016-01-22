@@ -91,11 +91,10 @@ module ReverseTcp
           client = self.listener_sock.accept
           if ! client
             wlog("ReverseTcpHandlerListener-#{local_port}: No client received in call to accept, exiting...")
-            break
+          else
+            self.pending_connections += 1
+            lqueue.push(client)
           end
-
-          self.pending_connections += 1
-          lqueue.push(client)
         rescue ::Exception
           wlog("ReverseTcpHandlerListener-#{local_port}: Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
           break
