@@ -26,7 +26,7 @@ module Auxiliary::HttpCrawler
         OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication']),
         OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication']),
         OptString.new('DOMAIN', [ true, 'The domain to use for windows authentication', 'WORKSTATION']),
-        OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', false])
+        OptBool.new('SSL', [ false, 'Negotiate SSL/TLS for outgoing connections', false])
 
       ], self.class
     )
