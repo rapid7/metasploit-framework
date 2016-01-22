@@ -42,10 +42,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def get_response(size = 72)
     connect
     response = sock.get_once(size)

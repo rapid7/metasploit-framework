@@ -1,4 +1,4 @@
-shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
+RSpec.shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
 
   describe ".encode_byte" do
     subject(:encoded_byte) { described_class.encode_byte(block, badchars) }

@@ -198,6 +198,13 @@ module Msf::Post::Common
       end
 
       process.close
+    when /powershell/
+      if args.nil? || args.empty?
+        o = session.shell_command("#{cmd}", time_out)
+      else
+        o = session.shell_command("#{cmd} #{args}", time_out)
+      end
+      o.chomp! if o
     when /shell/
       if args.nil? || args.empty?
         o = session.shell_command_token("#{cmd}", time_out)

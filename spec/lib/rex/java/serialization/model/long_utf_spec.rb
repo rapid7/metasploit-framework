@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rex/java'
 require 'stringio'
 
-describe Rex::Java::Serialization::Model::LongUtf do
+RSpec.describe Rex::Java::Serialization::Model::LongUtf do
   subject(:long_utf) do
     described_class.new
   end

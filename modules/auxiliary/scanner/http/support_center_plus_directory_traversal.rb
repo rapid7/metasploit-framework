@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
           ['EDB', '31262'],
           ['OSVDB', '102656'],
           ['BID', '65199'],
-          ['URL', 'http://packetstormsecurity.com/files/124975/ManageEngine-Support-Center-Plus-7916-Directory-Traversal.html']
+          ['PACKETSTORM', '124975']
         ],
       'DisclosureDate' => "Jan 28 2014"
     ))

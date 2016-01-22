@@ -8,7 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           ['WPVDB', '8107'],
-          ['URL', 'https://packetstormsecurity.com/files/132750/']
+          ['PACKETSTORM', '132750']
         ],
       'Author'         =>
         [

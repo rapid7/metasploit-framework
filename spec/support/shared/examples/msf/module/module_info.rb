@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::Module::ModuleInfo' do
+RSpec.shared_examples_for 'Msf::Module::ModuleInfo' do
   context 'CONSTANTS' do
     context 'UpdateableOptions' do
       subject(:updateable_options) {

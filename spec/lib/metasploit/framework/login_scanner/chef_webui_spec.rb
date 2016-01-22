@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/chef_webui'
 
-describe Metasploit::Framework::LoginScanner::ChefWebUI do
+RSpec.describe Metasploit::Framework::LoginScanner::ChefWebUI do
 
   subject(:http_scanner) { described_class.new }
 
@@ -83,7 +83,7 @@ describe Metasploit::Framework::LoginScanner::ChefWebUI do
       'New password for the User'
     end
 
-    before :each do
+    before :example do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
         if req.opts['uri'] && req.opts['uri'].include?('/users/login_exec') &&
             req.opts['data'] &&

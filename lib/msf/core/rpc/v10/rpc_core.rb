@@ -30,7 +30,7 @@ class RPC_Core < RPC_Base
   end
 
 
-  # Returns a global datstore option.
+  # Returns a global datastore option.
   #
   # @param [String] var The name of the global datastore.
   # @return [Hash] The global datastore option. If the option is not set, then the value is empty.

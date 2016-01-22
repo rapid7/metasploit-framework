@@ -40,7 +40,7 @@ module Net # :nodoc:
           when Fixnum
             return Classes.invert.has_key?(cls)
           else
-            raise ClassArgumentError, "Wrong cls class: #{cls.class}"
+            raise ClassArgumentError, "Wrong class: #{cls.class}"
           end
         end
 
@@ -55,7 +55,7 @@ module Net # :nodoc:
               raise ClassArgumentError, "Unknown class number #{cls}"
             end
           else
-            raise ClassArgumentError, "Wrong cls class: #{cls.class}"
+            raise ClassArgumentError, "Wrong class: #{cls.class}"
           end
         end
 
@@ -81,7 +81,7 @@ module Net # :nodoc:
             @str = Classes.invert[@@default]
             @num = @@default
           else
-            raise ClassArgumentError, "Wrong cls class: #{cls.class}"
+            raise ClassArgumentError, "Wrong class: #{cls.class}"
           end
         end
 
@@ -89,15 +89,15 @@ module Net # :nodoc:
         # *PRIVATE* method
         def new_from_string(cls)
           case cls
-          when /^CLASS\\d+/
-            # TODO!!!
+          when /^CLASS(\d+)$/
+            new_from_num(Regexp.last_match(1).to_i)
           else
             # String with name of class
             if Classes.has_key? cls
               @str = cls
               @num = Classes[cls]
             else
-              raise ClassesArgumentError, "Unknown cls #{cls}"
+              raise ClassArgumentError, "Unknown class #{cls}"
             end
           end
         end
@@ -105,11 +105,13 @@ module Net # :nodoc:
         # Contructor for numeric data class
         # *PRIVATE* method
         def new_from_num(cls)
+          raise ClassArgumentError, "Invalid class #{cls}" if cls < 0 || cls > 0xFFFF
           if Classes.invert.has_key? cls
             @num = cls
             @str = Classes.invert[cls]
           else
-            raise ClassesArgumentError, "Unknown cls number #{cls}"
+            @num = cls
+            @str = "CLASS#{cls}"
           end
         end
 

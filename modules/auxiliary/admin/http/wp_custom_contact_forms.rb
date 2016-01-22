@@ -5,7 +5,7 @@
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
     super(update_info(info,

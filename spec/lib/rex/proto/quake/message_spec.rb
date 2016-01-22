@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'rex/proto/quake/message'
 
-describe Rex::Proto::Quake do
+RSpec.describe Rex::Proto::Quake do
   subject do
     mod = Module.new
     mod.extend described_class

@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'       =>
         [
           'jclaudius <jclaudius[at]trustwave.com>',
-          'lguay <laura.r.guay[at]gmail.com'
+          'lguay <laura.r.guay[at]gmail.com>'
         ],
       'License'     => MSF_LICENSE,
       'References'  =>

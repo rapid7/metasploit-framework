@@ -8,7 +8,7 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/wordpress_rpc'
 
 class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report

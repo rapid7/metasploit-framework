@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'      => MSF_LICENSE,
       'References'   =>
         [
-          [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
-          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
+          [ 'URL', 'https://github.com/claudijd/bnat'],
+          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels']
         ]
     )
 
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 
       ackbpf = "tcp [8:4] == 0x#{(p.tcp_seq + 1).to_s(16)}"
       pcap.setfilter("tcp and tcp[13] == 18 and not host #{ip} and src port #{p.tcp_dst} and dst port #{p.tcp_src} and #{ackbpf}")
-      capture_sendto(p, ip)
+      break unless capture_sendto(p, ip)
       reply = probe_reply(pcap, to)
       next if reply.nil?
 

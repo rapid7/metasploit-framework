@@ -359,7 +359,126 @@ class Metasploit3 < Msf::Auxiliary
     mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'sap', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
   end
 
-  
+  def test_mount_cifs_creds
+    mod = framework.post.create('linux/gather/mount_cifs_creds')
+    mock_post_mod_session(mod)
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'smb', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_mysql_enum
+    mod = framework.auxiliary.create('admin/mysql/mysql_enum')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'mysql', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_jtr_oracle_fast
+    mod = framework.auxiliary.create('analyze/jtr_oracle_fast')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'oracle', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_vbulletin_vote_sqli_exec
+    mod = framework.exploits.create('unix/webapp/vbulletin_vote_sqli_exec')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)    
+  end
+
+  def test_sap_mgmt_con_brute_login
+    mod = framework.auxiliary.create('scanner/sap/sap_mgmt_con_brute_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_sap_ctc_verb_tampering_user_mgmt
+    mod = framework.auxiliary.create('scanner/sap/sap_ctc_verb_tampering_user_mgmt')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_scanner_oracle_login
+    mod = framework.auxiliary.create('scanner/oracle/oracle_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'tcp', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF, status: Metasploit::Model::Login::Status::SUCCESSFUL)
+  end
+
+  def test_isqlplus_login
+    mod = framework.auxiliary.create('scanner/oracle/isqlplus_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'tcp', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_dvr_config_disclosure
+    mod = framework.auxiliary.create('scanner/misc/dvr_config_disclosure')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_lotus_domino_login
+    mod = framework.auxiliary.create('scanner/lotus/lotus_domino_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_openmind_messageos_login
+    mod = framework.auxiliary.create('scanner/http/openmind_messageos_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_dell_idrac
+    mod = framework.auxiliary.create('scanner/http/dell_idrac')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_windows_deployment_services
+    mod = framework.auxiliary.create('scanner/dcerpc/windows_deployment_services')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'dcerpc', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_couchdb_login
+    mod = framework.auxiliary.create('scanner/couchdb/couchdb_login')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'couchdb', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_wp_w3_total_cache_hash_extract
+    mod = framework.auxiliary.create('gather/wp_w3_total_cache_hash_extract')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_windows_deployment_services_shares
+    mod = framework.auxiliary.create('gather/windows_deployment_services_shares')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'smb', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_vbulletin_vote_sqli
+    mod = framework.auxiliary.create('gather/vbulletin_vote_sqli')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_hp_snac_domain_creds
+    mod = framework.auxiliary.create('gather/hp_snac_domain_creds')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'hp', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_d20pass
+     mod = framework.auxiliary.create('gather/d20pass')
+     mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'hp', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_doliwamp_traversal_creds
+    mod = framework.auxiliary.create('gather/doliwamp_traversal_creds')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'hp', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_apache_rave_creds
+    mod = framework.auxiliary.create('gather/apache_rave_creds')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'Apache Rave', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_wordpress_long_password_dos
+    mod = framework.auxiliary.create('dos/http/wordpress_long_password_dos')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, proof: FAKE_PROOF)
+  end
+
+  def test_modicon_password_recovery
+    mod = framework.auxiliary.create('admin/scada/modicon_password_recovery')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
+
+  def test_advantech_webaccess_dbvisitor_sqli
+    mod = framework.auxiliary.create('admin/scada/advantech_webaccess_dbvisitor_sqli')
+    mod.report_cred(ip: FAKE_IP, port: FAKE_PORT, service_name: 'http', user: FAKE_USER, password: FAKE_PASS, proof: FAKE_PROOF)
+  end
 
   def run
     counter_all  = 0
@@ -387,6 +506,10 @@ class Metasploit3 < Msf::Auxiliary
     print_error("Number of test cases that failed: #{counter_bad}")
     print_status("Number of test cases overall: #{counter_all}")
     print_line
+  end
+
+  def mock_post_mod_session(mod)
+    mod.define_singleton_method(:session_db_id) { 1 }
   end
 
 end

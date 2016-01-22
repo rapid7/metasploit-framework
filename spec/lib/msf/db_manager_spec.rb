@@ -11,7 +11,7 @@ require 'spec_helper'
 require 'metasploit/framework/database'
 require 'msf/core'
 
-describe Msf::DBManager do
+RSpec.describe Msf::DBManager do
   include_context 'Msf::DBManager'
 
   subject do

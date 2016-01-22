@@ -284,7 +284,7 @@ if __FILE__ == $0
     generator_opts = parse_args(ARGV)
   rescue MsfVenomError, Msf::OptionValidateError => e
     $stderr.puts "Error: #{e.message}"
-    exit(-1)
+    exit(1)
   end
 
   if generator_opts[:list]
@@ -348,7 +348,7 @@ if __FILE__ == $0
   end
 
   # No payload generated, no point to go on
-  exit(-1) unless payload
+  exit(2) unless payload
 
   if generator_opts[:out]
     begin

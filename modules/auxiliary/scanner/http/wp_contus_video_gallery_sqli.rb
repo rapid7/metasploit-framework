@@ -7,13 +7,13 @@ require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Contus Video Gallery Unauthenticated SQL Injection Scanner',
+      'Name'        => 'WordPress Contus Video Gallery Unauthenticated SQL Injection Scanner',
       'Description' => %q{
       This module attempts to exploit a UNION-based SQL injection in Contus Video
       Gallery for Wordpress version 2.7 and likely prior in order if the instance is

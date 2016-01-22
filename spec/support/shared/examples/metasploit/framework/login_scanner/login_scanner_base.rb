@@ -1,5 +1,5 @@
 
-shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
+RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
 
   subject(:login_scanner) { described_class.new }
 
@@ -54,12 +54,12 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
     [ pub_blank, pub_pub, pub_pri]
   }
 
-  it { should respond_to :connection_timeout }
-  it { should respond_to :cred_details }
-  it { should respond_to :host }
-  it { should respond_to :port }
-  it { should respond_to :proxies }
-  it { should respond_to :stop_on_success }
+  it { is_expected.to respond_to :connection_timeout }
+  it { is_expected.to respond_to :cred_details }
+  it { is_expected.to respond_to :host }
+  it { is_expected.to respond_to :port }
+  it { is_expected.to respond_to :proxies }
+  it { is_expected.to respond_to :stop_on_success }
 
   context 'validations' do
     context 'port' do
@@ -248,7 +248,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
       )
     }
 
-    before(:each) do
+    before(:example) do
       login_scanner.host = '127.0.0.1'
       login_scanner.port = 22
       login_scanner.connection_timeout = 30
@@ -258,31 +258,31 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
 
     it 'calls valid! before running' do
       my_scanner = login_scanner
-      my_scanner.should_receive(:valid!)
-      my_scanner.should_receive(:attempt_login).at_least(:once).and_return success
+      expect(my_scanner).to receive(:valid!)
+      expect(my_scanner).to receive(:attempt_login).at_least(:once).and_return success
       my_scanner.scan!
     end
 
     it 'should stop trying a user after success' do
       my_scanner = login_scanner
-      my_scanner.should_receive(:valid!)
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-      my_scanner.should_not_receive(:attempt_login)
+      expect(my_scanner).to receive(:valid!)
+      expect(my_scanner).to receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+      expect(my_scanner).to receive(:attempt_login).once.with(pub_pub).and_return success
+      expect(my_scanner).not_to receive(:attempt_login)
       my_scanner.scan!
     end
 
     it 'call attempt_login once for each cred_detail' do
       my_scanner = login_scanner
-      my_scanner.should_receive(:valid!)
-      my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return failure_blank
-      my_scanner.should_receive(:attempt_login).once.with(pub_pri).and_return failure_blank
+      expect(my_scanner).to receive(:valid!)
+      expect(my_scanner).to receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+      expect(my_scanner).to receive(:attempt_login).once.with(pub_pub).and_return failure_blank
+      expect(my_scanner).to receive(:attempt_login).once.with(pub_pri).and_return failure_blank
       my_scanner.scan!
     end
 
     context 'when stop_on_success is true' do
-      before(:each) do
+      before(:example) do
         login_scanner.host = '127.0.0.1'
         login_scanner.port = 22
         login_scanner.connection_timeout = 30
@@ -292,10 +292,10 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
 
       it 'stops after the first successful login' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:valid!)
-        my_scanner.should_receive(:attempt_login).once.with(pub_blank).and_return failure_blank
-        my_scanner.should_receive(:attempt_login).once.with(pub_pub).and_return success
-        my_scanner.should_not_receive(:attempt_login).with(pub_pri)
+        expect(my_scanner).to receive(:valid!)
+        expect(my_scanner).to receive(:attempt_login).once.with(pub_blank).and_return failure_blank
+        expect(my_scanner).to receive(:attempt_login).once.with(pub_pub).and_return success
+        expect(my_scanner).not_to receive(:attempt_login).with(pub_pri)
         my_scanner.scan!
       end
     end
@@ -307,7 +307,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
     if opts[:has_realm_key]
       context 'when the login_scanner has a REALM_KEY' do
         context 'when the credential has a realm' do
-          before(:each) do
+          before(:example) do
             login_scanner.cred_details = [ad_cred]
           end
           it 'set the realm_key on the credential to that of the scanner' do
@@ -319,7 +319,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
 
         if opts[:has_default_realm]
           context 'when the credential has no realm' do
-            before(:each) do
+            before(:example) do
               login_scanner.cred_details = [pub_pri]
             end
             it 'uses the default realm' do
@@ -335,7 +335,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
     else
       context 'when login_scanner has no REALM_KEY' do
         context 'when the credential has a realm' do
-          before(:each) do
+          before(:example) do
             login_scanner.cred_details = [ad_cred]
           end
           it 'yields the original credential as well as one with the realm in the public' do
@@ -349,7 +349,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
         end
 
         context 'when the credential does not have a realm' do
-          before(:each) do
+          before(:example) do
             login_scanner.cred_details = [pub_pri]
           end
           it 'simply yields the original credential' do
