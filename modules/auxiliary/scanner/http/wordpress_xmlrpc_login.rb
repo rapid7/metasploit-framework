@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-#load "./lib/metasploit/framework/login_scanner/wordpress_rpc.rb"
-
 require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/wordpress_rpc'
@@ -23,6 +21,9 @@ class Metasploit3 < Msf::Auxiliary
         This module attempts to authenticate against a Wordpress-site
         (via XMLRPC) using username and password combinations indicated
         by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+
+        Please note this module will not work against newer versions of Wordpress,
+        such as 4.4.1, due to the mitigation in place.
       },
       'Author'      =>
         [
@@ -52,11 +53,25 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('CHUNKSIZE',   [ true, 'Number of passwords need to be sent per request. (1700 is the max)', 1500 ])
       ], self.class)
 
-    deregister_options('BLANK_PASSWORDS', 'PASSWORD', 'USERPASS_FILE', 'USER_AS_PASS')
+    # Not supporting these options, because we are not actually letting the API to process the
+    # password list for us. We are doing that in Metasploit::Framework::LoginScanner::WordpressRPC.
+    deregister_options(
+      'BLANK_PASSWORDS', 'PASSWORD', 'USERPASS_FILE', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_PASS'
+      )
   end
 
   def passwords
     File.readlines(datastore['PASS_FILE']).lazy.map {|pass| pass.chomp}
+  end
+
+  def check_options
+    if datastore['CHUNKSIZE'] > 1700
+      fail_with(Failure::BadConfig, 'Option CHUNKSIZE cannot be larger than 1700')
+    end
+  end
+
+  def setup
+    check_options
   end
 
   def check_setup
