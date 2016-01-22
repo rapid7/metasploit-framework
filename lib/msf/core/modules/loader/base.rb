@@ -619,28 +619,4 @@ class Msf::Modules::Loader::Base
     self.class.typed_path(type, module_reference_name)
   end
 
-  # Returns whether the metasploit_class is usable on the current system. Defer's to metasploit_class's #is_usable if
-  # it is defined.
-  #
-  # @param [Msf::Module] metasploit_class As returned by {Msf::Modules::Namespace#metasploit_class}
-  # @return [false] if metasploit_class.is_usable returns false.
-  # @return [true] if metasploit_class does not respond to is_usable.
-  # @return [true] if metasploit_class.is_usable returns true.
-  def usable?(metasploit_class)
-    # If the module indicates that it is not usable on this system, then we
-    # will not try to use it.
-    usable = false
-
-    if metasploit_class.respond_to? :is_usable
-      begin
-        usable = metasploit_class.is_usable
-      rescue => error
-        elog("Exception caught during is_usable check: #{error}")
-      end
-    else
-      usable = true
-    end
-
-    usable
-  end
 end
