@@ -24,7 +24,7 @@ class Msf::Modules::Loader::Base
     Msf::MODULE_POST => 'post'
   }
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
-  NAMESPACE_MODULE_LINE = __LINE__ + 1
+  NAMESPACE_MODULE_LINE = __LINE__ + 4
   # By calling module_eval from inside the module definition, the lexical scope is captured and available to the code in
   # module_content.
   NAMESPACE_MODULE_CONTENT = <<-EOS
