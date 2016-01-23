@@ -78,4 +78,3 @@ module Metasploit
   end
 end
 
-

@@ -11,6 +11,12 @@ end
 # Must be explicit as activerecord is optional dependency
 require 'active_record/railtie'
 
+require 'metasploit/framework/database'
+# check if database.yml is present
+unless Metasploit::Framework::Database.configurations_pathname.try(:to_path)
+  fail 'RSPEC currently needs a configured database'
+end
+
 require File.expand_path('../../config/environment', __FILE__)
 
 # Don't `require 'rspec/rails'` as it includes support for pieces of rails that metasploit-framework doesn't use
