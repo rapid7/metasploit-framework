@@ -13,7 +13,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
-  # include Metasploit::Framework::LoginScanner::WordpressMulticall
 
   def initialize(info = {})
     super(update_info(info,
