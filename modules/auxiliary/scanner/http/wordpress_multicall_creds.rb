@@ -74,7 +74,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check_setup
-    vprint_status("Checking #{peer} status!")
     version = wordpress_version
     vprint_status("Found Wordpress version: #{version}")
 
