@@ -143,7 +143,7 @@ GEM
     multi_json (1.11.2)
     multi_test (0.1.2)
     network_interface (0.0.1)
-    nokogiri (1.6.7.1)
+    nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     openssl-ccm (1.2.1)
     packetfu (1.1.11)
