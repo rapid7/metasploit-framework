@@ -70,6 +70,11 @@ class Metasploit3 < Msf::Auxiliary
       # read the file data from the socket that we opened
       response_data = sock.read(1024)
 
+      unless response_data
+        print_error("#{file_path} not found")
+        return
+      end
+
       if response_data.length == 0 or ! (res =~ /^150/ )
         print_status("File (#{file_path})from #{peer} is empty...")
         return

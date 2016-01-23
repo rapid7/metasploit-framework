@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'rex/exploitation/jsobfu'
 
-describe Rex::Exploitation::JSObfu do
+RSpec.describe Rex::Exploitation::JSObfu do
   TEST_JS = %Q|
     function x() {
       alert('1');

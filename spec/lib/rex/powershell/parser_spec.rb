@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
-describe Rex::Powershell::Parser do
+RSpec.describe Rex::Powershell::Parser do
 
   let(:example_script) do
 """
@@ -64,10 +64,10 @@ function Find-4624Logons
   describe "::get_var_names" do
     it 'should return some variable names' do
       vars = subject.get_var_names
-      vars.should be
-      vars.should be_kind_of Array
-      vars.length.should be > 0
-      vars.include?('$ResultObj').should be_truthy
+      expect(vars).to be
+      expect(vars).to be_kind_of Array
+      expect(vars.length).to be > 0
+      expect(vars.include?('$ResultObj')).to be_truthy
     end
 
     it 'should not match upper or lowercase reserved names' do
@@ -76,48 +76,48 @@ function Find-4624Logons
       subject.code << "\r\n$ShellId"
       subject.code << "\r\n$shellid"
       after_vars = subject.get_var_names
-      initial_vars.should eq after_vars
+      expect(initial_vars).to eq after_vars
     end
   end
 
   describe "::get_func_names" do
     it 'should return some function names' do
       funcs = subject.get_func_names
-      funcs.should be
-      funcs.should be_kind_of Array
-      funcs.length.should be > 0
-      funcs.include?('Find-4624Logons').should be_truthy
+      expect(funcs).to be
+      expect(funcs).to be_kind_of Array
+      expect(funcs.length).to be > 0
+      expect(funcs.include?('Find-4624Logons')).to be_truthy
     end
   end
 
   describe "::get_string_literals" do
     it 'should return some string literals' do
       literals = subject.get_string_literals
-      literals.should be
-      literals.should be_kind_of Array
-      literals.length.should be > 0
-      literals[0].include?('parp').should be_falsey
+      expect(literals).to be
+      expect(literals).to be_kind_of Array
+      expect(literals.length).to be > 0
+      expect(literals[0].include?('parp')).to be_falsey
     end
   end
 
   describe "::scan_with_index" do
     it 'should scan code and return the items with an index' do
       scan = subject.scan_with_index('DllImport')
-      scan.should be
-      scan.should be_kind_of Array
-      scan.length.should be > 0
-      scan[0].should be_kind_of Array
-      scan[0][0].should be_kind_of String
-      scan[0][1].should be_kind_of Integer
+      expect(scan).to be
+      expect(scan).to be_kind_of Array
+      expect(scan.length).to be > 0
+      expect(scan[0]).to be_kind_of Array
+      expect(scan[0][0]).to be_kind_of String
+      expect(scan[0][1]).to be_kind_of Integer
     end
   end
 
   describe "::match_start" do
     it 'should match the correct brackets' do
-      subject.match_start('{').should eq '}'
-      subject.match_start('(').should eq ')'
-      subject.match_start('[').should eq ']'
-      subject.match_start('<').should eq '>'
+      expect(subject.match_start('{')).to eq '}'
+      expect(subject.match_start('(')).to eq ')'
+      expect(subject.match_start('[')).to eq ']'
+      expect(subject.match_start('<')).to eq '>'
       expect { subject.match_start('p') }.to raise_exception(ArgumentError)
     end
   end
@@ -126,8 +126,8 @@ function Find-4624Logons
     it 'should extract a block between brackets given an index' do
       idx = subject.code.index('{')
       block = subject.block_extract(idx)
-      block.should be
-      block.should be_kind_of String
+      expect(block).to be
+      expect(block).to be_kind_of String
     end
 
     it 'should raise a runtime error if given an invalid index' do
@@ -141,18 +141,18 @@ function Find-4624Logons
   describe "::get_func" do
     it 'should extract a function from the code' do
       function = subject.get_func('Find-4624Logons')
-      function.should be
-      function.should be_kind_of Rex::Powershell::Function
+      expect(function).to be
+      expect(function).to be_kind_of Rex::Powershell::Function
     end
 
     it 'should return nil if function doesnt exist' do
       function = subject.get_func(Rex::Text.rand_text_alpha(5))
-      function.should be_nil
+      expect(function).to be_nil
     end
 
     it 'should delete the function if delete is true' do
       function = subject.get_func('Find-4624Logons', true)
-      subject.code.include?('DllImport').should be_falsey
+      expect(subject.code.include?('DllImport')).to be_falsey
     end
   end
 end

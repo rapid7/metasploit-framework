@@ -3,13 +3,13 @@ require 'spec_helper'
 
 require 'msf/core/post/windows/mssql'
 
-describe Msf::Post::Windows::MSSQL do
+RSpec.describe Msf::Post::Windows::MSSQL do
   let(:subject) do
-    mod = Module.new
+    mod = double(Module.new)
     mod.extend described_class
     stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error, :print_warning ]
-    stubs.each { |meth| mod.stub(meth) }
-    mod.stub(:service_info).and_return({})
+    stubs.each { |meth| allow(mod).to receive(meth) }
+    allow(mod).to receive(:service_info).and_return({})
     mod
   end
 
@@ -121,19 +121,19 @@ describe Msf::Post::Windows::MSSQL do
       it "should return nil if unable to locate any SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service)
         result = subject.check_for_sqlserver(instance)
-        result.should be_nil
+        expect(result).to be_nil
       end
 
       it "should identify a running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_2k8_sql_instance
+        expect(result).to eq running_2k8_sql_instance
       end
 
       it "shouldn't identify a non running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(stopped_2k8_sql_instance).and_yield(running_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_2k8_sql_instance
+        expect(result).to eq running_2k8_sql_instance
       end
     end
 
@@ -141,7 +141,7 @@ describe Msf::Post::Windows::MSSQL do
       it "should identify a running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service).and_yield(running_7_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_7_sql_instance
+        expect(result).to eq running_7_sql_instance
       end
     end
 
@@ -149,13 +149,13 @@ describe Msf::Post::Windows::MSSQL do
       it "should identify a running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service).and_yield(running_2k_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_2k_sql_instance
+        expect(result).to eq running_2k_sql_instance
       end
 
       it "should identify a named SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service).and_yield(running_named_2k_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k_sql_instance
+        expect(result).to eq running_named_2k_sql_instance
       end
     end
 
@@ -163,13 +163,13 @@ describe Msf::Post::Windows::MSSQL do
       it "should identify a running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_sql_server_agent_service).and_yield(running_2k5_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_2k5_sql_instance
+        expect(result).to eq running_2k5_sql_instance
       end
 
       it "should identify a named SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_sql_server_agent_service).and_yield(running_named_2k5_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k5_sql_instance
+        expect(result).to eq running_named_2k5_sql_instance
       end
     end
 
@@ -177,13 +177,13 @@ describe Msf::Post::Windows::MSSQL do
       it "should identify a running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_sql_server_agent_service).and_yield(running_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_2k8_sql_instance
+        expect(result).to eq running_2k8_sql_instance
       end
 
       it "should identify a named SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_sql_server_agent_service).and_yield(running_named_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k8_sql_instance
+        expect(result).to eq running_named_2k8_sql_instance
       end
     end
 
@@ -195,25 +195,25 @@ describe Msf::Post::Windows::MSSQL do
       it "should return nil if unable to locate any SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service)
         result = subject.check_for_sqlserver(instance)
-        result.should be_nil
+        expect(result).to be_nil
       end
 
       it "should identify a running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_named_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k8_sql_instance
+        expect(result).to eq running_named_2k8_sql_instance
       end
 
       it "shouldn't identify a non running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(stopped_named_2k8_sql_instance).and_yield(running_named_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k8_sql_instance
+        expect(result).to eq running_named_2k8_sql_instance
       end
 
       it "should only identify that instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_2k8_sql_instance).and_yield(running_named_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k8_sql_instance
+        expect(result).to eq running_named_2k8_sql_instance
       end
     end
 
@@ -225,7 +225,7 @@ describe Msf::Post::Windows::MSSQL do
       it "should identify a running SQL instance" do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service).and_yield(running_7_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_7_sql_instance
+        expect(result).to eq running_7_sql_instance
       end
     end
 
@@ -238,7 +238,7 @@ describe Msf::Post::Windows::MSSQL do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service)
           .and_yield(running_2k_sql_instance).and_yield(running_named_2k_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k_sql_instance
+        expect(result).to eq running_named_2k_sql_instance
       end
     end
 
@@ -251,7 +251,7 @@ describe Msf::Post::Windows::MSSQL do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service)
           .and_yield(running_2k5_sql_instance).and_yield(running_named_2k5_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k5_sql_instance
+        expect(result).to eq running_named_2k5_sql_instance
       end
     end
 
@@ -264,7 +264,7 @@ describe Msf::Post::Windows::MSSQL do
         allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service)
           .and_yield(running_2k8_sql_instance).and_yield(running_named_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
-        result.should eq running_named_2k8_sql_instance
+        expect(result).to eq running_named_2k8_sql_instance
       end
     end
   end
@@ -287,51 +287,50 @@ describe Msf::Post::Windows::MSSQL do
     end
 
     it 'should return false if service is invalid or pid is invalid' do
-      subject.impersonate_sql_user(nil).should be_falsey
-      subject.impersonate_sql_user(pid: nil).should be_falsey
-      subject.impersonate_sql_user(pid: 0).should be_falsey
+      expect(subject.impersonate_sql_user(nil)).to be_falsey
+      expect(subject.impersonate_sql_user(pid: nil)).to be_falsey
+      expect(subject.impersonate_sql_user(pid: 0)).to be_falsey
     end
 
     context 'user has privs to impersonate' do
-      before(:each) do
-        subject.stub_chain('session.sys.config.getuid').and_return('Superman')
-        subject.stub_chain('client.sys.config.getprivs').and_return(['SeAssignPrimaryTokenPrivilege'])
-        subject.stub_chain('session.incognito').and_return(true)
-        subject.stub_chain('session.sys.process.each_process').and_yield(process)
+      before(:example) do
+        allow(subject).to receive_message_chain('session.sys.config.getuid').and_return('Superman')
+        allow(subject).to receive_message_chain('client.sys.config.getprivs').and_return(['SeAssignPrimaryTokenPrivilege'])
+        allow(subject).to receive_message_chain('session.sys.process.each_process').and_yield(process)
       end
 
       it 'should return true if successful impersonating' do
-        subject.stub_chain('session.incognito.incognito_impersonate_token').with(user).and_return('Successfully')
-        subject.impersonate_sql_user(service).should be true
+        allow(subject).to receive_message_chain('session.incognito.incognito_impersonate_token').with(user).and_return('Successfully')
+        expect(subject.impersonate_sql_user(service)).to be true
       end
 
       it 'should return false if fails impersonating' do
-        subject.stub_chain('session.incognito.incognito_impersonate_token').with(user).and_return('guff')
-        subject.impersonate_sql_user(service).should be false
+        allow(subject).to receive_message_chain('session.incognito.incognito_impersonate_token').with(user).and_return('guff')
+        expect(subject.impersonate_sql_user(service)).to be false
       end
 
       it 'should return false if unable to find process username' do
-        subject.stub_chain('session.sys.process.each_process').and_yield('pid' => 0)
-        subject.impersonate_sql_user(service).should be false
+        allow(subject).to receive_message_chain('session.sys.process.each_process').and_yield('pid' => 0)
+        expect(subject.impersonate_sql_user(service)).to be false
       end
     end
 
     context 'user does not have privs to impersonate' do
-      before(:each) do
-        subject.stub_chain('session.sys.config.getuid').and_return('Superman')
-        subject.stub_chain('client.sys.config.getprivs').and_return([])
+      before(:example) do
+        allow(subject).to receive_message_chain('session.sys.config.getuid').and_return('Superman')
+        allow(subject).to receive_message_chain('client.sys.config.getprivs').and_return([])
       end
 
       it 'should return true if successful' do
         expect(subject).to receive(:print_warning)
-        subject.stub_chain('session.core.migrate').with(pid).and_return(true)
-        subject.impersonate_sql_user(service).should be true
+        allow(subject).to receive_message_chain('session.core.migrate').with(pid).and_return(true)
+        expect(subject.impersonate_sql_user(service)).to be true
       end
 
       it 'should rescue an exception if migration fails' do
         expect(subject).to receive(:print_warning)
-        subject.stub_chain('session.core.migrate').with(pid).and_raise(Rex::RuntimeError)
-        subject.impersonate_sql_user(service).should be false
+        allow(subject).to receive_message_chain('session.core.migrate').with(pid).and_raise(Rex::RuntimeError)
+        expect(subject.impersonate_sql_user(service)).to be false
       end
     end
   end
@@ -339,21 +338,21 @@ describe Msf::Post::Windows::MSSQL do
   describe "#get_system" do
     it 'should return true if already SYSTEM' do
       expect(subject).to receive(:is_system?).and_return(true)
-      subject.get_system.should be_truthy
+      expect(subject.get_system).to be_truthy
     end
 
     it 'should return true if able to get SYSTEM and print a warning' do
       expect(subject).to receive(:is_system?).and_return(false)
       expect(subject).to receive(:print_warning)
-      subject.stub_chain('session.priv.getsystem').and_return([true])
-      subject.get_system.should be_truthy
+      allow(subject).to receive_message_chain('session.priv.getsystem').and_return([true])
+      expect(subject.get_system).to be_truthy
     end
 
     it 'should return false if unable to get SYSTEM and print a warning' do
       expect(subject).to receive(:is_system?).and_return(false)
       expect(subject).to receive(:print_warning)
-      subject.stub_chain('session.priv.getsystem').and_return([false])
-      subject.get_system.should be_falsey
+      allow(subject).to receive_message_chain('session.priv.getsystem').and_return([false])
+      expect(subject.get_system).to be_falsey
     end
   end
 
@@ -361,13 +360,13 @@ describe Msf::Post::Windows::MSSQL do
     it 'should return a string' do
       p = double('process')
       c = double('channel')
-      p.stub(:channel).and_return(c)
-      subject.stub_chain('session.sys.process.execute').and_return(p)
+      allow(p).to receive(:channel).and_return(c)
+      allow(subject).to receive_message_chain('session.sys.process.execute').and_return(p)
       expect(c).to receive(:read).and_return('hello')
       expect(c).to receive(:read).and_return(nil)
       expect(c).to receive(:close)
       expect(p).to receive(:close)
-      subject.run_cmd(nil).should eq 'hello'
+      expect(subject.run_cmd(nil)).to eq 'hello'
     end
   end
 
@@ -376,7 +375,7 @@ describe Msf::Post::Windows::MSSQL do
       'blah'
     end
 
-    before(:each) do
+    before(:example) do
       subject.sql_client = sqlclient
     end
 
@@ -395,9 +394,9 @@ describe Msf::Post::Windows::MSSQL do
     context 'when only a query is supplied' do
       it 'should pass the @sql_client, and query to run_cmd' do
         expect(subject).to receive(:run_cmd) do |*args|
-          args.first.include?(sqlclient).should be_truthy
-          args.first.include?("-Q \"#{query}\" ").should be_truthy
-          args.first.include?("-S . ").should be_truthy
+          expect(args.first.include?(sqlclient)).to be_truthy
+          expect(args.first.include?("-Q \"#{query}\" ")).to be_truthy
+          expect(args.first.include?("-S . ")).to be_truthy
         end
         subject.run_sql(query)
       end
@@ -406,18 +405,18 @@ describe Msf::Post::Windows::MSSQL do
     context 'when a query and instance is supplied' do
       it 'should pass the @sql_client, query, and instance to run_cmd' do
         expect(subject).to receive(:run_cmd) do |*args|
-          args.first.include?(sqlclient).should be_truthy
-          args.first.include?("-Q \"#{query}\" ").should be_truthy
-          args.first.include?("-S .\\#{instance} ").should be_truthy
+          expect(args.first.include?(sqlclient)).to be_truthy
+          expect(args.first.include?("-Q \"#{query}\" ")).to be_truthy
+          expect(args.first.include?("-S .\\#{instance} ")).to be_truthy
         end
         subject.run_sql(query, instance)
       end
 
       it 'should shouldnt supply an instance if the target is mssqlserver (7/2000)' do
         expect(subject).to receive(:run_cmd) do |*args|
-          args.first.include?(sqlclient).should be_truthy
-          args.first.include?("-Q \"#{query}\" ").should be_truthy
-          args.first.include?("-S . ").should be_truthy
+          expect(args.first.include?(sqlclient)).to be_truthy
+          expect(args.first.include?("-Q \"#{query}\" ")).to be_truthy
+          expect(args.first.include?("-S . ")).to be_truthy
         end
         subject.run_sql(query, 'mssqlsErver')
       end
@@ -426,9 +425,9 @@ describe Msf::Post::Windows::MSSQL do
     context 'when a query, instance, and server is supplied' do
       it 'should pass the @sql_client, query, instance, and server to run_cmd' do
         expect(subject).to receive(:run_cmd) do |*args|
-          args.first.include?(sqlclient).should be_truthy
-          args.first.include?("-Q \"#{query}\" ").should be_truthy
-          args.first.include?("-S #{server}\\#{instance} ").should be_truthy
+          expect(args.first.include?(sqlclient)).to be_truthy
+          expect(args.first.include?("-Q \"#{query}\" ")).to be_truthy
+          expect(args.first.include?("-S #{server}\\#{instance} ")).to be_truthy
         end
         subject.run_sql(query, instance, server)
       end
@@ -446,24 +445,24 @@ describe Msf::Post::Windows::MSSQL do
   describe "#check_osql" do
     it "should return nil if no osql" do
       expect(subject).to receive(:run_cmd).with('osql -?').and_return('blah')
-      subject.check_osql.should be_falsey
+      expect(subject.check_osql).to be_falsey
     end
 
     it "should return true if present" do
       expect(subject).to receive(:run_cmd).with('osql -?').and_return('(usage: osql)')
-      subject.check_osql.should be_truthy
+      expect(subject.check_osql).to be_truthy
     end
   end
 
   describe "#check_sqlcmd" do
     it "should return nil if no sqlcmd" do
       expect(subject).to receive(:run_cmd).and_return('blah')
-      subject.check_sqlcmd.should be_falsey
+      expect(subject.check_sqlcmd).to be_falsey
     end
 
     it "should return true if present" do
       expect(subject).to receive(:run_cmd).and_return('SQL Server Command Line Tool')
-      subject.check_sqlcmd.should be_truthy
+      expect(subject.check_sqlcmd).to be_truthy
     end
   end
 
@@ -471,22 +470,22 @@ describe Msf::Post::Windows::MSSQL do
     it "should return nil if no client is available" do
       expect(subject).to receive(:check_sqlcmd).and_return(false)
       expect(subject).to receive(:check_osql).and_return(false)
-      subject.get_sql_client.should be_nil
-      subject.sql_client.should be_nil
+      expect(subject.get_sql_client).to be_nil
+      expect(subject.sql_client).to be_nil
     end
 
     it "should return 'osql' if osql is available" do
       expect(subject).to receive(:check_sqlcmd).and_return(false)
       expect(subject).to receive(:check_osql).and_return(true)
-      subject.get_sql_client.should eq osql
-      subject.sql_client.should eq osql
+      expect(subject.get_sql_client).to eq osql
+      expect(subject.sql_client).to eq osql
     end
 
     it "should return 'sqlcmd' if sqlcmd is available" do
       allow(subject).to receive(:check_osql).and_return(true)
       expect(subject).to receive(:check_sqlcmd).and_return(true)
-      subject.get_sql_client.should eq sql_command
-      subject.sql_client.should eq sql_command
+      expect(subject.get_sql_client).to eq sql_command
+      expect(subject.sql_client).to eq sql_command
     end
   end
 end

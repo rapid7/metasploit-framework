@@ -116,10 +116,6 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def dos_user
     length = 12000 # enough to overflow the end of allocated memory
     msg = create_message(length)

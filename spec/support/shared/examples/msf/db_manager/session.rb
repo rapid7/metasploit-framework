@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager::Session' do
+RSpec.shared_examples_for 'Msf::DBManager::Session' do
   it { is_expected.to respond_to :get_session }
 
   context '#report_session' do
@@ -16,7 +16,7 @@ shared_examples_for 'Msf::DBManager::Session' do
       end
 
       context 'with :session' do
-        before(:each) do
+        before(:example) do
           options[:session] = session
         end
 
@@ -84,6 +84,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             Class.new do
               include Msf::Session
 
+              attr_accessor :arch
               attr_accessor :exploit
               attr_accessor :datastore
               attr_accessor :platform
@@ -97,7 +98,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             FactoryGirl.create(:mdm_workspace)
           end
 
-          before(:each) do
+          before(:example) do
             reference_name = 'multi/handler'
             path = File.join(parent_path, 'exploits', reference_name)
 
@@ -122,8 +123,8 @@ shared_examples_for 'Msf::DBManager::Session' do
           end
 
           context 'with a run_id in user_data' do
-            before(:each) do
-              MetasploitDataModels::AutomaticExploitation::MatchSet.any_instance.stub(:create_match_for_vuln).and_return(nil)
+            before(:example) do
+              allow(db_manager).to receive(:create_match_for_vuln).and_return(nil)
             end
 
             let(:match_set) do
@@ -141,12 +142,12 @@ shared_examples_for 'Msf::DBManager::Session' do
             end
 
             context 'with :workspace' do
-              before(:each) do
+              before(:example) do
                 options[:workspace] = options_workspace
               end
 
               it 'should not find workspace from session' do
-                db_manager.should_not_receive(:find_workspace)
+                expect(db_manager).not_to receive(:find_workspace)
 
                 expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
@@ -154,13 +155,13 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             context 'without :workspace' do
               it 'should find workspace from session' do
-                db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
+                expect(db_manager).to receive(:find_workspace).with(session.workspace).and_call_original
 
                 report_session
               end
 
               it 'should pass session.workspace to #find_or_create_host' do
-                db_manager.should_receive(:find_or_create_host).with(
+                expect(db_manager).to receive(:find_or_create_host).with(
                   hash_including(
                     :workspace => session_workspace
                   )
@@ -173,11 +174,11 @@ shared_examples_for 'Msf::DBManager::Session' do
             context 'with workspace from either :workspace or session' do
               it 'should pass normalized host from session as :host to #find_or_create_host' do
                 normalized_host = double('Normalized Host')
-                db_manager.stub(:normalize_host).with(session).and_return(normalized_host)
+                expect(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
-                db_manager.stub(:report_vuln)
+                expect(db_manager).to receive(:report_vuln)
 
-                db_manager.should_receive(:find_or_create_host).with(
+                expect(db_manager).to receive(:find_or_create_host).with(
                   hash_including(
                     :host => normalized_host
                   )
@@ -191,12 +192,12 @@ shared_examples_for 'Msf::DBManager::Session' do
                   FactoryGirl.generate :mdm_host_arch
                 end
 
-                before(:each) do
-                  session.stub(:arch => arch)
+                before(:example) do
+                  allow(session).to receive(:arch).and_return(arch)
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
-                  db_manager.should_receive(:find_or_create_host).with(
+                  expect(db_manager).to receive(:find_or_create_host).with(
                     hash_including(
                       :arch => arch
                     )
@@ -208,7 +209,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
               context 'without session responds to arch' do
                 it 'should not pass :arch to #find_or_create_host' do
-                  db_manager.should_receive(:find_or_create_host).with(
+                  expect(db_manager).to receive(:find_or_create_host).with(
                     hash_excluding(
                       :arch
                     )
@@ -224,12 +225,12 @@ shared_examples_for 'Msf::DBManager::Session' do
                 }.to change(Mdm::Session, :count).by(1)
               end
 
-              it { should be_an Mdm::Session }
+              it { is_expected.to be_an Mdm::Session }
 
               it 'should set session.db_record to created Mdm::Session' do
                 mdm_session = report_session
 
-                session.db_record.should == mdm_session
+                expect(session.db_record).to eq mdm_session
               end
 
               context 'with session.via_exploit' do
@@ -249,7 +250,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
-                  before(:each) do
+                  before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
@@ -257,7 +258,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     report_session
                   end
 
-                  after(:each) do
+                  after(:example) do
                     Timecop.return
                   end
 
@@ -281,7 +282,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       'windows/smb/ms08_067_netapi'
                     end
 
-                    before(:each) do
+                    before(:example) do
                       path = File.join(
                         parent_path,
                         'exploits',
@@ -338,7 +339,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
-                  before(:each) do
+                  before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
@@ -346,7 +347,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     report_session
                   end
 
-                  after(:each) do
+                  after(:example) do
                     Timecop.return
                   end
 
@@ -368,7 +369,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   context "without session.via_exploit 'exploit/multi/handler'" do
-                    before(:each) do
+                    before(:example) do
                       session.via_exploit = parent_module_fullname
                     end
 
@@ -378,11 +379,11 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               context 'returned Mdm::Session' do
-                before(:each) do
+                before(:example) do
                   Timecop.freeze
                 end
 
-                after(:each) do
+                after(:example) do
                   Timecop.return
                 end
 
@@ -396,27 +397,27 @@ shared_examples_for 'Msf::DBManager::Session' do
                 #
 
                 it 'should have session.info present' do
-                  session.info.should be_present
+                  expect(session.info).to be_present
                 end
 
                 it 'should have session.sid present' do
-                  session.sid.should be_present
+                  expect(session.sid).to be_present
                 end
 
                 it 'should have session.platform present' do
-                  session.platform.should be_present
+                  expect(session.platform).to be_present
                 end
 
                 it 'should have session.type present' do
-                  session.type.should be_present
+                  expect(session.type).to be_present
                 end
 
                 it 'should have session.via_exploit present' do
-                  session.via_exploit.should be_present
+                  expect(session.via_exploit).to be_present
                 end
 
                 it 'should have session.via_payload present' do
-                  session.via_exploit.should be_present
+                  expect(session.via_exploit).to be_present
                 end
 
                 it { expect(subject.datastore).to eq(session.exploit_datastore.to_h) }
@@ -432,12 +433,12 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                 context "with session.via_exploit 'exploit/multi/handler'" do
                   it "should have session.via_exploit of 'exploit/multi/handler'" do
-                    session.via_exploit.should == 'exploit/multi/handler'
+                    expect(session.via_exploit).to eq 'exploit/multi/handler'
                   end
 
                   context "with session.exploit_datastore['ParentModule']" do
                     it "should have session.exploit_datastore['ParentModule']" do
-                      session.exploit_datastore['ParentModule'].should_not be_nil
+                      expect(session.exploit_datastore['ParentModule']).not_to be_nil
                     end
 
                     it { expect(subject.via_exploit).to eq(parent_module_fullname) }
@@ -445,7 +446,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 context "without session.via_exploit 'exploit/multi/handler'" do
-                  before(:each) do
+                  before(:example) do
                     reference_name = 'windows/smb/ms08_067_netapi'
                     path = File.join(
                       parent_path,
@@ -471,7 +472,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   it "should not have session.via_exploit of 'exploit/multi/handler'" do
-                    session.via_exploit.should_not == 'exploit/multi/handler'
+                    expect(session.via_exploit).not_to eq 'exploit/multi/handler'
                   end
 
                   it { expect(subject.via_exploit).to eq(session.via_exploit) }
@@ -484,12 +485,12 @@ shared_examples_for 'Msf::DBManager::Session' do
             let(:user_data) { nil }
 
             context 'with :workspace' do
-              before(:each) do
+              before(:example) do
                 options[:workspace] = options_workspace
               end
 
               it 'should not find workspace from session' do
-                db_manager.should_not_receive(:find_workspace)
+                expect(db_manager).not_to receive(:find_workspace)
 
                 expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
@@ -497,13 +498,13 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             context 'without :workspace' do
               it 'should find workspace from session' do
-                db_manager.should_receive(:find_workspace).with(session.workspace).and_call_original
+                expect(db_manager).to receive(:find_workspace).with(session.workspace).and_call_original
 
                 report_session
               end
 
               it 'should pass session.workspace to #find_or_create_host' do
-                db_manager.should_receive(:find_or_create_host).with(
+                expect(db_manager).to receive(:find_or_create_host).with(
                     hash_including(
                         :workspace => session_workspace
                     )
@@ -516,11 +517,11 @@ shared_examples_for 'Msf::DBManager::Session' do
             context 'with workspace from either :workspace or session' do
               it 'should pass normalized host from session as :host to #find_or_create_host' do
                 normalized_host = double('Normalized Host')
-                db_manager.stub(:normalize_host).with(session).and_return(normalized_host)
+                allow(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
                 # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
-                db_manager.stub(:report_vuln)
+                allow(db_manager).to receive(:report_vuln)
 
-                db_manager.should_receive(:find_or_create_host).with(
+                expect(db_manager).to receive(:find_or_create_host).with(
                     hash_including(
                         :host => normalized_host
                     )
@@ -534,12 +535,12 @@ shared_examples_for 'Msf::DBManager::Session' do
                   FactoryGirl.generate :mdm_host_arch
                 end
 
-                before(:each) do
-                  session.stub(:arch => arch)
+                before(:example) do
+                  allow(session).to receive(:arch).and_return(arch)
                 end
 
                 it 'should pass :arch to #find_or_create_host' do
-                  db_manager.should_receive(:find_or_create_host).with(
+                  expect(db_manager).to receive(:find_or_create_host).with(
                       hash_including(
                           :arch => arch
                       )
@@ -551,7 +552,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
               context 'without session responds to arch' do
                 it 'should not pass :arch to #find_or_create_host' do
-                  db_manager.should_receive(:find_or_create_host).with(
+                  expect(db_manager).to receive(:find_or_create_host).with(
                       hash_excluding(
                           :arch
                       )
@@ -567,12 +568,12 @@ shared_examples_for 'Msf::DBManager::Session' do
                 }.to change(Mdm::Session, :count).by(1)
               end
 
-              it { should be_an Mdm::Session }
+              it { is_expected.to be_an Mdm::Session }
 
               it 'should set session.db_record to created Mdm::Session' do
                 mdm_session = report_session
 
-                session.db_record.should == mdm_session
+                expect(session.db_record).to eq mdm_session
               end
 
               context 'with session.via_exploit' do
@@ -592,7 +593,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
-                  before(:each) do
+                  before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
@@ -600,7 +601,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     report_session
                   end
 
-                  after(:each) do
+                  after(:example) do
                     Timecop.return
                   end
 
@@ -624,7 +625,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       'windows/smb/ms08_067_netapi'
                     end
 
-                    before(:each) do
+                    before(:example) do
                       path = File.join(
                           parent_path,
                           'exploits',
@@ -681,7 +682,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
-                  before(:each) do
+                  before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
@@ -689,7 +690,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     report_session
                   end
 
-                  after(:each) do
+                  after(:example) do
                     Timecop.return
                   end
 
@@ -711,7 +712,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   context "without session.via_exploit 'exploit/multi/handler'" do
-                    before(:each) do
+                    before(:example) do
                       session.via_exploit = parent_module_fullname
                     end
 
@@ -721,11 +722,11 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               context 'returned Mdm::Session' do
-                before(:each) do
+                before(:example) do
                   Timecop.freeze
                 end
 
-                after(:each) do
+                after(:example) do
                   Timecop.return
                 end
 
@@ -739,27 +740,27 @@ shared_examples_for 'Msf::DBManager::Session' do
                 #
 
                 it 'should have session.info present' do
-                  session.info.should be_present
+                  expect(session.info).to be_present
                 end
 
                 it 'should have session.sid present' do
-                  session.sid.should be_present
+                  expect(session.sid).to be_present
                 end
 
                 it 'should have session.platform present' do
-                  session.platform.should be_present
+                  expect(session.platform).to be_present
                 end
 
                 it 'should have session.type present' do
-                  session.type.should be_present
+                  expect(session.type).to be_present
                 end
 
                 it 'should have session.via_exploit present' do
-                  session.via_exploit.should be_present
+                  expect(session.via_exploit).to be_present
                 end
 
                 it 'should have session.via_payload present' do
-                  session.via_exploit.should be_present
+                  expect(session.via_exploit).to be_present
                 end
 
                 it { expect(subject.datastore).to eq(session.exploit_datastore.to_h) }
@@ -775,12 +776,12 @@ shared_examples_for 'Msf::DBManager::Session' do
 
                 context "with session.via_exploit 'exploit/multi/handler'" do
                   it "should have session.via_exploit of 'exploit/multi/handler'" do
-                    session.via_exploit.should == 'exploit/multi/handler'
+                    expect(session.via_exploit).to eq 'exploit/multi/handler'
                   end
 
                   context "with session.exploit_datastore['ParentModule']" do
                     it "should have session.exploit_datastore['ParentModule']" do
-                      session.exploit_datastore['ParentModule'].should_not be_nil
+                      expect(session.exploit_datastore['ParentModule']).not_to be_nil
                     end
 
                     it { expect(subject.via_exploit).to eq(parent_module_fullname) }
@@ -788,7 +789,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 context "without session.via_exploit 'exploit/multi/handler'" do
-                  before(:each) do
+                  before(:example) do
                     reference_name = 'windows/smb/ms08_067_netapi'
                     path = File.join(
                         parent_path,
@@ -814,7 +815,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   it "should not have session.via_exploit of 'exploit/multi/handler'" do
-                    session.via_exploit.should_not == 'exploit/multi/handler'
+                    expect(session.via_exploit).not_to eq 'exploit/multi/handler'
                   end
 
                   it { expect(subject.via_exploit).to eq(session.via_exploit) }
@@ -839,7 +840,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
       context 'without :session' do
         context 'with :host' do
-          before(:each) do
+          before(:example) do
             options[:host] = host
           end
 
@@ -889,7 +890,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 'Session Type'
               end
 
-              before(:each) do
+              before(:example) do
                 options[:closed_at] = closed_at
                 options[:close_reason] = close_reason
                 options[:desc] = description
@@ -994,10 +995,10 @@ shared_examples_for 'Msf::DBManager::Session' do
         false
       end
 
-      it { should be_nil }
+      it { is_expected.to be_nil }
 
       it 'should not create a connection' do
-        ActiveRecord::Base.connection_pool.should_not_receive(:with_connection)
+        expect(ActiveRecord::Base.connection_pool).not_to receive(:with_connection)
 
         report_session
       end

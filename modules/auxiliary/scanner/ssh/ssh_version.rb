@@ -37,10 +37,6 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def timeout
     datastore['TIMEOUT'] <= 0 ? DEFAULT_TIMEOUT : datastore['TIMEOUT']
   end

@@ -20,6 +20,8 @@ module Android
 class Android < Extension
 
   COLLECT_TYPE_WIFI = 1
+  COLLECT_TYPE_GEO  = 2
+  COLLECT_TYPE_CELL = 3
 
   COLLECT_ACTION_START  = 1
   COLLECT_ACTION_PAUSE  = 2
@@ -28,7 +30,9 @@ class Android < Extension
   COLLECT_ACTION_DUMP   = 5
 
   COLLECT_TYPES = {
-    'wifi' => COLLECT_TYPE_WIFI
+    'wifi' => COLLECT_TYPE_WIFI,
+    'geo'  => COLLECT_TYPE_GEO,
+    'cell' => COLLECT_TYPE_CELL,
   }
 
   COLLECT_ACTIONS = {
@@ -106,6 +110,64 @@ class Android < Extension
 
       records.each do |k, v|
         result[:entries] << v
+      end
+
+    when COLLECT_TYPE_GEO
+      result[:headers] = ['Timestamp', 'Latitude', 'Longitude']
+      result[:entries] = []
+      records = {}
+
+      response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
+        timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
+        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+
+        g.each(TLV_TYPE_COLLECT_RESULT_GEO) do |w|
+          lat = w.get_tlv_value(TLV_TYPE_GEO_LAT)
+          lng = w.get_tlv_value(TLV_TYPE_GEO_LONG)
+          result[:entries] << [timestamp, lat, lng]
+        end
+      end
+
+    when COLLECT_TYPE_CELL
+      result[:headers] = ['Timestamp', 'Cell Info']
+      result[:entries] = []
+      records = {}
+
+      response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
+        timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
+        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+
+        g.each(TLV_TYPE_COLLECT_RESULT_CELL) do |cell|
+
+          cell.each(TLV_TYPE_CELL_ACTIVE_GSM) do |info|
+            cid = info.get_tlv_value(TLV_TYPE_CELL_CID)
+            lac = info.get_tlv_value(TLV_TYPE_CELL_LAC)
+            psc = info.get_tlv_value(TLV_TYPE_CELL_PSC)
+            info = sprintf("cid=%d lac=%d psc=%d", cid, lac, psc)
+            result[:entries] << [timestamp, "GSM: #{info}"]
+          end
+
+          cell.each(TLV_TYPE_CELL_ACTIVE_CDMA) do |info|
+            bid = info.get_tlv_value(TLV_TYPE_CELL_BASE_ID)
+            lat = info.get_tlv_value(TLV_TYPE_CELL_BASE_LAT)
+            lng = info.get_tlv_value(TLV_TYPE_CELL_BASE_LONG)
+            net = info.get_tlv_value(TLV_TYPE_CELL_NET_ID)
+            sys = info.get_tlv_value(TLV_TYPE_CELL_SYSTEM_ID)
+            info = sprintf("base_id=%d lat=%d lng=%d net_id=%d sys_id=%d", bid, lat, lng, net, sys)
+            result[:entries] << [timestamp, "CDMA: #{info}"]
+          end
+
+          cell.each(TLV_TYPE_CELL_NEIGHBOR) do |w|
+            net = w.get_tlv_value(TLV_TYPE_CELL_NET_TYPE)
+            cid = w.get_tlv_value(TLV_TYPE_CELL_CID)
+            lac = w.get_tlv_value(TLV_TYPE_CELL_LAC)
+            psc = w.get_tlv_value(TLV_TYPE_CELL_PSC)
+            sig = w.get_tlv_value(TLV_TYPE_CELL_RSSI) * -1
+            inf = sprintf("network_type=%d cid=%d lac=%d psc=%d rssi=%d", net, cid, lac, psc, sig)
+            result[:entries] << [timestamp, inf]
+          end
+
+        end
       end
     end
 
