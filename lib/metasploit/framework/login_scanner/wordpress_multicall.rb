@@ -8,30 +8,31 @@ module Metasploit
       class WordpressMulticall < HTTP
 
         # @!attribute passwords
-        #   @return [Array]
+        # @return [Array]
         attr_accessor :passwords
 
-        # @!attribute chunk_size
-        #   @return [Fixnum]
+        # @!attribute chunk_size, limits number of passwords per XML request
+        # @return [Fixnum]
         attr_accessor :chunk_size
 
-        # @!attribute block_wait
-        #   @return [Fixnum]
+        # @!attribute block_wait, time to wait if got blocked by the target
+        # @return [Fixnum]
         attr_accessor :block_wait
 
         # @!attribute base_uri
-        #   @return [String]
+        # @return [String]
         attr_accessor :base_uri
 
         # @!attribute wordpress_url_xmlrpc
-        #   @return [String]
+        # @return [String]
         attr_accessor :wordpress_url_xmlrpc
+
 
         def set_default
           self.wordpress_url_xmlrpc = 'xmlrpc.php'
           self.block_wait = 6
           self.base_uri = '/'
-          self.chunk_size = 1800
+          self.chunk_size = 1700
         end
 
         # Returns the XML data that is used for the login.

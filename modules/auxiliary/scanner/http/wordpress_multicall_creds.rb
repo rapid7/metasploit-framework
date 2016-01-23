@@ -13,6 +13,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
+  # include Metasploit::Framework::LoginScanner::WordpressMulticall
 
   def initialize(info = {})
     super(update_info(info,
@@ -20,12 +21,10 @@ class Metasploit3 < Msf::Auxiliary
       'Description'  => %q{
         This module attempts to find Wordpress credentials by abusing the XMLRPC
         APIs. Wordpress versions prior to 4.4.1 are suitable for this type of
-        technique. For other versions, please try the wordpress_xmlrpc_login
-        module instead.
+        technique. For newer versions, the script will drop the CHUNKSIZE to 1 automatically.
       },
       'Author'      =>
         [
-          'Cenk Kalpakoglu <cenk.kalpakoglu[at]gmail.com>',
           'KingSabri <King.Sabri[at]gmail.com>' ,
           'William <WCoppola[at]Lares.com>',
           'sinn3r'
@@ -33,9 +32,6 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'https://wordpress.org/'],
-          ['URL', 'http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/'],
-          ['CVE', '1999-0502'], # Weak password
           ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/' ],
           ['URL', 'https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html' ]
         ],
@@ -49,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptInt.new('BLOCKEDWAIT', [ true, 'Time(minutes) to wait if got blocked', 6 ]),
-        OptInt.new('CHUNKSIZE',   [ true, 'Number of passwords need to be sent per request. (1700 is the max)', 1500 ])
+        OptInt.new('CHUNKSIZE',   [ true, 'Number of passwords need to be sent per request. (1700 is the max)', 1500 ]),
       ], self.class)
 
     # Not supporting these options, because we are not actually letting the API to process the
@@ -84,8 +80,10 @@ class Metasploit3 < Msf::Auxiliary
       print_error("#{peer}:#{rport}#{wordpress_url_xmlrpc} does not enable XMLRPC")
       false
     elsif Gem::Version.new(version) >= Gem::Version.new('4.4.1')
-      print_error("#{peer}:#{rport}#{wordpress_url_xmlrpc} Target's version (#{version}) is not vulnerable to this attack.")
-      false
+      print_error("#{peer}#{wordpress_url_xmlrpc} Target's version (#{version}) is not vulnerable to this attack.")
+      vprint_status("Dropping CHUNKSIZE from #{datastore['CHUNKSIZE']} to 1")
+      datastore['CHUNKSIZE'] = 1
+      true
     else
       print_status("Target #{peer} is running Wordpress")
       true
