@@ -91,15 +91,18 @@ module ReverseTcp
         # Accept a client connection
         begin
           client = listener_sock.accept
-          if !client
-            wlog("#{handler_name}: No client received in call to accept, exiting...")
-          else
+          if client
             self.pending_connections += 1
             lqueue.push(client)
           end
-        rescue StandardError
-          wlog("#{handler_name}: Exception raised during listener accept: #{$ERROR_INFO}\n\n#{$ERROR_POSITION.join("\n")}")
-          break
+        rescue Errno::ENOTCONN
+          nil
+        rescue StandardError => e
+          wlog [
+            "#{handler_name}: Exception raised during listener accept: #{e.class}",
+            "#{$ERROR_INFO}",
+            "#{$ERROR_POSITION.join("\n")}"
+          ].join("\n")
         end
       end
     }
