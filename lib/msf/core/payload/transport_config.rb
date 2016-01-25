@@ -50,7 +50,7 @@ module Msf::Payload::TransportConfig
     unless uri
       type = opts[:stageless] == true ? :init_connect : :connect
       sum = uri_checksum_lookup(type)
-      uri = generate_uri_uuid(sum, opts[:uuid])
+      uri = luri + generate_uri_uuid(sum, opts[:uuid])
     end
 
     {

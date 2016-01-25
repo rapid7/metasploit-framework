@@ -644,6 +644,16 @@ class ClientCore < Extension
     scheme = opts[:transport].split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
 
+    if opts[:luri] && opts[:luri].length > 0
+      if opts[:luri][0] != '/'
+        url << '/'
+      end
+      url << opts[:luri]
+      if url[-1] == '/'
+        url = url[0...-1]
+      end
+    end
+
     if opts[:comm_timeout]
       request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
     end
