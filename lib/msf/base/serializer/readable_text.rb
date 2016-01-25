@@ -524,6 +524,7 @@ class ReadableText
   def self.dump_sessions(framework, opts={})
     ids = (opts[:session_ids] || framework.sessions.keys).sort
     verbose = opts[:verbose] || false
+    extended = opts[:extended] || false
     indent = opts[:indent] || DefaultIndent
     col = opts[:col] || DefaultColumnWrap
 
@@ -536,6 +537,7 @@ class ReadableText
         'Information',
         'Connection'
       ]
+    columns << 'Checkin?' if extended
 
     tbl = Rex::Ui::Text::Table.new(
       'Indent'  => indent,
@@ -552,8 +554,16 @@ class ReadableText
       end
 
       row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + " (#{session.session_host})" ]
-      if session.respond_to? :platform
+      if session.respond_to?(:platform)
         row[1] << (" " + session.platform)
+      end
+
+      if extended
+        if session.respond_to?(:last_checkin) && session.last_checkin
+          row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
+        else
+          row << '?'
+        end
       end
 
       tbl << row
