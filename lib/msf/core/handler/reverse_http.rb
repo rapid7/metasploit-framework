@@ -109,7 +109,7 @@ module ReverseHttp
       callback_host = "#{callback_name}:#{callback_port}"
     end
 
-    "#{scheme}://#{callback_host}#{luri}/"
+    "#{scheme}://#{callback_host}"
   end
 
   # Use the {#refname} to determine whether this handler uses SSL or not
@@ -261,12 +261,15 @@ protected
     uuid.arch      ||= obj.arch
     uuid.platform  ||= obj.platform
 
-    conn_id = nil
+    conn_id = luri
     if info[:mode] && info[:mode] != :connect
-      conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+      conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+    else
+      conn_id << req.relative_resource
+      conn_id = conn_id[0...-1] if conn_id[-1] == '/'
     end
 
-    request_summary = "#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
+    request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
@@ -285,11 +288,6 @@ protected
 
     self.pending_connections += 1
 
-    unless luri.empty?
-      sep = conn_id && conn_id[0] == '/' ? '' : '/'
-      conn_id = "#{luri}#{sep}#{conn_id}"
-    end
-
     # Process the requested resource.
     case info[:mode]
       when :init_connect
@@ -307,6 +305,7 @@ protected
 
       when :init_python
         print_status("#{cli.peerhost}:#{cli.peerport} #{uuid.to_s}) Staging Python payload ...")
+
         url = payload_uri(req) + conn_id + '/'
 
         blob = ""
@@ -393,15 +392,15 @@ protected
         print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Attaching orphaned/stageless session ...")
 
         resp.body = ''
-        unless conn_id
-          conn_id = "#{luri}#{req.relative_resource}"
-        end
+
+        url = payload_uri(req) + conn_id
+        url << '/' unless url[-1] == '/'
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
           :passive_dispatcher => obj.service,
           :conn_id            => conn_id,
-          :url                => payload_uri(req) + conn_id + "/\x00",
+          :url                => url + "\x00",
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :retry_total        => datastore['SessionRetryTotal'].to_i,
