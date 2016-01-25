@@ -693,7 +693,7 @@ class Packet < GroupTlv
   end
 
   #
-  # Xora  set of bytes with a given DWORD xor key.
+  # Xor a set of bytes with a given DWORD xor key.
   #
   def xor_bytes(xor_key, bytes)
     result = ''
