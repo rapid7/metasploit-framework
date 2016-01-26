@@ -82,7 +82,7 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
     uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
-    "#{scheme}://#{uri_host}:#{bind_port}" + datastore['LURI'] || "/"
+    "#{scheme}://#{uri_host}:#{bind_port}#{luri}/"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -109,7 +109,7 @@ module ReverseHttp
       callback_host = "#{callback_name}:#{callback_port}"
     end
 
-    "#{scheme}://#{callback_host}" + datastore['LURI']
+    "#{scheme}://#{callback_host}"
   end
 
   # Use the {#refname} to determine whether this handler uses SSL or not
@@ -124,6 +124,27 @@ module ReverseHttp
   #   are using SSL
   def scheme
     (ssl?) ? 'https' : 'http'
+  end
+
+  #
+  # The local URI for the handler.
+  #
+  # @return [String] Representation of the URI to listen on.
+  #
+  def luri
+    l = datastore['LURI'] || ""
+
+    if l && l.length > 0 && l[0] != '/'
+      # make sure the luri has the prefix
+      l = "/#{l}"
+
+      # but not the suffix
+      if l[-1] == '/'
+        l = l[0...-1]
+      end
+    end
+
+    l.dup
   end
 
   # Create an HTTP listener
@@ -158,7 +179,7 @@ module ReverseHttp
     obj = self
 
     # Add the new resource
-    service.add_resource((datastore['LURI'] || "") + "/",
+    service.add_resource(luri + "/",
       'Proc' => Proc.new { |cli, req|
         on_request(cli, req, obj)
       },
@@ -178,7 +199,7 @@ module ReverseHttp
   #
   def stop_handler
     if self.service
-      self.service.remove_resource((datastore['LURI'] || "") + "/")
+      self.service.remove_resource(luri + "/")
       if self.service.resources.empty? && self.sessions == 0
         Rex::ServiceManager.stop_service(self.service)
       end
@@ -240,12 +261,15 @@ protected
     uuid.arch      ||= obj.arch
     uuid.platform  ||= obj.platform
 
-    conn_id = nil
+    conn_id = luri
     if info[:mode] && info[:mode] != :connect
-      conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+      conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+    else
+      conn_id << req.relative_resource
+      conn_id = conn_id[0...-1] if conn_id[-1] == '/'
     end
 
-    request_summary = "#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
+    request_summary = "#{luri}#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
@@ -264,17 +288,10 @@ protected
 
     self.pending_connections += 1
 
-    luriprint = ""
-    if !datastore['LURI'].empty?
-      luriprint = "-> (#{datastore['LURI']}) "
-    end
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
-        if datastore['LURI'] != "/"
-          conn_id = (datastore['LURI']) + conn_id
-        end
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -287,9 +304,9 @@ protected
         resp.body = pkt.to_r
 
       when :init_python
-        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Staging Python payload ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} #{uuid.to_s}) Staging Python payload ...")
+
         url = payload_uri(req) + conn_id + '/'
-        conn_id = (datastore['LURI']) + conn_id
 
         blob = ""
         blob << obj.generate_stage(
@@ -317,9 +334,8 @@ protected
         })
 
       when :init_java
-        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Staging Java payload ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} #{uuid.to_s}) Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
-        conn_id = (datastore['LURI']) + conn_id
 
         blob = obj.generate_stage(
           uuid: uuid,
@@ -342,10 +358,9 @@ protected
         })
 
       when :init_native
-        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Staging Native payload ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
         uri = URI(payload_uri(req) + conn_id)
-        conn_id = (datastore['LURI']) + conn_id
 
         resp['Content-Type'] = 'application/octet-stream'
 
@@ -374,17 +389,18 @@ protected
         })
 
       when :connect
-        print_status("#{cli.peerhost}:#{cli.peerport} #{luriprint}(UUID: #{uuid.to_s}) Attaching orphaned/stageless session ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Attaching orphaned/stageless session ...")
 
         resp.body = ''
-        conn_id = req.relative_resource
-        conn_id = (datastore['LURI']) + conn_id
+
+        url = payload_uri(req) + conn_id
+        url << '/' unless url[-1] == '/'
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
           :passive_dispatcher => obj.service,
           :conn_id            => conn_id,
-          :url                => payload_uri(req) + conn_id + "/\x00",
+          :url                => url + "\x00",
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :retry_total        => datastore['SessionRetryTotal'].to_i,
