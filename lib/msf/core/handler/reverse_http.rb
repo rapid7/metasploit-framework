@@ -140,7 +140,7 @@ module ReverseHttp
       end
     end
 
-    l
+    l.dup
   end
 
   # Create an HTTP listener
@@ -272,7 +272,7 @@ protected
       conn_id = conn_id[0...-1] if conn_id[-1] == '/'
     end
 
-    request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
+    request_summary = "#{luri}#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
