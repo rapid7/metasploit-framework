@@ -11,17 +11,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Telisca IPS Lock Control',
+      'Name'           => 'Telisca IPS Lock Cisco IP Phone Control',
       'Description'    => %q{
-        This modules will exploit the vulnerabilities of Telisca IPSLock in order to lock or unlock
-        IP Phones. You need to be in the voip vlan and you have to know the phone name.
-        Example : SEP002497AB1D4B.
+        This module allows an unauthenticated attacker to exercise the
+        "Lock" and "Unlock" functionality of Telisca IPS Lock for Cisco IP
+        Phones. This module should be run in the VoIP VLAN, and requires
+        knowledge of the target phone's name (for example, SEP002497AB1D4B).
 
         Set ACTION to either LOCK or UNLOCK. UNLOCK is the default.
       },
       'References'     =>
         [
-          # First publicly known resource
+          # Publicly disclosed via Metaploit PR
           'URL', 'https://github.com/rapid7/metasploit-framework/pull/6470'
         ],
       'Author'         =>
@@ -42,10 +43,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptAddress.new('RHOST', [true, 'The IPS Lock IP Address']),
-        OptString.new('PHONENAME', [true, 'The name of the victim phone. Ex: SEP002497AB1D4B'])
+        OptString.new('PHONENAME', [true, 'The name of the target phone'])
       ], self.class)
 
-    deregister_options('RHOSTS')
   end
 
   def print_status(msg='')
