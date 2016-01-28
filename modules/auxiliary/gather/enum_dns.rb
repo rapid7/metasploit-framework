@@ -243,7 +243,7 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::NS
       records << "#{r.nsdname}"
       report_host(host: r.nsdname, name: domain, info: 'NS')
-      print_good("#{domain}: NS: #{r.nsdname}")
+      print_good("#{domain} NS: #{r.nsdname}")
     end
     return if records.blank?
 
