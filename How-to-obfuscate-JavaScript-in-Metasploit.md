@@ -125,7 +125,7 @@ puts html
 
 ## The JSObfu class
 
-The JSObfu class used to be ObfuscateJS' cousin, but it has been completely rewritten since September 2014, and packaged as a gem. The obfuscation is more complex and you can actually tell it to obfuscate multiple times. You also no longer have to manually specify what symbol names to change, it just knows.
+The JSObfu class used to be ObfuscateJS' cousin, but it has been completely rewritten since September 2014, and packaged as a [gem](https://rubygems.org/gems/jsobfu). The obfuscation is more complex and you can actually tell it to obfuscate multiple times. You also no longer have to manually specify what symbol names to change, it just knows.
 
 **Trying JSObfu in Rex**
 
