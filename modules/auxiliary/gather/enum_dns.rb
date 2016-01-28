@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('ENUM_SOA', [true, 'Enumerate DNS SOA record', true]),
         OptBool.new('ENUM_TXT', [true, 'Enumerate DNS TXT record', true]),
         OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', false]),
-        OptBool.new('ENUM_TLD', [true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', true]),
+        OptBool.new('ENUM_TLD', [true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', false]),
         OptBool.new('ENUM_SRV', [true, 'Enumerate the most common SRV records', true]),
         OptBool.new('STOP_WLDCRD', [true, 'Stops bruteforce enumeration if wildcard resolution is detected', false]),
         OptBool.new('STORE_LOOT', [true, 'Store acquired DNS records as loot', true]),
