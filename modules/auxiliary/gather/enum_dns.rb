@@ -186,7 +186,7 @@ class Metasploit3 < Msf::Auxiliary
                 filename = nil, info = nil, service = nil)
     return unless datastore['STORE_LOOT']
     path = store_loot(ltype, ctype, host, data, filename, info, service)
-    print_good('saved file to: ' + path)
+    vprint_status("Saved #{ltype} loot to #{path}")
   end
 
   def get_ptr(ip)
