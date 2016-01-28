@@ -55,7 +55,7 @@ Gem::Specification.new do |spec|
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
-  spec.add_runtime_dependency 'jsobfu', '~> 0.3.0'
+  spec.add_runtime_dependency 'jsobfu', '~> 0.4.1'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
   # Metasm compiler/decompiler/assembler
