@@ -20,7 +20,7 @@ EOF
     it "enumerates the groups" do
       groups = []
       ini.each_group { |group| groups << group }
-      groups.should eq(%w(foo bar baf))
+      expect(groups).to eq(%w(foo bar baf))
     end
   end
 
@@ -28,7 +28,7 @@ EOF
     it "enumerates the groups" do
       groups = []
       ini.each_key.map { |group| groups << group }
-      groups.should eq(%w(foo bar baf))
+      expect(groups).to eq(%w(foo bar baf))
     end
   end
 end
