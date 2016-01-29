@@ -37,11 +37,7 @@ Commit rights are granted via a formal voting process involving all current comm
 3. The Metasploit Framework triumvirate of [HD Moore](https://github.com/hdm), [Tod Beardsley](https://github.com/todb-r7), and [James "egypt" Lee](https://github.com/jlee-r7), must all affirm the nominee within a week on the mailing list with a yes vote -- otherwise, the nomination suffers a pocket veto.
 4. The Metasploit community manager (@jlee-r7) will inform the nominee of their new commit rights and responsibilities, add the new committer to the appropriate ACL groups and mailing lists, and inform the mailing list of the successful completion of these tasks.
 
-Committers introduced in this way will have commit rights to the following repositories:
-
- * https://github.com/rapid7/metasploit-framework
- * https://github.com/rapid7/meterpreter
- * https://github.com/rapid7/metasploit-javapayload
+Committers introduced in this way will have commit rights to the [public framework repositories](https://github.com/orgs/rapid7/teams/framework-public-committers/repositories).
 
 ## How to Lose Commit Rights
 
