@@ -22,12 +22,12 @@ class Metasploit3 < Msf::Auxiliary
           'Deral "Percentx" Heiland',
           'Pete "Bokojan" Arzamendi'
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => false }
     ))
 
     register_options(
       [
-        OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', false]),
         OptString.new('PASSWORD', [true, 'Password to access administrative interface. Defaults to 1111', '1111']),
         OptPort.new('RPORT', [true, 'The target port on the remote printer. Defaults to 80', 80]),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer connection probe.', 20]),
