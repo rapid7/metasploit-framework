@@ -180,7 +180,7 @@ GEM
     rb-readline-r7 (0.5.2.0)
     recog (2.0.14)
       nokogiri
-    redcarpet (3.2.3)
+    redcarpet (3.3.4)
     rkelly-remix (0.0.6)
     robots (0.10.1)
     rspec-core (3.3.2)
