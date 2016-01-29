@@ -35,11 +35,11 @@ class Core
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
     "-c"  => [ true,  "Run a command on the session given with -i, or all"          ],
+    "-ci" => [ false, "Show the last checkin time in the session table"             ],
     "-h"  => [ false, "Help banner"                                                 ],
     "-i"  => [ true,  "Interact with the supplied session ID   "                    ],
     "-l"  => [ false, "List all active sessions"                                    ],
-    "-v"  => [ false, "List extended fields"                                        ],
-    "-vv" => [ false, "Render in verbose mode"                                      ],
+    "-v"  => [ false, "List sessions in verbose mode"                               ],
     "-q"  => [ false, "Quiet mode"                                                  ],
     "-k"  => [ true,  "Terminate sessions by session ID and/or range"               ],
     "-K"  => [ false, "Terminate all sessions"                                      ],
@@ -1760,7 +1760,7 @@ class Core
     begin
     method   = nil
     quiet    = false
-    extended = false
+    show_checkin = false
     verbose  = false
     sid      = nil
     cmds     = []
@@ -1781,9 +1781,9 @@ class Core
       when "-c"
         method = 'cmd'
         cmds << val if val
+      when "-ci"
+        show_checkin = true
       when "-v"
-        extended = true
-      when "-vv"
         verbose = true
       # Do something with the supplied session identifier instead of
       # all sessions.
@@ -2045,7 +2045,7 @@ class Core
       end
     when 'list',nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :extended => extended, :verbose => verbose))
+      print(Serializer::ReadableText.dump_sessions(framework, :show_checkin => show_checkin, :verbose => verbose))
       print_line
     end
 
