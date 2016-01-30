@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
       [
         OptString.new('SUBNET', [false, 'Subnet (IPv4, for example, 10.10.10.0)', nil]),
         OptString.new('NETMASK', [false, 'Netmask (IPv4 as "255.255.255.0" or CIDR as "/24"', '255.255.255.0']),
-        OptEnum.new('CMD', [true, 'Specify the autoroute command', 'add', ['add','print','delete']])
+        OptEnum.new('CMD', [true, 'Specify the autoroute command', 'autoadd', ['add','autoadd','print','delete']])
       ], self.class)
   end
 
@@ -58,6 +58,8 @@ class Metasploit3 < Msf::Post
         print_status("Adding a route to %s/%s..." % [datastore['SUBNET'],netmask])
         add_route(:subnet => datastore['SUBNET'], :netmask => netmask)
       end
+    when :autoadd
+      autoadd_routes
     when :delete
       if datastore['SUBNET']
         print_status("Deleting route to %s/%s..." % [datastore['SUBNET'],netmask])
@@ -156,6 +158,33 @@ class Metasploit3 < Msf::Post
     Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
   end
 
+  # This function will search for valid subnets on the target and attempt
+  # add a route to each. (Operation from auto_add_route plugin.)
+  #
+  # @return [void] A useful return value is not expected here
+  def autoadd_routes
+    switch_board = Rex::Socket::SwitchBoard.instance
+    print_status("Searcing for subnets to auto route.")
+    session.net.config.each_route do | route |
+      # Remove multicast and loopback interfaces
+      next if route.subnet =~ /^(224\.|127\.)/
+      next if route.subnet == '0.0.0.0'
+      next if route.netmask == '255.255.255.255'
+
+      if not switch_board.route_exists?(route.subnet, route.netmask)
+        begin
+          if Rex::Socket::SwitchBoard.add_route(route.subnet, route.netmask, session)
+            print_good("Route added to subnet #{route.subnet}/#{route.netmask}")
+          else
+            print_error("Could not add route to subnet #{route.subnet}/#{route.netmask}")
+          end
+        rescue ::Rex::Post::Meterpreter::RequestError => error
+          print_error("Could not add route to subnet #{route.subnet}/(#{route.netmask})")
+          print_error(error.to_s)
+        end
+      end
+    end
+  end
 
   # Validates the command options
   def validate_cmd(subnet=nil,netmask=nil)
