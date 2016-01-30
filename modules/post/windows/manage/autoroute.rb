@@ -164,17 +164,20 @@ class Metasploit3 < Msf::Post
   # @return [void] A useful return value is not expected here
   def autoadd_routes
     switch_board = Rex::Socket::SwitchBoard.instance
-    print_status("Searcing for subnets to auto route.")
+    print_status("Searcing for subnets to autoroute.")
+    found = false
+
     session.net.config.each_route do | route |
       # Remove multicast and loopback interfaces
       next if route.subnet =~ /^(224\.|127\.)/
       next if route.subnet == '0.0.0.0'
       next if route.netmask == '255.255.255.255'
 
-      if not switch_board.route_exists?(route.subnet, route.netmask)
+      if !switch_board.route_exists?(route.subnet, route.netmask)
         begin
           if Rex::Socket::SwitchBoard.add_route(route.subnet, route.netmask, session)
             print_good("Route added to subnet #{route.subnet}/#{route.netmask}")
+            found = true
           else
             print_error("Could not add route to subnet #{route.subnet}/#{route.netmask}")
           end
@@ -184,6 +187,7 @@ class Metasploit3 < Msf::Post
         end
       end
     end
+    print_status("Did not find any new subnets to add.") if !found
   end
 
   # Validates the command options
