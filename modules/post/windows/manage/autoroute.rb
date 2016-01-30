@@ -15,7 +15,8 @@ class Metasploit3 < Msf::Post
         'Name'          => 'Windows Manage Network Route via Meterpreter Session',
         'Description'   => %q{This module manages session routing via an existing
           Meterpreter session. It enables other modules to 'pivot' through a
-          compromised host when connecting to the named NETWORK and SUBMASK.},
+          compromised host when connecting to the named NETWORK and SUBMASK.
+          Autoadd will search session for valid subnets and route to them.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'todb'],
         'Platform'      => [ 'win' ],
