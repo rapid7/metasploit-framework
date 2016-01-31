@@ -304,7 +304,7 @@ protected
         resp.body = pkt.to_r
 
       when :init_python
-        print_status("#{cli.peerhost}:#{cli.peerport} #{uuid.to_s}) Staging Python payload ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
 
         url = payload_uri(req) + conn_id + '/'
 
@@ -334,7 +334,8 @@ protected
         })
 
       when :init_java
-        print_status("#{cli.peerhost}:#{cli.peerport} #{uuid.to_s}) Staging Java payload ...")
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
+
         url = payload_uri(req) + conn_id + "/\x00"
 
         blob = obj.generate_stage(
