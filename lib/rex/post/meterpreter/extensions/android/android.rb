@@ -246,7 +246,11 @@ class Android < Extension
     request = Packet.create_request('activity_start')
     request.add_tlv(TLV_TYPE_URI_STRING, uri)
     response = client.send_request(request)
-    response.get_tlv(TLV_TYPE_ACTIVITY_START_RESULT).value
+    if response.get_tlv(TLV_TYPE_ACTIVITY_START_RESULT).value
+      return nil
+    else
+      return response.get_tlv(TLV_TYPE_ACTIVITY_START_ERROR).value
+    end
   end
 
   def send_sms(dest, body, dr)

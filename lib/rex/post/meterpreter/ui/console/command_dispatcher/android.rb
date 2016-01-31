@@ -538,7 +538,12 @@ class Console::CommandDispatcher::Android
     end
     
     uri = args[0]
-    client.android.activity_start(uri)
+    result = client.android.activity_start(uri)
+    if result.nil?
+      print_status("Intent started")
+    else
+      print_error("Error: #{result}")
+    end
   end
  
   #
