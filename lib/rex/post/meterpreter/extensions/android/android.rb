@@ -242,6 +242,12 @@ class Android < Extension
     response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
 
+  def set_wallpaper(data)
+    request = Packet.create_request('set_wallpaper')
+    request.add_tlv(TLV_TYPE_WALLPAPER_DATA, data)
+    response = client.send_request(request)
+  end
+
   def send_sms(dest, body, dr)
     request = Packet.create_request('send_sms')
     request.add_tlv(TLV_TYPE_SMS_ADDRESS, dest)

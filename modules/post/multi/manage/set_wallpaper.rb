@@ -66,6 +66,9 @@ class Metasploit3 < Msf::Post
   end
   
   def android_set_wallpaper(id)
+    wallpaper_file = datastore["WALLPAPER_FILE"]
+    local_file = File.open(wallpaper_file, "rb") {|fd| fd.read(fd.stat.size) }
+    client.android.set_wallpaper(local_file)
     true
   end
 
