@@ -1,6 +1,6 @@
 require 'rex/parser/burp_session_nokogiri'
 
-module Msf::DBManager::Import::Burp
+module Msf::DBManager::Import::BurpSession
   def import_burp_session_noko_stream(args={},&block)
     if block
       doc = Rex::Parser::BurpSessionDocument.new(args,framework.db) {|type, data| yield type,data }
