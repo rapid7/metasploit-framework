@@ -65,10 +65,10 @@ class Metasploit3 < Msf::Auxiliary
 
     # Yes, "sucess" is really mispelt, as is "Servelet" ... !
     unless res && res.code == 200 && res.body && res.body.to_s =~ /sucess/
-      print_error("#{peer} - Administrator account creation failed")
+      print_error("Administrator account creation failed")
     end
 
-    print_good("#{peer} - Created Administrator account with credentials #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+    print_good("Created Administrator account with credentials #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
     service_data = {
       address: rhost,
       port: rport,

@@ -43,17 +43,17 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     unless res
-      vprint_error("#{peer} - No response received")
+      vprint_error("No response received")
       return
     end
 
     unless res.headers.include?('X-Jenkins')
-      vprint_error("#{peer} - responded with #{res.code} but does not seem to be Jenkins")
+      vprint_error("responded with #{res.code} but does not seem to be Jenkins")
       return
     end
 
     version = res.headers['X-Jenkins']
-    print_status("#{peer} - Jenkins Version - #{version}")
+    print_status("Jenkins Version - #{version}")
     report_service(
       :host  => rhost,
       :port  => rport,
@@ -91,13 +91,13 @@ class Metasploit3 < Msf::Auxiliary
       'ctype'     => 'text/plain',
     })
     unless res
-      vprint_error("#{peer} - Timeout")
+      vprint_error("Timeout")
       return
     end
 
     case res.code
     when 200
-      print_good("#{peer} - #{uri_path} does not require authentication (200)")
+      print_good("#{uri_path} does not require authentication (200)")
       report_note({
         :type  => "jenkins_path",
         :host  => rhost,
@@ -120,22 +120,22 @@ class Metasploit3 < Msf::Auxiliary
         )
       end
     when 403
-      print_status("#{peer} - #{uri_path} restricted (403)")
+      print_status("#{uri_path} restricted (403)")
     when 401
-      print_status("#{peer} - #{uri_path} requires authentication (401): #{res.headers['WWW-Authenticate']}")
+      print_status("#{uri_path} requires authentication (401): #{res.headers['WWW-Authenticate']}")
     when 404
-      print_status("#{peer} - #{uri_path} not found (404)")
+      print_status("#{uri_path} not found (404)")
     when 301
-      print_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      print_status("#{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     when 302
-      print_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      print_status("#{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     else
-      print_status("#{peer} - #{uri_path} Don't know how to handle response code #{res.code}")
+      print_status("#{uri_path} Don't know how to handle response code #{res.code}")
     end
   end
 
   def parse_system_info(body)
-    vprint_status("#{peer} - Getting useful information from systemInfo")
+    vprint_status("Getting useful information from systemInfo")
     infos = {
       "os.name"            => nil,
       "os.version"         => nil,

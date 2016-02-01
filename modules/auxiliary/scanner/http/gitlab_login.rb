@@ -47,9 +47,9 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res && res.body && res.body.include?('user[email]')
-      vprint_status("#{peer} - GitLab v5 login page")
+      vprint_status("GitLab v5 login page")
     elsif res && res.body && res.body.include?('user[login]')
-      vprint_status("#{peer} - GitLab v7 login page")
+      vprint_status("GitLab v7 login page")
     else
       vprint_error('Not a valid GitLab login page')
       return

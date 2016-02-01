@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
       temp = JSON.parse(res.body)
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
-      print_error("#{peer} - The following Error was encountered: #{e.class}")
+      print_error("The following Error was encountered: #{e.class}")
       return
     end
 
@@ -64,9 +64,9 @@ class Metasploit3 < Msf::Auxiliary
         'CouchDB Enum'
       )
 
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      print_error("#{peer} - Unable to enum, received \"#{res.code}\"")
+      print_error("Unable to enum, received \"#{res.code}\"")
     end
   end
 end

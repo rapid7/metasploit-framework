@@ -32,14 +32,14 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    vprint_status("#{peer} - Querying indices...")
+    vprint_status("Querying indices...")
     begin
       res = send_request_raw({
         'uri'     => '/_aliases',
         'method'  => 'GET',
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable
-      vprint_error("#{peer} - Unable to establish connection")
+      vprint_error("Unable to establish connection")
       return
     end
 
@@ -47,11 +47,11 @@ class Metasploit3 < Msf::Auxiliary
       begin
         json_body = JSON.parse(res.body)
       rescue JSON::ParserError
-        vprint_error("#{peer} - Unable to parse JSON")
+        vprint_error("Unable to parse JSON")
         return
       end
     else
-      vprint_error("#{peer} - Timeout or unexpected response...")
+      vprint_error("Timeout or unexpected response...")
       return
     end
 
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if indices.length > 0
-      print_good("#{peer} - ElasticSearch Indices found: #{indices.join(", ")}")
+      print_good("ElasticSearch Indices found: #{indices.join(", ")}")
     end
 
   end

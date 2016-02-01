@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       )
       temp = JSON.parse(res.body.gsub(/exportarticle\(/, "").gsub(/\)/, ""))
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
-      print_error("#{peer} - The following Error was encountered: #{e.class}")
+      print_error("The following Error was encountered: #{e.class}")
       return
     end
 
@@ -77,9 +77,9 @@ class Metasploit3 < Msf::Auxiliary
         ip,
         res_clean
       )
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      print_error("#{peer} - Nothing was downloaded. You can try checking the POSTID parameter.")
+      print_error("Nothing was downloaded. You can try checking the POSTID parameter.")
     end
   end
 end

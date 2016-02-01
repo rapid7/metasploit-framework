@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     unless res && res.body
-      vprint_error("#{peer} - Server did not respond in an expected way.")
+      vprint_error("Server did not respond in an expected way.")
       return
     end
 
@@ -81,9 +81,9 @@ class Metasploit3 < Msf::Auxiliary
         fname
       )
 
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      vprint_error("#{peer} - Nothing was downloaded. You can try to change the DEPTH parameter or verify the correct filename.")
+      vprint_error("Nothing was downloaded. You can try to change the DEPTH parameter or verify the correct filename.")
     end
   end
 end

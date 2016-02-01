@@ -49,12 +49,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     unless wordpress_and_online?
-      print_error("#{peer} - Looks like this site is no WordPress blog")
+      print_error("Looks like this site is no WordPress blog")
       return
     end
 
     unless wordpress_xmlrpc_enabled?
-      print_error("#{peer} - XMLRPC interface is not enabled")
+      print_error("XMLRPC interface is not enabled")
       return
     end
 
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res.nil? || res.code == 500
-      print_good("#{peer} - vulnerable to GHOST")
+      print_good("vulnerable to GHOST")
       report_vuln(
       :host   => ip,
       :proto  => 'tcp',
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
       :sname  => datastore['SSL'] ? "https" : "http"
       )
     else
-      print_status("#{peer} - target not vulnerable to GHOST")
+      print_status("target not vulnerable to GHOST")
     end
   end
 
