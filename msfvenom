@@ -290,11 +290,11 @@ if __FILE__ == $0
   if generator_opts[:list]
     generator_opts[:list].each do |mod|
       case mod.downcase
-        when "payloads"
+        when "payloads", "payload"
           $stdout.puts dump_payloads
-        when "encoders"
+        when "encoders", "encoder"
           $stdout.puts dump_encoders(generator_opts[:arch])
-        when "nops"
+        when "nops", "nop"
           $stdout.puts dump_nops
         when "all"
           # Init here so #dump_payloads doesn't create a framework with
@@ -304,14 +304,7 @@ if __FILE__ == $0
           $stdout.puts dump_encoders
           $stdout.puts dump_nops
         else
-          if mod == 'payload'
-            question = ". Do you mean 'payloads'?"
-          elsif mod == 'encoder'
-            question = ". Do you mean 'encoders'?"
-          elsif mod == 'nop'
-            quesetion = ". Do you mean 'nops'?"
-          end
-          $stderr.puts "Invalid module type#{question}"
+          $stderr.puts "Invalid module type. These are valid: payloads, encoders, nops, all"
       end
     end
     exit(0)
