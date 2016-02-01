@@ -175,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       modules_metadata = rsync_list
     rescue *HANDLED_EXCEPTIONS => e
-      vprint_error("#{peer} -- error while listing modules: #{e}")
+      vprint_error("Error while listing modules: #{e}")
       return
     ensure
       disconnect
