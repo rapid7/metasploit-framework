@@ -427,8 +427,8 @@ module Msf
         while (arg = args.shift)
           case arg
           when '-h', '--help'
-            print_status("nessus_server_feed")
-            print_status("Example:> nessus_server_feed -S searchterm")
+            print_status("nessus_server_properties")
+            print_status("Example:> nessus_server_properties -S searchterm")
             print_status()
             print_status("Returns information about the feed type and server version.")
             return
