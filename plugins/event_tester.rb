@@ -7,6 +7,10 @@ module Msf
 
 class Plugin::EventTester < Msf::Plugin
   class Subscriber
+    def respond_to?(name, *args)
+      # Why yes, I can do that.
+      true
+    end
     def method_missing(name, *args)
       $stdout.puts("Event fired: #{name}(#{args.join(", ")})")
     end
