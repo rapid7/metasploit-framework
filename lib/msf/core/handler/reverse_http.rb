@@ -67,10 +67,14 @@ module ReverseHttp
   #
   # @return [String]
   def listener_address
-    if datastore['ReverseListenerBindAddress'].to_s == ''
-      bindaddr = Rex::Socket.is_ipv6?(datastore['LHOST']) ? '::' : '0.0.0.0'
-    else
+    if datastore['ReverseListenerBindAddress']
       bindaddr = datastore['ReverseListenerBindAddress']
+    else
+      begin
+        bindaddr = Rex::Socket.getaddress(datastore['LHOST'])
+      rescue SocketError
+        bindaddr = Rex::Socket.is_ipv6?(datastore['LHOST']) ? '::' : '0.0.0.0'
+      end
     end
 
     bindaddr
