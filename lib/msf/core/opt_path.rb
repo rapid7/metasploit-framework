@@ -12,6 +12,10 @@ class OptPath < OptBase
     return 'path'
   end
 
+  def normalize(value)
+    File.expand_path(value)
+  end
+
   # Generally, 'value' should be a file that exists.
   def valid?(value)
     return false if empty_required_value?(value)
