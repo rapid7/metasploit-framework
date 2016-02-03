@@ -13,7 +13,7 @@ class OptPath < OptBase
   end
 
   def normalize(value)
-    File.expand_path(value)
+    value.nil? ? value : File.expand_path(value)
   end
 
   # Generally, 'value' should be a file that exists.
