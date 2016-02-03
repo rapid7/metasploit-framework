@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def key_dir
-    datastore['KEY_DIR']
+    ::File.expand_path(datastore['KEY_DIR'])
   end
 
   def rport
@@ -86,12 +86,12 @@ class Metasploit3 < Msf::Auxiliary
       keyfile = datastore['SSH_KEYFILE_B64'].unpack("m*").first
     elsif file.kind_of? Array
       keyfile = ''
-      file.each do |dir_entry|
+      file.map { |f| ::File.expand_path(f) }.each do |dir_entry|
         next unless ::File.readable? dir_entry
         keyfile << ::File.open(dir_entry, "rb") {|f| f.read(f.stat.size)}
       end
     else
-      keyfile = ::File.open(file, "rb") {|f| f.read(f.stat.size)}
+      keyfile = ::File.open(;:File.expand_path(file), "rb") {|f| f.read(f.stat.size)}
     end
     keys = []
     this_key = []
