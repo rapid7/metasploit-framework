@@ -97,8 +97,8 @@ class Metasploit3 < Msf::Auxiliary
     this_key = []
     in_key = false
     keyfile.split("\n").each do |line|
-      if line =~ /ssh-(dss|rsa)\s+/
-        keys << line
+      if /(?<key>ssh-(?:dss|rsa)\s+.*)/ =~ line
+        keys << key
         next
       end
       in_key = true if(line =~ /^-----BEGIN [RD]SA (PRIVATE|PUBLIC) KEY-----/)
