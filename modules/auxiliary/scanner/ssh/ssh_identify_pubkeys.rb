@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(22),
         OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.'])
-      ], self.class
+      ]
     )
 
     register_advanced_options(
@@ -59,7 +59,9 @@ class Metasploit3 < Msf::Auxiliary
       ]
     )
 
-    deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS')
+    deregister_options(
+      'RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
+    )
 
     @good_credentials = {}
     @good_key = ''
