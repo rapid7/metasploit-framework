@@ -73,6 +73,10 @@ class Metasploit3 < Msf::Auxiliary
     ::File.expand_path(datastore['KEY_DIR'])
   end
 
+  def key_file
+    ::File.expand_path(datastore['KEY_FILE'])
+  end
+
   def rport
     datastore['RPORT']
   end
@@ -91,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
         keyfile << ::File.open(dir_entry, "rb") {|f| f.read(f.stat.size)}
       end
     else
-      keyfile = ::File.open(;:File.expand_path(file), "rb") {|f| f.read(f.stat.size)}
+      keyfile = ::File.open(::File.expand_path(file), "rb") {|f| f.read(f.stat.size)}
     end
     keys = []
     this_key = []
@@ -164,8 +168,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_login(ip, port, user)
 
-    if datastore['KEY_FILE'] and File.readable?(datastore['KEY_FILE'])
-      keys = read_keyfile(datastore['KEY_FILE'])
+    if datastore['KEY_FILE'] && File.readable?(key_file)
+      keys = read_keyfile(key_file)
       cleartext_keys = pull_cleartext_keys(keys)
       msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
     elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
