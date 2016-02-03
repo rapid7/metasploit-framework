@@ -28,9 +28,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'BID', '19680' ],
           [ 'CVE', '2006-4313' ],
-          [ 'URL', 'http://www.cisco.com/warp/public/707/cisco-sa-20060823-vpn3k.shtml' ],
           [ 'OSVDB', '28139' ],
-          [ 'OSVDB', '28138' ],
+          [ 'OSVDB', '28138' ]
         ],
       'DisclosureDate' => 'Aug 23 2006'))
 

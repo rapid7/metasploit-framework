@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '86881' ],
           [ 'BID', '57969' ],
           [ 'EDB', '24504' ],
-          [ 'URL', 'http://www.tp-link.com/en/support/download/?model=TL-WA701ND&version=V1' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-011' ]
         ],
       'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],

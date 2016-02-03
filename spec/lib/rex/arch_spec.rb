@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/arch'
 
-describe Rex::Arch do
+RSpec.describe Rex::Arch do
 
   describe ".adjust_stack_pointer" do
     subject { described_class.adjust_stack_pointer(arch, adjustment) }

@@ -120,7 +120,7 @@ module Msf
         tbl << [ "-----------------", "-----------------"]
         tbl << [ "nessus_scan_list", "List of all current Nessus scans" ]
         tbl << [ "nessus_scan_new", "Create a new Nessus Scan" ]
-        tbl << [ "nessus_scan_lauch", "Launch a newly created scan. New scans need to be manually launched through this command" ]
+        tbl << [ "nessus_scan_launch", "Launch a newly created scan. New scans need to be manually launched through this command" ]
         tbl << [ "nessus_scan_pause", "Pause a running Nessus scan" ]
         tbl << [ "nessus_scan_pause_all", "Pause all running Nessus scans" ]
         tbl << [ "nessus_scan_stop", "Stop a running or paused Nessus scan" ]

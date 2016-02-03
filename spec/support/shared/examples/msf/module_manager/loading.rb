@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::ModuleManager::Loading' do
+RSpec.shared_examples_for 'Msf::ModuleManager::Loading' do
   context '#file_changed?' do
     let(:module_basename) do
       [basename_prefix, '.rb']
@@ -8,8 +8,8 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
       Tempfile.open(module_basename) do |tempfile|
         module_path = tempfile.path
 
-        subject.send(:module_info_by_path)[module_path].should be_nil
-        subject.file_changed?(module_path).should be_truthy
+        expect(subject.send(:module_info_by_path)[module_path]).to be_nil
+        expect(subject.file_changed?(module_path)).to be_truthy
       end
     end
 
@@ -25,7 +25,7 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
             :type => Msf::MODULE_PAYLOAD
         }
 
-        subject.file_changed?(module_path).should be_truthy
+        expect(subject.file_changed?(module_path)).to be_truthy
       end
     end
 
@@ -41,8 +41,8 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
 
         tempfile.unlink
 
-        File.exist?(module_path).should be_falsey
-        subject.file_changed?(module_path).should be_truthy
+        expect(File.exist?(module_path)).to be_falsey
+        expect(subject.file_changed?(module_path)).to be_truthy
       end
 
       it 'should return true if modification time does not match the cached modification time' do
@@ -55,8 +55,8 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
               :modification_time => cached_modification_time
           }
 
-          cached_modification_time.should_not == modification_time
-          subject.file_changed?(module_path).should be_truthy
+          expect(cached_modification_time).not_to eq modification_time
+          expect(subject.file_changed?(module_path)).to be_truthy
         end
       end
 
@@ -70,8 +70,8 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
               :modification_time => cached_modification_time
           }
 
-          cached_modification_time.should == modification_time
-          subject.file_changed?(module_path).should be_falsey
+          expect(cached_modification_time).to eq modification_time
+          expect(subject.file_changed?(module_path)).to be_falsey
         end
       end
     end
@@ -124,12 +124,12 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
       klass.type
     end
 
-    before(:each) do
-      klass.stub(:parent => namespace_module)
+    before(:example) do
+      allow(klass).to receive(:parent).and_return(namespace_module)
     end
 
     it "should add module to type's module_set" do
-      module_set.should_receive(:add_module).with(
+      expect(module_set).to receive(:add_module).with(
           klass,
           reference_name,
           options
@@ -139,19 +139,19 @@ shared_examples_for 'Msf::ModuleManager::Loading' do
     end
 
     it 'should call cache_in_memory' do
-      module_manager.should_receive(:cache_in_memory)
+      expect(module_manager).to receive(:cache_in_memory)
 
       on_module_load
     end
 
     it 'should pass class to #auto_subscribe_module' do
-      module_manager.should_receive(:auto_subscribe_module).with(klass)
+      expect(module_manager).to receive(:auto_subscribe_module).with(klass)
 
       on_module_load
     end
 
     it 'should fire on_module_load event with class' do
-      framework.events.should_receive(:on_module_load).with(
+      expect(framework.events).to receive(:on_module_load).with(
           reference_name,
           klass
       )

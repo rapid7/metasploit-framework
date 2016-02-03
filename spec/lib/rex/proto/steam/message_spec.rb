@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'rex/proto/steam/message'
 
-describe Rex::Proto::Steam do
+RSpec.describe Rex::Proto::Steam do
   subject(:steam) do
     mod = Module.new
     mod.extend described_class

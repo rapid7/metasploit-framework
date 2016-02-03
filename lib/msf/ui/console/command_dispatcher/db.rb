@@ -745,7 +745,7 @@ class Db
       #	mode = :add
       #when "-d"
       #	mode = :delete
-      when "-h"
+      when "-h","--help"
         cmd_vulns_help
         return
       when "-p","--port"

@@ -1,41 +1,41 @@
 require 'spec_helper'
 require 'rex/random_identifier_generator'
 
-describe Rex::RandomIdentifierGenerator do
+RSpec.describe Rex::RandomIdentifierGenerator do
   let(:options) do
     { :min_length => 10, :max_length => 20 }
   end
 
   subject(:rig) { described_class.new(options) }
 
-  it { should respond_to(:generate) }
-  it { should respond_to(:[]) }
-  it { should respond_to(:get) }
-  it { should respond_to(:store) }
-  it { should respond_to(:to_h) }
+  it { is_expected.to respond_to(:generate) }
+  it { is_expected.to respond_to(:[]) }
+  it { is_expected.to respond_to(:get) }
+  it { is_expected.to respond_to(:store) }
+  it { is_expected.to respond_to(:to_h) }
 
   describe "#generate" do
     it "should respect :min_length" do
       1000.times do
-        rig.generate.length.should >= options[:min_length]
+        expect(rig.generate.length).to be >= options[:min_length]
       end
     end
 
     it "should respect :max_length" do
       1000.times do
-        rig.generate.length.should <= options[:max_length]
+        expect(rig.generate.length).to be <= options[:max_length]
       end
     end
 
     it "should allow mangling in a block" do
       ident = rig.generate { |identifier| identifier.upcase }
-      ident.should match(/\A[A-Z0-9_]*\Z/)
+      expect(ident).to match(/\A[A-Z0-9_]*\Z/)
 
       ident = subject.generate { |identifier| identifier.downcase }
-      ident.should match(/\A[a-z0-9_]*\Z/)
+      expect(ident).to match(/\A[a-z0-9_]*\Z/)
 
       ident = subject.generate { |identifier| identifier.gsub("A","B") }
-      ident.should_not include("A")
+      expect(ident).not_to include("A")
     end
   end
 
@@ -44,7 +44,7 @@ describe Rex::RandomIdentifierGenerator do
       { :min_length=>3, :max_length=>3 }
     end
     it "should return the same thing for subsequent calls" do
-      rig.get(:rspec).should == rig.get(:rspec)
+      expect(rig.get(:rspec)).to eq rig.get(:rspec)
     end
     it "should not return the same for different names" do
       # Statistically...
@@ -53,7 +53,7 @@ describe Rex::RandomIdentifierGenerator do
       count.times do |n|
         a.add rig.get(n)
       end
-      a.size.should == count
+      expect(a.size).to eq count
     end
 
     context "with an exhausted set" do
@@ -87,30 +87,30 @@ describe Rex::RandomIdentifierGenerator do
     it "should allow smaller than minimum length" do
       value = "a"*(options[:min_length]-1)
       rig.store(:spec, value)
-      rig.get(:spec).should == value
+      expect(rig.get(:spec)).to eq value
     end
 
     it "should allow bigger than maximum length" do
       value = "a"*(options[:max_length]+1)
       rig.store(:spec, value)
-      rig.get(:spec).should == value
+      expect(rig.get(:spec)).to eq value
     end
 
     it "should raise if value is not unique" do
       value = "a"*(options[:max_length]+1)
       rig.store(:spec0, value)
-      rig.get(:spec0).should == value
-      expect { rig.store(:spec1, value) }.to raise_error
+      expect(rig.get(:spec0)).to eq value
+      expect { rig.store(:spec1, value) }.to raise_error(RuntimeError)
     end
 
     it "should overwrite a previously stored value" do
       orig_value = "a"*(options[:max_length])
       rig.store(:spec, orig_value)
-      rig.get(:spec).should == orig_value
+      expect(rig.get(:spec)).to eq orig_value
 
       new_value = "b"*(options[:max_length])
       rig.store(:spec, new_value)
-      rig.get(:spec).should == new_value
+      expect(rig.get(:spec)).to eq new_value
     end
 
     it "should overwrite a previously generated value" do
@@ -118,23 +118,23 @@ describe Rex::RandomIdentifierGenerator do
 
       new_value = "a"*(options[:max_length])
       rig.store(:spec, new_value)
-      rig.get(:spec).should == new_value
+      expect(rig.get(:spec)).to eq new_value
     end
 
   end
 
   describe "#to_h" do
     it "should return a Hash" do
-      rig.to_h.should be_kind_of(Hash)
+      expect(rig.to_h).to be_kind_of(Hash)
     end
     it "should return expected key-value pairs" do
       expected_keys = [:var_foo, :var_bar]
       expected_keys.shuffle.each do |key|
         rig.init_var(key)
       end
-      rig.to_h.size.should eq(expected_keys.size)
-      rig.to_h.keys.should include(*expected_keys)
-      rig.to_h.values.map {|v| v.class}.uniq.should eq([String])
+      expect(rig.to_h.size).to eq(expected_keys.size)
+      expect(rig.to_h.keys).to include(*expected_keys)
+      expect(rig.to_h.values.map {|v| v.class}.uniq).to eq([String])
     end
   end
 

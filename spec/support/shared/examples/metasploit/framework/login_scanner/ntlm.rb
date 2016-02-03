@@ -1,13 +1,13 @@
-shared_examples_for 'Metasploit::Framework::LoginScanner::NTLM' do
+RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::NTLM' do
 
   subject(:login_scanner) { described_class.new }
 
-  it { should respond_to :send_lm }
-  it { should respond_to :send_ntlm }
-  it { should respond_to :send_spn }
-  it { should respond_to :use_lmkey }
-  it { should respond_to :use_ntlm2_session }
-  it { should respond_to :use_ntlmv2 }
+  it { is_expected.to respond_to :send_lm }
+  it { is_expected.to respond_to :send_ntlm }
+  it { is_expected.to respond_to :send_spn }
+  it { is_expected.to respond_to :use_lmkey }
+  it { is_expected.to respond_to :use_ntlm2_session }
+  it { is_expected.to respond_to :use_ntlmv2 }
 
   context 'validations' do
 

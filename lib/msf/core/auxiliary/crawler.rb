@@ -25,7 +25,8 @@ module Auxiliary::HttpCrawler
         OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4]),
         OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication']),
         OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication']),
-        OptString.new('DOMAIN', [ true, 'The domain to use for windows authentication', 'WORKSTATION'])
+        OptString.new('DOMAIN', [ true, 'The domain to use for windows authentication', 'WORKSTATION']),
+        OptBool.new('SSL', [ false, 'Negotiate SSL/TLS for outgoing connections', false])
 
       ], self.class
     )
@@ -43,7 +44,6 @@ module Auxiliary::HttpCrawler
         OptString.new('BasicAuthPass', [false, 'The HTTP password to specify for basic authentication']),
         OptString.new('HTTPAdditionalHeaders', [false, "A list of additional headers to send (separated by \\x01)"]),
         OptString.new('HTTPCookie', [false, "A HTTP cookie header to send with each request"]),
-        OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', false]),
         OptEnum.new('SSLVersion', [ false, 'Specify the version of SSL that should be used', 'Auto', ['Auto', 'SSL2', 'SSL23', 'SSL3', 'TLS1']]),
       ], self.class
     )

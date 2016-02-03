@@ -12,6 +12,7 @@ Feature: Help command
           Command       Description
           -------       -----------
           ?             Help menu
+          advanced      Displays advanced options for one or more modules
           back          Move back from the current context
           banner        Display an awesome metasploit banner
           cd            Change the current working directory
@@ -21,16 +22,16 @@ Feature: Help command
           exit          Exit the console
           get           Gets the value of a context-specific variable
           getg          Gets the value of a global variable
-          go_pro        Launch Metasploit web GUI
           grep          Grep the output of another command
           help          Help menu
-          info          Displays information about one or more module
+          info          Displays information about one or more modules
           irb           Drop into irb scripting mode
           jobs          Displays and manages jobs
           kill          Kill a job
           load          Load a framework plugin
           loadpath      Searches for and loads modules from a path
           makerc        Save commands entered since start to a file
+          options       Displays global options or for one or more modules
           popm          Pops the latest module off the stack and makes it active
           previous      Sets the previously loaded module as the current module
           pushm         Pushes the active or list of modules onto the module stack

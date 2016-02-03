@@ -1,6 +1,6 @@
 require 'msf/core/opt'
 
-describe Msf::Opt do
+RSpec.describe Msf::Opt do
   subject(:opt) { described_class }
 
   it { is_expected.to respond_to(:CHOST) }

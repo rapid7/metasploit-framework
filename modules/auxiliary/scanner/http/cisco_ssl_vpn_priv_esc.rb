@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'       =>
         [
           'jclaudius <jclaudius[at]trustwave.com>',
-          'lguay <laura.r.guay[at]gmail.com'
+          'lguay <laura.r.guay[at]gmail.com>'
         ],
       'License'     => MSF_LICENSE,
       'References'  =>
@@ -30,13 +30,13 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'http://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa'],
           ['URL', 'https://www3.trustwave.com/spiderlabs/advisories/TWSL2014-005.txt']
         ],
-      'DisclosureDate' => 'Apr 09 2014'
+      'DisclosureDate' => 'Apr 09 2014',
+      'DefaultOptions' => { 'SSL' => true }
     ))
 
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", 'clientless']),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", 'clientless']),
         OptString.new('GROUP', [true, "A specific VPN group to use", 'clientless']),

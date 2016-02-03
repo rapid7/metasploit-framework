@@ -82,6 +82,10 @@ module Msf::PostMixin
     @session
   end
 
+  def session_display_info
+    "Session: #{session.sid} (#{session.session_host})"
+  end
+
   alias :client :session
 
   #

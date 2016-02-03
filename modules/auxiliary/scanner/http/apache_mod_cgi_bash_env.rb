@@ -13,11 +13,12 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Apache mod_cgi Bash Environment Variable RCE Scanner',
+      'Name' => 'Apache mod_cgi Bash Environment Variable Injection (Shellshock) Scanner',
       'Description' => %q{
-        This module exploits a code injection in specially crafted environment
-        variables in Bash, specifically targeting Apache mod_cgi scripts through
-        the HTTP_USER_AGENT variable by default.
+        This module scans for the Shellshock vulnerability, a flaw in how the Bash shell
+        handles external environment variables. This module targets CGI scripts in the
+        Apache web server by setting the HTTP_USER_AGENT environment variable to a
+        malicious function definition.
 
         PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
         CMD, set ExitOnSession false, run -j, and then run this module to create

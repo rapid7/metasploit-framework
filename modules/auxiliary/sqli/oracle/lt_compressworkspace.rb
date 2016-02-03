@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2008-3982'],
           [ 'OSVDB', '49324'],
-          [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2008.html' ],
-          [ 'URL', 'http://www.appsecinc.com/resources/alerts/oracle/2008-10.shtml' ],
+          [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2008.html' ]
         ],
       'DisclosureDate' => 'Oct 13 2008'))
 

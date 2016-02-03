@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/encoder/alpha2/alpha_upper'
 
-describe Rex::Encoder::Alpha2::AlphaUpper do
+RSpec.describe Rex::Encoder::Alpha2::AlphaUpper do
 
   it_behaves_like 'Rex::Encoder::Alpha2::Generic'
 
@@ -53,7 +53,7 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 25 }
 
       it "raises an error" do
-        expect { decoder_prefix }.to raise_error
+        expect { decoder_prefix }.to raise_error(RuntimeError)
       end
     end
 
@@ -260,7 +260,7 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 25 }
 
       it "raises an error" do
-        expect { decoder }.to raise_error
+        expect { decoder }.to raise_error(RuntimeError)
       end
     end
 

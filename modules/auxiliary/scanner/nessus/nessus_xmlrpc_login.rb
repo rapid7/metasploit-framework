@@ -24,7 +24,8 @@ class Metasploit3 < Msf::Auxiliary
         specific user/pass.
       },
       'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -33,11 +34,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('URI', [true, "URI for Nessus XMLRPC login. Default is /login", "/login"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
       ], self.class)
-
-    register_advanced_options(
-    [
-      OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
-    ], self.class)
   end
 
   def run_host(ip)

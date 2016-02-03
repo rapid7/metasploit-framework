@@ -51,7 +51,7 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
 
 #### New Modules
 
-* **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up.
+* **Do** run `tools/dev/msftidy.rb` against your module and fix any errors or warnings that come up.
   - It would be even better to set up `msftidy.rb` as a [pre-commit hook].
 * **Do** use the many module mixin [API]s. Wheel improvements are welcome; wheel reinventions, not so much.
 * **Don't** include more than one module per pull request.
@@ -97,7 +97,7 @@ already way ahead of the curve, so keep it up!
 [Common Coding Mistakes]:https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes
 [Ruby style guide]:https://github.com/bbatsov/ruby-style-guide
 [Rubocop]:https://rubygems.org/search?query=rubocop
-[50.72 rule]:http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+[50/72 rule]:http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [topic branch]:http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches
 [console output]:https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
 [verification steps]:https://help.github.com/articles/writing-on-github#task-lists

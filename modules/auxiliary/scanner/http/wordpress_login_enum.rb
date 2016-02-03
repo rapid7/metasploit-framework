@@ -4,7 +4,7 @@
 ##
 
 class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report

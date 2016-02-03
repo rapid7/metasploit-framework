@@ -45,7 +45,7 @@ if($url === "/control"){
 	//get data
 	$postdata = file_get_contents("php://input");
 	//See if we should send anything down
-	if($postdata === "RECV\x00"){
+	if($postdata === "RECV\x00" || $postdata === "RECV"){
 		findSendDelete($tempdir, "down_" . sha1($url));
 		$fname = $tempdir . "/up_recv_" . sha1($url); //Only keep one RECV poll
 	}else{

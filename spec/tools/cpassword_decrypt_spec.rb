@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-load Metasploit::Framework.root.join('tools/cpassword_decrypt.rb').to_path
+load Metasploit::Framework.root.join('tools/password/cpassword_decrypt.rb').to_path
 
 require 'msfenv'
 require 'msf/base'
 
-describe CPassword do
+RSpec.describe CPassword do
   context "Class methods" do
     let(:cpasswd) do
       CPassword.new
@@ -16,14 +16,14 @@ describe CPassword do
         # Encrypted password for "testpassword"
         cpass = "AzVJmXh/J9KrU5n0czX1uBPLSUjzFE8j7dOltPD8tLk"
         pass = cpasswd.decrypt(cpass)
-        pass.should eq('testpassword')
+        expect(pass).to eq('testpassword')
       end
 
       it "should return an empty string due to a bad password" do
         # Invalid password format
         cpass = "BadPassword"
         pass = cpasswd.decrypt(cpass)
-        pass.should eq('')
+        expect(pass).to eq('')
       end
     end
   end

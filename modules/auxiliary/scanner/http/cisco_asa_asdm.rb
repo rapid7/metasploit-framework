@@ -24,13 +24,13 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Jonathan Claudius <jclaudius[at]trustwave.com>',
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     ))
 
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", 'cisco']),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", 'cisco'])
       ], self.class)

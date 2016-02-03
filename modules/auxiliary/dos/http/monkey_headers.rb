@@ -26,8 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2013-3843'],
           ['OSVDB', '93853'],
-          ['BID', '60333'],
-          ['URL', 'http://bugs.monkey-project.com/ticket/182']
+          ['BID', '60333']
         ],
       'DisclosureDate' => 'May 30 2013'))
 

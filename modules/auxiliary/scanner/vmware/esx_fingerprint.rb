@@ -22,14 +22,13 @@ class Metasploit3 < Msf::Auxiliary
         and attempts to identify version information for that server.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options([Opt::RPORT(443),
       OptString.new('URI', [false, 'The uri path to test against' , '/sdk'])
     ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
   end
 
 
