@@ -5,7 +5,7 @@ require 'net/http'
 require 'nokogiri'
 require 'optparse'
 
-module ModulePullRequestCollector
+module FilePullRequestCollector
 
   class Exception < RuntimeError; end
 
@@ -30,7 +30,7 @@ module ModulePullRequestCollector
       commits = git_client.commits(repository, branch, path: path)
       if commits.empty?
         # Possibly the path is wrong.
-        raise ModulePullRequestCollector::Exception, 'No commits found.'
+        raise FilePullRequestCollector::Exception, 'No commits found.'
       end
 
       commits
@@ -95,10 +95,10 @@ module ModulePullRequestCollector
       self.finder = PullRequestFinder.new(api_key)
     end
 
-    def search(module_name)
-      commits = finder.get_commits_from_file(module_name)
+    def search(file_name)
+      commits = finder.get_commits_from_file(file_name)
       pull_requests = finder.get_pull_requests_from_commits(commits)
-      puts "Pull request(s) associated with #{module_name}"
+      puts "Pull request(s) associated with #{file_name}"
       pull_requests.each_pair do |number, pr|
         puts "##{number} - #{pr[:title]}"
       end
@@ -110,7 +110,7 @@ module ModulePullRequestCollector
     def self.banner
       %Q|
       This tool collects all the pull requests submitted to rapid7/metasploit-framework for a
-      particular module. It does not include history from SVN (what Metasploit used to use
+      particular file. It does not include history from SVN (what Metasploit used to use
       before Git).
 
       Usage: #{__FILE__} [options]
@@ -141,8 +141,8 @@ module ModulePullRequestCollector
           options[:api_key] = v
         end
 
-        opts.on("-m", "--module <name>", "Module name") do |v|
-          options[:module] = v
+        opts.on("-f", "--file <name>", "File name") do |v|
+          options[:file] = v
         end
 
         opts.separator ""
@@ -174,16 +174,16 @@ end
 
 if __FILE__ == $PROGRAM_NAME
   begin
-    opts = ModulePullRequestCollector::OptsParser.parse(ARGV)
+    opts = FilePullRequestCollector::OptsParser.parse(ARGV)
   rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
     puts "#{e.message} (please see -h)"
     exit
   end
 
   begin
-    cli = ModulePullRequestCollector::Client.new(opts[:api_key])
-    cli.search(opts[:module])
-  rescue ModulePullRequestCollector::Exception => e
+    cli = FilePullRequestCollector::Client.new(opts[:api_key])
+    cli.search(opts[:file])
+  rescue FilePullRequestCollector::Exception => e
     $stderr.puts e.message
     exit
   rescue Interrupt
