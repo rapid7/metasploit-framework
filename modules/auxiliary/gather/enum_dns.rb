@@ -43,7 +43,6 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('ENUM_TLD', [true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', false]),
         OptBool.new('ENUM_SRV', [true, 'Enumerate the most common SRV records', true]),
         OptBool.new('STOP_WLDCRD', [true, 'Stops bruteforce enumeration if wildcard resolution is detected', false]),
-        OptBool.new('STORE_LOOT', [true, 'Store acquired DNS records as loot', true]),
         OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)']),
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
@@ -182,13 +181,6 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def save_loot(ltype, ctype, host, data,
-                filename = nil, info = nil, service = nil)
-    return unless datastore['STORE_LOOT']
-    path = store_loot(ltype, ctype, host, data, filename, info, service)
-    vprint_status("Saved #{ltype} loot to #{path}")
-  end
-
   def get_ptr(ip)
     resp = dns_query(ip, nil)
     return if resp.blank? || resp.answer.blank?
@@ -230,7 +222,6 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain}: CNAME: #{r.cname}")
     end
     return if records.blank?
-    save_loot('ENUM_CNAME', domain, 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
@@ -247,7 +238,6 @@ class Metasploit3 < Msf::Auxiliary
     end
     return if records.blank?
 
-    save_loot('ENUM_NS', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
@@ -267,7 +257,6 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Query #{domain} DNS MX - exception: #{e}")
     ensure
       return if records.blank?
-      save_loot('ENUM_MX', 'text/plain', domain, "#{records.join(',')}", domain)
       records
     end
   end
@@ -284,7 +273,6 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain}: SOA: #{r.mname}")
     end
     return if records.blank?
-    save_loot('ENUM_SOA', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
@@ -299,7 +287,6 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain}: TXT: #{r.txt}")
     end
     return if records.blank?
-    save_loot('ENUM_TXT', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
@@ -354,7 +341,6 @@ class Metasploit3 < Msf::Auxiliary
         data: records,
         update: :unique
       )
-      save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
       records
     end
   end
@@ -396,7 +382,6 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
     return if srv_records_data.empty?
-    save_loot('ENUM_SRV', 'text/plain', domain, "#{srv_records_data.join(',')}", domain)
   end
 
   def axfr(domain)
@@ -428,7 +413,6 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
     return if records.blank?
-    save_loot('ENUM_AXFR', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 end
