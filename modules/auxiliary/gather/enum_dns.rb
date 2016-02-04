@@ -410,7 +410,7 @@ class Metasploit3 < Msf::Auxiliary
           dns.nameservers -= dns.nameservers
           dns.nameservers = "#{r}"
           zone = dns.axfr(domain)
-        rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
+        rescue ResolverArgumentError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
           print_error("Query #{domain} DNS AXFR - exception: #{e}")
         end
         next if zone.blank?
