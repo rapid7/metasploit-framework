@@ -212,6 +212,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_cname(domain)
+    print_status("querying DNS CNAME records for #{domain}")
     resp = dns_query(domain, 'CNAME')
     return if resp.blank? || resp.answer.blank?
 
@@ -226,6 +227,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_ns(domain)
+    print_status("querying DNS NS records for #{domain}")
     resp = dns_query(domain, 'NS')
     return if resp.blank? || resp.answer.blank?
 
@@ -242,6 +244,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_mx(domain)
+    print_status("querying DNS MX records for #{domain}")
     begin
       resp = dns_query(domain, 'MX')
       return if resp.blank? || resp.answer.blank?
@@ -262,6 +265,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_soa(domain)
+    print_status("querying DNS SOA records for #{domain}")
     resp = dns_query(domain, 'SOA')
     return if resp.blank? || resp.answer.blank?
 
@@ -277,6 +281,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_txt(domain)
+    print_status("querying DNS TXT records for #{domain}")
     resp = dns_query(domain, 'TXT')
     return if resp.blank? || resp.answer.blank?
 
@@ -389,6 +394,7 @@ class Metasploit3 < Msf::Auxiliary
     return if nameservers.blank?
     records = []
     nameservers.each do |nameserver|
+      print_status("Attempting DNS AXFR for #{domain} from #{nameserver}")
       dns = Net::DNS::Resolver.new
       dns.use_tcp = datastore['TCP_DNS']
       dns.udp_timeout = datastore['TIMEOUT']
