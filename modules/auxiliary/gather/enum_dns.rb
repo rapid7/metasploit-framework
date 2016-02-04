@@ -368,29 +368,35 @@ class Metasploit3 < Msf::Auxiliary
       imap certificates crls pgpkeys pgprevokations cmp svcp crl oscp pkixrep
       smtp hkp hkps)
 
-    srv_records = []
+    srv_records_data = []
     srv_record_types.each do |srv_record_type|
       srv_protos.each do |srv_proto|
         srv_record = "_#{srv_record_type}._#{srv_proto}.#{domain}"
         resp = dns_query(srv_record, Net::DNS::SRV)
         next if resp.blank? || resp.answer.blank?
-        srv_record_hosts = []
+        srv_record_data = []
         resp.answer.each do |r|
           next if r.type == Net::DNS::RR::CNAME
           host = r.host.gsub(/\.$/, '')
-          data = "#{host}:#{r.port}, priority #{r.priority}"
+          data = {
+            host: host,
+            port: r.port,
+            priority: r.priority
+          }
           print_good("#{srv_record} SRV: #{data}")
-          srv_record_hosts << srv_record
-          srv_records << data
+          srv_record_data << data
         end
+        srv_records_data << {
+          "#{srv_record}" => srv_record_data
+        }
         report_note(
           type: srv_record,
-          data: srv_record_hosts
+          data: srv_record_data
         )
       end
     end
-    return if srv_record_hosts.empty?
-    save_loot('ENUM_SRV', 'text/plain', domain, "#{srv_records.join(',')}", domain)
+    return if srv_records_data.empty?
+    save_loot('ENUM_SRV', 'text/plain', domain, "#{srv_records_data.join(',')}", domain)
   end
 
   def axfr(domain)
