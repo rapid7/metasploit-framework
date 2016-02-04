@@ -1214,6 +1214,7 @@ module Net # :nodoc:
                 end
                 if block_given?
                   yield [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+                  break
                 else
                   return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
                 end
