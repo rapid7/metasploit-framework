@@ -1031,8 +1031,9 @@ module Net # :nodoc:
           @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
 
           begin
-            response = Net::DNS::Packet.parse(ans[0],ans[1])
-            if response && response.answer && response.answer[0] && response.answer[0].type == "SOA"
+            return unless (response = Net::DNS::Packet.parse(ans[0],ans[1]))
+            return if response.answer.empty?
+            if response.answer[0].type == "SOA"
               soa += 1
               if soa >= 2
                 break
