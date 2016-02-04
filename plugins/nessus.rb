@@ -429,7 +429,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_server_properties")
             print_status("Example:> nessus_server_properties -S searchterm")
-            print_status()
             print_status("Returns information about the feed type and server version.")
             return
           when '-S', '--search'
@@ -459,7 +458,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_server_status")
             print_status("Example:> nessus_server_status -S searchterm")
-            print_status()
             print_status("Returns some status items for the server..")
             return
           when '-S', '--search'
@@ -484,7 +482,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_admin")
             print_status("Example:> nessus_admin")
-            print_status()
             print_status("Checks to see if the current user is an admin")
             print_status("Use nessus_user_list to list all users")
             return
@@ -512,7 +509,6 @@ module Msf
             print_status("Example:> nessus_template_list scan -S searchterm")
             print_status("OR")
             print_status("nessus_template_list policy")
-            print_status()
             print_status("Returns a list of information about the scan or policy templates..")
             return
           when '-S', '--search'
@@ -532,7 +528,6 @@ module Msf
           print_status("Example:> nessus_template_list scan")
           print_status("OR")
           print_status("nessus_template_list policy")
-          print_status()
           print_status("Returns a list of information about the scan or policy templates..")
           return
         end
@@ -595,7 +590,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_scanner_list")
             print_status("Example:> nessus_scanner_list -S searchterm")
-            print_status()
             print_status("Returns information about the feed type and server version.")
             return
           when '-S', '--search'
@@ -818,7 +812,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_report_host_ports <hostname> <report id>")
             print_status("Example:> nessus_report_host_ports 192.168.1.250 f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca -S searchterm")
-            print_status()
             print_status("Returns all the ports associated with a host and details about their vulnerabilities")
             print_status("Use nessus_report_hosts to list all available hosts for a report")
             return
@@ -862,7 +855,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_report_del <reportname>")
           print_status("Example:> nessus_report_del f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
           print_status("Must be an admin to del reports.")
           print_status("Use nessus_report_list to list all reports")
           return
@@ -899,7 +891,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_scan_list")
             print_status("Example:> nessus_scan_list -S searchterm")
-            print_status()
             print_status("Returns a list of information about currently running scans.")
             return
           when '-S', '--search'
@@ -1017,7 +1008,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_scan_pause <scan id>")
           print_status("Example:> nessus_scan_pause f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
           print_status("Pauses a running scan")
           print_status("Use nessus_scan_list to list all available scans")
           return
@@ -1045,7 +1035,6 @@ module Msf
       def cmd_nessus_db_scan(*args)
         if args[0] == "-h"
           print_status("nessus_db_scan <policy ID> <scan name> <scan description>")
-          print_status()
           print_status("Creates a scan based on all the hosts listed in db_hosts.")
           print_status("Use nessus_policy_list to list all available policies with their corresponding policy IDs")
           return
@@ -1092,7 +1081,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_db_import <scan ID>")
           print_status("Example:> nessus_db_import 500")
-          print_status()
           print_status("Use nessus_scan_list -c to list all completed scans")
         end
         if !nessus_verify_db
@@ -1108,7 +1096,6 @@ module Msf
           print_status("Usage: ")
           print_status("nessus_db_import <scan ID>")
           print_status("Example:> nessus_db_import 500")
-          print_status()
           print_status("Use nessus_scan_list -c to list all completed scans")
         end
         if is_scan_complete(scan_id)
@@ -1147,7 +1134,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_scan_pause_all")
           print_status("Example:> nessus_scan_pause_all")
-          print_status()
           print_status("Pauses all currently running scans")
           print_status("Use nessus_scan_list to list all running scans")
           return
@@ -1175,7 +1161,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_scan_stop <scan id>")
           print_status("Example:> nessus_scan_stop f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
           print_status("Stops a currently running scans")
           print_status("Use nessus_scan_list to list all running scans")
           return
@@ -1205,7 +1190,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_scan_stop_all")
           print_status("Example:> nessus_scan_stop_all")
-          print_status()
           print_status("stops all currently running scans")
           print_status("Use nessus_scan_list to list all running scans")
           return
@@ -1233,7 +1217,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_scan_resume <scan id>")
           print_status("Example:> nessus_scan_resume f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
           print_status("resumes a running scan")
           print_status("Use nessus_scan_list to list all available scans")
           return
@@ -1263,7 +1246,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_scan_resume_all")
           print_status("Example:> nessus_scan_resume_all")
-          print_status()
           print_status("resumes all currently running scans")
           print_status("Use nessus_scan_list to list all running scans")
           return
@@ -1447,7 +1429,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_plugin_list <Family ID> -S searchterm")
             print_status("Example:> nessus_plugin_list 10")
-            print_status()
             print_status("Returns a list of all plugins in that family.")
             print_status("Use nessus_family_list to display all the plugin families along with their corresponding family IDs")
             return
@@ -1487,7 +1468,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_family_list")
             print_status("Example:> nessus_family_list -S searchterm")
-            print_status()
             print_status("Returns a list of all the plugin families along with their corresponding family IDs and plugin count.")
             return
           when '-S', '--search'
@@ -1518,7 +1498,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_plugin_details <Plugin ID>")
             print_status("Example:> nessus_plugin_details 10264 -S searchterm")
-            print_status()
             print_status("Returns details on a particular plugin.")
             print_status("Use nessus_plugin_list to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
             return
@@ -1572,7 +1551,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_user_list")
             print_status("Example:> nessus_user_list -S searchterm")
-            print_status()
             print_status("Returns a list of the users on the Nessus server and their access level.")
             return
           when '-S', '--search'
@@ -1644,7 +1622,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_user_del <User ID>")
           print_status("Example:> nessus_user_del 10")
-          print_status()
           print_status("This command can only delete non admin users. You must be an admin to delete users.")
           print_status("Use nessus_user_list to list all users with their corresponding user IDs")
           return
@@ -1731,7 +1708,6 @@ module Msf
           when '-h', '--help'
             print_status("nessus_policy_list")
             print_status("Example:> nessus_policy_list -S searchterm")
-            print_status()
             print_status("Lists all policies on the server")
             return
           when '-S', '--search'
@@ -1765,7 +1741,6 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_policy_del <policy ID>")
           print_status("Example:> nessus_policy_del 1")
-          print_status()
           print_status("You must be an admin to delete policies.")
           print_status("Use nessus_policy_list to list all policies with their corresponding policy IDs")
           return
