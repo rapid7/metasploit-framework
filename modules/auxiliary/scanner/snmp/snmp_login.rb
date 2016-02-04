@@ -16,8 +16,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SNMP Community Scanner',
-      'Description' => 'Scan for SNMP devices using common community names',
+      'Name'        => 'SNMP Community Login Scanner',
+      'Description' => %q{
+        This module logs in to SNMP devices using common community names.
+      },
       'Author'      => 'hdm',
       'References'     =>
         [
@@ -71,6 +73,14 @@ class Metasploit3 < Msf::Auxiliary
         create_credential_login(credential_data)
 
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential} (Access level: #{result.access_level}); Proof (sysDescr.0): #{result.proof}"
+        report_service(
+          :host  => ip,
+          :port  => rport,
+          :proto => 'udp',
+          :name  => 'snmp',
+          :info  => result.proof,
+          :state => 'open'
+        )
       else
         invalidate_login(credential_data)
         print_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
