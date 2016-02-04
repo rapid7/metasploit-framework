@@ -1,5 +1,14 @@
 #!/usr/bin/env ruby
 
+###
+#
+# This tool allows you to find all the pull requests for a particular file in the Metasploit
+# repository. It does not include commit history from SVN.
+#
+# Author: sinn3r
+#
+###
+
 require 'octokit'
 require 'net/http'
 require 'nokogiri'
@@ -17,6 +26,10 @@ module FilePullRequestCollector
     attr_accessor :owner
     attr_accessor :git_access_token
 
+    # Initializes parameters.
+    #
+    # @param api_key [String] Personal access token from Github.
+    # @return [void]
     def initialize(api_key)
       self.owner            = 'rapid7'
       self.repository       = "#{owner}/metasploit-framework"
@@ -26,6 +39,10 @@ module FilePullRequestCollector
     end
 
     # Returns the commit history of a file.
+    #
+    # @param path [String] A file path in the Metasploit repository.
+    # @return [Array<Sawyer::Resource>] An array of commits.
+    # @raise [FilePullRequestCollector::Exception] No commits found. Probably the file path is wrong.
     def get_commits_from_file(path)
       commits = git_client.commits(repository, branch, path: path)
       if commits.empty?
@@ -36,6 +53,10 @@ module FilePullRequestCollector
       commits
     end
 
+    # Returns the author of a commit.
+    #
+    # @param commit [Sawyer::Resource] Commit.
+    # @return [String]
     def get_author(commit)
       if commit.author
         return commit.author[:login].to_s
@@ -44,10 +65,19 @@ module FilePullRequestCollector
       ''
     end
 
+    # Checks if a author should be ignored or not.
+    #
+    # @param commit [Sawyer::Resource] Commit.
+    # @return [TrueClass] Author should be ignored
+    # @return [FalseClass] Author should not be ignored.
     def is_author_blacklisted?(commit)
       ['tabassassin'].include?(get_author(commit))
     end
 
+    # Returns all found pull requests.
+    #
+    # @param commits [Array<Sawyer::Resource>] Commits
+    # @return [Hash]
     def get_pull_requests_from_commits(commits)
       pull_requests = {}
 
@@ -63,6 +93,10 @@ module FilePullRequestCollector
       pull_requests
     end
 
+    # Returns the found pull request for a commit.
+    #
+    # @param commit [Sawyer::Resource] Commit
+    # @return [Hash]
     def get_pull_request_from_commit(commit)
       sha = commit.sha
       url = URI.parse("https://github.com/#{repository}/branch_commits/#{sha}")
@@ -91,10 +125,18 @@ module FilePullRequestCollector
 
     attr_accessor :finder
 
+    # Initializes parameters.
+    #
+    # @param api_key [String]
+    # @return [void]
     def initialize(api_key)
       self.finder = PullRequestFinder.new(api_key)
     end
 
+    # Prints all the found PRs for a file.
+    #
+    # @param file_name [String] The file to look up.
+    # @return [void]
     def search(file_name)
       commits = finder.get_commits_from_file(file_name)
       pull_requests = finder.get_pull_requests_from_commits(commits)
