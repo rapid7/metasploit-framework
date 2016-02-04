@@ -116,7 +116,7 @@ module FilePullRequestCollector
       Usage: #{__FILE__} [options]
 
       Usage Example:
-      #{__FILE__} -k KEY -m modules/exploits/windows/browser/ms13_069_caret.rb
+      #{__FILE__} -k KEY -f modules/exploits/windows/browser/ms13_069_caret.rb
 
       How to obtain an API key (access token):
       1. Go to github.com.
