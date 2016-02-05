@@ -43,7 +43,6 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('ENUM_TLD', [true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', false]),
         OptBool.new('ENUM_SRV', [true, 'Enumerate the most common SRV records', true]),
         OptBool.new('STOP_WLDCRD', [true, 'Stops bruteforce enumeration if wildcard resolution is detected', false]),
-        OptBool.new('STORE_LOOT', [true, 'Store acquired DNS records as loot', true]),
         OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)']),
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
@@ -182,13 +181,6 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def save_loot(ltype, ctype, host, data,
-                filename = nil, info = nil, service = nil)
-    return unless datastore['STORE_LOOT']
-    path = store_loot(ltype, ctype, host, data, filename, info, service)
-    vprint_status("Saved #{ltype} loot to #{path}")
-  end
-
   def get_ptr(ip)
     resp = dns_query(ip, nil)
     return if resp.blank? || resp.answer.blank?
@@ -213,13 +205,14 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::A
       records << "#{r.address}"
       report_host(host: r.address, name: domain, info: 'A')
-      print_good("#{domain}: A: #{r.address} ") if datastore['ENUM_BRT']
+      print_good("#{domain} A: #{r.address} ") if datastore['ENUM_BRT']
     end
     return if records.blank?
     records
   end
 
   def get_cname(domain)
+    print_status("querying DNS CNAME records for #{domain}")
     resp = dns_query(domain, 'CNAME')
     return if resp.blank? || resp.answer.blank?
 
@@ -227,14 +220,14 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::CNAME
       records << r.cname
-      print_good("#{domain}: CNAME: #{r.cname}")
+      print_good("#{domain} CNAME: #{r.cname}")
     end
     return if records.blank?
-    save_loot('ENUM_CNAME', domain, 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_ns(domain)
+    print_status("querying DNS NS records for #{domain}")
     resp = dns_query(domain, 'NS')
     return if resp.blank? || resp.answer.blank?
 
@@ -247,11 +240,11 @@ class Metasploit3 < Msf::Auxiliary
     end
     return if records.blank?
 
-    save_loot('ENUM_NS', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_mx(domain)
+    print_status("querying DNS MX records for #{domain}")
     begin
       resp = dns_query(domain, 'MX')
       return if resp.blank? || resp.answer.blank?
@@ -261,18 +254,18 @@ class Metasploit3 < Msf::Auxiliary
         next unless r.class == Net::DNS::RR::MX
         records << "#{r.exchange}"
         report_host(host: r.exchange, name: domain, info: 'MX')
-        print_good("#{domain}: MX: #{r.exchange}")
+        print_good("#{domain} MX: #{r.exchange}")
       end
     rescue SocketError => e
       print_error("Query #{domain} DNS MX - exception: #{e}")
     ensure
       return if records.blank?
-      save_loot('ENUM_MX', 'text/plain', domain, "#{records.join(',')}", domain)
       records
     end
   end
 
   def get_soa(domain)
+    print_status("querying DNS SOA records for #{domain}")
     resp = dns_query(domain, 'SOA')
     return if resp.blank? || resp.answer.blank?
 
@@ -281,14 +274,14 @@ class Metasploit3 < Msf::Auxiliary
       next unless r.class == Net::DNS::RR::SOA
       records << r.mname
       report_host(host: r.mname, info: 'SOA')
-      print_good("#{domain}: SOA: #{r.mname}")
+      print_good("#{domain} SOA: #{r.mname}")
     end
     return if records.blank?
-    save_loot('ENUM_SOA', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
   def get_txt(domain)
+    print_status("querying DNS TXT records for #{domain}")
     resp = dns_query(domain, 'TXT')
     return if resp.blank? || resp.answer.blank?
 
@@ -296,10 +289,9 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::TXT
       records << r.txt
-      print_good("#{domain}: TXT: #{r.txt}")
+      print_good("#{domain} TXT: #{r.txt}")
     end
     return if records.blank?
-    save_loot('ENUM_TXT', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 
@@ -354,7 +346,6 @@ class Metasploit3 < Msf::Auxiliary
         data: records,
         update: :unique
       )
-      save_loot('ENUM_TLD', 'text/plain', domain, "#{records.join(',')}", domain)
       records
     end
   end
@@ -368,29 +359,34 @@ class Metasploit3 < Msf::Auxiliary
       imap certificates crls pgpkeys pgprevokations cmp svcp crl oscp pkixrep
       smtp hkp hkps)
 
-    srv_records = []
+    srv_records_data = []
     srv_record_types.each do |srv_record_type|
       srv_protos.each do |srv_proto|
         srv_record = "_#{srv_record_type}._#{srv_proto}.#{domain}"
         resp = dns_query(srv_record, Net::DNS::SRV)
         next if resp.blank? || resp.answer.blank?
-        srv_record_hosts = []
+        srv_record_data = []
         resp.answer.each do |r|
           next if r.type == Net::DNS::RR::CNAME
           host = r.host.gsub(/\.$/, '')
-          data = "#{host}:#{r.port}, priority #{r.priority}"
+          data = {
+            host: host,
+            port: r.port,
+            priority: r.priority
+          }
           print_good("#{srv_record} SRV: #{data}")
-          srv_record_hosts << srv_record
-          srv_records << data
+          srv_record_data << data
         end
+        srv_records_data << {
+          "#{srv_record}" => srv_record_data
+        }
         report_note(
           type: srv_record,
-          data: srv_record_hosts
+          data: srv_record_data
         )
       end
     end
-    return if srv_record_hosts.empty?
-    save_loot('ENUM_SRV', 'text/plain', domain, "#{srv_records.join(',')}", domain)
+    return if srv_records_data.empty?
   end
 
   def axfr(domain)
@@ -398,6 +394,7 @@ class Metasploit3 < Msf::Auxiliary
     return if nameservers.blank?
     records = []
     nameservers.each do |nameserver|
+      print_status("Attempting DNS AXFR for #{domain} from #{nameserver}")
       dns = Net::DNS::Resolver.new
       dns.use_tcp = datastore['TCP_DNS']
       dns.udp_timeout = datastore['TIMEOUT']
@@ -413,16 +410,15 @@ class Metasploit3 < Msf::Auxiliary
           dns.nameservers -= dns.nameservers
           dns.nameservers = "#{r}"
           zone = dns.axfr(domain)
-        rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
+        rescue ResolverArgumentError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
           print_error("Query #{domain} DNS AXFR - exception: #{e}")
         end
         next if zone.blank?
         records << "#{zone}"
-        print_good("#{domain}: Zone Transfer: #{zone}")
+        print_good("#{domain} Zone Transfer: #{zone}")
       end
     end
     return if records.blank?
-    save_loot('ENUM_AXFR', 'text/plain', domain, "#{records.join(',')}", domain)
     records
   end
 end
