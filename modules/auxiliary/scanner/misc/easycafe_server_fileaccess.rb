@@ -44,11 +44,6 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
-      print_error('Please supply the name of the file you want to download')
-      return
-    end
-
     file_path = datastore['FILEPATH']
     packet = "\x43"
     packet << file_path
