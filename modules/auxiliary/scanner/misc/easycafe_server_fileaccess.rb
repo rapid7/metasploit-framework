@@ -53,7 +53,7 @@ class Metasploit4 < Msf::Auxiliary
     vprint_status("#{peer} - Sending request (#{packet.length} bytes)")
     connect
     sock.put(packet)
-    res = sock.get(15)
+    res = sock.get
     disconnect
     unless res
       print_error("#{peer} - Unable to retrieve file due to a timeout.")
