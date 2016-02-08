@@ -45,6 +45,11 @@ class Metasploit4 < Msf::Auxiliary
 
   def run_host(ip)
     file_path = datastore['FILEPATH']
+    if file_path.length > 67
+      print_error("File path is longer than 67 characters. Try using MS-DOS 8.3 short file names.")
+      return
+    end
+
     packet = "\x43"
     packet << file_path
     packet << "\x00" * (255 - file_path.length)
