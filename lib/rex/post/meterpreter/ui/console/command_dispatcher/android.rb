@@ -30,7 +30,8 @@ class Console::CommandDispatcher::Android
       'send_sms'          => 'Sends SMS from target session',
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
       'interval_collect'  => 'Manage interval collection capabilities',
-      'activity_start'    => 'Start an Android activity from a Uri string'
+      'activity_start'    => 'Start an Android activity from a Uri string',
+      'sqlite_read'       => 'Query a SQLite database from storage'
     }
 
     reqs = {
@@ -45,7 +46,6 @@ class Console::CommandDispatcher::Android
       'interval_collect' => ['interval_collect'],
       'activity_start'   => ['activity_start'],
       'sqlite_read'      => ['sqlite_read'],
-      'sqlite_write'     => ['sqlite_write']
     }
 
     # Ensure any requirements of the command are met
@@ -547,13 +547,13 @@ class Console::CommandDispatcher::Android
       print_error("Error: #{result}")
     end
   end
- 
-def cmd_sqlite_write(*args)
+
+  def cmd_sqlite_write(*args)
     results = client.android.sqlite_write("SELECT 1")
     p results
-end
+  end
 
-def cmd_sqlite_read(*args)
+  def cmd_sqlite_read(*args)
     path = "sqlite_read_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
 
     read_opts = Rex::Parser::Arguments.new(
@@ -572,7 +572,7 @@ def cmd_sqlite_read(*args)
       end
     end
 
-    results = client.android.sqlite_read("")
+    results = client.android.sqlite_read("/data/data/com.metasploit.stage/files", "SELECT * from accounts");
     p results
   end
 
