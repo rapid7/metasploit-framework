@@ -20,7 +20,7 @@ class Metasploit4 < Msf::Exploit::Remote
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Gianni Gnesa', # Public disclosure/Proof of Concept
+          'Gianni Gnesa',                              # Public disclosure/Proof of Concept
           'William Webb <william_webb[at]rapid7.com>', # Metasploit
         ],
       'References'     =>
@@ -88,9 +88,11 @@ class Metasploit4 < Msf::Exploit::Remote
               )
 
     sock.put(p)
-    disconnect
     print_status("Packet sent!")
-  rescue ::Exception => ex
-    print_status("Exploit failed: #{ex.class}: #{ex.message}")
+  rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => ex
+    print_status("Exploit failed: #{ex.class} #{ex.message}")
+    elog("#{ex.class} #{ex.message}\n#{ex.backtrace * "\n"}")
+  ensure
+    disconnect
   end
 end
