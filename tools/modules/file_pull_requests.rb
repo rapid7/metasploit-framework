@@ -159,6 +159,9 @@ module FilePullRequestCollector
 
       Usage Example:
       #{__FILE__} -k KEY -f modules/exploits/windows/browser/ms13_069_caret.rb
+         or
+      export GITHUB_OAUTH_TOKEN=KEY
+      #{__FILE__} -f modules/exploits/windows/browser/ms13_069_caret.rb
 
       How to obtain an API key (access token):
       1. Go to github.com.
@@ -204,7 +207,7 @@ module FilePullRequestCollector
       end
 
       if options.empty?
-        puts "No options specified, try -h for usage" 
+        puts "No options specified, try -h for usage"
         exit
       end
 
@@ -220,6 +223,17 @@ if __FILE__ == $PROGRAM_NAME
   rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
     puts "#{e.message} (please see -h)"
     exit
+  end
+
+  if !opts.has_key?(:api_key)
+    if !ENV.has_key?('GITHUB_OAUTH_TOKEN')
+      puts
+      puts "A Github Access Token must be specified to use this tool"
+      puts "Please set GITHUB_OAUTH_TOKEN or specify the -k option"
+      exit
+    else
+      opts[:api_key] = ENV['GITHUB_OAUTH_TOKEN']
+    end
   end
 
   begin
