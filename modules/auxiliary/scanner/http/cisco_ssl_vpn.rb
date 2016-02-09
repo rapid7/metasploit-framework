@@ -208,22 +208,22 @@ class Metasploit3 < Msf::Auxiliary
 
       post_params['group_list'] = group unless group.empty?
 
-      resp = send_request_cgi(
-               'uri' => '/+webvpn+/index.html',
-               'method' => 'POST',
-               'ctype' => 'application/x-www-form-urlencoded',
-               'cookie' => cookie,
-               'vars_post' => post_params
-             )
+      res = send_request_cgi(
+              'uri' => '/+webvpn+/index.html',
+              'method' => 'POST',
+              'ctype' => 'application/x-www-form-urlencoded',
+              'cookie' => cookie,
+              'vars_post' => post_params
+            )
 
-      if resp &&
-         resp.code == 200 &&
-         resp.body.match(/SSL VPN Service/) &&
-         resp.body.match(/webvpn_logout/i)
+      if res &&
+         res.code == 200 &&
+         res.body.match(/SSL VPN Service/) &&
+         res.body.match(/webvpn_logout/i)
 
         print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}:#{group.inspect}")
 
-        do_logout(resp.get_cookies)
+        do_logout(res.get_cookies)
 
         report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
         report_note(ip: rhost, type: 'cisco.cred.group', data: "User: #{user} / Group: #{group}")
