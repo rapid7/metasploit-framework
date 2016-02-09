@@ -297,7 +297,7 @@ RSpec.describe MicrosoftPatchFinder do
       end
 
       let(:expected_link) do
-        'http://download.microsoft.com/download/9/0/6/906BC7A4-7DF7-4C24-9F9D-3E801AA36ED3/Windows6.0-KB3087918-x86.msu'
+        'https://download.microsoft.com/download/9/0/6/906BC7A4-7DF7-4C24-9F9D-3E801AA36ED3/Windows6.0-KB3087918-x86.msu'
       end
 
       let(:download_html_res) do
