@@ -200,6 +200,11 @@ module Parser
       return attr_pairs
     end
 
+    # Removes HTML from a string
+    def strip_html_tags(text)
+      return text.gsub!(/(<[^>]*>)|\n|\t/s) {" "}
+    end
+
     # This breaks xml-encoded characters, so need to append.
     # It's on the end_element tag name to turn the appending
     # off and clear out the data.
