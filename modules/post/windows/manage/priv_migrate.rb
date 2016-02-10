@@ -61,8 +61,8 @@ class Metasploit3 < Msf::Post
   def get_pid(proc_name)
     processes = client.sys.process.get_processes
     processes.each do |proc|
-      if proc['name'] == proc_name
-        return proc['pid'] if proc['user'] != ""
+      if proc['name'] == proc_name && proc['user'] != ""
+        return proc['pid']
       end
     end
     return nil
