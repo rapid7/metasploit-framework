@@ -5,10 +5,11 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Exploit::Remote
+class Metasploit4 < Msf::Auxiliary
   Rank = GoodRanking
 
   include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Dos
 
   def initialize(info={})
     super(update_info(info,
@@ -72,7 +73,7 @@ class Metasploit4 < Msf::Exploit::Remote
     return pkt
   end
 
-  def exploit
+  def run
     ip    = datastore['RHOST']
     port  = datastore['RPORT']
 
