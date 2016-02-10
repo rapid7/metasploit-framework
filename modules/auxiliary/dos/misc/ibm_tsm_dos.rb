@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
-  Rank = GoodRanking
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
