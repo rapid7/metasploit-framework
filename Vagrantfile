@@ -6,6 +6,6 @@ Vagrant.configure(2) do |config|
   config.vm.provision :chef_apply do |chef|
     chef.version = "latest"
     chef.install = "force"
-    chef.recipe = IO.read("provision.rb")
+    chef.recipe = IO.read("scripts/shell/provision.rb")
   end
 end
