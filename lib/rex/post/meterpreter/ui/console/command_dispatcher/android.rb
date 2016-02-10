@@ -29,7 +29,8 @@ class Console::CommandDispatcher::Android
       'device_shutdown'   => 'Shutdown device',
       'send_sms'          => 'Sends SMS from target session',
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
-      'interval_collect'  => 'Manage interval collection capabilities'
+      'interval_collect'  => 'Manage interval collection capabilities',
+      'set_audio_mode'    => 'Set Ringer Mode'
     }
 
     reqs = {
@@ -41,7 +42,8 @@ class Console::CommandDispatcher::Android
       'device_shutdown'  => ['device_shutdown'],
       'send_sms'         => ['send_sms'],
       'wlan_geolocate'   => ['wlan_geolocate'],
-      'interval_collect' => ['interval_collect']
+      'interval_collect' => ['interval_collect'],
+      'set_audio_mode'   => ['set_audio_mode']
     }
 
     # Ensure any requirements of the command are met
@@ -149,6 +151,29 @@ class Console::CommandDispatcher::Android
     else
       print_error('Device shutdown failed')
     end
+  end
+  
+    def cmd_set_audio_mode(*args)
+    mode = 1
+    set_audio_mode_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, "Help Banner" ],
+      '-m' => [ true, "Set Mode - ( 0 - OFF, 1 - Normal)   (Default: '#{mode}')"]
+    )
+
+    set_audio_mode_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        print_line('Usage: set_audio_mode [options]')
+        print_line('Set Ringer mode.')
+        print_line(set_audio_mode_opts.usage)
+        return
+      when '-m'
+        mode = val.to_i
+      end
+    end
+
+    client.android.set_audio_mode(mode)
+    print_status("Chenged Mode!")
   end
 
   def cmd_dump_sms(*args)
