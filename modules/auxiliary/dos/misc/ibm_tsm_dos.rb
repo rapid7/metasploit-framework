@@ -28,22 +28,7 @@ class Metasploit4 < Msf::Auxiliary
         [
           ['URL', 'https://www.exploit-db.com/exploits/38979/']
         ],
-      'Payload'        =>
-        {
-          'BadChars' => "\x00",
-        },
-      'DefaultOptions'  =>
-        {
-          'DisablePayloadHandler'   => 'true',
-        },
-      'Platform'       => 'win',
-      'Targets'        =>
-        [
-          ['IBM Tivoli Storage Manager FastBack Server 5.5.4.2', {}],
-        ],
-      'Privileged'     => false,
-      'DisclosureDate' => "Dec 15 2015",
-      'DefaultTarget'  => 0))
+      'DisclosureDate' => "Dec 15 2015"))
 
       register_options(
         [
