@@ -14,11 +14,11 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'Multi Manage Set Wallpaper',
       'Description'   => %q{
-        This module will sets the desktop wallpaper background on the specified session
+        This module will sets the desktop wallpaper background on the specified session.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'timwr'],
-      'Platform'      => [ 'win', 'osx', 'linux' ],
+      'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
 
@@ -89,9 +89,9 @@ class Metasploit3 < Msf::Post
   def run
     file = datastore['WALLPAPER_FILE']
     if set_wallpaper(file)
-      print_good("#{peer} - The video has started")
+      print_good("#{peer} - The wallpaper has been set")
     else
-      print_error("#{peer} - Unable to start the video")
+      print_error("#{peer} - Unable to set the wallpaper")
       return
     end
 
