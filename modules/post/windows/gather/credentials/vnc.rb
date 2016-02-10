@@ -118,8 +118,8 @@ class Metasploit3 < Msf::Post
           :pass_variable => 'passwd=',
           :viewonly_variable => 'passwd2=',
           :port_variable => 'PortNumber='}
-    rescue
-      # Registry value not found
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
     end
 
     locations << {:name => 'WinVNC3_HKLM',
