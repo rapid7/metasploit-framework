@@ -28,7 +28,9 @@ class Metasploit4 < Msf::Auxiliary
         [
           ['URL', 'https://www.exploit-db.com/exploits/38979/']
         ],
-      'DisclosureDate' => "Dec 15 2015"))
+      'DisclosureDate' => "Dec 15 2015",
+      'DefaultOptions' => {}
+      ))
 
       register_options(
         [
