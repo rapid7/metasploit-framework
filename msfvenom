@@ -1,20 +1,22 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-msfbase = __FILE__
-while File.symlink?(msfbase)
-  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
-end
+if __FILE__ == $0
 
-$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-require 'msfenv'
+  msfbase = __FILE__
+  while File.symlink?(msfbase)
+    msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  end
 
-$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+  $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+  require 'msfenv'
 
-require 'rex'
-require 'msf/ui'
-require 'msf/base'
-require 'msf/core/payload_generator'
+  $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+  require 'rex'
+  require 'msf/ui'
+  require 'msf/base'
+  require 'msf/core/payload_generator'
 
 
   class MsfVenomError < StandardError; end
@@ -54,7 +56,7 @@ require 'msf/core/payload_generator'
     opts = {}
     datastore = {}
     opt = OptionParser.new
-    banner  = "MsfVenom - a Metasploit standalone payload generator.\n"
+    banner = "MsfVenom - a Metasploit standalone payload generator.\n"
     banner << "Also a replacement for msfpayload and msfencode.\n"
     banner << "Usage: #{$0} [options] <var=val>"
     opt.banner = banner
@@ -220,13 +222,13 @@ require 'msf/core/payload_generator'
   def dump_payloads
     init_framework(:module_types => [ ::Msf::MODULE_PAYLOAD ])
     tbl = Rex::Ui::Text::Table.new(
-        'Indent'  => 4,
-        'Header'  => "Framework Payloads (#{framework.stats.num_payloads} total)",
-        'Columns' =>
-            [
-                "Name",
-                "Description"
-            ])
+      'Indent'  => 4,
+      'Header'  => "Framework Payloads (#{framework.stats.num_payloads} total)",
+      'Columns' =>
+      [
+        "Name",
+        "Description"
+      ])
 
     framework.payloads.each_module { |name, mod|
       tbl << [ name, mod.new.description.split.join(' ') ]
@@ -238,14 +240,14 @@ require 'msf/core/payload_generator'
   def dump_encoders(arch = nil)
     init_framework(:module_types => [ ::Msf::MODULE_ENCODER ])
     tbl = Rex::Ui::Text::Table.new(
-        'Indent'  => 4,
-        'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : ""),
-        'Columns' =>
-            [
-                "Name",
-                "Rank",
-                "Description"
-            ])
+      'Indent'  => 4,
+      'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : ""),
+      'Columns' =>
+      [
+        "Name",
+        "Rank",
+        "Description"
+      ])
     cnt = 0
 
     framework.encoders.each_module(
@@ -261,13 +263,13 @@ require 'msf/core/payload_generator'
   def dump_nops
     init_framework(:module_types => [ ::Msf::MODULE_NOP ])
     tbl = Rex::Ui::Text::Table.new(
-        'Indent'  => 4,
-        'Header'  => "Framework NOPs (#{framework.stats.num_nops} total)",
-        'Columns' =>
-            [
-                "Name",
-                "Description"
-            ])
+      'Indent'  => 4,
+      'Header'  => "Framework NOPs (#{framework.stats.num_nops} total)",
+      'Columns' =>
+      [
+        "Name",
+        "Description"
+      ])
 
     framework.nops.each_module { |name, mod|
       tbl << [ name, mod.new.description.split.join(' ') ]
@@ -277,8 +279,6 @@ require 'msf/core/payload_generator'
   end
 
 
-
-if __FILE__ == $0
 
   begin
     generator_opts = parse_args(ARGV)
@@ -290,28 +290,21 @@ if __FILE__ == $0
   if generator_opts[:list]
     generator_opts[:list].each do |mod|
       case mod.downcase
-        when "payloads"
-          $stdout.puts dump_payloads
-        when "encoders"
-          $stdout.puts dump_encoders(generator_opts[:arch])
-        when "nops"
-          $stdout.puts dump_nops
-        when "all"
-          # Init here so #dump_payloads doesn't create a framework with
-          # only payloads, etc.
-          init_framework
-          $stdout.puts dump_payloads
-          $stdout.puts dump_encoders
-          $stdout.puts dump_nops
-        else
-          if mod == 'payload'
-            question = ". Do you mean 'payloads'?"
-          elsif mod == 'encoder'
-            question = ". Do you mean 'encoders'?"
-          elsif mod == 'nop'
-            quesetion = ". Do you mean 'nops'?"
-          end
-          $stderr.puts "Invalid module type#{question}"
+      when "payloads", "payload", "p"
+        $stdout.puts dump_payloads
+      when "encoders", "encoder", "e"
+        $stdout.puts dump_encoders(generator_opts[:arch])
+      when "nops", "nop", "n"
+        $stdout.puts dump_nops
+      when "all"
+        # Init here so #dump_payloads doesn't create a framework with
+        # only payloads, etc.
+        init_framework
+        $stdout.puts dump_payloads
+        $stdout.puts dump_encoders
+        $stdout.puts dump_nops
+      else
+        $stderr.puts "Invalid module type. These are valid: payloads, encoders, nops, all"
       end
     end
     exit(0)
@@ -340,7 +333,7 @@ if __FILE__ == $0
   generator_opts[:cli] = true
 
   begin
-    venom_generator =  Msf::PayloadGenerator.new(generator_opts)
+    venom_generator = Msf::PayloadGenerator.new(generator_opts)
     payload = venom_generator.generate_payload
   rescue ::Exception => e
     elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")

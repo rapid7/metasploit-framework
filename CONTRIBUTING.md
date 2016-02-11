@@ -51,7 +51,7 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
 
 #### New Modules
 
-* **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up.
+* **Do** run `tools/dev/msftidy.rb` against your module and fix any errors or warnings that come up.
   - It would be even better to set up `msftidy.rb` as a [pre-commit hook].
 * **Do** use the many module mixin [API]s. Wheel improvements are welcome; wheel reinventions, not so much.
 * **Don't** include more than one module per pull request.

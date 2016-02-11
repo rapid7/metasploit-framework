@@ -82,8 +82,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
   # Avoids writing to datastore['METHOD'] directly
-  def method
-    @method || datastore['METHOD']
+  def http_method
+    @http_method || datastore['METHOD']
   end
 
   # Avoids writing to datastore['DATA'] directly
@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
   def ini_request(uri)
     req = {}
 
-    case method
+    case http_method
     when 'GET'
       # Example: Say we have the following datastore['PATH']
       # '/test.php?page=1&id=3&note=whatever'
@@ -162,7 +162,7 @@ class Metasploit3 < Msf::Auxiliary
       this_path = uri
     end
 
-    req['method']     = method
+    req['method']     = http_method
     req['uri']        = this_path
     req['headers']    = {'Cookie'=>datastore['COOKIE']} if not datastore['COOKIE'].empty?
     req['data']       = data if not data.empty?
@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
         :proof    => trigger,
         :name     => self.fullname,
         :category => "web",
-        :method   => method
+        :method   => http_method
       })
 
     else
@@ -289,9 +289,9 @@ class Metasploit3 < Msf::Auxiliary
   #
   def is_writable(trigger)
     # Modify some registered options for the PUT method
-    tmp_method = method
+    tmp_method = http_method
     tmp_data   = data
-    @method = 'PUT'
+    @http_method = 'PUT'
 
     if data.empty?
       unique_str = Rex::Text.rand_text_alpha(4) * 4
@@ -310,7 +310,7 @@ class Metasploit3 < Msf::Auxiliary
     send_request_cgi(req, 25)
 
     # Prepare request to read our file
-    @method = 'GET'
+    @http_method = 'GET'
     @data   = tmp_data
     req = ini_request(uri)
     vprint_status("Verifying upload...")
@@ -324,7 +324,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Ah, don't forget to restore our method
-    @method = tmp_method
+    @http_method = tmp_method
   end
 
   #
@@ -337,8 +337,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     # Warn if it's not a well-formed UPPERCASE method
-    if method !~ /^[A-Z]+$/
-      print_warning("HTTP method #{method} is not Apache-compliant. Try only UPPERCASE letters.")
+    if http_method !~ /^[A-Z]+$/
+      print_warning("HTTP method #{http_method} is not Apache-compliant. Try only UPPERCASE letters.")
     end
     print_status("Running action: #{action.name}...")
 
