@@ -21,7 +21,8 @@ class Metasploit3 < Msf::Auxiliary
         web interface using a specific user/pass.
       },
       'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -30,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('URILOGIN', [true, "URI for Metasploit Web login. Default is /login", "/login"]),
         OptString.new('URIGUESS', [true, "URI for Metasploit Web login. Default is /user_sessions", "/user_sessions"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
       ], self.class)
 
     register_autofilter_ports([55553])

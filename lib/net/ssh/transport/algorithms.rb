@@ -36,6 +36,12 @@ module Net; module SSH; module Transport
       :language    => %w() 
     }
 
+    if defined?(OpenSSL::PKey::EC)
+      ALGORITHMS[:kex] += %w(ecdh-sha2-nistp256
+                             ecdh-sha2-nistp384
+                             ecdh-sha2-nistp521)
+    end
+
     # The underlying transport layer session that supports this object
     attr_reader :session
 

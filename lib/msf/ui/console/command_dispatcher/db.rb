@@ -1647,6 +1647,7 @@ class Db
     print_line "    Amap Log -m"
     print_line "    Appscan"
     print_line "    Burp Session XML"
+    print_line "    Burp Issue XML"
     print_line "    CI"
     print_line "    Foundstone"
     print_line "    FusionVM XML"
