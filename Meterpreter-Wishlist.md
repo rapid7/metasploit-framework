@@ -172,22 +172,23 @@ Related open tickets (slightly broader than Meterpreter):
 
 ### Android Meterpreter Features
  * Android gather modules for auth tokens & sqlite databases (call logs, contacts,  email, etc)
- * Android lock screen removal (as well as cracking the original code/gesture)
+ * Android lock screen removal [**DONE**]
+ * Crack the lock screen hash to reveal the password, pin code or gesture
  * Remote screen control
  * Add record_mic_stream (trigger based on event, like phone call)
- * Grab photos from front and rear cameras
+ * Grab photos from front and rear cameras [**DONE**]
  * Android desktop background, sound play, vibrate, screenshot
- * Quickly grab GPS coordinates
+ * Quickly grab GPS coordinates [**DONE**]
  * Windows post module to install Meterpreter on any attached android devices
  * Better pivoting (e.g bridging between WiFi and 4g)
  * More root exploits
  * Dump browsing history and cookies
  * Comprehensive test suite (including rspec)
  * ARM/POSIX Meterpreter
- * Support for native payloads in the addJavascriptInterface exploit
+ * Support for native payloads in the addJavascriptInterface exploit [**DONE**]
 
 ### Payload Generation
- * Msfvenom should support injecting into existing APKs for Android Meterpreter deployment. Otherwise, it's just an app the target installs for 10 seconds and removes after confirming it has no user interface, barely allowing the Meterpreter session to be created.
+ * Msfvenom should support injecting into existing APKs for Android Meterpreter deployment. Otherwise, it's just an app the target installs for 10 seconds and removes after confirming it has no user interface, barely allowing the Meterpreter session to be created. [**IN PROGRESS**]
  * Msfvenom really needs to spit out some C# payloads. You can pretty easily modify some of the powershell ones to be C#, but there really ought to be a built in C# payload.
  * Generated payloads should default to exiting the process when the shellcode completes [**DONE**]
  * Payload generation should allow named UUIDs to be injected into payloads [**DONE**]
