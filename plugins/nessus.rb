@@ -1481,7 +1481,7 @@ module Msf
             'Family Name',
             'Number of Plugins'
           ])
-        list.each { |family|
+        list['families'].each { |family|
         tbl << [ family["id"], family["name"], family["count"] ]
         }
         print_line
