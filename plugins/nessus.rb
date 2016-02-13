@@ -487,9 +487,7 @@ module Msf
             return
           end
         end
-        if args[0] == "-h"
 
-        end
         if !nessus_verify_token
           return
         end
