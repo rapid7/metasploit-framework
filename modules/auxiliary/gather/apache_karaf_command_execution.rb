@@ -121,6 +121,7 @@ class Metasploit3 < Msf::Auxiliary
                 "text/plain",
                 ip,
                 output)
+        vprint_status("#{ip}:#{rport} - Loot stored at: apache.karaf.command")
       else
         print_error "#{ip}:#{rport} - Command failed to execute"
       end
