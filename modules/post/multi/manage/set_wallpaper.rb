@@ -14,12 +14,13 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'Multi Manage Set Wallpaper',
       'Description'   => %q{
-        This module will sets the desktop wallpaper background on the specified session.
+        This module will set the desktop wallpaper background on the specified session.
+        The method of setting the wallpaper depends on the session type.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'timwr'],
       'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ]
+      'SessionTypes'  => [ 'meterpreter' ]
     ))
 
     register_options(
@@ -28,6 +29,16 @@ class Metasploit3 < Msf::Post
       ], self.class)
   end
 
+  def upload_wallpaper(tempdir)
+    wallpaper_file = datastore["WALLPAPER_FILE"]
+    remote_file = "#{tempdir}#{File.basename(wallpaper_file)}"
+    print_status("#{peer} - Uploading to #{remote_file}")
+    localfile = File.open(wallpaper_file, "rb") {|fd| fd.read(fd.stat.size) }
+    write_file(remote_file, localfile)
+    print_status("#{peer} - Uploaded to #{remote_file}")
+    remote_file
+  end
+  
   #
   # The OSX version uses an apple script to do this
   #
@@ -48,23 +59,12 @@ class Metasploit3 < Msf::Post
   def win_set_wallpaper(id)
     remote_file = upload_wallpaper("%TEMP%\\")
     client.railgun.user32.SystemParametersInfoA(0x0014,nil,remote_file,0x2)
-
-    #target_key = "HKEY_CURRENT_USER\\Control Panel\\Desktop"
-    #registry_createkey(target_key)
-    #registry_setvaldata(target_key, "Wallpaper", remotefile, 'REG_SZ')
     true
   end
 
-  def upload_wallpaper(tempdir)
-    wallpaper_file = datastore["WALLPAPER_FILE"]
-    remote_file = "#{tempdir}#{File.basename(wallpaper_file)}"
-    print_status("#{peer} - Uploading to #{remote_file}")
-    localfile = File.open(wallpaper_file, "rb") {|fd| fd.read(fd.stat.size) }
-    write_file(remote_file, localfile)
-    print_status("#{peer} - Uploaded to #{remote_file}")
-    remote_file
-  end
-  
+  #
+  # The Android version uses the set_wallpaper command
+  #
   def android_set_wallpaper(id)
     wallpaper_file = datastore["WALLPAPER_FILE"]
     local_file = File.open(wallpaper_file, "rb") {|fd| fd.read(fd.stat.size) }
@@ -80,9 +80,6 @@ class Metasploit3 < Msf::Post
       win_set_wallpaper(id)
     when /android/
       android_set_wallpaper(id)
-    else
-      remote_file = upload_wallpaper("/tmp/")
-      cmd_exec("gsettings set org.gnome.desktop.background picture-uri file://#{remote_file}")
     end
   end
 
