@@ -90,11 +90,11 @@ class Metasploit3 < Msf::Auxiliary
     #
     sid, token = get_sid_token
     if sid.nil? or token.nil?
-      vprint_error("#{peer} - Unable to obtain session ID or token, cannot continue")
+      vprint_error("Unable to obtain session ID or token, cannot continue")
       return :abort
     else
-      vprint_status("#{peer} - Using sessiond ID: #{sid}")
-      vprint_status("#{peer} - Using token: #{token}")
+      vprint_status("Using sessiond ID: #{sid}")
+      vprint_status("Using token: #{token}")
     end
 
     begin
@@ -114,22 +114,22 @@ class Metasploit3 < Msf::Auxiliary
         }
       })
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      vprint_error("#{peer} - Service failed to respond")
+      vprint_error("Service failed to respond")
       return :abort
     end
 
     if res.nil?
-      vprint_error("#{peer} - Connection timed out")
+      vprint_error("Connection timed out")
       return :abort
     end
 
     location = res.headers['Location']
     if res and res.headers and (location = res.headers['Location']) and location =~ /admin\//
-      print_good("#{peer} - Successful login: \"#{user}:#{pass}\"")
+      print_good("Successful login: \"#{user}:#{pass}\"")
       report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.headers['Location'])
       return :next_user
     else
-      vprint_error("#{peer} - Bad login: \"#{user}:#{pass}\"")
+      vprint_error("Bad login: \"#{user}:#{pass}\"")
       return
     end
   end
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     each_user_pass { |user, pass|
-      vprint_status("#{peer} - Trying \"#{user}:#{pass}\"")
+      vprint_status("Trying \"#{user}:#{pass}\"")
       do_login(user, pass)
     }
   end

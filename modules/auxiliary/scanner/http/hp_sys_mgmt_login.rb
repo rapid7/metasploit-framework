@@ -173,15 +173,15 @@ class Metasploit3 < Msf::Auxiliary
 
     version = get_version(res)
     unless version.blank?
-      print_status("#{peer} - Version detected: #{version}")
+      print_status("Version detected: #{version}")
       unless is_version_tested?(version)
-        print_warning("#{peer} - You're running the module against a version we have not tested")
+        print_warning("You're running the module against a version we have not tested")
       end
     end
 
     sys_name = get_system_name(res)
     unless sys_name.blank?
-      print_status("#{peer} - System name detected: #{sys_name}")
+      print_status("System name detected: #{sys_name}")
       report_note(
         :host => ip,
         :type => "system.name",
@@ -190,7 +190,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if anonymous_access?(res)
-      print_good("#{peer} - No login necessary. Server allows anonymous access.")
+      print_good("No login necessary. Server allows anonymous access.")
       return
     end
 

@@ -92,13 +92,13 @@ class Metasploit3 < Msf::Auxiliary
         'headers'  =>  { "Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
       })
     rescue OpenSSL::SSL::SSLError
-      vprint_error("#{peer} - SSL error")
+      vprint_error("SSL error")
       return
     rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
-      vprint_error("#{peer} - Unable to Connect")
+      vprint_error("Unable to Connect")
       return
     rescue ::Timeout::Error, ::Errno::EPIPE
-      vprint_error("#{peer} - Timeout error")
+      vprint_error("Timeout error")
       return
     end
 

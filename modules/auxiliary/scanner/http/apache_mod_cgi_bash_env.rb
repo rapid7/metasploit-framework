@@ -93,7 +93,7 @@ class Metasploit4 < Msf::Auxiliary
     res = req(datastore['CMD'], datastore['CVE'])
 
     if res && res.body =~ /#{marker}(.+)#{marker}/m
-      print_good("#{peer} - #{$1}")
+      print_good("#{$1}")
       report_vuln(
         :host => ip,
         :port => rport,

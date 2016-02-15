@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    print_status("#{peer} - Starting XML-RPC login sweep...")
+    print_status("Starting XML-RPC login sweep...")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
         blank_passwords: datastore['BLANK_PASSWORDS'],
