@@ -1306,12 +1306,12 @@ class Core
       return false
     end
 
-    arg = args.shift
-    case arg
+    action = args.shift
+    case action
 
     when "add", "remove", "del"
       if (args.length < 3)
-        print_error("Missing arguments to route #{arg}.")
+        print_error("Missing arguments to route #{action}.")
         return false
       end
 
@@ -1326,44 +1326,38 @@ class Core
         return false
       end
 
-      gw = nil
+      gateway_name = args.pop
 
-      # Satisfy case problems
-      args[2] = "Local" if (args[2] =~ /local/i)
+      gateway = nil
 
-      begin
-        # If the supplied gateway is a global Comm, use it.
-        if (Rex::Socket::Comm.const_defined?(args[2]))
-          gw = Rex::Socket::Comm.const_get(args[2])
+      case gateway_name
+      when /local/i
+        gateway = Rex::Socket::Comm::Local
+      when /^[0-9]+$/
+        session = framework.sessions.get(gateway_name)
+        if session.kind_of?(Msf::Session::Comm)
+          gateway = session
+        elsif session.nil?
+          print_error("Not a session: #{gateway_name}")
+          return false
+        else
+          print_error("Cannout route through specified session (not a Comm)")
+          return false
         end
-      rescue NameError
-      end
-
-      # If we still don't have a gateway, check if it's a session.
-      if ((gw == nil) and
-          (session = framework.sessions.get(args[2])) and
-          (session.kind_of?(Msf::Session::Comm)))
-        gw = session
-      elsif (gw == nil)
-        print_error("Invalid gateway specified.")
+      else
+        print_error("Invalid gateway")
         return false
       end
 
-      if arg == "remove" or arg == "del"
-        worked = Rex::Socket::SwitchBoard.remove_route(args[0], args[1], gw)
-        if worked
-          print_status("Route removed")
-        else
-          print_error("Route not found")
-        end
+      msg = "Route "
+      if action == "remove" or action == "del"
+        worked = Rex::Socket::SwitchBoard.remove_route(args[0], args[1], gateway)
+        msg << worked ? "removed" : "not found"
       else
-        worked = Rex::Socket::SwitchBoard.add_route(args[0], args[1], gw)
-        if worked
-          print_status("Route added")
-        else
-          print_error("Route already exists")
-        end
+        worked = Rex::Socket::SwitchBoard.add_route(args[0], args[1], gateway)
+        msg << worked ? "added" : "already exists"
       end
+      print_status(msg)
 
     when "get"
       if (args.length == 0)
