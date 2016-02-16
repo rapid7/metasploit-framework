@@ -75,11 +75,7 @@ module Powershell
       psh = "[Byte[]] $#{var_name} = 0x#{code[0].to_s(16)}"
       lines = []
       1.upto(code.length - 1) do |byte|
-        if (byte % 10 == 0)
-          lines.push "\r\n$#{var_name} += 0x#{code[byte].to_s(16)}"
-        else
-          lines.push ",0x#{code[byte].to_s(16)}"
-        end
+        lines.push ",0x#{code[byte].to_s(16)}"
       end
 
       psh << lines.join('') + "\r\n"
