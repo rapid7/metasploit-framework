@@ -63,6 +63,9 @@ class Metasploit4 < Msf::Auxiliary
         next if domains.include?(subdomain)
         next unless subdomain.include?(domain)
         ips = Rex::Socket.getaddresses(subdomain)
+        ips.each do |ip|
+          report_host(host: ip, name: subdomain)
+        end
         domains[subdomain] = ips
         print_good("#{domain} subdomain: #{subdomain} - #{ips.join(',')}")
       end
