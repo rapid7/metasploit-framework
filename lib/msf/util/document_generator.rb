@@ -58,6 +58,11 @@ module Msf
         end
 
         def normalize_pull_requests(pull_requests)
+          if pull_requests.kind_of?(PullRequestFinder::Exception)
+            error = Rex::Text.html_encode(pull_requests.message)
+            return error
+          end
+
           formatted_pr = []
 
           pull_requests.each_pair do |number, pr|
@@ -120,7 +125,7 @@ module Msf
               msf #{mod.type}(#{mod.shortname}) > show options
               ... show and set options ...
               msf #{mod.type}(#{mod.shortname}) > run
-              ```|
+              ```|.gsub(/\x20{12}/, '')
         end
 
       end
@@ -229,8 +234,14 @@ module Msf
         if File.exists?(manual_path)
           Rex::Compat.open_webrtc_browser("file://#{manual_path}")
         else
-          pr_finder = PullRequestFinder.new
-          pr = pr_finder.search(mod)
+          begin
+            pr_finder = PullRequestFinder.new
+            pr = pr_finder.search(mod)
+          rescue PullRequestFinder::Exception => e
+            # This is a little weird, I guess, because the normalizer must handle two different
+            # data types.
+            pr = e
+          end
           n = DocumentNormalizer.new
           items = {
             mod_description:   mod.description,

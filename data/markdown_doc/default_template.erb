@@ -10,11 +10,9 @@
 
 <%= normalize_authors(items[:mod_authors]) %>
 
-<% unless items[:mod_pull_requests].empty? %>
 ## Related Pull Requests
 
 <%= normalize_pull_requests(items[:mod_pull_requests]) %>
-<% end %>
 
 <% unless items[:mod_refs].empty? %>
 ## References
