@@ -1310,23 +1310,21 @@ class Core
     case action
 
     when "add", "remove", "del"
-      if (args.length < 3)
+      subnet = args.shift
+      subnet,cidr_mask = subnet.split("/")
+
+      if cidr_mask
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
+      else
+        netmask = args.shift
+      end
+
+      gateway_name = args.shift
+
+      if (subnet.nil? || netmask.nil? || gateway_name.nil?)
         print_error("Missing arguments to route #{action}.")
         return false
       end
-
-      # Satisfy check to see that formatting is correct
-      unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-        print_error "Invalid IP Address"
-        return false
-      end
-
-      unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-        print_error "Invalid Subnet mask"
-        return false
-      end
-
-      gateway_name = args.pop
 
       gateway = nil
 
@@ -1351,11 +1349,11 @@ class Core
 
       msg = "Route "
       if action == "remove" or action == "del"
-        worked = Rex::Socket::SwitchBoard.remove_route(args[0], args[1], gateway)
-        msg << worked ? "removed" : "not found"
+        worked = Rex::Socket::SwitchBoard.remove_route(subnet, netmask, gateway)
+        msg << (worked ? "removed" : "not found")
       else
-        worked = Rex::Socket::SwitchBoard.add_route(args[0], args[1], gateway)
-        msg << worked ? "added" : "already exists"
+        worked = Rex::Socket::SwitchBoard.add_route(subnet, netmask, gateway)
+        msg << (worked ? "added" : "already exists")
       end
       print_status(msg)
 
