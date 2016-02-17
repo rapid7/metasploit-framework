@@ -37,7 +37,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def bing_search(domain)
     print_status("Searching Bing for subdomains from #{domain}")
-    domains = []
+    domains = {}
 
     searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
     searches.each do |num|
@@ -61,10 +61,10 @@ class Metasploit4 < Msf::Auxiliary
         subdomain.downcase!
 
         next if domains.include?(subdomain)
-        if subdomain.include?(domain)
-          domains << subdomain
-          print_good("#{domain} subdomain: #{subdomain}")
-        end
+        next unless subdomain.include?(domain)
+        ips = Rex::Socket.getaddresses(subdomain)
+        domains[subdomain] = ips
+        print_good("#{domain} subdomain: #{subdomain} - #{ips.join(',')}")
       end
     end
 
