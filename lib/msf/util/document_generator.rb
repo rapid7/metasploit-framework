@@ -247,7 +247,7 @@ module Msf
       end
 
       def self.get_module_document(mod)
-        manual_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, mod.fullname)
+        manual_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
 
         if File.exists?(manual_path)
           Rex::Compat.open_webrtc_browser("file://#{manual_path}")
