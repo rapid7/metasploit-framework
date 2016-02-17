@@ -37,7 +37,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def yahoo_search(domain)
     print_status("Searching Yahoo for subdomains from #{domain}")
-    domains = []
+    domains = {}
 
     searches = ["1", "101", "201", "301", "401", "501"]
     searches.each do |num|
@@ -58,11 +58,17 @@ class Metasploit4 < Msf::Auxiliary
       matches = html.search('span[@class=" fz-15px fw-m fc-12th wr-bw lh-15"]')
       matches.each do |match|
         subdomain = match.text.split('/')[0]
+        subdomain = subdomain.split(':')[0]
         subdomain.downcase!
 
         next if domains.include?(subdomain)
-        domains << subdomain
-        print_good("#{domain} subdomain: #{subdomain}")
+        next unless subdomain.include?(domain)
+        ips = Rex::Socket.getaddresses(subdomain)
+        ips.each do |ip|
+          report_host(host: ip, name: subdomain)
+        end
+        domains[subdomain] = ips
+        print_good("#{domain} subdomain: #{subdomain} - #{ips.join(',')}")
       end
     end
     report_note(
