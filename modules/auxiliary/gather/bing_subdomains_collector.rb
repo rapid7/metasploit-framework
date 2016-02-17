@@ -41,7 +41,7 @@ class Metasploit4 < Msf::Auxiliary
 
     searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
     searches.each do |num|
-      resp = send_request_cgi(
+      resp = send_request_cgi!(
         'rhost' => rhost_bing,
         'rport' => rport_bing,
         'vhost' => rhost_bing,
@@ -51,21 +51,6 @@ class Metasploit4 < Msf::Auxiliary
           'first' => num,
           'q' => "domain:#{domain}"
         })
-
-      if resp && resp.redirect?
-        rhost_bing = URI(resp.headers['Location']).host
-
-        resp = send_request_cgi(
-          'rhost' => rhost_bing,
-          'rport' => rport_bing,
-          'vhost' => rhost_bing,
-          'method' => 'GET',
-          'uri' => '/search',
-          'vars_get' => {
-            'first' => num,
-            'q' => "domain:#{domain}"
-          })
-      end
 
       next unless resp && resp.code == 200
       html = resp.get_html_document
