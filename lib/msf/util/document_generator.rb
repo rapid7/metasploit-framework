@@ -44,7 +44,6 @@ module Msf
         private
 
         def md_to_html(md)
-          md.gsub!(/\x20{12}/, '')
           r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true)
           css_path = 
           %Q|
