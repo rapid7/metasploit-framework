@@ -45,13 +45,18 @@ execute "psql postgres -tAc \"#{sql}\" | grep -q 1 || #{create_user}" do
   user "postgres"
 end
 
-sql = "SELECT 1 FROM pg_roles WHERE rolname='vagrant'"
-execute "createdb" do
-  user "vagrant"
-  not_if { "psql postgres -tAc \"#{sql}\" | grep -q 1" }
+["vagrant", "msf_dev_db", "msf_test_db"].each do |database|
+  execute "sudo -u postgres createdb --owner vagrant #{database}" do
+    not_if "psql -lqt | awk '{ print $1 }' | grep -w #{database} | wc -l | grep -q 1"
+  end
 end
 
-file "/vagrant/.msf4/database.yml" do
+directory "/home/vagrant/.msf4/" do
+  user "vagrant"
+  group "vagrant"
+end
+
+file "/home/vagrant/.msf4/database.yml" do
   content <<-EOH
 # Development Database
 development: &pgsql
@@ -97,7 +102,7 @@ git "/usr/local/rbenv/plugins/ruby-build" do
   repository "https://github.com/sstephenson/ruby-build.git"
 end
 
-ruby_version = `cat .ruby-version`.strip
+ruby_version = `cat /vagrant/.ruby-version`.strip
 bash "install_ruby" do
   user "root"
   not_if { ::Dir.exist?("/usr/local/rbenv/versions/#{ruby_version}") }
