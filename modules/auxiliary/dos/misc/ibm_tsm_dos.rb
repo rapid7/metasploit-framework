@@ -12,7 +12,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "  Server Opcode 0x534 Denial of Service",
+      'Name'           => "IBM Tivoli Storage Manager FastBack Server Opcode 0x534 Denial of Service",
       'Description'    => %q{
           This module exploits a denial of service condition present in IBM Tivoli Storage Manager
           FastBack Server when dealing with packets triggering the opcode 0x534 handler.
