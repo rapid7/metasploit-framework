@@ -44,8 +44,7 @@ module Msf
         private
 
         def md_to_html(md)
-          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true)
-          css_path = 
+          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true) 
           %Q|
           <html>
           <head>
