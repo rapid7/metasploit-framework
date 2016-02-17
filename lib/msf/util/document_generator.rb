@@ -38,7 +38,7 @@ module Msf
 
             ## Module Name
 
-            #{items[:mod_fullname]}
+            #{Rex::Text.html_encode(items[:mod_fullname])}
 
             ## Authors
 
@@ -107,9 +107,9 @@ module Msf
 
         def normalize_authors(authors)
           if authors.kind_of?(Array)
-            authors.collect { |a| "* #{a}" } * "\n"
+            authors.collect { |a| "* #{Rex::Text.html_encode(a)}" } * "\n"
           else
-            authors
+            Rex::Text.html_encode(authors)
           end
         end
 
