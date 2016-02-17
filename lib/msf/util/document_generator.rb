@@ -29,48 +29,16 @@ module Msf
 
       class DocumentNormalizer
 
-        CSS_BASE_PATH = File.expand_path(File.join(Msf::Config.data_directory, 'markdown.css' ))
+        CSS_BASE_PATH = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc','markdown.css' ))
+        TEMPLATE_PATH = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc','default_template.erb' ))
 
         def get_md_content(items)
-          md_to_html(ERB.new(%Q|## #{items[:mod_name]}
-
-            #{normalize_description(items[:mod_description])}
-
-            ## Module Name
-
-            #{Rex::Text.html_encode(items[:mod_fullname])}
-
-            ## Authors
-
-            #{normalize_authors(items[:mod_authors])}
-
-            <% unless items[:mod_pull_requests].empty? %>
-            ## Related Pull Requests
-
-            #{normalize_pull_requests(items[:mod_pull_requests])}
-            <% end %>
-
-            <% unless items[:mod_refs].empty? %>
-            ## References
-
-            #{normalize_references(items[:mod_refs])}
-            <% end %>
-
-            ## Available Targets
-            <% if items[:mod_targets] %>
-            #{normalize_targets(items[:mod_targets])}
-            <% end %>
-
-            ## Platforms
-            #{normalize_platforms(items[:mod_platforms])}
-
-            ## Reliability
-            #{normalize_rank(items[:mod_rank])}
-
-            ## Demo
-
-            #{normalize_demo_output(items[:mod_demo])}
-          |).result(binding()))
+          @md_template ||= lambda {
+            template = ''
+            File.open(TEMPLATE_PATH, 'rb') { |f| template = f.read }
+            return template
+          }.call
+          md_to_html(ERB.new(@md_template).result(binding()))
         end
 
         private
@@ -99,6 +67,18 @@ module Msf
           end
 
           formatted_pr * "\n"
+        end
+
+        def normalize_options(mod_options)
+          required_options = []
+
+          mod_options.each_pair do |name, props|
+            if props.required && props.default.nil?
+              required_options << "* #{name} - #{props.desc}"
+            end
+          end
+
+          required_options * "\n"
         end
 
         def normalize_description(description)
@@ -263,7 +243,7 @@ module Msf
             mod_refs:          mod.references,
             mod_rank:          mod.rank,
             mod_platforms:     mod.send(:module_info)['Platform'],
-            mod_options:       mod.datastore,
+            mod_options:       mod.options,
             mod_demo:          mod
           }
 
