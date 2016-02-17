@@ -27,12 +27,6 @@ module Msf
   module Util
     module DocumentGenerator
 
-      class HTMLwithPygments < Redcarpet::Render::HTML
-        def block_code(code, language)
-          "Nope"
-        end
-      end
-
       class DocumentNormalizer
 
         CSS_BASE_PATH = File.expand_path(File.join(Msf::Config.data_directory, 'markdown.css' ))
