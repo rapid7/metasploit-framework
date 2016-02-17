@@ -56,6 +56,11 @@ module Msf
             #{normalize_references(items[:mod_refs])}
             <% end %>
 
+            ## Available Targets
+            <% if items[:mod_targets] %>
+            #{normalize_targets(items[:mod_targets])}
+            <% end %>
+
             ## Platforms
             #{normalize_platforms(items[:mod_platforms])}
 
