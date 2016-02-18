@@ -116,7 +116,7 @@ pre code {
         margin:10px auto;
     }
 }
-#basic_info_button, #knowledge_base_button {
+#basic_info_button {
   font-family:Arial, sans-serif;
   font-size:12px;
   padding:10px 5px;
@@ -124,6 +124,15 @@ pre code {
   border-width:1px;
   border-color:#ccc;
   color:#333;
+}
+#knowledge_base_button {
+  font-family:Arial, sans-serif;
+  font-size:12px;
+  padding:10px 5px;
+  border-style:solid;
+  border-width:1px;
+  border-color:#EEEEEE;
+  color:#C4C4C4;
 }
 #basic_info_button:hover, #knowledge_base_button:hover {
   cursor: pointer;
