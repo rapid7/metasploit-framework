@@ -94,7 +94,7 @@ class Metasploit4 < Msf::Auxiliary
       domains[subdomain] = ips
     end
 
-    return unless domains
+    return if domains.empty?
     report_note(
       host: domain,
       type: 'Yahoo Search Subdomains',
@@ -115,7 +115,7 @@ class Metasploit4 < Msf::Auxiliary
       print_good("#{dork} subdomain: #{subdomain}")
       domains[subdomain] = ip
     end
-    return unless domains
+    return if domains.empty?
     report_note(
       host: ip,
       type: 'Yahoo Search Subdomains',
