@@ -20,19 +20,24 @@
 <%= normalize_references(items[:mod_refs]) %>
 <% end %>
 
-## Available Targets
 <% if items[:mod_targets] %>
+## Available Targets
+
 <%= normalize_targets(items[:mod_targets]) %>
 <% end %>
 
+<% unless items[:mod_platforms].empty? %>
 ## Platforms
 <%= normalize_platforms(items[:mod_platforms]) %>
+<% end %>
 
 ## Reliability
+
 <%= normalize_rank(items[:mod_rank]) %>
 
 <% unless normalize_options(items[:mod_options]).empty? %>
 ## Mandatory Options
+
 <%= normalize_options(items[:mod_options]) %>
 <% end %>
 

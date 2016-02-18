@@ -29,11 +29,15 @@ module Msf
 
       class DocumentNormalizer
 
-        CSS_BASE_PATH            = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'markdown.css'))
-        TEMPLATE_PATH            = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'default_template.erb'))
-        BES_DEMO_TEMPLATE        = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'bes_demo_template.erb'))
-        HTTPSERVER_DEMO_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'httpserver_demo_template.erb'))
-        GENERIC_DEMO_TEMPLATE    = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'generic_demo_template.erb'))
+        CSS_BASE_PATH              = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'markdown.css'))
+        TEMPLATE_PATH              = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'default_template.erb'))
+        BES_DEMO_TEMPLATE          = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'bes_demo_template.erb'))
+        HTTPSERVER_DEMO_TEMPLATE   = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'httpserver_demo_template.erb'))
+        GENERIC_DEMO_TEMPLATE      = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'generic_demo_template.erb'))
+        LOCALEXPLOIT_DEMO_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'localexploit_demo_template.erb'))
+        POST_DEMO_TEMPLATE         = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'post_demo_template.erb'))
+        PAYLOAD_TEMPLATE           = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'payload_demo_template.erb'))
+        AUXILIARY_SCANNER_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'auxiliary_scanner_template.erb'))
 
         def get_md_content(items)
           @md_template ||= lambda {
@@ -130,6 +134,14 @@ module Msf
             load_template(mod, BES_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Exploit::Remote::HttpServer)
             load_template(mod, HTTPSERVER_DEMO_TEMPLATE)
+          elsif mod.kind_of?(Msf::Exploit::Local)
+            load_template(mod, LOCALEXPLOIT_DEMO_TEMPLATE)
+          elsif mod.kind_of?(Msf::Post)
+            load_template(mod, POST_DEMO_TEMPLATE)
+          elsif mod.kind_of?(Msf::Payload)
+            load_template(mod, PAYLOAD_TEMPLATE)
+          elsif mod.kind_of?(Msf::Auxiliary::Scanner)
+            load_template(mod, AUXILIARY_SCANNER_TEMPLATE)
           else
             load_template(mod, GENERIC_DEMO_TEMPLATE)
           end

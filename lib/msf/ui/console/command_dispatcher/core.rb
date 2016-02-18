@@ -746,7 +746,7 @@ class Core
     print_line
     print_line "Options:"
     print_line "* The flag '-j' will print the data in json format"
-    print_line "* The flag '-d' will show the markdown version with a browser"
+    print_line "* The flag '-d' will show the markdown version with a browser. More info, but could be slow."
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
     print_line
