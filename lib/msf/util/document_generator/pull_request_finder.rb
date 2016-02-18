@@ -12,12 +12,26 @@ module Msf
 
         MANUAL_BASE_PATH = File.expand_path(File.join(Msf::Config.module_directory, '..', 'documentation', 'modules' ))
 
+        # @return [Octokit::Client] Git client
         attr_accessor :git_client
+
+        # @return [String] Metasploit Framework's repository
         attr_accessor :repository
+
+        # @return [String] Metasploit Framework's branch
         attr_accessor :branch
+
+        # @return [String] Metasploit Framework's repository owner
         attr_accessor :owner
+
+        # @return [String] Git access token
         attr_accessor :git_access_token
 
+
+        # Initializes Msf::Util::DocumenGenerator::PullRequestFinder
+        #
+        # @raise [PullRequestFinder::Exception] No GITHUB_OAUTH_TOKEN environment variable
+        # @return [void]
         def initialize
           unless ENV.has_key?('GITHUB_OAUTH_TOKEN')
             raise PullRequestFinder::Exception, 'GITHUB_OAUTH_TOKEN environment variable not set.'
@@ -30,19 +44,36 @@ module Msf
           self.git_client       = Octokit::Client.new(access_token: git_access_token)
         end
 
+
+        # Returns pull requests associated with a particular Metasploit module.
+        #
+        # @param mod [Msf::Module] Metasploit module.
+        # @return [Hash]
         def search(mod)
           file_name = get_normalized_module_name(mod)
           commits = get_commits_from_file(file_name)
           get_pull_requests_from_commits(commits)
         end
 
+
         private
 
+
+        # Returns the normalized module full name.
+        #
+        # @param mod [Msf::Module] Metasploit module.
+        # @return [String]
         def get_normalized_module_name(mod)
           source_fname = mod.method(:initialize).source_location.first
           source_fname.scan(/(modules.+)/).flatten.first || ''
         end
 
+
+        # Returns git commits for a particular file.
+        #
+        # @param path [String] File path.
+        # @raise [PullRequestFinder::Exception] No commits found.
+        # @return [Array<Sawyer::Resource>]
         def get_commits_from_file(path)
           commits = git_client.commits(repository, branch, path: path)
           if commits.empty?
@@ -53,6 +84,11 @@ module Msf
           commits
         end
 
+
+        # Returns the author for the commit.
+        #
+        # @param commit [Sawyer::Resource]
+        # @return [String]
         def get_author(commit)
           if commit.author
             return commit.author[:login].to_s
@@ -61,10 +97,20 @@ module Msf
           ''
         end
 
+
+        # Checks whether the author should be skipped or not.
+        #
+        # @param commit [Sawyer::Resource]
+        # @return [Boolean] TrueClass if the author should be skipped, otherwise false.
         def is_author_blacklisted?(commit)
           ['tabassassin'].include?(get_author(commit))
         end
 
+
+        # Returns unique pull requests for a collection of commits.
+        #
+        # @param commits [Array<Sawyer::Resource>]
+        # @return [Hash]
         def get_pull_requests_from_commits(commits)
           pull_requests = {}
 
@@ -80,6 +126,11 @@ module Msf
           pull_requests
         end
 
+
+        # Returns unique pull requests for a commit.
+        #
+        # @param commit [Sawyer::Resource]
+        # @return [Hash]
         def get_pull_request_from_commit(commit)
           sha = commit.sha
           url = URI.parse("https://github.com/#{repository}/branch_commits/#{sha}")

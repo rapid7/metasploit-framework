@@ -11,9 +11,16 @@ module Msf
   module Util
     module DocumentGenerator
 
+
+      # Spawns a module document with a browser locally.
+      #
+      # @param mod [Msf::Module] Module to create document for.
+      # @return [void]
       def self.spawn_module_document(mod)
+        # By default, if there is a document already in the repository, then open that one.
         manual_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
 
+        # No document in the repo, then we generate one on the fly.
         unless File.exists?(manual_path)
           md = get_module_document(mod)
           f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
@@ -25,9 +32,15 @@ module Msf
         Rex::Compat.open_webrtc_browser("file://#{manual_path}")
       end
 
+
+      # Returns a module document in HTML.
+      #
+      # @param mod [Msf::Module] Module to create document for.
+      # @return [void]
       def self.get_module_document(mod)
         md = ''
 
+        # If there is a document already in the repository, then open that one.
         manual_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
 
         if File.exists?(manual_path)

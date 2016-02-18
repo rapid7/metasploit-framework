@@ -28,6 +28,11 @@ module Msf
         PAYLOAD_TEMPLATE           = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'payload_demo_template.erb'))
         AUXILIARY_SCANNER_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'auxiliary_scanner_template.erb'))
 
+
+        # Returns the module document in HTML form.
+        #
+        # @param items [Hash] Items to be documented.
+        # @return [String] HTML.
         def get_md_content(items)
           @md_template ||= lambda {
             template = ''
@@ -37,8 +42,13 @@ module Msf
           md_to_html(ERB.new(@md_template).result(binding()))
         end
 
+
         private
 
+
+        # Returns the CSS code for the HTML document.
+        #
+        # @return [String]
         def load_css
           @css ||= lambda {
             data = ''
@@ -47,6 +57,11 @@ module Msf
           }.call
         end
 
+
+        # Returns the HTML document.
+        #
+        # @param md [String] Markdown document.
+        # @return [String] HTML document.
         def md_to_html(md)
           r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true) 
           %Q|
@@ -63,6 +78,11 @@ module Msf
           |
         end
 
+
+        # Returns the markdown format for pull requests.
+        #
+        # @param pull_requests [Hash] Pull requests
+        # @return [String]
         def normalize_pull_requests(pull_requests)
           if pull_requests.kind_of?(PullRequestFinder::Exception)
             error = Rex::Text.html_encode(pull_requests.message)
@@ -78,6 +98,11 @@ module Msf
           formatted_pr * "\n"
         end
 
+
+        # Returns the markdown format for module datastore options.
+        #
+        # @param mod_options [Hash] Datastore options
+        # @return [String]
         def normalize_options(mod_options)
           required_options = []
 
@@ -90,10 +115,21 @@ module Msf
           required_options * "\n"
         end
 
+
+        # Returns the markdown format for module description.
+        #
+        # @param description [String] Module description.
+        # @return [String]
         def normalize_description(description)
           Rex::Text.wordwrap(Rex::Text.compress(description))
         end
 
+
+        # Returns the markdown format for module authors.
+        #
+        # @param authors [Array] Module Authors
+        # @param authors [String] Module author
+        # @return [String]
         def normalize_authors(authors)
           if authors.kind_of?(Array)
             authors.collect { |a| "* #{Rex::Text.html_encode(a)}" } * "\n"
@@ -102,14 +138,30 @@ module Msf
           end
         end
 
+
+        # Returns the markdown format for module targets.
+        #
+        # @param targets [Array] Module targets.
+        # @return [String]
         def normalize_targets(targets)
           targets.collect { |c| "* #{c.name}" } * "\n"
         end
 
+
+        # Returns the markdown format for module references.
+        #
+        # @param refs [Array] Module references.
+        # @return [String]
         def normalize_references(refs)
           refs.collect { |r| "* <a href=\"#{r}\">#{r}</a>" } * "\n"
         end
 
+
+        # Returns the markdown format for module platforms.
+        #
+        # @param platforms [Array] Module platforms.
+        # @param platforms [String] Module platform.
+        # @return [String]
         def normalize_platforms(platforms)
           if platforms.kind_of?(Array)
             platforms.collect { |p| "* #{p}" } * "\n"
@@ -118,16 +170,34 @@ module Msf
           end
         end
 
+
+        # Returns the markdown format for module rank.
+        #
+        # @param rank [String] Module rank.
+        # @return [String]
         def normalize_rank(rank)
           "[#{Msf::RankingName[rank].capitalize}](https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking)"
         end
 
+
+        # Returns a parsed ERB template.
+        #
+        # @param mod [Msf::Module] Metasploit module.
+        # @param path [String] Template path.
+        # @return [String]
         def load_template(mod, path)
           data = ''
           File.open(path, 'rb') { |f| data = f.read }
           ERB.new(data).result(binding())
         end
 
+
+        # Returns a demo template suitable for the module. Currently supported templates:
+        # BrowserExploitServer modules, HttpServer modules, local exploit modules, post
+        # modules, payloads, auxiliary scanner modules.
+        #
+        # @param mod [Msf::Module] Metasploit module.
+        # @return [String]
         def normalize_demo_output(mod)
           if mod.kind_of?(Msf::Exploit::Remote::BrowserExploitServer)
             load_template(mod, BES_DEMO_TEMPLATE)
