@@ -29,8 +29,11 @@ module Msf
 
       class DocumentNormalizer
 
-        CSS_BASE_PATH = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc','markdown.css' ))
-        TEMPLATE_PATH = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc','default_template.erb' ))
+        CSS_BASE_PATH            = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'markdown.css'))
+        TEMPLATE_PATH            = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'default_template.erb'))
+        BES_DEMO_TEMPLATE        = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'bes_demo_template.erb'))
+        HTTPSERVER_DEMO_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'httpserver_demo_template.erb'))
+        GENERIC_DEMO_TEMPLATE    = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'generic_demo_template.erb'))
 
         def get_md_content(items)
           @md_template ||= lambda {
@@ -116,16 +119,20 @@ module Msf
           "[#{Msf::RankingName[rank].capitalize}](https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking)"
         end
 
+        def load_template(mod, path)
+          data = ''
+          File.open(path, 'rb') { |f| data = f.read }
+          ERB.new(data).result(binding())
+        end
+
         def normalize_demo_output(mod)
-          %Q|```
-              msf > use #{mod.fullname}
-              msf #{mod.type}(#{mod.shortname}) > show targets
-              ... a list of targets ...
-              msf #{mod.type}(#{mod.shortname}) > set TARGET <target-id>
-              msf #{mod.type}(#{mod.shortname}) > show options
-              ... show and set options ...
-              msf #{mod.type}(#{mod.shortname}) > run
-              ```|.gsub(/\x20{12}/, '')
+          if mod.kind_of?(Msf::Exploit::Remote::BrowserExploitServer)
+            load_template(mod, BES_DEMO_TEMPLATE)
+          elsif mod.kind_of?(Msf::Exploit::Remote::HttpServer)
+            load_template(mod, HTTPSERVER_DEMO_TEMPLATE)
+          else
+            load_template(mod, GENERIC_DEMO_TEMPLATE)
+          end
         end
 
       end

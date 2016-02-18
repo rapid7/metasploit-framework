@@ -31,8 +31,8 @@
 ## Reliability
 <%= normalize_rank(items[:mod_rank]) %>
 
+<% unless normalize_options(items[:mod_options]).empty? %>
 ## Mandatory Options
-<% unless items[:mod_options].empty? %>
 <%= normalize_options(items[:mod_options]) %>
 <% end %>
 
