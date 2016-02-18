@@ -34,18 +34,19 @@ class Core
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
-    "-c" => [ true,  "Run a command on the session given with -i, or all"],
-    "-h" => [ false, "Help banner"                                    ],
-    "-i" => [ true,  "Interact with the supplied session ID"          ],
-    "-l" => [ false, "List all active sessions"                       ],
-    "-v" => [ false, "List verbose fields"                            ],
-    "-q" => [ false, "Quiet mode"                                     ],
-    "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
-    "-K" => [ false, "Terminate all sessions"                         ],
-    "-s" => [ true,  "Run a script on the session given with -i, or all"],
-    "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ],
-    "-t" => [ true,  "Set a response timeout (default: 15)"])
+    "-c"  => [ true,  "Run a command on the session given with -i, or all"          ],
+    "-h"  => [ false, "Help banner"                                                 ],
+    "-i"  => [ true,  "Interact with the supplied session ID   "                    ],
+    "-l"  => [ false, "List all active sessions"                                    ],
+    "-v"  => [ false, "List sessions in verbose mode"                               ],
+    "-q"  => [ false, "Quiet mode"                                                  ],
+    "-k"  => [ true,  "Terminate sessions by session ID and/or range"               ],
+    "-K"  => [ false, "Terminate all sessions"                                      ],
+    "-s"  => [ true,  "Run a script on the session given with -i, or all"           ],
+    "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all" ],
+    "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"  ],
+    "-t"  => [ true,  "Set a response timeout (default: 15)"                        ],
+    "-x" =>  [ false, "Show extended information in the session table"              ])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -1757,12 +1758,13 @@ class Core
   #
   def cmd_sessions(*args)
     begin
-    method  = nil
-    quiet   = false
-    verbose = false
-    sid     = nil
-    cmds    = []
-    script  = nil
+    method   = nil
+    quiet    = false
+    show_extended = false
+    verbose  = false
+    sid      = nil
+    cmds     = []
+    script   = nil
     reset_ring = false
     response_timeout = 15
 
@@ -1779,6 +1781,8 @@ class Core
       when "-c"
         method = 'cmd'
         cmds << val if val
+      when "-x"
+        show_extended = true
       when "-v"
         verbose = true
       # Do something with the supplied session identifier instead of
@@ -2041,7 +2045,7 @@ class Core
       end
     when 'list',nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :verbose => verbose))
+      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose))
       print_line
     end
 
