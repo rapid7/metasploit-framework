@@ -524,7 +524,7 @@ class ReadableText
   def self.dump_sessions(framework, opts={})
     ids = (opts[:session_ids] || framework.sessions.keys).sort
     verbose = opts[:verbose] || false
-    show_checkin = opts[:show_checkin] || false
+    show_extended = opts[:show_extended] || false
     indent = opts[:indent] || DefaultIndent
     col = opts[:col] || DefaultColumnWrap
 
@@ -533,7 +533,7 @@ class ReadableText
     columns = []
     columns << 'Id'
     columns << 'Type'
-    columns << 'Checkin?' if show_checkin
+    columns << 'Checkin?' if show_extended
     columns << 'Information'
     columns << 'Connection'
 
@@ -556,7 +556,7 @@ class ReadableText
       row << session.type.to_s
       row[-1] << (" " + session.platform) if session.respond_to?(:platform)
 
-      if show_checkin
+      if show_extended
         if session.respond_to?(:last_checkin) && session.last_checkin
           row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
         else

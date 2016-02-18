@@ -35,7 +35,6 @@ class Core
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
     "-c"  => [ true,  "Run a command on the session given with -i, or all"          ],
-    "-ci" => [ false, "Show the last checkin time in the session table"             ],
     "-h"  => [ false, "Help banner"                                                 ],
     "-i"  => [ true,  "Interact with the supplied session ID   "                    ],
     "-l"  => [ false, "List all active sessions"                                    ],
@@ -46,7 +45,8 @@ class Core
     "-s"  => [ true,  "Run a script on the session given with -i, or all"           ],
     "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all" ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"  ],
-    "-t"  => [ true,  "Set a response timeout (default: 15)"                        ])
+    "-t"  => [ true,  "Set a response timeout (default: 15)"                        ],
+    "-x" =>  [ false, "Show extended information in the session table"              ])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -1760,7 +1760,7 @@ class Core
     begin
     method   = nil
     quiet    = false
-    show_checkin = false
+    show_extended = false
     verbose  = false
     sid      = nil
     cmds     = []
@@ -1781,8 +1781,8 @@ class Core
       when "-c"
         method = 'cmd'
         cmds << val if val
-      when "-ci"
-        show_checkin = true
+      when "-x"
+        show_extended = true
       when "-v"
         verbose = true
       # Do something with the supplied session identifier instead of
@@ -2045,7 +2045,7 @@ class Core
       end
     when 'list',nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :show_checkin => show_checkin, :verbose => verbose))
+      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose))
       print_line
     end
 
