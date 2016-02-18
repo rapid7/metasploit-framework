@@ -27,19 +27,21 @@ module Msf
         POST_DEMO_TEMPLATE         = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'post_demo_template.erb'))
         PAYLOAD_TEMPLATE           = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'payload_demo_template.erb'))
         AUXILIARY_SCANNER_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'auxiliary_scanner_template.erb'))
+        HTML_TEMPLATE              = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'html_template.erb'))
 
 
         # Returns the module document in HTML form.
         #
         # @param items [Hash] Items to be documented.
+        # @param kb [String] Additional information to be added in the doc.
         # @return [String] HTML.
-        def get_md_content(items)
+        def get_md_content(items, kb)
           @md_template ||= lambda {
             template = ''
             File.open(TEMPLATE_PATH, 'rb') { |f| template = f.read }
             return template
           }.call
-          md_to_html(ERB.new(@md_template).result(binding()))
+          md_to_html(ERB.new(@md_template).result(binding()), kb)
         end
 
 
@@ -61,21 +63,15 @@ module Msf
         # Returns the HTML document.
         #
         # @param md [String] Markdown document.
+        # @param kb [String] Additional information to add.
         # @return [String] HTML document.
-        def md_to_html(md)
-          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true) 
-          %Q|
-          <html>
-          <head>
-          <style>
-          #{load_css}
-          </style>
-          </head>
-          <body>
-          #{r.render(md)}
-          </body>
-          </html>
-          |
+        def md_to_html(md, kb)
+          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true)
+          ERB.new(@html_template ||= lambda {
+            html_template = ''
+            File.open(HTML_TEMPLATE, 'rb') { |f| html_template = f.read }
+            return html_template
+          }.call).result(binding())
         end
 
 
