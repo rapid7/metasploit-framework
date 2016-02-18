@@ -66,7 +66,7 @@ module Msf
         # @param kb [String] Additional information to add.
         # @return [String] HTML document.
         def md_to_html(md, kb)
-          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true)
+          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true, no_intra_emphasis: true, escape_html: true)
           ERB.new(@html_template ||= lambda {
             html_template = ''
             File.open(HTML_TEMPLATE, 'rb') { |f| html_template = f.read }
@@ -81,7 +81,7 @@ module Msf
         # @return [String]
         def normalize_pull_requests(pull_requests)
           if pull_requests.kind_of?(PullRequestFinder::Exception)
-            error = Rex::Text.html_encode(pull_requests.message)
+            error = pull_requests.message
             return error
           end
 
@@ -130,7 +130,7 @@ module Msf
           if authors.kind_of?(Array)
             authors.collect { |a| "* #{Rex::Text.html_encode(a)}" } * "\n"
           else
-            Rex::Text.html_encode(authors)
+            authors
           end
         end
 
