@@ -774,7 +774,7 @@ class Core
         if dump_json
           print(Serializer::Json.dump_module(active_module) + "\n")
         elsif show_doc
-          Msf::Util::DocumentGenerator.get_module_document(active_module)
+          Msf::Util::DocumentGenerator.spawn_module_document(active_module)
         else
           print(Serializer::ReadableText.dump_module(active_module))
         end

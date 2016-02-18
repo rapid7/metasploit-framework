@@ -50,12 +50,22 @@ module Msf
 
         private
 
+        def load_css
+          @css ||= lambda {
+            data = ''
+            File.open(CSS_BASE_PATH, 'rb') { |f| data = f.read }
+            return data
+          }.call
+        end
+
         def md_to_html(md)
           r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true) 
           %Q|
           <html>
           <head>
-          <link rel="stylesheet" href="file://#{CSS_BASE_PATH}">
+          <style>
+          #{load_css}
+          </style>
           </head>
           <body>
           #{r.render(md)}
@@ -247,6 +257,14 @@ module Msf
 
       end
 
+      def self.spawn_module_document(mod)
+        md = get_module_document(mod)
+        f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
+        f.write(md)
+        f.close
+        Rex::Compat.open_webrtc_browser("file://#{f.path}")
+      end
+
       def self.get_module_document(mod)
         manual_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
 
@@ -279,11 +297,7 @@ module Msf
             items[:mod_targets] = mod.targets
           end
 
-          md = n.get_md_content(items)
-          f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
-          f.write(md)
-          f.close
-          Rex::Compat.open_webrtc_browser("file://#{f.path}")
+          n.get_md_content(items)
         end
       end
 
