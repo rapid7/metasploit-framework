@@ -1,0 +1,42 @@
+<html>
+<head>
+<% unless kb.empty? %>
+<script>
+  function showBasic() {
+    document.getElementById('knowledge_base').style.display = "none";
+    document.getElementById('basic_info').style.display = "inline";
+  }
+
+  function showKnowledge() {
+    document.getElementById('basic_info').style.display = "none";
+    document.getElementById('knowledge_base').style.display = "inline";
+  }
+</script>
+<% end %>
+<style>
+<%= load_css %>
+</style>
+</head>
+<body>
+<% unless kb.empty? %>
+<table border="0">
+<tr>
+<th>
+<div id="basic_info_button" onClick="showBasic()">Basic Information</a>
+</th>
+<th>
+<div id="Knowledge_base_button" onClick="showKnowledge()">Knowledge Base</a>
+</th>
+</tr></table>
+<p></p>
+<% end %>
+<div id="basic_info">
+<%= r.render(md) %>
+</div>
+<% unless kb.empty? %>
+<div id="knowledge_base">
+<%= r.render(kb) %>
+<% end %>
+</div>
+</body>
+</html>
