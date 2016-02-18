@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150421211719) do
+ActiveRecord::Schema.define(version: 20150514182921) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -684,9 +684,12 @@ ActiveRecord::Schema.define(version: 20150421211719) do
     t.datetime "exploited_at"
     t.integer  "vuln_detail_count",                default: 0
     t.integer  "vuln_attempt_count",               default: 0
+    t.integer  "origin_id"
+    t.string   "origin_type"
   end
 
   add_index "vulns", ["name"], name: "index_vulns_on_name", using: :btree
+  add_index "vulns", ["origin_id"], name: "index_vulns_on_origin_id", using: :btree
 
   create_table "vulns_refs", force: true do |t|
     t.integer "ref_id"

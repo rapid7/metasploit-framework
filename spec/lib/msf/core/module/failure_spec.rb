@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Msf::Module::Failure do
+RSpec.describe Msf::Module::Failure do
   context 'CONSTANTS' do
     context 'None' do
       subject(:none) {

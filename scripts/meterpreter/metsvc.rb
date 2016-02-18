@@ -18,7 +18,7 @@ session = client
 opts = Rex::Parser::Arguments.new(
   "-h"  => [ false,  "This help menu"],
   "-r"  => [ false,  "Uninstall an existing Meterpreter service (files must be deleted manually)"],
-  "-A"  => [ false,  "Automatically start a matching multi/handler to connect to the service"]
+  "-A"  => [ false,  "Automatically start a matching exploit/multi/handler to connect to the service"]
 )
 
 # Exec a command and return the results
@@ -117,7 +117,7 @@ if client.platform =~ /win32|win64/
   end
 
   #
-  # Setup the multi/handler if requested
+  # Setup the exploit/multi/handler if requested
   #
   if(autoconn)
     print_status("Trying to connect to the Meterpreter service at #{client.session_host}:#{rport}...")

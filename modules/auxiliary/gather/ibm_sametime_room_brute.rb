@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Beginning IBM Lotus Notes Sametime Meeting Room Bruteforce")
+    print_status("Beginning IBM Lotus Notes Sametime Meeting Room Bruteforce")
     print_status("Using owner: #{datastore['OWNER']}")
 
     # test for expected response code on non-existant meeting room name
@@ -71,14 +71,14 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     unless res
-      print_error("#{peer} - No response, timeout")
+      print_error("No response, timeout")
       return
     end
 
     if res.code == 404 and res.body =~ /Room does not exist/i
-      vprint_status("#{peer} - Server responding to restapi requests as expected")
+      vprint_status("Server responding to restapi requests as expected")
     else
-      print_error("#{peer} - Unexpected response from server (#{res.code}). Exiting...")
+      print_error("Unexpected response from server (#{res.code}). Exiting...")
       return
     end
 
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
     ::File.open(datastore['DICT']).each { |line| @test_queue.push(line.chomp) }
     vprint_status("Loaded #{@test_queue.length} values from dictionary")
 
-    print_status("#{peer} - Beginning dictionary bruteforce using (#{datastore['Threads']} Threads)")
+    print_status("Beginning dictionary bruteforce using (#{datastore['Threads']} Threads)")
 
     while(not @test_queue.empty?)
       t = []
@@ -108,9 +108,9 @@ class Metasploit3 < Msf::Auxiliary
             Thread.current.kill if not test_current
             res = make_request(test_current)
             if res.nil?
-              print_error("#{peer} - Timeout from server when testing room \"#{test_current}\"")
+              print_error("Timeout from server when testing room \"#{test_current}\"")
             elsif res and res.code == 404
-              vprint_status("#{peer} - Room \"#{test_current}\" was not valid for owner #{datastore['OWNER']}")
+              vprint_status("Room \"#{test_current}\" was not valid for owner #{datastore['OWNER']}")
             else
               # check response for user data
               check_response(res, test_current)

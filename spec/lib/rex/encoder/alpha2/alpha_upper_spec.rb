@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/encoder/alpha2/alpha_upper'
 
-describe Rex::Encoder::Alpha2::AlphaUpper do
+RSpec.describe Rex::Encoder::Alpha2::AlphaUpper do
 
   it_behaves_like 'Rex::Encoder::Alpha2::Generic'
 
@@ -53,7 +53,181 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 25 }
 
       it "raises an error" do
-        expect { decoder_prefix }.to raise_error
+        expect { decoder_prefix }.to raise_error(RuntimeError)
+      end
+    end
+
+    context "when modified_registers is passed" do
+      context "when reg is ECX" do
+        context "when offset is 10" do
+          let(:reg) { 'ECX' }
+          let(:offset) { 10 }
+          let(:modified_registers) { [] }
+
+          it "marks ECX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::ECX)
+          end
+
+          it "marks EBX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EBX)
+          end
+
+          it "marks EDX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EDX)
+          end
+        end
+
+        context "when offset is 5" do
+          let(:reg) { 'ECX' }
+          let(:offset) { 5 }
+          let(:modified_registers) { [] }
+
+          it "marks ECX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::ECX)
+          end
+
+          it "marks EBX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EBX)
+          end
+
+          it "marks EDX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EDX)
+          end
+        end
+
+        context "when offset is 0" do
+          let(:reg) { 'ECX' }
+          let(:offset) { 0 }
+          let(:modified_registers) { [] }
+
+          it "marks ECX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::ECX)
+          end
+
+          it "doesn't mark EBX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to_not include(Rex::Arch::X86::EBX)
+          end
+
+          it "marks EDX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EDX)
+          end
+        end
+
+        context "when offset is 15" do
+          let(:reg) { 'ECX' }
+          let(:offset) { 15 }
+          let(:modified_registers) { [] }
+
+          it "marks ECX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::ECX)
+          end
+
+          it "marks EBX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EBX)
+          end
+
+          it "marks EDX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EDX)
+          end
+        end
+      end
+
+      context "when reg is EDX" do
+        context "when offset is 10" do
+          let(:reg) { 'EDX' }
+          let(:offset) { 10 }
+          let(:modified_registers) { [] }
+
+          it "marks ECX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::ECX)
+          end
+
+          it "marks EBX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EBX)
+          end
+
+          it "marks EDX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EDX)
+          end
+        end
+
+        context "when offset is 5" do
+          let(:reg) { 'EDX' }
+          let(:offset) { 5 }
+          let(:modified_registers) { [] }
+
+          it "marks ECX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::ECX)
+          end
+
+          it "marks EBX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EBX)
+          end
+
+          it "marks EDX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EDX)
+          end
+        end
+
+        context "when offset is 0" do
+          let(:reg) { 'EDX' }
+          let(:offset) { 0 }
+          let(:modified_registers) { [] }
+
+          it "marks ECX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::ECX)
+          end
+
+          it "doesn't mark EBX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to_not include(Rex::Arch::X86::EBX)
+          end
+
+          it "marks EDX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EDX)
+          end
+        end
+
+        context "when offset is 15" do
+          let(:reg) { 'EDX' }
+          let(:offset) { 15 }
+          let(:modified_registers) { [] }
+
+          it "marks ECX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::ECX)
+          end
+
+          it "marks EBX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EBX)
+          end
+
+          it "marks EDX as modified" do
+            described_class.gen_decoder_prefix(reg, offset, modified_registers)
+            expect(modified_registers).to include(Rex::Arch::X86::EDX)
+          end
+        end
       end
     end
   end
@@ -86,7 +260,35 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 25 }
 
       it "raises an error" do
-        expect { decoder }.to raise_error
+        expect { decoder }.to raise_error(RuntimeError)
+      end
+    end
+
+    context "when modified_registers passed" do
+      let(:modified_registers) { [] }
+      it "marks EDX as modified" do
+        described_class.gen_decoder(reg, offset, modified_registers)
+        expect(modified_registers).to include(Rex::Arch::X86::EDX)
+      end
+
+      it "marks ECX as modified" do
+        described_class.gen_decoder(reg, offset, modified_registers)
+        expect(modified_registers).to include(Rex::Arch::X86::ECX)
+      end
+
+      it "marks ESI as modified" do
+        described_class.gen_decoder(reg, offset, modified_registers)
+        expect(modified_registers).to include(Rex::Arch::X86::ESI)
+      end
+
+      it "marks EAX as modified" do
+        described_class.gen_decoder(reg, offset, modified_registers)
+        expect(modified_registers).to include(Rex::Arch::X86::EAX)
+      end
+
+      it "marks ESP as modified" do
+        described_class.gen_decoder(reg, offset, modified_registers)
+        expect(modified_registers).to include(Rex::Arch::X86::ESP)
       end
     end
   end

@@ -35,7 +35,7 @@ class OptEnum < OptBase
     if self.enums
       str = self.enums.join(', ')
     end
-    "#{self.desc_string || ''} (accepted: #{str})"
+    "#{self.desc_string || ''} (Accepted: #{str})"
   end
 
 

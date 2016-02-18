@@ -1,5 +1,5 @@
-shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
-  it { should be_a Msf::Simple::Framework::ModulePaths }
+RSpec.shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
+  it { is_expected.to be_a Msf::Simple::Framework::ModulePaths }
 
   context '#init_module_paths' do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
@@ -20,16 +20,16 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
       {}
     end
 
-    before(:each) do
+    before(:example) do
       # create the framework first so that it's initialization's call
       # to init_module_paths doesn't get captured.
       framework
 
-      Msf::Config.stub(:user_module_directory => user_module_directory)
+      allow(Msf::Config).to receive(:user_module_directory).and_return(user_module_directory)
     end
 
     it 'should refresh module cache from database' do
-      framework.modules.should_receive(:refresh_cache_from_database)
+      expect(framework.modules).to receive(:refresh_cache_from_database)
 
       init_module_paths
     end
@@ -41,7 +41,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
     end
 
     context 'Msf::Config' do
-      before(:each) do
+      before(:example) do
         allow(Rails.application.paths).to receive(:[]).with('modules').and_return(nil)
       end
 
@@ -52,7 +52,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
           end
 
           it 'should add Msf::Config.user_module_directory to module paths' do
-            framework.modules.should_receive(:add_module_path).with(
+            expect(framework.modules).to receive(:add_module_path).with(
                 user_module_directory,
                 options
             )
@@ -64,7 +64,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
     end
 
     context 'datastore' do
-      before(:each) do
+      before(:example) do
         allow(Rails.application.paths).to receive(:[]).with('modules').and_return(nil)
       end
 
@@ -79,14 +79,14 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
           module_paths
         end
 
-        before(:each) do
+        before(:example) do
           msf_module_paths = module_paths.join(';')
           framework.datastore['MsfModulePaths'] = msf_module_paths
         end
 
         it 'should add each module path' do
           module_paths.each do |module_path|
-            framework.modules.should_receive(:add_module_path).with(module_path, options)
+            expect(framework.modules).to receive(:add_module_path).with(module_path, options)
           end
 
           init_module_paths

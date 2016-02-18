@@ -57,7 +57,7 @@ require 'rex/proto/smb/exceptions'
     case self.handle.protocol
       when 'ncacn_ip_tcp'
         if self.socket.type? != 'tcp'
-          raise "ack, #{self.handle.protocol} requires socket type tcp, not #{self.socket.type?}!"
+          raise ::Rex::Proto::DCERPC::Exceptions::InvalidSocket, "ack, #{self.handle.protocol} requires socket type tcp, not #{self.socket.type?}!"
         end
       when 'ncacn_np'
         if self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe
@@ -65,11 +65,11 @@ require 'rex/proto/smb/exceptions'
         elsif self.socket.type? == 'tcp'
           self.smb_connect()
         else
-          raise "ack, #{self.handle.protocol} requires socket type tcp, not #{self.socket.type?}!"
+          raise ::Rex::Proto::DCERPC::Exceptions::InvalidSocket, "ack, #{self.handle.protocol} requires socket type tcp, not #{self.socket.type?}!"
         end
         # No support ncacn_ip_udp (is it needed now that its ripped from Vista?)
       else
-        raise "Unsupported protocol : #{self.handle.protocol}"
+        raise ::Rex::Proto::DCERPC::Exceptions::InvalidSocket, "Unsupported protocol : #{self.handle.protocol}"
     end
   end
 
@@ -255,7 +255,7 @@ require 'rex/proto/smb/exceptions'
       bind, context = Rex::Proto::DCERPC::Packet.make_bind(*self.handle.uuid)
     end
 
-    raise 'make_bind failed' if !bind
+    raise ::Rex::Proto::DCERPC::Exceptions::BindError, 'make_bind failed' if !bind
 
     self.write(bind)
     raw_response = self.read()
@@ -264,11 +264,11 @@ require 'rex/proto/smb/exceptions'
     self.last_response = response
     if response.type == 12 or response.type == 15
       if self.last_response.ack_result[context] == 2
-        raise "Could not bind to #{self.handle}"
+        raise ::Rex::Proto::DCERPC::Exceptions::BindError, "Could not bind to #{self.handle}"
       end
       self.context = context
     else
-      raise "Could not bind to #{self.handle}"
+      raise ::Rex::Proto::DCERPC::Exceptions::BindError, "Could not bind to #{self.handle}"
     end
   end
 

@@ -91,17 +91,10 @@ module Msf::DBManager::Session
 
     wspace = s.workspace
 
-    if session
-      if session.exploit.user_data_is_match?
-        MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
-          match: session.exploit.user_data[:match],
-          run: session.exploit.user_data[:run],
-          state: 'succeeded',
-        )
-      elsif session.via_exploit
-        # This is a live session, we know the host is vulnerable to something.
-        infer_vuln_from_session(session, wspace)
-      end
+
+    if session and session.via_exploit
+      # This is a live session, we know the host is vulnerable to something.
+      infer_vuln_from_session(session, wspace)
     end
 
     s
@@ -157,6 +150,7 @@ module Msf::DBManager::Session
         username: session.username,
         vuln: vuln,
         workspace: wspace,
+        run_id: session.exploit.user_data.try(:[], :run_id)
       }
 
       framework.db.report_exploit_success(attempt_info)
@@ -191,7 +185,7 @@ module Msf::DBManager::Session
         via_payload: session.via_payload,
       }
 
-      # In the case of multi handler we cannot yet determine the true
+      # In the case of exploit/multi/handler we cannot yet determine the true
       # exploit responsible. But we can at least show the parent versus
       # just the generic handler:
       if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']

@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def check_rdp
     # code to check if RDP is open or not
-    vprint_status("#{peer} Verifying RDP protocol...")
+    vprint_status("Verifying RDP protocol...")
 
     # send connection
     sock.put(connection_request)
@@ -124,14 +124,11 @@ class Metasploit3 < Msf::Auxiliary
     "\x02\xf0\x80\x38"
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
 
   def check_rdp_vuln
     # check if rdp is open
     unless check_rdp
-      vprint_status "#{peer} Could not connect to RDP."
+      vprint_status "Could not connect to RDP."
       return Exploit::CheckCode::Unknown
     end
 

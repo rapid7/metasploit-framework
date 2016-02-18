@@ -53,7 +53,7 @@ module Rex
           def encode
             unless class_annotation.class == Rex::Java::Serialization::Model::Annotation ||
                     super_class.class == Rex::Java::Serialization::Model::ClassDesc
-              raise Rex::Java::Serialization::EncodeError, 'Filed to serialize ProxyClassDesc'
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize ProxyClassDesc'
             end
             encoded = ''
             encoded << [interfaces.length].pack('N')

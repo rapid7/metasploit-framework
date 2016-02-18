@@ -2,6 +2,7 @@
 
 require 'rex/post/meterpreter/extensions/kiwi/tlv'
 require 'rexml/document'
+require 'set'
 
 module Rex
 module Post
@@ -283,9 +284,12 @@ class Kiwi < Extension
     request.add_tlv(TLV_TYPE_KIWI_PWD_ID, pwd_id)
     response = client.send_request(request)
 
+    # keep track of unique entries
+    uniques = Set.new
+
     results = []
     response.each(TLV_TYPE_KIWI_PWD_RESULT) do |r|
-      results << {
+      result = {
         :username => r.get_tlv_value(TLV_TYPE_KIWI_PWD_USERNAME),
         :domain   => r.get_tlv_value(TLV_TYPE_KIWI_PWD_DOMAIN),
         :password => r.get_tlv_value(TLV_TYPE_KIWI_PWD_PASSWORD),
@@ -294,6 +298,17 @@ class Kiwi < Extension
         :lm       => r.get_tlv_value(TLV_TYPE_KIWI_PWD_LMHASH),
         :ntlm     => r.get_tlv_value(TLV_TYPE_KIWI_PWD_NTLMHASH)
       }
+
+      # generate a "unique" set identifier based on the domain/user/pass. We
+      # don't use the whole object because the auth hi/low might be different
+      # but everything else might be the same. Join with non-printable, as this
+      # can't appear in passwords anyway.
+      set_id = [result[:domain], result[:username], result[:password]].join("\x01")
+
+      # only add to the result list if we don't already have it
+      if uniques.add?(set_id)
+        results << result
+      end
     end
 
     return results

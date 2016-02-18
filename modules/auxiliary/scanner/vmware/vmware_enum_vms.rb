@@ -22,7 +22,8 @@ class Metasploit3 < Msf::Auxiliary
         running the web interface. This would include ESX/ESXi and VMWare Server.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -32,8 +33,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
         OptBool.new('SCREENSHOT', [true, "Wheter or not to try to take a screenshot", true])
       ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
   end
 
   def run_host(ip)

@@ -13,15 +13,16 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'           => 'Embedthis GoAhead Embedded Web Server Directory Traversal',
+      'Name'           => 'Embedthis GoAhead Embedded Web Server Directory Traversal',
       'Description'    => %q{
-        This module exploits a directory traversal vulnerability in the Embedthis GoAhead Web Server v3.4.1,
-        allowing to read arbitrary files with the web server privileges.
+        This module exploits a directory traversal vulnerability in the Embedthis
+        GoAhead Web Server v3.4.1, allowing an attacker to read arbitrary files
+        with the web server privileges.
       },
       'References'     =>
         [
           ['CVE', '2014-9707'],
-          ['URL', 'http://packetstormsecurity.com/files/131156/GoAhead-3.4.1-Heap-Overflow-Traversal.html']
+          ['PACKETSTORM', '131156']
         ],
       'Author'         =>
         [
@@ -68,9 +69,9 @@ class Metasploit3 < Msf::Auxiliary
         fname
       )
 
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      print_error("#{peer} - Nothing was downloaded")
+      print_error("Nothing was downloaded")
     end
   end
 end

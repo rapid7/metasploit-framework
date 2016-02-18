@@ -111,11 +111,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     peer = "#{ip}:#{rport}"
-    vprint_status("#{peer} - Connecting to memcached server...")
+    vprint_status("Connecting to memcached server...")
     begin
       connect
       if (version = determine_version)
-        vprint_good("#{peer} - Connected to memcached version #{version}")
+        vprint_good("Connected to memcached version #{version}")
         unless localhost?(ip)
           report_service(
             host: ip,
@@ -126,11 +126,11 @@ class Metasploit3 < Msf::Auxiliary
           )
         end
       else
-        print_error("#{peer} - unable to determine memcached protocol version")
+        print_error("unable to determine memcached protocol version")
         return
       end
       keys = enumerate_keys
-      print_good("#{peer} - Found #{keys.size} keys")
+      print_good("Found #{keys.size} keys")
       return if keys.size == 0
 
       data = data_for_keys(keys)
@@ -144,10 +144,10 @@ class Metasploit3 < Msf::Auxiliary
       print_line("#{result_table}")
       unless localhost?(ip)
         path = store_loot('memcached.dump', 'text/plain', ip, data, 'memcached.txt', 'Memcached extractor')
-        print_good("#{peer} - memcached loot stored at #{path}")
+        print_good("memcached loot stored at #{path}")
       end
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
-      vprint_error("#{peer} - Could not connect to memcached server!")
+      vprint_error("Could not connect to memcached server!")
     end
   end
 end

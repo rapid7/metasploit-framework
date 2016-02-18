@@ -66,8 +66,15 @@ external/source/exploits/**/Debug
 external/source/exploits/**/Release
 
 # Avoid checking in Meterpreter binaries. These are supplied upstream by
-# the meterpreter_bins gem.
+# the metasploit-payloads gem.
 data/meterpreter/*.dll
+data/meterpreter/*.php
+data/meterpreter/*.py
+data/meterpreter/*.bin
+data/meterpreter/*.jar
+data/meterpreter/*.lso
+data/android
+data/java
 
 # Avoid checking in Meterpreter libs that are built from
 # private source. If you're interested in this functionality,

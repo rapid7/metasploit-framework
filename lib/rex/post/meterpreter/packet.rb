@@ -94,13 +94,15 @@ TLV_TYPE_TRANS_UA            = TLV_META_TYPE_STRING | 432
 TLV_TYPE_TRANS_COMM_TIMEOUT  = TLV_META_TYPE_UINT   | 433
 TLV_TYPE_TRANS_SESSION_EXP   = TLV_META_TYPE_UINT   | 434
 TLV_TYPE_TRANS_CERT_HASH     = TLV_META_TYPE_RAW    | 435
-TLV_TYPE_TRANS_PROXY_INFO    = TLV_META_TYPE_STRING | 436
+TLV_TYPE_TRANS_PROXY_HOST    = TLV_META_TYPE_STRING | 436
 TLV_TYPE_TRANS_PROXY_USER    = TLV_META_TYPE_STRING | 437
 TLV_TYPE_TRANS_PROXY_PASS    = TLV_META_TYPE_STRING | 438
 TLV_TYPE_TRANS_RETRY_TOTAL   = TLV_META_TYPE_UINT   | 439
 TLV_TYPE_TRANS_RETRY_WAIT    = TLV_META_TYPE_UINT   | 440
+TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 441
 
 TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
+TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
 
 TLV_TYPE_CIPHER_NAME         = TLV_META_TYPE_STRING | 500
 TLV_TYPE_CIPHER_PARAMETERS   = TLV_META_TYPE_GROUP  | 501
@@ -199,12 +201,13 @@ class Tlv
       when TLV_TYPE_TRANS_COMM_TIMEOUT; "TRANS-COMM-TIMEOUT"
       when TLV_TYPE_TRANS_SESSION_EXP; "TRANS-SESSION-EXP"
       when TLV_TYPE_TRANS_CERT_HASH; "TRANS-CERT-HASH"
-      when TLV_TYPE_TRANS_PROXY_INFO; "TRANS-PROXY-INFO"
+      when TLV_TYPE_TRANS_PROXY_HOST; "TRANS-PROXY-HOST"
       when TLV_TYPE_TRANS_PROXY_USER; "TRANS-PROXY-USER"
       when TLV_TYPE_TRANS_PROXY_PASS; "TRANS-PROXY-PASS"
       when TLV_TYPE_TRANS_RETRY_TOTAL; "TRANS-RETRY-TOTAL"
       when TLV_TYPE_TRANS_RETRY_WAIT; "TRANS-RETRY-WAIT"
       when TLV_TYPE_MACHINE_ID; "MACHINE-ID"
+      when TLV_TYPE_UUID; "UUID"
 
       #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
       #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
@@ -660,6 +663,44 @@ class Packet < GroupTlv
 
       add_tlv(TLV_TYPE_REQUEST_ID, rid)
     end
+  end
+
+  #
+  # Override the function that creates the raw byte stream for
+  # sending so that it generates an XOR key, uses it to scramble
+  # the serialized TLV content, and then returns the key plus the
+  # scrambled data as the payload.
+  #
+  def to_r
+    raw = super
+    xor_key = rand(254) + 1
+    xor_key |= (rand(254) + 1) << 8
+    xor_key |= (rand(254) + 1) << 16
+    xor_key |= (rand(254) + 1) << 24
+    result = [xor_key].pack('N') + xor_bytes(xor_key, raw)
+    result
+  end
+
+  #
+  # Override the function that reads from a raw byte stream so
+  # that the XORing of data is included in the process prior to
+  # passing it on to the default functionality that can parse
+  # the TLV values.
+  #
+  def from_r(bytes)
+    xor_key = bytes[0,4].unpack('N')[0]
+    super(xor_bytes(xor_key, bytes[4, bytes.length]))
+  end
+
+  #
+  # Xor a set of bytes with a given DWORD xor key.
+  #
+  def xor_bytes(xor_key, bytes)
+    result = ''
+    bytes.bytes.zip([xor_key].pack('V').bytes.cycle).each do |b|
+      result << (b[0].ord ^ b[1].ord).chr
+    end
+    result
   end
 
   ##

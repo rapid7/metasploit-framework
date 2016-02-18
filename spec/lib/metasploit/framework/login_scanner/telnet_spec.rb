@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/telnet'
 
-describe Metasploit::Framework::LoginScanner::Telnet do
+RSpec.describe Metasploit::Framework::LoginScanner::Telnet do
 
   subject(:login_scanner) { described_class.new }
 
@@ -9,8 +9,8 @@ describe Metasploit::Framework::LoginScanner::Telnet do
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
   it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
-  it { should respond_to :banner_timeout }
-  it { should respond_to :telnet_timeout }
+  it { is_expected.to respond_to :banner_timeout }
+  it { is_expected.to respond_to :telnet_timeout }
 
   context 'validations' do
     context 'banner_timeout' do

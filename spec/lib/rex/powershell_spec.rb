@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/powershell'
 
-describe Rex::Powershell do
+RSpec.describe Rex::Powershell do
 
   let(:example_script) do
     """function DumpHashes
@@ -24,22 +24,22 @@ DumpHashes"""
   describe "::read_script" do
     it 'should create a script from a string input' do
       script = described_class.read_script(example_script)
-      script.should be_a_kind_of Rex::Powershell::Script
+      expect(script).to be_a_kind_of Rex::Powershell::Script
     end
   end
 
   describe "::process_subs" do
     it 'should create an array of substitutions to process' do
       subs = described_class.process_subs("BitConverter,ParpConverter;$bootkey,$parpkey;")
-      subs.should eq [['BitConverter','ParpConverter'],['$bootkey','$parpkey']]
+      expect(subs).to eq [['BitConverter','ParpConverter'],['$bootkey','$parpkey']]
     end
   end
 
   describe "::make_subs" do
     it 'should substitute values in script' do
       script = described_class.make_subs(example_script,[['BitConverter','ParpConverter']])
-      script.include?('BitConverter').should be_falsey
-      script.include?('ParpConverter').should be_truthy
+      expect(script.include?('BitConverter')).to be_falsey
+      expect(script.include?('ParpConverter')).to be_truthy
     end
   end
 

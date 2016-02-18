@@ -35,7 +35,7 @@ module Auxiliary::Login
     #
     # Some of these regexes borrowed from NeXpose, others added from datasets
     #
-    @login_regex = /(?:log[io]n( name|)|user(name|id|))\s*\:/i
+    @login_regex = /(?:log[io]n( name|)|user( ?name|id|))\s*\:/i
     @password_regex = /(?:password|passwd)\s*\:/i
     @false_failure_regex = /(?:(^\s*last)\ login *\:|allows only\ .*\ Telnet\ Client\ License)/i
     @failure_regex = /(?:
