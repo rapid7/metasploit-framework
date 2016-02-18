@@ -195,7 +195,7 @@ module Msf
         # @param mod [Msf::Module] Metasploit module.
         # @return [String]
         def normalize_demo_output(mod)
-          if mod.kind_of?(Msf::Exploit::Remote::BrowserExploitServer)
+          if mod.kind_of?(Msf::Exploit::Remote::BrowserExploitServer) && mod.shortname != 'browser_autopwn2'
             load_template(mod, BES_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Exploit::Remote::HttpServer)
             load_template(mod, HTTPSERVER_DEMO_TEMPLATE)
