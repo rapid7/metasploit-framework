@@ -379,7 +379,6 @@ protected
           print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{request_summary}")
         end
         resp = nil
-        sleep(1)
         self.pending_connections -= 1
     end
 
