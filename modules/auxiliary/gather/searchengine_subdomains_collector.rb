@@ -64,6 +64,15 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 
+  def domain2ip(domain)
+    begin
+      ips = Rex::Socket.getaddresses(domain)
+    rescue SocketError
+      ips = []
+    end
+    ips
+  end
+
   def bing_search(dork)
     print_status("Searching Bing for subdomains from #{dork}")
     results = []
@@ -136,7 +145,7 @@ class Metasploit4 < Msf::Auxiliary
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless subdomain.include?(domain)
-      ips = Rex::Socket.getaddresses(subdomain)
+      ips = domain2ip(subdomain)
       ips.each do |ip|
         report_host(host: ip, name: subdomain)
         print_good("#{dork} subdomain: #{subdomain} - #{ip}")
@@ -188,7 +197,7 @@ class Metasploit4 < Msf::Auxiliary
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless subdomain.include?(domain)
-      ips = Rex::Socket.getaddresses(subdomain)
+      ips = domain2ip(subdomain)
       ips.each do |ip|
         report_host(host: ip, name: subdomain)
         print_good("#{dork} subdomain: #{subdomain} - #{ip}")
