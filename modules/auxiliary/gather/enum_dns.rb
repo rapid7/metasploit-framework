@@ -189,7 +189,6 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::PTR
       records << "#{r.ptr}"
-      report_host(host: ip, name: "#{r.ptr}", info: 'ip reverse')
       print_good("#{ip}: PTR: #{r.ptr} ")
     end
     return if records.blank?
@@ -204,7 +203,6 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::A
       records << "#{r.address}"
-      report_host(host: r.address, name: domain, info: 'A')
       print_good("#{domain} A: #{r.address} ") if datastore['ENUM_BRT']
     end
     return if records.blank?
@@ -235,7 +233,6 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::NS
       records << "#{r.nsdname}"
-      report_host(host: r.nsdname, name: domain, info: 'NS')
       print_good("#{domain} NS: #{r.nsdname}")
     end
     return if records.blank?
@@ -253,7 +250,6 @@ class Metasploit3 < Msf::Auxiliary
       resp.answer.each do |r|
         next unless r.class == Net::DNS::RR::MX
         records << "#{r.exchange}"
-        report_host(host: r.exchange, name: domain, info: 'MX')
         print_good("#{domain} MX: #{r.exchange}")
       end
     rescue SocketError => e
@@ -273,7 +269,6 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::SOA
       records << r.mname
-      report_host(host: r.mname, info: 'SOA')
       print_good("#{domain} SOA: #{r.mname}")
     end
     return if records.blank?
