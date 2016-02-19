@@ -235,11 +235,16 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::NS
       records << "#{r.nsdname}"
-      report_host(host: r.nsdname, name: domain, info: 'NS')
       print_good("#{domain} NS: #{r.nsdname}")
     end
     return if records.blank?
-
+    report_note(
+      host: domain,
+      sname: 'dns',
+      type: 'get_ns',
+      data: records,
+      update: :unique
+    )
     records
   end
 
