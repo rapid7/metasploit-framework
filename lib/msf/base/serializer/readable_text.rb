@@ -471,7 +471,7 @@ class ReadableText
   def self.dump_references(mod, indent = '')
     output = ''
 
-    if (mod.respond_to? :references and mod.references and mod.references.length > 0)
+    if (mod.respond_to? :references && mod.references && mod.references.length > 0)
       output << "References:\n"
       mod.references.each { |ref|
         output << indent + ref.to_s + "\n"
@@ -560,7 +560,7 @@ class ReadableText
           row << '?'
         end
 
-        if session.exploit_datastore.has_key?('LURI') and !session.exploit_datastore['LURI'].empty?
+        if session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
           row << " (#{session.exploit_datastore['LURI']})"
         else
           row << '?'
