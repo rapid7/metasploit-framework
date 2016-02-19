@@ -54,7 +54,7 @@ module MetasploitModule
     c << "URL=http://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
     c << "#{luri}"
-    c << generate_uri_checksum(:init_java, uri_req_len)
+    c << generate_uri_uuid_mode(:init_java, uri_req_len)
     c << "\n"
 
     c
