@@ -21,11 +21,13 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
         TODO
       },
-      'Author'      => ['TODO'],
-      # 'References'     =>
-      #   [
-      #     [ 'CVE', '1999-0502'] # Weak password
-      #   ],
+      'Author'      => [
+          'Samuel Huckins',
+          'Brent Cook',
+          'Peer Aagaard',
+          'Greg Mikeska',
+          'Dev Mohanty'
+      ],
       'License'     => MSF_LICENSE
     )
 
