@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Encoder::Xor
       'Description'      => %q{
         Mips Web server exploit friendly xor encoder
       },
-      'Author'           => 'Julien Tinnes <julien at cr0.org>',
+      'Author'           => 'Julien Tinnes <julien[at]cr0.org>',
       'Arch'             => ARCH_MIPSLE,
       'License'          => MSF_LICENSE,
       'Decoder'          =>
@@ -35,8 +35,8 @@ class Metasploit3 < Msf::Encoder::Xor
 
     # add one xor operation for the key (see comment below)
     number_of_passes=state.buf.length/4+1
-    raise InvalidPayloadSizeException.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 10240
-    raise InvalidPayloadSizeException.new("The payload is not padded to 4-bytes (#{state.buf.length} bytes)") if state.buf.length%4 != 0
+    raise EncodingError.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 10240
+    raise EncodingError.new("The payload is not padded to 4-bytes (#{state.buf.length} bytes)") if state.buf.length%4 != 0
 
     # 16-bits not (again, see below)
     reg_14 = (number_of_passes+1)^0xFFFF

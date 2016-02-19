@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -24,13 +24,13 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     ))
 
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", "ironport"])
       ], self.class)
@@ -77,15 +77,15 @@ class Metasploit3 < Msf::Auxiliary
         'method'    => 'GET'
       })
 
-      if (res and res.headers['Set-Cookie'])
+      if res && res.get_cookies
 
-        cookie = res.headers['Set-Cookie'].split('; ')[0]
+        cookie = res.get_cookies
 
         res = send_request_cgi(
         {
           'uri'       => "/help/wwhelp/wwhimpl/common/html/default.htm",
           'method'    => 'GET',
-          'cookie'	   => '#{cookie}'
+          'cookie'	   => cookie
         })
 
         if (res and res.code == 200 and res.body.include?('Cisco IronPort AsyncOS'))
@@ -114,6 +114,33 @@ class Metasploit3 < Msf::Auxiliary
       end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'Cisco IronPort Appliance',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   #
   # Brute-force the login page
   #
@@ -135,20 +162,10 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
 
-      if (res and res.headers['Set-Cookie'].include?('authenticated='))
+      if res and res.get_cookies.include?('authenticated=')
         print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
-        report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'Cisco IronPort Appliance',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'
-        }
-
-        report_auth_info(report_hash)
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.get_cookies.inspect)
         return :next_user
 
       else

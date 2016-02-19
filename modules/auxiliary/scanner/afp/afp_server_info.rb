@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'URL', 'https://developer.apple.com/library/mac/#documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ]
+          [ 'URL', 'https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ]
         ],
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
       'License'      => MSF_LICENSE

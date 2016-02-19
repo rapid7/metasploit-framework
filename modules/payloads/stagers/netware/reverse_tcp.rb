@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,6 +10,8 @@ require 'msf/core/handler/reverse_tcp'
 
 
 module Metasploit3
+
+  CachedSize = 281
 
   include Msf::Payload::Stager
   include Msf::Payload::Netware

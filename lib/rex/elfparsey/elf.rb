@@ -34,7 +34,7 @@ class Elf < ElfBase
         isource.read(offset, PROGRAM_HEADER_SIZE), ei_data
       )
 
-      if program_header[-1].p_type == PT_LOAD && base_addr == 0
+      if program_header[-1].p_type == PT_LOAD && program_header[-1].p_flags & PF_EXEC > 0
         base_addr = program_header[-1].p_vaddr
       end
 

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core/modules/error'
 
 # Error raised by {Msf::Modules::Namespace#metasploit_class!} if it cannot the namespace_module does not have a constant

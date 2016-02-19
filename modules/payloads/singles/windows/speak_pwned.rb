@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -39,6 +39,8 @@ require 'msf/core/payload/windows/exec'
 
 
 module Metasploit3
+
+  CachedSize = 247
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

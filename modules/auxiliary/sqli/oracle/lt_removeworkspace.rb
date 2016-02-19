@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -22,9 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2008-3984' ],
-          [ 'OSVDB', '49326'],
-          [ 'URL', 'http://www.appsecinc.com/resources/alerts/oracle/2008-10.shtml' ],
-
+          [ 'OSVDB', '49326']
         ],
       'DisclosureDate' => 'Oct 13 2008'))
 

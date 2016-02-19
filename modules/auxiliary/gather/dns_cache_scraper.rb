@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE,
       'References' => [
-        ['URL', 'http://304geeks.blogspot.com/2013/01/dns-scraping-for-corporate-av-detection.html'],
-        ['URL', 'http://www.rootsecure.net/content/downloads/pdf/dns_cache_snooping.pdf']
+        ['URL', 'http://304geeks.blogspot.com/2013/01/dns-scraping-for-corporate-av-detection.html']
       ]))
 
     register_options([

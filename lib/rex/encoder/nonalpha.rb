@@ -7,7 +7,7 @@ module Encoder
 
 class NonAlpha
 
-  def NonAlpha.gen_decoder()
+  def NonAlpha.gen_decoder
     decoder =
       "\x66\xB9\xFF\xFF" +
       "\xEB\x19"  +               # Jmp to table
@@ -28,13 +28,13 @@ class NonAlpha
   end
 
   def NonAlpha.encode_byte(block, table, tablelen)
-    if (tablelen > 255) or (block == 0x7B)
+    if tablelen > 255 || block == 0x7B
       raise RuntimeError, "BadChar"
     end
 
-    if (block >= 0x41 and block <= 0x5A) or (block >= 0x61 and block <= 0x7A)
+    if (block >= 0x41 && block <= 0x5A) || (block >= 0x61 && block <= 0x7A)
       # gen offset, return magic
-      offset = 0x7b - block;
+      offset = 0x7b - block
       table += offset.chr
       tablelen = tablelen + 1
       block = 0x7B

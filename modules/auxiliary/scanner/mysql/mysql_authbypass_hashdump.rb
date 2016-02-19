@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'        => [
           'theLightCosine', # Original hashdump module
-          'jcran'                                              # Authentication bypass bruteforce implementation
+          'jcran' # Authentication bypass bruteforce implementation
         ],
       'References'     => [
           ['CVE', '2012-2122'],

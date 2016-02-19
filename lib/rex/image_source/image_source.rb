@@ -29,8 +29,12 @@ class ImageSource
     # FIXME, make me better
     string = ''
     loop do
-      char = read(offset, 1)
-      break if char == "\x00"
+      begin
+        char = read(offset, 1)
+      rescue RangeError
+        break
+      end
+      break if char.nil? || char == "\x00"
       offset += 1
       string << char
     end

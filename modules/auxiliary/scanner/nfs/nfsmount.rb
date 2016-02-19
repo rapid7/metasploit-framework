@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         This module scans NFS mounts and their permissions.
       },
       'Author'	       => ['<tebo[at]attackresearch.com>'],
-      'References'	 =>
+      'References'     =>
         [
           ['CVE', '1999-0170'],
           ['URL',	'http://www.ietf.org/rfc/rfc1094.txt']
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       resp = sunrpc_call(procedure, "")
 
       # XXX: Assume that transport is udp and port is 2049
-      #      Technically we are talking to mountd not nfsd
+      # Technically we are talking to mountd not nfsd
 
       report_service(
         :host  => ip,
@@ -76,11 +76,12 @@ class Metasploit3 < Msf::Auxiliary
           :update => :unique_data
         )
       elsif(exports == 0x00)
-        print_status("#{ip} - No exported directories")
+        vprint_status("#{ip} - No exported directories")
       end
 
       sunrpc_destroy
-    rescue ::Rex::Proto::SunRPC::RPCTimeout
+    rescue ::Rex::Proto::SunRPC::RPCTimeout, ::Rex::Proto::SunRPC::RPCError => e
+      vprint_error(e.to_s)
     end
   end
 

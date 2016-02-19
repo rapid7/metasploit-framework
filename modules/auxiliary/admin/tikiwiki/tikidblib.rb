@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -64,10 +64,10 @@ class Metasploit3 < Msf::Auxiliary
       n = 0
       c = 0
 
-      #puts "body is #{res.body.length} bytes"
+      # puts "body is #{res.body.length} bytes"
       infos = res.body.split(/\r?\n/)
       infos.each do |row|
-        #puts row.inspect
+        # puts row.inspect
         if (c < 6)
           if (row.match(/\["file"\]=>/))
             c+=1

@@ -94,6 +94,9 @@ class Server
     self.pxealtconfigfile = "update0"
     self.pxepathprefix = ""
     self.pxereboottime = 2000
+
+    self.domain_name = hash['DOMAINNAME'] || nil
+    self.url = hash['URL'] if hash.include?('URL')
   end
 
   def report(&block)
@@ -126,7 +129,7 @@ class Server
     allowed_options = [
       :serveOnce, :pxealtconfigfile, :servePXE, :relayip, :leasetime, :dnsserv,
       :pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
-      :give_hostname, :served_hostname, :served_over, :serveOnlyPXE
+      :give_hostname, :served_hostname, :served_over, :serveOnlyPXE, :domain_name, :url
     ]
 
     opts.each_pair { |k,v|
@@ -151,10 +154,11 @@ class Server
   end
 
   attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip, :router, :dnsserv
+  attr_accessor :domain_name
   attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
   attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
   attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
-  attr_accessor :give_hostname, :served_hostname, :served_over, :reporter
+  attr_accessor :give_hostname, :served_hostname, :served_over, :reporter, :url
 
 protected
 
@@ -166,7 +170,7 @@ protected
       wds = []
       eds = [@sock]
 
-      r,w,e = ::IO.select(rds,wds,eds,1)
+      r,_,_ = ::IO.select(rds,wds,eds,1)
 
       if (r != nil and r[0] == self.sock)
         buf,host,port = self.sock.recvfrom(65535)
@@ -198,19 +202,19 @@ protected
     end
 
     # parse out the members
-    hwtype = buf[1,1]
+    _hwtype = buf[1,1]
     hwlen = buf[2,1].unpack("C").first
-    hops = buf[3,1]
-    txid = buf[4..7]
-    elapsed = buf[8..9]
-    flags = buf[10..11]
+    _hops = buf[3,1]
+    _txid = buf[4..7]
+    _elapsed = buf[8..9]
+    _flags = buf[10..11]
     clientip = buf[12..15]
-    givenip = buf[16..19]
-    nextip = buf[20..23]
-    relayip = buf[24..27]
-    clienthwaddr = buf[28..(27+hwlen)]
+    _givenip = buf[16..19]
+    _nextip = buf[20..23]
+    _relayip = buf[24..27]
+    _clienthwaddr = buf[28..(27+hwlen)]
     servhostname = buf[44..107]
-    filename = buf[108..235]
+    _filename = buf[108..235]
     magic = buf[236..239]
 
     if (magic != DHCPMagic)
@@ -293,6 +297,8 @@ protected
     pkt << dhcpoption(OpSubnetMask, self.netmaskn)
     pkt << dhcpoption(OpRouter, self.router)
     pkt << dhcpoption(OpDns, self.dnsserv)
+    pkt << dhcpoption(OpDomainName, self.domain_name)
+
     if self.servePXE  # PXE options
       pkt << dhcpoption(OpPXEMagic, PXEMagic)
       # We already got this one, serve localboot file
@@ -317,6 +323,7 @@ protected
         pkt << dhcpoption(OpHostname, send_hostname)
       end
     end
+    pkt << dhcpoption(OpURL, self.url) if self.url
     pkt << dhcpoption(OpEnd)
 
     pkt << ("\x00" * 32) #padding

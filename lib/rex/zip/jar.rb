@@ -15,6 +15,17 @@ module Zip
 #
 class Jar < Archive
   attr_accessor :manifest
+  # @!attribute [rw] substitutions
+  #   The substitutions to apply when randomizing. Randomization is designed to
+  #   be used in packages and/or classes names.
+  #
+  #   @return [Hash]
+  attr_accessor :substitutions
+
+  def initialize
+    @substitutions = {}
+    super
+  end
 
   #
   # Create a MANIFEST.MF file based on the current Archive#entries.
@@ -35,11 +46,14 @@ class Jar < Archive
   # The SHA1-Digest lines are optional unless the jar is signed (see #sign).
   #
   def build_manifest(opts={})
-    main_class = opts[:main_class] || nil
+    main_class = (opts[:main_class] ? randomize(opts[:main_class]) : nil)
+    app_name = (opts[:app_name] ? randomize(opts[:main_class]) : nil)
     existing_manifest = nil
 
     @manifest =  "Manifest-Version: 1.0\r\n"
     @manifest << "Main-Class: #{main_class}\r\n" if main_class
+    @manifest << "Application-Name: #{app_name}\r\n" if app_name
+    @manifest << "Permissions: all-permissions\r\n"
     @manifest << "\r\n"
     @entries.each { |e|
       next if e.name =~ %r|/$|
@@ -219,6 +233,47 @@ class Jar < Archive
     add_file("META-INF/SIGNFILE.#{sigalg}", signature.to_der)
 
     return true
+  end
+
+  # Adds a file to the JAR, randomizing the file name
+  # and the contents.
+  #
+  # @see Rex::Zip::Archive#add_file
+  def add_file(fname, fdata=nil, xtra=nil, comment=nil)
+    super(randomize(fname), randomize(fdata), xtra, comment)
+  end
+
+  # Adds a substitution to have into account when randomizing. Substitutions
+  # must be added immediately after {#initialize}.
+  #
+  # @param str [String] String to substitute. It's designed to randomize
+  #   class and/or package names.
+  # @param bad [String] String containing bad characters to avoid when
+  #   applying substitutions.
+  # @return [String] The substitution which will be used when randomizing.
+  def add_sub(str, bad = '')
+    if @substitutions.key?(str)
+      return @substitutions[str]
+    end
+
+    @substitutions[str] = Rex::Text.rand_text_alpha(str.length, bad)
+  end
+
+  # Randomizes an input by applying the `substitutions` available.
+  #
+  # @param str [String] String to randomize.
+  # @return [String] The input `str` with all the possible `substitutions`
+  #   applied.
+  def randomize(str)
+    return str if str.nil?
+
+    random = str
+
+    @substitutions.each do |orig, subs|
+      random = str.gsub(orig, subs)
+    end
+
+    random
   end
 
 end

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,6 +10,8 @@ require 'msf/base/sessions/command_shell'
 
 
 module Metasploit3
+
+  CachedSize = 0
 
   include Msf::Payload::Single
 

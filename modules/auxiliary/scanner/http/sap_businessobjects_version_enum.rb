@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
       if res and res.code == 200
         case res.body
         when nil
-          # Nothing
+        # Nothing
         when /<Version xmlns=".*">(.*)<\/Version><\/getVersionResponse>/
           version = "#{$1}"
           success = true

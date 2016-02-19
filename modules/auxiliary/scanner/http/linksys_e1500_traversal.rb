@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    #without res.body.length we get lots of false positives
+    # without res.body.length we get lots of false positives
     if (res and res.code == 200 and res.body.length > 0)
       print_good("#{rhost}:#{rport} - Request may have succeeded on file #{file}")
       report_web_vuln({
@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
 
-    #test login
+    # test login
     begin
       res = send_request_cgi({
         'uri' => '/',

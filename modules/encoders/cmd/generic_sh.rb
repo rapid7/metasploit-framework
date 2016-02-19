@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Encoder
 
   # Has some issues, but overall it's pretty good
-  Rank = GoodRanking
+  Rank = ManualRanking
 
   def initialize
     super(
@@ -20,7 +20,8 @@ class Metasploit3 < Msf::Encoder
       tricks to avoid commonly restricted characters.
       },
       'Author'           => 'hdm',
-      'Arch'             => ARCH_CMD)
+      'Arch'             => ARCH_CMD,
+      'Platform'         => 'unix')
   end
 
 
@@ -67,7 +68,7 @@ class Metasploit3 < Msf::Encoder
     state.badchars.unpack('C*') { |c| qot.delete(c.chr) }
 
     # Throw an error if we ran out of quotes
-    raise RuntimeError if qot.length == 0
+    raise EncodingError if qot.length == 0
 
     sep = qot[0].chr
 
@@ -82,7 +83,7 @@ class Metasploit3 < Msf::Encoder
       if (state.badchars.match(/\(|\)/))
 
         # No paranthesis...
-        raise RuntimeError
+        raise EncodingError
       end
 
       cmd << "system\\(pack\\(qq#{sep}H\\*#{sep},qq#{sep}#{hex}#{sep}\\)\\)"
@@ -91,7 +92,7 @@ class Metasploit3 < Msf::Encoder
       if (state.badchars.match(/\(|\)/))
         if (state.badchars.include?(" "))
           # No spaces allowed, no paranthesis, give up...
-          raise RuntimeError
+          raise EncodingError
         end
 
         cmd << "'system pack qq#{sep}H*#{sep},qq#{sep}#{hex}#{sep}'"
@@ -123,7 +124,7 @@ class Metasploit3 < Msf::Encoder
       if (state.badchars.include?("`"))
         # Last ditch effort, dollar paren
         if (state.badchars.include?("$") or state.badchars.include?("("))
-          raise RuntimeError
+          raise EncodingError
         else
           buf = "$(/bin/echo -ne #{hex})"
         end

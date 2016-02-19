@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,6 +9,8 @@ require 'msf/core/payload/generic'
 
 
 module Metasploit3
+
+  CachedSize = 1
 
   include Msf::Payload::Single
 

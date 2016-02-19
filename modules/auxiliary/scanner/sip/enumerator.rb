@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
     case resp.to_i
     when 401
       print_status("Found user: #{testn} [Auth]")
-      #Add Report
+      # Add Report
       report_note(
         :host	=> rhost,
         :proto => 'udp',

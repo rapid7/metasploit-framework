@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,6 +11,8 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
+  CachedSize = :dynamic
+
   include Msf::Payload::Single
   include Msf::Payload::Php
   include Msf::Sessions::CommandShellOptions
@@ -19,7 +21,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'PHP Command Shell, Bind TCP (via PHP)',
       'Description'   => 'Listen for a connection and spawn a command shell via php',
-      'Author'        => ['egypt', 'diaul <diaul@devilopers.org>',],
+      'Author'        => ['egypt', 'diaul <diaul[at]devilopers.org>',],
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,

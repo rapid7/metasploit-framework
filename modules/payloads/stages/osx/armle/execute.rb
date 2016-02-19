@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -144,8 +144,8 @@ module Metasploit3
       ], self.class)
   end
 
-  def generate_stage
-    data = super
+  def generate_stage(opts={})
+    data = super(opts)
 
     begin
       print_status("Reading executable file #{datastore['PEXEC']}...")

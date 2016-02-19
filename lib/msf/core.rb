@@ -18,6 +18,16 @@ require 'rex'
 require 'rex/ui'
 
 module Msf
+  autoload :Author, 'msf/core/author'
+  autoload :Platform, 'msf/core/platform'
+  autoload :Reference, 'msf/core/reference'
+  autoload :SiteReference, 'msf/core/site_reference'
+  autoload :Target, 'msf/core/target'
+
+  #
+  # Constants
+  #
+
   LogSource = "core"
 end
 
@@ -56,10 +66,6 @@ require 'msf/core/exploit'
 require 'msf/core/nop'
 require 'msf/core/payload'
 require 'msf/core/post'
-
-# Custom HTTP Modules
-require 'msf/http/wordpress'
-require 'msf/http/typo3'
 
 # Drivers
 require 'msf/core/exploit_driver'

@@ -8,11 +8,12 @@ module Zip
 #
 class Entry
 
-  attr_accessor :name, :flags, :info, :xtra, :comment, :attrs
+  attr_accessor :name, :flags, :info, :xtra, :comment, :attrs, :central_dir_name
   attr_reader :data
 
-  def initialize(fname, data, compmeth, timestamp=nil, attrs=nil, xtra=nil, comment=nil)
+  def initialize(fname, data, compmeth, timestamp=nil, attrs=nil, xtra=nil, comment=nil, central_dir_name=nil)
     @name = fname.unpack("C*").pack("C*")
+    @central_dir_name = (central_dir_name ? central_dir_name.unpack("C*").pack("C*") : nil)
     @data = data.unpack("C*").pack("C*")
     @xtra = xtra
     @xtra ||= ''
@@ -71,10 +72,12 @@ class Entry
 
 
   def relative_path
-    if (@name[0,1] == '/')
-      return @name[1,@name.length]
-    end
-    @name
+    get_relative_path(@name)
+  end
+
+  def central_dir_path
+    return nil if @central_dir_name.blank?
+    get_relative_path(@central_dir_name)
   end
 
 
@@ -102,6 +105,15 @@ class Entry
 
   def inspect
     "#<#{self.class} name:#{name}, data:#{@data.length} bytes>"
+  end
+
+  private
+
+  def get_relative_path(path)
+    if (path[0,1] == '/')
+      return path[1, path.length]
+    end
+    path
   end
 
 end

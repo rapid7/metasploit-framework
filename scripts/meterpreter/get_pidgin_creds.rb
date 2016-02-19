@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 require "rexml/document"
@@ -145,7 +152,7 @@ def enum_users(os)
   users = []
 
   path4users = ""
-  sysdrv = @client.fs.file.expand_path("%SystemDrive%")
+  sysdrv = @client.sys.config.getenv('SystemDrive')
 
   if os =~ /Windows 7|Vista|2008/
     path4users = sysdrv + "\\users\\"
@@ -166,7 +173,7 @@ def enum_users(os)
     end
   else
     userinfo = {}
-    uservar = @client.fs.file.expand_path("%USERNAME%")
+    uservar = @client.sys.config.getenv('USERNAME')
     userinfo['username'] = uservar
     userinfo['userappdata'] = path4users + uservar + path2purple
     users << userinfo

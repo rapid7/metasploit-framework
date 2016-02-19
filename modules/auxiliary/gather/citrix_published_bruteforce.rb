@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -22,8 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'OSVDB', '50617' ],
-          [ 'BID', '5817' ],
-          [ 'URL', 'http://sh0dan.org/oldfiles/hackingcitrix.html' ],
+          [ 'BID', '5817' ]
         ]
     ))
 

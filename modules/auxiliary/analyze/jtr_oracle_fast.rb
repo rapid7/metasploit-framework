@@ -1,10 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
+require 'msf/core/auxiliary/jtr'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -34,6 +35,33 @@ class Metasploit3 < Msf::Auxiliary
     @wordlist.close
     crack("oracle")
     crack("oracle11g")
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash,
+      jtr_format: opts[:format]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
 
@@ -70,12 +98,14 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{cracked[:cracked]} hashes were cracked!")
       cracked[:users].each_pair do |k,v|
         print_good("Host: #{v[1]} Port: #{v[2]} User: #{k} Pass: #{v[0]}")
-        report_auth_info(
-          :host  => v[1],
-          :port => v[2],
-          :sname => 'oracle',
-          :user => k,
-          :pass => v[0]
+        report_cred(
+          ip: v[1],
+          port: v[2],
+          service_name: 'oracle',
+          user: k,
+          pass: v[0],
+          format: format,
+          proof: cracked.inspect
         )
       end
     end

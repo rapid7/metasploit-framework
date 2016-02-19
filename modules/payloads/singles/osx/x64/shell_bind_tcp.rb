@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,6 +8,8 @@ require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
 module Metasploit3
+
+  CachedSize = 136
 
   include Msf::Payload::Single
   include Msf::Payload::Osx
@@ -35,7 +37,7 @@ module Metasploit3
 
   # build the shellcode payload dynamically based on the user-provided CMD
   def generate
-    cmd  = (datastore['CMD'] || '') << "\x00"
+    cmd  = (datastore['CMD'] || '') + "\x00"
     port = [datastore['LPORT'].to_i].pack('n')
     call = "\xe8" + [cmd.length].pack('V')
     payload =

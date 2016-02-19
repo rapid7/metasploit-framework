@@ -12,6 +12,19 @@ class Def_netapi32
   def self.create_dll(dll_path = 'netapi32')
     dll = DLL.new(dll_path, ApiConstants.manager)
 
+    dll.add_function('NetApiBufferFree','DWORD',[
+      ["LPVOID","Buffer","in"]
+    ])
+
+    dll.add_function('DsGetDcNameA', 'DWORD',[
+      ["PWCHAR","ComputerName","in"],
+      ["PWCHAR","DomainName","in"],
+      ["PBLOB","DomainGuid","in"],
+      ["PWCHAR","SiteName","in"],
+      ["DWORD","Flags","in"],
+      ["PDWORD","DomainControllerInfo","out"]
+    ])
+
     dll.add_function('NetUserDel', 'DWORD',[
       ["PWCHAR","servername","in"],
       ["PWCHAR","username","in"],
@@ -53,6 +66,29 @@ class Def_netapi32
       ["DWORD","prefmaxlen","in"],
       ["PDWORD","entriesread","out"],
       ["PDWORD","totalentries","out"]
+    ])
+
+    dll.add_function('NetSessionEnum', 'DWORD',[
+        ['PWCHAR','servername','in'],
+        ['PWCHAR','UncClientName','in'],
+        ['PWCHAR','username','in'],
+        ['DWORD','level','in'],
+        ['PDWORD','bufptr','out'],
+        ['DWORD','prefmaxlen','in'],
+        ['PDWORD','entriesread','out'],
+        ['PDWORD','totalentries','out'],
+        ['PDWORD','resume_handle','inout']
+    ])
+
+    dll.add_function('NetApiBufferFree', 'DWORD', [
+        ['LPVOID','buffer','in']
+    ])
+
+    dll.add_function('NetUserChangePassword', 'DWORD', [
+      ["PWCHAR","domainname","in"],
+      ["PWCHAR","username","in"],
+      ["PWCHAR","oldpassword","in"],
+      ["PWCHAR","newpassword","in"]
     ])
 
     return dll

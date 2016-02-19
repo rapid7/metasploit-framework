@@ -1,6 +1,6 @@
 ;      Title:  Windows Reverse Connect Stager (NX, IPv6)
 ;  Platforms:  Windows NT 4.0, Windows 2000, Windows XP, Windows 2003, Windows Vista
-;     Author:  Rapid7 LLC
+;     Author:  Rapid7, Inc
 
 [BITS 32]
 

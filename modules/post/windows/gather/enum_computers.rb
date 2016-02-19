@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Post
   def run
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
     domain = get_domain()
-
     if not domain.empty?
       hostname_list = get_domain_computers()
       list_computers(domain, hostname_list)
@@ -37,39 +36,19 @@ class Metasploit3 < Msf::Post
   end
 
   def gethost(hostname)
-    hostip = nil
-    if client.platform =~ /^x64/
-      size = 64
-      addrinfoinmem = 32
-    else
-      size = 32
-      addrinfoinmem = 24
-    end
-
     ## get IP for host
-    begin
-      vprint_status("Looking up IP for #{hostname}")
-      result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
-      if result['GetLastError'] == 11001
-        return nil
-      end
-      addrinfo = client.railgun.memread( result['ppResult'], size )
-      ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-      sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-      ip = sockaddr[4,4].unpack('N').first
-      hostip = Rex::Socket.addr_itoa(ip)
-    rescue ::Exception => e
-      print_error(e)
-    end
+    vprint_status("Looking up IP for #{hostname}")
+    result = client.net.resolve.resolve_host(hostname)
 
-    return hostip
+    return nil if result[:ip].nil? or result[:ip].blank?
+    return result[:ip]
   end
 
   # List Members of a domain group
   def get_domain_computers()
     computer_list = []
     devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = client.shell_command_token("net view").split(devisor)[1]
+    raw_list = cmd_exec('net view').split(devisor)[1]
     if raw_list =~ /The command completed successfully/
       raw_list.sub!(/The command completed successfully\./,'')
       raw_list.gsub!(/\\\\/,'')

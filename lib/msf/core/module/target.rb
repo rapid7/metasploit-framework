@@ -199,6 +199,13 @@ class Msf::Module::Target
   end
 
   #
+  # Payload append encoder information for this target.
+  #
+  def payload_append_encoder
+    opts['Payload'] ? opts['Payload']['AppendEncoder'] : nil
+  end
+
+  #
   # Payload stack adjustment information for this target.
   #
   def payload_stack_adjustment

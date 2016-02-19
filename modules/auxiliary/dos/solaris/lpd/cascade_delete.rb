@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -29,8 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2005-4797' ],
           [ 'BID', '14510' ],
-          [ 'OSVDB', '18650' ],
-          [ 'URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-26-101842-1'],
+          [ 'OSVDB', '18650' ]
         ]
       ))
 

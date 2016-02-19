@@ -159,7 +159,7 @@ class SSHKey
 
     SSH_CONVERSION[type].each do |method|
       byte_array = to_byte_array(key_object.public_key.send(method).to_i)
-      out += encode_unsigned_int_32(byte_array.length).pack("c*")
+      out += encode_unsigned_int_32(byte_array.length).pack("C*")
       out += byte_array.pack("C*")
     end
 

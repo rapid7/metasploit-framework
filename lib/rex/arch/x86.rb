@@ -244,7 +244,7 @@ module X86
     _check_reg(dst)
 
     # If the value is 0 try xor/sub dst, dst (2 bytes)
-    if(val == 0)
+    if val == 0
       opcodes = Rex::Text.remove_badchars("\x29\x2b\x31\x33", badchars)
       if !opcodes.empty?
         return opcodes[rand(opcodes.length)].chr + encode_modrm(dst, dst)
@@ -261,8 +261,9 @@ module X86
 
     # try clear dst, mov BYTE dst (4 bytes)
     begin
-      # break if val == 0
-      return _check_badchars(clear(dst, badchars) + mov_byte(dst, val), badchars)
+      unless val == 0 # clear tries to set(dst, 0, badchars), entering an infinite recursion
+        return _check_badchars(clear(dst, badchars) + mov_byte(dst, val), badchars)
+      end
     rescue ::ArgumentError, ::RuntimeError, ::RangeError
     end
 
@@ -280,8 +281,9 @@ module X86
 
     # try clear dst, mov WORD dst (6 bytes)
     begin
-      # break if val == 0
-      return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
+      unless val == 0 # clear tries to set(dst, 0, badchars), entering an infinite recursion
+        return _check_badchars(clear(dst, badchars) + mov_word(dst, val), badchars)
+      end
     rescue ::ArgumentError, ::RuntimeError, ::RangeError
     end
 
@@ -419,8 +421,7 @@ module X86
   # This method returns an array containing a geteip stub, a register, and an offset
   # This method will return nil if the getip generation fails
   #
-  def self.geteip_fpu(badchars)
-
+  def self.geteip_fpu(badchars, modified_registers = [])
     #
     # Default badchars to an empty string
     #
@@ -468,18 +469,29 @@ module X86
     #
     while(dsts.length > 0)
       buf = ''
+      mod_registers = [ESP]
       dst = dsts[ rand(dsts.length) ]
       dsts.delete(dst)
 
       # If the register is not ESP, copy ESP
       if (dst != ESP)
-        next if badchars.index( (0x70 + dst).chr )
+        mod_registers.push(dst)
+        if badchars.index( (0x70 + dst).chr )
+          mod_registers.pop(dst)
+          next
+        end
 
         if !(badchars.index("\x89") or badchars.index( (0xE0+dst).chr ))
           buf << "\x89" + (0xE0 + dst).chr
         else
-          next if badchars.index("\x54")
-          next if badchars.index( (0x58+dst).chr )
+          if badchars.index("\x54")
+            mod_registers.pop(dst)
+            next
+          end
+          if badchars.index( (0x58+dst).chr )
+            mod_registers.pop(dst)
+            next
+          end
           buf << "\x54" + (0x58 + dst).chr
         end
       end
@@ -504,6 +516,7 @@ module X86
         regs.delete(reg)
         next if reg == ESP
         next if badchars.index( (0x58 + reg).chr )
+        mod_registers.push(reg)
 
         # Pop the value back out
         0.upto(pad / 4) { |c| out << (0x58 + reg).chr }
@@ -511,11 +524,30 @@ module X86
         # Fix the value to point to self
         gap = out.length - buf.length
 
+        mod_registers.uniq!
+        modified_registers.concat(mod_registers)
         return [out, REG_NAMES32[reg].upcase, gap]
       end
+      mod_registers.pop(dst)
     end
 
     return nil
+  end
+
+  #
+  # Parse a list of registers as a space or command delimited
+  # string and return the internal register IDs as an array
+  #
+  def self.register_names_to_ids(str)
+    register_ids = []
+    str.to_s.strip.split(/[,\s]/).
+      map    {|reg| reg.to_s.strip.upcase }.
+      select {|reg| reg.length > 0        }.
+      uniq.each do |reg|
+        next unless self.const_defined?(reg.intern)
+        register_ids << self.const_get(reg.intern)
+      end
+    register_ids
   end
 
 end

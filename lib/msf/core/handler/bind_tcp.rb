@@ -141,12 +141,21 @@ module BindTcp
         # Increment the has connection counter
         self.pending_connections += 1
 
+        # Timeout and datastore options need to be passed through to the client
+        opts = {
+          :datastore    => datastore,
+          :expiration   => datastore['SessionExpirationTimeout'].to_i,
+          :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+          :retry_total  => datastore['SessionRetryTotal'].to_i,
+          :retry_wait   => datastore['SessionRetryWait'].to_i
+        }
+
         # Start a new thread and pass the client connection
         # as the input and output pipe.  Client's are expected
         # to implement the Stream interface.
         conn_threads << framework.threads.spawn("BindTcpHandlerSession", false, client) { |client_copy|
           begin
-            handle_connection(wrap_aes_socket(client_copy))
+            handle_connection(wrap_aes_socket(client_copy), opts)
           rescue
             elog("Exception raised from BindTcp.handle_connection: #{$!}")
           end
@@ -166,7 +175,7 @@ module BindTcp
     socks[0].extend(Rex::Socket::Tcp)
     socks[1].extend(Rex::Socket::Tcp)
 
-    m = OpenSSL::Digest::Digest.new('md5')
+    m = OpenSSL::Digest.new('md5')
     m.reset
     key = m.digest(datastore["AESPassword"] || "")
 

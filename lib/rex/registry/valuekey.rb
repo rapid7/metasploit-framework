@@ -17,10 +17,10 @@ class ValueKey
       return
     end
 
-    @name_length = hive[offset+0x02, 2].unpack('c').first
-    @length_of_data = hive[offset+0x04, 4].unpack('l').first
-    @data_offset = hive[offset+ 0x08, 4].unpack('l').first
-    @value_type = hive[offset+0x0C, 4].unpack('c').first
+    @name_length = hive[offset+0x02, 2].unpack('C').first
+    @length_of_data = hive[offset+0x04, 4].unpack('V').first
+    @data_offset = hive[offset+ 0x08, 4].unpack('V').first
+    @value_type = hive[offset+0x0C, 4].unpack('C').first
 
     if @value_type == 1
       @readable_value_type = "Unicode character string"
@@ -34,7 +34,7 @@ class ValueKey
       @readable_value_type = "Multiple unicode strings separated with '\\x00'"
     end
 
-    flag = hive[offset+0x10, 2].unpack('c').first
+    flag = hive[offset+0x10, 2].unpack('C').first
 
     if flag == 0
       @name = "Default"

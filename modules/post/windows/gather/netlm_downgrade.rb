@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Brandon McCann "zeknox" <bmccann [at] accuvant.com>',
-          'Thomas McCarthy "smilingraccoon" <smilingraccoon [at] gmail.com>'
+          'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
+          'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>'
         ],
       'SessionTypes'   => [ 'meterpreter' ],
       'References'     =>

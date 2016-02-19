@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -18,10 +18,6 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
         Enumerate Poison Ivy Command and Control (C&C) on ports 3460, 80, 8080 and 443. Adaptation of iTrust Python script.
       },
-      'References'  =>
-        [
-          ['URL', 'www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf'],
-        ],
       'Author'      => ['SeawolfRN'],
       'License'     => MSF_LICENSE
     )
@@ -66,9 +62,9 @@ class Metasploit3 < Msf::Auxiliary
             )
             r << [ip,port,"open",'Unknown']
             s.puts("\x00"*0x100,0) #Send 0x100 zeros, wait for answer
-            data = s.get_once(0x100)
+            data = s.get_once(0x100) || ''
             if data.length == 0x100
-              data = s.get_once(0x4)
+              data = s.get_once(0x4) || ''
               if data == "\xD0\x15\x00\x00" #Signature for PIVY C&C
                 print_status("#{ip}:#{port} - C&C Server Found")
                 r << [ip,port,"open",'Poison Ivy C&C']

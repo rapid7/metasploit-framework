@@ -11,7 +11,6 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-require 'fastlib'
 require 'msfenv'
 
 
@@ -79,7 +78,7 @@ end
 
 opt.on_tail("-h", "--help", "Show this message") do
   puts opt
-  exit(1)
+  exit
 end
 
 begin

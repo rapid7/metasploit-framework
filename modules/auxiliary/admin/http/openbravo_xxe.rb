@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -57,7 +57,7 @@ class Metasploit4 < Msf::Auxiliary
     }, 60)
 
     if !users or users.code != 200
-      fail_with("Invalid response. Check your credentials and that the server is correct.")
+      fail_with(Failure::NoAccess, "Invalid response. Check your credentials and that the server is correct.")
     end
 
     xml = path = id = other_id = ''  #for later use

@@ -6,7 +6,7 @@ module Msf
 ###
 #
 # The auxiliary class acts as a base class for all modules that perform
-# reconnaisance, retrieve data, brute force logins, or any other action
+# reconnaissance, retrieve data, brute force logins, or any other action
 # that doesn't fit our concept of an 'exploit' (involving payloads and
 # targets and whatnot).
 #
@@ -21,14 +21,14 @@ class Auxiliary < Msf::Module
   # Returns MODULE_AUX to indicate that this is an auxiliary module.
   #
   def self.type
-    MODULE_AUX
+    Msf::MODULE_AUX
   end
 
   #
   # Returns MODULE_AUX to indicate that this is an auxiliary module.
   #
   def type
-    MODULE_AUX
+    Msf::MODULE_AUX
   end
 
   #

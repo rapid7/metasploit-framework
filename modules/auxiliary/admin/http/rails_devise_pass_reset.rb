@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
           return false
         end
       when 302
-        #Success!
+        # Success!
         return true
       else
         print_error("ERROR: received code #{res.code}")

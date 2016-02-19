@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
           'Scott A. Crosby', # original advisory
           'Dan S. Wallach', # original advisory
           'Krzysztof Kotowicz', # payload generator
-          'Christian Mehlmauer <FireFart[at]gmail.com>' # metasploit module
+          'Christian Mehlmauer' # metasploit module
         ],
       'License'       => MSF_LICENSE,
       'References'    =>

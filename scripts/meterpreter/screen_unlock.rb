@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 #
 # Script to unlock a windows screen by L4teral <l4teral [4t] gmail com>
 # Needs system prvileges to run and known signatures for the target system.

@@ -74,12 +74,16 @@ module Msf::PostMixin
     return @session if @session and not session_changed?
 
     if datastore["SESSION"]
-      @session = framework.sessions[datastore["SESSION"].to_i]
+      @session = framework.sessions.get(datastore["SESSION"].to_i)
     else
       @session = nil
     end
 
     @session
+  end
+
+  def session_display_info
+    "Session: #{session.sid} (#{session.session_host})"
   end
 
   alias :client :session
@@ -128,7 +132,7 @@ module Msf::PostMixin
   # Checks the session's type against this module's
   # <tt>module_info["SessionTypes"]</tt> as well as examining platform
   # compatibility.  +sess_or_sid+ can be a Session object, Fixnum, or
-  # String.  In the latter cases it sould be a key in
+  # String.  In the latter cases it should be a key in
   # +framework.sessions+.
   #
   # @note Because it errs on the side of compatibility, a true return

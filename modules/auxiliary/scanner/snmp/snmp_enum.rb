@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -33,9 +33,6 @@ class Metasploit3 < Msf::Auxiliary
     begin
       snmp = connect_snmp
 
-      #
-      #
-      #
       fields_order = [
         "Host IP", "Hostname", "Description", "Contact",
         "Location", "Uptime snmp", "Uptime system",
@@ -92,26 +89,19 @@ class Metasploit3 < Msf::Auxiliary
         systemDate = systemDate.unpack('C*')
 
         year    = systemDate[0] * 256 + systemDate[1]
-        month   = systemDate[2]
-        day     = systemDate[3]
-        hour    = systemDate[4]
-        minutes = systemDate[5]
-        seconds = systemDate[6]
-        tenths  = systemDate[7]
+        month   = systemDate[2] || 0
+        day     = systemDate[3] || 0
+        hour    = systemDate[4] || 0
+        minutes = systemDate[5] || 0
+        seconds = systemDate[6] || 0
+        tenths  = systemDate[7] || 0
         output_data["System date"] = sprintf("%d-%d-%d %02d:%02d:%02d.%d", year, month, day, hour, minutes, seconds, tenths)
       end
 
-      #
-      #
       if (sysDesc =~ /Windows/)
-        usersLine = ""
         domPrimaryDomain = snmp.get_value('1.3.6.1.4.1.77.1.4.1.0').to_s
 
         output_data["Domain"] = domPrimaryDomain.strip
-
-        #
-        #
-        #
 
         users = []
 
@@ -123,10 +113,6 @@ class Metasploit3 < Msf::Auxiliary
           output_data["User accounts"] = users
         end
       end
-
-      #
-      #
-      #
 
       network_information = {}
 
@@ -178,10 +164,6 @@ class Metasploit3 < Msf::Auxiliary
       if not network_information.empty?
         output_data["Network information"] = network_information
       end
-
-      #
-      #
-      #
 
       network_interfaces = []
 
@@ -299,10 +281,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["Network interfaces"] = network_interfaces
       end
 
-      #
-      #
-      #
-
       network_ip = []
 
       snmp.walk([
@@ -315,10 +293,6 @@ class Metasploit3 < Msf::Auxiliary
       if not network_ip.empty?
         output_data["Network IP"] = [["Id","IP Address","Netmask","Broadcast"]] + network_ip
       end
-
-      #
-      #
-      #
 
       routing = []
 
@@ -335,10 +309,6 @@ class Metasploit3 < Msf::Auxiliary
       if not routing.empty?
         output_data["Routing information"] = [["Destination","Next hop","Mask","Metric"]] + routing
       end
-
-      #
-      #
-      #
 
       tcp = []
 
@@ -407,10 +377,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["TCP connections and listening ports"] = [["Local address","Local port","Remote address","Remote port","State"]] + tcp
       end
 
-      #
-      #
-      #
-
       udp = []
 
       snmp.walk(["1.3.6.1.2.1.7.5.1.1","1.3.6.1.2.1.7.5.1.2"]) do |ladd,lport|
@@ -421,20 +387,9 @@ class Metasploit3 < Msf::Auxiliary
         output_data["Listening UDP ports"] = [["Local address","Local port"]] + udp
       end
 
-      #
-      #
-      #
-
       if (sysDesc =~ /Windows/)
-
-        #
-        #
-        #
-
         network_services = []
-
         n = 0
-
         snmp.walk(["1.3.6.1.4.1.77.1.2.3.1.1","1.3.6.1.4.1.77.1.2.3.1.2"]) do |name,installed|
           network_services.push([n,name.value])
           n+=1
@@ -443,10 +398,6 @@ class Metasploit3 < Msf::Auxiliary
         if not network_services.empty?
           output_data["Network services"] = [["Index","Name"]] + network_services
         end
-
-        #
-        #
-        #
 
         share = []
 
@@ -459,10 +410,6 @@ class Metasploit3 < Msf::Auxiliary
         if not share.empty?
           output_data["Share"] = share
         end
-
-        #
-        #
-        #
 
         iis = {}
 
@@ -571,10 +518,6 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
 
-      #
-      #
-      #
-
       storage_information = []
 
       snmp.walk([
@@ -633,10 +576,6 @@ class Metasploit3 < Msf::Auxiliary
         }
         output_data["Storage information"] = storage
       end
-
-      #
-      #
-      #
 
       file_system = {}
 
@@ -729,10 +668,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["File system information"] = file_system
       end
 
-      #
-      #
-      #
-
       device_information = []
 
       snmp.walk([
@@ -805,10 +740,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["Device information"] = [["Id","Type","Status","Descr"]] + device_information
       end
 
-      #
-      #
-      #
-
       software_list = []
 
       snmp.walk(["1.3.6.1.2.1.25.6.3.1.1","1.3.6.1.2.1.25.6.3.1.2"]) do |index,name|
@@ -818,10 +749,6 @@ class Metasploit3 < Msf::Auxiliary
       if not software_list.empty?
         output_data["Software components"] = [["Index","Name"]] + software_list
       end
-
-      #
-      #
-      #
 
       process_interfaces = []
 
@@ -844,10 +771,6 @@ class Metasploit3 < Msf::Auxiliary
       if not process_interfaces.empty?
         output_data["Processes"] = [["Id","Status","Name","Path","Parameters"]] + process_interfaces
       end
-
-      #
-      #
-      #
 
       print_line("\n[*] System information:\n")
 
@@ -937,27 +860,22 @@ class Metasploit3 < Msf::Auxiliary
       }
 
       print_line(line)
-
-      #
-      #
-      #
-
       print_line('')
 
-
-
     rescue SNMP::RequestTimeout
-      vprint_status("#{ip} SNMP request timeout.")
+      print_error("#{ip} SNMP request timeout.")
     rescue Rex::ConnectionError
-      print_status("#{ip} Connection refused.")
+      print_error("#{ip} Connection refused.")
     rescue SNMP::InvalidIpAddress
-      print_status("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
+      print_error("#{ip} Invalid IP Address. Check it with 'snmpwalk tool'.")
     rescue SNMP::UnsupportedVersion
-      print_status("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
+      print_error("#{ip} Unsupported SNMP version specified. Select from '1' or '2c'.")
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
-      print_status("Unknown error: #{e.class} #{e}")
+      print_error("Unknown error: #{e.class} #{e}")
+      elog("Unknown error: #{e.class} #{e}")
+      elog("Call stack:\n#{e.backtrace.join "\n"}")
     ensure
       disconnect_snmp
     end

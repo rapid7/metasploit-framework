@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -47,10 +47,10 @@ class Metasploit4 < Msf::Auxiliary
       return
     end
 
-    getEnvironment(ip)
+    get_environment(ip)
   end
 
-  def getEnvironment(rhost)
+  def get_environment(rhost)
     print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface ")
     success = false
 

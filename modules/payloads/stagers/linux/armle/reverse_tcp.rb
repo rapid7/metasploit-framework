@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -17,6 +17,8 @@ require 'msf/core/handler/reverse_tcp'
 #
 ###
 module Metasploit3
+
+  CachedSize = 200
 
   include Msf::Payload::Stager
 
@@ -102,8 +104,6 @@ def handle_intermediate_stage(conn, payload)
 
     # Transmit our intermediate stager
     conn.put( [ payload.length ].pack(address_format) )
-
-    Rex::ThreadSafe.sleep(0.5)
 
     return true
   end

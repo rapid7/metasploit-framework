@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -41,7 +41,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptBool.new('AlterSerial',        [false, "Alter the serial number slightly to avoif FireFox serial matching", true])
+        OptBool.new('AlterSerial',        [false, "Alter the serial number slightly to avoid FireFox serial matching", true])
       ], self.class)
   end
 

@@ -35,7 +35,7 @@ module Auxiliary::RServices
       begin
         sd = connect(true, { 'CPORT' => cport })
 
-      rescue Rex::AddressInUse
+      rescue Rex::BindFailed
         # Ignore and try again
         #vprint_error("Unable to connect: #{$!}")
 

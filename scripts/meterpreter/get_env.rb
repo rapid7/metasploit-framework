@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 #-------------------------------------------------------------------------------
 #Options and Option Parsing
 opts = Rex::Parser::Arguments.new(
@@ -18,12 +25,11 @@ def list_env_vars(var_names)
           "Name",
           "Value"
         ])
-  var_names.flatten.each do |v|
-    tbl << [v,@client.fs.file.expand_path("\%#{v}\%")]
+  @client.sys.config.getenvs(*var_names.flatten).each do |k, v|
+    tbl << [k, v]
   end
   print("\n" + tbl.to_s + "\n")
 end
-
 
 opts.parse(args) { |opt, idx, val|
   case opt

@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 # Author:Roni Bachar (@roni_bachar) roni.bachar.blog@gmail.com
 #
 # Thie script will open an interactive view of remote hosts

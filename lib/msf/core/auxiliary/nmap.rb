@@ -184,7 +184,6 @@ def nmap_validate_rports
   if datastore['RPORT'] && (datastore['RPORT'].kind_of?(Fixnum) || !datastore['RPORT'].empty?)
     return true
   end
-  bad_port = false
   if rports.nil? || rports.empty?
     print_error "Missing RPORTS"
     return false
@@ -193,13 +192,9 @@ def nmap_validate_rports
     if r =~ /^([TU]:)?[0-9]*-?[0-9]*$/
       next
     else
-      bad_port = true
-      break
+      print_error "Malformed nmap port: #{r}"
+      return false
     end
-  end
-  if bad_port
-    print_error "Malformed nmap port: #{r}"
-    return false
   end
   print_status "Using RPORTS range #{datastore['RPORTS']}"
   return true
@@ -246,7 +241,7 @@ def nmap_hosts(&block)
   fh = self.nmap_log[0]
   nmap_data = fh.read(fh.stat.size)
   # fh.unlink
-  if Rex::Parser.nokogiri_loaded
+  if Rex::Parser.nokogiri_loaded && framework.db.active
     wspace = framework.db.find_workspace(datastore['WORKSPACE'])
     wspace ||= framework.db.workspace
     import_args = { :data => nmap_data, :wspace => wspace }

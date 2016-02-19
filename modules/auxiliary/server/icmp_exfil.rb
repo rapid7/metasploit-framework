@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       OptAddress.new('LOCALIP', [false, 'The IP address of the local interface'])
     ], self.class)
 
-    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','UDP_SECRET','GATEWAY','NETMASK', 'TIMEOUT')
+    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT', 'TIMEOUT')
   end
 
   def run

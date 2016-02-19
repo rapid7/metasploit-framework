@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-describe Msf::Modules::Error do
+RSpec.describe Msf::Modules::Error do
   context 'instance methods' do
     context '#initialize' do
       include_context 'Msf::Modules::Error attributes'
@@ -12,7 +12,7 @@ describe Msf::Modules::Error do
         end
 
         it 'should include causal_message in error' do
-          subject.to_s.should == "Failed to load module due to #{causal_message}"
+          expect(subject.to_s).to eq "Failed to load module due to #{causal_message}"
         end
       end
 
@@ -25,7 +25,7 @@ describe Msf::Modules::Error do
         end
 
         it 'should include causal_message and module_path in error' do
-          subject.to_s.should == "Failed to load module (from #{module_path}) due to #{causal_message}"
+          expect(subject.to_s).to eq "Failed to load module (from #{module_path}) due to #{causal_message}"
         end
       end
 
@@ -38,7 +38,7 @@ describe Msf::Modules::Error do
         end
 
         it 'should include causal_message and module_reference_name in error' do
-          subject.to_s.should == "Failed to load module (#{module_reference_name}) due to #{causal_message}"
+          expect(subject.to_s).to eq "Failed to load module (#{module_reference_name}) due to #{causal_message}"
         end
       end
 
@@ -52,7 +52,7 @@ describe Msf::Modules::Error do
         end
 
         it 'should include causal_message, module_path, and module_reference_name in error' do
-          subject.to_s.should == "Failed to load module (#{module_reference_name} from #{module_path}) due to #{causal_message}"
+          expect(subject.to_s).to eq "Failed to load module (#{module_reference_name} from #{module_path}) due to #{causal_message}"
         end
       end
 
@@ -62,11 +62,11 @@ describe Msf::Modules::Error do
         end
 
         it 'should use :module_path for module_path' do
-          subject.module_path.should == module_path
+          expect(subject.module_path).to eq module_path
         end
 
         it 'should include module_path in error' do
-          subject.to_s.should == "Failed to load module (from #{module_path})"
+          expect(subject.to_s).to eq "Failed to load module (from #{module_path})"
         end
       end
 
@@ -79,7 +79,7 @@ describe Msf::Modules::Error do
         end
 
         it 'should include module_path and module_reference_name in error' do
-          subject.to_s.should == "Failed to load module (#{module_reference_name} from #{module_path})"
+          expect(subject.to_s).to eq "Failed to load module (#{module_reference_name} from #{module_path})"
         end
       end
 
@@ -89,11 +89,11 @@ describe Msf::Modules::Error do
         end
 
         it 'should use :module_reference_name for module_reference_name' do
-          subject.module_reference_name.should == module_reference_name
+          expect(subject.module_reference_name).to eq module_reference_name
         end
 
         it 'should include module_reference_name in error' do
-          subject.to_s.should == "Failed to load module (#{module_reference_name})"
+          expect(subject.to_s).to eq "Failed to load module (#{module_reference_name})"
         end
       end
 

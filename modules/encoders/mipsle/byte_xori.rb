@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Encoder::Xor
       },
       'Author'           =>
         [
-          'Julien Tinnes <julien at cr0.org>', # original longxor encoder, which this one is based on
+          'Julien Tinnes <julien[at]cr0.org>', # original longxor encoder, which this one is based on
           'juan vazquez' # byte_xori encoder
         ],
       'Arch'             => ARCH_MIPSLE,
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Encoder::Xor
     # add 4 number of passes  for the space reserved for the key, at the end of the decoder stub
     # (see commented source)
     number_of_passes=state.buf.length+4
-    raise InvalidPayloadSizeException.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 32766
+    raise EncodingError.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 32766
 
     # 16-bits not (again, see also commented source)
     reg_14 = (number_of_passes+1)^0xFFFF

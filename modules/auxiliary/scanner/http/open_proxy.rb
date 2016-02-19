@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -31,13 +31,12 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptBool.new('DEBUG', [ false, 'Enable requests debugging output', false ]),
         OptBool.new('MULTIPORTS', [ false, 'Multiple ports will be used : 80, 1080, 3128, 8080, 8123', false ]),
         OptBool.new('RANDOMIZE_PORTS', [ false, 'Randomize the order the ports are probed', false ]),
         OptBool.new('VERIFY_CONNECT', [ false, 'Enable test for CONNECT method', false ]),
         OptBool.new('VERIFY_HEAD', [ false, 'Enable test for HEAD method', false ]),
         OptBool.new('LOOKUP_PUBLIC_ADDRESS', [ false, 'Enable test for retrieve public IP address via RIPE.net', false ]),
-        OptString.new('SITE', [ true, 'The web site to test via alleged web proxy (default is www.google.com)', '209.85.148.147' ]),
+        OptString.new('SITE', [ true, 'The web site to test via alleged web proxy (default is www.google.com)', 'www.google.com' ]),
         OptString.new('ValidCode', [ false, "Valid HTTP code for a successfully request", '200,302' ]),
         OptString.new('ValidPattern', [ false, "Valid HTTP server header for a successfully request", 'server: gws' ]),
         OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
@@ -60,13 +59,15 @@ class Metasploit3 < Msf::Auxiliary
 
     if datastore['MULTIPORTS']
       target_ports = [ 80, 1080, 3128, 8080, 8123 ]
-    else
-      target_ports.push(datastore['RPORT'].to_i)
     end
+
+    target_ports.push(datastore['RPORT'].to_i)
 
     if datastore['RANDOMIZE_PORTS']
       target_ports = target_ports.sort_by { rand }
     end
+
+    target_ports = target_ports.uniq
 
     site       = datastore['SITE']
     user_agent = datastore['UserAgent']
@@ -97,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
     request = method + " http://" + site + "/ HTTP/1.1" + "\r\n" +
       "Host: " + site + "\r\n" +
       "Connection: close" + "\r\n" +
-      "User-Agent: user_agent" + "\r\n" +
+      "User-Agent: #{user_agent}" + "\r\n" +
       "Accept-Encoding: *" + "\r\n" +
       "Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7" + "\r\n" +
       "Cache-Control: no" + "\r\n" +
@@ -115,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 
       request = write_request('GET',site,user_agent)
       sock.put(request)
-      res = sock.get
+      res = sock.get_once(-1, 10)
 
       disconnect
 
@@ -167,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
 
       request = write_request('GET',ripe_address,user_agent)
       sock.put(request)
-      res = sock.get
+      res = sock.get_once(-1, 10)
 
       disconnect
 
@@ -191,10 +192,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check_host(target_host,target_port,site,user_agent)
-
-    if datastore['DEBUG']
-      print_status("Checking #{target_host}:#{target_port} [#{site}]")
-    end
+    vprint_status("Checking #{target_host}:#{target_port} [#{site}]")
 
     is_valid,retcode,retvia,retsrv = send_request(site,user_agent)
 

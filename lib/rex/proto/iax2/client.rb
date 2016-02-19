@@ -34,6 +34,7 @@ class Client
     self.server_port   = opts[:server_port]
     self.username      = opts[:username]
     self.password      = opts[:password]
+    self.debugging     = opts[:debugging]
 
     self.sock = Rex::Socket::Udp.create(
       'PeerHost' => self.server_host,

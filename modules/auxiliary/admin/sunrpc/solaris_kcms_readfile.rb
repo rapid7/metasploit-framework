@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'vlad902 <vlad902 [at] gmail.com>', # MSF v2 module
+          'vlad902 <vlad902[at]gmail.com>', # MSF v2 module
           'jduck'  # Ported to MSF v3
         ],
       'License'        => MSF_LICENSE,
@@ -34,8 +34,7 @@ class Metasploit3 < Msf::Auxiliary
           ['CVE', '2003-0027'],
           ['OSVDB', '8201'],
           ['BID', '6665'],
-          ['URL', 'http://marc.info/?l=bugtraq&m=104326556329850&w=2'],
-          ['URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-77-1000898.1-1']
+          ['URL', 'http://marc.info/?l=bugtraq&m=104326556329850&w=2']
         ],
       # Tested OK against sol8.tor 20100624 -jjd
       'DisclosureDate' => 'Jan 22 2003')
@@ -127,6 +126,8 @@ class Metasploit3 < Msf::Auxiliary
     # done
     sunrpc_destroy
 
+  rescue Timeout::Error, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Rex::Proto::SunRPC::RPCError => e
+    print_error(e.to_s)
   rescue ::Rex::Proto::SunRPC::RPCTimeout
     print_warning 'Warning: ' + $!
     print_warning 'Exploit may or may not have succeeded.'

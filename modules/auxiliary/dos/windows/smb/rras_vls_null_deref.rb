@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   include Msf::Exploit::Remote::DCERPC
-  include Msf::Exploit::Remote::SMB
+  include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})

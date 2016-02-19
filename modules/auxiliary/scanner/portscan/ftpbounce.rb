@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -17,9 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'FTP Bounce Port Scanner',
       'Description' => %q{
         Enumerate TCP services via the FTP bounce PORT/LIST
-        method, which can still come in handy every once in
-        a while (I know of a server that still allows this
-        just fine...).
+        method.
       },
       'Author'      => 'kris katterjohn',
       'License'     => MSF_LICENSE
@@ -39,15 +37,20 @@ class Metasploit3 < Msf::Auxiliary
     false
   end
 
+  def rhost
+    datastore['BOUNCEHOST']
+  end
+
+  def rport
+    datastore['BOUNCEPORT']
+  end
+
   def run_host(ip)
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
     if ports.empty?
       raise Msf::OptionValidateError.new(['PORTS'])
     end
-
-    datastore['RHOST'] = datastore['BOUNCEHOST']
-    datastore['RPORT'] = datastore['BOUNCEPORT']
 
     return if not connect_login
 
@@ -56,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
       # on the response codes.  We need to do this between every
       # port scan attempt unfortunately.
       while true
-        r = self.sock.get(0.25)
+        r = sock.get_once(-1, 0.25)
         break if not r or r.empty?
       end
 

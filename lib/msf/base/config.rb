@@ -1,5 +1,17 @@
 # -*- coding: binary -*-
+
+#
+# Standard Library
+#
+
 require 'fileutils'
+
+#
+# Project
+#
+
+require 'metasploit/framework/version'
+require 'rex/compat'
 
 module Msf
 
@@ -25,16 +37,16 @@ class Config < Hash
     ['HOME', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
       val = Rex::Compat.getenv(dir)
       if (val and File.directory?(val))
-        return File.join(val, ".msf#{Msf::Framework::Major}")
+        return File.join(val, ".msf#{Metasploit::Framework::Version::MAJOR}")
       end
     end
 
     begin
       # First we try $HOME/.msfx
-      File.expand_path("~#{FileSep}.msf#{Msf::Framework::Major}")
+      File.expand_path("~#{FileSep}.msf#{Metasploit::Framework::Version::MAJOR}")
     rescue ::ArgumentError
       # Give up and install root + ".msfx"
-      InstallRoot + ".msf#{Msf::Framework::Major}"
+      InstallRoot + ".msf#{Metasploit::Framework::Version::MAJOR}"
     end
   end
 
@@ -53,6 +65,7 @@ class Config < Hash
       'ModuleDirectory'     => "modules",
       'ScriptDirectory'     => "scripts",
       'LogDirectory'        => "logs",
+      'LogosDirectory'      => "logos",
       'SessionLogDirectory' => "logs/sessions",
       'PluginDirectory'     => "plugins",
       'DataDirectory'       => "data",
@@ -78,6 +91,13 @@ class Config < Hash
   # @return [String] the root configuration directory.
   def self.config_directory
     self.new.config_directory
+  end
+
+  # Return the directory that logo files should be loaded from.
+  #
+  # @return [String] path to the logos directory.
+  def self.logos_directory
+    self.new.logos_directory
   end
 
   # Returns the global module directory.
@@ -134,6 +154,13 @@ class Config < Hash
   # @return [String] path to locally-generated data directory.
   def self.local_directory
     self.new.local_directory
+  end
+
+  # Return the user-specific directory that logo files should be loaded from.
+  #
+  # @return [String] path to the logos directory.
+  def self.user_logos_directory
+    self.new.user_logos_directory
   end
 
   # Returns the user-specific module base path
@@ -219,6 +246,13 @@ class Config < Hash
     InstallRoot
   end
 
+  # Return the directory that logo files should be loaded from.
+  #
+  # @return [String] path to the logos directory.
+  def logos_directory
+    data_directory + FileSep + self['LogosDirectory']
+  end
+
   # Returns the configuration directory default.
   #
   # @return [String] the root configuration directory.
@@ -289,6 +323,13 @@ class Config < Hash
     config_directory + FileSep + self['LocalDirectory']
   end
 
+  # Return the user-specific directory that logo files should be loaded from.
+  #
+  # @return [String] path to the logos directory.
+  def user_logos_directory
+    config_directory + FileSep + self['LogosDirectory']
+  end
+
   # Returns the user-specific module base path
   #
   # @return [String] path to user-specific modules directory.
@@ -327,6 +368,7 @@ class Config < Hash
     FileUtils.mkdir_p(session_log_directory)
     FileUtils.mkdir_p(loot_directory)
     FileUtils.mkdir_p(local_directory)
+    FileUtils.mkdir_p(user_logos_directory)
     FileUtils.mkdir_p(user_module_directory)
     FileUtils.mkdir_p(user_plugin_directory)
   end

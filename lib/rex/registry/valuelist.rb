@@ -18,7 +18,7 @@ class ValueList
       valuekey_offset = hive[offset + inner_offset, 4]
       next if !valuekey_offset
 
-      valuekey_offset = valuekey_offset.unpack('l').first
+      valuekey_offset = valuekey_offset.unpack('V').first
       @values << ValueKey.new(hive, valuekey_offset + 0x1000)
       inner_offset = inner_offset + 4
     end

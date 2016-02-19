@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
       'Platform'      => [ 'osx' ],
-      'SessionTypes'  => [ "shell" ],
+      'SessionTypes'  => [ "meterpreter", "shell" ],
       'Actions'       =>
         [
           ['ACCOUNTS', { 'Description' => 'Collect account-related plists' } ],

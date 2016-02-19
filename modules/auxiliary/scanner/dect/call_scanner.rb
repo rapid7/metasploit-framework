@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,8 +14,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'DECT Call Scanner',
       'Description'    => 'This module scans for active DECT calls',
       'Author'         => [ 'DK <privilegedmode[at]gmail.com>' ],
-      'License'        => MSF_LICENSE,
-      'References'     => [ ['URL', 'http://www.dedected.org'] ]
+      'License'        => MSF_LICENSE
     )
   end
 

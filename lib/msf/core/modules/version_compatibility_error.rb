@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'msf/core/modules/error'
 
 # Error raised by {Msf::Modules::Namespace#version_compatible!} on {Msf::Modules::Loader::Base#create_namespace_module}

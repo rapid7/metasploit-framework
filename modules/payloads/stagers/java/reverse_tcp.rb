@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,6 +9,8 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
+
+  CachedSize = 5118
 
   include Msf::Payload::Stager
   include Msf::Payload::Java
@@ -37,6 +39,10 @@ module Metasploit3
     )
 
     @class_files = [ ]
+  end
+
+  def include_send_uuid
+      false
   end
 
   def config

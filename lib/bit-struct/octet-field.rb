@@ -37,7 +37,7 @@ class BitStruct
         old_writer = "#{attr_chars}="
 
         define_method "#{attr}=" do |val|
-          data = val.split(sep).map{|s|s.to_i(base)}.pack("c*")
+          data = val.split(sep).map{|s|s.to_i(base)}.pack("C*")
           send(old_writer, data)
         end
       end

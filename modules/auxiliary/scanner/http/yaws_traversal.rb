@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'sinn3r',  #Metasploit
+          'sinn3r', # Metasploit module
         ],
       'References'     =>
         [
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', 'boot.ini'])
+        OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\win.ini'])
       ], self.class)
 
     deregister_options('RHOST')

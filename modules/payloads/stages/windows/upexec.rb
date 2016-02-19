@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,7 +23,7 @@ module Metasploit3
       'Session'       => Msf::Sessions::CommandShellWindows,
       'PayloadCompat' =>
         {
-          'Convention' => 'sockedi -https'
+          'Convention' => 'sockedi -http -https'
         },
       'Stage'         =>
         {

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
       begin
         sd = Rex::Socket.create_tcp_server('LocalPort' => lport)
 
-      rescue Rex::AddressInUse
+      rescue Rex::BindFailed
         # Ignore and try again
 
       end
@@ -220,6 +220,31 @@ class Metasploit3 < Msf::Auxiliary
     [ sd, lport ]
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
   def start_rsh_session(host, port, user, luser, proof, stderr_sock)
     report_auth_info(

@@ -116,7 +116,11 @@ class CentralDir
   end
 
   def pack
-    path = @entry.relative_path
+    if @entry.central_dir_name.blank?
+      path = @entry.relative_path
+    else
+      path = @entry.central_dir_path
+    end
 
     ret = [ SIGNATURE, ZIP_VERSION ].pack('Vv')
     ret << [ ZIP_VERSION ].pack('v')

@@ -28,7 +28,7 @@ module NDR
   # use to encode:
   #       byte element_1;
   def NDR.byte(string)
-    return [string].pack('c')
+    return [string].pack('C')
   end
 
   # Encode a byte array

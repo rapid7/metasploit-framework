@@ -32,7 +32,7 @@ class Packet
     Completed        = 3
   end
 
-  require 'rex/proto/http/header'
+  require 'rex/proto/http/packet/header'
 
   #
   # Initializes an instance of an HTTP packet.

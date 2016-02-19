@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,6 +9,8 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
+
+  CachedSize = 107
 
   include Msf::Payload::Single
   include Msf::Payload::Osx
@@ -38,7 +40,7 @@ module Metasploit3
   # ensures the setting of tag to a four byte value
   #
   def generate
-    cmd  = (datastore['CMD'] || '') << "\x00"
+    cmd  = (datastore['CMD'] || '') + "\x00"
     call = "\xe8" + [cmd.length].pack('V')
 
     payload =

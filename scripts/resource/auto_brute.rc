@@ -72,7 +72,7 @@ end
 framework.db.hosts.each do |host|
 	host.services.each do |serv|
 		next if not serv.host
-		next if (serv.state != ServiceState::Open)
+		next if (serv.state != Msf::ServiceState::Open)
 
 		# for now we only brute force these services, you can add some more ...
 		next if not (serv.name =~ /smb/ or

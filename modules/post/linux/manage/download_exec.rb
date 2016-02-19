@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,24 +15,23 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'Linux Manage Download and Execute',
       'Description'   => %q{
-          This module downloads and runs a file with bash. It first tries to uses curl as
-        its HTTP client and then wget if it's not found. Bash found in the PATH is used to
-        execute the file.
+        This module downloads and runs a file with bash. It first tries to uses curl as
+        its HTTP client and then wget if it's not found. Bash found in the PATH is used
+        to execute the file.
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
           'Joshua D. Abraham <jabra[at]praetorian.com>',
         ],
-      'Platform'      => [ 'linux' ],
-      'SessionTypes'  => [ 'shell' ]
+      'Platform'      => ['linux'],
+      'SessionTypes'  => ['shell', 'meterpreter']
     ))
 
     register_options(
       [
         OptString.new('URL', [true, 'Full URL of file to download.'])
       ], self.class)
-
   end
 
   def cmd_exec_vprint(cmd)
@@ -45,13 +44,19 @@ class Metasploit3 < Msf::Post
   end
 
   def exists_exe?(exe)
-    path = expand_path("$PATH")
+    vprint_status "Searching for #{exe} in the current $PATH..."
+    path = get_env("PATH")
     if path.nil? or path.empty?
       return false
+      vprint_error "No local $PATH set!"
+    else
+      vprint_status "$PATH is #{path.strip!}"
     end
 
     path.split(":").each{ |p|
-      return true if file_exist?(p + "/" + exe)
+      full_path = p + "/" + exe
+      vprint_status "Searching for '#{full_path}' ..."
+      return true if file_exist?(full_path)
     }
 
     return false

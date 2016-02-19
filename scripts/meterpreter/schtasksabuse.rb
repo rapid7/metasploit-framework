@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 
 #Meterpreter script for abusing the scheduler service in windows
 #by scheduling and running a list of command against one or more targets

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -26,8 +26,8 @@ class Metasploit3 < Msf::Post
             'ohdae <bindshell[at]live.com>', # minor additions, modifications & testing
             'Stephen Haywood <averagesecurityguy[at]gmail.com>', # enum_linux
           ],
-        'Platform'      => [ 'linux' ],
-        'SessionTypes'  => [ 'shell' ]
+        'Platform'      => ['linux'],
+        'SessionTypes'  => ['shell', 'meterpreter']
       ))
   end
 
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Post
     when /meterpreter/
       host = sysinfo["Computer"]
     when /shell/
-      host = session.shell_command_token("hostname").chomp
+      host = cmd_exec("hostname").chomp
     end
 
     print_status("Running module against #{host}")

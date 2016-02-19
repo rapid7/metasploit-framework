@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 #
 # Meterpreter script for utilizing purely PowerShell to extract username and password hashes through registry
 # keys. This script requires you to be running as system in order to work properly. This has currently been

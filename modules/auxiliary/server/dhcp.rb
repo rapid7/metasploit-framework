@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -30,19 +30,6 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultAction'  => 'Service'
     )
 
-    register_options(
-      [
-        OptString.new('SRVHOST',     [ true,  "The IP of the DHCP server" ]),
-        OptString.new('NETMASK',     [ true,  "The netmask of the local subnet" ]),
-        OptString.new('DHCPIPSTART', [ false,  "The first IP to give out" ]),
-        OptString.new('DHCPIPEND',   [ false,  "The last IP to give out" ]),
-        OptString.new('ROUTER',      [ false,  "The router IP address" ]),
-        OptString.new('BROADCAST',   [ false,  "The broadcast address to send to" ]),
-        OptString.new('DNSSERVER',   [ false,  "The DNS server IP address" ]),
-        OptString.new('HOSTNAME',    [ false,  "The optional hostname to assign" ]),
-        OptString.new('HOSTSTART',   [ false,  "The optional host integer counter" ]),
-        OptString.new('FILENAME',    [ false,  "The optional filename of a tftp boot server" ])
-      ], self.class)
   end
 
   def run

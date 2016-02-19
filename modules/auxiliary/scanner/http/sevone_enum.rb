@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -56,13 +56,40 @@ class Metasploit3 < Msf::Auxiliary
       'method'    => 'GET'
     })
 
-    if (res and res.code.to_i == 200 and res.headers['Set-Cookie'].include?('SEVONE'))
+    if (res and res.code.to_i == 200 and res.get_cookies.include?('SEVONE'))
       version_key = /Version: <strong>(.+)<\/strong>/
       version = res.body.scan(version_key).flatten
       print_good("#{rhost}:#{rport} - Application confirmed to be SevOne Network Performance Management System version #{version}")
       return true
     end
     return false
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   #
@@ -98,17 +125,14 @@ class Metasploit3 < Msf::Auxiliary
       return :skip_pass
     else
       print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN. '#{user.inspect}' : '#{pass.inspect}'")
-
-      report_hash = {
-        :host   => rhost,
-        :port   => rport,
-        :sname  => 'SevOne Network Performance Management System Application',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type   => 'password'}
-
-      report_auth_info(report_hash)
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'SevOne Network Performance Management System Application',
+        user: user,
+        password: pass,
+        proof: key
+      )
       return :next_user
     end
 

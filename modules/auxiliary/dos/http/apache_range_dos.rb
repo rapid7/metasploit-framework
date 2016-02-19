@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -84,6 +84,7 @@ class Metasploit3 < Msf::Auxiliary
         report_note(
           :host   => rhost,
           :port   => rport,
+          :type   => 'apache.killer',
           :data   => "Apache Byte-Range DOS at #{path}"
         )
 

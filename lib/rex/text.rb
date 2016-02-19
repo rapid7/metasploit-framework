@@ -3,17 +3,8 @@ require 'digest/md5'
 require 'digest/sha1'
 require 'stringio'
 require 'cgi'
-
-%W{ iconv zlib }.each do |libname|
-  begin
-    old_verbose = $VERBOSE
-    $VERBOSE = nil
-    require libname
-  rescue ::LoadError
-  ensure
-    $VERBOSE = old_verbose
-  end
-end
+require 'rex/powershell'
+require 'zlib'
 
 module Rex
 
@@ -32,6 +23,7 @@ module Text
   #
   ##
 
+  TLDs = ['com', 'net', 'org', 'gov', 'biz', 'edu']
   States = ["AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", "HI",
     "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN",
     "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH",
@@ -40,8 +32,10 @@ module Text
   UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
   Numerals     = "0123456789"
-  Base32	     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-  Alpha	     = UpperAlpha + LowerAlpha
+  Base32       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+  Base64       = UpperAlpha + LowerAlpha + Numerals + '+/'
+  Base64Url    = UpperAlpha + LowerAlpha + Numerals + '-_'
+  Alpha        = UpperAlpha + LowerAlpha
   AlphaNumeric = Alpha + Numerals
   HighAscii    = [*(0x80 .. 0xff)].pack("C*")
   LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
@@ -51,7 +45,95 @@ module Text
 
   DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
 
-  # In case Iconv isn't loaded
+  # The Iconv translation table for IBM's mainframe / System Z
+  # (z/os, s390, mvs, etc) - This is a different implementation
+  # of EBCDIC than the Iconv_EBCDIC below.
+  # It is technically referred to as Code Page IBM1047.
+  # This will be net new (until Ruby supports 1047 code page)
+  # for all Mainframe / SystemZ based modules
+  # that need to convert ASCII to EBCDIC
+  #
+  # The bytes are indexed by ASCII conversion number
+  # e.g.  Iconv_IBM1047[0x41] == \xc1 for letter "A"
+  #
+  # Note the characters CANNOT be assumed to be in any logical
+  # order. Nor are the tables reversible.  Lookups must be for each byte
+  # https://gist.github.com/bigendiansmalls/b08483ecedff52cc8fa3
+  #
+  Iconv_IBM1047 = [
+    "\x00","\x01","\x02","\x03","\x37","\x2d","\x2e","\x2f",
+    "\x16","\x05","\x15","\x0b","\x0c","\x0d","\x0e","\x0f","\x10",
+    "\x11","\x12","\x13","\x3c","\x3d","\x32","\x26","\x18","\x19",
+    "\x3f","\x27","\x1c","\x1d","\x1e","\x1f","\x40","\x5a","\x7f",
+    "\x7b","\x5b","\x6c","\x50","\x7d","\x4d","\x5d","\x5c","\x4e",
+    "\x6b","\x60","\x4b","\x61","\xf0","\xf1","\xf2","\xf3","\xf4",
+    "\xf5","\xf6","\xf7","\xf8","\xf9","\x7a","\x5e","\x4c","\x7e",
+    "\x6e","\x6f","\x7c","\xc1","\xc2","\xc3","\xc4","\xc5","\xc6",
+    "\xc7","\xc8","\xc9","\xd1","\xd2","\xd3","\xd4","\xd5","\xd6",
+    "\xd7","\xd8","\xd9","\xe2","\xe3","\xe4","\xe5","\xe6","\xe7",
+    "\xe8","\xe9","\xad","\xe0","\xbd","\x5f","\x6d","\x79","\x81",
+    "\x82","\x83","\x84","\x85","\x86","\x87","\x88","\x89","\x91",
+    "\x92","\x93","\x94","\x95","\x96","\x97","\x98","\x99","\xa2",
+    "\xa3","\xa4","\xa5","\xa6","\xa7","\xa8","\xa9","\xc0","\x4f",
+    "\xd0","\xa1","\x07","\x20","\x21","\x22","\x23","\x24","\x25",
+    "\x06","\x17","\x28","\x29","\x2a","\x2b","\x2c","\x09","\x0a",
+    "\x1b","\x30","\x31","\x1a","\x33","\x34","\x35","\x36","\x08",
+    "\x38","\x39","\x3a","\x3b","\x04","\x14","\x3e","\xff","\x41",
+    "\xaa","\x4a","\xb1","\x9f","\xb2","\x6a","\xb5","\xbb","\xb4",
+    "\x9a","\x8a","\xb0","\xca","\xaf","\xbc","\x90","\x8f","\xea",
+    "\xfa","\xbe","\xa0","\xb6","\xb3","\x9d","\xda","\x9b","\x8b",
+    "\xb7","\xb8","\xb9","\xab","\x64","\x65","\x62","\x66","\x63",
+    "\x67","\x9e","\x68","\x74","\x71","\x72","\x73","\x78","\x75",
+    "\x76","\x77","\xac","\x69","\xed","\xee","\xeb","\xef","\xec",
+    "\xbf","\x80","\xfd","\xfe","\xfb","\xfc","\xba","\xae","\x59",
+    "\x44","\x45","\x42","\x46","\x43","\x47","\x9c","\x48","\x54",
+    "\x51","\x52","\x53","\x58","\x55","\x56","\x57","\x8c","\x49",
+    "\xcd","\xce","\xcb","\xcf","\xcc","\xe1","\x70","\xdd","\xde",
+    "\xdb","\xdc","\x8d","\x8e","\xdf"
+  ]
+
+  #
+  # This is the reverse of the above, converts EBCDIC -> ASCII
+  # The bytes are indexed by IBM1047(EBCDIC) conversion number
+  # e.g. Iconv_ISO8859_1[0xc1] = \x41 for letter "A"
+  #
+  # Note the characters CANNOT be assumed to be in any logical (e.g. sequential)
+  # order. Nor are the tables reversible.  Lookups must be done byte by byte
+  #
+  Iconv_ISO8859_1 = [
+    "\x00","\x01","\x02","\x03","\x9c","\x09","\x86","\x7f",
+    "\x97","\x8d","\x8e","\x0b","\x0c","\x0d","\x0e","\x0f","\x10",
+    "\x11","\x12","\x13","\x9d","\x0a","\x08","\x87","\x18","\x19",
+    "\x92","\x8f","\x1c","\x1d","\x1e","\x1f","\x80","\x81","\x82",
+    "\x83","\x84","\x85","\x17","\x1b","\x88","\x89","\x8a","\x8b",
+    "\x8c","\x05","\x06","\x07","\x90","\x91","\x16","\x93","\x94",
+    "\x95","\x96","\x04","\x98","\x99","\x9a","\x9b","\x14","\x15",
+    "\x9e","\x1a","\x20","\xa0","\xe2","\xe4","\xe0","\xe1","\xe3",
+    "\xe5","\xe7","\xf1","\xa2","\x2e","\x3c","\x28","\x2b","\x7c",
+    "\x26","\xe9","\xea","\xeb","\xe8","\xed","\xee","\xef","\xec",
+    "\xdf","\x21","\x24","\x2a","\x29","\x3b","\x5e","\x2d","\x2f",
+    "\xc2","\xc4","\xc0","\xc1","\xc3","\xc5","\xc7","\xd1","\xa6",
+    "\x2c","\x25","\x5f","\x3e","\x3f","\xf8","\xc9","\xca","\xcb",
+    "\xc8","\xcd","\xce","\xcf","\xcc","\x60","\x3a","\x23","\x40",
+    "\x27","\x3d","\x22","\xd8","\x61","\x62","\x63","\x64","\x65",
+    "\x66","\x67","\x68","\x69","\xab","\xbb","\xf0","\xfd","\xfe",
+    "\xb1","\xb0","\x6a","\x6b","\x6c","\x6d","\x6e","\x6f","\x70",
+    "\x71","\x72","\xaa","\xba","\xe6","\xb8","\xc6","\xa4","\xb5",
+    "\x7e","\x73","\x74","\x75","\x76","\x77","\x78","\x79","\x7a",
+    "\xa1","\xbf","\xd0","\x5b","\xde","\xae","\xac","\xa3","\xa5",
+    "\xb7","\xa9","\xa7","\xb6","\xbc","\xbd","\xbe","\xdd","\xa8",
+    "\xaf","\x5d","\xb4","\xd7","\x7b","\x41","\x42","\x43","\x44",
+    "\x45","\x46","\x47","\x48","\x49","\xad","\xf4","\xf6","\xf2",
+    "\xf3","\xf5","\x7d","\x4a","\x4b","\x4c","\x4d","\x4e","\x4f",
+    "\x50","\x51","\x52","\xb9","\xfb","\xfc","\xf9","\xfa","\xff",
+    "\x5c","\xf7","\x53","\x54","\x55","\x56","\x57","\x58","\x59",
+    "\x5a","\xb2","\xd4","\xd6","\xd2","\xd3","\xd5","\x30","\x31",
+    "\x32","\x33","\x34","\x35","\x36","\x37","\x38","\x39","\xb3",
+    "\xdb","\xdc","\xd9","\xda","\x9f"
+  ]
+
+  # The Iconv translation table. The Iconv gem is deprecated in favor of
+  # String#encode, yet there is no encoding for EBCDIC. See #4525
   Iconv_EBCDIC = [
     "\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05",
     "%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13",
@@ -100,6 +182,62 @@ module Text
     nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
     nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
     nil, nil, nil, nil, nil, nil, nil, nil, nil
+  ]
+
+  #
+  # Most 100 common surnames, male/female names in the U.S. (http://names.mongabay.com/)
+  #
+
+  Surnames = [
+    "adams", "alexander", "allen", "anderson", "bailey", "baker", "barnes",
+    "bell", "bennett", "brooks", "brown", "bryant", "butler", "campbell",
+    "carter", "clark", "coleman", "collins", "cook", "cooper", "cox",
+    "davis", "diaz", "edwards", "evans", "flores", "foster", "garcia",
+    "gonzales", "gonzalez", "gray", "green", "griffin", "hall", "harris",
+    "hayes", "henderson", "hernandez", "hill", "howard", "hughes", "jackson",
+    "james", "jenkins", "johnson", "jones", "kelly", "king", "lee", "lewis",
+    "long", "lopez", "martin", "martinez", "miller", "mitchell", "moore",
+    "morgan", "morris", "murphy", "nelson", "parker", "patterson", "perez",
+    "perry", "peterson", "phillips", "powell", "price", "ramirez", "reed",
+    "richardson", "rivera", "roberts", "robinson", "rodriguez", "rogers",
+    "ross", "russell", "sanchez", "sanders", "scott", "simmons", "smith",
+    "stewart", "taylor", "thomas", "thompson", "torres", "turner", "walker",
+    "ward", "washington", "watson", "white", "williams", "wilson", "wood",
+    "wright", "young"
+  ]
+
+  Names_Male = [
+    "aaron", "adam", "alan", "albert", "andrew", "anthony", "antonio",
+    "arthur", "benjamin", "billy", "bobby", "brandon", "brian", "bruce",
+    "carl", "carlos", "charles", "chris", "christopher", "clarence", "craig",
+    "daniel", "david", "dennis", "donald", "douglas", "earl", "edward",
+    "eric", "ernest", "eugene", "frank", "fred", "gary", "george", "gerald",
+    "gregory", "harold", "harry", "henry", "howard", "jack", "james", "jason",
+    "jeffrey", "jeremy", "jerry", "jesse", "jimmy", "joe", "john", "johnny",
+    "jonathan", "jose", "joseph", "joshua", "juan", "justin", "keith",
+    "kenneth", "kevin", "larry", "lawrence", "louis", "mark", "martin",
+    "matthew", "michael", "nicholas", "patrick", "paul", "peter", "philip",
+    "phillip", "ralph", "randy", "raymond", "richard", "robert", "roger",
+    "ronald", "roy", "russell", "ryan", "samuel", "scott", "sean", "shawn",
+    "stephen", "steve", "steven", "terry", "thomas", "timothy", "todd",
+    "victor", "walter", "wayne", "william", "willie"
+  ]
+
+  Names_Female = [
+    "alice", "amanda", "amy", "andrea", "angela", "ann", "anna", "anne",
+    "annie", "ashley", "barbara", "betty", "beverly", "bonnie", "brenda",
+    "carol", "carolyn", "catherine", "cheryl", "christina", "christine",
+    "cynthia", "deborah", "debra", "denise", "diana", "diane", "donna",
+    "doris", "dorothy", "elizabeth", "emily", "evelyn", "frances", "gloria",
+    "heather", "helen", "irene", "jacqueline", "jane", "janet", "janice",
+    "jean", "jennifer", "jessica", "joan", "joyce", "judith", "judy", "julia",
+    "julie", "karen", "katherine", "kathleen", "kathryn", "kathy", "kelly",
+    "kimberly", "laura", "lillian", "linda", "lisa", "lois", "lori", "louise",
+    "margaret", "maria", "marie", "marilyn", "martha", "mary", "melissa",
+    "michelle", "mildred", "nancy", "nicole", "norma", "pamela", "patricia",
+    "paula", "phyllis", "rachel", "rebecca", "robin", "rose", "ruby", "ruth",
+    "sandra", "sara", "sarah", "sharon", "shirley", "stephanie", "susan",
+    "tammy", "teresa", "theresa", "tina", "virginia", "wanda"
   ]
 
   ##
@@ -248,19 +386,7 @@ module Text
   # Converts a raw string to a powershell byte array
   #
   def self.to_powershell(str, name = "buf")
-    return "[Byte[]]$#{name} = ''" if str.nil? or str.empty?
-
-    code = str.unpack('C*')
-    buff = "[Byte[]]$#{name} = 0x#{code[0].to_s(16)}"
-    1.upto(code.length-1) do |byte|
-      if(byte % 10 == 0)
-        buff << "\r\n$#{name} += 0x#{code[byte].to_s(16)}"
-      else
-        buff << ",0x#{code[byte].to_s(16)}"
-      end
-    end
-
-    return buff
+    return Rex::Powershell::Script.to_byte_array(str, name)
   end
 
   #
@@ -326,31 +452,26 @@ module Text
     return str
   end
 
+  # Converts US-ASCII to UTF-8, skipping over any characters which don't
+  # convert cleanly. This is a convenience method that wraps
+  # String#encode with non-raising default paramaters.
   #
-  # Converts ISO-8859-1 to UTF-8
-  #
+  # @param str [String] An encodable ASCII string
+  # @return [String] a UTF-8 equivalent
+  # @note This method will discard invalid characters
   def self.to_utf8(str)
-
-    if str.respond_to?(:encode)
-      # Skip over any bytes that fail to convert to UTF-8
-      return str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
-    end
-
-    begin
-      Iconv.iconv("utf-8","iso-8859-1", str).join(" ")
-    rescue
-      raise ::RuntimeError, "Your installation does not support iconv (needed for utf8 conversion)"
-    end
+      str.encode('utf-8', { :invalid => :replace, :undef => :replace, :replace => '' })
   end
 
-  #
-  # Converts ASCII to EBCDIC
-  #
   class IllegalSequence < ArgumentError; end
 
-  # A native implementation of the ASCII->EBCDIC table, used to fall back from using
-  # Iconv
-  def self.to_ebcdic_rex(str)
+  # A native implementation of the ASCII to EBCDIC conversion table, since
+  # EBCDIC isn't available to String#encode as of Ruby 2.1
+  #
+  # @param str [String] An encodable ASCII string
+  # @return [String] an EBCDIC encoded string
+  # @note This method will raise in the event of invalid characters
+  def self.to_ebcdic(str)
     new_str = []
     str.each_byte do |x|
       if Iconv_ASCII.index(x.chr)
@@ -362,9 +483,13 @@ module Text
     new_str.join
   end
 
-  # A native implementation of the EBCDIC->ASCII table, used to fall back from using
-  # Iconv
-  def self.from_ebcdic_rex(str)
+  # A native implementation of the EBCDIC to ASCII conversion table, since
+  # EBCDIC isn't available to String#encode as of Ruby 2.1
+  #
+  # @param str [String] an EBCDIC encoded string
+  # @return [String] An encodable ASCII string
+  # @note This method will raise in the event of invalid characters
+  def self.from_ebcdic(str)
     new_str = []
     str.each_byte do |x|
       if Iconv_EBCDIC.index(x.chr)
@@ -376,27 +501,37 @@ module Text
     new_str.join
   end
 
-  def self.to_ebcdic(str)
-    begin
-      Iconv.iconv("EBCDIC-US", "ASCII", str).first
-    rescue ::Iconv::IllegalSequence => e
-      raise e
-    rescue
-      self.to_ebcdic_rex(str)
+  #
+  # The next two are the same as the above, except strictly for z/os
+  # conversions
+  #  strictly for IBM1047 -> ISO8859-1
+  # A native implementation of the IBM1047(EBCDIC) -> ISO8859-1(ASCII)
+  # conversion table, since EBCDIC isn't available to String#encode as of Ruby 2.1
+  # all 256 bytes are defined
+  #
+  def self.to_ibm1047(str)
+    return str if str.nil?
+    new_str = []
+    str.each_byte do |x|
+        new_str << Iconv_IBM1047[x.ord]
     end
+    new_str.join
   end
 
   #
-  # Converts EBCIDC to ASCII
+  # The next two are the same as the above, except strictly for z/os
+  # conversions
+  #  strictly for ISO8859-1 -> IBM1047
+  # A native implementation of the ISO8859-1(ASCII) -> IBM1047(EBCDIC)
+  # conversion table, since EBCDIC isn't available to String#encode as of Ruby 2.1
   #
-  def self.from_ebcdic(str)
-    begin
-      Iconv.iconv("ASCII", "EBCDIC-US", str).first
-    rescue ::Iconv::IllegalSequence => e
-      raise e
-    rescue
-      self.from_ebcdic_rex(str)
+  def self.from_ibm1047(str)
+    return str if str.nil?
+    new_str = []
+    str.each_byte do |x|
+      new_str << Iconv_ISO8859_1[x.ord]
     end
+    new_str.join
   end
 
   #
@@ -429,7 +564,7 @@ module Text
   #
   # Returns a unicode escaped string for Javascript
   #
-  def self.to_unescape(data, endian=ENDIAN_LITTLE)
+  def self.to_unescape(data, endian=ENDIAN_LITTLE, prefix='%%u')
     data << "\x41" if (data.length % 2 != 0)
     dptr = 0
     buff = ''
@@ -440,9 +575,9 @@ module Text
       dptr += 1
 
       if (endian == ENDIAN_LITTLE)
-        buff << sprintf('%%u%.2x%.2x', c2, c1)
+        buff << sprintf("#{prefix}%.2x%.2x", c2, c1)
       else
-        buff << sprintf('%%u%.2x%.2x', c1, c2)
+        buff << sprintf("#{prefix}%.2x%.2x", c1, c2)
       end
     end
     return buff
@@ -731,15 +866,18 @@ module Text
 
     return str if mode == 'none' # fast track no encoding
 
-    all = /[^\/\\]+/
-    normal = /[^a-zA-Z0-9\/\\\.\-]+/
-    normal_na = /[a-zA-Z0-9\/\\\.\-]/
+    all = /./
+    noslashes = /[^\/\\]+/
+    # http://tools.ietf.org/html/rfc3986#section-2.3
+    normal = /[^a-zA-Z0-9\/\\\.\-_~]+/
 
     case mode
-    when 'hex-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-random'
       res = ''
       str.each_byte do |c|
@@ -749,10 +887,12 @@ module Text
           b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
       end
       return res
-    when 'u-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-random'
       res = ''
       str.each_byte do |c|
@@ -986,6 +1126,56 @@ module Text
     return output
   end
 
+  #
+  # Converts a string to one similar to what would be used by cowsay(1), a UNIX utility for
+  # displaying text as if it was coming from an ASCII-cow's mouth:
+  #
+  #       __________________
+  #      < the cow says moo >
+  #       ------------------
+  #              \   ^__^
+  #               \  (oo)\_______
+  #                  (__)\       )\/\
+  #                      ||----w |
+  #                      ||     ||
+  #
+  # @param text [String] The string to cowsay
+  # @param width [Fixnum] Width of the cow's cloud.  Default's to cowsay(1)'s default, 39.
+  def self.cowsay(text, width=39)
+    # cowsay(1) chunks a message up into 39-byte chunks and wraps it in '| ' and ' |'
+    # Rex::Text.wordwrap(text, 0, 39, ' |', '| ') almost does this, but won't
+    # split a word that has > 39 characters in it which results in oddly formed
+    # text in the cowsay banner, so just do it by hand.  This big mess wraps
+    # the provided text in an ASCII-cloud and then makes it look like the cloud
+    # is a thought/word coming from the ASCII-cow.  Each line in the
+    # ASCII-cloud is no more than the specified number-characters long, and the
+    # cloud corners are made to look rounded
+    text_lines = text.scan(Regexp.new(".{1,#{width-4}}"))
+    max_length = text_lines.map(&:size).sort.last
+    cloud_parts = []
+    cloud_parts << " #{'_' * (max_length + 2)}"
+    if text_lines.size == 1
+      cloud_parts << "< #{text} >"
+    else
+      cloud_parts << "/ #{text_lines.first.ljust(max_length, ' ')} \\"
+      if text_lines.size > 2
+        text_lines[1, text_lines.length - 2].each do |line|
+          cloud_parts << "| #{line.ljust(max_length, ' ')} |"
+        end
+      end
+      cloud_parts << "\\ #{text_lines.last.ljust(max_length, ' ')} /"
+    end
+    cloud_parts << " #{'-' * (max_length + 2)}"
+    cloud_parts << <<EOS
+       \\   ,__,
+        \\  (oo)____
+           (__)    )\\
+              ||--|| *
+EOS
+    cloud_parts.join("\n")
+  end
+
+
   ##
   #
   # Transforms
@@ -1081,6 +1271,24 @@ module Text
   #
   def self.decode_base64(str)
     str.to_s.unpack("m")[0]
+  end
+
+  #
+  # Base64 encoder (URL-safe RFC6920)
+  #
+  def self.encode_base64url(str, delim='')
+    encode_base64(str, delim).
+      tr('+/', '-_').
+      gsub('=', '')
+  end
+
+  #
+  # Base64 decoder (URL-safe RFC6920, ignores invalid characters)
+  #
+  def self.decode_base64url(str)
+    decode_base64(
+      str.gsub(/[^a-zA-Z0-9_\-]/, '').
+      tr('-_', '+/'))
   end
 
   #
@@ -1223,6 +1431,18 @@ module Text
     rand_base(len, bad, *foo )
   end
 
+  # Generate random bytes of base64 data
+  def self.rand_text_base64(len, bad='')
+    foo = Base64.unpack('C*').map{ |c| c.chr }
+    rand_base(len, bad, *foo )
+  end
+
+  # Generate random bytes of base64url data
+  def self.rand_text_base64url(len, bad='')
+    foo = Base64Url.unpack('C*').map{ |c| c.chr }
+    rand_base(len, bad, *foo )
+  end
+
   # Generate a random GUID
   #
   # @example
@@ -1231,6 +1451,42 @@ module Text
   # @return [String]
   def self.rand_guid
     "{#{[8,4,4,4,12].map {|a| rand_text_hex(a) }.join("-")}}"
+  end
+
+  #
+  # Convert 16-byte string to a GUID string
+  #
+  # @example
+  #   str = "ABCDEFGHIJKLMNOP"
+  #   Rex::Text.to_guid(str) #=> "{44434241-4645-4847-494a-4b4c4d4e4f50}"
+  #
+  # @param bytes [String] 16 bytes which represent a GUID in the proper
+  #   order.
+  #
+  # @return [String]
+  def self.to_guid(bytes)
+    return nil unless bytes
+    s = bytes.unpack('H*')[0]
+    parts = [
+      s[6,  2] + s[4,  2] + s[2, 2] + s[0, 2],
+      s[10, 2] + s[8,  2],
+      s[14, 2] + s[12, 2],
+      s[16, 4],
+      s[20, 12]
+    ]
+    "{#{parts.join('-')}}"
+  end
+
+  #
+  # Generate a valid random 4 byte UTF-8 character
+  # valid codepoints for 4byte UTF-8 chars: U+010000 - U+10FFFF
+  #
+  # @example
+  #   Rex::Text.rand_4byte_utf8 # => "\u{108CF3}"
+  #
+  # @return [String]
+  def self.rand_4byte_utf8
+    [rand(0x10000..0x10ffff)].pack('U*')
   end
 
   #
@@ -1329,12 +1585,12 @@ module Text
   # Randomize the whitespace in a string
   #
   def self.randomize_space(str)
+    set = ["\x09", "\x20", "\x0d", "\x0a"]
     str.gsub(/\s+/) { |s|
       len = rand(50)+2
-      set = "\x09\x20\x0d\x0a"
       buf = ''
       while (buf.length < len)
-        buf << set[rand(set.length),1]
+        buf << set.sample
       end
 
       buf
@@ -1448,7 +1704,10 @@ module Text
   # @param data [#delete]
   # @param badchars [String] A list of characters considered to be bad
   def self.remove_badchars(data, badchars = '')
-    data.delete(badchars)
+    return data if badchars.length == 0
+    badchars_pat = badchars.unpack("C*").map{|c| "\\x%.2x" % c}.join
+    data.gsub!(/[#{badchars_pat}]/n, '')
+    data
   end
 
   #
@@ -1457,7 +1716,8 @@ module Text
   # @param keepers [String]
   # @return [String] All characters not contained in +keepers+
   def self.charset_exclude(keepers)
-    [*(0..255)].pack('C*').delete(keepers)
+    excluded_bytes = [*(0..255)] - keepers.unpack("C*")
+    excluded_bytes.pack("C*")
   end
 
   #
@@ -1525,16 +1785,62 @@ module Text
     (rand(5) + 1).times {
       host.push(Rex::Text.rand_text_alphanumeric(rand(10) + 1))
     }
-    d = ['com', 'net', 'org', 'gov']
-    host.push(d[rand(d.size)])
+    host.push(TLDs.sample)
     host.join('.').downcase
   end
 
   # Generate a state
   def self.rand_state()
-    States[rand(States.size)]
+    States.sample
   end
 
+  # Generate a surname
+  def self.rand_surname
+    Surnames.sample
+  end
+
+  # Generate a name
+  def self.rand_name
+    if rand(10) % 2 == 0
+      Names_Male.sample
+    else
+      Names_Female.sample
+    end
+  end
+
+  # Generate a male name
+  def self.rand_name_male
+    Names_Male.sample
+  end
+
+  # Generate a female name
+  def self.rand_name_female
+    Names_Female.sample
+  end
+
+  # Generate a random mail address
+  def self.rand_mail_address
+    mail_address = ''
+    mail_address << Rex::Text.rand_name
+    mail_address << '.'
+    mail_address << Rex::Text.rand_surname
+    mail_address << '@'
+    mail_address << Rex::Text.rand_hostname
+  end
+
+  #
+  # Calculate the block API hash for the given module/function
+  #
+  # @param mod [String] The name of the module containing the target function.
+  # @param fun [String] The name of the function.
+  #
+  # @return [String] The hash of the mod/fun pair in string format
+  def self.block_api_hash(mod, fun)
+    unicode_mod = (mod.upcase + "\x00").unpack('C*').pack('v*')
+    mod_hash = self.ror13_hash(unicode_mod)
+    fun_hash = self.ror13_hash(fun + "\x00")
+    "0x#{(mod_hash + fun_hash & 0xFFFFFFFF).to_s(16)}"
+  end
 
   #
   # Calculate the ROR13 hash of a given string
@@ -1702,4 +2008,3 @@ protected
 
 end
 end
-

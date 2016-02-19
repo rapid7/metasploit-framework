@@ -1,9 +1,71 @@
 # -*- coding: binary -*-
+
+require 'msf/core/post/windows/error'
+
 module Msf
 class Post
 module Windows
 
 module Accounts
+  include Msf::Post::Windows::Error
+
+  GUID = [
+    ['Data1',:DWORD],
+    ['Data2',:WORD],
+    ['Data3',:WORD],
+    ['Data4','BYTE[8]']
+  ]
+
+  DOMAIN_CONTROLLER_INFO = [
+    ['DomainControllerName',:LPSTR],
+    ['DomainControllerAddress',:LPSTR],
+    ['DomainControllerAddressType',:ULONG],
+    ['DomainGuid',GUID],
+    ['DomainName',:LPSTR],
+    ['DnsForestName',:LPSTR],
+    ['Flags',:ULONG],
+    ['DcSiteName',:LPSTR],
+    ['ClientSiteName',:LPSTR]
+  ]
+
+  ##
+  # get_domain(server_name=nil)
+  #
+  # Summary:
+  #   Retrieves the current DomainName the given server is
+  #   a member of.
+  #
+  # Parameters
+  #   server_name - DNS or NetBIOS name of the remote server
+  # Returns:
+  #   The DomainName of the remote server or nil if windows
+  #   could not retrieve the DomainControllerInfo or encountered
+  #   an exception.
+  #
+  ##
+  def get_domain(server_name=nil)
+    domain = nil
+    result = session.railgun.netapi32.DsGetDcNameA(
+      server_name,
+      nil,
+      nil,
+      nil,
+      0,
+      4)
+
+    begin
+      dc_info_addr = result['DomainControllerInfo']
+      unless dc_info_addr == 0
+        dc_info = session.railgun.util.read_data(DOMAIN_CONTROLLER_INFO, dc_info_addr)
+        pointer = session.railgun.util.unpack_pointer(dc_info['DomainName'])
+        domain = session.railgun.util.read_string(pointer)
+      end
+    ensure
+      session.railgun.netapi32.NetApiBufferFree(dc_info_addr)
+    end
+
+    domain
+  end
 
   ##
   # delete_user(username, server_name = nil)
@@ -107,16 +169,42 @@ module Accounts
       end
     end
 
-    # A reference to the SID data structure. Generally needed when working with sids
     psid = conversion['pSid']
 
-    # http://msdn.microsoft.com/en-us/library/aa379166(v=vs.85).aspx
-    # TODO: The buffer sizes here need to be reviewed/adjusted/optimized
-    lookup = adv.LookupAccountSidA(system_name, psid, 100, 100, 100, 100, 1)
+    # Begin/Ensure so we free the pSid buffer...
+    begin
+      # A reference to the SID data structure. Generally needed when working with sids
 
-    # We no longer need the sid so free it.
-    # NOTE: We do not check to see if this call succeeded. Do we care?
-    adv.FreeSid(psid)
+      # http://msdn.microsoft.com/en-us/library/aa379166(v=vs.85).aspx
+      lp_name = lp_referenced_domain_name = 100
+      cch_name = cch_referenced_domain_name = 100
+      lookup = adv.LookupAccountSidA(system_name,
+                                    psid,
+                                    lp_name,
+                                    cch_name,
+                                    lp_referenced_domain_name,
+                                    cch_referenced_domain_name,
+                                    1)
+
+      if !lookup['return'] && lookup['GetLastError'] == INSUFFICIENT_BUFFER
+        lp_name = cch_name = lookup['cchName']
+        lp_referenced_domain_name = cch_referenced_domain_name = lookup['cchReferencedDomainName']
+
+        lookup = adv.LookupAccountSidA(system_name,
+                                      psid,
+                                      lp_name,
+                                      cch_name,
+                                      lp_referenced_domain_name,
+                                      cch_referenced_domain_name,
+                                      1)
+      elsif !lookup['return']
+        print_error "Unexpected windows error #{lookup['GetLastError']}"
+        return nil
+      end
+    ensure
+      # We no longer need the sid so free it.
+      adv.FreeSid(psid)
+    end
 
     # If the call failed, handle errors accordingly.
     unless lookup['return']
@@ -124,7 +212,7 @@ module Accounts
 
       case error
       when client.railgun.const('ERROR_INVALID_PARAMETER')
-        # Unless the railgun call is broken, this means revesion is wrong
+        # Unless the railgun call is broken, this means revision is wrong
         return { :type => :invalid }
       when client.railgun.const('ERROR_NONE_MAPPED')
         # There were no accounts associated with this SID
@@ -212,7 +300,7 @@ module Accounts
 
     #define generic mapping structure
     gen_map = [0,0,0,0]
-    gen_map = gen_map.pack("L")
+    gen_map = gen_map.pack("V")
     buffer_size = 500
 
     #get Security Descriptor for the directory
@@ -225,7 +313,7 @@ module Accounts
       vprint_error("The system cannot find the file specified: #{dir}")
       return nil
     else
-      vprint_error("Unknown error - GetLastError #{f['GetLastError']}: #{dir}")
+      vprint_error("#{f['ErrorMessage']}: #{dir}")
       return nil
     end
 
@@ -240,6 +328,8 @@ module Accounts
     w = adv.AccessCheck(sd, token, "ACCESS_WRITE", gen_map, len, len, 4, 8)
     if !w["return"] then return nil end
     if w["GrantedAccess"] > 0 then result << "W" end
+
+    result
   end
 
 end # Accounts

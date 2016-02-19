@@ -1,0 +1,130 @@
+# -*- coding:binary -*-
+require 'spec_helper'
+
+require 'msf/core'
+require 'msf/core/exploit/smb/server/share'
+require 'rex/proto/smb/constants'
+
+RSpec.describe Msf::Exploit::Remote::SMB::Server::Share do
+
+  include_context "Msf::StringIO"
+
+  subject(:mod) do
+    mod = Msf::Exploit.new
+    mod.extend described_class
+    mod.send(:initialize)
+
+    mod
+  end
+
+  let(:default_response_length) { 45 }
+  let(:default_response) do
+    "\x00\x00\x00\x29\xff\x53\x4d\x42\x73\x00\x00\x00\x00\x88\x01\xc8" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x48\x47" +
+    "\x00\x00\x44\x43\x03\xff\x00\x00\x00\x00\x00\x00\x00"
+  end
+
+  let(:default_tree_connect_response_length) { 62 }
+  let(:default_tree_connect_response) do
+    "\x00\x00\x00\x3a\xff\x53\x4d\x42\x73\x00\x00\x00\x00\x88\x01\xc8" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x48\x47" +
+    "\x00\x00\x44\x43\x03\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  end
+
+  let(:valid_request) do
+    "\x00\x00\x00\xf6\xff\x53\x4d\x42\x73\x00\x00\x00\x00\x18\x07\xc8" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xfe" +
+    "\x00\x00\x00\xb4\x0d\x75\x00\x6a\x00\x04\x11\x32\x00\x01\x00\x00" +
+    "\x00\x00\x00\x01\x00\x01\x00\x00\x00\x00\x00\xd4\x00\x00\x00\x2d" +
+    "\x00\x00\x00\x00\x41\x00\x64\x00\x6d\x00\x69\x00\x6e\x00\x69\x00" +
+    "\x73\x00\x74\x00\x72\x00\x61\x00\x74\x00\x6f\x00\x72\x00\x00\x00" +
+    "\x44\x00\x45\x00\x4d\x00\x4f\x00\x00\x00\x00\x00\x00\x00\x04\xff" +
+    "\x00\xf6\x00\x08\x00\x50\x00\x81\x00\xd5\xd0\x4b\x3f\xa4\xd7\x53" +
+    "\xa4\x03\x65\xe4\x9c\x00\x68\xfb\xb5\x01\x01\x00\x00\x00\x00\x00" +
+    "\x00\x6b\xf3\xdc\xf0\xd5\x4f\xd0\x01\x48\x51\x81\xa6\x07\x5b\x97" +
+    "\xe6\x00\x00\x00\x00\x02\x00\x18\x00\x31\x00\x37\x00\x32\x00\x2e" +
+    "\x00\x31\x00\x36\x00\x2e\x00\x31\x00\x35\x00\x38\x00\x2e\x00\x31" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x5c\x00\x5c\x00\x31\x00" +
+    "\x37\x00\x32\x00\x2e\x00\x31\x00\x36\x00\x2e\x00\x31\x00\x35\x00" +
+    "\x38\x00\x2e\x00\x31\x00\x5c\x00\x4e\x00\x52\x00\x42\x00\x4a\x00" +
+    "\x55\x00\x00\x00\x3f\x3f\x3f\x3f\x3f\x00"
+  end
+  let(:valid_response) do
+    "\x00\x00\x00\x7e\xff\x53\x4d\x42\x73\x00\x00\x00\x00\x88\x01\xc8" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x48\x47" +
+    "\x00\x00\x44\x43\x03\x75\x00\x60\x00\x01\x00\x37\x00\x00\x55\x00" +
+    "\x6e\x00\x69\x00\x78\x00\x00\x00\x53\x00\x61\x00\x6d\x00\x62\x00" +
+    "\x61\x00\x20\x00\x33\x00\x2e\x00\x34\x00\x2e\x00\x37\x00\x00\x00" +
+    "\x57\x00\x4f\x00\x52\x00\x4b\x00\x47\x00\x52\x00\x4f\x00\x55\x00" +
+    "\x50\x00\x00\x00\x07\xff\x00\x00\x00\x01\x00\xa9\x00\x12\x00\x00" +
+    "\x00\x00\x00\x0d\x00\x41\x3a\x00\x4e\x00\x54\x00\x46\x00\x53\x00" +
+    "\x00\x00"
+  end
+  let(:valid_response_length) { 130 }
+
+  let(:opts) { {} }
+
+  before(:example) do
+    msf_io.string = ''
+    mod.instance_variable_set('@state', {
+      msf_io => {
+        :multiplex_id => 0x41424344,
+        :process_id   => 0x45464748,
+        :file_id      => 0xdead,
+        :dir_id       => 0xbeef
+      }
+    })
+    mod.lo = 0
+    mod.hi = 0
+    mod.share = 'test'
+    mod.file_name = 'false.exe'
+    mod.file_contents = 'metasploit'
+  end
+
+  describe "#send_session_setup_andx_res" do
+    context "when no extra command" do
+      it "returns the number of bytes sent" do
+        expect(mod.send_session_setup_andx_res(msf_io)).to eq(default_response_length)
+      end
+
+      it "sends a valid SMB_COM_SESSION_SETUP_ANDX response to the client" do
+        mod.send_session_setup_andx_res(msf_io)
+        res = msf_io.read
+        expect(res).to eq(default_response)
+      end
+    end
+
+    context "when extra SMB_COM_TREE_CONNECT_ANDX command" do
+      before(:example) do
+        tree_connect_response = Rex::Proto::SMB::Constants::SMB_TREE_CONN_ANDX_RES_PKT.make_struct
+        opts[:andx_command] = tree_connect_response
+      end
+
+      it "returns the number of bytes sent" do
+        expect(mod.send_session_setup_andx_res(msf_io, opts)).to eq(default_tree_connect_response_length)
+      end
+
+      it "sends a valid SMB_COM_SESSION_SETUP_ANDX response to the client" do
+        mod.send_session_setup_andx_res(msf_io, opts)
+        res = msf_io.read
+        expect(res).to eq(default_tree_connect_response)
+      end
+    end
+  end
+
+  describe "#smb_cmd_session_setup_andx" do
+    it "returns the number of bytes answered" do
+      expect(mod.smb_cmd_session_setup_andx(msf_io, valid_request)).to eq(valid_response_length)
+    end
+
+    it "sends a valid SMB_COM_SESSION_SETUP_ANDX response to the client" do
+      mod.smb_cmd_session_setup_andx(msf_io, valid_request)
+      res = msf_io.read
+      expect(res).to eq(valid_response)
+    end
+  end
+
+end
+
+

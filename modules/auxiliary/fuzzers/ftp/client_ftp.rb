@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 # Fuzzer written by corelanc0d3r - <peter.ve [at] corelan.be>
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
       OptPort.new('SRVPORT', [ true, "The local port to listen on.", 21 ]),
-      OptString.new('FUZZCMDS', [ true, "Comma separated list of commands to fuzz.", "LIST,NLST,LS,RETR" ]),
+      OptString.new('FUZZCMDS', [ true, "Comma separated list of commands to fuzz (Uppercase).", "LIST,NLST,LS,RETR", nil, /(?:[A-Z]+,?)+/ ]),
       OptInt.new('STARTSIZE', [ true, "Fuzzing string startsize.",1000]),
       OptInt.new('ENDSIZE', [ true, "Max Fuzzing string size.",200000]),
       OptInt.new('STEPSIZE', [ true, "Increment fuzzing string each attempt.",1000]),
@@ -48,25 +48,17 @@ class Metasploit3 < Msf::Auxiliary
     false
   end
 
-
-  #---------------------------------------------------------------------------------
   def setup
     super
     @state = {}
   end
-
-
-  #---------------------------------------------------------------------------------
 
   def run
     @fuzzsize=datastore['STARTSIZE'].to_i
     exploit()
   end
 
-  #---------------------------------------------------------------------------------
   # Handler for new FTP client connections
-  #---------------------------------------------------------------------------------
-
   def on_client_connect(c)
     @state[c] = {
       :name => "#{c.peerhost}:#{c.peerport}",
@@ -75,20 +67,18 @@ class Metasploit3 < Msf::Auxiliary
       :user => nil,
       :pass => nil
     }
-    #set up an active data port on port 20
+    # set up an active data port on port 20
     print_status("Client connected : " + c.peerhost)
     active_data_port_for_client(c, 20)
     send_response(c,"","WELCOME",220," "+datastore['WELCOME'])
-    #from this point forward, on_client_data() will take over
+    # from this point forward, on_client_data() will take over
   end
 
   def on_client_close(c)
     @state.delete(c)
   end
 
-  #---------------------------------------------------------------------------------
   # Active and Passive data connections
-  #---------------------------------------------------------------------------------
   def passive_data_port_for_client(c)
     @state[c][:mode] = :passive
     if(not @state[c][:passive_sock])
@@ -140,22 +130,17 @@ class Metasploit3 < Msf::Auxiliary
     nil
   end
 
-
-
-  #---------------------------------------------------------------------------------
-  #  FTP Client-to-Server Command handlers
-  #---------------------------------------------------------------------------------
-
+  # FTP Client-to-Server Command handlers
   def on_client_data(c)
-    #get the client data
+    # get the client data
     data = c.get_once
     return if not data
-    #split data into command and arguments
+    # split data into command and arguments
     cmd,arg = data.strip.split(/\s+/, 2)
     arg ||= ""
 
     return if not cmd
-    #convert commands to uppercase and strip spaces
+    # convert commands to uppercase and strip spaces
     case cmd.upcase.strip
 
     when 'USER'
@@ -247,7 +232,7 @@ class Metasploit3 < Msf::Auxiliary
       return
 
     when /^(LIST|NLST|LS)$/
-      #special case - requires active/passive connection
+      # special case - requires active/passive connection
       print_status("Handling #{cmd.upcase} command")
       conn = establish_data_connection(c)
       if(not conn)
@@ -289,7 +274,7 @@ class Metasploit3 < Msf::Auxiliary
       return
 
     when 'RETR'
-      #special case - requires active/passive connection
+      # special case - requires active/passive connection
       print_status("Handling #{cmd.upcase} command")
       conn = establish_data_connection(c)
       if(not conn)
@@ -353,11 +338,7 @@ class Metasploit3 < Msf::Auxiliary
     return
   end
 
-
-
-  #---------------------------------------------------------------------------------
   # Fuzzer functions
-  #---------------------------------------------------------------------------------
 
   # Do we need to fuzz this command ?
   def fuzz_this_cmd(cmd)
@@ -421,7 +402,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("* Fuzz data sent")
       incr_fuzzsize()
     else
-      #Do not fuzz
+      # Do not fuzz
       cmsg = code.to_s + msg
       cmsg = cmsg.strip
       c.put("#{cmsg}\r\n")

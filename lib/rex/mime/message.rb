@@ -5,9 +5,13 @@ class Message
 
   require 'rex/mime/header'
   require 'rex/mime/part'
+  require 'rex/mime/encoding'
   require 'rex/text'
 
+  include Rex::MIME::Encoding
+
   attr_accessor :header, :parts, :bound, :content
+
 
   def initialize(data=nil)
     self.header = Rex::MIME::Header.new
@@ -20,12 +24,11 @@ class Message
       self.header.parse(head)
       ctype = self.header.find('Content-Type')
 
-      if ctype and ctype[1] and ctype[1] =~ /multipart\/mixed;\s*boundary=([^\s]+)/
+      if ctype && ctype[1] && ctype[1] =~ /multipart\/mixed;\s*boundary="?([A-Za-z0-9'\(\)\+\_,\-\.\/:=\?^\s]+)"?/
         self.bound = $1
-
         chunks = body.to_s.split(/--#{self.bound}(--)?\r?\n/)
         self.content = chunks.shift.to_s.gsub(/\s+$/, '')
-        self.content << "\r\n" if not self.content.empty?
+        self.content << "\r\n" unless self.content.empty?
 
         chunks.each do |chunk|
           break if chunk == "--"
@@ -85,15 +88,13 @@ class Message
   def add_part(data='', content_type='text/plain', transfer_encoding="8bit", content_disposition=nil)
     part = Rex::MIME::Part.new
 
-    if (content_disposition)
+    if content_disposition
       part.header.set("Content-Disposition", content_disposition)
     end
 
-    if (content_type)
-      part.header.set("Content-Type", content_type)
-    end
+    part.header.set("Content-Type", content_type) if content_type
 
-    if (transfer_encoding)
+    if transfer_encoding
       part.header.set("Content-Transfer-Encoding", transfer_encoding)
     end
 
@@ -122,23 +123,19 @@ class Message
   end
 
   def to_s
-    msg = self.header.to_s + "\r\n"
+    header_string = self.header.to_s
 
-    if self.content and not self.content.empty?
-      msg << self.content + "\r\n"
-    end
+    msg = header_string.empty? ? '' : force_crlf(self.header.to_s + "\r\n")
+    msg << force_crlf(self.content + "\r\n") unless self.content.blank?
 
     self.parts.each do |part|
-      msg << "--" + self.bound + "\r\n"
-      msg << part.to_s + "\r\n"
+      msg << force_crlf("--" + self.bound + "\r\n")
+      msg << part.to_s
     end
 
-    if self.parts.length > 0
-      msg << "--" + self.bound + "--\r\n"
-    end
+    msg << force_crlf("--" + self.bound + "--\r\n") if self.parts.length > 0
 
-    # Force CRLF for SMTP compatibility
-    msg.gsub("\r", '').gsub("\n", "\r\n")
+    msg
   end
 
 end

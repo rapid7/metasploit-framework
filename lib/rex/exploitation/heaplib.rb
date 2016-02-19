@@ -88,8 +88,10 @@ protected
 
     if opts[:newobfu]
       # Obfuscate the javascript using the new lexer method
-      @js = JSObfu.new(@js)
-      return @js.obfuscate
+      js_obfu = JSObfu.new(@js)
+      js_obfu.obfuscate
+      @js = js_obfu.to_s
+      return @js
     elsif opts[:noobfu]
       # Do not obfuscate, let the exploit do the work (useful to avoid double obfuscation)
       return @js

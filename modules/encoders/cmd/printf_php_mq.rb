@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -30,6 +30,7 @@ class Metasploit3 < Msf::Encoder
       },
       'Author'           => 'jduck',
       'Arch'             => ARCH_CMD,
+      'Platform'         => 'unix',
       'EncoderType'      => Msf::Encoder::Type::PrintfPHPMagicQuotes)
   end
 
@@ -49,7 +50,7 @@ class Metasploit3 < Msf::Encoder
       (state.badchars.include?("|")) or
       # We must have at least ONE of these two..
       (state.badchars.include?("x") and state.badchars.include?("0"))
-      raise RuntimeError
+      raise EncodingError
     end
 
     # Now we build a string of the original payload with bad characters

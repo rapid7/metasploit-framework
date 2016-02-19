@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,6 +11,8 @@ require 'msf/base/sessions/command_shell_options'
 require 'msf/core/handler/find_shell'
 
 module Metasploit3
+
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Php
@@ -33,7 +35,7 @@ module Metasploit3
         Apache but it might work on other web servers
         that leak file descriptors to child processes.
         },
-      'Author'        => [ 'egypt <egypt@metasploit.com>' ],
+      'Author'        => [ 'egypt' ],
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
       'Handler'       => Msf::Handler::FindShell,

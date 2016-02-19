@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,6 +10,8 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
+  CachedSize = 529
+
   include Msf::Payload::Windows
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -18,7 +20,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Windows Disable Windows ICF, Command Shell, Bind TCP Inline',
       'Description'   => 'Disable the Windows ICF, then listen for a connection and spawn a command shell',
-      'Author'        => 'Lin0xx <lin0xx [at] metasploit.com>',
+      'Author'        => 'Lin0xx <lin0xx[at]metasploit.com>',
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
-          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
+          'Ben Campbell',
         ],
       'References'    =>
         [
