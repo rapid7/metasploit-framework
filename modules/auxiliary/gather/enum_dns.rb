@@ -84,11 +84,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def dns_query(domain, type)
     begin
-      dns = Net::DNS::Resolver.new
-      nameserver = "#{datastore['NS']}"
-      unless nameserver.blank?
-        dns.nameservers -= dns.nameservers
-        dns.nameservers = "#{datastore['NS']}"
+      nameserver = datastore['NS']
+      if nameserver.blank?
+        dns = Net::DNS::Resolver.new
+      else
+        dns = Net::DNS::Resolver.new(nameservers: ::Rex::Socket.resolv_to_dotted(nameserver))
       end
       dns.use_tcp = datastore['TCP_DNS']
       dns.udp_timeout = datastore['TIMEOUT']
@@ -389,6 +389,7 @@ class Metasploit3 < Msf::Auxiliary
     return if nameservers.blank?
     records = []
     nameservers.each do |nameserver|
+      next if nameserver.blank?
       print_status("Attempting DNS AXFR for #{domain} from #{nameserver}")
       dns = Net::DNS::Resolver.new
       dns.use_tcp = datastore['TCP_DNS']
@@ -396,22 +397,21 @@ class Metasploit3 < Msf::Auxiliary
       dns.retry_number = datastore['RETRY']
       dns.retry_interval = datastore['RETRY_INTERVAL']
 
-      next if nameserver.blank?
-      ns = get_a(nameserver)
-      next if ns.blank?
-
-      ns.each do |r|
-        begin
-          dns.nameservers -= dns.nameservers
-          dns.nameservers = "#{r}"
-          zone = dns.axfr(domain)
-        rescue ResolverArgumentError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
-          print_error("Query #{domain} DNS AXFR - exception: #{e}")
-        end
-        next if zone.blank?
-        records << "#{zone}"
-        print_good("#{domain} Zone Transfer: #{zone}")
+      ns_a_records = []
+      # try to get A record for nameserver from target NS, which may fail
+      target_ns_a = get_a(nameserver)
+      ns_a_records |= target_ns_a if target_ns_a
+      ns_a_records << ::Rex::Socket.resolv_to_dotted(nameserver)
+      begin
+        dns.nameservers -= dns.nameservers
+        dns.nameservers = ns_a_records
+        zone = dns.axfr(domain)
+      rescue ResolverArgumentError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
+        print_error("Query #{domain} DNS AXFR - exception: #{e}")
       end
+      next if zone.blank?
+      records << "#{zone}"
+      print_good("#{domain} Zone Transfer: #{zone}")
     end
     return if records.blank?
     records
