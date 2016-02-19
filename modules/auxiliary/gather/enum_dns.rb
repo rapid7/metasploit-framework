@@ -354,7 +354,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("querying DNS SRV records for #{domain}")
     srv_protos = %w(tcp udp tls)
     srv_record_types = %w(gc kerberos ldap test sips sip aix finger ftp http
-      nntp telnet whois h323cs h323be h323ls sipinternal sipinternaltls sip
+      nntp telnet whois h323cs h323be h323ls sipinternal sipinternaltls
       sipfederationtls jabber jabber-client jabber-server xmpp-server xmpp-client
       imap certificates crls pgpkeys pgprevokations cmp svcp crl oscp pkixrep
       smtp hkp hkps)
