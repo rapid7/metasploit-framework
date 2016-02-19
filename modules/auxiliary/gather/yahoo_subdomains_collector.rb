@@ -11,10 +11,10 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Yahoo Search Engine Subdomains Collector',
+      'Name' => 'Search Engine Subdomains Collector',
       'Description' => %q(
         This module can be used to gather subdomains about a domain
-        from Yahoo Search Results.
+        from Yahoo, Bing.
       ),
       'Author' => [ 'Nixawk' ],
       'License' => MSF_LICENSE))
@@ -22,7 +22,9 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGET', [ true, "The target to locate subdomains for, ex: rapid7.com, 8.8.8.8"]),
-        OptBool.new('IP_SEARCH', [ false, "Enable ip of subdomains to locate subdomains", true])
+        OptBool.new('IP_SEARCH', [ false, "Enable ip of subdomains to locate subdomains", true]),
+        OptBool.new('ENUM_BING', [ true, "Enable Bing Search Subdomains", true]),
+        OptBool.new('ENUM_YAHOO', [ true, "Enable Yahoo Search Subdomains", true])
       ], self.class)
 
     deregister_options('RHOST', 'RPORT', 'VHOST', 'SSL', 'Proxies')
@@ -36,6 +38,14 @@ class Metasploit4 < Msf::Auxiliary
     80
   end
 
+  def rhost_bing
+    'global.bing.com'
+  end
+
+  def rport_bing
+    80
+  end
+
   def valid?(ip, domain)
     begin
       ips = Rex::Socket.getaddresses(domain)
@@ -44,6 +54,46 @@ class Metasploit4 < Msf::Auxiliary
     ensure
       false
     end
+  end
+
+  def uri2domain(uri)
+    begin
+      URI(uri).host
+    rescue URI::InvalidURIError
+      nil
+    end
+  end
+
+  def bing_search(dork)
+    print_status("Searching Bing for subdomains from #{dork}")
+    results = []
+    searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
+    searches.each do |num|
+      resp = send_request_cgi!(
+        'rhost' => rhost_bing,
+        'rport' => rport_bing,
+        'vhost' => rhost_bing,
+        'method' => 'GET',
+        'uri' => '/search',
+        'vars_get' => {
+          'FROM' => 'HPCNEN',
+          'setmkt' => 'en-us',
+          'setlang' => 'en-us',
+          'first' => num,
+          'q' => dork
+        })
+
+      next unless resp && resp.code == 200
+      html = resp.get_html_document
+      matches = html.search('cite')
+      matches.each do |match|
+        result = uri2domain(match.text)
+        next unless result
+        result.to_s.downcase!
+        results << result
+      end
+    end
+    results
   end
 
   def yahoo_search(dork)
@@ -78,8 +128,61 @@ class Metasploit4 < Msf::Auxiliary
     results
   end
 
+  def bing_search_domain(domain)
+    domains = {}
+    subdomain_ips = []
+    dork = "domain:#{domain}"
+    results = bing_search(dork)
+    results.each do |subdomain|
+      next if domains.include?(subdomain)
+      next unless subdomain.include?(domain)
+      ips = Rex::Socket.getaddresses(subdomain)
+      ips.each do |ip|
+        report_host(host: ip, name: subdomain)
+        print_good("#{dork} subdomain: #{subdomain} - #{ip}")
+        next if subdomain_ips.include?(ip)
+        subdomain_ips << ip if Rex::Socket.is_ipv4?(ip)
+      end
+      domains[subdomain] = ips
+    end
+
+    subdomain_ips.each do |ip|
+      bing_search_ip(ip) if datastore['IP_SEARCH']
+    end
+
+    return if domains.empty?
+    report_note(
+      host: domain,
+      type: 'Bing Search Subdomains',
+      update: :unique_data,
+      data: domains)
+    domains
+  end
+
+  def bing_search_ip(ip)
+    dork = "ip:#{ip}"
+    domains = {}
+
+    results = bing_search(dork)
+    results.each do |subdomain|
+      next if domains.include?(subdomain)
+      next unless valid?(ip, subdomain)
+      report_host(host: ip, name: subdomain)
+      print_good("#{dork} suddomain: #{subdomain}")
+      domains[subdomain] = ip
+    end
+    return if domains.empty?
+    report_note(
+      host: ip,
+      type: 'Bing Search Subdomains',
+      update: :unique_data,
+      data: domains)
+    domains
+  end
+
   def yahoo_search_domain(domain)
     domains = {}
+    subdomain_ips = []
     dork = "domain:#{domain}"
     results = yahoo_search(dork)
     results.each do |subdomain|
@@ -89,9 +192,14 @@ class Metasploit4 < Msf::Auxiliary
       ips.each do |ip|
         report_host(host: ip, name: subdomain)
         print_good("#{dork} subdomain: #{subdomain} - #{ip}")
-        yahoo_search_ip(ip) if datastore['IP_SEARCH']
+        next if subdomain_ips.include?(ip)
+        subdomain_ips << ip if Rex::Socket.is_ipv4?(ip)
       end
       domains[subdomain] = ips
+    end
+
+    subdomain_ips.each do |ip|
+      yahoo_search_ip(ip) if datastore['IP_SEARCH']
     end
 
     return if domains.empty?
@@ -127,9 +235,11 @@ class Metasploit4 < Msf::Auxiliary
   def run
     target = datastore['TARGET']
     if Rex::Socket.is_ipv4?(target)
-      yahoo_search_ip(target)
+      bing_search_ip(target) if datastore['ENUM_BING']
+      yahoo_search_ip(target) if datastore['ENUM_YAHOO']
     else
-      yahoo_search_domain(target)
+      bing_search_domain(target) if datastore['ENUM_BING']
+      yahoo_search_domain(target) if datastore['ENUM_YAHOO']
     end
   end
 end
