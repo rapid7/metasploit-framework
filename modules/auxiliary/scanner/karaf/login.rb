@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'Karaf Default Credential Scanner',
       'Description' => %q{
-        TODO
+        This module uses default Karaf credentials to login to the console via ssh.
       },
       'Author'      => [
           'Samuel Huckins',
