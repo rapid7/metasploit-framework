@@ -84,11 +84,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def dns_query(domain, type)
     begin
-      dns = Net::DNS::Resolver.new
-      nameserver = "#{datastore['NS']}"
-      unless nameserver.blank?
-        dns.nameservers -= dns.nameservers
-        dns.nameservers = "#{datastore['NS']}"
+      nameserver = datastore['NS']
+      if nameserver.blank?
+        dns = Net::DNS::Resolver.new
+      else
+        dns = Net::DNS::Resolver.new(nameservers: ::Rex::Socket.resolv_to_dotted(nameserver))
       end
       dns.use_tcp = datastore['TCP_DNS']
       dns.udp_timeout = datastore['TIMEOUT']
@@ -189,7 +189,6 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::PTR
       records << "#{r.ptr}"
-      report_host(host: ip, name: "#{r.ptr}", info: 'ip reverse')
       print_good("#{ip}: PTR: #{r.ptr} ")
     end
     return if records.blank?
@@ -204,7 +203,6 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::A
       records << "#{r.address}"
-      report_host(host: r.address, name: domain, info: 'A')
       print_good("#{domain} A: #{r.address} ") if datastore['ENUM_BRT']
     end
     return if records.blank?
@@ -258,7 +256,6 @@ class Metasploit3 < Msf::Auxiliary
       resp.answer.each do |r|
         next unless r.class == Net::DNS::RR::MX
         records << "#{r.exchange}"
-        report_host(host: r.exchange, name: domain, info: 'MX')
         print_good("#{domain} MX: #{r.exchange}")
       end
     rescue SocketError => e
@@ -278,7 +275,6 @@ class Metasploit3 < Msf::Auxiliary
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::SOA
       records << r.mname
-      report_host(host: r.mname, info: 'SOA')
       print_good("#{domain} SOA: #{r.mname}")
     end
     return if records.blank?
@@ -359,7 +355,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("querying DNS SRV records for #{domain}")
     srv_protos = %w(tcp udp tls)
     srv_record_types = %w(gc kerberos ldap test sips sip aix finger ftp http
-      nntp telnet whois h323cs h323be h323ls sipinternal sipinternaltls sip
+      nntp telnet whois h323cs h323be h323ls sipinternal sipinternaltls
       sipfederationtls jabber jabber-client jabber-server xmpp-server xmpp-client
       imap certificates crls pgpkeys pgprevokations cmp svcp crl oscp pkixrep
       smtp hkp hkps)
@@ -399,6 +395,7 @@ class Metasploit3 < Msf::Auxiliary
     return if nameservers.blank?
     records = []
     nameservers.each do |nameserver|
+      next if nameserver.blank?
       print_status("Attempting DNS AXFR for #{domain} from #{nameserver}")
       dns = Net::DNS::Resolver.new
       dns.use_tcp = datastore['TCP_DNS']
@@ -406,22 +403,21 @@ class Metasploit3 < Msf::Auxiliary
       dns.retry_number = datastore['RETRY']
       dns.retry_interval = datastore['RETRY_INTERVAL']
 
-      next if nameserver.blank?
-      ns = get_a(nameserver)
-      next if ns.blank?
-
-      ns.each do |r|
-        begin
-          dns.nameservers -= dns.nameservers
-          dns.nameservers = "#{r}"
-          zone = dns.axfr(domain)
-        rescue ResolverArgumentError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
-          print_error("Query #{domain} DNS AXFR - exception: #{e}")
-        end
-        next if zone.blank?
-        records << "#{zone}"
-        print_good("#{domain} Zone Transfer: #{zone}")
+      ns_a_records = []
+      # try to get A record for nameserver from target NS, which may fail
+      target_ns_a = get_a(nameserver)
+      ns_a_records |= target_ns_a if target_ns_a
+      ns_a_records << ::Rex::Socket.resolv_to_dotted(nameserver)
+      begin
+        dns.nameservers -= dns.nameservers
+        dns.nameservers = ns_a_records
+        zone = dns.axfr(domain)
+      rescue ResolverArgumentError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
+        print_error("Query #{domain} DNS AXFR - exception: #{e}")
       end
+      next if zone.blank?
+      records << "#{zone}"
+      print_good("#{domain} Zone Transfer: #{zone}")
     end
     return if records.blank?
     records
