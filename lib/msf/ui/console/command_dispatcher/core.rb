@@ -34,18 +34,19 @@ class Core
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
-    "-c" => [ true,  "Run a command on the session given with -i, or all"],
-    "-h" => [ false, "Help banner"                                    ],
-    "-i" => [ true,  "Interact with the supplied session ID"          ],
-    "-l" => [ false, "List all active sessions"                       ],
-    "-v" => [ false, "List verbose fields"                            ],
-    "-q" => [ false, "Quiet mode"                                     ],
-    "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
-    "-K" => [ false, "Terminate all sessions"                         ],
-    "-s" => [ true,  "Run a script on the session given with -i, or all"],
-    "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ],
-    "-t" => [ true,  "Set a response timeout (default: 15)"])
+    "-c"  => [ true,  "Run a command on the session given with -i, or all"          ],
+    "-h"  => [ false, "Help banner"                                                 ],
+    "-i"  => [ true,  "Interact with the supplied session ID   "                    ],
+    "-l"  => [ false, "List all active sessions"                                    ],
+    "-v"  => [ false, "List sessions in verbose mode"                               ],
+    "-q"  => [ false, "Quiet mode"                                                  ],
+    "-k"  => [ true,  "Terminate sessions by session ID and/or range"               ],
+    "-K"  => [ false, "Terminate all sessions"                                      ],
+    "-s"  => [ true,  "Run a script on the session given with -i, or all"           ],
+    "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all" ],
+    "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"  ],
+    "-t"  => [ true,  "Set a response timeout (default: 15)"                        ],
+    "-x" =>  [ false, "Show extended information in the session table"              ])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -1306,64 +1307,56 @@ class Core
       return false
     end
 
-    arg = args.shift
-    case arg
+    action = args.shift
+    case action
 
     when "add", "remove", "del"
-      if (args.length < 3)
-        print_error("Missing arguments to route #{arg}.")
+      subnet = args.shift
+      subnet,cidr_mask = subnet.split("/")
+
+      if cidr_mask
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
+      else
+        netmask = args.shift
+      end
+
+      gateway_name = args.shift
+
+      if (subnet.nil? || netmask.nil? || gateway_name.nil?)
+        print_error("Missing arguments to route #{action}.")
         return false
       end
 
-      # Satisfy check to see that formatting is correct
-      unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-        print_error "Invalid IP Address"
-        return false
-      end
+      gateway = nil
 
-      unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-        print_error "Invalid Subnet mask"
-        return false
-      end
-
-      gw = nil
-
-      # Satisfy case problems
-      args[2] = "Local" if (args[2] =~ /local/i)
-
-      begin
-        # If the supplied gateway is a global Comm, use it.
-        if (Rex::Socket::Comm.const_defined?(args[2]))
-          gw = Rex::Socket::Comm.const_get(args[2])
-        end
-      rescue NameError
-      end
-
-      # If we still don't have a gateway, check if it's a session.
-      if ((gw == nil) and
-          (session = framework.sessions.get(args[2])) and
-          (session.kind_of?(Msf::Session::Comm)))
-        gw = session
-      elsif (gw == nil)
-        print_error("Invalid gateway specified.")
-        return false
-      end
-
-      if arg == "remove" or arg == "del"
-        worked = Rex::Socket::SwitchBoard.remove_route(args[0], args[1], gw)
-        if worked
-          print_status("Route removed")
+      case gateway_name
+      when /local/i
+        gateway = Rex::Socket::Comm::Local
+      when /^[0-9]+$/
+        session = framework.sessions.get(gateway_name)
+        if session.kind_of?(Msf::Session::Comm)
+          gateway = session
+        elsif session.nil?
+          print_error("Not a session: #{gateway_name}")
+          return false
         else
-          print_error("Route not found")
+          print_error("Cannout route through specified session (not a Comm)")
+          return false
         end
       else
-        worked = Rex::Socket::SwitchBoard.add_route(args[0], args[1], gw)
-        if worked
-          print_status("Route added")
-        else
-          print_error("Route already exists")
-        end
+        print_error("Invalid gateway")
+        return false
       end
+
+      msg = "Route "
+      if action == "remove" or action == "del"
+        worked = Rex::Socket::SwitchBoard.remove_route(subnet, netmask, gateway)
+        msg << (worked ? "removed" : "not found")
+      else
+        worked = Rex::Socket::SwitchBoard.add_route(subnet, netmask, gateway)
+        msg << (worked ? "added" : "already exists")
+      end
+      print_status(msg)
 
     when "get"
       if (args.length == 0)
@@ -1757,12 +1750,13 @@ class Core
   #
   def cmd_sessions(*args)
     begin
-    method  = nil
-    quiet   = false
-    verbose = false
-    sid     = nil
-    cmds    = []
-    script  = nil
+    method   = nil
+    quiet    = false
+    show_extended = false
+    verbose  = false
+    sid      = nil
+    cmds     = []
+    script   = nil
     reset_ring = false
     response_timeout = 15
 
@@ -1779,6 +1773,8 @@ class Core
       when "-c"
         method = 'cmd'
         cmds << val if val
+      when "-x"
+        show_extended = true
       when "-v"
         verbose = true
       # Do something with the supplied session identifier instead of
@@ -2041,7 +2037,7 @@ class Core
       end
     when 'list',nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :verbose => verbose))
+      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose))
       print_line
     end
 

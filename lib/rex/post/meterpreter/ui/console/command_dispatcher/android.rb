@@ -29,7 +29,8 @@ class Console::CommandDispatcher::Android
       'device_shutdown'   => 'Shutdown device',
       'send_sms'          => 'Sends SMS from target session',
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
-      'interval_collect'  => 'Manage interval collection capabilities'
+      'interval_collect'  => 'Manage interval collection capabilities',
+      'activity_start'    => 'Start an Android activity from a Uri string'
     }
 
     reqs = {
@@ -41,7 +42,8 @@ class Console::CommandDispatcher::Android
       'device_shutdown'  => ['device_shutdown'],
       'send_sms'         => ['send_sms'],
       'wlan_geolocate'   => ['wlan_geolocate'],
-      'interval_collect' => ['interval_collect']
+      'interval_collect' => ['interval_collect'],
+      'activity_start'   => ['activity_start']
     }
 
     # Ensure any requirements of the command are met
@@ -528,6 +530,22 @@ class Console::CommandDispatcher::Android
     end
   end
 
+  def cmd_activity_start(*args)
+    if (args.length < 1)
+      print_line("Usage: activity_start <uri>\n")
+      print_line("Start an Android activity from a uri")
+      return
+    end
+    
+    uri = args[0]
+    result = client.android.activity_start(uri)
+    if result.nil?
+      print_status("Intent started")
+    else
+      print_error("Error: #{result}")
+    end
+  end
+ 
   #
   # Name for this dispatcher
   #

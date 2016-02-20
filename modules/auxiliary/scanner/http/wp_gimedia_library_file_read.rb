@@ -69,9 +69,9 @@ class Metasploit3 < Msf::Auxiliary
         fname
       )
 
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      vprint_error("#{peer} - Nothing was downloaded. Check the path and the traversal parameters.")
+      vprint_error("Nothing was downloaded. Check the path and the traversal parameters.")
     end
   end
 end

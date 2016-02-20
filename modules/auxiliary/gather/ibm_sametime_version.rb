@@ -192,10 +192,10 @@ class Metasploit3 < Msf::Auxiliary
   def report
     if @version_info['version']['sametimeVersion']
       print_line
-      print_good("#{peer} - #{@version_info['version']['sametimeVersion']} Detected")
+      print_good("#{@version_info['version']['sametimeVersion']} Detected")
     else
       print_line
-      print_status("#{peer} - IBM Lotus Sametime information")
+      print_status("IBM Lotus Sametime information")
     end
 
     # configure tables
@@ -298,7 +298,7 @@ class Metasploit3 < Msf::Auxiliary
     @version_info['conf'] = {}
     @version_info['api'] = {}
 
-    print_status("#{peer} - Checking IBM Lotus Sametime Server")
+    print_status("Checking IBM Lotus Sametime Server")
     URLS.each do | url |
       check_url(url)
     end
@@ -312,13 +312,13 @@ class Metasploit3 < Msf::Auxiliary
         proxy = URI(@version_info['conf']['meetingroomcenter.stProxyAddress']).host
       end
 
-      print_good("#{peer} - Sametime Proxy address discovered #{proxy}")
+      print_good("Sametime Proxy address discovered #{proxy}")
 
       PROXY_URLS.each do | url |
         check_url(url, proxy)
       end
     elsif proxy?
-      print_status("#{peer} - Sametime Proxy address discovered, but checks disabled")
+      print_status("Sametime Proxy address discovered, but checks disabled")
     end
 
     report unless @version_info.empty?
