@@ -30,7 +30,7 @@ class Console::CommandDispatcher::Android
       'send_sms'          => 'Sends SMS from target session',
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
       'interval_collect'  => 'Manage interval collection capabilities',
-      'activity_start'    => 'Start an Android activity from a Uri string'
+      'activity_start'    => 'Start an Android activity from a Uri string',
       'set_audio_mode'    => 'Set Ringer Mode'
     }
 
@@ -44,7 +44,7 @@ class Console::CommandDispatcher::Android
       'send_sms'         => ['send_sms'],
       'wlan_geolocate'   => ['wlan_geolocate'],
       'interval_collect' => ['interval_collect'],
-      'activity_start'   => ['activity_start']
+      'activity_start'   => ['activity_start'],
       'set_audio_mode'   => ['set_audio_mode']
     }
 
@@ -159,7 +159,7 @@ class Console::CommandDispatcher::Android
     mode = 1
     set_audio_mode_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, "Help Banner" ],
-      '-m' => [ true, "Set Mode - ( 0 - OFF, 1 - Normal)   (Default: '#{mode}')"]
+      '-m' => [ true, "Set Mode - (0 - OFF, 1 - Normal, 2 - Max) (Default: '#{mode}')"]
     )
 
     set_audio_mode_opts.parse(args) do |opt, _idx, val|
@@ -175,7 +175,7 @@ class Console::CommandDispatcher::Android
     end
 
     client.android.set_audio_mode(mode)
-    print_status("Chenged Mode!")
+    print_status("Ringer mode was changed to #{mode}!")
   end
 
   def cmd_dump_sms(*args)
