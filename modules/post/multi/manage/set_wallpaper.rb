@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
       'Name'          => 'Multi Manage Set Wallpaper',
       'Description'   => %q{
         This module will set the desktop wallpaper background on the specified session.
-        The method of setting the wallpaper depends on the session type.
+        The method of setting the wallpaper depends on the platform type.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'timwr'],
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptPath.new('WALLPAPER_FILE', [true, 'The local wallpaper file to set'])
+        OptPath.new('WALLPAPER_FILE', [true, 'The local wallpaper file to set on the remote session'])
       ], self.class)
   end
 
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
     print_status("#{peer} - Uploaded to #{remote_file}")
     remote_file
   end
-  
+
   #
   # The OSX version uses an apple script to do this
   #
@@ -89,9 +89,7 @@ class Metasploit3 < Msf::Post
       print_good("#{peer} - The wallpaper has been set")
     else
       print_error("#{peer} - Unable to set the wallpaper")
-      return
     end
-
   end
 
 end
