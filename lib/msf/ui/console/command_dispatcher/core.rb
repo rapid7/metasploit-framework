@@ -774,6 +774,7 @@ class Core
         if dump_json
           print(Serializer::Json.dump_module(active_module) + "\n")
         elsif show_doc
+          print_status("Please wait, generating documentation for #{active_module.shortname}")
           Msf::Util::DocumentGenerator.spawn_module_document(active_module)
         else
           print(Serializer::ReadableText.dump_module(active_module))
@@ -796,6 +797,7 @@ class Core
       elsif dump_json
         print(Serializer::Json.dump_module(mod) + "\n")
       elsif show_doc
+        print_status("Please wait, generating documentation for #{mod.shortname}")
         Msf::Util::DocumentGenerator.get_module_document(mod)
       else
         print(Serializer::ReadableText.dump_module(mod))

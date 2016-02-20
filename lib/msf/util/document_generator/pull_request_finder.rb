@@ -34,6 +34,7 @@ module Msf
         # @return [void]
         def initialize
           unless ENV.has_key?('GITHUB_OAUTH_TOKEN')
+            msg = ''
             raise PullRequestFinder::Exception, 'GITHUB_OAUTH_TOKEN environment variable not set.'
           end
 

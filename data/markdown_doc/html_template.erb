@@ -2,25 +2,25 @@
 <head>
 <% unless kb.empty? %>
 <script>
-  function showBasic() {
-    var basic_info_button = document.getElementById('basic_info_button');
-    basic_info_button.style.borderColor = "#ccc";
-    basic_info_button.style.color = "#333";
+  function showOverview() {
+    var overview_info_button = document.getElementById('overview_info_button');
+    overview_info_button.style.borderColor = "#ccc";
+    overview_info_button.style.color = "#333";
     var knowledge_base_button = document.getElementById('knowledge_base_button');
     knowledge_base_button.style.borderColor = "#EEEEEE";
     knowledge_base_button.style.color = "#C4C4C4";
     document.getElementById('knowledge_base').style.display = "none";
-    document.getElementById('basic_info').style.display = "inline";
+    document.getElementById('overview_info').style.display = "inline";
   }
 
   function showKnowledge() {
-    var basic_info_button = document.getElementById('basic_info_button');
-    basic_info_button.style.borderColor = "#EEEEEE";
-    basic_info_button.style.color = "#C4C4C4";
+    var overview_info_button = document.getElementById('overview_info_button');
+    overview_info_button.style.borderColor = "#EEEEEE";
+    overview_info_button.style.color = "#C4C4C4";
     var knowledge_base_button = document.getElementById('knowledge_base_button');
     knowledge_base_button.style.borderColor = "#ccc";
     knowledge_base_button.style.color = "#333";
-    document.getElementById('basic_info').style.display = "none";
+    document.getElementById('overview_info').style.display = "none";
     document.getElementById('knowledge_base').style.display = "inline";
   }
 </script>
@@ -34,7 +34,7 @@
 <table border="0">
 <tr>
 <th>
-<div id="basic_info_button" onClick="showBasic()">Basic Information</a>
+<div id="overview_info_button" onClick="showOverview()">Overview</a>
 </th>
 <th>
 <div id="knowledge_base_button" onClick="showKnowledge()">Knowledge Base</a>
@@ -42,7 +42,7 @@
 </tr></table>
 <p></p>
 <% end %>
-<div id="basic_info">
+<div id="overview_info">
 <%= r.render(md) %>
 </div>
 <% unless kb.empty? %>

@@ -116,7 +116,7 @@ pre code {
         margin:10px auto;
     }
 }
-#basic_info_button {
+#overview_info_button {
   font-family:Arial, sans-serif;
   font-size:12px;
   padding:10px 5px;
@@ -134,11 +134,19 @@ pre code {
   border-color:#EEEEEE;
   color:#C4C4C4;
 }
-#basic_info_button:hover, #knowledge_base_button:hover {
+#overview_info_button:hover, #knowledge_base_button:hover {
   cursor: pointer;
 }
 #knowledge_base {
   display: none;
+}
+#long_list {
+  height:280px;
+  overflow:auto;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #ccc;
+  padding: 5px;
 }
 
 

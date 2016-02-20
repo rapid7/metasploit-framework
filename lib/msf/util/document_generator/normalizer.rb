@@ -4,11 +4,22 @@ require 'erb'
 module Redcarpet
   module Render
     class MsfMdHTML < Redcarpet::Render::HTML
+
       def block_code(code, language)
         "<pre>" \
           "<code>#{code}</code>" \
         "</pre>"
       end
+
+
+      def list(content, list_type)
+        if list_type == :unordered && content.scan(/<li>/).flatten.length > 15
+          %Q|<p><div id=\"long_list\"><ul>#{content}<ul></div></p>|
+        else
+          %Q|<ul>#{content}</ul>|
+        end
+      end
+
     end
   end
 end
@@ -82,6 +93,12 @@ module Msf
         def normalize_pull_requests(pull_requests)
           if pull_requests.kind_of?(PullRequestFinder::Exception)
             error = pull_requests.message
+            case error
+            when /GITHUB_OAUTH_TOKEN/i
+              error << " [See how]("
+              error << "https://help.github.com/articles/creating-an-access-token-for-command-line-use/"
+              error << ")"
+            end
             return error
           end
 
