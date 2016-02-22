@@ -31,7 +31,7 @@ Get this with the `version` command in msfconsole (or `git log -1 --pretty=oneli
 ### I installed Metasploit with:
 - [ ] Kali package via apt
 - [ ] Omnibus installer (nightly)
-- [ ] Commercial/Community installer (from download.rapid7.com)
+- [ ] Commercial/Community installer (from http://www.rapid7.com/products/metasploit/download.jsp)
 - [ ] Source install (please specify ruby version)
 
 ### OS
