@@ -18,6 +18,10 @@ group :development do
   gem 'yard'
   # for development and testing purposes
   gem 'pry'
+  # rails-upgrade staging gems
+  gem 'metasploit-concern', git: 'https://github.com/rapid7/metasploit-concern', branch: 'staging/rails-upgrade'
+  gem 'metasploit_data_models', git: 'https://github.com/rapid7/metasploit_data_models', branch: 'staging/rails-upgrade'
+  gem 'metasploit-credential', git: 'https://github.com/rapid7/metasploit-credential', branch: 'staging/rails-upgrade'
 end
 
 group :development, :test do
