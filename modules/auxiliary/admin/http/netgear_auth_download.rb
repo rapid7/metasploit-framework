@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -14,10 +14,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'NETGEAR ProSafe Network Management System 300 Authenticated File Download',
       'Description' => %q{
-      Netgear's ProSafe NMS300 is a network management utility that runs on Windows systems.
-      The application has a file download vulnerability that can be exploited by an
-      authenticated remote attacker to download any file in the system..
-      This module has been tested with versions 1.5.0.2, 1.4.0.17 and 1.1.0.13.
+        Netgear's ProSafe NMS300 is a network management utility that runs on Windows systems.
+        The application has a file download vulnerability that can be exploited by an
+        authenticated remote attacker to download any file in the system..
+        This module has been tested with versions 1.5.0.2, 1.4.0.17 and 1.1.0.13.
       },
       'Author' =>
         [
@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2016-1524'],
           ['US-CERT-VU', '777024'],
-          ['URL', 'TODO_GITHUB_URL'],
-          ['URL', 'TODO_FULLDISC_URL']
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear_nms_rce.txt'],
+          ['URL', 'http://seclists.org/fulldisclosure/2016/Feb/30']
         ],
       'DisclosureDate' => 'Feb 4 2016'))
 
