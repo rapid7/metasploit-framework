@@ -167,19 +167,17 @@ class Metasploit3 < Msf::Auxiliary
     if /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/ =~ data
       ftpuser.strip!
       ftppass.strip!
-      if !ftpuser.blank? || !ftppass.blank?
-        print_good("#{peer} --  NAS Server: #{server}")
-        print_good("#{peer} --  NAS Port: #{port}")
-        print_good("#{peer} -- FTP User: #{ftpuser}")
-        print_good("#{peer} -- FTP Pass: #{ftppass}")
-        report_creds(
-          host: server,
-          port: port,
-          user: ftpuser,
-          pass: ftppass,
-          type: "FTP",
-          active: true)
-      end
+      print_good("#{peer} --  NAS Server: #{server}")
+      print_good("#{peer} --  NAS Port: #{port}")
+      print_good("#{peer} -- FTP User: #{ftpuser}") unless ftpuser.blank?
+      print_good("#{peer} -- FTP Pass: #{ftppass}") unless ftppass.blank?
+      report_creds(
+        host: server,
+        port: port,
+        user: ftpuser,
+        pass: ftppass,
+        type: "FTP",
+        active: true)
     end
   end
 
