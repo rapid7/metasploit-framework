@@ -15,6 +15,9 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
+  DEFAULT_USERNAME = 'karaf'
+  DEFAULT_PASSWORD = 'karaf'
+
   def initialize
     super(
       'Name'        => 'Karaf Default Credential Scanner',
@@ -35,9 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         # TODO Set default user, pass
         Opt::RPORT(8101),
-        OptString.new('USERNAME', [true, 'Username', 'karaf']),
-        OptString.new('PASSWORD', [true, 'Password', 'karaf']),
-        OptBool.new('TRYDEFAULTCRED', [false, 'Specify whether to try default creds', true])
+        OptBool.new('TRYDEFAULTCRED', [true, 'Specify whether to try default creds', true])
       ], self.class
     )
 
@@ -118,8 +119,13 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if datastore['TRYDEFAULTCRED']
-      cred_collection.additional_privates << 'karaf'
-      cred_collection.additional_publics << 'karaf'
+      if datastore['USERNAME'].blank? && datastore['PASSWORD'].blank?
+        cred_collection.add_public(DEFAULT_USERNAME)
+        cred_collection.add_private(DEFAULT_PASSWORD)
+      else
+        cred_collection.username = DEFAULT_USERNAME
+        cred_collection.password = DEFAULT_PASSWORD
+      end
     end
 
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
