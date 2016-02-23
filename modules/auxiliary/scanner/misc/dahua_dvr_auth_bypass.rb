@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
       server = Regexp.last_match[1].unpack('C*').join('.')
       port = Regexp.last_match[2].unpack('S')
     end
-    if data =~ /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/
+    if /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/ =~ data
       ftpuser.strip!
       ftppass.strip!
       if !ftpuser.blank? || !ftppass.blank?
