@@ -74,35 +74,40 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def bing_search(dork)
-    print_status("Searching Bing for subdomains from #{dork}")
-    results = []
-    searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
-    searches.each do |num|
-      resp = send_request_cgi!(
-        'rhost' => rhost_bing,
-        'rport' => rport_bing,
-        'vhost' => rhost_bing,
-        'method' => 'GET',
-        'uri' => '/search',
-        'vars_get' => {
-          'FROM' => 'HPCNEN',
-          'setmkt' => 'en-us',
-          'setlang' => 'en-us',
-          'first' => num,
-          'q' => dork
-        })
+    begin
+      print_status("Searching Bing for subdomains from #{dork}")
+      results = []
+      searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
+      searches.each do |num|
+        resp = send_request_cgi!(
+          'rhost' => rhost_bing,
+          'rport' => rport_bing,
+          'vhost' => rhost_bing,
+          'method' => 'GET',
+          'uri' => '/search',
+          'vars_get' => {
+            'FROM' => 'HPCNEN',
+            'setmkt' => 'en-us',
+            'setlang' => 'en-us',
+            'first' => num,
+            'q' => dork
+          })
 
-      next unless resp && resp.code == 200
-      html = resp.get_html_document
-      matches = html.search('cite')
-      matches.each do |match|
-        result = uri2domain(match.text)
-        next unless result
-        result.to_s.downcase!
-        results << result
+        next unless resp && resp.code == 200
+        html = resp.get_html_document
+        matches = html.search('cite')
+        matches.each do |match|
+          result = uri2domain(match.text)
+          next unless result
+          result.to_s.downcase!
+          results << result
+        end
       end
+    rescue Rex::ConnectionTimeout => e
+      print_error("#{e.message}")
+    ensure
+      return results
     end
-    results
   end
 
   def yahoo_search(dork)
@@ -142,6 +147,7 @@ class Metasploit4 < Msf::Auxiliary
     subdomain_ips = []
     dork = "domain:#{domain}"
     results = bing_search(dork)
+    return if results.nil?
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless subdomain.include?(domain)
