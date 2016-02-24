@@ -186,11 +186,19 @@ module DNS
           @config[:tcp_timeout].timeout do
             catch(:next_ns) do
               begin
-                socket = Rex::Socket::Tcp.create(
+                config = {
                   'PeerHost' => ns.to_s,
                   'PeerPort' => @config[:port].to_i,
-                  'Proxies' => prox
-                )
+                  'Proxies' => prox,
+                  'Context' => @config[:context]
+                }
+                if @config[:source_port] > 0
+                  config['LocalPort'] = @config[:source_port]
+                end
+                if @config[:source_host].to_s != '0.0.0.0'
+                  config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
+                end
+                socket = Rex::Socket::Tcp.create(config)
               rescue
                 @logger.warn "TCP Socket could not be established to #{ns}:#{@config[:port]} #{@config[:proxies]}"
                 throw :next_ns
@@ -261,10 +269,18 @@ module DNS
         begin
           @config[:udp_timeout].timeout do
             begin
-              socket = Rex::Socket::Udp.create(
+              config = {
                 'PeerHost' => ns.to_s,
-                'PeerPort' => @config[:port].to_i
-              )
+                'PeerPort' => @config[:port].to_i,
+                'Context' => @config[:context]
+              }
+              if @config[:source_port] > 0
+                config['LocalPort'] = @config[:source_port]
+              end
+              if @config[:source_host] != IPAddr.new('0.0.0.0')
+                config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
+              end
+              socket = Rex::Socket::Udp.create(config)
             rescue
               @logger.warn "UDP Socket could not be established to #{ns}:#{@config[:port]}"
               return nil
