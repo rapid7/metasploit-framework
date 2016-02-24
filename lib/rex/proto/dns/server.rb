@@ -35,11 +35,11 @@ class Server
     end
 
     #
-    # Add record to cache
+    # Add record to cache, only when "running"
     #
     # @param record [Net::DNS::RR] Record to cache
     def cache_record(record)
-      if record.class.ancestors.include?(Net::DNS::RR) and
+      if record.class.ancestors.include?(Net::DNS::RR) and @monitor_thread and
       Rex::Socket.is_ip_addr?(record.address.to_s) and record.name.to_s.match(MATCH_HOSTNAME)
         add(record, Time.now.to_i + record.ttl)
       else
@@ -96,7 +96,7 @@ class Server
       if flush
         @records.select do |rec, expire|
           rec.ttl > 0
-        end.map {|rec| delete(rec)}
+        end.each {|rec| delete(rec)}
       end
     end
 
@@ -137,6 +137,7 @@ class Server
   # @param sblock [Proc] Handler for :send_response flow control interception
   #
   # @return [Rex::Proto::DNS::Server] DNS Server object
+  attr_accessor :fwd_res, :dispatch_block, :send_block, :cache
   def initialize(lhost = '0.0.0.0', lport = 53, udp = true, tcp = false, res = nil, ctx = {}, dblock = nil, sblock = nil)
     
     @udp_sock = udp ? Rex::Socket::Udp.create(
@@ -250,6 +251,8 @@ class Server
       if req.answer.size < 1
         req.header.rCode = Net::DNS::Header::RCode.new(3)
       end
+      req.header.qr = 1 # Set response bit
+      req.header.ra = 1 # Set recursion bit
       send_response(cli, validate_packet(req).data)
     end
   end
