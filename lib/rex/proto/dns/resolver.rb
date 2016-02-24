@@ -192,7 +192,7 @@ module DNS
                   'PeerHost' => ns.to_s,
                   'PeerPort' => @config[:port].to_i,
                   'Proxies' => prox,
-                  'Context' => @config[:context]
+                  'Context' => @config[:context],
                   'Comm' => @config[:comm]
                 }
                 if @config[:source_port] > 0
