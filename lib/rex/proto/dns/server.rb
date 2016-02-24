@@ -10,6 +10,7 @@ module DNS
 class Server
 
   class Cache
+    attr_reader :records
     include Rex::Proto::DNS::Constants
     # class DNSRecordError < ::Exception
     #
@@ -138,17 +139,19 @@ class Server
   #
   # @return [Rex::Proto::DNS::Server] DNS Server object
   attr_accessor :fwd_res, :dispatch_block, :send_block, :cache
-  def initialize(lhost = '0.0.0.0', lport = 53, udp = true, tcp = false, res = nil, ctx = {}, dblock = nil, sblock = nil)
+  def initialize(lhost = '0.0.0.0', lport = 53, udp = true, tcp = false, res = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
     
     @udp_sock = udp ? Rex::Socket::Udp.create(
       'LocalHost' => lhost,
       'LocalPort' => lport,
-      'Context'   => ctx
+      'Context'   => ctx,
+      'Comm'      => comm
     ) : nil
     @tcp_sock = tcp ? Rex::Socket::TcpServer.create(
       'LocalHost' => lhost,
       'LocalPort' => lport,
-      'Context'   => ctx
+      'Context'   => ctx,
+      'Comm'      => comm
     ) : nil
     @fwd_res = res.nil? ? Rex::Proto::DNS::Resolver.new : res
     @udp_mon = nil
@@ -226,35 +229,39 @@ class Server
     if @dispatch_block
       @dispatch_block.call(cli,data)
     else
-      req = Net::DNS::Packet.parse(data)
-      forward = req.dup
-      # Find cached items, remove request from forwarded packet
-      req.question.each do |ques|
-        cached = @cache.find(ques.qName, ques.qType.to_s)
-        if cached.empty?
-          next
-        else
-          req.answer = req.answer + cached
-          forward.question.delete(ques)
-        end
-      end
-      # Forward remaining requests, cache responses
-      if forward.question.count > 0
-        forwarded = @fwd_res.send(validate_packet(forward))
-        req.answer = req.answer + forwarded.answer 
-        forwarded.answer.each do |ans|
-          @cache.cache_record(ans)
-        end
-        req.header.ra = 1 # Set recursion bit
-      end
-      # Finalize answers in response
-      # Check for empty response prior to sending
-      if req.answer.size < 1
-        req.header.rCode = Net::DNS::Header::RCode.new(3)
-      end
-      req.header.qr = 1 # Set response bit
-      send_response(cli, validate_packet(req).data)
+      default_dispatch_request(cli,data)
     end
+  end
+
+  def default_dispatch_request(cli,data)
+    req = Net::DNS::Packet.parse(data)
+    forward = req.dup
+    # Find cached items, remove request from forwarded packet
+    req.question.each do |ques|
+      cached = @cache.find(ques.qName, ques.qType.to_s)
+      if cached.empty?
+        next
+      else
+        req.answer = req.answer + cached
+        forward.question.delete(ques)
+      end
+    end
+    # Forward remaining requests, cache responses
+    if forward.question.count > 0
+      forwarded = @fwd_res.send(validate_packet(forward))
+      req.answer = req.answer + forwarded.answer 
+      forwarded.answer.each do |ans|
+        @cache.cache_record(ans)
+      end
+      req.header.ra = 1 # Set recursion bit
+    end
+    # Finalize answers in response
+    # Check for empty response prior to sending
+    if req.answer.size < 1
+      req.header.rCode = Net::DNS::Header::RCode.new(3)
+    end
+    req.header.qr = 1 # Set response bit
+    send_response(cli, validate_packet(req).data)
   end
 
   #
