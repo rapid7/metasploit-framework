@@ -245,6 +245,7 @@ class Server
         forwarded.answer.each do |ans|
           @cache.cache_record(ans)
         end
+        req.header.ra = 1 # Set recursion bit
       end
       # Finalize answers in response
       # Check for empty response prior to sending
@@ -252,7 +253,6 @@ class Server
         req.header.rCode = Net::DNS::Header::RCode.new(3)
       end
       req.header.qr = 1 # Set response bit
-      req.header.ra = 1 # Set recursion bit
       send_response(cli, validate_packet(req).data)
     end
   end
