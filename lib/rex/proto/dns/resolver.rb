@@ -27,7 +27,9 @@ module DNS
       :ignore_truncated => false,
       :packet_size => 512,
       :tcp_timeout => TcpTimeout.new(30),
-      :udp_timeout => UdpTimeout.new(30)
+      :udp_timeout => UdpTimeout.new(30),
+      :context => {},
+      :comm => nil
     }
 
     #
@@ -191,6 +193,7 @@ module DNS
                   'PeerPort' => @config[:port].to_i,
                   'Proxies' => prox,
                   'Context' => @config[:context]
+                  'Comm' => @config[:comm]
                 }
                 if @config[:source_port] > 0
                   config['LocalPort'] = @config[:source_port]
@@ -272,7 +275,8 @@ module DNS
               config = {
                 'PeerHost' => ns.to_s,
                 'PeerPort' => @config[:port].to_i,
-                'Context' => @config[:context]
+                'Context' => @config[:context],
+                'Comm' => @config[:comm]
               }
               if @config[:source_port] > 0
                 config['LocalPort'] = @config[:source_port]
