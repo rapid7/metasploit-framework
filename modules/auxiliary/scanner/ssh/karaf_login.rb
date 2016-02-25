@@ -20,9 +20,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Karaf Default Credential Scanner',
+      'Name'        => 'Apache Karaf Login Utility',
       'Description' => %q{
-        This module uses default Karaf credentials to login to the console via ssh.
+        This module attempts to log into Apache Karaf's SSH. If the TRYDEFAULTCRED option is
+        set, then it will also try the default 'karaf' credential.
       },
       'Author'      => [
           'Samuel Huckins',
