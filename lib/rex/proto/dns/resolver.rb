@@ -32,6 +32,7 @@ module DNS
       :comm => nil
     }
 
+    attr_accessor :context, :comm
     #
     # Provide override for initializer to use local Defaults constant
     #
