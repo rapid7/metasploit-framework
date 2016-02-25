@@ -22,8 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
       'License'        => MSF_LICENSE,
-      'References'     => [],
-      'DisclosureDate' => 'November 1987' # RFC 1035
+      'References'     => []
     ))
   end
 
