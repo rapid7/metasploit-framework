@@ -57,42 +57,6 @@ class Metasploit3 < Msf::Auxiliary
     datastore['RPORT']
   end
 
-  def session_setup(result, ssh_socket)
-    return unless ssh_socket
-
-    # Create a new session
-    conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
-
-    merge_me = {
-      'USERNAME'      => result.credential.public,
-      'PASSWORD'      => result.credential.private
-    }
-    info = "#{proto_from_fullname} #{result.credential} (#{@ip}:#{datastore['RPORT']})"
-    s = start_session(self, info, merge_me, false, conn.lsock)
-
-    # Set the session platform
-    case result.proof
-      when /Linux/
-        s.platform = "linux"
-      when /Darwin/
-        s.platform = "osx"
-      when /SunOS/
-        s.platform = "solaris"
-      when /BSD/
-        s.platform = "bsd"
-      when /HP-UX/
-        s.platform = "hpux"
-      when /AIX/
-        s.platform = "aix"
-      when /Win32|Windows/
-        s.platform = "windows"
-      when /Unknown command or computer name/
-        s.platform = "cisco-ios"
-    end
-
-    s
-  end
-
   def gather_proof
     proof = ''
     begin
@@ -151,7 +115,6 @@ class Metasploit3 < Msf::Auxiliary
           credential_core = create_credential(credential_data)
           credential_data[:core] = credential_core
           create_credential_login(credential_data)
-          session_setup(result, scanner.ssh_socket)
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
           scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
