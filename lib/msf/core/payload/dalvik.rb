@@ -32,8 +32,13 @@ module Msf::Payload::Dalvik
   end
 
   def apply_options(classes)
-    string_sub(classes, 'TTTT                                ', "TTTT" + datastore['SessionRetryTotal'].to_s)
-    string_sub(classes, 'SSSS                                ', "SSSS" + datastore['SessionRetryWait'].to_s)
+    timeouts = [
+      datastore['SessionExpirationTimeout'].to_s,
+      datastore['SessionCommunicationTimeout'].to_s,
+      datastore['SessionRetryTotal'].to_s,
+      datastore['SessionRetryWait'].to_s
+    ].join('-')
+    string_sub(classes, 'TTTT                                ', 'TTTT' + timeouts)
   end
 
   def string_sub(data, placeholder="", input="")

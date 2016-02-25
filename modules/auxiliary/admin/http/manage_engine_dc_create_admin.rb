@@ -27,8 +27,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2014-7862'],
           ['OSVDB', '116554'],
-          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_dc9_admin.txt'],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/2']
+          ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/2'],
+          ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_dc9_admin.txt'],
         ],
       'DisclosureDate' => 'Dec 31 2014'))
 
@@ -65,10 +65,10 @@ class Metasploit3 < Msf::Auxiliary
 
     # Yes, "sucess" is really mispelt, as is "Servelet" ... !
     unless res && res.code == 200 && res.body && res.body.to_s =~ /sucess/
-      print_error("#{peer} - Administrator account creation failed")
+      print_error("Administrator account creation failed")
     end
 
-    print_good("#{peer} - Created Administrator account with credentials #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+    print_good("Created Administrator account with credentials #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
     service_data = {
       address: rhost,
       port: rport,

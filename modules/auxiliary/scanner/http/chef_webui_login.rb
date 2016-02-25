@@ -26,15 +26,18 @@ class Metasploit3 < Msf::Auxiliary
         [
           'hdm'
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' =>
+      {
+        'SSL'         => true,
+        'SSLVersion'  => 'TLS1'
+      }
     )
 
     register_options(
       [
         Opt::RPORT(443),
         OptString.new('TARGETURI', [ true,  'The path to the Chef Web UI application', '/']),
-        OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', true]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
       ], self.class)
   end
 

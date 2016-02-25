@@ -145,6 +145,19 @@ module Registry
     end
   end
 
+  # Checks if a key exists on the target registry
+  #
+  # @param key [String] the full path of the key to check
+  # @return [Boolean] true if the key exists on the target registry, false otherwise
+  #   (also in case of error)
+  def registry_key_exist?(key)
+    if session_has_registry_ext
+      meterpreter_registry_key_exist?(key)
+    else
+      shell_registry_key_exist?(key)
+    end
+  end
+
 protected
 
   #
@@ -170,7 +183,7 @@ protected
     elsif view == REGISTRY_VIEW_64_BIT
       cmd += " /reg:64"
     end
-    session.shell_command_token_win32("#{cmd} #{suffix}")
+    cmd_exec("#{cmd} #{suffix}")
   end
 
   def shell_registry_cmd_result(suffix, view = REGISTRY_VIEW_NATIVE)
@@ -310,6 +323,26 @@ protected
     shell_registry_cmd_result("add /f \"#{key}\" /v \"#{valname}\" /t \"#{type}\" /d \"#{data}\" /f", view)
   end
 
+  # Checks if a key exists on the target registry using a shell session
+  #
+  # @param key [String] the full path of the key to check
+  # @return [Boolean] true if the key exists on the target registry, false otherwise,
+  #   even if case of error (invalid arguments) or the session hasn't permission to
+  #   access the key
+  def shell_registry_key_exist?(key)
+    begin
+      key = normalize_key(key)
+    rescue ArgumentError
+      return false
+    end
+
+    results = shell_registry_cmd("query \"#{key}\"")
+    if results =~ /ERROR: /i
+      return false
+    else
+      return true
+    end
+  end
 
   ##
   # Meterpreter-specific registry manipulation methods
@@ -513,6 +546,27 @@ protected
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
     end
+  end
+
+  # Checks if a key exists on the target registry using a meterpreter session
+  #
+  # @param key [String] the full path of the key to check
+  # @return [Boolean] true if the key exists on the target registry, false otherwise
+  #   (also in case of error)
+  def meterpreter_registry_key_exist?(key)
+    begin
+      root_key, base_key = session.sys.registry.splitkey(key)
+    rescue ArgumentError
+      return false
+    end
+
+    begin
+      check = session.sys.registry.check_key_exists(root_key, base_key)
+    rescue Rex::Post::Meterpreter::RequestError, TimesoutError
+      return false
+    end
+
+    check
   end
 
   #

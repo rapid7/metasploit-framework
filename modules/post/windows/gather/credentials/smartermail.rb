@@ -38,22 +38,6 @@ class Metasploit3 < Msf::Post
     ))
   end
 
-  def r_host
-    if session.type =~ /meterpreter/
-      session.sock.peerhost
-    else
-      session.session_host
-    end
-  end
-
-  def peer
-    if session.type =~ /meterpreter/
-      "#{r_host} (#{sysinfo['Computer']})"
-    else
-      r_host
-    end
-  end
-
   #
   # Decrypt DES encrypted password string
   #
@@ -215,7 +199,7 @@ class Metasploit3 < Msf::Post
     print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
 
     report_cred(
-      ip: r_host,
+      ip: rhost,
       port: port,
       service_name: 'http',
       user: user,

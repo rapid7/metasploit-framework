@@ -28,7 +28,14 @@ class Console::CommandDispatcher::Core
     self.extensions = []
     self.bgjobs     = []
     self.bgjob_id   = 0
+
+    # keep a lookup table to refer to transports by index
+    @transport_map = {}
   end
+
+  @@irb_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                  ],
+    "-e" => [ true,  "Expression to evaluate."       ])
 
   @@load_opts = Rex::Parser::Arguments.new(
     "-l" => [ false, "List all available extensions" ],
@@ -42,10 +49,9 @@ class Console::CommandDispatcher::Core
       "?"          => "Help menu",
       "background" => "Backgrounds the current session",
       "close"      => "Closes a channel",
-      "channel"    => "Displays information about active channels",
+      "channel"    => "Displays information or control active channels",
       "exit"       => "Terminate the meterpreter session",
       "help"       => "Help menu",
-      "interact"   => "Interacts with a channel",
       "irb"        => "Drop into irb scripting mode",
       "use"        => "Deprecated alias for 'load'",
       "load"       => "Load one or more meterpreter extensions",
@@ -80,10 +86,10 @@ class Console::CommandDispatcher::Core
     if client.platform =~ /win/ || client.platform =~ /linux/
       # Migration only supported on windows and linux
       c["migrate"] = "Migrate the server to another process"
+    end
 
-
+    if client.platform =~ /win/ || client.platform =~ /linux/ || client.platform =~ /python/ || client.platform =~ /java/
       # Yet to implement transport hopping for other meterpreters.
-      # Works for posix and native windows though.
       c["transport"] = "Change the current transport mechanism"
 
       # sleep functionality relies on the transport features, so only
@@ -322,16 +328,40 @@ class Console::CommandDispatcher::Core
 
   alias cmd_interact_tabs cmd_close_tabs
 
+  def cmd_irb_help
+    print_line "Usage: irb"
+    print_line
+    print_line "Execute commands in a Ruby environment"
+    print @@irb_opts.usage
+  end
+
   #
   # Runs the IRB scripting shell
   #
   def cmd_irb(*args)
-    print_status("Starting IRB shell")
-    print_status("The 'client' variable holds the meterpreter client\n")
+    expressions = []
+
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        return cmd_irb_help
+      end
+    end
 
     session = client
     framework = client.framework
-    Rex::Ui::Text::IrbShell.new(binding).run
+
+    if expressions.empty?
+      print_status("Starting IRB shell")
+      print_status("The 'client' variable holds the meterpreter client\n")
+
+      Rex::Ui::Text::IrbShell.new(binding).run
+    else
+      expressions.each { |expression| eval(expression, binding) }
+    end
   end
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
@@ -543,6 +573,7 @@ class Console::CommandDispatcher::Core
     '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
     '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
     '-p'  => [ true,  'LPORT parameter' ],
+    '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
     '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
     '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
     '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
@@ -571,6 +602,13 @@ class Console::CommandDispatcher::Core
     print_line('   prev: jump to the previous transport in the list (no options).')
     print_line(' remove: remove an existing, non-active transport.')
     print_line(@@transport_opts.usage)
+  end
+
+  def update_transport_map
+    result = client.core.transport_list
+    @transport_map.clear
+    sorted_by_url = result[:transports].sort_by { |k| k[:url] }
+    sorted_by_url.each_with_index { |t, i| @transport_map[i+1] = t }
   end
 
   #
@@ -609,12 +647,15 @@ class Console::CommandDispatcher::Core
     }
 
     valid = true
+    transport_index = 0
     @@transport_opts.parse(args) do |opt, idx, val|
       case opt
       when '-c'
         opts[:cert] = val
       when '-u'
         opts[:uri] = val
+      when '-i'
+        transport_index = val.to_i
       when '-ph'
         opts[:proxy_host] = val
       when '-pp'
@@ -657,13 +698,21 @@ class Console::CommandDispatcher::Core
       return
     end
 
+    update_transport_map
+
     case command
     when 'list'
       result = client.core.transport_list
+
+      current_transport_url = result[:transports].first[:url]
+
+      sorted_by_url = result[:transports].sort_by { |k| k[:url] }
+
       # this will output the session timeout first
       print_timeouts(result)
 
       columns =[
+        'ID',
         'Curr',
         'URL',
         'Comms T/O',
@@ -681,16 +730,13 @@ class Console::CommandDispatcher::Core
 
       # next draw up a table of transport entries
       tbl = Rex::Ui::Text::Table.new(
-        'SortIndex' => -1,       # disable any sorting
+        'SortIndex' => 0, # sort by ID
         'Indent'    => 4,
         'Columns'   => columns)
 
-      first = true
-      result[:transports].each do |t|
-        entry = [ first ? '*' : '', t[:url], t[:comm_timeout],
-                  t[:retry_total], t[:retry_wait] ]
-
-        first = false
+      sorted_by_url.each_with_index do |t, i|
+        entry = [ i+1, (current_transport_url == t[:url]) ? '*' : '', t[:url],
+                  t[:comm_timeout], t[:retry_total], t[:retry_wait] ]
 
         if opts[:verbose]
           entry << t[:ua]
@@ -744,6 +790,22 @@ class Console::CommandDispatcher::Core
         return
       end
 
+      if !transport_index.zero? && @transport_map.has_key?(transport_index)
+        # validate the URL
+        url_to_delete = @transport_map[transport_index][:url]
+        begin
+          uri = URI.parse(url_to_delete)
+          opts[:transport] = "reverse_#{uri.scheme}"
+          opts[:lhost]     = uri.host
+          opts[:lport]     = uri.port
+          opts[:uri]       = uri.path[1..-2] if uri.scheme.include?("http")
+
+        rescue URI::InvalidURIError
+          print_error("Failed to parse URL: #{url_to_delete}")
+          return
+        end
+      end
+
       print_status("Removing transport ...")
       if client.core.transport_remove(opts)
         print_good("Successfully removed #{opts[:transport]} transport.")
@@ -753,15 +815,23 @@ class Console::CommandDispatcher::Core
     end
   end
 
+  @@migrate_opts = Rex::Parser::Arguments.new(
+    '-P' => [true, 'PID to migrate to.'],
+    '-N' => [true, 'Process name to migrate to.'],
+    '-p' => [true,  'Writable path - Linux only (eg. /tmp).'],
+    '-t' => [true,  'The number of seconds to wait for migration to finish (default: 60).'],
+    '-h' => [false, 'Help menu.']
+  )
+
   def cmd_migrate_help
     if client.platform =~ /linux/
-      print_line "Usage: migrate <pid> [writable_path]"
+      print_line('Usage: migrate <<pid> | -P <pid> | -N <name>> [-p writable_path] [-t timeout]')
     else
-      print_line "Usage: migrate <pid>"
+      print_line('Usage: migrate <<pid> | -P <pid> | -N <name>> [-t timeout]')
     end
     print_line
-    print_line "Migrates the server instance to another process."
-    print_line "NOTE: Any open channels or other dynamic state will be lost."
+    print_line('Migrates the server instance to another process.')
+    print_line('NOTE: Any open channels or other dynamic state will be lost.')
     print_line
   end
 
@@ -772,19 +842,53 @@ class Console::CommandDispatcher::Core
   #   platforms a path for the unix domain socket used for IPC.
   # @return [void]
   def cmd_migrate(*args)
-    if ( args.length == 0 or args.include?("-h") )
+    if args.length == 0 || args.any? { |arg| %w(-h --pid --name).include? arg }
       cmd_migrate_help
       return true
     end
 
-    pid = args[0].to_i
-    if(pid == 0)
-      print_error("A process ID must be specified, not a process name")
-      return
+    pid = nil
+    writable_dir = nil
+    opts = {
+      timeout: nil
+    }
+
+    @@migrate_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-t'
+        opts[:timeout] = val.to_i
+      when '-p'
+        writable_dir = val
+      when '-P'
+        unless val =~ /^\d+$/
+          print_error("Not a PID: #{val}")
+          return
+        end
+        pid = val.to_i
+      when '-N'
+        if val.blank?
+          print_error("No process name provided")
+          return
+        end
+        # this will migrate to the first process with a matching name
+        unless (process = client.sys.process.processes.find { |p| p['name'] == val })
+          print_error("Could not find process name #{val}")
+          return
+        end
+        pid = process['pid']
+      end
     end
 
-    if client.platform =~ /linux/
-      writable_dir = (args.length >= 2) ? args[1] : nil
+    unless pid
+      unless (pid = args.first)
+        print_error('A process ID or name argument must be provided')
+        return
+      end
+      unless pid =~ /^\d+$/
+        print_error("Not a PID: #{pid}")
+        return
+      end
+      pid = pid.to_i
     end
 
     begin
@@ -806,7 +910,7 @@ class Console::CommandDispatcher::Core
       service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
         next unless opts['MeterpreterRelay']
         if existing_relays.empty?
-          print_status("Removing existing TCP relays...")
+          print_status('Removing existing TCP relays...')
         end
         if (service.stop_tcp_relay(lport, lhost))
           print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
@@ -827,19 +931,15 @@ class Console::CommandDispatcher::Core
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
     # Do this thang.
-    if client.platform =~ /linux/
-      client.core.migrate(pid, writable_dir)
-    else
-      client.core.migrate(pid)
-    end
+    client.core.migrate(pid, writable_dir, opts)
 
-    print_status("Migration completed successfully.")
+    print_status('Migration completed successfully.')
 
     # Update session info (we may have a new username)
     client.update_session_info
 
     unless existing_relays.empty?
-      print_status("Recreating TCP relay(s)...")
+      print_status('Recreating TCP relay(s)...')
       existing_relays.each do |r|
         client.pfservice.start_tcp_relay(r[:lport], r[:opts])
         print_status("Local TCP relay recreated: #{r[:opts]['LocalHost'] || '0.0.0.0'}:#{r[:lport]} <-> #{r[:opts]['PeerHost']}:#{r[:opts]['PeerPort']}")

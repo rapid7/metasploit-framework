@@ -203,6 +203,10 @@ class Table
         cmp = Rex::Socket::addr_atoi(a[index]) <=> Rex::Socket::addr_atoi(b[index])
       elsif a[index] =~ /^[0-9]+$/ and b[index] =~ /^[0-9]+$/
         cmp = a[index].to_i <=> b[index].to_i
+      elsif a[index].kind_of?(IPAddr) && a[index].kind_of?(IPAddr) && a[index].ipv6? && b[index].ipv4?
+        cmp = 1
+      elsif a[index].kind_of?(IPAddr) && b[index].kind_of?(IPAddr) && a[index].ipv4? && b[index].ipv6?
+        cmp = -1
       else
         cmp = a[index] <=> b[index] # assumes otherwise comparable.
       end

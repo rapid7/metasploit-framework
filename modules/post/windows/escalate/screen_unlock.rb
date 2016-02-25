@@ -27,11 +27,7 @@ class Metasploit3 < Msf::Post
           'Metlstorm'                        # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
         ],
       'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
-      'References'    =>
-        [
-          [ 'URL', 'http://www.storm.net.nz/projects/16' ]
-        ]
+      'SessionTypes'  => [ 'meterpreter' ]
     ))
 
     register_options([

@@ -22,7 +22,8 @@ class Metasploit3 < Msf::Auxiliary
         logging a user event with user supplied text
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -33,8 +34,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('VM', [true, "The VM to try to Power On"]),
         OptString.new('MSG', [true, "The message to put in the log", 'Pwned by Metasploit'])
       ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
   end
 
   def run

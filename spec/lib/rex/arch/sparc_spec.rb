@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/arch/sparc'
 
-describe Rex::Arch::Sparc do
+RSpec.describe Rex::Arch::Sparc do
 
   describe ".sethi" do
     subject { described_class.sethi(constant, dst) }

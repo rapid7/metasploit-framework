@@ -88,9 +88,8 @@ class Metasploit3 < Msf::Auxiliary
         }
       )
 
-      vmessage = "#{peer} - Checking #{uri} [#{res.code}]"
-
       if res && res.body.include?('Requested Range Not Satisfiable')
+        vmessage = "#{peer} - Checking #{uri} [#{res.code}]"
         vprint_status("#{vmessage} - Vulnerable")
 
         # Save the file that we want to use for the information leak
@@ -133,17 +132,17 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw('uri' => uri)
 
       unless res
-        vprint_error("#{peer} - Connection timed out")
+        vprint_error("Connection timed out")
         return file_size
       end
 
       if res.code == 404
-        vprint_error("#{peer} - You got a 404. URI must be a valid resource.")
+        vprint_error("You got a 404. URI must be a valid resource.")
         return file_size
       end
 
       file_size = res.headers['Content-Length'].to_i
-      vprint_status("#{peer} - File length: #{file_size} bytes")
+      vprint_status("File length: #{file_size} bytes")
 
       return file_size
     }.call

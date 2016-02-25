@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'tempfile'
+require 'filesize'
 require 'rex/post/meterpreter'
 
 module Rex
@@ -48,43 +49,47 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   def commands
     all = {
-      "cat"      => "Read the contents of a file to the screen",
-      "cd"       => "Change directory",
-      "del"      => "Delete the specified file",
-      "download" => "Download a file or directory",
-      "edit"     => "Edit a file",
-      "getlwd"   => "Print local working directory",
-      "getwd"    => "Print working directory",
-      "lcd"      => "Change local working directory",
-      "lpwd"     => "Print local working directory",
-      "ls"       => "List files",
-      "mkdir"    => "Make directory",
-      "pwd"      => "Print working directory",
-      "rm"       => "Delete the specified file",
-      "mv"	   => "Move source to destination",
-      "rmdir"    => "Remove directory",
-      "search"   => "Search for files",
-      "upload"   => "Upload a file or directory",
+      'cat'        => 'Read the contents of a file to the screen',
+      'cd'         => 'Change directory',
+      'del'        => 'Delete the specified file',
+      'dir'        => 'List files (alias for ls)',
+      'download'   => 'Download a file or directory',
+      'edit'       => 'Edit a file',
+      'getlwd'     => 'Print local working directory',
+      'getwd'      => 'Print working directory',
+      'lcd'        => 'Change local working directory',
+      'lpwd'       => 'Print local working directory',
+      'ls'         => 'List files',
+      'mkdir'      => 'Make directory',
+      'pwd'        => 'Print working directory',
+      'rm'         => 'Delete the specified file',
+      'mv'	       => 'Move source to destination',
+      'rmdir'      => 'Remove directory',
+      'search'     => 'Search for files',
+      'upload'     => 'Upload a file or directory',
+      'show_mount' => 'List all mount points/logical drives',
     }
 
     reqs = {
-      "cat"      => [ ],
-      "cd"       => [ "stdapi_fs_chdir" ],
-      "del"      => [ "stdapi_fs_rm" ],
-      "download" => [ ],
-      "edit"     => [ ],
-      "getlwd"   => [ ],
-      "getwd"    => [ "stdapi_fs_getwd" ],
-      "lcd"      => [ ],
-      "lpwd"     => [ ],
-      "ls"       => [ "stdapi_fs_stat", "stdapi_fs_ls" ],
-      "mkdir"    => [ "stdapi_fs_mkdir" ],
-      "pwd"      => [ "stdapi_fs_getwd" ],
-      "rmdir"    => [ "stdapi_fs_delete_dir" ],
-      "rm"       => [ "stdapi_fs_delete_file" ],
-      "mv"       => [ "stdapi_fs_file_move" ],
-      "search"   => [ "stdapi_fs_search" ],
-      "upload"   => [ ],
+      'cat'        => [],
+      'cd'         => ['stdapi_fs_chdir'],
+      'del'        => ['stdapi_fs_rm'],
+      'dir'        => ['stdapi_fs_stat', 'stdapi_fs_ls'],
+      'download'   => [],
+      'edit'       => [],
+      'getlwd'     => [],
+      'getwd'      => ['stdapi_fs_getwd'],
+      'lcd'        => [],
+      'lpwd'       => [],
+      'ls'         => ['stdapi_fs_stat', 'stdapi_fs_ls'],
+      'mkdir'      => ['stdapi_fs_mkdir'],
+      'pwd'        => ['stdapi_fs_getwd'],
+      'rmdir'      => ['stdapi_fs_delete_dir'],
+      'rm'         => ['stdapi_fs_delete_file'],
+      'mv'         => ['stdapi_fs_file_move'],
+      'search'     => ['stdapi_fs_search'],
+      'upload'     => [],
+      'show_mount' => ['stdapi_fs_mount_show'],
     }
 
     all.delete_if do |cmd, desc|
@@ -114,52 +119,96 @@ class Console::CommandDispatcher::Stdapi::Fs
   def cmd_search(*args)
 
     root    = nil
-    glob    = nil
     recurse = true
+    globs   = []
+    files   = []
 
     opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner." ],
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
-      "-f" => [ true,  "The file pattern glob to search for. (e.g. *secret*.doc?)" ],
+      "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
       "-r" => [ true,  "Recursivly search sub directories. (Default: #{recurse})" ]
     )
 
     opts.parse(args) { | opt, idx, val |
       case opt
         when "-h"
-          print_line("Usage: search [-d dir] [-r recurse] -f pattern")
+          print_line("Usage: search [-d dir] [-r recurse] -f pattern [-f pattern]...")
           print_line("Search for files.")
           print_line(opts.usage)
           return
         when "-d"
           root = val
         when "-f"
-          glob = val
+          globs << val
         when "-r"
           recurse = false if val =~ /^(f|n|0)/i
       end
     }
 
-    if not glob
+    if globs.empty?
       print_error("You must specify a valid file glob to search for, e.g. >search -f *.doc")
       return
     end
 
-    files = client.fs.file.search(root, glob, recurse)
-
-    if not files.empty?
-      print_line("Found #{files.length} result#{ files.length > 1 ? 's' : '' }...")
-      files.each do | file |
-        if file['size'] > 0
-          print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n")
-        else
-          print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n")
-        end
-      end
-    else
-      print_line("No files matching your search were found.")
+    globs.uniq.each do |glob|
+      files += client.fs.file.search(root, glob, recurse)
     end
 
+    if files.empty?
+      print_line("No files matching your search were found.")
+      return
+    end
+
+    print_line("Found #{files.length} result#{ files.length > 1 ? 's' : '' }...")
+    files.each do | file |
+      if file['size'] > 0
+        print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n")
+      else
+        print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n")
+      end
+    end
+
+  end
+
+  #
+  # Show all the mount points/logical drives (currently geared towards
+  # the Windows Meterpreter).
+  #
+  def cmd_show_mount(*args)
+    if args.include?('-h')
+      print_line('Usage: show_mount')
+      return true
+    end
+
+    mounts = client.fs.mount.show_mount
+
+    table = Rex::Ui::Text::Table.new(
+      'Header'    => 'Mounts / Drives',
+      'Indent'    => 0,
+      'SortIndex' => 0,
+      'Columns'   => [
+        'Name', 'Type', 'Size (Total)', 'Size (Free)', 'Mapped to'
+      ]
+    )
+
+    mounts.each do |d|
+      ts = ::Filesize.from("#{d[:total_space]} B").pretty.split(' ')
+      fs = ::Filesize.from("#{d[:free_space]} B").pretty.split(' ')
+      table << [
+        d[:name],
+        d[:type],
+        "#{ts[0].rjust(6)} #{ts[1].ljust(3)}",
+        "#{fs[0].rjust(6)} #{fs[1].ljust(3)}",
+        d[:unc]
+      ]
+    end
+
+    print_line
+    print_line(table.to_s)
+    print_line
+    print_line("Total mounts/drives: #{mounts.length}")
+    print_line
   end
 
   #
@@ -550,6 +599,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     return true
   end
+
+  #
+  # Alias the ls command to dir, for those of us who have windows muscle-memory
+  #
+  alias cmd_dir cmd_ls
+
 
   #
   # Make one or more directory.

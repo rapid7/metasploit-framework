@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-describe Msf::Modules::VersionCompatibilityError do
+RSpec.describe Msf::Modules::VersionCompatibilityError do
   it_should_behave_like 'Msf::Modules::Error subclass #initialize' do
     let(:minimum_api_version) do
       1
@@ -12,7 +12,7 @@ describe Msf::Modules::VersionCompatibilityError do
     end
 
     it 'should say cause was version check' do
-      subject.to_s.should match(/due to version check/)
+      expect(subject.to_s).to match(/due to version check/)
     end
 
     context 'with :minimum_api_version' do
@@ -23,11 +23,11 @@ describe Msf::Modules::VersionCompatibilityError do
       end
 
       it 'should set minimum_api_version' do
-        subject.minimum_api_version.should == minimum_api_version
+        expect(subject.minimum_api_version).to eq minimum_api_version
       end
 
       it 'should include minimum_api_version in error' do
-        subject.to_s.should match(/due to version check \(requires API >= #{minimum_api_version}\)/)
+        expect(subject.to_s).to match(/due to version check \(requires API >= #{minimum_api_version}\)/)
       end
     end
 
@@ -40,7 +40,7 @@ describe Msf::Modules::VersionCompatibilityError do
       end
 
       it 'should include minimum_api_version and minimum_core_version in error' do
-        subject.to_s.should match(/due to version check \(requires API >= #{minimum_api_version} and Core >= #{minimum_core_version}\)/)
+        expect(subject.to_s).to match(/due to version check \(requires API >= #{minimum_api_version} and Core >= #{minimum_core_version}\)/)
       end
     end
 
@@ -52,11 +52,11 @@ describe Msf::Modules::VersionCompatibilityError do
       end
 
       it 'should set minimum_core_version' do
-        subject.minimum_core_version.should == minimum_core_version
+        expect(subject.minimum_core_version).to eq minimum_core_version
       end
 
       it 'should include minimum_core_version in error' do
-        subject.to_s.should match(/due to version check \(requires Core >= #{minimum_core_version}\)/)
+        expect(subject.to_s).to match(/due to version check \(requires Core >= #{minimum_core_version}\)/)
       end
     end
   end

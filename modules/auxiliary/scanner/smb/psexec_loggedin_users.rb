@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
       connect
       smb_login
     rescue StandardError => autherror
-      print_error("#{peer} - #{autherror}")
+      print_error("#{autherror}")
       return
     end
 
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
       output.each_line { |line| cleanout << line.chomp if line.include?("HKEY") && line.split("-").size == 8 && !line.split("-")[7].include?("_")}
       return cleanout
     rescue StandardError => hku_error
-      print_error("#{peer} - Error runing query against HKU. #{hku_error.class}. #{hku_error}")
+      print_error("Error runing query against HKU. #{hku_error.class}. #{hku_error}")
       return nil
     end
   end
@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
       simple.disconnect("\\\\#{ip}\\#{smbshare}")
       return output
     rescue StandardError => output_error
-      print_error("#{peer} - Error getting command output. #{output_error.class}. #{output_error}.")
+      print_error("Error getting command output. #{output_error.class}. #{output_error}.")
       return false
     end
   end
@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
             domain = line if line.include?("USERDOMAIN")
           end
           if domain.split(" ")[2].to_s.chomp + "\\" + username.split(" ")[2].to_s.chomp == datastore['USERNAME']
-            print_good("#{peer} - #{datastore['USERNAME']} is logged in")
+            print_good("#{datastore['USERNAME']} is logged in")
             report_user(datastore['USERNAME'])
           end
           return
@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
         end
         if username.length > 0 && domain.length > 0
           user = domain.split(" ")[2].to_s + "\\" + username.split(" ")[2].to_s
-          print_good("#{peer} - #{user}")
+          print_good("#{user}")
           report_user(user.chomp)
         elsif logonserver.length > 0 && homepath.length > 0
           uname = homepath.split('\\')[homepath.split('\\').size - 1]
@@ -158,24 +158,24 @@ class Metasploit3 < Msf::Auxiliary
             uname = uname.split(".")[0]
           end
           user = logonserver.split('\\\\')[1].chomp.to_s + "\\" + uname.to_s
-          print_good("#{peer} - #{user}")
+          print_good("#{user}")
           report_user(user.chomp)
         else
           username = query_session(smbshare, ip, cmd, text, bat)
           if username
             hostname = (dnsdomain.split(" ")[2] || "").split(".")[0] || "."
             user = "#{hostname}\\#{username}"
-            print_good("#{peer} - #{user}")
+            print_good("#{user}")
             report_user(user.chomp)
           else
-            print_status("#{peer} - Unable to determine user information for user: #{key}")
+            print_status("Unable to determine user information for user: #{key}")
           end
         end
       else
-        print_status("#{peer} - Could not determine logged in users")
+        print_status("Could not determine logged in users")
       end
     rescue Rex::Proto::SMB::Exceptions::Error => check_error
-      print_error("#{peer} - Error checking reg key. #{check_error.class}. #{check_error}")
+      print_error("Error checking reg key. #{check_error.class}. #{check_error}")
       return check_error
     end
   end
@@ -185,12 +185,12 @@ class Metasploit3 < Msf::Auxiliary
     begin
       # Try and do cleanup command
       cleanup = "#{cmd} /C del %SYSTEMDRIVE%#{text} & del #{bat}"
-      print_status("#{peer} - Executing cleanup")
+      print_status("Executing cleanup")
       out = psexec(cleanup)
     rescue StandardError => cleanuperror
-      print_error("#{peer} - Unable to processes cleanup commands: #{cleanuperror}")
-      print_warning("#{peer} - Maybe %SYSTEMDRIVE%#{text} must be deleted manually")
-      print_warning("#{peer} - Maybe #{bat} must be deleted manually")
+      print_error("Unable to processes cleanup commands: #{cleanuperror}")
+      print_warning("Maybe %SYSTEMDRIVE%#{text} must be deleted manually")
+      print_warning("Maybe #{bat} must be deleted manually")
       return cleanuperror
     end
   end

@@ -21,10 +21,6 @@ class Metasploit3 < Msf::Auxiliary
           This module will check the certificate of the specified web servers
         to ensure the subject and issuer match the supplied pattern and that the certificate
         is not expired.
-
-        Note:  Be sure to check your expression if using msfcli, shells tend to not like certain
-        things and will strip/interpret them (= is a perfect example). It is better to use in
-        console.
       }
     )
 
@@ -47,8 +43,6 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{ip} No certificate subject or CN found")
       return
     end
-
-    issuer_pattern = Regexp.new(datastore['ISSUER'], [Regexp::EXTENDED, 'n'])
     sub = cert.subject.to_a
 
     before = Time.parse("#{cert.not_before}")
@@ -65,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    if ( "#{cert.issuer}" !~ /#{issuer_pattern}/)
+    if cert.issuer.to_s !~ /#{datastore['ISSUER']}/n
       print_good("#{ip} - '#{vhostn}' : #{cert.issuer} (BAD ISSUER)" )
     elsif datastore['SHOWALL']
       # show verbose as status

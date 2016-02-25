@@ -225,22 +225,6 @@ module Session
     "session_#{name}"
   end
 
-  #
-  # This method logs the supplied buffer as coming from the remote side of
-  # the session.
-  #
-  def log_from_remote(buf)
-    rlog(buf, log_source)
-  end
-
-  #
-  # This method logs the supplied buffer as coming from the local side of
-  # the session.
-  #
-  def log_from_local(buf)
-    rlog(buf, log_source)
-  end
-
   ##
   #
   # Core interface

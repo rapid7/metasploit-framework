@@ -169,7 +169,7 @@ class Driver < Msf::Ui::Driver
 
         unless configuration_pathname.nil?
           if configuration_pathname.readable?
-            dbinfo = YAML.load_file(configuration_pathname)
+            dbinfo = YAML.load_file(configuration_pathname) || {}
             dbenv  = opts['DatabaseEnv'] || Rails.env
             db     = dbinfo[dbenv]
           else
@@ -186,15 +186,7 @@ class Driver < Msf::Ui::Driver
 
       # framework.db.active will be true if after_establish_connection ran directly when connection_established? was
       # already true or if framework.db.connect called after_establish_connection.
-      if framework.db.active
-        unless opts['DeferModuleLoads']
-          self.framework.modules.refresh_cache_from_database
-
-          if self.framework.modules.cache_empty?
-            print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
-          end
-        end
-      elsif !framework.db.error.nil?
+      if !! framework.db.error
         if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
           print_error("***")
           print_error("*")
@@ -217,12 +209,12 @@ class Driver < Msf::Ui::Driver
     # Initialize the module paths only if we didn't get passed a Framework instance and 'DeferModuleLoads' is false
     unless opts['Framework'] || opts['DeferModuleLoads']
       # Configure the framework module paths
-      self.framework.init_module_paths
-      self.framework.modules.add_module_path(opts['ModulePath']) if opts['ModulePath']
+      self.framework.init_module_paths(module_paths: opts['ModulePath'])
+    end
 
-      # Rebuild the module cache in a background thread
-      self.framework.threads.spawn("ModuleCacheRebuild", true) do
-        self.framework.modules.refresh_cache_from_module_files
+    if framework.db.active && !opts['DeferModuleLoads']
+      framework.threads.spawn("ModuleCacheRebuild", true) do
+        framework.modules.refresh_cache_from_module_files
       end
     end
 
@@ -570,6 +562,8 @@ class Driver < Msf::Ui::Driver
       when "payload"
 
         if (framework and framework.payloads.valid?(val) == false)
+          return false
+        elsif active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
           return false
         elsif (active_module)
           active_module.datastore.clear_non_user_defined

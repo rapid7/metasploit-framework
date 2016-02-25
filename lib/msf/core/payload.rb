@@ -30,6 +30,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/java'
   require 'msf/core/payload/dalvik'
   require 'msf/core/payload/firefox'
+  require 'msf/core/payload/mainframe'
 
   ##
   #

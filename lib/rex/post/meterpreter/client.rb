@@ -112,6 +112,7 @@ class Client
     self.target_id    = opts[:target_id]
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
+    self.last_checkin = Time.now
 
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]

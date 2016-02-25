@@ -34,9 +34,13 @@ arguments = Rex::Parser::Arguments.new(
   "-f" => [ false, "Run the daemon in the foreground"                     ],
   "-A" => [ true,  "Specify list of hosts allowed to connect"             ],
   "-D" => [ true,  "Specify list of hosts not allowed to connect"         ],
+  "-q" => [ false, "Do not print the banner on startup"                   ],
   "-h" => [ false, "Help banner"                                          ])
 
-opts = { 'RunInForeground' => true }
+opts = {
+  'RunInForeground' => true,
+  'DisableBanner' => false
+}
 foreground = false
 
 # Parse command line arguments.
@@ -68,6 +72,8 @@ arguments.parse(ARGV) { |opt, idx, val|
         $stderr.puts "Bad argument for -D: #{$!}"
         exit
       end
+    when "-q"
+      opts['DisableBanner'] = true
     when "-h"
       print(
         "\nUsage: #{File.basename(__FILE__)} <options>\n" +

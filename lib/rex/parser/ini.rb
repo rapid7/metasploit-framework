@@ -49,14 +49,7 @@ class Ini < Hash
     end
   end
 
-  #
-  # Enumerates the groups hash keys.
-  #
-  def each_group(&block)
-    self.keys.each { |k|
-      yield
-    }
-  end
+  alias each_group each_key
 
   #
   # Adds a group of the supplied name if it doesn't already exist.

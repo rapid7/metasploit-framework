@@ -375,9 +375,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             :host => self,
             :workspace => wspace,
             :data => {
-              :name => sysinfo["Computer"],
-              :os => sysinfo["OS"],
-              :arch => sysinfo["Architecture"],
+              :name => sys.config.sysinfo["Computer"],
+              :os => sys.config.sysinfo["OS"],
+              :arch => sys.config.sysinfo["Architecture"],
             }
           })
 

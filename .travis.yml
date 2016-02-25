@@ -1,7 +1,7 @@
 bundler_args: --without coverage development pcap
 cache: bundler
 env:
-  - RAKE_TASKS="cucumber cucumber:boot"
+  - RAKE_TASKS="cucumber cucumber:boot" CREATE_BINSTUBS=true
   - RAKE_TASKS=spec SPEC_OPTS="--tag content"
   - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
 
@@ -25,7 +25,7 @@ script:
   - git diff --exit-code db/schema.rb && bundle exec rake $RAKE_TASKS
 sudo: false
 rvm:
-  - '2.1.6'
+  - '2.1.8'
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
@@ -41,3 +41,6 @@ branches:
 
 addons:
   postgresql: '9.3'
+  apt:
+    packages:
+      - libpcap-dev

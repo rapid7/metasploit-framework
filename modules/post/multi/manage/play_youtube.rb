@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'win', 'osx', 'linux' ],
+      'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
 
@@ -30,11 +30,6 @@ class Metasploit3 < Msf::Post
         OptString.new('VID', [true, 'The video ID to the YouTube video'])
       ], self.class)
   end
-
-  def peer
-    "#{session.session_host}:#{session.session_port}"
-  end
-
 
   #
   # The OSX version uses an apple script to do this
@@ -61,7 +56,7 @@ class Metasploit3 < Msf::Post
   def win_start_video(id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
-      session.sys.process.execute(iexplore_path, "-k http://youtube.com/embed/#{id}?#{PLAY_OPTIONS}")
+      session.sys.process.execute(iexplore_path, "-k https://www.youtube.com/embed/#{id}?#{PLAY_OPTIONS}")
     rescue Rex::Post::Meterpreter::RequestError => e
       return false
     end
@@ -99,6 +94,19 @@ class Metasploit3 < Msf::Post
     true
   end
 
+  #
+  # The Android version is launched via an Intent
+  #
+  def android_start_video(id)
+    intenturl = "intent://youtube.com/watch?v=#{id}&autoplay=1#Intent;scheme=http;action=android.intent.action.VIEW;end"
+    begin
+      session.android.activity_start(intenturl)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      return false
+    end
+    true
+  end
+
   def start_video(id)
     case session.platform
     when /osx/
@@ -107,6 +115,8 @@ class Metasploit3 < Msf::Post
       win_start_video(id)
     when /linux/
       linux_start_video(id)
+    when /android/
+      android_start_video(id)
     end
   end
 
