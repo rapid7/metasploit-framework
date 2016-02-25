@@ -25,5 +25,10 @@ unless Bundler.settings.without.include?(:coverage)
     simplecov_setup_pathname = Pathname.new(__FILE__).expand_path.parent.join('simplecov_setup')
     # set environment variable so child processes will merge their coverage data with parent process's coverage data.
     set_env('RUBYOPT', "#{ENV['RUBYOPT']} -r#{simplecov_setup_pathname}")
+
+    Before('@db') do |scenario|
+      dbconfig = YAML::load(File.open(Metasploit::Framework::Database.configurations_pathname))
+      ActiveRecord::Base.establish_connection(dbconfig["test"])
+    end
   end
 end
