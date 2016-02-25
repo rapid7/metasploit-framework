@@ -21,7 +21,7 @@ module Msf
             allowed_module_paths << Msf::Config.user_module_directory
           end
 
-          Rails.application.railties.engines.each do |engine|
+          ::Rails::Engine.subclasses.map(&:instance).each do |engine|
             extract_engine_module_paths(engine).each do |path|
               allowed_module_paths << path
             end

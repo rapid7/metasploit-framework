@@ -10,7 +10,7 @@ PATH
       jsobfu (~> 0.4.1)
       json
       metasm (~> 1.0.2)
-      metasploit-concern (= 1.0.0)
+      metasploit-concern
       metasploit-credential (= 1.0.1)
       metasploit-model (= 1.0.0)
       metasploit-payloads (= 1.1.0)

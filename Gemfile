@@ -21,6 +21,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'metasploit-concern', :git => "https://github.com/rapid7/metasploit-concern.git", :branch => "staging/MS-888/engines-is-deprecated"
   # automatically include factories from spec/factories
   gem 'factory_girl_rails', '~> 4.5.0'
   # Make rspec output shorter and more useful
