@@ -92,7 +92,7 @@ class Server
     #
     # @param flush [TrueClass,FalseClass] Remove non-static entries
     def stop(flush = false)
-      @monitor_thread.kill
+      @monitor_thread.kill unless @monitor_thread.nil?
       @monitor_thread = nil
       if flush
         @records.select do |rec, expire|
@@ -183,8 +183,8 @@ class Server
 
   #
   # Start the DNS server and cache
-  #
-  def start
+  # @param start_cache [TrueClass, FalseClass] stop the cache
+  def start(start_cache = true)
     @udp_mon = Rex::ThreadFactory.spawn("DNSServerMonitor", false) {
       monitor_udp_socket
     } if @udp_sock
@@ -196,14 +196,14 @@ class Server
       }
       @tcp_sock.start
     end
-    @cache.start
+    @cache.start if start_cache
     @running = true
   end
 
   #
   # Stop the DNS server and cache
   #
-  # @param flush_cache [TrueClass,FalseClass] Flush DNS cache on stop
+  # @param flush_cache [TrueClass,FalseClass] Flush eDNS cache on stop
   def stop(flush_cache = false)
     if @udp_mon
       @udp_mon.kill
