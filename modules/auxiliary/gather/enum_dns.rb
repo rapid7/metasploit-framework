@@ -192,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{ip}: PTR: #{r.ptr} ")
     end
     return if records.blank?
-    save_note(domain, 'get_ptr', records)
+    save_note(ip, 'get_ptr', records)
     records
   end
 
