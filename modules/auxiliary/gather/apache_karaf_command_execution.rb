@@ -87,6 +87,9 @@ class Metasploit3 < Msf::Auxiliary
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
         ssh = Net::SSH.start(ip, user, opts)
       end
+    rescue OpenSSL::Cipher::CipherError => e
+      print_error("#{ip}:#{rport} SSH - Unable to connect to this Apache Karaf (#{e.message})")
+      return
     rescue Rex::ConnectionError
       return
     rescue Net::SSH::Disconnect, ::EOFError
