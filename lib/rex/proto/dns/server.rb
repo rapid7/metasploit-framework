@@ -247,7 +247,7 @@ class Server
       end
     end
     # Forward remaining requests, cache responses
-    if forward.question.count > 0
+    if forward.question.count > 0 and @fwd_res
       forwarded = @fwd_res.send(validate_packet(forward))
       req.answer = req.answer + forwarded.answer 
       forwarded.answer.each do |ans|
