@@ -125,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
         1.upto(threads) do
           t << framework.threads.spawn("Module(#{self.refname})", false, queue.shift) do |test_current|
             Thread.current.kill unless test_current
-            a = get_a(test_current)
+            a = get_a(test_current, 'dns_bruteforce')
             records |= a if a
           end
         end
@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def dns_wildcard_enabled?(domain)
-    records = get_a("#{Rex::Text.rand_text_alpha(16)}.#{domain}")
+    records = get_a("#{Rex::Text.rand_text_alpha(16)}.#{domain}", 'dns_wildcard')
     if records.blank?
       false
     else
@@ -192,10 +192,11 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{ip}: PTR: #{r.ptr} ")
     end
     return if records.blank?
+    save_note(domain, 'get_ptr', records)
     records
   end
 
-  def get_a(domain)
+  def get_a(domain, type='get_a')
     resp = dns_query(domain, 'A')
     return if resp.blank? || resp.answer.blank?
 
@@ -206,6 +207,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain} A: #{r.address} ") if datastore['ENUM_BRT']
     end
     return if records.blank?
+    save_note(domain, type, records)
     records
   end
 
@@ -221,6 +223,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain} CNAME: #{r.cname}")
     end
     return if records.blank?
+    save_note(domain, 'get_cname', records)
     records
   end
 
@@ -236,13 +239,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain} NS: #{r.nsdname}")
     end
     return if records.blank?
-    report_note(
-      host: domain,
-      sname: 'dns',
-      type: 'get_ns',
-      data: records,
-      update: :unique
-    )
+    save_note(domain, 'get_ns', records)
     records
   end
 
@@ -262,6 +259,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Query #{domain} DNS MX - exception: #{e}")
     ensure
       return if records.blank?
+      save_note(domain, 'get_mx', records)
       records
     end
   end
@@ -278,6 +276,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain} SOA: #{r.mname}")
     end
     return if records.blank?
+    save_note(domain, 'get_soa', records)
     records
   end
 
@@ -293,6 +292,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain} TXT: #{r.txt}")
     end
     return if records.blank?
+    save_note(domain, 'get_txt', records)
     records
   end
 
@@ -331,7 +331,7 @@ class Metasploit3 < Msf::Auxiliary
 
       records = []
       tlds.each do |tld|
-        tldr = get_a("#{domain_}.#{tld}")
+        tldr = get_a("#{domain_}.#{tld}", 'get_tld')
         next if tldr.blank?
         records |= tldr
         print_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
@@ -340,13 +340,6 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Query #{domain} DNS TLD - exception: #{e}")
     ensure
       return if records.blank?
-      report_note(
-        host: "#{domain}",
-        sname: 'dns',
-        type: 'ENUM_TLD',
-        data: records,
-        update: :unique
-      )
       records
     end
   end
@@ -405,7 +398,7 @@ class Metasploit3 < Msf::Auxiliary
 
       ns_a_records = []
       # try to get A record for nameserver from target NS, which may fail
-      target_ns_a = get_a(nameserver)
+      target_ns_a = get_a(nameserver, 'axfr')
       ns_a_records |= target_ns_a if target_ns_a
       ns_a_records << ::Rex::Socket.resolv_to_dotted(nameserver)
       begin
@@ -420,6 +413,56 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{domain} Zone Transfer: #{zone}")
     end
     return if records.blank?
+    save_note(domain, 'axfr', records)
     records
+  end
+
+  def get_note(host_id)
+    framework.db.notes.each do |note|
+      next unless host_id == note.host_id
+      return note
+    end
+  end
+
+  def db_filter(target, type, records)
+    data = {}
+    return data if records.nil?
+
+    # search target from db
+    host_ip = framework.db.normalize_host(target)
+    host = framework.db.get_host(:workspace => workspace, :host => host_ip)
+
+    # host not in db
+    if host.nil?
+      data[target] = records
+      return data
+    end
+
+    # host in db
+    host_id = host.id
+    note = get_note(host_id)
+
+    # type dismatch
+    if note.ntype != type
+      data[target] = records
+      return data
+    end
+
+    # host in db, but no data
+    if note.data.nil?
+      data[target] = records
+      return data
+    end
+
+    old_data = note.data
+    data[target] = records
+    data.merge!(old_data)
+    data
+  end
+
+  def save_note(target, type, records)
+    data = db_filter(target, type, records)
+    return if data.empty?
+    report_note(:host => target, :sname => 'dns', :type => type, :data => data)
   end
 end
