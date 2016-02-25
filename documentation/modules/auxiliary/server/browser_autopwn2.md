@@ -137,6 +137,7 @@ resource scripts that can automatically do this:
 * bap_firefox_only.rc - For testing Firefox
 * bap_flash_only.rc - Fore testing Adobe Flash
 * bap_ie_only.rc - For testing Internet Explorer
+* bap_dryrun_only.rc - Rickrolls the target, and shows you all the suitable exploits against that target. No exploits will actually be fired.
 
 Here's an example of using bap_flash_only.rc to test Adobe Flash vulnerabilities:
 
