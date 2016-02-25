@@ -1,0 +1,1 @@
+You can use this as a template for module documentation.
