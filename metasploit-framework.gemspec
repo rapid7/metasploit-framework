@@ -61,7 +61,7 @@ Gem::Specification.new do |spec|
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern', '1.0.0'
+  spec.add_runtime_dependency 'metasploit-concern'
   # Metasploit::Credential database models
   spec.add_runtime_dependency 'metasploit-credential', '1.0.1'
   # Database models shared between framework and Pro.
