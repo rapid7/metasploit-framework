@@ -76,7 +76,12 @@ module Msf
         # @raise [PullRequestFinder::Exception] No commits found.
         # @return [Array<Sawyer::Resource>]
         def get_commits_from_file(path)
-          commits = git_client.commits(repository, branch, path: path)
+          begin
+            commits = git_client.commits(repository, branch, path: path)
+          rescue Faraday::ConnectionFailed
+            raise PullRequestFinder::Exception, 'No network connection to Github.'
+          end
+
           if commits.empty?
             # Possibly the path is wrong.
             raise PullRequestFinder::Exception, 'No commits found.'
