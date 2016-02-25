@@ -40,7 +40,8 @@ class Server
     #
     # @param record [Net::DNS::RR] Record to cache
     def cache_record(record)
-      if record.class.ancestors.include?(Net::DNS::RR) and @monitor_thread and
+      return unless @monitor_thread
+      if record.class.ancestors.include?(Net::DNS::RR) and
       Rex::Socket.is_ip_addr?(record.address.to_s) and record.name.to_s.match(MATCH_HOSTNAME)
         add(record, Time.now.to_i + record.ttl)
       else
