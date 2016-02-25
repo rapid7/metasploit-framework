@@ -175,6 +175,13 @@ class Server
   end
 
   #
+  # Check if server is running
+  #
+  def running?
+    @running == true
+  end
+
+  #
   # Start the DNS server and cache
   #
   def start
@@ -190,6 +197,7 @@ class Server
       @tcp_sock.start
     end
     @cache.start
+    @running = true
   end
 
   #
@@ -203,6 +211,7 @@ class Server
     end
     @tcp_sock.stop if @tcp_sock
     @cache.stop(flush_cache)
+    @running = false
   end
 
   #
