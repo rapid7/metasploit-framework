@@ -1,6 +1,7 @@
 ## <%= items[:mod_name] %>
-
+<p>
 <%= normalize_description(items[:mod_description]) %>
+</p>
 
 ## Module Name
 
@@ -9,6 +10,15 @@
 ## Authors
 
 <%= normalize_authors(items[:mod_authors]) %>
+
+<% unless items[:mod_platforms].empty? %>
+## Platforms
+<%= normalize_platforms(items[:mod_platforms]) %>
+<% end %>
+
+## Reliability
+
+<%= normalize_rank(items[:mod_rank]) %>
 
 ## Related Pull Requests
 
@@ -27,18 +37,11 @@
 
 <% end %>
 
-<% unless items[:mod_platforms].empty? %>
-## Platforms
-<%= normalize_platforms(items[:mod_platforms]) %>
-<% end %>
+## Required Options
 
-## Reliability
-
-<%= normalize_rank(items[:mod_rank]) %>
-
-<% unless normalize_options(items[:mod_options]).empty? %>
-## Mandatory Options
-
+<% if normalize_options(items[:mod_options]).empty? %>
+No options required.
+<% else %>
 <%= normalize_options(items[:mod_options]) %>
 <% end %>
 

@@ -4,14 +4,14 @@ h3,
 h4,
 h5,
 h6,
-p,
+p, 
 blockquote {
     margin: 0;
     padding: 0;
 }
 body {
-    font-family: "Helvetica Neue", Helvetica, "Hiragino Sans GB", Arial, sans-serif;
-    font-size: 13px;
+    font-family: Arial, "Helvetica Neue", Helvetica, "Hiragino Sans GB", sans-serif;
+    font-size: 16px;
     line-height: 18px;
     color: #737373;
     margin: 10px 13px 10px 13px;
@@ -27,7 +27,7 @@ a img {
     border: none;
 }
 p {
-    margin-bottom: 9px;
+    margin-bottom: 16px;
 }
 h1,
 h2,
@@ -44,18 +44,23 @@ h1 {
 }
 h2 {
     font-size: 24px;
+    margin-bottom: 16px;
 }
 h3 {
     font-size: 18px;
+    margin-bottom: 16px;
 }
 h4 {
     font-size: 16px;
+    margin-bottom: 16px;
 }
 h5 {
-    font-size: 14px;
+    font-size: 16px;
+    margin-bottom: 16px;
 }
 h6 {
     font-size: 13px;
+    margin-bottom: 16px;
 }
 hr {
     margin: 0 0 19px;
@@ -76,7 +81,7 @@ blockquote:before {
     color:#eee;
 }
 blockquote p {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 300;
     line-height: 18px;
     margin-bottom: 0;
@@ -89,17 +94,17 @@ code {
     background-color: #fee9cc;
     color: rgba(0, 0, 0, 0.75);
     padding: 1px 3px;
-    font-size: 12px;
+    font-size: 13px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
 }
 pre {
     display: block;
-    padding: 14px;
+    padding: 16px;
     margin: 0 0 18px;
     line-height: 16px;
-    font-size: 11px;
+    font-size: 13px;
     border: 1px solid #d9d9d9;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -107,7 +112,7 @@ pre {
 pre code {
     background-color: #fff;
     color:#737373;
-    font-size: 11px;
+    font-size: 13px;
     padding: 0;
 }
 @media screen and (min-width: 768px) {
@@ -118,7 +123,7 @@ pre code {
 }
 #overview_info_button {
   font-family:Arial, sans-serif;
-  font-size:12px;
+  font-size:16px;
   padding:10px 5px;
   border-style:solid;
   border-width:1px;
@@ -127,7 +132,7 @@ pre code {
 }
 #knowledge_base_button {
   font-family:Arial, sans-serif;
-  font-size:12px;
+  font-size:16px;
   padding:10px 5px;
   border-style:solid;
   border-width:1px;
