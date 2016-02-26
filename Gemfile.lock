@@ -1,13 +1,54 @@
 GIT
+<<<<<<< HEAD
   remote: https://github.com/rapid7/metasploit-concern.git
   revision: cf2dbfc0cf0b60c9561357d00de4ece34058e13b
   branch: staging/MS-888/engines-is-deprecated
   specs:
     metasploit-concern (1.0.1.pre.engines.pre.is.pre.deprecated)
+=======
+  remote: https://github.com/rapid7/metasploit-concern
+  revision: ef10168eea90af393f595d426aadb5ca33dfe031
+  branch: staging/rails-upgrade
+  specs:
+    metasploit-concern (1.0.1.pre.rails.pre.upgrade)
+>>>>>>> staging/rails-upgrade
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
 
+<<<<<<< HEAD
+=======
+GIT
+  remote: https://github.com/rapid7/metasploit-credential
+  revision: 9aa0cf5812fc7bc27c25e122c9648ffc5798735d
+  branch: staging/rails-upgrade
+  specs:
+    metasploit-credential (2.0.0.pre.rails.pre.upgrade)
+      metasploit-concern
+      metasploit-model (~> 1.0)
+      metasploit_data_models
+      pg
+      railties
+      rubyntlm
+      rubyzip (~> 1.1)
+
+GIT
+  remote: https://github.com/rapid7/metasploit_data_models
+  revision: 97197d0955936ee2f0881dd262951dfc667b905b
+  branch: staging/rails-upgrade
+  specs:
+    metasploit_data_models (2.0.0.pre.rails.pre.upgrade)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      arel-helpers
+      metasploit-concern (~> 1.0)
+      metasploit-model (~> 1.0)
+      pg
+      postgres_ext
+      railties (>= 4.0.9, < 4.1.0)
+      recog (~> 2.0)
+
+>>>>>>> staging/rails-upgrade
 PATH
   remote: .
   specs:
@@ -20,11 +61,13 @@ PATH
       jsobfu (~> 0.4.1)
       json
       metasm (~> 1.0.2)
+<<<<<<< HEAD
       metasploit-concern
       metasploit-credential (= 1.0.1)
+=======
+>>>>>>> staging/rails-upgrade
       metasploit-model (= 1.0.0)
       metasploit-payloads (= 1.1.0)
-      metasploit_data_models (= 1.2.10)
       msgpack
       network_interface (~> 0.0.1)
       nokogiri
@@ -68,8 +111,8 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
     arel (4.0.2)
-    arel-helpers (2.1.1)
-      activerecord (= 4.0.13)
+    arel-helpers (2.2.0)
+      activerecord (>= 3.1.0, < 5)
     aruba (0.6.2)
       childprocess (>= 0.3.6)
       cucumber (>= 1.1.1)
@@ -118,6 +161,7 @@ GEM
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
     metasm (1.0.2)
+<<<<<<< HEAD
     metasploit-credential (1.0.1)
       metasploit-concern (~> 1.0)
       metasploit-model (~> 1.0)
@@ -126,26 +170,18 @@ GEM
       railties
       rubyntlm
       rubyzip (~> 1.1)
+=======
+>>>>>>> staging/rails-upgrade
     metasploit-model (1.0.0)
       activemodel (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
     metasploit-payloads (1.1.0)
-    metasploit_data_models (1.2.10)
-      activerecord (>= 4.0.9, < 4.1.0)
-      activesupport (>= 4.0.9, < 4.1.0)
-      arel-helpers
-      metasploit-concern (~> 1.0)
-      metasploit-model (~> 1.0)
-      pg
-      postgres_ext
-      railties (>= 4.0.9, < 4.1.0)
-      recog (~> 2.0)
     method_source (0.8.2)
     mime-types (2.6.1)
     mini_portile2 (2.0.0)
     minitest (4.7.5)
-    msgpack (0.7.1)
+    msgpack (0.7.4)
     multi_json (1.11.2)
     multi_test (0.1.2)
     network_interface (0.0.1)
@@ -155,10 +191,10 @@ GEM
     packetfu (1.1.11)
       network_interface (~> 0.0)
       pcaprub (~> 0.12)
-    pcaprub (0.12.0)
+    pcaprub (0.12.1)
     pg (0.18.4)
     pg_array_parser (0.0.9)
-    postgres_ext (2.4.1)
+    postgres_ext (3.0.0)
       activerecord (>= 4.0.0)
       arel (>= 4.0.1)
       pg_array_parser (~> 0.0.9)
@@ -206,8 +242,8 @@ GEM
       rspec-mocks (~> 3.3.0)
       rspec-support (~> 3.3.0)
     rspec-support (3.3.0)
-    rubyntlm (0.5.2)
-    rubyzip (1.1.7)
+    rubyntlm (0.6.0)
+    rubyzip (1.2.0)
     shoulda-matchers (2.8.0)
       activesupport (>= 3.0.0)
     simplecov (0.9.2)
@@ -244,7 +280,12 @@ DEPENDENCIES
   factory_girl_rails (~> 4.5.0)
   fivemat (~> 1.3.1)
   metasploit-concern!
+<<<<<<< HEAD
+=======
+  metasploit-credential!
+>>>>>>> staging/rails-upgrade
   metasploit-framework!
+  metasploit_data_models!
   pry
   rake (>= 10.0.0)
   redcarpet
@@ -253,6 +294,3 @@ DEPENDENCIES
   simplecov
   timecop
   yard
-
-BUNDLED WITH
-   1.11.2

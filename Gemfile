@@ -18,10 +18,13 @@ group :development do
   gem 'yard'
   # for development and testing purposes
   gem 'pry'
+  # rails-upgrade staging gems
+  gem 'metasploit-concern', git: 'https://github.com/rapid7/metasploit-concern', branch: 'staging/rails-upgrade'
+  gem 'metasploit_data_models', git: 'https://github.com/rapid7/metasploit_data_models', branch: 'staging/rails-upgrade'
+  gem 'metasploit-credential', git: 'https://github.com/rapid7/metasploit-credential', branch: 'staging/rails-upgrade'
 end
 
 group :development, :test do
-  gem 'metasploit-concern', :git => "https://github.com/rapid7/metasploit-concern.git", :branch => "staging/MS-888/engines-is-deprecated"
   # automatically include factories from spec/factories
   gem 'factory_girl_rails', '~> 4.5.0'
   # Make rspec output shorter and more useful
