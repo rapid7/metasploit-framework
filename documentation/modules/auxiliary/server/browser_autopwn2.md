@@ -1,6 +1,17 @@
 Browser Autopwn 2 is a complete redesign from the first one, so quite a few things will look and
 feel different for you. Here are the features you should know about before using.
 
+## Vulnerable Applications
+
+Browser Autopwn 2 is capable of targeting popular browsers and 3rd party plugins, such as:
+
+* Internet Explorer
+* Mozilla Firefox
+* Adobe Flash
+* Java
+* ActiveX
+* Silverlight
+
 ## Exploit URLs
 
 Normally, the only URL you need to care about is the **BrowserAutoPwn URL**. This is the URL

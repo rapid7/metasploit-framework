@@ -1,3 +1,7 @@
+The following is the recommended format for module documentation.
+But feel free to add more content/sections to this.
+
+
 ## Vulnerable Application
 
   Instructions to get the vulnerable application.
