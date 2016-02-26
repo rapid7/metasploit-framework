@@ -156,22 +156,29 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_set_audio_mode(*args)
+    help = false
     mode = 1
     set_audio_mode_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, "Help Banner" ],
-      '-m' => [ true, "Set Mode - (0 - OFF, 1 - Normal, 2 - Max) (Default: '#{mode}')"]
+      '-m' => [ true, "Set Mode - (0 - Off, 1 - Normal, 2 - Max) (Default: '#{mode}')"]
     )
 
     set_audio_mode_opts.parse(args) do |opt, _idx, val|
       case opt
       when '-h'
-        print_line('Usage: set_audio_mode [options]')
-        print_line('Set Ringer mode.')
-        print_line(set_audio_mode_opts.usage)
-        return
+        help = true
       when '-m'
         mode = val.to_i
+      else
+        help = true
       end
+    end
+
+    if help || mode < 0 || mode > 2
+      print_line('Usage: set_audio_mode [options]')
+      print_line('Set Ringer mode.')
+      print_line(set_audio_mode_opts.usage)
+      return
     end
 
     client.android.set_audio_mode(mode)
