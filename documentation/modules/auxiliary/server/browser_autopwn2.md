@@ -135,7 +135,7 @@ Here's an example of setting it to 5 seconds:
 set ExploitReloadTimeout 5000
 ```
 
-## Application-Specific Testing
+## Scenarios
 
 By default, Browser Autopwn 2 goes through the entire exploit module tree, and will try to use
 different types of exploits - Firefox, Internet Explorer, Adobe Flash, Android, etc. If you want to

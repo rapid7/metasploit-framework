@@ -29,3 +29,13 @@ But feel free to add more content/sections to this.
   ```
   code or console output
   ```
+
+  For example:
+
+  To do this specific thing, here's how you do it:
+
+  ```
+  msf > use module_name
+  msf auxiliary(module_name) > set POWERLEVEL >9000
+  msf auxiliary(module_name) > exploit
+  ```
