@@ -70,6 +70,8 @@ module DNS
       #------------------------------------------------------------
       # Parsing arguments
       #------------------------------------------------------------
+      comm = config.delete(:comm)
+      context = context = config.delete(:context)
       config.each do |key,val|
         next if key == :log_file or key == :config_file
         begin
