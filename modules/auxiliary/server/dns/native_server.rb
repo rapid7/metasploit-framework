@@ -34,66 +34,60 @@ class Metasploit3 < Msf::Auxiliary
   #
   def run
     begin
-      setup_server
       start_service
-      while service.running?
-        Rex::ThreadSafe.sleep(1)
-      end
+      primer
+      service.wait
     ensure
-      stop_service
+      stop_service(true)
     end
   end
 
   #
   # Creates Proc to handle incoming requests
   #
-  def handle_request
-    Proc.new do |cli, data|
-      req = Net::DNS::Packet.parse(data)
-      peer = "#{cli.peerhost}:#{cli.peerport}"
-      asked = req.question.map(&:qName).join(', ')
-      vprint_status("Received request for #{asked} from #{peer}")
-      forward = req.dup
-      # Find cached items, remove request from forwarded packet
-      req.question.each do |ques|
-        cached = service.cache.find(ques.qName, ques.qType.to_s)
-        if cached.empty?
-          next
-        else
-          req.answer = req.answer + cached
-          forward.question.delete(ques)
-          hits = cached.map do |hit|
-            hit.name + ':' + hit.address.to_s + ' ' + hit.type
-          end.each {|h| vprint_status("Cache hit for #{h}")}
-        end
-      end unless service.cache.nil?
-      # Forward remaining requests, cache responses
-      if forward.question.count > 0 and service.fwd_res
-        forwarded = service.fwd_res.send(service.validate_packet(forward))
-        forwarded.answer.each do |ans|
-          vprint_status("Caching response #{ans.name}:#{ans.address} #{ans.type}")
-          service.cache.cache_record(ans)
-        end unless service.cache.nil?
-        # Merge the answers and use the upstream response
-        forwarded.answer = req.answer + forwarded.answer
-        req = forwarded
+  def on_dispatch_request(cli,data)
+    req = Net::DNS::Packet.parse(data)
+    peer = "#{cli.peerhost}:#{cli.peerport}"
+    asked = req.question.map(&:qName).join(', ')
+    vprint_status("Received request for #{asked} from #{peer}")
+    forward = req.dup
+    # Find cached items, remove request from forwarded packet
+    req.question.each do |ques|
+      cached = service.cache.find(ques.qName, ques.qType.to_s)
+      if cached.empty?
+        next
+      else
+        req.answer = req.answer + cached
+        forward.question.delete(ques)
+        hits = cached.map do |hit|
+          hit.name + ':' + hit.address.to_s + ' ' + hit.type
+        end.each {|h| vprint_status("Cache hit for #{h}")}
       end
-      req.header.qr = 1 # Set response bit
-      service.send_response(cli, service.validate_packet(req).data)
+    end unless service.cache.nil?
+    # Forward remaining requests, cache responses
+    if forward.question.count > 0 and service.fwd_res
+      forwarded = service.fwd_res.send(service.validate_packet(forward))
+      forwarded.answer.each do |ans|
+        vprint_status("Caching response #{ans.name}:#{ans.address} #{ans.type}")
+        service.cache.cache_record(ans)
+      end unless service.cache.nil?
+      # Merge the answers and use the upstream response
+      forwarded.answer = req.answer + forwarded.answer
+      req = forwarded
     end
+    req.header.qr = 1 # Set response bit
+    service.send_response(cli, service.validate_packet(req).data)
   end
 
   #
   # Creates Proc to handle outbound responses
   #
-  def handle_response
-    Proc.new do |cli, data|
-      res = Net::DNS::Packet.parse(data)
-      peer = "#{cli.peerhost}:#{cli.peerport}"
-      asked = res.question.map(&:qName).join(', ')
-      vprint_status("Sending response for #{asked} to #{peer}")
-      cli.write(data)
-    end
+  def on_send_response(cli,data)
+    res = Net::DNS::Packet.parse(data)
+    peer = "#{cli.peerhost}:#{cli.peerport}"
+    asked = res.question.map(&:qName).join(', ')
+    vprint_status("Sending response for #{asked} to #{peer}")
+    cli.write(data)
   end
 
 

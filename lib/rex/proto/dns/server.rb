@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'rex/io/gram_server'
 require 'rex/socket'
 require 'rex/proto/dns'
 
@@ -10,7 +11,7 @@ module DNS
 class Server
 
   class Cache
-    attr_reader :records
+    attr_reader :records, :lock, :monitor_thread
     include Rex::Proto::DNS::Constants
     # class DNSRecordError < ::Exception
     #
@@ -29,7 +30,7 @@ class Server
     #
     # @return [Array] Records found
     def find(search, type = 'A')
-      @records.select do |record,expire|
+      self.records.select do |record,expire|
         record.type == type and (expire < 1 or expire > Time.now.to_i) and 
         (record.name == search or record.address == search)
       end.keys
@@ -71,7 +72,7 @@ class Server
     #
     # @param before [Fixnum] Time in seconds before which records are evicted
     def prune(before = Time.now.to_i)
-      @records.select do |rec, expire|
+      self.records.select do |rec, expire|
         expire > 0 and expire < before
       end.each {|rec, exp| delete(rec)}
     end
@@ -93,10 +94,10 @@ class Server
     #
     # @param flush [TrueClass,FalseClass] Remove non-static entries
     def stop(flush = false)
-      @monitor_thread.kill unless @monitor_thread.nil?
+      self.monitor_thread.kill unless @monitor_thread.nil?
       @monitor_thread = nil
       if flush
-        @records.select do |rec, expire|
+        self.records.select do |rec, expire|
           rec.ttl > 0
         end.each {|rec| delete(rec)}
       end
@@ -110,8 +111,8 @@ class Server
     # @param record [Net::DNS::RR] Record to add
     # @param expire [Fixnum] Time in seconds when record becomes stale
     def add(record, expire = 0)
-      @lock.synchronize do
-        @records[record] = expire
+      self.lock.synchronize do
+        self.records[record] = expire
       end
     end
 
@@ -120,11 +121,13 @@ class Server
     #
     # @param record [Net::DNS::RR] Record to delete
     def delete(record)
-      @lock.synchronize do
-        @records.delete(record)
+      self.lock.synchronize do
+        self.records.delete(record)
       end
     end
   end # Cache
+
+  include Rex::IO::GramServer
 
   #
   # Create DNS Server
@@ -139,26 +142,23 @@ class Server
   # @param sblock [Proc] Handler for :send_response flow control interception
   #
   # @return [Rex::Proto::DNS::Server] DNS Server object
-  attr_accessor :fwd_res, :dispatch_block, :send_block, :cache
+  attr_accessor :serve_tcp, :serve_udp, :fwd_res, :cache
+  attr_reader :serve_udp, :serve_tcp, :sock_options, :lock, :udp_sock, :tcp_sock
   def initialize(lhost = '0.0.0.0', lport = 53, udp = true, tcp = false, res = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
     
-    @udp_sock = udp ? Rex::Socket::Udp.create(
+    @serve_udp = udp
+    @serve_tcp = tcp
+    @sock_options = {
       'LocalHost' => lhost,
       'LocalPort' => lport,
       'Context'   => ctx,
       'Comm'      => comm
-    ) : nil
-    @tcp_sock = tcp ? Rex::Socket::TcpServer.create(
-      'LocalHost' => lhost,
-      'LocalPort' => lport,
-      'Context'   => ctx,
-      'Comm'      => comm
-    ) : nil
-    @fwd_res = res.nil? ? Rex::Proto::DNS::Resolver.new : res
-    @udp_mon = nil
-    @dispatch_block = dblock
-    @send_block = sblock
-    @cache = Cache.new
+    }
+    self.fwd_res = res.nil? ? Rex::Proto::DNS::Resolver.new(:comm => comm, :context => ctx) : res
+    self.listener_thread = nil
+    self.dispatch_request_proc = dblock
+    self.send_response_proc = sblock
+    self.cache = Cache.new
     @lock = Mutex.new
   end
 
@@ -170,8 +170,8 @@ class Server
     if ns.respond_to?(:split)
       ns = [ns]
     end
-    @lock.synchronize do
-      @fwd_res.nameserver = ns
+    self.lock.synchronize do
+      self.fwd_res.nameserver = ns
     end
   end
 
@@ -179,26 +179,33 @@ class Server
   # Check if server is running
   #
   def running?
-    @running == true
+    self.listener_thread and self.listener_thread.alive?
   end
 
   #
   # Start the DNS server and cache
   # @param start_cache [TrueClass, FalseClass] stop the cache
   def start(start_cache = true)
-    @udp_mon = Rex::ThreadFactory.spawn("DNSServerMonitor", false) {
-      monitor_udp_socket
-    } if @udp_sock
 
-    if @tcp_sock
+    if self.serve_udp
+      @udp_sock = Rex::Socket::Udp.create(self.sock_options)
+      self.listener_thread = Rex::ThreadFactory.spawn("UDPDNSServerListener", false) {
+        monitor_listener
+      }
+    end
 
-      @tcp_sock.on_client_data_proc = Proc.new { |cli|
+    if self.serve_tcp
+      @tcp_sock = Rex::Socket::TcpServer.create(self.sock_options)
+      self.tcp_sock.on_client_data_proc = Proc.new { |cli|
         on_client_data(cli)
       }
-      @tcp_sock.start
+      self.tcp_sock.start
+      if !self.serve_udp
+        self.listener_thread = tcp_sock.listener_thread
+      end
     end
-    @cache.start if start_cache
-    @running = true
+
+    self.cache.start if start_cache
   end
 
   #
@@ -206,13 +213,19 @@ class Server
   #
   # @param flush_cache [TrueClass,FalseClass] Flush eDNS cache on stop
   def stop(flush_cache = false)
-    if @udp_mon
-      @udp_mon.kill
-      @udp_mon = nil
+    if self.udp_sock
+      self.listener_thread.kill
+      self.listener_thread = nil
+      @udp_sock = nil
     end
-    @tcp_sock.stop if @tcp_sock
-    @cache.stop(flush_cache)
-    @running = false
+
+    if self.tcp_sock
+      self.tcp_sock.stop if self.tcp_sock.respond_to?(:stop)
+      self.tcp_sock.close if self.tcp_sock.respond_to?(:close)
+      @tcp_sock = nil
+    end
+
+    self.cache.stop(flush_cache)
   end
 
   #
@@ -231,24 +244,30 @@ class Server
   end
 
   #
-  # Process client request, handled with @dispatch_block if set
+  # Process client request, handled with dispatch_request_proc if set
   #
   # @param cli [Rex::Socket::Tcp, Rex::Socket::Udp] Client sending the request
   # @param data [String] raw DNS request data
   def dispatch_request(cli, data)
-    if @dispatch_block
-      @dispatch_block.call(cli,data)
+    if self.dispatch_request_proc
+      self.dispatch_request_proc.call(cli,data)
     else
       default_dispatch_request(cli,data)
     end
   end
 
+  #
+  # Default DNS request dispatcher, attempts to find
+  # response records in cache or forwards request upstream
+  #
+  # @param cli [Rex::Socket::Tcp, Rex::Socket::Udp] Client sending the request
+  # @param data [String] raw DNS request data
   def default_dispatch_request(cli,data)
     req = Net::DNS::Packet.parse(data)
     forward = req.dup
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
-      cached = @cache.find(ques.qName, ques.qType.to_s)
+      cached = self.cache.find(ques.qName, ques.qType.to_s)
       if cached.empty?
         next
       else
@@ -258,10 +277,10 @@ class Server
     end
     # Forward remaining requests, cache responses
     if forward.question.count > 0 and @fwd_res
-      forwarded = @fwd_res.send(validate_packet(forward))
+      forwarded = self.fwd_res.send(validate_packet(forward))
       req.answer = req.answer + forwarded.answer 
       forwarded.answer.each do |ans|
-        @cache.cache_record(ans)
+        self.cache.cache_record(ans)
       end
       req.header.ra = 1 # Set recursion bit
     end
@@ -274,44 +293,30 @@ class Server
     send_response(cli, validate_packet(req).data)
   end
 
-  #
-  # Send response to client, handled with @send_block if set
-  #
-  # @param cli [Rex::Socket::Tcp, Rex::Socket::Udp] Client receiving the response
-  # @param data [String] raw DNS response data
-  def send_response(cli, data)
-    if @send_block
-      @send_block.call(cli, data)
-    else
-      cli.write(data)
-    end
-  end
-
 protected
-
   #
-  # Monitor UDP socket for incoming requests, create client object from socket
+  # This method monitors the listener socket for new connections and calls
+  # the +on_client_connect+ callback routine.
   #
-  def monitor_udp_socket
+  def monitor_listener
     while true
-      rds = [@udp_sock]
+      rds = [self.udp_sock]
       wds = []
-      eds = [@udp_sock]
+      eds = [self.udp_sock]
 
       r,_,_ = ::IO.select(rds,wds,eds,1)
 
-      if (r != nil and r[0] == @udp_sock)
-        buf,host,port = @udp_sock.recvfrom(65535)
+      if (r != nil and r[0] == self.udp_sock)
+        buf,host,port = self.udp_sock.recvfrom(65535)
         # Mock up a client object as a Rex Socket for sending back data
         cli = Rex::Socket::Udp.create(
           'PeerHost' => host,
           'PeerPort' => port,
-          'LocalHost' => @udp_sock.localhost,
-          'LocalPort' => @udp_sock.localport
+          'LocalHost' => self.udp_sock.localhost,
+          'LocalPort' => self.udp_sock.localport
         )
         dispatch_request(cli, buf)
       end
-
     end
   end
 
