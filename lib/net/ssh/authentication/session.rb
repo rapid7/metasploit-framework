@@ -7,7 +7,6 @@ require 'net/ssh/authentication/methods/publickey'
 require 'net/ssh/authentication/methods/hostbased'
 require 'net/ssh/authentication/methods/password'
 require 'net/ssh/authentication/methods/keyboard_interactive'
-require 'net/ssh/authentication/methods/fortinet_backdoor'
 
 module Net; module SSH; module Authentication
 
