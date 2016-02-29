@@ -323,6 +323,20 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
+    self.platform = self.platform.split('/')[0] + '/' +
+      case self.sys.config.sysinfo['OS']
+      when /windows/i
+        Msf::Module::Platform::Windows
+      when /darwin/i
+        Msf::Module::Platform::OSX
+      when /freebsd/i
+        Msf::Module::Platform::FreeBSD
+      when /openbsd/i, /netbsd/i
+        Msf::Module::Platform::BSD
+      else
+        Msf::Module::Platform::Linux
+      end.realname.downcase
+
     safe_info = "#{username} @ #{sysinfo['Computer']}"
     safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
     # Should probably be using Rex::Text.ascii_safe_hex but leave
