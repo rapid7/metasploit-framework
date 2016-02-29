@@ -328,10 +328,9 @@ protected
 
       raise ::EOFError if not data
       raise ::EOFError if data.empty?
-      from = [cli.peerhost, cli.peerport]
       dispatch_request(cli, data)
     rescue EOFError => e
-      close_client(cli)
+      self.tcp_socket.close_client(cli) if cli
       raise e
     end
   end
