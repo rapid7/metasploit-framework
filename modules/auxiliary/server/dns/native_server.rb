@@ -35,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
   def run
     begin
       start_service
-      primer
       service.wait
     ensure
       stop_service(true)
@@ -46,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
   # Creates Proc to handle incoming requests
   #
   def on_dispatch_request(cli,data)
-    req = Net::DNS::Packet.parse(data)
+    req = Packet.encode_net(data)
     peer = "#{cli.peerhost}:#{cli.peerport}"
     asked = req.question.map(&:qName).join(', ')
     vprint_status("Received request for #{asked} from #{peer}")
@@ -66,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
     end unless service.cache.nil?
     # Forward remaining requests, cache responses
     if forward.question.count > 0 and service.fwd_res
-      forwarded = service.fwd_res.send(service.validate_packet(forward))
+      forwarded = service.fwd_res.send(Packet.validate(forward))
       forwarded.answer.each do |ans|
         vprint_status("Caching response #{ans.name}:#{ans.address} #{ans.type}")
         service.cache.cache_record(ans)
@@ -76,14 +75,14 @@ class Metasploit3 < Msf::Auxiliary
       req = forwarded
     end
     req.header.qr = 1 # Set response bit
-    service.send_response(cli, service.validate_packet(req).data)
+    service.send_response(cli, Packet.validate(req).data)
   end
 
   #
   # Creates Proc to handle outbound responses
   #
   def on_send_response(cli,data)
-    res = Net::DNS::Packet.parse(data)
+    res = Packet.encode_net(data)
     peer = "#{cli.peerhost}:#{cli.peerport}"
     asked = res.question.map(&:qName).join(', ')
     vprint_status("Sending response for #{asked} to #{peer}")

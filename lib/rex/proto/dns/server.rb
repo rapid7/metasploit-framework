@@ -213,18 +213,16 @@ class Server
   #
   # @param flush_cache [TrueClass,FalseClass] Flush eDNS cache on stop
   def stop(flush_cache = false)
-    if self.udp_sock
-      self.listener_thread.kill
+    ensure_close = [self.udp_sock, self.tcp_sock].compact
+    begin 
+      self.listener_thread.kill if self.listener_thread.respond_to?(:kill)
       self.listener_thread = nil
-      @udp_sock = nil
+    ensure
+      while csock = ensure_close.shift
+        csock.stop if csock.respond_to?(:stop)
+        csock.close unless csock.closed?
+      end
     end
-
-    if self.tcp_sock
-      self.tcp_sock.stop if self.tcp_sock.respond_to?(:stop)
-      self.tcp_sock.close if self.tcp_sock.respond_to?(:close)
-      @tcp_sock = nil
-    end
-
     self.cache.stop(flush_cache)
   end
 
