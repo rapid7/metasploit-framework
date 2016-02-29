@@ -556,8 +556,8 @@ class Console::CommandDispatcher::Android
   def cmd_sqlite_read(*args)
     sqlite_read_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-d' => [ false, 'The sqlite database file'],
-      '-q' => [ false, 'The sqlite statement to execute']
+      '-d' => [ true, 'The sqlite database file'],
+      '-q' => [ true, 'The sqlite statement to execute']
     )
 
     database = ''
@@ -570,15 +570,22 @@ class Console::CommandDispatcher::Android
         return
       when '-d'
         database = val
-      when '-t'
+      when '-q'
         query = val
       end
     end
 
+    if database.blank? || query.blank?
+      print_error("You must enter both a database files and a query")
+      print_error("e.g. sqlite_read -d /sdcard/Download/webviewCookiesChromium.db -q 'SELECT * from cookies'")
+      print_line(sqlite_read_opts.usage)
+      return
+    end
+
     result = client.android.sqlite_read(database, query)
+    header = "#{query} on database file #{database}"
     table = Rex::Ui::Text::Table.new(
-      'Header'    => "table",
-      'SortIndex' => 0,
+      'Header'    => header,
       'Columns'   => result[:columns],
       'Indent'    => 0
     )
