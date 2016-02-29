@@ -60,12 +60,72 @@ module Packet
   module Raw
 
     #
+    # Convert data to little endian unsigned short
+    #
+    # @param data [Fixnum, Float, Array] Input for conversion
+    #
+    # @return [String] Raw output
+    def self.to_short_le(data)
+      [data].flatten.pack('S*')
+    end
+
+    #
+    # Convert data from little endian unsigned short
+    #
+    # @param data [String] Input for conversion
+    #
+    # @return [Array] Integer array output
+    def self.from_short_le(data)
+      data.unpack('S*')
+    end
+
+    #
+    # Convert data to little endian unsigned int
+    #
+    # @param data [Fixnum, Float, Array] Input for conversion
+    #
+    # @return [String] Raw output
+    def self.to_int_le(data)
+      [data].flatten.pack('I*')
+    end
+
+    #
+    # Convert data from little endian unsigned int
+    #
+    # @param data [String] Input for conversion
+    #
+    # @return [Array] Integer array output
+    def self.from_int_le(data)
+      data.unpack('I*')
+    end
+
+    #
+    # Convert data to little endian unsigned long
+    #
+    # @param data [Fixnum, Float, Array] Input for conversion
+    #
+    # @return [String] Raw output
+    def self.to_long_le(data)
+      [data].flatten.pack('L*')
+    end
+
+    #
+    # Convert data from little endian unsigned long
+    #
+    # @param data [String] Input for conversion
+    #
+    # @return [Array] Integer array output
+    def self.from_long_le(data)
+      data.unpack('L*')
+    end
+
+    #
     # Convert data to big endian unsigned short
     #
     # @param data [Fixnum, Float, Array] Input for conversion
     #
     # @return [String] Raw output
-    def self.to_dw(data)
+    def self.to_short_be(data)
       [data].flatten.pack('S>*')
     end
 
@@ -75,7 +135,7 @@ module Packet
     # @param data [String] Input for conversion
     #
     # @return [Array] Integer array output
-    def self.from_dw(data)
+    def self.from_short_be(data)
       data.unpack('S>*')
     end
 
@@ -85,7 +145,7 @@ module Packet
     # @param data [Fixnum, Float, Array] Input for conversion
     #
     # @return [String] Raw output
-    def self.to_dd(data)
+    def self.to_int_be(data)
       [data].flatten.pack('I>*')
     end
 
@@ -95,7 +155,7 @@ module Packet
     # @param data [String] Input for conversion
     #
     # @return [Array] Integer array output
-    def self.from_dd(data)
+    def self.from_int_be(data)
       data.unpack('I>*')
     end
 
@@ -105,7 +165,7 @@ module Packet
     # @param data [Fixnum, Float, Array] Input for conversion
     #
     # @return [String] Raw output
-    def self.to_dl(data)
+    def self.to_long_be(data)
       [data].flatten.pack('L>*')
     end
 
@@ -115,7 +175,7 @@ module Packet
     # @param data [String] Input for conversion
     #
     # @return [Array] Integer array output
-    def self.from_dl(data)
+    def self.from_long_be(data)
       data.unpack('L>*')
     end
 
@@ -126,7 +186,17 @@ module Packet
     #
     # @return [Fixnum] Request ID
     def self.request_id(data)
-      self.from_dw(data[0..1])[0]
+      self.from_short_be(data[0..1])[0]
+    end
+
+    #
+    # Returns request length from raw packet skipping parsing
+    #
+    # @param data [String] Request data
+    #
+    # @return [Fixnum] Request Length
+    def self.request_length(data)
+      self.from_short_le(data[0..2])[0]
     end
   end
 end
