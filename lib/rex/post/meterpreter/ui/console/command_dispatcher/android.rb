@@ -554,26 +554,39 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_sqlite_read(*args)
-    path = "sqlite_read_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
-
-    read_opts = Rex::Parser::Arguments.new(
+    sqlite_read_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for contacts list']
+      '-d' => [ false, 'The sqlite database file'],
+      '-q' => [ false, 'The sqlite statement to execute']
     )
 
-    read_opts.parse(args) do |opt, _idx, val|
+    database = ''
+    query = ''
+    sqlite_read_opts.parse(args) do |opt, _idx, val|
       case opt
       when '-h'
-        print_line('Usage: sqlite_read [options]')
-        print_line(read_opts.usage)
+        print_line("Usage: sqlite_read -d <database_file> -q <statement>\n")
+        print_line(sqlite_read_opts.usage)
         return
-      when '-o'
-        path = val
+      when '-d'
+        database = val
+      when '-t'
+        query = val
       end
     end
 
-    results = client.android.sqlite_read("/data/data/com.metasploit.stage/files", "SELECT * from accounts");
-    p results
+    result = client.android.sqlite_read(database, query)
+    table = Rex::Ui::Text::Table.new(
+      'Header'    => "table",
+      'SortIndex' => 0,
+      'Columns'   => result[:columns],
+      'Indent'    => 0
+    )
+    result[:rows].each do |e|
+      table << e
+    end
+    print_line
+    print_line(table.to_s)
   end
 
   #

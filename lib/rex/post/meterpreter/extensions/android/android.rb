@@ -288,9 +288,20 @@ class Android < Extension
     request = Packet.create_request('sqlite_read')
     request.add_tlv(TLV_TYPE_SQLITE_NAME, dbname)
     request.add_tlv(TLV_TYPE_SQLITE_QUERY, query)
-
-    p [TLV_TYPE_SQLITE_NAME, TLV_TYPE_SQLITE_QUERY]
     response = client.send_request(request, 30)
+
+    result = {
+      columns:     [],
+      rows: []
+    }
+    data = response.get_tlv(TLV_TYPE_SQLITE_RESULT_GROUP)
+    columns = data.get_tlv(TLV_TYPE_SQLITE_RESULT_COLS)
+    result[:columns] = columns.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+    data.each(TLV_TYPE_SQLITE_RESULT_ROW) do |row|
+      result[:rows] << row.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+    end
+
+    result
   end
 
 end
@@ -299,3 +310,4 @@ end
 end
 end
 end
+
