@@ -1243,6 +1243,7 @@ require 'msf/core/exe/segment_appender'
 
     hash_sub = {}
     hash_sub[:exe_filename]  = opts[:exe_filename] || Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
+    hash_sub[:base64_filename]  = Rex::Text.rand_text_alpha(rand(8)+8) << '.b64'
     hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_fname]     = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_func]      = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1251,9 +1252,10 @@ require 'msf/core/exe/segment_appender'
     hash_sub[:var_shell]     = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempdir]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempexe]   = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_tempbase64]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_basedir]   = Rex::Text.rand_text_alpha(rand(8)+8)
 
-    hash_sub[:hex_shellcode] = exes.unpack('H*').join('')
+    hash_sub[:base64_shellcode] = Rex::Text.encode_base64(exes)
 
     hash_sub[:init] = ""
 
