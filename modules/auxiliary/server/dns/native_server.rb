@@ -65,17 +65,20 @@ class Metasploit3 < Msf::Auxiliary
     end unless service.cache.nil?
     # Forward remaining requests, cache responses
     if forward.question.count > 0 and service.fwd_res
-      forwarded = service.fwd_res.send(Packet.validate(forward))
-      forwarded.answer.each do |ans|
-        vprint_status("Caching response #{ans.name}:#{ans.address} #{ans.type}")
-        service.cache.cache_record(ans)
-      end unless service.cache.nil?
-      # Merge the answers and use the upstream response
-      forwarded.answer = req.answer + forwarded.answer
-      req = forwarded
+      if !forward.header.recursive?
+        vprint_status("Recursion forbidden in query for #{forward.question.first.name} from #{peer}")
+      else
+        forwarded = service.fwd_res.send(Packet.validate(forward))
+        forwarded.answer.each do |ans|
+          vprint_status("Caching response #{ans.name}:#{ans.address} #{ans.type}")
+          service.cache.cache_record(ans)
+        end unless service.cache.nil?
+        # Merge the answers and use the upstream response
+        forwarded.answer = req.answer + forwarded.answer
+        req = forwarded
+      end
     end
-    req.header.qr = 1 # Set response bit
-    service.send_response(cli, Packet.validate(req).data)
+    service.send_response(cli, Packet.validate(Packet.generate_response(req)).data)
   end
 
   #
