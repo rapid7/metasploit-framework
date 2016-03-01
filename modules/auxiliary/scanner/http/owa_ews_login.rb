@@ -31,8 +31,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptBool.new('AUTODISCOVER', [ false, "Automatically discover domain URI", true ]),
         OptString.new('AD_DOMAIN', [ false, "The Active Directory domain name", nil ]),
-        OptString.new('TARGET_URI', [ false, "The location of the NTLM service", nil ]),
-        OptInt.new('RPORT', [ true, "The target port", 443 ]),
+        OptString.new('TARGETURI', [ false, "The location of the NTLM service", nil ]),
+        OptInt.new('RPORT', [ true, "The target port", 443 ])
       ], self.class)
   end
 
@@ -46,18 +46,18 @@ class Metasploit3 < Msf::Auxiliary
 
     if datastore['AUTODISCOVER']
       domain, uri = autodiscover(cli)
-      if domain and uri
+      if domain && uri
         print_good("Found NTLM service at #{uri} for domain #{domain}.")
       else
         print_error("Failed to autodiscover - try manually")
         return
       end
-    elsif datastore['AD_DOMAIN'] and datastore['TARGET_URI']
+    elsif datastore['AD_DOMAIN'] && datastore['TARGETURI']
       domain = datastore['AD_DOMAIN']
-      uri = datastore['TARGET_URI']
+      uri = datastore['TARGETURI']
       uri << "/" unless uri.chars.last == "/"
     else
-      print_error("You must set AD_DOMAIN and TARGET_URI if not using autodiscover.")
+      print_error("You must set AD_DOMAIN and TARGETURI if not using autodiscover.")
       return
     end
 
@@ -107,11 +107,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def autodiscover(cli)
     uris = %w[ /ews/ /rpc/ /public/ ]
-    uris.each do |u|
+    uris.each do |uri|
       begin
         req = cli.request_raw({
           'encode'   => true,
-          'uri'      => u,
+          'uri'      => uri,
           'method'   => 'GET',
           'headers'  =>  {'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=='}
         })
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
         next
       end
 
-      if not res
+      unless res
         print_error("HTTP Connection Timeout")
         next
       end
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
       if res && res.code == 401 && res.headers.has_key?('WWW-Authenticate') && res.headers['WWW-Authenticate'].match(/^NTLM/i)
         hash = res['WWW-Authenticate'].split('NTLM ')[1]
         domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
-        return domain, u
+        return domain, uri
       end
     end
 

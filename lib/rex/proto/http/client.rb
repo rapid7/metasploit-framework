@@ -275,26 +275,26 @@ class Client
     # if several providers are available, the client may want one in particular
     preferred_auth = opts['preferred_auth']
 
-    if supported_auths.include? 'Basic' and (preferred_auth.nil? or preferred_auth == 'Basic')
+    if supported_auths.include?('Basic') && (preferred_auth.nil? || preferred_auth == 'Basic')
       opts['headers'] ||= {}
       opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )
       req = request_cgi(opts)
       res = _send_recv(req,t,persist)
       return res
-    elsif supported_auths.include? "Digest" and (preferred_auth.nil? or preferred_auth == 'Digest')
+    elsif supported_auths.include?('Digest') && (preferred_auth.nil? || preferred_auth == 'Digest')
       temp_response = digest_auth(opts)
       if temp_response.kind_of? Rex::Proto::Http::Response
         res = temp_response
       end
       return res
-    elsif supported_auths.include? "NTLM" and (preferred_auth.nil? or preferred_auth == 'NTLM')
+    elsif supported_auths.include?('NTLM') && (preferred_auth.nil? || preferred_auth == 'NTLM')
       opts['provider'] = 'NTLM'
       temp_response = negotiate_auth(opts)
       if temp_response.kind_of? Rex::Proto::Http::Response
         res = temp_response
       end
       return res
-    elsif supported_auths.include? "Negotiate" and (preferred_auth.nil? or preferred_auth == 'Negotiate')
+    elsif supported_auths.include?('Negotiate') && (preferred_auth.nil? || preferred_auth == 'Negotiate')
       opts['provider'] = 'Negotiate'
       temp_response = negotiate_auth(opts)
       if temp_response.kind_of? Rex::Proto::Http::Response
