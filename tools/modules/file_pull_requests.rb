@@ -9,10 +9,16 @@
 #
 ###
 
-require 'octokit'
 require 'net/http'
-require 'nokogiri'
 require 'optparse'
+
+begin
+  require 'octokit'
+  require 'nokogiri'
+rescue LoadError => e
+  gem = e.message.split.last
+  abort "#{gem} not installed: please run `gem install #{gem}'"
+end
 
 module FilePullRequestCollector
 
