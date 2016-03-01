@@ -8,6 +8,16 @@ module DNS
 module Packet
 
   #
+  # Checks string to ensure it can be used as a valid hostname
+  #
+  # @param subject [String] Subject name to check
+  #
+  # @return [TrueClass,FalseClass] Disposition on name match
+  def valid_hostname?(subject = '')
+    !subject.match(Rex::Proto::DNS::Constants::MATCH_HOSTNAME).nil?
+  end
+
+  #
   # Reconstructs a packet with both standard DNS libraries
   # Ensures that headers match the payload
   #
@@ -55,6 +65,68 @@ module Packet
   def self.encode_raw(packet)
     return packet unless packet.respond_to?(:decode) or packet.respond_to?(:data)
     packet.respond_to?(:data) ? packet.data : packet.encode
+  end
+
+  #
+  # Generates a request packet, taken from Net::DNS::Resolver
+  #
+  # @param subject [String] Subject name of question section
+  # @param type [Fixnum] Type of DNS record to query
+  # @param cls [Fixnum] Class of dns record to query
+  # @param recurse [Fixnum] Recursive query or not
+  #
+  # @return [Net::DNS::Packet] request packet
+  def self.generate_request(subject, type = Net::DNS::A, cls = Net::DNS::IN, recurse = 1)
+    case subject
+    when IPAddr
+      name = subject.reverse
+      type = Net::DNS::PTR
+    when /\d/ # Contains a number, try to see if it's an IP or IPv6 address
+      begin
+        name = IPAddr.new(subject).reverse
+        type = Net::DNS::PTR
+      rescue ArgumentError
+        name = subject if self.valid_hostname?(subject)
+      end
+    else
+      name = subject if self.valid_hostname?(subject)
+    end
+
+    # Create the packet
+    packet = Net::DNS::Packet.new(name,type,cls)
+
+    if packet.query?
+      packet.header.recursive = recurse
+    end
+
+    # DNSSEC and TSIG stuff to be inserted here
+
+    return packet
+  end
+
+  #
+  # Generates a response packet for an existing request
+  #
+  # @param request [String] Net::DNS::Packet, Resolv::DNS::Message] Original request
+  # @param answer [Array] Set of answers to provide in the response
+  #
+  # @return [Net::DNS::Packet] Response packet
+  def self.generate_response(request, answer = nil)
+    packet = self.encode_net(request)
+    packet.answer = answer unless answer.nil?
+    # Set answer count header section
+    packet.header.anCount = packet.answer.count
+    # Set error code for NXDomain or unset it if reprocessing a response
+    if packet.answer.count < 1
+      packet.header.rCode = 3
+    else
+      if packet.header.response? and packet.header.rCode == 3
+        packet.header.rCode = 0
+      end
+    end
+    # Set response bit last to allow reprocessing of responses
+    packet.header.qr = 1
+    return packet
   end
 
   module Raw

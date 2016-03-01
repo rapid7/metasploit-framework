@@ -129,6 +129,7 @@ class Server
 
   include Rex::IO::GramServer
 
+  Packet = Rex::Proto::DNS::Packet
   #
   # Create DNS Server
   #
@@ -227,21 +228,6 @@ class Server
   end
 
   #
-  # Reconstructs a packet with both standard DNS libraries
-  # Ensures that headers match the payload
-  #
-  # @param packet [String, Net::DNS::Packet] Data to be validated
-  #
-  # @return [Net::DNS::Packet]
-  def validate_packet(packet)
-    Net::DNS::Packet.parse(
-      Resolv::DNS::Message.decode(
-        packet.respond_to?(:data) ? packet.data : packet
-      ).encode
-    )
-  end
-
-  #
   # Process client request, handled with dispatch_request_proc if set
   #
   # @param cli [Rex::Socket::Tcp, Rex::Socket::Udp] Client sending the request
@@ -261,7 +247,7 @@ class Server
   # @param cli [Rex::Socket::Tcp, Rex::Socket::Udp] Client sending the request
   # @param data [String] raw DNS request data
   def default_dispatch_request(cli,data)
-    req = Net::DNS::Packet.parse(data)
+    req = Packet.encode_net(data)
     forward = req.dup
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
@@ -285,7 +271,7 @@ class Server
     # Finalize answers in response
     # Check for empty response prior to sending
     if req.answer.size < 1
-      req.header.rCode = Net::DNS::Header::RCode.new(3)
+      req.header.rCode = 3
     end
     req.header.qr = 1 # Set response bit
     send_response(cli, validate_packet(req).data)
