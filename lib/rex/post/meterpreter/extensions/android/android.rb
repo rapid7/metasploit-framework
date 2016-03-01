@@ -71,6 +71,12 @@ class Android < Extension
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_SHUTDOWN_OK).value
   end
+  
+  def set_audio_mode(n)
+    request = Packet.create_request('set_audio_mode')
+    request.add_tlv(TLV_TYPE_AUDIO_MODE, n)
+    response = client.send_request(request)
+  end
 
   def interval_collect(opts)
     request = Packet.create_request('interval_collect')

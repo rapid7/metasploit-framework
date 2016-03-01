@@ -65,9 +65,10 @@ module Net; module SSH; module Transport
       factory = options[:proxy]
 
       if (factory)
-        @socket = timeout(options[:timeout] || 0) { factory.open(@host, @port) }
+        @socket = ::Timeout.timeout(options[:timeout] || 0) { factory.open(@host, 
+@port) }
       else
-        @socket = timeout(options[:timeout] || 0) {
+        @socket = ::Timeout.timeout(options[:timeout] || 0) {
           Rex::Socket::Tcp.create(
           	'PeerHost' => @host,
           	'PeerPort' => @port,

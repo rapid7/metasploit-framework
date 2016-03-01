@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     formats = [ 'md5', 'des', 'bsdi']
     if datastore['Crypt']
-      format << 'crypt'
+      formats << 'crypt'
     end
 
     cracker = new_john_cracker
