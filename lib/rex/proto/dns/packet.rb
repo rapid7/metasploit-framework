@@ -117,10 +117,10 @@ module Packet
     # Set answer count header section
     packet.header.anCount = packet.answer.count
     # Set error code for NXDomain or unset it if reprocessing a response
-    if packet.answer.count < 1
+    if packet.header.anCount < 1
       packet.header.rCode = 3
     else
-      if packet.header.response? and packet.header.rCode == 3
+      if packet.header.response? and packet.header.rCode.code == 3
         packet.header.rCode = 0
       end
     end
