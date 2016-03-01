@@ -190,6 +190,7 @@ class Server
 
     if self.serve_udp
       @udp_sock = Rex::Socket::Udp.create(self.sock_options)
+      udp_sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
       self.listener_thread = Rex::ThreadFactory.spawn("UDPDNSServerListener", false) {
         monitor_listener
       }
@@ -221,7 +222,7 @@ class Server
     ensure
       while csock = ensure_close.shift
         csock.stop if csock.respond_to?(:stop)
-        csock.close unless csock.closed?
+        csock.close csock.respond_to?(:close) and !csock.closed?
       end
     end
     self.cache.stop(flush_cache)
@@ -299,6 +300,7 @@ protected
           'LocalHost' => self.udp_sock.localhost,
           'LocalPort' => self.udp_sock.localport
         )
+        cli.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
         dispatch_request(cli, buf)
       end
     end
