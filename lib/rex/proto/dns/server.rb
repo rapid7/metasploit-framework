@@ -222,7 +222,7 @@ class Server
     ensure
       while csock = ensure_close.shift
         csock.stop if csock.respond_to?(:stop)
-        csock.close csock.respond_to?(:close) and !csock.closed?
+        csock.close unless csock.respond_to?(:close) and csock.closed?
       end
     end
     self.cache.stop(flush_cache)
