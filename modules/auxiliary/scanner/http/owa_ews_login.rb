@@ -82,13 +82,13 @@ class Metasploit3 < Msf::Auxiliary
           'password' => cred.private
         })
 
-        resp = cli.send_recv(req)
+        res = cli.send_recv(req)
       rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
         print_error("Connection failed")
         return
       end
 
-      if resp.code != 401
+      if res.code != 401
         print_brute :level => :good, :ip => ip, :msg => "Successful login: #{cred.to_s}"
         report_cred(
           ip: ip,
