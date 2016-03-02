@@ -46,3 +46,6 @@ addons:
     packages:
       - libpcap-dev
       - graphviz
+
+services:
+  - postgresql
