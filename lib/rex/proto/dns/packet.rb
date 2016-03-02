@@ -13,7 +13,7 @@ module Packet
   # @param subject [String] Subject name to check
   #
   # @return [TrueClass,FalseClass] Disposition on name match
-  def valid_hostname?(subject = '')
+  def self.valid_hostname?(subject = '')
     !subject.match(Rex::Proto::DNS::Constants::MATCH_HOSTNAME).nil?
   end
 
