@@ -3,6 +3,10 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'metasploit-concern', git: 'https://github.com/rapid7/metasploit-concern', branch: 'staging/rails-upgrade'
+gem 'metasploit_data_models', git: 'https://github.com/rapid7/metasploit_data_models', branch: 'staging/rails-upgrade'
+gem 'metasploit-credential', git: 'https://github.com/rapid7/metasploit-credential', branch: 'staging/rails-upgrade'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -19,9 +23,6 @@ group :development do
   # for development and testing purposes
   gem 'pry'
   # rails-upgrade staging gems
-  gem 'metasploit-concern', git: 'https://github.com/rapid7/metasploit-concern', branch: 'staging/rails-upgrade'
-  gem 'metasploit_data_models', git: 'https://github.com/rapid7/metasploit_data_models', branch: 'staging/rails-upgrade'
-  gem 'metasploit-credential', git: 'https://github.com/rapid7/metasploit-credential', branch: 'staging/rails-upgrade'
 end
 
 group :development, :test do
