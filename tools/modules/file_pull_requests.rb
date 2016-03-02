@@ -9,10 +9,16 @@
 #
 ###
 
-require 'octokit'
 require 'net/http'
-require 'nokogiri'
 require 'optparse'
+
+begin
+  require 'octokit'
+  require 'nokogiri'
+rescue LoadError => e
+  gem = e.message.split.last
+  abort "#{gem} not installed: please run `gem install #{gem}'"
+end
 
 module FilePullRequestCollector
 
@@ -202,13 +208,11 @@ module FilePullRequestCollector
       begin
         opts.parse!(args)
       rescue OptionParser::InvalidOption
-        puts "Invalid option, try -h for usage"
-        exit
+        abort "Invalid option, try -h for usage"
       end
 
       if options.empty?
-        puts "No options specified, try -h for usage"
-        exit
+        abort "No options specified, try -h for usage"
       end
 
       options
@@ -221,16 +225,15 @@ if __FILE__ == $PROGRAM_NAME
   begin
     opts = FilePullRequestCollector::OptsParser.parse(ARGV)
   rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
-    puts "#{e.message} (please see -h)"
-    exit
+    abort "#{e.message} (please see -h)"
   end
 
   if !opts.has_key?(:api_key)
     if !ENV.has_key?('GITHUB_OAUTH_TOKEN')
-      puts
-      puts "A Github Access Token must be specified to use this tool"
-      puts "Please set GITHUB_OAUTH_TOKEN or specify the -k option"
-      exit
+      abort <<EOF
+A Github Access Token must be specified to use this tool
+Please set GITHUB_OAUTH_TOKEN or specify the -k option
+EOF
     else
       opts[:api_key] = ENV['GITHUB_OAUTH_TOKEN']
     end
@@ -240,8 +243,7 @@ if __FILE__ == $PROGRAM_NAME
     cli = FilePullRequestCollector::Client.new(opts[:api_key])
     cli.search(opts[:file])
   rescue FilePullRequestCollector::Exception => e
-    $stderr.puts e.message
-    exit
+    abort e.message
   rescue Interrupt
     $stdout.puts
     $stdout.puts "Good bye"
