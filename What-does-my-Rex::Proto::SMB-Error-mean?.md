@@ -19,7 +19,7 @@ Windows Registry Editor Version 5.00
 
 Invalid SMBUSER or SMBPASS datastore option.
 
-Or, in Local Security Settings, you should probably set Network access:Sharing and security model for local accounts to "Local users authenticate as themselves".
+Or, in Local Security Settings, you should probably set **Network access:Sharing and security model for local accounts** to "**Local users authenticate as themselves**".
 
 * **STATUS_BAD_NETWORK_NAME**
 
