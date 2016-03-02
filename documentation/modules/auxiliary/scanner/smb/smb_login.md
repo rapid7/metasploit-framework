@@ -4,7 +4,7 @@ and log into more machines.
 
 ## Vulnerable Application
 
-To use smb_login, make sure you are able to connect to a SMB service.
+To use smb_login, make sure you are able to connect to a SMB service that supports SMBv1.
 
 ## Verification Steps
 
