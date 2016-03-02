@@ -1,3 +1,5 @@
+sudo: false
+group: stable
 bundler_args: --without coverage development pcap
 cache: bundler
 env:
@@ -23,7 +25,6 @@ before_script:
 script:
   # fail build if db/schema.rb update is not committed
   - git diff --exit-code db/schema.rb && bundle exec rake $RAKE_TASKS
-sudo: false
 rvm:
   - '2.1.8'
 
@@ -40,7 +41,8 @@ branches:
     - metakitty
 
 addons:
-  postgresql: '9.3'
+  postgresql: '9.5'
   apt:
     packages:
       - libpcap-dev
+      - graphviz
