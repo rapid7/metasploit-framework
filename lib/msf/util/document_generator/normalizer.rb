@@ -219,6 +219,23 @@ module Msf
         end
 
 
+        # Returns whether the module is a remote exploit or not.
+        #
+        # @param mod [Msf::Module] Metasploit module.
+        # @return [TrueClass] Module is a remote exploit.
+        # @return [FalseClass] Module is not really a remote exploit.
+        def is_remote_exploit?(mod)
+          # It's actually a little tricky to determine this, so we'll try to be as
+          # specific as possible. Rather have false negatives than false positives,
+          # because the worst case would be using the generic demo template.
+          mod.type == 'exploit' &&                          # Must be an exploit
+          mod.kind_of?(Msf::Exploit::Remote) &&             # Should always have this
+          !mod.kind_of?(Msf::Exploit::FILEFORMAT) &&        # Definitely not a file format
+          !mod.kind_of?(Msf::Exploit::Remote::TcpServer) && # If there is a server mixin, things might get complicated
+          mod.options['DisablePayloadHandler']              # Must allow this option
+        end
+
+
         # Returns a demo template suitable for the module. Currently supported templates:
         # BrowserExploitServer modules, HttpServer modules, local exploit modules, post
         # modules, payloads, auxiliary scanner modules.
@@ -238,10 +255,7 @@ module Msf
             load_template(mod, PAYLOAD_TEMPLATE)
           elsif mod.kind_of?(Msf::Auxiliary::Scanner)
             load_template(mod, AUXILIARY_SCANNER_TEMPLATE)
-          elsif mod.type == 'exploit' &&
-                !mod.kind_of?(Msf::Exploit::FILEFORMAT) &&
-                mod.kind_of?(Msf::Exploit::Remote) &&
-                mod.options['DisablePayloadHandler']
+          elsif is_remote_exploit?(mod)
             load_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
           else
             load_template(mod, GENERIC_DEMO_TEMPLATE)
