@@ -1,11 +1,4 @@
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p, 
-blockquote {
+h1, h2, h3, h4, h5, h6, p, blockquote {
     margin: 0;
     padding: 0;
 }
@@ -29,12 +22,7 @@ a img {
 p {
     margin-bottom: 16px;
 }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
     color: #404040;
     line-height: 36px;
 }
@@ -91,7 +79,7 @@ code, pre {
     font-family: Monaco, Andale Mono, Courier New, monospace;
 }
 code {
-    background-color: #fee9cc;
+    background-color: #eee;
     color: rgba(0, 0, 0, 0.75);
     padding: 1px 3px;
     font-size: 13px;
