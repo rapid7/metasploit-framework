@@ -33,16 +33,26 @@ module Msf
     module DocumentGenerator
       class DocumentNormalizer
 
-        CSS_BASE_PATH              = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'markdown.css'))
-        TEMPLATE_PATH              = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'default_template.erb'))
-        BES_DEMO_TEMPLATE          = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'bes_demo_template.erb'))
-        HTTPSERVER_DEMO_TEMPLATE   = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'httpserver_demo_template.erb'))
-        GENERIC_DEMO_TEMPLATE      = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'generic_demo_template.erb'))
-        LOCALEXPLOIT_DEMO_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'localexploit_demo_template.erb'))
-        POST_DEMO_TEMPLATE         = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'post_demo_template.erb'))
-        PAYLOAD_TEMPLATE           = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'payload_demo_template.erb'))
-        AUXILIARY_SCANNER_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'auxiliary_scanner_template.erb'))
-        HTML_TEMPLATE              = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'html_template.erb'))
+        #
+        # Markdown templates
+        #
+
+        CSS_BASE_PATH                   = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'markdown.css'))
+        HTML_TEMPLATE                   = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'html_template.erb'))
+        TEMPLATE_PATH                   = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'default_template.erb'))
+
+        #
+        # Demo templates
+        #
+
+        REMOTE_EXPLOIT_DEMO_TEMPLATE    = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'remote_exploit_demo_template.erb'))
+        BES_DEMO_TEMPLATE               = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'bes_demo_template.erb'))
+        HTTPSERVER_DEMO_TEMPLATE        = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'httpserver_demo_template.erb'))
+        GENERIC_DEMO_TEMPLATE           = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'generic_demo_template.erb'))
+        LOCALEXPLOIT_DEMO_TEMPLATE      = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'localexploit_demo_template.erb'))
+        POST_DEMO_TEMPLATE              = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'post_demo_template.erb'))
+        AUXILIARY_SCANNER_DEMO_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'auxiliary_scanner_template.erb'))
+        PAYLOAD_DEMO_TEMPLATE           = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'payload_demo_template.erb'))
 
 
         # Returns the module document in HTML form.
@@ -228,6 +238,11 @@ module Msf
             load_template(mod, PAYLOAD_TEMPLATE)
           elsif mod.kind_of?(Msf::Auxiliary::Scanner)
             load_template(mod, AUXILIARY_SCANNER_TEMPLATE)
+          elsif mod.type == 'exploit' &&
+                !mod.kind_of?(Msf::Exploit::FILEFORMAT) &&
+                mod.kind_of?(Msf::Exploit::Remote) &&
+                mod.options['DisablePayloadHandler']
+            load_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
           else
             load_template(mod, GENERIC_DEMO_TEMPLATE)
           end
