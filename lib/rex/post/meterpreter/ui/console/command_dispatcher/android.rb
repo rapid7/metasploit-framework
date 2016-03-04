@@ -31,7 +31,7 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
       'interval_collect'  => 'Manage interval collection capabilities',
       'activity_start'    => 'Start an Android activity from a Uri string',
-      'sqlite_read'       => 'Query a SQLite database from storage'
+      'sqlite_query'      => 'Query a SQLite database from storage'
     }
 
     reqs = {
@@ -45,7 +45,7 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'   => ['wlan_geolocate'],
       'interval_collect' => ['interval_collect'],
       'activity_start'   => ['activity_start'],
-      'sqlite_read'      => ['sqlite_read'],
+      'sqlite_query'     => ['sqlite_query'],
     }
 
     # Ensure any requirements of the command are met
@@ -548,13 +548,8 @@ class Console::CommandDispatcher::Android
     end
   end
 
-  def cmd_sqlite_write(*args)
-    results = client.android.sqlite_write("SELECT 1")
-    p results
-  end
-
-  def cmd_sqlite_read(*args)
-    sqlite_read_opts = Rex::Parser::Arguments.new(
+  def cmd_sqlite_query(*args)
+    sqlite_query_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-d' => [ true, 'The sqlite database file'],
       '-q' => [ true, 'The sqlite statement to execute']
@@ -562,11 +557,11 @@ class Console::CommandDispatcher::Android
 
     database = ''
     query = ''
-    sqlite_read_opts.parse(args) do |opt, _idx, val|
+    sqlite_query_opts.parse(args) do |opt, _idx, val|
       case opt
       when '-h'
-        print_line("Usage: sqlite_read -d <database_file> -q <statement>\n")
-        print_line(sqlite_read_opts.usage)
+        print_line("Usage: sqlite_query -d <database_file> -q <statement>\n")
+        print_line(sqlite_query_opts.usage)
         return
       when '-d'
         database = val
@@ -577,12 +572,12 @@ class Console::CommandDispatcher::Android
 
     if database.blank? || query.blank?
       print_error("You must enter both a database files and a query")
-      print_error("e.g. sqlite_read -d /sdcard/Download/webviewCookiesChromium.db -q 'SELECT * from cookies'")
-      print_line(sqlite_read_opts.usage)
+      print_error("e.g. sqlite_query -d /sdcard/Download/webviewCookiesChromium.db -q 'SELECT * from cookies'")
+      print_line(sqlite_query_opts.usage)
       return
     end
 
-    result = client.android.sqlite_read(database, query)
+    result = client.android.sqlite_query(database, query)
     header = "#{query} on database file #{database}"
     table = Rex::Ui::Text::Table.new(
       'Header'    => header,

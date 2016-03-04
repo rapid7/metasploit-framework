@@ -284,8 +284,8 @@ class Android < Extension
     networks
   end
 
-  def sqlite_read(dbname, query)
-    request = Packet.create_request('sqlite_read')
+  def sqlite_query(dbname, query)
+    request = Packet.create_request('sqlite_query')
     request.add_tlv(TLV_TYPE_SQLITE_NAME, dbname)
     request.add_tlv(TLV_TYPE_SQLITE_QUERY, query)
     response = client.send_request(request, 30)
