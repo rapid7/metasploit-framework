@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
                       'References' => [
                           'URL' => 'http://pvagenas.com/vulnerabilities/bulk-delete-privilege-escalation/'
                       ],
-                      'DisclosureDate' => '2016-3-6'
+                      'DisclosureDate' => 'Mar 02 2016'
           ))
 
     register_options(
