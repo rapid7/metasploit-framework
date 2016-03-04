@@ -552,9 +552,11 @@ class Console::CommandDispatcher::Android
     sqlite_query_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-d' => [ true, 'The sqlite database file'],
-      '-q' => [ true, 'The sqlite statement to execute']
+      '-q' => [ true, 'The sqlite statement to execute'],
+      '-w' => [ false, 'Open the database in writable mode (for INSERT/UPDATE statements)']
     )
 
+    writeable = false
     database = ''
     query = ''
     sqlite_query_opts.parse(args) do |opt, _idx, val|
@@ -567,6 +569,8 @@ class Console::CommandDispatcher::Android
         database = val
       when '-q'
         query = val
+      when '-w'
+        writeable = true
       end
     end
 
@@ -577,18 +581,20 @@ class Console::CommandDispatcher::Android
       return
     end
 
-    result = client.android.sqlite_query(database, query)
-    header = "#{query} on database file #{database}"
-    table = Rex::Ui::Text::Table.new(
-      'Header'    => header,
-      'Columns'   => result[:columns],
-      'Indent'    => 0
-    )
-    result[:rows].each do |e|
-      table << e
+    result = client.android.sqlite_query(database, query, writeable)
+    unless writeable
+      header = "#{query} on database file #{database}"
+      table = Rex::Ui::Text::Table.new(
+        'Header'    => header,
+        'Columns'   => result[:columns],
+        'Indent'    => 0
+      )
+      result[:rows].each do |e|
+        table << e
+      end
+      print_line
+      print_line(table.to_s)
     end
-    print_line
-    print_line(table.to_s)
   end
 
   #
