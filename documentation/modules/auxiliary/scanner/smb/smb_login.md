@@ -4,9 +4,13 @@ and log into more machines.
 
 ## Vulnerable Application
 
+---
+
 To use smb_login, make sure you are able to connect to a SMB service that supports SMBv1.
 
 ## Verification Steps
+
+---
 
 The following demonstrates a basic scenario of using the [built-in wordlists](https://github.com/rapid7/metasploit-framework/tree/master/data/wordlists) to brute-force SMB:
 
@@ -41,6 +45,8 @@ msf auxiliary(smb_login)
 ```
 
 ## Options
+
+---
 
 By default, the smb_login module only requires the RHOSTS option to run. But in reality, you will
 also need to supply user names and passwords. The following options are available to support
