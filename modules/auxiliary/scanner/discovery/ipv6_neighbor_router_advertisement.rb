@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
   def listen_for_neighbor_solicitation(opts = {})
     hosts = []
     timeout = opts['TIMEOUT'] || datastore['TIMEOUT']
-    prefix = generate_prefix()
+    prefix = @prefix
 
     max_epoch = ::Time.now.to_i + timeout
     autoconf_prefix = IPAddr.new(prefix).to_string().slice(0..19)
@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
     smac = @smac
     shost = opts['SHOST'] || datastore['SHOST'] || ipv6_link_address
     lifetime = opts['LIFETIME'] || datastore['TIMEOUT']
-    prefix = generate_prefix()
+    prefix = @prefix
     plen = 64
     dmac = "33:33:00:00:00:01"
 
@@ -154,6 +154,7 @@ class Metasploit3 < Msf::Auxiliary
     # Start capture
     open_pcap({'FILTER' => "icmp6"})
 
+    @prefix = generate_prefix()
     @netifaces = true
     if not netifaces_implemented?
       print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
