@@ -252,7 +252,7 @@ module Msf
           elsif mod.kind_of?(Msf::Post)
             load_template(mod, POST_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Payload)
-            load_template(mod, PAYLOAD_TEMPLATE)
+            load_template(mod, PAYLOAD_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Auxiliary::Scanner)
             load_template(mod, AUXILIARY_SCANNER_TEMPLATE)
           elsif is_remote_exploit?(mod)
