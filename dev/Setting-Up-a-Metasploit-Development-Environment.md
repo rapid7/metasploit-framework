@@ -59,10 +59,10 @@ So let's get started!
 
 ----
 ```bash
-echo deb http://http.kali.org/kali kali main non-free contrib> /etc/apt/sources.list &&
-echo deb-src http://http.kali.org/kali kali main non-free contrib>> /etc/apt/sources.list &&
-echo deb http://security.kali.org/kali-security kali/updates main contrib non-free>> /etc/apt/sources.list &&
-echo deb-src http://security.kali.org/ kali/updates main contrib non-free>> /etc/apt/sources.list &&
+echo deb http://http.kali.org/ kali-current main non-free contrib > /etc/apt/sources.list &&
+echo deb-src http://http.kali.org/ kali-current main non-free contrib >> /etc/apt/sources.list &&
+echo deb http://security.kali.org/kali-security kali-current/updates main contrib non-free >> /etc/apt/sources.list &&
+echo deb-src http://security.kali.org/ kali-current/updates main contrib non-free >> /etc/apt/sources.list &&
 apt-get clean &&
 rm -rf /var/lib/apt/lists;
 apt-get update &&
@@ -75,10 +75,10 @@ apt-get -y upgrade
 First, you need to know where all the Linux goodness lives. Your `/etc/apt/sources.list` should have these sources listed:
 
 ```
-deb http://http.kali.org/kali kali main non-free contrib
-deb-src http://http.kali.org/kali kali main non-free contrib
-deb http://security.kali.org/kali-security kali/updates main contrib non-free
-deb-src http://security.kali.org/ kali/updates main contrib non-free
+deb http://http.kali.org/ kali-current main non-free contrib
+deb-src http://http.kali.org/ kali-current main non-free contrib
+deb http://security.kali.org/kali-security kali-current/updates main contrib non-free
+deb-src http://security.kali.org/ kali-current/updates main contrib non-free
 ```
 
 If you have a lot of extra sources, you are almost certain to cause conflicts. [Don't do that][kali-sources]. However, you may want to pick a more appropriate mirror from the [mirrorlist]. Once you're set with sources, clean out any cruft, get the latest Kali signing key, and go to town:
