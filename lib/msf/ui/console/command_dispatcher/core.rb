@@ -3516,7 +3516,7 @@ class Core
       next if not o
 
       # handle a search string, search deep
-      if(
+      if (
         not regex or
         o.name.match(regex) or
         o.description.match(regex) or
@@ -3530,7 +3530,7 @@ class Core
             mod_opt_keys = o.options.keys.map { |x| x.downcase }
 
             opts.each do |opt,val|
-              if mod_opt_keys.include?(opt.downcase) == false or (val != nil and o.datastore[opt] != val)
+              if !mod_opt_keys.include?(opt.downcase) || (val != nil && o.datastore[opt] != val)
                 show = false
               end
             end
