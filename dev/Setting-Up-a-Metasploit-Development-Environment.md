@@ -14,28 +14,17 @@ Each section will have a **TLDR** code snippet, suitable for copy-pasting, if yo
 
 So let's get started!
 
-# Install Kali Linux, the Kali-Rolling distribution.
+# Install the latest Kali-Rolling distribution.
 
 This guide assumes you already have an installation of the Kali-Rolling distribution. Because this distribution is constantly updating, it is likely that this document will become stale rapidly. It assumes Kali 2016.1, which is the latest version at the time of this writing.
 
 There are many ways to install Kali Linux, outlined in [Kali Linux's extensive documentation](http://docs.kali.org/category/installation). You can also install a [pre-built VM image](https://www.offensive-security.com/kali-linux-vmware-virtualbox-image-download/), which can save a lot of time compared to fiddling with VM drivers. Just be sure to regenerate your SSH host keys and set the root password if you use these.
 
-# Enable remote access
+# Enable a firewall
 
-#### TLDR (as root)
+Kali Linux by default ships without a firewall enabled. This step is optional, but is a nice preventative measure to take. The 'ufw' package provides a simplified interface to the Linux firewall subsystem.
 
-----
-```bash
-apt-get -y install ufw;
-ufw enable &&
-ufw allow 4444:4464/tcp &&
-ufw allow 8080:8090/tcp &&
-ufw allow ssh &&
-service ssh start
-```
-----
-
-Often, you need to have remote access back to your Kali machine; a typical use case is for reverse shells. You might also want to use ssh and scp to write code and copy files, from elsewhere -- this is especially useful if you're running Kali as a guest OS and don't want to install VMWare Tools.
+Often, you need to have remote access back to your Kali machine; a typical use case is for reverse shells. You might also want to use ssh and scp to write code and copy files, from elsewhere -- this is especially useful if you're running Kali as a guest OS and don't want to install VMWare Tools. To enable the most common ports you will likely use while hacking with Metasploit, run the following commands.
 
 ```
 apt-get -y install ufw
@@ -46,21 +35,6 @@ ufw allow ssh && service ssh start # If you want to shell in from elsewhere
 ```
 
 # Create a Dev User
-
-#### TLDR (as root)
-
-----
-```bash
-useradd -m msfdev &&
-PASS=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c8`;
-echo ++ RECORD THIS: Your msfdev Kali user password is $PASS ++ &&
-echo "msfdev:$PASS" | chpasswd &&
-unset PASS &&
-usermod -a -G sudo msfdev &&
-chsh -s /bin/bash msfdev
-```
-**SWITCH TO THIS NON-ROOT USER NOW.**
-----
 
 You will want to create a non-root user. In this example, the user is `msfdev`. Neither Git nor RVM likes you to be root, since weird things can easily happen with your filesystem permissions.
 
