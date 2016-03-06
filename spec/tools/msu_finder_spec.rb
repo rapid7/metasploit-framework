@@ -2,6 +2,7 @@ load Metasploit::Framework.root.join('tools/exploit/msu_finder.rb').to_path
 
 require 'nokogiri'
 require 'uri'
+require 'spec_helper'
 
 RSpec.describe MicrosoftPatchFinder do
 
@@ -60,29 +61,6 @@ RSpec.describe MicrosoftPatchFinder do
   end
 
   describe MicrosoftPatchFinder::Helper do
-
-    def get_stdout(&block)
-      out = $stdout
-      $stdout = fake = StringIO.new
-      begin
-        yield
-      ensure
-        $stdout = out
-      end
-      fake.string
-    end
-
-    def get_stderr(&block)
-      out = $stderr
-      $stderr = fake = StringIO.new
-      begin
-        yield
-      ensure
-        $stderr = out
-      end
-      fake.string
-    end
-
     subject(:object_helper) do
       mod = Object.new
       mod.extend MicrosoftPatchFinder::Helper
