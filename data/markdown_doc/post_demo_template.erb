@@ -1,11 +1,15 @@
 There are two ways to execute this post module.
 
-The first is by using the "run" command at the meterpreter prompt. It allows you to run the post
+**From the Meterpreter prompt**
+
+The first is by using the "run" command at the Meterpreter prompt. It allows you to run the post
 module against that specific session:
 
 ```
 meterpreter > run <%= mod.fullname %>
 ```
+
+**From the msf prompt**
 
 The second is by using the "use" command at the msf prompt. You will have to figure out which
 session ID to set manually. To list all session IDs, you can use the "sessions" command.
