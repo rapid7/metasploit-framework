@@ -2,54 +2,22 @@
 
 <sup>*The shortlink to this wiki page is http://r-7.co/MSF-DEV*</sup>
 
-This is a guide for setting up an environment for effectively **contributing
-to the Metasploit Framework**. If you just want to use Metasploit for
-legal, authorized hacking, we recommend instead you [download the Metasploit
-binary installer](http://metasploit.com/download), which will take care of
-all the dependencies and give you access to the open source Metasploit
-Framework, the free Metasploit Community edition, and an option to start
-the free trial for Metasploit Pro.
+This is a guide for setting up an environment for effectively **contributing to the Metasploit Framework**. If you just want to use Metasploit for legal, authorized hacking, we recommend instead you [download the Metasploit binary installer](http://metasploit.com/download), which will take care of all the dependencies and give you access to the open source Metasploit Framework, the free Metasploit Community edition, and an option to start the free trial for Metasploit Pro.
 
-If you're using Kali Linux, Metasploit is already pre-installed for
-non-development purposes; just type `msfconsole` in the terminal to
-start Metasploit Framework, then type `go_pro` if you'd like to try
-Metasploit Pro or Metasploit Community.
+If you're using Kali Linux, Metasploit is already pre-installed for non-development purposes; just type `msfconsole` in the terminal to start Metasploit Framework, then type `go_pro` if you'd like to try Metasploit Pro or Metasploit Community.
 
-If you want to develop on and [contribute] to Metasploit, read on!
-This guide should get you going on pretty much any Debian-based
-Linux system, but it is written for Kali Linux in particular,
-since many, many Metasploit Users are also Kali Linux users, and
-why spin up a different VM?
+If you want to develop on and [contribute] to Metasploit, read on! This guide should get you going on pretty much any Debian-based Linux system, but it is written for Kali Linux in particular, since many, many Metasploit Users are also Kali Linux users, and why spin up a different VM?
 
-If you're familiar with Ubuntu or Xandros or any other Debian
-distro, you should be able to read along here and get it to
-work for you. If there are distro-specific gotchas you spot,
-please [let us know][issues]!
+If you're familiar with Ubuntu or Xandros or any other Debian distro, you should be able to read along here and get it to
+work for you. If there are distro-specific gotchas you spot, please [let us know][issues]!
 
-If you would like to sometimes develop Metasploit-Framework, and
-sometimes just use the Metasploit Community Edition which ships with
-Kali, you will want to likely create separate user accounts. You might
-be able to get away with different Gnome Terminal profiles, but you're
-not running out of UIDs, I promise. At the very least, you're going to
-need a non-root account for Metasploit Framework development work.
+If you would like to sometimes develop Metasploit-Framework, and sometimes just use the Metasploit Community Edition which ships with Kali, you will want to likely create separate user accounts. You might be able to get away with different Gnome Terminal profiles, but you're not running out of UIDs, I promise. At the very least, you're going to need a non-root account for Metasploit Framework development work.
 
-For this guide, the example user is "YOUR_USERNAME," and the sample
-password in this document is "YOUR_PASSWORD." Anywhere you see those
-strings, use your own username and password. Obviously, they should
-be hard.
+For this guide, the example user is "YOUR_USERNAME," and the sample password in this document is "YOUR_PASSWORD." Anywhere you see those strings, use your own username and password. Obviously, they should be hard.
 
-Each section will have a **TLDR** code snippet, suitable for
-copy-pasting, if you just want to speed through things, then a more
-complete explination of what's going on with the TLDR broken down into
-more of a step-by-step. Keep in mind that as written, many of these
-can overwrite any local customization you might have, may have
-less secure defaults than you'd like, and other surprises. Use them
-only if you are impatient, have done this all before, and understand the
-risks.
+Each section will have a **TLDR** code snippet, suitable for copy-pasting, if you just want to speed through things, then a more complete explination of what's going on with the TLDR broken down into more of a step-by-step. Keep in mind that as written, many of these can overwrite any local customization you might have, may have less secure defaults than you'd like, and other surprises. Use them only if you are impatient, have done this all before, and understand the risks.
 
-At the end of this document, there's a [TLDR of TLDRs](#tldr-of-tldrs).
-You can't yet run it all at once and go off to lunch, but setup should
-now be only a few lightly edited copy-pastes away. <sup>*TODO: Ansible!*</sup>
+At the end of this document, there's a [TLDR of TLDRs](#tldr-of-tldrs). You can't yet run it all at once and go off to lunch, but setup should now be only a few lightly edited copy-pastes away. <sup>*TODO: Ansible!*</sup>
 
 So let's get started!
 
@@ -108,11 +76,7 @@ service ssh start
 ```
 ----
 
-Often, you need to have remote access back to your Kali machine;
-a typical use case is for reverse shells. You might also want to
-use ssh and scp to write code and copy files, from elsewhere --
-this is especially useful if you're running Kali as a guest OS
-and don't want to install VMWare Tools.
+Often, you need to have remote access back to your Kali machine; a typical use case is for reverse shells. You might also want to use ssh and scp to write code and copy files, from elsewhere -- this is especially useful if you're running Kali as a guest OS and don't want to install VMWare Tools.
 
 ```
 apt-get -y install ufw
@@ -168,9 +132,7 @@ echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get -y install \
 ```
 ----
 
-The TLDR here is all you should need to stage up Kali (or any other
-Debian-based distro) for a proper dev environment. Note, there's no Ruby
-or editor -- we'll get to those next.
+The TLDR here is all you should need to stage up Kali (or any other Debian-based distro) for a proper dev environment. Note, there's no Ruby or editor -- we'll get to those next.
 
 # Install RVM
 
@@ -187,12 +149,7 @@ gconftool-2 --set --type boolean /apps/gnome-terminal/profiles/Default/login_she
 ```
 ----
 
-Kali, like most operating system distributions, does not ship with the
-latest Ruby with any predictable frequency. So, we'll use RVM, the Ruby
-Version Manager. You can read up on it here: https://rvm.io/, and
-discover it's pretty swell. Some people prefer rbenv, and those
-instructions [are here][rbenv]. For our purposes, though, we're going to
-stick to RVM.
+Kali, like most operating system distributions, does not ship with the latest Ruby with any predictable frequency. So, we'll use RVM, the Ruby Version Manager. You can read up on it here: https://rvm.io/, and discover it's pretty swell. Some people prefer rbenv, and those instructions [are here][rbenv]. For our purposes, though, we're going to stick to RVM.
 
 First, you need the signing key for the RVM distribution:
 
@@ -206,8 +163,7 @@ Next, get RVM itself:
 curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.7
 ```
 
-This does pipe straight to bash, which can be a [sensitive
-issue][dont-pipe]. For the longer, safer way:
+This does pipe straight to bash, which can be a [sensitive issue][dont-pipe]. For the longer, safer way:
 
 ```
 curl -o rvm.sh -L https://get.rvm.io
@@ -262,18 +218,11 @@ curl -Lo- https://bit.ly/janus-bootstrap | bash
 ```
 ----
 
-I like gvim, and many others do, too. I also like
-[Janus](https://github.com/carlhuda/janus), a collection of plugins that
-supports a bunch of different languages, including Ruby. The TLDR above
-will install both of these. Again, if you don't like piping curl output
-straight to bash, do it your saner, slower way.
+I like gvim, and many others do, too. I also like [Janus](https://github.com/carlhuda/janus), a collection of plugins that
+supports a bunch of different languages, including Ruby. The TLDR above will install both of these. Again, if you don't like piping curl output straight to bash, do it your saner, slower way.
 
-Many choices of editor exist, of course. An informal straw poll shows
-that many Metasploit developers use
-[Rubymine](https://www.jetbrains.com/ruby/), a few use
-[emacs](http://i.imgur.com/dljEqtL.gif), and still others use [Sublime
-Text](http://www.sublimetext.com/) with some helpful
-[plugins](https://gist.github.com/kernelsmith/5308291).
+Many choices of editor exist, of course. An informal straw poll shows that many Metasploit developers use
+[Rubymine](https://www.jetbrains.com/ruby/), a few use [emacs](http://i.imgur.com/dljEqtL.gif), and still others use [Sublime Text](http://www.sublimetext.com/) with some helpful [plugins](https://gist.github.com/kernelsmith/5308291).
 
 For this setup, though, let's just say you're a vim person, and move on.
 
@@ -311,33 +260,23 @@ ssh -T github
 ```
 ----
 
-The easiest way we've found to interact with GitHub is over
-SSH, using a custom SSH key. This saves us the trouble of
-typing passwords over HTTPS connections all the time. So,
-read the [generating-ssh-keys] article on GitHub and follow
-those instructions, or just perform the steps in the TLDR,
-above.
+The easiest way we've found to interact with GitHub is over SSH, using a custom SSH key. This saves us the trouble of
+typing passwords over HTTPS connections all the time. So, read the [generating-ssh-keys] article on GitHub and follow
+those instructions, or just perform the steps in the TLDR, above.
 
-Note, the above will save your GitHub password in your local
-history file, so you might want to modify the `curl -u` to
-just your username and get prompted for it. Also, you'll want
-to set decent passwords for your GitHub account and your local
+Note, the above will save your GitHub password in your local history file, so you might want to modify the `curl -u` to
+just your username and get prompted for it. Also, you'll want to set decent passwords for your GitHub account and your local
 SSH key.
 
 <blockquote>
-Note, if you already have two-factor authentication (aka, 2FA)
-enabled, you will get a JSON-formatted error message of "Must
-specify two-factor authentication OTP code." In that case,
-you'll want to just navigate to
-https://github.com/settings/ssh and add your key manually via
-the web interface.
+Note, if you already have two-factor authentication (aka, 2FA) enabled, you will get a JSON-formatted error message of "Must
+specify two-factor authentication OTP code." In that case, you'll want to just navigate to
+https://github.com/settings/ssh and add your key manually via the web interface.
 </blockquote>
 
 ## Create an .ssh/config entry for Github
 
-Once you have your new SSH key all set up, add this to your
-$HOME/.ssh/config -- create that file if you don't have one
-already.
+Once you have your new SSH key all set up, add this to your $HOME/.ssh/config -- create that file if you don't have one already.
 
 ```
 Host github
@@ -356,8 +295,7 @@ Warning: Permanently added 'github.com,192.30.252.130' (RSA) to the list of know
 Hi YOUR_USERNAME_FOR_GITHUB! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-Okay! You're all set to fork and clone Metasploit Framework.
-How exciting for you!
+Okay! You're all set to fork and clone Metasploit Framework. How exciting for you!
 
 # Fork and Clone Metasploit-Framework
 
@@ -376,17 +314,12 @@ cd metasploit-framework
 ```
 ----
 
-The TLDR is nice in that it's all command-line. However, you
-can do all this just as easily in the web UI (and again, if
-you have 2FA enabled, you must use the web UI). Just follow
-the [forking] instructions provided by GitHub.
+The TLDR is nice in that it's all command-line. However, you can do all this just as easily in the web UI (and again, if
+you have 2FA enabled, you must use the web UI). Just follow the [forking] instructions provided by GitHub.
 
 ## Clone
 
-One you have a fork on GitHub, it's time to pull it down to your
-local dev machine. Again, you'll want to follow the [cloning]
-instructions at GitHub, except instead of using
-`https://github.com/username/repo`, you'll be using your ssh
+One you have a fork on GitHub, it's time to pull it down to your local dev machine. Again, you'll want to follow the [cloning] instructions at GitHub, except instead of using `https://github.com/username/repo`, you'll be using your ssh
 alias, `github:username/repo`, like so:
 
 ```
@@ -410,12 +343,9 @@ bundle install &&
 ```
 ----
 
-Metasploit has loads of gems (Ruby libraries) that it depends
-on. Because you're using RVM, though, you can install them
-locally and not worry about conflicting with Debian-packaged
-gems, thanks to the magic of [Bundler]. First, you want to set
-bundler up to take advantage of your available cores -- ideally,
-your number of CPUs minus one. That can be accomplished by:
+Metasploit has loads of gems (Ruby libraries) that it depends on. Because you're using RVM, though, you can install them
+locally and not worry about conflicting with Debian-packaged gems, thanks to the magic of [Bundler]. First, you want to set
+bundler up to take advantage of your available cores -- ideally, your number of CPUs minus one. That can be accomplished by:
 
 ```
 (BUNDLEJOBS=$(expr $(cat /proc/cpuinfo | grep vendor_id | wc -l) - 1) &&
@@ -429,15 +359,13 @@ cd $HOME/git/metasploit-framework/
 bundle install
 ```
 
-After a minute or two, you're all set to start Metasploiting. In
-your checkout directory, type:
+After a minute or two, you're all set to start Metasploiting. In your checkout directory, type:
 
 ```
 ./msfconsole
 ```
 
-And bask in the glory that is a functioning source checkout -- and
-incidentally create your `~/.msf4` directory upon first start.
+And bask in the glory that is a functioning source checkout -- and incidentally create your `~/.msf4` directory upon first start.
 
 ```
 msfdev@lys:~/git/metasploit-framework$ ./msfconsole
@@ -478,15 +406,12 @@ plugins
 msf > exit
 ```
 
-Alas, though, you have no database set up to use all this
-hacking madness. Easily solved, though!
+Alas, though, you have no database set up to use all this hacking madness. Easily solved, though!
 
 # Set up PostgreSQL
 
-Kali linux already ships with Postgresql, so we can use that
-out of the gate. Everything should just work on Ubuntu and
-other Debian-based distros, assuming they have an equivalent
-`postgresql` package. The TLDR ensures that the database is
+Kali linux already ships with Postgresql, so we can use that out of the gate. Everything should just work on Ubuntu and
+other Debian-based distros, assuming they have an equivalent `postgresql` package. The TLDR ensures that the database is
 starts up on system start, as well.
 
 ## Start the database
@@ -538,10 +463,7 @@ EOF
 ```
 ----
 
-On Kali Linux, postgresql (and any other listening service)
-isn't enabled by default. This is a fine security and
-resource precaution, but if you're expecting it there all the
-time, feel free to auto-start it:
+On Kali Linux, postgresql (and any other listening service) isn't enabled by default. This is a fine security and resource precaution, but if you're expecting it there all the time, feel free to auto-start it:
 
 ```
 update-rc.d postgresql enable
@@ -578,8 +500,7 @@ exit                                 # Become msfdev again
 
 ## Create the database.yml
 
-Now that yourself again, create a file `$HOME/.msf4/database.yml`
-with the following:
+Now that yourself again, create a file `$HOME/.msf4/database.yml` with the following:
 
 ```yaml
 # Development Database
@@ -603,8 +524,7 @@ test:
   database: msf_test_db
 ```
 
-The next time you start `./msfconsole`, the development database
-will be created. Check with:
+The next time you start `./msfconsole`, the development database will be created. Check with:
 
 ```
 ./msfconsole -qx "db_status; exit"
@@ -612,8 +532,7 @@ will be created. Check with:
 
 # Run Specs
 
-We use [rspec](http://betterspecs.org/) for most Framework testing.
-Make sure it works for you:
+We use [rspec](http://betterspecs.org/) for most Framework testing. Make sure it works for you:
 
 ```
 rake spec
@@ -653,39 +572,23 @@ git fetch upstream
 git checkout -b upstream-master --track upstream/master
 ```
 
-Now, you have a branch that points to upstream (the `rapid7` fork)
-that's different from your own fork (the original `master` branch that
-points to `origin/master`). You might find having `upstream-master` and
-`master` being different branches handy (especially if you are a
-[Metasploit committer][metasploit-committer], since this makes it less
-likely to accidentally push to `rapid7/master`).
+Now, you have a branch that points to upstream (the `rapid7` fork) that's different from your own fork (the original `master` branch that points to `origin/master`). You might find having `upstream-master` and `master` being different branches handy (especially if you are a [Metasploit committer][metasploit-committer], since this makes it less likely to accidentally push to `rapid7/master`).
 
 <blockquote>
-Note: Kali ships with git 1.7.10, so you might consider updating to
-something more recent, as there are a few missing features between then
-and now. Doing so involves adding a Debian ppa, though, which is frowned
-upon in Kali.
+Note: Kali ships with git 1.7.10, so you might consider updating to something more recent, as there are a few missing features between then and now. Doing so involves adding a Debian ppa, though, which is frowned upon in Kali.
 </blockquote>
 
-Also note, to speed things up on your initial fetches, you might
-consider using `git fetch --depth=10` or so, espeically if you don't
-plan on tracking older pull requests individually. If this last sentence
-made no sense to you, go ahead and use the `--depth` option. You're not
-missing anything important.
+Also note, to speed things up on your initial fetches, you might consider using `git fetch --depth=10` or so, espeically if you don't plan on tracking older pull requests individually. If this last sentence made no sense to you, go ahead and use the `--depth` option. You're not missing anything important.
 
 ## Set up a pull ref
 
-If you'd like to get easy access to upstream pull requests on your
-command line -- and who wouldn't -- you need to add the appropriate
-fetch reference to your `.git/config`. This is done easily with the
-following:
+If you'd like to get easy access to upstream pull requests on your command line -- and who wouldn't -- you need to add the appropriate fetch reference to your `.git/config`. This is done easily with the following:
 
 ```
 tools/dev/add_pr_fetch.rb
 ```
 
-This will add the appropriate ref for all your remotes, including yours.
-Now, you can do fancy things like:
+This will add the appropriate ref for all your remotes, including yours. Now, you can do fancy things like:
 
 ```
 git checkout fixes-to-pr-1234 upstream/pr/1234
@@ -694,16 +597,11 @@ git push origin
 
 The less easy way to do this is described at [GitHub][gh-pr-refs].
 
-All this lets you check out someone else's pull request (PR), make
-changes, and publish to your own branch on your own fork. This will, in
-turn, allow you to help out on other people's PRs with fixes or
-additions.
+All this lets you check out someone else's pull request (PR), make changes, and publish to your own branch on your own fork. This will, in turn, allow you to help out on other people's PRs with fixes or additions.
 
 ## Keep in sync
 
-You pretty much **never** want to commit to master directly. Always make
-changes in a branch, and then merge those changes. This makes it easy to
-keep in sync with upstream and never lose any local changes.
+You pretty much **never** want to commit to master directly. Always make changes in a branch, and then merge those changes. This makes it easy to keep in sync with upstream and never lose any local changes.
 
 ### Sync to upstream/master
 
@@ -716,23 +614,15 @@ git rebase --preserve-merges upstream/master
 git push origin
 ```
 
-Do the same for `upstream-master`, if you have one of those branches as
-well. This also will work for keeping pull requests in sync with master,
-but unless you're running into merge conflicts, you shouldn't need to do
-this often.  When you do end up resolving merge conflicts, you'll want
-to use `--force` when pushing the re-synced branch, since your commit
-history will be different after the rebase.
+Do the same for `upstream-master`, if you have one of those branches as well. This also will work for keeping pull requests in sync with master, but unless you're running into merge conflicts, you shouldn't need to do this often.  When you do end up resolving merge conflicts, you'll want to use `--force` when pushing the re-synced branch, since your commit history will be different after the rebase.
 
 <blockquote>
-Force pushing is **never** okay for rapid7/master, but for in-progress
-branches, lying a little about the history isn't a federal crime.
+Force pushing is **never** okay for rapid7/master, but for in-progress branches, lying a little about the history isn't a federal crime.
 </blockquote>
 
 ### Msftidy
 
-In order to lint-check any new modules you're writing, you'll want a
-pre-commit and a post-merge hook to run our lint-checker, `msftidy.rb`.
-So, symlink like so:
+In order to lint-check any new modules you're writing, you'll want a pre-commit and a post-merge hook to run our lint-checker, `msftidy.rb`. So, symlink like so:
 
 ```
 cd $HOME/git/metasploit-framework
@@ -743,8 +633,7 @@ ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
 
 ### Naming yourself
 
-Finally, if you ever want to contribute to Metasploit, you need to
-configure at least your username and e-mail address, like so:
+Finally, if you ever want to contribute to Metasploit, you need to configure at least your username and e-mail address, like so:
 
 ```
 git config user.name   "YOUR_USERNAME_FOR_REAL_LIFE"
@@ -752,30 +641,20 @@ git config user.email  "YOUR_USERNAME_FOR_EMAIL"
 git config github.user "YOUR_USERNAME_FOR_GITHUB"
 ```
 
-If you want this to be your default identity for any other git repo you use,
-just use the `--global` option to `git config`. Your e-mail address must
-match your GitHub-registered e-mail.
+If you want this to be your default identity for any other git repo you use, just use the `--global` option to `git config`. Your e-mail address must match your GitHub-registered e-mail.
 
 ### Signing commits
 
-We love signing commits, mainly because we're [terrified of the
-alternative][git-horror]. The procedure is [detailed
-here][signing-howto]. Note that the name and e-mail address must match
-the information on the signing key exactly. Contributors are encouraged
-to sign commits, while Metasploit committers are required to sign their
-merge commits when they [land pull requests][landing-prs].
+We love signing commits, mainly because we're [terrified of the alternative][git-horror]. The procedure is [detailed
+here][signing-howto]. Note that the name and e-mail address must match the information on the signing key exactly. Contributors are encouraged to sign commits, while Metasploit committers are required to sign their merge commits when they [land pull requests][landing-prs].
 
 # Handy Aliases
 
-No development environment setup would be complete without a few handy
-aliases to make your life easier.
+No development environment setup would be complete without a few handy aliases to make your life easier.
 
 ## Override installed `msfconsole`
 
-As the development user, you might accidentally try to use the installed
-Metasploit `msfconsole`. This won't work for a variety of reasons around
-how RVM handles different ruby versions and gemsets. So, create this
-alias:
+As the development user, you might accidentally try to use the installed Metasploit `msfconsole`. This won't work for a variety of reasons around how RVM handles different ruby versions and gemsets. So, create this alias:
 
 ```
 echo 'alias msfconsole="pushd $HOME/git/metasploit-framework && ./msfconsole && popd"' >> ~/.bash_aliases
@@ -798,11 +677,7 @@ export PS1="[ruby-\$(~/.rvm/bin/rvm-prompt v p g)]\$(git-current-branch)\n$PS1"
 
 ## Git aliases
 
-Git has its own way of handling aliases -- either in `$HOME/.gitconfig`
-or `repo-name/.git/config` -- seperate from regular shell aliases. Below
-are some of the handier ones.
-
-
+Git has its own way of handling aliases -- either in `$HOME/.gitconfig` or `repo-name/.git/config` -- seperate from regular shell aliases. Below are some of the handier ones.
 
 ```rc
 # An easy, colored oneline log format that shows signed/unsigned status
@@ -825,11 +700,7 @@ pr-url =!"xdg-open https://github.com/$(git config github.user)/$(basename $(git
 
 # TLDR of TLDRs
 
-If you're very impatient, you can just cut and paste these sequentially,
-and you should have a good time. Someday, this will be normalized into a
-proper deploy script, but there are a bunch of passwords to deal with
-which is always a security adventure. Again, you'll want to sub in your
-own username and password details.
+If you're very impatient, you can just cut and paste these sequentially, and you should have a good time. Someday, this will be normalized into a proper deploy script, but there are a bunch of passwords to deal with which is always a security adventure. Again, you'll want to sub in your own username and password details.
 
 ## Run these as root
 
@@ -1014,17 +885,11 @@ git config --global user.email "YOUR_USERNAME_FOR_EMAIL"
 ```
 ----
 
-That's it! It's still on you to set up your [aliases](#handy-aliases)
-and PGP key for [signing commits](#signing-commits) if you ever
-care to land pull requests, but other than that, you're good to go.
+That's it! It's still on you to set up your [aliases](#handy-aliases) and PGP key for [signing commits](#signing-commits) if you ever care to land pull requests, but other than that, you're good to go.
 
-Again, if there are any errors, omissions, or better ways to do any of
-these things, by all means, open an [issue][issues] and we'll see about
-updating this HOWTO.
+Again, if there are any errors, omissions, or better ways to do any of these things, by all means, open an [issue][issues] and we'll see about updating this HOWTO.
 
-Thanks especially to [@kernelsmith](https://github.com/kernelsmith)
-and [@corelanc0d3r](https://github.com/corelanc0d3r) for their
-invaluable help and feedback on this dev environment documentation guide.
+Thanks especially to [@kernelsmith](https://github.com/kernelsmith) and [@corelanc0d3r](https://github.com/corelanc0d3r) for their invaluable help and feedback on this dev environment documentation guide.
 
 [contribute]:http://r-7.co/MSF-CONTRIB
 [issues]:https://github.com/rapid7/metasploit-framework/issues
