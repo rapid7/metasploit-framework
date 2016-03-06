@@ -2,22 +2,15 @@
 
 <sup>*The shortlink to this wiki page is http://r-7.co/MSF-DEV*</sup>
 
-This is a guide for setting up an environment for effectively **contributing to the Metasploit Framework**. If you just want to use Metasploit for legal, authorized hacking, we recommend instead you [download the Metasploit binary installer](http://metasploit.com/download), which will take care of all the dependencies and give you access to the open source Metasploit Framework, the free Metasploit Community edition, and an option to start the free trial for Metasploit Pro.
+This is a guide for setting up an environment for effectively **contributing to the Metasploit Framework**. If you just want to use Metasploit for legal, authorized hacking, we recommend instead you either [download the commercial Metasploit binary installer](http://metasploit.com/download), or the [open-source packages](https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers) which will take care of all the dependencies for you. The commercial installers also include the option for upgrading to Metasploit Pro and are updated semi-weekly, while the open-source installers are updated every night.
 
-If you're using Kali Linux, Metasploit is already pre-installed for non-development purposes; just type `msfconsole` in the terminal to start Metasploit Framework, then type `go_pro` if you'd like to try Metasploit Pro or Metasploit Community.
+If you are using Kali Linux, Metasploit is already pre-installed. [Follow the instructions](http://docs.kali.org/general-use/starting-metasploit-framework-in-kali) provided by Kali on how to use the provided metasploit-framework package and setup a database.
 
 If you want to develop on and [contribute] to Metasploit, read on! This guide should get you going on pretty much any Debian-based Linux system, but it is written for Kali Linux in particular, since many, many Metasploit Users are also Kali Linux users, and why spin up a different VM?
-
-If you're familiar with Ubuntu or Xandros or any other Debian distro, you should be able to read along here and get it to
-work for you. If there are distro-specific gotchas you spot, please [let us know][issues]!
-
-If you would like to sometimes develop Metasploit-Framework, and sometimes just use the Metasploit Community Edition which ships with Kali, you will want to likely create separate user accounts. You might be able to get away with different Gnome Terminal profiles, but you're not running out of UIDs, I promise. At the very least, you're going to need a non-root account for Metasploit Framework development work.
 
 For this guide, the example user is "YOUR_USERNAME," and the sample password in this document is "YOUR_PASSWORD." Anywhere you see those strings, use your own username and password. Obviously, they should be hard.
 
 Each section will have a **TLDR** code snippet, suitable for copy-pasting, if you just want to speed through things, then a more complete explination of what's going on with the TLDR broken down into more of a step-by-step. Keep in mind that as written, many of these can overwrite any local customization you might have, may have less secure defaults than you'd like, and other surprises. Use them only if you are impatient, have done this all before, and understand the risks.
-
-At the end of this document, there's a [TLDR of TLDRs](#tldr-of-tldrs). You can't yet run it all at once and go off to lunch, but setup should now be only a few lightly edited copy-pastes away. <sup>*TODO: Ansible!*</sup>
 
 So let's get started!
 
@@ -663,180 +656,6 @@ temp = !"git branch -D temp; git checkout -b temp"
 # Fixes from @kernelsmith, thanks!
 pr-url =!"xdg-open https://github.com/$(git config github.user)/$(basename $(git rev-parse --show-toplevel))/pull/new/$1:$2...$(git branch-current) #"
 ```
-
-# TLDR of TLDRs
-
-If you're very impatient, you can just cut and paste these sequentially, and you should have a good time. Someday, this will be normalized into a proper deploy script, but there are a bunch of passwords to deal with which is always a security adventure. Again, you'll want to sub in your own username and password details.
-
-## Run these as root
-
-----
-```bash
-apt-get -y install ufw;
-ufw enable &&
-ufw allow 4444:4464/tcp &&
-ufw allow 8080:8090/tcp &&
-ufw allow ssh &&
-service ssh start
-```
-
-----
-```bash
-useradd -m msfdev &&
-PASS=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c8`;
-echo ++ RECORD THIS: Your msfdev Kali user password is $PASS ++ &&
-echo "msfdev:$PASS" | chpasswd &&
-unset PASS &&
-usermod -a -G sudo msfdev &&
-chsh -s /bin/bash msfdev
-```
-----
-
-## Stop here, switch to `msfdev`
-
-----
-```bash
-echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get -y install \
-  build-essential zlib1g zlib1g-dev \
-  libxml2 libxml2-dev libxslt-dev locate \
-  libreadline6-dev libcurl4-openssl-dev git-core \
-  libssl-dev libyaml-dev openssl autoconf libtool \
-  ncurses-dev bison curl wget xsel postgresql \
-  postgresql-contrib libpq-dev \
-  libapr1 libaprutil1 libsvn1 \
-  libpcap-dev libsqlite3-dev libgmp3-dev libgmp-dev
-```
-
-----
-```bash
-curl -sSL https://rvm.io/mpapis.asc | gpg --import - &&
-curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.7 &&
-source $HOME/.rvm/scripts/rvm &&
-gem install bundler &&
-ruby -v && # See that it's 2.1.7
-gconftool-2 --set --type boolean /apps/gnome-terminal/profiles/Default/login_shell true
-```
-
-----
-```
-echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get install vim-gnome -y &&
-curl -Lo- https://bit.ly/janus-bootstrap | bash
-```
-
-----
-```bash
-mkdir -p $HOME/.ssh &&
-cat <<EOF>> $HOME/.ssh/config
-
-Host github
-  Hostname github.com
-  User git
-  StrictHostKeyChecking no
-  PreferredAuthentications publickey
-  IdentityFile ~/.ssh/id_rsa.github
-
-EOF
-
-PASS=`tr -dc A-Za-z0-9_ < /dev/urandom | head -c8` &&
-echo ++ RECORD THIS: Your SSH key password is $PASS ++ &&
-ssh-keygen -t rsa -C "YOUR_USERNAME_FOR_EMAIL" -f $HOME/.ssh/id_rsa.github -N $PASS &&
-eval "$(ssh-agent -s)" &&
-ssh-add $HOME/.ssh/id_rsa.github &&
-PUBKEY_GIT=`cat $HOME/.ssh/id_rsa.github.pub` &&
-curl -u "YOUR_USERNAME_FOR_GITHUB:YOUR_PASSWORD_FOR_GITHUB" \
-  --data "{\"title\":\"msfdev-key\",\"key\":\"$PUBKEY_GIT\"}" \
-  https://api.github.com/user/keys &&
-history -c &&
-unset PUBKEY_GIT &&
-unset PASS &&
-ssh -T github
-```
-
-----
-```bash
-curl -X POST -u "YOUR_USERNAME_FOR_GITHUB:YOUR_PASSWORD_FOR_GITHUB" \
-  https://api.github.com/repos/rapid7/metasploit-framework/forks &&
-history -c &&
-mkdir -p $HOME/git &&
-cd $HOME/git &&
-sleep 300 &&
-git clone github:YOUR_USERNAME_FOR_GITHUB/metasploit-framework &&
-cd metasploit-framework
-```
-
-----
-```bash
-cd $HOME/git/metasploit-framework &&
-(BUNDLEJOBS=$(expr $(cat /proc/cpuinfo | grep vendor_id | wc -l) - 1) &&
-bundle config --global jobs $BUNDLEJOBS) &&
-bundle install &&
-./msfconsole -x exit
-```
-
-----
-```
-echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS update-rc.d postgresql enable &&
-echo 'YOUR_PASSWORD_FOR_KALI' | sudo -S service postgresql start &&
-cat <<EOF> $HOME/pg-utf8.sql
-update pg_database set datallowconn = TRUE where datname = 'template0';
-\c template0
-update pg_database set datistemplate = FALSE where datname = 'template1';
-drop database template1;
-create database template1 with template = template0 encoding = 'UTF8';
-update pg_database set datistemplate = TRUE where datname = 'template1';
-\c template1
-update pg_database set datallowconn = FALSE where datname = 'template0';
-\q
-EOF
-sudo -u postgres psql -f $HOME/pg-utf8.sql &&
-sudo -u postgres createuser msfdev -dRS &&
-sudo -u postgres psql -c \
-  "ALTER USER msfdev with ENCRYPTED PASSWORD 'YOUR_PASSWORD_FOR_PGSQL';" &&
-sudo -u postgres createdb --owner msfdev msf_dev_db &&
-sudo -u postgres createdb --owner msfdev msf_test_db &&
-cat <<EOF> $HOME/.msf4/database.yml
-# Development Database
-development: &pgsql
-  adapter: postgresql
-  database: msf_dev_db
-  username: msfdev
-  password: YOUR_PASSWORD_FOR_PGSQL
-  host: localhost
-  port: 5432
-  pool: 5
-  timeout: 5
-
-# Production database -- same as dev
-production: &production
-  <<: *pgsql
-
-# Test database -- not the same, since it gets dropped all the time
-test:
-  <<: *pgsql
-  database: msf_test_db
-EOF
-```
-----
-
-```bash
-cd $HOME/git/metasploit-framework &&
-./msfconsole -qx "db_status; exit" &&
-rake spec
-```
-----
-
-```bash
-cd $HOME/git/metasploit-framework &&
-git remote add upstream github:rapid7/metasploit-framework.git &&
-git fetch upstream &&
-git checkout -b upstream-master --track upstream/master &&
-ruby tools/dev/add_pr_fetch.rb &&
-ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit &&
-ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge &&
-git config --global user.name  "YOUR_USERNAME_FOR_REAL_LIFE" &&
-git config --global user.email "YOUR_USERNAME_FOR_EMAIL"
-```
-----
 
 That's it! It's still on you to set up your [aliases](#handy-aliases) and PGP key for [signing commits](#signing-commits) if you ever care to land pull requests, but other than that, you're good to go.
 
