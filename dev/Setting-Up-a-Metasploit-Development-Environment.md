@@ -21,45 +21,11 @@ At the end of this document, there's a [TLDR of TLDRs](#tldr-of-tldrs). You can'
 
 So let's get started!
 
-# Update Kali Linux
+# Install Kali Linux, the Kali-Rolling distribution.
 
-#### TLDR (as root)
+This guide assumes you already have an installation of the Kali-Rolling distribution. Because this distribution is constantly updating, it is likely that this document will become stale rapidly. It assumes Kali 2016.1, which is the latest version at the time of this writing.
 
-----
-```bash
-echo deb http://http.kali.org/ kali-current main non-free contrib > /etc/apt/sources.list &&
-echo deb-src http://http.kali.org/ kali-current main non-free contrib >> /etc/apt/sources.list &&
-echo deb http://security.kali.org/kali-security kali-current/updates main contrib non-free >> /etc/apt/sources.list &&
-echo deb-src http://security.kali.org/ kali-current/updates main contrib non-free >> /etc/apt/sources.list &&
-apt-get clean &&
-rm -rf /var/lib/apt/lists;
-apt-get update &&
-apt-get -y --force-yes install kali-archive-keyring &&
-apt-get update &&
-apt-get -y upgrade
-```
-----
-
-First, you need to know where all the Linux goodness lives. Your `/etc/apt/sources.list` should have these sources listed:
-
-```
-deb http://http.kali.org/ kali-current main non-free contrib
-deb-src http://http.kali.org/ kali-current main non-free contrib
-deb http://security.kali.org/kali-security kali-current/updates main contrib non-free
-deb-src http://security.kali.org/ kali-current/updates main contrib non-free
-```
-
-If you have a lot of extra sources, you are almost certain to cause conflicts. [Don't do that][kali-sources]. However, you may want to pick a more appropriate mirror from the [mirrorlist]. Once you're set with sources, clean out any cruft, get the latest Kali signing key, and go to town:
-
-
-```
-apt-get clean
-rm -rf /var/lib/apt/lists
-apt-get update 
-apt-get -y --force-yes install kali-archive-keyring
-apt-get update
-apt-get -y upgrade
-```
+There are many ways to install Kali Linux, outlined in [Kali Linux's extensive documentation](http://docs.kali.org/category/installation). You can also install a [pre-built VM image](https://www.offensive-security.com/kali-linux-vmware-virtualbox-image-download/), which can save a lot of time compared to fiddling with VM drivers. Just be sure to regenerate your SSH host keys and set the root password if you use these.
 
 # Enable remote access
 
@@ -703,19 +669,6 @@ pr-url =!"xdg-open https://github.com/$(git config github.user)/$(basename $(git
 If you're very impatient, you can just cut and paste these sequentially, and you should have a good time. Someday, this will be normalized into a proper deploy script, but there are a bunch of passwords to deal with which is always a security adventure. Again, you'll want to sub in your own username and password details.
 
 ## Run these as root
-
-----
-```bash
-echo deb http://http.kali.org/kali kali main non-free contrib > /etc/apt/sources.list &&
-echo deb-src http://http.kali.org/kali kali main non-free contrib >> /etc/apt/sources.list &&
-echo deb http://security.kali.org/kali-security kali/updates main contrib non-free >> /etc/apt/sources.list &&
-apt-get clean &&
-rm -rf /var/lib/apt/lists;
-apt-get update &&
-apt-get -y --force-yes install kali-archive-keyring &&
-apt-get update &&
-apt-get -y upgrade
-```
 
 ----
 ```bash
