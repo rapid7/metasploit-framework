@@ -15,7 +15,6 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'References'      => [
         [ 'CVE', '2013-6117' ],
-        [ 'URL', 'https://talosconsulting.net' ],
         [ 'URL', 'https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117' ]
       ],
       'License'         => MSF_LICENSE,
