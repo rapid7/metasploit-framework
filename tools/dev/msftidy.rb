@@ -477,7 +477,7 @@ class Msftidy
     return if @module_type == 'payloads'
 
     # get the super class in an ugly way
-    unless (super_class = @source.scan(/class Metasploit\d\s+<\s+(\S+)/).flatten.first)
+    unless (super_class = @source.scan(/class Metasploit\d?\s+<\s+(\S+)/).flatten.first)
       error('Unable to determine super class')
       return
     end

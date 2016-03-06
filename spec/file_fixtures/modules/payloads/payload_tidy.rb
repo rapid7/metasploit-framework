@@ -4,7 +4,7 @@
 ##
 
 
-module Metasploit4
+module Metasploit
   def initialize(info = {})
     super(
       merge_info(
