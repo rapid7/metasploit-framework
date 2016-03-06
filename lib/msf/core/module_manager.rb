@@ -120,6 +120,7 @@ module Msf
       self.module_info_by_path = {}
       self.enablement_by_type = {}
       self.module_load_error_by_path = {}
+      self.module_load_warnings = {}
       self.module_paths = []
       self.module_set_by_type = {}
 
