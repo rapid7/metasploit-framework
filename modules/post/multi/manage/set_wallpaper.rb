@@ -71,6 +71,9 @@ class Metasploit3 < Msf::Post
   end
 
   def os_set_wallpaper(file)
+    if session.type =~ /meterpreter/ && session.sys.config.sysinfo['OS'] =~ /darwin/i
+      platform = 'osx'
+    end
     case platform
     when /osx/
       osx_set_wallpaper(file)
