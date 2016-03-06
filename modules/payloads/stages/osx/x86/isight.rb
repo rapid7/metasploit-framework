@@ -80,7 +80,7 @@ module Metasploit3
 
     print_status("Photo saved as #{dest}")
 
-    if (datastore['AUTOVIEW'] == true)
+    if datastore['AUTOVIEW']
       print_status("Opening photo in a web browser...")
       Rex::Compat.open_browser(File.expand_path(dest))
     end
