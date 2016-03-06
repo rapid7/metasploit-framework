@@ -147,10 +147,11 @@ class Msf::Modules::Loader::Base
 
       if namespace_module.const_defined?('Metasploit3', false)
         klass = namespace_module.const_get('Metasploit3', false)
-        load_warning(module_path, 'Please change the modules class name from Metasploit3 to Metasploit')
+        # We are not quite yet ready for the warnings to bubble to the user
+        # load_warning(module_path, 'Please change the modules class name from Metasploit3 to Metasploit')
       elsif namespace_module.const_defined?('Metasploit4', false)
         klass = namespace_module.const_get('Metasploit4', false)
-        load_warning(module_path, 'Please change the modules class name from Metasploit4 to Metasploit')
+        # load_warning(module_path, 'Please change the modules class name from Metasploit4 to Metasploit')
       elsif namespace_module.const_defined?('Metasploit', false)
         klass = namespace_module.const_get('Metasploit', false)
       else
