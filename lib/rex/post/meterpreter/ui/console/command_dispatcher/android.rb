@@ -491,7 +491,7 @@ class Console::CommandDispatcher::Android
       end
     end
 
-    if dest.blank? || body.blank?
+    if dest.to_s.empty? || body.to_s.empty?
       print_error("You must enter both a destination address -d and the SMS text body -t")
       print_error('e.g. send_sms -d +351961234567 -t "GREETINGS PROFESSOR FALKEN."')
       print_line(send_sms_opts.usage)
@@ -543,7 +543,7 @@ class Console::CommandDispatcher::Android
       wlan_list << [mac, ssid, ss.to_s]
     end
 
-    if wlan_list.blank?
+    if wlan_list.to_s.empty?
       print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
       return
     end
