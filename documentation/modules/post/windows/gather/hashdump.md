@@ -38,7 +38,7 @@ There are a few common options to consider:
 
 * Using a local exploit module. Or use Local Exploit Suggester, which automatically informs you
   which exploits might be suitable for the remote target.
-* getsystem.
+* The getsystem command in Meterpreter.
 * Stolen passwords.
 
 **Hashdump From Multiple Sessions**
