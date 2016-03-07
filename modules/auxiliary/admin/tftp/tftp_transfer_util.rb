@@ -6,7 +6,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Rex::Proto::TFTP
   include Msf::Auxiliary::Report

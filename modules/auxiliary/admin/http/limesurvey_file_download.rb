@@ -8,7 +8,7 @@ require 'msf/core'
 # for extracting files
 require 'zip'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient

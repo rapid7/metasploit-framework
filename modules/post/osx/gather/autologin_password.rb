@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
   include Msf::Post::File
 
   # extract/verify by by XORing your kcpassword with your password

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Post
+class Metasploit4 < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix

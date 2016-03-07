@@ -34,7 +34,7 @@ class Object
   end
 end
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner

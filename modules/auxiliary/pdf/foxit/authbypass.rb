@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'zlib'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::FILEFORMAT
 

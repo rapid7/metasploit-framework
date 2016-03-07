@@ -13,7 +13,7 @@ require 'msf/core'
 # ADMmutate and from spoonfu.
 #
 ###
-class Metasploit < Msf::Nop
+class Metasploit3 < Msf::Nop
 
 SINGLE_BYTE_SLED =
   {

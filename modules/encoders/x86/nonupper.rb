@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex/encoder/nonupper'
 
 
-class Metasploit < Msf::Encoder::NonUpper
+class Metasploit3 < Msf::Encoder::NonUpper
 
   Rank = LowRanking
 

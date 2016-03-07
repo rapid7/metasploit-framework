@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'cgi'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::HttpServer::HTML

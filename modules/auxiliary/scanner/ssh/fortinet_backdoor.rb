@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner

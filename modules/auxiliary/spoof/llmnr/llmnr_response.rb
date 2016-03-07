@@ -8,7 +8,7 @@ require 'socket'
 require 'ipaddr'
 require 'net/dns'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
 include Msf::Exploit::Capture
 

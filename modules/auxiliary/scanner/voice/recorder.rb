@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'fileutils'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::IAX2
 

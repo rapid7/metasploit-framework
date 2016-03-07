@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex/encoder/alpha2/unicode_upper'
 
 
-class Metasploit < Msf::Encoder::Alphanum
+class Metasploit3 < Msf::Encoder::Alphanum
 
   Rank = ManualRanking
 

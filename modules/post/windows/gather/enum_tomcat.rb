@@ -8,7 +8,7 @@ require 'rexml/document'
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Registry

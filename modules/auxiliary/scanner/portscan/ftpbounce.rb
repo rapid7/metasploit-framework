@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   # Order is important here
   include Msf::Auxiliary::Report

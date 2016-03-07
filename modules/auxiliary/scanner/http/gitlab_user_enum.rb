@@ -7,7 +7,7 @@ require 'rex/proto/http'
 require 'msf/core'
 require 'json'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/encoder/alpha2/alpha_mixed'
 
-class Metasploit < Msf::Encoder::Alphanum
+class Metasploit3 < Msf::Encoder::Alphanum
   Rank = LowRanking
 
   def initialize

@@ -18,7 +18,7 @@ require 'msf/core'
 # for creating files
 require 'rex/zip'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Priv

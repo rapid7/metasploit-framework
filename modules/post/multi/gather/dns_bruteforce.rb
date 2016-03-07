@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,

@@ -7,7 +7,7 @@ require 'msf/core'
 require 'zlib'
 require 'stringio'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})

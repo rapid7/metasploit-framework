@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'tmpdir'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info = {})

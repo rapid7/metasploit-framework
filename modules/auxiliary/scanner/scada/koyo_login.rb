@@ -8,7 +8,7 @@ require 'msf/core'
 # msfdev is going to want a bunch of other stuff for style/compat but this works
 # TODO: Make into a real AuthBrute module, although the password pattern is fixed
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report

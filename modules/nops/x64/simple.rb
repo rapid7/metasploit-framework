@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit < Msf::Nop
+class Metasploit3 < Msf::Nop
 
   def initialize
     super(

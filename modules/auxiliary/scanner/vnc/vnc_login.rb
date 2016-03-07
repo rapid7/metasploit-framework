@@ -8,7 +8,7 @@ require 'rex/proto/rfb'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/vnc'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner

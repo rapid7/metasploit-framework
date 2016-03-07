@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'timeout'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner

@@ -8,7 +8,7 @@ require 'msf/core'
 require 'yaml'
 require 'msf/core/auxiliary/report'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   include Msf::Auxiliary::Report
   include Msf::Post::File

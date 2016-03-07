@@ -8,7 +8,7 @@ require 'active_support/inflector'
 require 'json'
 require 'active_support/core_ext/hash'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   class InvocationError < StandardError; end
   class RequestRateTooHigh < StandardError; end
   class InternalError < StandardError; end

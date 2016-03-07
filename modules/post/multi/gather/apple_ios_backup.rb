@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/parser/apple_backup_manifestdb'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   include Msf::Post::File
 

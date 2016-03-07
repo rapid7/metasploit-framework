@@ -15,7 +15,7 @@ require 'msf/core'
 # This class implements simple NOP generator for ARM (little endian)
 #
 ###
-class Metasploit < Msf::Nop
+class Metasploit3 < Msf::Nop
 
 
   def initialize

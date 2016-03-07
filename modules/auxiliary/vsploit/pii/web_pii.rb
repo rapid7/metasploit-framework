@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   #
   # This module acts as an compromised webserver distributing PII Data

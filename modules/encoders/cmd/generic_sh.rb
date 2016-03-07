@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit < Msf::Encoder
+class Metasploit3 < Msf::Encoder
 
   # Has some issues, but overall it's pretty good
   Rank = ManualRanking

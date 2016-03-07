@@ -8,7 +8,7 @@ require 'msf/core'
 require 'resolv'
 
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
 

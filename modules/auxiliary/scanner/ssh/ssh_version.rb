@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'recog'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

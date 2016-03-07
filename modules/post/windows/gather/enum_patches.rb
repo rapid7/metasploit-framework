@@ -8,7 +8,7 @@ require 'msf/core'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/extapi'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::ExtAPI
 

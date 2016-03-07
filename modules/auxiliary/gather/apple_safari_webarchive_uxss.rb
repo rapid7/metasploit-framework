@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/exploit/format/webarchive'
 require 'uri'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::HttpServer::HTML

@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   include Msf::Post::Common
 

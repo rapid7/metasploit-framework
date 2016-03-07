@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'bit-struct'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
   include Msf::Exploit::Remote::Tcp

@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report

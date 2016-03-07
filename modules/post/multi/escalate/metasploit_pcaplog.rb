@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/exploit/local/linux'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
   Rank = ManualRanking
 
   include Msf::Post::File

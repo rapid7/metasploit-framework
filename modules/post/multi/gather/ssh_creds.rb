@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'sshkey'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix

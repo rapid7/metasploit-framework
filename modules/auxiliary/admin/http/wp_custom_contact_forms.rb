@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HTTP::Wordpress
 

@@ -8,7 +8,7 @@ require 'rex'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/telnet'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Telnet
   include Msf::Auxiliary::Report
