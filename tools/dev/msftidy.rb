@@ -509,6 +509,12 @@ class Msftidy
     end
   end
 
+  def check_bad_class_name
+    if @source =~ /^\s*class (Metasploit\d+)\s*</
+      warn("Please use Metasploit as a class name (you used #{Regexp.last_match(1)})")
+    end
+  end
+
   def check_lines
     url_ok     = true
     no_stdio   = true
@@ -699,6 +705,7 @@ class Msftidy
     check_title_casing
     check_bad_terms
     check_bad_super_class
+    check_bad_class_name
     check_function_basics
     check_lines
     check_snake_case_filename
