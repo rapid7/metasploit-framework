@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
         {
           'RPORT'      => 443,
           'SSL'        => true,
-          'SSLVersion' => 'TLS1'
         }
     ))
   end

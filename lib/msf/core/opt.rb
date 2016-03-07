@@ -51,6 +51,13 @@ module Msf
       Msf::OptPort.new(__method__.to_s, [ required, desc, default ])
     end
 
+    # @return [OptEnum]
+    def self.SSLVersion
+      Msf::OptEnum.new('SSLVersion', [ false,
+        'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23 are auto-negotiate)', 'Auto',
+        ['Auto', 'SSL2', 'SSL3', 'SSL23', 'TLS', 'TLS1', 'TLS1.1', 'TLS1.2']])
+    end
+
     # These are unused but remain for historical reasons
     class << self
       alias builtin_chost CHOST
@@ -69,6 +76,7 @@ module Msf
     Proxies = Proxies()
     RHOST = RHOST()
     RPORT = RPORT()
+    SSLVersion = SSLVersion()
   end
 
 end
