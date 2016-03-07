@@ -33,8 +33,6 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [ true,  'The path to the Zabbix server application', '/zabbix/']),
-        OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', false]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
       ], self.class)
   end
 

@@ -33,15 +33,15 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    vprint_status("#{peer} -- contacting redis")
+    vprint_status("Contacting redis")
     begin
       connect
       return unless (data = redis_command(command))
       report_service(host: rhost, port: rport, name: "redis server", info: "#{command} response: #{data}")
-      print_good("#{peer} -- found redis with #{command} command: #{Rex::Text.to_hex_ascii(data)}")
+      print_good("Found redis with #{command} command: #{Rex::Text.to_hex_ascii(data)}")
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout,
            Rex::ConnectionRefused, ::Timeout::Error, ::EOFError, ::Errno::ETIMEDOUT => e
-      vprint_error("#{peer} -- error while communicating: #{e}")
+      vprint_error("Error while communicating: #{e}")
     ensure
       disconnect
     end

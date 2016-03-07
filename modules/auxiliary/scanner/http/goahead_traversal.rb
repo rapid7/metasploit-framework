@@ -69,9 +69,9 @@ class Metasploit3 < Msf::Auxiliary
         fname
       )
 
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      print_error("#{peer} - Nothing was downloaded")
+      print_error("Nothing was downloaded")
     end
   end
 end

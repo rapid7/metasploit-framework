@@ -24,7 +24,8 @@ class Metasploit3 < Msf::Auxiliary
         the VMware product
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -33,8 +34,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
       ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
   end
 
 

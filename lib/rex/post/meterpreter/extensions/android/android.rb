@@ -72,6 +72,12 @@ class Android < Extension
     response.get_tlv(TLV_TYPE_SHUTDOWN_OK).value
   end
 
+  def set_audio_mode(n)
+    request = Packet.create_request('set_audio_mode')
+    request.add_tlv(TLV_TYPE_AUDIO_MODE, n)
+    response = client.send_request(request)
+  end
+
   def interval_collect(opts)
     request = Packet.create_request('interval_collect')
     request.add_tlv(TLV_TYPE_COLLECT_ACTION, COLLECT_ACTIONS[opts[:action]])
@@ -240,6 +246,23 @@ class Android < Extension
     request = Packet.create_request('check_root')
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
+  end
+
+  def activity_start(uri)
+    request = Packet.create_request('activity_start')
+    request.add_tlv(TLV_TYPE_URI_STRING, uri)
+    response = client.send_request(request)
+    if response.get_tlv(TLV_TYPE_ACTIVITY_START_RESULT).value
+      return nil
+    else
+      return response.get_tlv(TLV_TYPE_ACTIVITY_START_ERROR).value
+    end
+  end
+
+  def set_wallpaper(data)
+    request = Packet.create_request('set_wallpaper')
+    request.add_tlv(TLV_TYPE_WALLPAPER_DATA, data)
+    response = client.send_request(request)
   end
 
   def send_sms(dest, body, dr)

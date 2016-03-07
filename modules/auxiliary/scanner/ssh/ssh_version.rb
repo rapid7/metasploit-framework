@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
         resp = sock.get_once(-1, timeout)
 
         if ! resp
-          vprint_warning("#{peer} no response")
+          vprint_warning("No response")
           return
         end
 
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
         info = ""
 
         if /^SSH-\d+\.\d+-(.*)$/ !~ ident
-          vprint_warning("#{peer} was not SSH -- #{resp.size} bytes beginning with #{resp[0, 12]}")
+          vprint_warning("Was not SSH -- #{resp.size} bytes beginning with #{resp[0, 12]}")
           return
         end
 
@@ -85,11 +85,11 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
 
-        print_status("#{peer} SSH server version: #{ident}#{info}")
+        print_status("SSH server version: #{ident}#{info}")
         report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: ident)
       end
     rescue Timeout::Error
-      vprint_warning("#{peer} timed out after #{timeout} seconds. Skipping.")
+      vprint_warning("Timed out after #{timeout} seconds. Skipping.")
     ensure
       disconnect
     end

@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.body.include?('Access denied')
       # This probably means the Views Module actually isn't installed
-      print_error("#{peer} - Access denied")
+      print_error("Access denied")
       return Exploit::CheckCode::Safe
     elsif res.message != 'OK' || res.body != '[  ]'
       return Exploit::CheckCode::Safe
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
           results << user_list.flatten.uniq
         end
       else
-        print_error("#{peer} - Unexpected results from server")
+        print_error("Unexpected results from server")
         return
       end
     end

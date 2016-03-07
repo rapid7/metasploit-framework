@@ -535,6 +535,13 @@ class Driver < Msf::Ui::Driver
       end
     end
 
+    if framework.modules.module_load_warnings.length > 0
+      print_warning("The following modules were loaded with warnings:")
+      framework.modules.module_load_warnings.each do |path, error|
+        print_warning("\t#{path}: #{error}")
+      end
+    end
+
     framework.events.on_ui_start(Msf::Framework::Revision)
 
     if $msf_spinner_thread
