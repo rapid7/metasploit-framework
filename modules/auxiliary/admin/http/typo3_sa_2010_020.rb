@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'thread'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report

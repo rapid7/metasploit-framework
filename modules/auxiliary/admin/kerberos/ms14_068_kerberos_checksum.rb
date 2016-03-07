@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Kerberos::Client
