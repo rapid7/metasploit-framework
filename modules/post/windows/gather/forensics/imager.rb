@@ -14,7 +14,7 @@
 require 'digest/md5'
 require 'digest/sha1'
 
-class Metasploit3 < Msf::Post
+class Metasploit < Msf::Post
 
   def initialize(info={})
     super( update_info( info,

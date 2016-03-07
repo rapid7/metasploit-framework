@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/socket'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
 

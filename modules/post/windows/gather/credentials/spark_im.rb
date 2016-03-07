@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'openssl'
 
-class Metasploit3 < Msf::Post
+class Metasploit < Msf::Post
 
   include Msf::Post::Windows::UserProfiles
 

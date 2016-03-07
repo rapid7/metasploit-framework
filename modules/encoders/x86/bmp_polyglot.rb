@@ -177,7 +177,7 @@ class SizeCalculator
 
 end
 
-class Metasploit4 < Msf::Encoder
+class Metasploit < Msf::Encoder
 
   Rank = ManualRanking
 

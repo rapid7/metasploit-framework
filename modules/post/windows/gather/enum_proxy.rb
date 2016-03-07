@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class Metasploit < Msf::Post
 
   include Post::Windows::Services
 

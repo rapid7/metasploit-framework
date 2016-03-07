@@ -7,7 +7,7 @@ require 'msf/core'
 require 'net/ssh'
 require 'sshkey' # TODO: Actually include this!
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute

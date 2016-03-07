@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Encoder
+class Metasploit < Msf::Encoder
 
   def initialize
     super(

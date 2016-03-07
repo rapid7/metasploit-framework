@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/element'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 

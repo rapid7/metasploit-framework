@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class Metasploit < Msf::Post
 
   include Msf::Post::Windows::Priv
 
