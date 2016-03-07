@@ -254,7 +254,7 @@ module Msf
           elsif mod.kind_of?(Msf::Payload)
             load_template(mod, PAYLOAD_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Auxiliary::Scanner)
-            load_template(mod, AUXILIARY_SCANNER_TEMPLATE)
+            load_template(mod, AUXILIARY_SCANNER_DEMO_TEMPLATE)
           elsif is_remote_exploit?(mod)
             load_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
           else
