@@ -576,7 +576,7 @@ class Console::CommandDispatcher::Android
 
     if database.blank? || query.blank?
       print_error("You must enter both a database files and a query")
-      print_error("e.g. sqlite_query -d /sdcard/Download/webviewCookiesChromium.db -q 'SELECT * from cookies'")
+      print_error("e.g. sqlite_query -d /data/data/com.android.browser/databases/webviewCookiesChromium.db -q 'SELECT * from cookies'")
       print_line(sqlite_query_opts.usage)
       return
     end
