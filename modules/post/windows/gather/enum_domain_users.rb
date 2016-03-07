@@ -4,7 +4,7 @@ require 'msf/core/post/common'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/netapi'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   include Msf::Post::Common
   include Msf::Post::Windows::Registry

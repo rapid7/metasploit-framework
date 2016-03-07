@@ -7,7 +7,7 @@ require 'rex/proto/http'
 require 'msf/core'
 
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient

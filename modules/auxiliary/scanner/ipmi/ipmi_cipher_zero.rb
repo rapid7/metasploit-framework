@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'rex/proto/ipmi'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner

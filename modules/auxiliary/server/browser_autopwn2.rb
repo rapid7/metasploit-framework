@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::BrowserAutopwn2
 

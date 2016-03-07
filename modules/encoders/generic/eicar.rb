@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Encoder
+class Metasploit3 < Msf::Encoder
 
   # Set to ManualRanking because actually using ths encoder will
   # certainly destroy any possibility of a successful shell.

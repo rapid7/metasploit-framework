@@ -9,7 +9,7 @@ require 'net/dns'
 require 'resolv'
 
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Capture
 

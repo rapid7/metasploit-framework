@@ -18,7 +18,7 @@ require 'msf/core'
 # for creating files
 require 'rex/zip'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::FILEFORMAT
 

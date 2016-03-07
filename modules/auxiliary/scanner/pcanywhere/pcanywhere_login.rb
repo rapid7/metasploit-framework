@@ -5,7 +5,7 @@
 
 require 'msf/core/exploit/tcp'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner

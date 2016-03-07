@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'csv'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Report
 

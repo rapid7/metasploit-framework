@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'rex/google/geolocation'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,

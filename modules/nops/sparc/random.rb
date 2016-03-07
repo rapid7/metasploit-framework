@@ -15,7 +15,7 @@ require 'msf/core'
 # This class implements NOP generator for the SPARC platform
 #
 ###
-class Metasploit < Msf::Nop
+class Metasploit3 < Msf::Nop
 
   # Nop types
   InsSethi      = 0

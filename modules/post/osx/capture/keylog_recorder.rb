@@ -5,7 +5,7 @@
 
 require 'shellwords'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
 

@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/proto/quake'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
   include Rex::Proto::Quake

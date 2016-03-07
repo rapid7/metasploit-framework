@@ -7,7 +7,7 @@ require 'thread'
 require 'msf/core'
 require 'rex/proto/proxy/socks4a'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
 

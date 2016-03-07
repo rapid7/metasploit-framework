@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit < Msf::Encoder::XorAdditiveFeedback
+class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
   # Uncomment when we get the poly stuff working again.
   #Rank = GreatRanking

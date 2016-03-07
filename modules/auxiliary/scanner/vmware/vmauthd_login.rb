@@ -7,7 +7,7 @@ require 'msf/core/exploit/tcp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/vmauthd'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner

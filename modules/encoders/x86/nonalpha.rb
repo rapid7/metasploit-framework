@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex/encoder/nonalpha'
 
 
-class Metasploit < Msf::Encoder::NonAlpha
+class Metasploit3 < Msf::Encoder::NonAlpha
 
   Rank = LowRanking
 

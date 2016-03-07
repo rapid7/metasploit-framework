@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report

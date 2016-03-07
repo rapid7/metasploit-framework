@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should go first
   include Msf::Exploit::Remote::Tcp

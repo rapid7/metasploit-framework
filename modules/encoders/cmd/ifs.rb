@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit < Msf::Encoder
+class Metasploit3 < Msf::Encoder
 
   # Below normal ranking because this will produce incorrect code a lot of
   # the time.

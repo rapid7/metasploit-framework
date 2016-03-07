@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/parser/unattend'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super( update_info( info,

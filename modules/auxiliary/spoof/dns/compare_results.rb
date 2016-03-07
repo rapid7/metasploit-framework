@@ -7,7 +7,7 @@ require 'msf/core'
 require 'net/dns'
 require 'resolv'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,

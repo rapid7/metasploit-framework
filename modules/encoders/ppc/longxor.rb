@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit < Msf::Encoder::Xor
+class Metasploit3 < Msf::Encoder::Xor
 
   def initialize
     super(

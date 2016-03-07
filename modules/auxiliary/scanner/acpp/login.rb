@@ -8,7 +8,7 @@ require 'rex/proto/acpp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/acpp'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

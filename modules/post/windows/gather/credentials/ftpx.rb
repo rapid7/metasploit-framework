@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
   include Msf::Post::Windows::UserProfiles
 
   def initialize(info={})

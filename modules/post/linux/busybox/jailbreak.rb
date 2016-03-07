@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   METHODS = [
     'cat xx || sh',

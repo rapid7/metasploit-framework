@@ -13,7 +13,7 @@ require 'cgi'
 
 
 
-  class Metasploit < Msf::Auxiliary
+  class Metasploit3 < Msf::Auxiliary
 
     include Msf::Exploit::Remote::HttpClient
     include Msf::Auxiliary::WmapScanServer

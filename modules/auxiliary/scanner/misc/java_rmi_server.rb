@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/java/serialization'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Java::Rmi::Client
   include Msf::Auxiliary::Scanner

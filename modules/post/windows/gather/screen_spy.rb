@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rbconfig'
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
   def initialize(info={})
     super( update_info(info,
       'Name'           => 'Windows Gather Screen Spy',

@@ -8,7 +8,7 @@ require 'rex'
 require 'metasm'
 
 
-class Metasploit < Msf::Post
+class Metasploit3 < Msf::Post
 
   include Msf::Post::Windows::Priv
 

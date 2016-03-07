@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Auxiliary
+class Metasploit3 < Msf::Auxiliary
 
   # Watch out, dos all the things
   include Msf::Auxiliary::Scanner
