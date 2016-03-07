@@ -43,8 +43,6 @@ https://tomcat.apache.org/whichversion.html
 
 ---
 
-Please see Overview for usage.
-
 1. Do: ```auxiliary/scanner/http/tomcat_mgr_login```
 2. Do: ```set RHOSTS [IP]```
 3. Set TARGETURI if necessary.
