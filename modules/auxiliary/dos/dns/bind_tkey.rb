@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class Metasploit < Msf::Auxiliary
 
   include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner

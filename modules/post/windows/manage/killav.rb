@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'set'
 
-class Metasploit4 < Msf::Post
+class Metasploit < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
