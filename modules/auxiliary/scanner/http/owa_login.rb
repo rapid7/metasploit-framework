@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/proto/ntlm/message'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute

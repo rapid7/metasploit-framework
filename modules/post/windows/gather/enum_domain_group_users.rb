@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class Metasploit < Msf::Post
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Windows Gather Enumerate Domain Group',

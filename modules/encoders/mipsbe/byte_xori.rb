@@ -8,7 +8,7 @@ require 'msf/core'
 require 'metasm'
 
 
-class Metasploit3 < Msf::Encoder::Xor
+class Metasploit < Msf::Encoder::Xor
 
   Rank = NormalRanking
 

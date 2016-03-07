@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/proto/dhcp'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DHCPServer
 

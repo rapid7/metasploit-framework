@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'enumerable'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir

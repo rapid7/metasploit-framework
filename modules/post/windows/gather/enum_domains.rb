@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/netapi'
 
-class Metasploit3 < Msf::Post
+class Metasploit < Msf::Post
 
   include Msf::Post::Windows::NetAPI
 
