@@ -124,6 +124,11 @@ begin
     # Tie the context to a socket
     self.sslsock = OpenSSL::SSL::SSLSocket.new(self, self.sslctx)
 
+    # If peerhost looks like a hostname, set the undocumented 'hostname'
+    # attribute on sslsock, which enables the Server Name Indication (SNI)
+    # extension
+    self.sslsock.hostname = self.peerhost if !Rex::Socket.dotted_ip?(self.peerhost)
+
     # Force a negotiation timeout
     begin
     Timeout.timeout(params.timeout) do
