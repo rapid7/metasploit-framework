@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
     super(
       update_info(
@@ -19,4 +19,3 @@ class Metasploit < Msf::Auxiliary
     )
   end
 end
-

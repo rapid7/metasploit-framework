@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/service_manager'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::FtpServer
   include Msf::Auxiliary::Report

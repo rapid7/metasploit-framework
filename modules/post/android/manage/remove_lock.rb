@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
   Rank = NormalRanking
 
   include Msf::Post::Common

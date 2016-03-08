@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/powershell'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Powershell
 
   def initialize(info={})

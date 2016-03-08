@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex/proto/tftp'
 require 'tmpdir'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TFTPServer
   include Msf::Auxiliary::Report

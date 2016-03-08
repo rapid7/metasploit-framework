@@ -6,7 +6,7 @@
 require 'msf/core'
 
 # XXX: invalid super class for an auxiliary module
-class Metasploit < Msf::Exploit
+class MetasploitModule < Msf::Exploit
   # XXX: auxiliary modules don't use Rank
   Rank = LowRanking
   def initialize(info = {})
@@ -22,4 +22,3 @@ class Metasploit < Msf::Exploit
     )
   end
 end
-

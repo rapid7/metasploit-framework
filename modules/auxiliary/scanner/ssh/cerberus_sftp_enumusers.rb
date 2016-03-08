@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'net/ssh'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
