@@ -19,8 +19,12 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'OWA Exchange Web Services (EWS) Login Scanner',
       'Description'    => %q{
         This module attempts to log in to the Exchange Web Services, often
-        exposed at https://owahost/ews/, using NTLM authentication. This method
-        is faster and simpler than traditional form-based logins.
+        exposed at https://example.com/ews/, using NTLM authentication. This
+        method is faster and simpler than traditional form-based logins.
+
+        In most cases, all you need to set is RHOSTS and some combination of
+        user/pass files; the autodiscovery should find the location of the NTLM
+        authentication point as well as the AD domain, and use them accordingly.
       },
       'Author'         => 'Rich Whitcroft',
       'License'        => MSF_LICENSE,
@@ -85,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
         res = cli.send_recv(req)
       rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
         print_error("Connection failed")
-        return
+        next
       end
 
       if res.code != 401
