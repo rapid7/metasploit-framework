@@ -28,13 +28,13 @@ If you wish to run the post against all sessions from framework, here is how:
 1 - Create the following resource script:
 
 ```
-&#x3c;ruby&#x3e;
+<ruby>
 framework.sessions.each_pair do |sid, session|
   run_single("use <%= mod.fullname %>")
   run_single("set SESSION #{sid}")
   run_single("run")
 end
-&#x3c;/ruby&#x3e;
+</ruby>
 ```
 
 2 - At the msf prompt, execute the above resource script:

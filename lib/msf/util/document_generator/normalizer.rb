@@ -37,22 +37,22 @@ module Msf
         # Markdown templates
         #
 
-        CSS_BASE_PATH                   = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'markdown.css'))
-        HTML_TEMPLATE                   = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'html_template.erb'))
-        TEMPLATE_PATH                   = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'default_template.erb'))
+        CSS_BASE_PATH                   = 'markdown.css'
+        HTML_TEMPLATE                   = 'html_template.erb'
+        TEMPLATE_PATH                   = 'default_template.erb'
 
         #
         # Demo templates
         #
 
-        REMOTE_EXPLOIT_DEMO_TEMPLATE    = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'remote_exploit_demo_template.erb'))
-        BES_DEMO_TEMPLATE               = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'bes_demo_template.erb'))
-        HTTPSERVER_DEMO_TEMPLATE        = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'httpserver_demo_template.erb'))
-        GENERIC_DEMO_TEMPLATE           = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'generic_demo_template.erb'))
-        LOCALEXPLOIT_DEMO_TEMPLATE      = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'localexploit_demo_template.erb'))
-        POST_DEMO_TEMPLATE              = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'post_demo_template.erb'))
-        AUXILIARY_SCANNER_DEMO_TEMPLATE = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'auxiliary_scanner_template.erb'))
-        PAYLOAD_DEMO_TEMPLATE           = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', 'payload_demo_template.erb'))
+        REMOTE_EXPLOIT_DEMO_TEMPLATE    = 'remote_exploit_demo_template.erb'
+        BES_DEMO_TEMPLATE               = 'bes_demo_template.erb'
+        HTTPSERVER_DEMO_TEMPLATE        = 'httpserver_demo_template.erb'
+        GENERIC_DEMO_TEMPLATE           = 'generic_demo_template.erb'
+        LOCALEXPLOIT_DEMO_TEMPLATE      = 'localexploit_demo_template.erb'
+        POST_DEMO_TEMPLATE              = 'post_demo_template.erb'
+        AUXILIARY_SCANNER_DEMO_TEMPLATE = 'auxiliary_scanner_template.erb'
+        PAYLOAD_DEMO_TEMPLATE           = 'payload_demo_template.erb'
 
 
         # Returns the module document in HTML form.
@@ -63,10 +63,11 @@ module Msf
         def get_md_content(items, kb)
           @md_template ||= lambda {
             template = ''
-            File.open(TEMPLATE_PATH, 'rb') { |f| template = f.read }
+            path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', TEMPLATE_PATH))
+            File.open(path, 'rb') { |f| template = f.read }
             return template
           }.call
-          md_to_html(ERB.new(@md_template).result(binding()), kb)
+          md_to_html(ERB.new(@md_template).result(binding()), h(kb))
         end
 
 
@@ -79,7 +80,8 @@ module Msf
         def load_css
           @css ||= lambda {
             data = ''
-            File.open(CSS_BASE_PATH, 'rb') { |f| data = f.read }
+            path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', CSS_BASE_PATH))
+            File.open(path, 'rb') { |f| data = f.read }
             return data
           }.call
         end
@@ -94,7 +96,8 @@ module Msf
           r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true, no_intra_emphasis: true, escape_html: true)
           ERB.new(@html_template ||= lambda {
             html_template = ''
-            File.open(HTML_TEMPLATE, 'rb') { |f| html_template = f.read }
+            path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', HTML_TEMPLATE))
+            File.open(path, 'rb') { |f| html_template = f.read }
             return html_template
           }.call).result(binding())
         end
@@ -207,13 +210,14 @@ module Msf
         end
 
 
-        # Returns a parsed ERB template.
+        # Returns a parsed demo ERB template.
         #
         # @param mod [Msf::Module] Metasploit module.
         # @param path [String] Template path.
         # @return [String]
-        def load_template(mod, path)
+        def load_demo_template(mod, path)
           data = ''
+          path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', path))
           File.open(path, 'rb') { |f| data = f.read }
           ERB.new(data).result(binding())
         end
@@ -244,21 +248,21 @@ module Msf
         # @return [String]
         def normalize_demo_output(mod)
           if mod.kind_of?(Msf::Exploit::Remote::BrowserExploitServer) && mod.shortname != 'browser_autopwn2'
-            load_template(mod, BES_DEMO_TEMPLATE)
+            load_demo_template(mod, BES_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Exploit::Remote::HttpServer)
-            load_template(mod, HTTPSERVER_DEMO_TEMPLATE)
+            load_demo_template(mod, HTTPSERVER_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Exploit::Local)
-            load_template(mod, LOCALEXPLOIT_DEMO_TEMPLATE)
+            load_demo_template(mod, LOCALEXPLOIT_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Post)
-            load_template(mod, POST_DEMO_TEMPLATE)
+            load_demo_template(mod, POST_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Payload)
-            load_template(mod, PAYLOAD_DEMO_TEMPLATE)
+            load_demo_template(mod, PAYLOAD_DEMO_TEMPLATE)
           elsif mod.kind_of?(Msf::Auxiliary::Scanner)
-            load_template(mod, AUXILIARY_SCANNER_DEMO_TEMPLATE)
+            load_demo_template(mod, AUXILIARY_SCANNER_DEMO_TEMPLATE)
           elsif is_remote_exploit?(mod)
-            load_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
+            load_demo_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
           else
-            load_template(mod, GENERIC_DEMO_TEMPLATE)
+            load_demo_template(mod, GENERIC_DEMO_TEMPLATE)
           end
         end
 

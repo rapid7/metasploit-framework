@@ -195,11 +195,11 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
     end
   end
 
-  describe 'load_template' do
+  describe 'load_demo_template' do
     context 'when a BrowserExploitServer demo template path is given' do
       it 'returns the demo' do
         template = Msf::Util::DocumentGenerator::DocumentNormalizer::BES_DEMO_TEMPLATE
-        expect(subject.send(:load_template, msf_mod, template)).to include('This module is also supported by Browser Autopwn 2')
+        expect(subject.send(:load_demo_template, msf_mod, template)).to include('This module is also supported by Browser Autopwn 2')
       end
     end
   end
@@ -208,42 +208,42 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
     context 'when the module is a kind of Msf::Exploit::Remote::HttpServer' do
       it 'returns the demo of HTTPSERVER_DEMO_TEMPLATE' do
         template = Msf::Util::DocumentGenerator::DocumentNormalizer::HTTPSERVER_DEMO_TEMPLATE
-        expect(subject.send(:load_template, msf_mod, template)).to include("use #{mod_fullname}")
+        expect(subject.send(:load_demo_template, msf_mod, template)).to include("use #{mod_fullname}")
       end
     end
 
     context 'when the module is a kind of Msf::Exploit::Local' do
       it 'returns the content of LOCALEXPLOIT_DEMO_TEMPLATE' do
         template = Msf::Util::DocumentGenerator::DocumentNormalizer::LOCALEXPLOIT_DEMO_TEMPLATE
-        expect(subject.send(:load_template, msf_mod, template)).to include('To run a local exploit, make sure you are at the msf prompt.')
+        expect(subject.send(:load_demo_template, msf_mod, template)).to include('To run a local exploit, make sure you are at the msf prompt.')
       end
     end
 
     context 'when the module is a kind of Msf::Post' do
       it 'returns the demo of POST_DEMO_TEMPLATE' do
         template = Msf::Util::DocumentGenerator::DocumentNormalizer::POST_DEMO_TEMPLATE
-        expect(subject.send(:load_template, msf_mod, template)).to include('There are two ways to execute this post module')
+        expect(subject.send(:load_demo_template, msf_mod, template)).to include('There are two ways to execute this post module')
       end
     end
 
     context 'when the module is a kind of Msf::Payload' do
       it 'returns the demo of PAYLOAD_TEMPLATE' do
-        template = Msf::Util::DocumentGenerator::DocumentNormalizer::PAYLOAD_TEMPLATE
-        expect(subject.send(:load_template, msf_mod, template)).to include('> generate')
+        template = Msf::Util::DocumentGenerator::DocumentNormalizer::PAYLOAD_DEMO_TEMPLATE
+        expect(subject.send(:load_demo_template, msf_mod, template)).to include('> generate')
       end
     end
 
     context 'when the module is a kind of Msf::Auxiliary::Scanner' do
       it 'returns the demo of AUXILIARY_SCANNER_TEMPLATE' do
-        template = Msf::Util::DocumentGenerator::DocumentNormalizer::AUXILIARY_SCANNER_TEMPLATE
-        expect(subject.send(:load_template, msf_mod, template)).to include('This module is a scanner module')
+        template = Msf::Util::DocumentGenerator::DocumentNormalizer::AUXILIARY_SCANNER_DEMO_TEMPLATE
+        expect(subject.send(:load_demo_template, msf_mod, template)).to include('This module is a scanner module')
       end
     end
 
     context 'when the module does not have a known kind' do
       it 'returns the demo of GENERIC_DEMO_TEMPLATE' do
         template = Msf::Util::DocumentGenerator::DocumentNormalizer::GENERIC_DEMO_TEMPLATE
-        expect(subject.send(:load_template, msf_mod, template)).to include('msf exploit')
+        expect(subject.send(:load_demo_template, msf_mod, template)).to include('msf exploit')
       end
     end
   end
