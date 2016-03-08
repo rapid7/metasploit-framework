@@ -3,8 +3,6 @@ feel different for you. Here are the features you should know about before using
 
 ## Vulnerable Applications
 
----
-
 Browser Autopwn 2 is capable of targeting popular browsers and 3rd party plugins, such as:
 
 * Internet Explorer
@@ -15,8 +13,6 @@ Browser Autopwn 2 is capable of targeting popular browsers and 3rd party plugins
 * Silverlight
 
 ## Exploit URLs
-
----
 
 Normally, the only URL you need to care about is the **BrowserAutoPwn URL**. This is the URL
 you should send to the targets you wish to attack.
@@ -32,8 +28,6 @@ And then when you run the module, there will be a list showing all the exploits 
 used, including the URLs.
 
 ## Browser Autopwn 2 Options
-
----
 
 **The HTMLContent Option**
 
@@ -143,8 +137,6 @@ set ExploitReloadTimeout 5000
 
 ## Scenarios
 
----
-
 By default, Browser Autopwn 2 goes through the entire exploit module tree, and will try to use
 different types of exploits - Firefox, Internet Explorer, Adobe Flash, Android, etc. If you want to
 test a specific application, basically all you need to do is setting the
@@ -165,8 +157,6 @@ $ ./msfconsole -q -r scripts/resource/bap_flash_only.rc
 ```
 
 ## Logging
-
----
 
 In addition, when a browser connects to BAP, this link-clicking event is also logged to the
 database as a "bap.clicks" note type. If the ShowExploitList option is set to true, that will also

@@ -33,15 +33,11 @@ loaded.
 
 ## Vulnerable Application
 
----
-
 To download the vulnerable application, you can find it here:
 
 https://tomcat.apache.org/whichversion.html
 
 ## Verification Steps
-
----
 
 1. Do: ```auxiliary/scanner/http/tomcat_mgr_login```
 2. Do: ```set RHOSTS [IP]```

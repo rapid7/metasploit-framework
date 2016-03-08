@@ -24,6 +24,10 @@ module Redcarpet
         end
       end
 
+      def header(text, header_level)
+        %Q|<h#{header_level}>#{text}</h#{header_level}><hr>|
+      end
+
     end
   end
 end

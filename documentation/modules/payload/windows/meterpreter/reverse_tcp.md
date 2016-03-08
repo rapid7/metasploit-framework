@@ -9,16 +9,12 @@ windows/meterpreter/reverse_tcp is also the default payload for all Windows expl
 
 ## Vulnerable Application
 
----
-
 This Meterpreter payload is suitable for the following environments:
 
 * Windows x64
 * Windows x86
 
 ## Verification Steps
-
----
 
 windows/meterpreter/reverse_tcp is typically used in two different ways.
 
@@ -42,8 +38,6 @@ as an executable:
 ```
 
 ## Important Basic Commands
-
----
 
 **pwd command**
 
@@ -280,8 +274,6 @@ SUPPORT_388945a0:1002:aad3b435b51404eeaad3b435b51404ee:e09fcdea29d93203c925b2056
 
 
 ## Scenarios
-
----
 
 **Setting up for Testing**
 
@@ -682,8 +674,6 @@ or you can do so manually.
 To learn more about this, please read this [documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control).
 
 ## Using the Post Exploitation API in IRB
-
----
 
 To enter IRB, at the Meterpreter prompt, do like the following:
 
