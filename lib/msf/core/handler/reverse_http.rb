@@ -63,24 +63,11 @@ module ReverseHttp
       ], Msf::Handler::ReverseHttp)
   end
 
-  # Determine where to bind the server
-  #
-  # @return [String]
-  def listener_address
-    if datastore['ReverseListenerBindAddress'].to_s == ''
-      bindaddr = Rex::Socket.is_ipv6?(datastore['LHOST']) ? '::' : '0.0.0.0'
-    else
-      bindaddr = datastore['ReverseListenerBindAddress']
-    end
-
-    bindaddr
-  end
-
   # Return a URI suitable for placing in a payload
   #
   # @return [String] A URI of the form +scheme://host:port/+
-  def listener_uri
-    uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
+  def listener_uri(addr)
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
     "#{scheme}://#{uri_host}:#{bind_port}/"
   end
 
@@ -129,20 +116,33 @@ module ReverseHttp
   #
   def setup_handler
 
+    local_addr = nil
     local_port = bind_port
+    ex = false
 
     # Start the HTTPS server service on this host/port
-    self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
-      local_port,
-      listener_address,
-      ssl?,
-      {
-        'Msf'        => framework,
-        'MsfExploit' => self,
-      },
-      nil,
-      (ssl?) ? datastore['HandlerSSLCert'] : nil
-    )
+    bind_addresses.each do |ip|
+      begin
+        self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
+          local_port, ip, ssl?,
+          {
+            'Msf'        => framework,
+            'MsfExploit' => self,
+          },
+          nil,
+          (ssl?) ? datastore['HandlerSSLCert'] : nil
+        )
+        local_addr = ip
+      rescue
+        ex = $!
+        print_error("Handler failed to bind to #{ip}:#{local_port}")
+      else
+        ex = false
+        break
+      end
+    end
+
+    raise ex if (ex)
 
     self.service.server_name = datastore['MeterpreterServerName']
 
@@ -156,7 +156,7 @@ module ReverseHttp
       },
       'VirtualDirectory' => true)
 
-    print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
+    print_status("Started #{scheme.upcase} reverse handler on #{listener_uri(local_addr)}")
     lookup_proxy_settings
 
     if datastore['IgnoreUnknownPayloads']

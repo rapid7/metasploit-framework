@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'win', 'osx', 'linux' ],
+      'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
 
@@ -94,6 +94,19 @@ class Metasploit3 < Msf::Post
     true
   end
 
+  #
+  # The Android version is launched via an Intent
+  #
+  def android_start_video(id)
+    intenturl = "intent://youtube.com/watch?v=#{id}&autoplay=1#Intent;scheme=http;action=android.intent.action.VIEW;end"
+    begin
+      session.android.activity_start(intenturl)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      return false
+    end
+    true
+  end
+
   def start_video(id)
     case session.platform
     when /osx/
@@ -102,6 +115,8 @@ class Metasploit3 < Msf::Post
       win_start_video(id)
     when /linux/
       linux_start_video(id)
+    when /android/
+      android_start_video(id)
     end
   end
 

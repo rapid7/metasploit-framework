@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
          It will do everything it can to migrate, including spawing a new User level process.
          For sessions with Admin rights: It will try to migrate into a System level process in the following
          order: ANAME (if specified), services.exe, winlogon.exe, wininit.exe, lsm.exe, and lsass.exe.
-         If al these fail, it will fall back to User level migration. For sessions with User level rights:
+         If all these fail, it will fall back to User level migration. For sessions with User level rights:
          It will try to migrate to a user level process, if that fails it will attempt to spawn the process
          then migrate to it. It will attempt the User level processes in the following order:
          NAME (if specified), explorer.exe, then notepad.exe.},
@@ -53,6 +53,7 @@ class Metasploit3 < Msf::Post
   end
 
   # This function returns the first process id of a process with the name provided.
+  # It will make sure that the process has a visible user meaning that the session has rights to that process.
   # Note: "target_pid = session.sys.process[proc_name]" will not work when "include Msf::Post::Windows::Priv" is in the module.
   #
   # @return [Fixnum] the PID if one is found
@@ -60,7 +61,9 @@ class Metasploit3 < Msf::Post
   def get_pid(proc_name)
     processes = client.sys.process.get_processes
     processes.each do |proc|
-      return proc['pid'] if proc['name'] == proc_name
+      if proc['name'] == proc_name && proc['user'] != ""
+        return proc['pid']
+      end
     end
     return nil
   end

