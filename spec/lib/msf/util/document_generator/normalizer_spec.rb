@@ -212,6 +212,13 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
       end
     end
 
+    context 'when the module is a remote exploit' do
+      it 'returns the demo of REMOTE_EXPLOIT_DEMO_TEMPLATE' do
+        template = Msf::Util::DocumentGenerator::DocumentNormalizer::REMOTE_EXPLOIT_DEMO_TEMPLATE
+        expect(subject.send(:load_demo_template, msf_mod, template)).to include('it looks like this is a remote exploit module')
+      end
+    end
+
     context 'when the module is a kind of Msf::Exploit::Local' do
       it 'returns the content of LOCALEXPLOIT_DEMO_TEMPLATE' do
         template = Msf::Util::DocumentGenerator::DocumentNormalizer::LOCALEXPLOIT_DEMO_TEMPLATE
@@ -227,14 +234,14 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
     end
 
     context 'when the module is a kind of Msf::Payload' do
-      it 'returns the demo of PAYLOAD_TEMPLATE' do
+      it 'returns the demo of PAYLOAD_DEMO_TEMPLATE' do
         template = Msf::Util::DocumentGenerator::DocumentNormalizer::PAYLOAD_DEMO_TEMPLATE
         expect(subject.send(:load_demo_template, msf_mod, template)).to include('> generate')
       end
     end
 
     context 'when the module is a kind of Msf::Auxiliary::Scanner' do
-      it 'returns the demo of AUXILIARY_SCANNER_TEMPLATE' do
+      it 'returns the demo of AUXILIARY_SCANNER_DEMO_TEMPLATE' do
         template = Msf::Util::DocumentGenerator::DocumentNormalizer::AUXILIARY_SCANNER_DEMO_TEMPLATE
         expect(subject.send(:load_demo_template, msf_mod, template)).to include('This module is a scanner module')
       end
