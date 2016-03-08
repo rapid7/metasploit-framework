@@ -67,7 +67,7 @@ module Msf
             File.open(path, 'rb') { |f| template = f.read }
             return template
           }.call
-          md_to_html(ERB.new(@md_template).result(binding()), h(kb))
+          md_to_html(ERB.new(@md_template).result(binding()), kb.gsub(/</, '&#x3c;'))
         end
 
 
