@@ -4,13 +4,9 @@ But feel free to add more content/sections to this.
 
 ## Vulnerable Application
 
----
-
   Instructions to get the vulnerable application.
 
 ## Verification Steps
-
----
 
   Example steps in this format:
 
@@ -22,15 +18,11 @@ But feel free to add more content/sections to this.
 
 ## Options
 
----
-
   **Option name**
 
   Talk about what it does, and how to use it appropriately.
 
 ## Scenarios
-
----
 
   Specific demo of using the module that might be useful in a real world scenario.
 
