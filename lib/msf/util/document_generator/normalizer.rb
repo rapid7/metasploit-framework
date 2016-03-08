@@ -28,9 +28,14 @@ module Redcarpet
         %Q|<h#{header_level}>#{text}</h#{header_level}><hr>|
       end
 
+      def table(header, body)
+        %Q|<table class="kb_table" cellpadding="5" cellspacing="2" border="1">#{header}#{body}</table><br>|
+      end
+
     end
   end
 end
+
 
 module Msf
   module Util
@@ -97,7 +102,14 @@ module Msf
         # @param kb [String] Additional information to add.
         # @return [String] HTML document.
         def md_to_html(md, kb)
-          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, fenced_code_blocks: true, no_intra_emphasis: true, escape_html: true)
+          opts = {
+            fenced_code_blocks: true,
+            no_intra_emphasis: true,
+            escape_html: true,
+            tables: true
+          }
+
+          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, opts)
           ERB.new(@html_template ||= lambda {
             html_template = ''
             path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', HTML_TEMPLATE))

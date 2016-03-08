@@ -13,13 +13,11 @@ Older versions of Tomcat came with default passwords enabled by default. For exa
 
 **Tomcat 4**
 
-```
 | Username | Password | Role          |
 | -------- | -------- | ------------- |
 | tomcat   | tomcat   | tomcat        |
 | role1    | tomcat   | role1         |
 | both     | tomcat   | tomcat, role1 |
-```
 
 **Tomcat 5**
 
