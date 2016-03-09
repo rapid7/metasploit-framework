@@ -1033,7 +1033,7 @@ class Db
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
-      query = query.includes(:private, :public, :logins)
+      query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
       query = query.includes(logins: [ :service, { service: :host } ])
 
       if type.present?
