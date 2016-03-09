@@ -18,6 +18,7 @@ group :development do
   gem 'yard'
   # for development and testing purposes
   gem 'pry'
+  # rails-upgrade staging gems
 end
 
 group :development, :test do
