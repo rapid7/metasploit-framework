@@ -74,10 +74,10 @@ The TLDR here is all you should need to stage up Kali (or any other Debian-based
 ----
 ```bash
 curl -sSL https://rvm.io/mpapis.asc | gpg --import - &&
-curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.7 &&
+curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.8 &&
 source $HOME/.rvm/scripts/rvm &&
 gem install bundler &&
-ruby -v && # See that it's 2.1.7
+ruby -v && # See that it's 2.1.8
 gconftool-2 --set --type boolean /apps/gnome-terminal/profiles/Default/login_shell true
 ```
 ----
