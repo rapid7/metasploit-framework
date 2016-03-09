@@ -61,11 +61,11 @@ Gem::Specification.new do |spec|
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern'
+  #spec.add_runtime_dependency 'metasploit-concern'
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential', '1.1.0'
+  #spec.add_runtime_dependency 'metasploit-credential', '1.1.0'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models', '1.3.0'
+  #spec.add_runtime_dependency 'metasploit_data_models', '1.3.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.1.0'
