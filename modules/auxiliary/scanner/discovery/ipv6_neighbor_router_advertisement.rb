@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         the host portion of the IPv6 address.  Use NDP host solicitation to
         determine if the IP address is valid'
     },
-    'Author'      => 'wuntee, d0lph1n98',
+    'Author'      => ['wuntee, d0lph1n98'],
     'License'     => MSF_LICENSE,
     'References'    =>
     [
