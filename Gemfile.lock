@@ -9,6 +9,20 @@ GIT
       railties (>= 4.1, < 4.2)
 
 GIT
+  remote: git://github.com/rapid7/metasploit-credential.git
+  revision: 8ab9f2dc9f207341bbfe63cdf94a8723750435be
+  branch: staging/rails-upgrade
+  specs:
+    metasploit-credential (1.1.0)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models
+      pg
+      railties
+      rubyntlm
+      rubyzip (~> 1.1)
+
+GIT
   remote: git://github.com/rapid7/metasploit-erd.git
   revision: 0e89e5028340f6fa7b8332f8517b4cd0065861ab
   branch: staging/rails-upgrade
@@ -248,6 +262,7 @@ GEM
       rspec-support (~> 3.3.0)
     rspec-support (3.3.0)
     ruby-graphviz (1.2.2)
+    rubyntlm (0.6.0)
     rubyzip (1.2.0)
     shoulda-matchers (2.8.0)
       activesupport (>= 3.0.0)
@@ -283,6 +298,7 @@ DEPENDENCIES
   factory_girl_rails (~> 4.5.0)
   fivemat (~> 1.3.1)
   metasploit-concern!
+  metasploit-credential!
   metasploit-erd!
   metasploit-framework!
   metasploit-model!
