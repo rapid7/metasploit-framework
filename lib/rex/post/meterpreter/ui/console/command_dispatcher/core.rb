@@ -866,7 +866,7 @@ class Console::CommandDispatcher::Core
         end
         pid = val.to_i
       when '-N'
-        if val.blank?
+        if val.to_s.empty?
           print_error("No process name provided")
           return
         end

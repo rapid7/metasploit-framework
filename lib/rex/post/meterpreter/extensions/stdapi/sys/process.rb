@@ -285,11 +285,12 @@ class Process < Rex::Post::Process
         'thread' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread.new(self),
       })
 
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.handle) )
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(client, handle))
   end
 
-  def self.finalize(client,handle)
-    proc { self.close(client,handle) }
+  def self.finalize(client, handle)
+    proc { self.close(client, handle) }
   end
 
   #
@@ -320,8 +321,12 @@ class Process < Rex::Post::Process
   #
   # Instance method
   #
-  def close(handle=self.handle)
-    self.class.close(self.client, handle)
+  def close(handle = self.handle)
+    unless self.pid.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class.close(self.client, handle)
+      self.pid = nil
+    end
   end
 
   #

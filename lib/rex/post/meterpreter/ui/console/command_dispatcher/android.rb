@@ -31,7 +31,8 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
       'interval_collect'  => 'Manage interval collection capabilities',
       'activity_start'    => 'Start an Android activity from a Uri string',
-      'sqlite_query'      => 'Query a SQLite database from storage'
+      'sqlite_query'      => 'Query a SQLite database from storage',
+      'set_audio_mode'    => 'Set Ringer Mode'
     }
 
     reqs = {
@@ -46,6 +47,7 @@ class Console::CommandDispatcher::Android
       'interval_collect' => ['interval_collect'],
       'activity_start'   => ['activity_start'],
       'sqlite_query'     => ['sqlite_query'],
+      'set_audio_mode'   => ['set_audio_mode']
     }
 
     # Ensure any requirements of the command are met
@@ -153,6 +155,36 @@ class Console::CommandDispatcher::Android
     else
       print_error('Device shutdown failed')
     end
+  end
+
+  def cmd_set_audio_mode(*args)
+    help = false
+    mode = 1
+    set_audio_mode_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, "Help Banner" ],
+      '-m' => [ true, "Set Mode - (0 - Off, 1 - Normal, 2 - Max) (Default: '#{mode}')"]
+    )
+
+    set_audio_mode_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        help = true
+      when '-m'
+        mode = val.to_i
+      else
+        help = true
+      end
+    end
+
+    if help || mode < 0 || mode > 2
+      print_line('Usage: set_audio_mode [options]')
+      print_line('Set Ringer mode.')
+      print_line(set_audio_mode_opts.usage)
+      return
+    end
+
+    client.android.set_audio_mode(mode)
+    print_status("Ringer mode was changed to #{mode}!")
   end
 
   def cmd_dump_sms(*args)
@@ -461,7 +493,7 @@ class Console::CommandDispatcher::Android
       end
     end
 
-    if dest.blank? || body.blank?
+    if dest.to_s.empty? || body.to_s.empty?
       print_error("You must enter both a destination address -d and the SMS text body -t")
       print_error('e.g. send_sms -d +351961234567 -t "GREETINGS PROFESSOR FALKEN."')
       print_line(send_sms_opts.usage)
@@ -513,7 +545,7 @@ class Console::CommandDispatcher::Android
       wlan_list << [mac, ssid, ss.to_s]
     end
 
-    if wlan_list.blank?
+    if wlan_list.to_s.empty?
       print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
       return
     end
@@ -538,7 +570,7 @@ class Console::CommandDispatcher::Android
       print_line("Start an Android activity from a uri")
       return
     end
-    
+
     uri = args[0]
     result = client.android.activity_start(uri)
     if result.nil?
