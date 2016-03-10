@@ -184,7 +184,7 @@ def self.open_webrtc_browser(url='http://google.com/')
     end
   else
     if defined? ENV['PATH']
-      ['firefox', 'google-chrome', 'chrome', 'chromium', 'firefox', 'opera'].each do |browser|
+      ['google-chrome', 'chrome', 'chromium', 'firefox' , 'firefox', 'opera'].each do |browser|
         ENV['PATH'].split(':').each do |path|
           browser_path = "#{path}/#{browser}"
           if File.exists?(browser_path)
