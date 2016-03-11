@@ -93,7 +93,7 @@ curl -sSL https://rvm.io/mpapis.asc | gpg --import -
 Next, get RVM itself:
 
 ```
-curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.7
+curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.8
 ```
 
 This does pipe straight to bash, which can be a [sensitive issue][dont-pipe]. For the longer, safer way:
@@ -101,14 +101,14 @@ This does pipe straight to bash, which can be a [sensitive issue][dont-pipe]. Fo
 ```
 curl -o rvm.sh -L https://get.rvm.io
 cat rvm.sh # Read it and see it's all good
-cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.7
+cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.8
 ```
 
 Once that's done, fix your current terminal to use RVM's version of ruby:
 
 ```
 source $HOME/.rvm/scripts/rvm
-ruby -v # See that it's 2.1.7
+ruby -v # See that it's 2.1.8
 ```
 
 And finally, install the `bundler` gem in order to get all the other gems you'll need:
@@ -132,13 +132,13 @@ as a login shell**. It looks like this:
 
 [[/screens/kali-gnome-terminal.png]]
 
-Finally, see that you're now running Ruby 2.1.7:
+Finally, see that you're now running Ruby 2.1.8:
 
 ```
 ruby -v
 ```
 
-It should say `ruby 2.1.7p400`, unless there is a later version and this doc hasn't been updated yet.
+It should say `ruby 2.1.8p440`, unless there is a later version and this doc hasn't been updated yet.
 
 # Install an Editor
 
