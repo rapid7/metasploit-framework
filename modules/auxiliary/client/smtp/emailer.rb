@@ -8,7 +8,7 @@ require 'msf/core'
 require 'yaml'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   #
   # This module sends email messages via smtp

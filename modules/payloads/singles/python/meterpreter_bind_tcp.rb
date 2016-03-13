@@ -10,7 +10,7 @@ require 'msf/core/payload/python/meterpreter_loader'
 require 'msf/core/payload/python/bind_tcp'
 require 'msf/base/sessions/meterpreter_python'
 
-module Metasploit4
+module MetasploitModule
 
   CachedSize = 51630
 

@@ -21,7 +21,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
   let(:module_content) do
     <<-EOS
-      class Metasploit < Msf::Auxiliary
+      class MetasploitModule < Msf::Auxiliary
         # fully-qualified name is Msf::GoodRanking, so this will failing if lexical scope is not captured
         Rank = GoodRanking
         end
@@ -309,7 +309,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           module Msf
             module Modules
               module Mod617578696c696172792f72737065632f6d6f636b
-                class Metasploit < Msf::Auxiliary
+                class MetasploitModule < Msf::Auxiliary
 
                 end
               end
@@ -442,10 +442,10 @@ RSpec.describe Msf::Modules::Loader::Base do
             allow(@namespace_module).to receive(:module_eval_with_lexical_scope).with(module_content, module_path)
             allow(@namespace_module).to receive(:const_defined?).with('Metasploit3', false).and_return(false)
             allow(@namespace_module).to receive(:const_defined?).with('Metasploit4', false).and_return(false)
-            allow(@namespace_module).to receive(:const_defined?).with('Metasploit', false).and_return(true)
+            allow(@namespace_module).to receive(:const_defined?).with('MetasploitModule', false).and_return(true)
             allow(@namespace_module).to receive(:const_get).with('Metasploit3', false).and_return(false)
             allow(@namespace_module).to receive(:const_get).with('Metasploit4', false).and_return(false)
-            allow(@namespace_module).to receive(:const_get).with('Metasploit', false).and_return(true)
+            allow(@namespace_module).to receive(:const_get).with('MetasploitModule', false).and_return(true)
             allow(@namespace_module).to receive(:module_load_warnings)
 
             allow(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
@@ -816,7 +816,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             expect(namespace_module).not_to eq @existent_namespace_module
 
             expect {
-              namespace_module::Metasploit3
+              namespace_module::MetasploitModule
             }.to raise_error(NameError)
 
             true

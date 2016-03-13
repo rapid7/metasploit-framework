@@ -7,7 +7,7 @@ require 'msf/core'
 require 'json'
 require 'nokogiri'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HTTP::Wordpress

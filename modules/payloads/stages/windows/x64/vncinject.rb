@@ -13,7 +13,7 @@ require 'msf/base/sessions/vncinject_options'
 # Injects the VNC server DLL (via Reflective Dll Injection) and runs it over the established connection.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows::ReflectiveDllInject_x64
   include Msf::Sessions::VncInjectOptions

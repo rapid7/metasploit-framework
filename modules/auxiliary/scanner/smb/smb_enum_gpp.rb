@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/parser/group_policy_preferences'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

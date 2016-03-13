@@ -13,7 +13,7 @@
 # Mississippi State University National Forensics Training Center
 #    http://msu-nftc.org
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,

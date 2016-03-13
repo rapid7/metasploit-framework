@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'securerandom'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = AverageRanking
 
   include Msf::Exploit::EXE

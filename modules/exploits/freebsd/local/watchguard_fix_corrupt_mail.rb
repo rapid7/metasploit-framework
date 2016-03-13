@@ -6,7 +6,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Exploit::Local
+class MetasploitModule < Msf::Exploit::Local
   # It needs 3 minutes wait time
   # WfsDelay set to 180, so it should be a Manual exploit,
   # to avoid it being included in automations

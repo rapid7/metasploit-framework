@@ -16,7 +16,7 @@ require 'msf/base/sessions/command_shell_options'
 # Injects the VNC server DLL and runs it over the established connection.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Osx::BundleInject
   include Msf::Sessions::CommandShellOptions
