@@ -311,7 +311,7 @@ class MetasploitModule < Msf::Post
     else
       uid = session.sys.config.getuid
       print_status "Running as user '#{uid}'..."
-      usernames << env_vars['USERNAME'].strip
+      usernames << env_vars['USERNAME'].strip if env_vars['USERNAME']
     end
 
     has_sqlite3 = true
