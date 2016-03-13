@@ -38,11 +38,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def generate_prefix()
     max = 16 ** 4
-    prefix = "2001::"
+    prefix = "2001:"
     (0..2).each do
-        prefix << "%x::" % Random.rand(0..max)
+        prefix << "%x:" % Random.rand(0..max)
     end
-    return prefix
+    return prefix << ':'
   end
 
   def listen_for_neighbor_solicitation(opts = {})
