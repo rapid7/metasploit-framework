@@ -36,7 +36,7 @@ group :development, :test do
   # Make rspec output shorter and more useful
   gem 'fivemat', '~> 1.3.1'
   # running documentation generation tasks and rspec tasks
-  gem 'rake', '>= 10.0.0'
+  gem 'rake', '~> 10.5'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails' , '~> 3.3'
