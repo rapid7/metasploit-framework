@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Post
     end
 
     if !paths.empty?
-      print_good("Found FileZilla Server on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
+      print_good("Found FileZilla Server on #{sysinfo['Computer']} via session ID: #{session.sid}")
       print_line
       return paths
     end
