@@ -31,12 +31,12 @@ class Powershell < Extension
   end
 
 
-  def execute_string(string)
+  def execute_string(code)
     request = Packet.create_request('powershell_execute')
+    request.add_tlv(TLV_TYPE_POWERSHELL_CODE, code)
 
     response = client.send_request(request)
-
-    return response
+    return response.get_tlv_value(TLV_TYPE_POWERSHELL_RESULT)
   end
 
 end

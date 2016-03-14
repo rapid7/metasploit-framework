@@ -62,7 +62,8 @@ class Console::CommandDispatcher::Powershell
       #end
     }
 
-    client.powershell.execute_string(code)
+    result = client.powershell.execute_string(code)
+    print_good("Command execution completed:\n#{result}")
   end
 
 end
