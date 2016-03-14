@@ -90,7 +90,7 @@ Here we have a post module template. As you can see, there are some required fie
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
