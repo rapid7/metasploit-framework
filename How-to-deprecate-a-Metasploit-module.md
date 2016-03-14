@@ -44,7 +44,7 @@ msf > use exploit/windows/misc/test
 ```ruby
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = ExcellentRanking
 
   include Msf::Module::Deprecated
