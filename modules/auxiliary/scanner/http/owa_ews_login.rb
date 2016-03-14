@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('AUTODISCOVER', [ false, "Automatically discover domain URI", true ]),
         OptString.new('AD_DOMAIN', [ false, "The Active Directory domain name", nil ]),
         OptString.new('TARGETURI', [ false, "The location of the NTLM service", nil ]),
-        OptInt.new('RPORT', [ true, "The target port", 443 ])
+        Opt::RPORT(443)
       ], self.class)
   end
 
