@@ -8,7 +8,7 @@ require 'rex/proto/ntlm/message'
 require 'rex/proto/http'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
