@@ -56,7 +56,7 @@ Here's the most basic example of an auxiliary module. We'll explain a bit more a
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
@@ -92,7 +92,7 @@ Because the ```Msf::Auxiliary::Scanner``` mixin is so popular, we figured you wa
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
 
