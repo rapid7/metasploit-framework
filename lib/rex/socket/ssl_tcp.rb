@@ -65,7 +65,7 @@ begin
       when 'SSL2', :SSLv2
         version = :SSLv2
       # 'TLS' will be the new name for autonegotation with newer versions of OpenSSL
-      when 'SSL23', :SSLv23, 'TLS'
+      when 'SSL23', :SSLv23, 'TLS', 'Auto'
         version = :SSLv23
       when 'SSL3', :SSLv3
         version = :SSLv3
@@ -123,6 +123,11 @@ begin
 
     # Tie the context to a socket
     self.sslsock = OpenSSL::SSL::SSLSocket.new(self, self.sslctx)
+
+    # If peerhost looks like a hostname, set the undocumented 'hostname'
+    # attribute on sslsock, which enables the Server Name Indication (SNI)
+    # extension
+    self.sslsock.hostname = self.peerhost if !Rex::Socket.dotted_ip?(self.peerhost)
 
     # Force a negotiation timeout
     begin

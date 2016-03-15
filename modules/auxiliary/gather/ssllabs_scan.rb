@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
 
       name = name.to_s.camelize(:lower)
       uri = api_path + name
-      cli = Rex::Proto::Http::Client.new(api_host, api_port, {}, true, 'TLS1')
+      cli = Rex::Proto::Http::Client.new(api_host, api_port, {}, true, 'TLS')
       cli.connect
       req = cli.request_cgi({
           'uri' => uri,
@@ -430,7 +430,6 @@ class MetasploitModule < Msf::Auxiliary
           {
             'RPORT'      => 443,
             'SSL'        => true,
-            'SSLVersion' => 'TLS1'
           }
     ))
     register_options(
