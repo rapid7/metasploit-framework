@@ -146,10 +146,6 @@ module Msf
     # @param klass [Class<Msf::Module>] The module class
     # @return [void]
     def auto_subscribe_module(klass)
-      # If auto-subscribe has been disabled
-      if framework.datastore['DisableAutoSubscribe']
-        return
-      end
 
       # If auto-subscription is enabled (which it is by default), figure out
       # if it subscribes to any particular interfaces.
