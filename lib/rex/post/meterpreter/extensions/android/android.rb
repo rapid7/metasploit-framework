@@ -307,14 +307,16 @@ class Android < Extension
 
     unless writeable
       result = {
-        columns:     [],
+        columns: [],
         rows: []
       }
       data = response.get_tlv(TLV_TYPE_SQLITE_RESULT_GROUP)
-      columns = data.get_tlv(TLV_TYPE_SQLITE_RESULT_COLS)
-      result[:columns] = columns.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
-      data.each(TLV_TYPE_SQLITE_RESULT_ROW) do |row|
-        result[:rows] << row.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+      unless data.nil?
+        columns = data.get_tlv(TLV_TYPE_SQLITE_RESULT_COLS)
+        result[:columns] = columns.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+        data.each(TLV_TYPE_SQLITE_RESULT_ROW) do |row|
+          result[:rows] << row.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+        end
       end
       result
     end
