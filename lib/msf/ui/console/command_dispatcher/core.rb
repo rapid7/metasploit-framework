@@ -2171,10 +2171,15 @@ class Core
       return true
     end
 
-    if append
-      datastore[name] = datastore[name] + value
-    else
-      datastore[name] = value
+    begin
+      if append
+        datastore[name] = datastore[name] + value
+      else
+        datastore[name] = value
+      end
+    rescue OptionValidateError => e
+      print_error(e.message)
+      elog(e.message)
     end
 
     print_line("#{name} => #{datastore[name]}")

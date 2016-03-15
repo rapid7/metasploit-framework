@@ -147,8 +147,7 @@ module Msf
     # @return [void]
     def auto_subscribe_module(klass)
       # If auto-subscribe has been disabled
-      if (framework.datastore['DisableAutoSubscribe'] and
-          framework.datastore['DisableAutoSubscribe'] =~ /^(y|1|t)/)
+      if framework.datastore['DisableAutoSubscribe']
         return
       end
 
