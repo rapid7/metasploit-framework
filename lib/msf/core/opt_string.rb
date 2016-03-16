@@ -13,7 +13,7 @@ class OptString < OptBase
   end
 
   def normalize(value)
-    if (value =~ /^file:(.*)/)
+    if (value.to_s =~ /^file:(.*)/)
       path = $1
       begin
         value = File.read(path)
