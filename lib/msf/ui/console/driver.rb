@@ -139,7 +139,7 @@ class Driver < Msf::Ui::Driver
     self.disable_output = false
 
     # Whether or not command passthru should be allowed
-    self.command_passthru = opts['AllowCommandPassthru']
+    self.command_passthru = opts.fetch('AllowCommandPassthru', true)
 
     # Whether or not to confirm before exiting
     self.confirm_exit = opts['ConfirmExit']
