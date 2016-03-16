@@ -106,7 +106,7 @@ module Msf
         #Use Msf::Config.get_config_root as the location.
         File.open("#{xindex}", "w+") do |f|
           #need to add version line.
-          f.puts(Msf::Framework::RepoRevision)
+          f.puts(Msf::Framework::Version)
           framework.exploits.sort.each { |refname, mod|
           stuff = ""
           o = nil
