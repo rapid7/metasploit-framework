@@ -106,7 +106,7 @@ module Msf
         #Use Msf::Config.get_config_root as the location.
         File.open("#{xindex}", "w+") do |f|
           #need to add version line.
-          f.puts(Msf::Framework::RepoRevision)
+          f.puts(Msf::Framework::Version)
           framework.exploits.sort.each { |refname, mod|
           stuff = ""
           o = nil
@@ -512,7 +512,7 @@ module Msf
           when '-S', '--search'
             search_term = /#{args.shift}/nmi
           end
-        end        
+        end
 
         if !nessus_verify_token
           return
@@ -562,7 +562,7 @@ module Msf
           when '-S', '--search'
             search_term = /#{args.shift}/nmi
           end
-        end        
+        end
         if !nessus_verify_token
           return
         end
@@ -727,7 +727,7 @@ module Msf
             scan_id = arg,
             host_id = args.shift
           end
-        end        
+        end
 
         if [scan_id, host_id].any?(&:nil?)
           print_status("Usage: ")
@@ -818,7 +818,7 @@ module Msf
           else
             scan_id = arg
           end
-        end        
+        end
 
         if [host,rid].any?(&:nil?)
           print_status("Usage: ")
@@ -894,7 +894,7 @@ module Msf
           when '-S', '--search'
             search_term = /#{args.shift}/nmi
           end
-        end        
+        end
 
         if !nessus_verify_token
           return
@@ -1285,13 +1285,13 @@ module Msf
           else
             scan_id = arg
             if args[0].in?(valid_categories)
-              category = args.shift 
+              category = args.shift
             else
               print_error("Invalid category. The available categories are info, hosts, vulnerabilities, and history")
               return
             end
           end
-        end        
+        end
 
         if !nessus_verify_token
            return
@@ -1435,7 +1435,7 @@ module Msf
           else
             family_id = arg
           end
-        end        
+        end
 
         if family_id.nil?
           print_status("Usage: ")
@@ -1471,11 +1471,11 @@ module Msf
           when '-S', '--search'
             search_term = /#{args.shift}/nmi
           end
-        end        
+        end
 
         list = @n.list_families
         tbl = Rex::Ui::Text::Table.new(
-          'SearchTerm' => search_term,                                       
+          'SearchTerm' => search_term,
           'Columns' => [
             'Family ID',
             'Family Name',
@@ -1504,7 +1504,7 @@ module Msf
           else
             plugin_id = arg
           end
-        end        
+        end
 
         if !nessus_verify_token
           return
@@ -1554,7 +1554,7 @@ module Msf
           when '-S', '--search'
             search_term = /#{args.shift}/nmi
           end
-        end        
+        end
 
         if !nessus_verify_token
           return
@@ -1711,7 +1711,7 @@ module Msf
           when '-S', '--search'
             search_term = /#{args.shift}/nmi
           end
-        end        
+        end
 
         if !nessus_verify_token
           return
