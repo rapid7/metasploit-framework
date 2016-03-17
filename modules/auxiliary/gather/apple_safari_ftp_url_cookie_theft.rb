@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
   # set.
   #
   def use_zlib
-    unless Rex::Text.zlib_present? || datastore['HTTP::compression'] == false
+    unless Rex::Text.zlib_present? || !datastore['HTTP::compression']
       fail_with(Failure::Unknown, "zlib support was not detected, yet the HTTP::compression option was set.  Don't do that!")
     end
   end

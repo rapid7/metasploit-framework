@@ -538,7 +538,7 @@ class MetasploitModule < Msf::Auxiliary
               print_status("Done fuzzing fields in form #{thisform[:name].upcase.strip}")
             end
             # fuzz headers ?
-            if datastore['FUZZHEADERS'] == true
+            if datastore['FUZZHEADERS']
               print_status("Fuzzing header fields")
               do_fuzz_headers(thisform,response.headers)
             end

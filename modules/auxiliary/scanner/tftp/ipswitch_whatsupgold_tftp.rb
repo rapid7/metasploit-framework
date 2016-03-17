@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(69),
         OptString.new('FILENAME', [false, 'The file to loot', 'windows\\win.ini']),
-        OptBool.new('SAVE', [false, 'Save the downloaded file to disk', 'false'])
+        OptBool.new('SAVE', [false, 'Save the downloaded file to disk', false])
       ], self.class)
   end
 

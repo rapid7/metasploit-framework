@@ -37,12 +37,12 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       OptInt.new('RETRY', [false, "Number of tries to query the NTP server", 3]),
-      OptBool.new('SHOW_LIST', [false, 'Show the recent clients list', 'false'])
+      OptBool.new('SHOW_LIST', [false, 'Show the recent clients list', false])
     ], self.class)
 
     register_advanced_options(
     [
-      OptBool.new('StoreNTPClients', [true, 'Store NTP clients as host records in the database', 'false'])
+      OptBool.new('StoreNTPClients', [true, 'Store NTP clients as host records in the database', false])
     ], self.class)
   end
 
