@@ -191,7 +191,7 @@ class Console::CommandDispatcher::Android
     path = "sms_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_sms_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for sms list']
+      '-o' => [ true, 'Output path for sms list']
     )
 
     dump_sms_opts.parse(args) do |opt, _idx, val|
@@ -279,7 +279,7 @@ class Console::CommandDispatcher::Android
 
     dump_contacts_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for contacts list']
+      '-o' => [ true, 'Output path for contacts list']
     )
 
     dump_contacts_opts.parse(args) do |opt, _idx, val|
@@ -383,7 +383,7 @@ class Console::CommandDispatcher::Android
     dump_calllog_opts = Rex::Parser::Arguments.new(
 
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for call log']
+      '-o' => [ true, 'Output path for call log']
 
     )
 
