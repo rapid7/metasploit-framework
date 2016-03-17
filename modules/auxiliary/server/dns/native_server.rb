@@ -5,7 +5,7 @@
 
 require 'msf/core/exploit/dns'
 
-class Metasploit < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DNS::Client
   include Msf::Exploit::Remote::DNS::Server
