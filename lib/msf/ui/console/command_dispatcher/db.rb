@@ -1033,7 +1033,7 @@ class Db
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
-      query = query.includes(:private, :public, :logins)
+      query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
       query = query.includes(logins: [ :service, { service: :host } ])
 
       if type.present?
@@ -1647,6 +1647,7 @@ class Db
     print_line "    Amap Log -m"
     print_line "    Appscan"
     print_line "    Burp Session XML"
+    print_line "    Burp Issue XML"
     print_line "    CI"
     print_line "    Foundstone"
     print_line "    FusionVM XML"

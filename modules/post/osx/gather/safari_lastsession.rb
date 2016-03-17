@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 

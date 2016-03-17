@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_http'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 5123
 

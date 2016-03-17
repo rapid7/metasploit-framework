@@ -185,7 +185,14 @@ class Msfupdate
     system("git", "merge", "#{remote}/#{branch}")
 
     stdout.puts "[*] Updating gems..."
-    require 'bundler'
+    begin
+      require 'bundler'
+    rescue LoadError
+      stderr.puts '[*] Installing bundler'
+      system('gem', 'install', 'bundler')
+      Gem.clear_paths
+      require 'bundler'
+    end
     Bundler.with_clean_env do
       system("bundle", "install")
     end

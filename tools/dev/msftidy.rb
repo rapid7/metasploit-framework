@@ -65,6 +65,7 @@ class Msftidy
 
   def initialize(source_file)
     @full_filepath = source_file
+    @module_type = File.dirname(File.expand_path(@full_filepath))[/\/modules\/([^\/]+)/, 1]
     @source  = load_file(source_file)
     @lines   = @source.lines # returns an enumerator
     @status  = OK
@@ -464,10 +465,37 @@ class Msftidy
   def check_bad_terms
     # "Stack overflow" vs "Stack buffer overflow" - See explanation:
     # http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx
-    if @source =~ /class Metasploit\d < Msf::Exploit::Remote/ and @source.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+    if @module_type == 'exploit' && @source.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
       warn('Contains "stack overflow" You mean "stack buffer overflow"?')
-    elsif @source =~ /class Metasploit\d < Msf::Auxiliary/ and @source.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+    elsif @module_type == 'auxiliary' && @source.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
       warn('Contains "stack overflow" You mean "stack exhaustion"?')
+    end
+  end
+
+  def check_bad_super_class
+    # skip payloads, as they don't have a super class
+    return if @module_type == 'payloads'
+
+    # get the super class in an ugly way
+    unless (super_class = @source.scan(/class Metasploit(?:\d|Module)\s+<\s+(\S+)/).flatten.first)
+      error('Unable to determine super class')
+      return
+    end
+
+    prefix_super_map = {
+      'auxiliary' => /^Msf::Auxiliary$/,
+      'exploits' => /^Msf::Exploit(?:::Local|::Remote)?$/,
+      'encoders' => /^(?:Msf|Rex)::Encoder/,
+      'nops' => /^Msf::Nop$/,
+      'post' => /^Msf::Post$/
+    }
+
+    if prefix_super_map.key?(@module_type)
+      unless super_class =~ prefix_super_map[@module_type]
+        error("Invalid super class for #{@module_type} module (found '#{super_class}', expected something like #{prefix_super_map[@module_type]}")
+      end
+    else
+      warn("Unexpected and potentially incorrect super class found ('#{super_class}')")
     end
   end
 
@@ -478,6 +506,12 @@ class Msftidy
       # Check argument length
       args_length = args.split(",").length
       warn("Poorly designed argument list in '#{func_name}()'. Try a hash.") if args_length > 6
+    end
+  end
+
+  def check_bad_class_name
+    if @source =~ /^\s*class (Metasploit\d+)\s*</
+      warn("Please use 'MetasploitModule' as the class name (you used #{Regexp.last_match(1)})")
     end
   end
 
@@ -557,7 +591,7 @@ class Msftidy
       end
 
       # Auxiliary modules do not have a rank attribute
-      if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
+      if ln =~ /^\s*Rank\s*=\s*/ && @module_type == 'auxiliary'
         warn("Auxiliary modules have no 'Rank': #{ln}", idx)
       end
 
@@ -652,6 +686,41 @@ class Msftidy
     end
   end
 
+  #
+  # Run all the msftidy checks.
+  #
+  def run_checks
+    check_mode
+    check_shebang
+    check_nokogiri
+    check_rubygems
+    check_ref_identifiers
+    check_old_keywords
+    check_verbose_option
+    check_badchars
+    check_extname
+    check_old_rubies
+    check_ranking
+    check_disclosure_date
+    check_title_casing
+    check_bad_terms
+    check_bad_super_class
+    check_bad_class_name
+    check_function_basics
+    check_lines
+    check_snake_case_filename
+    check_comment_splat
+    check_vuln_codes
+    check_vars_get
+    check_newline_eof
+    check_sock_get
+    check_udp_sock_get
+    check_invalid_url_scheme
+    check_print_debug
+    check_register_datastore_debug
+    check_use_datastore_debug
+  end
+
   private
 
   def load_file(file)
@@ -670,71 +739,37 @@ class Msftidy
   end
 end
 
-#
-# Run all the msftidy checks.
-#
-# @param full_filepath [String] The full file path to check
-# @return status [Integer] A status code suitable for use as an exit status
-def run_checks(full_filepath)
-  tidy = Msftidy.new(full_filepath)
-  tidy.check_mode
-  tidy.check_shebang
-  tidy.check_nokogiri
-  tidy.check_rubygems
-  tidy.check_ref_identifiers
-  tidy.check_old_keywords
-  tidy.check_verbose_option
-  tidy.check_badchars
-  tidy.check_extname
-  tidy.check_old_rubies
-  tidy.check_ranking
-  tidy.check_disclosure_date
-  tidy.check_title_casing
-  tidy.check_bad_terms
-  tidy.check_function_basics
-  tidy.check_lines
-  tidy.check_snake_case_filename
-  tidy.check_comment_splat
-  tidy.check_vuln_codes
-  tidy.check_vars_get
-  tidy.check_newline_eof
-  tidy.check_sock_get
-  tidy.check_udp_sock_get
-  tidy.check_invalid_url_scheme
-  tidy.check_print_debug
-  tidy.check_register_datastore_debug
-  tidy.check_use_datastore_debug
-  return tidy
-end
-
 ##
 #
 # Main program
 #
 ##
 
-dirs = ARGV
+if __FILE__ == $PROGRAM_NAME
+  dirs = ARGV
 
-@exit_status = 0
+  @exit_status = 0
 
-if dirs.length < 1
-  $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
-  @exit_status = 1
-  exit(@exit_status)
-end
-
-dirs.each do |dir|
-  begin
-    Find.find(dir) do |full_filepath|
-      next if full_filepath =~ /\.git[\x5c\x2f]/
-      next unless File.file? full_filepath
-      next unless full_filepath =~ /\.rb$/
-      msftidy = run_checks(full_filepath)
-      @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
-    end
-  rescue Errno::ENOENT
-    $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
+  if dirs.length < 1
+    $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
+    @exit_status = 1
+    exit(@exit_status)
   end
-end
 
-exit(@exit_status.to_i)
+  dirs.each do |dir|
+    begin
+      Find.find(dir) do |full_filepath|
+        next if full_filepath =~ /\.git[\x5c\x2f]/
+        next unless File.file? full_filepath
+        next unless full_filepath =~ /\.rb$/
+        msftidy = Msftidy.new(full_filepath)
+        msftidy.run_checks
+        @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
+      end
+    rescue Errno::ENOENT
+      $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
+    end
+  end
+
+  exit(@exit_status.to_i)
+end
