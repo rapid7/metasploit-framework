@@ -3,12 +3,6 @@
 # Provides some sanity checks against the ruby build and version
 #
 
-# Check for ruby 1.x and throw a warning
-if (RUBY_VERSION =~ /^1/)
-  $stderr.puts "*** Ruby 1.x is not supported, please upgrade to Ruby 2.1 or newer."
-  exit(0)
-end
-
 if(RUBY_PLATFORM == 'java')
   require 'socket'
   s = Socket.new(::Socket::AF_INET, ::Socket::SOCK_STREAM, ::Socket::IPPROTO_TCP)
