@@ -69,6 +69,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # Don't pass the datastore into the init_meterpreter method
     opts.delete(:datastore)
 
+    # Assume by default that 10 threads is a safe number for this session
+    self.max_threads ||= 10
+
     #
     # Initialize the meterpreter client
     #
@@ -488,6 +491,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   attr_accessor :skip_ssl
   attr_accessor :skip_cleanup
   attr_accessor :target_id
+  attr_accessor :max_threads
 
 protected
 
