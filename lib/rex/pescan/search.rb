@@ -30,7 +30,7 @@ module Search
 
       begin
         buf = pe.read_rva(@address, suf)
-      rescue ::Rex::PeParsey::WtfError
+      rescue ::Rex::PeParsey::PeParseyError
         return
       end
 

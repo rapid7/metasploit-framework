@@ -16,7 +16,9 @@ require 'msf/core/handler/find_tag'
 # OSX find tag stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 76
 
   include Msf::Payload::Stager
 

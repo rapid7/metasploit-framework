@@ -3,12 +3,11 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mssql'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
@@ -32,6 +31,10 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     print_status("#{rhost}:#{rport} - MSSQL - Starting authentication scanner.")
 
+    if datastore['TDSENCRYPTION']
+      print_status("Manually enabled TLS/SSL to encrypt TDS payloads.")
+    end
+
     cred_collection = Metasploit::Framework::CredentialCollection.new(
         blank_passwords: datastore['BLANK_PASSWORDS'],
         pass_file: datastore['PASS_FILE'],
@@ -51,10 +54,20 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 30,
         max_send_size: datastore['TCP::max_send_size'],
         send_delay: datastore['TCP::send_delay'],
-        windows_authentication: datastore['USE_WINDOWS_AUTHENT']
+        windows_authentication: datastore['USE_WINDOWS_AUTHENT'],
+        tdsencryption: datastore['TDSENCRYPTION'],
+        framework: framework,
+        framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|

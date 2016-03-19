@@ -224,7 +224,7 @@ module Metasploit
           end
 
           # Yield any capture MSSQL Instance names
-          workspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename']).each do |note|
+          workspace.notes.where(['ntype=?', 'mssql.instancename']).each do |note|
             expanded_words(note.data['InstanceName']) do |word|
               yield word
             end
@@ -398,14 +398,14 @@ module Metasploit
         #
         # @return [String] the file path to the common_roots.txt file
         def common_root_words_path
-          ::File.join(Msf::Config.data_directory, 'john', 'wordlists', 'common_roots.txt')
+          ::File.join(Msf::Config.data_directory, 'wordlists', 'common_roots.txt')
         end
 
         # This method returns the path to the passwords.lst wordlist
         #
         # @return [String] the file path to the passwords.lst file
         def default_wordlist_path
-          ::File.join(Msf::Config.data_directory, 'john', 'wordlists', 'password.lst')
+          ::File.join(Msf::Config.data_directory, 'wordlists', 'password.lst')
         end
 
         def generate_mutation_keys

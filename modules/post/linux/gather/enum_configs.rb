@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Linux::System
 
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
     when /meterpreter/
       host = sysinfo["Computer"]
     when /shell/
-      host = session.shell_command_token("hostname").chomp
+      host = cmd_exec("hostname").chomp
     end
 
     return host

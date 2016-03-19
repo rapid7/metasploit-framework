@@ -13,6 +13,11 @@ module FileInfo
     num & 0xffff
   end
 
+  # Returns the file version information such as: major, minor, build, revision, branch.
+  #
+  # @param filepath [String] The path of the file you are targeting.
+  # @return [String] Returns the file version information of the file.
+
   def file_version(filepath)
     file_version_info_size = client.railgun.version.GetFileVersionInfoSizeA(
       filepath,

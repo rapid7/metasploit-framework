@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       OptAddress.new('LOCALIP', [false, 'The IP address of the local interface'])
     ], self.class)
 
-    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','UDP_SECRET','GATEWAY','NETMASK', 'TIMEOUT')
+    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT', 'TIMEOUT')
   end
 
   def run

@@ -285,11 +285,12 @@ class Process < Rex::Post::Process
         'thread' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread.new(self),
       })
 
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.handle) )
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(client, handle))
   end
 
-  def self.finalize(client,handle)
-    proc { self.close(client,handle) }
+  def self.finalize(client, handle)
+    proc { self.close(client, handle) }
   end
 
   #
@@ -320,8 +321,12 @@ class Process < Rex::Post::Process
   #
   # Instance method
   #
-  def close(handle=self.handle)
-    self.class.close(self.client, handle)
+  def close(handle = self.handle)
+    unless self.pid.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class.close(self.client, handle)
+      self.pid = nil
+    end
   end
 
   #
@@ -391,13 +396,26 @@ class ProcessList < Array
     cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
 
     opts = {
-      "Header"  => "Process List",
-      "Columns" => cols
+      'Header' => 'Process List',
+      'Indent' => 1,
+      'Columns' => cols
     }.merge(opts)
 
     tbl = Rex::Ui::Text::Table.new(opts)
     each { |process|
-      tbl << cols.map {|c| process[c.downcase] }.compact
+      tbl << cols.map { |c|
+        col = c.downcase
+        val = process[col]
+        if col == 'session'
+          val == 0xFFFFFFFF ? '' : val.to_s
+        elsif col == 'arch'
+          # for display and consistency with payload naming we switch the internal
+          # 'x86_64' value to display 'x64'
+          val == ARCH_X86_64 ? 'x64' : val
+        else
+          val
+        end
+      }.compact
     }
 
     tbl

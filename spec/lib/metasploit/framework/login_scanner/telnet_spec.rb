@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/telnet'
 
-describe Metasploit::Framework::LoginScanner::Telnet do
+RSpec.describe Metasploit::Framework::LoginScanner::Telnet do
 
   subject(:login_scanner) { described_class.new }
 
@@ -9,8 +9,8 @@ describe Metasploit::Framework::LoginScanner::Telnet do
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
   it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
-  it { should respond_to :banner_timeout }
-  it { should respond_to :telnet_timeout }
+  it { is_expected.to respond_to :banner_timeout }
+  it { is_expected.to respond_to :telnet_timeout }
 
   context 'validations' do
     context 'banner_timeout' do
@@ -38,7 +38,7 @@ describe Metasploit::Framework::LoginScanner::Telnet do
         expect(login_scanner.errors[:banner_timeout]).to include "must be greater than or equal to 1"
       end
 
-      it 'is valid for a legitimate  number' do
+      it 'is valid for a legitimate number' do
         login_scanner.port = rand(1000) + 1
         expect(login_scanner.errors[:banner_timeout]).to be_empty
       end
@@ -69,7 +69,7 @@ describe Metasploit::Framework::LoginScanner::Telnet do
         expect(login_scanner.errors[:telnet_timeout]).to include "must be greater than or equal to 1"
       end
 
-      it 'is valid for a legitimate  number' do
+      it 'is valid for a legitimate number' do
         login_scanner.port = rand(1000) + 1
         expect(login_scanner.errors[:telnet_timeout]).to be_empty
       end

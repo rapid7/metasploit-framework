@@ -7,7 +7,7 @@ require 'rex'
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
@@ -60,7 +60,13 @@ class Metasploit3 < Msf::Post
     fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
-    q = query(search_filter, max_search, fields)
+
+    begin
+      q = query(search_filter, max_search, fields)
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      print_error(e.message)
+      return
+    end
 
     return if q.nil? or q[:results].empty?
 
@@ -81,7 +87,7 @@ class Metasploit3 < Msf::Post
 
       report = {}
       0.upto(fields.length-1) do |i|
-        field = result[i] || ""
+        field = result[i][:value] || ""
 
         # Only perform these actions if the database is connected and we want
         # to store in the DB.
@@ -92,7 +98,7 @@ class Metasploit3 < Msf::Post
             report[:name] = dns
             hostnames << dns
           when 'operatingSystem'
-            report[:os_name] = field
+            report[:os_name] = field.gsub("\xAE",'')
           when 'distinguishedName'
             if field =~ /Domain Controllers/i
               # TODO: Find another way to mark a host as being a domain controller

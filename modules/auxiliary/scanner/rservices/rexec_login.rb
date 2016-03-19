@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -108,8 +108,8 @@ class Metasploit3 < Msf::Auxiliary
 
   # For debugging only.
   #rescue ::Exception
-  #	print_error("#{$!}")
-  #	return :abort
+  #  print_error("#{$!}")
+  #return :abort
 
   ensure
     disconnect()

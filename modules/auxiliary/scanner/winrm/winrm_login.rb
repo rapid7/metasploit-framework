@@ -10,7 +10,7 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner'
 require 'metasploit/framework/login_scanner/winrm'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::WinRM
   include Msf::Auxiliary::Report
@@ -59,7 +59,10 @@ class Metasploit3 < Msf::Auxiliary
       proxies: datastore["PROXIES"],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 10,
+      framework: framework,
+      framework_module: self,
     )
 
     scanner.scan! do |result|

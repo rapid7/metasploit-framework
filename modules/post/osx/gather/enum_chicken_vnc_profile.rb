@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
       'Platform'      => [ 'osx' ],
-      'SessionTypes'  => [ "shell" ]
+      'SessionTypes'  => [ "meterpreter", "shell" ]
     ))
 
   end

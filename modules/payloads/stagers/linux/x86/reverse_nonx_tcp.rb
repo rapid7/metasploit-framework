@@ -16,7 +16,9 @@ require 'msf/core/handler/reverse_tcp'
 # Linux reverse TCP stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 50
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux

@@ -6,7 +6,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -45,8 +45,11 @@ class Metasploit3 < Msf::Auxiliary
 
       disconnect
 
-      if(response)
+      if response
         success = response[0,1].unpack('C')[0]
+      else
+        print_error("No response received due to a timeout")
+        return
       end
 
 
@@ -54,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
         vendor_len = response[24,2].unpack('v')[0]
         vendor = response[40,vendor_len].unpack('A*')[0]
         print_status("#{ip} Open X Server (#{vendor})")
-        #Add Report
+        # Add Report
         report_note(
           :host	=> ip,
           :proto => 'tcp',

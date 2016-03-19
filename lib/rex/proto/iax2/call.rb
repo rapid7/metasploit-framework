@@ -72,7 +72,14 @@ class Call
     end
 
     chall = nil
-    if res[2][14] == "\x00\x03" and res[2][IAX_IE_CHALLENGE_DATA]
+
+    # Look for IAX_AUTH_MD5 (2) as an available auth method
+    if res[2][14].unpack("n")[0] & 2 <= 0
+      dprint("REGAUTH: MD5 authentication is not enabled on the server")
+      return
+    end
+
+    if res[2][IAX_IE_CHALLENGE_DATA]
       self.dcall = res[0][0]
       chall = res[2][IAX_IE_CHALLENGE_DATA]
     end
@@ -114,9 +121,21 @@ class Call
     # Handle authentication if its requested
     if res[1] == IAX_SUBTYPE_AUTHREQ
       chall = nil
-      if res[2][14] == "\x00\x03" and res[1][15]
+
+      # Look for IAX_AUTH_MD5 (2) as an available auth method
+      if res[2][14].unpack("n")[0] & 2 <= 0
+        dprint("REGAUTH: MD5 authentication is not enabled on the server")
+        return
+      end
+
+      if res[2][IAX_IE_CHALLENGE_DATA]
         self.dcall = res[0][0]
-        chall = res[2][15]
+        chall = res[2][IAX_IE_CHALLENGE_DATA]
+      end
+
+      if chall.nil?
+        dprint("REGAUTH: No challenge data received")
+        return
       end
 
       self.client.send_authrep_chall_response(self, chall)

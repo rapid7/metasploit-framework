@@ -106,7 +106,7 @@ module Metasploit
           self.max_send_size      ||= 0
           self.send_delay         ||= 0
 
-          self.ssl = false  if self.ssl.nil?
+          self.ssl = false if self.ssl.nil?
         end
 
         # This method takes a response packet and checks to see

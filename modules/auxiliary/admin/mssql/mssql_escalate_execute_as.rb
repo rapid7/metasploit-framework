@@ -6,13 +6,13 @@
 require 'msf/core'
 require 'msf/core/exploit/mssql_commands'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Microsoft SQL Server - Escalate EXECUTE AS',
+      'Name'        => 'Microsoft SQL Server Escalate EXECUTE AS',
       'Description' => %q{
         This module can be used escalate privileges if the IMPERSONATION privilege has been
         assigned to the user. In most cases, this results in additional data access, but in

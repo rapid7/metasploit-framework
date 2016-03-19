@@ -2,6 +2,7 @@
 require 'rex/socket'
 require 'rex/socket/tcp_server'
 require 'rex/io/stream_server'
+require 'rex/parser/x509_certificate'
 
 ###
 #
@@ -47,8 +48,14 @@ module Rex::Socket::SslTcpServer
   end
 
   def initsock(params = nil)
-    raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-    self.sslctx  = makessl(params)
+    raise RuntimeError, 'No OpenSSL support' unless @@loaded_openssl
+
+    if params && params.sslctx && params.sslctx.kind_of?(OpenSSL::SSL::SSLContext)
+      self.sslctx = params.sslctx
+    else
+      self.sslctx  = makessl(params)
+    end
+
     super
   end
 
@@ -108,25 +115,7 @@ module Rex::Socket::SslTcpServer
   # @param [String] ssl_cert
   # @return [String, String, Array]
   def self.ssl_parse_pem(ssl_cert)
-    cert  = nil
-    key   = nil
-    chain = nil
-
-    certs = []
-    ssl_cert.scan(/-----BEGIN\s*[^\-]+-----+\r?\n[^\-]*-----END\s*[^\-]+-----\r?\n?/nm).each do |pem|
-      if pem =~ /PRIVATE KEY/
-        key = OpenSSL::PKey::RSA.new(pem)
-      elsif pem =~ /CERTIFICATE/
-        certs << OpenSSL::X509::Certificate.new(pem)
-      end
-    end
-
-    cert = certs.shift
-    if certs.length > 0
-      chain = certs
-    end
-
-    [key, cert, chain]
+    Rex::Parser::X509Certificate.parse_pem(ssl_cert)
   end
 
   #

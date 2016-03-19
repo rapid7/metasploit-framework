@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Encoder::Xor
+class MetasploitModule < Msf::Encoder::Xor
 
   def initialize
     super(
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Encoder::Xor
   end
 
   # Indicate that this module can preserve some registers
-  def preserves_registers?
+  def can_preserve_registers?
     true
   end
 

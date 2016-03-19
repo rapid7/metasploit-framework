@@ -8,7 +8,7 @@ require 'rex'
 require 'net/dns'
 require 'rexml/document'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -57,7 +57,7 @@ class Metasploit4 < Msf::Auxiliary
     }, 60)
 
     if !users or users.code != 200
-      fail_with("Invalid response. Check your credentials and that the server is correct.")
+      fail_with(Failure::NoAccess, "Invalid response. Check your credentials and that the server is correct.")
     end
 
     xml = path = id = other_id = ''  #for later use

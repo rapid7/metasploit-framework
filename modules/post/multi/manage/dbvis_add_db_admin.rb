@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix
@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Post
         dbvis = "\"#{dbvis}\""
         cmd = "#{dbvis} #{args}"
         resp = cmd_exec(cmd)
-        vprint_line("")
+        vprint_line
         vprint_status("#{resp}")
         if resp =~ /denied|failed/i
           error = true

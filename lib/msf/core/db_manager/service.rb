@@ -43,6 +43,7 @@ module Msf::DBManager::Service
   # opts may contain
   # +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
   # +:sname+:: an alias for the above
+  # +:workspace+:: the workspace for the service
   #
   def report_service(opts)
     return if not active
@@ -85,9 +86,9 @@ module Msf::DBManager::Service
     end
 =end
 
-    proto = opts[:proto] || 'tcp'
+    proto = opts[:proto] || Msf::DBManager::DEFAULT_SERVICE_PROTO
 
-    service = host.services.find_or_initialize_by_port_and_proto(opts[:port].to_i, proto)
+    service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_initialize
     opts.each { |k,v|
       if (service.attribute_names.include?(k.to_s))
         service[k] = ((v and k == :name) ? v.to_s.downcase : v)

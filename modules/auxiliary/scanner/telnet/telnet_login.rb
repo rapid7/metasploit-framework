@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/telnet'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Telnet
   include Msf::Auxiliary::Report
@@ -64,11 +64,20 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: datastore['Timeout'],
         max_send_size: datastore['TCP::max_send_size'],
         send_delay: datastore['TCP::send_delay'],
         banner_timeout: datastore['TelnetBannerTimeout'],
-        telnet_timeout: datastore['TelnetTimeout']
+        telnet_timeout: datastore['TelnetTimeout'],
+        framework: framework,
+        framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|
@@ -86,6 +95,7 @@ class Metasploit3 < Msf::Auxiliary
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        disconnect(scanner.sock)
       end
     end
   end

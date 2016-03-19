@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/smh'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -32,6 +32,12 @@ class Metasploit3 < Msf::Auxiliary
           'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "unix_passwords.txt")
         }
     ))
+
+    register_advanced_options([
+      OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/proxy/ssllogin']),
+      OptString.new('CPQLOGIN', [true, 'The homepage of the login', '/cpqlogin.htm']),
+      OptString.new('LOGIN_REDIRECT', [true, 'The URL to redirect to', '/cpqlogin'])
+    ], self.class)
   end
 
   def get_version(res)
@@ -76,17 +82,14 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     @scanner = Metasploit::Framework::LoginScanner::Smh.new(
-      host:               ip,
-      port:               rport,
-      uri:                datastore['URI'],
-      proxies:            datastore["PROXIES"],
-      cred_details:       @cred_collection,
-      stop_on_success:    datastore['STOP_ON_SUCCESS'],
-      connection_timeout: 5
+      configure_http_login_scanner(
+        uri:                datastore['LOGIN_URL'],
+        cred_details:       @cred_collection,
+        stop_on_success:    datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
+      )
     )
-
-    @scanner.ssl         = datastore['SSL']
-    @scanner.ssl_version = datastore['SSLVERSION']
   end
 
  def do_report(ip, port, result)
@@ -160,25 +163,25 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri' => '/cpqlogin.htm',
+      'uri' => datastore['CPQLOGIN'],
       'method' => 'GET',
       'vars_get' => {
-        'RedirectUrl' => '/cpqlogin',
+        'RedirectUrl' => datastore['LOGIN_REDIRECT'],
         'RedirectQueryString' => ''
       }
     })
 
     version = get_version(res)
     unless version.blank?
-      print_status("#{peer} - Version detected: #{version}")
+      print_status("Version detected: #{version}")
       unless is_version_tested?(version)
-        print_warning("#{peer} - You're running the module against a version we have not tested")
+        print_warning("You're running the module against a version we have not tested")
       end
     end
 
     sys_name = get_system_name(res)
     unless sys_name.blank?
-      print_status("#{peer} - System name detected: #{sys_name}")
+      print_status("System name detected: #{sys_name}")
       report_note(
         :host => ip,
         :type => "system.name",
@@ -187,7 +190,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if anonymous_access?(res)
-      print_good("#{peer} - No login necessary. Server allows anonymous access.")
+      print_good("No login necessary. Server allows anonymous access.")
       return
     end
 

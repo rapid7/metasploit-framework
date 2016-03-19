@@ -16,7 +16,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -103,6 +103,7 @@ class Metasploit4 < Msf::Auxiliary
         'headers' => {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
         },
+        'encode_params' => false,
         'vars_get' => {
           'sap-client'    => datastore['CLIENT'],
           'sap-language'  => 'EN'

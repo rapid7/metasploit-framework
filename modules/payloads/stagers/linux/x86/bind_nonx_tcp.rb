@@ -16,7 +16,9 @@ require 'msf/core/handler/bind_tcp'
 # Linux bind TCP stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 63
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux

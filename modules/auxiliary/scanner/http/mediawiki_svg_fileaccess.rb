@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -34,9 +34,9 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'Author'       =>
         [
-          'Daniel Franke',       # Vulnerability discovery and PoC
-          'juan vazquez',        # Metasploit module
-          'Christian Mehlmauer'  # Metasploit module
+          'Daniel Franke',      # Vulnerability discovery and PoC
+          'juan vazquez',       # Metasploit module
+          'Christian Mehlmauer' # Metasploit module
         ],
       'License'      => MSF_LICENSE
     )

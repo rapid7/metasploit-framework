@@ -14,7 +14,7 @@ require 'msf/base/sessions/meterpreter_options'
 # Injects the meterpreter server instance DLL via the DLL injection payload.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows::DllInject
   include Msf::Sessions::MeterpreterOptions
@@ -41,7 +41,7 @@ module Metasploit3
   end
 
   def library_path
-    MeterpreterBinaries.path('metsrv','x86.dll')
+    MetasploitPayloads.meterpreter_path('metsrv','x86.dll')
   end
 
 end

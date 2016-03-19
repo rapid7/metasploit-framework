@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  #Trigger firmware bootstrap write out password data to URL root
+  # Trigger firmware bootstrap write out password data to URL root
   def write
     print_status("#{rhost}:#{jport} - Sending print job")
     create_print_job = '%%XRXbegin' + "\x0a"

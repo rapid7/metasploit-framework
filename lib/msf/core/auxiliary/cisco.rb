@@ -243,7 +243,7 @@ module Auxiliary::Cisco
           store_cred(cred)
 
 #
-# Various authentication secretss
+# Various authentication secrets
 #
         when /^\s*username ([^\s]+) privilege (\d+) (secret|password) (\d+) ([^\s]+)/i
           user  = $1

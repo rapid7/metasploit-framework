@@ -56,11 +56,11 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
           options.console.plugins << plugin
         end
 
-        option_parser.on('-q', '--quiet', 'Do not print the banner on start up') do
+        option_parser.on('-q', '--quiet', 'Do not print the banner on startup') do
           options.console.quiet = true
         end
 
-        option_parser.on('-r', '--resource FILE', 'Execute the specified resource file') do |file|
+        option_parser.on('-r', '--resource FILE', 'Execute the specified resource file (- for stdin)') do |file|
           options.console.resources << file
         end
 

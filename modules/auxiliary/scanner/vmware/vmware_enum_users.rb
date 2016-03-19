@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -23,7 +23,8 @@ class Metasploit3 < Msf::Auxiliary
         more domains, it will try to enumerate domain users as well.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -32,14 +33,12 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
       ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
   end
 
 
   def run_host(ip)
     if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
-      #Get local Users and Groups
+      # Get local Users and Groups
       user_list = vim_get_user_list(nil)
       tmp_users = Rex::Ui::Text::Table.new(
         'Header'  => "Users for server #{ip}",
@@ -74,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
 
-      #Enumerate Domains the Server is connected to
+      # Enumerate Domains the Server is connected to
       esx_domains = vim_get_domains
       case esx_domains
       when :noresponse
@@ -84,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
       when :error
         print_error "An error occured while trying to enumerate the domains on #{ip}"
       else
-        #Enumerate Domain Users and Groups
+        # Enumerate Domain Users and Groups
         esx_domains.each do |domain|
           tmp_dusers = Rex::Ui::Text::Table.new(
             'Header'  => "Users for domain #{domain}",

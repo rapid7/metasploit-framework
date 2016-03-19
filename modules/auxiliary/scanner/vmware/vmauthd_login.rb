@@ -7,7 +7,7 @@ require 'msf/core/exploit/tcp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/vmauthd'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
                 report successful logins.
       },
       'Author'      => ['theLightCosine'],
-      'References'     =>
+      'References'  =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
@@ -72,9 +72,18 @@ class Metasploit3 < Msf::Auxiliary
       proxies: datastore['PROXIES'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 30,
       max_send_size: datastore['TCP::max_send_size'],
       send_delay: datastore['TCP::send_delay'],
+      framework: framework,
+      framework_module: self,
+      ssl: datastore['SSL'],
+      ssl_version: datastore['SSLVersion'],
+      ssl_verify_mode: datastore['SSLVerifyMode'],
+      ssl_cipher: datastore['SSLCipher'],
+      local_port: datastore['CPORT'],
+      local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|

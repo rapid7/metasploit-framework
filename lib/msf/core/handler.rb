@@ -28,6 +28,7 @@ module Msf
 #
 ###
 module Handler
+  require 'msf/core/handler/reverse'
 
   ##
   #
@@ -76,6 +77,9 @@ module Handler
 
     # Initialize the pending_connections counter to 0
     self.pending_connections = 0
+
+    # Initialize the sessions counter to 0
+    self.sessions = 0
 
     # Create the waiter event with auto_reset set to false so that
     # if a session is ever created, waiting on it returns immediately.
@@ -186,7 +190,14 @@ protected
     # If the payload we merged in with has an associated session factory,
     # allocate a new session.
     if (self.session)
-      s = self.session.new(conn, opts)
+      begin
+        s = self.session.new(conn, opts)
+      rescue ::Exception => e
+        # We just wanna show and log the error, not trying to swallow it.
+        print_error("#{e.class} #{e.message}")
+        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        raise e
+      end
 
       # Pass along the framework context
       s.framework = framework
@@ -194,6 +205,9 @@ protected
       # Associate this system with the original exploit
       # and any relevant information
       s.set_from_exploit(assoc_exploit)
+
+      # Pass along any associated payload uuid if specified
+      s.payload_uuid = opts[:payload_uuid] if opts[:payload_uuid]
 
       # If the session is valid, register it with the framework and
       # notify any waiters we may have.
@@ -234,10 +248,14 @@ protected
     # Decrement the pending connections counter now that we've processed
     # one session.
     self.pending_connections -= 1
+
+    # Count the number of sessions we have registered
+    self.sessions += 1
   end
 
   attr_accessor :session_waiter_event # :nodoc:
   attr_accessor :pending_connections  # :nodoc:
+  attr_accessor :sessions # :nodoc:
 
 end
 

@@ -4,10 +4,9 @@
 ##
 
 require 'msf/core'
-require 'open-uri'
 require 'uri'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
@@ -27,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         => [
         'Michele Spagnuolo', # discovery, wrote rosetta encoder, disclosure
-        'joev' # msf module
+        'joev' # metasploit module
       ],
       'References'     =>
         [
@@ -66,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def check
     test_string = Rex::Text.rand_text_alphanumeric(encoded_swf.length)
-    io = open(exploit_url(test_string))
+    io = URI.parse(exploit_url(test_string)).open
     if io.read.start_with? test_string
       Msf::Exploit::CheckCode::Vulnerable
     else

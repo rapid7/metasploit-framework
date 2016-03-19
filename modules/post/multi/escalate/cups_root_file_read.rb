@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   LP_GROUPS = ['lpadmin', '_lpadmin']
@@ -137,9 +137,17 @@ class Metasploit3 < Msf::Post
 
   private
 
-  def prev_error_log_path; datastore['ERROR_LOG']; end
-  def ctl_path; @ctl_path ||= whereis("cupsctl"); end
-  def strip_http_headers(http); http.gsub(/\A(^.*\r\n)*/, ''); end
+  def prev_error_log_path
+    datastore['ERROR_LOG']
+  end
+
+  def ctl_path
+    @ctl_path ||= whereis("cupsctl")
+  end
+
+  def strip_http_headers(http)
+    http.gsub(/\A(^.*\r\n)*/, '')
+  end
 
   def whereis(exe)
     line = cmd_exec("whereis #{exe}")

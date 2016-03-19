@@ -12,7 +12,9 @@ require 'msf/core/payload/nodejs'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 456
 
   include Msf::Payload::Single
   include Msf::Payload::NodeJS

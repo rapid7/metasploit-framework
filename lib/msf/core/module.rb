@@ -3,11 +3,13 @@ require 'msf/core'
 
 module Msf
 
+  autoload :OptionContainer, 'msf/core/option_container'
+
 ###
 #
 # The module base class is responsible for providing the common interface
 # that is used to interact with modules at the most basic levels, such as
-# by inspecting a given module's attributes (name, dsecription, version,
+# by inspecting a given module's attributes (name, description, version,
 # authors, etc) and by managing the module's data store.
 #
 ###
@@ -52,6 +54,10 @@ class Module
   include Msf::Module::Type
   include Msf::Module::UI
   include Msf::Module::UUID
+
+  # The key where a comma-separated list of Ruby module names will live in the
+  # datastore, consumed by #replicant to allow clean override of MSF module methods.
+  REPLICANT_EXTENSION_DS_KEY = 'ReplicantExtensions'
 
   # Make include public so we can runtime extend
   public_class_method :include
@@ -142,7 +148,6 @@ class Module
   # Creates a fresh copy of an instantiated module
   #
   def replicant
-
     obj = self.class.new
     self.instance_variables.each { |k|
       v = instance_variable_get(k)
@@ -154,7 +159,32 @@ class Module
     obj.user_input   = self.user_input
     obj.user_output  = self.user_output
     obj.module_store = self.module_store.clone
+
+    obj.perform_extensions
     obj
+  end
+
+  # Extends self with the constant list in the datastore
+  # @return [void]
+  def perform_extensions
+    if datastore[REPLICANT_EXTENSION_DS_KEY].present?
+      if datastore[REPLICANT_EXTENSION_DS_KEY].respond_to?(:each)
+        datastore[REPLICANT_EXTENSION_DS_KEY].each do |const|
+          self.extend(const)
+        end
+      else
+        fail "Invalid settings in datastore at key #{REPLICANT_EXTENSION_DS_KEY}"
+      end
+    end
+  end
+
+  # @param[Constant] One or more Ruby constants
+  # @return [void]
+  def register_extensions(*rb_modules)
+    datastore[REPLICANT_EXTENSION_DS_KEY] = [] unless datastore[REPLICANT_EXTENSION_DS_KEY].present?
+    rb_modules.each do |rb_mod|
+      datastore[REPLICANT_EXTENSION_DS_KEY] << rb_mod unless datastore[REPLICANT_EXTENSION_DS_KEY].include? rb_mod
+    end
   end
 
   #
@@ -236,19 +266,30 @@ class Module
   end
 
   #
-  # Returns true if this module is being debugged.  The debug flag is set
-  # by setting datastore['DEBUG'] to 1|true|yes
+  # Returns true if this module is being debugged.
   #
   def debugging?
-    (datastore['DEBUG'] || '') =~ /^(1|t|y)/i
+    datastore['DEBUG']
   end
 
   #
-  # Support fail_with for all module types, allow specific classes to override
+  # Raises a RuntimeError failure message. This is meant to be used for all non-exploits,
+  # and allows specific classes to override.
+  #
+  # @param reason [String] A reason about the failure.
+  # @param msg [String] (Optional) A message about the failure.
+  # @raise [RuntimeError]
+  # @return [void]
+  # @note If you are writing an exploit, you don't use this API. Instead, please refer to the
+  #       API documentation from lib/msf/core/exploit.rb.
+  # @see Msf::Exploit#fail_with
+  # @example
+  #   fail_with('No Access', 'Unable to login')
   #
   def fail_with(reason, msg=nil)
     raise RuntimeError, "#{reason.to_s}: #{msg}"
   end
+
 
   ##
   #
@@ -267,6 +308,7 @@ class Module
   # The array of zero or more platforms.
   #
   attr_reader   :platform
+
   #
   # The reference count for the module.
   #
@@ -286,6 +328,14 @@ class Module
   # The last exception to occur using this module
   #
   attr_accessor :error
+
+  # An opaque bag of data to attach to a module. This is useful for attaching
+  # some piece of identifying info on to a module before calling
+  # {Msf::Simple::Exploit#exploit_simple} or
+  # {Msf::Simple::Auxiliary#run_simple} for correlating where modules came
+  # from.
+  #
+  attr_accessor :user_data
 
   protected
 

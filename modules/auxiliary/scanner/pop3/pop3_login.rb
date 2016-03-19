@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/pop3'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
     'Description' => 'This module attempts to authenticate to an POP3 service.',
     'Author'      =>
     [
-      '==[ Alligator Security Team ]==',
       'Heyder Andrade <heyder[at]alligatorteam.org>'
     ],
       'References'     =>
@@ -71,8 +70,16 @@ class Metasploit3 < Msf::Auxiliary
       ssl: datastore['SSL'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       max_send_size: datastore['TCP::max_send_size'],
       send_delay: datastore['TCP::send_delay'],
+      framework: framework,
+      framework_module: self,
+      ssl_version: datastore['SSLVersion'],
+      ssl_verify_mode: datastore['SSLVerifyMode'],
+      ssl_cipher: datastore['SSLCipher'],
+      local_port: datastore['CPORT'],
+      local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|

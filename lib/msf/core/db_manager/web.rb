@@ -55,7 +55,7 @@ module Msf::DBManager::Web
     # comparisons through ruby and not SQL.
 
     form = nil
-    ::Mdm::WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
+    ::Mdm::WebForm.where(web_site_id: site[:id], path: path, method: meth, query: quer).each do |xform|
       if xform.params == para
         form = xform
         break
@@ -135,15 +135,23 @@ module Msf::DBManager::Web
 
     ret = {}
 
-    page = ::Mdm::WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
+    page = ::Mdm::WebPage.where(web_site_id: site[:id], path: path, query: query).first_or_initialize
     page.code     = code
     page.body     = body
     page.headers  = headers
     page.cookie   = opts[:cookie] if opts[:cookie]
     page.auth     = opts[:auth]   if opts[:auth]
     page.mtime    = opts[:mtime]  if opts[:mtime]
-    page.ctype    = opts[:ctype]  if opts[:ctype]
+
+
+    if opts[:ctype].blank? || opts[:ctype] == [""]
+      page.ctype = ""
+    else
+      page.ctype = opts[:ctype]
+    end
+
     page.location = opts[:location] if opts[:location]
+
     msf_import_timestamps(opts, page)
     page.save!
 
@@ -243,7 +251,7 @@ module Msf::DBManager::Web
 =end
 
     vhost ||= host.address
-    site = ::Mdm::WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
+    site = ::Mdm::WebSite.where(vhost: vhost, service_id: serv[:id]).first_or_initialize
     site.options = opts[:options] if opts[:options]
 
     # XXX:
@@ -342,7 +350,7 @@ module Msf::DBManager::Web
 
     meth = meth.to_s.upcase
 
-    vuln = ::Mdm::WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_category_and_query(site[:id], path, meth, pname, name, cat, quer)
+    vuln = ::Mdm::WebVuln.where(web_site_id: site[:id], path: path, method: meth, pname: pname, name: name, category: cat, query: quer).first_or_initialize
     vuln.name     = name
     vuln.risk     = risk
     vuln.params   = para

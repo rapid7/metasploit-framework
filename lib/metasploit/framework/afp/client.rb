@@ -77,8 +77,7 @@ module Metasploit
           begin
             response = sock.timed_read(1024, self.login_timeout)
           rescue Timeout::Error
-            #vprint_error("AFP #{rhost}:#{rport} Login timeout (AFP server delay response for 20 - 22 seconds after 7 incorrect logins)")
-            return :connection_error
+            raise RuntimeError, "AFP Login timeout (AFP server delay response for 20 - 22 seconds after 7 incorrect logins)"
           end
 
           flags, command, request_id, error_code, length, reserved = parse_header(response)
@@ -87,8 +86,7 @@ module Metasploit
           when -5001 #kFPAuthContinue
             return parse_login_response_add_send_login_count(response, {:p => p, :g => g, :ra => ra, :ma => ma,
                                                                         :password => pass, :user => user})
-          when -5023 #kFPUserNotAuth (User dosen't exists)
-            #print_status("AFP #{rhost}:#{rport} User #{user} dosen't exists")
+          when -5023 #kFPUserNotAuth (User dosen't exists)      
             return :skip_user
           else
             return :connection_error
@@ -123,8 +121,7 @@ module Metasploit
           begin
             response = sock.timed_read(1024, self.login_timeout)
           rescue Timeout::Error
-            vprint_error("AFP #{rhost}:#{rport} Login timeout (AFP server delay response for 20 - 22 seconds after 7 incorrect logins)")
-            return :connection_error
+            raise RuntimeError, "AFP Login timeout (AFP server delay response for 20 - 22 seconds after 7 incorrect logins)"
           end
 
           flags, command, request_id, error_code, length, reserved = parse_header(response)
@@ -180,8 +177,7 @@ module Metasploit
           begin
             response = sock.timed_read(1024, self.login_timeout)
           rescue Timeout::Error
-            vprint_error("AFP #{rhost}:#{rport} Login timeout (AFP server delay response for 20 - 22 seconds after 7 incorrect logins)")
-            return :connection_error
+            raise RuntimeError, "AFP Login timeout (AFP server delay response for 20 - 22 seconds after 7 incorrect logins)"
           end
 
           flags, command, request_id, error_code, length, reserved = parse_header(response)
@@ -201,7 +197,7 @@ module Metasploit
           parsed_data = {}
 
           flags, command, request_id, error_code, length, reserved = parse_header(response)
-          raise "AFP #{rhost}:#{rport} Server response with error" if error_code != 0
+          raise RuntimeError, "AFP Server response with error" if error_code != 0
           body = get_body(response, length)
           machine_type_offset, afp_versions_offset, uam_count_offset, icon_offset, server_flags =
             body.unpack('nnnnn')
@@ -243,7 +239,7 @@ module Metasploit
 
         def get_body(packet, body_length)
           body = packet[16..body_length + 15]
-          raise "AFP #{rhost}:#{rport} Invalid body length" if body.length != body_length
+          raise RuntimeError, "AFP Invalid body length" if body.length != body_length
           return body
         end
 
@@ -291,7 +287,7 @@ module Metasploit
             when 7 # IPv6 address (16 bytes) followed by a two-byte port number
               parsed_addreses << "[#{IPAddr.ntop(address[1..16])}]:#{address[17..18].unpack("n").first}"
             else   # Something wrong?
-              raise "Error parsing network addresses"
+              raise RuntimeError, "Error parsing network addresses"
             end
           end
           return parsed_addreses

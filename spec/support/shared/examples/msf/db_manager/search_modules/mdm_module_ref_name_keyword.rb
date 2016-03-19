@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword' do |keyword|
+RSpec.shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword' do |keyword|
   context "with #{keyword} keyword" do
     let(keyword) do
       1
@@ -12,7 +12,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword
       "#{keyword}:#{send(keyword)}"
     end
 
-    before(:each) do
+    before(:example) do
       FactoryGirl.create(:mdm_module_ref, :name => name)
     end
 
@@ -25,19 +25,21 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword
       end
 
       it 'should match Mdm::Module::Ref#name' do
-        module_details.count.should > 0
+        expect(module_details.count).to be > 0
 
-        module_details.all? { |module_detail|
-          module_detail.refs.any? { |module_ref|
-            module_ref.name == name
+        expect(
+          module_details.all? { |module_detail|
+            module_detail.refs.any? { |module_ref|
+              module_ref.name == name
+            }
           }
-        }.should be_truthy
+        ).to eq true
       end
     end
 
     context "without #{context_suffix}" do
       it 'should not match Mdm::Module::Ref#name' do
-        module_details.count.should == 0
+        expect(module_details.count).to eq 0
       end
     end
   end

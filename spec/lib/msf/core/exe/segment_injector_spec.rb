@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'msf/core/exe/segment_injector'
 
-describe Msf::Exe::SegmentInjector do
+RSpec.describe Msf::Exe::SegmentInjector do
 
   let(:opts) do
     option_hash = {
@@ -12,27 +12,21 @@ describe Msf::Exe::SegmentInjector do
   end
   subject(:injector) { Msf::Exe::SegmentInjector.new(opts) }
 
-  it { should respond_to :payload }
-  it { should respond_to :template }
-  it { should respond_to :arch }
-  it { should respond_to :processor }
-  it { should respond_to :buffer_register }
+  it { is_expected.to respond_to :payload }
+  it { is_expected.to respond_to :template }
+  it { is_expected.to respond_to :arch }
+  it { is_expected.to respond_to :processor }
+  it { is_expected.to respond_to :buffer_register }
 
   it 'should return the correct processor for the arch' do
-    injector.processor.class.should == Metasm::Ia32
+    expect(injector.processor.class).to eq Metasm::Ia32
     injector.arch = :x64
-    injector.processor.class.should == Metasm::X86_64
-  end
-
-  context '#payload_as_asm' do
-    it 'should return the payload as declare byte instructions' do
-      injector.payload_as_asm.should == "db 0xd9\ndb 0xeb\ndb 0x9b\ndb 0xd9\ndb 0x74\ndb 0x24\n"
-    end
+    expect(injector.processor.class).to eq Metasm::X86_64
   end
 
   context '#create_thread_stub' do
     it 'should use edx as a default buffer register' do
-      injector.buffer_register.should == 'edx'
+      expect(injector.buffer_register).to eq 'edx'
     end
 
     context 'when given a non-default buffer register' do
@@ -45,18 +39,18 @@ describe Msf::Exe::SegmentInjector do
         }
       end
       it 'should use the correct buffer register' do
-        injector.buffer_register.should == 'eax'
+        expect(injector.buffer_register).to eq 'eax'
       end
     end
 
     it 'should set a buffer register for the payload' do
-      injector.create_thread_stub.should include('lea edx, [thread_hook]')
+      expect(injector.create_thread_stub).to include('lea edx, [thread_hook]')
     end
   end
 
   describe '#generate_pe' do
     it 'should return a string' do
-      injector.generate_pe.kind_of?(String).should == true
+      expect(injector.generate_pe.kind_of?(String)).to eq true
     end
 
     it 'should produce a valid PE exe' do
@@ -66,25 +60,25 @@ describe Msf::Exe::SegmentInjector do
     context 'the generated exe' do
       let(:exe) { Metasm::PE.decode(injector.generate_pe) }
       it 'should be the propper arch' do
-        exe.bitsize.should == 32
+        expect(exe.bitsize).to eq 32
       end
 
       it 'should have 5 sections' do
-        exe.sections.count.should == 5
+        expect(exe.sections.count).to eq 5
       end
 
       it 'should have all the right section names' do
         s_names = []
         exe.sections.collect {|s| s_names << s.name}
-        s_names.should == [".text", ".rdata", ".data", ".rsrc", ".text"]
+        expect(s_names).to eq [".text", ".rdata", ".data", ".rsrc", ".text"]
       end
 
       it 'should have the last section set to RWX' do
-        exe.sections.last.characteristics.should == ["CONTAINS_CODE", "MEM_EXECUTE", "MEM_READ", "MEM_WRITE"]
+        expect(exe.sections.last.characteristics).to eq ["CONTAINS_CODE", "MEM_EXECUTE", "MEM_READ", "MEM_WRITE"]
       end
 
       it 'should have an entrypoint that points to the last section' do
-        exe.optheader.entrypoint.should == exe.sections.last.virtaddr
+        expect(exe.optheader.entrypoint).to eq exe.sections.last.virtaddr
       end
     end
   end

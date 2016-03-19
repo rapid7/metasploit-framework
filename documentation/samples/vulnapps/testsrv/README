@@ -1,2 +1,0 @@
-This is meant to be used in conjunction with the test/aggressive exploit.  It
-simply executes whatever code is passed to it over the socket.

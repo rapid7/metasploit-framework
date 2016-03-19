@@ -175,25 +175,28 @@ module ShadowCopy
       print_status("Volume Shadow Copy service is running.")
     else
       print_status("Volume Shadow Copy service not running. Starting it now...")
-      begin
-        ss_result = service_start("VSS")
-        case ss_result
-        when 0
-          print_status("Volume Shadow Copy started successfully.")
-        when 1
-          print_error("Volume Shadow Copy already running.")
-        when 2
-          print_error("Volume Shadow Copy is disabled.")
-          print_status("Attempting to re-enable...")
-          service_change_startup("VSS","manual")
-          ss_result = service_start("VSS")
-          if ss_result == 0
-            return true
-          else
-            return false
-          end
-        end
-      rescue
+      if service_restart("VSS", START_TYPE_MANUAL)
+        print_good("Volume Shadow Copy started successfully.")
+      else
+        print_error("Insufficient Privs to start service!")
+        return false
+      end
+    end
+    unless start_swprv
+      return false
+    end
+    return true
+  end
+
+  def start_swprv
+    vss_state = wmic_query('Service where(name="swprv") get state')
+    if vss_state=~ /Running/
+      print_status("Software Shadow Copy service is running.")
+    else
+      print_status("Software Shadow Copy service not running. Starting it now...")
+      if service_restart("swprv", START_TYPE_MANUAL)
+        print_good("Software Shadow Copy started successfully.")
+      else
         print_error("Insufficient Privs to start service!")
         return false
       end

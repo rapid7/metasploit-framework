@@ -112,16 +112,15 @@ module Msf::ModuleManager::Cache
       else
         framework.db.update_all_module_details
       end
-
-      refresh_cache_from_database
+      refresh_cache_from_database(self.module_paths)
     end
   end
 
   # Refreshes the in-memory cache from the database cache.
   #
   # @return [void]
-  def refresh_cache_from_database
-    self.module_info_by_path_from_database!
+  def refresh_cache_from_database(allowed_paths=[""])
+    self.module_info_by_path_from_database!(allowed_paths)
   end
 
   protected
@@ -131,11 +130,7 @@ module Msf::ModuleManager::Cache
   # @return [true] if migrations have been run
   # @return [false] otherwise
   def framework_migrated?
-    if framework.db and framework.db.migrated
-      true
-    else
-      false
-    end
+    framework.db && framework.db.migrated
   end
 
   # @!attribute [rw] module_info_by_path
@@ -149,10 +144,12 @@ module Msf::ModuleManager::Cache
   # @return [Hash{String => Hash{Symbol => Object}}] Maps path (Mdm::Module::Detail#file) to module information.  Module
   #   information is a Hash derived from Mdm::Module::Detail.  It includes :modification_time, :parent_path, :type,
   #   :reference_name.
-  def module_info_by_path_from_database!
+  def module_info_by_path_from_database!(allowed_paths=[""])
     self.module_info_by_path = {}
 
     if framework_migrated?
+      allowed_paths = allowed_paths.map{|x| x + "/"}
+
       ActiveRecord::Base.connection_pool.with_connection do
         # TODO record module parent_path in Mdm::Module::Detail so it does not need to be derived from file.
         # Use find_each so Mdm::Module::Details are returned in batches, which will
@@ -161,6 +158,9 @@ module Msf::ModuleManager::Cache
           path = module_detail.file
           type = module_detail.mtype
           reference_name = module_detail.refname
+
+          # Skip cached modules that are not in our allowed load paths
+          next if allowed_paths.select{|x| path.index(x) == 0}.empty?
 
           typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
           # join to '' so that typed_path_prefix starts with file separator

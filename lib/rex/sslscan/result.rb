@@ -15,6 +15,24 @@ class Result
     @cert = nil
     @ciphers = Set.new
     @supported_versions = [:SSLv2, :SSLv3, :TLSv1]
+    @deprecated_weak_ciphers = [
+      'ECDHE-RSA-DES-CBC3-SHA',
+      'ECDHE-ECDSA-DES-CBC3-SHA',
+      'SRP-DSS-3DES-EDE-CBC-SHA',
+      'SRP-RSA-3DES-EDE-CBC-SHA',
+      'SRP-3DES-EDE-CBC-SHA',
+      'EDH-RSA-DES-CBC3-SHA',
+      'EDH-DSS-DES-CBC3-SHA',
+      'ECDH-RSA-DES-CBC3-SHA',
+      'ECDH-ECDSA-DES-CBC3-SHA',
+      'DES-CBC3-SHA',
+      'PSK-3DES-EDE-CBC-SHA',
+      'EXP-EDH-RSA-DES-CBC-SHA',
+      'EXP-EDH-DSS-DES-CBC-SHA',
+      'EXP-DES-CBC-SHA',
+      'EXP-RC2-CBC-MD5',
+      'EXP-RC4-MD5'
+    ]
   end
 
   def cert
@@ -113,7 +131,8 @@ class Result
     unless @supported_versions.include? version
       raise ArgumentError, "Must be a supported SSL Version"
     end
-    unless OpenSSL::SSL::SSLContext.new(version).ciphers.flatten.include? cipher
+    unless OpenSSL::SSL::SSLContext.new(version).ciphers.flatten.include?(cipher) \
+        || @deprecated_weak_ciphers.include?(cipher)
       raise ArgumentError, "Must be a valid SSL Cipher for #{version}!"
     end
     unless key_length.kind_of? Fixnum

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Capture
 
@@ -18,11 +18,7 @@ class Metasploit3 < Msf::Auxiliary
       must match the rogue_send parameters used exactly.
       },
       'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
-        ]
+      'License'     => MSF_LICENSE
     )
 
     register_options([

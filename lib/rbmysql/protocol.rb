@@ -234,6 +234,7 @@ class RbMysql
       begin
         Timeout.timeout @read_timeout do
           header = @sock.read(4)
+          raise EOFError unless header && header.length == 4
           len1, len2, seq = header.unpack("CvC")
           len = (len2 << 8) + len1
           # Ignore the sequence number -- protocol differences between 4.x and 5.x

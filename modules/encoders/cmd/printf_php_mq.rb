@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
 
   # Has some issues, but overall it's pretty good
   # - printf(1) may not be available
@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Encoder
       (state.badchars.include?("|")) or
       # We must have at least ONE of these two..
       (state.badchars.include?("x") and state.badchars.include?("0"))
-      raise RuntimeError
+      raise EncodingError
     end
 
     # Now we build a string of the original payload with bad characters

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
@@ -21,9 +21,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'Steve Jones', #original discoverer
-          'Hoagie <andi[at]void.at>', #original public exploit
-          'Paulino Calderon <calderon[at]websec.mx>', #metasploit module
+          'Steve Jones', # original discoverer
+          'Hoagie <andi[at]void.at>', # original public exploit
+          'Paulino Calderon <calderon[at]websec.mx>', # metasploit module
         ],
       'License'        => MSF_LICENSE,
       'References'     =>

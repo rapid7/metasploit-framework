@@ -16,7 +16,9 @@ require 'msf/core/handler/reverse_tcp'
 # OSX reverse TCP stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 100
 
   include Msf::Payload::Stager
 

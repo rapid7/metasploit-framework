@@ -6,7 +6,7 @@ require 'rex'
 # It provides methods to generate Java / JSP code.
 module Msf::Payload::JSP
 
-  # @param attributes [Hash{Symbol => String,nil}]
+  # @param [Hash<Symbol, [String, nil]>] info
   def initialize(info = {})
     ret = super(info)
 

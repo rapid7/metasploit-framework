@@ -16,7 +16,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -89,6 +89,7 @@ class Metasploit4 < Msf::Auxiliary
         'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
         'ctype' => 'text/xml; charset=UTF-8',
+        'encode_params' => false,
         'headers' => {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
         },

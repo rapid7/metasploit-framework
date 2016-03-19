@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/encoder/xdr'
 
-describe Rex::Encoder::XDR do
+RSpec.describe Rex::Encoder::XDR do
 
   describe ".encode_int" do
     subject(:encoded_int) { described_class.encode_int(int) }

@@ -13,6 +13,7 @@ module Handler
 ###
 module ReverseHttps
 
+  include Msf::Handler::Reverse::SSL
   include Msf::Handler::ReverseHttp
 
   #
@@ -38,7 +39,12 @@ module ReverseHttps
 
     register_options(
       [
-        OptPort.new('LPORT', [ true, "The local listener port", 8443 ])
+        OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
+      ], Msf::Handler::ReverseHttps)
+
+    register_advanced_options(
+      [
+        OptBool.new('StagerVerifySSLCert', [false, "Whether to verify the SSL certificate in Meterpreter"])
       ], Msf::Handler::ReverseHttps)
 
   end

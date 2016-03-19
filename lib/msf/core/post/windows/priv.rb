@@ -90,7 +90,7 @@ module Msf::Post::Windows::Priv
     uac = false
     winversion = session.sys.config.sysinfo['OS']
 
-    if winversion =~ /Windows (Vista|7|8|2008)/
+    if winversion =~ /Windows (Vista|7|8|2008|2012)/
       unless is_system?
         begin
           enable_lua = registry_getvaldata(
@@ -145,6 +145,14 @@ module Msf::Post::Windows::Priv
         end
       end
     end
+  end
+
+  #
+  # Returns true if in a high integrity, or system, service
+  #
+  def is_high_integrity?
+    il = get_integrity_level
+    (il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SIDE[:system])
   end
 
   #

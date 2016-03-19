@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-load Metasploit::Framework.root.join('tools/virustotal.rb').to_path
+load Metasploit::Framework.root.join('tools/exploit/virustotal.rb').to_path
 
 require 'msfenv'
 require 'msf/base'
 require 'digest/sha2'
 
-describe VirusTotalUtility do
+RSpec.describe VirusTotalUtility do
 
   context "Classes" do
     let(:api_key) do
@@ -30,11 +30,11 @@ describe VirusTotalUtility do
 
         context ".Initializer" do
           it "should init the config file path as Metasploit's default config path" do
-            tool_config.instance_variable_get(:@config_file).should eq(Msf::Config.config_file)
+            expect(tool_config.instance_variable_get(:@config_file)).to eq(Msf::Config.config_file)
           end
 
           it "should init the group name as 'VirusTotal'" do
-            tool_config.instance_variable_get(:@group_name).should eq('VirusTotal')
+            expect(tool_config.instance_variable_get(:@group_name)).to eq('VirusTotal')
           end
         end
       end
@@ -86,52 +86,52 @@ describe VirusTotalUtility do
 
         let(:vt) do
           file = double(File, read: malware_data)
-          File.stub(:open).with(filename, 'rb') {|&block| block.yield file}
+          allow(File).to receive(:open).with(filename, 'rb') {|&block| block.yield file}
           VirusTotalUtility::VirusTotal.new({'api_key'=>api_key, 'sample'=>filename})
         end
 
         context ".Initializer" do
           it "should have an API key" do
-            vt.instance_variable_get(:@api_key).should eq(api_key)
+            expect(vt.instance_variable_get(:@api_key)).to eq(api_key)
           end
 
           it "should have a checksum for the malware sample" do
-            vt.instance_variable_get(:@sample_info)['sha256'].should eq(malware_sha256)
+            expect(vt.instance_variable_get(:@sample_info)['sha256']).to eq(malware_sha256)
           end
         end
 
         context "._load_sample" do
           it "should contain sample info including data, filename, and sha256" do
-            vt.send(:_load_sample, filename).should eq(sample)
+            expect(vt.send(:_load_sample, filename)).to eq(sample)
           end
         end
 
         context ".scan_sample" do
           it "should return with data" do
-            vt.stub(:_execute_request).and_return('')
-            vt.scan_sample.should eq('')
+            expect(vt).to receive(:_execute_request).and_return('')
+            expect(vt.scan_sample).to eq('')
           end
         end
 
         context ".retrieve_report" do
           it "should return with data" do
-            vt.stub(:_execute_request).and_return('')
-            vt.retrieve_report.should eq('')
+            expect(vt).to receive(:_execute_request).and_return('')
+            expect(vt.retrieve_report).to eq('')
           end
         end
 
         context "._execute_request" do
           it "should return status code 204" do
             res = double(Rex::Proto::Http::Response)
-            res.stub(:code).and_return(204)
-            vt.stub(:send_request_cgi).with(scan_sample_opts).and_return(res)
+            expect(res).to receive(:code).and_return(204)
+            expect(vt).to receive(:send_request_cgi).with(scan_sample_opts).and_return(res)
             expect { vt.send(:_execute_request, scan_sample_opts) }.to raise_error(RuntimeError)
           end
 
           it "should return status code 403" do
             res = double(Rex::Proto::Http::Response)
-            res.stub(:code).and_return(403)
-            vt.stub(:send_request_cgi).with(scan_sample_opts).and_return(res)
+            expect(res).to receive(:code).and_return(403)
+            expect(vt).to receive(:send_request_cgi).with(scan_sample_opts).and_return(res)
             expect { vt.send(:_execute_request, scan_sample_opts) }.to raise_error(RuntimeError)
           end
         end
@@ -147,24 +147,24 @@ describe VirusTotalUtility do
             }
           end
 
-          before(:each) do
+          before(:example) do
             @upload_data = vt.send(:_create_upload_data, form_opts)
           end
 
           it "should create form-data with a boundary" do
-            @upload_data.should match(/#{boundary}/)
+            expect(@upload_data).to match(/#{boundary}/)
           end
 
           it "should create form-data with the API key" do
-            @upload_data.should match(/#{api_key}/)
+            expect(@upload_data).to match(/#{api_key}/)
           end
 
           it "should create form-data with the malware filename" do
-            @upload_data.should match(/#{filename}/)
+            expect(@upload_data).to match(/#{filename}/)
           end
 
           it "should create form-data with the malware data" do
-            @upload_data.should match(/#{malware_data}/)
+            expect(@upload_data).to match(/#{malware_data}/)
           end
         end
       end
@@ -172,19 +172,6 @@ describe VirusTotalUtility do
 
 
     describe VirusTotalUtility::Driver do
-      # Get stdout:
-      # http://stackoverflow.com/questions/11349270/test-output-to-command-line-with-rspec
-      def get_stdout(&block)
-        out = $stdout
-        $stdout = fake = StringIO.new
-        begin
-          yield
-        ensure
-          $stdout = out
-        end
-        fake.string
-      end
-
       before do
         $stdin = StringIO.new("Y\n")
       end
@@ -201,19 +188,21 @@ describe VirusTotalUtility do
           'delay'   => 60
         }
 
-        VirusTotalUtility::OptsConsole.stub(:parse).with(anything).and_return(options)
+        expect(VirusTotalUtility::OptsConsole).to receive(:parse).with(anything).and_return(options)
 
+        tool_config = instance_double(
+          VirusTotalUtility::ToolConfig,
+          has_privacy_waiver?: true,
+          load_api_key: api_key,
+          save_api_key: nil,
+          save_privacy_waiver: nil
+        )
 
-        tool_config = double("tool_config")
-        VirusTotalUtility::ToolConfig.stub(:new).and_return(tool_config)
-        tool_config.stub(:has_privacy_waiver?).and_return(true)
-        tool_config.stub(:load_api_key).and_return(api_key)
-        tool_config.stub(:save_privacy_waiver)
-        tool_config.stub(:save_api_key).with(anything)
+        expect(VirusTotalUtility::ToolConfig).to receive(:new).and_return(tool_config)
 
         d = nil
 
-        out = get_stdout {
+        get_stdout {
           d = VirusTotalUtility::Driver.new
         }
 
@@ -224,7 +213,7 @@ describe VirusTotalUtility do
 
         context ".initialize" do
           it "should return a Driver object" do
-            driver.class.should eq(VirusTotalUtility::Driver)
+            expect(driver.class).to eq(VirusTotalUtility::Driver)
           end
         end
 
@@ -232,7 +221,7 @@ describe VirusTotalUtility do
           it "should have a link of VirusTotal's terms of service" do
             tos = 'https://www.virustotal.com/en/about/terms-of-service'
             out = get_stdout { driver.ack_privacy }
-            out.should match(/#{tos}/)
+            expect(out).to match(/#{tos}/)
           end
         end
 
@@ -246,7 +235,7 @@ describe VirusTotalUtility do
             }
 
             out = get_stdout { driver.generate_report(res, filename) }
-            out.should match(/#{res['scans']['Bkav']['version']}/)
+            expect(out).to match(/#{res['scans']['Bkav']['version']}/)
           end
         end
       end

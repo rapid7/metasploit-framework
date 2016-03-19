@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mybook_live'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -55,20 +55,13 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::MyBookLive.new(
-      host: ip,
-      port: rport,
-      proxies: datastore['PROXIES'],
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      connection_timeout: 10,
-      user_agent: datastore['UserAgent'],
-      vhost: datastore['VHOST']
+      configure_http_login_scanner(
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 10,
+      )
     )
-
-    if ssl
-      scanner.ssl = datastore['SSL']
-      scanner.ssl_version = datastore['SSLVERSION']
-    end
 
     scanner.scan! do |result|
       credential_data = result.to_h

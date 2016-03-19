@@ -8,7 +8,9 @@ require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 185
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions

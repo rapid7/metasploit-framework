@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanFile
@@ -84,6 +84,7 @@ class Metasploit3 < Msf::Auxiliary
         report_note(
           :host   => rhost,
           :port   => rport,
+          :type   => 'apache.killer',
           :data   => "Apache Byte-Range DOS at #{path}"
         )
 

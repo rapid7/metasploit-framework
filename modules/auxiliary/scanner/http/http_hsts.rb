@@ -5,23 +5,23 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
   def initialize(info={})
     super(update_info(info,
-      'Name'        => 'HTTP Strict Transport Security (HSTS) Detection',
-      'Description' => %q{
+      'Name'            => 'HTTP Strict Transport Security (HSTS) Detection',
+      'Description'     => %q{
         Display HTTP Strict Transport Security (HSTS) information about each system.
       },
-      'Author'      => 'Matt "hostess" Andreko <mandreko[at]accuvant.com>',
-      'License'     => MSF_LICENSE
+      'Author'          => 'Matt "hostess" Andreko <mandreko[at]accuvant.com>',
+      'License'         => MSF_LICENSE,
+      'DefaultOptions'  => { 'SSL' => true }
     ))
 
     register_options([
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
         Opt::RPORT(443)
       ])
   end

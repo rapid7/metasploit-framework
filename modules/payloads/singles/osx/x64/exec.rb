@@ -6,7 +6,9 @@
 
 require 'msf/core'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 31
 
   include Msf::Payload::Single
 

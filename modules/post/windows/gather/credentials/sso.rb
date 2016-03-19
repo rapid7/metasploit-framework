@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/post/windows/priv'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Post
       /^LOCAL SYSTEM$/
     ]
 
-    return system_users.find{|r| user.match(r)}
+    system_users.find{|r| user.to_s.match(r)}
   end
 
 end

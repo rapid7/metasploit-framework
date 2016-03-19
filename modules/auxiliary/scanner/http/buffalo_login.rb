@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/buffalo'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -34,24 +34,22 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     cred_collection = Metasploit::Framework::CredentialCollection.new(
-            blank_passwords: datastore['BLANK_PASSWORDS'],
-            pass_file: datastore['PASS_FILE'],
-            password: datastore['PASSWORD'],
-            user_file: datastore['USER_FILE'],
-            userpass_file: datastore['USERPASS_FILE'],
-            username: datastore['USERNAME'],
-            user_as_pass: datastore['USER_AS_PASS']
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS']
     )
 
     scanner = Metasploit::Framework::LoginScanner::Buffalo.new(
-      host: ip,
-      port: rport,
-      proxies: datastore['PROXIES'],
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      connection_timeout: 10,
-      user_agent: datastore['UserAgent'],
-      vhost: datastore['VHOST']
+      configure_http_login_scanner(
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 10
+      )
     )
 
     scanner.scan! do |result|

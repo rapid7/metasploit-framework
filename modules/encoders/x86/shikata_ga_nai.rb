@@ -8,7 +8,7 @@ require 'rex/poly'
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
+class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # The shikata encoder has an excellent ranking because it is polymorphic.
   # Party time, excellent!
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
   end
 
   # Indicate that this module can preserve some registers
-  def preserves_registers?
+  def can_preserve_registers?
     true
   end
 
@@ -281,8 +281,9 @@ protected
     begin
       # Generate a permutation saving the ECX, ESP, and user defined registers
       loop_inst.generate(block_generator_register_blacklist, nil, state.badchars)
-    rescue RuntimeError => e
-      raise EncodingError
+    rescue RuntimeError, EncodingError => e
+      # The Rex::Poly block generator can raise RuntimeError variants
+      raise EncodingError, e.to_s
     end
   end
 

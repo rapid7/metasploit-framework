@@ -125,7 +125,7 @@ class JmpRegScanner < Generic
             message = "push #{regname}; " + _parse_ret(mach.read(offset+2, retsize))
             offset += 2 + retsize
         else
-            raise "wtf"
+            raise "Unexpected value at offset: #{offset}"
         end
       else
         regname = Rex::Arch::X86.reg_name32(byte1 & 0x7)

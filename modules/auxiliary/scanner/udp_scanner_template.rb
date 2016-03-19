@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
@@ -22,10 +22,6 @@ class Metasploit3 < Msf::Auxiliary
           Simply address any of the TODOs.
         ),
         'Author'         => 'Joe Contributor <joe_contributor[at]example.com>',
-        'References'     =>
-          [
-            ['URL', 'https://example.com/~jcontributor']
-          ],
         'DisclosureDate' => 'Mar 15 2014',
         'License'        => MSF_LICENSE
       )

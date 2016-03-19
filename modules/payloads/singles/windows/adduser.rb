@@ -13,7 +13,9 @@ require 'msf/core/payload/windows/exec'
 # Extends the Exec payload to add a new user.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 282
 
   include Msf::Payload::Windows::Exec
 

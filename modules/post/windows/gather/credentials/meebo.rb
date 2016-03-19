@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
         'Author' =>
           [
             'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
-            'SecurityXploded Team  <www.SecurityXploded.com>'
+            'Unknown', # SecurityXploded Team, www.SecurityXploded.com
           ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ]

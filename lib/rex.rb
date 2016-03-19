@@ -42,6 +42,7 @@ end
 require 'rex/constants'
 require 'rex/exceptions'
 require 'rex/transformer'
+require 'rex/random_identifier_generator'
 require 'rex/text'
 require 'rex/time'
 require 'rex/job_container'

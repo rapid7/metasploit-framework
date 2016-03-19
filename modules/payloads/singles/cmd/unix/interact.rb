@@ -8,7 +8,9 @@ require 'msf/core/handler/find_shell'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 0
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions

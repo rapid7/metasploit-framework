@@ -55,7 +55,7 @@ module Auxiliary
 
     # Verify the ACTION
     if (mod.actions.length > 0 and not mod.action)
-      raise MissingActionError, "You must specify a valid Action", caller
+      raise MissingActionError, "Please use: #{mod.actions.collect {|e| e.name} * ", "}"
     end
 
     # Verify the options
@@ -112,6 +112,8 @@ module Auxiliary
     # Validate the option container state so that options will
     # be normalized
     mod.validate
+
+    mod.setup
 
     # Run check
     mod.check

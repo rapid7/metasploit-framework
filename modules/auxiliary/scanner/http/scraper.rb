@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -20,14 +20,14 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'HTTP Page Scraper',
       'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
-      'Author'       => ['et'],
+      'Author'      => ['et'],
       'License'     => MSF_LICENSE
     )
 
     register_options(
       [
         OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
-        OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", %r{<title>(.*)</title>}i])
+        OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", '<title>(.*)</title>'])
 
       ], self.class)
 

@@ -8,7 +8,9 @@ require 'msf/core'
 require 'msf/core/payload/php'
 
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = :dynamic
 
   include Msf::Payload::Php
   include Msf::Payload::Single

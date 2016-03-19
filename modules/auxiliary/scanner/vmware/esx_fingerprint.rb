@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -22,14 +22,13 @@ class Metasploit3 < Msf::Auxiliary
         and attempts to identify version information for that server.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options([Opt::RPORT(443),
       OptString.new('URI', [false, 'The uri path to test against' , '/sdk'])
     ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
   end
 
 
@@ -80,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{rhost}:#{rport} - Identified #{full_match[1]}")
       report_service(:host => (this_host || ip), :port => rport, :proto => 'tcp', :name => 'https', :info => full_match[1])
     end
-    
+
     if os_match and ver_match and build_match
       if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
         # Report a fingerprint match for OS identification

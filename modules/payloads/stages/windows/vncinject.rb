@@ -15,7 +15,7 @@ require 'msf/base/sessions/vncinject_options'
 # Injects the VNC server DLL (via Reflective Dll Injection) and runs it over the established connection.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows::ReflectiveDllInject
   include Msf::Sessions::VncInjectOptions
@@ -25,7 +25,8 @@ module Metasploit3
       'Name'          => 'VNC Server (Reflective Injection)',
       'Description'   => 'Inject a VNC Dll via a reflective loader (staged)',
       'Author'        => [ 'sf' ],
-      'Session'       => Msf::Sessions::VncInject ))
+      'Session'       => Msf::Sessions::VncInject,
+      'Convention'    => 'sockedi -http -https'))
 
   end
 

@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
 
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Post
     end
 
     result = client.railgun.netapi32.NetServerEnum(nil,101,4,-1,4,4,lookuptype,datastore['DOMAIN'],0)
-    # print_error(result.inspect)
+
     if result['totalentries'] == 0
       print_error("No systems found of that type")
       return

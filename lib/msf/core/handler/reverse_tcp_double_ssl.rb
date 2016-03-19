@@ -15,6 +15,9 @@ module Handler
 module ReverseTcpDoubleSSL
 
   include Msf::Handler
+  include Msf::Handler::Reverse
+  include Msf::Handler::Reverse::Comm
+  include Msf::Handler::Reverse::SSL
 
   #
   # Returns the string representation of the handler type, in this case
@@ -33,24 +36,25 @@ module ReverseTcpDoubleSSL
   end
 
   #
-  # Initializes the reverse TCP handler and ads the options that are required
+  # Initializes the reverse TCP handler and adds the options that are required
   # for all reverse TCP payloads, like local host and local port.
   #
   def initialize(info = {})
     super
 
-    register_options(
-      [
-        Opt::LHOST,
-        Opt::LPORT(4444)
-      ], Msf::Handler::ReverseTcpDoubleSSL)
-
     register_advanced_options(
       [
-        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
+        OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
       ], Msf::Handler::ReverseTcpDoubleSSL)
 
     self.conn_threads = []
+  end
+
+  # A string suitable for displaying to the user
+  #
+  # @return [String]
+  def human_name
+    "reverse TCP double SSL"
   end
 
   #
@@ -62,17 +66,39 @@ module ReverseTcpDoubleSSL
     if datastore['Proxies'] and not datastore['ReverseAllowProxy']
       raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
     end
-    self.listener_sock = Rex::Socket::TcpServer.create(
-      # 'LocalHost' => datastore['LHOST'],
-      'LocalPort' => datastore['LPORT'].to_i,
-      'Comm'      => comm,
-      'SSL'       => true,
-      'Context'   =>
-        {
-          'Msf'        => framework,
-          'MsfPayload' => self,
-          'MsfExploit' => assoc_exploit
-        })
+
+    ex = false
+
+    comm = select_comm
+    local_port = bind_port
+
+    bind_addresses.each { |ip|
+      begin
+
+        self.listener_sock = Rex::Socket::SslTcpServer.create(
+        'LocalHost' => ip,
+        'LocalPort' => local_port,
+        'Comm'      => comm,
+        'SSLCert'   => datastore['HandlerSSLCert'],
+        'Context'   =>
+          {
+            'Msf'        => framework,
+            'MsfPayload' => self,
+            'MsfExploit' => assoc_exploit
+          })
+
+        ex = false
+
+        via = via_string_for_ip(ip, comm)
+
+        print_status("Started reverse double SSL handler on #{ip}:#{local_port} #{via}")
+        break
+      rescue
+        ex = $!
+        print_error("Handler failed to bind to #{ip}:#{local_port}")
+      end
+    }
+    raise ex if (ex)
   end
 
   #
@@ -95,8 +121,6 @@ module ReverseTcpDoubleSSL
     self.listener_thread = framework.threads.spawn("ReverseTcpDoubleSSLHandlerListener", false) {
       sock_inp = nil
       sock_out = nil
-
-      print_status("Started reverse double handler")
 
       begin
         # Accept two client connection
@@ -121,7 +145,7 @@ module ReverseTcpDoubleSSL
           begin
             sock_inp, sock_out = detect_input_output(client_a_copy, client_b_copy)
             chan = TcpReverseDoubleSSLSessionChannel.new(framework, sock_inp, sock_out)
-            handle_connection(chan.lsock)
+            handle_connection(chan.lsock, { datastore: datastore })
           rescue
             elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
           end

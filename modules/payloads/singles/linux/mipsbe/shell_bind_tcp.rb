@@ -8,7 +8,9 @@ require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 232
 
   include Msf::Payload::Single
   include Msf::Payload::Linux

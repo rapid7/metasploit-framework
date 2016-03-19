@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Exploit::JSObfu
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       response = JSON.parse(request.body)
     rescue JSON::ParserError
-      print_bad "Invalid JSON request."
+      print_error "Invalid JSON request."
     else
       url = response['url']
       if response && url

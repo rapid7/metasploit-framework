@@ -23,6 +23,10 @@ require 'msf/core/service_state'
 class Msf::DBManager
   extend Metasploit::Framework::Require
 
+  # Default proto for making new `Mdm::Service`s. This should probably be a
+  # const on `Mdm::Service`
+  DEFAULT_SERVICE_PROTO = "tcp"
+
   autoload :Adapter, 'msf/core/db_manager/adapter'
   autoload :Client, 'msf/core/db_manager/client'
   autoload :Connection, 'msf/core/db_manager/connection'
@@ -100,7 +104,7 @@ class Msf::DBManager
   attr_accessor :usable
 
   #
-  # iniitialize
+  # initialize
   #
 
   def initialize(framework, opts = {})
@@ -130,7 +134,7 @@ class Msf::DBManager
   #
   def check
   ::ActiveRecord::Base.connection_pool.with_connection {
-    res = ::Mdm::Host.find(:first)
+    res = ::Mdm::Host.first
   }
   end
 
@@ -158,15 +162,5 @@ class Msf::DBManager
     initialize_adapter
 
     true
-  end
-
-  # Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
-  # Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
-  def warn_about_rubies
-    if ::RUBY_VERSION =~ /^1\.9\.[012]($|[^\d])/
-      $stderr.puts "**************************************************************************************"
-      $stderr.puts "Metasploit requires at least Ruby 1.9.3. For an easy upgrade path, see https://rvm.io/"
-      $stderr.puts "**************************************************************************************"
-    end
   end
 end

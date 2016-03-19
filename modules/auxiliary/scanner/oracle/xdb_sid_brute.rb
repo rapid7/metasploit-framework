@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -176,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
 
-      #database links
+      # database links
       res = send_request_raw({
         'uri'     => '/oradb/PUBLIC/ALL_DB_LINKS',
         'version' => '1.1',

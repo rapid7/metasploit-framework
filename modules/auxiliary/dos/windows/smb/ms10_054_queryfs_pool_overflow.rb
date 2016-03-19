@@ -3,9 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::SMB
+  include Msf::Exploit::Remote::SMB::Client
   include Auxiliary::Dos
 
   def initialize(info = {})

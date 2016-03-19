@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   # extract/verify by by XORing your kcpassword with your password
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
       'References'    => [
         ['URL', 'http://www.brock-family.org/gavin/perl/kcpassword.html']
       ],
-      'SessionTypes'  => [ 'shell' ]
+      'SessionTypes'  => [ 'meterpreter', 'shell' ]
     ))
 
     register_advanced_options([

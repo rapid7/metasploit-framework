@@ -6,7 +6,9 @@
 require 'msf/core'
 require 'msf/core/payload/generic'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 0
 
   include Msf::Payload::Single
   include Msf::Payload::Generic

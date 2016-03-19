@@ -1,6 +1,6 @@
 ##
 #
-# This plugin requires Metasploit: http//metasploit.com/download
+# This plugin requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 ##
@@ -140,9 +140,9 @@ class Plugin::Wiki < Msf::Plugin
       outputs = []
 
       # Output the table
-      if respond_to? "#{command}_to_table"
+      if respond_to? "#{command}_to_table", true
         table = send "#{command}_to_table", tbl_opts
-        if table.respond_to? "to_#{wiki_type}"
+        if table.respond_to? "to_#{wiki_type}", true
           if tbl_opts[:file_name]
             print_status("Wrote the #{command} table to a file as a #{wiki_type} formatted table")
             File.open(tbl_opts[:file_name],"wb") {|f|

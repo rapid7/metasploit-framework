@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/auxiliary/report'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   # set of accounts to ignore while pilfering data
   OSX_IGNORE_ACCOUNTS = ["Shared", ".localized"]
 
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    fail_with("Insufficient Privileges: must be running as root to dump the hashes") unless root?
+    fail_with(Failure::BadConfig, "Insufficient Privileges: must be running as root to dump the hashes") unless root?
 
     # iterate over all users
     users.each do |user|
@@ -126,7 +126,9 @@ class Metasploit3 < Msf::Post
   end
 
   # @return [String] hostname
-  def host; session.session_host; end
+  def host
+    session.session_host
+  end
 
   # @return [Bool] system version is 10.7
   def lion?

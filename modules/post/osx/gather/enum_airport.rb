@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
       'Platform'      => [ 'osx' ],
-      'SessionTypes'  => [ "shell" ]
+      'SessionTypes'  => [ "meterpreter", "shell" ]
     ))
   end
 

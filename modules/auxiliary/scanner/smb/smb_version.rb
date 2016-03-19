@@ -7,13 +7,13 @@
 require 'msf/core'
 require 'recog'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::DCERPC
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
 
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner

@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Auxiliary::Report
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
             'Peter Toth <globetother[at]gmail.com>' # ported windows version to osx
           ],
         'Platform'      => [ 'osx' ],
-        'SessionTypes'  => [ 'shell' ]
+        'SessionTypes'  => [ 'meterpreter', 'shell' ]
       ))
 
     register_options(
