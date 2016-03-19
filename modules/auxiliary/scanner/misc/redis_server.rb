@@ -5,8 +5,10 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
+  include Msf::Module::Deprecated
+  deprecated(Date.new(2016, 3, 5), 'auxiliary/scanner/redis/redis_server')
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Tcp

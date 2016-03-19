@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'net/ssh'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -118,13 +118,26 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def do_report(ip, user, port)
-    report_auth_info(
-      :host   => ip,
-      :port   => rport,
-      :sname  => 'ssh',
-      :user   => user,
-      :active => true
-    )
+    service_data = {
+      address: ip,
+      port: rport,
+      service_name: 'ssh',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: user,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   # Because this isn't using the AuthBrute mixin, we don't have the

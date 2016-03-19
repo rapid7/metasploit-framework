@@ -34,18 +34,19 @@ class Core
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
-    "-c" => [ true,  "Run a command on the session given with -i, or all"],
-    "-h" => [ false, "Help banner"                                    ],
-    "-i" => [ true,  "Interact with the supplied session ID"          ],
-    "-l" => [ false, "List all active sessions"                       ],
-    "-v" => [ false, "List verbose fields"                            ],
-    "-q" => [ false, "Quiet mode"                                     ],
-    "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
-    "-K" => [ false, "Terminate all sessions"                         ],
-    "-s" => [ true,  "Run a script on the session given with -i, or all"],
-    "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ],
-    "-t" => [ true,  "Set a response timeout (default: 15)"])
+    "-c"  => [ true,  "Run a command on the session given with -i, or all"          ],
+    "-h"  => [ false, "Help banner"                                                 ],
+    "-i"  => [ true,  "Interact with the supplied session ID   "                    ],
+    "-l"  => [ false, "List all active sessions"                                    ],
+    "-v"  => [ false, "List sessions in verbose mode"                               ],
+    "-q"  => [ false, "Quiet mode"                                                  ],
+    "-k"  => [ true,  "Terminate sessions by session ID and/or range"               ],
+    "-K"  => [ false, "Terminate all sessions"                                      ],
+    "-s"  => [ true,  "Run a script on the session given with -i, or all"           ],
+    "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all" ],
+    "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"  ],
+    "-t"  => [ true,  "Set a response timeout (default: 15)"                        ],
+    "-x" =>  [ false, "Show extended information in the session table"              ])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -90,9 +91,6 @@ class Core
   @@search_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ])
 
-  @@go_pro_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ])
-
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
@@ -120,10 +118,11 @@ class Core
       "edit"       => "Edit the current module with $VISUAL or $EDITOR",
       "get"        => "Gets the value of a context-specific variable",
       "getg"       => "Gets the value of a global variable",
-      "go_pro"     => "Launch Metasploit web GUI",
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
-      "info"       => "Displays information about one or more module",
+      "advanced"   => "Displays advanced options for one or more modules",
+      "info"       => "Displays information about one or more modules",
+      "options"    => "Displays global options or for one or more modules",
       "irb"        => "Drop into irb scripting mode",
       "jobs"       => "Displays and manages jobs",
       "rename_job" => "Rename a job",
@@ -222,6 +221,13 @@ class Core
 
       framework.modules.module_load_error_by_path.each do |path, error|
         print_error("\t#{path}: #{error}")
+      end
+    end
+
+    if framework.modules.module_load_warnings.length > 0
+      print_warning("The following modules were loaded with warnings:")
+      framework.modules.module_load_warnings.each do |path, error|
+        print_warning("\t#{path}: #{error}")
       end
     end
 
@@ -712,9 +718,40 @@ class Core
     Rex::ThreadSafe.sleep(args[0].to_f)
   end
 
+  def cmd_advanced_help
+    print_line 'Usage: advanced [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for advanced options. If no module is given,'
+    print_line 'show advanced options for the currently active module.'
+    print_line
+  end
+
+  def cmd_advanced(*args)
+    if args.empty?
+      if (active_module)
+        show_advanced_options(active_module)
+        return true
+      else
+        print_error('No module active')
+        return false
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_advanced_options(mod)
+      end
+    }
+  end
+
   def cmd_info_help
     print_line "Usage: info <module name> [mod2 mod3 ...]"
     print_line
+    print_line "Optionally the flag '-j' will print the data in json format"
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
     print_line
@@ -724,9 +761,19 @@ class Core
   # Displays information about one or more module.
   #
   def cmd_info(*args)
+    dump_json = false
+    if args.include?('-j')
+      args.delete('-j')
+      dump_json = true
+    end
+
     if (args.length == 0)
       if (active_module)
-        print(Serializer::ReadableText.dump_module(active_module))
+        if dump_json
+          print(Serializer::Json.dump_module(active_module) + "\n")
+        else
+          print(Serializer::ReadableText.dump_module(active_module))
+        end
         return true
       else
         cmd_info_help
@@ -742,20 +789,71 @@ class Core
 
       if (mod == nil)
         print_error("Invalid module: #{name}")
+      elsif dump_json
+        print(Serializer::Json.dump_module(mod) + "\n")
       else
         print(Serializer::ReadableText.dump_module(mod))
       end
     }
   end
 
+  def cmd_options_help
+    print_line 'Usage: options [mod1 mod2 ...]'
+    print_line
+    print_line 'Queries the supplied module or modules for options. If no module is given,'
+    print_line 'show options for the currently active module.'
+    print_line
+  end
+
+  def cmd_options(*args)
+    if args.empty?
+      if (active_module)
+        show_options(active_module)
+        return true
+      else
+        show_global_options
+        return true
+      end
+    end
+
+    args.each { |name|
+      mod = framework.modules.create(name)
+
+      if (mod == nil)
+        print_error("Invalid module: #{name}")
+      else
+        show_options(mod)
+      end
+    }
+  end
+
   #
-  # Tab completion for the info command (same as use)
+  # Tab completion for the advanced command (same as use)
   #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
+
+  def cmd_advanced_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
+  #
+  # Tab completion for the advanced command (same as use)
+  #
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
 
   def cmd_info_tabs(str, words)
+    cmd_use_tabs(str, words)
+  end
+
+  #
+  # Tab completion for the advanced command (same as use)
+  #
+  # @param str (see #cmd_use_tabs)
+  # @param words (see #cmd_use_tabs)
+
+  def cmd_options_tabs(str, words)
     cmd_use_tabs(str, words)
   end
 
@@ -1079,7 +1177,7 @@ class Core
           output += "\n"
         end
 
-        print(output +"\n")
+        print(output + "\n")
       else
         print_line("Invalid Thread ID")
       end
@@ -1161,7 +1259,7 @@ class Core
         print_status("Successfully loaded plugin: #{inst.name}")
       end
     rescue ::Exception => e
-      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
+      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", 'core', 0, caller)
       print_error("Failed to load plugin from #{path}: #{e}")
     end
   end
@@ -1216,64 +1314,56 @@ class Core
       return false
     end
 
-    arg = args.shift
-    case arg
+    action = args.shift
+    case action
 
     when "add", "remove", "del"
-      if (args.length < 3)
-        print_error("Missing arguments to route #{arg}.")
+      subnet = args.shift
+      subnet,cidr_mask = subnet.split("/")
+
+      if cidr_mask
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
+      else
+        netmask = args.shift
+      end
+
+      gateway_name = args.shift
+
+      if (subnet.nil? || netmask.nil? || gateway_name.nil?)
+        print_error("Missing arguments to route #{action}.")
         return false
       end
 
-      # Satisfy check to see that formatting is correct
-      unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-        print_error "Invalid IP Address"
-        return false
-      end
+      gateway = nil
 
-      unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-        print_error "Invalid Subnet mask"
-        return false
-      end
-
-      gw = nil
-
-      # Satisfy case problems
-      args[2] = "Local" if (args[2] =~ /local/i)
-
-      begin
-        # If the supplied gateway is a global Comm, use it.
-        if (Rex::Socket::Comm.const_defined?(args[2]))
-          gw = Rex::Socket::Comm.const_get(args[2])
-        end
-      rescue NameError
-      end
-
-      # If we still don't have a gateway, check if it's a session.
-      if ((gw == nil) and
-          (session = framework.sessions.get(args[2])) and
-          (session.kind_of?(Msf::Session::Comm)))
-        gw = session
-      elsif (gw == nil)
-        print_error("Invalid gateway specified.")
-        return false
-      end
-
-      if arg == "remove" or arg == "del"
-        worked = Rex::Socket::SwitchBoard.remove_route(args[0], args[1], gw)
-        if worked
-          print_status("Route removed")
+      case gateway_name
+      when /local/i
+        gateway = Rex::Socket::Comm::Local
+      when /^[0-9]+$/
+        session = framework.sessions.get(gateway_name)
+        if session.kind_of?(Msf::Session::Comm)
+          gateway = session
+        elsif session.nil?
+          print_error("Not a session: #{gateway_name}")
+          return false
         else
-          print_error("Route not found")
+          print_error("Cannout route through specified session (not a Comm)")
+          return false
         end
       else
-        worked = Rex::Socket::SwitchBoard.add_route(args[0], args[1], gw)
-        if worked
-          print_status("Route added")
-        else
-          print_error("Route already exists")
-        end
+        print_error("Invalid gateway")
+        return false
       end
+
+      msg = "Route "
+      if action == "remove" or action == "del"
+        worked = Rex::Socket::SwitchBoard.remove_route(subnet, netmask, gateway)
+        msg << (worked ? "removed" : "not found")
+      else
+        worked = Rex::Socket::SwitchBoard.add_route(subnet, netmask, gateway)
+        msg << (worked ? "added" : "already exists")
+      end
+      print_status(msg)
 
     when "get"
       if (args.length == 0)
@@ -1543,12 +1633,16 @@ class Core
       end
     }
 
-    if framework.db and framework.db.migrated and framework.db.modules_cached
-      search_modules_sql(match)
-      return
+    if framework.db
+      if framework.db.migrated && framework.db.modules_cached
+        search_modules_sql(match)
+        return
+      else
+        print_warning("Module database cache not built yet, using slow search")
+      end
+    else
+      print_warning("Database not connected, using slow search")
     end
-
-    print_warning("Database not connected or cache not built, using slow search")
 
     tbl = generate_module_table("Matching Modules")
     [
@@ -1663,12 +1757,13 @@ class Core
   #
   def cmd_sessions(*args)
     begin
-    method  = nil
-    quiet   = false
-    verbose = false
-    sid     = nil
-    cmds    = []
-    script  = nil
+    method   = nil
+    quiet    = false
+    show_extended = false
+    verbose  = false
+    sid      = nil
+    cmds     = []
+    script   = nil
     reset_ring = false
     response_timeout = 15
 
@@ -1685,6 +1780,8 @@ class Core
       when "-c"
         method = 'cmd'
         cmds << val if val
+      when "-x"
+        show_extended = true
       when "-v"
         verbose = true
       # Do something with the supplied session identifier instead of
@@ -1917,12 +2014,12 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if session.type == 'shell'
+            if ['shell', 'powershell'].include?(session.type)
               session.init_ui(driver.input, driver.output)
               session.execute_script('post/multi/manage/shell_to_meterpreter')
               session.reset_ui
             else
-              print_error("Session #{sess_id} is not a command shell session, skipping...")
+              print_error("Session #{sess_id} is not a command shell session, it is #{session.type}, skipping...")
               next
             end
           ensure
@@ -1947,7 +2044,7 @@ class Core
       end
     when 'list',nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :verbose => verbose))
+      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose))
       print_line
     end
 
@@ -2081,10 +2178,15 @@ class Core
       return true
     end
 
-    if append
-      datastore[name] = datastore[name] + value
-    else
-      datastore[name] = value
+    begin
+      if append
+        datastore[name] = datastore[name] + value
+      else
+        datastore[name] = value
+      end
+    rescue OptionValidateError => e
+      print_error(e.message)
+      elog(e.message)
     end
 
     print_line("#{name} => #{datastore[name]}")
@@ -2096,7 +2198,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_set_tabs(str, words)
 
     # A value has already been specified
@@ -2128,7 +2229,7 @@ class Core
     end
 
     mod.options.sorted.each { |e|
-      name, opt = e
+      name, _opt = e
       res << name
     }
 
@@ -2150,7 +2251,7 @@ class Core
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p)
         p.options.sorted.each { |e|
-          name, opt = e
+          name, _opt = e
           res << name
         }
       end
@@ -2200,7 +2301,7 @@ class Core
   end
 
   def cmd_show_help
-    global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
+    global_opts = %w{all encoders nops exploits payloads auxiliary plugins info options}
     print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
     module_opts = %w{ missing advanced evasion targets actions }
@@ -2240,6 +2341,8 @@ class Core
           show_auxiliary
         when 'post'
           show_post
+        when 'info'
+          cmd_info(*args[1, args.length])
         when 'options'
           if (mod)
             show_options(mod)
@@ -2358,7 +2461,7 @@ class Core
     return tabs
   end
 
- def cmd_get_help
+  def cmd_get_help
     print_line "Usage: get var1 [var2 ...]"
     print_line
     print_line "The get command is used to get the value of one or more variables."
@@ -2738,16 +2841,8 @@ class Core
   # Returns the revision of the framework and console library
   #
   def cmd_version(*args)
-    svn_console_version = "$Revision: 15168 $"
-    svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
-    if svn_metasploit_version
-      print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")
-    else
-      print_line("Framework: #{Msf::Framework::Version}")
-    end
-    print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
-
-    return true
+    print_line("Framework: #{Msf::Framework::Version}")
+    print_line("Console  : #{Msf::Framework::Version}")
   end
 
   def cmd_grep_help
@@ -2932,7 +3027,7 @@ class Core
       return option_values_payloads() if opt.upcase == 'PAYLOAD'
       return option_values_targets()  if opt.upcase == 'TARGET'
       return option_values_nops()     if opt.upcase == 'NOPS'
-      return option_values_encoders() if opt.upcase == 'StageEncoder'
+      return option_values_encoders() if opt.upcase == 'STAGEENCODER'
     end
 
     # Well-known option names specific to modules with actions
@@ -2985,7 +3080,7 @@ class Core
         option_values_target_addrs().each do |addr|
           res << addr
         end
-      when 'LHOST'
+      when 'LHOST', 'SRVHOST', 'REVERSELISTENERBINDADDRESS'
         rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
@@ -2993,9 +3088,11 @@ class Core
           res << Rex::Socket.source_address
           # getifaddrs was introduced in 2.1.2
           if Socket.respond_to?(:getifaddrs)
-            ifaddrs = Socket.getifaddrs.find_all { |ifaddr|
-              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) && ifaddr.addr.ip?
-            }
+            ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
+              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
+                ifaddr.addr &&
+                ifaddr.addr.ip?
+            end
             res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
           end
         end
@@ -3165,48 +3262,6 @@ class Core
     return res
   end
 
-  def cmd_go_pro_help
-    print_line "Usage: go_pro"
-    print_line
-    print_line "Launch the Metasploit web GUI"
-    print_line
-  end
-
-  def cmd_go_pro(*args)
-    @@go_pro_opts.parse(args) do |opt, idx, val|
-      case opt
-      when "-h"
-        cmd_go_pro_help
-        return false
-      end
-    end
-    unless is_apt
-      print_warning "This command is only available on deb package installations, such as Kali Linux."
-      return false
-    end
-    unless is_metasploit_debian_package_installed
-      print_warning "You need to install the 'metasploit' package first."
-      print_warning "Type 'apt-get install -y metasploit' to do this now, then exit"
-      print_warning "and restart msfconsole to try again."
-      return false
-    end
-    # If I've gotten this far, I know that this is apt-installed, the
-    # metasploit package is here, and I'm ready to rock.
-    if is_metasploit_service_running
-      launch_metasploit_browser
-    else
-      print_status "Starting the Metasploit services. This can take a little time."
-      start_metasploit_service
-      select(nil,nil,nil,3)
-      if is_metasploit_service_running
-        launch_metasploit_browser
-      else
-        print_error "Metasploit services aren't running. Type 'service metasploit start' and try again."
-      end
-    end
-    return true
-  end
-
   protected
 
   #
@@ -3236,78 +3291,6 @@ class Core
     end
   end
 
-  #
-  # Go_pro methods -- these are used to start and connect to
-  # Metasploit Community / Pro.
-  #
-
-  # Note that this presumes a default port.
-  def launch_metasploit_browser
-    cmd = "/usr/bin/xdg-open"
-    unless ::File.executable_real? cmd
-      print_warning "Can't figure out your default browser, please visit https://localhost:3790"
-      print_warning "to start Metasploit Community / Pro."
-      return false
-    end
-    svc_log = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], "apps" , "pro", "engine", "prosvc_stdout.log"))
-    unless ::File.readable_real? svc_log
-      print_error "Unable to access log file: #{svc_log}"
-      return false
-    end
-    really_started = false
-    # This method is a little lame but it's a short enough file that it
-    # shouldn't really matter that we open and close it a few times.
-    timeout = 0
-    until really_started
-      select(nil,nil,nil,3)
-      log_data = ::File.open(svc_log, "rb") {|f| f.read f.stat.size}
-      really_started = log_data =~ /Ready/ # This is webserver ready
-      if really_started
-        print_line
-        print_good "Metasploit Community / Pro is up and running, connecting now."
-        print_good "If this is your first time connecting, you will be presented with"
-        print_good "a self-signed certificate warning. Accept it to create a new user."
-        select(nil,nil,nil,7)
-        browser_pid = ::Process.spawn(cmd, "https://localhost:3790")
-        ::Process.detach(browser_pid)
-      elsif timeout >= 200 # 200 * 3 seconds is 10 minutes and that is tons of time.
-        print_line
-        print_warning "For some reason, Community / Pro didn't start in a timely fashion."
-        print_warning "You might want to restart the Metasploit services by typing"
-        print_warning "'service metasploit restart'. Sorry it didn't work out."
-        return false
-      else
-        print "."
-        timeout += 1
-      end
-    end
-  end
-
-  def start_metasploit_service
-    cmd = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], 'scripts', 'start.sh'))
-    return unless ::File.executable_real? cmd
-    %x{#{cmd}}.each_line do |line|
-      print_status line.chomp
-    end
-  end
-
-  def is_metasploit_service_running
-    cmd = "/usr/sbin/service"
-    system("#{cmd} metasploit status >/dev/null") # Both running returns true, otherwise, false.
-  end
-
-  def is_metasploit_debian_package_installed
-    cmd = "/usr/bin/dpkg"
-    return unless ::File.executable_real? cmd
-    installed_packages = %x{#{cmd} -l 'metasploit'}
-    installed_packages.each_line do |line|
-      if line =~ /^.i  metasploit / # Yes, trailing space
-        return true
-      end
-    end
-    return false
-  end
-
   # Determines if this is an apt-based install
   def is_apt
     File.exists?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
@@ -3315,6 +3298,9 @@ class Core
 
   # Determines if we're a Metasploit Pro/Community/Express
   # installation or a tarball/git checkout
+  #
+  # XXX This will need to be update when we embed framework as a gem in
+  # commercial packages
   #
   # @return [Boolean] true if we are a binary install
   def binary_install
@@ -3461,7 +3447,7 @@ class Core
 
   def show_advanced_options(mod) # :nodoc:
     mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ')
-    print("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+    print("\nModule advanced options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 
     # If it's an exploit and a payload is defined, create it and
     # display the payload's options
@@ -3533,7 +3519,7 @@ class Core
       next if not o
 
       # handle a search string, search deep
-      if(
+      if (
         not regex or
         o.name.match(regex) or
         o.description.match(regex) or
@@ -3547,7 +3533,7 @@ class Core
             mod_opt_keys = o.options.keys.map { |x| x.downcase }
 
             opts.each do |opt,val|
-              if mod_opt_keys.include?(opt.downcase) == false or (val != nil and o.datastore[opt] != val)
+              if !mod_opt_keys.include?(opt.downcase) || (val != nil && o.datastore[opt] != val)
                 show = false
               end
             end

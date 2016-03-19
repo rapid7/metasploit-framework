@@ -524,18 +524,18 @@ class ReadableText
   def self.dump_sessions(framework, opts={})
     ids = (opts[:session_ids] || framework.sessions.keys).sort
     verbose = opts[:verbose] || false
+    show_extended = opts[:show_extended] || false
     indent = opts[:indent] || DefaultIndent
     col = opts[:col] || DefaultColumnWrap
 
     return dump_sessions_verbose(framework, opts) if verbose
 
-    columns =
-      [
-        'Id',
-        'Type',
-        'Information',
-        'Connection'
-      ]
+    columns = []
+    columns << 'Id'
+    columns << 'Type'
+    columns << 'Checkin?' if show_extended
+    columns << 'Information'
+    columns << 'Connection'
 
     tbl = Rex::Ui::Text::Table.new(
       'Indent'  => indent,
@@ -551,10 +551,21 @@ class ReadableText
         sinfo = sinfo[0,77] + "..."
       end
 
-      row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + " (#{session.session_host})" ]
-      if session.respond_to? :platform
-        row[1] << (" " + session.platform)
+      row = []
+      row << session.sid.to_s
+      row << session.type.to_s
+      row[-1] << (" " + session.platform) if session.respond_to?(:platform)
+
+      if show_extended
+        if session.respond_to?(:last_checkin) && session.last_checkin
+          row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
+        else
+          row << '?'
+        end
       end
+
+      row << sinfo
+      row << session.tunnel_to_s + " (#{session.session_host})"
 
       tbl << row
     }
@@ -638,13 +649,10 @@ class ReadableText
   # @param col [Integer] the column wrap width.
   # @return [String] the formatted list of running jobs.
   def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
-    columns = [ 'Id', 'Name' ]
+    columns = [ 'Id', 'Name', "Payload", "LPORT" ]
 
     if (verbose)
-      columns << "Payload"
-      columns << "LPORT"
-      columns << "URIPATH"
-      columns << "Start Time"
+      columns += [ "URIPATH", "Start Time" ]
     end
 
     tbl = Rex::Ui::Text::Table.new(
@@ -653,16 +661,27 @@ class ReadableText
       'Columns' => columns
       )
 
-
     # jobs are stored as a hash with the keys being a numeric job_id.
     framework.jobs.keys.sort{|a,b| a.to_i <=> b.to_i }.each { |k|
+      # Job context is stored as an Array with the 0th element being
+      # the running module. If that module is an exploit, ctx will also
+      # contain its payload.
+      ctx = framework.jobs[k].ctx
       row = [ k, framework.jobs[k].name ]
+      row << (ctx[1].nil? ? (ctx[0].datastore['PAYLOAD'] || "") : ctx[1].refname)
+
+      # Make the LPORT show the bind port if it's different
+      local_port = ctx[0].datastore['LPORT']
+      bind_port = ctx[0].datastore['ReverseListenerBindPort']
+      lport = (local_port || "").to_s
+      if bind_port && bind_port != 0 && bind_port != lport
+        lport << " (#{bind_port})"
+      end
+      row << lport
+
       if (verbose)
-        ctx = framework.jobs[k].ctx
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)
         uripath = ctx[0].datastore['URIPATH'] if uripath.nil?
-        row << (ctx[1].nil? ? (ctx[0].datastore['PAYLOAD'] || "") : ctx[1].refname)
-        row << (ctx[0].datastore['LPORT'] || "")
         row << (uripath || "")
         row << (framework.jobs[k].start_time || "")
       end

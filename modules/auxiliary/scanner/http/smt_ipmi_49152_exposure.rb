@@ -6,7 +6,7 @@
 require 'uri'
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
         res.body.to_s,
         'IPMIdevicedesc.xml'
       )
-      print_good("#{peer} - Stored the device description XML in #{path}")
+      print_good("Stored the device description XML in #{path}")
       return true
     else
       return false
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
 
     unless is_supermicro?
-      vprint_error("#{peer} - This does not appear to be a Supermicro IPMI controller")
+      vprint_error("This does not appear to be a Supermicro IPMI controller")
       return
     end
 
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
       next unless res
 
       unless res.code == 200 && res.body.length > 0
-        vprint_status("#{peer} - Request for #{uri} resulted in #{res.code}")
+        vprint_status("Request for #{uri} resulted in #{res.code}")
         next
       end
 
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
         res.body.to_s,
         uri.split('/').last
       )
-      print_good("#{peer} - Password data from #{uri} stored to #{path}")
+      print_good("Password data from #{uri} stored to #{path}")
     end
   end
 

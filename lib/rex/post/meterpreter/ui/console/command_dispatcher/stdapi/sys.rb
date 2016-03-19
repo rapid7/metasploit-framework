@@ -422,6 +422,11 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Lists running processes.
   #
   def cmd_ps(*args)
+    if args.include?('-h')
+      cmd_ps_help
+      return true
+    end
+
     # Init vars
     processes = client.sys.process.get_processes
     search_term = nil
@@ -435,9 +440,6 @@ class Console::CommandDispatcher::Stdapi::Sys
           print_error("Enter a search term")
           return true
         end
-      when '-h'
-        cmd_ps_help
-        return true
       when "-A"
         print_line "Filtering on arch..."
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new

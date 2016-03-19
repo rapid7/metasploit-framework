@@ -6,7 +6,7 @@
 # auxilary/dos/ssl/openssl_aesni
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -29,7 +29,7 @@ class Metasploit4 < Msf::Auxiliary
       'References'	=>
         [
           [ 'CVE', '2012-2686'],
-          [ 'URL', 'https://www.openssl.org/news/secadv_20130205.txt']
+          [ 'URL', 'https://www.openssl.org/news/secadv/20130205.txt' ]
         ],
       'DisclosureDate' => 'Feb 05 2013'))
 

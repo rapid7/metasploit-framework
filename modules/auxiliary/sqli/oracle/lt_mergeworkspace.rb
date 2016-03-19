@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::ORACLE
 
@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2008-3983'],
           [ 'OSVDB', '49325'],
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2008.html' ],
-          [ 'URL', 'http://www.appsecinc.com/resources/alerts/oracle/2008-10.shtml' ],
           [ 'URL', 'http://www.dsecrg.com/pages/expl/show.php?id=23' ]
 
         ],

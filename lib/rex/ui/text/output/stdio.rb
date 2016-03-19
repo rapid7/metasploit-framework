@@ -71,22 +71,6 @@ class Output::Stdio < Rex::Ui::Text::Output
   end
   alias_method :write, :print_raw
 
-  def puts(*args)
-    args.each do |argument|
-      line = argument.to_s
-      write(line)
-
-      unless line.ends_with? "\n"
-        # yes, this is output, but `IO#puts` uses `rb_default_rs`, which is
-        # [`$/`](https://github.com/ruby/ruby/blob/3af8e150aded9d162bfd41426aaaae0279e5a653/io.c#L12168-L12172),
-        # which is [`$INPUT_RECORD_SEPARATOR`](https://github.com/ruby/ruby/blob/3af8e150aded9d162bfd41426aaaae0279e5a653/lib/English.rb#L83)
-        write($INPUT_RECORD_SEPARATOR)
-      end
-    end
-
-    nil
-  end
-
   def supports_color?
     case config[:color]
     when true

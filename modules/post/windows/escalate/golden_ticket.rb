@@ -3,7 +3,7 @@ require 'msf/core/post/windows/netapi'
 require 'msf/core/post/windows/kiwi'
 require 'msf/core/post/windows/error'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::NetAPI
   include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Kiwi
@@ -27,8 +27,7 @@ class Metasploit3 < Msf::Post
       'SessionTypes' => [ 'meterpreter' ],
       'References'   =>
             [
-              ['URL', 'https:/github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos'],
-              ['URL', 'http://blog.cobalstrike.com/2014/05/14/meterpreter-kiwi-extension-golden-ticket-howto/']
+              ['URL', 'https:/github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos']
             ]
     ))
 

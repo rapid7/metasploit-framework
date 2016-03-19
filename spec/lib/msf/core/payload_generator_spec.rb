@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'msf/core/payload_generator'
 
-describe Msf::PayloadGenerator do
+RSpec.describe Msf::PayloadGenerator do
   include_context 'Msf::Simple::Framework#modules loading'
 
   let(:lhost) { "192.168.172.1"}
@@ -68,22 +68,22 @@ describe Msf::PayloadGenerator do
     described_class.new(generator_opts)
   }
 
-  it { should respond_to :add_code }
-  it { should respond_to :arch }
-  it { should respond_to :badchars }
-  it { should respond_to :cli }
-  it { should respond_to :encoder }
-  it { should respond_to :datastore }
-  it { should respond_to :format }
-  it { should respond_to :framework }
-  it { should respond_to :iterations }
-  it { should respond_to :keep }
-  it { should respond_to :nops }
-  it { should respond_to :payload }
-  it { should respond_to :platform }
-  it { should respond_to :space }
-  it { should respond_to :stdin }
-  it { should respond_to :template }
+  it { is_expected.to respond_to :add_code }
+  it { is_expected.to respond_to :arch }
+  it { is_expected.to respond_to :badchars }
+  it { is_expected.to respond_to :cli }
+  it { is_expected.to respond_to :encoder }
+  it { is_expected.to respond_to :datastore }
+  it { is_expected.to respond_to :format }
+  it { is_expected.to respond_to :framework }
+  it { is_expected.to respond_to :iterations }
+  it { is_expected.to respond_to :keep }
+  it { is_expected.to respond_to :nops }
+  it { is_expected.to respond_to :payload }
+  it { is_expected.to respond_to :platform }
+  it { is_expected.to respond_to :space }
+  it { is_expected.to respond_to :stdin }
+  it { is_expected.to respond_to :template }
 
   context 'when creating a new generator' do
     subject(:new_payload_generator) { -> { described_class.new(generator_opts) } }
@@ -108,43 +108,43 @@ describe Msf::PayloadGenerator do
         }
       }
 
-      it { should raise_error(KeyError, "key not found: :framework") }
+      it { is_expected.to raise_error(KeyError, "key not found: :framework") }
     end
 
     context 'when not given a payload' do
       let(:payload_reference_name) { nil }
 
-      it { should raise_error(ArgumentError, "Invalid Payload Selected") }
+      it { is_expected.to raise_error(ArgumentError, "Invalid Payload Selected") }
     end
 
     context 'when given an invalid payload' do
       let(:payload_reference_name) { "beos/meterpreter/reverse_gopher" }
 
-      it { should raise_error(ArgumentError, "Invalid Payload Selected") }
+      it { is_expected.to raise_error(ArgumentError, "Invalid Payload Selected") }
     end
 
     context 'when given a payload through stdin' do
       let(:payload_reference_name) { "stdin" }
 
-      it { should_not raise_error }
+      it { is_expected.not_to raise_error }
     end
 
     context 'when given an invalid format' do
       let(:format) { "foobar" }
 
-      it { should raise_error(ArgumentError, "Invalid Format Selected") }
+      it { is_expected.to raise_error(ArgumentError, "Invalid Format Selected") }
     end
 
     context 'when given any valid transform format' do
       let(:format) { ::Msf::Simple::Buffer.transform_formats.sample }
 
-      it { should_not raise_error }
+      it { is_expected.not_to raise_error }
     end
 
     context 'when given any valid executable format' do
       let(:format) { ::Msf::Util::EXE.to_executable_fmt_formats.sample }
 
-      it { should_not raise_error }
+      it { is_expected.not_to raise_error }
     end
   end
 
@@ -347,28 +347,74 @@ describe Msf::PayloadGenerator do
   end
 
   context '#prepend_nops' do
-    before(:each) do
-      load_and_create_module(
-          module_type: 'nop',
-          reference_name: 'x86/opty2'
-      )
-    end
-
     context 'when nops are set to 0' do
+      let(:nops) { 0 }
+
+      before(:example) do
+        load_and_create_module(
+            module_type: 'nop',
+            reference_name: 'x86/opty2'
+        )
+      end
+
       it 'returns the unmodified shellcode' do
         expect(payload_generator.prepend_nops(shellcode)).to eq shellcode
       end
     end
 
     context 'when nops are set to more than 0' do
+      let(:badchars) { '' }
       let(:nops) { 20 }
 
-      it 'returns shellcode of the correct size' do
-        expect(payload_generator.prepend_nops(shellcode).length).to eq 24
+      context 'when payload is x86' do
+        before(:example) do
+          load_and_create_module(
+            module_type: 'nop',
+            reference_name: 'x86/opty2'
+          )
+        end
+
+        it 'returns shellcode of the correct size' do
+          final = payload_generator.prepend_nops(shellcode)
+          expect(final.length).to eq 24
+        end
+
+        it 'puts the nops in front of the original shellcode' do
+          expect(payload_generator.prepend_nops(shellcode)[20,24]).to eq shellcode
+        end
+
       end
 
-      it 'puts the nops in front of the original shellcode' do
-        expect(payload_generator.prepend_nops(shellcode)[20,24]).to eq shellcode
+      context 'when payload is Windows x64' do
+        let(:arch) { 'x86_64' }
+        let(:payload_module) {
+          load_and_create_module(
+            ancestor_reference_names: %w{
+                stagers/windows/x64/reverse_tcp
+                stages/windows/x64/meterpreter
+            },
+            module_type: 'payload',
+            reference_name: 'windows/x64/meterpreter/reverse_tcp'
+          )
+        }
+
+        before(:example) do
+          load_and_create_module(
+              module_type: 'nop',
+              reference_name: 'x64/simple'
+          )
+        end
+
+        it 'returns shellcode of the correct size' do
+          final = payload_generator.prepend_nops(shellcode)
+          expect(final.length).to eq(nops + shellcode.length)
+        end
+
+        it 'puts the nops in front of the original shellcode' do
+          final = payload_generator.prepend_nops(shellcode)
+          expect(final[nops, nops + shellcode.length]).to eq shellcode
+        end
+
       end
     end
   end
@@ -410,7 +456,7 @@ describe Msf::PayloadGenerator do
       # Callbacks
       #
 
-      before(:each) do
+      before(:example) do
         encoder_reference_names.each do |reference_name|
           load_and_create_module(
               module_type: 'encoder',
@@ -457,7 +503,7 @@ describe Msf::PayloadGenerator do
   context '#run_encoder' do
 
     it 'should call the encoder a number of times equal to the iterations' do
-      encoder_module.should_receive(:encode).exactly(iterations).times.and_return(shellcode)
+      expect(encoder_module).to receive(:encode).exactly(iterations).times.and_return(shellcode)
       payload_generator.run_encoder(encoder_module, shellcode)
     end
 
@@ -483,7 +529,7 @@ describe Msf::PayloadGenerator do
       let(:format) { 'c' }
 
       it 'applies the appropriate transform format' do
-        ::Msf::Simple::Buffer.should_receive(:transform).with(shellcode, format, var_name)
+        expect(::Msf::Simple::Buffer).to receive(:transform).with(shellcode, format, var_name)
         payload_generator.format_payload(shellcode)
       end
     end
@@ -492,7 +538,7 @@ describe Msf::PayloadGenerator do
       let(:format) { 'exe' }
 
       it 'applies the appropriate executable format' do
-        ::Msf::Util::EXE.should_receive(:to_executable_fmt).with(framework, arch, kind_of(payload_generator.platform_list.class), shellcode, format, payload_generator.exe_options)
+        expect(::Msf::Util::EXE).to receive(:to_executable_fmt).with(framework, arch, kind_of(payload_generator.platform_list.class), shellcode, format, payload_generator.exe_options)
         payload_generator.format_payload(shellcode)
       end
     end
@@ -515,9 +561,9 @@ describe Msf::PayloadGenerator do
         }
 
         it 'calls the generate_war on the payload' do
-          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
-          framework.stub_chain(:payloads, :create).and_return(payload_module)
-          payload_module.should_receive(:generate_war).and_call_original
+          allow(framework).to receive_message_chain(:payloads, :keys).and_return [payload_reference_name]
+          allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
+          expect(payload_module).to receive(:generate_war).and_call_original
           payload_generator.generate_java_payload
         end
       end
@@ -543,9 +589,9 @@ describe Msf::PayloadGenerator do
         }
 
         it 'calls the generate_jar on the payload' do
-          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
-          framework.stub_chain(:payloads, :create).and_return(payload_module)
-          payload_module.should_receive(:generate_jar).and_call_original
+          allow(framework).to receive_message_chain(:payloads, :keys).and_return [payload_reference_name]
+          allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
+          expect(payload_module).to receive(:generate_jar).and_call_original
           payload_generator.generate_java_payload
         end
       end
@@ -562,9 +608,9 @@ describe Msf::PayloadGenerator do
         }
 
         it 'calls #generate' do
-          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
-          framework.stub_chain(:payloads, :create).and_return(payload_module)
-          payload_module.should_receive(:generate).and_call_original
+          allow(framework).to receive_message_chain(:payloads, :keys).and_return [payload_reference_name]
+          allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
+          expect(payload_module).to receive(:generate).and_call_original
           payload_generator.generate_java_payload
         end
       end
@@ -585,11 +631,11 @@ describe Msf::PayloadGenerator do
   context '#generate_payload' do
 
     it 'calls each step of the process' do
-      payload_generator.should_receive(:generate_raw_payload).and_call_original
-      payload_generator.should_receive(:add_shellcode).and_call_original
-      payload_generator.should_receive(:encode_payload).and_call_original
-      payload_generator.should_receive(:prepend_nops).and_call_original
-      payload_generator.should_receive(:format_payload).and_call_original
+      expect(payload_generator).to receive(:generate_raw_payload).and_call_original
+      expect(payload_generator).to receive(:add_shellcode).and_call_original
+      expect(payload_generator).to receive(:encode_payload).and_call_original
+      expect(payload_generator).to receive(:prepend_nops).and_call_original
+      expect(payload_generator).to receive(:format_payload).and_call_original
       payload_generator.generate_payload
     end
 
@@ -606,7 +652,7 @@ describe Msf::PayloadGenerator do
       }
 
       it 'calls generate_java_payload' do
-        payload_generator.should_receive(:generate_java_payload).and_call_original
+        expect(payload_generator).to receive(:generate_java_payload).and_call_original
         payload_generator.generate_payload
       end
     end

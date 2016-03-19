@@ -13,7 +13,7 @@
 # Mississippi State University National Forensics Training Center
 #    http://msu-nftc.org
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
@@ -74,6 +74,12 @@ class Metasploit3 < Msf::Post
 
     while true
       request = rsock.read(28)
+
+      unless request
+        print_error("No data received")
+        break
+      end
+
       magic, request, nbd_handle, offset_n, length = request.unpack("NNa8a8N")
 
       if magic != 0x25609513

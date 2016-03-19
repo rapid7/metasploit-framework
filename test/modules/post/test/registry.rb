@@ -12,7 +12,7 @@ lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
   include Msf::Post::Windows::Registry
@@ -31,8 +31,7 @@ class Metasploit3 < Msf::Post
   end
 
   def test_0_registry_read
-    pending "should evaluate key existence" do
-      # these methods are not implemented
+    it "should evaluate key existence" do
       k_exists = registry_key_exist?(%q#HKCU\Environment#)
       k_dne    = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
 

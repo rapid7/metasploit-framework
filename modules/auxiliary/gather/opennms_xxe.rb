@@ -1,7 +1,7 @@
 require 'msf/core'
 require 'openssl'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 

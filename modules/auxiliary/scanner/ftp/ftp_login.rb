@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/ftp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
@@ -81,6 +81,12 @@ class Metasploit3 < Msf::Auxiliary
         connection_timeout: 30,
         framework: framework,
         framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|

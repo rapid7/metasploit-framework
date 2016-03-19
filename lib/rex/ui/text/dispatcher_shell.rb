@@ -426,6 +426,7 @@ module DispatcherShell
     else
       dispatcher.send('cmd_' + method, *arguments)
     end
+  ensure
     self.busy = false
   end
 

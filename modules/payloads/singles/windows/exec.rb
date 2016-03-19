@@ -11,9 +11,9 @@ require 'msf/core/payload/windows/exec'
 # Executes a command on the target machine
 #
 ###
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = 185
+  CachedSize = 192
 
   include Msf::Payload::Windows::Exec
 

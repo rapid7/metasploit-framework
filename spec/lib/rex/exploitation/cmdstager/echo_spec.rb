@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/exploitation/cmdstager'
 
-describe Rex::Exploitation::CmdStagerEcho do
+RSpec.describe Rex::Exploitation::CmdStagerEcho do
 
   let(:exe) { "MZ" }
 

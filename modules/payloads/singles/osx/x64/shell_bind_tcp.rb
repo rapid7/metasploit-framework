@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 136
 
@@ -37,7 +37,7 @@ module Metasploit3
 
   # build the shellcode payload dynamically based on the user-provided CMD
   def generate
-    cmd  = (datastore['CMD'] || '') << "\x00"
+    cmd  = (datastore['CMD'] || '') + "\x00"
     port = [datastore['LPORT'].to_i].pack('n')
     call = "\xe8" + [cmd.length].pack('V')
     payload =

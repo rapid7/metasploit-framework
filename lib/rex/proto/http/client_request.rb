@@ -52,7 +52,6 @@ class ClientRequest
     'method_random_case'     => false,   # bool
     'version_random_valid'   => false,   # bool
     'version_random_invalid' => false,   # bool
-    'version_random_case'    => false,   # bool
     'uri_dir_self_reference' => false,   # bool
     'uri_dir_fake_relative'  => false,   # bool
     'uri_use_backslashes'    => false,   # bool
@@ -344,10 +343,6 @@ class ClientRequest
       ret = Rex::Text.rand_text_alphanumeric(rand(20)+1)
     end
 
-    if (opts['version_random_case'])
-      ret = Rex::Text.to_rand_case(ret)
-    end
-
     ret << "\r\n"
   end
 
@@ -396,8 +391,9 @@ class ClientRequest
 
   #
   # Return the content length header
+  #
   def set_content_len_header(clen)
-    return "" if opts['chunked_size'] > 0
+    return "" if clen == 0 || opts['chunked_size'] > 0 || (opts['headers'] && opts['headers']['Content-Length'])
     set_formatted_header("Content-Length", clen)
   end
 

@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
 
@@ -22,8 +22,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'OSVDB', '50617' ],
-          [ 'BID', '5817' ],
-          [ 'URL', 'http://sh0dan.org/oldfiles/hackingcitrix.html' ],
+          [ 'BID', '5817' ]
         ]
     ))
 

@@ -5,8 +5,8 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 

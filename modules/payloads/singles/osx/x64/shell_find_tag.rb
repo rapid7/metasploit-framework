@@ -8,7 +8,7 @@ require 'msf/core/handler/find_tag'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 107
 
@@ -40,7 +40,7 @@ module Metasploit3
   # ensures the setting of tag to a four byte value
   #
   def generate
-    cmd  = (datastore['CMD'] || '') << "\x00"
+    cmd  = (datastore['CMD'] || '') + "\x00"
     call = "\xe8" + [cmd.length].pack('V')
 
     payload =

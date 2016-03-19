@@ -164,6 +164,16 @@ module ModuleCommandDispatcher
     end
   end
 
+  def report_vuln(instance)
+    framework.db.report_vuln(
+      workspace: instance.workspace,
+      host: instance.rhost,
+      name: instance.name,
+      info: "This was flagged as vulnerable by the explicit check of #{instance.fullname}.",
+      refs: instance.references
+    )
+  end
+
   def check_simple(instance=nil)
     unless instance
       instance = mod 
@@ -183,12 +193,13 @@ module ModuleCommandDispatcher
         'LocalOutput' => driver.output)
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{peer} - #{code[1]}")
+          print_good("#{code[1]}")
+          report_vuln(instance)
         else
-          print_status("#{peer} - #{code[1]}")
+          print_status("#{code[1]}")
         end
       else
-        msg = "#{peer} - Check failed: The state could not be determined."
+        msg = "Check failed: The state could not be determined."
         print_error(msg)
         elog("#{msg}\n#{caller.join("\n")}")
       end
@@ -202,7 +213,7 @@ module ModuleCommandDispatcher
       print_error("Check failed: #{e.message}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
-      print_error("#{peer} - Check failed: #{e.class} #{e}")
+      print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     end
   end

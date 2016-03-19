@@ -8,7 +8,7 @@ require 'rex/proto/acpp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/acpp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -74,6 +74,12 @@ class Metasploit3 < Msf::Auxiliary
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
+      ssl: datastore['SSL'],
+      ssl_version: datastore['SSLVersion'],
+      ssl_verify_mode: datastore['SSLVerifyMode'],
+      ssl_cipher: datastore['SSLCipher'],
+      local_port: datastore['CPORT'],
+      local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|

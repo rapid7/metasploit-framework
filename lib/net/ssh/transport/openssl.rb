@@ -124,6 +124,19 @@ module OpenSSL
       end
     end
 
+    if defined?(OpenSSL::PKey::EC)
+      # This class is originally defined in the OpenSSL module. As needed, methods
+      # have been added to it by the Net::SSH module for convenience in dealing
+      # with SSH funcationality.
+      class EC
+        CurveNameAlias = {
+          "nistp256" => "prime256v1",
+          "nistp384" => "secp384r1",
+          "nistp521" => "secp521r1",
+        }
+      end
+    end
+
   end
 
 end

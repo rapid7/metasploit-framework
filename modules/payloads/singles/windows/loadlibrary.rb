@@ -11,9 +11,9 @@ require 'msf/core/payload/windows/loadlibrary'
 # Executes a command on the target machine
 #
 ###
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = 183
+  CachedSize = 230
 
   include Msf::Payload::Windows::LoadLibrary
 

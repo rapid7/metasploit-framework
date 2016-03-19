@@ -7,9 +7,9 @@ require 'msf/core'
 require 'msf/core/handler/reverse_https'
 require 'msf/core/payload/uuid/options'
 
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = 6307
+  CachedSize = 5932
 
   include Msf::Payload::Stager
   include Msf::Payload::Java

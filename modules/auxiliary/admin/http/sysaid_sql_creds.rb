@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -29,8 +29,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2015-2996'],
           ['CVE', '2015-2998'],
-          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt' ],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jun/8']
+          ['URL', 'http://seclists.org/fulldisclosure/2015/Jun/8'],
+          ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/sysaid-14.4-multiple-vulns.txt']
         ],
       'DisclosureDate' => 'Jun 3 2015'))
 
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
           fail_with(Failure::Unknown, 'Could not resolve database server hostname.')
         end
 
-        print_status("#{peer} - Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
+        print_status("Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
         return
       end
     else

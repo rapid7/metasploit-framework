@@ -28,7 +28,7 @@ module Rex
             when TC_OBJECT
               content = NewObject.decode(io, stream)
             when TC_CLASS
-              content = ClassDesc.decode(io, stream)
+              content = NewClass.decode(io, stream)
             when TC_ARRAY
               content = NewArray.decode(io, stream)
             when TC_STRING
@@ -75,7 +75,7 @@ module Rex
               encoded << [TC_ENDBLOCKDATA].pack('C')
             when NewObject
               encoded << [TC_OBJECT].pack('C')
-            when ClassDesc
+            when NewClass
               encoded << [TC_CLASS].pack('C')
             when NewArray
               encoded << [TC_ARRAY].pack('C')
@@ -88,7 +88,7 @@ module Rex
             when NewClassDesc
               encoded << [TC_CLASSDESC].pack('C')
             when ProxyClassDesc
-              content = [TC_PROXYCLASSDESC].pack('C')
+              encoded << [TC_PROXYCLASSDESC].pack('C')
             when NullReference
               encoded << [TC_NULL].pack('C')
             when Reset
@@ -121,6 +121,8 @@ module Rex
             when NewObject
               str << "#{print_class(content)} { #{content.to_s} }"
             when ClassDesc
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when NewClass
               str << "#{print_class(content)} { #{content.to_s} }"
             when NewArray
               str << "#{print_class(content)} { #{content.to_s} }"

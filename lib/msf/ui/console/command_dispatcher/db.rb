@@ -89,6 +89,7 @@ class Db
     print_line "    workspace [name]           Switch workspace"
     print_line "    workspace -a [name] ...    Add workspace(s)"
     print_line "    workspace -d [name] ...    Delete workspace(s)"
+    print_line "    workspace -D               Delete all workspaces"
     print_line "    workspace -r <old> <new>   Rename workspace"
     print_line "    workspace -h               Show this help information"
     print_line
@@ -106,6 +107,8 @@ class Db
         adding = true
       when '-d','--del'
         deleting = true
+      when '-D','--delete-all'
+        delete_all = true
       when '-r','--rename'
         renaming = true
       else
@@ -123,28 +126,9 @@ class Db
       end
       framework.db.workspace = workspace
     elsif deleting and names
-      switched = false
-      # Delete workspaces
-      names.each do |name|
-        workspace = framework.db.find_workspace(name)
-        if workspace.nil?
-          print_error("Workspace not found: #{name}")
-        elsif workspace.default?
-          workspace.destroy
-          workspace = framework.db.add_workspace(name)
-          print_status("Deleted and recreated the default workspace")
-        else
-          # switch to the default workspace if we're about to delete the current one
-          if framework.db.workspace.name == workspace.name
-            framework.db.workspace = framework.db.default_workspace
-            switched = true
-          end
-          # now destroy the named workspace
-          workspace.destroy
-          print_status("Deleted workspace: #{name}")
-        end
-      end
-      print_status("Switched workspace: #{framework.db.workspace.name}") if switched
+      delete_workspaces(names)
+    elsif delete_all
+      delete_workspaces(framework.db.workspaces.map(&:name))
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
@@ -200,6 +184,31 @@ class Db
       end
     end
   }
+  end
+
+  def delete_workspaces(names)
+    switched = false
+    # Delete workspaces
+    names.each do |name|
+      workspace = framework.db.find_workspace(name)
+      if workspace.nil?
+        print_error("Workspace not found: #{name}")
+      elsif workspace.default?
+        workspace.destroy
+        workspace = framework.db.add_workspace(name)
+        print_status("Deleted and recreated the default workspace")
+      else
+        # switch to the default workspace if we're about to delete the current one
+        if framework.db.workspace.name == workspace.name
+          framework.db.workspace = framework.db.default_workspace
+          switched = true
+        end
+        # now destroy the named workspace
+        workspace.destroy
+        print_status("Deleted workspace: #{name}")
+      end
+    end
+    print_status("Switched workspace: #{framework.db.workspace.name}") if switched
   end
 
   def cmd_workspace_tabs(str, words)
@@ -736,7 +745,7 @@ class Db
       #	mode = :add
       #when "-d"
       #	mode = :delete
-      when "-h"
+      when "-h","--help"
         cmd_vulns_help
         return
       when "-p","--port"
@@ -837,6 +846,7 @@ class Db
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
     print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    print_line "  -O,--origins          List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 
     print_line
@@ -925,15 +935,16 @@ class Db
   end
 
   def creds_search(*args)
-    host_ranges = []
-    port_ranges = []
-    svcs        = []
-    rhosts      = []
+    host_ranges   = []
+    origin_ranges = []
+    port_ranges   = []
+    svcs          = []
+    rhosts        = []
 
     set_rhosts = false
 
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
-    cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
+    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type' ]
     user = nil
     delete_count = 0
 
@@ -979,6 +990,13 @@ class Db
         mode = :delete
       when '-R', '--rhosts'
         set_rhosts = true
+      when '-O', '--origins'
+        hosts = args.shift
+        if !hosts
+          print_error("Argument required for -O")
+          return
+        end
+        arg_host_range(hosts, origin_ranges)
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -1015,7 +1033,7 @@ class Db
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
-      query = query.includes(:private, :public, :logins)
+      query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
       query = query.includes(logins: [ :service, { service: :host } ])
 
       if type.present?
@@ -1058,11 +1076,22 @@ class Db
           next
         end
 
-        if core.logins.empty?
+        origin = ''
+        if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
+          origin = core.origin.service.host.address
+        elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
+          origin = core.origin.session.host.address
+        end
 
+        if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
+          next
+        end
+
+        if core.logins.empty? && origin_ranges.empty?
           tbl << [
             "", # host
-            "", # port
+            "", # cred
+            "", # service
             core.public,
             core.private,
             core.realm,
@@ -1070,7 +1099,6 @@ class Db
           ]
         else
           core.logins.each do |login|
-
             # If none of this Core's associated Logins is for a host within
             # the user-supplied RangeWalker, then we don't have any reason to
             # print it out. However, we treat the absence of ranges as meaning
@@ -1078,7 +1106,9 @@ class Db
             if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
               next
             end
+
             row = [ login.service.host.address ]
+            row << origin
             rhosts << login.service.host.address
             if login.service.name.present?
               row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
@@ -1617,6 +1647,7 @@ class Db
     print_line "    Amap Log -m"
     print_line "    Appscan"
     print_line "    Burp Session XML"
+    print_line "    Burp Issue XML"
     print_line "    CI"
     print_line "    Foundstone"
     print_line "    FusionVM XML"
@@ -1747,7 +1778,7 @@ class Db
       case arg
       when '-h','--help'
         print_line "Usage:"
-        print_line "    db_export -f <format> [-a] [filename]"
+        print_line "    db_export -f <format> [filename]"
         print_line "    Format can be one of: #{export_formats.join(", ")}"
       when '-f','--format'
         format = args.shift.to_s.downcase

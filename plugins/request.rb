@@ -19,12 +19,19 @@ class Plugin::Requests < Msf::Plugin
       }
     end
 
+    # Dynamically determine the types of requests that are supported based on
+    # methods prefixed with "parse_args".
+    #
+    # @return [Array<String>] The supported request types.
     def types
-      # dynamically figure out what types are supported based on parse_args_*
       parse_methods = self.public_methods.select {|m| m.to_s =~ /^parse_args_/}
       parse_methods.collect {|m| m.to_s.split('_').slice(2..-1).join('_')}
     end
 
+    # The main handler for the request command.
+    #
+    # @param args [Array<String>] The array of arguments provided by the user.
+    # @return [nil]
     def cmd_request(*args)
       # short circuit the whole deal if they need help
       return help if args.length == 0
@@ -68,6 +75,14 @@ class Plugin::Requests < Msf::Plugin
       end
     end
 
+    # Parse the provided arguments by dispatching to the correct method based
+    # on the specified type.
+    #
+    # @param args [Array<String>] The command line arguments to parse.
+    # @param type [String] The protocol type that the request is for such as
+    #   HTTP.
+    # @return [Array<Hash, Rex::Parser::Arguments>] An array with the options
+    #   hash and the argument parser.
     def parse_args(args, type = 'http')
       type.downcase!
       parse_method = "parse_args_#{type}".to_sym
@@ -78,13 +93,25 @@ class Plugin::Requests < Msf::Plugin
       end
     end
 
-    # arg parsing for requests of type 'http'
+    # Parse the provided arguments for making HTTPS requests. The argument flags
+    # are intended to be similar to the curl utility.
+    #
+    # @param args [Array<String>] The command line arguments to parse.
+    # @param type [String] The protocol type that the request is for.
+    # @return [Array<Hash, Rex::Parser::Arguments>] An array with the options
+    #   hash and the argument parser.
     def parse_args_https(args = [], type = 'https')
       # just let http do it
       parse_args_http(args, type)
     end
 
-    # arg parsing for requests of type 'http'
+    # Parse the provided arguments for making HTTP requests. The argument flags
+    # are intended to be similar to the curl utility.
+    #
+    # @param args [Array<String>] The command line arguments to parse.
+    # @param type [String] The protocol type that the request is for.
+    # @return [Array<Hash>, Rex::Parser::Arguments>] An array with the options
+    #   hash and the argument parser.
     def parse_args_http(args = [], type = 'http')
       opt_parser = Rex::Parser::Arguments.new(
         '-0' => [ false, 'Use HTTP 1.0' ],
@@ -171,13 +198,63 @@ class Plugin::Requests < Msf::Plugin
       [options, opt_parser]
     end
 
-    # handling for requests of type 'https'
+    # Perform an HTTPS request based on the user specifed options.
+    #
+    # @param opts [Hash] The options to use for making the HTTPS request.
+    # @option opts [String] :auth_username An optional username to use with
+    #   basic authentication.
+    # @option opts [String] :auth_password An optional password to use with
+    #   basic authentication. This is only used when :auth_username is
+    #   specified.
+    # @option opts [String] :data Any data to include within the body of the
+    #   request. Often used with the POST HTTP method.
+    # @option opts [Hash] :headers A hash of additional headers to include in
+    #   the request.
+    # @option opts [String] :method The HTTP method to use in the request.
+    # @option opts [#write] :output_file A file to write the response data to.
+    # @option opts [Boolean] :print_body Whether or not to print the body of the
+    #   response.
+    # @option opts [Boolean] :print_headers Whether or not to print the headers
+    #   of the response.
+    # @options opts [String] :ssl_version The version of SSL to use if the
+    #   request scheme is HTTPS.
+    # @option opts [String] :uri The target uri to request.
+    # @option opts [String] :user_agent The value to use in the User-Agent
+    #   header of the request.
+    # @param opt_parser [Rex::Parser::Arguments] the argument parser for the
+    #   request type.
+    # @return [nil]
     def handle_request_https(opts, opt_parser)
       # let http do it
       handle_request_http(opts, opt_parser)
     end
 
-    # handling for requests of type 'http'
+    # Perform an HTTP request based on the user specifed options.
+    #
+    # @param opts [Hash] The options to use for making the HTTP request.
+    # @option opts [String] :auth_username An optional username to use with
+    #   basic authentication.
+    # @option opts [String] :auth_password An optional password to use with
+    #   basic authentication. This is only used when :auth_username is
+    #   specified.
+    # @option opts [String] :data Any data to include within the body of the
+    #   request. Often used with the POST HTTP method.
+    # @option opts [Hash] :headers A hash of additional headers to include in
+    #   the request.
+    # @option opts [String] :method The HTTP method to use in the request.
+    # @option opts [#write] :output_file A file to write the response data to.
+    # @option opts [Boolean] :print_body Whether or not to print the body of the
+    #   response.
+    # @option opts [Boolean] :print_headers Whether or not to print the headers
+    #   of the response.
+    # @options opts [String] :ssl_version The version of SSL to use if the
+    #   request scheme is HTTPS.
+    # @option opts [String] :uri The target uri to request.
+    # @option opts [String] :user_agent The value to use in the User-Agent
+    #   header of the request.
+    # @param opt_parser [Rex::Parser::Arguments] the argument parser for the
+    #   request type.
+    # @return [nil]
     def handle_request_http(opts, opt_parser)
       uri = opts[:uri]
       http_client = Rex::Proto::Http::Client.new(
@@ -238,6 +315,14 @@ class Plugin::Requests < Msf::Plugin
       end
     end
 
+    # Output lines based on the provided options. Data is either printed to the
+    # console or written to a file. Trailing new lines are removed.
+    #
+    # @param opts [Hash] The options as parsed from parse_args.
+    # @option opts [#write, nil] :output_file An optional file to write the
+    #   output to.
+    # @param line [String] The string to output.
+    # @return [nil]
     def output_line(opts, line)
       if opts[:output_file].nil?
         if line[-2..-1] == "\r\n"
@@ -252,6 +337,13 @@ class Plugin::Requests < Msf::Plugin
       end
     end
 
+    # Print the appropriate help text depending on an optional option parser.
+    #
+    # @param opt_parser [Rex::Parser::Arguments] the argument parser for the
+    #   request type.
+    # @param msg [String] the first line of the help text to display to the
+    #   user.
+    #  @return [nil]
     def help(opt_parser = nil, msg = 'Usage: request [options] uri')
       print_line(msg)
       if opt_parser

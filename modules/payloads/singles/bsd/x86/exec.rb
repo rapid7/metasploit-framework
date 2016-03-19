@@ -15,9 +15,9 @@ require 'msf/core'
 # Executes an arbitrary command.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = 16
+  CachedSize = 24
 
   include Msf::Payload::Single
   include Msf::Payload::Bsd

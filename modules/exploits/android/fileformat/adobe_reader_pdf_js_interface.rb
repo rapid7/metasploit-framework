@@ -8,7 +8,7 @@ require 'msf/core/exploit/fileformat'
 require 'msf/core/exploit/pdf'
 require 'msf/core/exploit/android'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = GoodRanking
 
   include Msf::Exploit::FILEFORMAT

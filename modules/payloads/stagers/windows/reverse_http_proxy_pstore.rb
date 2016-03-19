@@ -7,9 +7,9 @@ require 'msf/core'
 require 'msf/core/handler/reverse_http'
 require 'msf/core/payload/uuid/options'
 
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = 650
+  CachedSize = 665
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows

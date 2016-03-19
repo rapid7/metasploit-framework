@@ -6,7 +6,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Scanner
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
-        OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  '1']),
+        OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  1]),
       ], self.class)
   end
 

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -32,33 +32,37 @@ class Metasploit3 < Msf::Auxiliary
 
       connect_udp
       udp_sock.put(pkt)
-      res = udp_sock.read(1024).split(/\x00/)
+      res = udp_sock.read(1024)
 
-      if (res)
-        report_note(
-          :host   => ip,
-          :proto  => 'udp',
-          :port   => datastore['RPORT'],
-          :type   => 'SERVICE_INFO',
-          :data   => res[2] + "_" + res[1]
-          )
-        report_service(
-          :host => ip,
-          :port => datastore['RPORT'],
-          :proto => 'udp',
-          :name => "ibm-db2",
-          :info => res[2] + "_" + res[1]
-          )
-        print_status("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] )
-      else
+      unless res
         print_error("Unable to determine version info for #{ip}")
+        return
       end
 
-      disconnect_udp
+      res = res.split(/\x00/)
+
+      report_note(
+        :host   => ip,
+        :proto  => 'udp',
+        :port   => datastore['RPORT'],
+        :type   => 'SERVICE_INFO',
+        :data   => "#{res[2]}_#{res[1]}"
+        )
+
+      report_service(
+        :host => ip,
+        :port => datastore['RPORT'],
+        :proto => 'udp',
+        :name => "ibm-db2",
+        :info => "#{res[2]}_#{res[1]}"
+      )
+
+      print_status("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] )
 
     rescue ::Rex::ConnectionError
     rescue ::Errno::EPIPE
-
+    ensure
+      disconnect_udp
     end
 
   end

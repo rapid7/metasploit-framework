@@ -1,6 +1,6 @@
 # -*- coding:binary -*-
 
-shared_examples_for "an option" do |valid_values, invalid_values, type|
+RSpec.shared_examples_for "an option" do |valid_values, invalid_values, type|
   subject do
     described_class.new("name")
   end
@@ -9,18 +9,18 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
   let(:optional) { described_class.new('name', [false, 'A description here'])}
 
   it "should return a type of #{type}"  do
-    subject.type.should == type
+    expect(subject.type).to eq type
   end
 
   context 'when required' do
     it 'should not be valid for nil' do
-      required.valid?(nil).should == false
+      expect(required.valid?(nil)).to eq false
     end
   end
 
   context 'when not required' do
     it 'it should be valid for nil' do
-      optional.valid?(nil).should == true
+      expect(optional.valid?(nil)).to eq true
     end
   end
 
@@ -31,8 +31,8 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
 
       it "should be valid and normalize appropriately: #{valid_value}" do
         block = Proc.new {
-          subject.normalize(valid_value).should == normalized_value
-          subject.valid?(valid_value).should be_truthy
+          expect(subject.normalize(valid_value)).to eq normalized_value
+          expect(subject.valid?(valid_value)).to be_truthy
         }
         if vhash[:skip]
           skip(vhash[:skip], &block)
@@ -47,7 +47,7 @@ shared_examples_for "an option" do |valid_values, invalid_values, type|
     invalid_values.each do |vhash|
       invalid_value = vhash[:value]
       it "should not be valid: #{invalid_value}" do
-        block = Proc.new { subject.valid?(invalid_value).should be_falsey }
+        block = Proc.new { expect(subject.valid?(invalid_value)).to be_falsey }
         if vhash[:skip]
           skip(vhash[:skip], &block)
         else

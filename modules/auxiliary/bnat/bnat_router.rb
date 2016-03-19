@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
@@ -21,8 +21,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'      => MSF_LICENSE,
       'References'   =>
         [
-          [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
-          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
+          [ 'URL', 'https://github.com/claudijd/bnat' ],
+          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels']
         ]
     )
     register_options(

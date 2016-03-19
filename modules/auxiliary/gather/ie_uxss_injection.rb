@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer
 
@@ -32,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2015-0072' ],
           [ 'OSVDB', '117876' ],
           [ 'MSB', 'MS15-018' ],
-          [ 'URL', 'http://www.deusen.co.uk/items/insider3show.3362009741042107/'],
           [ 'URL', 'http://innerht.ml/blog/ie-uxss.html' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2015/Feb/10' ]
         ],

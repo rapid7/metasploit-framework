@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptAddress do
+RSpec.describe Msf::OptAddress do
   valid_values = [
     "192.0.2.0", "127.0.0.1", "2001:db8::", "::1"
   # Normalized values are just the original value

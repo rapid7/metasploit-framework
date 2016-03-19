@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
       p.tcp_sport = sport
       p.tcp_seq = rand(0x100000000)
       p.recalc
-      capture_sendto(p,rhost)
+      break unless capture_sendto(p,rhost)
       sent += 1
     end
 

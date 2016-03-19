@@ -7,7 +7,7 @@ require 'rex'
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 
     begin
       q = query(search_filter, max_search, FIELDS)
-    rescue RuntimeError => e
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       print_error(e.message)
       return
     end

@@ -8,7 +8,7 @@ require 'net/ssh'
 require 'metasploit/framework/login_scanner/ssh'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -120,6 +120,8 @@ class Metasploit3 < Msf::Auxiliary
       framework: framework,
       framework_module: self,
     )
+
+    scanner.verbosity = :debug if datastore['SSH_DEBUG']
 
     scanner.scan! do |result|
       credential_data = result.to_h

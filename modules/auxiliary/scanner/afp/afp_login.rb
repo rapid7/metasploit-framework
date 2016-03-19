@@ -8,7 +8,7 @@ require 'openssl'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/afp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -69,6 +69,12 @@ class Metasploit3 < Msf::Auxiliary
         send_delay: datastore['TCP::send_delay'],
         framework: framework,
         framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|

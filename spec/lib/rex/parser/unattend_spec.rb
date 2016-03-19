@@ -13,19 +13,19 @@ b64 = REXML::Document.new('<?xml version="1.0" encoding="utf-8"?>    <unattend x
 
 comb = REXML::Document.new('<unattend xmlns="urn:schemas-microsoft-com:unattend"> <settings pass="windowsPE">       <component name="Microsoft-Windows-Setup" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" processorArchitecture="x86">             <WindowsDeploymentServices>                      <Login>                          <WillShowUI>OnError</WillShowUI>                      <Credentials>                              <Username>Administrator</Username>                             <Domain>Fabrikam.com</Domain>                           <Password>Password1</Password>                          </Credentials>                      </Login>                  <ImageSelection>                          <InstallImage>                             <ImageName>Install Image</ImageName>                           <ImageGroup>defaultx86</ImageGroup>                              <Filename>install.wim</Filename>                          </InstallImage>                        <WillShowUI>OnError</WillShowUI>                        <InstallTo>                              <DiskID>0</DiskID>                              <PartitionID>1</PartitionID>                        </InstallTo>                  </ImageSelection>            </WindowsDeploymentServices>            <DiskConfiguration>                   <WillShowUI>OnError</WillShowUI>                   <Disk>                         <DiskID>0</DiskID>                         <WillWipeDisk>false</WillWipeDisk>                         <ModifyPartitions>                               <ModifyPartition>                                     <Order>1</Order>                                      <PartitionID>1</PartitionID>                                     <Letter>C</Letter>                                     <Label>Vista</Label>                                     <Format>NTFS</Format>                                     <Active>true</Active>                                     <Extend>false</Extend>                               </ModifyPartition>                         </ModifyPartitions>                   </Disk>             </DiskConfiguration>       </component>       <component name="Microsoft-Windows-International-Core-WinPE" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" processorArchitecture="x86">            <SetupUILanguage>                  <WillShowUI>OnError</WillShowUI>                  <UILanguage>en-US</UILanguage>            </SetupUILanguage>            <UILanguage>en-US</UILanguage>      </component></settings><settings pass="specialize">      <component name="Microsoft-Windows-UnattendedJoin" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" processorArchitecture="x86">            <Identification>                  <UnsecureJoin>true</UnsecureJoin>              </Identification>      </component>      <component name="Microsoft-Windows-Shell-Setup" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" processorArchitecture="x86">            <ComputerName>computer1</ComputerName>      </component>      <component name="Microsoft-Windows-TerminalServices-RDP-WinStationExtensions" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" processorArchitecture="x86">            <SecurityLayer>2</SecurityLayer>            <UserAuthentication>2</UserAuthentication>      </component>      <component name="Microsoft-Windows-TerminalServices-LocalSessionManager" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" processorArchitecture="x86">            <fDenyTSConnections>false</fDenyTSConnections>      </component></settings><settings pass="oobeSystem">      <component name="Microsoft-Windows-Shell-Setup" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" processorArchitecture="x86">            <OOBE>                   <HideEULAPage>true</HideEULAPage>                   <NetworkLocation>Work</NetworkLocation>                   <ProtectYourPC>1</ProtectYourPC>                  <SkipMachineOOBE>true</SkipMachineOOBE>                   <SkipUserOOBE>true</SkipUserOOBE>             </OOBE>             <Display>                  <ColorDepth>32</ColorDepth>                  <DPI>96</DPI>                  <HorizontalResolution>1024</HorizontalResolution>                  <RefreshRate>60</RefreshRate>                  <VerticalResolution>768</VerticalResolution>            </Display>            <UserAccounts>                  <LocalAccounts>                        <LocalAccount>                              <Password>                                    <Value>Password1</Value>                                    <PlainText>true</PlainText>                              </Password>                              <Description>My Local Account</Description>                              <DisplayName>John Smith</DisplayName>                              <Group>Administrators;Power Users</Group>                              <Name>John</Name>                        </LocalAccount>                  </LocalAccounts>                  <DomainAccounts>                              <DomainAccountList>                              <DomainAccount>                                    <Name>Administrator</Name>                                    <Group>Administrators;Power Users</Group>                              </DomainAccount>                              <Domain>Fabrikam.com</Domain>                        </DomainAccountList>                  </DomainAccounts>            </UserAccounts>      </component></settings></unattend>')
 
-describe Rex::Parser::Unattend do
+RSpec.describe Rex::Parser::Unattend do
 
   context "#parse" do
     it "returns passwords for b64" do
       results = described_class.parse(b64)
-      results.length.should eq(2)
-      results[0]['password'].should eq(Rex::Text.to_unicode('Temp123'))
+      expect(results.length).to eq(2)
+      expect(results[0]['password']).to eq(Rex::Text.to_unicode('Temp123'))
     end
 
     it "returns passwords for domain join" do
       results = described_class.parse(dj)
-      results.length.should eq(1)
-      results[0]['password'].should eq('Password1')
+      expect(results.length).to eq(1)
+      expect(results[0]['password']).to eq('Password1')
     end
 
     pos_xmls = [dj, b64, comb, std, lng]
@@ -35,14 +35,14 @@ describe Rex::Parser::Unattend do
     it "returns results for all positive examples" do
       pos_xmls.each do |xml|
         results = described_class.parse(xml)
-        results.should_not be_empty
+        expect(results).not_to be_empty
       end
     end
 
     it "returns no results for negative examples" do
       neg_xmls.each do |xml|
         results = described_class.parse(xml)
-        results.should be_empty
+        expect(results).to be_empty
       end
     end
   end

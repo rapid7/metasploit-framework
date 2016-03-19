@@ -8,9 +8,9 @@ require 'msf/core/handler/find_port'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
-  CachedSize = :dynamic
+  CachedSize = 136
 
   include Msf::Payload::Single
   include Msf::Payload::Solaris
