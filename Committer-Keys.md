@@ -30,6 +30,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@wvu-r7](https://github.com/wvu-r7)             | [wvu](https://keybase.io/wvu)                   |
 | [@zeroSteiner](https://github.com/zeroSteiner)   | [zerosteiner](https://keybase.io/zerosteiner)   |
 | [@kgray-r7](https://github.com/wvu-r7)           | [noxferatu](https://keybase.io/noxferatu)       |
+| [@dmaloney-r7](https://github.com/dmaloney-r7)   | [thelightcosine](https://keybase.io/thelightcosine)|  
 
 Note, keybase.io does **not require** your private key to prove your GitHub
 identity. Actually sharing your private key with Keybase.io is a matter of
