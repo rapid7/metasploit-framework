@@ -118,7 +118,11 @@ class Socket
   #
   def create_udp_channel(params)
     begin
-      return SocketSubsystem::UdpChannel.open(client, params)
+      channel = SocketSubsystem::UdpChannel.open(client, params)
+      if( channel != nil )
+        return channel.lsock
+      end
+      return nil
     rescue ::Rex::Post::Meterpreter::RequestError => e
       case e.code
         when 10000 .. 10100
