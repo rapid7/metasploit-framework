@@ -127,6 +127,32 @@ class Server
     end
   end # Cache
 
+  class MockDnsClient
+    attr_reader :peerhost, :peerport, :srvsock
+
+    #
+    # Create mock DNS client
+    #
+    # @param host [String] PeerHost IP address
+    # @param port [Fixnum] PeerPort integer
+    def initialize(host, port, sock)
+      @peerhost = host
+      @peerport = port
+      @srvsock = sock
+    end
+
+    #
+    # Test method to prevent GC/ObjectSpace abuse via class lookups
+    #
+    def mock_dns_client?
+      true
+    end
+
+    def write(data)
+      srvsock.sendto(data, peerhost, peerport)
+    end
+  end
+
   include Rex::IO::GramServer
 
   Packet = Rex::Proto::DNS::Packet
@@ -292,13 +318,8 @@ protected
 
       if (r != nil and r[0] == self.udp_sock)
         buf,host,port = self.udp_sock.recvfrom(65535)
-        # Mock up a client object as a Rex Socket for sending back data
-        cli = Rex::Socket::Udp.create(
-          'PeerHost' => host,
-          'PeerPort' => port,
-          'LocalHost' => self.udp_sock.localhost,
-          'LocalPort' => self.udp_sock.localport
-        )
+        # Mock up a client object for sending back data
+        cli = MockDnsClient.new(host, port, r[0])
         dispatch_request(cli, buf)
       end
     end
