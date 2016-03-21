@@ -44,7 +44,7 @@ local password).
 
 # Tracking criteria
 
-In order to get [@todb-r7](https://github.com/todb-r7) to track your key, you
+In order to get [@bcook-r7](https://github.com/bcook-r7) to track your key, you
 alert him to its existence through some non-GitHub means, and verify your
 GitHub username. That's all there is to it.
 
