@@ -8,29 +8,30 @@ production ready, since it seems like an easy way to verify identities.
 
 If you're a committer on metasploit-framework, and you need an invite, just ask.
 
-| Github Username                                  | Keybase.io Username                             |
-| ------------------------------------------------ | ----------------------------------------------- |
-| [@acammack-r7](https://github.com/acammack-r7)   | [acammackr7](https://keybase.io/acammackr7)     |
-| [@bcook-r7](https://github.com/bcook-r7)         | [busterb](https://keybase.io/busterb)           |
-| [@FireFart](https://github.com/FireFart)         | [firefart](https://keybase.io/firefart)         |
-| [@gmikeska-r7](https://github.com/gmikeska-r7)   | [gmikeska_r7](https://keybase.io/gmikeska_r7)   |
-| [@hdm](https://github.com/hdm)                   | [hdm](https://keybase.io/hdm)                   |
-| [@jlee-r7](https://github.com/jlee-r7)           | [egypt](https://keybase.io/egypt)               |
-| [@jhart-r7](https://github.com/jhart-r7)         | [jhart](https://keybase.io/jhart)               |
-| [@lsato-r7](https://github.com/lsato-r7)         | [louissato](https://keybase.io/lsato)           |
-| [@Meatballs1](https://github.com/Meatballs1)     | [meatballs](https://keybase.io/meatballs)       |
-| [@OJ](https://github.com/OJ)                     | [oj](https://keybase.io/oj)                     |
-| [@scriptjunkie](https://github.com/scriptjunkie) | [scriptjunkie](https://keybase.io/scriptjunkie) |
-| [@sgonzalez-r7](https://github.com/sgonzalez-r7) | [essgee](https://keybase.io/essgee)             |
-| [@timwr](https://github.com/timwr)               | [timwr](https://keybase.io/timwr)               |
-| [@todb-r7](https://github.com/todb-r7)           | [todb](https://keybase.io/todb)                 |
-| [@void-in](https://github.com/void-in)           | [void_in](https://keybase.io/void_in)           |
-| [@wchen-r7](https://github.com/wchen-r7)         | [wchenr7](https://keybase.io/wchenr7)           |
-| [@wwebb-r7](https://github.com/wwebb-r7)         | [iamwilliam](https://keybase.io/iamwilliam)     |
-| [@wvu-r7](https://github.com/wvu-r7)             | [wvu](https://keybase.io/wvu)                   |
-| [@zeroSteiner](https://github.com/zeroSteiner)   | [zerosteiner](https://keybase.io/zerosteiner)   |
-| [@kgray-r7](https://github.com/wvu-r7)           | [noxferatu](https://keybase.io/noxferatu)       |
-| [@dmaloney-r7](https://github.com/dmaloney-r7)   | [thelightcosine](https://keybase.io/thelightcosine)|  
+| Github Username                                   | Keybase.io Username                                |
+| ------------------------------------------------- | -------------------------------------------------- |
+| [@acammack-r7](https://github.com/acammack-r7)    | [acammackr7](https://keybase.io/acammackr7)        |
+| [@bcook-r7](https://github.com/bcook-r7)          | [busterb](https://keybase.io/busterb)              |
+| [@FireFart](https://github.com/FireFart)          | [firefart](https://keybase.io/firefart)            |
+| [@gmikeska-r7](https://github.com/gmikeska-r7)    | [gmikeska_r7](https://keybase.io/gmikeska_r7)      |
+| [@hdm](https://github.com/hdm)                    | [hdm](https://keybase.io/hdm)                      |
+| [@jlee-r7](https://github.com/jlee-r7)            | [egypt](https://keybase.io/egypt)                  |
+| [@jhart-r7](https://github.com/jhart-r7)          | [jhart](https://keybase.io/jhart)                  |
+| [@lsato-r7](https://github.com/lsato-r7)          | [louissato](https://keybase.io/lsato)              |
+| [@Meatballs1](https://github.com/Meatballs1)      | [meatballs](https://keybase.io/meatballs)          |
+| [@OJ](https://github.com/OJ)                      | [oj](https://keybase.io/oj)                        |
+| [@scriptjunkie](https://github.com/scriptjunkie)  | [scriptjunkie](https://keybase.io/scriptjunkie)    |
+| [@sgonzalez-r7](https://github.com/sgonzalez-r7)  | [essgee](https://keybase.io/essgee)                |
+| [@timwr](https://github.com/timwr)                | [timwr](https://keybase.io/timwr)                  |
+| [@todb-r7](https://github.com/todb-r7)            | [todb](https://keybase.io/todb)                    |
+| [@void-in](https://github.com/void-in)            | [void_in](https://keybase.io/void_in)              |
+| [@wchen-r7](https://github.com/wchen-r7)          | [wchenr7](https://keybase.io/wchenr7)              |
+| [@wwebb-r7](https://github.com/wwebb-r7)          | [iamwilliam](https://keybase.io/iamwilliam)        |
+| [@wvu-r7](https://github.com/wvu-r7)              | [wvu](https://keybase.io/wvu)                      |
+| [@zeroSteiner](https://github.com/zeroSteiner)    | [zerosteiner](https://keybase.io/zerosteiner)      |
+| [@kgray-r7](https://github.com/wvu-r7)            | [noxferatu](https://keybase.io/noxferatu)          |
+| [@dmaloney-r7](https://github.com/dmaloney-r7)    | [thelightcosine](https://keybase.io/thelightcosine)|
+| [@bpatterson-r7](https://github.com/bpatterson-r7)| [bpatterson](https://keybase.io/bpatterson         |
 
 Note, keybase.io does **not require** your private key to prove your GitHub
 identity. Actually sharing your private key with Keybase.io is a matter of
