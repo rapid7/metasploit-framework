@@ -18,8 +18,6 @@ module Meterpreter
 ###
 module SocketAbstraction
 
-  # include Rex::IO::SocketAbstraction
-  
   class << self
     def cls
       raise NotImplementedError
@@ -53,10 +51,10 @@ module SocketAbstraction
       [ tmp, "#{maddr}", "#{mport}" ]
     end
 
-    %w{localhost localport peerhost peerport}.map do |meth|
-      define_method(meth.to_sym) {
+    %i{localhost localport peerhost peerport}.map do |meth|
+      define_method(meth) {
         return super if not channel
-        channel.params.send(meth.to_sym)
+        channel.params.send(meth)
       }
     end
 
@@ -87,6 +85,7 @@ module SocketAbstraction
 
     attr_accessor :channel
   end
+
   ##
   #
   # Constructor
