@@ -87,6 +87,8 @@ class Socket
       return SocketSubsystem::TcpServerChannel.open(client, params)
     rescue ::Rex::Post::Meterpreter::RequestError => e
       case e.code
+      when 10048
+        raise ::Rex::AddressInUse.new(params.localhost, params.localport)
       when 10000 .. 10100
         raise ::Rex::ConnectionError.new
       end
@@ -125,7 +127,9 @@ class Socket
       return nil
     rescue ::Rex::Post::Meterpreter::RequestError => e
       case e.code
-        when 10000 .. 10100
+      when 10048
+        raise ::Rex::AddressInUse.new(params.localhost, params.localport)
+      when 10000 .. 10100
         raise ::Rex::ConnectionError.new
       end
       raise e
