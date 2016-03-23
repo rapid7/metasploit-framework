@@ -13,7 +13,11 @@ class OptPort < OptInt
   end
 
   def valid?(value)
-    super && normalize(value) <= 65535 && normalize(value) > 0
+    if !required? and value.to_s.empty?
+      super
+    else
+      super && normalize(value) <= 65535 && normalize(value) >= 0
+    end
   end
 end
 
