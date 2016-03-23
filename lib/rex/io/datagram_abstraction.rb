@@ -13,6 +13,7 @@ module IO
 ###
 module DatagramAbstraction
   include Rex::IO::SocketAbstraction
+
   #
   # Creates a streaming socket pair
   #

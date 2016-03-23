@@ -60,17 +60,17 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
   #
   # Simply initialize this instance.
   #
-  def initialize( client, cid, type, flags )
-    super( client, cid, type, flags )
+  def initialize(client, cid, type, flags)
+    super(client, cid, type, flags)
 
-    lsock.extend( Rex::Socket::Udp )
+    lsock.extend(Rex::Socket::Udp)
     lsock.initsock
-    lsock.extend( SocketInterface )
-    lsock.extend( DirectChannelWrite )
+    lsock.extend(SocketInterface)
+    lsock.extend(DirectChannelWrite)
     lsock.channel = self
 
     # rsock.extend( Rex::Socket::Udp )
-    rsock.extend( SocketInterface )
+    rsock.extend(SocketInterface)
     rsock.channel = self
 
   end
@@ -79,8 +79,8 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
   # This function is called by Rex::Socket::Udp.sendto and writes data to a specified
   # remote peer host/port via the remote end of the channel.
   #
-  def send( buf, flags, saddr )
-    af, peerhost, peerport = Rex::Socket.from_sockaddr( saddr )
+  def send(buf, flags, saddr)
+    _af, peerhost, peerport = Rex::Socket.from_sockaddr(saddr)
 
     addends = [
       {
@@ -93,7 +93,7 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
       }
     ]
 
-    return _write( buf, buf.length, addends )
+    return _write(buf, buf.length, addends)
   end
 
 end

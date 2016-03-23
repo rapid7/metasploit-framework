@@ -52,7 +52,7 @@ class Datagram < Rex::Post::Meterpreter::Channel
       Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PEER_PORT
     )
 
-    if( peerhost and peerport )
+    if peerhost && peerport
       # Maxlen here is 65507, to ensure we dont overflow, we need to write twice
       # If the other side has a full 64k, handle by splitting up the datagram and
       # writing multiple times along with the sockaddr. Consumers calling recvfrom

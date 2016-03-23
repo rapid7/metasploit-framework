@@ -69,14 +69,14 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   #
   # Passes the channel initialization information up to the base class.
   #
-  def initialize( client, cid, type, flags )
-    super( client, cid, type, flags )
+  def initialize(client, cid, type, flags)
+    super(client, cid, type, flags)
 
-    lsock.extend( SocketInterface )
-    lsock.extend( DirectChannelWrite )
+    lsock.extend(SocketInterface)
+    lsock.extend(DirectChannelWrite)
     lsock.channel = self
 
-    rsock.extend( SocketInterface )
+    rsock.extend(SocketInterface)
     rsock.channel = self
 
   end
@@ -101,7 +101,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
     request.add_tlv(TLV_TYPE_SHUTDOWN_HOW, how)
     request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     return true
   end

@@ -79,8 +79,8 @@ module SocketAbstraction
   #
   module DirectChannelWrite
 
-    def syswrite( buf )
-      channel._write( buf )
+    def syswrite(buf)
+      channel._write(buf)
     end
 
     attr_accessor :channel
