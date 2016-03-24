@@ -37,12 +37,12 @@ class Datagram < Rex::Post::Meterpreter::Channel
       return [super(length, flags)[0], super(length, flags)[0]]
     end
 
-    def send( buf, flags, saddr )
-      channel.send( buf, flags, saddr)
+    def send(buf, flags, saddr)
+      channel.send(buf, flags, saddr)
     end
   end
 
-  def dio_write_handler( packet, data )
+  def dio_write_handler(packet, data)
     @recvd ||= []
     @recvd << [packet, data]
     peerhost = packet.get_tlv_value(
