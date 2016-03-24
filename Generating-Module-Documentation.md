@@ -2,7 +2,7 @@ We've added the ability to generate documentation for modules on the fly using t
 
 ###Why this is valuable
 
-The new module documentation allows you to see the help for a particular module from a help page, instead of from the command line. It includes:
+The new module documentation allows you to see the help for a particular module from a web page, instead of from the command line. It includes:
 
  - The PR history related to a particular module.
  - The basic usage instructions for a module. 
