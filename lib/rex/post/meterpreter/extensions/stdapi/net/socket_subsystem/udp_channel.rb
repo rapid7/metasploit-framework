@@ -20,20 +20,21 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
   #
   # We are a datagram channel.
   #
-  class << self
-    def cls
-      return CHANNEL_CLASS_DATAGRAM
-    end
+  def self.cls
+    CHANNEL_CLASS_DATAGRAM
   end
 
   #
-  # Open a new UDP channel on the remote end. The local host/port are optional, if none are specified
-  # the remote end will bind to INADDR_ANY with a random port number. The peer host/port are also
-  # optional, if specified all default send(), write() call will sendto the specified peer. If no peer
-  # host/port is specified you must use sendto() and specify the remote peer you wish to send to. This
-  # effectivly lets us create bound/unbound and connected/unconnected UDP sockets with ease.
+  # Open a new UDP channel on the remote end. The local host/port are
+  # optional, if none are specified the remote end will bind to INADDR_ANY
+  # with a random port number. The peer host/port are also optional, if
+  # specified all default send(), write() call will sendto the specified peer.
+  # If no peer host/port is specified you must use sendto() and specify the
+  # remote peer you wish to send to. This effectivly lets us create
+  # bound/unbound and connected/unconnected UDP sockets with ease.
   #
-  def UdpChannel.open(client, params)
+  # @return [Channel]
+  def self.open(client, params)
     c = Channel.create(client, 'stdapi_net_udp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
     [
       {
