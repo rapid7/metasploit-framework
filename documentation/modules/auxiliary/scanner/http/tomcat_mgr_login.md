@@ -4,9 +4,9 @@ authentication.
 Please note that for Tomcat 7 or newer, the roles required to use the manager application were
 changed from the single manager role to the following four roles:
 
-* manager-gui - allows access to the HTML GUI and the status pages.
-* manager-script - allows access to the text interface and the status pages.
-* manager-jmx - allows access to the JMX and the status pages.
+* manager-gui - Allows access to the HTML GUI and the status pages.
+* manager-script - Allows access to the text interface and the status pages.
+* manager-jmx - Allows access to the JMX and the status pages.
 * manager-status - allows access to the status pages only.
 
 Older versions of Tomcat came with default passwords enabled by default. For example:
@@ -31,9 +31,7 @@ loaded.
 
 ## Vulnerable Application
 
-To download the vulnerable application, you can find it here:
-
-https://tomcat.apache.org/whichversion.html
+To download the vulnerable application, you can find it here: https://tomcat.apache.org/whichversion.html.
 
 ## Verification Steps
 
