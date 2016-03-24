@@ -6,7 +6,7 @@ The new module documentation allows you to see the help for a particular module 
 
 The help page includes:
 
- - The PR history related to a particular module.
+ - The PR history related to a particular module, if you have a [GitHub access token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/) set up. 
  - The basic usage instructions for a module. 
  - The advanced usage instructions for a module, if it's available.
 
@@ -19,6 +19,11 @@ msf (smb_login)> info -d
 ```
 
 Additionally, if it's available, the help page will also include a KB that contains advanced usage information, such as vulnerable target details, caveats, and sample usage. The content in the KB is contained in a markdown file in the metasploit-framework/documentation/modules directory.  Its purpose is to provide supplemental information that is outside of the scope of general documentation. 
+
+
+###Add an access token to see PR history
+
+In order for you to be able to view the PR history for a module, you'll need add your GitHub access token to the environment variable GITHUB_OAUTH_TOKEN="<your token here>" in .bash_profile.
 
 ###How you can write KBs
 Generally, the person who creates the module will write the initial KB for it, but anyone can write or contribute to it. 
