@@ -24,9 +24,9 @@ Additionally, if it's available, the help page will also include a KB that conta
 ###How you can write KBs
 Generally, the person who creates the module will write the initial KB for it, but anyone can write or contribute to it. 
 
-To write a KB, you should take a look at the sample template, module_doc_template.md, which is located in metasploit-framework/documentation/modules/markdown_doc, or take a look at any of the KBs that are already available. 
+Before you write a KB, you should take a look at the sample template, module_doc_template.md, which is located in metasploit-framework/documentation/modules/markdown_doc, or take a look at any of the KBs that are already available. 
 
-Writing a KB is pretty easy. To write a KB, you'll need to: 
+To write a KB, you'll need to: 
 
  1. Create an markdown (.md) file. 
  2. Write the content. 
