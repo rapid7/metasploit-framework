@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'shellwords'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
   include Msf::Post::OSX::RubyDL

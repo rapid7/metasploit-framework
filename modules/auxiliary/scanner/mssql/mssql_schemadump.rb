@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'yaml'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
 
-    if (not mssql_login_datastore)
+    if !mssql_login_datastore
       print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
       return
     end

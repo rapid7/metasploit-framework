@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit4 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = NormalRanking
 
   include Msf::Exploit::Remote::HttpClient

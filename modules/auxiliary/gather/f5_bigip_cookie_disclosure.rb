@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -32,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
         {
-          'SSLVersion' => 'TLS1',
           'SSL'        => true
         }
     ))

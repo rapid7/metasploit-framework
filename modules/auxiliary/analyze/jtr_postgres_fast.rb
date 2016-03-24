@@ -8,7 +8,7 @@ require 'msf/core'
 require 'msf/core/auxiliary/jtr'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   #Included to grab the john.pot and use some utiltiy functions
   include Msf::Auxiliary::JohnTheRipper

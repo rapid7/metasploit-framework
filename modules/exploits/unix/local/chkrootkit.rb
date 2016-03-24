@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit4 < Msf::Exploit::Local
+class MetasploitModule < Msf::Exploit::Local
 
   # This could also be Excellent, but since it requires
   # up to one day to pop a shell, let's set it to Manual instead.

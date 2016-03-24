@@ -477,7 +477,7 @@ class Msftidy
     return if @module_type == 'payloads'
 
     # get the super class in an ugly way
-    unless (super_class = @source.scan(/class Metasploit\d?\s+<\s+(\S+)/).flatten.first)
+    unless (super_class = @source.scan(/class Metasploit(?:\d|Module)\s+<\s+(\S+)/).flatten.first)
       error('Unable to determine super class')
       return
     end
@@ -506,6 +506,12 @@ class Msftidy
       # Check argument length
       args_length = args.split(",").length
       warn("Poorly designed argument list in '#{func_name}()'. Try a hash.") if args_length > 6
+    end
+  end
+
+  def check_bad_class_name
+    if @source =~ /^\s*class (Metasploit\d+)\s*</
+      warn("Please use 'MetasploitModule' as the class name (you used #{Regexp.last_match(1)})")
     end
   end
 
@@ -699,6 +705,7 @@ class Msftidy
     check_title_casing
     check_bad_terms
     check_bad_super_class
+    check_bad_class_name
     check_function_basics
     check_lines
     check_snake_case_filename

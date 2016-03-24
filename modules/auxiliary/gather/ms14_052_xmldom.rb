@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/exploit/jsobfu'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Exploit::JSObfu

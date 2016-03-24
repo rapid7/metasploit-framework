@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
 
@@ -73,6 +73,8 @@ class Metasploit3 < Msf::Post
   def os_set_wallpaper(file)
     if session.type =~ /meterpreter/ && session.sys.config.sysinfo['OS'] =~ /darwin/i
       platform = 'osx'
+    else
+      platform = session.platform
     end
     case platform
     when /osx/

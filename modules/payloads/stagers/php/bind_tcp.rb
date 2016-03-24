@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/php/bind_tcp'
 
-module Metasploit4
+module MetasploitModule
 
   CachedSize = 1188
 

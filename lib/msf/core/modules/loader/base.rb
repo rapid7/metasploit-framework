@@ -147,18 +147,17 @@ class Msf::Modules::Loader::Base
 
       if namespace_module.const_defined?('Metasploit3', false)
         klass = namespace_module.const_get('Metasploit3', false)
-        # We are not quite yet ready for the warnings to bubble to the user
-        # load_warning(module_path, 'Please change the modules class name from Metasploit3 to Metasploit')
+        load_warning(module_path, 'Please change the modules class name from Metasploit3 to MetasploitModule')
       elsif namespace_module.const_defined?('Metasploit4', false)
         klass = namespace_module.const_get('Metasploit4', false)
-        # load_warning(module_path, 'Please change the modules class name from Metasploit4 to Metasploit')
-      elsif namespace_module.const_defined?('Metasploit', false)
-        klass = namespace_module.const_get('Metasploit', false)
+        load_warning(module_path, 'Please change the modules class name from Metasploit4 to MetasploitModule')
+      elsif namespace_module.const_defined?('MetasploitModule', false)
+        klass = namespace_module.const_get('MetasploitModule', false)
       else
         load_error(module_path, Msf::Modules::Error.new({
           :module_path => module_path,
           :module_reference_name => module_reference_name,
-          :causal_message => 'Invalid module (no Metasploit class or module name)'
+          :causal_message => 'Invalid module (no MetasploitModule class or module name)'
         }))
         return false
       end
@@ -314,7 +313,7 @@ class Msf::Modules::Loader::Base
 
   protected
 
-  # Returns a nested module to wrap the Metasploit class so that it doesn't overwrite other (metasploit)
+  # Returns a nested module to wrap the MetasploitModule class so that it doesn't overwrite other (metasploit)
   # module's classes. The wrapper module must be named so that active_support's autoloading code doesn't break when
   # searching constants from inside the Metasploit class.
   #
@@ -496,7 +495,7 @@ class Msf::Modules::Loader::Base
   end
 
   # Returns an Array of names to make a fully qualified module name to
-  # wrap the Metasploit class so that it doesn't overwrite other
+  # wrap the MetasploitModule class so that it doesn't overwrite other
   # (metasploit) module's classes. Invalid module name characters are
   # escaped by using 'H*' unpacking and prefixing each code with X so
   # the code remains a valid module name when it starts with a digit.

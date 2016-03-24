@@ -31,6 +31,7 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
       'interval_collect'  => 'Manage interval collection capabilities',
       'activity_start'    => 'Start an Android activity from a Uri string',
+      'sqlite_query'      => 'Query a SQLite database from storage',
       'set_audio_mode'    => 'Set Ringer Mode'
     }
 
@@ -45,6 +46,7 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'   => ['wlan_geolocate'],
       'interval_collect' => ['interval_collect'],
       'activity_start'   => ['activity_start'],
+      'sqlite_query'     => ['sqlite_query'],
       'set_audio_mode'   => ['set_audio_mode']
     }
 
@@ -189,7 +191,7 @@ class Console::CommandDispatcher::Android
     path = "sms_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_sms_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for sms list']
+      '-o' => [ true, 'Output path for sms list']
     )
 
     dump_sms_opts.parse(args) do |opt, _idx, val|
@@ -277,7 +279,7 @@ class Console::CommandDispatcher::Android
 
     dump_contacts_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for contacts list']
+      '-o' => [ true, 'Output path for contacts list']
     )
 
     dump_contacts_opts.parse(args) do |opt, _idx, val|
@@ -381,7 +383,7 @@ class Console::CommandDispatcher::Android
     dump_calllog_opts = Rex::Parser::Arguments.new(
 
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for call log']
+      '-o' => [ true, 'Output path for call log']
 
     )
 
@@ -575,6 +577,55 @@ class Console::CommandDispatcher::Android
       print_status("Intent started")
     else
       print_error("Error: #{result}")
+    end
+  end
+
+  def cmd_sqlite_query(*args)
+    sqlite_query_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ],
+      '-d' => [ true, 'The sqlite database file'],
+      '-q' => [ true, 'The sqlite statement to execute'],
+      '-w' => [ false, 'Open the database in writable mode (for INSERT/UPDATE statements)']
+    )
+
+    writeable = false
+    database = ''
+    query = ''
+    sqlite_query_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        print_line("Usage: sqlite_query -d <database_file> -q <statement>\n")
+        print_line(sqlite_query_opts.usage)
+        return
+      when '-d'
+        database = val
+      when '-q'
+        query = val
+      when '-w'
+        writeable = true
+      end
+    end
+
+    if database.blank? || query.blank?
+      print_error("You must enter both a database files and a query")
+      print_error("e.g. sqlite_query -d /data/data/com.android.browser/databases/webviewCookiesChromium.db -q 'SELECT * from cookies'")
+      print_line(sqlite_query_opts.usage)
+      return
+    end
+
+    result = client.android.sqlite_query(database, query, writeable)
+    unless writeable
+      header = "#{query} on database file #{database}"
+      table = Rex::Ui::Text::Table.new(
+        'Header'    => header,
+        'Columns'   => result[:columns],
+        'Indent'    => 0
+      )
+      result[:rows].each do |e|
+        table << e
+      end
+      print_line
+      print_line(table.to_s)
     end
   end
 

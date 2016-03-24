@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -408,7 +408,7 @@ class Metasploit3 < Msf::Auxiliary
         end
         subdirs.shift
       end
-    print_status("#{ip}:#{rport} - Spider #{x} complete.") unless datastore['ShowFiles'] == true
+    print_status("#{ip}:#{rport} - Spider #{x} complete.") unless datastore['ShowFiles']
     end
     unless detailed_tbl.rows.empty?
       if datastore['LogSpider'] == '1'

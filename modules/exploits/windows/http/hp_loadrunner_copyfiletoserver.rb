@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = ExcellentRanking
 
   HttpFingerprint = { :pattern => [ /Apache-Coyote\/1\.1/ ] }
