@@ -1,5 +1,3 @@
-##New Module Documentation 
-
 We've added the ability to generate documentation for modules on the fly using the info -d command. 
 
 ###Why this is valuable
