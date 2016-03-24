@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::DCERPC

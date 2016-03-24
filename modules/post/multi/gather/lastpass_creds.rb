@@ -8,7 +8,7 @@ require 'sqlite3'
 require 'uri'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::OSX::System

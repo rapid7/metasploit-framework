@@ -1,4 +1,4 @@
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -8,8 +8,8 @@ class Metasploit3 < Msf::Auxiliary
       'Name'            => %q(Dahua DVR Auth Bypass Scanner),
       'Description'     => %q(Scans for Dahua-based DVRs and then grabs settings. Optionally resets a user's password and clears the device logs),
       'Author'          => [
+        'Tyler Bennett - Talos Consulting', # Metasploit module
         'Jake Reynolds - Depth Security', # Vulnerability Discoverer
-        'Tyler Bennett - Talos Infosec', # Metasploit Module
         'Jon Hart <jon_hart[at]rapid7.com>', # improved metasploit module
         'Nathan McBride' # regex extraordinaire
       ],

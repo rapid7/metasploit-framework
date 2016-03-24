@@ -13,7 +13,7 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/mainframe_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 339
 

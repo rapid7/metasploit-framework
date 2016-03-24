@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner
@@ -26,7 +26,7 @@ class Metasploit4 < Msf::Auxiliary
         ['URL', 'http://seclists.org/fulldisclosure/2016/Jan/26'],
         ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
       ],
-      'DisclosureDate' => 'Jan 09 2016',
+      'DisclosureDate' => 'Jan 9 2016',
       'License'        => MSF_LICENSE
     ))
 
@@ -42,7 +42,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def run_host(ip)
     ssh_opts = {
-      port:         datastore['RPORT'],
+      port:         rport,
       auth_methods: ['fortinet-backdoor']
     }
 

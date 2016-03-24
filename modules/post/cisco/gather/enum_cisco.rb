@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/cisco'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Cisco
   def initialize(info={})
     super( update_info( info,

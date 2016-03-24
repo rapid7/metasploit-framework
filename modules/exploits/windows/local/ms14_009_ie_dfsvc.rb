@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/exploit/exe'
 require 'msf/core/exploit/powershell'
 
-class Metasploit3 < Msf::Exploit::Local
+class MetasploitModule < Msf::Exploit::Local
   Rank = GreatRanking
 
   include Msf::Exploit::Powershell

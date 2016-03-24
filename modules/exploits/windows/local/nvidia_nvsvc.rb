@@ -11,7 +11,7 @@ require 'msf/core/post/windows/process'
 require 'msf/core/post/windows/reflective_dll_injection'
 require 'msf/core/post/windows/services'
 
-class Metasploit3 < Msf::Exploit::Local
+class MetasploitModule < Msf::Exploit::Local
   Rank = AverageRanking
 
   include Msf::Post::File

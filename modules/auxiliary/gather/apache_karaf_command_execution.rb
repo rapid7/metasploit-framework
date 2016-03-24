@@ -6,9 +6,12 @@
 require 'msf/core'
 require 'net/ssh'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2016, 4, 14), 'auxiliary/scanner/ssh/apache_karaf_command_execution')
 
   def initialize(info={})
     super(update_info(info,

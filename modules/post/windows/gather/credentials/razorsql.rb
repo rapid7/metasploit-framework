@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/auxiliary/report'
 require 'openssl'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Auxiliary::Report

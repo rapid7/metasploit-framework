@@ -9,7 +9,7 @@ require 'msf/base/sessions/powershell'
 require 'msf/core/payload/windows/powershell'
 require 'msf/core/handler/bind_tcp'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 1518
 

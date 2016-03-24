@@ -225,6 +225,13 @@ class Core
       end
     end
 
+    if framework.modules.module_load_warnings.length > 0
+      print_warning("The following modules were loaded with warnings:")
+      framework.modules.module_load_warnings.each do |path, error|
+        print_warning("\t#{path}: #{error}")
+      end
+    end
+
     cmd_banner()
   end
 
@@ -2187,10 +2194,15 @@ class Core
       return true
     end
 
-    if append
-      datastore[name] = datastore[name] + value
-    else
-      datastore[name] = value
+    begin
+      if append
+        datastore[name] = datastore[name] + value
+      else
+        datastore[name] = value
+      end
+    rescue OptionValidateError => e
+      print_error(e.message)
+      elog(e.message)
     end
 
     print_line("#{name} => #{datastore[name]}")
@@ -2202,7 +2214,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_set_tabs(str, words)
 
     # A value has already been specified
@@ -2846,16 +2857,8 @@ class Core
   # Returns the revision of the framework and console library
   #
   def cmd_version(*args)
-    svn_console_version = "$Revision: 15168 $"
-    svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
-    if svn_metasploit_version
-      print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")
-    else
-      print_line("Framework: #{Msf::Framework::Version}")
-    end
-    print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
-
-    return true
+    print_line("Framework: #{Msf::Framework::Version}")
+    print_line("Console  : #{Msf::Framework::Version}")
   end
 
   def cmd_grep_help
@@ -3532,7 +3535,7 @@ class Core
       next if not o
 
       # handle a search string, search deep
-      if(
+      if (
         not regex or
         o.name.match(regex) or
         o.description.match(regex) or
@@ -3546,7 +3549,7 @@ class Core
             mod_opt_keys = o.options.keys.map { |x| x.downcase }
 
             opts.each do |opt,val|
-              if mod_opt_keys.include?(opt.downcase) == false or (val != nil and o.datastore[opt] != val)
+              if !mod_opt_keys.include?(opt.downcase) || (val != nil && o.datastore[opt] != val)
                 show = false
               end
             end

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('RPORT', [ true, 'Remote port running RDP', '3389' ])
+        OptPort.new('RPORT', [ true, 'Remote port running RDP', 3389 ])
       ], self.class)
   end
 

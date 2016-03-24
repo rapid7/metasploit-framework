@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/nessus'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -25,7 +25,6 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultOptions' =>
       {
         'SSL'        => true,
-        'SSLVersion' => 'TLS1'
       }
     ))
     register_options(
