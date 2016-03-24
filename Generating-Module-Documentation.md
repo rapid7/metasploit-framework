@@ -8,7 +8,7 @@ The new module documentation allows you to see the help for a particular module 
  - The basic usage instructions for a module. 
  - The advanced usage instructions for a module, if it's available.
 
-###How they use it
+###How to use it
 After you load a module, you can type ``info -d`` to generate a help page that provides basic usage information and displays the PR history for the module. 
 
 ```
