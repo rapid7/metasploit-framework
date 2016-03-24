@@ -25,6 +25,8 @@ Additionally, if it's available, the help page will also include a KB that conta
 
 In order for you to be able to view the PR history for a module, you'll need add your GitHub access token to the environment variable GITHUB_OAUTH_TOKEN="<your token here>" in .bash_profile.
 
+To generate a GitHub access token, check out this [page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/).
+
 ###How you can write KBs
 Generally, the person who creates the module will write the initial KB for it, but anyone can write or contribute to it. 
 
