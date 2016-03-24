@@ -1,9 +1,8 @@
-We've added the ability to generate documentation for modules on the fly using the info -d command. 
+We've added the ability to generate documentation for modules on the fly using the ```info -d``` command. 
 
 ###Why this is valuable
-The help that is available from msfconsole for a module is limited. Also, viewing the help for module options from the command line was not user friendly. 
 
-The new module documentation allows you to see:
+The new module documentation allows you to see the help for a particular module from a help page, instead of from the command line. It includes:
 
  - The PR history related to a particular module.
  - The basic usage instructions for a module. 
