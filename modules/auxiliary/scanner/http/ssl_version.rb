@@ -30,7 +30,6 @@ class MetasploitModule < Msf::Auxiliary
       {
         'SSL' => true,
         'RPORT' => 443,
-        'SSLVersion' => 'SSL3'
       },
       'References'  =>
       [
@@ -43,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('SSLVersion', [true, 'Specify the version of SSL that should be used', 'SSL3', ['SSL2', 'SSL3', 'TLS1']])
+        Opt::SSLVersion
       ]
     )
 

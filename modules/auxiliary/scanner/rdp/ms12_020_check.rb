@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('RPORT', [ true, 'Remote port running RDP', '3389' ])
+        OptPort.new('RPORT', [ true, 'Remote port running RDP', 3389 ])
       ], self.class)
   end
 

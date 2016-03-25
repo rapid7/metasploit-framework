@@ -278,7 +278,7 @@ class MetasploitModule < Msf::Post
     # If we can impersonate a token, we use that first.
     # If we can't, we'll try to MIGRATE (more aggressive) if the user wants to
     got_token = steal_token
-    if not got_token and datastore["MIGRATE"]
+    if !got_token && datastore["MIGRATE"]
       migrate_success = migrate
     end
 
@@ -330,7 +330,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Migrate back to the original process
-    if datastore["MIGRATE"] and @old_pid and migrate_success == true
+    if datastore["MIGRATE"] && @old_pid && migrate_success
       print_status("Migrating back...")
       migrate(@old_pid)
     end

@@ -511,7 +511,7 @@ class Msftidy
 
   def check_bad_class_name
     if @source =~ /^\s*class (Metasploit\d+)\s*</
-      warn("Please use Metasploit as a class name (you used #{Regexp.last_match(1)})")
+      warn("Please use 'MetasploitModule' as the class name (you used #{Regexp.last_match(1)})")
     end
   end
 
