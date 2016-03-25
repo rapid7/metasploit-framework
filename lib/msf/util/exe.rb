@@ -1247,16 +1247,18 @@ require 'msf/core/exe/segment_appender'
     hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_fname]     = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_func]      = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_stream]    = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_obj]       = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_shell]     = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempdir]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempexe]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempbase64]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_basedir]   = Rex::Text.rand_text_alpha(rand(8)+8)
-
     hash_sub[:base64_shellcode] = Rex::Text.encode_base64(exes)
-
+    hash_sub[:var_decodefunc] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_xml] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_xmldoc] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_decoded] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_adodbstream] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_decodebase64] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:init] = ""
 
     if persist
