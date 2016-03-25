@@ -58,6 +58,7 @@ RSpec.describe Msf::Util::DocumentGenerator::PullRequestFinder do
   end
 
   before(:each) do
+    allow(ENV).to receive(:has_key?).and_return(true)
     allow_any_instance_of(Net::HTTP).to receive(:request).with(any_args).and_return(http_response)
   end
 
