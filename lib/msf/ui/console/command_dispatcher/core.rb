@@ -95,10 +95,6 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
 
-  # The list of data store elements that cannot be set when in defanged
-  # mode.
-  DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
-
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
 
@@ -868,8 +864,6 @@ class Core
   # Goes into IRB scripting mode
   #
   def cmd_irb(*args)
-    defanged?
-
     expressions = []
 
     # Parse the command options
@@ -1218,8 +1212,6 @@ class Core
   # the framework root plugin directory is used.
   #
   def cmd_load(*args)
-    defanged?
-
     if (args.length == 0)
       cmd_load_help
       return false
@@ -1476,8 +1468,6 @@ class Core
   # restarts of the console.
   #
   def cmd_save(*args)
-    defanged?
-
     # Save the console config
     driver.save_config
 
@@ -1508,8 +1498,6 @@ class Core
   # Adds one or more search paths.
   #
   def cmd_loadpath(*args)
-    defanged?
-
     if (args.length == 0 or args.include? "-h")
       cmd_loadpath_help
       return true
@@ -2164,12 +2152,6 @@ class Core
       # so we need to rebuild the payload list whenever the target
       # changes.
       @cache_payloads = nil
-    end
-
-    # Security check -- make sure the data store element they are setting
-    # is not prohibited
-    if global and DefangedProhibitedDataStoreElements.include?(name)
-      defanged?
     end
 
     # If the driver indicates that the value is not valid, bust out.
