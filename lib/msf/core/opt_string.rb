@@ -12,6 +12,10 @@ class OptString < OptBase
     return 'string'
   end
 
+  def validate_on_assignment?
+    false
+  end
+
   def normalize(value)
     if (value.to_s =~ /^file:(.*)/)
       path = $1

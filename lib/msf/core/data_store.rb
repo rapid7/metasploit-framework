@@ -29,10 +29,12 @@ class DataStore < Hash
 
     opt = @options[k]
     unless opt.nil?
-      unless opt.valid?(v)
-        raise OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'#{['', ', try harder'].sample}"])
+      if opt.validate_on_assignment?
+        unless opt.valid?(v)
+          raise OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'"])
+        end
+        v = opt.normalize(v)
       end
-      v = opt.normalize(v)
     end
 
     super(k,v)
