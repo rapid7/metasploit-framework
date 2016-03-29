@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'msf/util/document_generator'
+
 module Msf
 module RPC
 class RPC_Module < RPC_Base
@@ -67,6 +69,17 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.post')
   def rpc_post
     { "modules" => self.framework.post.keys }
+  end
+
+
+  # Returns detailed information about a module in HTML.
+  #
+  # @return [String] HTML file.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.info_html', 'exploit', 'windows/smb/ms08_067_netapi')
+  def rpc_info_html(mtype, mname)
+    m = _find_module(mtype, mname)
+    Msf::Util::DocumentGenerator.get_module_document(m)
   end
 
 
