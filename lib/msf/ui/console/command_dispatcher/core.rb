@@ -16,6 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'msf/util/document_generator'
 
 module Msf
 module Ui
@@ -751,7 +752,9 @@ class Core
   def cmd_info_help
     print_line "Usage: info <module name> [mod2 mod3 ...]"
     print_line
-    print_line "Optionally the flag '-j' will print the data in json format"
+    print_line "Options:"
+    print_line "* The flag '-j' will print the data in json format"
+    print_line "* The flag '-d' will show the markdown version with a browser. More info, but could be slow."
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
     print_line
@@ -762,15 +765,25 @@ class Core
   #
   def cmd_info(*args)
     dump_json = false
+    show_doc = false
+
     if args.include?('-j')
       args.delete('-j')
       dump_json = true
+    end
+
+    if args.include?('-d')
+      args.delete('-d')
+      show_doc = true
     end
 
     if (args.length == 0)
       if (active_module)
         if dump_json
           print(Serializer::Json.dump_module(active_module) + "\n")
+        elsif show_doc
+          print_status("Please wait, generating documentation for #{active_module.shortname}")
+          Msf::Util::DocumentGenerator.spawn_module_document(active_module)
         else
           print(Serializer::ReadableText.dump_module(active_module))
         end
@@ -791,6 +804,9 @@ class Core
         print_error("Invalid module: #{name}")
       elsif dump_json
         print(Serializer::Json.dump_module(mod) + "\n")
+      elsif show_doc
+        print_status("Please wait, generating documentation for #{mod.shortname}")
+        Msf::Util::DocumentGenerator.get_module_document(mod)
       else
         print(Serializer::ReadableText.dump_module(mod))
       end
