@@ -26,6 +26,7 @@ class RPC_Console < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('console.create')
   def rpc_create(opts={})
+    opts['uuid'] = SecureRandom.uuid
     cid = @console_driver.create_console(opts)
     {
       'id'     => cid,
