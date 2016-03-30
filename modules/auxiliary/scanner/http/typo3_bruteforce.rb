@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HTTP::Typo3
   include Msf::Auxiliary::Report
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{peer} - Trying to bruteforce login")
+    print_status("Trying to bruteforce login")
 
     res = send_request_cgi({
       'method'  => 'GET',
@@ -67,10 +67,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def try_login(user, pass)
-    vprint_status("#{peer} - Trying username:'#{user}' password: '#{pass}'")
+    vprint_status("Trying username:'#{user}' password: '#{pass}'")
     cookie = typo3_backend_login(user, pass)
     if cookie
-      print_good("#{peer} - Successful login '#{user}' password: '#{pass}'")
+      print_good("Successful login '#{user}' password: '#{pass}'")
       report_cred(
         ip: rhost,
         port: rport,
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
       )
       return :next_user
     else
-      vprint_error("#{peer} - failed to login as '#{user}' password: '#{pass}'")
+      vprint_error("failed to login as '#{user}' password: '#{pass}'")
       return
     end
   end

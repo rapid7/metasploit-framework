@@ -15,7 +15,7 @@ require 'msf/core'
 # This class implements simple NOP generator for PowerPC
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
 
   def initialize

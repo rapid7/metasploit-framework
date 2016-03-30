@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'nokogiri'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize

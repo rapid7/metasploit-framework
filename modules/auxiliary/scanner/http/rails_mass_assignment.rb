@@ -7,7 +7,7 @@ require 'rex/proto/http'
 require 'msf/core'
 require 'uri'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery

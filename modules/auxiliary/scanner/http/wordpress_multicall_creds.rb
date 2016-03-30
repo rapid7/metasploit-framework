@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/wordpress_multicall'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
