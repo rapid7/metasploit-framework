@@ -7,7 +7,7 @@ require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
