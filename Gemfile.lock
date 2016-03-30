@@ -21,6 +21,7 @@ PATH
       octokit
       openssl-ccm (= 1.2.1)
       packetfu (= 1.1.11)
+      patch_finder (>= 1.0.2)
       pcaprub
       pg (>= 0.11)
       railties
@@ -157,6 +158,7 @@ GEM
     packetfu (1.1.11)
       network_interface (~> 0.0)
       pcaprub (~> 0.12)
+    patch_finder (1.0.2)
     pcaprub (0.12.1)
     pg (0.18.4)
     pg_array_parser (0.0.9)
