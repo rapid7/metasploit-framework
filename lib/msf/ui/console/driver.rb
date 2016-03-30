@@ -144,14 +144,6 @@ class Driver < Msf::Ui::Driver
     # Whether or not to confirm before exiting
     self.confirm_exit = opts['ConfirmExit']
 
-    # Disables "dangerous" functionality of the console
-    @defanged = opts['Defanged']
-
-    # If we're defanged, then command passthru should be disabled
-    if @defanged
-      self.command_passthru = false
-    end
-
     # Parse any specified database.yml file
     if framework.db.usable and not opts['SkipDatabaseInit']
 
@@ -630,17 +622,6 @@ class Driver < Msf::Ui::Driver
   #
   attr_accessor :active_resource
 
-  #
-  # If defanged is true, dangerous functionality, such as exploitation, irb,
-  # and command shell passthru is disabled.  In this case, an exception is
-  # raised.
-  #
-  def defanged?
-    if @defanged
-      raise DefangedException
-    end
-  end
-
   def stop
     framework.events.on_ui_stop()
     super
@@ -768,17 +749,6 @@ protected
     end
   end
 end
-
-#
-# This exception is used to indicate that functionality is disabled due to
-# defanged being true
-#
-class DefangedException < ::Exception
-  def to_s
-    "This functionality is currently disabled (defanged mode)"
-  end
-end
-
 
 end
 end
