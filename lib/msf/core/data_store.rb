@@ -13,6 +13,7 @@ class DataStore < Hash
   # Initializes the data store's internal state.
   #
   def initialize()
+    @options     = Hash.new
     @imported    = Hash.new
     @imported_by = Hash.new
   end
@@ -25,6 +26,16 @@ class DataStore < Hash
     k = find_key_case(k)
     @imported[k] = false
     @imported_by[k] = nil
+
+    opt = @options[k]
+    unless opt.nil?
+      if opt.validate_on_assignment?
+        unless opt.valid?(v)
+          raise OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'"])
+        end
+        v = opt.normalize(v)
+      end
+    end
 
     super(k,v)
   end
@@ -65,17 +76,11 @@ class DataStore < Hash
   # all of the supplied options
   #
   def import_options(options, imported_by = nil, overwrite = false)
-    options.each_option { |name, opt|
-      # If there's already a value defined for this option, then skip it
-      # and don't import it.
-      next if self.has_key?(name) and overwrite == false
-
-      # If the option has a default value, import it, but only if the
-      # datastore doesn't already have a value set for it.
-      if ((opt.default != nil) and (overwrite or self[name] == nil))
-        import_option(name, opt.default.to_s, true, imported_by)
+    options.each_option do |name, opt|
+      if self[name].nil? || overwrite
+        import_option(name, opt.default, true, imported_by, opt)
       end
-    }
+    end
   end
 
   #
@@ -124,13 +129,14 @@ class DataStore < Hash
   #
   def import_options_from_hash(option_hash, imported = true, imported_by = nil)
     option_hash.each_pair { |key, val|
-      import_option(key, val.to_s, imported, imported_by)
+      import_option(key, val, imported, imported_by)
     }
   end
 
-  def import_option(key, val, imported=true, imported_by=nil)
+  def import_option(key, val, imported=true, imported_by=nil, option=nil)
     self.store(key, val)
 
+    @options[key] = option
     @imported[key]    = imported
     @imported_by[key] = imported_by
   end

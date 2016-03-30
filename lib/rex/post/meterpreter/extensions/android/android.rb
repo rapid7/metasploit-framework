@@ -72,6 +72,12 @@ class Android < Extension
     response.get_tlv(TLV_TYPE_SHUTDOWN_OK).value
   end
 
+  def set_audio_mode(n)
+    request = Packet.create_request('set_audio_mode')
+    request.add_tlv(TLV_TYPE_AUDIO_MODE, n)
+    response = client.send_request(request)
+  end
+
   def interval_collect(opts)
     request = Packet.create_request('interval_collect')
     request.add_tlv(TLV_TYPE_COLLECT_ACTION, COLLECT_ACTIONS[opts[:action]])
@@ -242,6 +248,23 @@ class Android < Extension
     response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
 
+  def activity_start(uri)
+    request = Packet.create_request('activity_start')
+    request.add_tlv(TLV_TYPE_URI_STRING, uri)
+    response = client.send_request(request)
+    if response.get_tlv(TLV_TYPE_ACTIVITY_START_RESULT).value
+      return nil
+    else
+      return response.get_tlv(TLV_TYPE_ACTIVITY_START_ERROR).value
+    end
+  end
+
+  def set_wallpaper(data)
+    request = Packet.create_request('set_wallpaper')
+    request.add_tlv(TLV_TYPE_WALLPAPER_DATA, data)
+    response = client.send_request(request)
+  end
+
   def send_sms(dest, body, dr)
     request = Packet.create_request('send_sms')
     request.add_tlv(TLV_TYPE_SMS_ADDRESS, dest)
@@ -272,6 +295,33 @@ class Android < Extension
     end
     networks
   end
+
+  def sqlite_query(dbname, query, writeable)
+    request = Packet.create_request('sqlite_query')
+    request.add_tlv(TLV_TYPE_SQLITE_NAME, dbname)
+    request.add_tlv(TLV_TYPE_SQLITE_QUERY, query)
+    request.add_tlv(TLV_TYPE_SQLITE_WRITE, writeable)
+    response = client.send_request(request, 30)
+    error_msg = response.get_tlv(TLV_TYPE_SQLITE_ERROR)
+    raise "SQLiteException: #{error_msg.value}" if error_msg
+
+    unless writeable
+      result = {
+        columns: [],
+        rows: []
+      }
+      data = response.get_tlv(TLV_TYPE_SQLITE_RESULT_GROUP)
+      unless data.nil?
+        columns = data.get_tlv(TLV_TYPE_SQLITE_RESULT_COLS)
+        result[:columns] = columns.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+        data.each(TLV_TYPE_SQLITE_RESULT_ROW) do |row|
+          result[:rows] << row.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+        end
+      end
+      result
+    end
+  end
+
 end
 end
 end

@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+require 'stringio'
+
 ENV['RAILS_ENV'] = 'test'
 
 unless Bundler.settings.without.include?(:coverage)
@@ -10,6 +12,12 @@ end
 #
 # Must be explicit as activerecord is optional dependency
 require 'active_record/railtie'
+
+require 'metasploit/framework/database'
+# check if database.yml is present
+unless Metasploit::Framework::Database.configurations_pathname.try(:to_path)
+  fail 'RSPEC currently needs a configured database'
+end
 
 require File.expand_path('../../config/environment', __FILE__)
 
@@ -108,3 +116,25 @@ end
 
 Metasploit::Framework::Spec::Constants::Suite.configure!
 Metasploit::Framework::Spec::Threads::Suite.configure!
+
+def get_stdout(&block)
+  out = $stdout
+  $stdout = tmp = StringIO.new
+  begin
+    yield
+  ensure
+    $stdout = out
+  end
+  tmp.string
+end
+
+def get_stderr(&block)
+  out = $stderr
+  $stderr = tmp = StringIO.new
+  begin
+    yield
+  ensure
+    $stderr = out
+  end
+  tmp.string
+end

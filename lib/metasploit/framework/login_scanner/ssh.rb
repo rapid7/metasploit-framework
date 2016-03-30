@@ -78,7 +78,7 @@ module Metasploit
                 opt_hash
               )
             end
-          rescue ::EOFError, Net::SSH::Disconnect, Rex::ConnectionError, ::Timeout::Error => e
+          rescue OpenSSL::Cipher::CipherError, ::EOFError, Net::SSH::Disconnect, Rex::ConnectionError, ::Timeout::Error => e
             result_options.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           rescue Net::SSH::Exception
             result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: e)

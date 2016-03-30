@@ -6,7 +6,11 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
+
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2016, 2, 13), 'post/windows/manage/priv_migrate')
 
   def initialize(info={})
     super( update_info( info,

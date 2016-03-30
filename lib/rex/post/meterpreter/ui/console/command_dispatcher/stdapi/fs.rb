@@ -52,6 +52,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'cat'        => 'Read the contents of a file to the screen',
       'cd'         => 'Change directory',
       'del'        => 'Delete the specified file',
+      'dir'        => 'List files (alias for ls)',
       'download'   => 'Download a file or directory',
       'edit'       => 'Edit a file',
       'getlwd'     => 'Print local working directory',
@@ -73,6 +74,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'cat'        => [],
       'cd'         => ['stdapi_fs_chdir'],
       'del'        => ['stdapi_fs_rm'],
+      'dir'        => ['stdapi_fs_stat', 'stdapi_fs_ls'],
       'download'   => [],
       'edit'       => [],
       'getlwd'     => [],
@@ -597,6 +599,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     return true
   end
+
+  #
+  # Alias the ls command to dir, for those of us who have windows muscle-memory
+  #
+  alias cmd_dir cmd_ls
+
 
   #
   # Make one or more directory.

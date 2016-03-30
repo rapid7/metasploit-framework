@@ -6,7 +6,7 @@
 require 'msf/core'
 
 # Fake Telnet Service - Kris Katterjohn 09/28/2008
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report

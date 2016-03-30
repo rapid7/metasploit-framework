@@ -11,7 +11,7 @@ require 'msf/core/payload/windows/dllinject'
 # Injects an arbitrary DLL in the exploited process.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows::DllInject
 

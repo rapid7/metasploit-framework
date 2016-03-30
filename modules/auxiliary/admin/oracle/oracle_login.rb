@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'csv'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::ORACLE

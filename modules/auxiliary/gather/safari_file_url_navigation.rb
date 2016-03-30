@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/exploit/format/webarchive'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::FtpServer
   include Msf::Exploit::Format::Webarchive
@@ -286,7 +286,7 @@ class Metasploit3 < Msf::Auxiliary
   # set.
   #
   def use_zlib
-    if (!Rex::Text.zlib_present? and datastore['HTTP::compression'] == true)
+    if !Rex::Text.zlib_present? && datastore['HTTP::compression']
       fail_with(Failure::Unknown, "zlib support was not detected, yet the HTTP::compression option was set.  Don't do that!")
     end
   end
