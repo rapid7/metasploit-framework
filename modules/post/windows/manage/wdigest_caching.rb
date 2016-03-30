@@ -3,10 +3,7 @@ require 'rex'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
-  include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
-  include Msf::Post::Windows::Accounts
-  include Msf::Auxiliary::Report
 
   WDIGEST_REG_LOCATION = 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest'
   USE_LOGON_CREDENTIAL = 'UseLogonCredential'
@@ -16,7 +13,7 @@ class Metasploit3 < Msf::Post
       'Name'          => 'Windows Post Manage WDigest Credential Caching',
       'Description'   => %q{
           On Windows 8/2012 or higher, the Digest Security Provider (WDIGEST) is disabled by default. This module enables/disables
-          credential caching by adding/changing the value of the UseLogonCredential DWORD under WDIGEST provider's Registry key.
+          credential caching by adding/changing the value of the UseLogonCredential DWORD under the WDIGEST provider's Registry key.
           Any subsequest logins will allow mimikatz to recover the plain text passwords from the system's memory.
       },
       'License'       => MSF_LICENSE,
