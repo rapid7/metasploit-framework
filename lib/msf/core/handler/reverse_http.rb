@@ -340,29 +340,34 @@ protected
 
         resp['Content-Type'] = 'application/octet-stream'
 
-        # generate the stage, but pass in the existing UUID and connection id so that
-        # we don't get new ones generated.
-        blob = obj.stage_payload(
-          uuid: uuid,
-          uri:  conn_id,
-          lhost: uri.host,
-          lport: uri.port
-        )
+        begin
+          # generate the stage, but pass in the existing UUID and connection id so that
+          # we don't get new ones generated.
+          blob = obj.stage_payload(
+            uuid: uuid,
+            uri:  conn_id,
+            lhost: uri.host,
+            lport: uri.port
+          )
 
-        resp.body = encode_stage(blob)
+          resp.body = encode_stage(blob)
 
-        # Short-circuit the payload's handle_connection processing for create_session
-        create_session(cli, {
-          :passive_dispatcher => obj.service,
-          :conn_id            => conn_id,
-          :url                => url,
-          :expiration         => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-          :retry_total        => datastore['SessionRetryTotal'].to_i,
-          :retry_wait         => datastore['SessionRetryWait'].to_i,
-          :ssl                => ssl?,
-          :payload_uuid       => uuid
-        })
+          # Short-circuit the payload's handle_connection processing for create_session
+          create_session(cli, {
+            :passive_dispatcher => obj.service,
+            :conn_id            => conn_id,
+            :url                => url,
+            :expiration         => datastore['SessionExpirationTimeout'].to_i,
+            :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+            :retry_total        => datastore['SessionRetryTotal'].to_i,
+            :retry_wait         => datastore['SessionRetryWait'].to_i,
+            :ssl                => ssl?,
+            :payload_uuid       => uuid
+          })
+        rescue NoMethodError
+          print_error("Staging failed. This can occur when stageless listeners are used with staged payloads.")
+          return
+        end
 
       when :connect
         print_status("Attaching orphaned/stageless session ...")
