@@ -27,15 +27,27 @@ class MetasploitModule < Msf::Post
     ))
   end
 
+  def print_status(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  def print_error(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  def print_good(msg='')
+    super("#{peer} - #{msg}")
+  end
+
   def run
     userhives=load_missing_hives()
       userhives.each do |hive|
-        next if hive['HKU'] == nil
+        next if hive['HKU'].nil?
         print_status("Looking at Key #{hive['HKU']}")
         begin
           subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\HeidiSQL\\Servers")
-          if subkeys.nil? or subkeys.empty?
-            print_status ("HeidiSQL not installed for this user.")
+          if subkeys.blank?
+            print_status("HeidiSQL not installed for this user.")
             next
           end
 
