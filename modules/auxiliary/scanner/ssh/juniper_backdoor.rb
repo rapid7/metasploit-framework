@@ -8,7 +8,6 @@ class MetasploitModule < Msf::Auxiliary
   require 'net/ssh'
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
- # include Msf::Auxiliary::CommandShell
 
   def initialize(info = {})
     super(update_info(info,
