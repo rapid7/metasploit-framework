@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Post
             print_good("Service: #{service_types[db_type]} Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
 
           service_data = {
-            address: host,
+            address: host == '127.0.0.1' ? rhost : host,
             port: port,
             service_name: service_types[db_type],
             protocol: 'tcp',
@@ -154,8 +154,9 @@ class MetasploitModule < Msf::Post
 
           end
         end
-      rescue
-        print_error("Cannot Access User SID: #{hive['HKU']}")
+      rescue ::Rex::Post::Meterpreter::RequestError => e
+        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        print_error("Cannot Access User SID: #{hive['HKU']} : #{e.message}")
       end
     end
     unload_our_hives(userhives)
