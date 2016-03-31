@@ -10,10 +10,10 @@ require 'metasploit/framework/credential_collection'
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
-  include Msf::Auxiliary::Redis
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::Redis
 
   def initialize(info = {})
     super(

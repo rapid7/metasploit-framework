@@ -20,7 +20,7 @@ module Msf
       register_options(
         [
           Opt::RPORT(6379),
-          OptString.new('Password', [false, 'Redis password for authentication test', 'foobared'])
+          OptString.new('PASSWORD', [false, 'Redis password for authentication test', 'foobared'])
         ]
       )
 
