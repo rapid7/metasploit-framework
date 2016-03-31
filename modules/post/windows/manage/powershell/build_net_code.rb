@@ -8,7 +8,7 @@ require 'msf/core'
 require 'msf/core/post/windows/powershell'
 require 'msf/core/exploit/powershell/dot_net'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   Rank = ExcellentRanking
 
   include Msf::Post::Windows::Powershell
