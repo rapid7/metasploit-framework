@@ -7,7 +7,8 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/redis'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
+
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Redis
   include Msf::Auxiliary::Scanner
@@ -52,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 
     cred_collection = prepend_db_passwords(cred_collection)
 
-    scanner = Metasploit::Framework::LoginScanner::REDIS.new(
+    scanner = Metasploit::Framework::LoginScanner::Redis.new(
       host: ip,
       port: rport,
       proxies: datastore['PROXIES'],

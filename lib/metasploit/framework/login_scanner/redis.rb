@@ -10,7 +10,7 @@ module Metasploit
       # It is responsible for taking a single target, and a list of credentials
       # and attempting them. It then saves the results.
 
-      class REDIS
+      class Redis
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
