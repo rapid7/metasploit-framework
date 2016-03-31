@@ -9,7 +9,7 @@ RSpec.shared_context 'Msf::DBManager' do
     framework.db
   end
 
-  before(:each) do
+  before(:example) do
     # already connected due to use_transactional_fixtures, but need some of the side-effects of #connect
     framework.db.workspace = framework.db.default_workspace
     allow(db_manager).to receive(:active).and_return(active)

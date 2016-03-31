@@ -117,8 +117,7 @@ module PacketDispatcher
 
     self.last_checkin = Time.now
 
-    # If the first 4 bytes are "RECV", return the oldest packet from the outbound queue
-    if req.body[0,4] == "RECV"
+    if req.method == 'GET'
       rpkt = send_queue.shift
       resp.body = rpkt || ''
       begin
@@ -175,6 +174,7 @@ module PacketDispatcher
           err = e
         end
       end
+
 
       if bytes.to_i == 0
         # Mark the session itself as dead

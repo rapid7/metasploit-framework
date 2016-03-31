@@ -25,7 +25,7 @@ RSpec.describe Jsobfu do
         { :input => fname, :iteration => 1 }
       }
 
-      before(:each) do
+      before(:example) do
         allow(Jsobfu::OptsConsole).to receive(:parse).with(any_args).and_return(default_opts)
         allow(File).to receive(:open).with(fname, 'rb').and_yield(StringIO.new(js))
         @out = $stdout
@@ -33,7 +33,7 @@ RSpec.describe Jsobfu do
         $stdout.string = ''
       end
 
-      after(:each) do
+      after(:example) do
         $stdout = @out
       end
 

@@ -12,6 +12,10 @@ class OptPath < OptBase
     return 'path'
   end
 
+  def validate_on_assignment?
+    false
+  end
+
   # Generally, 'value' should be a file that exists.
   def valid?(value)
     return false if empty_required_value?(value)

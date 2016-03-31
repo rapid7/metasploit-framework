@@ -350,7 +350,7 @@ RSpec.describe Msf::PayloadGenerator do
     context 'when nops are set to 0' do
       let(:nops) { 0 }
 
-      before(:each) do
+      before(:example) do
         load_and_create_module(
             module_type: 'nop',
             reference_name: 'x86/opty2'
@@ -367,7 +367,7 @@ RSpec.describe Msf::PayloadGenerator do
       let(:nops) { 20 }
 
       context 'when payload is x86' do
-        before(:each) do
+        before(:example) do
           load_and_create_module(
             module_type: 'nop',
             reference_name: 'x86/opty2'
@@ -398,7 +398,7 @@ RSpec.describe Msf::PayloadGenerator do
           )
         }
 
-        before(:each) do
+        before(:example) do
           load_and_create_module(
               module_type: 'nop',
               reference_name: 'x64/simple'
@@ -456,7 +456,7 @@ RSpec.describe Msf::PayloadGenerator do
       # Callbacks
       #
 
-      before(:each) do
+      before(:example) do
         encoder_reference_names.each do |reference_name|
           load_and_create_module(
               module_type: 'encoder',

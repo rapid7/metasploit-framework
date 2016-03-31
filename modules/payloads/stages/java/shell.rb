@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 
-module Metasploit3
+module MetasploitModule
 
   # The stager should have already included this
   #include Msf::Payload::Java

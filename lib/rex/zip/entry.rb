@@ -76,7 +76,7 @@ class Entry
   end
 
   def central_dir_path
-    return nil if @central_dir_name.blank?
+    return nil if @central_dir_name.to_s.strip.empty?
     get_relative_path(@central_dir_name)
   end
 

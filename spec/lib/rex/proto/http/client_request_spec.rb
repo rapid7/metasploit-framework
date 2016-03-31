@@ -5,7 +5,7 @@ require 'rex/proto/http/client_request'
 
 
 RSpec.shared_context "with no evasions" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_self_reference'] = false
     client_request.opts['uri_fake_params_start'] = false
     client_request.opts['uri_full_url'] = false
@@ -18,7 +18,7 @@ end
 
 
 RSpec.shared_context "with 'uri_dir_self_reference'" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_self_reference'] = true
   end
 
@@ -30,7 +30,7 @@ end
 
 
 RSpec.shared_context "with 'uri_dir_fake_relative'" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_fake_relative'] = true
   end
 
@@ -44,11 +44,11 @@ end
 
 RSpec.shared_context "with 'uri_full_url'" do
 
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_full_url'] = true
   end
 
-  before(:each) do
+  before(:example) do
     client_request.opts['vhost'] = host
   end
 
@@ -151,7 +151,26 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
       {
         :set_host_header       => { :result => "Host: [2001:DB8::1]:1234\r\n" },
       }
-    ]
+    ],
+
+    [
+      "with modified Content-Length header",
+      default_options.merge({
+        'headers' => { 'Content-Length' => 1337 }
+      }),
+      {
+        :set_content_len_header => { args: 0, result: ''}
+      }
+    ],
+
+    [
+      "with 1024 bytes of Content-Length",
+      default_options,
+      {
+        :set_content_len_header => { args: 1024, result: "Content-Length: 1024\r\n"}
+      }
+    ],
+  
   ].each do |c, opts, expectations|
     context c do
       subject(:client_request) { Rex::Proto::Http::ClientRequest.new(opts) }

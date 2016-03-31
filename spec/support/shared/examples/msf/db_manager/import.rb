@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager::Import' do
+RSpec.shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :dehex }
   it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :import }

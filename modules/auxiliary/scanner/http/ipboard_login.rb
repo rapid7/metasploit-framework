@@ -3,7 +3,7 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/ipboard'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report

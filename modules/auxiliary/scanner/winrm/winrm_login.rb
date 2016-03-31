@@ -10,7 +10,7 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner'
 require 'metasploit/framework/login_scanner/winrm'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::WinRM
   include Msf::Auxiliary::Report

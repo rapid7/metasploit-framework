@@ -118,7 +118,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Glassfish do
       '<title>Deploy Enterprise Applications/Modules</title>'
     end
 
-    before :each do
+    before :example do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
         if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
             req.opts['data'] &&
@@ -158,7 +158,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Glassfish do
       '<title>Deploy Enterprise Applications/Modules</title>'
     end
 
-    before :each do
+    before :example do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
         if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
             req.opts['data'] &&

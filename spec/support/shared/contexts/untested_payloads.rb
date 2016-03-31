@@ -41,7 +41,7 @@ RSpec.shared_context 'untested payloads' do |options={}|
 
   modules_pathname = options.fetch(:modules_pathname)
 
-  before(:all) do
+  before(:context) do
     @expected_ancestor_reference_name_set = Set.new
     @actual_ancestor_reference_name_set = Set.new
 
@@ -56,7 +56,7 @@ RSpec.shared_context 'untested payloads' do |options={}|
     end
   end
 
-  after(:all) do
+  after(:context) do
     missing_ancestor_reference_name_set = @expected_ancestor_reference_name_set - @actual_ancestor_reference_name_set
 
     untested_payloads_pathname = Pathname.new('log/untested-payloads.log')
