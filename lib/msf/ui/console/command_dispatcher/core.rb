@@ -16,6 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'msf/util/document_generator'
 
 module Msf
 module Ui
@@ -94,10 +95,6 @@ class Core
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
-
-  # The list of data store elements that cannot be set when in defanged
-  # mode.
-  DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
 
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
@@ -751,7 +748,9 @@ class Core
   def cmd_info_help
     print_line "Usage: info <module name> [mod2 mod3 ...]"
     print_line
-    print_line "Optionally the flag '-j' will print the data in json format"
+    print_line "Options:"
+    print_line "* The flag '-j' will print the data in json format"
+    print_line "* The flag '-d' will show the markdown version with a browser. More info, but could be slow."
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
     print_line
@@ -762,15 +761,25 @@ class Core
   #
   def cmd_info(*args)
     dump_json = false
+    show_doc = false
+
     if args.include?('-j')
       args.delete('-j')
       dump_json = true
+    end
+
+    if args.include?('-d')
+      args.delete('-d')
+      show_doc = true
     end
 
     if (args.length == 0)
       if (active_module)
         if dump_json
           print(Serializer::Json.dump_module(active_module) + "\n")
+        elsif show_doc
+          print_status("Please wait, generating documentation for #{active_module.shortname}")
+          Msf::Util::DocumentGenerator.spawn_module_document(active_module)
         else
           print(Serializer::ReadableText.dump_module(active_module))
         end
@@ -791,6 +800,9 @@ class Core
         print_error("Invalid module: #{name}")
       elsif dump_json
         print(Serializer::Json.dump_module(mod) + "\n")
+      elsif show_doc
+        print_status("Please wait, generating documentation for #{mod.shortname}")
+        Msf::Util::DocumentGenerator.get_module_document(mod)
       else
         print(Serializer::ReadableText.dump_module(mod))
       end
@@ -868,8 +880,6 @@ class Core
   # Goes into IRB scripting mode
   #
   def cmd_irb(*args)
-    defanged?
-
     expressions = []
 
     # Parse the command options
@@ -1218,8 +1228,6 @@ class Core
   # the framework root plugin directory is used.
   #
   def cmd_load(*args)
-    defanged?
-
     if (args.length == 0)
       cmd_load_help
       return false
@@ -1476,8 +1484,6 @@ class Core
   # restarts of the console.
   #
   def cmd_save(*args)
-    defanged?
-
     # Save the console config
     driver.save_config
 
@@ -1508,8 +1514,6 @@ class Core
   # Adds one or more search paths.
   #
   def cmd_loadpath(*args)
-    defanged?
-
     if (args.length == 0 or args.include? "-h")
       cmd_loadpath_help
       return true
@@ -2166,22 +2170,21 @@ class Core
       @cache_payloads = nil
     end
 
-    # Security check -- make sure the data store element they are setting
-    # is not prohibited
-    if global and DefangedProhibitedDataStoreElements.include?(name)
-      defanged?
-    end
-
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
       return true
     end
 
-    if append
-      datastore[name] = datastore[name] + value
-    else
-      datastore[name] = value
+    begin
+      if append
+        datastore[name] = datastore[name] + value
+      else
+        datastore[name] = value
+      end
+    rescue OptionValidateError => e
+      print_error(e.message)
+      elog(e.message)
     end
 
     print_line("#{name} => #{datastore[name]}")
@@ -2193,7 +2196,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_set_tabs(str, words)
 
     # A value has already been specified
@@ -2837,16 +2839,8 @@ class Core
   # Returns the revision of the framework and console library
   #
   def cmd_version(*args)
-    svn_console_version = "$Revision: 15168 $"
-    svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
-    if svn_metasploit_version
-      print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")
-    else
-      print_line("Framework: #{Msf::Framework::Version}")
-    end
-    print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
-
-    return true
+    print_line("Framework: #{Msf::Framework::Version}")
+    print_line("Console  : #{Msf::Framework::Version}")
   end
 
   def cmd_grep_help
@@ -3523,7 +3517,7 @@ class Core
       next if not o
 
       # handle a search string, search deep
-      if(
+      if (
         not regex or
         o.name.match(regex) or
         o.description.match(regex) or
@@ -3537,7 +3531,7 @@ class Core
             mod_opt_keys = o.options.keys.map { |x| x.downcase }
 
             opts.each do |opt,val|
-              if mod_opt_keys.include?(opt.downcase) == false or (val != nil and o.datastore[opt] != val)
+              if !mod_opt_keys.include?(opt.downcase) || (val != nil && o.datastore[opt] != val)
                 show = false
               end
             end

@@ -191,7 +191,7 @@ class MetasploitModule < Msf::Post
     imail_user = datastore['IMAILUSER']
     imail_domain = datastore['IMAILDOMAIN']
 
-    print_status("Download iMail user information...") if datastore['VERBOSE'] == false
+    vprint_status("Download iMail user information...")
 
     #Download user data.  If no user specified, we dump it all.
     users = download_info(imail_user, imail_domain)

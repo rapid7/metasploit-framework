@@ -63,10 +63,18 @@ module ReverseHttp
       ], Msf::Handler::ReverseHttp)
   end
 
+  def print_prefix
+    if Thread.current[:cli]
+      super + "#{listener_uri} handling request from #{Thread.current[:cli].peerhost}; (UUID: #{uuid.to_s}) "
+    else
+      super
+    end
+  end
+
   # Return a URI suitable for placing in a payload
   #
   # @return [String] A URI of the form +scheme://host:port/+
-  def listener_uri(addr)
+  def listener_uri(addr=datastore['LHOST'])
     uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
     "#{scheme}://#{uri_host}:#{bind_port}/"
   end
@@ -224,6 +232,7 @@ protected
   # Parses the HTTPS request
   #
   def on_request(cli, req, obj)
+    Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
     info = process_uri_resource(req.relative_resource)
     uuid = info[:uuid] || Msf::Payload::UUID.new
@@ -241,7 +250,7 @@ protected
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
-      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID: #{request_summary}")
+      print_status("Ignoring unknown UUID: #{request_summary}")
       info[:mode] = :unknown_uuid
     end
 
@@ -249,7 +258,7 @@ protected
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
       allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
       unless allowed_urls.include?(req.relative_resource)
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring unknown UUID URL: #{request_summary}")
+        print_status("Ignoring unknown UUID URL: #{request_summary}")
         info[:mode] = :unknown_uuid_url
       end
     end
@@ -259,7 +268,7 @@ protected
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection from #{request_summary}")
+        print_status("Redirecting stageless connection from #{request_summary}")
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -272,7 +281,7 @@ protected
         resp.body = pkt.to_r
 
       when :init_python
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
+        print_status("Staging Python payload ...")
         url = payload_uri(req) + conn_id + '/'
 
         blob = ""
@@ -301,7 +310,7 @@ protected
         })
 
       when :init_java
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
+        print_status("Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
 
         blob = obj.generate_stage(
@@ -325,38 +334,43 @@ protected
         })
 
       when :init_native
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
+        print_status("Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
         uri = URI(payload_uri(req) + conn_id)
 
         resp['Content-Type'] = 'application/octet-stream'
 
-        # generate the stage, but pass in the existing UUID and connection id so that
-        # we don't get new ones generated.
-        blob = obj.stage_payload(
-          uuid: uuid,
-          uri:  conn_id,
-          lhost: uri.host,
-          lport: uri.port
-        )
+        begin
+          # generate the stage, but pass in the existing UUID and connection id so that
+          # we don't get new ones generated.
+          blob = obj.stage_payload(
+            uuid: uuid,
+            uri:  conn_id,
+            lhost: uri.host,
+            lport: uri.port
+          )
 
-        resp.body = encode_stage(blob)
+          resp.body = encode_stage(blob)
 
-        # Short-circuit the payload's handle_connection processing for create_session
-        create_session(cli, {
-          :passive_dispatcher => obj.service,
-          :conn_id            => conn_id,
-          :url                => url,
-          :expiration         => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-          :retry_total        => datastore['SessionRetryTotal'].to_i,
-          :retry_wait         => datastore['SessionRetryWait'].to_i,
-          :ssl                => ssl?,
-          :payload_uuid       => uuid
-        })
+          # Short-circuit the payload's handle_connection processing for create_session
+          create_session(cli, {
+            :passive_dispatcher => obj.service,
+            :conn_id            => conn_id,
+            :url                => url,
+            :expiration         => datastore['SessionExpirationTimeout'].to_i,
+            :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+            :retry_total        => datastore['SessionRetryTotal'].to_i,
+            :retry_wait         => datastore['SessionRetryWait'].to_i,
+            :ssl                => ssl?,
+            :payload_uuid       => uuid
+          })
+        rescue NoMethodError
+          print_error("Staging failed. This can occur when stageless listeners are used with staged payloads.")
+          return
+        end
 
       when :connect
-        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Attaching orphaned/stageless session ...")
+        print_status("Attaching orphaned/stageless session ...")
 
         resp.body = ''
         conn_id = req.relative_resource
@@ -376,7 +390,7 @@ protected
 
       else
         unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
-          print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{request_summary}")
+          print_status("Unknown request to #{request_summary}")
         end
         resp.code    = 200
         resp.message = 'OK'

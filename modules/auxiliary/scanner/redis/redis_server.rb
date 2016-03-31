@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'Redis Scanner',
+      'Name'         => 'Redis Command Execute Scanner',
       'Description'  => %q(
         This module locates Redis endpoints by attempting to run a specified
         Redis command.

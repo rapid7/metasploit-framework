@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
       OptString.new('VSCPATH', [false, 'The path to the target Volume Shadow Copy', '']),
       OptString.new('WINPATH', [true, 'The name of the Windows directory (examples: WINDOWS, WINNT)', 'WINDOWS']),
-      OptBool.new('CREATE_NEW_VSC', [false, 'If true, attempts to create a volume shadow copy', 'false']),
+      OptBool.new('CREATE_NEW_VSC', [false, 'If true, attempts to create a volume shadow copy', false]),
     ], self.class)
 
   end
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Attempting to copy NTDS.dit from #{datastore['VSCPATH']}")
         vscpath = datastore['VSCPATH']
       else
-        unless datastore['CREATE_NEW_VSC'] == true
+        unless datastore['CREATE_NEW_VSC']
           vscpath = check_vss(text, bat)
         end
         unless vscpath

@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
         {
-          'SSLVersion' => 'TLS1',
           'SSL'        => true
         }
     ))

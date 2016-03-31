@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
-        OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  '1']),
+        OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  1]),
       ], self.class)
   end
 

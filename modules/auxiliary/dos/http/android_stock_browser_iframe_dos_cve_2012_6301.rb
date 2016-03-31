@@ -7,6 +7,9 @@ require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2016, 4, 23), 'auxiliary/dos/android/android_stock_browser_iframe')
 
   def initialize(info = {})
     super(

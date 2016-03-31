@@ -29,7 +29,7 @@ class OptRegexp < OptBase
 
   def normalize(value)
     return nil if value.nil?
-    return Regexp.compile(value)
+    return Regexp.compile(value.to_s)
   end
 
   def display_value(value)

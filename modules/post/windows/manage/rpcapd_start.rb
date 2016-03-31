@@ -52,8 +52,8 @@ class MetasploitModule < Msf::Post
           print_status("Setting rpcapd as 'auto' service")
           service_change_startup("rpcapd", START_TYPE_AUTO)
         end
-        if datastore['ACTIVE']==true
-          if datastore['RHOST']==nil
+        if datastore['ACTIVE']
+          if datastore['RHOST'].nil?
             print_error("RHOST is not set ")
             return
           else
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
           print_status("Installing rpcap in PASSIVE mode (local port: #{datastore['PORT']}) ")
           p = prog << " -d -p #{datastore['PORT']} "
         end
-        if datastore['NULLAUTH']==true
+        if datastore['NULLAUTH']
           p<< "-n"
         end
         run_rpcapd(p)
