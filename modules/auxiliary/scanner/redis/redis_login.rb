@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
 
     # redis does not have an username, there's only password
-    deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')
+    deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS', 'DB_ALL_CREDS')
   end
 
   def run_host(ip)
@@ -70,6 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
+        credential_data.delete(:username) # This service uses no username
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
