@@ -9,7 +9,7 @@ require 'msf/core/auxiliary/report'
 require 'msf/core/post/windows/mssql'
 
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::MSSQL
 

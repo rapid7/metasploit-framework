@@ -42,6 +42,11 @@ def check
 end
 
 
+def peer
+  # IPv4 addr can be 16 chars + 1 for : and + 5 for port
+  super.ljust(21)
+end
+
 #
 # The command handler when launched from the console
 #

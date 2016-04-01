@@ -1,21 +1,20 @@
-
-
-[9C[1;37m.[41C.
+%bld%whi
+         .                                         .
  .
 
-[6C[34mdBBBBBBb  dBBBP dBBBBBBP dBBBBBb  [37m.[23Co
-[7C[34m'   dB'[21CBBP
-    dB'dB'dB' dBBP[5CdBP[5CdBP BB
-   dB'dB'dB' dBP[6CdBP[5CdBP  BB
-  dB'dB'dB' dBBBBP   dBP[5CdBBBBBBB
+      %bludBBBBBBb  dBBBP dBBBBBBP dBBBBBb  %whi.                       o
+     %blu  '   dB'                     BBP
+    dB'dB'dB' dBBP     dBP     dBP BB
+   dB'dB'dB' dBP      dBP     dBP  BB
+  dB'dB'dB' dBBBBP   dBP     dBBBBBBB
 
-[35C[0;31mdBBBBBP  [1;34mdBBBBBb  dBP    dBBBBP dBP dBBBBBBP
-[10C[37m.[18C[36m.[18C[34mdB' dBP    dB'.BP
-[29C[36m|[7C[0;31mdBP    [1;34mdBBBB' dBP    dB'.BP dBP    dBP
-[27C[36m--o--    [0;31mdBP    [1;34mdBP    dBP    dB'.BP dBP    dBP
-[29C[36m|[5C[0;31mdBBBBP [1;34mdBP    dBBBBP dBBBBP dBP    dBP
+                                   %reddBBBBBP  %bludBBBBBb  dBP    dBBBBP dBP dBBBBBBP
+          %whi.                  %cya.                  %bludB' dBP    dB'.BP
+                             %cya|       %reddBP%blu    dBBBB' dBP    dB'.BP dBP    dBP
+                           %cya--o--    %reddBP%blu    dBP    dBP    dB'.BP dBP    dBP
+                             %cya|     %reddBBBBP%blu dBP    dBBBBP dBBBBP dBP    dBP%whi
 
-[68C[37m.
-[16C.
-[8Co[18C[30mTo boldly shell were no
-[28Cshell has gone before[00m
+                                                                    .
+                .
+        o                  %grnTo boldly go where no
+                            shell has gone before

