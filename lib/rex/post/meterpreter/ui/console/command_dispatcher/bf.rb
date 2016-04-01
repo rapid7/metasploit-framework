@@ -34,12 +34,11 @@ class Console::CommandDispatcher::BF
   end
 
   @@bf_execute_opts = Rex::Parser::Arguments.new(
-    '-s' => [true, 'Specify the id/name of the BF session to run the command in.'],
     '-h' => [false, 'Help banner']
   )
 
   def bf_execute_usage
-    print_line('Usage: bf_execute <bf code> [-s session-id]')
+    print_line('Usage: bf_execute <bf code>')
     print_line
     print_line('Runs the given BF string on the target.')
     print_line(@@bf_execute_opts.usage)
