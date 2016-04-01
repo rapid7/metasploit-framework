@@ -8,7 +8,7 @@ require 'msf/base/sessions/meterpreter_x86_linux'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/elfparsey'
 
-module Metasploit3
+module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})

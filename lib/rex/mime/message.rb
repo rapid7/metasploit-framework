@@ -126,7 +126,7 @@ class Message
     header_string = self.header.to_s
 
     msg = header_string.empty? ? '' : force_crlf(self.header.to_s + "\r\n")
-    msg << force_crlf(self.content + "\r\n") unless self.content.blank?
+    msg << force_crlf(self.content + "\r\n") unless self.content.to_s.strip.empty?
 
     self.parts.each do |part|
       msg << force_crlf("--" + self.bound + "\r\n")

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -32,14 +32,13 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
         {
-          'SSLVersion' => 'TLS1'
+          'SSL'        => true
         }
     ))
 
     register_options(
       [
         OptInt.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
         OptInt.new('REQUESTS', [true, 'The number of requests to send', 10])
       ], self.class)
@@ -116,30 +115,30 @@ class Metasploit3 < Msf::Auxiliary
     requests = datastore['REQUESTS']
     backends = []
     @uri = normalize_uri(target_uri.path.to_s)
-    print_status("#{peer} - Starting request #{@uri}")
+    print_status("Starting request #{@uri}")
 
     (1..requests).each do |i|
       cookie = get_cookie # Get the cookie
       # If the cookie is not found, stop process
       if cookie.empty? || cookie[:id].nil?
-        print_error("#{peer} - F5 BigIP load balancing cookie not found")
+        print_error("F5 BigIP load balancing cookie not found")
         return
       end
 
       # Print the cookie name on the first request
       if i == 1
-        print_good("#{peer} - F5 BigIP load balancing cookie \"#{cookie[:id]} = #{cookie[:value]}\" found")
+        print_good("F5 BigIP load balancing cookie \"#{cookie[:id]} = #{cookie[:value]}\" found")
         if cookie[:id].start_with?('BIGipServer')
-          print_good("#{peer} - Load balancing pool name \"#{cookie[:id].split('BIGipServer')[1]}\" found")
+          print_good("Load balancing pool name \"#{cookie[:id].split('BIGipServer')[1]}\" found")
         end
         if cookie[:value].start_with?('rd')
-          print_good("#{peer} - Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
+          print_good("Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
         end
       end
 
       backend = cookie_decode(cookie[:value])
       unless backend[:host].nil? || backends.include?(backend)
-        print_good("#{peer} - Backend #{backend[:host]}:#{backend[:port]} found")
+        print_good("Backend #{backend[:host]}:#{backend[:port]} found")
         backends.push(backend)
       end
     end
@@ -150,10 +149,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     rescue ::Rex::ConnectionRefused
-      print_error("#{peer} - Network connection error")
+      print_error("Network connection error")
     rescue ::Rex::ConnectionError
-      print_error("#{peer} - Network connection error")
+      print_error("Network connection error")
     rescue ::OpenSSL::SSL::SSLError
-      print_error("#{peer} - SSL/TLS connection error")
+      print_error("SSL/TLS connection error")
   end
 end

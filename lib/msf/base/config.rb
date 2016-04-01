@@ -27,7 +27,7 @@ class Config < Hash
   # @return [String] the base configuration directory
   def self.get_config_root
 
-    # Use MSFCFGDIR environment variable first. See feature request #5797
+    # Use MSF_CFGROOT_CONFIG environment variable first.
     val = Rex::Compat.getenv('MSF_CFGROOT_CONFIG')
     if (val and File.directory?(val))
       return val

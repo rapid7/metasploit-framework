@@ -37,6 +37,7 @@ and Metasploit's [Common Coding Mistakes].
 * **Do** follow the [50/72 rule] for Git commit messages.
 * **Don't** use the default merge messages when merging from other branches.
 * **Do** create a [topic branch] to work on instead of working directly on `master`.
+* **Do** license your code as BSD 3-clause, BSD 2-clause, or MIT.
 
 ### Pull Requests
 
