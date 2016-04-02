@@ -167,7 +167,7 @@ def self.open_webrtc_browser(url='http://google.com/')
       paths.each do |path|
         if File.exists?(path)
           args = (path =~ /chrome\.exe/) ? "--allow-file-access-from-files" : ""
-          system("#{path} #{args} #{url}")
+          system("\"#{path}\" #{args} \"#{url}\"")
           return true
         end
       end
