@@ -463,7 +463,7 @@ class Db
         if search_term
           next unless (
             host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } ||
-            !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).order("tags.id DESC").empty?
+            !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).references(:hosts).order("tags.id DESC").empty?
           )
         end
 
