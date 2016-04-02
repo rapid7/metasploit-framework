@@ -29,6 +29,7 @@ class Console::CommandDispatcher::Powershell
   #
   def commands
     {
+      'powershell_import'   => 'Import a PS1 script or .NET Assembly DLL',
       'powershell_shell'    => 'Create an interactive Powershell prompt',
       'powershell_execute'  => 'Execute a Powershell command string'
     }
@@ -66,6 +67,51 @@ class Console::CommandDispatcher::Powershell
 
     channel = client.powershell.shell(opts)
     shell.interact_with_channel(channel)
+  end
+
+  @@powershell_import_opts = Rex::Parser::Arguments.new(
+    '-s' => [true, 'Specify the id/name of the Powershell session to run the command in.'],
+    '-h' => [false, 'Help banner']
+  )
+
+  def powershell_import_usage
+    print_line('Usage: powershell_import <path to file> [-s session-id]')
+    print_line
+    print_line('Imports a powershell script or assembly into the target.')
+    print_line('The file must end in ".ps1" or ".dll".')
+    print_line('Powershell scripts can be loaded into any session (via -s).')
+    print_line('.NET assemblies are applied to all sessions.')
+    print_line(@@powershell_import_opts.usage)
+  end
+
+  #
+  # Import a script or assembly component into the target.
+  #
+  def cmd_powershell_import(*args)
+    if args.length == 0 || args.include?('-h')
+      powershell_import_usage
+      return false
+    end
+
+    opts = {
+      file: args.shift
+    }
+
+    @@powershell_import_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-s'
+        opts[:session_id] = val
+      end
+    }
+
+    result = client.powershell.import_file(opts)
+    if result.nil? || result == false
+      print_error("File failed to load.")
+    elsif result == true || result.empty?
+      print_good("File successfully imported. No result was returned.")
+    else
+      print_good("File successfully imported. Result:\n#{result}")
+    end
   end
 
   @@powershell_execute_opts = Rex::Parser::Arguments.new(
