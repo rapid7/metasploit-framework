@@ -107,7 +107,7 @@ class Console::CommandDispatcher::Powershell
     result = client.powershell.import_file(opts)
     if result.nil? || result == false
       print_error("File failed to load.")
-    elsif result.empty?
+    elsif result == true || result.empty?
       print_good("File successfully imported. No result was returned.")
     else
       print_good("File successfully imported. Result:\n#{result}")
