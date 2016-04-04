@@ -31,6 +31,30 @@ class Powershell < Extension
   end
 
 
+  def import_file(opts={})
+    return nil unless opts[:file]
+
+    # if it's a script, then we'll just use execute_string
+    if opts[:file].end_with?('.ps1')
+      opts[:code] = ::File.read(opts[:file])
+      return execute_string(opts)
+    end
+
+    # if it's a dll (hopefully a .NET 2.0 one) then do something different
+    if opts[:file].end_with?('.dll')
+      # TODO: perhaps do some kind of check to see if the DLL is a .NET assembly?
+      binary = ::File.read(opts[:file])
+
+      request = Packet.create_request('powershell_assembly_load')
+      request.add_tlv(TLV_TYPE_POWERSHELL_ASSEMBLY_SIZE, binary.length)
+      request.add_tlv(TLV_TYPE_POWERSHELL_ASSEMBLY, binary)
+      client.send_request(request)
+      return true
+    end
+
+    return false
+  end
+
   def execute_string(opts={})
     return nil unless opts[:code]
 

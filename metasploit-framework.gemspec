@@ -70,7 +70,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '1.1.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.1.4'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.1.6'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -92,6 +92,8 @@ Gem::Specification.new do |spec|
   # Needed for documentation generation
   spec.add_runtime_dependency 'octokit'
   spec.add_runtime_dependency 'redcarpet'
+  # Needed for Microsoft patch finding tool (msu_finder)
+  spec.add_runtime_dependency 'patch_finder', '>= 1.0.2'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
