@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   # Retrieve the supplied registry key
   #
   def dump_key(reg_key)
-    if reg_key.nil? || reg_key.empty?
+    if reg_key.blank?
       fail_with(Failure::BadConfig, "#{peer} - Please supply a valid key name")
     end
     hive = reg_key.split('\\').first
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   def dump_all
     hives = retrieve_hive_list
-    if hives.nil? || hives.empty?
+    if hives.blank?
       print_error("#{peer} - Found no registry hives")
       return
     end
