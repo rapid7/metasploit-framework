@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
             when /SERVICE/i
                 install_as_service(script_on_target)
         end
-    
+
         clean_rc = log_file()
         file_local_write(clean_rc,@clean_up_rc)
         print_status("Cleanup Meterpreter RC File: #{clean_rc}")
@@ -175,7 +175,7 @@ class MetasploitModule < Msf::Post
         fd = session.fs.file.new(temprexe, "wb")
         fd.write(rexe)
         fd.close
-    
+
         print_good("Persistent Script written to #{temprexe}")
         @clean_up_rc << "rm #{temprexe}\n"
         return temprexe
