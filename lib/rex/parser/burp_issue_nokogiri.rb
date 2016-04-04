@@ -99,7 +99,7 @@ module Rex
         return unless @state[:port]
         return unless @state[:proto]
         return unless @state[:service_name]
-        service_info = {}
+        service_info = {:workspace => @args[:wspace]}
         service_info[:host] = @state[:host]
         service_info[:port] = @state[:port]
         service_info[:proto] = @state[:proto]
@@ -112,7 +112,7 @@ module Rex
         return unless @state[:vuln_name]
         return unless @state[:issue_detail]
         return unless @state[:refs]
-        vuln_info = {}
+        vuln_info = {:workspace => @args[:wspace]}
         vuln_info[:service_id] = @state[:service_object].id
         vuln_info[:host] = @state[:host]
         vuln_info[:name] = @state[:vuln_name]
