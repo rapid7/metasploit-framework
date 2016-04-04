@@ -1,4 +1,4 @@
-shared_examples_for 'Metasploit::Framework::LoginScanner::NTLM' do
+RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::NTLM' do
 
   subject(:login_scanner) { described_class.new }
 

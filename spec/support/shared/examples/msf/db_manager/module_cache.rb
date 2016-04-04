@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager::ModuleCache' do
+RSpec.shared_examples_for 'Msf::DBManager::ModuleCache' do
   it { is_expected.to respond_to :match_values }
   it { is_expected.to respond_to :module_to_details_hash }
   it { is_expected.to respond_to :modules_cached }
@@ -26,7 +26,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       )
     end
 
-    before(:each) do
+    before(:example) do
       allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
@@ -39,7 +39,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         false
       end
 
-      before(:each) do
+      before(:example) do
         allow(db_manager).to receive(:modules_caching).and_return(modules_caching)
       end
 
@@ -96,7 +96,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       )
     end
 
-    before(:each) do
+    before(:example) do
       allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
@@ -157,7 +157,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         "app:#{app}"
       end
 
-      before(:each) do
+      before(:example) do
         Mdm::Module::Detail::STANCES.each do |stance|
           FactoryGirl.create(:mdm_module_detail, :stance => stance)
         end
@@ -588,7 +588,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       false
     end
 
-    before(:each) do
+    before(:example) do
       allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
@@ -601,7 +601,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         true
       end
 
-      before(:each) do
+      before(:example) do
         allow(db_manager).to receive(:modules_caching).and_return(modules_caching)
       end
 
@@ -804,7 +804,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       'exploits'
     end
 
-    before(:each) do
+    before(:example) do
       allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
@@ -849,7 +849,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           FactoryGirl.generate :mdm_module_detail_stance
         end
 
-        before(:each) do
+        before(:example) do
           allow(db_manager).to receive(
               :module_to_details_hash
           ).with(
@@ -864,7 +864,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
             Mdm::Module::Detail.last
           end
 
-          before(:each) do
+          before(:example) do
             update_module_details
           end
 
@@ -881,7 +881,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
             []
           end
 
-          before(:each) do
+          before(:example) do
             module_to_details_hash[:bits] = bits
           end
 
@@ -914,7 +914,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -951,7 +951,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -993,7 +993,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -1031,7 +1031,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -1068,7 +1068,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -1110,7 +1110,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 

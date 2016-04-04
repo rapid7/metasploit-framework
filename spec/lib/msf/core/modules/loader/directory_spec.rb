@@ -61,7 +61,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
         end
 
         context 'with module previously loaded' do
-          before(:each) do
+          before(:example) do
             subject.load_module(parent_path, type, module_reference_name)
           end
 
@@ -106,7 +106,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
           Errno::ENOENT.new(module_path)
         end
 
-        before(:each) do
+        before(:example) do
           allow(module_manager).to receive(:file_changed?).and_return(true)
           allow(module_manager).to receive(:module_load_error_by_path).and_return({})
         end
@@ -133,7 +133,7 @@ RSpec.describe Msf::Modules::Loader::Directory do
           'osx/armle/safari_libtiff'
         end
 
-        before(:each) do
+        before(:example) do
           allow(subject).to receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
         end
 

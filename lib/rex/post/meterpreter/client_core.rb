@@ -469,7 +469,7 @@ class ClientCore < Extension
     end
 
     if client.platform =~ /linux/
-      if writable_dir.blank?
+      if writable_dir.to_s.strip.empty?
         writable_dir = tmp_folder
       end
 
@@ -752,7 +752,7 @@ class ClientCore < Extension
   def tmp_folder
     tmp = client.sys.config.getenv('TMPDIR')
 
-    if tmp.blank?
+    if tmp.to_s.strip.empty?
       tmp = '/tmp'
     end
 

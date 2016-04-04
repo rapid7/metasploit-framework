@@ -106,7 +106,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
   end
 
   context '#attempt_login' do
-    before(:each) do
+    before(:example) do
       ssh_scanner.host = '127.0.0.1'
       ssh_scanner.port = 22
       ssh_scanner.connection_timeout = 30

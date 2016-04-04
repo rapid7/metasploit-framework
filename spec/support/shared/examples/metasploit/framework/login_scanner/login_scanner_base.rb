@@ -1,5 +1,5 @@
 
-shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
+RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
 
   subject(:login_scanner) { described_class.new }
 
@@ -248,7 +248,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
       )
     }
 
-    before(:each) do
+    before(:example) do
       login_scanner.host = '127.0.0.1'
       login_scanner.port = 22
       login_scanner.connection_timeout = 30
@@ -282,7 +282,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
     end
 
     context 'when stop_on_success is true' do
-      before(:each) do
+      before(:example) do
         login_scanner.host = '127.0.0.1'
         login_scanner.port = 22
         login_scanner.connection_timeout = 30
@@ -307,7 +307,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
     if opts[:has_realm_key]
       context 'when the login_scanner has a REALM_KEY' do
         context 'when the credential has a realm' do
-          before(:each) do
+          before(:example) do
             login_scanner.cred_details = [ad_cred]
           end
           it 'set the realm_key on the credential to that of the scanner' do
@@ -319,7 +319,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
 
         if opts[:has_default_realm]
           context 'when the credential has no realm' do
-            before(:each) do
+            before(:example) do
               login_scanner.cred_details = [pub_pri]
             end
             it 'uses the default realm' do
@@ -335,7 +335,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
     else
       context 'when login_scanner has no REALM_KEY' do
         context 'when the credential has a realm' do
-          before(:each) do
+          before(:example) do
             login_scanner.cred_details = [ad_cred]
           end
           it 'yields the original credential as well as one with the realm in the public' do
@@ -349,7 +349,7 @@ shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts |
         end
 
         context 'when the credential does not have a realm' do
-          before(:each) do
+          before(:example) do
             login_scanner.cred_details = [pub_pri]
           end
           it 'simply yields the original credential' do

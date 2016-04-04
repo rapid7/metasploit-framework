@@ -9,7 +9,7 @@ require 'msf/base/sessions/meterpreter_android'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
 
-module Metasploit4
+module MetasploitModule
 
   include Msf::Sessions::MeterpreterOptions
 

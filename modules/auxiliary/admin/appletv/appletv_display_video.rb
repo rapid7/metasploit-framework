@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'uri'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 

@@ -25,14 +25,22 @@ module Net; module SSH; module Transport
     ALGORITHMS = {
       :host_key    => %w(ssh-rsa ssh-dss),
       :kex         => %w(diffie-hellman-group-exchange-sha1
-                         diffie-hellman-group1-sha1),
+                         diffie-hellman-group1-sha1 
+                         diffie-hellman-group-exchange-sha256),
       :encryption  => %w(aes128-cbc 3des-cbc blowfish-cbc cast128-cbc
                          aes192-cbc aes256-cbc rijndael-cbc@lysator.liu.se
-                         idea-cbc none arcfour128 arcfour256),
+                         idea-cbc none arcfour128 arcfour256
+                         aes128-ctr aes192-ctr aes256-ctr),
       :hmac        => %w(hmac-sha1 hmac-md5 hmac-sha1-96 hmac-md5-96 none),
       :compression => %w(none zlib@openssh.com zlib),
       :language    => %w() 
     }
+
+    if defined?(OpenSSL::PKey::EC)
+      ALGORITHMS[:kex] += %w(ecdh-sha2-nistp256
+                             ecdh-sha2-nistp384
+                             ecdh-sha2-nistp521)
+    end
 
     # The underlying transport layer session that supports this object
     attr_reader :session

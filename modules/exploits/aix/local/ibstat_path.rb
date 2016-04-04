@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit4 < Msf::Exploit::Local
+class MetasploitModule < Msf::Exploit::Local
 
   Rank = ExcellentRanking
 

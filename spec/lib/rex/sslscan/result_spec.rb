@@ -253,7 +253,7 @@ RSpec.describe Rex::SSLScan::Result do
   end
 
   context "enumerating all accepted ciphers" do
-    before(:each) do
+    before(:example) do
       subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
       subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
       subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
@@ -309,7 +309,7 @@ RSpec.describe Rex::SSLScan::Result do
   end
 
   context "enumerating all rejected ciphers" do
-    before(:each) do
+    before(:example) do
       subject.add_cipher(:SSLv3, "AES256-SHA", 256, :rejected)
       subject.add_cipher(:TLSv1, "AES256-SHA", 256, :rejected)
       subject.add_cipher(:SSLv3, "AES128-SHA", 128, :rejected)
@@ -409,7 +409,7 @@ RSpec.describe Rex::SSLScan::Result do
 
   context "checking for weak ciphers" do
     context "when weak ciphers are supported" do
-      before(:each) do
+      before(:example) do
         subject.add_cipher(:SSLv3, "EXP-RC4-MD5", 40, :accepted)
         subject.add_cipher(:SSLv3, "DES-CBC-SHA", 56, :accepted)
       end
@@ -428,7 +428,7 @@ RSpec.describe Rex::SSLScan::Result do
     end
 
     context "when no weak ciphers are supported" do
-      before(:each) do
+      before(:example) do
         subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
         subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
         subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
@@ -472,7 +472,7 @@ RSpec.describe Rex::SSLScan::Result do
 
   context "when printing the results" do
     context "when OpenSSL is compiled without SSLv2" do
-      before(:each) do
+      before(:example) do
         subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
         subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
         subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
@@ -484,7 +484,7 @@ RSpec.describe Rex::SSLScan::Result do
     end
 
     context "when we have SSL results" do
-      before(:each) do
+      before(:example) do
         subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
         subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
         subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)

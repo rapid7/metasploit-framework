@@ -4,7 +4,6 @@ require 'thread'
 
 module Msf
 module Handler
-
 ###
 #
 # This module implements the reverse TCP handler.  This means
@@ -16,7 +15,6 @@ module Handler
 #
 ###
 module ReverseTcp
-
   include Msf::Handler
   include Msf::Handler::Reverse
   include Msf::Handler::Reverse::Comm
@@ -26,7 +24,7 @@ module ReverseTcp
   # 'reverse_tcp'.
   #
   def self.handler_type
-    return "reverse_tcp"
+    "reverse_tcp"
   end
 
   #
@@ -55,7 +53,6 @@ module ReverseTcp
     self.conn_threads = []
   end
 
-
   #
   # Closes the listener socket if one was created.
   #
@@ -64,9 +61,13 @@ module ReverseTcp
 
     # Kill any remaining handle_connection threads that might
     # be hanging around
-    conn_threads.each { |thr|
-      thr.kill rescue nil
-    }
+    conn_threads.each do |thr|
+      begin
+        thr.kill
+      rescue
+        nil
+      end
+    end
   end
 
   # A string suitable for displaying to the user
@@ -84,65 +85,68 @@ module ReverseTcp
 
     local_port = bind_port
 
-    self.listener_thread = framework.threads.spawn("ReverseTcpHandlerListener-#{local_port}", false, queue) { |lqueue|
+    handler_name = "ReverseTcpHandlerListener-#{local_port}"
+    self.listener_thread = framework.threads.spawn(handler_name, false, queue) { |lqueue|
       loop do
         # Accept a client connection
         begin
-          client = self.listener_sock.accept
-          if ! client
-            wlog("ReverseTcpHandlerListener-#{local_port}: No client received in call to accept, exiting...")
-            break
+          client = listener_sock.accept
+          if client
+            self.pending_connections += 1
+            lqueue.push(client)
           end
-
-          self.pending_connections += 1
-          lqueue.push(client)
-        rescue ::Exception
-          wlog("ReverseTcpHandlerListener-#{local_port}: Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
-          break
+        rescue Errno::ENOTCONN
+          nil
+        rescue StandardError => e
+          wlog [
+            "#{handler_name}: Exception raised during listener accept: #{e.class}",
+            "#{$ERROR_INFO}",
+            "#{$ERROR_POSITION.join("\n")}"
+          ].join("\n")
         end
       end
     }
 
-    self.handler_thread = framework.threads.spawn("ReverseTcpHandlerWorker-#{local_port}", false, queue) { |cqueue|
+    worker_name = "ReverseTcpHandlerWorker-#{local_port}"
+    self.handler_thread = framework.threads.spawn(worker_name, false, queue) { |cqueue|
       loop do
         begin
           client = cqueue.pop
 
-          if ! client
-            elog("ReverseTcpHandlerWorker-#{local_port}: Queue returned an empty result, exiting...")
-            break
+          unless client
+            elog("#{worker_name}: Queue returned an empty result, exiting...")
           end
 
           # Timeout and datastore options need to be passed through to the client
           opts = {
-            :datastore    => datastore,
-            :expiration   => datastore['SessionExpirationTimeout'].to_i,
-            :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-            :retry_total  => datastore['SessionRetryTotal'].to_i,
-            :retry_wait   => datastore['SessionRetryWait'].to_i
+            datastore:     datastore,
+            expiration:    datastore['SessionExpirationTimeout'].to_i,
+            comm_timeout:  datastore['SessionCommunicationTimeout'].to_i,
+            retry_total:   datastore['SessionRetryTotal'].to_i,
+            retry_wait:    datastore['SessionRetryWait'].to_i
           }
 
           if datastore['ReverseListenerThreaded']
-            self.conn_threads << framework.threads.spawn("ReverseTcpHandlerSession-#{local_port}-#{client.peerhost}", false, client) { |client_copy|
+            thread_name = "#{worker_name}-#{client.peerhost}"
+            conn_threads << framework.threads.spawn(thread_name, false, client) do |client_copy|
               handle_connection(wrap_aes_socket(client_copy), opts)
-            }
+            end
           else
             handle_connection(wrap_aes_socket(client), opts)
           end
-        rescue ::Exception
-          elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
+        rescue StandardError
+          elog("Exception raised from handle_connection: #{$ERROR_INFO.class}: #{$ERROR_INFO}\n\n#{$ERROR_POSITION.join("\n")}")
         end
       end
     }
-
   end
 
   def wrap_aes_socket(sock)
-    if datastore["PAYLOAD"] !~ /java\// or (datastore["AESPassword"] || "") == ""
+    if datastore["PAYLOAD"] !~ %r{java/} || (datastore["AESPassword"] || "") == ""
       return sock
     end
 
-    socks = Rex::Socket::tcp_socket_pair()
+    socks = Rex::Socket.tcp_socket_pair
     socks[0].extend(Rex::Socket::Tcp)
     socks[1].extend(Rex::Socket::Tcp)
 
@@ -150,36 +154,38 @@ module ReverseTcp
     m.reset
     key = m.digest(datastore["AESPassword"] || "")
 
-    Rex::ThreadFactory.spawn('Session-AESEncrypt', false) {
+    Rex::ThreadFactory.spawn('Session-AESEncrypt', false) do
       c1 = OpenSSL::Cipher.new('aes-128-cfb8')
       c1.encrypt
-      c1.key=key
+      c1.key = key
       sock.put([0].pack('N'))
-      sock.put(c1.iv=c1.random_iv)
+      sock.put((c1.iv = c1.random_iv))
       buf1 = socks[0].read(4096)
-      while buf1 and buf1 != ""
+      while buf1 && buf1 != ""
         sock.put(c1.update(buf1))
         buf1 = socks[0].read(4096)
       end
-      sock.close()
-    }
-    Rex::ThreadFactory.spawn('Session-AESDecrypt', false) {
+      sock.close
+    end
+
+    Rex::ThreadFactory.spawn('Session-AESDecrypt', false) do
       c2 = OpenSSL::Cipher.new('aes-128-cfb8')
       c2.decrypt
-      c2.key=key
-      iv=""
-      while iv.length < 16
-        iv << sock.read(16-iv.length)
-      end
+      c2.key = key
+
+      iv = ""
+      iv << sock.read(16 - iv.length) while iv.length < 16
+
       c2.iv = iv
       buf2 = sock.read(4096)
-      while buf2 and buf2 != ""
+      while buf2 && buf2 != ""
         socks[0].put(c2.update(buf2))
         buf2 = sock.read(4096)
       end
-      socks[0].close()
-    }
-    return socks[1]
+      socks[0].close
+    end
+
+    socks[1]
   end
 
   #
@@ -187,35 +193,27 @@ module ReverseTcp
   #
   def stop_handler
     # Terminate the listener thread
-    if (self.listener_thread and self.listener_thread.alive? == true)
-      self.listener_thread.kill
-      self.listener_thread = nil
-    end
+    listener_thread.kill if listener_thread && listener_thread.alive? == true
 
     # Terminate the handler thread
-    if (self.handler_thread and self.handler_thread.alive? == true)
-      self.handler_thread.kill
-      self.handler_thread = nil
-    end
+    handler_thread.kill if handler_thread && handler_thread.alive? == true
 
-    if (self.listener_sock)
+    if listener_sock
       begin
-        self.listener_sock.close
+        listener_sock.close
       rescue IOError
         # Ignore if it's listening on a dead session
         dlog("IOError closing listener sock; listening on dead session?", LEV_1)
       end
-      self.listener_sock = nil
     end
   end
 
-protected
+  protected
 
   attr_accessor :listener_sock # :nodoc:
   attr_accessor :listener_thread # :nodoc:
   attr_accessor :handler_thread # :nodoc:
   attr_accessor :conn_threads # :nodoc:
 end
-
 end
 end

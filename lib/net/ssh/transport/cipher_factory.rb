@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'openssl'
 require 'net/ssh/transport/identity_cipher'
+require 'net/ssh/transport/ctr.rb'
 
 module Net; module SSH; module Transport
 
@@ -13,6 +14,9 @@ module Net; module SSH; module Transport
       "aes256-cbc"                  => "aes-256-cbc",
       "aes192-cbc"                  => "aes-192-cbc",
       "aes128-cbc"                  => "aes-128-cbc",
+      "aes128-ctr"                  => "aes-128-ecb",
+      "aes192-ctr"                  => "aes-192-ecb",
+      "aes256-ctr"                  => "aes-256-ecb",
       "idea-cbc"                    => "idea-cbc",
       "cast128-cbc"                 => "cast-cbc",
       "rijndael-cbc@lysator.liu.se" => "aes-256-cbc",
@@ -40,6 +44,8 @@ module Net; module SSH; module Transport
 
       cipher = OpenSSL::Cipher::Cipher.new(ossl_name)
       cipher.send(options[:encrypt] ? :encrypt : :decrypt)
+
+      cipher.extend(Net::SSH::Transport::CTR) if (name =~ /-ctr$/)
 
       cipher.padding = 0
       cipher.iv      = make_key(cipher.iv_len, options[:iv], options) if ossl_name != "rc4"
