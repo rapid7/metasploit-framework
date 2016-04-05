@@ -400,8 +400,7 @@ class ReadableText
           'Description'
         ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
       val = mod.datastore[name] || opt.default
 
       next if (opt.advanced?)
@@ -409,7 +408,7 @@ class ReadableText
       next if (missing && opt.valid?(val))
 
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
-    }
+    end
 
     return tbl.to_s
   end
@@ -420,24 +419,23 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_advanced_options(mod, indent = '')
-    output = ''
-    pad    = indent
+    tbl = Rex::Ui::Text::Table.new(
+      'Indent'  => indent.length,
+      'Columns' =>
+        [
+          'Name',
+          'Current Setting',
+          'Required',
+          'Description'
+        ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
+      next unless opt.advanced?
+      val = mod.datastore[name] || opt.default
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+    end
 
-      next if (!opt.advanced?)
-
-      val = mod.datastore[name] || opt.default.to_s
-      desc = word_wrap(opt.desc, indent.length + 3)
-      desc = desc.slice(indent.length + 3, desc.length)
-
-      output << pad + "Name           : #{name}\n"
-      output << pad + "Current Setting: #{val}\n"
-      output << pad + "Description    : #{desc}\n"
-    }
-
-    return output
+    return tbl.to_s
   end
 
   # Dumps the evasion options associated with the supplied module.
@@ -446,25 +444,23 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_evasion_options(mod, indent = '')
-    output = ''
-    pad    = indent
+    tbl = Rex::Ui::Text::Table.new(
+      'Indent'  => indent.length,
+      'Columns' =>
+        [
+          'Name',
+          'Current Setting',
+          'Required',
+          'Description'
+        ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
+      next unless opt.evasion?
+      val = mod.datastore[name] || opt.default
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+    end
 
-      next if (!opt.evasion?)
-
-      val = mod.datastore[name] || opt.default || ''
-
-      desc = word_wrap(opt.desc, indent.length + 3)
-      desc = desc.slice(indent.length + 3, desc.length)
-
-      output << pad + "Name           : #{name}\n"
-      output << pad + "Current Setting: #{val}\n"
-      output << pad + "Description    : #{desc}\n"
-    }
-
-    return output
+    return tbl.to_s
   end
 
   # Dumps the references associated with the supplied module.
