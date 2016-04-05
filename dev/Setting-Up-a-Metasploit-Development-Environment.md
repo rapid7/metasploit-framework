@@ -481,7 +481,7 @@ a few in yellow stars, and no red errors.
 ----
 ```bash
 cd $HOME/git/metasploit-framework &&
-git remote add upstream github:rapid7/metasploit-framework.git &&
+git remote add upstream git@github.com:rapid7/metasploit-framework.git &&
 git fetch upstream &&
 git checkout -b upstream-master --track upstream/master &&
 ruby tools/dev/add_pr_fetch.rb &&
@@ -500,7 +500,7 @@ from upstream, you're going to want to track it. In your
 `metasploit-framework` checkout, run the below:
 
 ```
-git remote add upstream github:rapid7/metasploit-framework.git
+git remote add upstream git@github.com:rapid7/metasploit-framework.git
 git fetch upstream
 git checkout -b upstream-master --track upstream/master
 ```
