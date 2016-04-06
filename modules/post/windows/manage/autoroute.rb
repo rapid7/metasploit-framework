@@ -159,31 +159,43 @@ class MetasploitModule < Msf::Post
     Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
   end
 
+  def is_routable?(route)
+    if route.subnet =~ /^224\.|127\./
+      return false
+    elsif route.subnet =~ /[\d\.]+\.0$/
+      return false
+    elsif route.subnet == '0.0.0.0'
+      return false
+    elsif route.subnet == '255.255.255.255'
+      return false
+    end
+
+    true
+  end
+
   # This function will search for valid subnets on the target and attempt
   # add a route to each. (Operation from auto_add_route plugin.)
   #
   # @return [void] A useful return value is not expected here
   def autoadd_routes
     switch_board = Rex::Socket::SwitchBoard.instance
-    print_status("Searcing for subnets to autoroute.")
+    print_status("Searching for subnets to autoroute.")
     found = false
 
     session.net.config.each_route do | route |
-      # Remove multicast and loopback interfaces
-      next if route.subnet =~ /^(224\.|127\.)/
-      next if route.subnet == '0.0.0.0'
-      next if route.netmask == '255.255.255.255'
+      next unless is_routable?(route)
 
       if !switch_board.route_exists?(route.subnet, route.netmask)
         begin
-          if Rex::Socket::SwitchBoard.add_route(route.subnet, route.netmask, session)
-            print_good("Route added to subnet #{route.subnet}/#{route.netmask}")
+          netmask = route.netmask == '255.255.255.255' ? '255.255.255.0' : route.netmask
+          if Rex::Socket::SwitchBoard.add_route(route.subnet, netmask, session)
+            print_good("Route added to subnet #{route.subnet}/#{netmask}")
             found = true
           else
-            print_error("Could not add route to subnet #{route.subnet}/#{route.netmask}")
+            print_error("Could not add route to subnet #{route.subnet}/#{netmask}")
           end
         rescue ::Rex::Post::Meterpreter::RequestError => error
-          print_error("Could not add route to subnet #{route.subnet}/(#{route.netmask})")
+          print_error("Could not add route to subnet #{route.subnet}/(#{netmask})")
           print_error(error.to_s)
         end
       end
