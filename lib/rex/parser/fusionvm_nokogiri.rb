@@ -59,7 +59,7 @@ module Parser
     unless in_tag("JobOrder")
       case name
       when "OS"
-        unless @host.nil? or @text.blank?
+        unless @host.nil? or @text.to_s.strip.empty?
           tnote = {
             :type       => "host.os.fusionvm_fingerprint",
             :data       => { :os => @text.strip },
@@ -86,7 +86,7 @@ module Parser
       when "CVE"
         @vuln[:refs] << "CVE-#{@text.strip}"
       when "References"
-        unless @text.blank?
+        unless @text.to_s.strip.empty?
           @text.split(' ').each do |ref|
             next unless ref.start_with? "http"
             if ref =~ /MS\d{2}-\d{3}/

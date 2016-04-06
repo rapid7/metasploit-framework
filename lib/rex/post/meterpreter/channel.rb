@@ -141,7 +141,9 @@ class Channel
     if (cid and client)
       client.add_channel(self)
     end
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.cid) )
+
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(client, cid))
   end
 
   def self.finalize(client,cid)
@@ -288,8 +290,11 @@ class Channel
   end
 
   def _close(addends = nil)
-    self.class._close(self.client, self.cid, addends)
-    self.cid = nil
+    unless self.cid.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class._close(self.client, self.cid, addends)
+      self.cid = nil
+    end
   end
   #
   # Enables or disables interactive mode.

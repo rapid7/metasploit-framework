@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'net/ssh'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = ExcellentRanking
 
   include Msf::Auxiliary::CommandShell

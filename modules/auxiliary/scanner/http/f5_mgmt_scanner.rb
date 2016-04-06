@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'SSL' => true,
-          'SSLVersion' => 'TLS1',
           'RPORT' => 443
         }
     ))
@@ -42,13 +41,13 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({'method' => 'GET', 'uri' => '/'}, datastore['TIMEOUT'])
       return true if res
     rescue ::Rex::ConnectionRefused
-      vprint_status("#{peer} - Connection refused")
+      vprint_status("Connection refused")
       return false
     rescue ::Rex::ConnectionError
-      vprint_error("#{peer} - Connection failed")
+      vprint_error("Connection failed")
       return false
     rescue ::OpenSSL::SSL::SSLError
-      vprint_error("#{peer} - SSL/TLS connection error")
+      vprint_error("SSL/TLS connection error")
       return false
     end
   end
@@ -61,19 +60,19 @@ class Metasploit3 < Msf::Auxiliary
 
       # Detect BigIP management interface
       if res.body =~ /<title>BIG\-IP/
-        print_good("#{peer} - F5 BigIP web management interface found")
+        print_good("F5 BigIP web management interface found")
         return
       end
 
       # Detect EM management interface
       if res.body =~ /<title>Enterprise Manager/
-        print_good("#{peer} - F5 Enterprise Manager web management interface found")
+        print_good("F5 Enterprise Manager web management interface found")
         return
       end
 
       # Detect ARX management interface
       if res.body =~ /<title>F5 ARX Manager Login<\/title>/
-        print_good("#{peer} - ARX web management interface found")
+        print_good("ARX web management interface found")
         return
       end
     end
@@ -81,14 +80,14 @@ class Metasploit3 < Msf::Auxiliary
     # Detect BigIQ management interface
     res = send_request_raw('method' => 'GET', 'uri' => '/ui/login/')
     if res && res.code == 200 && res.body =~ /<title>BIG\-IQ/
-      print_good("#{peer} - F5 BigIQ web management interface found")
+      print_good("F5 BigIQ web management interface found")
       return
     end
 
     # Detect FirePass management interface
     res = send_request_raw('method' => 'GET', 'uri' => '/admin/', 'rport' => rport)
     if res && res.code == 200 && res.body =~ /<br><br><br><big><b>&nbsp;FirePass/
-      print_good("#{peer} - F5 FirePass web management interface found")
+      print_good("F5 FirePass web management interface found")
       return
     end
   end

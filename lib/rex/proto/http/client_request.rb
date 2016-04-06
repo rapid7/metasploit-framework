@@ -391,8 +391,9 @@ class ClientRequest
 
   #
   # Return the content length header
+  #
   def set_content_len_header(clen)
-    return "" if opts['chunked_size'] > 0
+    return "" if clen == 0 || opts['chunked_size'] > 0 || (opts['headers'] && opts['headers']['Content-Length'])
     set_formatted_header("Content-Length", clen)
   end
 
