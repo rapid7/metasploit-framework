@@ -184,10 +184,9 @@ class MetasploitModule < Msf::Post
 
     session.net.config.each_route do | route |
       next unless is_routable?(route)
-
-      if !switch_board.route_exists?(route.subnet, route.netmask)
+      netmask = route.netmask == '255.255.255.255' ? '255.255.255.0' : route.netmask
+      if !switch_board.route_exists?(route.subnet, netmask)
         begin
-          netmask = route.netmask == '255.255.255.255' ? '255.255.255.0' : route.netmask
           if Rex::Socket::SwitchBoard.add_route(route.subnet, netmask, session)
             print_good("Route added to subnet #{route.subnet}/#{netmask}")
             found = true
