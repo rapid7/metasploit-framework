@@ -15,7 +15,8 @@ class MetasploitModule < Msf::Post
         'Name'          => 'Windows Manage Network Route via Meterpreter Session',
         'Description'   => %q{This module manages session routing via an existing
           Meterpreter session. It enables other modules to 'pivot' through a
-          compromised host when connecting to the named NETWORK and SUBMASK.},
+          compromised host when connecting to the named NETWORK and SUBMASK.
+          Autoadd will search session for valid subnets and route to them.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'todb'],
         'Platform'      => [ 'win' ],
@@ -26,7 +27,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('SUBNET', [false, 'Subnet (IPv4, for example, 10.10.10.0)', nil]),
         OptString.new('NETMASK', [false, 'Netmask (IPv4 as "255.255.255.0" or CIDR as "/24"', '255.255.255.0']),
-        OptEnum.new('CMD', [true, 'Specify the autoroute command', 'add', ['add','print','delete']])
+        OptEnum.new('CMD', [true, 'Specify the autoroute command', 'autoadd', ['add','autoadd','print','delete']])
       ], self.class)
   end
 
@@ -58,6 +59,8 @@ class MetasploitModule < Msf::Post
         print_status("Adding a route to %s/%s..." % [datastore['SUBNET'],netmask])
         add_route(:subnet => datastore['SUBNET'], :netmask => netmask)
       end
+    when :autoadd
+      autoadd_routes
     when :delete
       if datastore['SUBNET']
         print_status("Deleting route to %s/%s..." % [datastore['SUBNET'],netmask])
@@ -156,6 +159,49 @@ class MetasploitModule < Msf::Post
     Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
   end
 
+  def is_routable?(route)
+    if route.subnet =~ /^224\.|127\./
+      return false
+    elsif route.subnet =~ /[\d\.]+\.0$/
+      return false
+    elsif route.subnet == '0.0.0.0'
+      return false
+    elsif route.subnet == '255.255.255.255'
+      return false
+    end
+
+    true
+  end
+
+  # This function will search for valid subnets on the target and attempt
+  # add a route to each. (Operation from auto_add_route plugin.)
+  #
+  # @return [void] A useful return value is not expected here
+  def autoadd_routes
+    switch_board = Rex::Socket::SwitchBoard.instance
+    print_status("Searching for subnets to autoroute.")
+    found = false
+
+    session.net.config.each_route do | route |
+      next unless is_routable?(route)
+
+      if !switch_board.route_exists?(route.subnet, route.netmask)
+        begin
+          netmask = route.netmask == '255.255.255.255' ? '255.255.255.0' : route.netmask
+          if Rex::Socket::SwitchBoard.add_route(route.subnet, netmask, session)
+            print_good("Route added to subnet #{route.subnet}/#{netmask}")
+            found = true
+          else
+            print_error("Could not add route to subnet #{route.subnet}/#{netmask}")
+          end
+        rescue ::Rex::Post::Meterpreter::RequestError => error
+          print_error("Could not add route to subnet #{route.subnet}/(#{netmask})")
+          print_error(error.to_s)
+        end
+      end
+    end
+    print_status("Did not find any new subnets to add.") if !found
+  end
 
   # Validates the command options
   def validate_cmd(subnet=nil,netmask=nil)
