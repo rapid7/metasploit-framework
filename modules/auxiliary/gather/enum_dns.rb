@@ -417,52 +417,8 @@ class Metasploit3 < Msf::Auxiliary
     records
   end
 
-  def get_note(host_id)
-    framework.db.notes.each do |note|
-      next unless host_id == note.host_id
-      return note
-    end
-  end
-
-  def db_filter(target, type, records)
-    data = {}
-    return data if records.nil?
-
-    # search target from db
-    host_ip = framework.db.normalize_host(target)
-    host = framework.db.get_host(:workspace => workspace, :host => host_ip)
-
-    # host not in db
-    if host.nil?
-      data[target] = records
-      return data
-    end
-
-    # host in db
-    host_id = host.id
-    note = get_note(host_id)
-
-    # type dismatch
-    if note.ntype != type
-      data[target] = records
-      return data
-    end
-
-    # host in db, but no data
-    if note.data.nil?
-      data[target] = records
-      return data
-    end
-
-    old_data = note.data
-    data[target] = records
-    data.merge!(old_data)
-    data
-  end
-
   def save_note(target, type, records)
-    data = db_filter(target, type, records)
-    return if data.empty?
-    report_note(:host => target, :sname => 'dns', :type => type, :data => data)
+    data = {'target' => target, 'records' => records}
+    report_note(:host => target, :sname => 'dns', :type => type, :data => data, :update => :unique_data)
   end
 end
