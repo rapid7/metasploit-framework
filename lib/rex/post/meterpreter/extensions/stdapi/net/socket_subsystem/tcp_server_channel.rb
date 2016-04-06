@@ -135,14 +135,18 @@ protected
   def _accept(nonblock = false)
     result = nil
 
-    channel = @@server_channels[self].deq(nonblock)
+    begin
+      channel = @@server_channels[self].deq(nonblock)
 
-    if channel
-      result = channel.lsock
-    end
+      if channel
+        result = channel.lsock
+      end
 
-    if result != nil && !result.kind_of?(Rex::Socket::Tcp)
-      result.extend(Rex::Socket::Tcp)
+      if result != nil && !result.kind_of?(Rex::Socket::Tcp)
+        result.extend(Rex::Socket::Tcp)
+      end
+    rescue ThreadError
+      # This happens when there's no clients in the queue
     end
 
     result
