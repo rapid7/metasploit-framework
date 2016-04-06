@@ -226,7 +226,7 @@ class LocalRelay
     opts['__RelayType'] = 'tcp'
     opts['Reverse'] = true
 
-    name = "Reverse-#{opts['PeerPort']}"
+    name = "Reverse-#{opts['LocalPort']}"
 
     relay = ReverseRelay.new(name, channel, opts)
 
