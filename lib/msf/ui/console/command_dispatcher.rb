@@ -60,12 +60,6 @@ module CommandDispatcher
   def active_session=(mod)
     driver.active_session = mod
   end
-  #
-  # Checks to see if the driver is defanged.
-  #
-  def defanged?
-    driver.defanged?
-  end
 
   #
   # Logs an error message to the screen and the log file.  The callstack is

@@ -1,5 +1,5 @@
 
-shared_examples_for 'Metasploit::Framework::Tcp::Client' do
+RSpec.shared_examples_for 'Metasploit::Framework::Tcp::Client' do
   subject(:login_scanner) { described_class.new }
 
   it { is_expected.to respond_to :send_delay }

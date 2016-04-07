@@ -52,7 +52,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Smh do
     end
 
     context "when valid HP System Management application" do
-      before :each do
+      before :example do
         allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
 
           if req.opts['uri'] &&

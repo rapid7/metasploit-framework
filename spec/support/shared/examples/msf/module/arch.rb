@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::Module::Arch' do
+RSpec.shared_examples_for 'Msf::Module::Arch' do
   it { is_expected.to respond_to :arch }
   it { is_expected.to respond_to :arch? }
   it { is_expected.to respond_to :arch_to_s }

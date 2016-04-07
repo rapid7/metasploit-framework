@@ -21,7 +21,7 @@ RSpec.shared_context 'Msf::StringIO' do
   # Callbacks
   #
 
-  before(:each) do
+  before(:example) do
     def msf_io.get_once
       read
     end

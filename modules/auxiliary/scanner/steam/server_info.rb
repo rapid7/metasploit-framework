@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/proto/steam'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
   include Rex::Proto::Steam

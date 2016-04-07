@@ -73,7 +73,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
   end
 
   context '#attempt_login' do
-    before(:each) do
+    before(:example) do
       allow(login_scanner).to receive_message_chain(:simple, :client, :auth_user, :nil?).and_return false
     end
     context 'when there is a connection error' do
@@ -119,7 +119,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
 
     context 'when the login succeeds' do
       context 'and the user is local admin' do
-        before(:each) do
+        before(:example) do
           login_scanner.simple = double
           allow(login_scanner.simple).to receive(:connect).with(/.*admin\$/i)
           allow(login_scanner.simple).to receive(:connect).with(/.*ipc\$/i)
@@ -135,7 +135,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
       end
 
       context 'and the user is NOT local admin' do
-        before(:each) do
+        before(:example) do
           login_scanner.simple = double
           allow(login_scanner.simple).to receive(:connect).with(/.*admin\$/i).and_raise(
             # STATUS_ACCESS_DENIED

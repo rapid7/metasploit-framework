@@ -16,7 +16,8 @@ module Msf::DBManager::Import
   autoload :Acunetix, 'msf/core/db_manager/import/acunetix'
   autoload :Amap, 'msf/core/db_manager/import/amap'
   autoload :Appscan, 'msf/core/db_manager/import/appscan'
-  autoload :Burp, 'msf/core/db_manager/import/burp'
+  autoload :BurpIssue, 'msf/core/db_manager/import/burp_issue'
+  autoload :BurpSession, 'msf/core/db_manager/import/burp_session'
   autoload :CI, 'msf/core/db_manager/import/ci'
   autoload :Foundstone, 'msf/core/db_manager/import/foundstone'
   autoload :FusionVM, 'msf/core/db_manager/import/fusion_vm'
@@ -41,7 +42,8 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Acunetix
   include Msf::DBManager::Import::Amap
   include Msf::DBManager::Import::Appscan
-  include Msf::DBManager::Import::Burp
+  include Msf::DBManager::Import::BurpIssue
+  include Msf::DBManager::Import::BurpSession
   include Msf::DBManager::Import::CI
   include Msf::DBManager::Import::Foundstone
   include Msf::DBManager::Import::FusionVM
@@ -252,6 +254,9 @@ module Msf::DBManager::Import
     elsif (firstline.index("<scanJob>"))
       @import_filedata[:type] = "Retina XML"
       return :retina_xml
+    elsif (firstline.index(/<get_results_response status=['"]200['"] status_text=['"]OK['"]>/))
+      @import_filedata[:type] = "OpenVAS XML"
+      return :openvas_new_xml
     elsif (firstline.index(/<get_reports_response status=['"]200['"] status_text=['"]OK['"]>/))
       @import_filedata[:type] = "OpenVAS XML"
       return :openvas_new_xml
@@ -267,6 +272,9 @@ module Msf::DBManager::Import
     elsif (data[0,1024] =~ /<!ATTLIST\s+items\s+burpVersion/)
       @import_filedata[:type] = "Burp Session XML"
       return :burp_session_xml
+    elsif (data[0,1024] =~ /<!ATTLIST\s+issues\s+burpVersion/)
+      @import_filedata[:type] = "Burp Issue XML"
+      return :burp_issue_xml
     elsif (firstline.index("<?xml"))
       # it's xml, check for root tags we can handle
       line_count = 0
@@ -281,7 +289,7 @@ module Msf::DBManager::Import
           @import_filedata[:type] = "Nmap XML"
           return :nmap_xml
         when "openvas-report"
-          @import_filedata[:type] = "OpenVAS Report"
+          @import_filedata[:type] = "OpenVAS"
           return :openvas_xml
         when "NessusClientData"
           @import_filedata[:type] = "Nessus XML (v1)"

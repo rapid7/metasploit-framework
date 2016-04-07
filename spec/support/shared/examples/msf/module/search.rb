@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::Module::Search' do
+RSpec.shared_examples_for 'Msf::Module::Search' do
   describe '#search_filter' do
     REF_TYPES = %w(CVE BID OSVDB EDB)
 
@@ -159,7 +159,7 @@ shared_examples_for 'Msf::Module::Search' do
       all_module_types = Msf::MODULE_TYPES
       all_module_types.each do |mtype|
         context "on a #{mtype} module" do
-          before(:each) { allow(subject).to receive(:type).and_return(mtype) }
+          before(:example) { allow(subject).to receive(:type).and_return(mtype) }
 
           accept = ["type:#{mtype}"]
           reject = all_module_types.reject { |t| t == mtype }.map { |t| "type:#{t}" }

@@ -18,6 +18,9 @@ group :development do
   gem 'yard'
   # for development and testing purposes
   gem 'pry'
+  # module documentation
+  gem 'octokit', '~> 4.0'
+  # rails-upgrade staging gems
 end
 
 group :development, :test do

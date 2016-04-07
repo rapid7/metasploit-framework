@@ -92,7 +92,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::FTP do
   end
 
   context '#attempt_login' do
-    before(:each) do
+    before(:example) do
       ftp_scanner.host = '127.0.0.1'
       ftp_scanner.port = 21
       ftp_scanner.connection_timeout = 30

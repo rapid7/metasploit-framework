@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager::Session' do
+RSpec.shared_examples_for 'Msf::DBManager::Session' do
   it { is_expected.to respond_to :get_session }
 
   context '#report_session' do
@@ -16,7 +16,7 @@ shared_examples_for 'Msf::DBManager::Session' do
       end
 
       context 'with :session' do
-        before(:each) do
+        before(:example) do
           options[:session] = session
         end
 
@@ -98,7 +98,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             FactoryGirl.create(:mdm_workspace)
           end
 
-          before(:each) do
+          before(:example) do
             reference_name = 'multi/handler'
             path = File.join(parent_path, 'exploits', reference_name)
 
@@ -123,7 +123,7 @@ shared_examples_for 'Msf::DBManager::Session' do
           end
 
           context 'with a run_id in user_data' do
-            before(:each) do
+            before(:example) do
               allow(db_manager).to receive(:create_match_for_vuln).and_return(nil)
             end
 
@@ -142,7 +142,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             end
 
             context 'with :workspace' do
-              before(:each) do
+              before(:example) do
                 options[:workspace] = options_workspace
               end
 
@@ -192,7 +192,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   FactoryGirl.generate :mdm_host_arch
                 end
 
-                before(:each) do
+                before(:example) do
                   allow(session).to receive(:arch).and_return(arch)
                 end
 
@@ -250,7 +250,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
-                  before(:each) do
+                  before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
@@ -258,7 +258,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     report_session
                   end
 
-                  after(:each) do
+                  after(:example) do
                     Timecop.return
                   end
 
@@ -282,7 +282,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       'windows/smb/ms08_067_netapi'
                     end
 
-                    before(:each) do
+                    before(:example) do
                       path = File.join(
                         parent_path,
                         'exploits',
@@ -339,7 +339,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
-                  before(:each) do
+                  before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
@@ -347,7 +347,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     report_session
                   end
 
-                  after(:each) do
+                  after(:example) do
                     Timecop.return
                   end
 
@@ -369,7 +369,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   context "without session.via_exploit 'exploit/multi/handler'" do
-                    before(:each) do
+                    before(:example) do
                       session.via_exploit = parent_module_fullname
                     end
 
@@ -379,11 +379,11 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               context 'returned Mdm::Session' do
-                before(:each) do
+                before(:example) do
                   Timecop.freeze
                 end
 
-                after(:each) do
+                after(:example) do
                   Timecop.return
                 end
 
@@ -446,7 +446,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 context "without session.via_exploit 'exploit/multi/handler'" do
-                  before(:each) do
+                  before(:example) do
                     reference_name = 'windows/smb/ms08_067_netapi'
                     path = File.join(
                       parent_path,
@@ -485,7 +485,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             let(:user_data) { nil }
 
             context 'with :workspace' do
-              before(:each) do
+              before(:example) do
                 options[:workspace] = options_workspace
               end
 
@@ -535,7 +535,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   FactoryGirl.generate :mdm_host_arch
                 end
 
-                before(:each) do
+                before(:example) do
                   allow(session).to receive(:arch).and_return(arch)
                 end
 
@@ -593,7 +593,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
-                  before(:each) do
+                  before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
@@ -601,7 +601,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     report_session
                   end
 
-                  after(:each) do
+                  after(:example) do
                     Timecop.return
                   end
 
@@ -625,7 +625,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       'windows/smb/ms08_067_netapi'
                     end
 
-                    before(:each) do
+                    before(:example) do
                       path = File.join(
                           parent_path,
                           'exploits',
@@ -682,7 +682,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
-                  before(:each) do
+                  before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
@@ -690,7 +690,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     report_session
                   end
 
-                  after(:each) do
+                  after(:example) do
                     Timecop.return
                   end
 
@@ -712,7 +712,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                   end
 
                   context "without session.via_exploit 'exploit/multi/handler'" do
-                    before(:each) do
+                    before(:example) do
                       session.via_exploit = parent_module_fullname
                     end
 
@@ -722,11 +722,11 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               context 'returned Mdm::Session' do
-                before(:each) do
+                before(:example) do
                   Timecop.freeze
                 end
 
-                after(:each) do
+                after(:example) do
                   Timecop.return
                 end
 
@@ -789,7 +789,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 end
 
                 context "without session.via_exploit 'exploit/multi/handler'" do
-                  before(:each) do
+                  before(:example) do
                     reference_name = 'windows/smb/ms08_067_netapi'
                     path = File.join(
                         parent_path,
@@ -840,7 +840,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
       context 'without :session' do
         context 'with :host' do
-          before(:each) do
+          before(:example) do
             options[:host] = host
           end
 
@@ -890,7 +890,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 'Session Type'
               end
 
-              before(:each) do
+              before(:example) do
                 options[:closed_at] = closed_at
                 options[:close_reason] = close_reason
                 options[:desc] = description

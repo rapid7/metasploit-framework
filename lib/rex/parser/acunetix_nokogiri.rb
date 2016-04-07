@@ -59,6 +59,8 @@ module Rex
         @text = nil
       when "StartURL" # Populates @state[:starturl_uri], we use this a lot
         @state[:has_text] = false
+        # StartURL does not always include the scheme
+        @text.prepend("http://") unless URI.parse(@text).scheme
         collect_host
         collect_service
         @text = nil

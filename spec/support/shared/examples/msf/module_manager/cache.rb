@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::ModuleManager::Cache' do
+RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
   let(:parent_path) do
     parent_pathname.to_path
   end
@@ -35,7 +35,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       module_manager.cache_empty?
     end
 
-    before(:each) do
+    before(:example) do
       module_manager.send(:module_info_by_path=, module_info_by_path)
     end
 
@@ -92,7 +92,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           module_manager.send(:module_info_by_path)
         end
 
-        before(:each) do
+        before(:example) do
           cache_in_memory
         end
 
@@ -148,7 +148,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       module_manager.load_cached_module(type, reference_name)
     end
 
-    before(:each) do
+    before(:example) do
       module_manager.send(:module_info_by_path=, module_info_by_path)
     end
 
@@ -187,7 +187,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
       context 'return from load_module' do
-        before(:each) do
+        before(:example) do
           module_manager.send(:loaders).each do |loader|
             expect(loader).to receive(:load_module).and_return(module_loaded)
           end
@@ -221,7 +221,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
   end
 
   context '#refresh_cache_from_module_files' do
-    before(:each) do
+    before(:example) do
       allow(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
     end
 
@@ -308,7 +308,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     context 'with framework database' do
-      before(:each) do
+      before(:example) do
         expect(framework.db).to receive(:migrated).and_return(migrated)
       end
 
@@ -330,7 +330,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     context 'without framework database' do
-      before(:each) do
+      before(:example) do
         expect(framework).to receive(:db).and_return(nil)
       end
 
@@ -359,7 +359,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       module_manager.send(:module_info_by_path_from_database!)
     end
 
-    before(:each) do
+    before(:example) do
       allow(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
     end
 
@@ -405,7 +405,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             module_info_by_path[path]
           end
 
-          before(:each) do
+          before(:example) do
             module_info_by_path_from_database!
           end
 
@@ -421,7 +421,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           end
 
           context 'with reference_name' do
-            before(:each) do
+            before(:example) do
               typed_module_set[reference_name] = double('Msf::Module')
             end
 

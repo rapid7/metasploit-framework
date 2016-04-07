@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/symantec_web_gateway'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
         {
           'RPORT'      => 443,
           'SSL'        => true,
-          'SSLVersion' => 'TLS1'
         }
     ))
   end
@@ -54,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
           connection_timeout: 5
         ))
     }.call
-end
+  end
 
 
   def report_good_cred(ip, port, result)

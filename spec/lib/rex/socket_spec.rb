@@ -83,7 +83,7 @@ RSpec.describe Rex::Socket do
 
     subject { described_class.getaddress('whatever') }
 
-    before(:each) do
+    before(:example) do
       expect(Socket).to receive(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
     end
 
@@ -123,7 +123,7 @@ RSpec.describe Rex::Socket do
 
     subject { described_class.getaddresses('whatever') }
 
-    before(:each) do
+    before(:example) do
       expect(Socket).to receive(:gethostbyname).and_return(['name', ['aliases'], response_afamily, *response_addresses])
     end
 
