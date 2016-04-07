@@ -58,6 +58,13 @@ module Mdm::Workspace::BoundaryRange
       end
     end
 
+    # Returns an array of addresses ranges
+    #
+    # @return [Array<String>]
+    def addresses
+      (boundary || "").split("\n")
+    end
+
     private
 
     # Returns whether `string` is a valid IP address or IP address range.
@@ -68,5 +75,8 @@ module Mdm::Workspace::BoundaryRange
       range = Rex::Socket::RangeWalker.new(string)
       range && range.ranges && range.ranges.any?
     end
+
   end
+
+
 end

@@ -70,4 +70,37 @@ RSpec.describe Mdm::Workspace, type: :model do
       end
     end
   end
+
+  context 'methods' do
+    context '#valid_ip_or_range?' do
+      let(:ip_or_range) do
+        nil
+      end
+
+      subject do
+        -> {workspace.send(:valid_ip_or_range?, ip_or_range)}
+      end
+
+      context 'with exception from Rex::Socket::RangeWalker' do
+        before(:example) do
+          allow(Rex::Socket::RangeWalker).to receive(:new).with(ip_or_range).and_raise(StandardError)
+        end
+
+        it { is_expected.to raise_error(StandardError) }
+      end
+
+      context 'without exception from Rex::Socket::RangeWalker' do
+        context 'with valid IP' do
+          let(:ip_or_range) do
+            '192.168.0.1'
+          end
+
+          it { is_expected.to be_truthy }
+        end
+      end
+    end
+  end
+
+
+  it_should_behave_like 'Mdm::Workspace::Boundary'
 end
