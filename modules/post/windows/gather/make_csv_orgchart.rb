@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'         => 'Generate CSV Organisational Chart Data Using Manager Information',
+      'Name'         => 'Generate CSV Organizational Chart Data Using Manager Information',
       'Description'  => %(
         This module will generate a CSV file containing all users and their managers, which can be
         imported into Visio which will render it.
