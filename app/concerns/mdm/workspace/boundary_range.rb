@@ -38,12 +38,31 @@ module Mdm::Workspace::BoundaryRange
 
     # Validates that {#boundary} is {#valid_ip_or_range? a valid IP address or
     # IP address range}. Due to this not being tested before it was moved here
-    # from Mdm, the default workspace does not validate. We therefore don't
-    # validate boundaries of workspaces that don't use them.
+    # from Mdm, the default workspace does not validate. We always validate boundaries
+    # and a workspace may have a blank default boundary.
     #
     # @return [void]
     def boundary_must_be_ip_range
-      errors.add(:boundary, "must be a valid IP range") unless !limit_to_network || valid_ip_or_range?(boundary)
+      unless boundary.blank?
+        begin
+          boundaries = Shellwords.split(boundary)
+        rescue ArgumentError
+          boundaries = []
+        end
+
+        boundaries.each do |range|
+          unless valid_ip_or_range?(range)
+            errors.add(:boundary, "must be a valid IP range")
+          end
+        end
+      end
+    end
+
+    # Returns an array of addresses ranges
+    #
+    # @return [Array<String>]
+    def addresses
+      (boundary || "").split("\n")
     end
 
     private
@@ -56,5 +75,8 @@ module Mdm::Workspace::BoundaryRange
       range = Rex::Socket::RangeWalker.new(string)
       range && range.ranges && range.ranges.any?
     end
+
   end
+
+
 end
