@@ -20,8 +20,8 @@ RSpec.describe Mdm::Workspace, type: :model do
           workspace.valid?
         end
 
-        it 'should validate using #valid_ip_or_range?' do
-          expect(workspace).to receive(:valid_ip_or_range?).with(boundary).and_return(false)
+        it 'should validate using #boundary_must_be_ip_range' do
+          expect(workspace).to receive(:boundary_must_be_ip_range).and_return(false)
 
           workspace.valid?
         end
