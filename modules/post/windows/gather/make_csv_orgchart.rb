@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptBool.new('WITH_MANAGERS_ONLY', [true, 'Only users with managers', false]),
       OptBool.new('ACTIVE_USERS_ONLY', [true, 'Only include active users (i.e. not disabled ones)', true]),
-      OptBool.new('STORE_LOOT', [true, 'Store the organisational chart information in CSV format in loot', true]),
+      OptBool.new('STORE_LOOT', [true, 'Store the organizational chart information in CSV format in loot', true]),
       OptString.new('FILTER', [false, 'Additional LDAP filter to use when searching for users', ''])
     ], self.class)
   end
