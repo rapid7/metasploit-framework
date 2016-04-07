@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-shared_examples_for 'an xor encoder' do |keysize|
+RSpec.shared_examples_for 'an xor encoder' do |keysize|
 
   it "should encode one block" do
     # Yup it returns one of its arguments in an array... Because spoon.

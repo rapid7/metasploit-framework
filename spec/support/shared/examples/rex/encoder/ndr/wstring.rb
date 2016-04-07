@@ -1,4 +1,4 @@
-shared_examples_for "Rex::Encoder::NDR.wstring" do
+RSpec.shared_examples_for "Rex::Encoder::NDR.wstring" do
   let(:string) { "ABCD" }
 
   it "encodes the argument as null-terminated unicode string" do

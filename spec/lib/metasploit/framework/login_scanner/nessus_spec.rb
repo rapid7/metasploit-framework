@@ -34,7 +34,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Nessus do
       Rex::Proto::Http::Response.new(200, 'OK')
     end
 
-    before(:each) do
+    before(:example) do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:request_cgi).with(any_args)
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv).with(any_args).and_return(response)
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:set_config).with(any_args)

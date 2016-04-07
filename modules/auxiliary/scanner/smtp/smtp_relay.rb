@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Scanner
@@ -38,15 +38,11 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def run_host(ip)
     begin
       connect
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-      print_status("#{peer} - SMTP #{banner_sanitized}")
+      print_status("SMTP #{banner_sanitized}")
       report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
 
       if datastore['EXTENDED']
@@ -80,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
         do_test_relay(nil, "MAIL FROM:<#{datastore['MAILFROM']}>", "RCPT TO:<#{datastore['MAILTO']}>")
     end
     rescue
-      print_error("#{peer} - Unable to establish an SMTP session")
+      print_error("Unable to establish an SMTP session")
       return
     end
   end
@@ -90,36 +86,36 @@ class Metasploit3 < Msf::Auxiliary
       connect
 
       res = raw_send_recv("EHLO X\r\n")
-      vprint_status("#{peer} - #{res.inspect}")
+      vprint_status("#{res.inspect}")
 
       res = raw_send_recv("#{mailfrom}\r\n")
-      vprint_status("#{peer} - #{res.inspect}")
+      vprint_status("#{res.inspect}")
 
       res = raw_send_recv("#{mailto}\r\n")
-      vprint_status("#{peer} - #{res.inspect}")
+      vprint_status("#{res.inspect}")
 
       res = raw_send_recv("DATA\r\n")
-      vprint_status("#{peer} - #{res.inspect}")
+      vprint_status("#{res.inspect}")
 
       res = raw_send_recv("#{Rex::Text.rand_text_alpha(rand(10)+5)}\r\n.\r\n")
-      vprint_status("#{peer} - #{res.inspect}")
+      vprint_status("#{res.inspect}")
 
       if res =~ /250/
         if testnumber.nil?
-          print_good("#{peer} - Potential open SMTP relay detected: - #{mailfrom} -> #{mailto}")
+          print_good("Potential open SMTP relay detected: - #{mailfrom} -> #{mailto}")
         else
-          print_good("#{peer} - Test ##{testnumber} - Potential open SMTP relay detected: - #{mailfrom} -> #{mailto}")
+          print_good("Test ##{testnumber} - Potential open SMTP relay detected: - #{mailfrom} -> #{mailto}")
         end
       else
         if testnumber.nil?
-          print_status "#{peer} - No relay detected"
+          print_status "No relay detected"
         else
-          print_status "#{peer} - Test ##{testnumber} - No relay detected"
+          print_status "Test ##{testnumber} - No relay detected"
         end
       end
 
     rescue
-      print_error("#{peer} - Test ##{testnumber} - Unable to establish an SMTP session")
+      print_error("Test ##{testnumber} - Unable to establish an SMTP session")
       return
     end
   end

@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -45,10 +45,6 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$'])
     ], self.class)
 
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
   end
 
   def run_host(_ip)

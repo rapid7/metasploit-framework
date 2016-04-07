@@ -9,7 +9,7 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Priv::Priv do
   end
 
   describe "#getsystem" do
-    before(:each) do
+    before(:example) do
       @client = double("client")
       allow(@client).to receive(:register_extension_aliases) { [] }
     end

@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword' do |keyword|
+RSpec.shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword' do |keyword|
   context "with #{keyword} keyword" do
     let(keyword) do
       1
@@ -12,7 +12,7 @@ shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword
       "#{keyword}:#{send(keyword)}"
     end
 
-    before(:each) do
+    before(:example) do
       FactoryGirl.create(:mdm_module_ref, :name => name)
     end
 

