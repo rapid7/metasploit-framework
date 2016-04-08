@@ -5,7 +5,7 @@ load Metasploit::Framework.root.join('tools/exploit/java_deserializer.rb').to_pa
 
 RSpec.describe JavaDeserializer do
 
-  before(:all) do
+  before(:context) do
     @out = $stdout
     @err = $stderr
 
@@ -13,7 +13,7 @@ RSpec.describe JavaDeserializer do
     $stderr = StringIO.new
   end
 
-  after(:all) do
+  after(:context) do
     $stdout = @out
     $stderr = @err
   end
@@ -47,7 +47,7 @@ RSpec.describe JavaDeserializer do
     end
 
     context "when file contains a valid stream" do
-      before(:each) do
+      before(:example) do
         $stdout.string = ''
       end
 

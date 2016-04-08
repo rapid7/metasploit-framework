@@ -116,7 +116,7 @@ class CentralDir
   end
 
   def pack
-    if @entry.central_dir_name.blank?
+    if @entry.central_dir_name.to_s.strip.empty?
       path = @entry.relative_path
     else
       path = @entry.central_dir_path

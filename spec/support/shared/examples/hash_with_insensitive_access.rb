@@ -1,4 +1,4 @@
-shared_examples_for "hash with insensitive keys" do
+RSpec.shared_examples_for "hash with insensitive keys" do
   it "should store with insensitive key" do
     subject["asdf"] = "foo"
     subject["ASDF"] = "bar"

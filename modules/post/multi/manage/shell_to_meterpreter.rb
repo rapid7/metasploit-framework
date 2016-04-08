@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/exploit/powershell'
 require 'msf/core/post/windows/powershell'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Exploit::Powershell
   include Post::Windows::Powershell
 

@@ -19,13 +19,13 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 
   # Not all specs require a database connection, and railties aren't being
   # used, so have to manually establish connection.
-  before(:each) do
+  before(:example) do
     ActiveRecord::Base.configurations = database_configurations
     spec = ActiveRecord::Base.configurations[Rails.env]
     ActiveRecord::Base.establish_connection(spec)
   end
 
-  after(:each) do
+  after(:example) do
     ActiveRecord::Base.clear_all_connections!
   end
 
@@ -39,7 +39,7 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
       Thread.current
     end
 
-    before(:each) do
+    before(:example) do
       ActiveRecord::Base.connection_pool.connection
     end
 
@@ -92,7 +92,7 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
         connection_pool.connection
       end
 
-      after(:each) do
+      after(:example) do
         connection_pool.checkin connection
       end
 

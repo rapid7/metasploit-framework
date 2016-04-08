@@ -250,7 +250,7 @@ RSpec.describe Rex::Post::Meterpreter::GroupTlv do
   end
 
   context "with TLVs added" do
-    before(:each) do
+    before(:example) do
       group_tlv.reset
       tlv_array = [
         {'type' => Rex::Post::Meterpreter::TLV_TYPE_STRING, 'value' => "test"},
@@ -454,7 +454,7 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
         "test_method"
       )
     }
-    before(:each) do
+    before(:example) do
       packet.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_RESULT, "a-ok")
     end
 

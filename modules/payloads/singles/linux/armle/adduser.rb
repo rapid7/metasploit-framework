@@ -14,7 +14,7 @@ require 'msf/core'
 # Adds a UID 0 user to /etc/passwd.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 119
 

@@ -6,7 +6,7 @@
 require 'rex'
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
   include Msf::Post::Windows::Accounts
@@ -47,6 +47,7 @@ class Metasploit3 < Msf::Post
       OptBool.new('EXCLUDE_LOCKED', [true, 'Exclude in search locked accounts..', false]),
       OptBool.new('EXCLUDE_DISABLED', [true, 'Exclude from search disabled accounts.', false]),
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
+      OptString.new('FILTER', [false, 'Customised LDAP filter', nil]),
       OptString.new('GROUP_MEMBER', [false, 'Recursively list users that are effectve members of the group DN specified.', nil]),
       OptEnum.new('UAC', [true, 'Filter on User Account Control Setting.', 'ANY',
                           [
@@ -146,6 +147,7 @@ class Metasploit3 < Msf::Post
     inner_filter << '(!(lockoutTime>=1))' if datastore['EXCLUDE_LOCKED']
     inner_filter << '(!(userAccountControl:1.2.840.113556.1.4.803:=2))' if datastore['EXCLUDE_DISABLED']
     inner_filter << "(memberof:1.2.840.113556.1.4.1941:=#{datastore['GROUP_MEMBER']})" if datastore['GROUP_MEMBER']
+    inner_filter << "(#{datastore['FILTER']})" if datastore['FILTER'] != ""
     case datastore['UAC']
       when 'ANY'
       when 'NO_PASSWORD'

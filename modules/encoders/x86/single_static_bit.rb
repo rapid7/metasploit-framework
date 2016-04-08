@@ -12,7 +12,7 @@ require 'msf/core'
 # The decoder has been tested with all possible values, but the decoder stub
 # is was not designed to bypass restrictions other than "bit 5 must be on"..
 #
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
 
   # This encoder has a manual ranking because it should only be used in cases
   # where information has been explicitly supplied, specifically

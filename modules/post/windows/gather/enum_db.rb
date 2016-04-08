@@ -7,7 +7,7 @@ require 'rex'
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Registry

@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Auxiliary::Report
@@ -36,22 +36,6 @@ class Metasploit3 < Msf::Post
       'Platform'      => ['win'],
       'SessionTypes'  => ['meterpreter', 'shell']
     ))
-  end
-
-  def r_host
-    if session.type =~ /meterpreter/
-      session.sock.peerhost
-    else
-      session.session_host
-    end
-  end
-
-  def peer
-    if session.type =~ /meterpreter/
-      "#{r_host} (#{sysinfo['Computer']})"
-    else
-      r_host
-    end
   end
 
   #
@@ -215,7 +199,7 @@ class Metasploit3 < Msf::Post
     print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
 
     report_cred(
-      ip: r_host,
+      ip: rhost,
       port: port,
       service_name: 'http',
       user: user,

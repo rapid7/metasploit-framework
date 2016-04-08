@@ -1,5 +1,5 @@
 # -*- coding:binary -*-
-shared_examples_for 'Msf::Modules::VersionCompatibilityError' do
+RSpec.shared_examples_for 'Msf::Modules::VersionCompatibilityError' do
   let(:error) do
     begin
       subject.version_compatible!(module_path, module_reference_name)

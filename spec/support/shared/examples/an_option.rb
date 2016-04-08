@@ -1,6 +1,6 @@
 # -*- coding:binary -*-
 
-shared_examples_for "an option" do |valid_values, invalid_values, type|
+RSpec.shared_examples_for "an option" do |valid_values, invalid_values, type|
   subject do
     described_class.new("name")
   end
