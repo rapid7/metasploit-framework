@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'rapid7/nexpose'
+require 'nexpose'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -140,7 +140,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Cleaning up")
     begin
-      nsc.site_delete id
+      nsc.delete_site id
     rescue
       print_warning("Error while cleaning up site ID, manual cleanup required!")
     end
