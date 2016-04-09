@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::PTR
-      records << r.ptr
+      records << r.ptr.to_s
       print_good("#{ip}: PTR: #{r.ptr} ")
     end
     return if records.blank?
@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::A
-      records << r.address
+      records << r.address.to_s
       print_good("#{domain} A: #{r.address} ") if datastore['ENUM_BRT']
     end
     return if records.blank?
@@ -219,7 +219,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::CNAME
-      records << r.cname
+      records << r.cname.to_s
       print_good("#{domain} CNAME: #{r.cname}")
     end
     return if records.blank?
@@ -235,7 +235,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::NS
-      records << r.nsdname
+      records << r.nsdname.to_s
       print_good("#{domain} NS: #{r.nsdname}")
     end
     return if records.blank?
@@ -252,7 +252,7 @@ class MetasploitModule < Msf::Auxiliary
       records = []
       resp.answer.each do |r|
         next unless r.class == Net::DNS::RR::MX
-        records << r.exchange
+        records << r.exchange.to_s
         print_good("#{domain} MX: #{r.exchange}")
       end
     rescue SocketError => e
@@ -272,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::SOA
-      records << r.mname
+      records << r.mname.to_s
       print_good("#{domain} SOA: #{r.mname}")
     end
     return if records.blank?
@@ -288,7 +288,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::TXT
-      records << r.txt
+      records << r.txt.to_s
       print_good("#{domain} TXT: #{r.txt}")
     end
     return if records.blank?
