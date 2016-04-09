@@ -123,13 +123,13 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         1.upto(threads) do
-          t << framework.threads.spawn("Module(#{self.refname})", false, queue.shift) do |test_current|
+          t << framework.threads.spawn("Module(#{refname})", false, queue.shift) do |test_current|
             Thread.current.kill unless test_current
             a = get_a(test_current, 'dns_bruteforce')
             records |= a if a
           end
         end
-        t.map{ |x| x.join }
+        t.map(&:join)
 
       rescue ::Timeout::Error
       ensure
@@ -155,13 +155,13 @@ class MetasploitModule < Msf::Auxiliary
       threads = 1 if threads <= 0
       begin
         1.upto(threads) do
-          t << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_text|
+          t << framework.threads.spawn("Module(#{refname})", false, iplst.shift) do |ip_text|
             next if ip_text.nil?
             a = get_ptr(ip_text)
             records |= a if a
           end
         end
-        t.map { |x| x.join }
+        t.map(&:join)
 
       rescue ::Timeout::Error
       ensure
@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::PTR
-      records << "#{r.ptr}"
+      records << r.ptr
       print_good("#{ip}: PTR: #{r.ptr} ")
     end
     return if records.blank?
@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::A
-      records << "#{r.address}"
+      records << r.address
       print_good("#{domain} A: #{r.address} ") if datastore['ENUM_BRT']
     end
     return if records.blank?
@@ -235,7 +235,7 @@ class MetasploitModule < Msf::Auxiliary
     records = []
     resp.answer.each do |r|
       next unless r.class == Net::DNS::RR::NS
-      records << "#{r.nsdname}"
+      records << r.nsdname
       print_good("#{domain} NS: #{r.nsdname}")
     end
     return if records.blank?
@@ -252,7 +252,7 @@ class MetasploitModule < Msf::Auxiliary
       records = []
       resp.answer.each do |r|
         next unless r.class == Net::DNS::RR::MX
-        records << "#{r.exchange}"
+        records << r.exchange
         print_good("#{domain} MX: #{r.exchange}")
       end
     rescue SocketError => e
@@ -347,7 +347,8 @@ class MetasploitModule < Msf::Auxiliary
   def get_srv(domain)
     print_status("querying DNS SRV records for #{domain}")
     srv_protos = %w(tcp udp tls)
-    srv_record_types = %w(gc kerberos ldap test sips sip aix finger ftp http
+    srv_record_types = %w(
+      gc kerberos ldap test sips sip aix finger ftp http
       nntp telnet whois h323cs h323be h323ls sipinternal sipinternaltls
       sipfederationtls jabber jabber-client jabber-server xmpp-server xmpp-client
       imap certificates crls pgpkeys pgprevokations cmp svcp crl oscp pkixrep
@@ -372,7 +373,7 @@ class MetasploitModule < Msf::Auxiliary
           srv_record_data << data
         end
         srv_records_data << {
-          "#{srv_record}" => srv_record_data
+          srv_record => srv_record_data
         }
         report_note(
           type: srv_record,
@@ -409,7 +410,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Query #{domain} DNS AXFR - exception: #{e}")
       end
       next if zone.blank?
-      records << "#{zone}"
+      records << zone
       print_good("#{domain} Zone Transfer: #{zone}")
     end
     return if records.blank?
@@ -418,7 +419,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def save_note(target, type, records)
-    data = {'target' => target, 'records' => records}
-    report_note(:host => target, :sname => 'dns', :type => type, :data => data, :update => :unique_data)
+    data = { 'target' => target, 'records' => records }
+    report_note(host: target, sname: 'dns', type: type, data: data, update: :unique_data)
   end
 end
