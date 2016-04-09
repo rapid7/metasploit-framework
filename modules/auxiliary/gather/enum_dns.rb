@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
         1.upto(threads) do
           t << framework.threads.spawn("Module(#{refname})", false, queue.shift) do |test_current|
             Thread.current.kill unless test_current
-            a = get_a(test_current, 'dns_bruteforce')
+            a = get_a(test_current, 'DNS bruteforce records')
             records |= a if a
           end
         end
@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dns_wildcard_enabled?(domain)
-    records = get_a("#{Rex::Text.rand_text_alpha(16)}.#{domain}", 'dns_wildcard')
+    records = get_a("#{Rex::Text.rand_text_alpha(16)}.#{domain}", 'DNS wildcard records')
     if records.blank?
       false
     else
@@ -192,11 +192,11 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{ip}: PTR: #{r.ptr} ")
     end
     return if records.blank?
-    save_note(ip, 'get_ptr', records)
+    save_note(ip, 'DNS PTR records', records)
     records
   end
 
-  def get_a(domain, type='get_a')
+  def get_a(domain, type='DNS A records')
     resp = dns_query(domain, 'A')
     return if resp.blank? || resp.answer.blank?
 
@@ -223,7 +223,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{domain} CNAME: #{r.cname}")
     end
     return if records.blank?
-    save_note(domain, 'get_cname', records)
+    save_note(domain, 'DNS CNAME records', records)
     records
   end
 
@@ -239,7 +239,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{domain} NS: #{r.nsdname}")
     end
     return if records.blank?
-    save_note(domain, 'get_ns', records)
+    save_note(domain, 'DNS NS records', records)
     records
   end
 
@@ -259,7 +259,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Query #{domain} DNS MX - exception: #{e}")
     ensure
       return if records.blank?
-      save_note(domain, 'get_mx', records)
+      save_note(domain, 'DNS MX records', records)
       records
     end
   end
@@ -276,7 +276,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{domain} SOA: #{r.mname}")
     end
     return if records.blank?
-    save_note(domain, 'get_soa', records)
+    save_note(domain, 'DNS SOA records', records)
     records
   end
 
@@ -292,7 +292,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{domain} TXT: #{r.txt}")
     end
     return if records.blank?
-    save_note(domain, 'get_txt', records)
+    save_note(domain, 'DNS TXT records', records)
     records
   end
 
@@ -331,7 +331,7 @@ class MetasploitModule < Msf::Auxiliary
 
       records = []
       tlds.each do |tld|
-        tldr = get_a("#{domain_}.#{tld}", 'get_tld')
+        tldr = get_a("#{domain_}.#{tld}", 'DNS TLD records')
         next if tldr.blank?
         records |= tldr
         print_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
@@ -399,7 +399,7 @@ class MetasploitModule < Msf::Auxiliary
 
       ns_a_records = []
       # try to get A record for nameserver from target NS, which may fail
-      target_ns_a = get_a(nameserver, 'axfr')
+      target_ns_a = get_a(nameserver, 'DNS AXFR records')
       ns_a_records |= target_ns_a if target_ns_a
       ns_a_records << ::Rex::Socket.resolv_to_dotted(nameserver)
       begin
@@ -414,7 +414,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{domain} Zone Transfer: #{zone}")
     end
     return if records.blank?
-    save_note(domain, 'axfr', records)
+    save_note(domain, 'DNS AXFR recods', records)
     records
   end
 
