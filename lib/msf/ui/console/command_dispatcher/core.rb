@@ -828,7 +828,7 @@ class Core
       end
     end
 
-    args.each { |name|
+    args.each do |name|
       mod = framework.modules.create(name)
 
       if (mod == nil)
@@ -836,7 +836,7 @@ class Core
       else
         show_options(mod)
       end
-    }
+    end
   end
 
   #
@@ -2600,9 +2600,9 @@ class Core
   # Tab completion for the unset command
   #
   # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
-
+  # @param words [Array<String>] the previously completed words on the command
+  #   line. `words` is always at least 1 when tab completion has reached this
+  #   stage since the command itself has been completed.
   def cmd_unset_tabs(str, words)
     datastore = active_module ? active_module.datastore : self.framework.datastore
     datastore.keys
