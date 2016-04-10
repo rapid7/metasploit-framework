@@ -1,0 +1,50 @@
+## <%= items[:mod_name] %>
+<p>
+<%= normalize_description(items[:mod_description]) %>
+</p>
+
+## Module Name
+
+<%= Rex::Text.html_encode(items[:mod_fullname]) %>
+
+## Authors
+
+<%= normalize_authors(items[:mod_authors]) %>
+
+<% unless items[:mod_platforms].empty? %>
+## Platforms
+<%= normalize_platforms(items[:mod_platforms]) %>
+<% end %>
+
+## Reliability
+
+<%= normalize_rank(items[:mod_rank]) %>
+
+## Related Pull Requests
+
+<%= normalize_pull_requests(items[:mod_pull_requests]) %>
+
+<% unless items[:mod_refs].empty? %>
+## References
+
+<%= normalize_references(items[:mod_refs]) %>
+<% end %>
+
+<% if items[:mod_targets] %>
+## Available Targets
+
+<%= normalize_targets(items[:mod_targets]) %>
+
+<% end %>
+
+## Required Options
+
+<% if normalize_options(items[:mod_options]).empty? %>
+No options required.
+<% else %>
+<%= normalize_options(items[:mod_options]) %>
+<% end %>
+
+## Basic Usage
+
+<%= normalize_demo_output(items[:mod_demo]) %>

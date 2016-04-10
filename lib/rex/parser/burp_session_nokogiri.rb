@@ -157,7 +157,7 @@ module Rex
       host_info = {:workspace => @args[:wspace]}
       host_info[:address] = @state[:web_site].service.host.address
       host_info[:name] = @state[:uri].host
-      report_db(:host, host_info)
+      db_report(:host, host_info)
     end
 
     def report_web_service_info

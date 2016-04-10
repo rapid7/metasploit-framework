@@ -3,7 +3,7 @@ require 'msf/core/post/windows/netapi'
 require 'msf/core/post/windows/kiwi'
 require 'msf/core/post/windows/error'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::NetAPI
   include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Kiwi

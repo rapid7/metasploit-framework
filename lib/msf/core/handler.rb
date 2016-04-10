@@ -164,6 +164,14 @@ module Handler
   end
 
   #
+  # Interrupts a wait_for_session call by notifying with a nil event
+  #
+  def interrupt_wait_for_session
+    return unless session_waiter_event
+    session_waiter_event.notify(nil)
+  end
+
+  #
   # Set by the exploit module to configure handler
   #
   attr_accessor :exploit_config

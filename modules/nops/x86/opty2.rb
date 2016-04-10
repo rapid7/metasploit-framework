@@ -17,7 +17,7 @@ require 'rex/nop/opty2'
 # ADMmutate and from spoonfu.
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
   def initialize
     super(

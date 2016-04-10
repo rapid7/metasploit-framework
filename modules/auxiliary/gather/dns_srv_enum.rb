@@ -7,7 +7,7 @@ require 'msf/core'
 require "net/dns/resolver"
 require 'rex'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
