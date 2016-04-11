@@ -533,10 +533,10 @@ class Console::CommandDispatcher::Stdapi::Net
           next if (opts['MeterpreterRelay'] == nil)
 
           if opts['Reverse'] == true
-            if service.stop_reverse_tcp_relay(rport)
-              print_status("Successfully stopped reverse TCP relay on :#{rport}")
+            if service.stop_reverse_tcp_relay(lport)
+              print_status("Successfully stopped reverse TCP relay on :#{lport}")
             else
-              print_error("Failed to stop reverse TCP relay on #{rport}")
+              print_error("Failed to stop reverse TCP relay on #{lport}")
               next
             end
           else
