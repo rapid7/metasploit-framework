@@ -385,7 +385,8 @@ class Plugin::Nexpose < Msf::Plugin
         when "-c"
           if (val =~ /^([^:]+):([^:]+):(.+)/)
             type, user, pass = [ $1, $2, $3 ]
-            newcreds = Nexpose::SiteCredentials.for_service("temporary_name", nil, nil, nil, nil, type)
+            msfid = Time.now.to_i
+            newcreds = Nexpose::SiteCredentials.for_service("Metasploit Site Credential #{msfid}", nil, nil, nil, nil, type)
             newcreds.user_name = user
             newcreds.password = pass
             opt_credentials << newcreds
