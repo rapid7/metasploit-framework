@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
                       'Name'          => 'Linux DoS Xen 4.2.0 2012-5525',
                       'Description'   => %q{
-                      This module denials the Service of Xen 4.2.0 via a paravirtualised VM (dom0 included). Successfully tested on Debian 7 3.2.0-4-amd64 with Xen 4.2.0 compiled from source. Also checking requirements before executing.},
+                      This module denies the service of Xen 4.2.0 via a paravirtualised VM (dom0 included). Successfully tested on Debian 7 3.2.0-4-amd64 with Xen 4.2.0 compiled from source. Also checking requirements before executing.},
                       'References'     =>
                       [
                       ['CVE', '2012-5525']
