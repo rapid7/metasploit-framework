@@ -26,7 +26,7 @@ module Metasploit
           attr_accessor :cred_details
           # @!attribute host
           #   @return [String] The IP address or hostname to connect to
-          attr_accessor :host
+          # attr_accessor :host
           # @!attribute port
           #   @return [Fixnum] The port to connect to
           attr_accessor :port
