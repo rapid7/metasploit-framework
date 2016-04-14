@@ -258,6 +258,11 @@ module Metasploit
           # of a valid type and is resolveable.
           # @return [void]
           def host_address_must_be_valid
+            if host.kind_of? IPAddr
+              address = host.to_s
+              host  = ""
+              host = address
+            end
             if host.kind_of? String
               begin
                 resolved_host = ::Rex::Socket.getaddress(host, true)
