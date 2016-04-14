@@ -101,8 +101,12 @@ module Metasploit
           end
 
           def host
-            return host.to_s if host.kind_of? IPAddr
-            return host
+            return @host.to_s if @host.kind_of? IPAddr
+            return @host
+          end
+
+          def host=(host)
+            @host = host
           end
 
           # @note Override this to detect that the service is up, is the right
