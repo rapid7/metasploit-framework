@@ -420,7 +420,7 @@ RSpec.describe 'modules/payloads', :content do
 
   context 'cmd/unix/bind_awk' do
     it_should_behave_like 'payload cached size is consistent',
-                         ancestor_reference_names: [
+                          ancestor_reference_names: [
                               'singles/cmd/unix/bind_awk'
                           ],
                           dynamic_size: false,
