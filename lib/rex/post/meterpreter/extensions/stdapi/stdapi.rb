@@ -11,6 +11,7 @@ require 'rex/post/meterpreter/extensions/stdapi/fs/mount'
 require 'rex/post/meterpreter/extensions/stdapi/net/resolve'
 require 'rex/post/meterpreter/extensions/stdapi/net/config'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket'
+require 'rex/post/meterpreter/extensions/stdapi/net/named_pipe'
 require 'rex/post/meterpreter/extensions/stdapi/sys/config'
 require 'rex/post/meterpreter/extensions/stdapi/sys/process'
 require 'rex/post/meterpreter/extensions/stdapi/sys/registry'
@@ -70,9 +71,10 @@ class Stdapi < Extension
           'name' => 'net',
           'ext'  => ObjectAliases.new(
             {
-              'config'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client),
-              'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client),
-              'resolve'  => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Resolve.new(client)
+              'config'     => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client),
+              'socket'     => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client),
+              'named_pipe' => Rex::Post::Meterpreter::Extensions::Stdapi::Net::NamedPipe.new(client),
+              'resolve'    => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Resolve.new(client)
             })
         },
         {

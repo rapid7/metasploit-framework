@@ -16,6 +16,14 @@ module Msf::Payload::TransportConfig
     config
   end
 
+  def transport_config_reverse_named_pipe(opts={})
+    {
+      :scheme       => 'pipe',
+      :lhost        => datastore['LHOST'],
+      :uri          => "/#{datastore['PIPENAME']}"
+    }.merge(timeout_config)
+  end
+
   def transport_config_reverse_ipv6_tcp(opts={})
     config = transport_config_reverse_tcp(opts)
     config[:scheme] = 'tcp6'
@@ -27,11 +35,8 @@ module Msf::Payload::TransportConfig
     {
       :scheme       => 'tcp',
       :lhost        => datastore['LHOST'],
-      :lport        => datastore['LPORT'].to_i,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+      :lport        => datastore['LPORT'].to_i
+    }.merge(timeout_config)
   end
 
   def transport_config_reverse_https(opts={})
@@ -58,15 +63,22 @@ module Msf::Payload::TransportConfig
       :lhost        => opts[:lhost] || datastore['LHOST'],
       :lport        => (opts[:lport] || datastore['LPORT']).to_i,
       :uri          => uri,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i,
       :ua           => datastore['MeterpreterUserAgent'],
       :proxy_host   => datastore['PayloadProxyHost'],
       :proxy_port   => datastore['PayloadProxyPort'],
       :proxy_type   => datastore['PayloadProxyType'],
       :proxy_user   => datastore['PayloadProxyUser'],
       :proxy_pass   => datastore['PayloadProxyPass']
+    }.merge(timeout_config)
+  end
+
+private
+
+  def timeout_config
+    {
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i
     }
   end
 
