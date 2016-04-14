@@ -100,6 +100,11 @@ module Metasploit
             raise NotImplementedError
           end
 
+          def host
+            return host.to_s if host.kind_of? IPAddr
+            return host
+          end
+
           # @note Override this to detect that the service is up, is the right
           #   version, etc.
           # @return [false] Indicates there were no errors
@@ -258,11 +263,6 @@ module Metasploit
           # of a valid type and is resolveable.
           # @return [void]
           def host_address_must_be_valid
-            if host.kind_of? IPAddr
-              address = host.to_s
-              host  = ""
-              host = address
-            end
             if host.kind_of? String
               begin
                 resolved_host = ::Rex::Socket.getaddress(host, true)
