@@ -376,7 +376,7 @@ module Msf
           encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
-      elsif badchars.present?
+      elsif !badchars.empty? && !badchars.nil?
         framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
           e = framework.encoders.create(name)
           e.datastore.import_options_from_hash(datastore)

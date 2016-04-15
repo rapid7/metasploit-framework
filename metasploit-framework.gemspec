@@ -55,45 +55,45 @@ Gem::Specification.new do |spec|
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
-  spec.add_runtime_dependency 'jsobfu'
+  spec.add_runtime_dependency 'jsobfu', '~> 0.4.1'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
   # Metasm compiler/decompiler/assembler
-  spec.add_runtime_dependency 'metasm'
+  spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
-  #spec.add_runtime_dependency 'metasploit-concern'
+  spec.add_runtime_dependency 'metasploit-concern'
   # Metasploit::Credential database models
-  #spec.add_runtime_dependency 'metasploit-credential', '1.1.0'
+  spec.add_runtime_dependency 'metasploit-credential', '1.1.0'
   # Database models shared between framework and Pro.
-  #spec.add_runtime_dependency 'metasploit_data_models', '1.3.0'
+  spec.add_runtime_dependency 'metasploit_data_models', '1.3.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model'
+  spec.add_runtime_dependency 'metasploit-model', '1.1.0'
   # Needed for Meterpreter
   spec.add_runtime_dependency 'metasploit-payloads', '1.1.6'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
-  spec.add_runtime_dependency 'network_interface'
+  spec.add_runtime_dependency 'network_interface', '~> 0.0.1'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
-  spec.add_runtime_dependency 'packetfu'
+  spec.add_runtime_dependency 'packetfu', '1.1.11'
   # For sniffer and raw socket modules
   spec.add_runtime_dependency 'pcaprub'
   # Needed for module caching in Mdm::ModuleDetails
-  spec.add_runtime_dependency 'pg'
+  spec.add_runtime_dependency 'pg', '>= 0.11'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
-  spec.add_runtime_dependency 'recog'
+  spec.add_runtime_dependency 'recog', '2.0.14'
   # required for bitlocker fvek extraction
-  spec.add_runtime_dependency 'openssl-ccm'
+  spec.add_runtime_dependency 'openssl-ccm', '1.2.1'
   # Needed for documentation generation
   spec.add_runtime_dependency 'octokit'
   spec.add_runtime_dependency 'redcarpet'
   # Needed for Microsoft patch finding tool (msu_finder)
-  spec.add_runtime_dependency 'patch_finder'
+  spec.add_runtime_dependency 'patch_finder', '>= 1.0.2'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
@@ -106,7 +106,7 @@ Gem::Specification.new do |spec|
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules
-  spec.add_runtime_dependency 'rubyzip'
+  spec.add_runtime_dependency 'rubyzip', '~> 1.1'
   # Needed for some post modules
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
