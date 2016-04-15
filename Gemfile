@@ -3,6 +3,15 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+# rails-upgrade staging gems
+gem 'metasploit-yard',        github: 'rapid7/metasploit-yard',        branch: 'staging/rails-upgrade'
+gem 'metasploit-erd',         github: 'rapid7/metasploit-erd',         branch: 'staging/rails-upgrade'
+gem 'yard-metasploit-erd',    github: 'rapid7/yard-metasploit-erd',    branch: 'staging/rails-upgrade'
+gem 'metasploit-concern',     github: 'rapid7/metasploit-concern',     branch: 'staging/rails-upgrade'
+gem 'metasploit-model',       github: 'rapid7/metasploit-model',       branch: 'staging/rails-upgrade'
+gem 'metasploit_data_models', github: 'rapid7/metasploit_data_models', branch: 'staging/rails-upgrade'
+gem 'metasploit-credential',  github: 'rapid7/metasploit-credential',  branch: 'staging/rails-upgrade'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -25,14 +34,14 @@ end
 
 group :development, :test do
   # automatically include factories from spec/factories
-  gem 'factory_girl_rails', '~> 4.5.0'
+  gem 'factory_girl_rails'
   # Make rspec output shorter and more useful
-  gem 'fivemat', '~> 1.3.1'
+  gem 'fivemat'
   # running documentation generation tasks and rspec tasks
-  gem 'rake', '>= 10.0.0'
+  gem 'rake'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
-  gem 'rspec-rails' , '~> 3.3'
+  gem 'rspec-rails'
 end
 
 group :test do
