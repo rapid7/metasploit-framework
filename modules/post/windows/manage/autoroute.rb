@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Post
       return false
     end
 
-    true
+    return true
   end
 
   # This function will search for valid subnets on the target and attempt
@@ -185,18 +185,21 @@ class MetasploitModule < Msf::Post
 
       if !switch_board.route_exists?(route.subnet, route.netmask)
         begin
-          netmask = route.netmask == '255.255.255.255' ? '255.255.255.0' : route.netmask
           if Rex::Socket::SwitchBoard.add_route(route.subnet, netmask, session)
-            print_good("Route added to subnet #{route.subnet}/#{netmask}")
+            print_good("Route added to subnet #{route.subnet}/#{route.netmask}")
             found = true
           else
-            print_error("Could not add route to subnet #{route.subnet}/#{netmask}")
+            print_error("Could not add route to subnet #{route.subnet}/#{route.netmask}")
           end
         rescue ::Rex::Post::Meterpreter::RequestError => error
-          print_error("Could not add route to subnet #{route.subnet}/(#{netmask})")
+          print_error("Could not add route to subnet #{route.subnet}/(#{route.netmask})")
           print_error(error.to_s)
         end
       end
+    end
+
+    session.net.config.each_interface do | interface |
+      print_status("Interface: #{interface.mac_name}  =  #{interface.addrs[1]} : #{interface.netmasks[1]}") if interface.addrs[1]
     end
     print_status("Did not find any new subnets to add.") if !found
   end
