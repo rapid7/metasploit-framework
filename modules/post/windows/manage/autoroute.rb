@@ -159,16 +159,16 @@ class MetasploitModule < Msf::Post
     Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
   end
 
-  # This function will check if a subnet is routable
+  # This function will check if a subnet/netmask pair is routable
   #
   # @return [true]  if routable
   # @return [false] if not
-  def is_routable?(route)
-    if route.subnet =~ /^224\.|127\./
+  def is_routable?(subnet, netmask)
+    if subnet =~ /^224\.|127\./
       return false
-    elsif route.subnet == '0.0.0.0'
+    elsif subnet == '0.0.0.0'
       return false
-    elsif route.netmask == '255.255.255.255'
+    elsif netmask == '255.255.255.255'
       return false
     end
 
@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Post
     found = false
 
     session.net.config.each_route do | route |
-      next unless is_routable?(route)
+      next unless is_routable?(route.subnet, route.netmask)
 
       if !switch_board.route_exists?(route.subnet, route.netmask)
         begin
@@ -212,8 +212,12 @@ class MetasploitModule < Msf::Post
   def autoadd_interface_routes
     session.net.config.each_interface do | interface |
       (0..interface.addrs.size).each do | index |
-        next unless interface.addrs[index] =~ /\./
-        print_status("Interface: #{interface.mac_name}  =  #{interface.addrs[index]} : #{interface.netmasks[index]}") if interface.addrs[1]
+        ip_addr = interface.addrs[index]
+        netmask = interface.netmasks[index]
+
+        next unless ip_addr =~ /\./
+        next unless is_routable?(ip_addr, netmask)
+        print_status("Interface: #{interface.mac_name}  =  #{interface.addrs[index]} : #{interface.netmasks[index]}")
       end
     end
   end
