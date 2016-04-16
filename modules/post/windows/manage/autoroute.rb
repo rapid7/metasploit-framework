@@ -211,15 +211,55 @@ class MetasploitModule < Msf::Post
   # @return [void] A useful return value is not expected here
   def autoadd_interface_routes
     session.net.config.each_interface do | interface |
-      (0..interface.addrs.size).each do | index |
+
+      (0..(interface.addrs.size - 1)).each do | index |
+
         ip_addr = interface.addrs[index]
         netmask = interface.netmasks[index]
 
         next unless ip_addr =~ /\./
         next unless is_routable?(ip_addr, netmask)
-        print_status("Interface: #{interface.mac_name}  =  #{interface.addrs[index]} : #{interface.netmasks[index]}")
+
+        print_status("Interface: #{interface.mac_name}  =  #{ip_addr} : #{netmask}")
+        get_subnet(ip_addr, netmask)
+
       end
     end
+  end
+
+  # This function will take an IP address and a netmask and return
+  # the appropreate subnet "Network"
+  # This function only checks address ranges on IP and Netmask
+  #
+  # @ip_addr [string class] Input IPv4 Address
+  # @netmask [string class] Input IPv4 Netmask
+  #
+  # @return [nil class] Something is out of range
+  # @return [string class] The subnet related to the IP address and netmask
+  def get_subnet(ip_addr, netmask)
+    nets = ip_addr.split('.')
+    masks = netmask.split('.')
+
+    return nil if nets.size != 4 || masks.size != 4 # Some intial checking
+
+    nets.each do | net |
+      print_good("\t\tString: #{net}    Int + 1:#{int_or_nil(net) + 1}")
+    end
+
+    
+    masks.each do | mask |
+      print_good("\t\t#{mask}    Int + 1:#{int_or_nil(mask) + 1}")
+    end
+    
+  end
+
+  # This function takes a string of numbers and converts it to an integer.
+  #
+  # @return [integer class] Integer representation of the number string
+  # @return [nil class] string contains non-numbers, cannot convert
+  def int_or_nil(string)
+    num = string.to_i
+    num if num.to_s == string
   end
 
   # Validates the command options
