@@ -159,6 +159,10 @@ class MetasploitModule < Msf::Post
     Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
   end
 
+  # This function will check if a subnet is routable
+  #
+  # @return [true]  if routable
+  # @return [false] if not
   def is_routable?(route)
     if route.subnet =~ /^224\.|127\./
       return false
@@ -197,11 +201,21 @@ class MetasploitModule < Msf::Post
         end
       end
     end
-
-    session.net.config.each_interface do | interface |
-      print_status("Interface: #{interface.mac_name}  =  #{interface.addrs[1]} : #{interface.netmasks[1]}") if interface.addrs[1]
-    end
+    autoadd_interface_routes
     print_status("Did not find any new subnets to add.") if !found
+  end
+
+  # This function will look at network interfaces as options for additional routes.
+  # If the routes are not already included they will be added.
+  #
+  # @return [void] A useful return value is not expected here
+  def autoadd_interface_routes
+    session.net.config.each_interface do | interface |
+      (0..interface.addrs.size).each do | index |
+        next unless interface.addrs[index] =~ /\./
+        print_status("Interface: #{interface.mac_name}  =  #{interface.addrs[index]} : #{interface.netmasks[index]}") if interface.addrs[1]
+      end
+    end
   end
 
   # Validates the command options
