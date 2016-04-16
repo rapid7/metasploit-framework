@@ -229,7 +229,6 @@ class MetasploitModule < Msf::Post
 
   # This function will take an IP address and a netmask and return
   # the appropreate subnet "Network"
-  # This function only checks address ranges on IP and Netmask
   #
   # @ip_addr [string class] Input IPv4 Address
   # @netmask [string class] Input IPv4 Netmask
@@ -237,24 +236,36 @@ class MetasploitModule < Msf::Post
   # @return [nil class] Something is out of range
   # @return [string class] The subnet related to the IP address and netmask
   def get_subnet(ip_addr, netmask)
+    return nil if !validate_cmd(ip_addr, netmask)
+
     nets = ip_addr.split('.')
     masks = netmask.split('.')
 
-    return nil if nets.size != 4 || masks.size != 4 # Some intial checking
-
-    nets.each do | net |
-      print_good("\t\tString: #{net}    Int + 1:#{int_or_nil(net) + 1}")
+    (0..3).each do | index |
+      get_subnet_octet(int_or_nil(nets[index]), int_or_nil(masks[index]))
     end
+  end
 
-    
-    masks.each do | mask |
-      print_good("\t\t#{mask}    Int + 1:#{int_or_nil(mask) + 1}")
-    end
-    
+  # This function an octet of an IPv4 address and the cooresponding octet of the
+  # IPv4 netmask and returns the appropreate subnet octet.
+  #
+  # @net  [integer class] IPv4 address octet
+  # @mask [integer class] Ipv4 netmask octet
+  #
+  # @return [integer class] Integer representation of the number string
+  # @return [nil class] string contains non-numbers, cannot convert
+  def get_subnet_octet(net, mask)
+    subnet_range = 256 - mask  #This is the address space of the coorisponding subnet octet
+
+    multi = net / subnet_range #Integer division to get the multiplier needed to deturmine subnet octet
+
+    octet = subnet_range * multi
+    print_status("\tSubnet_Range: #{subnet_range}    Multi: #{multi}   Octet:#{octet}")
   end
 
   # This function takes a string of numbers and converts it to an integer.
   #
+  # @string [string class] Input string, needs to be all numbers (0..9)
   # @return [integer class] Integer representation of the number string
   # @return [nil class] string contains non-numbers, cannot convert
   def int_or_nil(string)
