@@ -16,9 +16,13 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{This module manages session routing via an existing
           Meterpreter session. It enables other modules to 'pivot' through a
           compromised host when connecting to the named NETWORK and SUBMASK.
-          Autoadd will search session for valid subnets and add a route to them.},
+          Autoadd will search a session for valid subnets from the routing table
+          and interface list then add routes to them. Default will add a default 
+          route so that all TCP/IP traffic not specified in the MSF routing table
+          will be routed through the session when pivoting. See documentation for more
+          'info -d' and click 'Knowledge Base'},
         'License'       => MSF_LICENSE,
-        'Author'        => 
+        'Author'        =>
            [
              'todb',
              'Josh Hale <jhale85446[at]gmail.com>'
@@ -31,7 +35,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('SUBNET', [false, 'Subnet (IPv4, for example, 10.10.10.0)', nil]),
         OptString.new('NETMASK', [false, 'Netmask (IPv4 as "255.255.255.0" or CIDR as "/24"', '255.255.255.0']),
-        OptEnum.new('CMD', [true, 'Specify the autoroute command', 'autoadd', ['add','autoadd','print','delete']])
+        OptEnum.new('CMD', [true, 'Specify the autoroute command', 'autoadd', ['add','autoadd','print','delete','default']])
       ], self.class)
   end
 
@@ -65,6 +69,8 @@ class MetasploitModule < Msf::Post
       end
     when :autoadd
       autoadd_routes
+    when :default
+      add_default
     when :delete
       if datastore['SUBNET']
         print_status("Deleting route to %s/%s..." % [datastore['SUBNET'],netmask])
@@ -163,7 +169,7 @@ class MetasploitModule < Msf::Post
     Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
   end
 
-  # This function will check if a subnet/netmask pair is routable
+  # This function will exclude loopback, multicast, and default routes
   #
   # @return [true]  if routable
   # @return [false] if not
@@ -179,7 +185,7 @@ class MetasploitModule < Msf::Post
     return true
   end
 
-  # This function will search for valid subnets on the target and attempt
+  # Search for valid subnets on the target and attempt
   # add a route to each. (Operation from auto_add_route plugin.)
   #
   # @return [void] A useful return value is not expected here
@@ -211,7 +217,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # This function will look at network interfaces as options for additional routes.
+  # Look at network interfaces as options for additional routes.
   # If the routes are not already included they will be added.
   #
   # @return [true] A route from the interface list was added
@@ -219,7 +225,7 @@ class MetasploitModule < Msf::Post
   def autoadd_interface_routes
     switch_board = Rex::Socket::SwitchBoard.instance
     found = false
-    
+
     session.net.config.each_interface do | interface | # Step through each of the network interfaces
 
       (0..(interface.addrs.size - 1)).each do | index | # Step through the addresses for the interface
@@ -252,21 +258,20 @@ class MetasploitModule < Msf::Post
     return found
   end
 
-  # This function will take an IP address and a netmask and return
-  # the appropreate subnet "Network"
+  # Take an IP address and a netmask and return the appropreate subnet "Network"
   #
   # @ip_addr [string class] Input IPv4 Address
   # @netmask [string class] Input IPv4 Netmask
   #
-  # @return [nil class] Something is out of range
   # @return [string class] The subnet related to the IP address and netmask
+  # @return [nil class] Something is out of range
   def get_subnet(ip_addr, netmask)
     return nil if !validate_cmd(ip_addr, netmask) #make sure IP and netmask are valid
 
     nets = ip_addr.split('.')
     masks = netmask.split('.')
     output = ""
-    
+
     (0..3).each do | index |
       octet = get_subnet_octet(int_or_nil(nets[index]), int_or_nil(masks[index]))
       return nil if !octet
@@ -276,7 +281,7 @@ class MetasploitModule < Msf::Post
     return output
   end
 
-  # This function an octet of an IPv4 address and the cooresponding octet of the
+  # Get an octet of an IPv4 address and the cooresponding octet of the
   # IPv4 netmask and returns the appropreate subnet octet.
   #
   # @net  [integer class] IPv4 address octet
@@ -291,17 +296,42 @@ class MetasploitModule < Msf::Post
 
     multi = net / subnet_range # Integer division to get the multiplier needed to determine subnet octet
 
-    return(subnet_range * multi) # Multiply to get subnet octet    
+    return(subnet_range * multi) # Multiply to get subnet octet
   end
 
-  # This function takes a string of numbers and converts it to an integer.
+  # Take a string of numbers and converts it to an integer.
   #
   # @string [string class] Input string, needs to be all numbers (0..9)
+  #
   # @return [integer class] Integer representation of the number string
   # @return [nil class] string contains non-numbers, cannot convert
   def int_or_nil(string)
     num = string.to_i
     num if num.to_s == string
+  end
+
+  # Add a default route to the routing table
+  #
+  # @return [void] A useful return value is not expected here
+  def add_default
+    subnet = '0.0.0.0'
+    mask = '0.0.0.0'
+
+    switch_board = Rex::Socket::SwitchBoard.instance
+    print_status("Attempting to add a default route.")
+
+    if !switch_board.route_exists?(subnet, mask)
+      begin
+        if Rex::Socket::SwitchBoard.add_route(subnet, mask, session)
+          print_good("Route added to subnet #{subnet}/#{mask}")
+        else
+          print_error("Could not add route to subnet #{subnet}/#{mask}")
+        end
+      rescue ::Rex::Post::Meterpreter::RequestError => error
+        print_error("Could not add route to subnet #{subnet}/(#{mask})")
+        print_error(error.to_s)
+      end
+    end
   end
 
   # Validates the command options
