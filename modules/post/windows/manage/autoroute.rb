@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
           Meterpreter session. It enables other modules to 'pivot' through a
           compromised host when connecting to the named NETWORK and SUBMASK.
           Autoadd will search a session for valid subnets from the routing table
-          and interface list then add routes to them. Default will add a default 
+          and interface list then add routes to them. Default will add a default
           route so that all TCP/IP traffic not specified in the MSF routing table
           will be routed through the session when pivoting. See documentation for more
           'info -d' and click 'Knowledge Base'},
