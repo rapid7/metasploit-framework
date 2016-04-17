@@ -200,13 +200,13 @@ class MetasploitModule < Msf::Post
       if !switch_board.route_exists?(route.subnet, route.netmask)
         begin
           if Rex::Socket::SwitchBoard.add_route(route.subnet, route.netmask, session)
-            print_good("Route added to subnet #{route.subnet}/#{route.netmask} from routing table.")
+            print_good("Route added to subnet #{route.subnet}/#{route.netmask} from host's routing table.")
             found = true
           else
-            print_error("Could not add route to subnet #{route.subnet}/#{route.netmask}")
+            print_error("Could not add route to subnet #{route.subnet}/#{route.netmask} from host's routing table.")
           end
         rescue ::Rex::Post::Meterpreter::RequestError => error
-          print_error("Could not add route to subnet #{route.subnet}/(#{route.netmask})")
+          print_error("Could not add route to subnet #{route.subnet}/(#{route.netmask}) from host's routing table.")
           print_error(error.to_s)
         end
       end
@@ -242,13 +242,13 @@ class MetasploitModule < Msf::Post
           if !switch_board.route_exists?(subnet, netmask)
             begin
               if Rex::Socket::SwitchBoard.add_route(subnet, netmask, session)
-                print_good("Route added to subnet #{subnet}/#{netmask} from interface list.")
+                print_good("Route added to subnet #{subnet}/#{netmask} from #{interface.mac_name}.")
                 found = true
               else
-                print_error("Could not add route to subnet #{subnet}/#{netmask}")
+                print_error("Could not add route to subnet #{subnet}/#{netmask} from #{interface.mac_name}")
               end
             rescue ::Rex::Post::Meterpreter::RequestError => error
-              print_error("Could not add route to subnet #{subnet}/(#{netmask})")
+              print_error("Could not add route to subnet #{subnet}/(#{netmask}) from #{interface.mac_name}")
               print_error(error.to_s)
             end
           end
