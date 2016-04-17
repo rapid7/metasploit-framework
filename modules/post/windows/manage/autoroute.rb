@@ -162,11 +162,9 @@ class MetasploitModule < Msf::Post
   def is_routable?(route)
     if route.subnet =~ /^224\.|127\./
       return false
-    elsif route.subnet =~ /[\d\.]+\.0$/
-      return false
     elsif route.subnet == '0.0.0.0'
       return false
-    elsif route.subnet == '255.255.255.255'
+    elsif route.netmask == '255.255.255.255'
       return false
     end
 

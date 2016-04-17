@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Nop
       0xe1a0b00b
     ]
 
-    if( random and random.match(/^(t|y|1)/i) )
+    if random
       return ([nops[rand(nops.length)]].pack("V*") * (length/4))
     end
 

@@ -134,6 +134,7 @@ module Parser
         vuln_info[:info] = @state[:vuln_desc]
         vuln_info[:port] = @state[:port]
         vuln_info[:proto] = @state[:proto]
+        vuln_info[:workspace] = @args[:wspace]
 
         db_report(:vuln, vuln_info)
       end
@@ -147,6 +148,7 @@ module Parser
         vuln_info[:info] = @state[:vuln_desc]
         vuln_info[:port] = @state[:port]
         vuln_info[:proto] = @state[:proto]
+        vuln_info[:workspace] = @args[:wspace]
 
         db_report(:vuln, vuln_info)
       end
@@ -159,11 +161,13 @@ module Parser
     service_info[:name] = @state[:name]
     service_info[:port] = @state[:port]
     service_info[:proto] = @state[:proto]
+    service_info[:workspace] = @args[:wspace]
 
     db_report(:service, service_info)
 
     host_info = {}
     host_info[:host] = @state[:host]
+    host_info[:workspace] = @args[:wspace]
 
     db_report(:host, host_info)
   end
