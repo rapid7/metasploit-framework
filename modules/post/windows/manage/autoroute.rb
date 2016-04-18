@@ -171,8 +171,11 @@ class MetasploitModule < Msf::Post
 
   # This function will exclude loopback, multicast, and default routes
   #
-  # @return [true]  if routable
-  # @return [false] if not
+  # @subnet [string class] IPv4 subnet or address to check
+  # @netmask [string class] IPv4 netmask to check
+  #
+  # @return [true]  If good to add
+  # @return [false] If not
   def is_routable?(subnet, netmask)
     if subnet =~ /^224\.|127\./
       return false
@@ -281,8 +284,8 @@ class MetasploitModule < Msf::Post
     return output
   end
 
-  # Get an octet of an IPv4 address and the cooresponding octet of the
-  # IPv4 netmask and returns the appropreate subnet octet.
+  # Input an octet of an IPv4 address and the cooresponding octet of the
+  # IPv4 netmask then return the appropreate subnet octet.
   #
   # @net  [integer class] IPv4 address octet
   # @mask [integer class] Ipv4 netmask octet
