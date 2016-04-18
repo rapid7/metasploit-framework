@@ -243,53 +243,45 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     doc.each do |node|
       case node.name
         when 'host'
-          parse_host(Nokogiri::XML(node.outer_xml).at('./host'), wspace, bl, allow_yaml, btag, args, &block)
-      end
-    end
-
-    # require 'pry'
-    # binding.pry
-
-    # Import web sites
-    doc.elements.each("/#{btag}/web_sites/web_site") do |web|
-      info = {}
-      info[:workspace] = wspace
-
-      %W{host port vhost ssl comments}.each do |datum|
-        if web.at(datum).respond_to? :text
-          info[datum.intern] = nils_for_nulls(web.at(datum).text.to_s.strip)
-        end
-      end
-
-      info[:options]   = nils_for_nulls(unserialize_object(web.at("options"), allow_yaml)) if web.at("options").respond_to?(:text)
-      info[:ssl]       = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
-
-      %W{created-at updated-at}.each { |datum|
-        if web.at(datum).text
-          info[datum.gsub("-","_")] = nils_for_nulls(web.at(datum).text.to_s.strip)
-        end
-      }
-
-      report_web_site(info)
-      yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
-    end
-
-    %W{page form vuln}.each do |wtype|
-      doc.elements.each("/#{btag}/web_#{wtype}s/web_#{wtype}") do |element|
-        send(
-            "import_msf_web_#{wtype}_element",
-            element,
-            :allow_yaml => allow_yaml,
-            :workspace => wspace,
-            &block
-        )
+          parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+        when 'web_site'
+          parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+        when 'web_page', 'web_form', 'web_vuln'
+          send(
+              "import_msf_#{node.name}_element",
+              Nokogiri::XML(node.outer_xml).at("./#{node.name}"),
+              :allow_yaml => allow_yaml,
+              :workspace => wspace,
+              &block
+          )
       end
     end
   end
 
   private
 
-  def node_elements_to_hash()
+  def parse_web_site(web, wspace, bl, allow_yaml, btag, args, &block)
+    # Import web sites
+    info = {}
+    info[:workspace] = wspace
+
+    %W{host port vhost ssl comments}.each do |datum|
+      if web.at(datum).respond_to? :text
+        info[datum.intern] = nils_for_nulls(web.at(datum).text.to_s.strip)
+      end
+    end
+
+    info[:options]   = nils_for_nulls(unserialize_object(web.at("options"), allow_yaml)) if web.at("options").respond_to?(:text)
+    info[:ssl]       = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
+
+    %W{created-at updated-at}.each { |datum|
+      if web.at(datum).text
+        info[datum.gsub("-","_")] = nils_for_nulls(web.at(datum).text.to_s.strip)
+      end
+    }
+
+    report_web_site(info)
+    yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
   end
 
   def parse_host(host, wspace, bl, allow_yaml, btag, args, &block)
@@ -582,7 +574,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # @return [nil] if element with `child_name` does not exist under
   #   `parent_element`.
   def import_msf_text_element(parent_element, child_name)
-    child_element = parent_element.at(child.name)
+    child_element = parent_element.at(child_name)
     info = {}
 
     if child_element
