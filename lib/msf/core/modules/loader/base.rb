@@ -418,7 +418,7 @@ class Msf::Modules::Loader::Base
   # Records the load warning to {Msf::ModuleManager::Loading#module_load_warnings} and the log.
   #
   # @param [String] module_path Path to the module as returned by {#module_path}.
-  # @param [String] Error message that caused the warning.
+  # @param [String] error Error message that caused the warning.
   # @return [void]
   #
   # @see #module_path
