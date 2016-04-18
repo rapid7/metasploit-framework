@@ -132,6 +132,7 @@ module Handler
   # the payload.  This path will not be taken for multi-staged payloads.
   #
   def handle_connection(conn, opts={})
+    STDERR.puts("Creating connection in handler.rb!\n")
     create_session(conn, opts)
   end
 
@@ -192,15 +193,20 @@ protected
   # associated session.
   #
   def create_session(conn, opts={})
+    STDERR.puts("create_session here!\n")
     # If there is a parent payload, then use that in preference.
     return parent_payload.create_session(conn, opts) if (parent_payload)
+    STDERR.puts("No parent payload, so continuing\n")
 
     # If the payload we merged in with has an associated session factory,
     # allocate a new session.
-    if (self.session)
+    if (self.session_klass)
       begin
-        s = self.session.new(conn, opts)
+        STDERR.puts("Creating a new session via self.session_klass #{self.session_klass.inspect}\n")
+        s = self.session_klass.new(conn, opts)
+        STDERR.puts("Creating a new session via self.session_klass succeeded: #{s.inspect}\n")
       rescue ::Exception => e
+        STDERR.puts("Creating a new session via self.session_klass failed: #{e.inspect}\n")
         # We just wanna show and log the error, not trying to swallow it.
         print_error("#{e.class} #{e.message}")
         elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
@@ -220,6 +226,7 @@ protected
       # If the session is valid, register it with the framework and
       # notify any waiters we may have.
       if (s)
+        STDERR.puts("Attempting to register the session\n")
         register_session(s)
       end
 

@@ -45,13 +45,16 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   # that is to be used as the client's connection to the server.
   #
   def initialize(rstream, opts={})
+    STDERR.puts("Inside the meterp session init\n")
     super
 
+    STDERR.puts("updating capabilities\n")
     opts[:capabilities] = {
       :ssl => supports_ssl?,
       :zlib => supports_zlib?
     }
 
+    STDERR.puts("skip ssl bit\n")
     # The caller didn't request to skip ssl, so make sure we support it
     if not opts[:skip_ssl]
       opts.merge!(:skip_ssl => (not supports_ssl?))
@@ -61,6 +64,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # Parse options passed in via the datastore
     #
 
+    STDERR.puts("ssl handler cert stuff\n")
     # Extract the HandlerSSLCert option if specified by the user
     if opts[:datastore] and opts[:datastore]['HandlerSSLCert']
       opts[:ssl_cert] = opts[:datastore]['HandlerSSLCert']
@@ -72,11 +76,13 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     #
     # Initialize the meterpreter client
     #
+    STDERR.puts("init meterp\n")
     self.init_meterpreter(rstream, opts)
 
     #
     # Create the console instance
     #
+    STDERR.puts("new console\n")
     self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
   end
 

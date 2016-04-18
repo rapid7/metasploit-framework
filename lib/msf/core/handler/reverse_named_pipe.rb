@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'thread'
+require 'msf/core/post_mixin'
 
 module Msf
 module Handler
@@ -14,8 +15,10 @@ module Handler
 #
 ###
 module ReverseNamedPipe
+
   include Msf::Handler
-  include Msf::Handler::Reverse::Comm
+  #include Msf::Handler::Reverse::Comm
+  include Msf::PostMixin
 
   #
   # Returns the string representation of the handler type, in this case
@@ -81,23 +84,25 @@ module ReverseNamedPipe
   def start_handler
     queue = ::Queue.new
 
-    local_port = bind_port
+    server_pipe = session.net.named_pipe.create({listen: true, name: datastore['PIPENAME']})
 
-    handler_name = "ReverseNamedPipeHandlerListener-#{pipe_name}"
-    self.listener_thread = framework.threads.spawn(handler_name, false, queue) { |lqueue|
+    self.listener_thread = framework.threads.spawn(listener_name, false, queue) { |lqueue|
       loop do
         # Accept a client connection
         begin
-          client = listener_sock.accept
-          if client
+          channel = server_pipe.accept
+          STDERR.puts("accepted a channel connection: #{channel.inspect}")
+          if channel
             self.pending_connections += 1
-            lqueue.push(client)
+            STDERR.puts("adding client channel")
+            lqueue.push(channel)
+            STDERR.puts("added client channel")
           end
         rescue Errno::ENOTCONN
           nil
         rescue StandardError => e
           wlog [
-            "#{handler_name}: Exception raised during listener accept: #{e.class}",
+            "#{listener_name}: Exception raised during listener accept: #{e.class}",
             "#{$ERROR_INFO}",
             "#{$ERROR_POSITION.join("\n")}"
           ].join("\n")
@@ -105,78 +110,37 @@ module ReverseNamedPipe
       end
     }
 
-    worker_name = "ReverseNamedPipeHandlerWorker-#{pipe_name}"
     self.handler_thread = framework.threads.spawn(worker_name, false, queue) { |cqueue|
       loop do
         begin
-          client = cqueue.pop
+          STDERR.puts("waiting for a channel\n")
+          channel = cqueue.pop
+          STDERR.puts("channel client : #{channel.inspect}\n")
 
-          unless client
+          unless channel
             elog("#{worker_name}: Queue returned an empty result, exiting...")
           end
 
-          # Timeout and datastore options need to be passed through to the client
+          # Timeout and datastore options need to be passed through to the channel
           opts = {
             datastore:     datastore,
+            channel:       channel,
+            skip_ssl:      true,
             expiration:    datastore['SessionExpirationTimeout'].to_i,
             comm_timeout:  datastore['SessionCommunicationTimeout'].to_i,
             retry_total:   datastore['SessionRetryTotal'].to_i,
             retry_wait:    datastore['SessionRetryWait'].to_i
           }
 
-          #handle_connection(wrap_aes_socket(client), opts)
+          # pass this right through to the handler, the channel should "just work"
+          STDERR.puts("Invoking handle_connection\n")
+          STDERR.puts("opts : #{opts.inspect}\n")
+          handle_connection(channel.lsock, opts)
         rescue StandardError
           elog("Exception raised from handle_connection: #{$ERROR_INFO.class}: #{$ERROR_INFO}\n\n#{$ERROR_POSITION.join("\n")}")
         end
       end
     }
-  end
-
-  def wrap_aes_socket(sock)
-    if datastore["PAYLOAD"] !~ %r{java/} || (datastore["AESPassword"] || "") == ""
-      return sock
-    end
-
-    socks = Rex::Socket.tcp_socket_pair
-    socks[0].extend(Rex::Socket::Tcp)
-    socks[1].extend(Rex::Socket::Tcp)
-
-    m = OpenSSL::Digest.new('md5')
-    m.reset
-    key = m.digest(datastore["AESPassword"] || "")
-
-    Rex::ThreadFactory.spawn('Session-AESEncrypt', false) do
-      c1 = OpenSSL::Cipher.new('aes-128-cfb8')
-      c1.encrypt
-      c1.key = key
-      sock.put([0].pack('N'))
-      sock.put((c1.iv = c1.random_iv))
-      buf1 = socks[0].read(4096)
-      while buf1 && buf1 != ""
-        sock.put(c1.update(buf1))
-        buf1 = socks[0].read(4096)
-      end
-      sock.close
-    end
-
-    Rex::ThreadFactory.spawn('Session-AESDecrypt', false) do
-      c2 = OpenSSL::Cipher.new('aes-128-cfb8')
-      c2.decrypt
-      c2.key = key
-
-      iv = ""
-      iv << sock.read(16 - iv.length) while iv.length < 16
-
-      c2.iv = iv
-      buf2 = sock.read(4096)
-      while buf2 && buf2 != ""
-        socks[0].put(c2.update(buf2))
-        buf2 = sock.read(4096)
-      end
-      socks[0].close
-    end
-
-    socks[1]
   end
 
   #
@@ -189,9 +153,10 @@ module ReverseNamedPipe
     # Terminate the handler thread
     handler_thread.kill if handler_thread && handler_thread.alive? == true
 
-    if listener_sock
+    if server_pipe
       begin
-        listener_sock.close
+        STDERR.puts("Closing the server pipe\n")
+        server_pipe.close
       rescue IOError
         # Ignore if it's listening on a dead session
         dlog("IOError closing listener sock; listening on dead session?", LEV_1)
@@ -199,9 +164,19 @@ module ReverseNamedPipe
     end
   end
 
-  protected
+protected
 
-  attr_accessor :listener_sock # :nodoc:
+  def listener_name
+    @listener_name |= "ReverseNamedPipeHandlerListener-#{pipe_name}-#{datastore['SESSION']}"
+    @listener_name
+  end
+
+  def worker_name
+    @worker_name |= "ReverseNamedPipeHandlerWorker-#{pipe_name}-#{datastore['SESSION']}"
+    @worker_name
+  end
+
+  attr_accessor :server_pipe # :nodoc:
   attr_accessor :listener_thread # :nodoc:
   attr_accessor :handler_thread # :nodoc:
   attr_accessor :conn_threads # :nodoc:

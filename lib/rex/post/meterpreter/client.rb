@@ -104,6 +104,7 @@ class Client
   # Initializes the meterpreter client instance
   #
   def init_meterpreter(sock,opts={})
+    STDERR.puts("init_meterp: 1\n")
     self.sock         = sock
     self.parser       = PacketParser.new
     self.ext          = ObjectAliases.new
@@ -113,6 +114,7 @@ class Client
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
     self.last_checkin = Time.now
+    STDERR.puts("init_meterp: 2\n")
 
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
@@ -122,6 +124,7 @@ class Client
     self.retry_total  = opts[:retry_total]
     self.retry_wait   = opts[:retry_wait]
     self.passive_dispatcher = opts[:passive_dispatcher]
+    STDERR.puts("init_meterp: 3\n")
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
     self.send_keepalives  = true
@@ -131,6 +134,7 @@ class Client
     self.encode_unicode = false
 
     # The SSL certificate is being passed down as a file path
+    STDERR.puts("init_meterp: 4\n")
     if opts[:ssl_cert]
       if ! ::File.exists? opts[:ssl_cert]
         elog("SSL certificate at #{opts[:ssl_cert]} does not exist and will be ignored")
@@ -141,28 +145,39 @@ class Client
     end
 
     if opts[:passive_dispatcher]
+      STDERR.puts("init_meterp: 5\n")
       initialize_passive_dispatcher
 
+      STDERR.puts("init_meterp: 6\n")
       register_extension_alias('core', ClientCore.new(self))
 
+      STDERR.puts("init_meterp: 7\n")
       initialize_inbound_handlers
+      STDERR.puts("init_meterp: 8\n")
       initialize_channels
 
       # Register the channel inbound packet handler
       register_inbound_handler(Rex::Post::Meterpreter::Channel)
+      STDERR.puts("init_meterp: 9\n")
     else
+      STDERR.puts("init_meterp: 10\n")
       # Switch the socket to SSL mode and receive the hello if needed
       if capabilities[:ssl] and not opts[:skip_ssl]
         swap_sock_plain_to_ssl()
       end
 
+      STDERR.puts("init_meterp: 11\n")
       register_extension_alias('core', ClientCore.new(self))
 
+      STDERR.puts("init_meterp: 12\n")
       initialize_inbound_handlers
+      STDERR.puts("init_meterp: 13\n")
       initialize_channels
 
+      STDERR.puts("init_meterp: 14\n")
       # Register the channel inbound packet handler
       register_inbound_handler(Rex::Post::Meterpreter::Channel)
+      STDERR.puts("init_meterp: 15\n")
 
       monitor_socket
     end
