@@ -11,18 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150514182921) do
+ActiveRecord::Schema.define(version: 20160415153312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "api_keys", force: true do |t|
+  create_table "api_keys", force: :cascade do |t|
     t.text     "token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "automatic_exploitation_match_results", force: true do |t|
+  create_table "automatic_exploitation_match_results", force: :cascade do |t|
     t.integer  "match_id"
     t.integer  "run_id"
     t.string   "state",      null: false
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "automatic_exploitation_match_results", ["match_id"], name: "index_automatic_exploitation_match_results_on_match_id", using: :btree
   add_index "automatic_exploitation_match_results", ["run_id"], name: "index_automatic_exploitation_match_results_on_run_id", using: :btree
 
-  create_table "automatic_exploitation_match_sets", force: true do |t|
+  create_table "automatic_exploitation_match_sets", force: :cascade do |t|
     t.integer  "workspace_id"
     t.integer  "user_id"
     t.datetime "created_at",   null: false
@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "automatic_exploitation_match_sets", ["user_id"], name: "index_automatic_exploitation_match_sets_on_user_id", using: :btree
   add_index "automatic_exploitation_match_sets", ["workspace_id"], name: "index_automatic_exploitation_match_sets_on_workspace_id", using: :btree
 
-  create_table "automatic_exploitation_matches", force: true do |t|
+  create_table "automatic_exploitation_matches", force: :cascade do |t|
     t.integer  "module_detail_id"
     t.string   "state"
     t.integer  "nexpose_data_vulnerability_definition_id"
@@ -58,7 +58,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "automatic_exploitation_matches", ["module_detail_id"], name: "index_automatic_exploitation_matches_on_module_detail_id", using: :btree
   add_index "automatic_exploitation_matches", ["module_fullname"], name: "index_automatic_exploitation_matches_on_module_fullname", using: :btree
 
-  create_table "automatic_exploitation_runs", force: true do |t|
+  create_table "automatic_exploitation_runs", force: :cascade do |t|
     t.integer  "workspace_id"
     t.integer  "user_id"
     t.integer  "match_set_id"
@@ -70,7 +70,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "automatic_exploitation_runs", ["user_id"], name: "index_automatic_exploitation_runs_on_user_id", using: :btree
   add_index "automatic_exploitation_runs", ["workspace_id"], name: "index_automatic_exploitation_runs_on_workspace_id", using: :btree
 
-  create_table "clients", force: true do |t|
+  create_table "clients", force: :cascade do |t|
     t.integer  "host_id"
     t.datetime "created_at"
     t.string   "ua_string",  limit: 1024, null: false
@@ -79,17 +79,17 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.datetime "updated_at"
   end
 
-  create_table "credential_cores_tasks", id: false, force: true do |t|
+  create_table "credential_cores_tasks", id: false, force: :cascade do |t|
     t.integer "core_id"
     t.integer "task_id"
   end
 
-  create_table "credential_logins_tasks", id: false, force: true do |t|
+  create_table "credential_logins_tasks", id: false, force: :cascade do |t|
     t.integer "login_id"
     t.integer "task_id"
   end
 
-  create_table "creds", force: true do |t|
+  create_table "creds", force: :cascade do |t|
     t.integer  "service_id",                              null: false
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
@@ -102,7 +102,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.string   "source_type"
   end
 
-  create_table "events", force: true do |t|
+  create_table "events", force: :cascade do |t|
     t.integer  "workspace_id"
     t.integer  "host_id"
     t.datetime "created_at"
@@ -114,7 +114,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.text     "info"
   end
 
-  create_table "exploit_attempts", force: true do |t|
+  create_table "exploit_attempts", force: :cascade do |t|
     t.integer  "host_id"
     t.integer  "service_id"
     t.integer  "vuln_id"
@@ -130,7 +130,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.text     "fail_detail"
   end
 
-  create_table "exploited_hosts", force: true do |t|
+  create_table "exploited_hosts", force: :cascade do |t|
     t.integer  "host_id",                   null: false
     t.integer  "service_id"
     t.string   "session_uuid", limit: 8
@@ -140,7 +140,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.datetime "updated_at",                null: false
   end
 
-  create_table "host_details", force: true do |t|
+  create_table "host_details", force: :cascade do |t|
     t.integer "host_id"
     t.integer "nx_console_id"
     t.integer "nx_device_id"
@@ -151,7 +151,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.float   "nx_risk_score"
   end
 
-  create_table "hosts", force: true do |t|
+  create_table "hosts", force: :cascade do |t|
     t.datetime "created_at"
     t.inet     "address",                                         null: false
     t.string   "mac"
@@ -186,12 +186,12 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "hosts", ["state"], name: "index_hosts_on_state", using: :btree
   add_index "hosts", ["workspace_id", "address"], name: "index_hosts_on_workspace_id_and_address", unique: true, using: :btree
 
-  create_table "hosts_tags", force: true do |t|
+  create_table "hosts_tags", force: :cascade do |t|
     t.integer "host_id"
     t.integer "tag_id"
   end
 
-  create_table "listeners", force: true do |t|
+  create_table "listeners", force: :cascade do |t|
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.integer  "workspace_id", default: 1,    null: false
@@ -205,7 +205,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.text     "macro"
   end
 
-  create_table "loots", force: true do |t|
+  create_table "loots", force: :cascade do |t|
     t.integer  "workspace_id",               default: 1, null: false
     t.integer  "host_id"
     t.integer  "service_id"
@@ -222,7 +222,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "loots", ["module_run_id"], name: "index_loots_on_module_run_id", using: :btree
 
-  create_table "macros", force: true do |t|
+  create_table "macros", force: :cascade do |t|
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
     t.text     "owner"
@@ -232,7 +232,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.binary   "prefs"
   end
 
-  create_table "metasploit_credential_cores", force: true do |t|
+  create_table "metasploit_credential_cores", force: :cascade do |t|
     t.integer  "origin_id",                null: false
     t.string   "origin_type",              null: false
     t.integer  "private_id"
@@ -256,7 +256,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "public_id"], name: "unique_privateless_metasploit_credential_cores", unique: true, where: "(((realm_id IS NOT NULL) AND (public_id IS NOT NULL)) AND (private_id IS NULL))", using: :btree
   add_index "metasploit_credential_cores", ["workspace_id"], name: "index_metasploit_credential_cores_on_workspace_id", using: :btree
 
-  create_table "metasploit_credential_logins", force: true do |t|
+  create_table "metasploit_credential_logins", force: :cascade do |t|
     t.integer  "core_id",           null: false
     t.integer  "service_id",        null: false
     t.string   "access_level"
@@ -269,7 +269,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "metasploit_credential_logins", ["core_id", "service_id"], name: "index_metasploit_credential_logins_on_core_id_and_service_id", unique: true, using: :btree
   add_index "metasploit_credential_logins", ["service_id", "core_id"], name: "index_metasploit_credential_logins_on_service_id_and_core_id", unique: true, using: :btree
 
-  create_table "metasploit_credential_origin_cracked_passwords", force: true do |t|
+  create_table "metasploit_credential_origin_cracked_passwords", force: :cascade do |t|
     t.integer  "metasploit_credential_core_id", null: false
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
@@ -277,7 +277,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "metasploit_credential_origin_cracked_passwords", ["metasploit_credential_core_id"], name: "originating_credential_cores", using: :btree
 
-  create_table "metasploit_credential_origin_imports", force: true do |t|
+  create_table "metasploit_credential_origin_imports", force: :cascade do |t|
     t.text     "filename",   null: false
     t.integer  "task_id"
     t.datetime "created_at", null: false
@@ -286,7 +286,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "metasploit_credential_origin_imports", ["task_id"], name: "index_metasploit_credential_origin_imports_on_task_id", using: :btree
 
-  create_table "metasploit_credential_origin_manuals", force: true do |t|
+  create_table "metasploit_credential_origin_manuals", force: :cascade do |t|
     t.integer  "user_id",    null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -294,7 +294,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "metasploit_credential_origin_manuals", ["user_id"], name: "index_metasploit_credential_origin_manuals_on_user_id", using: :btree
 
-  create_table "metasploit_credential_origin_services", force: true do |t|
+  create_table "metasploit_credential_origin_services", force: :cascade do |t|
     t.integer  "service_id",       null: false
     t.text     "module_full_name", null: false
     t.datetime "created_at",       null: false
@@ -303,7 +303,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "metasploit_credential_origin_services", ["service_id", "module_full_name"], name: "unique_metasploit_credential_origin_services", unique: true, using: :btree
 
-  create_table "metasploit_credential_origin_sessions", force: true do |t|
+  create_table "metasploit_credential_origin_sessions", force: :cascade do |t|
     t.text     "post_reference_name", null: false
     t.integer  "session_id",          null: false
     t.datetime "created_at",          null: false
@@ -312,7 +312,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "metasploit_credential_origin_sessions", ["session_id", "post_reference_name"], name: "unique_metasploit_credential_origin_sessions", unique: true, using: :btree
 
-  create_table "metasploit_credential_privates", force: true do |t|
+  create_table "metasploit_credential_privates", force: :cascade do |t|
     t.string   "type",       null: false
     t.text     "data",       null: false
     t.datetime "created_at", null: false
@@ -322,7 +322,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "metasploit_credential_privates", ["type", "data"], name: "index_metasploit_credential_privates_on_type_and_data", unique: true, using: :btree
 
-  create_table "metasploit_credential_publics", force: true do |t|
+  create_table "metasploit_credential_publics", force: :cascade do |t|
     t.string   "username",   null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -331,7 +331,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "metasploit_credential_publics", ["username"], name: "index_metasploit_credential_publics_on_username", unique: true, using: :btree
 
-  create_table "metasploit_credential_realms", force: true do |t|
+  create_table "metasploit_credential_realms", force: :cascade do |t|
     t.string   "key",        null: false
     t.string   "value",      null: false
     t.datetime "created_at", null: false
@@ -340,27 +340,27 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "metasploit_credential_realms", ["key", "value"], name: "index_metasploit_credential_realms_on_key_and_value", unique: true, using: :btree
 
-  create_table "mod_refs", force: true do |t|
+  create_table "mod_refs", force: :cascade do |t|
     t.string "module", limit: 1024
     t.string "mtype",  limit: 128
     t.text   "ref"
   end
 
-  create_table "module_actions", force: true do |t|
+  create_table "module_actions", force: :cascade do |t|
     t.integer "detail_id"
     t.text    "name"
   end
 
   add_index "module_actions", ["detail_id"], name: "index_module_actions_on_detail_id", using: :btree
 
-  create_table "module_archs", force: true do |t|
+  create_table "module_archs", force: :cascade do |t|
     t.integer "detail_id"
     t.text    "name"
   end
 
   add_index "module_archs", ["detail_id"], name: "index_module_archs_on_detail_id", using: :btree
 
-  create_table "module_authors", force: true do |t|
+  create_table "module_authors", force: :cascade do |t|
     t.integer "detail_id"
     t.text    "name"
     t.text    "email"
@@ -368,7 +368,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "module_authors", ["detail_id"], name: "index_module_authors_on_detail_id", using: :btree
 
-  create_table "module_details", force: true do |t|
+  create_table "module_details", force: :cascade do |t|
     t.datetime "mtime"
     t.text     "file"
     t.string   "mtype"
@@ -391,21 +391,21 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "module_details", ["name"], name: "index_module_details_on_name", using: :btree
   add_index "module_details", ["refname"], name: "index_module_details_on_refname", using: :btree
 
-  create_table "module_mixins", force: true do |t|
+  create_table "module_mixins", force: :cascade do |t|
     t.integer "detail_id"
     t.text    "name"
   end
 
   add_index "module_mixins", ["detail_id"], name: "index_module_mixins_on_detail_id", using: :btree
 
-  create_table "module_platforms", force: true do |t|
+  create_table "module_platforms", force: :cascade do |t|
     t.integer "detail_id"
     t.text    "name"
   end
 
   add_index "module_platforms", ["detail_id"], name: "index_module_platforms_on_detail_id", using: :btree
 
-  create_table "module_refs", force: true do |t|
+  create_table "module_refs", force: :cascade do |t|
     t.integer "detail_id"
     t.text    "name"
   end
@@ -413,7 +413,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "module_refs", ["detail_id"], name: "index_module_refs_on_detail_id", using: :btree
   add_index "module_refs", ["name"], name: "index_module_refs_on_name", using: :btree
 
-  create_table "module_runs", force: true do |t|
+  create_table "module_runs", force: :cascade do |t|
     t.datetime "attempted_at"
     t.text     "fail_detail"
     t.string   "fail_reason"
@@ -433,7 +433,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "module_runs", ["session_id"], name: "index_module_runs_on_session_id", using: :btree
   add_index "module_runs", ["user_id"], name: "index_module_runs_on_user_id", using: :btree
 
-  create_table "module_targets", force: true do |t|
+  create_table "module_targets", force: :cascade do |t|
     t.integer "detail_id"
     t.integer "index"
     t.text    "name"
@@ -441,7 +441,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "module_targets", ["detail_id"], name: "index_module_targets_on_detail_id", using: :btree
 
-  create_table "nexpose_consoles", force: true do |t|
+  create_table "nexpose_consoles", force: :cascade do |t|
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.boolean  "enabled",      default: true
@@ -457,7 +457,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.text     "name"
   end
 
-  create_table "notes", force: true do |t|
+  create_table "notes", force: :cascade do |t|
     t.datetime "created_at"
     t.string   "ntype",        limit: 512
     t.integer  "workspace_id",             default: 1, null: false
@@ -473,7 +473,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "notes", ["ntype"], name: "index_notes_on_ntype", using: :btree
   add_index "notes", ["vuln_id"], name: "index_notes_on_vuln_id", using: :btree
 
-  create_table "profiles", force: true do |t|
+  create_table "profiles", force: :cascade do |t|
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
     t.boolean  "active",     default: true
@@ -482,7 +482,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.binary   "settings"
   end
 
-  create_table "refs", force: true do |t|
+  create_table "refs", force: :cascade do |t|
     t.integer  "ref_id"
     t.datetime "created_at"
     t.string   "name",       limit: 512
@@ -491,7 +491,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "refs", ["name"], name: "index_refs_on_name", using: :btree
 
-  create_table "report_templates", force: true do |t|
+  create_table "report_templates", force: :cascade do |t|
     t.integer  "workspace_id",              default: 1, null: false
     t.string   "created_by"
     t.string   "path",         limit: 1024
@@ -500,7 +500,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.datetime "updated_at",                            null: false
   end
 
-  create_table "reports", force: true do |t|
+  create_table "reports", force: :cascade do |t|
     t.integer  "workspace_id",               default: 1, null: false
     t.string   "created_by"
     t.string   "rtype"
@@ -513,13 +513,13 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.string   "name",          limit: 63
   end
 
-  create_table "routes", force: true do |t|
+  create_table "routes", force: :cascade do |t|
     t.integer "session_id"
     t.string  "subnet"
     t.string  "netmask"
   end
 
-  create_table "services", force: true do |t|
+  create_table "services", force: :cascade do |t|
     t.integer  "host_id"
     t.datetime "created_at"
     t.integer  "port",                  null: false
@@ -536,7 +536,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "services", ["proto"], name: "index_services_on_proto", using: :btree
   add_index "services", ["state"], name: "index_services_on_state", using: :btree
 
-  create_table "session_events", force: true do |t|
+  create_table "session_events", force: :cascade do |t|
     t.integer  "session_id"
     t.string   "etype"
     t.binary   "command"
@@ -546,7 +546,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.datetime "created_at"
   end
 
-  create_table "sessions", force: true do |t|
+  create_table "sessions", force: :cascade do |t|
     t.integer  "host_id"
     t.string   "stype"
     t.string   "via_exploit"
@@ -565,7 +565,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "sessions", ["module_run_id"], name: "index_sessions_on_module_run_id", using: :btree
 
-  create_table "tags", force: true do |t|
+  create_table "tags", force: :cascade do |t|
     t.integer  "user_id"
     t.string   "name",           limit: 1024
     t.text     "desc"
@@ -576,35 +576,35 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.datetime "updated_at",                                  null: false
   end
 
-  create_table "task_creds", force: true do |t|
+  create_table "task_creds", force: :cascade do |t|
     t.integer  "task_id",    null: false
     t.integer  "cred_id",    null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "task_hosts", force: true do |t|
+  create_table "task_hosts", force: :cascade do |t|
     t.integer  "task_id",    null: false
     t.integer  "host_id",    null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "task_services", force: true do |t|
+  create_table "task_services", force: :cascade do |t|
     t.integer  "task_id",    null: false
     t.integer  "service_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "task_sessions", force: true do |t|
+  create_table "task_sessions", force: :cascade do |t|
     t.integer  "task_id",    null: false
     t.integer  "session_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "tasks", force: true do |t|
+  create_table "tasks", force: :cascade do |t|
     t.integer  "workspace_id",              default: 1, null: false
     t.string   "created_by"
     t.string   "module"
@@ -622,7 +622,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.binary   "settings"
   end
 
-  create_table "users", force: true do |t|
+  create_table "users", force: :cascade do |t|
     t.string   "username"
     t.string   "crypted_password"
     t.string   "password_salt"
@@ -637,7 +637,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.boolean  "admin",                            default: true, null: false
   end
 
-  create_table "vuln_attempts", force: true do |t|
+  create_table "vuln_attempts", force: :cascade do |t|
     t.integer  "vuln_id"
     t.datetime "attempted_at"
     t.boolean  "exploited"
@@ -649,7 +649,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.text     "fail_detail"
   end
 
-  create_table "vuln_details", force: true do |t|
+  create_table "vuln_details", force: :cascade do |t|
     t.integer  "vuln_id"
     t.float    "cvss_score"
     t.string   "cvss_vector"
@@ -674,7 +674,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.string   "nx_pci_compliance_status"
   end
 
-  create_table "vulns", force: true do |t|
+  create_table "vulns", force: :cascade do |t|
     t.integer  "host_id"
     t.integer  "service_id"
     t.datetime "created_at"
@@ -691,12 +691,12 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "vulns", ["name"], name: "index_vulns_on_name", using: :btree
   add_index "vulns", ["origin_id"], name: "index_vulns_on_origin_id", using: :btree
 
-  create_table "vulns_refs", force: true do |t|
+  create_table "vulns_refs", force: :cascade do |t|
     t.integer "ref_id"
     t.integer "vuln_id"
   end
 
-  create_table "web_forms", force: true do |t|
+  create_table "web_forms", force: :cascade do |t|
     t.integer  "web_site_id",              null: false
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
@@ -708,7 +708,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
 
   add_index "web_forms", ["path"], name: "index_web_forms_on_path", using: :btree
 
-  create_table "web_pages", force: true do |t|
+  create_table "web_pages", force: :cascade do |t|
     t.integer  "web_site_id", null: false
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
@@ -728,7 +728,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "web_pages", ["path"], name: "index_web_pages_on_path", using: :btree
   add_index "web_pages", ["query"], name: "index_web_pages_on_query", using: :btree
 
-  create_table "web_sites", force: true do |t|
+  create_table "web_sites", force: :cascade do |t|
     t.integer  "service_id",              null: false
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
@@ -741,13 +741,13 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "web_sites", ["options"], name: "index_web_sites_on_options", using: :btree
   add_index "web_sites", ["vhost"], name: "index_web_sites_on_vhost", using: :btree
 
-  create_table "web_vulns", force: true do |t|
+  create_table "web_vulns", force: :cascade do |t|
     t.integer  "web_site_id",              null: false
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
     t.text     "path",                     null: false
     t.string   "method",      limit: 1024, null: false
-    t.text     "params",                   null: false
+    t.text     "params"
     t.text     "pname"
     t.integer  "risk",                     null: false
     t.string   "name",        limit: 1024, null: false
@@ -766,7 +766,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
   add_index "web_vulns", ["name"], name: "index_web_vulns_on_name", using: :btree
   add_index "web_vulns", ["path"], name: "index_web_vulns_on_path", using: :btree
 
-  create_table "wmap_requests", force: true do |t|
+  create_table "wmap_requests", force: :cascade do |t|
     t.string   "host"
     t.inet     "address"
     t.integer  "port"
@@ -783,7 +783,7 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.datetime "updated_at"
   end
 
-  create_table "wmap_targets", force: true do |t|
+  create_table "wmap_targets", force: :cascade do |t|
     t.string   "host"
     t.inet     "address"
     t.integer  "port"
@@ -793,12 +793,12 @@ ActiveRecord::Schema.define(version: 20150514182921) do
     t.datetime "updated_at"
   end
 
-  create_table "workspace_members", id: false, force: true do |t|
+  create_table "workspace_members", id: false, force: :cascade do |t|
     t.integer "workspace_id", null: false
     t.integer "user_id",      null: false
   end
 
-  create_table "workspaces", force: true do |t|
+  create_table "workspaces", force: :cascade do |t|
     t.string   "name"
     t.datetime "created_at",                                    null: false
     t.datetime "updated_at",                                    null: false
