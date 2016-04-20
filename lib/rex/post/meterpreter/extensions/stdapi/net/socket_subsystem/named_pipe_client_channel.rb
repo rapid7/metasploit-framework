@@ -55,14 +55,7 @@ class NamedPipeClientChannel < Rex::Post::Meterpreter::Stream
   # Passes the channel initialization information up to the base class.
   #
   def initialize(client, cid, type, flags)
-    STDERR.puts("NP client: #{client.inspect}\n")
-    STDERR.puts("NP cid: #{cid.inspect}\n")
-    STDERR.puts("NP type: #{type.inspect}\n")
-    STDERR.puts("NP flags: #{flags.inspect}\n")
-
     super(client, cid, type, flags)
-
-    STDERR.puts("Parent initialised\n")
 
     lsock.extend(SocketInterface)
     lsock.extend(DirectChannelWrite)

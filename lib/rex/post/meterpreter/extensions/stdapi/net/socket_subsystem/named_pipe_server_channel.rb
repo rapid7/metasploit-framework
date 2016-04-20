@@ -41,11 +41,6 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
     pid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_PARENTID )
     name      = packet.get_tlv_value( TLV_TYPE_NAMED_PIPE_NAME )
 
-    STDERR.puts("New connection received on the named pipe")
-    STDERR.puts("cid : #{cid.inspect}\n")
-    STDERR.puts("pid : #{pid.inspect}\n")
-    STDERR.puts("name: #{name.inspect}\n")
-
     channel = client.find_channel(pid)
 
     return false if channel.nil?
@@ -54,13 +49,10 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
       'Comm'      => channel.client
     }
 
-    STDERR.puts("Creating new named pipe client\n")
     client_channel = NamedPipeClientChannel.new(client, pid, NamedPipeClientChannel, CHANNEL_FLAG_SYNCHRONOUS)
-    STDERR.puts("client_channel created\n")
 
     client_channel.params = params
 
-    STDERR.puts("queuing it up\n")
     @@server_channels[channel] ||= ::Queue.new
     @@server_channels[channel].enq(client_channel)
 
@@ -141,10 +133,7 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
 protected
 
   def _accept(nonblock = false)
-    STDERR.puts("waiting for a connection\n")
     result = @@server_channels[self].deq(nonblock)
-    STDERR.puts("accepted: #{result.inspect}\n")
-
     result
   end
 

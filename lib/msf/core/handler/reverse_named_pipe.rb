@@ -84,19 +84,20 @@ module ReverseNamedPipe
   def start_handler
     queue = ::Queue.new
 
-    server_pipe = session.net.named_pipe.create({listen: true, name: datastore['PIPENAME']})
+    server_pipe = session.net.named_pipe.create({
+      listen: true,
+      name:   datastore['PIPENAME'],
+      repeat: datastore['ExitOnSession'] == false
+    })
 
     self.listener_thread = framework.threads.spawn(listener_name, false, queue) { |lqueue|
       loop do
         # Accept a client connection
         begin
           channel = server_pipe.accept
-          STDERR.puts("accepted a channel connection: #{channel.inspect}")
           if channel
             self.pending_connections += 1
-            STDERR.puts("adding client channel")
             lqueue.push(channel)
-            STDERR.puts("added client channel")
           end
         rescue Errno::ENOTCONN
           nil
@@ -113,9 +114,7 @@ module ReverseNamedPipe
     self.handler_thread = framework.threads.spawn(worker_name, false, queue) { |cqueue|
       loop do
         begin
-          STDERR.puts("waiting for a channel\n")
           channel = cqueue.pop
-          STDERR.puts("channel client : #{channel.inspect}\n")
 
           unless channel
             elog("#{worker_name}: Queue returned an empty result, exiting...")
@@ -133,8 +132,6 @@ module ReverseNamedPipe
           }
 
           # pass this right through to the handler, the channel should "just work"
-          STDERR.puts("Invoking handle_connection\n")
-          STDERR.puts("opts : #{opts.inspect}\n")
           handle_connection(channel.lsock, opts)
         rescue StandardError
           elog("Exception raised from handle_connection: #{$ERROR_INFO.class}: #{$ERROR_INFO}\n\n#{$ERROR_POSITION.join("\n")}")
@@ -155,7 +152,6 @@ module ReverseNamedPipe
 
     if server_pipe
       begin
-        STDERR.puts("Closing the server pipe\n")
         server_pipe.close
       rescue IOError
         # Ignore if it's listening on a dead session
