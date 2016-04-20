@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env ruby -w
 # -*- coding: binary -*-
 #
 # This user interface provides users with a command console interface to the
