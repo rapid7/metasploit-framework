@@ -1,5 +1,5 @@
 #
-# Simple script to test a group of encoders against every exploit in the framework, 
+# Simple script to test a group of encoders against every exploit in the framework,
 # specifically for the exploits badchars, to see if a payload can be encoded. We ignore
 # the target arch/platform of the exploit as we just want to pull out real world bad chars.
 #
@@ -36,7 +36,7 @@ def encoder_v_payload( encoder_name, payload, verbose=false )
   success = 0
   fail    = 0
   EXPLOITS.each_module do | name, mod |
-  
+
     exploit = mod.new
     print_line( "\n#{encoder_name} v #{name} (#{ format_badchars( exploit.payload_badchars ) })" ) if verbose
     begin
@@ -54,7 +54,7 @@ end
 def generate_payload( name )
 
   payload = $msf.payloads.create( name )
-  
+
   # set options for a reverse_tcp payload
   payload.datastore['LHOST']    = '192.168.2.1'
   payload.datastore['RHOST']    = '192.168.2.254'
@@ -83,29 +83,29 @@ def run( encoders, payload_name, verbose=false )
     success, fail = encoder_v_payload( encoder_name, payload, verbose )
 
     table << [ encoder_name, success, fail ]
-    
+
   end
 
-  return table	
+  return table
 end
 
 if( $0 == __FILE__ )
 
   print_line( "[+] Starting.\n" )
 
-  encoders = [ 
-    'x86/bloxor', 
-    'x86/shikata_ga_nai', 
-    'x86/jmp_call_additive', 
-    'x86/fnstenv_mov', 
-    'x86/countdown', 
+  encoders = [
+    'x86/bloxor',
+    'x86/shikata_ga_nai',
+    'x86/jmp_call_additive',
+    'x86/fnstenv_mov',
+    'x86/countdown',
     'x86/call4_dword_xor'
   ]
 
   payload_name = 'windows/shell/reverse_tcp'
-  
+
   verbose = false
-  
+
   result_table = run( encoders, payload_name, verbose )
 
   print_line( "\n\n#{result_table.to_s}\n\n" )
@@ -115,4 +115,4 @@ end
 
 
 
-  
+
