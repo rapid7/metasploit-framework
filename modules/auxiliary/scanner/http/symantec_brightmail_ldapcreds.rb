@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
 
       'Author'         =>
         [
-          'Fakhir Karim Reda <karim.fakhir[at]gmail.com>',
+          'Fakhir Karim Reda <karim.fakhir[at]gmail.com>'
         ],
        'DefaultOptions' =>
         {
