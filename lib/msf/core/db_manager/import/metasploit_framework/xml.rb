@@ -233,7 +233,6 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     wspace = args[:wspace] || workspace
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-    #doc = rexmlify(data)
     doc = Nokogiri::XML::Reader.from_memory(data)
 
     metadata = check_msf_xml_version!(doc.first.name)
@@ -260,6 +259,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
   private
 
+  # Parses website Nokogiri::XML::Element
   def parse_web_site(web, wspace, bl, allow_yaml, btag, args, &block)
     # Import web sites
     info = {}
@@ -284,6 +284,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
   end
 
+  # Parses host Nokogiri::XML::Element
   def parse_host(host, wspace, bl, allow_yaml, btag, args, &block)
 
     host_data = {}

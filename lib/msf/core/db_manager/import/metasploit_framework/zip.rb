@@ -47,12 +47,14 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     end
   end
 
+  # Parses host Nokogiri::XML::Element
   def parse_zip_host(host, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
     if host.at("id")
       host_info[host.at("id").text.to_s.strip] = nils_for_nulls(host.at("address").text.to_s.strip)
     end
   end
 
+  # Parses loot Nokogiri::XML::Element
   def parse_zip_loot(loot, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
     return 0 if loot.at("host-id").nil? || bl.include?(host_info[loot.at("host-id").text.to_s.strip])
     loot_info              = {}
@@ -99,6 +101,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     end
   end
 
+  # Parses task Nokogiri::XML::Element
   def parse_zip_task(task, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
     task_info = {}
     task_info[:workspace] = args[:wspace]
@@ -149,6 +152,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     end
   end
 
+  # Parses report Nokogiri::XML::Element
   def parse_zip_report(report, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
     import_report(report, args, basedir)
   end
