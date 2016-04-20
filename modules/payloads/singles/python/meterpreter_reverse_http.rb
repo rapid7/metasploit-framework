@@ -10,9 +10,9 @@ require 'msf/core/payload/python/meterpreter_loader'
 require 'msf/core/payload/python/reverse_http'
 require 'msf/base/sessions/meterpreter_python'
 
-module Metasploit4
+module MetasploitModule
 
-  CachedSize = 50190
+  CachedSize = 51590
 
   include Msf::Payload::Single
   include Msf::Payload::Python

@@ -4,7 +4,7 @@ require "rex/parser/nokogiri_doc_mixin"
 module Rex
 module Parser
 
-  # If Nokogiri is available, define OpenVAS document class.
+  # If Nokogiri is available, define OpenVas document class.
   load_nokogiri && class OpenVASDocument < Nokogiri::XML::SAX::Document
 
   include NokogiriDocMixin
@@ -37,8 +37,10 @@ module Parser
         @state[:vuln_name] = @text.strip if @text
       end
     when 'description'
-      @state[:has_text] = true
-      @state[:vuln_desc] = @text.strip if @text
+      if in_tag('result')
+        @state[:has_text] = true
+        @state[:vuln_desc] = @text.strip if @text
+      end
     when 'bid'
       if in_tag('result') && in_tag('nvt')
         @state[:has_text] = true
@@ -62,7 +64,7 @@ module Parser
     when 'subnet'
       @state[:has_text] = true
     when 'result'
-      record_vuln if in_tag('results')
+      record_vuln
     when 'threat'
       @state[:has_text] = true if in_tag('ports') && in_tag('port')
     when 'host'
@@ -132,6 +134,7 @@ module Parser
         vuln_info[:info] = @state[:vuln_desc]
         vuln_info[:port] = @state[:port]
         vuln_info[:proto] = @state[:proto]
+        vuln_info[:workspace] = @args[:wspace]
 
         db_report(:vuln, vuln_info)
       end
@@ -145,6 +148,7 @@ module Parser
         vuln_info[:info] = @state[:vuln_desc]
         vuln_info[:port] = @state[:port]
         vuln_info[:proto] = @state[:proto]
+        vuln_info[:workspace] = @args[:wspace]
 
         db_report(:vuln, vuln_info)
       end
@@ -157,11 +161,13 @@ module Parser
     service_info[:name] = @state[:name]
     service_info[:port] = @state[:port]
     service_info[:proto] = @state[:proto]
+    service_info[:workspace] = @args[:wspace]
 
     db_report(:service, service_info)
 
     host_info = {}
     host_info[:host] = @state[:host]
+    host_info[:workspace] = @args[:wspace]
 
     db_report(:host, host_info)
   end

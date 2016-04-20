@@ -6,7 +6,7 @@
 require 'rex/poly'
 require 'msf/core'
 
-class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
+class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the stat(2) key is generated and supplied
   # manually.

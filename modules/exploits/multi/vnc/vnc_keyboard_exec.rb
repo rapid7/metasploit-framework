@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/proto/rfb'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
 
   Rank = GreatRanking
   WINDOWS_KEY = "\xff\xeb"

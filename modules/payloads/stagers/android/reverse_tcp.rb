@@ -3,12 +3,13 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit-payloads'
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit4
+module MetasploitModule
 
   CachedSize = :dynamic
 

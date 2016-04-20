@@ -8,7 +8,7 @@ require 'active_support/inflector'
 require 'json'
 require 'active_support/core_ext/hash'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   class InvocationError < StandardError; end
   class RequestRateTooHigh < StandardError; end
   class InternalError < StandardError; end
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 
       name = name.to_s.camelize(:lower)
       uri = api_path + name
-      cli = Rex::Proto::Http::Client.new(api_host, api_port, {}, true, 'TLS1')
+      cli = Rex::Proto::Http::Client.new(api_host, api_port, {}, true, 'TLS')
       cli.connect
       req = cli.request_cgi({
           'uri' => uri,
@@ -430,16 +430,15 @@ class Metasploit3 < Msf::Auxiliary
           {
             'RPORT'      => 443,
             'SSL'        => true,
-            'SSLVersion' => 'TLS1'
           }
     ))
     register_options(
       [
         OptString.new('HOSTNAME', [true, 'The target hostname']),
         OptInt.new('DELAY', [true, 'The delay in seconds between  API requests', 5]),
-        OptBool.new('USECACHE', [true, 'Use cached results (if available), else force live scan', 'true']),
-        OptBool.new('GRADE', [true, 'Output only the hostname: grade', 'false']),
-        OptBool.new('IGNOREMISMATCH', [true, 'Proceed with assessments even when the server certificate doesn\'t match the assessment hostname', 'true'])
+        OptBool.new('USECACHE', [true, 'Use cached results (if available), else force live scan', true]),
+        OptBool.new('GRADE', [true, 'Output only the hostname: grade', false]),
+        OptBool.new('IGNOREMISMATCH', [true, 'Proceed with assessments even when the server certificate doesn\'t match the assessment hostname', true])
       ], self.class)
   end
 

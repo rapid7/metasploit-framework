@@ -400,8 +400,7 @@ class ReadableText
           'Description'
         ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
       val = mod.datastore[name] || opt.default
 
       next if (opt.advanced?)
@@ -409,7 +408,7 @@ class ReadableText
       next if (missing && opt.valid?(val))
 
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
-    }
+    end
 
     return tbl.to_s
   end
@@ -420,24 +419,23 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_advanced_options(mod, indent = '')
-    output = ''
-    pad    = indent
+    tbl = Rex::Ui::Text::Table.new(
+      'Indent'  => indent.length,
+      'Columns' =>
+        [
+          'Name',
+          'Current Setting',
+          'Required',
+          'Description'
+        ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
+      next unless opt.advanced?
+      val = mod.datastore[name] || opt.default
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+    end
 
-      next if (!opt.advanced?)
-
-      val = mod.datastore[name] || opt.default.to_s
-      desc = word_wrap(opt.desc, indent.length + 3)
-      desc = desc.slice(indent.length + 3, desc.length)
-
-      output << pad + "Name           : #{name}\n"
-      output << pad + "Current Setting: #{val}\n"
-      output << pad + "Description    : #{desc}\n"
-    }
-
-    return output
+    return tbl.to_s
   end
 
   # Dumps the evasion options associated with the supplied module.
@@ -446,25 +444,23 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_evasion_options(mod, indent = '')
-    output = ''
-    pad    = indent
+    tbl = Rex::Ui::Text::Table.new(
+      'Indent'  => indent.length,
+      'Columns' =>
+        [
+          'Name',
+          'Current Setting',
+          'Required',
+          'Description'
+        ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
+      next unless opt.evasion?
+      val = mod.datastore[name] || opt.default
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+    end
 
-      next if (!opt.evasion?)
-
-      val = mod.datastore[name] || opt.default || ''
-
-      desc = word_wrap(opt.desc, indent.length + 3)
-      desc = desc.slice(indent.length + 3, desc.length)
-
-      output << pad + "Name           : #{name}\n"
-      output << pad + "Current Setting: #{val}\n"
-      output << pad + "Description    : #{desc}\n"
-    }
-
-    return output
+    return tbl.to_s
   end
 
   # Dumps the references associated with the supplied module.
@@ -524,18 +520,18 @@ class ReadableText
   def self.dump_sessions(framework, opts={})
     ids = (opts[:session_ids] || framework.sessions.keys).sort
     verbose = opts[:verbose] || false
+    show_extended = opts[:show_extended] || false
     indent = opts[:indent] || DefaultIndent
     col = opts[:col] || DefaultColumnWrap
 
     return dump_sessions_verbose(framework, opts) if verbose
 
-    columns =
-      [
-        'Id',
-        'Type',
-        'Information',
-        'Connection'
-      ]
+    columns = []
+    columns << 'Id'
+    columns << 'Type'
+    columns << 'Checkin?' if show_extended
+    columns << 'Information'
+    columns << 'Connection'
 
     tbl = Rex::Ui::Text::Table.new(
       'Indent'  => indent,
@@ -551,10 +547,21 @@ class ReadableText
         sinfo = sinfo[0,77] + "..."
       end
 
-      row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + " (#{session.session_host})" ]
-      if session.respond_to? :platform
-        row[1] << (" " + session.platform)
+      row = []
+      row << session.sid.to_s
+      row << session.type.to_s
+      row[-1] << (" " + session.platform) if session.respond_to?(:platform)
+
+      if show_extended
+        if session.respond_to?(:last_checkin) && session.last_checkin
+          row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
+        else
+          row << '?'
+        end
       end
+
+      row << sinfo
+      row << session.tunnel_to_s + " (#{session.session_host})"
 
       tbl << row
     }

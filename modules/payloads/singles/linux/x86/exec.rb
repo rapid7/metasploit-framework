@@ -13,7 +13,7 @@ require 'msf/core'
 # Executes an arbitrary command.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 43
 
