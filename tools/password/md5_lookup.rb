@@ -292,7 +292,7 @@ module Md5LookupUtility
 
         opt.on('-i', '--input <file>',
           'The file that contains all the MD5 hashes (one line per hash)') do |v|
-          if v && !::File.exists?(v)
+          if v && !::File.exist?(v)
             raise OptionParser::InvalidOption, "Invalid input file: #{v}"
           end
 

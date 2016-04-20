@@ -23,7 +23,7 @@ module Msf::DBManager::Report
     created = opts.delete(:created_at)
     updated = opts.delete(:updated_at)
 
-    unless File.exists? tmp_path
+    unless File.exist? tmp_path
       raise Msf::DBImportError 'Report artifact file to be imported does not exist.'
     end
 
@@ -31,7 +31,7 @@ module Msf::DBManager::Report
       raise Msf::DBImportError "Could not move report artifact file to #{artifacts_dir}."
     end
 
-    if File.exists? new_path
+    if File.exist? new_path
       unique_basename = "#{(Time.now.to_f*1000).to_i}_#{artifact_name}"
       new_path = File.join(artifacts_dir, unique_basename)
     end

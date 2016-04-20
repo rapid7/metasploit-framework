@@ -329,7 +329,7 @@ module Msf::DBManager::ModuleCache
           next
         end
 
-        unless md.file and ::File.exists?(md.file)
+        unless md.file and ::File.exist?(md.file)
           refresh << md
           next
         end

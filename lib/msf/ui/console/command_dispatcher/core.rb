@@ -249,7 +249,7 @@ class Core
 
     args.each do |res|
       good_res = nil
-      if ::File.exists?(res)
+      if ::File.exist?(res)
         good_res = res
       elsif
         # let's check to see if it's in the scripts/resource dir (like when tab completed)
@@ -258,7 +258,7 @@ class Core
           ::Msf::Config.user_script_directory + ::File::SEPARATOR + "resource"
         ].each do |dir|
           res_path = dir + ::File::SEPARATOR + res
-          if ::File.exists?(res_path)
+          if ::File.exist?(res_path)
             good_res = res_path
             break
           end
@@ -1254,7 +1254,7 @@ class Core
 
       # If the plugin isn't in the user directory (~/.msf3/plugins/), use the base
       path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
-      if not File.exists?( path  + ".rb" )
+      if not File.exist?( path  + ".rb" )
         # If the following "path" doesn't exist it will be caught when we attempt to load
         path = Msf::Config.plugin_directory + File::SEPARATOR + plugin_file_name
       end
@@ -3291,7 +3291,7 @@ class Core
 
   # Determines if this is an apt-based install
   def is_apt
-    File.exists?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
+    File.exist?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
   end
 
   # Determines if we're a Metasploit Pro/Community/Express

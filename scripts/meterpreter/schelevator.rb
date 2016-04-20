@@ -89,7 +89,7 @@ upload_fn = nil
 
   when "-u"
     upload_fn = val
-    if not ::File.exists?(upload_fn)
+    if not ::File.exist?(upload_fn)
       raise "Specified file to upload does not exist!"
     end
 
