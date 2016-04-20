@@ -471,7 +471,7 @@ class ReadableText
   def self.dump_references(mod, indent = '')
     output = ''
 
-    if (mod.respond_to? :references and mod.references and mod.references.length > 0)
+    if (mod.respond_to? :references && mod.references && mod.references.length > 0)
       output << "References:\n"
       mod.references.each { |ref|
         output << indent + ref.to_s + "\n"
@@ -530,6 +530,7 @@ class ReadableText
     columns << 'Id'
     columns << 'Type'
     columns << 'Checkin?' if show_extended
+    columns << 'Local URI' if show_extended
     columns << 'Information'
     columns << 'Connection'
 
@@ -555,6 +556,12 @@ class ReadableText
       if show_extended
         if session.respond_to?(:last_checkin) && session.last_checkin
           row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
+        else
+          row << '?'
+        end
+
+        if session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
+          row << " (#{session.exploit_datastore['LURI']})"
         else
           row << '?'
         end
@@ -597,6 +604,7 @@ class ReadableText
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
       sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+      sess_luri    = session.exploit_datastore['LURI'] || ""
 
       sess_checkin = "<none>"
       sess_machine_id = session.machine_id.to_s
@@ -626,6 +634,9 @@ class ReadableText
       out << "   MachineID: #{sess_machine_id}\n"
       out << "     CheckIn: #{sess_checkin}\n"
       out << "  Registered: #{sess_registration}\n"
+      if !sess_luri.empty?
+        out << "        LURI: #{sess_luri}\n"
+      end
 
 
 
@@ -678,6 +689,7 @@ class ReadableText
       if (verbose)
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)
         uripath = ctx[0].datastore['URIPATH'] if uripath.nil?
+        uripath = ctx[0].datastore['LURI'] if uripath.nil?
         row << (uripath || "")
         row << (framework.jobs[k].start_time || "")
       end
