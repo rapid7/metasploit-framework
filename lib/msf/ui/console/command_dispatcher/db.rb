@@ -1469,7 +1469,7 @@ class Db
             print_error("Can't make loot with no filename")
             return
           end
-          if (!File.exists?(filename) or !File.readable?(filename))
+          if (!File.exist?(filename) or !File.readable?(filename))
             print_error("Can't read file")
             return
           end
@@ -1979,13 +1979,13 @@ class Db
       return
     end
     if (args[0] == "-y")
-      if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
+      if (args[1] and not ::File.exist? ::File.expand_path(args[1]))
         print_error("File not found")
         return
       end
       file = args[1] || ::File.join(Msf::Config.get_config_root, "database.yml")
       file = ::File.expand_path(file)
-      if (::File.exists? file)
+      if (::File.exist? file)
         db = YAML.load(::File.read(file))['production']
         framework.db.connect(db)
 

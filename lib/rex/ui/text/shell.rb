@@ -57,7 +57,7 @@ module Shell
   def init_tab_complete
     if (self.input and self.input.supports_readline)
       self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
-      if Readline::HISTORY.length == 0 and histfile and File.exists?(histfile)
+      if Readline::HISTORY.length == 0 and histfile and File.exist?(histfile)
         File.readlines(histfile).each { |e|
           Readline::HISTORY << e.chomp
         }

@@ -220,7 +220,7 @@ class Driver < Msf::Ui::Driver
     if opts['Resource'].blank?
       # None given, load the default
       default_resource = ::File.join(Msf::Config.config_directory, 'msfconsole.rc')
-      load_resource(default_resource) if ::File.exists?(default_resource)
+      load_resource(default_resource) if ::File.exist?(default_resource)
     else
       opts['Resource'].each { |r|
         load_resource(r)
@@ -279,7 +279,7 @@ class Driver < Msf::Ui::Driver
 
     fname = ::File.join(@junit_output_path, "#{bname}.xml")
     cnt   = 0
-    while ::File.exists?( fname )
+    while ::File.exist?( fname )
       cnt  += 1
       fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
     end
@@ -314,7 +314,7 @@ class Driver < Msf::Ui::Driver
     # Generate the output path, allow multiple test with the same name
     fname = ::File.join(@junit_output_path, "#{bname}.xml")
     cnt   = 0
-    while ::File.exists?( fname )
+    while ::File.exist?( fname )
       cnt  += 1
       fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
     end
@@ -416,7 +416,7 @@ class Driver < Msf::Ui::Driver
     if path == '-'
       resource_file = $stdin.read
       path = 'stdin'
-    elsif ::File.exists?(path)
+    elsif ::File.exist?(path)
       resource_file = ::File.read(path)
     else
       print_error("Cannot find resource script: #{path}")
