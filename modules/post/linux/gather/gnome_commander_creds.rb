@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
       # gnome-commander connections file
       connections_file = "#{dir}/.gnome-commander/connections"
       if file?(connections_file)
-        #File exists
+        #File.exist
         begin
           str_file=read_file(connections_file)
           print_good("File found: #{connections_file}")

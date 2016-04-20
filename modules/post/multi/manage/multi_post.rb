@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
     macro = datastore['MACRO']
     entries = []
-    if not ::File.exists?(macro)
+    if not ::File.exist?(macro)
       print_error "Resource File does not exists!"
       return
     else

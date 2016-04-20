@@ -67,7 +67,7 @@ if client.platform =~ /win32|win64/
     end
     # Read log file and download those files found
     if input_file and logs
-      if ::File.exists?(input_file)
+      if ::File.exist?(input_file)
         print_status("Reading file #{input_file}")
         print_status("Downloading to #{logs}")
         ::File.open(input_file, "r").each_line do |line|

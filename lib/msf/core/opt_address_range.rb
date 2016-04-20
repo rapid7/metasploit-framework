@@ -20,7 +20,7 @@ class OptAddressRange < OptBase
     return nil unless value.kind_of?(String)
     if (value =~ /^file:(.*)/)
       path = $1
-      return false if not File.exists?(path) or File.directory?(path)
+      return false if not File.exist?(path) or File.directory?(path)
       return File.readlines(path).map{ |s| s.strip}.join(" ")
     elsif (value =~ /^rand:(.*)/)
       count = $1.to_i

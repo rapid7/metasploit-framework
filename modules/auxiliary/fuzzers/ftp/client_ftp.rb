@@ -325,11 +325,11 @@ class MetasploitModule < Msf::Auxiliary
       return
 
     when 'RNFR'
-      send_response(c,arg,"RNRF",350," File exists")
+      send_response(c,arg,"RNRF",350," File.exist")
       return
 
     when 'RNTO'
-      send_response(c,arg,"RNTO",350," File exists")
+      send_response(c,arg,"RNTO",350," File.exist")
       return
     else
       send_response(c,arg,cmd.upcase,200," Command not understood")
