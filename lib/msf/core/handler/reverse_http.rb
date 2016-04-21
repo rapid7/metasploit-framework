@@ -108,7 +108,7 @@ module ReverseHttp
     "#{scheme}://#{callback_host}"
   end
 
-  # Use the {#refname} to determine whether this handler uses SSL or not
+  # Use the #refname to determine whether this handler uses SSL or not
   #
   def ssl?
     !!(self.refname.index('https'))
