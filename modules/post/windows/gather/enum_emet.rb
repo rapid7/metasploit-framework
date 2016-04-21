@@ -30,16 +30,15 @@ class MetasploitModule < Msf::Post
     print_status("Running module against #{sysinfo['Computer']}")
     
     if sysinfo['Architecture'] =~ /x64/
-        print_status("The underlying OS is 64 bit")
-        if client.platform =~ /x86/
-          print_error("You are in a 32 bit process, migrate to 64 bit and try again.")
-        end
+        reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings',REGISTRY_VIEW_64_BIT)
+    else
+      reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings',REGISTRY_VIEW_32_BIT)
     end
     
     isadmin = is_admin?
 
     #a = registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion')
-    reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings')
+    
     
     t = ""
 
