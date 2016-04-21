@@ -84,11 +84,13 @@ module ReverseNamedPipe
   def start_handler
     queue = ::Queue.new
 
-    server_pipe = session.net.named_pipe.create({
+    self.server_pipe = session.net.named_pipe.create({
       listen: true,
       name:   datastore['PIPENAME'],
       repeat: datastore['ExitOnSession'] == false
     })
+
+    server_pipe = self.server_pipe
 
     self.listener_thread = framework.threads.spawn(listener_name, false, queue) { |lqueue|
       loop do
@@ -98,11 +100,6 @@ module ReverseNamedPipe
           if channel
             self.pending_connections += 1
             lqueue.push(channel)
-
-            unless server_pipe.repeats?
-              server_pipe.close
-              break
-            end
           end
         rescue Errno::ENOTCONN
           nil
@@ -138,10 +135,6 @@ module ReverseNamedPipe
 
           # pass this right through to the handler, the channel should "just work"
           handle_connection(channel.lsock, opts)
-
-          unless server_pipe.repeats?
-            break
-          end
         rescue StandardError
           elog("Exception raised from handle_connection: #{$ERROR_INFO.class}: #{$ERROR_INFO}\n\n#{$ERROR_POSITION.join("\n")}")
         end
