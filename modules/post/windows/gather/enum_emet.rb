@@ -9,7 +9,6 @@ require 'msf/core/post/common'
 
 class MetasploitModule < Msf::Post
 
-  include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
   include Msf::Post::Common
 
@@ -25,20 +24,12 @@ class MetasploitModule < Msf::Post
 
   end
 
-  # Run Method for when run command is issued
-  def run
-    print_status("Running module against #{sysinfo['Computer']}")
-    
+ def run
     if sysinfo['Architecture'] =~ /x64/
         reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings',REGISTRY_VIEW_64_BIT)
     else
       reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings',REGISTRY_VIEW_32_BIT)
-    end
-    
-    isadmin = is_admin?
-
-    #a = registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion')
-    
+    end 
     
     t = ""
 
