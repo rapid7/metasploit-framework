@@ -126,7 +126,6 @@ class MetasploitModule < Msf::Post
       ret
     end
 
-
     it "should write REG_DWORD values" do
       ret = true
       registry_setvaldata(%q#HKCU\test_key#, "test_val_dword", 1234, "REG_DWORD")
@@ -149,6 +148,41 @@ class MetasploitModule < Msf::Post
       ret &&= registry_deletekey(%q#HKCU\test_key#)
       # Deleting the key should delete all its values
       valinfo = registry_getvalinfo(%q#HKCU\test_key#, "test_val_dword")
+      ret &&= (valinfo.nil?)
+
+      ret
+    end
+
+    it "should create unicode keys" do
+      ret = registry_createkey(%q#HKCU\σονσλυσιονεμκυε#)
+    end
+
+    it "should write REG_SZ unicode values" do
+      ret = true
+      registry_setvaldata(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str", "дэлььякатезшимя", "REG_SZ")
+      registry_setvaldata(%q#HKCU\σονσλυσιονεμκυε#, "test_val_dword", 1234, "REG_DWORD")
+      valinfo = registry_getvalinfo(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
+      if (valinfo.nil?)
+        ret = false
+      else
+        # type == REG_SZ means string
+        ret &&= !!(valinfo["Type"] == 1)
+        ret &&= !!(valinfo["Data"].kind_of? String)
+        ret &&= !!(valinfo["Data"] == "дэлььякатезшимя")
+      end
+
+      ret
+    end
+
+
+    it "should delete unicode keys" do
+      ret = registry_deleteval(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
+      valinfo = registry_getvalinfo(%q#HKCU\σονσλυσιονεμκυε#, "test_val_str")
+      # getvalinfo should return nil for a non-existent key
+      ret &&= (valinfo.nil?)
+      ret &&= registry_deletekey(%q#HKCU\σονσλυσιονεμκυε#)
+      # Deleting the key should delete all its values
+      valinfo = registry_getvalinfo(%q#HKCU\σονσλυσιονεμκυε#, "test_val_dword")
       ret &&= (valinfo.nil?)
 
       ret
