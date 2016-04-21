@@ -3,7 +3,7 @@
 require 'thread'
 require 'rex/socket'
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
-#require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/named_pipe_client_channel'
+require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/named_pipe_client_channel'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/named_pipe_server_channel'
 require 'rex/logging'
 
@@ -65,17 +65,7 @@ class NamedPipe
   # Create a named pipe server channel.
   #
   def create_named_pipe_server_channel(params)
-    begin
-      return SocketSubsystem::NamedPipeServerChannel.open(client, params)
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      #case e.code
-      #when 10048
-      #  raise ::Rex::AddressInUse.new(params.localhost, params.localport)
-      #when 10000 .. 10100
-      #  raise ::Rex::ConnectionError.new
-      #end
-      raise e
-    end
+      SocketSubsystem::NamedPipeServerChannel.open(client, params)
   end
 
   #
@@ -96,28 +86,6 @@ class NamedPipe
       raise e
     end
   end
-
-  #
-  # Creates a UDP channel.
-  #
-  def create_udp_channel(params)
-    begin
-      channel = SocketSubsystem::UdpChannel.open(client, params)
-      if channel != nil
-        return channel.lsock
-      end
-      return nil
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      case e.code
-      when 10048
-        raise ::Rex::AddressInUse.new(params.localhost, params.localport)
-      when 10000 .. 10100
-        raise ::Rex::ConnectionError.new
-      end
-      raise e
-    end
-  end
-
 
 protected
 

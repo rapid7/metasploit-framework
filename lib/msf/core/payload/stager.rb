@@ -199,7 +199,7 @@ module Msf::Payload::Stager
       # tunnel), but if it doesn't, erroring out here means losing the
       # session, so make sure it does, just to be safe.
       if conn.respond_to?(:peerhost)
-        #sending_msg << " to #{conn.peerhost.inspect}"
+        #sending_msg << " to #{conn.peerhost}"
       end
       print_status(sending_msg)
 
