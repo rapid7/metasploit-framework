@@ -54,7 +54,7 @@ class NamedPipeClientChannel < Rex::Post::Meterpreter::Stream
   #
   # Passes the channel initialization information up to the base class.
   #
-  def initialize(client, cid, type, flags)
+  def initialize(client, cid, type, flags, pipe_name)
     super(client, cid, type, flags)
 
     lsock.extend(SocketInterface)
@@ -63,6 +63,8 @@ class NamedPipeClientChannel < Rex::Post::Meterpreter::Stream
 
     rsock.extend(SocketInterface)
     rsock.channel = self
+
+    lsock.initinfo("Pipe (#{pipe_name})", "Session (#{client.tunnel_to_s})")
   end
 
   #

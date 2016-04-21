@@ -19,7 +19,7 @@ module Msf::Payload::TransportConfig
   def transport_config_reverse_named_pipe(opts={})
     {
       :scheme       => 'pipe',
-      :lhost        => datastore['LHOST'],
+      :lhost        => datastore['PIPEHOST'],
       :uri          => "/#{datastore['PIPENAME']}"
     }.merge(timeout_config)
   end

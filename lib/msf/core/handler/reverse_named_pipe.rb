@@ -17,7 +17,6 @@ module Handler
 module ReverseNamedPipe
 
   include Msf::Handler
-  #include Msf::Handler::Reverse::Comm
   include Msf::PostMixin
 
   #
@@ -44,7 +43,8 @@ module ReverseNamedPipe
     super
 
     register_options([
-      OptString.new('PIPENAME', [true, 'Name of the pipe to listen on', 'msf-pipe'])
+      OptString.new('PIPENAME', [true, 'Name of the pipe to listen on', 'msf-pipe']),
+      OptString.new('PIPEHOST', [true, 'Host of the pipe to connect to', '.'])
     ], Msf::Handler::ReverseNamedPipe)
 
     self.conn_threads = []
@@ -74,10 +74,6 @@ module ReverseNamedPipe
     "reverse named pipe"
   end
 
-  def pipe_name
-    datastore['PIPENAME']
-  end
-
   #
   # Starts monitoring for an inbound connection.
   #
@@ -87,6 +83,7 @@ module ReverseNamedPipe
     self.server_pipe = session.net.named_pipe.create({
       listen: true,
       name:   datastore['PIPENAME'],
+      host:   datastore['PIPEHOST'],
       repeat: datastore['ExitOnSession'] == false
     })
 
@@ -165,12 +162,12 @@ module ReverseNamedPipe
 protected
 
   def listener_name
-    @listener_name |= "ReverseNamedPipeHandlerListener-#{pipe_name}-#{datastore['SESSION']}"
+    @listener_name |= "ReverseNamedPipeHandlerListener-#{datastore['PIPENAME']}-#{datastore['SESSION']}"
     @listener_name
   end
 
   def worker_name
-    @worker_name |= "ReverseNamedPipeHandlerWorker-#{pipe_name}-#{datastore['SESSION']}"
+    @worker_name |= "ReverseNamedPipeHandlerWorker-#{datastore['PIPENAME']}-#{datastore['SESSION']}"
     @worker_name
   end
 

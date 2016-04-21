@@ -81,7 +81,6 @@ module Session
     self.alive = true
     self.uuid  = Rex::Text.rand_text_alphanumeric(8).downcase
     @routes = RouteArray.new(self)
-    #self.routes = []
   end
 
   # Direct descendants

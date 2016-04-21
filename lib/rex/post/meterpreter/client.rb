@@ -152,7 +152,7 @@ class Client
       register_inbound_handler(Rex::Post::Meterpreter::Channel)
     else
       # Switch the socket to SSL mode and receive the hello if needed
-      if capabilities[:ssl] and not opts[:skip_ssl]
+      if capabilities[:ssl] && !opts[:skip_ssl]
         swap_sock_plain_to_ssl()
       end
 
