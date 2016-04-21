@@ -9,7 +9,7 @@ gem 'metasploit-erd',         github: 'rapid7/metasploit-erd',         branch: '
 gem 'yard-metasploit-erd',    github: 'rapid7/yard-metasploit-erd',    branch: 'staging/rails-upgrade'
 gem 'metasploit-concern',     github: 'rapid7/metasploit-concern',     branch: 'staging/rails-upgrade'
 gem 'metasploit-model',       github: 'rapid7/metasploit-model',       branch: 'staging/rails-upgrade'
-gem 'metasploit_data_models', github: 'rapid7/metasploit_data_models', branch: 'staging/rails-upgrade'
+gem 'metasploit_data_models', github: 'rapid7/metasploit_data_models', branch: 'bug/MS-1174/create-InetInput-class'
 gem 'metasploit-credential',  github: 'rapid7/metasploit-credential',  branch: 'staging/rails-upgrade'
 
 # separate from test as simplecov is not run on travis-ci

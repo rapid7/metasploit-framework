@@ -54,8 +54,8 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: c79964d02a9f003ec7defb6e51d9a6038a80df1a
-  branch: staging/rails-upgrade
+  revision: 47c4fd516dd35231ad75e7c1fee27291fbddb53b
+  branch: bug/MS-1174/create-InetInput-class
   specs:
     metasploit_data_models (1.3.0)
       activerecord (~> 4.2.6)
@@ -226,7 +226,7 @@ GEM
       network_interface (~> 0.0)
       pcaprub (~> 0.12)
     patch_finder (1.0.2)
-    pcaprub (0.12.1)
+    pcaprub (0.12.4)
     pg (0.18.4)
     pg_array_parser (0.0.9)
     postgres_ext (3.0.0)
@@ -246,7 +246,7 @@ GEM
       activesupport (>= 4.2.0.beta, < 5.0)
       nokogiri (~> 1.6.0)
       rails-deprecated_sanitizer (>= 1.0.1)
-    rails-erd (1.4.6)
+    rails-erd (1.4.7)
       activerecord (>= 3.2)
       activesupport (>= 3.2)
       choice (~> 0.2.0)
@@ -331,3 +331,6 @@ DEPENDENCIES
   timecop
   yard
   yard-metasploit-erd!
+
+BUNDLED WITH
+   1.11.2

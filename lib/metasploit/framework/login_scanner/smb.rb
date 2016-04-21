@@ -112,7 +112,10 @@ module Metasploit
                   inclusion: { in: [true, false, nil] },
                   allow_nil: true
 
-
+        def host
+          return host.to_s if host.kind_of? IPAddr
+          return host
+        end
         # If login is successul and {Result#access_level} is not set
         # then arbitrary credentials are accepted. If it is set to
         # Guest, then arbitrary credentials are accepted, but given

@@ -24,9 +24,6 @@ module Metasploit
           # @!attribute cred_details
           #   @return [CredentialCollection] Collection of Credential objects
           attr_accessor :cred_details
-          # @!attribute host
-          #   @return [String] The IP address or hostname to connect to
-          attr_accessor :host
           # @!attribute port
           #   @return [Fixnum] The port to connect to
           attr_accessor :port
@@ -98,6 +95,15 @@ module Metasploit
           #   respective protocols
           def attempt_login(credential)
             raise NotImplementedError
+          end
+
+          def host
+            return @host.to_s if @host.kind_of? IPAddr
+            return @host
+          end
+
+          def host=(host)
+            @host = host
           end
 
           # @note Override this to detect that the service is up, is the right
