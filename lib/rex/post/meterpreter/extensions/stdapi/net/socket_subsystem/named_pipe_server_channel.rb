@@ -39,22 +39,16 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
 
     cid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_ID )
     pid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_PARENTID )
-    name      = packet.get_tlv_value( TLV_TYPE_NAMED_PIPE_NAME )
+    #name      = packet.get_tlv_value( TLV_TYPE_NAMED_PIPE_NAME )
 
-    channel = client.find_channel(pid)
+    server_channel = client.find_channel(pid)
 
-    return false if channel.nil?
+    return false if server_channel.nil?
 
-    params = {
-      'Comm'      => channel.client
-    }
+    client_channel = server_channel.create_client(pid, cid)
 
-    client_channel = NamedPipeClientChannel.new(client, pid, NamedPipeClientChannel, CHANNEL_FLAG_SYNCHRONOUS)
-
-    client_channel.params = params
-
-    @@server_channels[channel] ||= ::Queue.new
-    @@server_channels[channel].enq(client_channel)
+    @@server_channels[server_channel] ||= ::Queue.new
+    @@server_channels[server_channel].enq(client_channel)
 
     true
   end
@@ -128,6 +122,33 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
     end
 
     result
+  end
+
+  def create_client(parent_id, client_id)
+
+    # we are no long associated with this channel, it'll be wrapped by another
+    @client.remove_channel(self)
+
+    client_channel = NamedPipeClientChannel.new(@client, parent_id, NamedPipeClientChannel, CHANNEL_FLAG_SYNCHRONOUS)
+    client_channel.params = {
+      'Comm'      => @client
+    }
+
+    @client.add_channel(client_channel)
+
+    # we don't own the client any more, so we have to let it go
+    @cid = client_id
+    if @cid
+      # a client ID means that there's a new server channel running that we need
+      # to bind to as that's the one that's listening.
+      @client.add_channel(self)
+    end
+
+    client_channel
+  end
+
+  def repeats?
+    params[:repeats] == true
   end
 
 protected
