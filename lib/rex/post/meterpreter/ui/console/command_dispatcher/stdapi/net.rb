@@ -42,7 +42,6 @@ class Console::CommandDispatcher::Stdapi::Net
     '-h' => [false, 'Help banner.' ],
     '-f' => [true,  'Address family - IPv4 or IPv6 (default IPv4)'])
 
-
   #
   # Options for the route command.
   #
@@ -531,7 +530,6 @@ class Console::CommandDispatcher::Stdapi::Net
 
     print_line
     print_line(table.to_s)
-    
   end
 
 protected
