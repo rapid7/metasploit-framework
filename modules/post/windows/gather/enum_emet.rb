@@ -22,12 +22,24 @@ class MetasploitModule < Msf::Post
     ))
   end
 
+  def print_status(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  def print_good(msg='')
+    super("#{peer} - #{msg}")
+  end
+
   def run
     reg_view = sysinfo['Architecture'] =~ /x64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_32_BIT
     reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings', reg_view)
     if reg_vals.nil?
       print_status('Failed to enumerate EMET Protected.')
     else
+      print_status('Found protected processes:')
+      reg_vals.each do |path|
+        print_status(path)
+      end
       path = store_loot('host.emet_paths', 'text/plain', session, reg_vals.join("\r\n"), 'emet_paths.txt', 'EMET Paths')
       print_good("Results stored in: #{path}")
     end
