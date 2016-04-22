@@ -665,6 +665,44 @@ class Packet < GroupTlv
     end
   end
 
+  #
+  # Override the function that creates the raw byte stream for
+  # sending so that it generates an XOR key, uses it to scramble
+  # the serialized TLV content, and then returns the key plus the
+  # scrambled data as the payload.
+  #
+  def to_r
+    raw = super
+    xor_key = rand(254) + 1
+    xor_key |= (rand(254) + 1) << 8
+    xor_key |= (rand(254) + 1) << 16
+    xor_key |= (rand(254) + 1) << 24
+    result = [xor_key].pack('N') + xor_bytes(xor_key, raw)
+    result
+  end
+
+  #
+  # Override the function that reads from a raw byte stream so
+  # that the XORing of data is included in the process prior to
+  # passing it on to the default functionality that can parse
+  # the TLV values.
+  #
+  def from_r(bytes)
+    xor_key = bytes[0,4].unpack('N')[0]
+    super(xor_bytes(xor_key, bytes[4, bytes.length]))
+  end
+
+  #
+  # Xor a set of bytes with a given DWORD xor key.
+  #
+  def xor_bytes(xor_key, bytes)
+    result = ''
+    bytes.bytes.zip([xor_key].pack('V').bytes.cycle).each do |b|
+      result << (b[0].ord ^ b[1].ord).chr
+    end
+    result
+  end
+
   ##
   #
   # Conditionals

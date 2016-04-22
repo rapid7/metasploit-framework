@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
     end
 
     name_list = []
-    if ::File.exists?(hostlst)
+    if ::File.exist?(hostlst)
       ::File.open(hostlst).each do |n|
         name_list << n
       end

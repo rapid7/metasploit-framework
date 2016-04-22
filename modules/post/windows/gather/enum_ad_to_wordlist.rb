@@ -6,7 +6,7 @@
 require 'rex'
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP

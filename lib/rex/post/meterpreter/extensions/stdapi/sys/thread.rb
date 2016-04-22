@@ -34,7 +34,9 @@ class Thread < Rex::Post::Thread
     self.process = process
     self.handle  = handle
     self.tid     = tid
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.process.client, self.handle) )
+
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(process.client, handle))
   end
 
   def self.finalize(client,handle)
@@ -168,7 +170,11 @@ class Thread < Rex::Post::Thread
 
   # Instance method
   def close
-    self.class.close(self.process.client, self.handle)
+    unless self.handle.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class.close(self.process.client, self.handle)
+      self.handle = nil
+    end
   end
 
   attr_reader :process, :handle, :tid # :nodoc:

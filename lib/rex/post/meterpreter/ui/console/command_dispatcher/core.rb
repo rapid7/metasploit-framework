@@ -575,6 +575,7 @@ class Console::CommandDispatcher::Core
     '-p'  => [ true,  'LPORT parameter' ],
     '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
     '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
+    '-lu' => [ true,  'Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)' ],
     '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
     '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
     '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
@@ -656,6 +657,8 @@ class Console::CommandDispatcher::Core
         opts[:uri] = val
       when '-i'
         transport_index = val.to_i
+      when '-lu'
+        opts[:luri] = val
       when '-ph'
         opts[:proxy_host] = val
       when '-pp'
@@ -866,7 +869,7 @@ class Console::CommandDispatcher::Core
         end
         pid = val.to_i
       when '-N'
-        if val.blank?
+        if val.to_s.empty?
           print_error("No process name provided")
           return
         end

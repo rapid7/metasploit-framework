@@ -201,7 +201,7 @@ module Msf::DBManager::ModuleCache
       end
     end
 
-    query = Mdm::Module::Detail.scoped
+    query = Mdm::Module::Detail.all
 
     ActiveRecord::Base.connection_pool.with_connection do
       # Although AREL supports taking the union or two queries, the ActiveRecord where syntax only supports
@@ -214,7 +214,7 @@ module Msf::DBManager::ModuleCache
           when 'author'
             formatted_values = match_values(value_set)
 
-            query = query.includes(:authors)
+            query = query.includes(:authors).references(:authors)
             module_authors = Mdm::Module::Author.arel_table
             union_conditions << module_authors[:email].matches_any(formatted_values)
             union_conditions << module_authors[:name].matches_any(formatted_values)
@@ -227,10 +227,10 @@ module Msf::DBManager::ModuleCache
           when 'os', 'platform'
             formatted_values = match_values(value_set)
 
-            query = query.includes(:platforms)
+            query = query.includes(:platforms).references(:platforms)
             union_conditions << Mdm::Module::Platform.arel_table[:name].matches_any(formatted_values)
 
-            query = query.includes(:targets)
+            query = query.includes(:targets).references(:targets)
             union_conditions << Mdm::Module::Target.arel_table[:name].matches_any(formatted_values)
           when 'text'
             formatted_values = match_values(value_set)
@@ -240,22 +240,22 @@ module Msf::DBManager::ModuleCache
             union_conditions << module_details[:fullname].matches_any(formatted_values)
             union_conditions << module_details[:name].matches_any(formatted_values)
 
-            query = query.includes(:actions)
+            query = query.includes(:actions).references(:actions)
             union_conditions << Mdm::Module::Action.arel_table[:name].matches_any(formatted_values)
 
-            query = query.includes(:archs)
+            query = query.includes(:archs).references(:archs)
             union_conditions << Mdm::Module::Arch.arel_table[:name].matches_any(formatted_values)
 
-            query = query.includes(:authors)
+            query = query.includes(:authors).references(:authors)
             union_conditions << Mdm::Module::Author.arel_table[:name].matches_any(formatted_values)
 
-            query = query.includes(:platforms)
+            query = query.includes(:platforms).references(:platforms)
             union_conditions << Mdm::Module::Platform.arel_table[:name].matches_any(formatted_values)
 
-            query = query.includes(:refs)
+            query = query.includes(:refs).references(:refs)
             union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
 
-            query = query.includes(:targets)
+            query = query.includes(:targets).references(:targets)
             union_conditions << Mdm::Module::Target.arel_table[:name].matches_any(formatted_values)
           when 'type'
             formatted_values = match_values(value_set)
@@ -275,7 +275,7 @@ module Msf::DBManager::ModuleCache
           when 'ref'
             formatted_values = match_values(value_set)
 
-            query = query.includes(:refs)
+            query = query.includes(:refs).references(:refs)
             union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
           when 'cve', 'bid', 'osvdb', 'edb'
             formatted_values = value_set.collect { |value|
@@ -284,7 +284,7 @@ module Msf::DBManager::ModuleCache
               "#{prefix}-%#{value}%"
             }
 
-            query = query.includes(:refs)
+            query = query.includes(:refs).references(:refs)
             union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
         end
       end
@@ -329,7 +329,7 @@ module Msf::DBManager::ModuleCache
           next
         end
 
-        unless md.file and ::File.exists?(md.file)
+        unless md.file and ::File.exist?(md.file)
           refresh << md
           next
         end

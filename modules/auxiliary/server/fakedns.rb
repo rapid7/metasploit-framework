@@ -8,7 +8,7 @@ require 'msf/core'
 require 'resolv'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
 
@@ -70,11 +70,11 @@ class Metasploit3 < Msf::Auxiliary
     @log_console  = false
     @log_database = false
 
-    if (datastore['LogConsole'].to_s.match(/^(t|y|1)/i))
+    if datastore['LogConsole']
       @log_console = true
     end
 
-    if (datastore['LogDatabase'].to_s.match(/^(t|y|1)/i))
+    if datastore['LogDatabase']
       @log_database = true
     end
 

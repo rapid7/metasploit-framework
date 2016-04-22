@@ -17,7 +17,7 @@ require 'rex/payloads/meterpreter/config'
 #
 ###
 
-module Metasploit4
+module MetasploitModule
 
   include Msf::Payload::Windows::MeterpreterLoader_x64
   include Msf::Sessions::MeterpreterOptions

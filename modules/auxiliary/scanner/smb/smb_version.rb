@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'recog'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
 
   # Exploit mixins should be called first

@@ -58,7 +58,7 @@ end
     commands = val.split(",")
   when "-rc"
     script = val
-    if not ::File.exists?(script)
+    if not ::File.exist?(script)
       raise "Command List File does not exists!"
     else
       commands = []

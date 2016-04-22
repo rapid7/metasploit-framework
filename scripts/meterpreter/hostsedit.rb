@@ -84,7 +84,7 @@ if client.platform =~ /win32|win64/
       cleardnscach(session)
     when "-l"
       checkuac(session)
-      if not ::File.exists?(val)
+      if not ::File.exist?(val)
         raise "File #{val} does not exists!"
       else
         backuphosts(session,hosts)

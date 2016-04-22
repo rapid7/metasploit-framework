@@ -12,6 +12,10 @@ class OptPath < OptBase
     return 'path'
   end
 
+  def validate_on_assignment?
+    false
+  end
+
   # Generally, 'value' should be a file that exists.
   def valid?(value)
     return false if empty_required_value?(value)
@@ -19,7 +23,7 @@ class OptPath < OptBase
       if value =~ /^memory:\s*([0-9]+)/i
         return false unless check_memory_location($1)
       else
-        unless File.exists?(value)
+        unless File.exist?(value)
           return false
         end
       end

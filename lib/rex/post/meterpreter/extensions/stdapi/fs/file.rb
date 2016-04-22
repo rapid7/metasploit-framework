@@ -184,7 +184,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Returns true if the remote file +name+ exists, false otherwise
   #
-  def File.exists?(name)
+  def File.exist?(name)
     r = client.fs.filestat.new(name) rescue nil
     r ? true : false
   end
@@ -302,7 +302,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     # Check for changes
     src_stat = client.fs.filestat.new(src_file)
-    if ::File.exists?(dest_file)
+    if ::File.exist?(dest_file)
       dst_stat = ::File.stat(dest_file)
       if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
         return 'skipped'
