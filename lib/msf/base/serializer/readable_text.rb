@@ -471,7 +471,7 @@ class ReadableText
   def self.dump_references(mod, indent = '')
     output = ''
 
-    if (mod.respond_to? :references && mod.references && mod.references.length > 0)
+    if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
       mod.references.each { |ref|
         output << indent + ref.to_s + "\n"
