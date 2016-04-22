@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::WMIC
 
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
     tmpout = ""
     print_status("Running module against #{sysinfo['Computer']}")
     if datastore['RESOURCE']
-      if ::File.exists?(datastore['RESOURCE'])
+      if ::File.exist?(datastore['RESOURCE'])
 
         ::File.open(datastore['RESOURCE']).each_line do |cmd|
 

@@ -14,7 +14,7 @@ module Msf
       # the supplied module instance.
       #
       # @param mod [Msf::Module] the module to dump information for.
-      # @param indent [String] the indentation to use.
+      # @param _indent [String] the indentation to use.
       # @return [String] formatted text output of the dump.
       def self.dump_module(mod, _indent = "")
         case mod.type

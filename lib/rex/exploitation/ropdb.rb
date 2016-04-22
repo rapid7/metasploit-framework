@@ -24,7 +24,7 @@ class RopDb
   # Returns true if a ROP chain is available, otherwise false
   #
   def has_rop?(rop_name)
-    File.exists?(File.join(@base_path, "#{rop_name}.xml"))
+    File.exist?(File.join(@base_path, "#{rop_name}.xml"))
   end
 
   #

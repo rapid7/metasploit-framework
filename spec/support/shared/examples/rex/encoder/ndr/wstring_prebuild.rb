@@ -1,4 +1,4 @@
-shared_examples_for "Rex::Encoder::NDR.wstring_prebuild" do
+RSpec.shared_examples_for "Rex::Encoder::NDR.wstring_prebuild" do
   context "when 2-byte aligned string length" do
     let(:string) { "A\x00B\x00C\x00" }
 

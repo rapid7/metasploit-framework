@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_http'
 require 'msf/core/payload/windows/reverse_winhttp'
 
-module Metasploit4
+module MetasploitModule
 
   CachedSize = 357
 

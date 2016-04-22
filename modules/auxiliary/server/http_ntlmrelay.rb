@@ -15,7 +15,7 @@ NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
 MESSAGE = Rex::Proto::NTLM::Message
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -310,7 +310,7 @@ class Metasploit3 < Msf::Auxiliary
       else
         print_status("Auth successful, saving server response in database")
       end
-      vprint_status(resp)
+      vprint_status(resp.to_s)
     end
     return [resp, ser_sock]
   end

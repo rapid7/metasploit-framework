@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager::Migration' do
+RSpec.shared_examples_for 'Msf::DBManager::Migration' do
   it { is_expected.to be_a Msf::DBManager::Migration }
 
 
@@ -55,7 +55,7 @@ shared_examples_for 'Msf::DBManager::Migration' do
         "Error during migration"
       end
 
-      before(:each) do
+      before(:example) do
         expect(ActiveRecord::Migrator).to receive(:migrate).and_raise(error)
       end
 

@@ -53,7 +53,7 @@ class Msf::Post < Msf::Module
     mod
   end
 
-  # This method returns the ID of the {Mdm::Session} that the post module
+  # This method returns the ID of the Mdm::Session that the post module
   # is currently running against.
   #
   # @return [NilClass] if there is no database record for the session

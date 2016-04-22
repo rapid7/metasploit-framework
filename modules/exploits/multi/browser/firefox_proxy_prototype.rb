@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/exploitation/jsobfu'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = ManualRanking
 
   include Msf::Exploit::Remote::BrowserExploitServer

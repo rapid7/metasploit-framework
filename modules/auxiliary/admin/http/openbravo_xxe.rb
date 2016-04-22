@@ -8,7 +8,7 @@ require 'rex'
 require 'net/dns'
 require 'rexml/document'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report

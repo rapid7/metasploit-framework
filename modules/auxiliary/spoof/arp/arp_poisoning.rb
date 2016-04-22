@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       raise RuntimeError ,'Source MAC is not in correct format' unless is_mac?(@smac)
 
       @sip = datastore['LOCALSIP']
-      @sip ||= Pcap.lookupaddrs(@interface)[0] if @netifaces
+      @sip ||= get_ipv4_addr(@interface)[0] if @netifaces
       raise "LOCALSIP is not defined and can not be guessed" unless @sip
       raise "LOCALSIP is not an ipv4 address" unless Rex::Socket.is_ipv4?(@sip)
 

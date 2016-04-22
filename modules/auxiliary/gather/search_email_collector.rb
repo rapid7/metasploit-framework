@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'net/http'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})

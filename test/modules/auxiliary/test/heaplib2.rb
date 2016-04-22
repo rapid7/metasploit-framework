@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   Rank = NormalRanking
 
   include Msf::Exploit::Remote::HttpServer::HTML

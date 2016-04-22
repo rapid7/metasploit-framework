@@ -32,7 +32,7 @@ RSpec.describe Msfupdate do
     Msfupdate.new(msfbase_dir, stdin, stdout, stderr)
   end
 
-  before(:all) do
+  before(:context) do
     # Create some fake directories to mock our different install environments
     dummy_pathname.mkpath
     dummy_apt_pathname.join('.apt').mkpath
@@ -42,11 +42,11 @@ RSpec.describe Msfupdate do
     FileUtils.touch(dummy_install_pathname.join('..', 'engine', 'update.rb'))
   end
 
-  after(:all) do
+  after(:context) do
     dummy_pathname.rmtree
   end
 
-  before(:each) do
+  before(:example) do
     # By default, we want to ensure tests never actually try to execute any
     # of the update methods unless we are explicitly testing them
     allow(subject).to receive(:update_apt!)
@@ -168,7 +168,7 @@ RSpec.describe Msfupdate do
   end
 
   context "#run!" do
-    before(:each) do
+    before(:example) do
       subject.parse_args(args)
     end
     let(:args) { [] }
@@ -193,7 +193,7 @@ RSpec.describe Msfupdate do
     it { expect(subject.git?).to be_falsey }
 
     context "#validate_args" do
-      before(:each) do
+      before(:example) do
         subject.parse_args(args)
       end
 
@@ -246,7 +246,7 @@ RSpec.describe Msfupdate do
     it { expect(subject.git?).to be_falsey }
 
     context "#validate_args" do
-      before(:each) do
+      before(:example) do
         subject.parse_args(args)
       end
 
@@ -300,7 +300,7 @@ RSpec.describe Msfupdate do
 
 
     context "#validate_args" do
-      before(:each) do
+      before(:example) do
         subject.parse_args(args)
       end
 

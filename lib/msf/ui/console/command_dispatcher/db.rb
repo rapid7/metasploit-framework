@@ -463,7 +463,7 @@ class Db
         if search_term
           next unless (
             host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } ||
-            !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).order("tags.id DESC").empty?
+            !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).references(:hosts).order("tags.id DESC").empty?
           )
         end
 
@@ -745,7 +745,7 @@ class Db
       #	mode = :add
       #when "-d"
       #	mode = :delete
-      when "-h"
+      when "-h","--help"
         cmd_vulns_help
         return
       when "-p","--port"
@@ -1033,7 +1033,7 @@ class Db
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
-      query = query.includes(:private, :public, :logins)
+      query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
       query = query.includes(logins: [ :service, { service: :host } ])
 
       if type.present?
@@ -1469,7 +1469,7 @@ class Db
             print_error("Can't make loot with no filename")
             return
           end
-          if (!File.exists?(filename) or !File.readable?(filename))
+          if (!File.exist?(filename) or !File.readable?(filename))
             print_error("Can't read file")
             return
           end
@@ -1647,6 +1647,7 @@ class Db
     print_line "    Amap Log -m"
     print_line "    Appscan"
     print_line "    Burp Session XML"
+    print_line "    Burp Issue XML"
     print_line "    CI"
     print_line "    Foundstone"
     print_line "    FusionVM XML"
@@ -1978,13 +1979,13 @@ class Db
       return
     end
     if (args[0] == "-y")
-      if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
+      if (args[1] and not ::File.exist? ::File.expand_path(args[1]))
         print_error("File not found")
         return
       end
       file = args[1] || ::File.join(Msf::Config.get_config_root, "database.yml")
       file = ::File.expand_path(file)
-      if (::File.exists? file)
+      if (::File.exist? file)
         db = YAML.load(::File.read(file))['production']
         framework.db.connect(db)
 

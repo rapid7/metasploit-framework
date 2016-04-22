@@ -80,7 +80,6 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['DatabaseMigrationPaths'] = options.database.migrations_paths
       driver_options['DatabaseYAML'] = options.database.config
       driver_options['DeferModuleLoads'] = options.modules.defer_loads
-      driver_options['Defanged'] = options.console.defanged
       driver_options['DisableBanner'] = options.console.quiet
       driver_options['DisableDatabase'] = options.database.disable
       driver_options['LocalOutput'] = options.console.local_output
