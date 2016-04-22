@@ -36,6 +36,13 @@ class Console::CommandDispatcher::Stdapi::Net
   end
 
   #
+  # Options for the resolve command
+  #
+  @@resolve_opts = Rex::Parser::Arguments.new(
+    '-h' => [false, 'Help banner.' ],
+    '-f' => [true,  'Address family - IPv4 or IPv6 (default IPv4)'])
+
+  #
   # Options for the route command.
   #
   @@route_opts = Rex::Parser::Arguments.new(
@@ -77,6 +84,7 @@ class Console::CommandDispatcher::Stdapi::Net
       "arp"      => "Display the host ARP cache",
       "netstat"  => "Display the network connections",
       "getproxy" => "Display the current proxy configuration",
+      'resolve'  => 'Resolve a set of host names on the target',
     }
     reqs = {
       "ipconfig" => [ "stdapi_net_config_get_interfaces" ],
@@ -94,6 +102,7 @@ class Console::CommandDispatcher::Stdapi::Net
       "arp"      => [ "stdapi_net_config_get_arp_table" ],
       "netstat"  => [ "stdapi_net_config_get_netstat" ],
       "getproxy" => [ "stdapi_net_config_get_proxy" ],
+      'resolve'  => ['stdapi_net_resolve_host'],
     }
 
     all.delete_if do |cmd, desc|
@@ -472,6 +481,55 @@ class Console::CommandDispatcher::Stdapi::Net
     print_line( "Auto config URL : #{p[:autoconfigurl]}" )
     print_line( "Proxy URL       : #{p[:proxy]}" )
     print_line( "Proxy Bypass    : #{p[:proxybypass]}" )
+  end
+
+  #
+  # Resolve 1 or more hostnames on the target session
+  #
+  def cmd_resolve(*args)
+    args.unshift('-h') if args.length == 0
+
+    hostnames = []
+    family = AF_INET
+
+    @@resolve_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-h'
+        print_line('Usage: resolve host1 host2 .. hostN [-h] [-f IPv4|IPv6]')
+        print_line
+        print_line(@@resolve_opts.usage)
+        return false
+      when '-f'
+        if val.downcase == 'ipv6'
+          family = AF_INET6
+        elsif val.downcase != 'ipv4'
+          print_error("Invalid family: #{val}")
+          return false
+        end
+      else
+        hostnames << val
+      end
+    }
+
+    response = client.net.resolve.resolve_hosts(hostnames, family)
+
+    table = Rex::Ui::Text::Table.new(
+      'Header'    => 'Host resolutions',
+      'Indent'    => 4,
+      'SortIndex' => 0,
+      'Columns'   => ['Hostname', 'IP Address']
+    )
+
+    response.each do |result|
+      if result[:ip].nil?
+        table << [result[:hostname], '[Failed To Resolve]']
+      else
+        table << [result[:hostname], result[:ip]]
+      end
+    end
+
+    print_line
+    print_line(table.to_s)
   end
 
 protected
