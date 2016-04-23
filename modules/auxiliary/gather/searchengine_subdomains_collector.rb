@@ -46,9 +46,9 @@ class Metasploit4 < Msf::Auxiliary
     80
   end
 
-  def valid?(ip, domain)
-    ips = domain2ip(domain)
-    (ips && ips.include?(ip)) ? true : false
+  def valid_result?(target, subdomain)
+    data = Rex::Socket.is_ipv4?(target) ? domain2ip(subdomain) : subdomain
+    data && data.include?(target) ? true : false
   end
 
   def domain2ip(domain)
@@ -132,107 +132,34 @@ class Metasploit4 < Msf::Auxiliary
     results
   end
 
-  def bing_search_domain(domain)
+  def search_subdomains(target)
     domains = {}
-    subdomain_ips = []
-    dork = "domain:#{domain}"
-    results = bing_search(dork)
+    ipv4 = Rex::Socket.is_ipv4?(target)
+    dork = ipv4 ? "ip:#{target}" : "domain:#{target}"
+
+    results = []  # merge results to reduce query times
+    results |= bing_search(dork) if datastore['ENUM_BING']
+    results |= yahoo_search(dork) if datastore['ENUM_YAHOO']
+
     return domains if results.nil? || results.empty?
     results.each do |subdomain|
       next if domains.include?(subdomain)
-      next unless subdomain.include?(domain)
-      ips = domain2ip(subdomain)
-      ips.each do |ip|
-        report_host(host: ip, name: subdomain)
-        print_good("#{dork} subdomain: #{subdomain} - #{ip}")
-        next if subdomain_ips.include?(ip)
-        subdomain_ips << ip if Rex::Socket.is_ipv4?(ip)
-      end
-      domains[subdomain] = ips
-    end
-
-    subdomain_ips.each do |ip|
-      bing_search_ip(ip) if datastore['IP_SEARCH']
-    end
-
-    return if domains.empty?
-    report_note(host: domain, type: 'Bing Search Subdomains', update: :unique_data, data: domains)
-    domains
-  end
-
-  def bing_search_ip(ip)
-    dork = "ip:#{ip}"
-    domains = {}
-
-    results = bing_search(dork)
-    return domains if results.nil? || results.empty?
-    results.each do |subdomain|
-      next if domains.include?(subdomain)
-      next unless valid?(ip, subdomain)
-      report_host(host: ip, name: subdomain)
-      print_good("#{dork} suddomain: #{subdomain}")
-      domains[subdomain] = ip
-    end
-    return if domains.empty?
-    report_note(host: ip, type: 'Bing Search Subdomains', update: :unique_data, data: domains)
-    domains
-  end
-
-  def yahoo_search_domain(domain)
-    domains = {}
-    subdomain_ips = []
-    dork = "domain:#{domain}"
-    results = yahoo_search(dork)
-    return domains if results.nil? || results.empty?
-    results.each do |subdomain|
-      next if domains.include?(subdomain)
-      next unless subdomain.include?(domain)
-      ips = domain2ip(subdomain)
-      ips.each do |ip|
-        report_host(host: ip, name: subdomain)
-        print_good("#{dork} subdomain: #{subdomain} - #{ip}")
-        next if subdomain_ips.include?(ip)
-        subdomain_ips << ip if Rex::Socket.is_ipv4?(ip)
-      end
-      domains[subdomain] = ips
-    end
-
-    subdomain_ips.each do |ip|
-      yahoo_search_ip(ip) if datastore['IP_SEARCH']
-    end
-
-    return if domains.empty?
-    report_note(host: domain, type: 'Yahoo Search Subdomains', update: :unique_data, data: domains)
-    domains
-  end
-
-  def yahoo_search_ip(ip)
-    dork = "ip:#{ip}"
-    domains = {}
-
-    results = yahoo_search(dork)
-    return domains if results.nil? || results.empty?
-    results.each do |subdomain|
-      next if domains.include?(subdomain)
-      next unless valid?(ip, subdomain)
-      report_host(host: ip, name: subdomain)
+      next unless valid_result?(target, subdomain)
       print_good("#{dork} subdomain: #{subdomain}")
-      domains[subdomain] = ip
+      if ipv4
+        domains[subdomain] = [target]
+      else
+        ips = domain2ip(subdomain)
+        next if ips.empty?
+        domains[subdomain] = ips
+        ips.each { |ip| search_subdomains(ip) } if !ips.empty? && datastore['IP_SEARCH']
+      end
     end
     return if domains.empty?
-    report_note(host: ip, type: 'Yahoo Search Subdomains', update: :unique_data, data: domains)
-    domains
+    report_note(host: target, type: 'Subdomains', update: :unique_data, data: domains)
   end
 
   def run
-    target = datastore['TARGET']
-
-    if Rex::Socket.is_ipv4?(target)
-      bing_search_ip(target) if datastore['ENUM_BING']
-      yahoo_search_ip(target) if datastore['ENUM_YAHOO']
-    else
-      bing_search_domain(target) if datastore['ENUM_BING']
-      yahoo_search_domain(target) if datastore['ENUM_YAHOO']
-    end
+    search_subdomains(datastore['TARGET'])
   end
 end
