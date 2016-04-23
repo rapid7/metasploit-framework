@@ -68,26 +68,11 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def domain2ip(domain)
-    begin
-      ips = Rex::Socket.getaddresses(domain)
-    rescue SocketError
-      ips = []
-    end
-    ips
-  end
-
   def bing_search(dork)
-<<<<<<< HEAD
-    begin
-      print_status("Searching Bing for subdomains from #{dork}")
-      results = []
-=======
     print_status("Searching Bing for subdomains from #{dork}")
     results = []
 
     begin
->>>>>>> searchengine_subdomains_collector
       searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
       searches.each do |num|
         resp = send_request_cgi!(
@@ -112,78 +97,15 @@ class MetasploitModule < Msf::Auxiliary
           next unless result
           result.to_s.downcase!
           results << result
-<<<<<<< HEAD
-          vprint_good(result)
-        end
-      end
-    rescue ::Exception => e
-      print_error("#{e.message}")
-    ensure
-      return results
-=======
         end
       end
     rescue ::Exception => e
       print_error("#{dork} - #{e.message}")
->>>>>>> searchengine_subdomains_collector
     end
+    results
   end
 
   def yahoo_search(dork)
-<<<<<<< HEAD
-    begin
-      print_status("Searching Yahoo for subdomains from #{dork}")
-      results = []
-      searches = ["1", "101", "201", "301", "401", "501"]
-      searches.each do |num|
-        resp = send_request_cgi!(
-          'rhost' => rhost_yahoo,
-          'rport' => rport_yahoo,
-          'vhost' => rhost_yahoo,
-          'method' => 'GET',
-          'uri' => '/search',
-          'vars_get' => {
-            'pz' => 100,
-            'p' => dork,
-            'b' => num}
-        )
-
-        next unless resp && resp.code == 200
-        html = resp.get_html_document
-        matches = html.search('span[@class=" fz-15px fw-m fc-12th wr-bw lh-15"]')
-        matches.each do |match|
-          result = match.text
-          result = result.split('/')[0]
-          result = result.split(':')[0]
-          next unless result
-          result.to_s.downcase!
-          results << result
-          vprint_good(result)
-        end
-      end
-    rescue ::Exception => e
-      print_error("#{e.message}")
-    ensure
-      return results
-    end
-  end
-
-  def bing_search_domain(domain)
-    domains = {}
-    subdomain_ips = []
-    dork = "domain:#{domain}"
-    results = bing_search(dork)
-    return if results.nil?
-    results.each do |subdomain|
-      next if domains.include?(subdomain)
-      next unless subdomain.include?(domain)
-      ips = domain2ip(subdomain)
-      ips.each do |ip|
-        report_host(host: ip, name: subdomain)
-        print_good("#{dork} subdomain: #{subdomain} - #{ip}")
-        next if subdomain_ips.include?(ip)
-        subdomain_ips << ip if Rex::Socket.is_ipv4?(ip)
-=======
     print_status("Searching Yahoo for subdomains from #{dork}")
     results = []
 
@@ -213,7 +135,6 @@ class MetasploitModule < Msf::Auxiliary
           result.to_s.downcase!
           results << result
         end
->>>>>>> searchengine_subdomains_collector
       end
     rescue ::Exception => e
       print_error("#{dork} - #{e.message}")
@@ -223,30 +144,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def search_subdomains(target)
     domains = {}
-<<<<<<< HEAD
-    subdomain_ips = []
-    dork = "domain:#{domain}"
-    results = yahoo_search(dork)
-    results.each do |subdomain|
-      next if domains.include?(subdomain)
-      next unless subdomain.include?(domain)
-      ips = domain2ip(subdomain)
-      ips.each do |ip|
-        report_host(host: ip, name: subdomain)
-        print_good("#{dork} subdomain: #{subdomain} - #{ip}")
-        next if subdomain_ips.include?(ip)
-        subdomain_ips << ip if Rex::Socket.is_ipv4?(ip)
-      end
-      domains[subdomain] = ips
-    end
-
-    subdomain_ips.each do |ip|
-      yahoo_search_ip(ip) if datastore['IP_SEARCH']
-    end
-=======
     ipv4 = Rex::Socket.is_ipv4?(target)
     dork = ipv4 ? "ip:#{target}" : "domain:#{target}"
->>>>>>> searchengine_subdomains_collector
 
     results = [] # merge results to reduce query times
     results |= bing_search(dork) if datastore['ENUM_BING']
