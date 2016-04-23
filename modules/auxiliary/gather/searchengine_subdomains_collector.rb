@@ -151,11 +151,7 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     return if domains.empty?
-    report_note(
-      host: domain,
-      type: 'Bing Search Subdomains',
-      update: :unique_data,
-      data: domains)
+    report_note(host: domain, type: 'Bing Search Subdomains', update: :unique_data, data: domains)
     domains
   end
 
@@ -172,11 +168,7 @@ class Metasploit4 < Msf::Auxiliary
       domains[subdomain] = ip
     end
     return if domains.empty?
-    report_note(
-      host: ip,
-      type: 'Bing Search Subdomains',
-      update: :unique_data,
-      data: domains)
+    report_note(host: ip, type: 'Bing Search Subdomains', update: :unique_data, data: domains)
     domains
   end
 
@@ -203,11 +195,7 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     return if domains.empty?
-    report_note(
-      host: domain,
-      type: 'Yahoo Search Subdomains',
-      update: :unique_data,
-      data: domains)
+    report_note(host: domain, type: 'Yahoo Search Subdomains', update: :unique_data, data: domains)
     domains
   end
 
@@ -224,11 +212,7 @@ class Metasploit4 < Msf::Auxiliary
       domains[subdomain] = ip
     end
     return if domains.empty?
-    report_note(
-      host: ip,
-      type: 'Yahoo Search Subdomains',
-      update: :unique_data,
-      data: domains)
+    report_note(host: ip, type: 'Yahoo Search Subdomains', update: :unique_data, data: domains)
     domains
   end
 
