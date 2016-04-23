@@ -71,31 +71,36 @@ class Metasploit4 < Msf::Auxiliary
   def bing_search(dork)
     print_status("Searching Bing for subdomains from #{dork}")
     results = []
-    searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
-    searches.each do |num|
-      resp = send_request_cgi!(
-        'rhost' => rhost_bing,
-        'rport' => rport_bing,
-        'vhost' => rhost_bing,
-        'method' => 'GET',
-        'uri' => '/search',
-        'vars_get' => {
-          'FROM' => 'HPCNEN',
-          'setmkt' => 'en-us',
-          'setlang' => 'en-us',
-          'first' => num,
-          'q' => dork
+
+    begin
+      searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
+      searches.each do |num|
+        resp = send_request_cgi!(
+          'rhost' => rhost_bing,
+          'rport' => rport_bing,
+          'vhost' => rhost_bing,
+          'method' => 'GET',
+          'uri' => '/search',
+          'vars_get' => {
+            'FROM' => 'HPCNEN',
+            'setmkt' => 'en-us',
+            'setlang' => 'en-us',
+            'first' => num,
+            'q' => dork
         })
 
-      next unless resp && resp.code == 200
-      html = resp.get_html_document
-      matches = html.search('cite')
-      matches.each do |match|
-        result = uri2domain(match.text)
-        next unless result
-        result.to_s.downcase!
-        results << result
+        next unless resp && resp.code == 200
+        html = resp.get_html_document
+        matches = html.search('cite')
+        matches.each do |match|
+          result = uri2domain(match.text)
+          next unless result
+          result.to_s.downcase!
+          results << result
+        end
       end
+    rescue ::Exception => e
+      print_error("#{dork} - #{e.message}")
     end
     results
   end
@@ -103,31 +108,36 @@ class Metasploit4 < Msf::Auxiliary
   def yahoo_search(dork)
     print_status("Searching Yahoo for subdomains from #{dork}")
     results = []
-    searches = ["1", "101", "201", "301", "401", "501"]
-    searches.each do |num|
-      resp = send_request_cgi!(
-        'rhost' => rhost_yahoo,
-        'rport' => rport_yahoo,
-        'vhost' => rhost_yahoo,
-        'method' => 'GET',
-        'uri' => '/search',
-        'vars_get' => {
-          'pz' => 100,
-          'p' => dork,
-          'b' => num
+
+    begin
+      searches = ["1", "101", "201", "301", "401", "501"]
+      searches.each do |num|
+        resp = send_request_cgi!(
+          'rhost' => rhost_yahoo,
+          'rport' => rport_yahoo,
+          'vhost' => rhost_yahoo,
+          'method' => 'GET',
+          'uri' => '/search',
+          'vars_get' => {
+            'pz' => 100,
+            'p' => dork,
+            'b' => num
         })
 
-      next unless resp && resp.code == 200
-      html = resp.get_html_document
-      matches = html.search('span[@class=" fz-15px fw-m fc-12th wr-bw lh-15"]')
-      matches.each do |match|
-        result = match.text
-        result = result.split('/')[0]
-        result = result.split(':')[0]
-        next unless result
-        result.to_s.downcase!
-        results << result
+        next unless resp && resp.code == 200
+        html = resp.get_html_document
+        matches = html.search('span[@class=" fz-15px fw-m fc-12th wr-bw lh-15"]')
+        matches.each do |match|
+          result = match.text
+          result = result.split('/')[0]
+          result = result.split(':')[0]
+          next unless result
+          result.to_s.downcase!
+          results << result
+        end
       end
+    rescue ::Exception => e
+      print_error("#{dork} - #{e.message}")
     end
     results
   end
