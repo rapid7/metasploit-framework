@@ -233,7 +233,7 @@ class MetasploitModule < Msf::Post
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
       vprint_status("done")
-      res &&= session.fs.file.exists?(remote)
+      res &&= session.fs.file.exist?(remote)
       vprint_status("remote file exists? #{res.inspect}")
 
       if res
@@ -285,7 +285,7 @@ class MetasploitModule < Msf::Post
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
       vprint_status("done")
-      res &&= session.fs.file.exists?(remote)
+      res &&= session.fs.file.exist?(remote)
       vprint_status("remote file exists? #{res.inspect}")
 
       if res
