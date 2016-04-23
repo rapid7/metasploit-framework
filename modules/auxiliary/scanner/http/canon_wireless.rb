@@ -27,7 +27,6 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'     => [
         [ 'CVE', '2013-4614' ],
-        [ 'OSVDB', '94417' ],
         [ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
       ],
       'DisclosureDate' => 'Jun 18 2013'))

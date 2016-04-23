@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2010-1587' ],
-          [ 'OSVDB', '64020' ],
           [ 'BID', '39636' ],
           [ 'URL', 'https://issues.apache.org/jira/browse/AMQ-2700' ]
         ]

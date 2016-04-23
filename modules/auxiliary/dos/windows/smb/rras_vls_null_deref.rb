@@ -28,7 +28,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'OSVDB', '64340'],
 
         ],
       'Actions'     =>

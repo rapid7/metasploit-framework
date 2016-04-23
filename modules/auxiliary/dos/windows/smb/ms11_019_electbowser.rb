@@ -34,7 +34,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2011-0654' ],
           [ 'BID', '46360' ],
-          [ 'OSVDB', '70881' ],
           [ 'MSB', 'MS11-019' ],
           [ 'EDB', '16166' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2011/Feb/285' ]

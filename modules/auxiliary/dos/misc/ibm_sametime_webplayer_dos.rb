@@ -45,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'   =>
         [
           [ 'CVE', '2013-3986' ],
-          [ 'OSVDB', '99552' ],
           [ 'BID', '63611'],
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21654041' ],
           [ 'URL', 'http://xforce.iss.net/xforce/xfdb/84969' ]

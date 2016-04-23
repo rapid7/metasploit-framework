@@ -25,7 +25,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2012-4347'],
           ['EDB', '23110'],
-          ['OSVDB', '88165'],
           ['BID', '56789'],
           ['URL', 'http://www.symantec.com/security_response/securityupdates/detail.jsp?fid=security_advisory&pvid=security_advisory&year=2012&suid=20120827_00']
         ],

@@ -33,7 +33,6 @@ class MetasploitModule < Msf::Auxiliary
       'References' =>
         [
           [ 'CVE', '2014-8499' ],
-          [ 'OSVDB', '114485' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/18' ],
           [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_pmp_privesc.txt' ],
         ],

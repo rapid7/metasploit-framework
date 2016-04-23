@@ -21,7 +21,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  => [
         [ 'CVE', '2008-5081' ],
-        [ 'OSVDB', '50929' ],
       ],
       'DisclosureDate' => 'Nov 14 2008')
 

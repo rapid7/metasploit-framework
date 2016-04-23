@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2011-2474' ],
-          [ 'OSVDB', '72498' ],
           [ 'URL', 'http://www.sybase.com/detail?id=1093216' ],
           [ 'URL', 'https://labs.idefense.com/verisign/intelligence/2009/vulnerabilities/display.php?id=912' ],
         ],

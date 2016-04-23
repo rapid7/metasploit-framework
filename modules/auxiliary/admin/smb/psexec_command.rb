@@ -34,7 +34,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     => [
         [ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
-        [ 'OSVDB', '3106'],
         [ 'URL', 'http://www.accuvant.com/blog/2012/11/13/owning-computers-without-shell-access' ],
         [ 'URL', 'http://sourceforge.net/projects/smbexec/' ],
         [ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]

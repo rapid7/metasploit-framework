@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-3522' ],
-          [ 'OSVDB', '92031' ],
           [ 'EDB', '24882' ],
           [ 'BID', '58754' ],
           [ 'URL', 'http://www.zempirians.com/archive/legion/vbulletin_5.pl.txt' ]

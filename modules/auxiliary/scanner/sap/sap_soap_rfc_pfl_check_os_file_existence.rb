@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References' =>
         [
-          [ 'OSVDB', '78537' ],
           [ 'BID', '51645' ],
           [ 'URL','http://erpscan.com/advisories/dsecrg-12-009-sap-netweaver-pfl_check_os_file_existence-missing-authorisation-check-and-smb-relay-vulnerability/' ]
         ],

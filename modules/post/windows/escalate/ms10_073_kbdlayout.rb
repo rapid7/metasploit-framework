@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Post
       'SessionTypes'  => [ 'meterpreter' ],
       'References'    =>
         [
-          [ 'OSVDB', '68552' ],
           [ 'CVE', '2010-2743' ],
           [ 'MSB', 'MS10-073' ],
           [ 'URL', 'http://www.reversemode.com/index.php?option=com_content&task=view&id=71&Itemid=1' ],

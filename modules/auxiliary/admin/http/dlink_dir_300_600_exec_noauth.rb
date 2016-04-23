@@ -24,7 +24,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'References'      =>
         [
-          [ 'OSVDB', '89861' ],
           [ 'EDB', '24453' ],
           [ 'URL', 'http://www.dlink.com/uk/en/home-solutions/connect/routers/dir-600-wireless-n-150-home-router' ],
           [ 'URL', 'http://www.s3cur1ty.de/home-network-horror-days' ],

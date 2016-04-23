@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'OSVDB', '17627' ],
           [ 'CVE', '2005-0771' ],
           [ 'URL', 'http://www.idefense.com/application/poi/display?id=269&type=vulnerabilities'],
         ],

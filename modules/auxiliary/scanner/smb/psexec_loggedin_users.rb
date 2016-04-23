@@ -30,7 +30,6 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'  => [
         [ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
-        [ 'OSVDB', '3106'],
         [ 'URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/' ],
         [ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
       ],

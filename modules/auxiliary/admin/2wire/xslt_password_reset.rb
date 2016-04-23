@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2007-4387' ],
-          [ 'OSVDB', '37667' ],
           [ 'BID', '36075' ],
           [ 'URL', 'http://seclists.org/bugtraq/2007/Aug/225' ],
         ],

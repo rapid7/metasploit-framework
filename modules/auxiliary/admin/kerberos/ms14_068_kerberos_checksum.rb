@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2014-6324'],
           ['MSB', 'MS14-068'],
-          ['OSVDB', '114751'],
           ['URL', 'http://blogs.technet.com/b/srd/archive/2014/11/18/additional-information-about-cve-2014-6324.aspx'],
           ['URL', 'https://labs.mwrinfosecurity.com/blog/2014/12/16/digging-into-ms14-068-exploitation-and-defence/'],
           ['URL', 'https://github.com/bidord/pykek'],

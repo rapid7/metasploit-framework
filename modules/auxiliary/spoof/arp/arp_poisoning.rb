@@ -21,11 +21,10 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'     =>
         [
-          ['OSVDB', '11169'],
           ['CVE', '1999-0667'],
           ['URL', 'http://en.wikipedia.org/wiki/ARP_spoofing']
         ],
-      'DisclosureDate' => 'Dec 22 1999' #osvdb date
+      'DisclosureDate' => 'Dec 22 1999'
     )
 
     register_options([

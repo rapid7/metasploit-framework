@@ -25,8 +25,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'URL', 'http://tomcat.apache.org/' ],
-          [ 'OSVDB', '47464' ],
-          [ 'OSVDB', '73447' ],
           [ 'CVE', '2008-2938' ],
           [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
           [ 'EDB', '17388' ],
