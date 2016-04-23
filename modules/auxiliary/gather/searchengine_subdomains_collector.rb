@@ -101,6 +101,7 @@ class MetasploitModule < Msf::Auxiliary
           next unless result
           result.to_s.downcase!
           results << result
+          vprint_good(result)
         end
       end
     rescue Rex::ConnectionTimeout => e
@@ -137,6 +138,7 @@ class MetasploitModule < Msf::Auxiliary
         next unless result
         result.to_s.downcase!
         results << result
+        vprint_good(result)
       end
     end
     results
