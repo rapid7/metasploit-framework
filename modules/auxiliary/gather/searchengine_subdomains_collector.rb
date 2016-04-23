@@ -133,6 +133,7 @@ class Metasploit4 < Msf::Auxiliary
     subdomain_ips = []
     dork = "domain:#{domain}"
     results = bing_search(dork)
+    return domains if results.nil? || results.empty?
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless subdomain.include?(domain)
@@ -160,6 +161,7 @@ class Metasploit4 < Msf::Auxiliary
     domains = {}
 
     results = bing_search(dork)
+    return domains if results.nil? || results.empty?
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless valid?(ip, subdomain)
@@ -177,6 +179,7 @@ class Metasploit4 < Msf::Auxiliary
     subdomain_ips = []
     dork = "domain:#{domain}"
     results = yahoo_search(dork)
+    return domains if results.nil? || results.empty?
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless subdomain.include?(domain)
@@ -204,6 +207,7 @@ class Metasploit4 < Msf::Auxiliary
     domains = {}
 
     results = yahoo_search(dork)
+    return domains if results.nil? || results.empty?
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless valid?(ip, subdomain)
