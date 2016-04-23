@@ -87,7 +87,7 @@ class Metasploit4 < Msf::Auxiliary
             'setlang' => 'en-us',
             'first' => num,
             'q' => dork
-        })
+          })
 
         next unless resp && resp.code == 200
         html = resp.get_html_document
@@ -122,7 +122,7 @@ class Metasploit4 < Msf::Auxiliary
             'pz' => 100,
             'p' => dork,
             'b' => num
-        })
+          })
 
         next unless resp && resp.code == 200
         html = resp.get_html_document
@@ -147,7 +147,7 @@ class Metasploit4 < Msf::Auxiliary
     ipv4 = Rex::Socket.is_ipv4?(target)
     dork = ipv4 ? "ip:#{target}" : "domain:#{target}"
 
-    results = []  # merge results to reduce query times
+    results = [] # merge results to reduce query times
     results |= bing_search(dork) if datastore['ENUM_BING']
     results |= yahoo_search(dork) if datastore['ENUM_YAHOO']
 
