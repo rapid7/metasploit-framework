@@ -47,13 +47,17 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def valid?(ip, domain)
+    ips = domain2ip(domain)
+    (ips && ips.include?(ip)) ? true : false
+  end
+
+  def domain2ip(domain)
+    ips = []
     begin
       ips = Rex::Socket.getaddresses(domain)
-      true if ips.include?(ip)
     rescue SocketError
-    ensure
-      false
     end
+    ips
   end
 
   def uri2domain(uri)
@@ -137,7 +141,7 @@ class Metasploit4 < Msf::Auxiliary
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless subdomain.include?(domain)
-      ips = Rex::Socket.getaddresses(subdomain)
+      ips = domain2ip(subdomain)
       ips.each do |ip|
         report_host(host: ip, name: subdomain)
         print_good("#{dork} subdomain: #{subdomain} - #{ip}")
@@ -183,7 +187,7 @@ class Metasploit4 < Msf::Auxiliary
     results.each do |subdomain|
       next if domains.include?(subdomain)
       next unless subdomain.include?(domain)
-      ips = Rex::Socket.getaddresses(subdomain)
+      ips = domain2ip(subdomain)
       ips.each do |ip|
         report_host(host: ip, name: subdomain)
         print_good("#{dork} subdomain: #{subdomain} - #{ip}")
@@ -222,6 +226,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def run
     target = datastore['TARGET']
+
     if Rex::Socket.is_ipv4?(target)
       bing_search_ip(target) if datastore['ENUM_BING']
       yahoo_search_ip(target) if datastore['ENUM_YAHOO']
