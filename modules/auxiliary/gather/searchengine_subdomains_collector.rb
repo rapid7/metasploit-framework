@@ -46,14 +46,18 @@ class MetasploitModule < Msf::Auxiliary
     80
   end
 
-  def valid?(ip, domain)
+  def valid_result?(target, subdomain)
+    data = Rex::Socket.is_ipv4?(target) ? domain2ip(subdomain) : subdomain
+    data && data.include?(target) ? true : false
+  end
+
+  def domain2ip(domain)
+    ips = []
     begin
       ips = Rex::Socket.getaddresses(domain)
-      true if ips.include?(ip)
     rescue SocketError
-    ensure
-      false
     end
+    ips
   end
 
   def uri2domain(uri)
@@ -74,9 +78,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def bing_search(dork)
+<<<<<<< HEAD
     begin
       print_status("Searching Bing for subdomains from #{dork}")
       results = []
+=======
+    print_status("Searching Bing for subdomains from #{dork}")
+    results = []
+
+    begin
+>>>>>>> searchengine_subdomains_collector
       searches = ['1', '51', '101', '151', '201', '251', '301', '351', '401', '451']
       searches.each do |num|
         resp = send_request_cgi!(
@@ -101,6 +112,7 @@ class MetasploitModule < Msf::Auxiliary
           next unless result
           result.to_s.downcase!
           results << result
+<<<<<<< HEAD
           vprint_good(result)
         end
       end
@@ -108,10 +120,17 @@ class MetasploitModule < Msf::Auxiliary
       print_error("#{e.message}")
     ensure
       return results
+=======
+        end
+      end
+    rescue ::Exception => e
+      print_error("#{dork} - #{e.message}")
+>>>>>>> searchengine_subdomains_collector
     end
   end
 
   def yahoo_search(dork)
+<<<<<<< HEAD
     begin
       print_status("Searching Yahoo for subdomains from #{dork}")
       results = []
@@ -164,46 +183,47 @@ class MetasploitModule < Msf::Auxiliary
         print_good("#{dork} subdomain: #{subdomain} - #{ip}")
         next if subdomain_ips.include?(ip)
         subdomain_ips << ip if Rex::Socket.is_ipv4?(ip)
+=======
+    print_status("Searching Yahoo for subdomains from #{dork}")
+    results = []
+
+    begin
+      searches = ["1", "101", "201", "301", "401", "501"]
+      searches.each do |num|
+        resp = send_request_cgi!(
+          'rhost' => rhost_yahoo,
+          'rport' => rport_yahoo,
+          'vhost' => rhost_yahoo,
+          'method' => 'GET',
+          'uri' => '/search',
+          'vars_get' => {
+            'pz' => 100,
+            'p' => dork,
+            'b' => num
+          })
+
+        next unless resp && resp.code == 200
+        html = resp.get_html_document
+        matches = html.search('span[@class=" fz-15px fw-m fc-12th wr-bw lh-15"]')
+        matches.each do |match|
+          result = match.text
+          result = result.split('/')[0]
+          result = result.split(':')[0]
+          next unless result
+          result.to_s.downcase!
+          results << result
+        end
+>>>>>>> searchengine_subdomains_collector
       end
-      domains[subdomain] = ips
+    rescue ::Exception => e
+      print_error("#{dork} - #{e.message}")
     end
-
-    subdomain_ips.each do |ip|
-      bing_search_ip(ip) if datastore['IP_SEARCH']
-    end
-
-    return if domains.empty?
-    report_note(
-      host: domain,
-      type: 'Bing Search Subdomains',
-      update: :unique_data,
-      data: domains)
-    domains
+    results
   end
 
-  def bing_search_ip(ip)
-    dork = "ip:#{ip}"
+  def search_subdomains(target)
     domains = {}
-
-    results = bing_search(dork)
-    results.each do |subdomain|
-      next if domains.include?(subdomain)
-      next unless valid?(ip, subdomain)
-      report_host(host: ip, name: subdomain)
-      print_good("#{dork} suddomain: #{subdomain}")
-      domains[subdomain] = ip
-    end
-    return if domains.empty?
-    report_note(
-      host: ip,
-      type: 'Bing Search Subdomains',
-      update: :unique_data,
-      data: domains)
-    domains
-  end
-
-  def yahoo_search_domain(domain)
-    domains = {}
+<<<<<<< HEAD
     subdomain_ips = []
     dork = "domain:#{domain}"
     results = yahoo_search(dork)
@@ -223,45 +243,34 @@ class MetasploitModule < Msf::Auxiliary
     subdomain_ips.each do |ip|
       yahoo_search_ip(ip) if datastore['IP_SEARCH']
     end
+=======
+    ipv4 = Rex::Socket.is_ipv4?(target)
+    dork = ipv4 ? "ip:#{target}" : "domain:#{target}"
+>>>>>>> searchengine_subdomains_collector
 
-    return if domains.empty?
-    report_note(
-      host: domain,
-      type: 'Yahoo Search Subdomains',
-      update: :unique_data,
-      data: domains)
-    domains
-  end
+    results = [] # merge results to reduce query times
+    results |= bing_search(dork) if datastore['ENUM_BING']
+    results |= yahoo_search(dork) if datastore['ENUM_YAHOO']
 
-  def yahoo_search_ip(ip)
-    dork = "ip:#{ip}"
-    domains = {}
-
-    results = yahoo_search(dork)
+    return domains if results.nil? || results.empty?
     results.each do |subdomain|
       next if domains.include?(subdomain)
-      next unless valid?(ip, subdomain)
-      report_host(host: ip, name: subdomain)
+      next unless valid_result?(target, subdomain)
       print_good("#{dork} subdomain: #{subdomain}")
-      domains[subdomain] = ip
+      if ipv4
+        domains[subdomain] = [target]
+      else
+        ips = domain2ip(subdomain)
+        next if ips.empty?
+        domains[subdomain] = ips
+        ips.each { |ip| search_subdomains(ip) } if !ips.empty? && datastore['IP_SEARCH']
+      end
     end
     return if domains.empty?
-    report_note(
-      host: ip,
-      type: 'Yahoo Search Subdomains',
-      update: :unique_data,
-      data: domains)
-    domains
+    report_note(host: target, type: 'Subdomains', update: :unique_data, data: domains)
   end
 
   def run
-    target = datastore['TARGET']
-    if Rex::Socket.is_ipv4?(target)
-      bing_search_ip(target) if datastore['ENUM_BING']
-      yahoo_search_ip(target) if datastore['ENUM_YAHOO']
-    else
-      bing_search_domain(target) if datastore['ENUM_BING']
-      yahoo_search_domain(target) if datastore['ENUM_YAHOO']
-    end
+    search_subdomains(datastore['TARGET'])
   end
 end
