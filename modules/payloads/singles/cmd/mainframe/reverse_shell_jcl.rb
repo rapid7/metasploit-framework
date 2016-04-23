@@ -244,7 +244,7 @@ module MetasploitModule
       return true
     elsif(name == 'LPORT' and datastore[name] )
       val = datastore[name]
-      val = val.to_s(16).rjust(4,'0')
+      val = val.to_s.to_i.to_s(16).rjust(4, '0')
       raw[offset, val.length] = val
       return true
     else
