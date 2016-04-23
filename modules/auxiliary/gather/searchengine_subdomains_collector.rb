@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
           vprint_good(result)
         end
       end
-    rescue Rex::ConnectionTimeout => e
+    rescue ::Exception => e
       print_error("#{e.message}")
     ensure
       return results
@@ -112,36 +112,41 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def yahoo_search(dork)
-    print_status("Searching Yahoo for subdomains from #{dork}")
-    results = []
-    searches = ["1", "101", "201", "301", "401", "501"]
-    searches.each do |num|
-      resp = send_request_cgi!(
-        'rhost' => rhost_yahoo,
-        'rport' => rport_yahoo,
-        'vhost' => rhost_yahoo,
-        'method' => 'GET',
-        'uri' => '/search',
-        'vars_get' => {
-          'pz' => 100,
-          'p' => dork,
-          'b' => num
-        })
+    begin
+      print_status("Searching Yahoo for subdomains from #{dork}")
+      results = []
+      searches = ["1", "101", "201", "301", "401", "501"]
+      searches.each do |num|
+        resp = send_request_cgi!(
+          'rhost' => rhost_yahoo,
+          'rport' => rport_yahoo,
+          'vhost' => rhost_yahoo,
+          'method' => 'GET',
+          'uri' => '/search',
+          'vars_get' => {
+            'pz' => 100,
+            'p' => dork,
+            'b' => num}
+        )
 
-      next unless resp && resp.code == 200
-      html = resp.get_html_document
-      matches = html.search('span[@class=" fz-15px fw-m fc-12th wr-bw lh-15"]')
-      matches.each do |match|
-        result = match.text
-        result = result.split('/')[0]
-        result = result.split(':')[0]
-        next unless result
-        result.to_s.downcase!
-        results << result
-        vprint_good(result)
+        next unless resp && resp.code == 200
+        html = resp.get_html_document
+        matches = html.search('span[@class=" fz-15px fw-m fc-12th wr-bw lh-15"]')
+        matches.each do |match|
+          result = match.text
+          result = result.split('/')[0]
+          result = result.split(':')[0]
+          next unless result
+          result.to_s.downcase!
+          results << result
+          vprint_good(result)
+        end
       end
+    rescue ::Exception => e
+      print_error("#{e.message}")
+    ensure
+      return results
     end
-    results
   end
 
   def bing_search_domain(domain)
