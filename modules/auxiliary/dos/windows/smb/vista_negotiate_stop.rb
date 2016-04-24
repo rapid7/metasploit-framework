@@ -18,10 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       },
 
       'Author'         => [ 'hdm' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-        ]
+      'License'        => MSF_LICENSE
     ))
 
     register_options([Opt::RPORT(445)], self.class)

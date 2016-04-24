@@ -26,10 +26,6 @@ class MetasploitModule < Msf::Auxiliary
 
       'Author'         => [ 'hdm' ],
       'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-
-        ],
       'Actions'     =>
         [
           ['Attack'],
