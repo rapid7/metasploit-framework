@@ -136,6 +136,8 @@ module Msf::Post::File
     end
   end
 
+  alias :exists? :exist?
+
   #
   # Writes a given string to a given local file
   #
