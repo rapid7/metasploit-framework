@@ -16,7 +16,7 @@ These packages integrate into your OS's native package management and can either
 
 # OS X graphical installation
 
-The latest OS X installer package can also be downloaded directly here: http://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at http://osx.metasploit.com/. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.  Once installed, initially launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole```. A series of prompts will helpy you setup a database and add Metasploit to your local PATH. You can also follow the Linux instructions below to install in a single step.
+The latest OS X installer package can also be downloaded directly here: http://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at http://osx.metasploit.com/. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.  Once installed, initially launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole```. A series of prompts will help you setup a database and add Metasploit to your local PATH. You can also follow the Linux instructions below to install in a single step.
 
 # Linux package details
 
