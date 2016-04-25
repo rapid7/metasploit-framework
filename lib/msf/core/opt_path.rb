@@ -23,7 +23,7 @@ class OptPath < OptBase
       if value =~ /^memory:\s*([0-9]+)/i
         return false unless check_memory_location($1)
       else
-        unless File.exists?(value)
+        unless File.exist?(value)
           return false
         end
       end

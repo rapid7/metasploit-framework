@@ -37,7 +37,7 @@ module Msf
         kb_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
         kb = ''
 
-        if File.exists?(kb_path)
+        if File.exist?(kb_path)
           File.open(kb_path, 'rb') { |f| kb = f.read }
         end
 

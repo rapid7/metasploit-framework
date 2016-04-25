@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
     end
 
     name_list = []
-    if ::File.exists?(hostlst)
+    if ::File.exist?(hostlst)
       ::File.open(hostlst).each do |n|
         name_list << n
       end

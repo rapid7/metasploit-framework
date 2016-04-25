@@ -49,7 +49,7 @@ module Auxiliary::AuthBrute
     @@max_per_service = nil
   end
 
-  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # Yields each Metasploit::Credential::Core in the Mdm::Workspace with
   # a private type of 'ntlm_hash'
   #
   # @yieldparam [Metasploit::Credential::Core]
@@ -60,7 +60,7 @@ module Auxiliary::AuthBrute
     end
   end
 
-  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # Yields each Metasploit::Credential::Core in the Mdm::Workspace with
   # a private type of 'password'
   #
   # @yieldparam [Metasploit::Credential::Core]
@@ -71,7 +71,7 @@ module Auxiliary::AuthBrute
     end
   end
 
-  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # Yields each Metasploit::Credential::Core in the Mdm::Workspace with
   # a private type of 'ssh_key'
   #
   # @yieldparam [Metasploit::Credential::Core]
@@ -90,7 +90,7 @@ module Auxiliary::AuthBrute
     (datastore['DB_ALL_CREDS'] || datastore['DB_ALL_PASS'] || datastore['DB_ALL_USERS']) && framework.db.active
   end
 
-  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing NTLMHashes
+  # This method takes a Metasploit::Framework::CredentialCollection and prepends existing NTLMHashes
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
   # @param cred_collection [Metasploit::Framework::CredentialCollection]
@@ -105,7 +105,7 @@ module Auxiliary::AuthBrute
     cred_collection
   end
 
-  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing SSHKeys
+  # This method takes a Metasploit::Framework::CredentialCollection and prepends existing SSHKeys
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
   # @param [Metasploit::Framework::CredentialCollection] cred_collection
@@ -120,7 +120,7 @@ module Auxiliary::AuthBrute
     cred_collection
   end
 
-  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing Password Credentials
+  # This method takes a Metasploit::Framework::CredentialCollection and prepends existing Password Credentials
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
   # @param cred_collection [Metasploit::Framework::CredentialCollection]
@@ -135,9 +135,9 @@ module Auxiliary::AuthBrute
     cred_collection
   end
 
-  # Takes a {Metasploit::Credential::Core} and converts it into a
-  # {Metasploit::Framework::Credential} and processes it into the
-  # {Metasploit::Framework::CredentialCollection} as dictated by the
+  # Takes a Metasploit::Credential::Core and converts it into a
+  # Metasploit::Framework::Credential and processes it into the
+  # Metasploit::Framework::CredentialCollection as dictated by the
   # selected datastore options.
   #
   # @param [Metasploit::Framework::CredentialCollection] cred_collection the credential collection to add to

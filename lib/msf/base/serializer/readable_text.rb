@@ -400,8 +400,7 @@ class ReadableText
           'Description'
         ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
       val = mod.datastore[name] || opt.default
 
       next if (opt.advanced?)
@@ -409,7 +408,7 @@ class ReadableText
       next if (missing && opt.valid?(val))
 
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
-    }
+    end
 
     return tbl.to_s
   end
@@ -420,24 +419,23 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_advanced_options(mod, indent = '')
-    output = ''
-    pad    = indent
+    tbl = Rex::Ui::Text::Table.new(
+      'Indent'  => indent.length,
+      'Columns' =>
+        [
+          'Name',
+          'Current Setting',
+          'Required',
+          'Description'
+        ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
+      next unless opt.advanced?
+      val = mod.datastore[name] || opt.default
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+    end
 
-      next if (!opt.advanced?)
-
-      val = mod.datastore[name] || opt.default.to_s
-      desc = word_wrap(opt.desc, indent.length + 3)
-      desc = desc.slice(indent.length + 3, desc.length)
-
-      output << pad + "Name           : #{name}\n"
-      output << pad + "Current Setting: #{val}\n"
-      output << pad + "Description    : #{desc}\n"
-    }
-
-    return output
+    return tbl.to_s
   end
 
   # Dumps the evasion options associated with the supplied module.
@@ -446,25 +444,23 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_evasion_options(mod, indent = '')
-    output = ''
-    pad    = indent
+    tbl = Rex::Ui::Text::Table.new(
+      'Indent'  => indent.length,
+      'Columns' =>
+        [
+          'Name',
+          'Current Setting',
+          'Required',
+          'Description'
+        ])
 
-    mod.options.sorted.each { |entry|
-      name, opt = entry
+    mod.options.sorted.each do |name, opt|
+      next unless opt.evasion?
+      val = mod.datastore[name] || opt.default
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+    end
 
-      next if (!opt.evasion?)
-
-      val = mod.datastore[name] || opt.default || ''
-
-      desc = word_wrap(opt.desc, indent.length + 3)
-      desc = desc.slice(indent.length + 3, desc.length)
-
-      output << pad + "Name           : #{name}\n"
-      output << pad + "Current Setting: #{val}\n"
-      output << pad + "Description    : #{desc}\n"
-    }
-
-    return output
+    return tbl.to_s
   end
 
   # Dumps the references associated with the supplied module.
@@ -475,7 +471,7 @@ class ReadableText
   def self.dump_references(mod, indent = '')
     output = ''
 
-    if (mod.respond_to? :references and mod.references and mod.references.length > 0)
+    if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
       mod.references.each { |ref|
         output << indent + ref.to_s + "\n"
@@ -534,6 +530,7 @@ class ReadableText
     columns << 'Id'
     columns << 'Type'
     columns << 'Checkin?' if show_extended
+    columns << 'Local URI' if show_extended
     columns << 'Information'
     columns << 'Connection'
 
@@ -559,6 +556,12 @@ class ReadableText
       if show_extended
         if session.respond_to?(:last_checkin) && session.last_checkin
           row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
+        else
+          row << '?'
+        end
+
+        if session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
+          row << " (#{session.exploit_datastore['LURI']})"
         else
           row << '?'
         end
@@ -601,6 +604,7 @@ class ReadableText
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
       sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
+      sess_luri    = session.exploit_datastore['LURI'] || ""
 
       sess_checkin = "<none>"
       sess_machine_id = session.machine_id.to_s
@@ -630,6 +634,9 @@ class ReadableText
       out << "   MachineID: #{sess_machine_id}\n"
       out << "     CheckIn: #{sess_checkin}\n"
       out << "  Registered: #{sess_registration}\n"
+      if !sess_luri.empty?
+        out << "        LURI: #{sess_luri}\n"
+      end
 
 
 
@@ -682,6 +689,7 @@ class ReadableText
       if (verbose)
         uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)
         uripath = ctx[0].datastore['URIPATH'] if uripath.nil?
+        uripath = ctx[0].datastore['LURI'] if uripath.nil?
         row << (uripath || "")
         row << (framework.jobs[k].start_time || "")
       end

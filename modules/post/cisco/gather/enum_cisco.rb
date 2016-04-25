@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Post
       end
     else
       if pass_file
-        if not ::File.exists?(pass_file)
+        if not ::File.exist?(pass_file)
           print_error("Wordlist File #{pass_file} does not exists!")
           return
         end
