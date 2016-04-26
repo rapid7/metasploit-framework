@@ -241,11 +241,12 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
     doc.each do |node|
       case node.name
-        when 'host'
-          parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
-        when 'web_site'
-          parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
-        when 'web_page', 'web_form', 'web_vuln'
+      when 'host'
+        parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+      when 'web_site'
+        parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+      when 'web_page', 'web_form', 'web_vuln'
+        unless node.inner_xml.empty?
           send(
               "import_msf_#{node.name}_element",
               Nokogiri::XML(node.outer_xml).at("./#{node.name}"),
@@ -253,6 +254,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
               :workspace => wspace,
               &block
           )
+        end
       end
     end
   end
@@ -625,6 +627,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     info[:ssl] = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
 
     specialized_info = specialization.call(element, options)
+
     info.merge!(specialized_info)
 
     self.send("report_web_#{type}", info)
