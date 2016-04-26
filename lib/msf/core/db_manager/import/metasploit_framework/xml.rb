@@ -66,7 +66,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
   # Imports `Mdm::Note` objects from the XML element.
   #
-  # @param note [REXML::Element] The Note element
+  # @param note [Nokogiri::XML::Element] The Note element
   # @param allow_yaml [Boolean] whether to allow yaml
   # @param note_data [Hash] hash containing note attributes to be passed along
   # @return [void]
@@ -90,7 +90,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
   # Imports web_form element using Msf::DBManager#report_web_form.
   #
-  # @param element [REXML::Element] web_form element.
+  # @param element [Nokogiri::XML::Element] web_form element.
   # @param options [Hash{Symbol => Object}] options
   # @option options [Boolean] :allow_yaml (false) Whether to allow YAML when
   #   deserializing params.
@@ -126,7 +126,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
   # Imports web_page element using Msf::DBManager#report_web_page.
   #
-  # @param element [REXML::Element] web_page element.
+  # @param element [Nokogiri::XML::Element] web_page element.
   # @param options [Hash{Symbol => Object}] options
   # @option options [Boolean] :allow_yaml (false) Whether to allow YAML when
   #   deserializing headers.
@@ -173,7 +173,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
   # Imports web_vuln element using Msf::DBManager#report_web_vuln.
   #
-  # @param element [REXML::Element] web_vuln element.
+  # @param element [Nokogiri::XML::Element] web_vuln element.
   # @param options [Hash{Symbol => Object}] options
   # @option options [Boolean] :allow_yaml (false) Whether to allow YAML when
   #   deserializing headers.
@@ -520,8 +520,8 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # Checks if the XML document has a format version that the importer
   # understands.
   #
-  # @param document [REXML::Document] a REXML::Document produced by
-  #   {Msf::DBManager#rexmlify}.
+  # @param name [String] the root node name produced by
+  #   {Nokogiri::XML::Reader#from_memory}.
   # @return [Hash{Symbol => Object}] `:allow_yaml` is true if the format
   #   requires YAML loading when calling
   #   {Msf::DBManager#unserialize_object}.  `:root_tag` the tag name of the
@@ -564,7 +564,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
   # Retrieves text of element if it exists.
   #
-  # @param parent_element [REXML::Element] element under which element with
+  # @param parent_element [Nokogiri::XML::Element] element under which element with
   #   `child_name` exists.
   # @param child_name [String] the name of the element under
   #   `parent_element` whose text should be returned
@@ -591,7 +591,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # Msf::DBManager#report_web_form, Msf::DBManager#report_web_page, and
   # Msf::DBManager#report_web_vuln, respectively.
   #
-  # @param element [REXML::Element] the web_form, web_page, or web_vuln
+  # @param element [Nokogiri::XML::Element] the web_form, web_page, or web_vuln
   #   element.
   # @param options [Hash{Symbol => Object}] options
   # @option options [Boolean] :allow_yaml (false) Whether to allow YAML when
@@ -604,7 +604,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   #   (Msf::DBManager#workspace) workspace under which to report the
   #   imported record.
   # @yield [element, options]
-  # @yieldparam element [REXML::Element] the web_form, web_page, or
+  # @yieldparam element [Nokogiri::XML::Element] the web_form, web_page, or
   #   web_vuln element passed to {#import_msf_web_element}.
   # @yieldparam options [Hash{Symbol => Object}] options for parsing
   # @yieldreturn [Hash{Symbol => Object}] info
