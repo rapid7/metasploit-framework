@@ -536,22 +536,22 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     }
 
     case name
-      when 'MetasploitExpressV1'
-        # FIXME https://www.pivotaltracker.com/story/show/47128407
-        metadata[:allow_yaml] = true
-        metadata[:root_tag] = 'MetasploitExpressV1'
-      when 'MetasploitExpressV2'
-        # FIXME https://www.pivotaltracker.com/story/show/47128407
-        metadata[:allow_yaml] = true
-        metadata[:root_tag] = 'MetasploitExpressV2'
-      when 'MetasploitExpressV3'
-        metadata[:root_tag] = 'MetasploitExpressV3'
-      when 'MetasploitExpressV4'
-        metadata[:root_tag] = 'MetasploitExpressV4'
-      when 'MetasploitV4'
-        metadata[:root_tag] = 'MetasploitV4'
-      when 'MetasploitV5'
-        metadata[:root_tag] = 'MetasploitV5'
+    when 'MetasploitExpressV1'
+      # FIXME https://www.pivotaltracker.com/story/show/47128407
+      metadata[:allow_yaml] = true
+      metadata[:root_tag] = 'MetasploitExpressV1'
+    when 'MetasploitExpressV2'
+      # FIXME https://www.pivotaltracker.com/story/show/47128407
+      metadata[:allow_yaml] = true
+      metadata[:root_tag] = 'MetasploitExpressV2'
+    when 'MetasploitExpressV3'
+      metadata[:root_tag] = 'MetasploitExpressV3'
+    when 'MetasploitExpressV4'
+      metadata[:root_tag] = 'MetasploitExpressV4'
+    when 'MetasploitV4'
+      metadata[:root_tag] = 'MetasploitV4'
+    when 'MetasploitV5'
+      metadata[:root_tag] = 'MetasploitV5'
     end
 
     unless metadata[:root_tag]
