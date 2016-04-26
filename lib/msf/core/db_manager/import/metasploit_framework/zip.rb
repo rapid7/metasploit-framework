@@ -11,27 +11,26 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     btag = nil
 
     doc = Nokogiri::XML::Reader.from_memory(data)
-
     case doc.first.name
-      when "MetasploitExpressV1"
-        m_ver = 1
-        allow_yaml = true
-        btag = "MetasploitExpressV1"
-      when "MetasploitExpressV2"
-        m_ver = 2
-        allow_yaml = true
-        btag = "MetasploitExpressV2"
-      when "MetasploitExpressV3"
-        m_ver = 3
-        btag = "MetasploitExpressV3"
-      when "MetasploitExpressV4"
-        m_ver = 4
-        btag = "MetasploitExpressV4"
-      when "MetasploitV4"
-        m_ver = 4
-        btag = "MetasploitV4"
-      else
-        m_ver = nil
+    when "MetasploitExpressV1"
+      m_ver = 1
+      allow_yaml = true
+      btag = "MetasploitExpressV1"
+    when "MetasploitExpressV2"
+      m_ver = 2
+      allow_yaml = true
+      btag = "MetasploitExpressV2"
+    when "MetasploitExpressV3"
+      m_ver = 3
+      btag = "MetasploitExpressV3"
+    when "MetasploitExpressV4"
+      m_ver = 4
+      btag = "MetasploitExpressV4"
+    when "MetasploitV4"
+      m_ver = 4
+      btag = "MetasploitV4"
+    else
+      m_ver = nil
     end
     unless m_ver and btag
       raise Msf::DBImportError.new("Unsupported Metasploit XML document format")
@@ -40,23 +39,22 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     host_info = {}
 
     doc.each do |node|
-      case node.name
-        when 'host', 'loot', 'task', 'report'
+      if ['host', 'loot', 'task', 'report'].include?(node.name)
+        unless node.inner_xml.empty?
           send("parse_zip_#{node.name}", Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
+        end
       end
     end
   end
 
   # Parses host Nokogiri::XML::Element
   def parse_zip_host(host, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
-    if host.at("id")
-      host_info[host.at("id").text.to_s.strip] = nils_for_nulls(host.at("address").text.to_s.strip)
-    end
+    host_info[host.at("id").text.to_s.strip] = nils_for_nulls(host.at("address").text.to_s.strip)
   end
 
   # Parses loot Nokogiri::XML::Element
   def parse_zip_loot(loot, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
-    return 0 if loot.at("host-id").nil? || bl.include?(host_info[loot.at("host-id").text.to_s.strip])
+    return 0 if bl.include? host_info[loot.at("host-id").text.to_s.strip]
     loot_info              = {}
     loot_info[:host]       = host_info[loot.at("host-id").text.to_s.strip]
     loot_info[:workspace]  = args[:wspace]
@@ -79,10 +77,10 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
 
     # Only report loot if we actually have it.
     # TODO: Copypasta. Separate this out.
-    if ::File.exists? loot_info[:orig_path]
+    if ::File.exist? loot_info[:orig_path]
       loot_dir = ::File.join(basedir,"loot")
       loot_file = ::File.split(loot_info[:orig_path]).last
-      if ::File.exists? loot_dir
+      if ::File.exist? loot_dir
         unless (::File.directory?(loot_dir) && ::File.writable?(loot_dir))
           raise Msf::DBImportError.new("Could not move files to #{loot_dir}")
         end
@@ -91,7 +89,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       end
       new_loot = ::File.join(loot_dir,loot_file)
       loot_info[:path] = new_loot
-      if ::File.exists?(new_loot)
+      if ::File.exist?(new_loot)
         ::File.unlink new_loot # Delete it, and don't report it.
       else
         report_loot(loot_info) # It's new, so report it.
@@ -105,7 +103,6 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   def parse_zip_task(task, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
     task_info = {}
     task_info[:workspace] = args[:wspace]
-    return 0 unless task.at("path")
     # Should user be imported (original) or declared (the importing user)?
     task_info[:user] = nils_for_nulls(task.at("created-by").text.to_s.strip)
     task_info[:desc] = nils_for_nulls(task.at("description").text.to_s.strip)
@@ -130,10 +127,10 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
 
     # Only report a task if we actually have it.
     # TODO: Copypasta. Separate this out.
-    if ::File.exists? task_info[:orig_path]
+    if ::File.exist? task_info[:orig_path]
       tasks_dir = ::File.join(basedir,"tasks")
       task_file = ::File.split(task_info[:orig_path]).last
-      if ::File.exists? tasks_dir
+      if ::File.exist? tasks_dir
         unless (::File.directory?(tasks_dir) && ::File.writable?(tasks_dir))
           raise Msf::DBImportError.new("Could not move files to #{tasks_dir}")
         end
@@ -142,7 +139,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       end
       new_task = ::File.join(tasks_dir,task_file)
       task_info[:path] = new_task
-      if ::File.exists?(new_task)
+      if ::File.exist?(new_task)
         ::File.unlink new_task # Delete it, and don't report it.
       else
         report_task(task_info) # It's new, so report it.
