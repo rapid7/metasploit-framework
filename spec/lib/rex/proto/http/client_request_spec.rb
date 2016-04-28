@@ -170,6 +170,16 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         :set_content_len_header => { args: 1024, result: "Content-Length: 1024\r\n"}
       }
     ],
+
+    [
+      "with a POST request and no payload body",
+      default_options.merge({
+        'method' => 'POST'
+      }),
+      {
+        :set_content_len_header => { args: 0, result: "Content-Length: 0\r\n"}
+      }
+    ],
   
   ].each do |c, opts, expectations|
     context c do
