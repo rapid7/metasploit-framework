@@ -238,13 +238,13 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     btag = metadata[:root_tag]
 
     doc.each do |node|
-      case node.name
-      when 'host'
-        parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
-      when 'web_site'
-        parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
-      when 'web_page', 'web_form', 'web_vuln'
-        unless node.inner_xml.empty?
+      unless node.inner_xml.empty?
+        case node.name
+        when 'host'
+          parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+        when 'web_site'
+          parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+        when 'web_page', 'web_form', 'web_vuln'
           send(
               "import_msf_#{node.name}_element",
               Nokogiri::XML(node.outer_xml).at("./#{node.name}"),
