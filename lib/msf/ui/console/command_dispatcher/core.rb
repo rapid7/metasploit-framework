@@ -802,7 +802,7 @@ class Core
         print(Serializer::Json.dump_module(mod) + "\n")
       elsif show_doc
         print_status("Please wait, generating documentation for #{mod.shortname}")
-        Msf::Util::DocumentGenerator.get_module_document(mod)
+        Msf::Util::DocumentGenerator.spawn_module_document(mod)
       else
         print(Serializer::ReadableText.dump_module(mod))
       end
