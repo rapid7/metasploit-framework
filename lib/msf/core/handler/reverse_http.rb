@@ -420,16 +420,14 @@ protected
         unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
           print_status("Unknown request to #{request_summary}")
         end
-        resp.code    = 200
-        resp.message = 'OK'
-        resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+        resp = nil
         self.pending_connections -= 1
     end
 
     cli.send_response(resp) if (resp)
 
     # Force this socket to be closed
-    obj.service.close_client( cli )
+    obj.service.close_client(cli)
   end
 
 end
