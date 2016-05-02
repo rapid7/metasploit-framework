@@ -89,7 +89,6 @@ code {
 }
 pre {
     display: block;
-    padding: 16px;
     margin: 0 0 18px;
     line-height: 16px;
     font-size: 13px;
@@ -139,7 +138,6 @@ pre code {
   border-style: solid;
   border-width: 1px;
   border-color: #ccc;
-  padding: 5px;
 }
 
 

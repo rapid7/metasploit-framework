@@ -138,7 +138,7 @@ def self.open_browser(url='http://google.com/')
       ['xdg-open', 'sensible-browser', 'firefox', 'firefox-bin', 'opera', 'konqueror', 'chromium-browser'].each do |browser|
         ENV['PATH'].split(':').each do |path|
           # Does the browser exists?
-          if File.exists?("#{path}/#{browser}")
+          if File.exist?("#{path}/#{browser}")
             system("#{browser} #{url} &")
             return
           end
@@ -165,7 +165,7 @@ def self.open_webrtc_browser(url='http://google.com/')
       paths << "#{app_data}\\Google\\Chrome\\Application\\chrome.exe"
 
       paths.each do |path|
-        if File.exists?(path)
+        if File.exist?(path)
           args = (path =~ /chrome\.exe/) ? "--allow-file-access-from-files" : ""
           system("\"#{path}\" #{args} \"#{url}\"")
           return true
@@ -187,7 +187,7 @@ def self.open_webrtc_browser(url='http://google.com/')
       ['google-chrome', 'chrome', 'chromium', 'firefox' , 'firefox', 'opera'].each do |browser|
         ENV['PATH'].split(':').each do |path|
           browser_path = "#{path}/#{browser}"
-          if File.exists?(browser_path)
+          if File.exist?(browser_path)
             args = (browser_path =~ /Chrome/) ? "--allow-file-access-from-files" : ""
             system("#{browser_path} #{args} #{url} &")
             return true

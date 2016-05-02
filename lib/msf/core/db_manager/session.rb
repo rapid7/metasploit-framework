@@ -33,7 +33,7 @@ module Msf::DBManager::Session
   #     :session host is contained.  Also used as the workspace for the
   #     Mdm::ExploitAttempt and Mdm::Vuln.  Defaults to Mdm::Worksapce with
   #     Mdm::Workspace#name equal to +session.workspace+.
-  #   @return [nil] if {Msf::DBManager#active} is +false+.
+  #   @return [nil] if Msf::DBManager#active is +false+.
   #   @return [Mdm::Session] if session is saved
   #   @raise [ArgumentError] if :session is not an {Msf::Session}.
   #   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
@@ -68,7 +68,7 @@ module Msf::DBManager::Session
   #     exploit that was used to open the session.
   #   @option option [String] :via_payload the {MSf::Module#fullname} of the
   #     payload sent to the host when the exploit was successful.
-  #   @return [nil] if {Msf::DBManager#active} is +false+.
+  #   @return [nil] if Msf::DBManager#active is +false+.
   #   @return [Mdm::Session] if session is saved.
   #   @raise [ArgumentError] if :host is not an Mdm::Host.
   #   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
@@ -103,7 +103,7 @@ module Msf::DBManager::Session
 
   protected
 
-  # @param session [Msf::Session] A session with a {db_record Msf::Session#db_record}
+  # @param session [Msf::Session] A session with a db_record Msf::Session#db_record
   # @param wspace [Mdm::Workspace]
   # @return [void]
   def infer_vuln_from_session(session, wspace)
