@@ -79,14 +79,8 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   def self.open(client, params)
     c = Channel.create(client, 'stdapi_net_tcp_server', self, CHANNEL_FLAG_SYNCHRONOUS,
       [
-        {
-        'type'  => TLV_TYPE_LOCAL_HOST,
-        'value' => params.localhost
-        },
-        {
-        'type'  => TLV_TYPE_LOCAL_PORT,
-        'value' => params.localport
-        }
+        {'type'  => TLV_TYPE_LOCAL_HOST, 'value' => params.localhost},
+        {'type'  => TLV_TYPE_LOCAL_PORT, 'value' => params.localport}
       ] )
     c.params = params
     c

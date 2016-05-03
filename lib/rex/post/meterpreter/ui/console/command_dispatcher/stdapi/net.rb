@@ -454,20 +454,26 @@ class Console::CommandDispatcher::Stdapi::Net
             return
           end
 
-          channel = client.net.socket.create(
-            Rex::Socket::Parameters.new(
-              'LocalPort' => rport,
-              'Proto'     => 'tcp',
-              'Server'    => true
+          begin
+            channel = client.net.socket.create(
+              Rex::Socket::Parameters.new(
+                'LocalPort' => rport,
+                'Proto'     => 'tcp',
+                'Server'    => true
+              )
             )
-          )
 
-          # Start the local TCP reverse relay in association with this stream
-          service.start_reverse_tcp_relay(channel,
-            'LocalPort'         => rport,
-            'PeerHost'          => lhost,
-            'PeerPort'          => lport,
-            'MeterpreterRelay'  => true)
+            # Start the local TCP reverse relay in association with this stream
+            service.start_reverse_tcp_relay(channel,
+              'LocalPort'         => rport,
+              'PeerHost'          => lhost,
+              'PeerPort'          => lport,
+              'MeterpreterRelay'  => true)
+          rescue Exception => e
+            print_error("Failed to create relay: #{e.to_s}")
+            return false
+          end
+
         else
           # Validate parameters
           unless lport && rhost && rport
