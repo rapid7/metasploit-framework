@@ -26,6 +26,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@kgray-r7](https://github.com/wvu-r7)            | [noxferatu](https://keybase.io/noxferatu)          |
 | [@lsato-r7](https://github.com/lsato-r7)          | [louissato](https://keybase.io/lsato)              |
 | [@Meatballs1](https://github.com/Meatballs1)      | [meatballs](https://keybase.io/meatballs)          |
+| [@mubix](https://github.com/mubix)                | [mubix](https://keybase.io/mubix)                  |
 | [@OJ](https://github.com/OJ)                      | [oj](https://keybase.io/oj)                        |
 | [@scriptjunkie](https://github.com/scriptjunkie)  | [scriptjunkie](https://keybase.io/scriptjunkie)    |
 | [@sgonzalez-r7](https://github.com/sgonzalez-r7)  | [essgee](https://keybase.io/essgee)                |
