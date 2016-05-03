@@ -272,7 +272,6 @@ class Console::CommandDispatcher::Core
   #
   def cmd_exit(*args)
     print_status("Shutting down Meterpreter...")
-    client.pfservice.stop if client.pfservice
     client.core.shutdown rescue nil
     client.shutdown_passive_dispatcher
     shell.stop
