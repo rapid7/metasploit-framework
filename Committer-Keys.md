@@ -16,12 +16,12 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@bwatters-r7](https://github.com/bwatters-r7)    | [bwatters](https://keybase.io/bwatters)            |
 | [@dmaloney-r7](https://github.com/dmaloney-r7)    | [thelightcosine](https://keybase.io/thelightcosine)|
 | [@dmohanty-r7](https://github.com/dmohanty-r7)    | [debuasca](https://keybase.io/debuasca)            |
+| [@egypt](https://github.com/egypt)                | [egypt](https://keybase.io/egypt)                  |
 | [@farias-r7](https://github.com/farias-r7)        | [fariasR7](https://keybase.io/fariasR7)            |
 | [@FireFart](https://github.com/FireFart)          | [firefart](https://keybase.io/firefart)            |
 | [@gmikeska-r7](https://github.com/gmikeska-r7)    | [gmikeska_r7](https://keybase.io/gmikeska_r7)      |
 | [@hdm](https://github.com/hdm)                    | [hdm](https://keybase.io/hdm)                      |
 | [@jbarnett-r7](https://github.com/jbarnett-r7)    | [jmbarnett](https://keybase.io/jmbarnett)          |
-| [@jlee-r7](https://github.com/jlee-r7)            | [egypt](https://keybase.io/egypt)                  |
 | [@jhart-r7](https://github.com/jhart-r7)          | [jhart](https://keybase.io/jhart)                  |
 | [@kgray-r7](https://github.com/wvu-r7)            | [noxferatu](https://keybase.io/noxferatu)          |
 | [@lsato-r7](https://github.com/lsato-r7)          | [louissato](https://keybase.io/lsato)              |
