@@ -599,15 +599,15 @@ class ClientCore < Extension
   def shutdown
     request  = Packet.create_request('core_shutdown')
 
-    # If this is a standard TCP session, send and return
-    if not client.passive_service
-      self.client.send_packet(request)
-    else
+    if client.passive_service
       # If this is a HTTP/HTTPS session we need to wait a few seconds
       # otherwise the session may not receive the command before we
       # kill the handler. This could be improved by the server side
       # sending a reply to shutdown first.
       self.client.send_packet_wait_response(request, 10)
+    else
+      # If this is a standard TCP session, send and forget.
+      self.client.send_packet(request)
     end
     true
   end

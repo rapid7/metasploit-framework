@@ -10,7 +10,7 @@ addons:
       - graphviz
 language: ruby
 rvm:
-  - '2.1.8'
+  - '2.3.1'
 
 env:
   - RAKE_TASKS="cucumber cucumber:boot" CREATE_BINSTUBS=true
