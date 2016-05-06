@@ -10,7 +10,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: cf42bde7e52c13f39d068be0d97a6a3cae7469ef
+  revision: 91c854a1158975d0fad46334773af90efc73d9bb
   branch: staging/rails-upgrade
   specs:
     metasploit-credential (1.1.0)
@@ -333,4 +333,4 @@ DEPENDENCIES
   yard-metasploit-erd!
 
 BUNDLED WITH
-   1.11.2
+   1.12.2
