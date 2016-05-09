@@ -119,7 +119,6 @@ class MetasploitModule < Msf::Auxiliary
     datastore['MAILFROM'] = from
 
     msg       = load_file(msg_file)
-    email_sig = load_file(sig_file)
 
     if (type !~ /text/i and type !~ /text\/html/i)
       print_error("YAML config: #{type}")
