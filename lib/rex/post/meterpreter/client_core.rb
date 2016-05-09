@@ -731,9 +731,9 @@ class ClientCore < Extension
       c = Class.new(::Msf::Payload)
 
       if process['arch'] == ARCH_X86
-        c.include(::Msf::Payload::Windows)
         c.include(::Msf::Payload::Windows::BlockApi)
-        c.include(::Msf::Payload::Windows::MigrateTcp)
+        #c.include(::Msf::Payload::Windows::MigrateTcp)
+        c.include(::Msf::Payload::Windows::MigrateHttp)
       else
       end
       stub = c.new().generate

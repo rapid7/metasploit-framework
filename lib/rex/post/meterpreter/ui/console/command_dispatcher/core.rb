@@ -573,7 +573,7 @@ class Console::CommandDispatcher::Core
     '-t'  => [true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}"],
     '-l'  => [true,  'LHOST parameter (for reverse transports)'],
     '-p'  => [true,  'LPORT parameter'],
-    '-pp' => [true,  'PIPEHOST parameter'],
+    '-pi' => [true,  'PIPEHOST parameter'],
     '-pn' => [true,  'PIPENAME parameter'],
     '-i'  => [true,  'Specify transport by index (currently supported: remove)'],
     '-u'  => [true,  'Custom URI for HTTP/S transports (used when removing transports)'],
@@ -659,7 +659,7 @@ class Console::CommandDispatcher::Core
         opts[:uri] = val
       when '-i'
         transport_index = val.to_i
-      when '-lu', '-pp'
+      when '-lu', '-pi'
         opts[:luri] = val
       when '-ph'
         opts[:proxy_host] = val
