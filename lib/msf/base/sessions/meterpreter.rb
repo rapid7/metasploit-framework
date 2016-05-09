@@ -338,9 +338,12 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         Msf::Module::Platform::FreeBSD
       when /openbsd/i, /netbsd/i
         Msf::Module::Platform::BSD
+      when /sunos/i
+        Msf::Module::Platform::Solaris
       else
         Msf::Module::Platform::Linux
       end.realname.downcase
+
 
     safe_info = "#{username} @ #{sysinfo['Computer']}"
     safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
