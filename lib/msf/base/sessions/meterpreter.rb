@@ -326,7 +326,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
-    self.platform = self.platform.split('/')[0] + '/' +
+    self.platform =
+      self.sys.config.sysinfo["Architecture"].downcase + '/' +
+      self.platform.split('/')[0] +'/' +
       case self.sys.config.sysinfo['OS']
       when /windows/i
         Msf::Module::Platform::Windows
