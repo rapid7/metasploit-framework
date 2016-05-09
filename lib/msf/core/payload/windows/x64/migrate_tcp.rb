@@ -11,9 +11,9 @@ module Msf
 #
 ###
 
-module Payload::Windows::MigrateTcp
+module Payload::Windows::MigrateTcp_x64
 
-  include Msf::Payload::Windows_x64
+  include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi_x64
 
   WSA_DATA_SIZE = 408
