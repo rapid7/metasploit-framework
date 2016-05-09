@@ -336,8 +336,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         Msf::Module::Platform::OSX
       when /freebsd/i
         Msf::Module::Platform::FreeBSD
-      when /openbsd/i, /netbsd/i
-        Msf::Module::Platform::BSD
+      when /netbsd/i
+        Msf::Module::Platform::NetBSD
+      when /openbsd/i
+        Msf::Module::Platform::OpenBSD
       when /sunos/i
         Msf::Module::Platform::Solaris
       else
