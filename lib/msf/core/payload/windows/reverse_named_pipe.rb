@@ -156,7 +156,6 @@ module Payload::Windows::ReverseNamedPipe
         xchg edi, eax           ; edi now has the file handle we'll need in future
     ^
 
-    # TODO: add the "write file" equiv of this
     asm << asm_write_uuid if include_send_uuid
 
     asm << %Q^
