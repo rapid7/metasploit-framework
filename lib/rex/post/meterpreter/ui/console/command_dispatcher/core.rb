@@ -659,7 +659,7 @@ class Console::CommandDispatcher::Core
         opts[:uri] = val
       when '-i'
         transport_index = val.to_i
-      when '-lu', '-pi'
+      when '-lu', '-pn'
         opts[:luri] = val
       when '-ph'
         opts[:proxy_host] = val
@@ -683,7 +683,7 @@ class Console::CommandDispatcher::Core
         opts[:retry_wait] = val.to_i if val
       when '-p'
         opts[:lport] = val.to_i if val
-      when '-l', '-pn'
+      when '-l', '-pi'
         opts[:lhost] = val
       when '-v'
         opts[:verbose] = true
