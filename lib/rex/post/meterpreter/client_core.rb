@@ -127,6 +127,10 @@ class ClientCore < Extension
     result
   end
 
+  def get_transport_current
+    transport_list[:transports][0]
+  end
+
   def set_transport_timeouts(opts={})
     request = Packet.create_request('core_transport_set_timeouts')
 
@@ -728,12 +732,22 @@ class ClientCore < Extension
     stub = nil
     case client.platform
     when /win/i
+      t = get_transport_current
+
       c = Class.new(::Msf::Payload)
 
       if process['arch'] == ARCH_X86
         c.include(::Msf::Payload::Windows::BlockApi)
-        #c.include(::Msf::Payload::Windows::MigrateTcp)
-        c.include(::Msf::Payload::Windows::MigrateHttp)
+
+        case t[:url]
+        when /^tcp/
+          c.include(::Msf::Payload::Windows::MigrateTcp)
+        when /^http/
+          # covers both HTTP and HTTPS
+          c.include(::Msf::Payload::Windows::MigrateHttp)
+        when /^pipe/
+          c.include(::Msf::Payload::Windows::MigratePipe)
+        end
       else
       end
       stub = c.new().generate

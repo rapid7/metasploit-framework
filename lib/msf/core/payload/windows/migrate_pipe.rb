@@ -7,11 +7,11 @@ module Msf
 
 ###
 #
-# Payload that supports migrating over HTTP/S transports on x86.
+# Payload that supports migrating over Named Pipe transports on x86.
 #
 ###
 
-module Payload::Windows::MigrateHttp
+module Payload::Windows::MigratePipe
 
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
@@ -20,8 +20,8 @@ module Payload::Windows::MigrateHttp
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Migrate over HTTP/S transports',
-      'Description'   => 'Migration stub to use over HTTP/S transports',
+      'Name'          => 'Migrate over Named Pipe transport',
+      'Description'   => 'Migration stub to use over Named Pipe transports',
       'Author'        => ['OJ Reeves'],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
@@ -42,6 +42,7 @@ module Payload::Windows::MigrateHttp
       #{asm_block_api}
     start:
       pop ebp
+      mov edi, [esi+16]         ; The duplicated pipe handle is in the migrate context.
     signal_event:
       push dword [esi]          ; Event handle is pointed at by esi
       push #{Rex::Text.block_api_hash('kernel32.dll', 'SetEvent')}

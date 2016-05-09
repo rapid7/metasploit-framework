@@ -7,7 +7,7 @@ module Msf
 
 ###
 #
-# Common command execution implementation for Windows.
+# Payload that supports migrating over TCP transports on x86.
 #
 ###
 
