@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Post
       connection_files = settings.scan(/string&gt;(.*?)&lt;\/string/)
 
       connection_files.each do |con_f|
-        next unless session.fs.file.exists?(con_f[0])
+        next unless session.fs.file.exist?(con_f[0])
         print_status("\tOpening RDC Manager server list: #{con_f[0]}")
         connection_data = read_file(con_f[0])
         if connection_data

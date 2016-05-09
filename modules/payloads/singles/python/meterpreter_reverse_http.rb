@@ -35,7 +35,7 @@ module MetasploitModule
   def generate_reverse_http(opts={})
     opts[:uri_uuid_mode] = :init_connect
     met = stage_meterpreter({
-      http_url: generate_callback_url(opts),
+      http_url:        generate_callback_url(opts),
       http_user_agent: opts[:user_agent],
       http_proxy_host: opts[:proxy_host],
       http_proxy_port: opts[:proxy_port]

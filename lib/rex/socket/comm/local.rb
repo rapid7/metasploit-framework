@@ -240,7 +240,7 @@ class Rex::Socket::Comm::Local
         if @@ip6_lla_scopes.length == 0 and retry_scopes
 
           # Linux specific interface lookup code
-          if ::File.exists?( "/proc/self/net/igmp6" )
+          if ::File.exist?( "/proc/self/net/igmp6" )
             ::File.open("/proc/self/net/igmp6") do |fd|
               fd.each_line do |line|
                 line = line.strip

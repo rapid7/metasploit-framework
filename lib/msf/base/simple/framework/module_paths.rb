@@ -58,7 +58,6 @@ module Msf
         # Extract directories `engine.paths['modules']` from `engine`.
         #
         # @param engine [Rails::Engine] a rails engine or application
-        # @param options [Hash] options for {Msf::ModuleManager::ModulePaths#add_module_paths}
         # @return [Array<String>] The list of module paths to load
         def extract_engine_module_paths(engine)
           engine.paths['modules'] ? engine.paths['modules'].existent_directories : []
