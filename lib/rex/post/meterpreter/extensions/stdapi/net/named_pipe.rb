@@ -16,7 +16,8 @@ module Net
 
 ###
 #
-# TODO put notes here
+# This class wraps up all the functionality tha tis required to deal with named
+# pipe functionality on the target Meterpreter session.
 #
 ###
 class NamedPipe

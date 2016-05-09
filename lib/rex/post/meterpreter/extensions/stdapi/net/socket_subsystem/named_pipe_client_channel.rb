@@ -15,7 +15,7 @@ module SocketSubsystem
 
 ###
 #
-# This class represents a logical TCP client connection
+# This class represents a logical named pipe client connection
 # that is established from the remote machine and tunnelled
 # through the established meterpreter connection, similar to an
 # SSH port forward.
@@ -30,7 +30,7 @@ class NamedPipeClientChannel < Rex::Post::Meterpreter::Stream
   ##
 
   #
-  # Opens a TCP client channel using the supplied parameters.
+  # Opens a named pipe client channel using the supplied parameters.
   #
   def NamedPipeClientChannel.open(client, params)
     c = Channel.create(client, 'stdapi_net_named_pipe_client', self, CHANNEL_FLAG_SYNCHRONOUS,

@@ -24,9 +24,9 @@ module MetasploitModule
   def initialize(info = {})
 
     super(merge_info(info,
-      'Name'        => 'Windows Meterpreter Shell, Reverse TCP Inline x64',
-      'Description' => 'Connect back to attacker and spawn a Meterpreter shell',
-      'Author'      => [ 'OJ Reeves' ],
+      'Name'        => 'Windows Meterpreter Shell, Reverse Named Pipe Inline x64',
+      'Description' => 'Connect back to attacker via a channel pivot and spawn a Meterpreter shell',
+      'Author'      => ['OJ Reeves'],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_X64,

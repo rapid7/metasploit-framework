@@ -20,19 +20,22 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
   PIPE_ACCESS_DUPLEX   = 0x03
 
   #
-  # This is a class variable to store all pending client tcp connections which have not been passed
-  # off via a call to the respective server tcp channels accept method. The dictionary key is the
-  # tcp server channel instance and the values held are an array of pending tcp client channels
-  # connected to the tcp server channel.
+  # This is a class variable to store all pending client named pipe connections that
+  # have not been passed off via a call to the respective server channel's accept method.
+  # The dictionary key is the server channel instance and the values held are an array
+  # of pending client channels connected to the server.
   #
   @@server_channels = {}
 
   #
-  # This is the request handler which is registered to the respective meterpreter instance via
-  # Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket. All incoming requests from the meterpreter
-  # for a 'tcp_channel_open' will be processed here. We create a new TcpClientChannel for each request
-  # received and store it in the respective tcp server channels list of new pending client channels.
-  # These new tcp client channels are passed off via a call the the tcp server channels accept() method.
+  # This is the request handler which is registered to the respective meterpreter instance.
+  # All incoming requests from the meterpreter for a 'named_pipe_channel_open' will be
+  # processed here. We create a new NamedPipeClientChannel for each request received and
+  # store it in the respective named pipe server channels list. Named pipes don't behave
+  # like TCP when it comes to server functionality, so a server "becomes" a client as soon
+  # as a connection is received. Hence, when a client connects, the client channel wraps
+  # up the handles from the server channel, and the server creates a new named pipe handle
+  # to continue listening on.
   #
   def self.request_handler(client, packet)
     return false unless packet.method == "named_pipe_channel_open"
@@ -90,12 +93,12 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
   #
   def initialize(client, cid, type, flags)
     super(client, cid, type, flags)
-    # add this instance to the class variables dictionary of tcp server channels
+    # add this instance to the class variables dictionary of server channels
     @@server_channels[self] ||= ::Queue.new
   end
 
   #
-  # Accept a new tcp client connection form this tcp server channel. This method does not block
+  # Accept a new client connection form this server channel. This method does not block
   # and returns nil if no new client connection is available.
   #
   def accept_nonblock
@@ -103,7 +106,7 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
   end
 
   #
-  # Accept a new tcp client connection form this tcp server channel. This method will block indefinatly
+  # Accept a new client connection form this server channel. This method will block indefinatly
   # if no timeout is specified.
   #
   def accept(opts = {})
@@ -123,6 +126,11 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
     result
   end
 
+  #
+  # This function takes an existing server channel and converts it to a client
+  # channel for when a connection appears. If the server is operating in a continuous
+  # mode, then it wraps the new listener channel up in the existing server.
+  #
   def create_client(parent_id, client_id, pipe_name)
 
     # we are no long associated with this channel, it'll be wrapped by another
@@ -146,15 +154,10 @@ class NamedPipeServerChannel < Rex::Post::Meterpreter::Channel
     client_channel
   end
 
-  def repeats?
-    params[:repeats] == true
-  end
-
 protected
 
   def _accept(nonblock = false)
-    result = @@server_channels[self].deq(nonblock)
-    result
+    @@server_channels[self].deq(nonblock)
   end
 
 end

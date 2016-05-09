@@ -4,8 +4,8 @@
 ##
 
 require 'msf/core'
-require 'msf/core/payload/transport_config'
 require 'msf/core/handler/reverse_named_pipe'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
@@ -47,7 +47,7 @@ module MetasploitModule
   def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
 
-    # create the configuration block, which for staged connections is really simple.
+    # create the configuration block
     config_opts = {
       arch:       opts[:uuid].arch,
       exitfunk:   datastore['EXITFUNC'],

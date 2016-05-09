@@ -273,8 +273,6 @@ module Payload::Windows::ReverseNamedPipe_x64
       asm << asm_exitfunk(opts)
     end
 
-    STDERR.puts("#{asm}\n")
-
     asm
   end
 

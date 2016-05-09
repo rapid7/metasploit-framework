@@ -6,12 +6,10 @@ module Msf
 module Handler
 ###
 #
-# This module implements the reverse TCP handler.  This means
-# that it listens on a port waiting for a connection until
-# either one is established or it is told to abort.
-#
-# This handler depends on having a local host and port to
-# listen on.
+# This module implements the reverse named pipe handler. This handler
+# requires an existing session via Meterpreter, as it creates a named
+# pipe server on the target session and traffic is pivoted through that
+# using the channel functionality. This is Windows-only at the moment.
 #
 ###
 module ReverseNamedPipe
@@ -21,7 +19,7 @@ module ReverseNamedPipe
 
   #
   # Returns the string representation of the handler type, in this case
-  # 'reverse_tcp'.
+  # 'reverse_named_pipe'.
   #
   def self.handler_type
     "reverse_named_pipe"
@@ -36,8 +34,8 @@ module ReverseNamedPipe
   end
 
   #
-  # Initializes the reverse TCP handler and ads the options that are required
-  # for all reverse TCP payloads, like local host and local port.
+  # Initializes the reverse handler and ads the options that are required
+  # for reverse named pipe payloads.
   #
   def initialize(info = {})
     super
@@ -80,6 +78,12 @@ module ReverseNamedPipe
   def start_handler
     queue = ::Queue.new
 
+    # The 'listen' option says "behave like a server".
+    # The 'repeat' option tells the target to create another named pipe
+    # handle when a new client is established so that it operates like
+    # a typical server. Named pipes are a bit awful in this regard.
+    # So we use the 'ExitOnSession' functionality to tell the target
+    # whether or not to do "one-shot" or "keep going".
     self.server_pipe = session.net.named_pipe.create({
       listen: true,
       name:   datastore['PIPENAME'],
@@ -98,8 +102,6 @@ module ReverseNamedPipe
             self.pending_connections += 1
             lqueue.push(channel)
           end
-        rescue Errno::ENOTCONN
-          nil
         rescue StandardError => e
           wlog [
             "#{listener_name}: Exception raised during listener accept: #{e.class}",
@@ -119,7 +121,9 @@ module ReverseNamedPipe
             elog("#{worker_name}: Queue returned an empty result, exiting...")
           end
 
-          # Timeout and datastore options need to be passed through to the channel
+          # Timeout and datastore options need to be passed through to the channel.
+          # We indicate that we want to skip SSL because that isn't suppored (or
+          # needed?) over the named pipe comms.
           opts = {
             datastore:     datastore,
             channel:       channel,
@@ -154,7 +158,7 @@ module ReverseNamedPipe
         server_pipe.close
       rescue IOError
         # Ignore if it's listening on a dead session
-        dlog("IOError closing listener sock; listening on dead session?", LEV_1)
+        dlog("IOError closing pipe listener; listening on dead session?", LEV_1)
       end
     end
   end
