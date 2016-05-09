@@ -16,8 +16,6 @@ module Payload::Windows::MigrateHttp
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
 
-  WSA_VERSION = 0x190
-
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Migrate over HTTP/S transports',

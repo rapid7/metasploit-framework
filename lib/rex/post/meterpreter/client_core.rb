@@ -749,6 +749,17 @@ class ClientCore < Extension
           c.include(::Msf::Payload::Windows::MigratePipe)
         end
       else
+        c.include(::Msf::Payload::Windows::BlockApi_x64)
+
+        case t[:url]
+        when /^tcp/
+          c.include(::Msf::Payload::Windows::MigrateTcp_x64)
+        when /^http/
+          # covers both HTTP and HTTPS
+          c.include(::Msf::Payload::Windows::MigrateHttp_x64)
+        when /^pipe/
+          c.include(::Msf::Payload::Windows::MigratePipe_x64)
+        end
       end
       stub = c.new().generate
     else
