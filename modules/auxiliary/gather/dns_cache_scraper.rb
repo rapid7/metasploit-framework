@@ -6,8 +6,11 @@
 require 'msf/core'
 require 'net/dns/resolver'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Module::Deprecated
   include Msf::Auxiliary::Report
+
+  deprecated(Date.new(2016, 6, 12), 'auxiliary/gather/enum_dns')
 
   def initialize(info = {})
     super(update_info(info,

@@ -204,7 +204,8 @@ module Metasploit
             Thread.list.reject { |thread|
               # don't do `is_a? Debugger::DebugThread` because it requires Debugger::DebugThread to be loaded, which it
               # won't when not debugging.
-              thread.class.name == 'Debugger::DebugThread'
+              thread.class.name == 'Debugger::DebugThread' ||
+                thread.class.name == 'Debase::DebugThread'
             }
           end
         end

@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp do
+RSpec.describe Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp do
 
   subject(:pre_auth_enc_time_stamp) do
     described_class.new

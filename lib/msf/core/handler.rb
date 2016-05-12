@@ -28,6 +28,7 @@ module Msf
 #
 ###
 module Handler
+  require 'msf/core/handler/reverse'
 
   ##
   #
@@ -160,6 +161,14 @@ module Handler
     end
 
     return session
+  end
+
+  #
+  # Interrupts a wait_for_session call by notifying with a nil event
+  #
+  def interrupt_wait_for_session
+    return unless session_waiter_event
+    session_waiter_event.notify(nil)
   end
 
   #

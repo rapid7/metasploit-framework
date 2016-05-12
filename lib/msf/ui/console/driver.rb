@@ -139,18 +139,10 @@ class Driver < Msf::Ui::Driver
     self.disable_output = false
 
     # Whether or not command passthru should be allowed
-    self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
+    self.command_passthru = opts.fetch('AllowCommandPassthru', true)
 
     # Whether or not to confirm before exiting
-    self.confirm_exit = (opts['ConfirmExit'] == true) ? true : false
-
-    # Disables "dangerous" functionality of the console
-    @defanged = opts['Defanged'] == true
-
-    # If we're defanged, then command passthru should be disabled
-    if @defanged
-      self.command_passthru = false
-    end
+    self.confirm_exit = opts['ConfirmExit']
 
     # Parse any specified database.yml file
     if framework.db.usable and not opts['SkipDatabaseInit']
@@ -228,7 +220,7 @@ class Driver < Msf::Ui::Driver
     if opts['Resource'].blank?
       # None given, load the default
       default_resource = ::File.join(Msf::Config.config_directory, 'msfconsole.rc')
-      load_resource(default_resource) if ::File.exists?(default_resource)
+      load_resource(default_resource) if ::File.exist?(default_resource)
     else
       opts['Resource'].each { |r|
         load_resource(r)
@@ -287,7 +279,7 @@ class Driver < Msf::Ui::Driver
 
     fname = ::File.join(@junit_output_path, "#{bname}.xml")
     cnt   = 0
-    while ::File.exists?( fname )
+    while ::File.exist?( fname )
       cnt  += 1
       fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
     end
@@ -322,7 +314,7 @@ class Driver < Msf::Ui::Driver
     # Generate the output path, allow multiple test with the same name
     fname = ::File.join(@junit_output_path, "#{bname}.xml")
     cnt   = 0
-    while ::File.exists?( fname )
+    while ::File.exist?( fname )
       cnt  += 1
       fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
     end
@@ -424,7 +416,7 @@ class Driver < Msf::Ui::Driver
     if path == '-'
       resource_file = $stdin.read
       path = 'stdin'
-    elsif ::File.exists?(path)
+    elsif ::File.exist?(path)
       resource_file = ::File.read(path)
     else
       print_error("Cannot find resource script: #{path}")
@@ -535,6 +527,13 @@ class Driver < Msf::Ui::Driver
       end
     end
 
+    if framework.modules.module_load_warnings.length > 0
+      print_warning("The following modules were loaded with warnings:")
+      framework.modules.module_load_warnings.each do |path, error|
+        print_warning("\t#{path}: #{error}")
+      end
+    end
+
     framework.events.on_ui_start(Msf::Framework::Revision)
 
     if $msf_spinner_thread
@@ -563,7 +562,7 @@ class Driver < Msf::Ui::Driver
 
         if (framework and framework.payloads.valid?(val) == false)
           return false
-        elsif active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
+        elsif active_module && active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
           return false
         elsif (active_module)
           active_module.datastore.clear_non_user_defined
@@ -623,17 +622,6 @@ class Driver < Msf::Ui::Driver
   #
   attr_accessor :active_resource
 
-  #
-  # If defanged is true, dangerous functionality, such as exploitation, irb,
-  # and command shell passthru is disabled.  In this case, an exception is
-  # raised.
-  #
-  def defanged?
-    if @defanged
-      raise DefangedException
-    end
-  end
-
   def stop
     framework.events.on_ui_stop()
     super
@@ -652,7 +640,7 @@ protected
   def unknown_command(method, line)
 
     [method, method+".exe"].each do |cmd|
-      if (command_passthru == true and Rex::FileUtils.find_full_path(cmd))
+      if command_passthru && Rex::FileUtils.find_full_path(cmd)
 
         print_status("exec: #{line}")
         print_line('')
@@ -761,17 +749,6 @@ protected
     end
   end
 end
-
-#
-# This exception is used to indicate that functionality is disabled due to
-# defanged being true
-#
-class DefangedException < ::Exception
-  def to_s
-    "This functionality is currently disabled (defanged mode)"
-  end
-end
-
 
 end
 end

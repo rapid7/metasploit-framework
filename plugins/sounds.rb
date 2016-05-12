@@ -51,8 +51,8 @@ class Plugin::EventSounds < Msf::Plugin
       begin
       while(true)
         while(event = self.queue.shift)
-          path = ::File.join(self.base, self.theme, "#{event}.mp3")
-          if(::File.exists?(path))
+          path = ::File.join(self.base, self.theme, "#{event}.wav")
+          if(::File.exist?(path))
             Rex::Compat.play_sound(path)
           else
             print_status("Warning: sound file not found: #{path}")

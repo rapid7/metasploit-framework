@@ -16,7 +16,7 @@ require 'msf/core/handler/find_tag'
 # BSD find tag stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 40
 

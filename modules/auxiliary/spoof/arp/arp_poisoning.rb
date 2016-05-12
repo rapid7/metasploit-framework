@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('INTERFACE', 	[false, 'The name of the interface']),
       OptBool.new(  'BIDIRECTIONAL',	[true, 'Spoof also the source with the dest',false]),
       OptBool.new(  'AUTO_ADD',	[true, 'Auto add new host when discovered by the listener',false]),
-      OptBool.new(  'LISTENER',    	[true, 'Use an additionnal thread that will listen to arp request and try to relply as fast as possible', true])
+      OptBool.new(  'LISTENER',    	[true, 'Use an additional thread that will listen for arp requests to reply as fast as possible', true])
     ], self.class)
 
     register_advanced_options([
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       raise RuntimeError ,'Source MAC is not in correct format' unless is_mac?(@smac)
 
       @sip = datastore['LOCALSIP']
-      @sip ||= Pcap.lookupaddrs(@interface)[0] if @netifaces
+      @sip ||= get_ipv4_addr(@interface)[0] if @netifaces
       raise "LOCALSIP is not defined and can not be guessed" unless @sip
       raise "LOCALSIP is not an ipv4 address" unless Rex::Socket.is_ipv4?(@sip)
 

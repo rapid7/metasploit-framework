@@ -112,6 +112,7 @@ class Client
     self.target_id    = opts[:target_id]
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
+    self.last_checkin = Time.now
 
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
@@ -131,7 +132,7 @@ class Client
 
     # The SSL certificate is being passed down as a file path
     if opts[:ssl_cert]
-      if ! ::File.exists? opts[:ssl_cert]
+      if ! ::File.exist? opts[:ssl_cert]
         elog("SSL certificate at #{opts[:ssl_cert]} does not exist and will be ignored")
       else
         # Load the certificate the same way that SslTcpServer does it

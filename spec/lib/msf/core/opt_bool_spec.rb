@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptBool do
+RSpec.describe Msf::OptBool do
   valid_values = [
     { :value => "true",  :normalized => true  },
     { :value => "yes",   :normalized => true  },

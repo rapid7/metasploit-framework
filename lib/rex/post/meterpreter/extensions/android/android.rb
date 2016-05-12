@@ -20,6 +20,8 @@ module Android
 class Android < Extension
 
   COLLECT_TYPE_WIFI = 1
+  COLLECT_TYPE_GEO  = 2
+  COLLECT_TYPE_CELL = 3
 
   COLLECT_ACTION_START  = 1
   COLLECT_ACTION_PAUSE  = 2
@@ -28,7 +30,9 @@ class Android < Extension
   COLLECT_ACTION_DUMP   = 5
 
   COLLECT_TYPES = {
-    'wifi' => COLLECT_TYPE_WIFI
+    'wifi' => COLLECT_TYPE_WIFI,
+    'geo'  => COLLECT_TYPE_GEO,
+    'cell' => COLLECT_TYPE_CELL,
   }
 
   COLLECT_ACTIONS = {
@@ -66,6 +70,12 @@ class Android < Extension
     request.add_tlv(TLV_TYPE_SHUTDOWN_TIMER, n)
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_SHUTDOWN_OK).value
+  end
+
+  def set_audio_mode(n)
+    request = Packet.create_request('set_audio_mode')
+    request.add_tlv(TLV_TYPE_AUDIO_MODE, n)
+    response = client.send_request(request)
   end
 
   def interval_collect(opts)
@@ -106,6 +116,64 @@ class Android < Extension
 
       records.each do |k, v|
         result[:entries] << v
+      end
+
+    when COLLECT_TYPE_GEO
+      result[:headers] = ['Timestamp', 'Latitude', 'Longitude']
+      result[:entries] = []
+      records = {}
+
+      response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
+        timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
+        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+
+        g.each(TLV_TYPE_COLLECT_RESULT_GEO) do |w|
+          lat = w.get_tlv_value(TLV_TYPE_GEO_LAT)
+          lng = w.get_tlv_value(TLV_TYPE_GEO_LONG)
+          result[:entries] << [timestamp, lat, lng]
+        end
+      end
+
+    when COLLECT_TYPE_CELL
+      result[:headers] = ['Timestamp', 'Cell Info']
+      result[:entries] = []
+      records = {}
+
+      response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
+        timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
+        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+
+        g.each(TLV_TYPE_COLLECT_RESULT_CELL) do |cell|
+
+          cell.each(TLV_TYPE_CELL_ACTIVE_GSM) do |info|
+            cid = info.get_tlv_value(TLV_TYPE_CELL_CID)
+            lac = info.get_tlv_value(TLV_TYPE_CELL_LAC)
+            psc = info.get_tlv_value(TLV_TYPE_CELL_PSC)
+            info = sprintf("cid=%d lac=%d psc=%d", cid, lac, psc)
+            result[:entries] << [timestamp, "GSM: #{info}"]
+          end
+
+          cell.each(TLV_TYPE_CELL_ACTIVE_CDMA) do |info|
+            bid = info.get_tlv_value(TLV_TYPE_CELL_BASE_ID)
+            lat = info.get_tlv_value(TLV_TYPE_CELL_BASE_LAT)
+            lng = info.get_tlv_value(TLV_TYPE_CELL_BASE_LONG)
+            net = info.get_tlv_value(TLV_TYPE_CELL_NET_ID)
+            sys = info.get_tlv_value(TLV_TYPE_CELL_SYSTEM_ID)
+            info = sprintf("base_id=%d lat=%d lng=%d net_id=%d sys_id=%d", bid, lat, lng, net, sys)
+            result[:entries] << [timestamp, "CDMA: #{info}"]
+          end
+
+          cell.each(TLV_TYPE_CELL_NEIGHBOR) do |w|
+            net = w.get_tlv_value(TLV_TYPE_CELL_NET_TYPE)
+            cid = w.get_tlv_value(TLV_TYPE_CELL_CID)
+            lac = w.get_tlv_value(TLV_TYPE_CELL_LAC)
+            psc = w.get_tlv_value(TLV_TYPE_CELL_PSC)
+            sig = w.get_tlv_value(TLV_TYPE_CELL_RSSI) * -1
+            inf = sprintf("network_type=%d cid=%d lac=%d psc=%d rssi=%d", net, cid, lac, psc, sig)
+            result[:entries] << [timestamp, inf]
+          end
+
+        end
       end
     end
 
@@ -180,6 +248,23 @@ class Android < Extension
     response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
 
+  def activity_start(uri)
+    request = Packet.create_request('activity_start')
+    request.add_tlv(TLV_TYPE_URI_STRING, uri)
+    response = client.send_request(request)
+    if response.get_tlv(TLV_TYPE_ACTIVITY_START_RESULT).value
+      return nil
+    else
+      return response.get_tlv(TLV_TYPE_ACTIVITY_START_ERROR).value
+    end
+  end
+
+  def set_wallpaper(data)
+    request = Packet.create_request('set_wallpaper')
+    request.add_tlv(TLV_TYPE_WALLPAPER_DATA, data)
+    response = client.send_request(request)
+  end
+
   def send_sms(dest, body, dr)
     request = Packet.create_request('send_sms')
     request.add_tlv(TLV_TYPE_SMS_ADDRESS, dest)
@@ -210,6 +295,33 @@ class Android < Extension
     end
     networks
   end
+
+  def sqlite_query(dbname, query, writeable)
+    request = Packet.create_request('sqlite_query')
+    request.add_tlv(TLV_TYPE_SQLITE_NAME, dbname)
+    request.add_tlv(TLV_TYPE_SQLITE_QUERY, query)
+    request.add_tlv(TLV_TYPE_SQLITE_WRITE, writeable)
+    response = client.send_request(request, 30)
+    error_msg = response.get_tlv(TLV_TYPE_SQLITE_ERROR)
+    raise "SQLiteException: #{error_msg.value}" if error_msg
+
+    unless writeable
+      result = {
+        columns: [],
+        rows: []
+      }
+      data = response.get_tlv(TLV_TYPE_SQLITE_RESULT_GROUP)
+      unless data.nil?
+        columns = data.get_tlv(TLV_TYPE_SQLITE_RESULT_COLS)
+        result[:columns] = columns.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+        data.each(TLV_TYPE_SQLITE_RESULT_ROW) do |row|
+          result[:rows] << row.get_tlv_values(TLV_TYPE_SQLITE_VALUE)
+        end
+      end
+      result
+    end
+  end
+
 end
 end
 end

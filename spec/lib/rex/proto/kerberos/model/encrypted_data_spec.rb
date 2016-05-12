@@ -5,7 +5,7 @@ require 'openssl'
 require 'rex/text'
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::EncryptedData do
+RSpec.describe Rex::Proto::Kerberos::Model::EncryptedData do
 
   subject(:encrypted_data) do
     described_class.new

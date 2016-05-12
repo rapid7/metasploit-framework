@@ -27,7 +27,7 @@ module Scriptable
 
       # Scan all of the path combinations
       check_paths.each { |path|
-        if ::File.exists?(path)
+        if ::File.exist?(path)
           full_path = path
           break
         end

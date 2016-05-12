@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
       # gnome-commander connections file
       connections_file = "#{dir}/.gnome-commander/connections"
       if file?(connections_file)
-        #File exists
+        #File.exist
         begin
           str_file=read_file(connections_file)
           print_good("File found: #{connections_file}")

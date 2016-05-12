@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(69),
         OptString.new('FILENAME', [false, 'The file to loot', 'windows\\win.ini']),
-        OptBool.new('SAVE', [false, 'Save the downloaded file to disk', 'false'])
+        OptBool.new('SAVE', [false, 'Save the downloaded file to disk', false])
       ], self.class)
   end
 
