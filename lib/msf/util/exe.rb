@@ -2229,6 +2229,7 @@ require 'msf/core/exe/segment_appender'
       "exe-service",
       "exe-small",
       "hta-psh",
+      "jar",
       "loop-vbs",
       "macho",
       "msi",
