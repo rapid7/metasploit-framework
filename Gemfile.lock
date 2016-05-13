@@ -1,83 +1,3 @@
-GIT
-  remote: git://github.com/rapid7/metasploit-concern.git
-  revision: 482868e64612ef812ee7942c6a15056dd031ae1d
-  branch: staging/rails-upgrade
-  specs:
-    metasploit-concern (1.1.0)
-      activemodel (~> 4.2.6)
-      activesupport (~> 4.2.6)
-      railties (~> 4.2.6)
-
-GIT
-  remote: git://github.com/rapid7/metasploit-credential.git
-  revision: 3a9bd597c0f91c32b3203a6c8c9bcfdee8988942
-  branch: staging/rails-upgrade
-  specs:
-    metasploit-credential (1.1.0)
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models
-      pg
-      railties
-      rubyntlm
-      rubyzip
-
-GIT
-  remote: git://github.com/rapid7/metasploit-erd.git
-  revision: dccec019e977e37687cc4e67e696b515b168e68b
-  branch: staging/rails-upgrade
-  specs:
-    metasploit-erd (1.1.0)
-      activerecord (~> 4.2.6)
-      activesupport (~> 4.2.6)
-      rails-erd (~> 1.1)
-
-GIT
-  remote: git://github.com/rapid7/metasploit-model.git
-  revision: 70ce6d1e01c5a88f765eed270f5752af752cfe91
-  branch: staging/rails-upgrade
-  specs:
-    metasploit-model (1.1.0)
-      activemodel (~> 4.2.6)
-      activesupport (~> 4.2.6)
-      railties (~> 4.2.6)
-
-GIT
-  remote: git://github.com/rapid7/metasploit-yard.git
-  revision: a664b716e06b102b2e370cf3a7f4bc5a7aa1468b
-  branch: staging/rails-upgrade
-  specs:
-    metasploit-yard (1.1.0)
-      rake
-      redcarpet
-      yard
-
-GIT
-  remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: c79964d02a9f003ec7defb6e51d9a6038a80df1a
-  branch: staging/rails-upgrade
-  specs:
-    metasploit_data_models (1.3.0)
-      activerecord (~> 4.2.6)
-      activesupport (~> 4.2.6)
-      arel-helpers
-      metasploit-concern
-      metasploit-model
-      pg
-      postgres_ext
-      railties (~> 4.2.6)
-      recog (~> 2.0)
-
-GIT
-  remote: git://github.com/rapid7/yard-metasploit-erd.git
-  revision: 92fd9da9d29cb8a708ae5dca8b3151e89005ab85
-  branch: staging/rails-upgrade
-  specs:
-    yard-metasploit-erd (1.1.0)
-      metasploit-erd
-      rails-erd
-      yard
-
 PATH
   remote: .
   specs:
@@ -164,7 +84,6 @@ GEM
       xpath (~> 2.0)
     childprocess (0.5.9)
       ffi (~> 1.0, >= 1.0.11)
-    choice (0.2.0)
     coderay (1.1.1)
     contracts (0.14.0)
     cucumber (2.3.3)
@@ -205,7 +124,33 @@ GEM
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     metasm (1.0.2)
+    metasploit-concern (2.0.1)
+      activemodel (~> 4.2.6)
+      activesupport (~> 4.2.6)
+      railties (~> 4.2.6)
+    metasploit-credential (2.0.1)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models
+      pg
+      railties
+      rubyntlm
+      rubyzip
+    metasploit-model (2.0.0)
+      activemodel (~> 4.2.6)
+      activesupport (~> 4.2.6)
+      railties (~> 4.2.6)
     metasploit-payloads (1.1.10)
+    metasploit_data_models (2.0.0)
+      activerecord (~> 4.2.6)
+      activesupport (~> 4.2.6)
+      arel-helpers
+      metasploit-concern
+      metasploit-model
+      pg
+      postgres_ext
+      railties (~> 4.2.6)
+      recog (~> 2.0)
     method_source (0.8.2)
     mime-types (3.0)
       mime-types-data (~> 3.2015)
@@ -246,11 +191,6 @@ GEM
       activesupport (>= 4.2.0.beta, < 5.0)
       nokogiri (~> 1.6.0)
       rails-deprecated_sanitizer (>= 1.0.1)
-    rails-erd (1.4.7)
-      activerecord (>= 3.2)
-      activesupport (>= 3.2)
-      choice (~> 0.2.0)
-      ruby-graphviz (~> 1.2)
     rails-html-sanitizer (1.0.3)
       loofah (~> 2.0)
     railties (4.2.6)
@@ -282,7 +222,6 @@ GEM
       rspec-mocks (~> 3.4.0)
       rspec-support (~> 3.4.0)
     rspec-support (3.4.1)
-    ruby-graphviz (1.2.2)
     rubyntlm (0.6.0)
     rubyzip (1.2.0)
     sawyer (0.7.0)
@@ -314,13 +253,7 @@ DEPENDENCIES
   cucumber-rails
   factory_girl_rails
   fivemat
-  metasploit-concern!
-  metasploit-credential!
-  metasploit-erd!
   metasploit-framework!
-  metasploit-model!
-  metasploit-yard!
-  metasploit_data_models!
   octokit (~> 4.0)
   pry
   rake
@@ -330,7 +263,6 @@ DEPENDENCIES
   simplecov
   timecop
   yard
-  yard-metasploit-erd!
 
 BUNDLED WITH
    1.12.2
