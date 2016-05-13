@@ -14,25 +14,10 @@ Each section will have a **TLDR** code snippet, suitable for copy-pasting, if yo
 
 So let's get started!
 
-# Install the latest Kali-Rolling distribution.
+# Assumptions
 
-This guide assumes you already have an installation of the Kali-Rolling distribution. Because this distribution is constantly updating, it is likely that this document will become stale rapidly. It assumes Kali 2016.1, which is the latest version at the time of this writing.
-
-There are many ways to install Kali Linux, outlined in [Kali Linux's extensive documentation](http://docs.kali.org/category/installation). You can also install a [pre-built VM image](https://www.offensive-security.com/kali-linux-vmware-virtualbox-image-download/), which can save a lot of time compared to fiddling with VM drivers. Just be sure to regenerate your SSH host keys and set the root password if you use these.
-
-
-# Create a Dev User
-
-You will want to create a non-root user. In this example, the user is `msfdev`. Neither Git nor RVM likes you to be root, since weird things can easily happen with your filesystem permissions.
-
-```
-useradd -m msfdev
-passwd msfdev # Set a decent password, or use a script
-usermod -a -G sudo msfdev
-chsh -s /bin/bash msfdev
-```
-
-Once this is complete, switch to this user by logging out of `root` and logging back in as `msfdev`. While some steps down the line will still require sudoer access, you should resist the temptation to keep being root. You will invariably forget to switch and start getting mystery errors about unable to read critical resources that RVM and Git need.
+* You have a Debian-based Linux environment
+* You have a user that is not `root`
 
 # Install the base dev packages
 
@@ -40,7 +25,7 @@ Once this is complete, switch to this user by logging out of `root` and logging 
 
 ----
 ```bash
-echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get -y install \
+sudo apt-get -y install \
   build-essential zlib1g zlib1g-dev \
   libxml2 libxml2-dev libxslt-dev locate \
   libreadline6-dev libcurl4-openssl-dev git-core \
