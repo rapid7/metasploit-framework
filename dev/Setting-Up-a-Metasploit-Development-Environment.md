@@ -17,7 +17,7 @@ So let's get started!
 # Assumptions
 
 * You have a Debian-based Linux environment
-* You have a user that is not `root`
+* You have a user that is not `root`. In this guide, we're using `msfdev`.
 
 # Install the base dev packages
 
