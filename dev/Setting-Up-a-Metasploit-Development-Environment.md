@@ -20,19 +20,6 @@ This guide assumes you already have an installation of the Kali-Rolling distribu
 
 There are many ways to install Kali Linux, outlined in [Kali Linux's extensive documentation](http://docs.kali.org/category/installation). You can also install a [pre-built VM image](https://www.offensive-security.com/kali-linux-vmware-virtualbox-image-download/), which can save a lot of time compared to fiddling with VM drivers. Just be sure to regenerate your SSH host keys and set the root password if you use these.
 
-# Enable a firewall
-
-Kali Linux by default ships without a firewall enabled. This step is optional, but is a nice preventative measure to take. The 'ufw' package provides a simplified interface to the Linux firewall subsystem.
-
-Often, you need to have remote access back to your Kali machine; a typical use case is for reverse shells. You might also want to use ssh and scp to write code and copy files, from elsewhere -- this is especially useful if you're running Kali as a guest OS and don't want to install VMWare Tools. To enable the most common ports you will likely use while hacking with Metasploit, run the following commands.
-
-```
-apt-get -y install ufw
-ufw enable
-ufw allow 4444:4464/tcp # For default reverse shells
-ufw allow 8080:8090/tcp # For browser exploits
-ufw allow ssh && service ssh start # If you want to shell in from elsewhere
-```
 
 # Create a Dev User
 
