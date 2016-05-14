@@ -13,21 +13,12 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
                       'Name'          => 'Generate TCP/UDP Outbound Traffic On Multiple Ports',
                       'Description'   => %q(
-                        This module is designed to generate TCP or UDP traffic across a sequence of ports.
-                        It is essentially designed to help to find firewall holes and egress filtering.
-                        All it does is generate traffic on the port range you specify; it is up to you to
-                        run a listener/tcpdump or something on the endpoint to determine which packets
-                        made it through. You could use https://github.com/stufus/egresscheck-framework to help
-                        with acquiring and parsing packet captures.
-
-                        It can be run in two modes; WINAPI mode and NATIVE mode.
-
-                        In NATIVE mode, connections will be generated using Rex sockets.
-                        In WINAPI mode (Windows only), this will use Windows APIs to generate the traffic.
-
-                        Neither mode requires administrative privileges on the client side.
-
-                        Any listener can be used to collect the results but egresscheck-framework may be able to help.
+                        This module generates TCP or UDP traffic across a
+                        sequence of ports, and is useful for finding firewall
+                        holes and egress filtering. It only generates traffic
+                        on the port range you specify. It is up to you to
+                        run a responder or packet capture tool on a remote
+                        endpoint to determine which ports are open.
                        ),
                       'License'       => MSF_LICENSE,
                       'Author'        => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
