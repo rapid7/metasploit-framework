@@ -75,6 +75,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
   spec.add_runtime_dependency 'network_interface'
+  # NTLM authentication
+  spec.add_runtime_dependency 'rubyntlm'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
@@ -96,7 +98,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'patch_finder'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
-  
+
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
   unless Gem.win_platform?

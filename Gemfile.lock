@@ -30,6 +30,7 @@ PATH
       redcarpet
       robots
       rubyzip
+      rubyntlm
       sqlite3
       tzinfo
       tzinfo-data
