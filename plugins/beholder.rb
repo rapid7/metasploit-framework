@@ -223,7 +223,7 @@ class Plugin::Beholder < Msf::Plugin
 
     @@beholder_config = {
       screenshot: true,
-      webcam: true,
+      webcam: false,
       keystrokes: true,
       automigrate: true,
       base: ::File.join(Msf::Config.get_config_root, "beholder", Time.now.strftime("%Y-%m-%d.%s")),
