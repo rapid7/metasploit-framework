@@ -98,6 +98,7 @@ class Plugin::Beholder < Msf::Plugin
     end
 
     def store_keystrokes(sid, data)
+      return unless data.length > 0
       filename = capture_filename(sid) + "_keystrokes.txt"
       ::File.open(::File.join(self.config[:base], filename), "wb") {|fd| fd.write(data) }
       session_log(sid, "captured keystrokes to #{filename}")
