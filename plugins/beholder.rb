@@ -228,6 +228,7 @@ class Plugin::Beholder < Msf::Plugin
       automigrate: true,
       base: ::File.join(Msf::Config.get_config_root, "beholder", Time.now.strftime("%Y-%m-%d.%s")),
       freq: 30,
+      # TODO: Only capture when the idle threshold has been reached
       idle: 0,
     }
 
@@ -272,7 +273,7 @@ class Plugin::Beholder < Msf::Plugin
       opts.parse(args) do |opt, idx, val|
         case opt
         when "-h"
-          print_line("Usage: beholder_start [base=</path/to/directory>] [screenshot=<true|false>] [webcam=<true|false>] [keystrokes=<true|false>] [automigrate=<true|false>] [idle=30] [freq=30]")
+          print_line("Usage: beholder_start [base=</path/to/directory>] [screenshot=<true|false>] [webcam=<true|false>] [keystrokes=<true|false>] [automigrate=<true|false>] [freq=30]")
           print_line(opts.usage)
           return
         end
