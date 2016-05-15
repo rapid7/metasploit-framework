@@ -71,6 +71,7 @@ class Plugin::Beholder < Msf::Plugin
       self.state[sid] ||= {}
       store_session_info(sid)
       return unless compatible?(sid)
+      return if stale_session?(sid)
       verify_migration(sid)
       cache_sysinfo(sid)
       collect_keystrokes(sid)
@@ -191,9 +192,22 @@ class Plugin::Beholder < Msf::Plugin
       sess.core.migrate(target_ps['pid'])
     end
 
+    # Only support sessions that have core.migrate()
     def compatible?(sid)
       framework.sessions[sid].respond_to?(:core) &&
       framework.sessions[sid].core.respond_to?(:migrate)
+    end
+
+    # Skip sessions with ancient last checkin times
+    def stale_session?(sid)
+      return unless framework.sessions[sid].respond_to?(:last_checkin)
+      session_age = Time.now.to_i - framework.sessions[sid].last_checkin.to_i
+      # TODO: Make the max age configurable, for now 5 minutes seems reasonable
+      if session_age > 300
+        session_log(sid, "is a stale session, skipping, last checked in #{session_age} seconds ago")
+        return true
+      end
+      return
     end
     
   end
