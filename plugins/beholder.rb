@@ -55,7 +55,7 @@ class Plugin::Beholder < Msf::Plugin
       loop do
         framework.sessions.keys.each do |sid|
           begin
-            if self.state[sid].nil? || 
+            if self.state[sid].nil? ||
               (self.state[sid][:last_update] + self.config[:freq] < Time.now.to_f)
               process(sid)
             end
@@ -64,7 +64,7 @@ class Plugin::Beholder < Msf::Plugin
           end
         end
         sleep(1)
-      end      
+      end
     end
 
     def process(sid)
@@ -78,7 +78,7 @@ class Plugin::Beholder < Msf::Plugin
       collect_screenshot(sid)
       collect_webcam(sid)
     end
- 
+
     def session_log(sid, msg)
       ::File.open(::File.join(self.config[:base], "session.log"), "a") do |fd|
         fd.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} Session #{sid} [#{self.state[sid][:info]}] #{msg}"
@@ -139,7 +139,7 @@ class Plugin::Beholder < Msf::Plugin
       collected_image = sess.ui.screenshot(50)
       store_screenshot(sid, collected_image)
     end
-    
+
     # TODO: Specify webcam index and frame quality
     def collect_webcam(sid)
       return unless self.config[:webcam]
@@ -158,7 +158,7 @@ class Plugin::Beholder < Msf::Plugin
       self.state[sid][:sysinfo] = framework.sessions[sid].sys.config.sysinfo
       self.state[sid][:name] = "#{sid}_" + (self.state[sid][:sysinfo]['Computer'] || "Unknown").gsub(/[^A-Za-z0-9\.\_\-]/, '')
     end
-   
+
     def verify_migration(sid)
       return unless self.config[:automigrate]
       return if self.state[sid][:migrated]
@@ -179,7 +179,7 @@ class Plugin::Beholder < Msf::Plugin
 
       # Attempt to migrate, but flag that we tried either way
       self.state[sid][:migrated] = true
-      
+
       # Grab the first explorer.exe process we find
       target_ps = ps.select{|x| x['name'].to_s.downcase == 'explorer.exe' }.first
       unless target_ps
@@ -210,12 +210,12 @@ class Plugin::Beholder < Msf::Plugin
       end
       return
     end
-    
+
   end
 
 
   #
-  # Command Dispatcher 
+  # Command Dispatcher
   #
 
   class BeholderCommandDispatcher
@@ -278,7 +278,7 @@ class Plugin::Beholder < Msf::Plugin
         end
       end
 
-      if @@beholder_worker 
+      if @@beholder_worker
         print_error("Error: Beholder is already active, use beholder_stop to terminate")
         return
       end
@@ -302,7 +302,7 @@ class Plugin::Beholder < Msf::Plugin
       @@beholder_worker.stop if @@beholder_worker
       @@beholder_worker = nil
     end
-    
+
     def start_beholder
       @@beholder_worker = BeholderWorker.new(framework, @@beholder_config, driver)
     end
@@ -310,7 +310,7 @@ class Plugin::Beholder < Msf::Plugin
   end
 
 
-  # 
+  #
   # Plugin Interface
   #
 
