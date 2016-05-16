@@ -284,20 +284,26 @@ module Msf
       payload_module = framework.payloads.create(payload)
       payload_module.datastore.merge!(datastore)
       case format
-        when "raw", "jar"
-          if payload_module.respond_to? :generate_jar
-            payload_module.generate_jar.pack
-          else
-            payload_module.generate
-          end
-        when "war"
-          if payload_module.respond_to? :generate_war
-            payload_module.generate_war.pack
-          else
-            raise InvalidFormat, "#{payload} is not a Java payload"
-          end
+      when "raw", "jar"
+        if payload_module.respond_to? :generate_jar
+          payload_module.generate_jar.pack
         else
-          raise InvalidFormat, "#{format} is not a valid format for Java payloads"
+          payload_module.generate
+        end
+      when "war"
+        if payload_module.respond_to? :generate_war
+          payload_module.generate_war.pack
+        else
+          raise InvalidFormat, "#{payload} is not a Java payload"
+        end
+      when "axis2"
+        if payload_module.respond_to? :generate_axis2
+          payload_module.generate_axis2.pack
+        else
+          raise InvalidFormat, "#{payload} is not a Java payload"
+        end
+      else
+        raise InvalidFormat, "#{format} is not a valid format for Java payloads"
       end
     end
 

@@ -2221,6 +2221,7 @@ require 'msf/core/exe/segment_appender'
       "asp",
       "aspx",
       "aspx-exe",
+      "axis2",
       "dll",
       "elf",
       "elf-so",
