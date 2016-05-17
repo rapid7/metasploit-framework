@@ -70,11 +70,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def key_dir
-    ::File.expand_path(datastore['KEY_DIR'])
+    datastore['KEY_DIR']
   end
 
   def key_file
-    ::File.expand_path(datastore['KEY_FILE'])
+    datastore['KEY_FILE']
   end
 
   def rport
