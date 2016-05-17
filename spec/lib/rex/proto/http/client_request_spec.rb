@@ -151,7 +151,36 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
       {
         :set_host_header       => { :result => "Host: [2001:DB8::1]:1234\r\n" },
       }
-    ]
+    ],
+
+    [
+      "with modified Content-Length header",
+      default_options.merge({
+        'headers' => { 'Content-Length' => 1337 }
+      }),
+      {
+        :set_content_len_header => { args: 0, result: ''}
+      }
+    ],
+
+    [
+      "with 1024 bytes of Content-Length",
+      default_options,
+      {
+        :set_content_len_header => { args: 1024, result: "Content-Length: 1024\r\n"}
+      }
+    ],
+
+    [
+      "with a POST request and no payload body",
+      default_options.merge({
+        'method' => 'POST'
+      }),
+      {
+        :set_content_len_header => { args: 0, result: "Content-Length: 0\r\n"}
+      }
+    ],
+  
   ].each do |c, opts, expectations|
     context c do
       subject(:client_request) { Rex::Proto::Http::ClientRequest.new(opts) }

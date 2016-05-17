@@ -16,6 +16,10 @@ class OptPath < OptBase
     value.nil? ? value : File.expand_path(value)
   end
 
+  def validate_on_assignment?
+    false
+  end
+
   # Generally, 'value' should be a file that exists.
   def valid?(value)
     return false if empty_required_value?(value)

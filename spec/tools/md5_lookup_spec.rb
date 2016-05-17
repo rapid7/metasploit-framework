@@ -1,4 +1,5 @@
 load Metasploit::Framework.root.join('tools/password/md5_lookup.rb').to_path
+require 'spec_helper'
 
 require 'rex/proto/http/response'
 require 'stringio'
@@ -68,17 +69,6 @@ RSpec.describe Md5LookupUtility do
     allow(subject).to receive(:send_request_cgi) do |opts|
       set_expected_response(body)
     end
-  end
-
-  def get_stdout(&block)
-    out = $stdout
-    $stdout = fake = StringIO.new
-    begin
-      yield
-    ensure
-      $stdout = out
-    end
-    fake.string
   end
 
   #
@@ -321,7 +311,7 @@ RSpec.describe Md5LookupUtility do
         let(:opts) { subject.parse(valid_argv) }
 
         before(:example) do
-          allow(File).to receive(:exists?).and_return(true)
+          allow(File).to receive(:exist?).and_return(true)
         end
 
         it 'returns the input file path' do
@@ -340,7 +330,7 @@ RSpec.describe Md5LookupUtility do
 
       context 'when the required input file is not set' do
         before(:example) do
-          allow(File).to receive(:exists?).and_return(false)
+          allow(File).to receive(:exist?).and_return(false)
         end
 
         it 'raises an OptionParser::MissingArgument error' do

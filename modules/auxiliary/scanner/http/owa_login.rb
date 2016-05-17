@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/proto/ntlm/message'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
       'Cookie' => 'PBack=0'
     }
 
-    if (datastore['SSL'].to_s.match(/^(t|y|1)/i))
+    if datastore['SSL']
       if action.name == "OWA_2013"
         data = 'destination=https://' << vhost << '/owa&flags=4&forcedownlevel=0&username=' << user << '&password=' << pass << '&isUtf8=1'
       else

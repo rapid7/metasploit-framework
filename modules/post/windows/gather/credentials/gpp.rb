@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/auxiliary/report'
 require 'rex/parser/group_policy_preferences'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::File
   include Msf::Post::Windows::Priv

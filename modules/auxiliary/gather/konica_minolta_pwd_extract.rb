@@ -6,7 +6,7 @@
 require 'rex/proto/http'
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
       'data'   => '<SOAP-ENV:Envelope></SOAP-ENV:Envelope>'
     }, datastore['TIMEOUT'].to_i)
     if response.nil?
-      print_error("#{peer} - No reponse from device")
+      print_error("No reponse from device")
       return
     else
       xml0_body = ::Nokogiri::XML(response.body)
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     rescue ::Rex::ConnectionError
-      print_error("#{peer} - Version check Connection failed.")
+      print_error("Version check Connection failed.")
   end
 
   # This section logs on and retrieves AuthKey token
@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
         'data'   => authreq_xml.to_xml
       }, datastore['TIMEOUT'].to_i)
       if response.nil?
-        print_error("#{peer} - No reponse from device")
+        print_error("No reponse from device")
         return
       else
         xml1_body = ::Nokogiri::XML(response.body)
@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
         extract(major, minor, authkey)
       end
     rescue ::Rex::ConnectionError
-      print_error("#{peer} - Login Connection failed.")
+      print_error("Login Connection failed.")
     end
   end
 
@@ -185,7 +185,7 @@ class Metasploit3 < Msf::Auxiliary
           'data'   => smbreq_xml.to_xml
         }, datastore['TIMEOUT'].to_i)
         if response.nil?
-          print_error("#{peer} - No reponse from device")
+          print_error("No reponse from device")
           return
         else
           xml2_body = ::Nokogiri::XML(response.body)
