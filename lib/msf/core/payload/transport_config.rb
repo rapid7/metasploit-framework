@@ -18,9 +18,9 @@ module Msf::Payload::TransportConfig
 
   def transport_config_reverse_named_pipe(opts={})
     {
-      :scheme       => 'pipe',
-      :lhost        => datastore['PIPEHOST'],
-      :uri          => "/#{datastore['PIPENAME']}"
+      scheme: 'pipe',
+      lhost:  datastore['PIPEHOST'],
+      uri:    "/#{datastore['PIPENAME']}"
     }.merge(timeout_config)
   end
 
@@ -33,9 +33,9 @@ module Msf::Payload::TransportConfig
 
   def transport_config_bind_tcp(opts={})
     {
-      :scheme       => 'tcp',
-      :lhost        => datastore['LHOST'],
-      :lport        => datastore['LPORT'].to_i
+      scheme: 'tcp',
+      lhost:  datastore['LHOST'],
+      lport:  datastore['LPORT'].to_i
     }.merge(timeout_config)
   end
 
@@ -59,16 +59,16 @@ module Msf::Payload::TransportConfig
     end
 
     {
-      :scheme       => 'http',
-      :lhost        => opts[:lhost] || datastore['LHOST'],
-      :lport        => (opts[:lport] || datastore['LPORT']).to_i,
-      :uri          => uri,
-      :ua           => datastore['MeterpreterUserAgent'],
-      :proxy_host   => datastore['PayloadProxyHost'],
-      :proxy_port   => datastore['PayloadProxyPort'],
-      :proxy_type   => datastore['PayloadProxyType'],
-      :proxy_user   => datastore['PayloadProxyUser'],
-      :proxy_pass   => datastore['PayloadProxyPass']
+      scheme:     'http',
+      lhost:      opts[:lhost] || datastore['LHOST'],
+      lport:      (opts[:lport] || datastore['LPORT']).to_i,
+      uri:        uri,
+      ua:         datastore['MeterpreterUserAgent'],
+      proxy_host: datastore['PayloadProxyHost'],
+      proxy_port: datastore['PayloadProxyPort'],
+      proxy_type: datastore['PayloadProxyType'],
+      proxy_user: datastore['PayloadProxyUser'],
+      proxy_pass: datastore['PayloadProxyPass']
     }.merge(timeout_config)
   end
 
@@ -76,9 +76,9 @@ private
 
   def timeout_config
     {
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
+      comm_timeout: datastore['SessionCommunicationTimeout'].to_i,
+      retry_total:  datastore['SessionRetryTotal'].to_i,
+      retry_wait:   datastore['SessionRetryWait'].to_i
     }
   end
 
