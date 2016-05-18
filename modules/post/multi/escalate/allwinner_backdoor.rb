@@ -4,7 +4,6 @@
 ##
 
 require "msf/core"
-#require "rex"
 
 class MetasploitModule < Msf::Post
 
@@ -15,7 +14,15 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         "Name"           => "Allwinner 3.4 Legacy Kernel Local Privileges Escalation",
         "Description"    => %q{
-          This module attempts to exploit a debug backdoor privilege escalation.
+          This module attempts to exploit a debug backdoor privilege escalation in
+          Allwinner SoC based devices.
+          Vulnerable Allwinner SoC chips: H3, A83T or H8 which rely on Kernel 3.4
+          Vulnerable OS: all OS images available for Orange Pis,
+                         any for FriendlyARM's NanoPi M1,
+                         SinoVoip's M2+ and M3,
+                         Cuebietech's Cubietruck +
+                         Linksprite's pcDuino8 Uno
+          Exploitation may be possible against Dragon (x10) and Allwinner Android tablets
         },
         "License"        => MSF_LICENSE,
         "Author"         =>
@@ -55,5 +62,4 @@ class MetasploitModule < Msf::Post
       print_error "Backdoor #{backdoor} not found."
     end
   end
-
 end
