@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        "Name"           => "Allwinner 3.4 Legacy Kernel Local Privileges Escalation",
+        "Name"           => "Allwinner 3.4 Legacy Kernel Local Privilege Escalation",
         "Description"    => %q{
           This module attempts to exploit a debug backdoor privilege escalation in
           Allwinner SoC based devices.
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Post
         report_note(
           :host => session,
           :type => "host.escalation",
-          :data => "Escalated to root shell via backdoor"
+          :data => "Escalated to root shell via Allwinner backdoor"
         )
       else
         print_error "Privilege Escalation FAILED"
