@@ -13,16 +13,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'        => 'Netis/Netcore Network Device Backdoor Detection',
+      'Name'        => 'Netcore Router Udp 53413 Backdoor Detection',
       'Description' => %q{
-        This module can identify Netcore (Chinese) and Netis manufactured
-        network devices which contain a backdoor, allowing command
-        injection or account disclosure.
+        Routers manufactured by Netcore, a popular brand for networking
+        equipment in China, have a wide-open backdoor that can be fairly
+        easily exploited by attackers. These products are also sold under
+        the Netis brand name outside of China. This backdoor allows
+        cybercriminals to easily run arbitrary code on these routers,
+        rendering it vulnerable as a security device.
       },
       'Author'        =>
         [
           'Tim Yeh, Trend Micro',              # Discovery
-          'h00die <mike[at]stcyrsecurity.com>' # Module
+          'h00die <mike[at]stcyrsecurity.com>',# Scanner
+          'Nixawk'                             # Exploit Module
         ],
         'License'     => MSF_LICENSE,
         'References'  =>
@@ -32,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => "Aug 25 2014" ))
 
     register_options([
+        OptInt.new('TIMEOUT', [true, 'The socket response timeout in milliseconds', 1000]),
         Opt::RPORT(53413)
       ])
   end
@@ -48,12 +53,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      connect
-      sock.put(Rex::Text.rand_text(5))
-      res = sock.get_once
-      if res.start_with?("login")
+      connect_udp
+      udp_sock.put("\r\n\r\n")
+      res = udp_sock.get(datastore['TIMEOUT'])
+      if res.end_with?("\xD0\xA5Login:")
         #we need to try to login, but need the password first.
         #do_report(ip)
+        print_good("#{ip}:#{rport} - Netis/Netcore backdoor detected.")
+        do_report(ip)
+      else
         vprint_status("#{ip}:#{rport} - Backdoor not detected.")
       end
     rescue Rex::ConnectionError => e
