@@ -54,12 +54,15 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     begin
       connect_udp
-      udp_sock.put("\r\n\r\n")
+      udp_sock.put("\x00" * 8)
       res = udp_sock.get(datastore['TIMEOUT'])
       if res.end_with?("\xD0\xA5Login:")
         #we need to try to login, but need the password first.
         #do_report(ip)
         print_good("#{ip}:#{rport} - Netis/Netcore backdoor detected.")
+        do_report(ip)
+      elsif res.end_with?("\x00\x00\x00\x05\x00\x01\x00\x00\x00\x00\x01\x00\x00")
+        print_good("#{ip}:#{rport} - Netis/Netcore authenticated backdoor detected.")
         do_report(ip)
       else
         vprint_status("#{ip}:#{rport} - Backdoor not detected.")
