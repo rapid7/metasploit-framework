@@ -183,6 +183,10 @@ module Rex::Socket::SslTcpServer
     ctx.extra_chain_cert = chain
     ctx.options = 0
 
+    if params.ssl_cipher
+      ctx.ciphers = params.ssl_cipher
+    end
+
     # Older versions of OpenSSL do not export the OP_NO_COMPRESSION symbol
     if defined?(OpenSSL::SSL::OP_NO_COMPRESSION)
       # enable/disable the SSL/TLS-level compression
