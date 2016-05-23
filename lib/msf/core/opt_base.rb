@@ -88,14 +88,10 @@ module Msf
     def valid?(value, check_empty: true)
       if check_empty && required?
         # required variable not set
-        return false if (value == nil or value.to_s.empty?)
+        return false if (value.nil? || value.to_s.empty?)
       end
       if regex
-        if value.match(regex)
-          return true
-        else
-          return false
-        end
+        return !!value.match(regex)
       end
       return true
     end

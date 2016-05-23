@@ -17,7 +17,7 @@ class OptRegexp < OptBase
 
     begin
       Regexp.compile(value)
-      return super
+      return true
     rescue RegexpError, TypeError
       return false
     end
