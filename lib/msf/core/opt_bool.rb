@@ -15,8 +15,8 @@ class OptBool < OptBase
     return 'bool'
   end
 
-  def valid?(value, check_empty: false)
-    return false if check_empty && empty_required_value?(value)
+  def valid?(value, check_empty: true)
+    return false if empty_required_value?(value)
 
     if ((value != nil and
         (value.to_s.empty? == false) and
