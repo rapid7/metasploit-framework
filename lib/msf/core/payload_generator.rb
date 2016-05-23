@@ -9,7 +9,7 @@ module Msf
   class EncoderSpaceViolation < PayloadGeneratorError
   end
 
-  class SpaceViolation < PayloadGeneratorError
+  class PayloadSpaceViolation < PayloadGeneratorError
   end
 
   class IncompatibleArch < PayloadGeneratorError
@@ -333,7 +333,7 @@ module Msf
         gen_payload = format_payload(encoded_payload)
       end
       if gen_payload.length > @space and not @smallest
-        raise SpaceViolation, 'The payload exceeds the allocated space'
+        raise PayloadSpaceViolation, 'The payload exceeds the specified space'
       else
         gen_payload
       end
