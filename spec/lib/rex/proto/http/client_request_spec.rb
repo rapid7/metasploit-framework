@@ -180,7 +180,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         :set_content_len_header => { args: 0, result: "Content-Length: 0\r\n"}
       }
     ],
-  
+
   ].each do |c, opts, expectations|
     context c do
       subject(:client_request) { Rex::Proto::Http::ClientRequest.new(opts) }

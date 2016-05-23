@@ -85,8 +85,8 @@ module Msf
     #
     # If it's required and the value is nil or empty, then it's not valid.
     #
-    def valid?(value)
-      if required?
+    def valid?(value, check_empty: true)
+      if check_empty && required?
         # required variable not set
         return false if (value == nil or value.to_s.empty?)
       end
