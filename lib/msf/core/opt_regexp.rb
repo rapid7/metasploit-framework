@@ -13,11 +13,15 @@ class OptRegexp < OptBase
   end
 
   def valid?(value, check_empty: true)
-    return false if check_empty && empty_required_value?(value)
+    if check_empty && empty_required_value?(value)
+      return false
+    elsif value.nil?
+      return true
+    end
 
     begin
       Regexp.compile(value)
-      return true
+      return super
     rescue RegexpError, TypeError
       return false
     end
