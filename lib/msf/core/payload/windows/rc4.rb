@@ -17,7 +17,7 @@ module Payload::Windows::Rc4
   #
   def initialize(*args)
     super
-    register_advanced_options([ OptString.new("RC4PASSWORD", [true, "Password to derive RC4 key from"]) ], self.class)
+    register_options([ OptString.new("RC4PASSWORD", [true, "Password to derive RC4 key from"]) ], self.class)
   end
 
   #
@@ -59,7 +59,6 @@ module Payload::Windows::Rc4
         jnz permute
       ; decryption loop
         xor ebx, ebx           ; Clear EBX (EAX is already cleared)
-        xor edx, edx
       decrypt:
         inc al                 ; AL += 1
         add bl, [edi+eax]      ; BL += S[AL]
