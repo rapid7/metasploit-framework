@@ -130,14 +130,17 @@ module ReverseHttp
   def luri
     l = datastore['LURI'] || ""
 
-    if l && l.length > 0 && l[0] != '/'
-      # make sure the luri has the prefix
-      l = "/#{l}"
-
-      # but not the suffix
-      if l[-1] == '/'
+    if l && l.length > 0
+      # strip trailing slashes
+      while l[-1] == '/'
         l = l[0...-1]
       end
+
+      # make sure the luri has the prefix
+      if l[0] != '/'
+        l = "/#{l}"
+      end
+
     end
 
     l.dup
