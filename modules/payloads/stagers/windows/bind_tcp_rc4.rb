@@ -12,7 +12,7 @@ require 'msf/core/payload/windows/bind_tcp_rc4'
 
 module MetasploitModule
 
-  CachedSize = 404
+  CachedSize = 402
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::BindTcpRc4
