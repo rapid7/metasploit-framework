@@ -71,10 +71,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_info(rhost, rport)
     connect(true, 'RHOST' => rhost, 'RPORT' => rport)
-    code = send_recv_once("\x01\x01\x00\x1a\x00^\x00\x00\x00\x00\x00\x03\x00\x0cIBETH01N0_M\x00")[34..35]
+    data = send_recv_once("\x01\x01\x00\x1a\x00^\x00\x00\x00\x00\x00\x03\x00\x0cIBETH01N0_M\x00")
+    if data.nil? || data.length < 36
+      print_error("Could not obtain information on this device")
+      disconnect
+      return "UNKNOWN"
+    end
+    code = data[34..35]
     send_recv_once("\x01\x05\x00\x16\x00\x5f\x00\x00\x08\xef\x00" + hex_to_bin(code) + "\x00\x00\x00\x22\x00\x04\x02\x95\x00\x00")
     data = send_recv_once("\x01\x06\x00\x0e\x00\x61\x00\x00\x88\x11\x00" + hex_to_bin(code) + "\x04\x00")
     disconnect
+    if data.nil? || data.length < 200
+      print_error("Could not obtain information on this device")
+      return "UNKNOWN"
+    end
     plctype = hex_to_bin(data[60..99])
     print_status("PLC Type = " + plctype)
     print_status("Firmware = " + hex_to_bin(data[132..139]))
