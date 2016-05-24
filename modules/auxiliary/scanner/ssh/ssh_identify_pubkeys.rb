@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_login(ip, port, user)
 
-    if datastore['KEY_FILE'] && File.readable?(key_file)
+    if key_file && File.readable?(key_file)
       keys = read_keyfile(key_file)
       cleartext_keys = pull_cleartext_keys(keys)
       msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
