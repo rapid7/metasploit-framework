@@ -50,9 +50,10 @@ class MetasploitModule < Msf::Post
       if is_root?
         print_good "Privilege Escalation Successful"
         report_vuln(
-          host: session,
-          type: "host.escalation",
-          data: "Escalated to root shell via Allwinner backdoor"
+          host: session.session_host,
+          name: self.name,
+          refs: self.references,
+          info: 'Escalated to root shell via Allwinner backdoor'
         )
       else
         print_error "Privilege Escalation FAILED"
