@@ -12,6 +12,10 @@ class OptPath < OptBase
     return 'path'
   end
 
+  def normalize(value)
+    value.nil? ? value : File.expand_path(value)
+  end
+
   def validate_on_assignment?
     false
   end
@@ -23,7 +27,7 @@ class OptPath < OptBase
       if value =~ /^memory:\s*([0-9]+)/i
         return false unless check_memory_location($1)
       else
-        unless File.exist?(value)
+        unless File.exist?(File.expand_path(value))
           return false
         end
       end
