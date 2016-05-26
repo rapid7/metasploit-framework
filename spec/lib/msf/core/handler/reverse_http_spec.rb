@@ -7,12 +7,30 @@ RSpec.describe Msf::Handler::ReverseHttp do
     klass = Class.new(Msf::Payload)
     klass.include described_class
     mod = klass.new(info)
+    mod.instance_eval do
+      def ssl?
+        false
+      end
+    end
     datastore.each { |k, v| mod.datastore[k] = v }
     mod
   end
 
   let(:datastore) do
     Hash.new
+  end
+
+  describe '#payload_uri' do
+    subject(:payload_uri) do
+      create_payload.payload_uri
+    end
+
+    specify 'should be parseable as a URI' do
+      expect {
+        URI.parse(payload_uri)
+      }.not_to raise_error
+    end
+
   end
 
   describe '#luri' do
@@ -23,6 +41,12 @@ RSpec.describe Msf::Handler::ReverseHttp do
     context 'with leading and trailing slash' do
       let(:datastore) do
         { 'LURI' => '/asdf/' }
+      end
+
+      specify 'should be parseable as a URI' do
+        expect {
+          URI.parse(luri)
+        }.not_to raise_error
       end
 
       specify 'is a string' do
@@ -40,6 +64,12 @@ RSpec.describe Msf::Handler::ReverseHttp do
         { 'LURI' => '/asdf' }
       end
 
+      specify 'should be parseable as a URI' do
+        expect {
+          URI.parse(luri)
+        }.not_to raise_error
+      end
+
       specify 'is a string' do
         expect(luri).to be_a(String)
       end
@@ -55,6 +85,12 @@ RSpec.describe Msf::Handler::ReverseHttp do
         { 'LURI' => 'asdf/' }
       end
 
+      specify 'should be parseable as a URI' do
+        expect {
+          URI.parse(luri)
+        }.not_to raise_error
+      end
+
       specify 'is a string' do
         expect(luri).to be_a(String)
       end
@@ -68,6 +104,12 @@ RSpec.describe Msf::Handler::ReverseHttp do
     context 'just a slash' do
       let(:datastore) do
         { 'LURI' => '/' }
+      end
+
+      specify 'should be parseable as a URI' do
+        expect {
+          URI.parse(luri)
+        }.not_to raise_error
       end
 
       specify 'is a string' do

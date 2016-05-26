@@ -510,19 +510,14 @@ class ReadableText
   #
   # @param framework [Msf::Framework] the framework to dump.
   # @param opts [Hash] the options to dump with.
-  # @option opts :session_ids [Array] the list of sessions to dump (no
-  #   effect).
   # @option opts :verbose [Boolean] gives more information if set to
   #   true.
   # @option opts :indent [Integer] set the indentation amount.
-  # @option opts :col [Integer] the column wrap width.
   # @return [String] the formatted list of sessions.
   def self.dump_sessions(framework, opts={})
-    ids = (opts[:session_ids] || framework.sessions.keys).sort
     verbose = opts[:verbose] || false
     show_extended = opts[:show_extended] || false
     indent = opts[:indent] || DefaultIndent
-    col = opts[:col] || DefaultColumnWrap
 
     return dump_sessions_verbose(framework, opts) if verbose
 
@@ -580,12 +575,8 @@ class ReadableText
   #
   # @param framework [Msf::Framework] the framework to dump.
   # @param opts [Hash] the options to dump with.
-  # @option opts :session_ids [Array] the list of sessions to dump (no
-  #   effect).
   # @return [String] the formatted list of sessions.
   def self.dump_sessions_verbose(framework, opts={})
-    ids = (opts[:session_ids] || framework.sessions.keys).sort
-
     out = "Active sessions\n" +
           "===============\n\n"
 
@@ -656,10 +647,10 @@ class ReadableText
   # @param col [Integer] the column wrap width.
   # @return [String] the formatted list of running jobs.
   def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
-    columns = [ 'Id', 'Name', "Payload", "LPORT" ]
+    columns = [ 'Id', 'Name', "Payload", "Payload opts" ]
 
     if (verbose)
-      columns += [ "URIPATH", "Start Time" ]
+      columns += [ "URIPATH", "Start Time", "Handler opts" ]
     end
 
     tbl = Rex::Ui::Text::Table.new(
@@ -668,34 +659,41 @@ class ReadableText
       'Columns' => columns
       )
 
-    # jobs are stored as a hash with the keys being a numeric job_id.
-    framework.jobs.keys.sort{|a,b| a.to_i <=> b.to_i }.each { |k|
+    # jobs are stored as a hash with the keys being a numeric String job_id.
+    framework.jobs.keys.sort_by(&:to_i).each do |job_id|
       # Job context is stored as an Array with the 0th element being
       # the running module. If that module is an exploit, ctx will also
       # contain its payload.
-      ctx = framework.jobs[k].ctx
-      row = [ k, framework.jobs[k].name ]
-      row << (ctx[1].nil? ? (ctx[0].datastore['PAYLOAD'] || "") : ctx[1].refname)
+      exploit_mod, _payload_mod = framework.jobs[job_id].ctx
+      row = []
+      row[0] = job_id
+      row[1] = framework.jobs[job_id].name
 
-      # Make the LPORT show the bind port if it's different
-      local_port = ctx[0].datastore['LPORT']
-      bind_port = ctx[0].datastore['ReverseListenerBindPort']
-      lport = (local_port || "").to_s
-      if bind_port && bind_port != 0 && bind_port != lport
-        lport << " (#{bind_port})"
+      pinst = exploit_mod.respond_to?(:payload_instance) ? exploit_mod.payload_instance : nil
+
+      if pinst.nil?
+        row[2] = ""
+        row[3] = ""
+      else
+        row[2] = pinst.refname
+        row[3] = ""
+        if pinst.respond_to?(:payload_uri)
+          row[3] << pinst.payload_uri
+        end
+        if pinst.respond_to?(:luri)
+          row[3] << pinst.luri
+        end
       end
-      row << lport
 
-      if (verbose)
-        uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)
-        uripath = ctx[0].datastore['URIPATH'] if uripath.nil?
-        uripath = ctx[0].datastore['LURI'] if uripath.nil?
-        row << (uripath || "")
-        row << (framework.jobs[k].start_time || "")
+      if verbose
+        uripath = exploit_mod.get_resource if exploit_mod.respond_to?(:get_resource)
+        uripath ||= exploit_mod.datastore['URIPATH']
+        row[4] = uripath
+        row[5] = framework.jobs[job_id].start_time
+        row[6] = pinst.respond_to?(:listener_uri) ? pinst.listener_uri : ""
       end
-
       tbl << row
-    }
+    end
 
     return framework.jobs.keys.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active jobs.\n"
   end
