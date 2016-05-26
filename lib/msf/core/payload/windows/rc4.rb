@@ -15,7 +15,7 @@ module Payload::Windows::Rc4
   #
   def initialize(*args)
     super
-    register_options([ OptString.new("RC4PASSWORD", [true, "Password to derive RC4 key from"]) ], self.class)
+    register_options([ OptString.new('RC4PASSWORD', [true, 'Password to derive RC4 key from', 'msf']) ], self.class)
   end
 
   #

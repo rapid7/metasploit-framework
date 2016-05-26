@@ -4,7 +4,6 @@ require 'msf/core'
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/bind_tcp'
 require 'msf/core/payload/windows/rc4'
-require 'msf/core/payload/windows/send_uuid'
 
 module Msf
 
@@ -19,7 +18,6 @@ module Payload::Windows::BindTcpRc4
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows::BindTcp
   include Msf::Payload::Windows::Rc4
-  include Msf::Payload::Windows::SendUUID
 
   #
   # Generate the first stage
