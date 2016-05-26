@@ -9,15 +9,13 @@ module Msf
 # RC4 decryption stub for Windows ARCH_X86 payloads
 #
 ###
-
 module Payload::Windows::Rc4
-
   #
   # Register rc4 specific options
   #
   def initialize(*args)
     super
-    register_options([ OptString.new("RC4PASSWORD", [true, "Password to derive RC4 key from"]) ], self.class)
+    register_options([ OptString.new('RC4PASSWORD', [true, 'Password to derive RC4 key from', 'msf']) ], self.class)
   end
 
   #
@@ -25,7 +23,7 @@ module Payload::Windows::Rc4
   #
 
   def asm_decrypt_rc4
-    asm = %Q!
+    %!
       ;-----------------------------------------------------------------------------;
       ; Author: Michael Schierl (schierlm[at]gmx[dot]de)
       ; Version: 1.0 (29 December 2012)
@@ -49,8 +47,8 @@ module Payload::Windows::Rc4
         xor ebx, ebx           ; Clear EBX (EAX is already cleared)
       permute:
         add bl, [edi+eax]      ; BL += S[AL] + KEY[AL % 16]
-        mov edx, eax 
-        and dl, 0xF 
+        mov edx, eax
+        and dl, 0xF
         add bl, [esi+edx]
         mov dl, [edi+eax]      ; swap S[AL] and S[BL]
         xchg dl, [edi+ebx]
@@ -72,43 +70,29 @@ module Payload::Windows::Rc4
         dec ecx                ; reduce counter
         jnz decrypt            ; until finished
      !
-     asm
   end
 
-  def uuid_required_size
-    # Start with the number of bytes required for the instructions
-    space = 17
-
-    # a UUID is 16 bytes
-    space += 16
-
-    space
-  end
-
-  def generate_stage(opts={})
+  def generate_stage(opts = {})
     p = super(opts)
-    xorkey,rc4key = rc4_keys(datastore['RC4PASSWORD'])
+    xorkey, rc4key = rc4_keys(datastore['RC4PASSWORD'])
     c1 = OpenSSL::Cipher::Cipher.new('RC4')
     c1.decrypt
     c1.key = rc4key
     p = c1.update(p)
-    return [ p.length ^ xorkey.unpack('V')[0] ].pack('V') + p
+    [ p.length ^ xorkey.unpack('V')[0] ].pack('V') + p
   end
 
-  def handle_intermediate_stage(conn, payload)
-    return false
+  def handle_intermediate_stage(_conn, _payload)
+    false
   end
 
-private
+  private
 
   def rc4_keys(rc4pass = '')
     m = OpenSSL::Digest.new('sha1')
     m.reset
     key = m.digest(rc4pass)
-    [key[0,4], key[4,16]]
+    [key[0, 4], key[4, 16]]
   end
-  
 end
-
 end
-
