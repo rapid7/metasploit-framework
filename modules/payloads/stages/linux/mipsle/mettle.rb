@@ -96,7 +96,7 @@ module MetasploitModule
   end
 
   def generate_meterpreter
-    MetasploitPayloads::Mettle.read('mipsel-linux-musl', 'mettle.bin')
+    MetasploitPayloads::Mettle.read('mipsel-linux-muslsf', 'mettle.bin')
   end
 
   def generate_config(opts={})
