@@ -9,6 +9,9 @@ module Msf
   class EncoderSpaceViolation < PayloadGeneratorError
   end
 
+  class PayloadSpaceViolation < PayloadGeneratorError
+  end
+
   class IncompatibleArch < PayloadGeneratorError
   end
 
@@ -314,20 +317,27 @@ module Msf
       if platform == "java" or arch == "java" or payload.start_with? "java/"
         raw_payload = generate_java_payload
         cli_print "Payload size: #{raw_payload.length} bytes"
-        raw_payload
+        gen_payload = raw_payload
       elsif payload.start_with? "android/" and not template.blank?
         cli_print "Using APK template: #{template}"
         apk_backdoor = ::Msf::Payload::Apk::ApkBackdoor::new()
         raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
         cli_print "Payload size: #{raw_payload.length} bytes"
-        raw_payload
+        gen_payload = raw_payload
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
         encoded_payload = encode_payload(raw_payload)
         encoded_payload = prepend_nops(encoded_payload)
         cli_print "Payload size: #{encoded_payload.length} bytes"
-        format_payload(encoded_payload)
+        gen_payload = format_payload(encoded_payload)
+      end
+      if gen_payload.nil?
+        raise PayloadGeneratorError, 'The payload could not be generated, check options'
+      elsif gen_payload.length > @space and not @smallest
+        raise PayloadSpaceViolation, 'The payload exceeds the specified space'
+      else
+        gen_payload
       end
     end
 
