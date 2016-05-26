@@ -57,9 +57,9 @@ RSpec.describe Msf::PayloadGenerator do
         reference_name: 'windows/meterpreter/reverse_tcp'
     )
   }
-  
+
   # let(:shellcode) { "\x50\x51\x58\x59" }
-  
+
   # let(:var_name) { 'buf' }
 
   subject(:payload_generator) {
@@ -130,7 +130,7 @@ RSpec.describe Msf::PayloadGenerator do
             template: File.join(Msf::Config.data_directory, 'templates', 'template_x86_windows.exe')
         }
       }
-      
+
       it { is_expected.to raise_error(ArgumentError, "Invalid Payload Selected") }
     end
 
@@ -495,7 +495,7 @@ RSpec.describe Msf::PayloadGenerator do
           expect{payload_generator.generate_raw_payload}.to raise_error(Msf::IncompatiblePlatform, "You must select a platform for a custom payload")
         end
       end
-      
+
       let(:generator_opts) {
         {
             add_code: false,
@@ -632,7 +632,7 @@ RSpec.describe Msf::PayloadGenerator do
               template: File.join(Msf::Config.data_directory, 'templates', 'template_x86_windows.exe')
           }
         }
-        
+
         it 'returns the original shellcode' do
           expect(payload_generator.add_shellcode(shellcode)).to eq shellcode
         end
@@ -658,7 +658,7 @@ RSpec.describe Msf::PayloadGenerator do
               template: File.join(Msf::Config.data_directory, 'templates', 'template_x86_windows.exe')
           }
         }
-        
+
 
         it 'returns the original shellcode' do
           expect(payload_generator.add_shellcode(shellcode)).to eq shellcode
@@ -775,7 +775,7 @@ RSpec.describe Msf::PayloadGenerator do
               template: File.join(Msf::Config.data_directory, 'templates', 'template_x86_windows.exe')
           }
         }
-        
+
         before(:example) do
           load_and_create_module(
               module_type: 'nop',
@@ -861,7 +861,7 @@ RSpec.describe Msf::PayloadGenerator do
       #     x86/alpha_mixed
       #   }
       # }
-      
+
       let(:generator_opts) {
         {
             add_code: false,
@@ -925,7 +925,7 @@ RSpec.describe Msf::PayloadGenerator do
             template: File.join(Msf::Config.data_directory, 'templates', 'template_x86_windows.exe')
         }
       }
-      
+
       it 'returns an array of all encoders with a compatible arch' do
         payload_generator.get_encoders.each do |my_encoder|
           expect(my_encoder.arch).to include 'x86'
@@ -959,7 +959,7 @@ RSpec.describe Msf::PayloadGenerator do
               reference_name: 'x86/shikata_ga_nai'
           )
         }
-      
+
       it 'returns an empty array' do
         expect(payload_generator.get_encoders).to be_empty
       end
@@ -1128,7 +1128,7 @@ RSpec.describe Msf::PayloadGenerator do
           payload_generator.generate_java_payload
         end
       end
-      
+
       let(:generator_opts) {
         {
             add_code: false,
@@ -1148,7 +1148,7 @@ RSpec.describe Msf::PayloadGenerator do
             template: File.join(Msf::Config.data_directory, 'templates', 'template_x86_windows.exe')
         }
       }
-      
+
       it 'raises an InvalidFormat exception' do
         expect{ payload_generator.generate_java_payload }.to raise_error(Msf::InvalidFormat)
       end
@@ -1356,6 +1356,31 @@ RSpec.describe Msf::PayloadGenerator do
     }
     it 'should raise an error' do
       expect{payload_generator.generate_payload}.to raise_error(Msf::PayloadSpaceViolation, "The payload exceeds the specified space")
+    end
+  end
+  context 'when the payload format is invalid for the platform' do
+    let!(:payload_module) {
+      load_and_create_module(
+          ancestor_reference_names: %w{
+              stagers/osx/x86/reverse_tcp
+              stages/osx/x86/isight
+            },
+          module_type: 'payload',
+          reference_name: 'osx/x86/isight/reverse_tcp'
+      )
+    }
+    let(:generator_opts) {
+      {
+          datastore: { 'LHOST' => '192.168.172.1', 'LPORT' => '8443' } ,
+          format: 'elf',
+          framework: framework,
+          keep: false,
+          payload: 'osx/x86/isight/reverse_tcp',
+          stdin: nil,
+      }
+    }
+    it 'should raise an error' do
+      expect{payload_generator.generate_payload}.to raise_error(Msf::PayloadGeneratorError, "The payload could not be generated, check options")
     end
   end
 
