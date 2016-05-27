@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['HttpPassword'],
       user_file: datastore['USER_FILE'],
       userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['HTTPUSERNAME'],
+      username: datastore['HttpUsername'],
       user_as_pass: datastore['USER_AS_PASS'],
     )
 

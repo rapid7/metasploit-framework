@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     users = send_request_raw({
       'method' => 'GET',
       'uri' => normalize_uri(datastore['TARGETURI'], "/ws/dal/#{datastore["ENDPOINT"]}"),
-      'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HttpPassword'])
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
     }, 60)
 
     if !users or users.code != 200

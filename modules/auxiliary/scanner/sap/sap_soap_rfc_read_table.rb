@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('CLIENT', [true, 'SAP client', '001']),
-        OptString.new('HTTPUSERNAME', [true, 'Username', 'SAP*']),
+        OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
         OptString.new('HttpPassword', [true, 'Password', '06071992']),
         OptString.new('TABLE', [true, 'Table to read', 'USR02']),
         OptString.new('FIELDS', [true, 'Fields to read', 'BNAME,BCODE'])
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'POST',
         'data' => data,
         'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
-        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HttpPassword']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'ctype' => 'text/xml; charset=UTF-8',
         'encode_params' => false,
         'headers' => {

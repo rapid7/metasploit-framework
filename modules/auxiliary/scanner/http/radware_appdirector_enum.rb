@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'radware'", "radware"])
       ], self.class)
 
-    deregister_options('HTTPUSERNAME', 'HttpPassword')
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(ip)
