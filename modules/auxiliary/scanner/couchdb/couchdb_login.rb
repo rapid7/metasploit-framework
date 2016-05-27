@@ -38,6 +38,8 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
       ], self.class)
+
+    deregister_options('HTTPUSERNAME', 'HTTPPASSWORD')
   end
 
   def run_host(ip)

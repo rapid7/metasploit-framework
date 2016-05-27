@@ -58,6 +58,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
+        OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication', '']),
+        OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication', '']),
         OptString.new('TARGETURI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt") ]),
@@ -110,7 +112,9 @@ class MetasploitModule < Msf::Auxiliary
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-        connection_timeout: 10
+        connection_timeout: 10,
+        http_username: datastore['HTTPUSERNAME'],
+        http_password: datastore['HTTPPASSWORD']
       )
     )
 

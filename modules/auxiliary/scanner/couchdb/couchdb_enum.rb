@@ -29,14 +29,14 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(5984),
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/_all_dbs']),
-        OptString.new('USERNAME', [false, 'The username to login as']),
-        OptString.new('PASSWORD', [false, 'The password to login with'])
+        OptString.new('HTTPUSERNAME', [false, 'The username to login as']),
+        OptString.new('HTTPPASSWORD', [false, 'The password to login with'])
       ], self.class)
   end
 
   def run
-    username = datastore['USERNAME']
-    password = datastore['PASSWORD']
+    username = datastore['HTTPUSERNAME']
+    password = datastore['HTTPPASSWORD']
 
     begin
       res = send_request_cgi(

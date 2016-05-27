@@ -20,6 +20,13 @@ module Metasploit
         #   @return [String] Cookie session
         attr_accessor :jsession
 
+        # @!attribute http_username
+        attr_accessor :http_username
+        #   @return [String] HTTP username
+
+        # @!attribute http_password
+        attr_accessor :http_password
+
         # (see Base#check_setup)
         def check_setup
           begin
@@ -61,7 +68,7 @@ module Metasploit
         # @param (see Rex::Proto::Http::Resquest#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies)
+          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password)
           configure_http_client(cli)
           cli.connect
           req = cli.request_raw(opts)

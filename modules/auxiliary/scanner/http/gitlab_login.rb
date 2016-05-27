@@ -28,8 +28,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('USERNAME', [ true, 'The username to test', 'root' ]),
-        OptString.new('PASSWORD', [ true, 'The password to test', '5iveL!fe' ]),
+        OptString.new('HTTPUSERNAME', [ true, 'The username to test', 'root' ]),
+        OptString.new('HTTPPASSWORD', [ true, 'The password to test', '5iveL!fe' ]),
         OptString.new('TARGETURI', [true, 'The path to GitLab', '/'])
       ], self.class)
 
@@ -58,10 +58,10 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
+      password: datastore['HTTPPASSWORD'],
       user_file: datastore['USER_FILE'],
       userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['USERNAME'],
+      username: datastore['HTTPUSERNAME'],
       user_as_pass: datastore['USER_AS_PASS']
     )
 

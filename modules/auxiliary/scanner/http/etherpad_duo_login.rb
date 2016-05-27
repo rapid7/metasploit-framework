@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     'License'        => MSF_LICENSE
     ))
 
+    deregister_options('HTTPUSERNAME', 'HTTPPASSWORD')
   end
 
   def run_host(ip)
