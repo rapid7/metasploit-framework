@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['URL', 'http://nto.github.io/AirPlay.html']
         ],
-      'DefaultOptions' => { 'HTTPUSERNAME' => 'AirPlay' },
+      'DefaultOptions' => { 'HttpUsername' => 'AirPlay' },
       'License'        => MSF_LICENSE
     ))
 
@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(7000),
       OptInt.new('TIME', [true, 'Time in seconds to show the video', 60]),
       OptString.new('URL', [true, 'URL of video to show. Must use an IP address']),
-      OptString.new('HTTPPASSWORD', [false, 'The password for AppleTV AirPlay'])
+      OptString.new('HttpPassword', [false, 'The password for AppleTV AirPlay'])
     ], self.class)
 
     # We're not actually using any of these against AppleTV in our Rex HTTP client init,
@@ -77,8 +77,8 @@ class MetasploitModule < Msf::Auxiliary
       ssl,
       ssl_version,
       proxies,
-      datastore['HTTPUSERNAME'],
-      datastore['HTTPPASSWORD']
+      datastore['HttpUsername'],
+      datastore['HttpPassword']
     )
     add_socket(http)
 

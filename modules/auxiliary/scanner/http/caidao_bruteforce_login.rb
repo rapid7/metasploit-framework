@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       ], self.class)
 
     # caidao does not have an username, there's only password
-    deregister_options('HTTPUSERNAME', 'HTTPPASSWORD', 'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')
+    deregister_options('HTTPUSERNAME', 'HttpPassword', 'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')
   end
 
   def scanner(ip)
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
           bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
           connection_timeout: 5,
           http_username: datastore['HTTPUSERNAME'],
-          http_password: datastore['HTTPPASSWORD']
+          http_password: datastore['HttpPassword']
         ))
     }.call
   end

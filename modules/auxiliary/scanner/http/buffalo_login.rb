@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 10,
         http_username: datastore['HTTPUSERNAME'],
-        http_password: datastore['HTTPPASSWORD']
+        http_password: datastore['HttpPassword']
       )
     )
 

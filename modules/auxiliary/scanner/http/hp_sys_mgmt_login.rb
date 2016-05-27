@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     @cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file:       datastore['PASS_FILE'],
-      password:        datastore['HTTPPASSWORD'],
+      password:        datastore['HttpPassword'],
       user_file:       datastore['USER_FILE'],
       userpass_file:   datastore['USERPASS_FILE'],
       username:        datastore['HTTPUSERNAME'],
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
         http_username:      datastore['HTTPUSERNAME'],
-        http_password:      datastore['HTTPPASSWORD']
+        http_password:      datastore['HttpPassword']
       )
     )
   end

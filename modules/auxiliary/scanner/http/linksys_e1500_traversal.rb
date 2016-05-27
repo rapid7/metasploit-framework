@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
         OptString.new('HTTPUSERNAME',[ true, 'User to login with', 'admin']),
-        OptString.new('HTTPPASSWORD',[ true, 'Password to login with', 'password']),
+        OptString.new('HttpPassword',[ true, 'Password to login with', 'password']),
 
       ], self.class)
   end
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     user = datastore['HTTPUSERNAME']
-    pass = datastore['HTTPPASSWORD']
+    pass = datastore['HttpPassword']
 
     vprint_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
 

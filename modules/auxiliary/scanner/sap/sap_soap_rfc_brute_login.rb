@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "sap_default.txt") ])
       ], self.class)
 
-    deregister_options('HTTPUSERNAME', 'HTTPPASSWORD')
+    deregister_options('HTTPUSERNAME', 'HttpPassword')
   end
 
   def run_host(rhost)

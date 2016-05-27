@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
       ], self.class)
 
-    deregister_options('HTTPUSERNAME', 'HTTPPASSWORD')
+    deregister_options('HTTPUSERNAME', 'HttpPassword')
   end
 
   def target_url
