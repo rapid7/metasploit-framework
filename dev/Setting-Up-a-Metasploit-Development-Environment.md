@@ -497,6 +497,7 @@ or `repo-name/.git/config` -- seperate from regular shell aliases. Below
 are some of the handier ones.
 
 ```rc
+[alias]
 # An easy, colored oneline log format that shows signed/unsigned status
 nicelog = log --pretty=format:'%Cred%h%Creset -%Creset %s %Cgreen(%cr) %C(bold blue)<%aE>%Creset [%G?]'
 
