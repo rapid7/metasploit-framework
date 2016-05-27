@@ -31,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication', '']),
-        OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication', ''])
+        OptString.new('USERNAME', [false, 'The username to specify for authentication', '']),
+        OptString.new('PASSWORD', [false, 'The password to specify for authentication', ''])
       ], self.class)
   end
 
