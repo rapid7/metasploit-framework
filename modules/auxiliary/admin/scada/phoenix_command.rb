@@ -30,8 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/tijldeneut/ICSSecurityScripts' ],
           [ 'CVE', '2014-9195']
         ],
-      'DisclosureDate' => 'May 20 2015'
-      ))
+      'DisclosureDate' => 'May 20 2015'))
     register_options(
       [
         OptEnum.new('ACTION', [true, 'PLC CPU action, REV means reverse current CPU state', 'NOOP',
@@ -40,12 +39,11 @@ class MetasploitModule < Msf::Auxiliary
             'START',
             'REV',
             'NOOP'
-          ]
-        ]),
+          ]]),
         OptPort.new('RINFOPORT', [true, 'Set info port', 1962 ]),
         OptPort.new('RPORT', [false, 'Set action port, will try autodetect when not set' ])
-      ], self.class)
-
+      ], self.class
+    )
   end
 
   # Here comes the code, hang on to your pants
