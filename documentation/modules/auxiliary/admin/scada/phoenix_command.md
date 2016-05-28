@@ -2,23 +2,23 @@ PhoenixContact Programmable Logic Controllers are built are using a variant of P
  Communicating using a proprietary protocol over ports TCP/1962 and TCP/41100 or TCP/20547.
 It allows a remote user to read out the PLC Type, Firmware and Build number on port TCP/1962.
 And also to read out the CPU State (Running or Stopped) AND start or stop the CPU on 
- port TCP/20547 (confirmed for the PLC series ILC 15x and 17x)
- or   TCP/41100 (confirmed for the ILC 39x series)
- other series may or may not work, a very big chance that they will
+port TCP/20547 (confirmed for the PLC series ILC 15x and 17x)
+or   TCP/41100 (confirmed for the ILC 39x series)
+other series may or may not work, a very big chance that they will
 
 ## Vulnerable Application
 
 This is a hardware zero-day vulnerability that CANNOT be patched, the only mittigation is pulling the plug (literally),
- adding a separate network in front of it (Firewall, Router, IDS, IPS, network segmentation, etc...)
- or not allowing bad people on your network 
+adding a separate network in front of it (Firewall, Router, IDS, IPS, network segmentation, etc...)
+or not allowing bad people on your network .
  
 In general most, if not all, PLC's (computers that control engines, robots, conveyor belts, sensors, camera's, doorlocks, CRACs ...)
- have this vulnerability where, using their own tools, remote configuration and programming can be done *WITHOUT* authentication
- Investigators and underground hackers are just now creating simple tools to convert the often proprietary protocols into (simple) scripts
+have this vulnerability where, using their own tools, remote configuration and programming can be done *WITHOUT* authentication. 
+Investigators and underground hackers are just now creating simple tools to convert the often proprietary protocols into (simple) scripts.
  
 The most important word here is proprietary. Right now the only thing stopping very bad stuff from happening.
- PhoenixContact uses an (unnamed?) low-level protocol for connection, information exchange and configuration of its PLC devices
- This script utilises that protocol for finding information and switching the PLC mode from STOP to RUN and vice versa
+PhoenixContact uses an (unnamed?) low-level protocol for connection, information exchange and configuration of its PLC devices.
+This script utilises that protocol for finding information and switching the PLC mode from STOP to RUN and vice versa
 
 ## Verification Steps
 
