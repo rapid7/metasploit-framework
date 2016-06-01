@@ -85,17 +85,13 @@ module Msf
     #
     # If it's required and the value is nil or empty, then it's not valid.
     #
-    def valid?(value)
-      if required?
+    def valid?(value, check_empty: true)
+      if check_empty && required?
         # required variable not set
-        return false if (value == nil or value.to_s.empty?)
+        return false if (value.nil? || value.to_s.empty?)
       end
       if regex
-        if value.match(regex)
-          return true
-        else
-          return false
-        end
+        return !!value.match(regex)
       end
       return true
     end

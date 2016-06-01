@@ -108,9 +108,6 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         :set_uri_append        => { :result => "" },
         :set_agent_header      => { :result => "User-Agent: Mozilla/4.0 (compatible; Metasploit RSPEC)\r\n" },
         :set_host_header       => { :result => "Host: www.example.com\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar"], :result => "Foo: Bar\r\n" },
-        :set_formatted_header  => { :args => ["foo", "Bar"], :result => "foo: Bar\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar\twith\ttabs"], :result => "Foo: Bar\twith\ttabs\r\n" },
         :set_formatted_header  => { :args => ["Foo\twith\tabs", "Bar"], :result => "Foo\twith\tabs: Bar\r\n" },
       }
     ],
@@ -127,9 +124,6 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         :set_agent_header      => { :result => "User-Agent:\r\n\tMozilla/4.0 (compatible; Metasploit RSPEC)\r\n" },
         :set_cookie_header     => { :result => "" },
         :set_connection_header => { :result => "Connection:\r\n\tclose\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar"], :result => "Foo:\r\n\tBar\r\n" },
-        :set_formatted_header  => { :args => ["foo", "Bar"], :result => "foo:\r\n\tBar\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar\twith\ttabs"], :result => "Foo:\r\n\tBar\twith\ttabs\r\n" },
         :set_formatted_header  => { :args => ["Foo\twith\tabs", "Bar"], :result => "Foo\twith\tabs:\r\n\tBar\r\n" },
       }
     ],
@@ -180,7 +174,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         :set_content_len_header => { args: 0, result: "Content-Length: 0\r\n"}
       }
     ],
-  
+
   ].each do |c, opts, expectations|
     context c do
       subject(:client_request) { Rex::Proto::Http::ClientRequest.new(opts) }

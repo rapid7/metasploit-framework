@@ -47,8 +47,9 @@ class Jar < Archive
   #
   def build_manifest(opts={})
     main_class = (opts[:main_class] ? randomize(opts[:main_class]) : nil)
-    app_name = (opts[:app_name] ? randomize(opts[:main_class]) : nil)
+    app_name = (opts[:app_name] ? randomize(opts[:app_name]) : nil)
     existing_manifest = nil
+    meta_inf_exists = @entries.find_all{|item| item.name == 'META-INF/' }.length > 0
 
     @manifest =  "Manifest-Version: 1.0\r\n"
     @manifest << "Main-Class: #{main_class}\r\n" if main_class
@@ -69,7 +70,7 @@ class Jar < Archive
     if existing_manifest
       existing_manifest.data = @manifest
     else
-      add_file("META-INF/", '')
+      add_file("META-INF/", '') unless meta_inf_exists
       add_file("META-INF/MANIFEST.MF", @manifest)
     end
   end
@@ -280,4 +281,3 @@ end
 
 end
 end
-
