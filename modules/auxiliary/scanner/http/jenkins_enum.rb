@@ -97,13 +97,13 @@ class MetasploitModule < Msf::Auxiliary
 
     case res.code
     when 200
-      print_good("#{uri_path} does not require authentication (200)")
+      print_good("#{full_uri} - #{uri_path} does not require authentication (200)")
       report_note({
         :type  => "jenkins_path",
         :host  => rhost,
         :port  => rport,
         :proto => 'tcp',
-        :data  => "#{uri_path} does not require authentication (200)",
+        :data  => "#{full_uri} - #{uri_path} does not require authentication (200)",
         :update => :unique_data
       })
       case app
