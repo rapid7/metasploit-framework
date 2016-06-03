@@ -26,16 +26,10 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[Landing Pull Requests]]
 - [[Landing Meterpreter Pull Requests]]
 
-# Metasploit Resources #
+# Metasploit Development #
 
-- [[Downloads by Version]]
-- [[How to use a Metasploit module appropriately]]
-- [[How to use a reverse shell in Metasploit]]
-- [[Evading Anti Virus]]
 - [[Loading External Modules]]
 - [[Exploit Ranking]]
-- [[How Payloads Work]]
-- [[State of Meterpreter]]
 - [[Metasploit module reference identifiers]]
 - [[How to get started with writing an exploit]]
 - [[How to get started with writing an auxiliary module]]
@@ -43,7 +37,6 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to get started with writing a Meterpreter script]]
 - [[How to use Railgun for Windows post exploitation]]
 - [[How to write a browser exploit using BrowserExploitServer]]
-- [[Information About Unmet Browser Exploit Requirements]]
 - [[How to write a browser exploit using HttpServer]]
 - [[How to write a module using HttpServer and HttpClient]]
 - [[How to Send an HTTP Request Using HTTPClient]]
@@ -65,11 +58,25 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to use the Msf::Exploit::Remote::Tcp mixin]]
 - [[How to check Microsoft patch levels for your exploit]]
 - [[How to zip files with Rex::Zip::Archive]]
+- [[How to write a HTTP LoginScanner Module]]
+- [[Oracle Usage]]
+
+# Metasploit Payloads #
+
+- [[How Payloads Work]]
+- [[State of Meterpreter]]
+
+
+# Other Metasploit Resources #
+
+- [[Downloads by Version]]
+- [[How to use a Metasploit module appropriately]]
+- [[How to use a reverse shell in Metasploit]]
+- [[Evading Anti Virus]]
+- [[Information About Unmet Browser Exploit Requirements]]
 - [[What does my Rex::Proto::SMB Error mean?]]
 - [[How to use msfvenom]]
 - [[How to use exim_gethostbyname_bof.rb (Exim GHOST Buffer Overflow)]]
-- [[How to write a HTTP LoginScanner Module]]
-- [[Oracle Usage]]
 
 # GitHub Resources #
 
