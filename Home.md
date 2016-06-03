@@ -31,10 +31,6 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[Loading External Modules]]
 - [[Exploit Ranking]]
 - [[Metasploit module reference identifiers]]
-- [[How to get started with writing an exploit]]
-- [[How to get started with writing an auxiliary module]]
-- [[How to get started with writing a post module]]
-- [[How to get started with writing a Meterpreter script]]
 - [[How to use Railgun for Windows post exploitation]]
 - [[How to write a browser exploit using BrowserExploitServer]]
 - [[How to write a browser exploit using HttpServer]]
@@ -60,11 +56,25 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to zip files with Rex::Zip::Archive]]
 - [[How to write a HTTP LoginScanner Module]]
 - [[Oracle Usage]]
+- [[Rex Layout]]
+- [[Style Tips]]
 
 # Metasploit Payloads #
 
 - [[How Payloads Work]]
 - [[State of Meterpreter]]
+- [[Meterpreter Configuration]]
+- [[Meterpreter HTTP Communication]]
+- [[Meterpreter Paranoid Mode]]
+- [[Meterpreter Reliable Network Communication]]
+- [[Meterpreter Sleep Control]]
+- [[Meterpreter Stageless Mode]]
+- [[Meterpreter Timeout Control]]
+- [[Meterpreter Transport Control]]
+- [[Meterpreter Unicode Support]]
+- [[Payload UUID]]
+- [[Python Extension]]
+- [[The ins and outs of HTTP and HTTPS communications in Meterpreter and Metasploit Stagers]]
 
 
 # Other Metasploit Resources #
