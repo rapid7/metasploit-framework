@@ -4,24 +4,27 @@ To start using msfvenom, first please take a look at the options it supports:
 
 ```
 Options:
-    -p, --payload    <payload>       Payload to use. Specify a '-' or stdin to use custom payloads
-    -l, --list       [module_type]   List a module type. Options are: payloads, encoders, nops, all
-    -n, --nopsled    <length>        Prepend a nopsled of [length] size on to the payload
-    -f, --format     <format>        Output format (use --help-formats for a list)
-    -e, --encoder    [encoder]       The encoder to use
-    -a, --arch       <architecture>  The architecture to use
-        --platform   <platform>      The platform of the payload
-    -s, --space      <length>        The maximum size of the resulting payload
-    -b, --bad-chars  <list>          The list of characters to avoid example: '\x00\xff'
-    -i, --iterations <count>         The number of times to encode the payload
-    -c, --add-code   <path>          Specify an additional win32 shellcode file to include
-    -x, --template   <path>          Specify a custom executable file to use as a template
-    -k, --keep                       Preserve the template behavior and inject the payload as a new thread
+    -p, --payload       <payload>    Payload to use. Specify a '-' or stdin to use custom payloads
         --payload-options            List the payload's standard options
-    -o, --out   <path>               Save the payload
-    -v, --var-name <name>            Specify a custom variable name to use for certain output formats
-    -h, --help                       Show this message
+    -l, --list          [type]       List a module type. Options are: payloads, encoders, nops, all
+    -n, --nopsled       <length>     Prepend a nopsled of [length] size on to the payload
+    -f, --format        <format>     Output format (use --help-formats for a list)
         --help-formats               List available formats
+    -e, --encoder       <encoder>    The encoder to use
+    -a, --arch          <arch>       The architecture to use
+        --platform      <platform>   The platform of the payload
+        --help-platforms             List available platforms
+    -s, --space         <length>     The maximum size of the resulting payload
+        --encoder-space <length>     The maximum size of the encoded payload (defaults to the -s value)
+    -b, --bad-chars     <list>       The list of characters to avoid example: '\x00\xff'
+    -i, --iterations    <count>      The number of times to encode the payload
+    -c, --add-code      <path>       Specify an additional win32 shellcode file to include
+    -x, --template      <path>       Specify a custom executable file to use as a template
+    -k, --keep                       Preserve the template behavior and inject the payload as a new thread
+    -o, --out           <path>       Save the payload
+    -v, --var-name      <name>       Specify a custom variable name to use for certain output formats
+        --smallest                   Generate the smallest possible payload
+    -h, --help                       Show this message
 ```
 
 # How to generate a payload
