@@ -144,7 +144,7 @@ end
 
 You can do the same for send_request_raw as well.
 
-### Other Common question(s):
+### Other Common questions:
 
 **1 - Can I use ```vars_get``` and ```vars_post``` together?**
 
