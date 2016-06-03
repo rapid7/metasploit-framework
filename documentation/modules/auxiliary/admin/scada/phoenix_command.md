@@ -64,7 +64,7 @@ msf auxiliary(phoenix_command) > run
 [*] Auxiliary module execution completed
 ```
 
-## Options
+## Module Options
 ```
 msf auxiliary(phoenix_command) > show options
 
@@ -87,35 +87,32 @@ reason to change the 'RINFOPORT' option)
 
 The CPU mode uses a TCP port depending on the PLC Type, the module will
 automatically detect the type and port to use, but can be overridden with the
-'RPORT' option, however no real reason to configure it.
-
---> If 'RPORT' is set for some reason (e.g. because of an earlier "setg RPORT" command), it can be
-	unset with:
-```
-msf auxiliary(phoenix_command) > unset RPORT
-Unsetting RPORT...
-```
+'RPORT' option, however no real reason to configure it. If you accidentally set RPORT, you can unset it with the ```unset RPORT``` command.
 
 **The ACTION option**
 
-Action only has four (4) possible values:
+Action has four possible values:
 
 By default, the module will do nothing to the PLC, therefore No Operation or 'NOOP':
+
 ```
 msf auxiliary(phoenix_command) > set ACTION NOOP
 ```
 
 The PLC can be forced to go into STOP mode, meaning it stops all execution and all outputs are set to low:
+
 ```
 msf auxiliary(phoenix_command) > set ACTION STOP
 ```
 
 The PLC can be forced to go into RUN mode, where it keeps running it was or it will start executing its current boot programming:
+
 ```
 msf auxiliary(phoenix_command) > set ACTION START
 ```
 
 The module can also just read out the CPU mode and then reverse whatever it finds, RUN becomes STOP, STOP becomes RUN:
+
 ```
 msf auxiliary(phoenix_command) > set ACTION REV
 ```
