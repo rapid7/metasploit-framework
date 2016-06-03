@@ -117,6 +117,33 @@ Please note: The `normalize_uri` method will always follow these rules:
 	end
 ```
 
+### Working with Burp Suite
+
+Burp Suite is a useful tool to examine or modify HTTPS traffic while developing a module using HttpClient. To do this:
+
+1. Start Burp: ```java -jar burpsuite.jar```
+2. In Burp, click on the Proxies tab, and then Options. Configure the proxy listener there. In this example, let's say we have a listener on port 6666.
+3. Once the Burp listener is up, start msfconsole and load the module you're working on.
+4. Enter: ```set Proxies HTTP:127.0.0.1:6666```
+5. Go ahead and run the module, Burp should intercept the HTTPS traffic.
+
+Note that Burp only supports HTTPS for HttpClient. This problem is only specific to Burp and Metasploit.
+
+If you need to examine HTTP traffic for HttpClient, a workaround is adding the following method in your module. This will override HttpClient's send_request_* method, and return the modified output:
+
+```ruby
+def send_request_cgi(opts)
+  res = super(opts)
+  puts res.request.to_s
+  puts
+  puts res.to_s
+  puts
+  puts
+end
+```
+
+You can do the same for send_request_raw as well.
+
 ### Common question(s):
 
 **1 - Can I use ```vars_get``` and ```vars_post``` together?**
