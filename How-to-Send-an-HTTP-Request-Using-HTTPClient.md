@@ -154,7 +154,7 @@ Yes. When you supply a hash to ```vars_get```, basically it means "put all this 
 
 Do mention about this problem in the code (as a comment). If you can't use ```vars_post```, you can try the ```data``` key instead, which will send your post data raw. Normally, the most common solution to get around ```vars_get``` is to leave your stuff in the ```uri``` key. msftidy will flag this, but only as an "Info" and not a warning, which means you should still pass msftidy anyway. If this is a common problem, we can always change msftidy.
 
-**3 - Do I need to manually do basic auth?
+**3 - Do I need to manually do basic auth?**
 
 You do not need to manually do basic auth in your request, the HttpClient should automatically do that for you. All you have to do is set the username and password in the datastore options, and then the mixin will use that when the web server asks.
 
