@@ -156,7 +156,7 @@ Do mention about this problem in the code (as a comment). If you can't use ```va
 
 **3 - Do I need to manually do basic auth?**
 
-You do not need to manually do basic auth in your request, the HttpClient should automatically do that for you. All you have to do is set the username and password in the datastore options, and then the mixin will use that when the web server asks.
+You do not need to manually do basic auth in your request, because HttpClient should automatically do that for you. All you have to do is set the username and password in the datastore options, and then the mixin will use that when the web server asks.
 
 ## References
 
