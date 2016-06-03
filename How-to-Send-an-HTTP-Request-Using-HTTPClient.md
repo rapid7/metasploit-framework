@@ -12,8 +12,6 @@ Here's a basic example of how to use `send_request_raw`:
 
 * **[send_request_cgi](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_cgi-instance_method)** - You use this to send a more CGI-compatible HTTP request. If your request contains a query string (or POST data), then you should use this.  If you wish to learn about how this method works, check out [`Rex::Proto::Http::Client#request_cgi`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_cgi-instance_method).
 
-Both methods can automatically do the HTTP authentication if the user sets the "USERNAME" and "PASSWORD" advanced options.
-
 Here's a very basic example for `send_request_cgi`:
 
 ```ruby
