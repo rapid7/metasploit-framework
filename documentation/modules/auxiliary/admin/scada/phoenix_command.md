@@ -13,7 +13,7 @@ may not work, but there is a good chance that they will
 This is a hardware zero-day vulnerability that CANNOT be patched. Possible
 mitigations include: pulling the plug (literally), using network isolation
 (Firewall, Router, IDS, IPS, network segmentation, etc...) or not allowing bad
-people on your network .
+people on your network.
 
 Most, if not all, PLC's (computers that control engines, robots, conveyor
 belts, sensors, camera's, doorlocks, CRACs ...) have vulnerabilities where,
