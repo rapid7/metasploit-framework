@@ -100,7 +100,7 @@ Before you can run the release notes script, you'll need to know the framework t
 
 1. Cd into your framework directory.
 1. Pull the latest from master. 
-1. Run the following: `ruby get_release_notes.rb <replace with framework tag>`.
+1. Run the following: ruby get_release_notes.rb <replace with framework tag>. 
 
 The console displays all of the PRs for the framework tags specified. The script also extracts the content and saves it into a file called release_notes_[starting tag]_[end tag].html in the same directory as the script.
 
