@@ -6,9 +6,7 @@ A release note summarizes the pull request and describes the value of the fix/fe
 
 Here's an example of what a release note looks likes:
 
-```
-Capture keystrokes, screenshots, and webcam snapshots with Beholder (PR-6878) - The Beholder plugin automatically captures keystrokes, screenshots, and webcam snapshots from your active sessions. Run this plugin to collect data from your compromised targets every 30 seconds. 
-```
+>Capture keystrokes, screenshots, and webcam snapshots with Beholder (PR-6878) - The Beholder plugin automatically captures keystrokes, screenshots, and webcam snapshots from your active sessions. Run this plugin to collect data from your compromised targets every 30 seconds. 
 
 ### Writing Release Notes for an Enhancement
 
@@ -22,9 +20,7 @@ When you write release notes for an enhancement, you should try to answer the fo
 
 For example, the following is a release note for an enhancement:
 
-```
 **Resolve command for Meterpreter (PR-6802)** - The new  'resolve' command enables you to perform DNS lookups with Meterpreter, without leaving the session to run additional modules. To resolve host names on the target, you can run the 'resolve' command followed by the host name. For example, in the Meterpreter prompt, you can type something like 'resolve rapid7.com' to view the host resolutions for rapid7.
-```
 
 ### Writing Release Notes for a Defect
 
@@ -38,9 +34,7 @@ When you write release notes for a defect, you should try to answer the followin
 
 Here's an example for a defect: 
 
-```
 AWS SES rejected email from Metasploit (PR-6854) - The email header contained duplicate date and subject headers, which caused email servers like AWS SES, to reject the emails. This fix removes the duplicate headers so that emails can be sent successfully.
-```
 
 ### Writing Release Notes for an Exploit
 
@@ -54,9 +48,7 @@ When you write release notes for an exploit, you should try to answer the follow
 
 And finally, here's an example for exploits:
 
-```
 HP Data Protector 6.10/6.11/6.20 Install Service - This module allows you to exploit HP Data Protector, a backup and recovery system, to remotely upload files to the file share. Versions 6.10, 6.10, and 6.20 are vulnerable. Authentication is not required to exploit this vulnerability.
-```
 
 ## Adding Release Notes to a Pull Request
 
