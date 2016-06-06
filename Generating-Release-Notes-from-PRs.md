@@ -6,7 +6,7 @@ A release note summarizes the pull request and describes the value of the fix/fe
 
 Here's an example of what a release note looks likes:
 
->Capture keystrokes, screenshots, and webcam snapshots with Beholder (PR-6878) - The Beholder plugin automatically captures keystrokes, screenshots, and webcam snapshots from your active sessions. Run this plugin to collect data from your compromised targets every 30 seconds. 
+>**Capture keystrokes, screenshots, and webcam snapshots with Beholder (PR-6878)** - The Beholder plugin automatically captures keystrokes, screenshots, and webcam snapshots from your active sessions. Run this plugin to collect data from your compromised targets every 30 seconds. 
 
 ### Writing Release Notes for an Enhancement
 
@@ -34,7 +34,7 @@ When you write release notes for a defect, you should try to answer the followin
 
 Here's an example for a defect: 
 
-> AWS SES rejected email from Metasploit (PR-6854) - The email header contained duplicate date and subject headers, which caused email servers like AWS SES, to reject the emails. This fix removes the duplicate headers so that emails can be sent successfully.
+> **AWS SES rejected email from Metasploit (PR-6854)** - The email header contained duplicate date and subject headers, which caused email servers like AWS SES, to reject the emails. This fix removes the duplicate headers so that emails can be sent successfully.
 
 ### Writing Release Notes for an Exploit
 
