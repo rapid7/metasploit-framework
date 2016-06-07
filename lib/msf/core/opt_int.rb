@@ -23,7 +23,7 @@ class OptInt < OptBase
   def valid?(value, check_empty: true)
     return false if check_empty && empty_required_value?(value)
 
-    if value and not value.to_s.match(/^0x[0-9a-fA-F]+$|^-?\d+$/)
+    if value.present? and not value.to_s.match(/^0x[0-9a-fA-F]+$|^-?\d+$/)
       return false
     end
 
