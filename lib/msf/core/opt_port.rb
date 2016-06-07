@@ -14,7 +14,14 @@ class OptPort < OptInt
 
   def valid?(value, check_empty: true)
     port = normalize(value)
-    super && port <= 65535 && port >= 0
+    if required?
+      super && port <= 65535 && port >= 0
+    elsif value.present?
+      check_empty = false
+      super
+    else
+      true
+    end
   end
 end
 
