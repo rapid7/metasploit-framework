@@ -12,6 +12,16 @@ class OptPort < OptInt
     return 'port'
   end
 
+  def normalize(value)
+    if value.to_s.match(/^0x[a-fA-F\d]+$/)
+      value.to_i(16)
+    elsif value.present?
+      value.to_i
+    else
+      nil
+    end
+  end
+
   def valid?(value, check_empty: true)
     port = normalize(value)
     if required?
