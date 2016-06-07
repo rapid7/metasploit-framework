@@ -154,7 +154,8 @@ class MetasploitModule < Msf::Auxiliary
       "Flag" => "Exec_Data",
       "CoreNXAction" => "./cadrs.cgi",
       "CoreNXPage" => "c_adrexppass.tpl",
-      "CoreNXFlag" => "Init_Data&Dummy=1359048058115"
+      "CoreNXFlag" => "Init_Data",
+      "Dummy" => "1359048058115"
     }
     res = send_request_cgi({
       'method'  => 'POST',
