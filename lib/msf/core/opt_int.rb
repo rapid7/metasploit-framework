@@ -15,8 +15,10 @@ class OptInt < OptBase
   def normalize(value)
     if value.to_s.match(/^0x[a-fA-F\d]+$/)
       value.to_i(16)
-    else
+    elsif value.present?
       value.to_i
+    else
+      nil
     end
   end
 
