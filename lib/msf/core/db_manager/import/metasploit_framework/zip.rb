@@ -49,7 +49,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
 
   # Parses host Nokogiri::XML::Element
   def parse_zip_host(host, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
-    host_info[host.at("id").text.to_s.strip] = nils_for_nulls(host.at("address").text.to_s.strip)
+    host_info[host.at("id").text.to_s.strip] = nils_for_nulls(host.at("address").text.to_s.strip) unless host.at('address').nil?
   end
 
   # Parses loot Nokogiri::XML::Element

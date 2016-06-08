@@ -18,6 +18,7 @@ require 'msf/core/payload_generator'
 
 
 class MsfVenomError < StandardError; end
+class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
 class NoTemplateError < MsfVenomError; end
 class IncompatibleError < MsfVenomError; end
@@ -95,7 +96,7 @@ def parse_args(args)
       "\t" + ::Msf::Util::EXE.to_executable_fmt_formats.join(", ") + "\n" +
       "Transform formats\n" +
       "\t" + ::Msf::Simple::Buffer.transform_formats.join(", ")
-    raise UsageError, msg
+    raise HelpError, msg
   end
 
   opt.on('-e', '--encoder       <encoder>', String, 'The encoder to use') do |e|
@@ -116,7 +117,7 @@ def parse_args(args)
     Msf::Module::Platform.subclasses.each {|c| supported_platforms << "#{c.realname.downcase}"}
     msg = "Platforms\n" +
       "\t" + supported_platforms * ", "
-    raise UsageError, msg
+    raise HelpError, msg
   end
 
   opt.on('-s', '--space         <length>', Integer, 'The maximum size of the resulting payload') do |s|
@@ -160,7 +161,7 @@ def parse_args(args)
   end
 
   opt.on_tail('-h', '--help', 'Show this message') do
-    raise UsageError, "#{opt}"
+    raise HelpError, "#{opt}"
   end
 
   begin
@@ -280,6 +281,9 @@ end
 
 begin
   generator_opts = parse_args(ARGV)
+rescue HelpError => e
+  $stderr.puts e.message
+  exit(1)
 rescue MsfVenomError, Msf::OptionValidateError => e
   $stderr.puts "Error: #{e.message}"
   exit(1)

@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
         This does not need administrative privileges on the source machine, which
         may be useful if pivoting.
       },
-      'Description' => 'Enumerate open TCP services',
       'Author'      => [ 'hdm', 'kris katterjohn' ],
       'License'     => MSF_LICENSE
     )

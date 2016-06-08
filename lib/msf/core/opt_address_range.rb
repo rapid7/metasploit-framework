@@ -35,8 +35,8 @@ class OptAddressRange < OptBase
     return value
   end
 
-  def valid?(value)
-    return false if empty_required_value?(value)
+  def valid?(value, check_empty: true)
+    return false if check_empty && empty_required_value?(value)
     return false unless value.kind_of?(String) or value.kind_of?(NilClass)
 
     if (value != nil and value.empty? == false)

