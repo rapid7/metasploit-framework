@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def print_status(msg='')
-    super("#{peer} - #{msg}")
+    super(rhost ? "#{peer} - #{msg}" : msg)
   end
 
   def print_good(msg='')
