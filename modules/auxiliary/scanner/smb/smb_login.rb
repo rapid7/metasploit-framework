@@ -90,9 +90,9 @@ class MetasploitModule < Msf::Auxiliary
     bogus_result = @scanner.attempt_bogus_login(domain)
     if bogus_result.success?
       if bogus_result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST
-        print_status("#{ip} - This system allows guest sessions with any credentials")
+        print_status("This system allows guest sessions with any credentials")
       else
-        print_error("#{ip} - This system accepts authentication with any credentials, brute force is ineffective.")
+        print_error("This system accepts authentication with any credentials, brute force is ineffective.")
         return
       end
     end
