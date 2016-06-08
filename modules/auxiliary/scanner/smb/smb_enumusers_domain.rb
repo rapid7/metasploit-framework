@@ -186,11 +186,11 @@ class MetasploitModule < Msf::Auxiliary
         end
 
       rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-        print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
+        print_error("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
         #puts e
         #return
       rescue ::Exception => e
-        print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
+        print_error("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
         #puts e
         #return
       end
