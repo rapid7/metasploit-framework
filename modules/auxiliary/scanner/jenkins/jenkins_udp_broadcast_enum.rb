@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_reply(pkt)
     # if empty packet, exit
-    return if !pkt[1]
+    return unless pkt[1]
 
     # strip to just the IPv4 address
     if pkt[1] =~ /^::ffff:/
@@ -48,12 +48,12 @@ class MetasploitModule < Msf::Auxiliary
     # check for and extract the version string
     ver = nil
     if !ver && pkt[0] =~ /version>(.*)<\/version/i
-      ver = $1
+      ver = Regexp.last_match(1)
     end
 
     # if a version was identified, then out and store to DB
     if ver
-      print_status("Found Jenkins Server at: #{pkt[1]} version : #{ver}")
+      print_status("#{pkt[1]} - Found Jenkins Server #{ver} Version")
       report_host(
           host: pkt[1],
           info: "Jenkins v.#{ver} (port typically 8080)"
@@ -68,14 +68,14 @@ class MetasploitModule < Msf::Auxiliary
     self.udp_sock = Rex::Socket::Udp.create(
        'Context' => { 'Msf' => framework, 'MsfExploit' => self }
     )
-    add_socket(self.udp_sock)
+    add_socket(udp_sock)
 
     # send a dummy packet to broadcast on port 33848
     udp_sock.sendto('\n', '255.255.255.255', 33848, 0)
 
-    # loop a few times to account for slow responders
+    # loop a few times to account for multiple or slow responders
     iter = 0
-    while (r = udp_sock.recvfrom(65535, 0.1)) && (iter < 10)
+    while (r = udp_sock.recvfrom(65535, 0.1)) && (iter < 20)
       parse_reply(r)
       iter += 1
     end
