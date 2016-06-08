@@ -177,7 +177,7 @@ class MetasploitModule < Msf::Post
   # @return [true]  If good to add
   # @return [false] If not
   def is_routable?(subnet, netmask)
-    if subnet =~ /^224\.|127\./
+    if subnet =~ /^224\.|^127\./
       return false
     elsif subnet == '0.0.0.0'
       return false

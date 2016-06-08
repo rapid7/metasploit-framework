@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Post
     tmpout = ""
     print_status("Running module against #{sysinfo['Computer']}")
     if datastore['RESOURCE']
-      if ::File.exists?(datastore['RESOURCE'])
+      if ::File.exist?(datastore['RESOURCE'])
 
         ::File.open(datastore['RESOURCE']).each_line do |cmd|
 

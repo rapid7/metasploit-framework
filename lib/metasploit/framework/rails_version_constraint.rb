@@ -5,7 +5,7 @@ module Metasploit
     module RailsVersionConstraint
 
       # The Metasploit ecosystem is not yet ready for Rails 4.1:
-      RAILS_VERSION = [ '>= 4.0.9', '< 4.1.0' ]
+      RAILS_VERSION =  '~> 4.2.6'
     end
   end
 end

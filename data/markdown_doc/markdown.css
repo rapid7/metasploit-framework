@@ -89,7 +89,6 @@ code {
 }
 pre {
     display: block;
-    padding: 16px;
     margin: 0 0 18px;
     line-height: 16px;
     font-size: 13px;
@@ -115,8 +114,8 @@ pre code {
   padding:10px 5px;
   border-style:solid;
   border-width:1px;
-  border-color:#ccc;
-  color:#333;
+  border-color:#EEEEEE;
+  color:#C4C4C4;
 }
 #knowledge_base_button {
   font-family:Arial, sans-serif;
@@ -124,14 +123,11 @@ pre code {
   padding:10px 5px;
   border-style:solid;
   border-width:1px;
-  border-color:#EEEEEE;
-  color:#C4C4C4;
+  border-color:#ccc;
+  color:#333;
 }
 #overview_info_button:hover, #knowledge_base_button:hover {
   cursor: pointer;
-}
-#knowledge_base {
-  display: none;
 }
 #long_list {
   height:280px;
@@ -139,7 +135,6 @@ pre code {
   border-style: solid;
   border-width: 1px;
   border-color: #ccc;
-  padding: 5px;
 }
 
 

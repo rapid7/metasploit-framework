@@ -403,7 +403,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/mainframe/generic_jcl'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/mainframe/generic_jcl'
   end
@@ -413,7 +413,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/mainframe/reverse_shell_jcl'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/mainframe/reverse_shell_jcl'
   end

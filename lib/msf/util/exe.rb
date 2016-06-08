@@ -2221,6 +2221,7 @@ require 'msf/core/exe/segment_appender'
       "asp",
       "aspx",
       "aspx-exe",
+      "axis2",
       "dll",
       "elf",
       "elf-so",
@@ -2229,6 +2230,7 @@ require 'msf/core/exe/segment_appender'
       "exe-service",
       "exe-small",
       "hta-psh",
+      "jar",
       "loop-vbs",
       "macho",
       "msi",
@@ -2253,9 +2255,9 @@ require 'msf/core/exe/segment_appender'
     path = ::File.expand_path(::File.join(
       ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
     )
-    return true unless ::File.exists?(path)
+    return true unless ::File.exist?(path)
     ret = false
-    if ::File.exists?(path)
+    if ::File.exist?(path)
       begin
         data = ::File.read(path)
         unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"

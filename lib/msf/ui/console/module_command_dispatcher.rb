@@ -191,13 +191,13 @@ module ModuleCommandDispatcher
         'LocalOutput' => driver.output)
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{code[1]}")
+          print_good("#{peer} #{code[1]}")
           report_vuln(instance)
         else
-          print_status("#{code[1]}")
+          print_status("#{peer} #{code[1]}")
         end
       else
-        msg = "Check failed: The state could not be determined."
+        msg = "#{peer} Check failed: The state could not be determined."
         print_error(msg)
         elog("#{msg}\n#{caller.join("\n")}")
       end
@@ -208,7 +208,7 @@ module ModuleCommandDispatcher
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue Msf::OptionValidateError => e
-      print_error("Check failed: #{e.message}")
+      print_error("{peer} - Check failed: #{e.message}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")

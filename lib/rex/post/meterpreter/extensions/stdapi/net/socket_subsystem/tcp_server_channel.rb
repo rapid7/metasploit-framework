@@ -79,14 +79,8 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   def self.open(client, params)
     c = Channel.create(client, 'stdapi_net_tcp_server', self, CHANNEL_FLAG_SYNCHRONOUS,
       [
-        {
-        'type'  => TLV_TYPE_LOCAL_HOST,
-        'value' => params.localhost
-        },
-        {
-        'type'  => TLV_TYPE_LOCAL_PORT,
-        'value' => params.localport
-        }
+        {'type'  => TLV_TYPE_LOCAL_HOST, 'value' => params.localhost},
+        {'type'  => TLV_TYPE_LOCAL_PORT, 'value' => params.localport}
       ] )
     c.params = params
     c
@@ -135,14 +129,18 @@ protected
   def _accept(nonblock = false)
     result = nil
 
-    channel = @@server_channels[self].deq(nonblock)
+    begin
+      channel = @@server_channels[self].deq(nonblock)
 
-    if channel
-      result = channel.lsock
-    end
+      if channel
+        result = channel.lsock
+      end
 
-    if result != nil && !result.kind_of?(Rex::Socket::Tcp)
-      result.extend(Rex::Socket::Tcp)
+      if result != nil && !result.kind_of?(Rex::Socket::Tcp)
+        result.extend(Rex::Socket::Tcp)
+      end
+    rescue ThreadError
+      # This happens when there's no clients in the queue
     end
 
     result

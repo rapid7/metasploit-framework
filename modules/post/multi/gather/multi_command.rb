@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
   # Run Method for when run command is issued
   def run
     print_status("Running module against #{sysinfo['Computer']}")
-    if not ::File.exists?(datastore['RESOURCE'])
+    if not ::File.exist?(datastore['RESOURCE'])
       raise "Resource File does not exists!"
     else
       ::File.open(datastore['RESOURCE'], "rb").each_line do |cmd|
