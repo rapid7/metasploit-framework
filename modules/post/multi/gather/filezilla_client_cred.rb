@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Post
       origin_type: :session,
       private_data: opts[:password],
       private_type: :password,
-      username: opts[:user]
+      username: opts[:username]
     }.merge(service_data)
 
     login_data = {
