@@ -6,6 +6,7 @@
 require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
+
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report
 
@@ -64,13 +65,8 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status('Sending Jenkins UDP Broadcast Probe ...')
 
-    # create a udp socket
-    self.udp_sock = Rex::Socket::Udp.create(
-       'Context' => { 'Msf' => framework, 'MsfExploit' => self }
-    )
-    add_socket(udp_sock)
+    udp_sock = connect_udp
 
-    # send a dummy packet to broadcast on port 33848
     udp_sock.sendto('\n', '255.255.255.255', 33848, 0)
 
     # loop a few times to account for multiple or slow responders
