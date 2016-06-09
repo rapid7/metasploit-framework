@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
           match_conf['host.domain'] = conf[:SMBDomain]
         end
 
-        print_status("#{rhost}:#{rport} is running #{desc}")
+        print_status("Host is running #{desc}")
 
         # Report the service with a friendly banner
         report_service(
@@ -136,7 +136,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         desc = "#{res['native_os']} (#{res['native_lm']})"
         report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
-        print_status("#{rhost}:#{rport} could not be identified: #{desc}")
+        print_status("Host could not be identified: #{desc}")
       end
 
       # Report a smb.fingerprint hash of attributes for OS fingerprinting

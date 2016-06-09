@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if(pass.length > 0)
-      print_status("#{ip} - Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
+      print_status("Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
       # Add Report
       report_note(
         :host	=> ip,
