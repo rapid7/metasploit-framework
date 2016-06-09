@@ -57,6 +57,12 @@ class MetasploitModule < Msf::Auxiliary
       self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
       remote_path = remote_paths.first
+
+      if local_paths.nil?
+        print_error("Local paths not specified")
+        return
+      end
+
       local_paths.each do |local_path|
         begin
           vprint_status("Trying to upload #{local_path} to #{remote_path}...")
