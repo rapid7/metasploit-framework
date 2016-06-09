@@ -58,6 +58,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[Oracle Usage]]
 - [[Rex Layout]]
 - [[Style Tips]]
+- [[How to use command stagers]]
 
 # Metasploit Payloads #
 
