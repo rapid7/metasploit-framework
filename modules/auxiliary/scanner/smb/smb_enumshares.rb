@@ -361,7 +361,7 @@ class MetasploitModule < Msf::Auxiliary
             subdirs.shift
             next
           end
-          header = "#{ip}:#{rport}"
+          header = ""
           if simple.client.default_domain and simple.client.default_name
             header << " \\\\#{simple.client.default_domain}"
           end
@@ -408,7 +408,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         subdirs.shift
       end
-    print_status("#{ip}:#{rport} - Spider #{x} complete.") unless datastore['ShowFiles']
+    print_status("Spider #{x} complete.") unless datastore['ShowFiles']
     end
     unless detailed_tbl.rows.empty?
       if datastore['LogSpider'] == '1'
@@ -458,7 +458,7 @@ class MetasploitModule < Msf::Auxiliary
         if shares.empty?
           print_status("No shares collected")
         else
-          shares_info = shares.map{|x| "#{ip}:#{rport} - #{x[0]} - (#{x[1]}) #{x[2]}" }.join(", ")
+          shares_info = shares.map{|x| "#{x[0]} - (#{x[1]}) #{x[2]}" }.join(", ")
           shares_info.split(", ").each { |share|
             print_good share
           }
