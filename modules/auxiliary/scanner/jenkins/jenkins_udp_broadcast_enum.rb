@@ -47,17 +47,14 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # check for and extract the version string
-    ver = nil
-    if !ver && pkt[0] =~ /version>(.*)<\/version/i
-      ver = Regexp.last_match(1)
-    end
+    ver = pkt[0].scan(/version>(.*)<\/version/i).flatten.first
 
     # if a version was identified, then out and store to DB
     if ver
       print_status("#{pkt[1]} - Found Jenkins Server #{ver} Version")
       report_host(
-          host: pkt[1],
-          info: "Jenkins v.#{ver} (port typically 8080)"
+        host: pkt[1],
+        info: "Jenkins v.#{ver} (port typically 8080)"
       )
     end
   end
