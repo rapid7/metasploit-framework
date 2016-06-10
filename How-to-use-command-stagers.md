@@ -51,20 +51,16 @@ uid=33(www-data) gid=33(www-data) groups=33(www-data)
 uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
 
-See the www-data? That is the output for the second command we asked the script to execute. By
-doing that, we can also do something even more nasty - like writing a Meterpreter payload onto the
-target system, and execute it.
+See the www-data? That is the output for the second command we asked the script to execute. By doing that, we can also do something even more nasty - like writing a Meterpreter payload onto the target system, and execute it.
 
 
 # The Msf::Exploit::CmdStager Mixin
 
-Now let's talk about how to use a command stager to exploit the above script. There are a couple
-of steps you need to do:
+Now let's talk about how to use a command stager to exploit the above script. There are a couple of steps you need to do:
 
 **1. Include the Msf::Exploit::CmdStager mixin**
 
-Although there are eight flavors of mixins, there is only mixin you need to include when writing a
-Metasploit exploit:
+Although there are eight flavors of mixins/stagers, you only need to include Msf::Exploit::CmdStager when writing a Metasploit exploit. The mixin is basically an interface to all eight command stagers:
 
 ```ruby
 include Msf::Exploit::CmdStager
@@ -72,15 +68,11 @@ include Msf::Exploit::CmdStager
 
 **2. Declare your flavors**
 
-The Msf::Exploit::CmdStager mixin is basically an interface to all eight command stagers. To
-specify what flavor, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either
-from the common level, or the target level.
+To tell Msf::Exploit::CmdStager what flavors you want, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either from the common level, or the target level.
 
 **3. Create the execute_command method**
 
-You also must create a ```def execute_command(cmd, opts = {})``` method in your module. This is
-what gets called by the CmdStager mixin when it kicks in. Your objective in this method is to
-inject whatever is in the ```cmd``` variable to the vulnerable code.
+You also must create a ```def execute_command(cmd, opts = {})``` method in your module. This is what gets called by the CmdStager mixin when it kicks in. Your objective in this method is to inject whatever is in the ```cmd``` variable to the vulnerable code.
 
 **4. Call #execute_cmdstager to begin**
 
