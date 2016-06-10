@@ -186,7 +186,7 @@ msf exploit(cmdstager_demo) > run
 Now that we know how to use the Msf::Exploit::CmdStager mixin, let's take a look at the command
 stagers you can use.
 
-## VBS Command Stager
+## VBS Command Stager - Windows Only
 
 The VBS command stager is for Windows. What this does is it encodes our payload with Base64, save it on the target machine, also writes a [VBS script](https://github.com/rapid7/metasploit-framework/blob/master/data/exploits/cmdstager/vbs_b64) using the echo command, then then let the VBS script to decode the Base64 payload, and execute it.
 
@@ -211,7 +211,7 @@ You will also need to make sure the module's supported platforms include windows
 ```
 
 
-## Certutil Command Stager
+## Certutil Command Stager - Windows Only
 
 Certutil is a Windows command that can be used to dump and display certification authority, configuration information, configure certificate services, back and restore CA components, etc. It only comes with newer Windows systems starting from Windows 2012, and Windows 8.
 
@@ -245,7 +245,7 @@ You will also need to remember to set the platform in the metadata:
 'Platform' => 'win'
 ```
 
-## Debug_write Command Stager
+## Debug_write Command Stager - Windows Only
 
 The debug_write command is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will a hex-ascii file created by the echo command, decode the binary, and finally execute.
 
@@ -269,7 +269,7 @@ You will also need to remember to set the platform in the metadata:
 'Platform' => 'win'
 ```
 
-## Debug_asm Command Stager
+## Debug_asm Command Stager - Windows Only
 
 The debug_asm command stager is another old Windows trick used to assemble a COM file, and then COM file will decode our hex-ascii payload, and then execute it.
 
@@ -291,9 +291,9 @@ You will also need to remember to set the platform in the metadata:
 'Platform' => 'win'
 ```
 
-## TFTP Command Stager
+## TFTP Command Stager - Windows Only
 
-The TFTP command stager uses tftpd.exe to download our payload, and then use the start command to execute it. This technique only works well against an older version of Windows (such as XP), because newer Windows machines no longer install tftp.exe by default.
+The TFTP command stager uses tftpd.exe to download our payload, and then use the start.exe command to execute it. This technique only works well against an older version of Windows (such as XP), because newer Windows machines no longer install tftp.exe by default.
 
 The TFTP command stager must bind to UDP port 69, so msfconsole must be started as root:
 
@@ -319,9 +319,21 @@ You will also need to remember to set the platform in the metadata:
 'Platform' => 'win'
 ```
 
-## Bourne Command Stager
+## Bourne Command Stager - Multi Platform
 
+The Bourne command stager supports multiple platforms except for Windows. It functions rather similar to the VBS stager, except when it decodes the Base64 payload at runtime, there are multiple commands to choose from: base64, openssl, python, or perl.
 
+To use the Bourne stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'bourne' ]
+```
+
+Or set the :bourne key to execute_cmdstager:
+
+```ruby
+execute_cmdstager(flavor: :bourne)
+```
 
 
 ## Echo Command Stager
