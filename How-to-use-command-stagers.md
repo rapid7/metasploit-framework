@@ -87,8 +87,8 @@ Over the years, we have also learned that these options are quite handy when cal
 execute_cmdstager:
 
 * **flavor** - You can specify what command stager (flavor) to use from here. Options are: ```:bourne```, ```:debug_asm```, ```:debug_write```, ```:echo```, ```:printf```, ```:vbs```, ```:certutil```, ```:tftp```.
-* **delay** - How much time to delay between each command execution.
-* **linemax** - Maximum number of characters per command.
+* **delay** - How much time to delay between each command execution. 0.25 is default.
+* **linemax** - Maximum number of characters per command. 2047 is default.
 
 **Msf::Exploit::CmdStager Template**
 
