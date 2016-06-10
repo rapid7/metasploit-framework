@@ -469,13 +469,13 @@ class Client
     workstation_name = Rex::Text.rand_text_alpha(rand(8)+6)
     domain_name = self.config['domain']
 
-    client = ::Net::NTLM::Client.new(
+    ntlm_client = ::Net::NTLM::Client.new(
       opts['username'],
       opts['password'],
       workstation: workstation_name,
       domain: domain_name,
     )
-    type1 = client.init_context
+    type1 = ntlm_client.init_context
 
     begin
       # First request to get the challenge
@@ -493,7 +493,7 @@ class Client
       ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/ni).flatten[0]
       return resp unless ntlm_challenge
 
-      ntlm_message_3 = client.init_context(ntlm_challenge)
+      ntlm_message_3 = ntlm_client.init_context(ntlm_challenge)
 
       # Send the response
       opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"

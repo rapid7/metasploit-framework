@@ -9,11 +9,6 @@ module Metasploit
         extend ActiveSupport::Concern
         include Metasploit::Framework::Tcp::Client
 
-        NTLM_CRYPT = Rex::Proto::NTLM::Crypt
-        NTLM_CONST = Rex::Proto::NTLM::Constants
-        NTLM_UTILS = Rex::Proto::NTLM::Utils
-        NTLM_XCEPT = Rex::Proto::NTLM::Exceptions
-
         # Encryption
         ENCRYPT_OFF     = 0x00 #Encryption is available but off.
         ENCRYPT_ON      = 0x01 #Encryption is available and on.
@@ -85,18 +80,18 @@ module Metasploit
             sname = Rex::Text.to_unicode( rhost )
             dname = Rex::Text.to_unicode( db )
 
-            ntlm_options = {
-                :signing 		=> false,
-                :usentlm2_session 	=> use_ntlm2_session,
-                :use_ntlmv2 		=> use_ntlmv2,
-                :send_lm 		=> send_lm,
-                :send_ntlm		=> send_ntlm
-            }
-
-            ntlmssp_flags = NTLM_UTILS.make_ntlm_flags(ntlm_options)
             workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
 
-            ntlmsspblob = NTLM_UTILS::make_ntlmssp_blob_init(domain_name, workstation_name, ntlmssp_flags)
+            ntlm_client = ::Net::NTLM::Client.new(
+              user,
+              pass,
+              workstation: workstation_name,
+              domain: domain_name,
+            )
+            type1 = ntlm_client.init_context
+            # At least SQL 2012 does not support KEY_EXCHANGE
+            type1.flag &= ~ ::Net::NTLM::FLAGS[:KEY_EXCHANGE]
+            ntlmsspblob = type1.serialize
 
             idx = pkt.size + 50 # lengths below
 
@@ -156,35 +151,10 @@ module Metasploit
                resp = mssql_send_recv(pkt)
             end
 
-            # Get default data
-            begin
-              blob_data = NTLM_UTILS.parse_ntlm_type_2_blob(resp)
-                # a domain.length < 3 will hit this
-            rescue NTLM_XCEPT::NTLMMissingChallenge
-              return false
-            end
-
-            challenge_key        = blob_data[:challenge_key]
-            server_ntlmssp_flags = blob_data[:server_ntlmssp_flags] #else should raise an error
-            #netbios name
-            default_name         =  blob_data[:default_name] || ''
-            #netbios domain
-            default_domain       = blob_data[:default_domain] || ''
-            #dns name
-            dns_host_name        =  blob_data[:dns_host_name] || ''
-            #dns domain
-            dns_domain_name      =  blob_data[:dns_domain_name] || ''
-            #Client time
-            chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || ''
-
-            spnopt = {:use_spn => send_spn, :name =>  rhost}
-
-            resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(user, pass, challenge_key,
-                                                                                                           domain_name, default_name, default_domain,
-                                                                                                           dns_host_name, dns_domain_name, chall_MsvAvTimestamp,
-                                                                                                           spnopt, ntlm_options)
-
-            ntlmssp = NTLM_UTILS.make_ntlmssp_blob_auth(domain_name, workstation_name, user, resp_lm, resp_ntlm, '', ntlmssp_flags)
+            # Strip the TDS header
+            resp = resp[3..-1]
+            type3 = ntlm_client.init_context([resp].pack('m'))
+            type3_blob = type3.serialize
 
             # Create an SSPIMessage
             idx = 0
@@ -199,9 +169,9 @@ module Metasploit
                 0x00 #Window
             ]
 
-            pkt_hdr[2]	= 	ntlmssp.length + 8
+            pkt_hdr[2]	= 	type3_blob.length + 8
 
-            pkt = pkt_hdr.pack("CCnnCC") + ntlmssp
+            pkt = pkt_hdr.pack("CCnnCC") + type3_blob
 
             if self.tdsencryption == true
               resp = mssql_ssl_send_recv(pkt,proxy)
