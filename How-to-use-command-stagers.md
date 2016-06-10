@@ -49,8 +49,8 @@ PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
 --- 127.0.0.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 0.020/0.020/0.020/0.000 ms
-uid=33(www-data) gid=33(www-data) groups=33(www-data)
-uid=33(www-data) gid=33(www-data) groups=33(www-data)
+**uid=33(www-data) gid=33(www-data) groups=33(www-data)**
+**uid=33(www-data) gid=33(www-data) groups=33(www-data)**
 ```
 
 See the www-data? That is the output for the second command we asked the script to execute. By
