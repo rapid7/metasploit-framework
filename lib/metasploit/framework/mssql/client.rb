@@ -89,7 +89,7 @@ module Metasploit
               domain: domain_name,
             )
             type1 = ntlm_client.init_context
-            # At least SQL 2012 does not support KEY_EXCHANGE
+            # SQL 2012, at least, does not support KEY_EXCHANGE
             type1.flag &= ~ ::Net::NTLM::FLAGS[:KEY_EXCHANGE]
             ntlmsspblob = type1.serialize
 
@@ -142,13 +142,12 @@ module Metasploit
             # has a strange behavior that differs from the specifications
             # upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
             # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
-
             if tdsencryption == true
                proxy = TDSSSLProxy.new(sock)
                proxy.setup_ssl
-               resp = proxy.send_recv(pkt)
+               resp = proxy.send_recv(pkt, 15, false)
             else
-               resp = mssql_send_recv(pkt)
+               resp = mssql_send_recv(pkt, 15, false)
             end
 
             # Strip the TDS header
@@ -160,16 +159,16 @@ module Metasploit
             idx = 0
             pkt = ''
             pkt_hdr = ''
-            pkt_hdr =	[
-                TYPE_SSPI_MESSAGE, #type
-                STATUS_END_OF_MESSAGE, #status
-                0x0000, #length
-                0x0000, # SPID
-                0x01, # PacketID
-                0x00 #Window
+            pkt_hdr = [
+              TYPE_SSPI_MESSAGE, #type
+              STATUS_END_OF_MESSAGE, #status
+              0x0000, #length
+              0x0000, # SPID
+              0x01, # PacketID
+              0x00 #Window
             ]
 
-            pkt_hdr[2]	= 	type3_blob.length + 8
+            pkt_hdr[2] = type3_blob.length + 8
 
             pkt = pkt_hdr.pack("CCnnCC") + type3_blob
 
