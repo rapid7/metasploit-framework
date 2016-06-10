@@ -86,9 +86,9 @@ And lastly, in your exploit method, call ```execute_cmdstager``` to begin the co
 Over the years, we have also learned that these options are quite handy when calling
 execute_cmdstager:
 
-* flavor - You can specify what command stager (flavor) to use from here. Options are: ```:bourne```, ```:debug_asm```, ```:debug_write```, ```:echo```, ```:printf```, ```:vbs```, ```:certutil```, ```:tftp```.
-* delay - How much time to delay between each command execution.
-* linemax - Maximum number of characters per command.
+* **flavor** - You can specify what command stager (flavor) to use from here. Options are: ```:bourne```, ```:debug_asm```, ```:debug_write```, ```:echo```, ```:printf```, ```:vbs```, ```:certutil```, ```:tftp```.
+* **delay** - How much time to delay between each command execution.
+* **linemax** - Maximum number of characters per command.
 
 **Msf::Exploit::CmdStager Template**
 
