@@ -61,7 +61,7 @@ target system, and execute it.
 Now let's talk about how to use a command stager to exploit the above script. There are a couple
 of steps you need to do:
 
-### 1. Include the Msf::Exploit::CmdStager mixin
+**1. Include the Msf::Exploit::CmdStager mixin**
 
 Although there are eight flavors of mixins, there is only mixin you need to include when writing a
 Metasploit exploit:
@@ -70,19 +70,19 @@ Metasploit exploit:
 include Msf::Exploit::CmdStager
 ```
 
-### 2. Declare your flavors
+**2. Declare your flavors**
 
 The Msf::Exploit::CmdStager mixin is basically an interface to all eight command stagers. To
 specify what flavor, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either
 from the common level, or the target level.
 
-### 3. Create the execute_command method
+**3. Create the execute_command method**
 
 You also must create a ```def execute_command(cmd, opts = {})``` method in your module. This is
 what gets called by the CmdStager mixin when it kicks in. Your objective in this method is to
 inject whatever is in the ```cmd``` variable to the vulnerable code.
 
-### 4. Call #execute_cmdstager to begin
+**4. Call #execute_cmdstager to begin**
 
 And lastly, in your exploit method, call ```execute_cmdstager``` to begin the command stager.
 
