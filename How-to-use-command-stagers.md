@@ -1,4 +1,3 @@
-# Work in progress, do not touch.
 Command stagers provide an easy way to write exploits against typical vulnerabilities such as command execution or code injection. There are currently eight different flavors of command stagers, each uses some sort of system command to save your payload onto the target machine, and execute it.
 
 # The Vulnerability to Play with
@@ -59,7 +58,80 @@ target system, and execute it.
 
 # The Msf::Exploit::CmdStager Mixin
 
-Now let's talk about how to use a command stager to exploit the above script.
+Now let's talk about how to use a command stager to exploit the above script. There are a couple
+of steps you need to do:
+
+### 1. Include the Msf::Exploit::CmdStager mixin
+
+Although there are eight flavors of mixins, there is only mixin you need to include when writing a
+Metasploit exploit:
+
+```ruby
+include Msf::Exploit::CmdStager
+```
+
+### 2. Declare your flavors
+
+The Msf::Exploit::CmdStager mixin is basically an interface to all eight command stagers. To
+specify what flavor, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either
+from the common level, or the target level.
+
+### 3. Create the execute_command method
+
+You also must create a ```def execute_command(cmd, opts = {})``` method in your module. This is
+what gets called by the CmdStager mixin when it kicks in. Your objective in this method is to
+inject whatever is in the ```cmd``` variable to the vulnerable code.
+
+### 4. Call #execute_cmdstager to begin
+
+And lastly, in your exploit method, call ```execute_cmdstager``` to begin the command stager.
+
+At the minimum, this is how your exploit should start when you're using the CmdStager mixin:
+
+```ruby
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = NormalRanking
+
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'            => "Ping Command Injection Vulnerability Demo",
+      'Description'     => %q{
+        This exploits a command injection in our ping.php demo script.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          => [ 'sinn3r' ],
+      'References'      => [ [ 'URL', 'http://metasploit.com' ] ],
+      'Platform'        => 'linux',
+      'Targets'         => [ [ 'Linux', {} ] ],
+      'Payload'         => { 'BadChars' => "\x00" },
+      'CmdStagerFlavor' => [ 'echo' ]
+      'Privileged'      => false,
+      'DisclosureDate'  => "Jun 10 2016",
+      'DefaultTarget'   => 0))
+  end
+
+  def execute_command(cmd, opts = {})
+    # calls some method to inject cmd to the vulnerable code.
+  end
+
+  def exploit
+    print_status("Exploiting...")
+    execute_cmdstager
+  end
+
+end
+```
+
+As you can see, we have chosen the "echo" flavor as our command stager. We will explain more about
+this later, but basically what it does is it writes our payload to /tmp and execute it.
+
+
 
 # Flavors
 
