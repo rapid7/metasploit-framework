@@ -68,7 +68,7 @@ include Msf::Exploit::CmdStager
 
 **2. Declare your flavors**
 
-To tell Msf::Exploit::CmdStager what flavors you want, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either from the common level, or the target level. Or, you can pass this info to the #execute_cmdstager
+To tell Msf::Exploit::CmdStager what flavors you want, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either from the common level, or the target level. Or, you can pass this info to the execute_cmdstager
 method (see Call #execute_cmdstager to begin)
 
 ```ruby
@@ -83,10 +83,12 @@ You also must create a ```def execute_command(cmd, opts = {})``` method in your 
 
 And lastly, in your exploit method, call ```execute_cmdstager``` to begin the command stager.
 
-flavor
-decoder
-delay
-linemax
+Over the years, we have also learned that these options are quite handy when calling
+execute_cmdstager:
+
+* flavor - You can specify what command stager (flavor) to use from here. Options are: ```:bourne```, ```:debug_asm```, ```:debug_write```, ```:echo```, ```:printf```, ```:vbs```, ```:certutil```, ```:tftp```.
+* delay - How much time to delay between each command execution.
+* linemax - Maximum number of characters per command.
 
 **Msf::Exploit::CmdStager Template**
 
