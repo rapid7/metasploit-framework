@@ -21,7 +21,7 @@ The best way to explain how to use a command stager is probably by demonstrating
 </html>
 ```
 
-Place the above PHP script (ping.php) in an Ubuntu + Apache + PHP server.
+Place the above PHP script (ping.php) on an Ubuntu + Apache + PHP server.
 
 Under normal usage, this is how the script behaves - it just pings the host you specify, and shows
 you the output:
@@ -52,7 +52,7 @@ uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
 
 See the www-data? That is the output for the second command we asked the script to execute. By
-doing that, we can also do even even more nasty - like writing a Meterpreter payload onto the
+doing that, we can also do something even more nasty - like writing a Meterpreter payload onto the
 target system, and execute it.
 
 
