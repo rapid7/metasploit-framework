@@ -213,6 +213,16 @@ You will also need to make sure the module's supported platforms include windows
 
 ## Certutil Command Stager
 
+Certutil is a Windows command that can be used to dump and display certification authority, configuration information, configure certificate services, back and restore CA components, etc. You can also use it to decode the Base64 string from a certificate, and save the decoded content to a file like this:
+
+```bash
+echo -----BEGIN CERTIFICATE----- > encoded.txt
+echo Just Base64 encode your binary data
+echo TVoAAA== >> encoded.txt
+echo -----END CERTIFICATE----- >> encoded.txt
+certutil -decode encoded.txt decoded.bin
+```
+
 
 
 
