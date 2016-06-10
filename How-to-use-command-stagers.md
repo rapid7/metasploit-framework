@@ -78,6 +78,8 @@ You also must create a ```def execute_command(cmd, opts = {})``` method in your 
 
 And lastly, in your exploit method, call ```execute_cmdstager``` to begin the command stager.
 
+**Msf::Exploit::CmdStager Template**
+
 At the minimum, this is how your exploit should start when you're using the CmdStager mixin:
 
 ```ruby
