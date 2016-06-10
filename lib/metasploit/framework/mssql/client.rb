@@ -16,23 +16,23 @@ module Metasploit
         ENCRYPT_REQ     = 0x03 #Encryption is required.
 
         # Packet Type
-        TYPE_SQL_BATCH 		               = 1 # (Client) SQL command
-        TYPE_PRE_TDS7_LOGIN	             = 2 # (Client) Pre-login with version < 7 (unused)
-        TYPE_RPC		                     = 3 # (Client) RPC
-        TYPE_TABLE_RESPONSE	             = 4 # (Server)  Pre-Login Response ,Login Response, Row Data, Return Status, Return Parameters,
+        TYPE_SQL_BATCH                   = 1  # (Client) SQL command
+        TYPE_PRE_TDS7_LOGIN              = 2  # (Client) Pre-login with version < 7 (unused)
+        TYPE_RPC                         = 3  # (Client) RPC
+        TYPE_TABLE_RESPONSE              = 4  # (Server)  Pre-Login Response ,Login Response, Row Data, Return Status, Return Parameters,
         # Request Completion, Error and Info Messages, Attention Acknowledgement
-        TYPE_ATTENTION_SIGNAL	           = 6 # (Client) Attention
-        TYPE_BULK_LOAD		               = 7 # (Client) SQL Command with binary data
+        TYPE_ATTENTION_SIGNAL            = 6  # (Client) Attention
+        TYPE_BULK_LOAD                   = 7  # (Client) SQL Command with binary data
         TYPE_TRANSACTION_MANAGER_REQUEST = 14 # (Client) Transaction request manager
-        TYPE_TDS7_LOGIN 	               = 16 # (Client) Login
-        TYPE_SSPI_MESSAGE 	             = 17 # (Client) Login
-        TYPE_PRE_LOGIN_MESSAGE 	         = 18 # (Client) pre-login with version > 7
+        TYPE_TDS7_LOGIN                  = 16 # (Client) Login
+        TYPE_SSPI_MESSAGE                = 17 # (Client) Login
+        TYPE_PRE_LOGIN_MESSAGE           = 18 # (Client) pre-login with version > 7
 
         # Status
-        STATUS_NORMAL 		= 0x00
-        STATUS_END_OF_MESSAGE 	= 0x01
-        STATUS_IGNORE_EVENT	= 0x02
-        STATUS_RESETCONNECTION 	= 0x08 # TDS 7.1+
+        STATUS_NORMAL                  = 0x00
+        STATUS_END_OF_MESSAGE          = 0x01
+        STATUS_IGNORE_EVENT            = 0x02
+        STATUS_RESETCONNECTION         = 0x08 # TDS 7.1+
         STATUS_RESETCONNECTIONSKIPTRAN = 0x10 # TDS 7.3+
 
         #
@@ -50,14 +50,14 @@ module Metasploit
             idx = 0
             pkt = ''
             pkt_hdr = ''
-            pkt_hdr =	[
+            pkt_hdr =  [
                 TYPE_TDS7_LOGIN, #type
                 STATUS_END_OF_MESSAGE, #status
                 0x0000, #length
                 0x0000, # SPID
-                0x01, 	# PacketID (unused upon specification
+                0x01,   # PacketID (unused upon specification
                 # but ms network monitor stil prefer 1 to decode correctly, wireshark don't care)
-                0x00 	#Window
+                0x00   #Window
             ]
 
             pkt << [
@@ -132,9 +132,9 @@ module Metasploit
             pkt << ntlmsspblob
 
             # Total packet length
-            pkt[0,4] = [pkt.length].pack('V')
+            pkt[0, 4] = [pkt.length].pack('V')
 
-            pkt_hdr[2]	= 	pkt.length + 8
+            pkt_hdr[2] = pkt.length + 8
 
             pkt = pkt_hdr.pack("CCnnCC") + pkt
 
@@ -173,7 +173,7 @@ module Metasploit
             pkt = pkt_hdr.pack("CCnnCC") + type3_blob
 
             if self.tdsencryption == true
-              resp = mssql_ssl_send_recv(pkt,proxy)
+              resp = mssql_ssl_send_recv(pkt, proxy)
               proxy.cleanup
               proxy = nil
             else
@@ -252,7 +252,7 @@ module Metasploit
             pkt << dname
 
             # Total packet length
-            pkt[0,4] = [pkt.length].pack('V')
+            pkt[0, 4] = [pkt.length].pack('V')
 
             # Embedded packet lengths
             pkt[pkt.index([0x12345678].pack('V')), 8] = [pkt.length].pack('V') * 2
@@ -263,7 +263,7 @@ module Metasploit
             if self.tdsencryption == true
               proxy = TDSSSLProxy.new(sock)
               proxy.setup_ssl
-              resp = mssql_ssl_send_recv(pkt,proxy)
+              resp = mssql_ssl_send_recv(pkt, proxy)
               proxy.cleanup
               proxy = nil
             else
@@ -273,7 +273,7 @@ module Metasploit
           end
 
           info = {:errors => []}
-          info = mssql_parse_reply(resp,info)
+          info = mssql_parse_reply(resp, info)
 
           disconnect
 
@@ -285,17 +285,17 @@ module Metasploit
         # Parse an "environment change" TDS token
         #
         def mssql_parse_env(data, info)
-          len  = data.slice!(0,2).unpack('v')[0]
-          buff = data.slice!(0,len)
-          type = buff.slice!(0,1).unpack('C')[0]
+          len  = data.slice!(0, 2).unpack('v')[0]
+          buff = data.slice!(0, len)
+          type = buff.slice!(0, 1).unpack('C')[0]
 
           nval = ''
-          nlen = buff.slice!(0,1).unpack('C')[0] || 0
-          nval = buff.slice!(0,nlen*2).gsub("\x00", '') if nlen > 0
+          nlen = buff.slice!(0, 1).unpack('C')[0] || 0
+          nval = buff.slice!(0, nlen*2).gsub("\x00", '') if nlen > 0
 
           oval = ''
-          olen = buff.slice!(0,1).unpack('C')[0] || 0
-          oval = buff.slice!(0,olen*2).gsub("\x00", '') if olen > 0
+          olen = buff.slice!(0, 1).unpack('C')[0] || 0
+          oval = buff.slice!(0, olen*2).gsub("\x00", '') if olen > 0
 
           info[:envs] ||= []
           info[:envs] << { :type => type, :old => oval, :new => nval }
@@ -306,7 +306,7 @@ module Metasploit
         # Parse a "ret" TDS token
         #
         def mssql_parse_ret(data, info)
-          ret = data.slice!(0,4).unpack('N')[0]
+          ret = data.slice!(0, 4).unpack('N')[0]
           info[:ret] = ret
           info
         end
@@ -315,7 +315,7 @@ module Metasploit
         # Parse a "done" TDS token
         #
         def mssql_parse_done(data, info)
-          status,cmd,rows = data.slice!(0,8).unpack('vvV')
+          status, cmd, rows = data.slice!(0, 8).unpack('vvV')
           info[:done] = { :status => status, :cmd => cmd, :rows => rows }
           info
         end
@@ -324,11 +324,11 @@ module Metasploit
         # Parse an "error" TDS token
         #
         def mssql_parse_error(data, info)
-          len  = data.slice!(0,2).unpack('v')[0]
-          buff = data.slice!(0,len)
+          len  = data.slice!(0, 2).unpack('v')[0]
+          buff = data.slice!(0, len)
 
-          errno,state,sev,elen = buff.slice!(0,8).unpack('VCCv')
-          emsg = buff.slice!(0,elen * 2)
+          errno, state, sev, elen = buff.slice!(0, 8).unpack('VCCv')
+          emsg = buff.slice!(0, elen * 2)
           emsg.gsub!("\x00", '')
 
           info[:errors] << "SQL Server Error ##{errno} (State:#{state} Severity:#{sev}): #{emsg}"
@@ -339,14 +339,14 @@ module Metasploit
         # Parse an "information" TDS token
         #
         def mssql_parse_info(data, info)
-          len  = data.slice!(0,2).unpack('v')[0]
-          buff = data.slice!(0,len)
+          len  = data.slice!(0, 2).unpack('v')[0]
+          buff = data.slice!(0, len)
 
-          errno,state,sev,elen = buff.slice!(0,8).unpack('VCCv')
-          emsg = buff.slice!(0,elen * 2)
+          errno, state, sev, elen = buff.slice!(0, 8).unpack('VCCv')
+          emsg = buff.slice!(0, elen * 2)
           emsg.gsub!("\x00", '')
 
-          info[:infos]||= []
+          info[:infos] ||= []
           info[:infos] << "SQL Server Info ##{errno} (State:#{state} Severity:#{sev}): #{emsg}"
           info
         end
@@ -355,8 +355,8 @@ module Metasploit
         # Parse a "login ack" TDS token
         #
         def mssql_parse_login_ack(data, info)
-          len  = data.slice!(0,2).unpack('v')[0]
-          buff = data.slice!(0,len)
+          len = data.slice!(0, 2).unpack('v')[0]
+          buff = data.slice!(0, len)
           info[:login_ack] = true
         end
 
@@ -367,7 +367,7 @@ module Metasploit
           info[:errors] = []
           return if not data
           until data.empty?
-            token = data.slice!(0,1).unpack('C')[0]
+            token = data.slice!(0, 1).unpack('C')[0]
             case token
               when 0x81
                 mssql_parse_tds_reply(data, info)
@@ -403,14 +403,14 @@ module Metasploit
           info[:colnames] ||= []
 
           # Parse out the columns
-          cols = data.slice!(0,2).unpack('v')[0]
+          cols = data.slice!(0, 2).unpack('v')[0]
           0.upto(cols-1) do |col_idx|
             col = {}
             info[:colinfos][col_idx] = col
 
-            col[:utype] = data.slice!(0,2).unpack('v')[0]
-            col[:flags] = data.slice!(0,2).unpack('v')[0]
-            col[:type]  = data.slice!(0,1).unpack('C')[0]
+            col[:utype] = data.slice!(0, 2).unpack('v')[0]
+            col[:flags] = data.slice!(0, 2).unpack('v')[0]
+            col[:type]  = data.slice!(0, 1).unpack('C')[0]
 
             case col[:type]
               when 48
@@ -427,8 +427,8 @@ module Metasploit
 
               when 34
                 col[:id]            = :image
-                col[:max_size]      = data.slice!(0,4).unpack('V')[0]
-                col[:value_length]  = data.slice!(0,2).unpack('v')[0]
+                col[:max_size]      = data.slice!(0, 4).unpack('V')[0]
+                col[:value_length]  = data.slice!(0, 2).unpack('v')[0]
                 col[:value]         = data.slice!(0, col[:value_length]  * 2).gsub("\x00", '')
 
               when 36
@@ -436,31 +436,31 @@ module Metasploit
 
               when 38
                 col[:id] = :int
-                col[:int_size] = data.slice!(0,1).unpack('C')[0]
+                col[:int_size] = data.slice!(0, 1).unpack('C')[0]
 
               when 127
                 col[:id] = :bigint
 
               when 165
                 col[:id] = :hex
-                col[:max_size] = data.slice!(0,2).unpack('v')[0]
+                col[:max_size] = data.slice!(0, 2).unpack('v')[0]
 
               when 173
                 col[:id] = :hex # binary(2)
-                col[:max_size] = data.slice!(0,2).unpack('v')[0]
+                col[:max_size] = data.slice!(0, 2).unpack('v')[0]
 
-              when 231,175,167,239
+              when 231, 175, 167, 239
                 col[:id] = :string
-                col[:max_size] = data.slice!(0,2).unpack('v')[0]
-                col[:codepage] = data.slice!(0,2).unpack('v')[0]
-                col[:cflags] = data.slice!(0,2).unpack('v')[0]
-                col[:charset_id] =  data.slice!(0,1).unpack('C')[0]
+                col[:max_size] = data.slice!(0, 2).unpack('v')[0]
+                col[:codepage] = data.slice!(0, 2).unpack('v')[0]
+                col[:cflags] = data.slice!(0, 2).unpack('v')[0]
+                col[:charset_id] =  data.slice!(0, 1).unpack('C')[0]
 
               else
                 col[:id] = :unknown
             end
 
-            col[:msg_len] = data.slice!(0,1).unpack('C')[0]
+            col[:msg_len] = data.slice!(0, 1).unpack('C')[0]
 
             if(col[:msg_len] and col[:msg_len] > 0)
               col[:name] = data.slice!(0, col[:msg_len] * 2).gsub("\x00", '')
@@ -486,28 +486,28 @@ module Metasploit
             case col[:id]
               when :hex
                 str = ""
-                len = data.slice!(0,2).unpack('v')[0]
+                len = data.slice!(0, 2).unpack('v')[0]
                 if(len > 0 and len < 65535)
-                  str << data.slice!(0,len)
+                  str << data.slice!(0, len)
                 end
                 row << str.unpack("H*")[0]
 
               when :string
                 str = ""
-                len = data.slice!(0,2).unpack('v')[0]
+                len = data.slice!(0, 2).unpack('v')[0]
                 if(len > 0 and len < 65535)
-                  str << data.slice!(0,len)
+                  str << data.slice!(0, len)
                 end
                 row << str.gsub("\x00", '')
 
               when :datetime
-                row << data.slice!(0,8).unpack("H*")[0]
+                row << data.slice!(0, 8).unpack("H*")[0]
 
               when :rawint
-                row << data.slice!(0,4).unpack('V')[0]
+                row << data.slice!(0, 4).unpack('V')[0]
 
               when :bigint
-                row << data.slice!(0,8).unpack("H*")[0]
+                row << data.slice!(0, 8).unpack("H*")[0]
 
               when :smallint
                 row << data.slice!(0, 2).unpack("v")[0]
@@ -520,8 +520,8 @@ module Metasploit
 
               when :image
                 str = ''
-                len = data.slice!(0,1).unpack('C')[0]
-                str = data.slice!(0,len) if (len and len > 0)
+                len = data.slice!(0, 1).unpack('C')[0]
+                str = data.slice!(0, len) if (len and len > 0)
                 row << str.unpack("H*")[0]
 
               when :int
@@ -529,7 +529,7 @@ module Metasploit
                 raw = data.slice!(0, len) if (len and len > 0)
 
                 case len
-                  when 0,255
+                  when 0, 255
                     row << ''
                   when 1
                     row << raw.unpack("C")[0]
@@ -542,7 +542,7 @@ module Metasploit
                   when 8
                     row << raw.unpack('VV')[0] # XXX: missing high dword
                   else
-                    info[:errors] << "invalid integer size: #{len} #{data[0,16].unpack("H*")[0]}"
+                    info[:errors] << "invalid integer size: #{len} #{data[0, 16].unpack("H*")[0]}"
                 end
               else
                 info[:errors] << "unknown column type: #{col.inspect}"
@@ -564,7 +564,7 @@ module Metasploit
           pkt_data = ""
 
 
-          pkt_hdr =	[
+          pkt_hdr = [
               TYPE_PRE_LOGIN_MESSAGE, #type
               STATUS_END_OF_MESSAGE, #status
               0x0000, #length
@@ -573,7 +573,7 @@ module Metasploit
               0x00 #Window
           ]
 
-          version = [0x55010008,0x0000].pack("Vv")
+          version = [0x55010008, 0x0000].pack("Vv")
 
           # if manually set, we will honour
           if tdsencryption == true
@@ -587,42 +587,42 @@ module Metasploit
           threadid =   "\0\0" + Rex::Text.rand_text(2)
 
           idx = 21 # size of pkt_data_token
-          pkt_data_token <<	[
-              0x00, 		# Token 0 type Version
-              idx , 	# VersionOffset
+          pkt_data_token << [
+              0x00,     # Token 0 type Version
+              idx ,   # VersionOffset
               version.length, # VersionLength
 
-              0x01, 			    	# Token 1 type Encryption
-              idx = idx + version.length, 	# EncryptionOffset
-              0x01, 			    	# EncryptionLength
+              0x01,             # Token 1 type Encryption
+              idx = idx + version.length,   # EncryptionOffset
+              0x01,             # EncryptionLength
 
-              0x02, 				# Token 2 type InstOpt
-              idx = idx + 1,  		# InstOptOffset
-              instoptdata.length, 		# InstOptLength
+              0x02,         # Token 2 type InstOpt
+              idx = idx + 1,      # InstOptOffset
+              instoptdata.length,     # InstOptLength
 
-              0x03, 				# Token 3 type Threadid
-              idx + instoptdata.length, 	# ThreadIdOffset
-              0x04,				# ThreadIdLength
+              0x03,         # Token 3 type Threadid
+              idx + instoptdata.length,   # ThreadIdOffset
+              0x04,        # ThreadIdLength
 
               0xFF
           ].pack("CnnCnnCnnCnnC")
 
-          pkt_data  	<<	pkt_data_token
-          pkt_data  	<<	version
-          pkt_data  	<<	encryption
-          pkt_data  	<<	instoptdata
-          pkt_data  	<<	threadid
+          pkt_data << pkt_data_token
+          pkt_data << version
+          pkt_data << encryption
+          pkt_data << instoptdata
+          pkt_data << threadid
 
-          pkt_hdr[2]	= 	pkt_data.length + 8
+          pkt_hdr[2] = pkt_data.length + 8
 
-          pkt 		= 	 pkt_hdr.pack("CCnnCC") + pkt_data
+          pkt = pkt_hdr.pack("CCnnCC") + pkt_data
 
           resp = mssql_send_recv(pkt)
 
           idx = 0
 
-          while resp and resp[0,1] != "\xff" and resp.length > 5
-            token = resp.slice!(0,5)
+          while resp and resp[0, 1] != "\xff" and resp.length > 5
+            token = resp.slice!(0, 5)
             token = token.unpack("Cnn")
             idx -= 5
             if token[0] == 0x01
@@ -632,7 +632,7 @@ module Metasploit
             end
           end
           if idx > 0
-            encryption_mode = resp[idx,1].unpack("C")[0]
+            encryption_mode = resp[idx, 1].unpack("C")[0]
           else
             raise RunTimeError, "Unable to parse encryption req. "\
               "from server during prelogin"
@@ -670,8 +670,8 @@ module Metasploit
 
             idx = 0
 
-            while resp and resp[0,1] != "\xff" and resp.length > 5
-              token = resp.slice!(0,5)
+            while resp and resp[0, 1] != "\xff" and resp.length > 5
+              token = resp.slice!(0, 5)
               token = token.unpack("Cnn")
               idx -= 5
               if token[0] == 0x01
@@ -680,7 +680,7 @@ module Metasploit
               end
             end
             if idx > 0
-              encryption_mode = resp[idx,1].unpack("C")[0]
+              encryption_mode = resp[idx, 1].unpack("C")[0]
             else
               raise RuntimeError, "Unable to parse encryption "\
                 "req during pre-login"
@@ -709,12 +709,12 @@ module Metasploit
             end
 
             # Is this the last buffer?
-            if(head[1,1] == "\x01" or not check_status )
+            if(head[1, 1] == "\x01" or not check_status )
               done = true
             end
 
             # Grab this block's length
-            rlen = head[2,2].unpack('n')[0] - 8
+            rlen = head[2, 2].unpack('n')[0] - 8
 
             while(rlen > 0)
               buff = sock.get_once(rlen, timeout)
@@ -727,7 +727,7 @@ module Metasploit
           resp
         end
 
-        def mssql_ssl_send_recv(req,tdsproxy,timeout=15,check_status=true)
+        def mssql_ssl_send_recv(req, tdsproxy, timeout=15, check_status=true)
           tdsproxy.send_recv(req)
         end
 
