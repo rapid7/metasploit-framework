@@ -28,6 +28,10 @@ to [[Setting Up a Metasploit Development Environment]].
 
 # Metasploit Development #
 
+- [[How to get started with writing an exploit]]
+- [[How to get started with writing an auxiliary module]]
+- [[How to get started with writing a post module]]
+- [[How to get started with writing a Meterpreter script]]
 - [[Loading External Modules]]
 - [[Exploit Ranking]]
 - [[Metasploit module reference identifiers]]
