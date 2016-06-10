@@ -215,7 +215,7 @@ You will also need to make sure the module's supported platforms include windows
 
 Certutil is a Windows command that can be used to dump and display certification authority, configuration information, configure certificate services, back and restore CA components, etc. It only comes with newer Windows systems starting from Windows 2012, and Windows 8.
 
-One thing certutil can also do for us is decode the Base64 string from a certificate, and save the decoded content to a file like this:
+One thing certutil can also do for us is decode the Base64 string from a certificate, and save the decoded content to a file. The following demonstrates:
 
 ```bash
 echo -----BEGIN CERTIFICATE----- > encoded.txt
@@ -246,6 +246,28 @@ You will also need to remember to set the platform in the metadata:
 ```
 
 ## Debug_write Command Stager
+
+The debug command is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will a hex-ascii file created by the echo command, decode the binary, and finally execute.
+
+Obviously, to be able to use this command stager, you must make sure the target is a Windows system that supports .Net.
+
+To use the debug_write command stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'debugwrite' ]
+```
+
+Or set the :debug_write key to execute_cmdstager:
+
+```ruby
+execute_cmdstager(flavor: :debug_write)
+```
+
+You will also need to remember to set the platform in the metadata:
+
+```ruby
+'Platform' => 'win'
+```
 
 
 
