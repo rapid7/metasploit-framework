@@ -356,7 +356,7 @@ module Metasploit
         #
         def mssql_parse_login_ack(data, info)
           len = data.slice!(0, 2).unpack('v')[0]
-          buff = data.slice!(0, len)
+          _buff = data.slice!(0, len)
           info[:login_ack] = true
         end
 
@@ -584,25 +584,25 @@ module Metasploit
 
           instoptdata = "MSSQLServer\0"
 
-          threadid =   "\0\0" + Rex::Text.rand_text(2)
+          threadid = "\0\0" + Rex::Text.rand_text(2)
 
           idx = 21 # size of pkt_data_token
           pkt_data_token << [
-              0x00,     # Token 0 type Version
-              idx ,   # VersionOffset
+              0x00, # Token 0 type Version
+              idx , # VersionOffset
               version.length, # VersionLength
 
-              0x01,             # Token 1 type Encryption
-              idx = idx + version.length,   # EncryptionOffset
-              0x01,             # EncryptionLength
+              0x01, # Token 1 type Encryption
+              idx = idx + version.length, # EncryptionOffset
+              0x01, # EncryptionLength
 
-              0x02,         # Token 2 type InstOpt
-              idx = idx + 1,      # InstOptOffset
-              instoptdata.length,     # InstOptLength
+              0x02, # Token 2 type InstOpt
+              idx = idx + 1, # InstOptOffset
+              instoptdata.length, # InstOptLength
 
-              0x03,         # Token 3 type Threadid
-              idx + instoptdata.length,   # ThreadIdOffset
-              0x04,        # ThreadIdLength
+              0x03, # Token 3 type Threadid
+              idx + instoptdata.length, # ThreadIdOffset
+              0x04, # ThreadIdLength
 
               0xFF
           ].pack("CnnCnnCnnCnnC")
@@ -621,7 +621,7 @@ module Metasploit
 
           idx = 0
 
-          while resp and resp[0, 1] != "\xff" and resp.length > 5
+          while resp && resp[0, 1] != "\xff" && resp.length > 5
             token = resp.slice!(0, 5)
             token = token.unpack("Cnn")
             idx -= 5
@@ -670,7 +670,7 @@ module Metasploit
 
             idx = 0
 
-            while resp and resp[0, 1] != "\xff" and resp.length > 5
+            while resp && resp[0, 1] != "\xff" && resp.length > 5
               token = resp.slice!(0, 5)
               token = token.unpack("Cnn")
               idx -= 5
@@ -704,12 +704,12 @@ module Metasploit
 
           while(not done)
             head = sock.get_once(8, timeout)
-            if !(head and head.length == 8)
+            if !(head && head.length == 8)
               return false
             end
 
             # Is this the last buffer?
-            if(head[1, 1] == "\x01" or not check_status )
+            if head[1, 1] == "\x01" || !check_status
               done = true
             end
 
