@@ -247,14 +247,14 @@ You will also need to remember to set the platform in the metadata:
 
 ## Debug_write Command Stager
 
-The debug command is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will a hex-ascii file created by the echo command, decode the binary, and finally execute.
+The debug_write command is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will a hex-ascii file created by the echo command, decode the binary, and finally execute.
 
 Obviously, to be able to use this command stager, you must make sure the target is a Windows system that supports .Net.
 
 To use the debug_write command stager, either specify your CmdStagerFlavor in the metadata:
 
 ```ruby
-'CmdStagerFlavor' => [ 'debugwrite' ]
+'CmdStagerFlavor' => [ 'debug_write' ]
 ```
 
 Or set the :debug_write key to execute_cmdstager:
@@ -269,17 +269,55 @@ You will also need to remember to set the platform in the metadata:
 'Platform' => 'win'
 ```
 
-
-
 ## Debug_asm Command Stager
 
+The debug_asm command stager is another old Windows trick used to assemble a COM file, and then COM file will decode our hex-ascii payload, and then execute it.
 
+To use the debug_asm command stager, either specify your CmdStagerFlavor in the metadata:
 
+```ruby
+'CmdStagerFlavor' => [ 'debug_asm' ]
+```
+
+Or set the :debug_asm key to execute_cmdstager:
+
+```ruby
+execute_cmdstager(flavor: :debug_asm)
+```
+
+You will also need to remember to set the platform in the metadata:
+
+```ruby
+'Platform' => 'win'
+```
 
 ## TFTP Command Stager
 
+The TFTP command stager uses tftpd.exe to download our payload, and then use the start command to execute it. This technique only works well against an older version of Windows (such as XP), because newer Windows machines no longer install tftp.exe by default.
 
+The TFTP command stager must bind to UDP port 69, so msfconsole must be started as root:
 
+```
+rvmsudo ./msfconsole
+```
+
+To use the TFTP stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'tftp' ]
+```
+
+Or set the :tftp key to execute_cmdstager:
+
+```ruby
+execute_cmdstager(flavor: :tftp)
+```
+
+You will also need to remember to set the platform in the metadata:
+
+```ruby
+'Platform' => 'win'
+```
 
 ## Bourne Command Stager
 
