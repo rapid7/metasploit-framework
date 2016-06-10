@@ -1,3 +1,5 @@
+# Work in progress, do not touch.
+
 Command stagers provide an easy way to write exploits against typical vulnerabilities such as command execution or code injection. There are currently eight different flavors of command stagers, each uses some sort of system command to save your payload onto the target machine, and execute it.
 
 # The Vulnerability to Play with
