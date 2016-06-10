@@ -200,7 +200,7 @@ To use the VBS stager, either specify your CmdStagerFlavor in the metadta:
 
 Or set the :vbs key to execute_cmdstager:
 
-```
+```ruby
 execute_cmdstager(flavor: :vbs)
 ```
 
