@@ -192,7 +192,7 @@ The VBS command stager is for Windows. What this does is it encodes our payload 
 
 If you are exploiting Windows that supports Powershell, then you might want to [consider using that instead](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Powershell-in-an-exploit) of the VBS stager, because Powershell tends to be more stealthy.
 
-To use the VBS stager, either specify your CmdStagerFlavor in the metadta:
+To use the VBS stager, either specify your CmdStagerFlavor in the metadata:
 
 ```ruby
 'CmdStagerFlavor' => [ 'vbs' ]
@@ -213,7 +213,9 @@ You will also need to make sure the module's supported platforms include windows
 
 ## Certutil Command Stager
 
-Certutil is a Windows command that can be used to dump and display certification authority, configuration information, configure certificate services, back and restore CA components, etc. You can also use it to decode the Base64 string from a certificate, and save the decoded content to a file like this:
+Certutil is a Windows command that can be used to dump and display certification authority, configuration information, configure certificate services, back and restore CA components, etc. It only comes with newer Windows systems starting from Windows 2012, and Windows 8.
+
+One thing certutil can also do for us is decode the Base64 string from a certificate, and save the decoded content to a file like this:
 
 ```bash
 echo -----BEGIN CERTIFICATE----- > encoded.txt
@@ -223,8 +225,25 @@ echo -----END CERTIFICATE----- >> encoded.txt
 certutil -decode encoded.txt decoded.bin
 ```
 
+To take advantage of that, the Certutil command stager will save the payload in Base64 as a fake certificate, ask certutil to decode it, and then finally execute it.
 
+To use the Certutil command stager, either specify your CmdStagerFlavor in the metadata:
 
+```ruby
+'CmdStagerFlavor' => [ 'certutil' ]
+```
+
+Or set the :certutil key to execute_cmdstager:
+
+```ruby
+execute_cmdstager(flavor: :certutil)
+```
+
+You will also need to remember to set the platform in the metadata:
+
+```ruby
+'Platform' => 'win'
+```
 
 ## Debug_write Command Stager
 
