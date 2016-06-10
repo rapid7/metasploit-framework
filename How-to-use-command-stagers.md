@@ -1,4 +1,4 @@
-Command stagers provide an easy way to write exploits against typical vulnerabilities such as command execution or code injection. There are currently eight different flavors of command stagers, each uses some sort of system command to save your payload onto the target machine, and execute it.
+Command stagers provide an easy way to write exploits against typical vulnerabilities such as [command execution](https://www.owasp.org/index.php/Command_Injection) or [code injection](https://www.owasp.org/index.php/Code_Injection). There are currently eight different flavors of command stagers, each uses some sort of system command to save your payload onto the target machine, and execute it.
 
 # The Vulnerability to Play with
 
@@ -21,7 +21,7 @@ The best way to explain how to use a command stager is probably by demonstrating
 </html>
 ```
 
-Place the above PHP script (ping.php) on an Ubuntu + Apache + PHP server.
+Place the above PHP script (ping.php) on an [Ubuntu + Apache + PHP](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-14-04) server.
 
 Under normal usage, this is how the script behaves - it just pings the host you specify, and shows
 you the output:
@@ -60,7 +60,7 @@ Now let's talk about how to use a command stager to exploit the above script. Th
 
 **1. Include the Msf::Exploit::CmdStager mixin**
 
-Although there are eight flavors of mixins/stagers, you only need to include Msf::Exploit::CmdStager when writing a Metasploit exploit. The mixin is basically an interface to all eight command stagers:
+Although there are eight flavors of mixins/stagers, you only need to include [Msf::Exploit::CmdStager](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/cmdstager.rb) when writing a Metasploit exploit. The mixin is basically an interface to all eight command stagers:
 
 ```ruby
 include Msf::Exploit::CmdStager
