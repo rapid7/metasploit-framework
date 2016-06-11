@@ -20,8 +20,6 @@ OSVDB references should be in the format `MSddd-ddd` (d = digit)
 Milw0rm references are no longer supported (site suspended)
 ### EDB
 EDB references should only contain numbers
-### WVE
-BID references should be in the format `dd-dd` (d = digit)
 ### US-CERT-VU
 US-CERT references should only contain numbers
 ### ZDI
