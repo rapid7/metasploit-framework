@@ -263,7 +263,7 @@ You will also need to remember to set the platform in the metadata:
 
 ## Debug_write Command Stager - Windows Only
 
-The [debug_write](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/debug_write.rb) command stager is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will a hex-ascii file created by the echo command, decode the binary, and finally execute.
+The [debug_write](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/debug_write.rb) command stager is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will take a hex-ascii file created by the echo command, decode the binary, and finally execute.
 
 Obviously, to be able to use this command stager, you must make sure the target is a Windows system that supports .Net.
 
