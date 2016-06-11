@@ -266,3 +266,6 @@ DEPENDENCIES
   simplecov
   timecop
   yard
+
+BUNDLED WITH
+   1.12.5
