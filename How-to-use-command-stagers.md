@@ -188,7 +188,7 @@ stagers you can use.
 
 ## VBS Command Stager - Windows Only
 
-The VBS command stager is for Windows. What this does is it encodes our payload with Base64, save it on the target machine, also writes a [VBS script](https://github.com/rapid7/metasploit-framework/blob/master/data/exploits/cmdstager/vbs_b64) using the echo command, then then let the VBS script to decode the Base64 payload, and execute it.
+The [VBS command stager](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/vbs.rb) is for Windows. What this does is it encodes our payload with Base64, save it on the target machine, also writes a [VBS script](https://github.com/rapid7/metasploit-framework/blob/master/data/exploits/cmdstager/vbs_b64) using the echo command, and then lets the VBS script to decode the Base64 payload, and execute it.
 
 If you are exploiting Windows that supports Powershell, then you might want to [consider using that instead](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Powershell-in-an-exploit) of the VBS stager, because Powershell tends to be more stealthy.
 
@@ -213,7 +213,7 @@ You will also need to make sure the module's supported platforms include windows
 
 ## Certutil Command Stager - Windows Only
 
-Certutil is a Windows command that can be used to dump and display certification authority, configuration information, configure certificate services, back and restore CA components, etc. It only comes with newer Windows systems starting from Windows 2012, and Windows 8.
+[Certutil](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/certutil.rb) is a Windows command that can be used to dump and display certification authority, configuration information, configure certificate services, back and restore CA components, etc. It only comes with newer Windows systems starting from Windows 2012, and Windows 8.
 
 One thing certutil can also do for us is decode the Base64 string from a certificate, and save the decoded content to a file. The following demonstrates:
 
@@ -247,7 +247,7 @@ You will also need to remember to set the platform in the metadata:
 
 ## Debug_write Command Stager - Windows Only
 
-The debug_write command is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will a hex-ascii file created by the echo command, decode the binary, and finally execute.
+The [debug_write](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/debug_write.rb) command stager is an old Windows trick to write a file to the system. In this case, we use debug.exe to write a small .Net binary, and that binary will a hex-ascii file created by the echo command, decode the binary, and finally execute.
 
 Obviously, to be able to use this command stager, you must make sure the target is a Windows system that supports .Net.
 
@@ -271,7 +271,7 @@ You will also need to remember to set the platform in the metadata:
 
 ## Debug_asm Command Stager - Windows Only
 
-The debug_asm command stager is another old Windows trick used to assemble a COM file, and then COM file will decode our hex-ascii payload, and then execute it.
+The [debug_asm](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/debug_asm.rb) command stager is another old Windows trick used to assemble a COM file, and then COM file will decode our hex-ascii payload, and then execute it.
 
 To use the debug_asm command stager, either specify your CmdStagerFlavor in the metadata:
 
@@ -293,7 +293,7 @@ You will also need to remember to set the platform in the metadata:
 
 ## TFTP Command Stager - Windows Only
 
-The TFTP command stager uses tftpd.exe to download our payload, and then use the start.exe command to execute it. This technique only works well against an older version of Windows (such as XP), because newer Windows machines no longer install tftp.exe by default.
+The [TFTP](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/tftp.rb) command stager uses tftpd.exe to download our payload, and then use the start.exe command to execute it. This technique only works well against an older version of Windows (such as XP), because newer Windows machines no longer install tftp.exe by default.
 
 The TFTP command stager must bind to UDP port 69, so msfconsole must be started as root:
 
@@ -321,7 +321,7 @@ You will also need to remember to set the platform in the metadata:
 
 ## Bourne Command Stager - Multi Platform
 
-The Bourne command stager supports multiple platforms except for Windows. It functions rather similar to the VBS stager, except when it decodes the Base64 payload at runtime, there are multiple commands to choose from: base64, openssl, python, or perl.
+The [Bourne](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/bourne.rb) command stager supports multiple platforms except for Windows (because the use of the which command that Windows does not have). It functions rather similar to the VBS stager, except when it decodes the Base64 payload at runtime, there are multiple commands to choose from: base64, openssl, python, or perl.
 
 To use the Bourne stager, either specify your CmdStagerFlavor in the metadata:
 
@@ -336,9 +336,43 @@ execute_cmdstager(flavor: :bourne)
 ```
 
 
-## Echo Command Stager
+## Echo Command Stager - Multi Platform
+
+The [echo](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/echo.rb) command stager is suitable for multiple platforms except for Windows. It just [echos](http://manpages.ubuntu.com/manpages/trusty/man1/echo.1fun.html) the payload, chmod and execute it. An example of that looks similar to this:
+
+```
+echo -en \\x41\\x41\\x41\\x41 >> /tmp/payload ; chmod 777 /tmp/payload ; /tmp/payload ; rm -f /tmp/payload
+```
+
+To use the echo stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'echo' ]
+```
+
+Or set the :bourne key to execute_cmdstager:
+
+```ruby
+execute_cmdstager(flavor: :echo)
+```
 
 
+## Printf Command Stager - Multi Platform
 
-## Printf Command Stager
+The [printf](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/cmdstager/printf.rb) command stager is also suitable for multiple platforms except for Windows. It just uses the printf command to write the payload to disk, chmod and execute it. An example of that looks similar to this:
 
+```
+printf '\177\177\177\177' >> /tmp/payload ; chmod +x /tmp/payload ; /tmp/payload ; rm -f /tmp/payload
+```
+
+To use the printf stager, either specify your CmdStagerFlavor in the metadata:
+
+```ruby
+'CmdStagerFlavor' => [ 'printf' ]
+```
+
+Or set the :bourne key to execute_cmdstager:
+
+```ruby
+execute_cmdstager(flavor: :printf)
+```
