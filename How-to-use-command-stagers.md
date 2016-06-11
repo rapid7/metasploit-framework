@@ -1,4 +1,4 @@
-Command stagers provide an easy way to write exploits against typical vulnerabilities such as [command execution](https://www.owasp.org/index.php/Command_Injection) or [code injection](https://www.owasp.org/index.php/Code_Injection). There are currently eight different flavors of command stagers, each uses some sort of system command to save your payload onto the target machine, and execute it.
+Command stagers provide an easy way to write exploits against typical vulnerabilities such as [command execution](https://www.owasp.org/index.php/Command_Injection) or [code injection](https://www.owasp.org/index.php/Code_Injection). There are currently eight different flavors of command stagers, each uses system command (or commands) to save your payload, sometimes decode, and execute.
 
 # The Vulnerability Test Case
 
