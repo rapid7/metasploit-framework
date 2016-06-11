@@ -10,8 +10,6 @@ Modules should not rely on the Nokogiri GEM. Please use REXML instead.
 ## Invalid Formats
 ### CVE
 CVE references should be in the format `YYYY-NNNN`
-### OSVDB
-OSVDB references should only contain numbers
 ### BID
 BID references should only contain numbers
 ### MSB
