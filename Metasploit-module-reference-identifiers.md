@@ -21,7 +21,7 @@ URL | anything | ```['URL', 'http://example.com/blog.php?id=123']```
 ```ruby
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = NormalRanking
 
   def initialize(info={})
