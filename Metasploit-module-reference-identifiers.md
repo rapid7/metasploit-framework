@@ -5,7 +5,6 @@ A reference in a Metasploit module is a source of information related to the mod
 ID  | Source | Code Example
 ------------- | ------------- | -------------
 CVE  | cvedetails.com | ```['CVE', '2014-9999']```
-OSVDB | osvdb.org | ```['OSVDB', '94981']```
 CWE | cwe.mitre.org | ```['CWE', '90']```
 BID | securityfocus.com | ```['BID', '1234']```
 MSB | technet.microsoft.com | ```['MSB', 'MS13-055']```
@@ -35,7 +34,6 @@ class MetasploitModule < Msf::Exploit::Remote
       'References'     =>
         [
           [ 'CVE', '2014-9999' ],
-          ['OSVDB', '94981'],
           ['BID', '1234'],
           ['URL', 'http://example.com/blog.php?id=123']
         ],
