@@ -68,8 +68,24 @@ include Msf::Exploit::CmdStager
 
 **2. Declare your flavors**
 
-To tell Msf::Exploit::CmdStager what flavors you want, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either from the common level, or the target level. Or, you can pass this info to the execute_cmdstager
-method (see Call #execute_cmdstager to begin)
+To tell Msf::Exploit::CmdStager what flavors you want, you can add the ```CmdStagerFlavor``` info in the module's metadata. Either from the common level, or the target level. Multiple flavors are allowed.
+
+An example of setting flavors for a specific target:
+
+```ruby
+'Targets'   =>
+  [
+    [ 'Windows',
+      {
+        'Arch' => [ ARCH_X86_64, ARCH_X86 ],
+        'Platform' => 'win',
+        'CmdStagerFlavor' => [ 'certutil', 'vbs' ]
+      }
+    ]
+  ]
+```
+
+Or, you can pass this info to the execute_cmdstager method (see Call #execute_cmdstager to begin)
 
 ```ruby
 execute_cmdstager(flavor: :vbs)
