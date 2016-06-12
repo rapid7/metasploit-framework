@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Post
 			end
       	end
       end
-      path = store_loot('host.emet_paths', 'text/plain', session, reg_keys.join("\r\n"), 'emet_paths.txt', 'EMET Paths')
+      path = store_loot('host.trusted_locations', 'text/plain', session, reg_keys.join("\r\n"), 'trusted_locations.txt', 'Trusted Locations')
       print_good("Results stored in: #{path}")
     end
   end
