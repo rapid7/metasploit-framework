@@ -22,7 +22,7 @@ module Msf
         f.write(md)
         f.close
         kb_path = f.path
-
+        print_status("Opening web browser for file://#{kb_path}")
         Rex::Compat.open_webrtc_browser("file://#{kb_path}")
       end
 
