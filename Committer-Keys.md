@@ -19,7 +19,6 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@egypt](https://github.com/egypt)                | [egypt](https://keybase.io/egypt)                  |
 | [@farias-r7](https://github.com/farias-r7)        | [fariasR7](https://keybase.io/fariasR7)            |
 | [@FireFart](https://github.com/FireFart)          | [firefart](https://keybase.io/firefart)            |
-| [@gmikeska-r7](https://github.com/gmikeska-r7)    | [gmikeska_r7](https://keybase.io/gmikeska_r7)      |
 | [@hdm](https://github.com/hdm)                    | [hdm](https://keybase.io/hdm)                      |
 | [@jbarnett-r7](https://github.com/jbarnett-r7)    | [jmbarnett](https://keybase.io/jmbarnett)          |
 | [@jhart-r7](https://github.com/jhart-r7)          | [jhart](https://keybase.io/jhart)                  |
