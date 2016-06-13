@@ -56,6 +56,10 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
   - It would be even better to set up `msftidy.rb` as a [pre-commit hook].
 * **Do** use the many module mixin [API]s. Wheel improvements are welcome; wheel reinventions, not so much.
 * **Don't** include more than one module per pull request.
+* **Do** include instructions on how to setup the vulnerable environment or software
+* **Do** include [Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Generating-Module-Documentation) showing sample run-throughs
+
+
 
 #### Scripts
 
