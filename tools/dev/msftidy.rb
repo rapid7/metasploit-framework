@@ -423,7 +423,7 @@ class Msftidy
         error("Invalid ranking. You have '#{$1}'")
       end
     else
-      info('No Rank specified. The default is NormalRanking.')
+      info('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
     end
   end
 
