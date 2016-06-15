@@ -15,15 +15,12 @@ module Msf
       # Spawns a module document with a browser locally.
       #
       # @param mod [Msf::Module] Module to create document for.
+      # @param out_file [Rex::Quickfile] File handle to write the document to.
       # @return [void]
-      def self.spawn_module_document(mod)
+      def self.spawn_module_document(mod, out_file)
         md = get_module_document(mod)
-        f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
-        f.write(md)
-        f.close
-        kb_path = f.path
-
-        Rex::Compat.open_webrtc_browser("file://#{kb_path}")
+        out_file.write(md)
+        Rex::Compat.open_webrtc_browser("file://#{out_file.path}")
       end
 
 
