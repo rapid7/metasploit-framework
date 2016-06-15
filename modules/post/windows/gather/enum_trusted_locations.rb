@@ -48,12 +48,14 @@ class MetasploitModule < Msf::Post
               print_status('Failed to enumerate applications.')
             else
               print_status('Found applications.')
+
+              print_status('')
               #find version to use
               reg_keys2.each do |path2|
                   val2 = path2
                   reg_keys3 = registry_enumkeys("HKCU\\SOFTWARE\\Microsoft\\Office\\#{val1}\\#{val2}\\Security\\Trusted Locations", reg_view)
                   if not reg_keys3.nil?
-                     print_status('Found trusted locations.')
+                     print_status("Found trusted locations in #{val2}")
                      #find version to use
                      reg_keys3.each do |path3|
                         val3 = path3
