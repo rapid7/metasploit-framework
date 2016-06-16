@@ -28,6 +28,7 @@ to [[Setting Up a Metasploit Development Environment]].
 
 # Metasploit Development #
 
+- [[Why Ruby?]]
 - [[How to get started with writing an exploit]]
 - [[How to get started with writing an auxiliary module]]
 - [[How to get started with writing a post module]]
