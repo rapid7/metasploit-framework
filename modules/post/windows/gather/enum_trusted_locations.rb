@@ -11,10 +11,13 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Common
 
+  OFFICE_REGISTRY_PATH = 'HKCU\\SOFTWARE\\Microsoft\\Office'
+  TRUSTED_LOCATIONS_PATH = 'Security\\Trusted Locations'
+
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Windows Gather Microsoft Office Trusted Locations',
-      'Description'   => %q( This module will enumerate the Microsoft Office trusted locations on the target host.),
+      'Description'   => %q( This module will enumerate the Microsoft Office trusted locations on the target host. ),
       'License'       => MSF_LICENSE,
       'Author'        => [ 'vysec <vincent.yiu[at]mwrinfosecurity.com>' ],
       'Platform'      => [ 'win' ],
@@ -31,57 +34,49 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    reg_view = sysinfo['Architecture'] =~ /x64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_32_BIT
-    reg_keys = registry_enumkeys('HKCU\\SOFTWARE\\Microsoft\\Office', reg_view)
-    if reg_keys.nil?
-      print_status('Failed to enumerate Office.')
-    else
-      print_status('')
-      print_status('Found Office.')
-      #find version to use
-      reg_keys.each do |path|
-        if not /[0-9][0-9].0/.match(path).nil?
-            val1 = path
-            print_status("Version found: #{val1}")
-            reg_keys2 = registry_enumkeys("HKCU\\SOFTWARE\\Microsoft\\Office\\#{val1}", reg_view)
-            if reg_keys2.nil?
-              print_status('Failed to enumerate applications.')
-            else
-              print_status('Found applications.')
+    locations = ""
+    [REGISTRY_VIEW_64_BIT, REGISTRY_VIEW_32_BIT].each do |registry_arch|
+      arch = registry_arch == REGISTRY_VIEW_64_BIT ? 'x64' : 'x86'
+      reg_keys = registry_enumkeys(OFFICE_REGISTRY_PATH, registry_arch)
+      if reg_keys.nil?
+        print_status("Failed to enumerate Office in #{arch} registry hive.")
+        return
+      end
 
-              print_status('')
-              #find version to use
-              reg_keys2.each do |path2|
-                  val2 = path2
-                  reg_keys3 = registry_enumkeys("HKCU\\SOFTWARE\\Microsoft\\Office\\#{val1}\\#{val2}\\Security\\Trusted Locations", reg_view)
-                  if not reg_keys3.nil?
-                  	 print_status('')
-                     print_good("Found trusted locations in #{val2}")
-                     #find version to use
-                     reg_keys3.each do |path3|
-                        val3 = path3
-                        #print_status(path3)
-                        print_status('')
-                        reg_vals = registry_getvaldata("HKCU\\SOFTWARE\\Microsoft\\Office\\#{val1}\\#{val2}\\Security\\Trusted Locations\\#{val3}", "Description", reg_view)
-                        if not reg_vals.nil?
-                            print_status("Description: #{reg_vals}")
-                        end
-                        reg_vals2 = registry_getvaldata("HKCU\\SOFTWARE\\Microsoft\\Office\\#{val1}\\#{val2}\\Security\\Trusted Locations\\#{val3}", "AllowSubFolders", reg_view)
-                        reg_vals = registry_getvaldata("HKCU\\SOFTWARE\\Microsoft\\Office\\#{val1}\\#{val2}\\Security\\Trusted Locations\\#{val3}", "Path", reg_view)
-                        if not reg_vals.nil?
-                            if not reg_vals2.nil?
-                                print_status("Path: #{reg_vals}, AllowSub: True")
-                            else
-                                print_status("Path: #{reg_vals}, AllowSub: False")
-                            end
-                        end
-                     end
-                  end
-              end
-            end
+      reg_keys.each do |version|
+        next if /[0-9][0-9].0/.match(version).nil?
+
+        print_status("Version found: #{version}")
+        version_path = "#{OFFICE_REGISTRY_PATH}\\#{version}"
+        applications = registry_enumkeys(version_path, registry_arch)
+
+        if applications.nil?
+          print_status('Failed to enumerate applications.')
+          next
+        end
+
+        vprint_status('Found applications.')
+        #find version to use
+        applications.each do |application|
+          trusted_locations_path = "#{version_path}\\#{application}\\#{TRUSTED_LOCATIONS_PATH}"
+          trusted_locations = registry_enumkeys(trusted_locations_path, registry_arch)
+          next if trusted_locations.nil?
+
+          print_good("Found trusted locations in #{application}")
+          #find version to use
+          trusted_locations.each do |location|
+            location_path = "#{trusted_locations_path}\\#{location}"
+            description = registry_getvaldata(location_path, 'Description', registry_arch)
+            allow_subfolders = registry_getvaldata(location_path, 'AllowSubFolders', registry_arch)
+            path = registry_getvaldata(location_path, 'Path', registry_arch)
+            vprint_status("Description: #{description}")
+            result = "Application: #{application}, Path: #{path}, AllSubFolders: #{!!allow_subfolders}"
+            locations << "#{result}\n"
+            print_status(result)
+          end
         end
       end
-      path = store_loot('host.trusted_locations', 'text/plain', session, reg_keys.join("\r\n"), 'trusted_locations.txt', 'Trusted Locations')
+      path = store_loot('host.trusted_locations', 'text/plain', session, locations, 'trusted_locations.txt', 'Trusted Locations')
       print_good("Results stored in: #{path}")
     end
   end
