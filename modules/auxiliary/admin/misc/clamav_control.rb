@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License'        => MSF_LICENSE,
         'References'     => [
-          [ 'URL', 'https://twitter.com/nitr0usmx/status/740673507684679680/photo/1' ]
+          [ 'URL', 'https://twitter.com/nitr0usmx/status/740673507684679680/photo/1' ],
           [ 'URL', 'https://github.com/vrtadmin/clamav-faq/raw/master/manual/clamdoc.pdf' ]
           ],
         'DisclosureDate' => 'Jun 8 2016',
