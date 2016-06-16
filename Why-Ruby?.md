@@ -16,4 +16,5 @@ In the end, it all came down to selecting a language that was enjoyed by the peo
 
 # Resource
 
-https://github.com/rapid7/metasploit-framework/blob/master/documentation/developers_guide.pdf
+* https://github.com/rapid7/metasploit-framework/blob/master/documentation/developers_guide.pdf
+* https://dev.metasploit.com/pipermail/framework/2006-October/001325.html
