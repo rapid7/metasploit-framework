@@ -48,12 +48,6 @@ class MetasploitModule < Msf::Auxiliary
       connect
       sock.put(action.name + "\n")
       print_good(sock.get_once)
-#    rescue Rex::ConnectionRefused
-#      ilog("Connection Refused")
-#    rescue Rex::ConnectionTimeout
-#      ilog("Connection Timeout")
-#    rescue Rex::HostUnreachable
-#      ilog("Host Unreachable")
     rescue EOFError
       print_good('Successfully shut down ClamAV Service')
     ensure
