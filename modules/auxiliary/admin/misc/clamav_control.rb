@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'References'     => [
           [ 'URL', 'https://twitter.com/nitr0usmx/status/740673507684679680/photo/1' ],
           [ 'URL', 'https://github.com/vrtadmin/clamav-faq/raw/master/manual/clamdoc.pdf' ]
-          ],
+        ],
         'DisclosureDate' => 'Jun 8 2016',
         'Actions'        => [
           [ 'VERSION',  'Description' => 'Get Version Information' ],
@@ -36,19 +36,26 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultAction'  => 'VERSION'
       )
     )
-    register_options([
-      Opt::RPORT(3310)
-    ], self.class)
+    register_options(
+      [
+        Opt::RPORT(3310)
+      ], self.class
+    )
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     begin
       connect
       sock.put(action.name + "\n")
       print_good(sock.get_once)
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout, Rex::HostUnreachable
+    rescue Rex::ConnectionRefused
+      ilog("Connection Refused")
+    rescue Rex::ConnectionTimeout
+      ilog("Connection Timeout")
+    rescue Rex::HostUnreachable
+      ilog("Host Unreachable")
     rescue EOFError
-      print_bad('Successfully shut down ClamAV Service')
+      print_good('Successfully shut down ClamAV Service')
     ensure
       disconnect
     end
