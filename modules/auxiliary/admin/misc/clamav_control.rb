@@ -7,6 +7,7 @@ require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Scanner
   def initialize(info = {})
     super(
       update_info(
@@ -40,15 +41,17 @@ class MetasploitModule < Msf::Auxiliary
     ], self.class)
   end
 
-  def run
+  def run_host(ip)
+    register_options([
+      Opt::RHOST(ip)
+    ], self.class)
     begin
       connect
       sock.put(action.name + "\n")
       print_good(sock.get_once)
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout, Rex::HostUnreachable => e
-      fail_with(Failure::Unreachable, e)
+    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout, Rex::HostUnreachable
     rescue EOFError
-      print_good('Successfully shut down ClamAV Service')
+      print_bad('Successfully shut down ClamAV Service')
     ensure
       disconnect
     end
