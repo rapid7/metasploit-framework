@@ -42,9 +42,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    register_options([
-      Opt::RHOST(ip)
-    ], self.class)
     begin
       connect
       sock.put(action.name + "\n")
