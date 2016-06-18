@@ -5,8 +5,6 @@
 
 
 require 'msf/core'
-require 'resolv'
-
 
 class MetasploitModule < Msf::Auxiliary
 
