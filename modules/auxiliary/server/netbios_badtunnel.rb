@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'NetBIOS "BadTunnel" Service',
       'Description'    => %q{
-          This module listens for a NetBIOS name request and then continiously spams
+          This module listens for a NetBIOS name request and then continuously spams
         NetBIOS responses for the name "WPAD" to the requesting host and port. This
         can cause a system behind a NAT gateway to cache a malicious address for the
         "WPAD" hostname.
