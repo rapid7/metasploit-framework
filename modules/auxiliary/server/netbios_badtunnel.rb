@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         'tombkeeper' # Vulnerability Discovery
       ],
       'License'     => MSF_LICENSE,
-      'References'  => 
+      'References'  =>
         [
           ['URL', 'http://xlab.tencent.com/en/2016/06/17/BadTunnel-A-New-Hope/'],
           ['CVE', '2016-3213'],
