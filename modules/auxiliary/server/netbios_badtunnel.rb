@@ -19,8 +19,19 @@ class MetasploitModule < Msf::Auxiliary
         can cause a system behind a NAT gateway to cache a malicious address for the
         "WPAD" hostname.
       },
-      'Author'      => ['hdm'],
+      'Authors'     => [
+        'hdm',       # Metasploit Module
+        'tombkeeper' # Vulnerability Discovery
+      ],
       'License'     => MSF_LICENSE,
+      'References'  => 
+        [
+          ['URL', 'http://xlab.tencent.com/en/2016/06/17/BadTunnel-A-New-Hope/'],
+          ['CVE', '2016-3213'],
+          ['MSB', 'MS16-063'],
+          ['CVE', '2016-3236'],
+          ['MSB', 'MS16-077']
+        ],
       'Actions'     =>
         [
           [ 'Service' ]
