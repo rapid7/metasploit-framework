@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Authors'     => [
         'vvalien',   # Metasploit Module (post)
-        'hdm',       # Metasploit Module 
+        'hdm',       # Metasploit Module
         'tombkeeper' # Related Work
       ],
       'License'     => MSF_LICENSE,
@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
         "\x20"       +
         Rex::Proto::SMB::Utils.nbname_encode( [@fake_name.upcase].pack("A15") + "\x00" ) +
         "\x00"       +
-        "\x00\x20"   + # Type = NB 
+        "\x00\x20"   + # Type = NB
         "\x00\x01"   + # Class = IN
         "\x00\x04\x93\xe0" + # TTL long time
         "\x00\x06"   + # Datalength = 6
