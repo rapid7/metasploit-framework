@@ -85,13 +85,15 @@ class MetasploitModule < Msf::Post
       prefs = f.read
     end
     results = ActiveSupport::JSON.decode(prefs)
-    print_status("Extensions installed: ")
-    results['extensions']['settings'].each do |name,values|
-      if values['manifest']
-        print_status("=> #{values['manifest']['name']}")
-        if values['manifest']['name'] =~ /mailvelope/i
-          print_good("==> Found Mailvelope extension, extracting PGP keys")
-          extension_mailvelope(username, name)
+    if results['extensions']['settings']
+      print_status("Extensions installed: ")
+      results['extensions']['settings'].each do |name,values|
+        if values['manifest']
+          print_status("=> #{values['manifest']['name']}")
+          if values['manifest']['name'] =~ /mailvelope/i
+            print_good("==> Found Mailvelope extension, extracting PGP keys")
+            extension_mailvelope(username, name)
+          end
         end
       end
     end
