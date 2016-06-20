@@ -74,6 +74,29 @@ require 'msf/core/exe/segment_appender'
     template % hash_sub
   end
 
+
+  # Generates a ZIP file.
+  #
+  # @param files [Array<Hash>] Items to compress. Each item is a hash that supports these options:
+  #  * :data - The content of the file.
+  #  * :fname - The file path in the ZIP file
+  #  * :comment - A comment
+  # @example Compressing two files, one in a folder called 'test'
+  #   Msf::Util::EXE.to_zip([{data: 'AAAA', fname: "file1.txt"}, {data: 'data', fname: 'test/file2.txt'}])
+  # @return [String]
+  def self.to_zip(files)
+    zip = Rex::Zip::Archive.new
+
+    files.each do |f|
+      data    = f[:data]
+      fname   = f[:fname]
+      comment = f[:comment] || ''
+      zip.add_file(fname, data, comment)
+    end
+
+    zip.pack
+  end
+
   # Executable generators
   #
   # @param arch       [Array<String>] The architecture of the system (i.e :x86, :x64)
