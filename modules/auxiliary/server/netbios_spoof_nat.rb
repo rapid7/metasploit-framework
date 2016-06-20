@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NetBIOS Response Brute Force Spoof (NAT Tunnel)',
+      'Name'        => 'NetBIOS Response "BadTunnel" Brute Force Spoof (NAT Tunnel)',
       'Description'    => %q{
           This module listens for a NetBIOS name request and then continuously spams
         NetBIOS responses to a target for given hostname, causing the target to cache
@@ -23,11 +23,17 @@ class MetasploitModule < Msf::Auxiliary
         NetBIOS responses will keep the NAT mapping alive after the initial setup. To
         trigger the initial NetBIOS request to the Metasploit system, force the target
         to access a UNC link pointing to the same address (HTML, Office attachment, etc).
+
+        This NAT-piercing issue was named the 'BadTunnel' vulnerability by the discoverer,
+        Yu Yang (@tombkeeper). The Microsoft patches (MS16-063/MS16-077) impact the way
+        that the proxy host (WPAD) host is identified, but do change the predictability
+        of NetBIOS requests.
+
       },
       'Authors'     => [
         'vvalien',   # Metasploit Module (post)
         'hdm',       # Metasploit Module
-        'tombkeeper' # Related Work
+        'tombkeeper' # Vulnerability Discovery
       ],
       'License'     => MSF_LICENSE,
       'Actions'     =>
@@ -39,6 +45,15 @@ class MetasploitModule < Msf::Auxiliary
           'Service'
         ],
       'DefaultAction'  => 'Service',
+      'References'     =>
+        [
+          ['URL', 'http://xlab.tencent.com/en/2016/06/17/BadTunnel-A-New-Hope/'],
+          ['CVE', '2016-3213'],
+          ['MSB', 'MS16-063'],
+          ['CVE', '2016-3236'],
+          ['MSB', 'MS16-077']
+        ],
+      'DisclosureDate' => 'Jun 14 2016'
     )
 
     register_options(
