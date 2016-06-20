@@ -25,7 +25,7 @@
 
   Location of the sshd_config file on the remote system.  We use this to determine if the authorized_keys file location has changed on the system.  If it hasn't, we default to .ssh/authorized_keys
 
-  **User**
+  **username**
 
   If set, we only write our key to this user.  If not, we'll write to all users
 
