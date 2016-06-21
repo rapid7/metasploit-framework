@@ -28,6 +28,11 @@ PATH
       rb-readline-r7
       recog
       redcarpet
+      rex-powershell
+      rex-random_identifier
+      rex-registry
+      rex-text
+      rex-zip
       robots
       rubyzip
       sqlite3
@@ -204,6 +209,15 @@ GEM
     recog (2.0.21)
       nokogiri
     redcarpet (3.3.4)
+    rex-powershell (0.1.0)
+      rex-random_identifier
+      rex-text
+    rex-random_identifier (0.1.0)
+      rex-text
+    rex-registry (0.1.0)
+    rex-text (0.1.1)
+    rex-zip (0.1.0)
+      rex-text
     rkelly-remix (0.0.6)
     robots (0.10.1)
     rspec-core (3.4.4)
@@ -242,7 +256,7 @@ GEM
     timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2016.4)
+    tzinfo-data (1.2016.5)
       tzinfo (>= 1.0.0)
     xpath (2.0.0)
       nokogiri (~> 1.3)

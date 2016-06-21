@@ -96,6 +96,20 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'patch_finder'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
+
+  #
+  # REX Libraries
+  #
+  # Text manipulation library for things like generating random string
+  spec.add_runtime_dependency 'rex-text'
+  # Library for Generating Randomized strings valid as Identifiers such as variable names
+  spec.add_runtime_dependency 'rex-random_identifier'
+  # library for creating Powershell scripts for exploitation purposes
+  spec.add_runtime_dependency 'rex-powershell'
+  # Library for processing and creating Zip compatbile archives
+  spec.add_runtime_dependency 'rex-zip'
+  # Library for parsing offline Windows Registry files
+  spec.add_runtime_dependency 'rex-registry'
   
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
