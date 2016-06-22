@@ -13,7 +13,7 @@ Metasploit is a tool by and for hackers, but the hackers that maintain it also h
 Server exploits are always in demand; why bother with complicated social engineering campaigns when you can go straight to the pain point of a vulnerable network. Here are some search queries to get you started:
 
  * [Remote exploits](http://www.exploit-db.com/remote/) from Exploit-DB
- * [Remote exploits](http://osvdb.org/search/search?search%5Bvuln_title%5D=&search%5Btext_type%5D=titles&search%5Bs_date%5D=&search%5Be_date%5D=&search%5Brefid%5D=&search%5Breferencetypes%5D=&search%5Bvendors%5D=&search%5Bcvss_score_from%5D=&search%5Bcvss_score_to%5D=&search%5Bcvss_av%5D=N&search%5Bcvss_ac%5D=*&search%5Bcvss_a%5D=*&search%5Bcvss_ci%5D=*&search%5Bcvss_ii%5D=*&search%5Bcvss_ai%5D=*&location_remote=1&kthx=search) from OSVDB
+
 
 ## Client Exploits
 
