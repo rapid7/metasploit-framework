@@ -54,7 +54,7 @@ module  Rex::Socket::TcpServer
       t.extend(Rex::Socket::Tcp)
       t.context = self.context
 
-      pn = t.getpeername
+      pn = t.getpeername_as_array
 
       # We hit a "getpeername(2)" from Ruby
       return nil unless pn

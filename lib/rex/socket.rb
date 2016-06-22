@@ -731,7 +731,7 @@ module Socket
   #
   # Return peer connection information.
   #
-  def getpeername
+  def getpeername_as_array
     peer_name = nil
     begin
       peer_name = Socket.from_sockaddr(super)

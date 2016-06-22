@@ -1,5 +1,6 @@
 require 'net/ssh'
 require 'metasploit/framework/login_scanner/base'
+require 'rex/socket/ssh_factory'
 
 module Metasploit
   module Framework
@@ -47,12 +48,13 @@ module Metasploit
         # @note The caller *must* close {#ssh_socket}
         def attempt_login(credential)
           self.ssh_socket = nil
+          factory = Rex::Socket::SSHFactory.new(framework,framework_module, proxies)
           opt_hash = {
             :port          => port,
-            :disable_agent => true,
+            :use_agent     => false,
             :config        => false,
             :verbose       => verbosity,
-            :proxies       => proxies
+            :proxy         => factory
           }
           case credential.private_type
           when :password, nil

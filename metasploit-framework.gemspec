@@ -110,7 +110,13 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-zip'
   # Library for parsing offline Windows Registry files
   spec.add_runtime_dependency 'rex-registry'
-  
+
+  #
+  # Protocol Libraries
+  #
+  spec.add_runtime_dependency 'net-ssh'
+
+
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
   unless Gem.win_platform?
