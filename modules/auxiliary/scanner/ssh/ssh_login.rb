@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'net/ssh'
+require 'net/ssh/command_stream'
 require 'metasploit/framework/login_scanner/ssh'
 require 'metasploit/framework/credential_collection'
 
