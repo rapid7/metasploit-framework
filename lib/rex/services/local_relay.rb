@@ -30,7 +30,7 @@ class LocalRelay
     # in.
     #
     def on_other_data(data)
-      if (relay.on_other_data_proc)
+      if relay.on_other_data_proc
         relay.on_other_data_proc.call(relay, self, data)
       else
         put(data)
@@ -55,14 +55,13 @@ class LocalRelay
     # value of the callback should be a Stream instance.
     #
     def on_local_connection(relay, lfd)
-      if (relay.on_local_connection_proc)
+      if relay.on_local_connection_proc
         relay.on_local_connection_proc.call(relay, lfd)
       end
     end
 
     attr_accessor :relay
   end
-
 
   ###
   #
@@ -85,14 +84,14 @@ class LocalRelay
 
     def shutdown
       begin
-        listener.shutdown if (listener)
+        listener.shutdown if listener
       rescue ::Exception
       end
     end
 
     def close
       begin
-        listener.close if (listener)
+        listener.close if listener
       rescue ::Exception
       end
       listener = nil
@@ -107,12 +106,51 @@ class LocalRelay
 
   end
 
+  ###
+  #
+  # This class acts as an instance of a local relay handling a reverse connection
+  #
+  ###
+  class ReverseRelay < Relay
+
+    def initialize(name, channel, opts = {})
+
+      self.name                     = name
+      self.listener                 = nil
+      self.opts                     = opts
+      self.on_local_connection_proc = opts['OnLocalConnection']
+      self.on_conn_close_proc       = opts['OnConnectionClose']
+      self.on_other_data_proc       = opts['OnOtherData']
+      self.channel                  = channel
+
+      if !$dispatcher['rex']
+        register_log_source('rex', $dispatcher['core'], get_log_level('core'))
+      end
+    end
+
+    def shudown
+      # don't need to do anything here, it's only "close" we care about
+    end
+
+    def close
+      self.channel.close if self.channel
+      self.channel = nil
+    end
+
+    attr_reader :channel
+
+    protected
+      attr_writer :channel
+
+  end
+
   #
   # Initializes the local tcp relay monitor.
   #
   def initialize
     self.relays       = Hash.new
     self.rfds         = Array.new
+    self.rev_chans    = Array.new
     self.relay_thread = nil
     self.relay_mutex  = Mutex.new
   end
@@ -153,8 +191,8 @@ class LocalRelay
   end
 
   #
-  # Stops the thread that monitors the local relays and destroys all local
-  # listeners.
+  # Stops the thread that monitors the local relays and destroys all
+  # listeners, both local and remote.
   #
   def stop
     if (self.relay_thread)
@@ -170,16 +208,44 @@ class LocalRelay
       }
     }
 
-    # Flush the relay list and read fd list
+    # make sure we kill off active sockets when we shut down
+    while self.rfds.length > 0
+      close_relay_conn(self.rfds.shift) rescue nil
+    end
+
+    # we can safely clear the channels array because all of the
+    # reverse relays were closed down
+    self.rev_chans.clear
     self.relays.clear
-    self.rfds.clear
   end
 
-  ##
   #
-  # Adding/removing local tcp relays
+  # Start a new active listener on the victim ready for reverse connections.
   #
-  ##
+  def start_reverse_tcp_relay(channel, opts = {})
+    opts['__RelayType'] = 'tcp'
+    opts['Reverse'] = true
+
+    name = "Reverse-#{opts['LocalPort']}"
+
+    relay = ReverseRelay.new(name, channel, opts)
+
+    # dirty hack to get "relay" support?
+    channel.extend(StreamServer)
+    channel.relay = relay
+
+    self.relay_mutex.synchronize {
+      self.relays[name] = relay
+      self.rev_chans << channel
+    }
+  end
+
+  #
+  # Stop an active reverse port forward.
+  #
+  def stop_reverse_tcp_relay(rport)
+    stop_relay("Reverse-#{rport}")
+  end
 
   #
   # Starts a local TCP relay.
@@ -236,7 +302,7 @@ class LocalRelay
     self.relay_mutex.synchronize {
       relay = self.relays[name]
 
-      if (relay)
+      if relay
         close_relay(relay)
         rv = true
       end
@@ -264,13 +330,19 @@ class LocalRelay
 protected
 
   attr_accessor :relays, :relay_thread, :relay_mutex
-  attr_accessor :rfds
+  attr_accessor :rfds, :rev_chans
 
   #
   # Closes an cleans up a specific relay
   #
   def close_relay(relay)
-    self.rfds.delete(relay.listener)
+
+    if relay.kind_of?(ReverseRelay)
+      self.rev_chans.delete(relay.channel)
+    else
+      self.rfds.delete(relay.listener)
+    end
+
     self.relays.delete(relay.name)
 
     begin
@@ -291,7 +363,7 @@ protected
     self.rfds.delete(fd)
 
     begin
-      if (relay.on_conn_close_proc)
+      if relay.on_conn_close_proc
         relay.on_conn_close_proc.call(fd)
       end
 
@@ -300,7 +372,7 @@ protected
     rescue IOError
     end
 
-    if (ofd)
+    if ofd
       self.rfds.delete(ofd)
 
       begin
@@ -313,6 +385,35 @@ protected
       rescue IOError
       end
     end
+  end
+
+  #
+  # Attempt to accept a new reverse connection on the given reverse
+  # relay handle.
+  #
+  def accept_reverse_relay(rrfd)
+
+    rfd = rrfd.accept_nonblock
+
+    return unless rfd
+
+    lfd = Rex::Socket::Tcp.create(
+      'PeerHost'  => rrfd.relay.opts['PeerHost'],
+      'PeerPort'  => rrfd.relay.opts['PeerPort'],
+      'Timeout'   => 5
+    )
+
+    rfd.extend(Stream)
+    lfd.extend(Stream)
+
+    rfd.relay = rrfd.relay
+    lfd.relay = rrfd.relay
+
+    self.rfds << lfd
+    self.rfds << rfd
+
+    rfd.other_stream = lfd
+    lfd.other_stream = rfd
   end
 
   #
@@ -342,7 +443,7 @@ protected
     # If we have both sides, then we rock.  Extend the instances, associate
     # them with the relay, associate them with each other, and add them to
     # the list of polling file descriptors
-    if (lfd and rfd)
+    if lfd && rfd
       lfd.extend(Stream)
       rfd.extend(Stream)
 
@@ -354,9 +455,8 @@ protected
 
       self.rfds << lfd
       self.rfds << rfd
-
-    # Otherwise, we don't have both sides, we'll close them.
     else
+      # Otherwise, we don't have both sides, we'll close them.
       close_relay_conn(lfd)
     end
   end
@@ -369,6 +469,12 @@ protected
       # Helps with latency
       Thread.current.priority = 2
 
+      # See if we have any new connections on the existing reverse port
+      # forward relays
+      rev_chans.each do |rrfd|
+        accept_reverse_relay(rrfd)
+      end
+
       # Poll all the streams...
       begin
         socks = Rex::ThreadSafe.select(rfds, nil, nil, 0.25)
@@ -377,7 +483,7 @@ protected
 
         # Close the relay connection that is associated with the stream
         # closed error
-        if (e.stream.kind_of?(Stream))
+        if e.stream.kind_of?(Stream)
           close_relay_conn(e.stream)
         end
 
@@ -398,9 +504,9 @@ protected
         # If this file descriptor is a server, accept the connection
         if (rfd.kind_of?(StreamServer))
           accept_relay_conn(rfd)
-        # Otherwise, it's a relay connection, read data from one side
-        # and write it to the other
         else
+          # Otherwise, it's a relay connection, read data from one side
+          # and write it to the other
           begin
             # Pass the data onto the other fd, most likely writing it.
             data = rfd.sysread(65536)

@@ -398,6 +398,26 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'bsdi/x86/shell_reverse_tcp'
   end
 
+  context 'cmd/mainframe/generic_jcl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/mainframe/generic_jcl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/mainframe/generic_jcl'
+  end
+
+  context 'cmd/mainframe/reverse_shell_jcl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/mainframe/reverse_shell_jcl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/mainframe/reverse_shell_jcl'
+  end
+
   context 'cmd/unix/bind_awk' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1635,16 +1655,6 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_reverse_tcp'
-  end
-
-  context 'linux/x86/shell_reverse_tcp2' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/x86/shell_reverse_tcp2'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/shell_reverse_tcp2'
   end
 
   context 'mainframe/shell_reverse_tcp' do

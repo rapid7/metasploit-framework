@@ -74,6 +74,29 @@ require 'msf/core/exe/segment_appender'
     template % hash_sub
   end
 
+
+  # Generates a ZIP file.
+  #
+  # @param files [Array<Hash>] Items to compress. Each item is a hash that supports these options:
+  #  * :data - The content of the file.
+  #  * :fname - The file path in the ZIP file
+  #  * :comment - A comment
+  # @example Compressing two files, one in a folder called 'test'
+  #   Msf::Util::EXE.to_zip([{data: 'AAAA', fname: "file1.txt"}, {data: 'data', fname: 'test/file2.txt'}])
+  # @return [String]
+  def self.to_zip(files)
+    zip = Rex::Zip::Archive.new
+
+    files.each do |f|
+      data    = f[:data]
+      fname   = f[:fname]
+      comment = f[:comment] || ''
+      zip.add_file(fname, data, comment)
+    end
+
+    zip.pack
+  end
+
   # Executable generators
   #
   # @param arch       [Array<String>] The architecture of the system (i.e :x86, :x64)
@@ -2221,6 +2244,7 @@ require 'msf/core/exe/segment_appender'
       "asp",
       "aspx",
       "aspx-exe",
+      "axis2",
       "dll",
       "elf",
       "elf-so",
@@ -2229,6 +2253,7 @@ require 'msf/core/exe/segment_appender'
       "exe-service",
       "exe-small",
       "hta-psh",
+      "jar",
       "loop-vbs",
       "macho",
       "msi",
@@ -2253,9 +2278,9 @@ require 'msf/core/exe/segment_appender'
     path = ::File.expand_path(::File.join(
       ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
     )
-    return true unless ::File.exists?(path)
+    return true unless ::File.exist?(path)
     ret = false
-    if ::File.exists?(path)
+    if ::File.exist?(path)
       begin
         data = ::File.read(path)
         unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"

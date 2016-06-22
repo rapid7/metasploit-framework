@@ -30,7 +30,7 @@ class RPC_Plugin < RPC_Base
 
       # If the plugin isn't in the user direcotry (~/.msf3/plugins/), use the base
       path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
-      if not File.exists?( path  + ".rb" )
+      if not File.exist?( path  + ".rb" )
         # If the following "path" doesn't exist it will be caught when we attempt to load
         path = Msf::Config.plugin_directory + File::SEPARATOR + plugin_file_name
       end

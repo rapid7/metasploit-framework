@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 185
 

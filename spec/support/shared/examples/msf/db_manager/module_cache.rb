@@ -702,7 +702,7 @@ RSpec.shared_examples_for 'Msf::DBManager::ModuleCache' do
                   let(:modification_time) do
                     # +1 as rand can return 0 and the time must be different for
                     # this context.
-                    super() - (rand(1.day) + 1)
+                    1.days.ago
                   end
 
                   it_should_behave_like 'Msf::DBManager#update_all_module_details refresh'

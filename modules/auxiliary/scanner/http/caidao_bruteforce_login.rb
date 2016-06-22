@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/caidao'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -15,8 +15,8 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Chinese Caidao Backdoor Bruteorce',
-      'Description'    => 'This module attempts to brute chinese caidao asp/php/aspx backdoor.',
+      'Name'           => 'Chinese Caidao Backdoor Bruteforce',
+      'Description'    => 'This module attempts to bruteforce chinese caidao asp/php/aspx backdoor.',
       'Author'         => [ 'Nixawk' ],
       'References'     => [
         ['URL', 'https://www.fireeye.com/blog/threat-research/2013/08/breaking-down-the-china-chopper-web-shell-part-i.html'],

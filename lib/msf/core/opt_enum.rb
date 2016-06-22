@@ -13,8 +13,8 @@ class OptEnum < OptBase
     return 'enum'
   end
 
-  def valid?(value=self.value)
-    return false if empty_required_value?(value)
+  def valid?(value=self.value, check_empty: true)
+    return false if check_empty && empty_required_value?(value)
     return true if value.nil? and !required?
 
     (value and self.enums.include?(value.to_s))

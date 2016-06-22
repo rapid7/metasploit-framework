@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex/proto/ntp'
 require 'securerandom'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Fuzzer
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner

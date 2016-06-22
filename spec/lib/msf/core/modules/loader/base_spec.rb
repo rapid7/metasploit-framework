@@ -12,7 +12,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
   let(:malformed_module_content) do
     <<-EOS
-      class Metasploit3
+      class Metasploit
         # purposeful typo to check that module path is used in backtrace
         inclde Exploit::Remote::Tcp
       end
@@ -21,7 +21,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
   let(:module_content) do
     <<-EOS
-      class Metasploit3 < Msf::Auxiliary
+      class MetasploitModule < Msf::Auxiliary
         # fully-qualified name is Msf::GoodRanking, so this will failing if lexical scope is not captured
         Rank = GoodRanking
         end
@@ -223,7 +223,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
   context 'instance methods' do
     let(:module_manager) do
-      double('Module Manager', :module_load_error_by_path => {})
+      double('Module Manager', :module_load_error_by_path => {}, :module_load_warnings => {})
     end
 
     subject do
@@ -309,7 +309,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           module Msf
             module Modules
               module Mod617578696c696172792f72737065632f6d6f636b
-                class Metasploit3 < Msf::Auxiliary
+                class MetasploitModule < Msf::Auxiliary
 
                 end
               end
@@ -424,51 +424,12 @@ RSpec.describe Msf::Modules::Loader::Base do
               allow(error).to receive(:backtrace).and_return(backtrace)
             end
 
-            context 'with version compatibility' do
-              before(:example) do
-                expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
-              end
-
-              it 'should record the load error using the original error' do
-                expect(subject).to receive(:load_error).with(module_path, error)
-                expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-              end
-            end
-
-            context 'without version compatibility' do
-              let(:version_compatibility_error) do
-                Msf::Modules::VersionCompatibilityError.new(
-                    :module_path => module_path,
-                    :module_reference_name => module_reference_name,
-                    :minimum_api_version => infinity,
-                    :minimum_core_version => infinity
-                )
-              end
-
-              let(:infinity) do
-                0.0 / 0.0
-              end
-
-              before(:example) do
-                allow(@namespace_module).to receive(
-                    :version_compatible!
-                ).with(
-                    module_path,
-                    module_reference_name
-                ).and_raise(
-                    version_compatibility_error
-                )
-              end
-
-              it 'should record the load error using the Msf::Modules::VersionCompatibilityError' do
-                expect(subject).to receive(:load_error).with(module_path, version_compatibility_error)
-                expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-              end
+            it 'should record the load error using the original error' do
+              expect(subject).to receive(:load_error).with(module_path, error)
+              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
             end
 
             it 'should return false' do
-              expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
-
               expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
             end
           end
@@ -479,9 +440,13 @@ RSpec.describe Msf::Modules::Loader::Base do
             @namespace_module = double('Namespace Module')
             allow(@namespace_module).to receive(:parent_path=)
             allow(@namespace_module).to receive(:module_eval_with_lexical_scope).with(module_content, module_path)
-
-            metasploit_class = double('Metasploit Class', :parent => @namespace_module)
-            allow(@namespace_module).to receive(:metasploit_class!).and_return(metasploit_class)
+            allow(@namespace_module).to receive(:const_defined?).with('Metasploit3', false).and_return(false)
+            allow(@namespace_module).to receive(:const_defined?).with('Metasploit4', false).and_return(false)
+            allow(@namespace_module).to receive(:const_defined?).with('MetasploitModule', false).and_return(true)
+            allow(@namespace_module).to receive(:const_get).with('Metasploit3', false).and_return(false)
+            allow(@namespace_module).to receive(:const_get).with('Metasploit4', false).and_return(false)
+            allow(@namespace_module).to receive(:const_get).with('MetasploitModule', false).and_return(true)
+            allow(@namespace_module).to receive(:module_load_warnings)
 
             allow(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
 
@@ -489,210 +454,83 @@ RSpec.describe Msf::Modules::Loader::Base do
 
             @module_load_error_by_path = {}
             allow(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
+            allow(module_manager).to receive(:on_module_load)
+            # remove the mocked namespace_module since happy-path/real loading is occurring in this context
+            allow(subject).to receive(:namespace_module_transaction).and_call_original
           end
 
-          it 'should check for version compatibility' do
+          it 'should log load information' do
+            expect(subject).to receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_2)
+            expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
+          end
+
+          it 'should delete any pre-existing load errors from module_manager.module_load_error_by_path' do
+            original_load_error = "Back in my day this module didn't load"
+            module_manager.module_load_error_by_path[module_path] = original_load_error
+
+            expect(module_manager.module_load_error_by_path[module_path]).to eq original_load_error
+            expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
+            expect(module_manager.module_load_error_by_path[module_path]).to be_nil
+          end
+
+          it 'should return true' do
+            expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
+          end
+
+          it 'should call module_manager.on_module_load' do
             expect(module_manager).to receive(:on_module_load)
-
-            expect(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
-            subject.load_module(parent_path, type, module_reference_name)
+            expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
           end
 
-          context 'without version compatibility' do
-            let(:version_compatibility_error) do
-              Msf::Modules::VersionCompatibilityError.new(
-                  :module_path => module_path,
-                  :module_reference_name => module_reference_name,
-                  :minimum_api_version => infinity,
-                  :minimum_core_version => infinity
-              )
-            end
+          context 'with :recalculate_by_type' do
+            it 'should set the type to be recalculated' do
+              recalculate_by_type = {}
 
-            let(:infinity) do
-              0.0 / 0.0
-            end
-
-            before(:example) do
-              allow(@namespace_module).to receive(
-                  :version_compatible!
-              ).with(
-                  module_path,
-                  module_reference_name
-              ).and_raise(
-                  version_compatibility_error
-              )
-            end
-
-            it 'should record the load error' do
-              expect(subject).to receive(:load_error).with(module_path, version_compatibility_error)
-              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-            end
-
-            it 'should return false' do
-              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-            end
-
-            it 'should restore the old namespace module' do
-
+              expect(
+                subject.load_module(
+                  parent_path,
+                  type,
+                  module_reference_name,
+                  :recalculate_by_type => recalculate_by_type
+                )
+              ).to eq true
+              expect(recalculate_by_type[type]).to be_truthy
             end
           end
 
-          context 'with version compatibility' do
-            before(:example) do
-              allow(@namespace_module).to receive(:version_compatible!).with(module_path, module_reference_name)
+          context 'with :count_by_type' do
+            it 'should set the count to 1 if it does not exist' do
+              count_by_type = {}
 
-              allow(module_manager).to receive(:on_module_load)
+              expect(count_by_type.has_key?(type)).to be_falsey
+              expect(
+                subject.load_module(
+                  parent_path,
+                  type,
+                  module_reference_name,
+                  :count_by_type => count_by_type
+                )
+              ).to eq true
+              expect(count_by_type[type]).to eq 1
             end
 
-            context 'without metasploit_class' do
-              let(:error) do
-                Msf::Modules::MetasploitClassCompatibilityError.new(
-                    :module_path => module_path,
-                    :module_reference_name => module_reference_name
+            it 'should increment the count if it does exist' do
+              original_count = 1
+              count_by_type = {
+                  type => original_count
+              }
+
+              expect(
+                subject.load_module(
+                  parent_path,
+                  type,
+                  module_reference_name,
+                  :count_by_type => count_by_type
                 )
-              end
+              ).to eq true
 
-              before(:example) do
-                expect(@namespace_module).to receive(:metasploit_class!).with(module_path, module_reference_name).and_raise(error)
-              end
-
-              it 'should record load error' do
-                expect(subject).to receive(
-                    :load_error
-                ).with(
-                    module_path,
-                    kind_of(Msf::Modules::MetasploitClassCompatibilityError)
-                )
-                expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-              end
-
-              it 'should return false' do
-                expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-              end
-
-              it 'should restore the old namespace module' do
-                expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-                expect(Msf::Modules.const_defined?(relative_name)).to be_truthy
-                expect(Msf::Modules.const_get(relative_name)).to eq @original_namespace_module
-              end
-            end
-
-            context 'with metasploit_class' do
-              let(:metasploit_class) do
-                double('Metasploit Class')
-              end
-
-              before(:example) do
-                allow(@namespace_module).to receive(:metasploit_class!).and_return(metasploit_class)
-              end
-
-              it 'should check if it is usable' do
-                expect(subject).to receive(:usable?).with(metasploit_class).and_return(true)
-                expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-              end
-
-              context 'without usable metasploit_class' do
-                before(:example) do
-                  expect(subject).to receive(:usable?).and_return(false)
-                end
-
-                it 'should log information' do
-                  expect(subject).to receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_1)
-                  expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-                end
-
-                it 'should return false' do
-                  expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-                end
-
-                it 'should restore the old namespace module' do
-                  expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
-                  expect(Msf::Modules.const_defined?(relative_name)).to be_truthy
-                  expect(Msf::Modules.const_get(relative_name)).to eq @original_namespace_module
-                end
-              end
-
-              context 'with usable metasploit_class' do
-                before(:example) do
-                  # remove the mocked namespace_module since happy-path/real loading is occurring in this context
-                  allow(subject).to receive(:namespace_module_transaction).and_call_original
-                end
-
-                it 'should log load information' do
-                  expect(subject).to receive(:ilog).with(/#{module_reference_name}/, 'core', LEV_2)
-                  expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-                end
-
-                it 'should delete any pre-existing load errors from module_manager.module_load_error_by_path' do
-                  original_load_error = "Back in my day this module didn't load"
-                  module_manager.module_load_error_by_path[module_path] = original_load_error
-
-                  expect(module_manager.module_load_error_by_path[module_path]).to eq original_load_error
-                  expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-                  expect(module_manager.module_load_error_by_path[module_path]).to be_nil
-                end
-
-                it 'should return true' do
-                  expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-                end
-
-                it 'should call module_manager.on_module_load' do
-                  expect(module_manager).to receive(:on_module_load)
-                  expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
-                end
-
-                context 'with :recalculate_by_type' do
-                  it 'should set the type to be recalculated' do
-                    recalculate_by_type = {}
-
-                    expect(
-                      subject.load_module(
-                        parent_path,
-                        type,
-                        module_reference_name,
-                        :recalculate_by_type => recalculate_by_type
-                      )
-                    ).to eq true
-                    expect(recalculate_by_type[type]).to be_truthy
-                  end
-                end
-
-                context 'with :count_by_type' do
-                  it 'should set the count to 1 if it does not exist' do
-                    count_by_type = {}
-
-                    expect(count_by_type.has_key?(type)).to be_falsey
-                    expect(
-                      subject.load_module(
-                        parent_path,
-                        type,
-                        module_reference_name,
-                        :count_by_type => count_by_type
-                      )
-                    ).to eq true
-                    expect(count_by_type[type]).to eq 1
-                  end
-
-                  it 'should increment the count if it does exist' do
-                    original_count = 1
-                    count_by_type = {
-                        type => original_count
-                    }
-
-                    expect(
-                      subject.load_module(
-                        parent_path,
-                        type,
-                        module_reference_name,
-                        :count_by_type => count_by_type
-                      )
-                    ).to eq true
-
-                    incremented_count = original_count + 1
-                    expect(count_by_type[type]).to eq incremented_count
-                  end
-                end
-              end
+              incremented_count = original_count + 1
+              expect(count_by_type[type]).to eq incremented_count
             end
           end
         end
@@ -944,7 +782,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           module Msf
             module Modules
               module Mod617578696c696172792f72737065632f6d6f636b
-                class Metasploit3
+                class Metasploit
 
                 end
               end
@@ -978,7 +816,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             expect(namespace_module).not_to eq @existent_namespace_module
 
             expect {
-              namespace_module::Metasploit3
+              namespace_module::MetasploitModule
             }.to raise_error(NameError)
 
             true
@@ -1239,7 +1077,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           module Msf
             module Modules
               module Mod0
-                class Metasploit3
+                class Metasploit
 
                 end
               end
@@ -1337,51 +1175,6 @@ RSpec.describe Msf::Modules::Loader::Base do
 
         expect(described_class).to receive(:typed_path).with(type, module_reference_name)
         subject.send(:typed_path, type, module_reference_name)
-      end
-    end
-
-    context '#usable?' do
-      context 'without metasploit_class responding to is_usable' do
-        it 'should return true' do
-          metasploit_class = double('Metasploit Class')
-          expect(metasploit_class).not_to respond_to(:is_usable)
-
-          expect(subject.send(:usable?, metasploit_class)).to be_truthy
-        end
-      end
-
-      context 'with metasploit_class responding to is_usable' do
-        it 'should delegate to metasploit_class.is_usable' do
-          # not a proper return, but guarantees that delegation is actually happening
-          usability = 'maybe'
-          metasploit_class = double('Metasploit Class', :is_usable => usability)
-
-          expect(subject.send(:usable?, metasploit_class)).to eq usability
-        end
-
-        context 'with error from metasploit_class.is_usable' do
-          let(:error) do
-            'Expected error'
-          end
-
-          let(:metasploit_class) do
-            metasploit_class = double('Metasploit Class')
-
-            expect(metasploit_class).to receive(:is_usable).and_raise(error)
-
-            metasploit_class
-          end
-
-          it 'should log error' do
-            expect(subject).to receive(:elog).with(/#{error}/)
-
-            subject.send(:usable?, metasploit_class)
-          end
-
-          it 'should return false' do
-            expect(subject.send(:usable?, metasploit_class)).to be_falsey
-          end
-        end
       end
     end
   end

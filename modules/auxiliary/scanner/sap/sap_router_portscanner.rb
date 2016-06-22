@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -230,6 +230,30 @@ class Metasploit3 < Msf::Auxiliary
       service = "CRM - Central Software Deployment Manager"
     when /^10(8|9)9$/
       service = "PAW - Performance Assessment Workbench"
+    when /^59950$/
+      service = "SAP NetWeaver Master Data Server"
+    when /^59951$/
+      service = "SAP NetWeaver Master Data Server (HTTPS)"
+    when /^59650$/
+      service = "SAP NetWeaver Master Data Layout Server"
+    when /^59651$/
+      service = "SAP NetWeaver Master Data Layout Server (HTTPS)"
+    when /^59750$/
+      service = "SAP NetWeaver Master Data Import Server"
+    when /^59751$/
+      service = "SAP NetWeaver Master Data Import Server (HTTPS)"
+    when /^59850$/
+      service = "SAP NetWeaver Master Data Syndication Server"
+    when /^59851$/
+      service = "SAP NetWeaver Master Data Syndication Server (HTTPS)"
+    when /^4[0-9][0-9](0[1-9]|[1-7][0-9])$/
+      service = "IGS Portwatcher (Clients)"
+    when /^4[0-9][0-9](8|9)[0-9]$/
+      service = "IGS HTTP-ports"
+    when /^1128$/
+      service = "SAP Host Agent"
+    when /^1129$/
+      service = "SAP Host Agent with SSL"
     else
       service = ''
     end

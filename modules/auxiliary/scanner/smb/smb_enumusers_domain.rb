@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -163,11 +163,11 @@ class Metasploit3 < Msf::Auxiliary
 
         if datastore['VERBOSE']
           accounts.each do |x|
-            print_status ip + " : " + x[:logon_domain] + "\\" + x[:account_name] +
+            print_status x[:logon_domain] + "\\" + x[:account_name] +
               "\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
           end
         else
-          print_status "#{ip} : #{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
+          print_status "#{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
         end
 
         found_accounts = []
@@ -181,16 +181,16 @@ class Metasploit3 < Msf::Auxiliary
             next
           end
 
-          print_good("#{ip} - Found user: #{comp_user}")
+          print_good("Found user: #{comp_user}")
           store_username(comp_user, resp, ip, rport)
         end
 
       rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-        print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
+        print_error("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
         #puts e
         #return
       rescue ::Exception => e
-        print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
+        print_error("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
         #puts e
         #return
       end

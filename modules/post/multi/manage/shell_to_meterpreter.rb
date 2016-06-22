@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/exploit/powershell'
 require 'msf/core/post/windows/powershell'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Exploit::Powershell
   include Post::Windows::Powershell
 
@@ -67,6 +67,10 @@ class Metasploit3 < Msf::Post
       lhost = framework.datastore['LHOST']
     else
       lhost = session.tunnel_local.split(':')[0]
+      if lhost == 'Local Pipe'
+        print_error 'LHOST is "Local Pipe", please manually set the correct IP.'
+        return
+      end
     end
 
     # If nothing else works...

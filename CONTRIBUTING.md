@@ -37,6 +37,7 @@ and Metasploit's [Common Coding Mistakes].
 * **Do** follow the [50/72 rule] for Git commit messages.
 * **Don't** use the default merge messages when merging from other branches.
 * **Do** create a [topic branch] to work on instead of working directly on `master`.
+* **Do** license your code as BSD 3-clause, BSD 2-clause, or MIT.
 
 ### Pull Requests
 
@@ -55,6 +56,10 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
   - It would be even better to set up `msftidy.rb` as a [pre-commit hook].
 * **Do** use the many module mixin [API]s. Wheel improvements are welcome; wheel reinventions, not so much.
 * **Don't** include more than one module per pull request.
+* **Do** include instructions on how to setup the vulnerable environment or software
+* **Do** include [Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Generating-Module-Documentation) showing sample run-throughs
+
+
 
 #### Scripts
 

@@ -57,7 +57,7 @@ module Msf::Post::Common
   #    For example: you can use a python meterpreter on a Windows platform, and you will
   #    get 'python/python' as your arch/platform, and not 'x86/win32'.
   #
-  # @returns [String] The archtecture recognizable by framework's ARCH_TYPES.
+  # @return [String] The archtecture recognizable by framework's ARCH_TYPES.
   def get_target_arch
     arch = nil
 
@@ -338,4 +338,3 @@ module Msf::Post::Common
   end
 
 end
-

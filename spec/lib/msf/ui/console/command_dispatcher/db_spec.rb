@@ -340,6 +340,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "    Amap Log",
           "    Amap Log -m",
           "    Appscan",
+          "    Burp Issue XML",
           "    Burp Session XML",
           "    CI",
           "    Foundstone",

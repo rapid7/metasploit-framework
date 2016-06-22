@@ -33,7 +33,7 @@ module Msf::DBManager::Session
   #     :session host is contained.  Also used as the workspace for the
   #     Mdm::ExploitAttempt and Mdm::Vuln.  Defaults to Mdm::Worksapce with
   #     Mdm::Workspace#name equal to +session.workspace+.
-  #   @return [nil] if {Msf::DBManager#active} is +false+.
+  #   @return [nil] if Msf::DBManager#active is +false+.
   #   @return [Mdm::Session] if session is saved
   #   @raise [ArgumentError] if :session is not an {Msf::Session}.
   #   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
@@ -68,7 +68,7 @@ module Msf::DBManager::Session
   #     exploit that was used to open the session.
   #   @option option [String] :via_payload the {MSf::Module#fullname} of the
   #     payload sent to the host when the exploit was successful.
-  #   @return [nil] if {Msf::DBManager#active} is +false+.
+  #   @return [nil] if Msf::DBManager#active is +false+.
   #   @return [Mdm::Session] if session is saved.
   #   @raise [ArgumentError] if :host is not an Mdm::Host.
   #   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
@@ -103,7 +103,7 @@ module Msf::DBManager::Session
 
   protected
 
-  # @param session [Msf::Session] A session with a {db_record Msf::Session#db_record}
+  # @param session [Msf::Session] A session with a db_record Msf::Session#db_record
   # @param wspace [Mdm::Workspace]
   # @return [void]
   def infer_vuln_from_session(session, wspace)
@@ -172,7 +172,7 @@ module Msf::DBManager::Session
       host = find_or_create_host(h_opts)
       sess_data = {
         datastore: session.exploit_datastore.to_h,
-        desc: truncate_session_desc(session.info),
+        desc: session.info,
         host_id: host.id,
         last_seen: Time.now.utc,
         local_id: session.sid,
@@ -212,7 +212,7 @@ module Msf::DBManager::Session
       sess_data = {
         host_id: host.id,
         stype: opts[:stype],
-        desc: truncate_session_desc(opts[:desc]),
+        desc: opts[:desc],
         platform: opts[:platform],
         via_payload: opts[:via_payload],
         via_exploit: opts[:via_exploit],
@@ -228,18 +228,6 @@ module Msf::DBManager::Session
       s = ::Mdm::Session.create!(sess_data)
       s
     }
-  end
-
-  # Truncate the session data if necessary
-  #
-  # @param desc [String]
-  # @return [String] +desc+ truncated to the max length of the desc column
-  def truncate_session_desc(desc)
-    # Truncate the session data if necessary
-    if desc
-      desc = desc[0, ::Mdm::Session.columns_hash['desc'].limit]
-    end
-    desc
   end
 
 end

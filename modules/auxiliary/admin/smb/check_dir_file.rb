@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -64,11 +64,11 @@ class Metasploit3 < Msf::Auxiliary
       when "STATUS_OBJECT_PATH_NOT_FOUND"
         vprint_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
       when "STATUS_ACCESS_DENIED"
-        vprint_error("Host #{rhost} reports access denied.")
+        vprint_error("Host reports access denied.")
       when "STATUS_BAD_NETWORK_NAME"
-        vprint_error("Host #{rhost} is NOT connected to #{datastore['SMBDomain']}!")
+        vprint_error("Host is NOT connected to #{datastore['SMBDomain']}!")
       when "STATUS_INSUFF_SERVER_RESOURCES"
-        vprint_error("Host #{rhost} rejected with insufficient resources!")
+        vprint_error("Host rejected with insufficient resources!")
       when "STATUS_OBJECT_NAME_INVALID"
         vprint_error("opeining \\#{path} bad filename")
       else
@@ -92,13 +92,13 @@ class Metasploit3 < Msf::Auxiliary
         check_path(path.chomp)
       end #end do
     rescue ::Rex::HostUnreachable
-      vprint_error("Host #{rhost} offline.")
+      vprint_error("Host offline.")
     rescue ::Rex::Proto::SMB::Exceptions::LoginError
-      print_error("Host #{rhost} login error.")
+      print_error("Host login error.")
     rescue ::Rex::ConnectionRefused
-      print_error "Host #{rhost} unable to connect - connection refused"
+      print_error "Unable to connect - connection refused"
     rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
-      print_error "Host #{rhost} unable to connect to share #{datastore['SMBSHARE']}"
+      print_error "Unable to connect to share #{datastore['SMBSHARE']}"
     end # end begin
   end # end def
 end
