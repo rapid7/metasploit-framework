@@ -340,7 +340,8 @@ module Msf
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
-        if encoder.start_with?("@")
+
+        if encoder != nil and encoder.start_with?("@")
           encoded_payload = multiple_encode_payload(raw_payload)
         else
           encoded_payload = encode_payload(raw_payload)
