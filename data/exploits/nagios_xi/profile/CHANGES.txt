@@ -1,0 +1,9 @@
+02-19-2013 1.2
+------------
+- Added New functionality to download LOG files and latest snapshots in a zip for support. - SL
+- Added ps -aef to the log list - SL
+
+
+08-28-2012 1.1
+----------
+- Added XI Version -SW
