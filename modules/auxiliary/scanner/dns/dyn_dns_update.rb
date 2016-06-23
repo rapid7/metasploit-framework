@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
       when action.name == 'ADD'
         # resolve = ::Net::DNS::Resolver.start(datastore['INJECTDOMAIN']).answer.first.address.to_s
         # if resolve == datastore['INJECTIP']
-          print_status("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been added!")
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been added!")
         # else
         #   print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable.")
         # end
@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
       when action.name == 'DEL'
         # resolve = ::Net::DNS::Resolver.start(datastore['INJECTDOMAIN']).answer.first.address.to_s
         # if resolve.nil?
-          print_status("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been deleted!")
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been deleted!")
         # else
         #   print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
         # end
