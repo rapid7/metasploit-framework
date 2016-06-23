@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Encoder
 
     def initialize
         super(
-            'Name'             => 'Register service',
+            'Name'             => 'Register Service',
             'Version'          => '$Revision: 14774 $',
             'Description'      => 'Register service if used with psexec for example',
             'Author'           => 'agix',
