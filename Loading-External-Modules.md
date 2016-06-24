@@ -5,7 +5,7 @@ If you're in the business of writing or collecting Metasploit modules that aren'
 You must first set up a directory structure that fits with Metasploit's expectations of path names. What this typically means is that you should first create an "exploits" directory structure, like so:
 
 ````bash
-mkdir -p $HOME/.msf4/modules/exploit
+mkdir -p $HOME/.msf4/modules/exploits
 ````
 
 If you are using `auxiliary` or `post` modules, or are writing `payloads` you'll want to `mkdir` those as well.
