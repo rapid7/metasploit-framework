@@ -203,18 +203,19 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       accepted = []
+      factory = Rex::Socket::SSHFactory.new(framework,self, datastore['Proxies'])
       opt_hash = {
         :auth_methods => ['publickey'],
         :msframework  => framework,
         :msfmodule    => self,
         :port         => port,
         :key_data     => key_data[:public],
-        :disable_agent     => true,
+        :use_agent     => false,
         :record_auth_info  => true,
         :skip_private_keys => true,
         :config =>false,
         :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
-        :proxies	  => datastore['Proxies']
+        :proxy	  => factory
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

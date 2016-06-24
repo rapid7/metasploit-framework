@@ -68,6 +68,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user, pass, ip)
+    factory = Rex::Socket::SSHFactory.new(framework,self, datastore['Proxies'])
     opts = {
       :auth_methods => ['password'],
       :msframework  => framework,
@@ -75,9 +76,9 @@ class MetasploitModule < Msf::Auxiliary
       :port         => rport,
       :disable_agent => true,
       :config => false,
-      :password => pass,
+      :password         => pass,
       :record_auth_info => true,
-      :proxies => datastore['Proxies']
+      :proxy            => factory
     }
 
     opts.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

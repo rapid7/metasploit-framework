@@ -79,16 +79,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_user(ip, user, port)
     pass = Rex::Text.rand_text_alphanumeric(64_000)
-
+    factory = Rex::Socket::SSHFactory.new(framework,self, datastore['Proxies'])
     opt_hash = {
       :auth_methods  => ['password', 'keyboard-interactive'],
       :msframework   => framework,
       :msfmodule     => self,
       :port          => port,
-      :disable_agent => true,
+      :use_agent     => false,
       :password      => pass,
       :config        => false,
-      :proxies       => datastore['Proxies']
+      :proxy         => factory
     }
 
     opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

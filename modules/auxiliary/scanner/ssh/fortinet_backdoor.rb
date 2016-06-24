@@ -41,9 +41,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    factory = Rex::Socket::SSHFactory.new(framework,self, datastore['Proxies'])
     ssh_opts = {
       port:         rport,
-      auth_methods: ['fortinet-backdoor']
+      auth_methods: ['fortinet-backdoor'],
+      proxy: factory
     }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
