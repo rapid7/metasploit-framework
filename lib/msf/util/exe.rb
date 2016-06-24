@@ -13,7 +13,7 @@ class EXE
 require 'rex'
 require 'rex/peparsey'
 require 'rex/pescan'
-require 'rex/random_identifier_generator'
+require 'rex/random_identifier'
 require 'rex/zip'
 require 'rex/powershell'
 require 'metasm'
@@ -1239,7 +1239,7 @@ require 'msf/core/exe/segment_appender'
                     method: 'reflection')
 
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:sub_auto_open)
     rig.init_var(:var_powershell)
 
@@ -1330,7 +1330,7 @@ require 'msf/core/exe/segment_appender'
 
   def self.to_mem_aspx(framework, code, exeopts = {})
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:var_funcAddr)
     rig.init_var(:var_hThread)
     rig.init_var(:var_pInfo)
@@ -1393,7 +1393,7 @@ require 'msf/core/exe/segment_appender'
                     method: 'reflection')
 
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:var_shell)
     rig.init_var(:var_fso)
 
