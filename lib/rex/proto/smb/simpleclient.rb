@@ -41,8 +41,12 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
       send_lm = true, use_lanman_key = false, send_ntlm = true,
       native_os = 'Windows 2000 2195', native_lm = 'Windows 2000 5.0', spnopt = {})
 
-    begin
+    if RUBY_VERSION < '2.4'
+      require "unicode_utils/upcase"
+      user = UnicodeUtils.upcase(user.force_encoding('UTF-8'))
+    end
 
+    begin
       if (self.direct != true)
         self.client.session_request(name)
       end
