@@ -1,8 +1,6 @@
-We've added the ability to generate documentation for modules on the fly using the ```info -d``` command. 
+You can now generate documentation for modules on the fly using the ```info -d``` command. 
 
-###Why this is valuable
-
-The new module documentation allows you to see the help for a particular module from a web page, instead of from the command line. 
+Module documentation allows you to see the help for a particular module from a web page, instead of from the command line. 
 
 The help page includes:
 
