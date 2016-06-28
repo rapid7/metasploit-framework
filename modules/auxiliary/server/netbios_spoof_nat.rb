@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         of NetBIOS requests.
 
       },
-      'Authors'     => [
+      'Author'     => [
         'vvalien',   # Metasploit Module (post)
         'hdm',       # Metasploit Module
         'tombkeeper' # Vulnerability Discovery
