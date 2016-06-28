@@ -67,6 +67,19 @@ class DataStore < Hash
     super(k.downcase)
   end
 
+  def merge!(h2)
+    h2.each do |key, val|
+      self[key] = val
+    end
+
+    self
+  end
+
+  def merge(h2)
+    other = self.clone
+    other.merge! h2
+  end
+
   # Override Hash's to_h method so we can include the original case of each key
   # (failing to do this breaks a number of places in framework and pro that use
   # serialized datastores)
