@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-
-require 'set'
-
 module Msf
 
 ###
@@ -16,10 +13,9 @@ class DataStore < Hash
   # Initializes the data store's internal state.
   #
   def initialize()
-    @options       = Hash.new
-    @imported      = Hash.new
-    @imported_by   = Hash.new
-    @original_keys = Set.new
+    @options     = Hash.new
+    @imported    = Hash.new
+    @imported_by = Hash.new
   end
 
   #
@@ -27,8 +23,7 @@ class DataStore < Hash
   # directly.
   #
   def []=(k, v)
-    add_key(k)
-    k = k.downcase
+    k = find_key_case(k)
     @imported[k] = false
     @imported_by[k] = nil
 
@@ -49,32 +44,31 @@ class DataStore < Hash
   # Case-insensitive wrapper around hash lookup
   #
   def [](k)
-    super(k.downcase)
+    super(find_key_case(k))
   end
 
   #
   # Case-insensitive wrapper around store
   #
   def store(k,v)
-    add_key(k)
-    super(k.downcase, v)
+    super(find_key_case(k), v)
   end
 
   #
   # Case-insensitive wrapper around delete
   #
   def delete(k)
-    super(k.downcase)
+    super(find_key_case(k))
   end
 
-  # Override Hash's to_h method so we can include the original case of each key
-  # (failing to do this breaks a number of places in framework and pro that use
-  # serialized datastores)
-  def to_h
-    @original_keys.reduce({}) do |acc, key|
-      acc[key] = self[key]
-      acc
-    end
+
+  #
+  # Updates a value in the datastore with the specified name, k, to the
+  # specified value, v.  This update does not alter the imported status of
+  # the value.
+  #
+  def update_value(k, v)
+    self.store(k, v)
   end
 
   #
@@ -134,16 +128,15 @@ class DataStore < Hash
   # Imports options from a hash and stores them in the datastore.
   #
   def import_options_from_hash(option_hash, imported = true, imported_by = nil)
-    option_hash.each_pair do |key, val|
+    option_hash.each_pair { |key, val|
       import_option(key, val, imported, imported_by)
-    end
+    }
   end
 
   def import_option(key, val, imported=true, imported_by=nil, option=nil)
     self.store(key, val)
 
-    key = key.downcase
-    @options[key]     = option
+    @options[key] = option
     @imported[key]    = imported
     @imported_by[key] = imported_by
   end
@@ -152,9 +145,21 @@ class DataStore < Hash
   # Serializes the options in the datastore to a string.
   #
   def to_s(delim = ' ')
-    @original_keys.reduce('') do |acc, key|
-      acc << "#{key}=#{self[key]}#{delim}"
+    str = ''
+
+    keys.sort.each { |key|
+      str << "#{key}=#{self[key]}" + ((str.length) ? delim : '')
+    }
+
+    return str
+  end
+
+  def to_h
+    datastore_hash = {}
+    self.keys.each do |k|
+      datastore_hash[k.to_s] = self[k].to_s
     end
+    datastore_hash
   end
 
   #
@@ -194,10 +199,9 @@ class DataStore < Hash
   # not include default option values.
   #
   def user_defined
-    @original_keys.reduce({}) do |acc, k|
-      acc[k] = self[k] unless @imported[k.downcase]
-      acc
-    end
+    reject { |k, v|
+      @imported[k] == true
+    }
   end
 
   #
@@ -218,26 +222,40 @@ class DataStore < Hash
   # Completely clear all values in the hash
   #
   def clear
-    @options.clear
-    @imported.clear
-    @imported_by.clear
-    @original_keys.clear
-    super
+    self.keys.each {|k| self.delete(k) }
+    self
   end
 
-  # Yield the original-cased key
+  #
+  # Overrides the builtin 'each' operator to avoid the following exception on Ruby 1.9.2+
+  #    "can't add a new key into hash during iteration"
+  #
   def each(&block)
-    @original_keys.each do |key|
-      block.call(key, self[key])
+    list = []
+    self.keys.sort.each do |sidx|
+      list << [sidx, self[sidx]]
     end
+    list.each(&block)
   end
 
-  protected
+protected
 
-  # Keep track of the original, case-sensitive key
-  def add_key(k)
-    @original_keys.add(k) unless include? k.downcase
+  #
+  # Case-insensitive key lookup
+  #
+  def find_key_case(k)
+
+    # Scan each key looking for a match
+    self.each_key do |rk|
+      if (rk.downcase == k.downcase)
+        return rk
+      end
+    end
+
+    # Fall through to the non-existent value
+    return k
   end
+
 end
 
 ###
@@ -260,7 +278,7 @@ class ModuleDataStore < DataStore
   # if we can't directly find it
   #
   def fetch(key)
-    key = key.downcase
+    key = find_key_case(key)
     val = nil
     val = super if(@imported_by[key] != 'self')
     if (val.nil? and @_module and @_module.framework)
@@ -274,7 +292,7 @@ class ModuleDataStore < DataStore
   # Same as fetch
   #
   def [](key)
-    key = key.downcase
+    key = find_key_case(key)
     val = nil
     val = super if(@imported_by[key] != 'self')
     if (val.nil? and @_module and @_module.framework)
@@ -297,10 +315,11 @@ class ModuleDataStore < DataStore
   def copy
     clone = self.class.new(@_module)
     self.keys.each do |k|
-      clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k.downcase], @imported_by[k.downcase])
+      clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
     end
     clone
   end
 end
 
 end
+

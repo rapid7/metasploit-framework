@@ -75,6 +75,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
   spec.add_runtime_dependency 'network_interface'
+  # NTLM authentication
+  spec.add_runtime_dependency 'rubyntlm'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
@@ -110,12 +112,13 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-zip'
   # Library for parsing offline Windows Registry files
   spec.add_runtime_dependency 'rex-registry'
+  # Library for parsing Java serialized streams
+  spec.add_runtime_dependency 'rex-java'
 
   #
   # Protocol Libraries
   #
   spec.add_runtime_dependency 'net-ssh'
-
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
