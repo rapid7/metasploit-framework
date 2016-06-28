@@ -9,6 +9,7 @@ require 'net/ssh'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH
 
   def initialize(info={})
     super(update_info(info,
@@ -68,11 +69,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user, pass, ip)
-    factory = Rex::Socket::SSHFactory.new(framework,self, datastore['Proxies'])
+    factory = ssh_socket_factory
     opts = {
       :auth_methods => ['password'],
-      :msframework  => framework,
-      :msfmodule    => self,
       :port         => rport,
       :disable_agent => true,
       :config => false,

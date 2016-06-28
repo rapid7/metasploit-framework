@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH
 
   def initialize
     super(
@@ -203,11 +204,9 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       accepted = []
-      factory = Rex::Socket::SSHFactory.new(framework,self, datastore['Proxies'])
+      factory = ssh_socket_factory
       opt_hash = {
         :auth_methods => ['publickey'],
-        :msframework  => framework,
-        :msfmodule    => self,
         :port         => port,
         :key_data     => key_data[:public],
         :use_agent     => false,

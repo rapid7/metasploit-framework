@@ -8,7 +8,7 @@ module Rex
 
       # @!attribute msfraemwork
       #   @return [Object] The framework instance object
-      attr_accessor :msframework
+      attr_accessor :framework
       # @!attribute msfmodule
       #   @return [Object] The metasploit module this socket belongs to
       attr_accessor :msfmodule
@@ -17,7 +17,7 @@ module Rex
       attr_accessor :proxies
 
       def initialize(framework, msfmodule, proxies)
-        @msframework = framework
+        @framework = framework
         @msfmodule   = msfmodule
         @proxies     = proxies
       end
@@ -34,7 +34,7 @@ module Rex
           'PeerPort' => port,
           'Proxies' => proxies,
           'Context'  => {
-            'Msf'          => msframework,
+            'Msf'          => framework,
             'MsfExploit'   => msfmodule
           }
         )
