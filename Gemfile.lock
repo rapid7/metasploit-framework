@@ -6,6 +6,7 @@ PATH
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
       bcrypt
+      bit-struct
       filesize
       jsobfu
       json
@@ -82,6 +83,7 @@ GEM
       rspec-expectations (>= 2.99)
       thor (~> 0.19)
     bcrypt (3.1.11)
+    bit-struct (0.15.0)
     builder (3.2.2)
     capybara (2.7.1)
       addressable
