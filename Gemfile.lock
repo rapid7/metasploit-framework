@@ -34,6 +34,7 @@ PATH
       rex-text
       rex-zip
       robots
+      rubyntlm
       rubyzip
       sqlite3
       tzinfo
