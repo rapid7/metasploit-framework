@@ -98,6 +98,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'patch_finder'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
+  # Needed for fix upcase functionality in unicode strings for ruby < 2.4
+  spec.add_runtime_dependency 'unicode_utils'
 
   #
   # REX Libraries
@@ -112,7 +114,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-zip'
   # Library for parsing offline Windows Registry files
   spec.add_runtime_dependency 'rex-registry'
-  
+
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
   unless Gem.win_platform?
