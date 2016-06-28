@@ -28,6 +28,7 @@ PATH
       rb-readline-r7
       recog
       redcarpet
+      rex-java
       rex-powershell
       rex-random_identifier
       rex-registry
@@ -135,7 +136,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-credential (2.0.2)
+    metasploit-credential (2.0.3)
       metasploit-concern
       metasploit-model
       metasploit_data_models
@@ -210,6 +211,7 @@ GEM
     recog (2.0.21)
       nokogiri
     redcarpet (3.3.4)
+    rex-java (0.1.2)
     rex-powershell (0.1.0)
       rex-random_identifier
       rex-text
