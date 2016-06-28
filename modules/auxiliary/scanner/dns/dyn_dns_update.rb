@@ -138,16 +138,16 @@ class MetasploitModule < Msf::Auxiliary
 
     case
       when action.name == 'ADD'
-        resolved = client.query('sub.test.local').answer
+        resolved = client.query(datastore['INJECTDOMAIN']).answer
         if resolved.any? {|ans| ans.first.address.to_s == datastore['INJECTIP']}
-          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
+          print_good("The record #{datastore['INJECTDOMAIN']}. has been added!")
         else
           print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable.")
         end
 
       when action.name == 'DEL'
         if resolved.any? {|ans| ans.first.address.to_s == datastore['INJECTIP']}
-          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
+          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is note vulnerable or domain doesn't exist.")
         else
           print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been deleted!")
         end
