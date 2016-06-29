@@ -208,7 +208,7 @@ class MetasploitModule < Msf::Encoder
 
         decode = decodeHead+moveip[0]+loopCode+jnz
 
-        encode = xorString(block,key)
+        encode = xor_string(block,key)
 
         return decode + encode
     end
