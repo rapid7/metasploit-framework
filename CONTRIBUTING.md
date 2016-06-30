@@ -45,6 +45,7 @@ and Metasploit's [Common Coding Mistakes].
 * **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output], especially for witnessable effects in `msfconsole`.
 * **Do** list [verification steps] so your code is testable.
+* **Do** [reference associated issues] in your pull request description
 * **Don't** leave your pull request description blank.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
 
@@ -106,6 +107,7 @@ already way ahead of the curve, so keep it up!
 [topic branch]:http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches
 [console output]:https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
 [verification steps]:https://help.github.com/articles/writing-on-github#task-lists
+[reference associated issues]:https://github.com/blog/1506-closing-issues-via-pull-requests
 [PR#2940]:https://github.com/rapid7/metasploit-framework/pull/2940
 [PR#3043]:https://github.com/rapid7/metasploit-framework/pull/3043
 [pre-commit hook]:https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb
