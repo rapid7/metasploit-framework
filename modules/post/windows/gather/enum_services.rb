@@ -26,8 +26,8 @@ class MetasploitModule < Msf::Post
         },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
-      'Author'               => ['Keith Faber', 'Kx499']
+      'SessionTypes'         => ['meterpreter','powershell'],
+      'Author'               => ['Keith Faber', 'Kx499', 'benpturner[at]yahoo.com']
     ))
     register_options(
       [
@@ -39,6 +39,13 @@ class MetasploitModule < Msf::Post
 
 
   def run
+    # Define the results table
+    results_table = Rex::Ui::Text::Table.new(
+          'Header'     => 'Services',
+          'Indent'     => 1,
+          'SortIndex'  => 0,
+          'Columns'    => ['Name', 'Credentials', 'Command', 'Startup']
+    )
 
     # set vars
     credentialCount = {}
@@ -64,13 +71,6 @@ class MetasploitModule < Msf::Post
     if qtype
       print_status("Start Type Filter: #{qtype}")
     end
-
-    results_table = Rex::Ui::Text::Table.new(
-        'Header'     => 'Services',
-        'Indent'     => 1,
-        'SortIndex'  => 0,
-        'Columns'    => ['Name', 'Credentials', 'Command', 'Startup']
-    )
 
     print_status("Listing Service Info for matching services, please wait...")
     service_list.each do |srv|
