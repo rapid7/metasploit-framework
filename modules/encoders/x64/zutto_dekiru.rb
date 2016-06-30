@@ -158,12 +158,6 @@ class MetasploitModule < Msf::Encoder::Xor
             regType=0
         end
 
-        # if regType == 3
-        #     while (allowedReg[3][0]=="esi" || allowedReg[3][0]=="edi" || allowedReg[3][0]=="ebp")
-        #         allowedReg.insert(0,allowedReg.delete(allowedReg[3]))
-        #     end
-        # end
-
         regKey  = allowedReg[0][0]
         regSize = allowedReg[3]
         regRip  = allowedReg[1][0]
@@ -220,17 +214,18 @@ class MetasploitModule < Msf::Encoder::Xor
         getrip.times { |i| decodeHeadSize-=decodeHeadTab[i][1].length }
 
         loopCode =  assemble("dec "+regSize[0])
-        loopCode += assemble("xor ["+regRip+"+"+regSize[0]+"*8], "+regKey)
+        loopCode += assemble("xor ["+regRip+"+("+regSize[0]+"*8) + 0x7f], "+regKey)
         loopCode += assemble("test "+regSize[0]+", "+regSize[0])
+
+        payloadOffset = decodeHeadSize+loopCode.length+2
+
+        loopCode =  assemble("dec "+regSize[0])
+        loopCode += assemble("xor ["+regRip+"+("+regSize[0]+"*8) + 0x"+payloadOffset.to_s(16)+"], "+regKey)
+        loopCode += assemble("test "+regSize[0]+", "+regSize[0])
+
         jnz = "\x75"+(0x100-(loopCode.length+2)).chr
 
-        moveip = []
-        moveip << assemble("lea "+regRip+", ["+regRip+"+0x"+(decodeHeadSize+loopCode.length+3+3).to_s(16)+"]")
-        moveip << assemble("add "+regRip+", 0x"+(decodeHeadSize+loopCode.length+3+3).to_s(16))
-
-        moveip.shuffle!
-
-        decode = decodeHead+moveip[0]+loopCode+jnz
+        decode = decodeHead+loopCode+jnz
         encode = xor_string(block, [state.key].pack('Q'))
 
         return decode + encode
