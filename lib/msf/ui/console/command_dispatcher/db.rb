@@ -1360,6 +1360,8 @@ class Db
           addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
         end
+      else
+        csv_note << ''
       end
       if (note.service)
         msg << " service=#{note.service.name}" if note.service.name
