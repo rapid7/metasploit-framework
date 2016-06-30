@@ -125,7 +125,7 @@ class Export
     @owned_hosts = []
     @hosts = myworkspace.hosts
     @hosts.each do |host|
-      if host.notes.where(:ntype => 'pro.system.compromise').first
+      if host.notes.where(ntype: 'pro.system.compromise').first
         @owned_hosts << host
       end
     end
