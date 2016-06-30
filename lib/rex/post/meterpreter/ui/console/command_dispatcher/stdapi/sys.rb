@@ -21,119 +21,134 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options used by the 'execute' command.
   #
   @@execute_opts = Rex::Parser::Arguments.new(
-    "-a" => [ true,  "The arguments to pass to the command."		   ],
-    "-c" => [ false, "Channelized I/O (required for interaction)."		   ],
-    "-f" => [ true,  "The executable command to run."			   ],
-    "-h" => [ false, "Help menu."						   ],
-    "-H" => [ false, "Create the process hidden from view."			   ],
-    "-i" => [ false, "Interact with the process after creating it."		   ],
-    "-m" => [ false, "Execute from memory."					   ],
-    "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
-    "-t" => [ false, "Execute process with currently impersonated thread token"],
-    "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
-    "-s" => [ true,  "Execute process in a given session as the session user"  ])
+    '-a' => [ true,  'The arguments to pass to the command.'                   ],
+    '-c' => [ false, 'Channelized I/O (required for interaction).'             ],
+    '-f' => [ true,  'The executable command to run.'                          ],
+    '-h' => [ false, 'Help menu.'                                              ],
+    '-H' => [ false, 'Create the process hidden from view.'                    ],
+    '-i' => [ false, 'Interact with the process after creating it.'            ],
+    '-m' => [ false, 'Execute from memory.'                                    ],
+    '-d' => [ true,  'The "dummy" executable to launch when using -m.'         ],
+    '-t' => [ false, 'Execute process with currently impersonated thread token'],
+    '-k' => [ false, 'Execute process on the meterpreters current desktop'     ],
+    '-s' => [ true,  'Execute process in a given session as the session user'  ]
+  )
 
   #
   # Options used by the 'reboot' command.
   #
   @@reboot_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."						   ],
-    "-f" => [ true,  "Force a reboot, valid values [1|2]"			   ])
+    '-h' => [ false, 'Help menu.'                        ],
+    '-f' => [ true,  'Force a reboot, valid values [1|2]']
+  )
 
   #
   # Options used by the 'shutdown' command.
   #
   @@shutdown_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."						   ],
-    "-f" => [ true,  "Force a shutdown, valid values [1|2]"			   ])
+    '-h' => [ false, 'Help menu.'                          ],
+    '-f' => [ true,  'Force a shutdown, valid values [1|2]']
+  )
 
   #
   # Options used by the 'reg' command.
   #
   @@reg_opts = Rex::Parser::Arguments.new(
-    "-d" => [ true,  "The data to store in the registry value."		   ],
-    "-h" => [ false, "Help menu."						   ],
-    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)."	   ],
-    "-t" => [ true,  "The registry value type (E.g. REG_SZ)."		   ],
-    "-v" => [ true,  "The registry value name (E.g. Stuff)."		   ],
-    "-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
-    "-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."		   ])
+    '-d' => [ true,  'The data to store in the registry value.'         ],
+    '-h' => [ false, 'Help menu.'                                       ],
+    '-k' => [ true,  'The registry key path (E.g. HKLM\\Software\\Foo).'],
+    '-t' => [ true,  'The registry value type (E.g. REG_SZ).'           ],
+    '-v' => [ true,  'The registry value name (E.g. Stuff).'            ],
+    '-r' => [ true,  'The remote machine name to connect to (with current ' +
+                      'process credentials'                             ],
+    '-w' => [ false, 'Set KEY_WOW64 flag, valid values [32|64].'        ]
+  )
 
   #
   # Options for the 'ps' command.
   #
   @@ps_opts = Rex::Parser::Arguments.new(
-    "-S" => [ true,  "String to search for (converts to regex)"                ],
-    "-h" => [ false, "Help menu."                                              ],
-    "-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"	   ],
-    "-s" => [ false, "Show only SYSTEM processes"				   ],
-    "-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
+    '-S' => [ true,  'String to search for (converts to regex)'              ],
+    '-h' => [ false, 'Help menu.'                                            ],
+    '-A' => [ true,  'Filters processes on architecture (x86 or x86_64)'     ],
+    '-s' => [ false, 'Show only SYSTEM processes'                            ],
+    '-U' => [ true,  'Filters processes on the user using the supplied RegEx']
+  )
 
   #
   # Options for the 'suspend' command.
   #
   @@suspend_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."						   ],
-    "-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
-    "-r" => [ false, "Resumes the target processes instead of suspending"	   ])
+    '-h' => [ false, 'Help menu.'                                              ],
+    '-c' => [ false, 'Continues suspending or resuming even if an error occurs'],
+    '-r' => [ false, 'Resumes the target processes instead of suspending'      ]
+  )
+
+  #
+  # Options for the 'kill' command.
+  #
+  @@kill_opts = Rex::Parser::Arguments.new(
+    '-h' => [ false, 'Help menu.'                                        ],
+    '-s' => [ false, 'Kills the pid associated with the current session.']
+  )
 
   #
   # List of supported commands.
   #
   def commands
     all = {
-      "clearev"     => "Clear the event log",
-      "drop_token"  => "Relinquishes any active impersonation token.",
-      "execute"     => "Execute a command",
-      "getpid"      => "Get the current process identifier",
-      "getprivs"    => "Attempt to enable all privileges available to the current process",
-      "getuid"      => "Get the user that the server is running as",
-      "getsid"      => "Get the SID of the user that the server is running as",
-      "getenv"      => "Get one or more environment variable values",
-      "kill"        => "Terminate a process",
-      "ps"          => "List running processes",
-      "reboot"      => "Reboots the remote computer",
-      "reg"	      => "Modify and interact with the remote registry",
-      "rev2self"    => "Calls RevertToSelf() on the remote machine",
-      "shell"       => "Drop into a system command shell",
-      "shutdown"    => "Shuts down the remote computer",
-      "steal_token" => "Attempts to steal an impersonation token from the target process",
-      "suspend"     => "Suspends or resumes a list of processes",
-      "sysinfo"     => "Gets information about the remote system, such as OS",
+      'clearev'     => 'Clear the event log',
+      'drop_token'  => 'Relinquishes any active impersonation token.',
+      'execute'     => 'Execute a command',
+      'getpid'      => 'Get the current process identifier',
+      'getprivs'    => 'Attempt to enable all privileges available to the current process',
+      'getuid'      => 'Get the user that the server is running as',
+      'getsid'      => 'Get the SID of the user that the server is running as',
+      'getenv'      => 'Get one or more environment variable values',
+      'kill'        => 'Terminate a process',
+      'ps'          => 'List running processes',
+      'reboot'      => 'Reboots the remote computer',
+      'reg'         => 'Modify and interact with the remote registry',
+      'rev2self'    => 'Calls RevertToSelf() on the remote machine',
+      'shell'       => 'Drop into a system command shell',
+      'shutdown'    => 'Shuts down the remote computer',
+      'steal_token' => 'Attempts to steal an impersonation token from the target process',
+      'suspend'     => 'Suspends or resumes a list of processes',
+      'sysinfo'     => 'Gets information about the remote system, such as OS',
     }
     reqs = {
-      "clearev"     => [ "stdapi_sys_eventlog_open", "stdapi_sys_eventlog_clear" ],
-      "drop_token"  => [ "stdapi_sys_config_drop_token" ],
-      "execute"     => [ "stdapi_sys_process_execute" ],
-      "getpid"      => [ "stdapi_sys_process_getpid"	],
-      "getprivs"    => [ "stdapi_sys_config_getprivs" ],
-      "getuid"      => [ "stdapi_sys_config_getuid" ],
-      "getsid"      => [ "stdapi_sys_config_getsid" ],
-      "getenv"      => [ "stdapi_sys_config_getenv" ],
-      "kill"        => [ "stdapi_sys_process_kill" ],
-      "ps"          => [ "stdapi_sys_process_get_processes" ],
-      "reboot"      => [ "stdapi_sys_power_exitwindows" ],
-      "reg"	      => [
-        "stdapi_registry_load_key",
-        "stdapi_registry_unload_key",
-        "stdapi_registry_open_key",
-        "stdapi_registry_open_remote_key",
-        "stdapi_registry_create_key",
-        "stdapi_registry_delete_key",
-        "stdapi_registry_close_key",
-        "stdapi_registry_enum_key",
-        "stdapi_registry_set_value",
-        "stdapi_registry_query_value",
-        "stdapi_registry_delete_value",
-        "stdapi_registry_query_class",
-        "stdapi_registry_enum_value",
+      'clearev'     => [ 'stdapi_sys_eventlog_open', 'stdapi_sys_eventlog_clear' ],
+      'drop_token'  => [ 'stdapi_sys_config_drop_token' ],
+      'execute'     => [ 'stdapi_sys_process_execute' ],
+      'getpid'      => [ 'stdapi_sys_process_getpid'	],
+      'getprivs'    => [ 'stdapi_sys_config_getprivs' ],
+      'getuid'      => [ 'stdapi_sys_config_getuid' ],
+      'getsid'      => [ 'stdapi_sys_config_getsid' ],
+      'getenv'      => [ 'stdapi_sys_config_getenv' ],
+      'kill'        => [ 'stdapi_sys_process_kill' ],
+      'ps'          => [ 'stdapi_sys_process_get_processes' ],
+      'reboot'      => [ 'stdapi_sys_power_exitwindows' ],
+      'reg'	      => [
+        'stdapi_registry_load_key',
+        'stdapi_registry_unload_key',
+        'stdapi_registry_open_key',
+        'stdapi_registry_open_remote_key',
+        'stdapi_registry_create_key',
+        'stdapi_registry_delete_key',
+        'stdapi_registry_close_key',
+        'stdapi_registry_enum_key',
+        'stdapi_registry_set_value',
+        'stdapi_registry_query_value',
+        'stdapi_registry_delete_value',
+        'stdapi_registry_query_class',
+        'stdapi_registry_enum_value',
       ],
-      "rev2self"    => [ "stdapi_sys_config_rev2self" ],
-      "shell"       => [ "stdapi_sys_process_execute" ],
-      "shutdown"    => [ "stdapi_sys_power_exitwindows" ],
-      "steal_token" => [ "stdapi_sys_config_steal_token" ],
-      "suspend"     => [ "stdapi_sys_process_attach"],
-      "sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
+      'rev2self'    => [ 'stdapi_sys_config_rev2self' ],
+      'shell'       => [ 'stdapi_sys_process_execute' ],
+      'shutdown'    => [ 'stdapi_sys_power_exitwindows' ],
+      'steal_token' => [ 'stdapi_sys_config_steal_token' ],
+      'suspend'     => [ 'stdapi_sys_process_attach'],
+      'sysinfo'     => [ 'stdapi_sys_config_sysinfo' ],
     }
 
     all.delete_if do |cmd, desc|
@@ -154,16 +169,17 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Name for this dispatcher.
   #
   def name
-    "Stdapi: System"
+    'Stdapi: System'
   end
 
   #
-  # Executes a command with some options.
+  # Executes a system command with some options.
   #
+  #
+  # @param args [Array<String>] Command options, -h etc.
+  # @return [void]
   def cmd_execute(*args)
-    if (args.length == 0)
-      args.unshift("-h")
-    end
+    args.unshift('-h') if args.length == 0
 
     session     = nil
     interact    = false
@@ -171,66 +187,73 @@ class Console::CommandDispatcher::Stdapi::Sys
     channelized = nil
     hidden	    = nil
     from_mem    = false
-    dummy_exec  = "cmd"
+    dummy_exec  = 'cmd'
     cmd_args    = nil
     cmd_exec    = nil
     use_thread_token = false
 
-    @@execute_opts.parse(args) { |opt, idx, val|
+    @@execute_opts.parse(args) do |opt, idx, val|
       case opt
-        when "-a"
-          cmd_args = val
-        when "-c"
-          channelized = true
-        when "-f"
-          cmd_exec = val
-        when "-H"
-          hidden = true
-        when "-m"
-          from_mem = true
-        when "-d"
-          dummy_exec = val
-        when "-k"
-          desktop = true
-        when "-h"
-          print(
-            "Usage: execute -f file [options]\n\n" +
-            "Executes a command on the remote machine.\n" +
-            @@execute_opts.usage)
-          return true
-        when "-i"
-          channelized = true
-          interact = true
-        when "-t"
-          use_thread_token = true
-        when "-s"
-          session = val.to_i
+      when '-a'
+        cmd_args = val
+      when '-c'
+        channelized = true
+      when '-f'
+        cmd_exec = val
+      when '-H'
+        hidden = true
+      when '-m'
+        from_mem = true
+      when '-d'
+        dummy_exec = val
+      when '-k'
+        desktop = true
+      when '-h'
+        return cmd_execute_help
+      when '-i'
+        channelized = true
+        interact = true
+      when '-t'
+        use_thread_token = true
+      when '-s'
+        session = val.to_i
       end
-    }
-
-    # Did we at least get an executable?
-    if (cmd_exec == nil)
-      print_error("You must specify an executable file with -f")
-      return true
     end
 
-    # Execute it
-    p = client.sys.process.execute(cmd_exec, cmd_args,
-      'Channelized' => channelized,
-      'Desktop'     => desktop,
-      'Session'     => session,
-      'Hidden'      => hidden,
-      'InMemory'    => (from_mem) ? dummy_exec : nil,
-      'UseThreadToken' => use_thread_token)
+    # Did we at least get an executable?
+    if cmd_exec
+      # Execute it
+      p = client.sys.process.execute(cmd_exec, cmd_args,
+        'Channelized' => channelized,
+        'Desktop'     => desktop,
+        'Session'     => session,
+        'Hidden'      => hidden,
+        'InMemory'    => (from_mem) ? dummy_exec : nil,
+        'UseThreadToken' => use_thread_token)
 
-    print_line("Process #{p.pid} created.")
-    print_line("Channel #{p.channel.cid} created.") if (p.channel)
+      print_line("Process #{p.pid} created.")
+      print_line("Channel #{p.channel.cid} created.") if (p.channel)
 
-    if (interact and p.channel)
-      shell.interact_with_channel(p.channel)
+      if interact && p.channel
+        shell.interact_with_channel(p.channel)
+      end
+      COMMAND_SUCCESS
+    else
+      print_error('You must specify an executable file with -f')
+      cmd_execute_help
+      COMMAND_FAILURE
     end
   end
 
+  def cmd_execute_help
+    print(%Q(
+Usage: execute -f file [options]
+
+Executes a command on the remote machine.
+#{@@execute_opts.usage})
+    )
+    COMMAND_SUCCESS
+  end
 
   #
   # Drop into a system shell as specified by %COMSPEC% or
@@ -238,28 +261,28 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_shell(*args)
     case client.platform
     when /win/
-      path = client.fs.file.expand_path("%COMSPEC%")
-      path = (path and not path.empty?) ? path : "cmd.exe"
+      path = client.fs.file.expand_path('%COMSPEC%')
+      path = path && !path.empty? ? path : 'cmd.exe'
 
       # attempt the shell with thread impersonation
       begin
-        cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+        return cmd_execute('-f', path, '-c', '-H', '-i', '-t')
       rescue
         # if this fails, then we attempt without impersonation
-        print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
-        cmd_execute("-f", path, "-c", "-H", "-i")
+        print_error( 'Failed to spawn shell with thread impersonation. Retrying without it.' )
+        return cmd_execute('-f', path, '-c', '-H', '-i')
       end
     when /linux/
       # Don't expand_path() this because it's literal anyway
-      path = "/bin/sh"
-      cmd_execute("-f", path, "-c", "-i")
+      path = '/bin/sh'
+      return cmd_execute('-f', path, '-c', '-i')
     else
       # Then this is a multi-platform meterpreter (php or java), which
       # must special-case COMSPEC to return the system-specific shell.
-      path = client.fs.file.expand_path("%COMSPEC%")
+      path = client.fs.file.expand_path('%COMSPEC%')
       # If that failed for whatever reason, guess it's unix
-      path = (path and not path.empty?) ? path : "/bin/sh"
-      cmd_execute("-f", path, "-c", "-i")
+      path = path && !path.empty? ? path : '/bin/sh'
+      return cmd_execute('-f', path, '-c', '-i')
     end
   end
 
@@ -269,50 +292,109 @@ class Console::CommandDispatcher::Stdapi::Sys
   # machine.
   #
   def cmd_getpid(*args)
-    print_line("Current pid: #{client.sys.process.getpid}")
+    if args.length > 0
+      cmd_getpid_help
+    else
+      print_line("Current pid: #{client.sys.process.getpid}")
+      true
+    end
+  end
 
-    return true
+  def cmd_getpid_help
+    print(%Q(
+Usage: getpid
+
+Get the process ID under which meterpreter is running on the remote machine.
+
+)
+    )
+    COMMAND_SUCCESS
   end
 
   #
   # Displays the user that the server is running as.
   #
   def cmd_getuid(*args)
-    print_line("Server username: #{client.sys.config.getuid}")
+    if args.length > 0
+      cmd_getuid_help
+    else
+      print_line("Server username: #{client.sys.config.getuid}")
+    end
+  end
+
+  def cmd_getuid_help
+    print(%Q(
+Usage: getuid
+
+Get the user under which meterpreter is running on the remote machine.
+
+)
+    )
+    COMMAND_SUCCESS
   end
 
   #
   # Display the SID of the user that the server is running as.
   #
   def cmd_getsid(*args)
-    print_line("Server SID: #{client.sys.config.getsid}")
+    if args.length > 0
+      cmd_getsid_help
+    else
+      print_line("Server SID: #{client.sys.config.getsid}")
+    end
+  end
+
+  def cmd_getsid_help
+    print(%Q(
+Usage: getsid
+
+Get the security ID under which meterpreter is running on the remote machine.
+
+)
+    )
+    COMMAND_SUCCESS
   end
 
   #
-  # Get the value of one or more environment variables from the target.
+  # Get the value of one or more environment variables fr0om the target.
   #
   def cmd_getenv(*args)
-    vars = client.sys.config.getenvs(*args)
-
-    if vars.length == 0
-      print_error("None of the specified environment variables were found/set.")
+    if args.length == 0
+      print_error 'You must provide env vars to lookup, or -h'
+      cmd_getenv_help
+      COMMAND_FAILURE
+    elsif args.include?('-h')
+      cmd_getenv_help
     else
-      table = Rex::Ui::Text::Table.new(
-        'Header'    => 'Environment Variables',
-        'Indent'    => 0,
-        'SortIndex' => 1,
-        'Columns'   => [
-          'Variable', 'Value'
-        ]
-      )
+      vars = client.sys.config.getenvs(*args)
 
-      vars.each do |var, val|
-        table << [ var, val ]
+      if vars.length == 0
+        print_error('None of the specified environment variables were found/set.')
+        COMMAND_FAILURE
+      else
+        table = Rex::Ui::Text::Table.new(
+          'Header'    => 'Environment Variables',
+          'Indent'    => 0,
+          'SortIndex' => 1,
+          'Columns'   => [
+            'Variable', 'Value'
+          ]
+        )
+        vars.each { |var, val| table << [var, val] }
+        print_line
+        print_line(table.to_s)
+        COMMAND_SUCCESS
       end
-
-      print_line
-      print_line(table.to_s)
     end
+  end
+
+  def cmd_getenv_help
+    print(%Q(
+Usage: getenv varname [varname2] ...
+
+)
+    )
+    COMMAND_SUCCESS
   end
 
   #
@@ -320,56 +402,65 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_clearev(*args)
 
-    logs = ['Application', 'System', 'Security']
+    logs = %w(Application, System, Security)
     logs << args
     logs.flatten!
 
+    # @TODO: this probably needs a flag to indicate if any one clear failed
     logs.each do |name|
       log = client.sys.eventlog.open(name)
       print_status("Wiping #{log.length} records from #{name}...")
       log.clear
     end
+    COMMAND_SUCCESS
   end
 
   #
   # Kills one or more processes.
   #
   def cmd_kill(*args)
-    # give'em help if they want it, or seem confused
-    if ( args.length == 0 or (args.length == 1 and args[0].strip == "-h") )
+    # give'em help if they ask for it, or seem confused
+    if args.length == 0
+      print_error 'You must provide at least 1 argument'
       cmd_kill_help
-      return true
-    end
-
-    self_destruct = args.include?("-s")
-
-    if self_destruct
-      valid_pids = [client.sys.process.getpid.to_i]
+      COMMAND_FAILURE
+    elsif args.include?('-h')
+      cmd_kill_help
     else
-      valid_pids = validate_pids(args)
+      self_destruct = args.include?('-s')
 
-      # validate all the proposed pids first so we can bail if one is bogus
-      args.uniq!
-      diff = args - valid_pids.map {|e| e.to_s}
-      if not diff.empty? # then we had an invalid pid
-        print_error("The following pids are not valid:  #{diff.join(", ").to_s}.  Quitting")
-        return false
+      if self_destruct
+        valid_pids = [client.sys.process.getpid.to_i]
+      else
+        valid_pids = validate_pids(args)
+
+        # validate all the proposed pids first so we can bail if one is bogus
+        args.uniq!
+        diff = args - valid_pids.map { |e| e.to_s }
+        unless diff.empty? # then we had an invalid pid
+          print_error("The following pids are not valid:  #{diff.join(", ").to_s}.  Quitting")
+          return COMMAND_FAILURE
+        end
       end
-    end
 
-    # kill kill kill
-    print_line("Killing: #{valid_pids.join(", ").to_s}")
-    client.sys.process.kill(*(valid_pids.map { |x| x }))
-    return true
+      # kill kill kill
+      print_line("Killing: #{valid_pids.join(", ").to_s}")
+      client.sys.process.kill(*(valid_pids.map { |x| x }))
+    end
+    COMMAND_SUCCESS
   end
 
   #
   # help for the kill command
   #
   def cmd_kill_help
-    print_line("Usage: kill [pid1 [pid2 [pid3 ...]]] [-s]")
-    print_line("Terminate one or more processes.")
-    print_line(" -s : Kills the pid associated with the current session.")
+    print(%Q(
+Usage: kill [pid1 [pid2 [pid3 ...]]] [-s]
+
+Terminate one or more processes.
+#{@@kill_opts.usage})
+    )
+    COMMAND_SUCCESS
   end
 
   #
@@ -383,39 +474,39 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   # @param pids [Array<String>] The pids to validate
   # @param allow_pid_0 [Boolean] whether to consider a pid of 0 as valid
-  # @param allow_session_pid [Boolean] whether to consider a pid = the current session pid as valid
-  # @return [Array] Returns an array of valid pids
+  # @param allow_session_pid [Boolean] whether to consider a pid = the current
+  #   session pid as valid
+  # @return [Array] Valid pids or empty
 
   def validate_pids(pids, allow_pid_0 = false, allow_session_pid = false)
-
-    return [] if (pids.class != Array or pids.empty?)
     valid_pids = []
-    # to minimize network traffic, we only get host processes once
-    host_processes = client.sys.process.get_processes
-    if host_processes.length < 1
-      print_error "No running processes found on the target host."
-      return []
-    end
-
-    # get the current session pid so we don't suspend it later
-    mypid = client.sys.process.getpid.to_i
-
-    # remove nils & redundant pids, conver to int
-    clean_pids = pids.compact.uniq.map{|x| x.to_i}
-    # now we look up the pids & remove bad stuff if nec
-    clean_pids.delete_if do |p|
-      ( (p == 0 and not allow_pid_0) or (p == mypid and not allow_session_pid) )
-    end
-    clean_pids.each do |pid|
-      # find the process with this pid
-      theprocess = host_processes.find {|x| x["pid"] == pid}
-      if ( theprocess.nil? )
-        next
+    if pids.is_a?(Array) && !pids.empty?
+      # to minimize network traffic, we only get host processes once
+      host_processes = client.sys.process.get_processes
+      if host_processes.length < 1
+        print_error 'No running processes found on the target host.'
       else
-        valid_pids << pid
+        # get the current session pid so we don't suspend it later
+        mypid = client.sys.process.getpid.to_i
+
+        # remove nils & redundant pids, conver to int
+        clean_pids = pids.compact.uniq.map{ |x| x.to_i }
+        # now we look up the pids & remove bad stuff if nec
+        clean_pids.delete_if do |pid|
+          (pid == 0 && !allow_pid_0) || (pid == mypid && !allow_session_pid)
+        end
+        clean_pids.each do |pid|
+          # find the process with this pid in our list
+          theprocess = host_processes.find { |x| x['pid'] == pid }
+          if !theprocess
+            next
+          else
+            valid_pids << pid
+          end
+        end
       end
     end
-    return valid_pids
+    valid_pids
   end
 
   #
@@ -424,75 +515,79 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_ps(*args)
     if args.include?('-h')
       cmd_ps_help
-      return true
-    end
-
-    # Init vars
-    processes = client.sys.process.get_processes
-    search_term = nil
-
-    # Parse opts
-    @@ps_opts.parse(args) { |opt, idx, val|
-      case opt
-      when '-S'
-        search_term = val
-        if search_term.nil?
-          print_error("Enter a search term")
-          return true
-        end
-      when "-A"
-        print_line "Filtering on arch..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          next if proc['arch'].nil? or proc['arch'].empty?
-          if val.nil? or val.empty? or !(val == "x86" or val == "x86_64")
-            print_line "You must select either x86 or x86_64"
-            return false
-          end
-          searched_procs << proc if proc["arch"] == val
-        end
-        processes = searched_procs
-      when "-s"
-        print_line "Filtering on SYSTEM processes..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          searched_procs << proc if proc["user"] == "NT AUTHORITY\\SYSTEM"
-        end
-        processes = searched_procs
-      when "-U"
-        print_line "Filtering on user name..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          if val.nil? or val.empty?
-            print_line "You must supply a search term!"
-            return false
-          end
-          searched_procs << proc if proc["user"].match(/#{val}/)
-        end
-        processes = searched_procs
-      end
-    }
-
-    if (processes.length == 0)
-      print_line("No running processes were found.")
     else
-      tbl = processes.to_table('SearchTerm' => search_term)
-      print_line
-      print_line(tbl.to_s)
+      # Init vars
+      processes = client.sys.process.get_processes
+      search_term = nil
+
+      # Parse opts
+      @@ps_opts.parse(args) do |opt, idx, val|
+        case opt
+        when '-S'
+          search_term = val
+          unless search_term
+            print_error('Enter a search term')
+            cmd_ps_help
+            return COMMAND_FAILURE
+          end
+        when '-A'
+          print_line 'Filtering on arch...'
+          searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+          processes.each do |proc|
+            next if !proc['arch'] || proc['arch'].empty?
+            if !val || val.empty? || !(val == 'x86' || val == 'x86_64')
+              print_error 'You must select either x86 or x86_64'
+              cmd_ps_help
+              return COMMAND_FAILURE
+            end
+            searched_procs << proc if proc['arch'] == val
+          end
+          processes = searched_procs
+        when '-s'
+          print_line 'Filtering on SYSTEM processes...'
+          searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+          processes.each do |proc|
+            searched_procs << proc if proc['user'] == 'NT AUTHORITY\\SYSTEM'
+          end
+          processes = searched_procs
+        when '-U'
+          print_line 'Filtering on user name...'
+          searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+          processes.each do |proc|
+            if !val || val.empty?
+              print_error 'You must supply a search term!'
+              return COMMAND_FAILURE
+            end
+            searched_procs << proc if proc['user'].match(/#{val}/)
+          end
+          processes = searched_procs
+        end
+      end
+
+      if processes.length == 0
+        print_line('No running processes were found.')
+      else
+        tbl = processes.to_table('SearchTerm' => search_term)
+        print_line
+        print_line(tbl.to_s)
+      end
+      COMMAND_SUCCESS
     end
-    return true
   end
 
+  #
+  # Help for the 'ps' command
+  #
   def cmd_ps_help
-    print_line "Usage: ps [ options ]"
-    print_line
-    print_line "Use the command with no arguments to see all running processes."
-    print_line "The following options can be used to filter those results:"
+    print(%Q(
+Usage: ps [options]
 
-    print_line @@ps_opts.usage
+Use the command with no arguments to see all running processes.
+The following options can be used to filter those results:
+#{@@ps_opts.usage})
+    )
+    COMMAND_SUCCESS
   end
-
-
 
   #
   # Reboots the remote computer.
@@ -500,23 +595,36 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_reboot(*args)
     force = 0
 
-    if args.length == 1 and args[0].strip == "-h"
-      print(
-        "Usage: reboot [options]\n\n" +
-        "Reboot the remote machine.\n" +
-        @@reboot_opts.usage)
-        return true
-    end
-
-    @@reboot_opts.parse(args) { |opt, idx, val|
-      case opt
-        when "-f"
+    if args.include?('-h')
+      cmd_reboot_help
+    elsif args.length != 0 && args.length != 2
+      print_error 'Wrong number of arguments'
+      cmd_reboot_help
+      COMMAND_FAILURE
+    else
+      @@reboot_opts.parse(args) do |opt, idx, val|
+        case opt
+        when '-f'
           force = val.to_i
+        end
       end
-    }
-    print_line("Rebooting...")
+      print_line('Rebooting...')
 
-    client.sys.power.reboot(force, SHTDN_REASON_DEFAULT)
+      client.sys.power.reboot(force, SHTDN_REASON_DEFAULT)
+    end
+  end
+
+  #
+  # Help for the 'reboot' command
+  #
+  def cmd_reboot_help
+    print(%Q(
+Usage: reboot [options]
+
+Reboot the remote machine.
+#{@@reboot_opts.usage})
+    )
+    COMMAND_SUCCESS
   end
 
   #
@@ -528,9 +636,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     # Extract the command, if any
     cmd = args.shift
 
-    if (args.length == 0)
-      args.unshift("-h")
-    end
+    args.unshift('-h') if args.length == 0
 
     # Initiailze vars
     key	= nil
@@ -540,45 +646,33 @@ class Console::CommandDispatcher::Stdapi::Sys
     wowflag = 0x0000
     rem	= nil
 
-    @@reg_opts.parse(args) { |opt, idx, val|
+    @@reg_opts.parse(args) do |opt, idx, val|
       case opt
-        when "-h"
-          print_line(
-            "Usage: reg [command] [options]\n\n" +
-            "Interact with the target machine's registry.\n" +
-            @@reg_opts.usage +
-            "COMMANDS:\n\n" +
-            "    enumkey	Enumerate the supplied registry key [-k <key>]\n" +
-            "    createkey	Create the supplied registry key  [-k <key>]\n" +
-            "    deletekey	Delete the supplied registry key  [-k <key>]\n" +
-            "    queryclass Queries the class of the supplied key [-k <key>]\n" +
-            "    setval	Set a registry value [-k <key> -v <val> -d <data>]\n" +
-            "    deleteval	Delete the supplied registry value [-k <key> -v <val>]\n" +
-            "    queryval	Queries the data contents of a value [-k <key> -v <val>]\n\n")
-          return false
-        when "-k"
-          key   = val
-        when "-v"
-          value = val
-        when "-t"
-          type  = val
-        when "-d"
-          data  = val
-        when "-r"
-          rem  = val
-        when "-w"
-          if val == '64'
-            wowflag = KEY_WOW64_64KEY
-          elsif val == '32'
-            wowflag = KEY_WOW64_32KEY
-          end
+      when '-h'
+        return cmd_reg_help
+      when '-k'
+        key   = val
+      when '-v'
+        value = val
+      when '-t'
+        type  = val
+      when '-d'
+        data  = val
+      when '-r'
+        rem  = val
+      when '-w'
+        if val == '64'
+          wowflag = KEY_WOW64_64KEY
+        elsif val == '32'
+          wowflag = KEY_WOW64_32KEY
+        end
       end
-    }
+    end
 
     # All commands require a key.
-    if (key == nil)
-      print_error("You must specify a key path (-k)")
-      return false
+    unless key
+      print_error('You must specify a key path (-k)')
+      return COMMAND_FAILURE
     end
 
     # Split the key into its parts
@@ -587,161 +681,179 @@ class Console::CommandDispatcher::Stdapi::Sys
     begin
       # Rock it
       case cmd
-        when "enumkey"
-
-          open_key = nil
-          if not rem
-            open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
-          else
-            remote_key = client.sys.registry.open_remote_key(rem, root_key)
-            if remote_key
-              open_key = remote_key.open_key(base_key, KEY_READ + wowflag)
-            end
-          end
-
-          print_line(
-            "Enumerating: #{key}\n")
-
-          keys = open_key.enum_key
-          vals = open_key.enum_value
-
-          if (keys.length > 0)
-            print_line("  Keys (#{keys.length}):\n")
-
-            keys.each { |subkey|
-              print_line("\t#{subkey}")
-            }
-
-            print_line
-          end
-
-          if (vals.length > 0)
-            print_line("  Values (#{vals.length}):\n")
-
-            vals.each { |val|
-              print_line("\t#{val.name}")
-            }
-
-            print_line
-          end
-
-          if (vals.length == 0 and keys.length == 0)
-            print_line("No children.")
-          end
-
-        when "createkey"
-          open_key = nil
-          if not rem
-            open_key = client.sys.registry.create_key(root_key, base_key, KEY_WRITE + wowflag)
-          else
-            remote_key = client.sys.registry.open_remote_key(rem, root_key)
-            if remote_key
-              open_key = remote_key.create_key(base_key, KEY_WRITE + wowflag)
-            end
-          end
-
-          print_line("Successfully created key: #{key}")
-
-        when "deletekey"
-          open_key = nil
-          if not rem
-            open_key = client.sys.registry.open_key(root_key, nil, KEY_WRITE + wowflag)
-          else
-            remote_key = client.sys.registry.open_remote_key(rem, root_key)
-            if remote_key
-              open_key = remote_key.open_key(nil, KEY_WRITE + wowflag)
-            end
-          end
-          open_key.delete_key(base_key)
-
-          print_line("Successfully deleted key: #{key}")
-
-        when "setval"
-          if (value == nil or data == nil)
-            print_error("You must specify both a value name and data (-v, -d).")
-            return false
-          end
-
-          type = "REG_SZ" if (type == nil)
-
-          open_key = nil
-          if not rem
-            open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE + wowflag)
-          else
-            remote_key = client.sys.registry.open_remote_key(rem, root_key)
-            if remote_key
-              open_key = remote_key.open_key(base_key, KEY_WRITE + wowflag)
-            end
-          end
-
-          open_key.set_value(value, client.sys.registry.type2str(type), data)
-
-          print_line("Successfully set #{value} of #{type}.")
-
-        when "deleteval"
-          if (value == nil)
-            print_error("You must specify a value name (-v).")
-            return false
-          end
-
-          open_key = nil
-          if not rem
-            open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE + wowflag)
-          else
-            remote_key = client.sys.registry.open_remote_key(rem, root_key)
-            if remote_key
-              open_key = remote_key.open_key(base_key, KEY_WRITE + wowflag)
-            end
-          end
-
-          open_key.delete_value(value)
-
-          print_line("Successfully deleted #{value}.")
-
-        when "queryval"
-          if (value == nil)
-            print_error("You must specify a value name (-v).")
-            return false
-          end
-
-          open_key = nil
-          if not rem
-            open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
-          else
-            remote_key = client.sys.registry.open_remote_key(rem, root_key)
-            if remote_key
-              open_key = remote_key.open_key(base_key, KEY_READ + wowflag)
-            end
-          end
-
-          v = open_key.query_value(value)
-
-          print(
-            "Key: #{key}\n" +
-            "Name: #{v.name}\n" +
-            "Type: #{v.type_to_s}\n" +
-            "Data: #{v.data}\n")
-
-        when "queryclass"
-          open_key = nil
-          if not rem
-            open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
-          else
-            remote_key = client.sys.registry.open_remote_key(rem, root_key)
-            if remote_key
-              open_key = remote_key.open_key(base_key, KEY_READ + wowflag)
-            end
-          end
-
-          data = open_key.query_class
-
-          print("Data: #{data}\n")
+      when 'enumkey'
+        open_key = nil
+        if !rem
+          open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
         else
-          print_error("Invalid command supplied: #{cmd}")
+          remote_key = client.sys.registry.open_remote_key(rem, root_key)
+          if remote_key
+            open_key = remote_key.open_key(base_key, KEY_READ + wowflag)
+          end
+        end
+
+        print_line("Enumerating: #{key}\n")
+
+        keys = open_key.enum_key
+        vals = open_key.enum_value
+
+        if keys.length > 0
+          print_line("  Keys (#{keys.length}):\n")
+          keys.each { |subkey| print_line("\t#{subkey}") }
+          print_line
+        end
+
+        if vals.length > 0
+          print_line("  Values (#{vals.length}):\n")
+          vals.each { |val| print_line("\t#{val.name}") }
+          print_line
+        end
+
+        if vals.length == 0 && keys.length == 0
+          print_line('No children.')
+        end
+
+      when 'createkey'
+        open_key = nil
+        if !rem
+          open_key = client.sys.registry.create_key(root_key, base_key, KEY_WRITE + wowflag)
+        else
+          remote_key = client.sys.registry.open_remote_key(rem, root_key)
+          if remote_key
+            open_key = remote_key.create_key(base_key, KEY_WRITE + wowflag)
+          end
+        end
+
+        print_line("Successfully created key: #{key}")
+
+      when 'deletekey'
+        open_key = nil
+        if !rem
+          open_key = client.sys.registry.open_key(root_key, nil, KEY_WRITE + wowflag)
+        else
+          remote_key = client.sys.registry.open_remote_key(rem, root_key)
+          if remote_key
+            open_key = remote_key.open_key(nil, KEY_WRITE + wowflag)
+          end
+        end
+        open_key.delete_key(base_key)
+
+        print_line("Successfully deleted key: #{key}")
+
+      when 'setval'
+        if !value || !data
+          print_error('You must specify both a value name and data (-v, -d).')
+          return COMMAND_FAILURE
+        end
+
+        type ||= 'REG_SZ'
+
+        open_key = nil
+        if !rem
+          open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE + wowflag)
+        else
+          remote_key = client.sys.registry.open_remote_key(rem, root_key)
+          if remote_key
+            open_key = remote_key.open_key(base_key, KEY_WRITE + wowflag)
+          end
+        end
+
+        open_key.set_value(value, client.sys.registry.type2str(type), data)
+
+        print_line("Successfully set #{value} of #{type}.")
+
+      when 'deleteval'
+        unless value
+          print_error('You must specify a value name (-v).')
+          return COMMAND_FAILURE
+        end
+
+        open_key = nil
+        if !rem
+          open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE + wowflag)
+        else
+          remote_key = client.sys.registry.open_remote_key(rem, root_key)
+          if remote_key
+            open_key = remote_key.open_key(base_key, KEY_WRITE + wowflag)
+          end
+        end
+
+        open_key.delete_value(value)
+
+        print_line("Successfully deleted #{value}.")
+
+      when 'queryval'
+        unless value
+          print_error('You must specify a value name (-v).')
+          return COMMAND_FAILURE
+        end
+
+        open_key = nil
+        if !rem
+          open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
+        else
+          remote_key = client.sys.registry.open_remote_key(rem, root_key)
+          if remote_key
+            open_key = remote_key.open_key(base_key, KEY_READ + wowflag)
+          end
+        end
+
+        v = open_key.query_value(value)
+
+        print(%Q(
+Key: #{key}
+Name: #{v.name}
+Type: #{v.type_to_s}
+Data: #{v.data}
+)
+        )
+
+      when 'queryclass'
+        open_key = nil
+        if !rem
+          open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
+        else
+          remote_key = client.sys.registry.open_remote_key(rem, root_key)
+          if remote_key
+            open_key = remote_key.open_key(base_key, KEY_READ + wowflag)
+          end
+        end
+        data = open_key.query_class
+        print("Data: #{data}\n")
+      else
+        print_error("Invalid command supplied: #{cmd}")
+        return COMMAND_FAILURE
       end
     ensure
-      open_key.close if (open_key)
+      open_key.close if open_key
     end
+    COMMAND_SUCCESS
+  end
+
+  #
+  # Help for the 'reg' command
+  #
+  def cmd_reg_help
+    print(%Q(
+Usage: reg [command] [options]
+
+Interact with the target machine's registry.
+
+#{@@reg_opts.usage}
+
+COMMANDS:
+
+    enumkey  Enumerate the supplied registry key [-k <key>]
+    createkey  Create the supplied registry key  [-k <key>]
+    deletekey  Delete the supplied registry key  [-k <key>]
+    queryclass Queries the class of the supplied key [-k <key>]
+    setval  Set a registry value [-k <key> -v <val> -d <data>]
+    deleteval  Delete the supplied registry value [-k <key> -v <val>]
+    queryval  Queries the data contents of a value [-k <key> -v <val>]
+
+)
+    )
+    COMMAND_SUCCESS
   end
 
   #
@@ -751,49 +863,84 @@ class Console::CommandDispatcher::Stdapi::Sys
     client.sys.config.revert_to_self
   end
 
-  def cmd_getprivs_help
-    print_line "Usage: getprivs"
-    print_line
-    print_line "Attempt to enable all privileges, such as SeDebugPrivilege, available to the"
-    print_line "current process.  Note that this only enables existing privs and does not change"
-    print_line "users or tokens."
-    print_line
-    print_line "See also: steal_token, getsystem"
-    print_line
-  end
-
   #
   # Obtains as many privileges as possible on the target machine.
   #
   def cmd_getprivs(*args)
-    if args.include? "-h"
+    if args.include?('-h')
+      # -h is the only currently supported arg
       cmd_getprivs_help
+    elsif args.length != 0
+      cmd_getprivs_help
+      return COMMAND_FAILURE
+    else # don't want to actually run getprivs if -h specified
+      print_line
+      print_line('=' * 60)
+      print_line('Enabled Process Privileges')
+      print_line('=' * 60)
+      client.sys.config.getprivs.each do |priv|
+        print_line("  #{priv}")
+      end
+      print_line
     end
-    print_line("=" * 60)
-    print_line("Enabled Process Privileges")
-    print_line("=" * 60)
-    client.sys.config.getprivs.each do |priv|
-      print_line("  #{priv}")
-    end
-    print_line("")
+    COMMAND_SUCCESS
+  end
+
+  #
+  # Help for the 'getprivs' command
+  #
+  def cmd_getprivs_help
+    print_line(%Q(
+Usage: getprivs
+
+Attempt to enable all privileges, such as SeDebugPrivilege, available to the
+current process.  Note that this only enables existing privs and does not change
+users or tokens.
+
+OPTIONS:
+
+    -h     Help menu.
+
+See also: steal_token, getsystem
+
+)
+    )
+    COMMAND_SUCCESS
   end
 
   #
   # Tries to steal the primary token from the target process.
   #
   def cmd_steal_token(*args)
-    if(args.length != 1 or args[0] == "-h")
-      print_error("Usage: steal_token [pid]")
-      return
+    # there must be 1 arg and it must be a pid or -h
+    if args.length != 1
+      print_error('No PID provided')
+      cmd_steal_token_help
+      return COMMAND_FAILURE
+    elsif args.include?('-h')
+      cmd_steal_token_help
+    else
+      print_line("Stolen token with username: #{client.sys.config.steal_token(args.first)}")
     end
-    print_line("Stolen token with username: " + client.sys.config.steal_token(args[0]))
+    COMMAND_SUCCESS
+  end
+
+  #
+  # Help for the 'steal_token' command
+  #
+  def cmd_steal_token_help
+    print_line('Usage: steal_token [pid]')
+    print_line
+    COMMAND_SUCCESS
   end
 
   #
   # Drops any assumed token.
   #
   def cmd_drop_token(*args)
-    print_line("Relinquished token, now running as: " + client.sys.config.drop_token())
+    print_line("Relinquished token, now running as: #{client.sys.config.drop_token}")
+    print_line
+    COMMAND_SUCCESS
   end
 
   #
@@ -801,15 +948,15 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_sysinfo(*args)
     info = client.sys.config.sysinfo
-    width = "Meterpreter".length
-    info.keys.each { |k| width = k.length if k.length > width and info[k] }
+    width = 'Meterpreter'.length
+    info.keys.each { |k| width = k.length if k.length > width && info[k] }
 
     info.each_pair do |key, value|
       print_line("#{key.ljust(width+1)}: #{value}") if value
     end
     print_line("#{"Meterpreter".ljust(width+1)}: #{client.platform}")
 
-    return true
+    COMMAND_SUCCESS
   end
 
   #
@@ -817,25 +964,32 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_shutdown(*args)
     force = 0
-
-    if args.length == 1 and args[0].strip == "-h"
-      print(
-        "Usage: shutdown [options]\n\n" +
-        "Shutdown the remote machine.\n" +
-        @@shutdown_opts.usage)
-        return true
-    end
-
-    @@shutdown_opts.parse(args) { |opt, idx, val|
-      case opt
-        when "-f"
+    if args.include? '-h'
+      cmd_shutdown_help
+    else
+      @@shutdown_opts.parse(args) do |opt, idx, val|
+        case opt
+        when '-f'
           force = val.to_i
+        end
       end
-    }
+      print_line('Shutting down...')
 
-    print_line("Shutting down...")
+      client.sys.power.shutdown(force, SHTDN_REASON_DEFAULT)
+    end
+  end
 
-    client.sys.power.shutdown(force, SHTDN_REASON_DEFAULT)
+  #
+  # Help for the 'shutdown' command
+  #
+  def cmd_shutdown_help
+    print(%Q(
+Usage: shutdown [options]
+
+Shutdown the remote machine.
+#{@@shutdown_opts.usage})
+    )
+    COMMAND_SUCCESS
   end
 
   #
@@ -847,67 +1001,74 @@ class Console::CommandDispatcher::Stdapi::Sys
   # @todo  Accept process names, much of that code is done (kernelsmith)
   #
   # @param args [Array<String>] List of one of more pids
-  # @return [Boolean] Returns true if command was successful, else false
+  # @return [Boolean] Returns COMMAND_SUCCESS or COMMAND_FAILURE
   def cmd_suspend(*args)
     # give'em help if they want it, or seem confused
-    if args.length == 0 or (args.include? "-h")
+    if args.include?('-h')
       cmd_suspend_help
-      return true
-    end
-
-    continue = args.delete("-c") || false
-    resume = args.delete("-r") || false
-
-    # validate all the proposed pids first so we can bail if one is bogus
-    valid_pids = validate_pids(args)
-    args.uniq!
-    diff = args - valid_pids.map {|e| e.to_s}
-    if not diff.empty? # then we had an invalid pid
-      print_error("The following pids are not valid:	#{diff.join(", ").to_s}.")
-      if continue
-        print_status("Continuing.  Invalid args have been removed from the list.")
-      else
-        print_error("Quitting.	Use -c to continue using only the valid pids.")
-        return false
-      end
-    end
-
-    targetprocess = nil
-    if resume
-      print_status("Resuming: #{valid_pids.join(", ").to_s}")
+    elsif args.length == 0
+      print_error 'You must provide pids or the -h argument'
+      cmd_suspend_help
+      return COMMAND_FAILURE
     else
-      print_status("Suspending: #{valid_pids.join(", ").to_s}")
-    end
-    begin
-      valid_pids.each do |pid|
-        print_status("Targeting process with PID #{pid}...")
-        targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
-        targetprocess.thread.each_thread do |x|
-          if resume
-            targetprocess.thread.open(x).resume
-          else
-            targetprocess.thread.open(x).suspend
-          end
+      continue = args.delete('-c') || false
+      resume = args.delete('-r') || false
+
+      # validate all the proposed pids first so we can bail if one is bogus
+      valid_pids = validate_pids(args)
+      args.uniq!
+      diff = args - valid_pids.map { |e| e.to_s }
+      unless diff.empty? # then we had an invalid pid
+        print_error("The following pids are not valid: #{diff.join(', ').to_s}.")
+        if continue
+          print_status('Continuing.  Invalid args have been removed from the list.')
+        else
+          print_error('Aborting.	Use -c to continue using only the valid pids.')
+          return COMMAND_FAILURE
         end
       end
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      print_error "Error acting on the process:  #{e.to_s}."
-      print_error "Try migrating to a process with the same owner as the target process."
-      print_error "Also consider running the win_privs post module and confirm SeDebug priv."
-      return false unless continue
-    ensure
-      targetprocess.close if targetprocess
+
+      targetprocess = nil
+      if resume
+        print_status("Resuming: #{valid_pids.join(', ').to_s}")
+      else
+        print_status("Suspending: #{valid_pids.join(', ').to_s}")
+      end
+      begin
+        valid_pids.each do |pid|
+          print_status("Targeting process with PID #{pid}...")
+          targetprocess = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+          targetprocess.thread.each_thread do |x|
+            if resume
+              targetprocess.thread.open(x).resume
+            else
+              targetprocess.thread.open(x).suspend
+            end
+          end
+        end
+      rescue ::Rex::Post::Meterpreter::RequestError => e
+        print_error "Error acting on the process:  #{e.to_s}."
+        print_error 'Try migrating to a process with the same owner as the target process.'
+        print_error 'Also consider confirming you have the SeDebug priv.'
+        return COMMAND_FAILURE unless continue
+      ensure
+        targetprocess.close if targetprocess
+      end
     end
-    return true
+    COMMAND_SUCCESS
   end
 
   #
   # help for the suspend command
   #
   def cmd_suspend_help
-    print_line("Usage: suspend [options] pid1 pid2 pid3 ...")
-    print_line("Suspend one or more processes.")
-    print @@suspend_opts.usage
+    print(%Q(
+Usage: suspend [options] pid1 pid2 pid3 ...
+
+Suspend one or more processes.
+#{@@suspend_opts.usage})
+    )
+    COMMAND_SUCCESS
   end
 
 end
