@@ -2,7 +2,7 @@ require 'metasm'
 require 'msf/core'
 require 'rex/nop/opty2'
 
-class MetasploitModule < Msf::Encoder
+class MetasploitModule < Msf::Encoder::Xor
 
     Rank = ManualRanking
 
@@ -14,7 +14,12 @@ class MetasploitModule < Msf::Encoder
             'Author'           => 'agix',
             'Arch'             => ARCH_X86_64,
             'License'          => MSF_LICENSE,
-            'EncoderType'      => Msf::Encoder::Type::Raw
+            'EncoderType'      => Msf::Encoder::Type::Raw,
+            'Decoder'          =>
+                {
+                    'KeySize'    => 8,
+                    'KeyPack'    => 'Q'
+                }
             )
     end
 
@@ -139,10 +144,28 @@ class MetasploitModule < Msf::Encoder
             block += nop(8-(block.length%8))
         end
 
-        key = rand_string(8)
+        regType = 3
+
+        if (block.length/8) > 0xff
+            regType=2
+        end
+
+        if (block.length/8) > 0xffff
+            regType=1
+        end
+
+        if (block.length/8) > 0xffffffff
+            regType=0
+        end
+
+        # if regType == 3
+        #     while (allowedReg[3][0]=="esi" || allowedReg[3][0]=="edi" || allowedReg[3][0]=="ebp")
+        #         allowedReg.insert(0,allowedReg.delete(allowedReg[3]))
+        #     end
+        # end
 
         regKey  = allowedReg[0][0]
-        regSize = allowedReg[3][0]
+        regSize = allowedReg[3]
         regRip  = allowedReg[1][0]
         regEnv  = allowedReg[2]
 
@@ -168,11 +191,11 @@ class MetasploitModule < Msf::Encoder
         fpuLea = ordered_random_merge(fpu, lea)
         fpuLea << ["fpu1", fxsave64(regEnv[0])] # fxsave64 doesn't seem to exist in metasm
 
-
-        keyIns = [["key",  assemble("mov "+regKey+", 0x%x"%key.unpack('q*'))]]
+        keyIns = [["key",  assemble("mov "+regKey+", 0x%x"%state.key)]]
 
         size = []
-        size << ["size", assemble("mov "+regSize+", 0x%x"% (block.length/8))]
+        size << ["size",assemble("xor "+regSize[0]+", "+regSize[0])]
+        size << ["size", assemble("mov "+regSize[regType]+", 0x%x"% (block.length/8))]
 
         getrip=0
 
@@ -184,6 +207,7 @@ class MetasploitModule < Msf::Encoder
         decodeHead = decodeHeadTab.map { |j,i| i.to_s }.join
 
         flipCoin = rand(2)
+
         if flipCoin==0
             decodeHead += assemble("mov "+regRip+", ["+regEnv[0]+" + 0x8]")
         else
@@ -195,9 +219,9 @@ class MetasploitModule < Msf::Encoder
         decodeHeadSize=decodeHead.length
         getrip.times { |i| decodeHeadSize-=decodeHeadTab[i][1].length }
 
-        loopCode =  assemble("dec "+regSize)
-        loopCode += assemble("xor ["+regRip+"+"+regSize+"*8], "+regKey)
-        loopCode += assemble("test "+regSize+", "+regSize)
+        loopCode =  assemble("dec "+regSize[0])
+        loopCode += assemble("xor ["+regRip+"+"+regSize[0]+"*8], "+regKey)
+        loopCode += assemble("test "+regSize[0]+", "+regSize[0])
         jnz = "\x75"+(0x100-(loopCode.length+2)).chr
 
         moveip = []
@@ -207,8 +231,7 @@ class MetasploitModule < Msf::Encoder
         moveip.shuffle!
 
         decode = decodeHead+moveip[0]+loopCode+jnz
-
-        encode = xor_string(block,key)
+        encode = xor_string(block, [state.key].pack('Q'))
 
         return decode + encode
     end
