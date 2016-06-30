@@ -98,6 +98,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'patch_finder'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
+  # Gem for dealing with SSHKeys
+  spec.add_runtime_dependency 'sshkey'
   # BitStruct Library used for handling certain Protocol Header/Packet construction
   spec.add_runtime_dependency 'bit-struct'
 
