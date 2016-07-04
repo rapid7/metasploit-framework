@@ -146,7 +146,7 @@ def frwdlp(session, hostlst, domain, dest)
   threads = []
   tmpout = []
   begin
-    if ::File.exists?(hostlst)
+    if ::File.exist?(hostlst)
       ::File.open(hostlst).each {|line|
         threads << ::Thread.new(line) { |h|
           #print_status("checking #{h.chomp}")

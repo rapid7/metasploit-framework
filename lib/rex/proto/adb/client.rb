@@ -1,9 +1,5 @@
 # -*- coding: binary -*-
 
-##
-# ADB protocol support
-##
-
 require 'rex/proto/adb/message'
 
 module Rex

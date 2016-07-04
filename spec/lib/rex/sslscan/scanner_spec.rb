@@ -64,11 +64,13 @@ RSpec.describe Rex::SSLScan::Scanner do
       end
     end
 
-    context ":accepted should be returned if" do
-      it "scans a server that accepts the given cipher" do
-        expect(subject.test_cipher(:SSLv3, "AES256-SHA")).to eq :accepted
-      end
-    end
+#    XXX Reenable this spec when a way to use older versions of OpenSSL
+#      directly is available.
+#    context ":accepted should be returned if" do
+#      it "scans a server that accepts the given cipher" do
+#        expect(subject.test_cipher(:SSLv3, "AES256-SHA")).to eq :accepted
+#      end
+#    end
   end
 
   context "when retrieving the cert" do
@@ -76,9 +78,11 @@ RSpec.describe Rex::SSLScan::Scanner do
       expect(subject.get_cert(:SSLv3, "DES-CBC-SHA")).to eq nil
     end
 
-    it "should return an X509 cert if it can connect" do
-      expect(subject.get_cert(:SSLv3, "AES256-SHA")).to be_a OpenSSL::X509::Certificate
-    end
+#    XXX Reenable this spec when a way to use older versions of OpenSSL
+#      directly is available.
+#    it "should return an X509 cert if it can connect" do
+#      expect(subject.get_cert(:SSLv3, "AES256-SHA")).to be_a OpenSSL::X509::Certificate
+#    end
   end
 
   context "when scanning https://google.com" do

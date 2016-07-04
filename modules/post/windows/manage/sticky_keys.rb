@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Post
       },
       'Author'        => ['OJ Reeves'],
       'Platform'      => ['win'],
-      'SessionTypes'  => ['meterpreter', 'cmd'],
+      'SessionTypes'  => ['meterpreter', 'shell'],
       'Actions'       => [
         ['ADD',    {'Description' => 'Add the backdoor to the target.'}],
         ['REMOVE', {'Description' => 'Remove the backdoor from the target.'}]

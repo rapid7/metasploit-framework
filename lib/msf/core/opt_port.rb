@@ -12,12 +12,9 @@ class OptPort < OptInt
     return 'port'
   end
 
-  def valid?(value)
-    if !required? and value.to_s.empty?
-      super
-    else
-      super && normalize(value) <= 65535 && normalize(value) >= 0
-    end
+  def valid?(value, check_empty: true)
+    port = normalize(value).to_i
+    super && port <= 65535 && port >= 0
   end
 end
 

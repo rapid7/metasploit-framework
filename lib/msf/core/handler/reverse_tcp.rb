@@ -77,6 +77,10 @@ module ReverseTcp
     "reverse TCP"
   end
 
+  def payload_uri
+    "tcp://#{datastore['LHOST']}:#{datastore['LPORT']}"
+  end
+
   #
   # Starts monitoring for an inbound connection.
   #

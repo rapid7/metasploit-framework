@@ -173,8 +173,7 @@ module Msf
 
         # Returns the markdown format for module authors.
         #
-        # @param authors [Array] Module Authors
-        # @param authors [String] Module author
+        # @param authors [Array, String] Module Authors
         # @return [String]
         def normalize_authors(authors)
           if authors.kind_of?(Array)
@@ -205,8 +204,7 @@ module Msf
 
         # Returns the markdown format for module platforms.
         #
-        # @param platforms [Array] Module platforms.
-        # @param platforms [String] Module platform.
+        # @param platforms [Array, String] Module platforms.
         # @return [String]
         def normalize_platforms(platforms)
           if platforms.kind_of?(Array)

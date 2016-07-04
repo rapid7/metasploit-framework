@@ -183,8 +183,8 @@ class Msf::ModuleSet < Hash
   # @option info [Array<String>] 'files' List of paths to files that defined
   #   +klass+.
   # @return [Class] The klass parameter modified to have
-  #   {Msf::Module#framework}, {Msf::Module#refname}, {Msf::Module#file_path},
-  #   and {Msf::Module#orig_cls} set.
+  #   Msf::Module.framework, Msf::Module#refname, Msf::Module#file_path,
+  #   and Msf::Module#orig_cls set.
   def add_module(klass, reference_name, info = {})
     # Set the module's reference_name so that it can be referenced when
     # instances are created.

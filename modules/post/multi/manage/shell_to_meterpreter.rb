@@ -67,6 +67,10 @@ class MetasploitModule < Msf::Post
       lhost = framework.datastore['LHOST']
     else
       lhost = session.tunnel_local.split(':')[0]
+      if lhost == 'Local Pipe'
+        print_error 'LHOST is "Local Pipe", please manually set the correct IP.'
+        return
+      end
     end
 
     # If nothing else works...
