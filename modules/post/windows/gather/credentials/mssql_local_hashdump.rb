@@ -116,7 +116,12 @@ class MetasploitModule < Msf::Post
 
     if get_hash_result.include?('0x')
       # Parse Data
-      hash_array = get_hash_result.split("\r\n").grep(/0x/)
+      if hash_type == "mssql12"
+        crlfRepair = get_hash_result.unpack('H*')[0].gsub("200d0a","PLACEHOLDER").gsub("0d0a","").gsub("PLACEHOLDER","0d0a").gsub(/../) { |pair| pair.hex.chr }
+        hash_array = crlfRepair.split("\r\n").grep(/0x/)
+      else
+        hash_array = get_hash_result.split("\r\n").grep(/0x/)
+      end
 
       store_hashes(hash_array, hash_type)
     else
