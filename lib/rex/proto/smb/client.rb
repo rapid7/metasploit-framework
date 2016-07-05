@@ -875,7 +875,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
-
     # The server doesn't know about NTLM_NEGOTIATE
     if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
       return session_setup_no_ntlmssp(user, pass, domain)
@@ -905,6 +904,9 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     type3 = @ntlm_client.init_context([blob].pack('m'))
     type3_blob = type3.serialize
     self.signing_key = @ntlm_client.session_key
+
+    # Ugh, it's private
+    self.challenge_key = @ntlm_client.session.send(:server_challenge)
 
     pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
     self.smb_defaults(pkt['Payload']['SMB'])
