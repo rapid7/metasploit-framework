@@ -104,6 +104,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bit-struct'
 
   #
+  # Protocol Libraries
+  #
+  spec.add_runtime_dependency 'net-ssh'
+
+  #
   # REX Libraries
   #
   # Text manipulation library for things like generating random string
