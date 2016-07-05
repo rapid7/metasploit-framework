@@ -142,12 +142,12 @@ module ReverseHttp
 
     if l && l.length > 0
       # strip trailing slashes
-      while l[-1,1] == '/'
+      while l[-1, 1] == '/'
         l = l[0...-1]
       end
 
       # make sure the luri has the prefix
-      if l[0,1] != '/'
+      if l[0, 1] != '/'
         l = "/#{l}"
       end
 
@@ -192,7 +192,7 @@ module ReverseHttp
     self.service.server_name = datastore['MeterpreterServerName']
 
     # Add the new resource
-    service.add_resource( (luri + "/").gsub("//", "/"),
+    service.add_resource((luri + "/").gsub("//", "/"),
       'Proc' => Proc.new { |cli, req|
         on_request(cli, req)
       },
