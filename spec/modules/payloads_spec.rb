@@ -1053,6 +1053,16 @@ RSpec.describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'java/shell_reverse_tcp'
   end
+ 
+ context 'linux/armbe/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/armbe/shell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armbe/shell_bind_tcp'
+  end
 
   context 'linux/armle/adduser' do
     it_should_behave_like 'payload cached size is consistent',
