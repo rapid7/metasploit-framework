@@ -142,12 +142,12 @@ module ReverseHttp
 
     if l && l.length > 0
       # strip trailing slashes
-      while l[-1] == '/'
+      while l[-1, 1] == '/'
         l = l[0...-1]
       end
 
       # make sure the luri has the prefix
-      if l[0] != '/'
+      if l[0, 1] != '/'
         l = "/#{l}"
       end
 
@@ -192,7 +192,7 @@ module ReverseHttp
     self.service.server_name = datastore['MeterpreterServerName']
 
     # Add the new resource
-    service.add_resource(luri + "/",
+    service.add_resource((luri + "/").gsub("//", "/"),
       'Proc' => Proc.new { |cli, req|
         on_request(cli, req)
       },
@@ -212,7 +212,7 @@ module ReverseHttp
   #
   def stop_handler
     if self.service
-      self.service.remove_resource(luri + "/")
+      self.service.remove_resource((luri + "/").gsub("//", "/"))
       if self.service.resources.empty? && self.sessions == 0
         Rex::ServiceManager.stop_service(self.service)
       end
