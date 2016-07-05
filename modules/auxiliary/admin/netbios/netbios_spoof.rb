@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         response for a 'WPAD' lookup. Distant targets may require more time and lower
         rates for a successful attack.
       },
-      'Authors'     => [
+      'Author'     => [
         'vvalien',   # Metasploit Module (post)
         'hdm',       # Metasploit Module
         'tombkeeper' # Related Work

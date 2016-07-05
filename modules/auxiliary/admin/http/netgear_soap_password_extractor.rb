@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Auxiliary
         NetGear WNDR3300 - V1.0.45 (Tested by Robert Mueller),
         NetGear WNDR3800 - V1.0.0.48 (Tested by an Anonymous contributor),
         NetGear WNR1000v2 - V1.0.1.1 (Tested by Jimi Sebree),
-        NetGear WNR1000v2 - V1.1.2.58 (Tested by Chris Boulton)
+        NetGear WNR1000v2 - V1.1.2.58 (Tested by Chris Boulton),
+        NetGear WNR2000v3 - v1.1.2.10 (Tested by h00die)
       },
       'References'  =>
         [
