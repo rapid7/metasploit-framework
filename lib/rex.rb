@@ -38,6 +38,22 @@ module Rex
   LogSource = "rex"
 end
 
+#
+# REX Gems
+#
+# Text manipulation library for things like generating random string
+require 'rex/text'
+# Library for Generating Randomized strings valid as Identifiers such as variable names
+require 'rex/random_identifier'
+# library for creating Powershell scripts for exploitation purposes
+require 'rex/powershell'
+# Library for processing and creating Zip compatbile archives
+require 'rex/zip'
+# Library for parsing offline Windows Registry files
+require 'rex/registry'
+# Library for parsing Java serialized streams
+require 'rex/java'
+
 # Generic classes
 require 'rex/constants'
 require 'rex/exceptions'
