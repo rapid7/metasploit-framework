@@ -433,7 +433,9 @@ protected
         unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
           print_status("Unknown request to #{request_summary}")
         end
-        resp = nil
+        resp.code    = 200
+        resp.message = 'OK'
+        resp.body    = datastore['HttpUnknownRequestResponse'].to_s
         self.pending_connections -= 1
     end
 
