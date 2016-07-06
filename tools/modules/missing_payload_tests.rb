@@ -28,7 +28,7 @@ framework.payloads.each { |reference_name, payload_class|
   }
   ancestor_reference_names = module_ancestors.map { |module_ancestor|
     unpacked_module_ancestor_full_name = module_ancestor.name.sub(/^Msf::Modules::Mod/, '')
-                                                             .sub(/::Metasploit\d+/, '')
+                                                             .sub(/::MetasploitModule/, '')
     module_ancestor_full_name = [unpacked_module_ancestor_full_name].pack("H*")
     module_ancestor_full_name.sub(%r{^payload/}, '')
   }
@@ -59,21 +59,21 @@ File.open('log/untested-payloads.log') { |f|
        unless tested_options.include? options
          reference_name = options[:reference_name]
 
-         $stderr.puts
-         $stderr.puts "  context '#{reference_name}' do\n" \
+         $stdout.puts
+         $stdout.puts "  context '#{reference_name}' do\n" \
                       "    it_should_behave_like 'payload cached size is consistent',\n" \
                       "                          ancestor_reference_names: ["
 
          ancestor_reference_names = options[:ancestor_reference_names]
 
          if ancestor_reference_names.length == 1
-           $stderr.puts "                            '#{ancestor_reference_names[0]}'"
+           $stdout.puts "                            '#{ancestor_reference_names[0]}'"
          else
-           $stderr.puts "                            '#{ancestor_reference_names[1]}',"
-           $stderr.puts "                            '#{ancestor_reference_names[0]}'"
+           $stdout.puts "                            '#{ancestor_reference_names[1]}',"
+           $stdout.puts "                            '#{ancestor_reference_names[0]}'"
          end
 
-         $stderr.puts "                          ],\n" \
+         $stdout.puts "                          ],\n" \
                       "                          dynamic_size: false,\n" \
                       "                          modules_pathname: modules_pathname,\n" \
                       "                          reference_name: '#{reference_name}'\n" \
