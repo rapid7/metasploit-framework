@@ -38,7 +38,8 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      =>
         [
           'Peter Adkins <peter.adkins[at]kernelpicnic.net>', # Vulnerability discovery
-          'Michael Messner <devnull[at]s3cur1ty.de>'	     # Metasploit module
+          'Michael Messner <devnull[at]s3cur1ty.de>',	     # Metasploit module
+          'h00die <mike@shorebreaksecurity.com>'       # Metasploit enhancements/docs
         ],
       'License'     => MSF_LICENSE
     )
