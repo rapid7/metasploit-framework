@@ -182,10 +182,10 @@ If you wish to get back to Meterpreter, do [CTRL]+[Z] to background the channel.
 
 The sysinfo command shows you basic information about the remote machine. Such as:
 
-Computer name
-OS name
-Architecture
-Meterpreter type
+* Computer name
+* OS name
+* Architecture
+* Meterpreter type
 
 For example:
 
