@@ -41,7 +41,8 @@ class MetasploitModule < Msf::Auxiliary
           'Michael Messner <devnull[at]s3cur1ty.de>',	     # Metasploit module
           'h00die <mike@shorebreaksecurity.com>'       # Metasploit enhancements/docs
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Feb 11 2015'
     )
   end
 
