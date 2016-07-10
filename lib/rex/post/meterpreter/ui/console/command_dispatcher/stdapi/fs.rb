@@ -24,6 +24,8 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   @@download_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
+    "-c" => [ false, "Resume getting a partially-downloaded file." ],
+    "-t" => [ true, "Set number of retries (0 unlimits)" ],
     "-r" => [ false, "Download recursively." ])
   #
   # Options for the upload command.
@@ -335,11 +337,19 @@ class Console::CommandDispatcher::Stdapi::Fs
     src_items = []
     last      = nil
     dest      = nil
+    continue  = false
+    tries     = false
+    tries_no  = 0
 
     @@download_opts.parse(args) { |opt, idx, val|
       case opt
       when "-r"
         recursive = true
+      when "-c"
+        continue = true
+      when "-t"
+        tries = true
+        tries_no = val.to_i
       when nil
         src_items << last if (last)
         last = val
@@ -404,12 +414,12 @@ class Console::CommandDispatcher::Stdapi::Fs
         # Perform direct matching
         stat = client.fs.file.stat(src)
         if (stat.directory?)
-          client.fs.dir.download(dest, src, recursive, true, glob) do |step, src, dst|
+          client.fs.dir.download(dest, src, recursive, true, glob, continue, tries, tries_no) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
         elsif (stat.file?)
-          client.fs.file.download(dest, src) do |step, src, dst|
+          client.fs.file.download(dest, src, continue, tries, tries_no) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end

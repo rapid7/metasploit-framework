@@ -195,9 +195,22 @@ class Dir < Rex::Post::Dir
   # Downloads the contents of a remote directory a
   # local directory, optionally in a recursive fashion.
   #
-  def Dir.download(dst, src, recursive = false, force = true, glob = nil, &stat)
+  def Dir.download(dst, src, recursive = false, force = true, glob = nil, continue = false, tries = false, tries_no = 0, &stat)
+    tries_cnt = 0
+    begin
+      dir_files = self.entries(src)
+    rescue Rex::TimeoutError
+      if (tries && (tries_no == 0 || tries_cnt < tries_no))
+        tries_cnt += 1
+        stat.call('error listing  - retry #', tries_cnt, src) if (stat)
+        retry
+      else
+        stat.call('error listing directory - giving up', src, dst) if (stat)
+        raise
+      end
+    end
 
-    self.entries(src, glob).each { |src_sub|
+    dir_files.each { |src_sub|
       dst_item = dst + ::File::SEPARATOR + client.unicode_filter_encode(src_sub)
       src_item = src + client.fs.file.separator + client.unicode_filter_encode(src_sub)
 
@@ -205,12 +218,28 @@ class Dir < Rex::Post::Dir
         next
       end
 
-      src_stat = client.fs.filestat.new(src_item)
+      tries_cnt = 0
+      begin
+        src_stat = client.fs.filestat.new(src_item)
+      rescue Rex::TimeoutError
+        if (tries && (tries_no == 0 || tries_cnt < tries_no))
+          tries_cnt += 1
+          stat.call('error opening file - retry #', tries_cnt, src_item) if (stat)
+          retry
+        else
+          stat.call('error opening file - giving up', tries_cnt, src_item) if (stat)
+          raise
+        end
+      end
 
       if (src_stat.file?)
-        stat.call('downloading', src_item, dst_item) if (stat)
+        stat.call('dir downloading', src_item, dst_item) if (stat)
         begin
-          result = client.fs.file.download_file(dst_item, src_item)
+          if (continue || tries)  # allow to file.download to log messages
+            result = client.fs.file.download(dst_item, src_item, continue, tries, tries_no, &stat)
+          else
+            result = client.fs.file.download(dst_item, src_item, continue, tries, tries_no)
+          end
           stat.call(result, src_item, dst_item) if (stat)
         rescue ::Rex::Post::Meterpreter::RequestError => e
           if force
@@ -231,10 +260,10 @@ class Dir < Rex::Post::Dir
         end
 
         stat.call('mirroring', src_item, dst_item) if (stat)
-        download(dst_item, src_item, recursive, force, glob, &stat)
+        download(dst_item, src_item, recursive, force, glob, continue, tries, tries_no, &stat)
         stat.call('mirrored', src_item, dst_item) if (stat)
       end
-    }
+    } # entries
   end
 
   #
