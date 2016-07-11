@@ -32,7 +32,7 @@ class Server
     def find(search, type = 'A')
       self.records.select do |record,expire|
         record.type == type and (expire < 1 or expire > Time.now.to_i) and 
-        (record.name == search or record.address == search)
+        (record.name == search or record.address.to_s == search)
       end.keys
     end
 
@@ -56,11 +56,11 @@ class Server
     # @param name [String] Name of record
     # @param address [String] Address of record
     # @param type [String] Record type to add
-    def add_static(name, address, type = 'A')
+    def add_static(name, address, type = 'A', replace = false)
       if Rex::Socket.is_ip_addr?(address.to_s) and name.to_s.match(MATCH_HOSTNAME)
         find(name, type).each do |found|
           delete(found)
-        end
+        end if replace
         add(Net::DNS::RR.new(:name => name, :address => address),0)
       else
         raise "Invalid parameters for static entry - #{name}, #{address}, #{type}"
