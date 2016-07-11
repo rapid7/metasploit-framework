@@ -611,7 +611,8 @@ It is very simple to use. At the Meterpreter prompt, simply do:
 meterpreter > sleep 20
 ```
 
-And that will allow Meterpreter to sleep 20 seconds, and will reconnect.
+And that will allow Meterpreter to sleep 20 seconds, and will reconnect as long as the payload
+handler remains active (such as being a background job).
 
 To learn more about this feature, please [click here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Sleep-Control).
 
@@ -660,7 +661,8 @@ Transport Control allows you manage transports on the fly while the payload sess
 
 To learn more about this, please read this [documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control).
 
-## Using the Post Exploitation API in IRB
+
+ Using the Post Exploitation API in IRB
 
 To enter IRB, do the following at the Meterpreter prompt:
 
