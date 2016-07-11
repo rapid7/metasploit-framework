@@ -198,7 +198,7 @@ class Dir < Rex::Post::Dir
   def Dir.download(dst, src, recursive = false, force = true, glob = nil, continue = false, tries = false, tries_no = 0, &stat)
     tries_cnt = 0
     begin
-      dir_files = self.entries(src)
+      dir_files = self.entries(src, glob)
     rescue Rex::TimeoutError
       if (tries && (tries_no == 0 || tries_cnt < tries_no))
         tries_cnt += 1
