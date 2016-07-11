@@ -662,7 +662,7 @@ Transport Control allows you manage transports on the fly while the payload sess
 To learn more about this, please read this [documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control).
 
 
- Using the Post Exploitation API in IRB
+## Using the Post Exploitation API in IRB
 
 To enter IRB, do the following at the Meterpreter prompt:
 
