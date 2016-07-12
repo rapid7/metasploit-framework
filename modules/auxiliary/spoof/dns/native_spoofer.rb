@@ -118,7 +118,6 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Could not spoof any domains for #{peer} request #{asked}")
       return
     end
-    req.header.qr = 1
     service.send_response(cli, Packet.validate(Packet.generate_response(req)).data)
   end
 
@@ -128,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
   def on_send_response(cli,data)
     cli.payload = data
     cli.recalc
-    inject cli
+    inject cli.to_s
   end
 
 

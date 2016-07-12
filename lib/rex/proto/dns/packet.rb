@@ -25,11 +25,7 @@ module Packet
   #
   # @return [Net::DNS::Packet]
   def self.validate(packet)
-    Net::DNS::Packet.parse(
-      Resolv::DNS::Message.decode(
-        packet.respond_to?(:data) ? packet.data : packet
-      ).encode
-    )
+      self.encode_net(self.encode_res(self.encode_raw(packet)))
   end
 
   #
@@ -41,7 +37,7 @@ module Packet
   def self.encode_net(packet)
     return packet if packet.respond_to?(:data)
     Net::DNS::Packet.parse(
-      packet.respond_to?(:decode) ? packet.encode : packet
+      packet.respond_to?(:encode) ? packet.encode : packet
     )
   end
 
@@ -51,7 +47,7 @@ module Packet
   #
   # @return [Resolv::DNS::Message]
   def self.encode_res(packet)
-    return packet if packet.respond_to?(:decode)
+    return packet if packet.respond_to?(:encode)
     Resolv::DNS::Message.decode(
       packet.respond_to?(:data) ? packet.data : packet
     )
@@ -63,7 +59,7 @@ module Packet
   #
   # @return [Resolv::DNS::Message]
   def self.encode_raw(packet)
-    return packet unless packet.respond_to?(:decode) or packet.respond_to?(:data)
+    return packet unless packet.respond_to?(:encode) or packet.respond_to?(:data)
     packet.respond_to?(:data) ? packet.data : packet.encode
   end
 
@@ -126,6 +122,8 @@ module Packet
     end
     # Set response bit last to allow reprocessing of responses
     packet.header.qr = 1
+    # Set recursion available bit if recursion desired
+    packet.header.ra = 1 if packet.header.recursive?
     return packet
   end
 

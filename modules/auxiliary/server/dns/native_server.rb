@@ -58,8 +58,12 @@ class MetasploitModule < Msf::Auxiliary
       else
         req.answer = req.answer + cached
         forward.question.delete(ques)
-        hits = cached.map do |hit|
-          hit.name + ':' + hit.address.to_s + ' ' + hit.type
+        cached.map do |hit|
+          if hit.respond_to?(:address)
+            hit.name + ':' + hit.address.to_s + ' ' + hit.type
+          else
+            hit.name + ' ' + hit.type
+          end
         end.each {|h| vprint_status("Cache hit for #{h}")}
       end
     end unless service.cache.nil?
@@ -70,7 +74,8 @@ class MetasploitModule < Msf::Auxiliary
       else
         forwarded = service.fwd_res.send(Packet.validate(forward))
         forwarded.answer.each do |ans|
-          vprint_status("Caching response #{ans.name}:#{ans.address} #{ans.type}")
+          rstring = ans.respond_to?(:address) ? "#{ans.name}:#{ans.address}" : ans.name
+          vprint_status("Caching response #{rstring} #{ans.type}")
           service.cache.cache_record(ans)
         end unless service.cache.nil?
         # Merge the answers and use the upstream response

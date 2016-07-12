@@ -23,7 +23,7 @@ class Server
     end
 
     #
-    # Find entries in cache
+    # Find entries in cache, substituting names for '*' in return
     #
     # @param search [String] Name or address to search for
     # @param type [String] Record type to search for
@@ -32,8 +32,18 @@ class Server
     def find(search, type = 'A')
       self.records.select do |record,expire|
         record.type == type and (expire < 1 or expire > Time.now.to_i) and 
-        (record.name == search or record.address.to_s == search)
-      end.keys
+        (
+          record.name == '*' or
+          record.name == search or record.name[0..-2] == search or
+          ( record.respond_to?(:address) and record.address.to_s == search )
+        )
+      end.keys.map do |record|
+        if search.to_s.match(MATCH_HOSTNAME) and record.name == '*'
+          record = Net::DNS::RR.new(:name => search, :address => record.address)
+        else
+          record
+        end
+      end
     end
 
     #
@@ -43,7 +53,8 @@ class Server
     def cache_record(record)
       return unless @monitor_thread
       if record.class.ancestors.include?(Net::DNS::RR) and
-      Rex::Socket.is_ip_addr?(record.address.to_s) and record.name.to_s.match(MATCH_HOSTNAME)
+      (!record.respond_to?(:address) or Rex::Socket.is_ip_addr?(record.address.to_s)) and
+      record.name.to_s.match(MATCH_HOSTNAME)
         add(record, Time.now.to_i + record.ttl)
       else
         raise "Invalid record for cache entry - #{record.inspect}"
@@ -57,7 +68,8 @@ class Server
     # @param address [String] Address of record
     # @param type [String] Record type to add
     def add_static(name, address, type = 'A', replace = false)
-      if Rex::Socket.is_ip_addr?(address.to_s) and name.to_s.match(MATCH_HOSTNAME)
+      if Rex::Socket.is_ip_addr?(address.to_s) and
+      ( name.to_s.match(MATCH_HOSTNAME) or name == '*')
         find(name, type).each do |found|
           delete(found)
         end if replace
