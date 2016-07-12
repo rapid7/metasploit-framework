@@ -132,6 +132,7 @@ class Utils
 
   # BLOB without GSS usefull for ntlmssp type 1 message
   def self.make_ntlmssp_blob_init(domain = 'WORKGROUP', name = 'WORKSTATION', flags=0x80201)
+    domain = Rex::Text.to_unicode(domain)
     blob =	"NTLMSSP\x00" +
       [1, flags].pack('VV') +
 
