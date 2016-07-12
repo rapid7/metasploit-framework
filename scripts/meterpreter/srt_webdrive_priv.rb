@@ -21,7 +21,6 @@
 #   - http://retrogod.altervista.org/9sg_south_river_priv.html
 #   - http://www.rec-sec.com/2010/01/26/srt-webdrive-privilege-escalation/
 #   - http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4606
-#   - http://osvdb.org/show/osvdb/59080
 #
 #  mtrancer[@]gmail.com
 #  http://www.rec-sec.com

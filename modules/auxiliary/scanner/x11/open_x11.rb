@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
       'Author'	=> ['tebo <tebodell[at]gmail.com>'],
       'References'	=>
         [
-          ['OSVDB', '309'],
           ['CVE', '1999-0526'],
         ],
       'License'	=> MSF_LICENSE

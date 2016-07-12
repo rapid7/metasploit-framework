@@ -20,7 +20,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['OSVDB', '51536'],
           ['URL', 'http://blog.c22.cc/advisories/typo3-sa-2009-001'],
           ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2009-001/'],
         ],

@@ -28,7 +28,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '2013-2641' ],
-          [ 'OSVDB', '91953' ],
           [ 'BID', '58833' ],
           [ 'EDB', '24932' ],
           [ 'URL', 'http://www.sophos.com/en-us/support/knowledgebase/118969.aspx' ],

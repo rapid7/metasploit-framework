@@ -27,7 +27,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          ['OSVDB', '85247'],
           ['BID', '55446'],
           ['CVE', '2012-2983'],
           ['URL', 'http://www.americaninfosec.com/research/dossiers/AISG-12-002.pdf'],

@@ -25,7 +25,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2014-0763' ],
           [ 'ZDI', '14-077' ],
-          [ 'OSVDB', '105572' ],
           [ 'BID', '66740' ],
           [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-14-079-03' ]
         ],

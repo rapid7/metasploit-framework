@@ -20,10 +20,6 @@ class MetasploitModule < Msf::Auxiliary
       this module, wait until the real administrator logs in, then specify the
       predicted cookie value to hijack their session.
       },
-      'References'     =>
-        [
-          ['OSVDB', '60035'],
-        ],
       'Author'         => 'hdm',
       'License'        => MSF_LICENSE
     ))

@@ -21,7 +21,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
-          [ 'OSVDB', '48730' ],
           [ 'CVE', '2008-2439' ],
           [ 'BID', '31531' ],
           [ 'URL', 'http://www.trendmicro.com/ftp/documentation/readme/OSCE_7.3_Win_EN_CriticalPatch_B1372_Readme.txt' ],

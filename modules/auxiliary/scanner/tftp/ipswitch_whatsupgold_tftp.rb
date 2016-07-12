@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'     =>
         [
-          ['OSVDB', '77455'],
           ['BID', '50890'],
           ['EDB', '18189'],
           ['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt'],

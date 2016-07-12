@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2012-4554' ],
-          [ 'OSVDB', '86429' ],
           [ 'BID', '56103' ],
           [ 'URL', 'https://drupal.org/node/1815912' ],
           [ 'URL', 'http://drupalcode.org/project/drupal.git/commit/b912710' ],

@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2010-2861' ],
           [ 'BID', '42342' ],
-          [ 'OSVDB', '67047' ],
           [ 'URL', 'http://www.gnucitizen.org/blog/coldfusion-directory-traversal-faq-cve-2010-2861' ],
           [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-18.html' ],
         ]

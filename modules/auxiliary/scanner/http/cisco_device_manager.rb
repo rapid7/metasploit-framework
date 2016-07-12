@@ -33,7 +33,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'BID', '1846'],
           [ 'CVE', '2000-0945'],
-          [ 'OSVDB', '444'],
         ],
       'DisclosureDate' => 'Oct 26 2000'))
   end

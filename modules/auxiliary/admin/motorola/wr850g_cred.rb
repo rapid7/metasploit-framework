@@ -23,7 +23,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     => [
           [ 'CVE', '2004-1550' ],
-          [ 'OSVDB', '10232' ],
           [ 'URL', 'http://seclists.org/bugtraq/2004/Sep/0339.html'],
       ],
       'DisclosureDate' => 'Sep 24 2004'))

@@ -23,10 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           # HP Default Operations Manager user/pass
           [ 'CVE', '2009-3843' ],
-          [ 'OSVDB', '60317' ],
           [ 'BID', '37086' ],
           [ 'CVE', '2009-4189' ],
-          [ 'OSVDB', '60670' ],
           [ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
           [ 'ZDI', '09-085' ],
 
@@ -44,7 +42,6 @@ class MetasploitModule < Msf::Auxiliary
 
           # 'admin' password is blank in default Windows installer
           [ 'CVE', '2009-3548' ],
-          [ 'OSVDB', '60176' ],
           [ 'BID', '36954' ],
 
           # General

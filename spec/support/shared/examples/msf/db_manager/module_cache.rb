@@ -301,8 +301,6 @@ RSpec.shared_examples_for 'Msf::DBManager::ModuleCache' do
 
     it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Platform#name or Mdm::Module::Target#name keyword', :os
 
-    it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword', :osvdb
-
     it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Platform#name or Mdm::Module::Target#name keyword', :platform
 
     context 'with ref keyword' do

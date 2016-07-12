@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         =>	['Nikolas Sotiriu'],
       'References'     =>
         [
-          ['OSVDB', '70762'],
           ['CVE', '2011-0049'],
           ['CVE', '2011-0063'],
           ['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],

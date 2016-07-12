@@ -23,7 +23,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          ['OSVDB', '30172'],
           ['BID', '20858'],
           ['CVE', '2006-5702'],
           ['URL', 'http://secunia.com/advisories/22678/'],

@@ -44,7 +44,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2010-0425' ],
-          [ 'OSVDB', '62674'],
           [ 'BID', '38494' ],
           [ 'URL', 'https://issues.apache.org/bugzilla/show_bug.cgi?id=48509' ],
           [ 'URL', 'http://www.gossamer-threads.com/lists/apache/cvs/381537' ],

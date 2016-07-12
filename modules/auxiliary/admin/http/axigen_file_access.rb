@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'US-CERT-VU', '586556' ],
           [ 'CVE', '2012-4940' ],
-          [ 'OSVDB', '86802' ]
         ],
       'Actions'     =>
         [

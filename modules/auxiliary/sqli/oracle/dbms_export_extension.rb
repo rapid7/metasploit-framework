@@ -23,7 +23,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2006-2081' ],
-          [ 'OSVDB', '25002' ],
           [ 'BID', '17699' ],
           [ 'URL', 'http://www.red-database-security.com/exploits/oracle-sql-injection-oracle-dbms_export_extension.html' ],
         ],

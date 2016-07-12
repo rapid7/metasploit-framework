@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     => [
         [ 'BID', '35145' ],
         #[ 'CVE', '' ], # no CVE?
-        [ 'OSVDB', '54881' ],
         [ 'URL', 'http://www.aushack.com/200905-sonicwall.txt' ],
       ],
       'DisclosureDate' => 'May 29 2009'))
