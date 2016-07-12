@@ -16,6 +16,7 @@ PATH
       metasploit-model
       metasploit-payloads (= 1.1.12)
       metasploit_data_models
+      metasploit_payloads-mettle
       msgpack
       network_interface
       nokogiri
@@ -161,6 +162,7 @@ GEM
       postgres_ext
       railties (~> 4.2.6)
       recog (~> 2.0)
+    metasploit_payloads-mettle (0.0.5)
     method_source (0.8.2)
     mime-types (3.0)
       mime-types-data (~> 3.2015)
