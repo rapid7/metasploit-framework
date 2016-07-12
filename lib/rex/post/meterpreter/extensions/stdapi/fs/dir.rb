@@ -236,9 +236,9 @@ class Dir < Rex::Post::Dir
         stat.call('dir downloading', src_item, dst_item) if (stat)
         begin
           if (continue || tries)  # allow to file.download to log messages
-            result = client.fs.file.download(dst_item, src_item, continue, tries, tries_no, &stat)
+            result = client.fs.file.download_file(dst_item, src_item, continue, tries, tries_no, &stat)
           else
-            result = client.fs.file.download(dst_item, src_item, continue, tries, tries_no)
+            result = client.fs.file.download_file(dst_item, src_item, continue, tries, tries_no)
           end
           stat.call(result, src_item, dst_item) if (stat)
         rescue ::Rex::Post::Meterpreter::RequestError => e

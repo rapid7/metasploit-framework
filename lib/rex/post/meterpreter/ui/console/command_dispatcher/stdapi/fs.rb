@@ -399,7 +399,7 @@ class Console::CommandDispatcher::Stdapi::Fs
             src_path = file['path'] + client.fs.file.separator + file['name']
             dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
 
-            client.fs.file.download(dest_path, src_path) do |step, src, dst|
+            client.fs.file.download(dest_path, src_path, continue, tries, tries_no) do |step, src, dst|
               puts step
               print_status("#{step.ljust(11)}: #{src} -> #{dst}")
               client.framework.events.on_session_download(client, src, dest) if msf_loaded?
@@ -412,7 +412,20 @@ class Console::CommandDispatcher::Stdapi::Fs
 
       else
         # Perform direct matching
-        stat = client.fs.file.stat(src)
+        tries_cnt = 0
+        begin
+          stat = client.fs.file.stat(src)
+        rescue Rex::TimeoutError
+          if (tries && (tries_no == 0 || tries_cnt < tries_no))
+            tries_cnt += 1
+            print_error("Error opening: #{src} - retry (#{tries_cnt})")
+            retry
+          else
+            print_error("Error opening: #{src} - giving up")
+            raise
+          end
+        end
+
         if (stat.directory?)
           client.fs.dir.download(dest, src, recursive, true, glob, continue, tries, tries_no) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
