@@ -1097,7 +1097,7 @@ module Msf
           new_workspace = framework.db.find_workspace(args[3])
         else
           print_status("Usage: ")
-          print_status("nessus_db_scan <policy ID> <scan name> <scan description> <workspace>")
+          print_status("nessus_db_scan_workspace <policy ID> <scan name> <scan description> <workspace>")
           print_status("Use nessus_policy_list to list all available policies with their corresponding policy IDs")
           return
         end
