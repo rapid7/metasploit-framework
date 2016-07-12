@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Encoder::Xor
   end
 
   def encode_block(state, block)
-    allowedReg = [
+    allowed_reg = [
       ["rax",  "eax",  "ax",   "al"  ],
       ["rbx",  "ebx",  "bx",   "bl"  ],
       ["rcx",  "ecx",  "cx",   "cl"  ],
@@ -137,8 +137,8 @@ class MetasploitModule < Msf::Encoder::Xor
       ["r14",  "r14d", "r14w", "r14b"],
       ["r15",  "r15d", "r15w", "r15b"],
     ]
-    allowedReg.delete_if { |reg| if datastore['SaveRegisters']; datastore['SaveRegisters'].include?(reg.first); end }
-    allowedReg.shuffle!
+    allowed_reg.delete_if { |reg| datastore['SaveRegisters'] && datastore['SaveRegisters'].include?(reg.first) }
+    allowed_reg.shuffle!
 
     if block.length%8 != 0
       block += nop(8-(block.length%8))
@@ -147,23 +147,23 @@ class MetasploitModule < Msf::Encoder::Xor
     regType = 3
 
     if (block.length/8) > 0xff
-      regType=2
+      regType = 2
     end
 
     if (block.length/8) > 0xffff
-      regType=1
+      regType = 1
     end
 
     if (block.length/8) > 0xffffffff
-      regType=0
+      regType = 0
     end
 
-    regKey  = allowedReg[0][0]
-    regSize = allowedReg[3]
-    regRip  = allowedReg[1][0]
-    regEnv  = allowedReg[2]
+    reg_key  = allowed_reg[0][0]
+    reg_size = allowed_reg[3]
+    reg_rip  = allowed_reg[1][0]
+    reg_env  = allowed_reg[2]
 
-    flipCoin = rand(2)
+    flip_coin = rand(2)
 
     fpuOpcode = Rex::Poly::LogicalBlock.new('fpu',
                                             *fpu_instructions)
@@ -173,59 +173,59 @@ class MetasploitModule < Msf::Encoder::Xor
 
     sub = (rand(0xd00)&0xfff0)+0xf000
     lea = []
-    if flipCoin==0
-      lea << ["lea",  assemble("mov %s, rsp"%regEnv[0])]
-      lea << ["lea1", assemble("and "+regEnv[2]+", 0x%x"%sub)]
+    if flip_coin==0
+      lea << ["lea",  assemble("mov %s, rsp"%reg_env[0])]
+      lea << ["lea1", assemble("and "+reg_env[2]+", 0x%x"%sub)]
     else
       lea << ["lea",  assemble("push rsp")]
-      lea << ["lea1", assemble("pop "+regEnv[0])]
-      lea << ["lea2", assemble("and "+regEnv[2]+", 0x%x"%sub)]
+      lea << ["lea1", assemble("pop "+reg_env[0])]
+      lea << ["lea2", assemble("and "+reg_env[2]+", 0x%x"%sub)]
     end
 
-    fpuLea = ordered_random_merge(fpu, lea)
-    fpuLea << ["fpu1", fxsave64(regEnv[0])] # fxsave64 doesn't seem to exist in metasm
+    fpu_lea = ordered_random_merge(fpu, lea)
+    fpu_lea << ["fpu1", fxsave64(reg_env[0])] # fxsave64 doesn't seem to exist in metasm
 
-    keyIns = [["key",  assemble("mov "+regKey+", 0x%x"%state.key)]]
+    key_ins = [["key",  assemble("mov "+reg_key+", 0x%x"%state.key)]]
 
     size = []
-    size << ["size",assemble("xor "+regSize[0]+", "+regSize[0])]
-    size << ["size", assemble("mov "+regSize[regType]+", 0x%x"% (block.length/8))]
+    size << ["size", assemble("xor "+reg_size[0]+", "+reg_size[0])]
+    size << ["size", assemble("mov "+reg_size[regType]+", 0x%x"% (block.length/8))]
 
     getrip=0
 
-    a = ordered_random_merge(size, keyIns)
-    decodeHeadTab = ordered_random_merge(a, fpuLea)
+    a = ordered_random_merge(size, key_ins)
+    decode_head_tab = ordered_random_merge(a, fpu_lea)
 
-    decodeHeadTab.length.times { |i| getrip=i if decodeHeadTab[i][0]=="fpu"}
+    decode_head_tab.length.times { |i| getrip = i if decode_head_tab[i][0] == "fpu"}
 
-    decodeHead = decodeHeadTab.map { |j,i| i.to_s }.join
+    decode_head = decode_head_tab.map { |j,i| i.to_s }.join
 
-    flipCoin = rand(2)
+    flip_coin = rand(2)
 
-    if flipCoin==0
-      decodeHead += assemble("mov "+regRip+", ["+regEnv[0]+" + 0x8]")
+    if flip_coin==0
+      decode_head += assemble("mov "+reg_rip+", ["+reg_env[0]+" + 0x8]")
     else
-      decodeHead += assemble("add "+regEnv[0]+", 0x8")
-      decodeHead += assemble("mov "+regRip+", ["+regEnv[0]+"]")
+      decode_head += assemble("add "+reg_env[0]+", 0x8")
+      decode_head += assemble("mov "+reg_rip+", ["+reg_env[0]+"]")
     end
 
 
-    decodeHeadSize=decodeHead.length
-    getrip.times { |i| decodeHeadSize-=decodeHeadTab[i][1].length }
+    decode_head_size = decode_head.length
+    getrip.times { |i| decode_head_size -= decode_head_tab[i][1].length }
 
-    loopCode =  assemble("dec "+regSize[0])
-    loopCode += assemble("xor ["+regRip+"+("+regSize[0]+"*8) + 0x7f], "+regKey)
-    loopCode += assemble("test "+regSize[0]+", "+regSize[0])
+    loop_code =  assemble("dec "+reg_size[0])
+    loop_code += assemble("xor ["+reg_rip+"+("+reg_size[0]+"*8) + 0x7f], "+reg_key)
+    loop_code += assemble("test "+reg_size[0]+", "+reg_size[0])
 
-    payloadOffset = decodeHeadSize+loopCode.length+2
+    payload_offset = decode_head_size+loop_code.length+2
 
-    loopCode =  assemble("dec "+regSize[0])
-    loopCode += assemble("xor ["+regRip+"+("+regSize[0]+"*8) + 0x"+payloadOffset.to_s(16)+"], "+regKey)
-    loopCode += assemble("test "+regSize[0]+", "+regSize[0])
+    loop_code =  assemble("dec "+reg_size[0])
+    loop_code += assemble("xor ["+reg_rip+"+("+reg_size[0]+"*8) + 0x"+payload_offset.to_s(16)+"], "+reg_key)
+    loop_code += assemble("test "+reg_size[0]+", "+reg_size[0])
 
-    jnz = "\x75"+(0x100-(loopCode.length+2)).chr
+    jnz = "\x75"+(0x100-(loop_code.length+2)).chr
 
-    decode = decodeHead+loopCode+jnz
+    decode = decode_head+loop_code+jnz
     encode = xor_string(block, [state.key].pack('Q'))
 
     return decode + encode
