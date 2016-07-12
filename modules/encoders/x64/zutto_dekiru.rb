@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Encoder::Xor
       'Decoder'          =>
       {
         'KeySize'    => 8,
-        'KeyPack'    => 'Q'
+        'KeyPack'    => 'Q<'
       }
     )
   end
@@ -144,18 +144,18 @@ class MetasploitModule < Msf::Encoder::Xor
       block += nop(8-(block.length%8))
     end
 
-    regType = 3
+    reg_type = 3
 
     if (block.length/8) > 0xff
-      regType = 2
+      reg_type = 2
     end
 
     if (block.length/8) > 0xffff
-      regType = 1
+      reg_type = 1
     end
 
     if (block.length/8) > 0xffffffff
-      regType = 0
+      reg_type = 0
     end
 
     reg_key  = allowed_reg[0][0]
@@ -165,11 +165,11 @@ class MetasploitModule < Msf::Encoder::Xor
 
     flip_coin = rand(2)
 
-    fpuOpcode = Rex::Poly::LogicalBlock.new('fpu',
+    fpu_opcode = Rex::Poly::LogicalBlock.new('fpu',
                                             *fpu_instructions)
 
     fpu = []
-    fpu << ["fpu",fpuOpcode.generate([], nil, state.badchars)]
+    fpu << ["fpu",fpu_opcode.generate([], nil, state.badchars)]
 
     sub = (rand(0xd00)&0xfff0)+0xf000
     lea = []
@@ -189,7 +189,7 @@ class MetasploitModule < Msf::Encoder::Xor
 
     size = []
     size << ["size", assemble("xor "+reg_size[0]+", "+reg_size[0])]
-    size << ["size", assemble("mov "+reg_size[regType]+", 0x%x"% (block.length/8))]
+    size << ["size", assemble("mov "+reg_size[reg_type]+", 0x%x"% (block.length/8))]
 
     getrip=0
 
