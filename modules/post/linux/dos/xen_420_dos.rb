@@ -69,34 +69,34 @@ class MetasploitModule < Msf::Post
 
   def requirements_met?
     unless is_root?
-      print_error("Sorry, root access is required - abort")
+      print_error("Root access is required")
       return false
     end
     print_good('Detected root privilege')
 
     unless build_essential?
-      print_error('Sorry, no build-essential found - abort')
+      print_error('No build-essential package found')
       return false
     end
     print_good('Detected build-essential')
 
     unless xen?
-      print_error('Sorry, no Xen found - abort')
+      print_error('Running Xen was not found')
       return false
     end
     print_good('Detected Xen')
 
     unless xen_running?
-      print_error('Sorry, Xen not running - abort')
+      print_error('Xen is not running')
       return false
     end
     print_good('Detected running Xen')
 
     unless right_xen_version?
-      print_error('Sorry, wrong Xen Version - abort')
+      print_error('Incorrect Xen version running')
       return false
     end
-    print_good('Detected right Xen Version')
+    print_good('Detected correct Xen version')
 
     true
   end
