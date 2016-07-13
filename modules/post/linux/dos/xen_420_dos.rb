@@ -7,35 +7,35 @@ require 'msf/core'
 require 'rex'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
 
-  def initialize(info={})
-    super(update_info(info,
-                      'Name'          => 'Linux DoS Xen 4.2.0 2012-5525',
-                      'Description'   => %q{
-                      This module denies the service of Xen 4.2.0 via a paravirtualised VM (dom0 included). Successfully tested on Debian 7 3.2.0-4-amd64 with Xen 4.2.0 compiled from source. Also checking requirements before executing.},
-                      'References'     =>
-                      [
-                      ['CVE', '2012-5525']
-                      ],
-                      'License'       => MSF_LICENSE,
-                      'Author'        => [ 'Christoph Sendner <christoph.sendner[at]stud-mail.uni-wuerzburg.de>',
-                                           'Aleksandar Milenkoski  <aleksandar.milenkoski[at]uni-wuerzburg.de>'],
-                      'Platform'      => [ 'linux' ],
-                      'Arch'          => [ARCH_X86_64],
-                      'Targets'       =>
-                      [
-                      ['Linux x86_64', {'Arch' => ARCH_X86_64}]
-                      ],
-                      'SessionTypes'  => ['shell']
-                      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'         => 'Linux DoS Xen 4.2.0 2012-5525',
+        'Description'  => %q(
+        This module causes a hypervisor crash in Xen 4.2.0 when invoked from a
+        paravirtualised VM, including from dom0.  Successfully tested on Debian 7
+        3.2.0-4-amd64 with Xen 4.2.0.),
+        'References'   => [ ['CVE', '2012-5525'] ],
+        'License'      => MSF_LICENSE,
+        'Author'       => [ 'Christoph Sendner <christoph.sendner[at]stud-mail.uni-wuerzburg.de>',
+                            'Aleksandar Milenkoski  <aleksandar.milenkoski[at]uni-wuerzburg.de>'],
+        'Platform'     => [ 'linux' ],
+        'Arch'         => [ARCH_X86_64],
+        'Targets'      => [ ['Linux x86_64', { 'Arch' => ARCH_X86_64 } ] ],
+        'SessionTypes' => ['shell']
+      )
+    )
 
-                      register_options([
-                                       OptString.new('WritableDir', [true, 'A directory for storing temporary files on the target system', '/tmp'])
-                                       ], self.class)
+    register_options(
+      [
+        OptString.new('WritableDir', [true, 'A directory for storing temporary files on the target system', '/tmp'])
+      ], self.class
+    )
   end
 
   def run
@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Post
 
     # Testing requirements
     print_status('Detecting requirements...')
-    return unless requirements?
+    return unless requirements_met?
 
     # Cearting and writing random paths and files
     vprint_status('Creating random file and folder names')
@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Post
   #  - xen-version (DoS only works on specific versions)
   ##
 
-  def requirements?
+  def requirements_met?
     unless is_root?
       print_error("Sorry, root access is required - abort")
       return false
