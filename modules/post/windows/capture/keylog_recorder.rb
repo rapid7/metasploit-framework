@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
           to the user's privileges, so it makes sense to create a separate session for this task. The Winlogon
           option will capture the username and password entered into the logon and unlock dialog. The LOCKSCREEN
           option can be combined with the Winlogon CAPTURE_TYPE to for the user to enter their clear-text
-          password.
+          password. It is recommended to run this module as a job, otherwise it will tie up your framework user interface.
             },
         'License'        => MSF_LICENSE,
         'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Post
     if @interval < 1
       print_error("INTERVAL value out of bounds. Setting to 5.")
       @interval = 5
-    end    
+    end
   end
 
   # This function sets the log file and loot entry.
@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Post
   end
 
   # This function returns the process name that the session is running in.
-  # 
+  #
   # Note: "session.sys.process[proc_name]" will not work when "include Msf::Post::Windows::Priv" is in the module.
   #
   # @return [String Class] the session process's name
@@ -270,7 +270,7 @@ class MetasploitModule < Msf::Post
           write_keylog_data
         else
           if !session.alive?
-            print_status("Session: #{datastore['SESSION']} has been closed. Exiting keylog recorder.")
+            vprint_status("Session: #{datastore['SESSION']} has been closed. Exiting keylog recorder.")
             rec = 0
           end
         end
@@ -316,7 +316,7 @@ class MetasploitModule < Msf::Post
   def session_good?
     return false if !session.alive?
     if @timed_out
-      if get_session_age < @timed_out_age && @wait  
+      if get_session_age < @timed_out_age && @wait
         time_stamp("resumed")
         @timed_out = false       #reset timed out to false, if module set to wait and session becomes active again.
       end
