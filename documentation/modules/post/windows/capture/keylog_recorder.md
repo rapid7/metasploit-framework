@@ -23,7 +23,7 @@ This module captures keystrokes from a Windows target and saves them to a text f
 - **TimeOutAction** - This option sets the behavior the module takes if the key capture request times out. (See below.) Accepted: wait or exit. Default value is wait.
 
 ## Usage
-The Meterpreter session must be located in an appropriate process for keystroke recording to work properly. This is described in the below-listed capture types. This module can migrate the session if MIGRATE is set to TRUE. Set MIGRATE to FALSE if migration will be performed manually or through another module.
+The Meterpreter session must be located in an appropriate process for keystroke recording to work properly. This is described in the below-listed capture types. This module can migrate the session if MIGRATE is set to TRUE. If winlogon or PID migration fails, the module will use explorer migration and CAPTURE_TYPE. Set MIGRATE to FALSE if migration will be performed manually or through another module. 
 
 ### Capture Types
 - **Explorer.exe** - __Session must be in explorer.exe__ - The most common capture type. Keystrokes are recorded from most user level applications. Applications running at an elevated level will likely not get recorded. **NOTE: Sessions running with elevated privileges are downgraded to user level when migrated into explorer.exe.** It is recommended that a second session be opened for keystroke recording if elevated priveledges are to be maintained.
@@ -41,6 +41,9 @@ This module has two actions it can take if SessionCommunicationTimeout is reache
 - **WAIT** - With this option selected, the module suspends attempting to gather keystrokes after the timeout. It waits for the session to become active again, then resumes capturing keystrokes. The output log reflects that recording was suspended along with a timestamp. If the session becomes active again, the log indicates this along with a timestamp. The wait option allows keystrokes to be logged over multiple system sleep cycles. In the event that the session dies, the recording job is stopped automatically.
 
 - **EXIT** - With this option selected, the module exits and the job is killed when the timeout occurs. The output log reflects the exit along with a timestamp.
+
+### Running Module Stand Alone
+When running the module stand alone, it will prevent the Framework UI from being use for anything else until you exit the module. Use `CTRL-C` to exit. The module will save the last few keystrokes. This may take up to 30 seconds to complete.
 
 ## Example Output
 ```
