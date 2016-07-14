@@ -49,15 +49,15 @@ class MetasploitModule < Msf::Auxiliary
     peer = "#{cli.peerhost}:#{cli.peerport}"
     asked = req.question.map(&:qName).join(', ')
     vprint_status("Received request for #{asked} from #{peer}")
-    forward = req.dup
+    answered = []
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
       cached = service.cache.find(ques.qName, ques.qType.to_s)
       if cached.empty?
         next
       else
-        req.answer = req.answer + cached
-        forward.question.delete(ques)
+        req.answer = (req.answer + cached).uniq
+        answered << ques
         cached.map do |hit|
           if hit.respond_to?(:address)
             hit.name + ':' + hit.address.to_s + ' ' + hit.type
@@ -68,10 +68,12 @@ class MetasploitModule < Msf::Auxiliary
       end
     end unless service.cache.nil?
     # Forward remaining requests, cache responses
-    if forward.question.count > 0 and service.fwd_res
-      if !forward.header.recursive?
-        vprint_status("Recursion forbidden in query for #{forward.question.first.name} from #{peer}")
+    if answered.count < req.question.count and service.fwd_res
+      if !req.header.recursive?
+        vprint_status("Recursion forbidden in query for #{req.question.first.name} from #{peer}")
       else
+        forward = req.dup
+        forward.question = req.question - answered
         forwarded = service.fwd_res.send(Packet.validate(forward))
         forwarded.answer.each do |ans|
           rstring = ans.respond_to?(:address) ? "#{ans.name}:#{ans.address}" : ans.name
@@ -79,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
           service.cache.cache_record(ans)
         end unless service.cache.nil?
         # Merge the answers and use the upstream response
-        forwarded.answer = req.answer + forwarded.answer
+        forwarded.answer = (req.answer + forwarded.answer).uniq
         req = forwarded
       end
     end

