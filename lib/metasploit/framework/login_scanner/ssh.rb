@@ -50,11 +50,12 @@ module Metasploit
           self.ssh_socket = nil
           factory = Rex::Socket::SSHFactory.new(framework,framework_module, proxies)
           opt_hash = {
-            :port          => port,
-            :use_agent     => false,
-            :config        => false,
-            :verbose       => verbosity,
-            :proxy         => factory
+            :port            => port,
+            :use_agent       => false,
+            :config          => false,
+            :verbose         => verbosity,
+            :proxy           => factory,
+            :non_interactive => true
           }
           case credential.private_type
           when :password, nil

@@ -214,7 +214,8 @@ class MetasploitModule < Msf::Auxiliary
         :skip_private_keys => true,
         :config =>false,
         :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
-        :proxy	  => factory
+        :proxy	  => factory,
+        :non_interactive => true
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

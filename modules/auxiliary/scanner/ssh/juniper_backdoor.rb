@@ -47,7 +47,8 @@ class MetasploitModule < Msf::Auxiliary
       port:         rport,
       auth_methods: ['password', 'keyboard-interactive'],
       password:     %q{<<< %s(un='%s') = %u},
-      proxy: factory
+      proxy: factory,
+      :non_interactive => true
     }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
