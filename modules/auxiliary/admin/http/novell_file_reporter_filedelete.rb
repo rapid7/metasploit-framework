@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2011-2750' ],
-          [ 'OSVDB', '73729' ],
           [ 'URL', 'http://aluigi.org/adv/nfr_2-adv.txt'],
         ]
       ))

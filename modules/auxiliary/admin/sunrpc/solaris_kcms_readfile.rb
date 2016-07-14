@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2003-0027'],
-          ['OSVDB', '8201'],
           ['BID', '6665'],
           ['URL', 'http://marc.info/?l=bugtraq&m=104326556329850&w=2']
         ],

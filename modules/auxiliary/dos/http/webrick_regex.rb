@@ -24,7 +24,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     => [
         [ 'BID', '30644'],
         [ 'CVE', '2008-3656'],
-        [ 'OSVDB', '47471' ],
         [ 'URL', 'http://www.ruby-lang.org/en/news/2008/08/08/multiple-vulnerabilities-in-ruby/']
       ],
       'DisclosureDate' => 'Aug 08 2008'))

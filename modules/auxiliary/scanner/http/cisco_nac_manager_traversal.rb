@@ -21,7 +21,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'   =>
         [
           [ 'CVE', '2011-3305' ],
-          [ 'OSVDB', '76080']
         ],
       'Author'      => [ 'Nenad Stojanovski <nenad.stojanovski[at]gmail.com>' ],
       'License'     => MSF_LICENSE

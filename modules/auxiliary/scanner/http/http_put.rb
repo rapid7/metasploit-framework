@@ -29,10 +29,6 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r',
         ],
       'License'     => MSF_LICENSE,
-      'References'  =>
-      [
-        [ 'OSVDB', '397'],
-      ],
       'Actions'     =>
         [
           ['PUT'],

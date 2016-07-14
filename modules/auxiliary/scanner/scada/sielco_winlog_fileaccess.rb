@@ -28,7 +28,6 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'     =>
         [
-          [ 'OSVDB', '83275' ],
           [ 'BID', '54212' ],
           [ 'EDB', '19409'],
           [ 'URL', 'http://aluigi.altervista.org/adv/winlog_2-adv.txt' ]

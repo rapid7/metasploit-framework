@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2012-0419' ],
-          [ 'OSVDB', '85801' ],
           [ 'BID', '55648' ],
           [ 'URL', 'http://www.novell.com/support/kb/doc.php?id=7010772' ]
         ]

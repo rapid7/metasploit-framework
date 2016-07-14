@@ -1,6 +1,6 @@
 RSpec.shared_examples_for 'Msf::Module::Search' do
   describe '#search_filter' do
-    REF_TYPES = %w(CVE BID OSVDB EDB)
+    REF_TYPES = %w(CVE BID EDB)
 
     shared_examples "search_filter" do |opts|
       accept = opts[:accept] || []

@@ -30,7 +30,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '2011-0657' ],
-          [ 'OSVDB', '71780' ],
           [ 'MSB', 'MS11-030' ]
         ],
       'DisclosureDate' => 'Apr 12 2011')

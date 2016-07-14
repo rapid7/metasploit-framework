@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2011-3486' ],
-          [ 'OSVDB', '75495' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/twincat_1-adv.txt' ]
         ],
       'DisclosureDate' => 'Sep 13 2011'

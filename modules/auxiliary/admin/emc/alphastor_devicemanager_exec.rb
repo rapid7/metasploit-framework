@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://labs.idefense.com/intelligence/vulnerabilities/display.php?id=703' ],
-          [ 'OSVDB', '45715' ],
           [ 'CVE', '2008-2157' ],
           [ 'BID', '29398' ],
         ],

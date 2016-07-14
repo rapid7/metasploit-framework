@@ -23,7 +23,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://seclists.org/fulldisclosure/2014/May/79' ],
           [ 'URL', 'http://www.arrisi.com/modems/datasheet/SBG6580/SBG6580_UserGuide.pdf' ],
-          [ 'OSVDB', '110555' ]
         ],
       'Author'      => 'Matthew Kienow <mkienow[at]inokii.com>',
       'License'     => MSF_LICENSE

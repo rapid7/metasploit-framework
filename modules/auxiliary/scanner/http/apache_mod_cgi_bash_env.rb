@@ -36,7 +36,6 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         ['CVE', '2014-6271'],
         ['CVE', '2014-6278'],
-        ['OSVDB', '112004'],
         ['EDB', '34765'],
         ['URL', 'https://access.redhat.com/articles/1200223'],
         ['URL', 'http://seclists.org/oss-sec/2014/q3/649']

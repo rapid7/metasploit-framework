@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2009-2514' ],
           [ 'MSB', 'MS09-065' ],
-          [ 'OSVDB', '59869']
         ],
       'Actions'        => [[ 'WebServer' ]],
       'PassiveActions' => [ 'WebServer' ],

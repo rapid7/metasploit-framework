@@ -40,16 +40,6 @@ module Msf::DBManager::Import::Nikto
             }
             # Always report it as a note.
             report_note(desc_data)
-            # Sometimes report it as a vuln, too.
-            # XXX: There's a Vuln.info field but nothing reads from it? See Bug #5837
-            if item.attributes['osvdbid'].to_i != 0
-              desc_data[:refs] = ["OSVDB-#{item.attributes['osvdbid']}"]
-              desc_data[:name] = "NIKTO-#{item.attributes['id']}"
-              desc_data.delete(:data)
-              desc_data.delete(:type)
-              desc_data.delete(:update)
-              report_vuln(desc_data)
-            end
           end
         end
       end
