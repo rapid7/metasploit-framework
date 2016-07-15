@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2008-3979' ],
+          [ 'OSVDB', '51354' ],
           [ 'URL', 'http://www.securityfocus.com/archive/1/500061' ],
           [ 'URL', 'http://www.ngssoftware.com/' ],
         ],

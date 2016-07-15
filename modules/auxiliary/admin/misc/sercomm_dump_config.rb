@@ -52,6 +52,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'     =>
         [
+          [ 'OSVDB', '101653' ],
           [ 'URL', 'https://github.com/elvanderb/TCP-32764' ]
         ],
       'DisclosureDate' => "Dec 31 2013" ))

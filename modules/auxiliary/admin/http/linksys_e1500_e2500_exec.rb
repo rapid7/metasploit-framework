@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'References'      =>
         [
+          [ 'OSVDB', '89912' ],
           [ 'BID', '57760' ],
           [ 'EDB', '24475' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ]

@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'References' =>
         [
           ['BID', '37670'],
+          ['OSVDB', '61538'],
           ['URL','http://praetorianprefect.com/archives/2010/01/junos-juniper-flaw-exposes-core-routers-to-kernal-crash/']
         ]
     )

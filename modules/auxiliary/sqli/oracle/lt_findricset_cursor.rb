@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2007-5511'],
+          [ 'OSVDB', '40079'],
           [ 'BID', '26098' ],
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2007.html'],
         ],

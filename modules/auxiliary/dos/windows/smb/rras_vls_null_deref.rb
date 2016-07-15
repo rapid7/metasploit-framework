@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Auxiliary
 
       'Author'         => [ 'hdm' ],
       'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'OSVDB', '64340'],
+
+        ],
       'Actions'     =>
         [
           ['Attack'],

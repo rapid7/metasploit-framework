@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2005-2120' ],
           [ 'MSB', 'MS05-047' ],
           [ 'BID', '15065' ],
+          [ 'OSVDB', '18830' ]
         ]
       ))
 

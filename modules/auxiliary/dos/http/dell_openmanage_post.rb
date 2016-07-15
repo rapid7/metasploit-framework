@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://archives.neohapsis.com/archives/bugtraq/2004-02/0650.html' ],
           [ 'BID', '9750' ],
+          [ 'OSVDB', '4077' ],
           [ 'CVE', '2004-0331' ],
         ],
       'DisclosureDate' => 'Feb 26 2004'))

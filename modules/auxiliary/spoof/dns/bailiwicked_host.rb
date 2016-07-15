@@ -31,6 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2008-1447' ],
+          [ 'OSVDB', '46776'],
           [ 'US-CERT-VU', '800113' ],
           [ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0002.txt' ],
         ],

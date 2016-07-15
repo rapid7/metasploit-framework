@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-4164' ],
+          [ 'OSVDB', '100113' ],
           [ 'URL', 'https://www.ruby-lang.org/en/news/2013/11/22/ruby-1-9-3-p484-is-released/' ]
         ],
       'DisclosureDate' => 'Nov 22 2013'))

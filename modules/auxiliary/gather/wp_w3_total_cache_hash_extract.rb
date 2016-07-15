@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'       => MSF_LICENSE,
       'References'    =>
         [
+          ['OSVDB', '88744'],
           ['URL', 'http://seclists.org/fulldisclosure/2012/Dec/242'],
           ['WPVDB', '6621']
         ],

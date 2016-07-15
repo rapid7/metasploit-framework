@@ -36,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         also be used to capture SMB hashes by using a fake SMB share as DIRNAME.
       },
       'References' => [
+        [ 'OSVDB', '74780' ],
         [ 'URL', 'http://dsecrg.com/pages/vul/show.php?id=331' ],
         [ 'URL', 'https://service.sap.com/sap/support/notes/1554030' ]
       ],

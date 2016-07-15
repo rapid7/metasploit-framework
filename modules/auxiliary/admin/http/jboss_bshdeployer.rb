@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'    =>
         [
           [ 'CVE', '2010-0738' ], # using a VERB other than GET/POST
+          [ 'OSVDB', '64171' ],
           [ 'URL', 'http://www.redteam-pentesting.de/publications/jboss' ],
           [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=574105' ]
         ],

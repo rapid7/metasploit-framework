@@ -28,6 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'   =>
         [
+          [ 'OSVDB', '92490' ],
           [ 'URL', 'https://bugzilla.wikimedia.org/show_bug.cgi?id=46859' ],
           [ 'URL', 'http://www.gossamer-threads.com/lists/wiki/mediawiki-announce/350229']
         ],

@@ -32,6 +32,7 @@ class MetasploitModule < Msf::Post
       'References'     =>
         [
           ['CVE', '2012-5519'],
+          ['OSVDB', '87635'],
           ['URL', 'http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=692791']
         ],
       'License'        => MSF_LICENSE,

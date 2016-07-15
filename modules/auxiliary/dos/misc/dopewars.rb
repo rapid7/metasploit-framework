@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'	 =>
         [
           [ 'CVE', '2009-3591' ],
+          [ 'OSVDB', '58884' ],
           [ 'BID', '36606' ]
         ],
       'DisclosureDate' => "Oct 05 2009" ))

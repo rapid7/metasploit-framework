@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
       [
         ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
+        ['OSVDB', '12551'],
         ['CVE', '1999-0531']
       ],
         'Author'      =>

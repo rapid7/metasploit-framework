@@ -21,6 +21,10 @@ class MetasploitModule < Msf::Auxiliary
         vulnerable machine.  Please note that the SSL option is required in order to send
         HTTP requests.
       },
+      'References'     =>
+        [
+          [ 'OSVDB', '80262']
+        ],
       'Author'         =>
         [
           'rgod',   #Discovery

@@ -35,6 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
+          [ 'OSVDB', '65533'],
           [ 'URL', 'http://seclists.org/bugtraq/2010/Jun/160' ]
         ],
       'DisclosureDate' => 'Jun 15 2010'

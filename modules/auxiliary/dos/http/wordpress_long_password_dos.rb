@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'      =>
         [
           ['URL', 'http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-9034'],
+          ['OSVDB', '114857'],
           ['WPVDB', '7681']
         ],
       'DisclosureDate'  => 'Nov 20 2014'

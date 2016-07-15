@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['BID', '35196'],
           ['CVE', '2009-0580'],
+          ['OSVDB', '55055'],
         ],
       'License'        =>  MSF_LICENSE
     )

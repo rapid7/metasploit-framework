@@ -25,6 +25,9 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['URL', 'http://fish2.com/ipmi/cipherzero.html'],
+          ['OSVDB', '93038'],
+          ['OSVDB', '93039'],
+          ['OSVDB', '93040'],
 
         ],
       'DisclosureDate' => 'Jun 20 2013'

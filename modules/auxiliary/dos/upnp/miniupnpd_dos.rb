@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-0229' ],
+          [ 'OSVDB', '89625' ],
           [ 'BID', '57607' ],
           [ 'URL', 'https://community.rapid7.com/servlet/JiveServlet/download/2150-1-16596/SecurityFlawsUPnP.pdf' ]
         ],

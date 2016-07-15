@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'EDB', '25252' ],
+          [ 'OSVDB', '93013' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-018' ]
         ],
       'Author'      => [

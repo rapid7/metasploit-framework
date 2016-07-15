@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '60835'],
           ['CVE', '2013-2113'],
           ['CWE', '915'],
+          ['OSVDB', '94655'],
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=966804'],
           ['URL', 'http://projects.theforeman.org/issues/2630']
         ],

@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.s3cur1ty.de/attacking-linksys-wrt54gl' ],
           [ 'EDB', '24202' ],
           [ 'BID', '57459' ],
+          [ 'OSVDB', '89421' ]
         ],
       'DefaultTarget'  => 0,
       'DisclosureDate' => 'Jan 18 2013'))

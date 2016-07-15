@@ -1615,6 +1615,7 @@ class Core
       'cve'      => 'Modules with a matching CVE ID',
       'edb'      => 'Modules with a matching Exploit-DB ID',
       'name'     => 'Modules with a matching descriptive name',
+      'osvdb'    => 'Modules with a matching OSVDB ID',
       'platform' => 'Modules affecting this platform',
       'ref'      => 'Modules with a matching ref',
       'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',

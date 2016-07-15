@@ -34,6 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'  =>
         [
+          ['OSVDB', '62145'],
           ['URL', 'http://www.samba.org/samba/news/symlink_attack.html']
         ],
       'License'     => MSF_LICENSE

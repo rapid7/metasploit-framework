@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2010-0017'],
+          ['OSVDB', '62244'],
           ['MSB', 'MS10-006'],
           ['URL', 'http://g-laurent.blogspot.com/2009/11/windows-7-server-2008r2-remote-kernel.html']
         ],

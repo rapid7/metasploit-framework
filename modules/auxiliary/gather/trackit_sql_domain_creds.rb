@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       'References' =>
         [
           [ 'CVE', '2014-4872' ],
+          [ 'OSVDB', '112741' ],
           [ 'US-CERT-VU', '121036' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2014/Oct/34' ]
         ],

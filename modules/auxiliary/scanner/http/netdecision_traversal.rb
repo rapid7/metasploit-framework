@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
+          [ 'OSVDB', '79863' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/netdecision_1-adv.txt' ],
         ],
       'Author'         =>

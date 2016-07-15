@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'   =>
         [
           [ 'CVE', '2011-1900' ],
+          [ 'OSVDB', '73413' ],
           [ 'BID', '47842' ],
           [ 'URL', 'http://www.indusoft.com/hotfixes/hotfixes.php' ]
         ],

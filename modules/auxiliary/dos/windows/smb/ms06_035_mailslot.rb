@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['BID', '19215'],
+          ['OSVDB', '27644'],
           ['CVE', '2006-3942'],
           ['URL', 'http://www.coresecurity.com/common/showdoc.php?idx=562&idxseccion=10'],
           ['MSB', 'MS06-035'],

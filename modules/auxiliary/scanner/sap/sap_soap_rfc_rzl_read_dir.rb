@@ -38,6 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         capture SMB hashes by using a fake SMB share as DIR.
       },
       'References' => [
+        [ 'OSVDB', '92732'],
         [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-026-sap-netweaver-rzl_read_dir_local-missing-authorization-check-and-smb-relay-vulnerability/' ]
       ],
       'Author' =>

@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
+          [ 'OSVDB', '90733' ],
           [ 'BID', '58231' ],
           [ 'PACKETSTORM', '120591' ]
         ],

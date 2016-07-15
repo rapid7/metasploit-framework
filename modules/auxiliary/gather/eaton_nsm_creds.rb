@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
+          ['OSVDB', '83199'],
           ['URL', 'http://secunia.com/advisories/49103/']
         ],
       'Author'         =>

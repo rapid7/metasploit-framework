@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-4450' ],
+          [ 'OSVDB', '98724' ],
           [ 'BID' , '63229' ],
           [ 'URL', 'http://blog.nodejs.org/2013/10/22/cve-2013-4450-http-server-pipeline-flood-dos' ]
         ],

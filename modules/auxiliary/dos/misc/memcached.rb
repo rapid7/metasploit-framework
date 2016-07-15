@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'https://code.google.com/p/memcached/issues/detail?id=192' ],
           [ 'CVE', '2011-4971' ],
+          [ 'OSVDB', '92867' ]
         ],
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
       'License'      => MSF_LICENSE

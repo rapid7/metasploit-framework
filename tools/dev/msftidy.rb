@@ -178,6 +178,8 @@ class Msftidy
         case identifier
         when 'CVE'
           warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4,}$/
+        when 'OSVDB'
+          warn("Invalid OSVDB format: '#{value}'") if value !~ /^\d+$/
         when 'BID'
           warn("Invalid BID format: '#{value}'") if value !~ /^\d+$/
         when 'MSB'
@@ -195,7 +197,9 @@ class Msftidy
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
         when 'URL'
-          if value =~ /^http:\/\/cvedetails\.com\/cve/
+          if value =~ /^http:\/\/www\.osvdb\.org/
+            warn("Please use 'OSVDB' for '#{value}'")
+          elsif value =~ /^http:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
           elsif value =~ /^http:\/\/www\.securityfocus\.com\/bid\//
             warn("Please use 'BID' for '#{value}'")

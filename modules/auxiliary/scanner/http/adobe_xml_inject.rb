@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '2009-3960' ],
+          [ 'OSVDB', '62292' ],
           [ 'BID', '38197' ],
           [ 'URL', 'http://www.security-assessment.com/files/advisories/2010-02-22_Multiple_Adobe_Products-XML_External_Entity_and_XML_Injection.pdf' ],
           [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-05.html'],

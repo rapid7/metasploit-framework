@@ -38,6 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-0233'],
+          [ 'OSVDB', '89642' ],
           [ 'BID', '57577' ],
           [ 'URL', 'http://blog.plataformatec.com.br/2013/01/security-announcement-devise-v2-2-3-v2-1-3-v2-0-5-and-v1-5-3-released/'],
           [ 'URL', 'http://www.phenoelit.org/blog/archives/2013/02/05/mysql_madness_and_rails/index.html'],

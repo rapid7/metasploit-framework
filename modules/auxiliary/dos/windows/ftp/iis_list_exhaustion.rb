@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2009-2521'],
           [ 'BID', '36273'],
+          [ 'OSVDB', '57753'],
           [ 'MSB', 'MS09-053'],
           [ 'URL', 'https://www.microsoft.com/technet/security/Bulletin/MS09-053.mspx'],
           [ 'URL', 'http://archives.neohapsis.com/archives/fulldisclosure/2009-09/0040.html']

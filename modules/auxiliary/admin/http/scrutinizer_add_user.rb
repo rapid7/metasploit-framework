@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2012-2626' ],
+          [ 'OSVDB', '84318' ],
           [ 'URL', 'https://www.trustwave.com/spiderlabs/advisories/TWSL2012-014.txt' ]
         ],
       'Author'         =>

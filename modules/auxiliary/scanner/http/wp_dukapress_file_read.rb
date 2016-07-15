@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           ['EDB', '35346'],
           ['CVE', '2014-8799'],
           ['WPVDB', '7731'],
+          ['OSVDB', '115130']
         ],
       'Author'         =>
         [

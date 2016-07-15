@@ -28,6 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           # patrickw - I am not sure if these are correct, but the closest match!
+          [ 'OSVDB', '7246' ],
           [ 'CVE', '2004-2691' ],
           [ 'URL', 'http://support.3com.com/infodeli/tools/switches/dna1695-0aaa17.pdf' ],
         ],

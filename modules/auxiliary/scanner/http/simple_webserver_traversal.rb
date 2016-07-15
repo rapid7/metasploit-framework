@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
+          [ 'OSVDB', '88877' ],
           [ 'EDB', '23886' ],
           [ 'URL', 'http://seclists.org/bugtraq/2013/Jan/12' ]
         ],

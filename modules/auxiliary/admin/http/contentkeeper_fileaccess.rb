@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         },
       'References'   =>
         [
+          [ 'OSVDB', '54551' ],
           [ 'URL', 'http://www.aushack.com/200904-contentkeeper.txt' ],
         ],
       'Author'      => [ 'patrick' ],

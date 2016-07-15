@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
+          ['OSVDB', '66842'],
           ['URL', 'http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html'],
           ['US-CERT-VU', '362332']
         ],

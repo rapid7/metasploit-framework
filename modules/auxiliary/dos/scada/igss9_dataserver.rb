@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'      =>
         [
           [ 'CVE', '2011-4050' ],
+          [ 'OSVDB', '77976' ],
           [ 'URL', 'http://www.us-cert.gov/control_systems/pdf/ICSA-11-335-01.pdf' ]
         ],
       'DisclosureDate' => 'Dec 20 2011'

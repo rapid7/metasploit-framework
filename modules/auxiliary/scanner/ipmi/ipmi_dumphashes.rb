@@ -28,6 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://fish2.com/ipmi/remote-pw-cracking.html'],
           ['URL', 'http://seclists.org/bugtraq/2014/Apr/16'], # HP's SSRT101367
           ['CVE', '2013-4786'],
+          ['OSVDB', '95057'],
           ['BID', '61076'],
         ],
       'DisclosureDate' => 'Jun 20 2013'
