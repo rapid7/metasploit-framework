@@ -53,6 +53,8 @@ require 'rex/zip'
 require 'rex/registry'
 # Library for parsing Java serialized streams
 require 'rex/java'
+# Library for creating C-style Structs
+require 'rex/struct2'
 
 # Generic classes
 require 'rex/constants'
