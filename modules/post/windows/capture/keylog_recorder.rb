@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
     register_advanced_options(
       [
         OptBool.new('ShowKeystrokes',   [false, 'Show captured keystrokes', false]),
-        OptEnum.new('TimeOutAction', [true, 'Action to take when Session Communication Timeout occurs.',
+        OptEnum.new('TimeOutAction', [true, 'Action to take when session response timeout occurs.',
                 'wait', ['wait','exit']])
       ], self.class)
   end
