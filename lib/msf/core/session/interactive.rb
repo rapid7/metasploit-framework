@@ -26,7 +26,8 @@ module Interactive
     # A nil is passed in the case of non-stream interactive sessions (Meterpreter)
     if rstream
       self.rstream = rstream
-      self.ring    = Rex::IO::RingBuffer.new(rstream, {:size => opts[:ring_size] || 100 })
+      klass = opts[:udp_session] ? Rex::IO::RingBufferUdp : Rex::IO::RingBuffer
+      self.ring    = klass.new(rstream, {:size => opts[:ring_size] || 100 })
     end
     super()
   end
@@ -151,4 +152,3 @@ end
 
 end
 end
-

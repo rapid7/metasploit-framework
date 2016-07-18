@@ -53,24 +53,6 @@ module Rex::Socket::Tcp
     end
   end
 
-  #
-  # Returns peer information (host + port) in host:port format.
-  #
-  def peerinfo
-    if (pi = getpeername)
-      return pi[1] + ':' + pi[2].to_s
-    end
-  end
-
-  #
-  # Returns local information (host + port) in host:port format.
-  #
-  def localinfo
-    if (pi = getlocalname)
-      return pi[1] + ':' + pi[2].to_s
-    end
-  end
-
   # returns socket type
   def type?
     return 'tcp'

