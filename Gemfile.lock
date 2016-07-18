@@ -34,6 +34,7 @@ PATH
       rex-powershell
       rex-random_identifier
       rex-registry
+      rex-struct2
       rex-text
       rex-zip
       robots
@@ -224,6 +225,7 @@ GEM
     rex-random_identifier (0.1.0)
       rex-text
     rex-registry (0.1.0)
+    rex-struct2 (0.1.0)
     rex-text (0.1.1)
     rex-zip (0.1.0)
       rex-text
