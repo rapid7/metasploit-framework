@@ -79,9 +79,14 @@ class MetasploitModule < Msf::Auxiliary
     open_pcap({'FILTER' => datastore['FILTER']})
     @capture_thread = Rex::ThreadFactory.spawn("DNSSpoofer", false) do
       each_packet do |pack|
-        parsed = PacketFu::Packet.parse(pack)
-        reply = reply_packet(parsed)
-        service.dispatch_request(reply, parsed.payload)
+        begin
+          parsed = PacketFu::Packet.parse(pack)
+          reply = reply_packet(parsed)
+          service.dispatch_request(reply, parsed.payload)
+        rescue => e
+          vprint_status("PacketFu could not parse captured packet")
+          dlog(e.backtrace)
+        end
       end
     end
   end
