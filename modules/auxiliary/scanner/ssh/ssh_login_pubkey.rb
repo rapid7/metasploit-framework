@@ -159,6 +159,7 @@ class MetasploitModule < Msf::Auxiliary
 
     info = "SSH #{result.credential.public}:#{ssh_socket.auth_info[:pubkey_id]} (#{ip}:#{rport})"
     s = start_session(self, info, merge_me, false, conn.lsock)
+    self.sockets.delete(ssh_socket.transport.socket)
 
     # Set the session platform
     case result.proof

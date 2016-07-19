@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH
 
   def initialize(info = {})
     super(update_info(info,
@@ -41,10 +42,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    factory = ssh_socket_factory
     ssh_opts = {
       port:         rport,
       auth_methods: ['password', 'keyboard-interactive'],
-      password:     %q{<<< %s(un='%s') = %u}
+      password:     %q{<<< %s(un='%s') = %u},
+      proxy: factory,
+      :non_interactive => true
     }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
