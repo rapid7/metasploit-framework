@@ -5,11 +5,11 @@ module Rex
     module Meterpreter
       module Extensions
         module Stdapi
-          module Webcam
+          module Mic
 
 ###
 #
-# This meterpreter extension can list and capture from webcams and/or microphone
+# This meterpreter extension can list and capture from microphone
 #
 ###
             class Mic
@@ -24,27 +24,34 @@ module Rex
               end
 
               def mic_list
-                response = client.send_request(Packet.create_request('webcam_list'))
+                response = client.send_request(Packet.create_request('stdapi_sys_audio_get_interfaces'))
                 names = []
-                response.get_tlvs(TLV_TYPE_MIC_NAME).each do |tlv|
+                response.get_tlvs(TLV_TYPE_AUDIO_INTERFACE_NAME).each do |tlv|
                   names << tlv.value
                 end
                 names
               end
 
-              # Starts recording video from video source of index +cam+
+              # Starts streaming from audio source of index
               def mic_start(cam)
                 request = Packet.create_request('mic_start')
-                request.add_tlv(TLV_TYPE_MIC_INTERFACE_ID, cam)
-                client.send_request(request)
-                true
-              end
+                request.add_tlv(TLV_TYPE_AUDIO_INTERFACE_NAME, cam)
 
-              def mic_get_frame(quality)
-                request = Packet.create_request('mic_get_frame')
-                request.add_tlv(TLV_TYPE_MIC_QUALITY, quality)
                 response = client.send_request(request)
-                response.get_tlv(TLV_TYPE_MIC_IMAGE).value
+
+                channel = nil
+                channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+
+                if(channel_id)
+                  audio_channel = Rex::Post::Meterpreter::Channels::Pools::Audio.new(
+                      client,
+                      channel_id,
+                      "audio_data",
+                      CHANNEL_FLAG_SYNCHRONOUS
+                  )
+                end
+
+                return response, audio_channel
               end
 
               def mic_stop

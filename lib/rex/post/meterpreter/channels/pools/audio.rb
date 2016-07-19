@@ -97,6 +97,10 @@ module Rex
       cleanup_abstraction
     end
 
+    def listen
+      lsock.read
+    end
+
   end
 
 end; end; end; end; end
