@@ -333,8 +333,8 @@ module Msf
         gen_payload = format_payload(encoded_payload)
       end
 
-      if encoded_payload.length != gen_payload.length
-        cli_print "Final size of #{format}: #{gen_payload.length} bytes"
+      if format.to_s != 'raw'
+        cli_print "Final size of #{format} file: #{gen_payload.length} bytes"
       end
 
       if gen_payload.nil?
