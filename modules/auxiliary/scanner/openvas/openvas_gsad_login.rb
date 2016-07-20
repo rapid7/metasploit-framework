@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -15,13 +15,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'OpenVAS gsad Web Interface Login Utility',
-      'Description' => %q{
+      'Name'           => 'OpenVAS gsad Web Interface Login Utility',
+      'Description'    => %q{
         This module simply attempts to login to a OpenVAS gsad interface
         using a specific user/pass.
       },
-      'Author'      => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'     => MSF_LICENSE
+      'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -29,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('URI', [true, "URI for OpenVAS omp login. Default is /omp", "/omp"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
       ], self.class)
 
     register_advanced_options(

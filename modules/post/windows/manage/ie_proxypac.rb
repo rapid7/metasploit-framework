@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
   include Msf::Post::File
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Post
     pac_file = session.sys.config.getenv("APPDATA") << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".pac"
     conf_pac = ""
 
-    if ::File.exists?(local_pac)
+    if ::File.exist?(local_pac)
       conf_pac << ::File.open(local_pac, "rb").read
     else
       print_error("Local PAC file not found.")

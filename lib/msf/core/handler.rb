@@ -28,6 +28,7 @@ module Msf
 #
 ###
 module Handler
+  require 'msf/core/handler/reverse'
 
   ##
   #
@@ -163,6 +164,14 @@ module Handler
   end
 
   #
+  # Interrupts a wait_for_session call by notifying with a nil event
+  #
+  def interrupt_wait_for_session
+    return unless session_waiter_event
+    session_waiter_event.notify(nil)
+  end
+
+  #
   # Set by the exploit module to configure handler
   #
   attr_accessor :exploit_config
@@ -189,7 +198,14 @@ protected
     # If the payload we merged in with has an associated session factory,
     # allocate a new session.
     if (self.session)
-      s = self.session.new(conn, opts)
+      begin
+        s = self.session.new(conn, opts)
+      rescue ::Exception => e
+        # We just wanna show and log the error, not trying to swallow it.
+        print_error("#{e.class} #{e.message}")
+        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        raise e
+      end
 
       # Pass along the framework context
       s.framework = framework

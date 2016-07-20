@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::Checksum do
+RSpec.describe Rex::Proto::Kerberos::Model::Checksum do
 
   subject(:checksum) do
     described_class.new

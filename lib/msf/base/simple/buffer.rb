@@ -48,7 +48,7 @@ module Buffer
       when 'java'
         buf = Rex::Text.to_java(buf, var_name)
       when 'powershell', 'ps1'
-        buf = Rex::Text.to_powershell(buf, var_name)
+        buf = Rex::Powershell.to_powershell(buf, var_name)
       when 'vbscript'
         buf = Rex::Text.to_vbscript(buf, var_name)
       when 'vbapplication'

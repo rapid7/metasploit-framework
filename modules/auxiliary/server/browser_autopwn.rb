@@ -12,7 +12,7 @@ require 'msf/core'
 require 'rex/exploitation/js/detect'
 require 'rex/exploitation/jsobfu'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
 

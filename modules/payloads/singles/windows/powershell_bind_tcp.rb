@@ -14,7 +14,7 @@ require 'msf/core/handler/bind_tcp'
 # Extends the Exec payload to add a new user.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 1703
 

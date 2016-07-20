@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -57,11 +57,6 @@ class Metasploit3 < Msf::Post
 
     version
   end
-
-  def peer
-    "#{session.session_host}:#{session.session_port}"
-  end
-
 
   #
   # Converts LastSession.plist to xml, and then read it

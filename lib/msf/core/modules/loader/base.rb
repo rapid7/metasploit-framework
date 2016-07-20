@@ -3,9 +3,7 @@
 # Project
 #
 require 'msf/core/modules/loader'
-require 'msf/core/modules/namespace'
-require 'msf/core/modules/metasploit_class_compatibility_error'
-require 'msf/core/modules/version_compatibility_error'
+require 'msf/core/modules/error'
 
 # Responsible for loading modules for {Msf::ModuleManager}.
 #
@@ -30,9 +28,6 @@ class Msf::Modules::Loader::Base
   # By calling module_eval from inside the module definition, the lexical scope is captured and available to the code in
   # module_content.
   NAMESPACE_MODULE_CONTENT = <<-EOS
-    # ensure the namespace module can respond to checks during loading
-    extend Msf::Modules::Namespace
-
     class << self
       # The loader that originally loaded this module
       #
@@ -103,12 +98,9 @@ class Msf::Modules::Loader::Base
   # @option options [Boolean] :reload (false) whether this is a reload.
   #
   # @return [false] if :force is false and parent_path has not changed.
-  # @return [false] if exception encountered while parsing module
-  #   content
-  # @return [false] if the module is incompatible with the Core or API
-  #   version.
-  # @return [false] if the module does not implement a Metasploit(\d+)
-  #   class.
+  # @return [false] if exception encountered while parsing module content
+  # @return [false] if the module is incompatible with the Core or API version.
+  # @return [false] if the module does not implement a Metasploit class.
   # @return [false] if the module's is_usable method returns false.
   # @return [true] if all those condition pass and the module is
   #   successfully loaded.
@@ -131,8 +123,6 @@ class Msf::Modules::Loader::Base
 
     reload ||= force || file_changed
 
-    metasploit_class = nil
-
     module_content = read_module_content(parent_path, type, module_reference_name)
 
     if module_content.empty?
@@ -140,6 +130,7 @@ class Msf::Modules::Loader::Base
       return false
     end
 
+    klass = nil
     try_eval_module = lambda { |namespace_module|
       # set the parent_path so that the module can be reloaded with #load_module
       namespace_module.parent_path = parent_path
@@ -150,41 +141,24 @@ class Msf::Modules::Loader::Base
       rescue ::Interrupt
         raise
       rescue ::Exception => error
-        # Hide eval errors when the module version is not compatible
-        begin
-          namespace_module.version_compatible!(module_path, module_reference_name)
-        rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-          load_error(module_path, version_compatibility_error)
-        else
-          load_error(module_path, error)
-        end
-
-        return false
-      end
-
-      begin
-        namespace_module.version_compatible!(module_path, module_reference_name)
-      rescue Msf::Modules::VersionCompatibilityError => version_compatibility_error
-        load_error(module_path, version_compatibility_error)
-
-        return false
-      end
-
-      begin
-        metasploit_class = namespace_module.metasploit_class!(module_path, module_reference_name)
-      rescue Msf::Modules::MetasploitClassCompatibilityError => error
         load_error(module_path, error)
-
         return false
       end
 
-      unless usable?(metasploit_class)
-        ilog(
-            "Skipping module (#{module_reference_name} from #{module_path}) because is_usable returned false.",
-            'core',
-            LEV_1
-        )
-
+      if namespace_module.const_defined?('Metasploit3', false)
+        klass = namespace_module.const_get('Metasploit3', false)
+        load_warning(module_path, 'Please change the modules class name from Metasploit3 to MetasploitModule')
+      elsif namespace_module.const_defined?('Metasploit4', false)
+        klass = namespace_module.const_get('Metasploit4', false)
+        load_warning(module_path, 'Please change the modules class name from Metasploit4 to MetasploitModule')
+      elsif namespace_module.const_defined?('MetasploitModule', false)
+        klass = namespace_module.const_get('MetasploitModule', false)
+      else
+        load_error(module_path, Msf::Modules::Error.new({
+          :module_path => module_path,
+          :module_reference_name => module_reference_name,
+          :causal_message => 'Invalid module (no MetasploitModule class or module name)'
+        }))
         return false
       end
 
@@ -206,7 +180,7 @@ class Msf::Modules::Loader::Base
 
     # Do some processing on the loaded module to get it into the right associations
     module_manager.on_module_load(
-        metasploit_class,
+        klass,
         type,
         module_reference_name,
         {
@@ -339,9 +313,9 @@ class Msf::Modules::Loader::Base
 
   protected
 
-  # Returns a nested module to wrap the Metasploit(1|2|3) class so that it doesn't overwrite other (metasploit)
-  # module's classes.  The wrapper module must be named so that active_support's autoloading code doesn't break when
-  # searching constants from inside the Metasploit(1|2|3) class.
+  # Returns a nested module to wrap the MetasploitModule class so that it doesn't overwrite other (metasploit)
+  # module's classes. The wrapper module must be named so that active_support's autoloading code doesn't break when
+  # searching constants from inside the Metasploit class.
   #
   # @param namespace_module_names [Array<String>]
   #   {NAMESPACE_MODULE_NAMES} + <derived-constant-safe names>
@@ -351,7 +325,7 @@ class Msf::Modules::Loader::Base
   # @see NAMESPACE_MODULE_CONTENT
   def create_namespace_module(namespace_module_names)
     # In order to have constants defined in Msf resolve without the Msf qualifier in the module_content, the
-    # Module.nesting must resolve for the entire nesting.  Module.nesting is strictly lexical, and can't be faked with
+    # Module.nesting must resolve for the entire nesting. Module.nesting is strictly lexical, and can't be faked with
     # module_eval(&block). (There's actually code in ruby's implementation to stop module_eval from being added to
     # Module.nesting when using the block syntax.) All this means is the modules have to be declared as a string that
     # gets module_eval'd.
@@ -432,11 +406,30 @@ class Msf::Modules::Loader::Base
     log_lines << "#{module_path} failed to load due to the following error:"
     log_lines << error.class.to_s
     log_lines << error.to_s
-    log_lines << "Call stack:"
-    log_lines += error.backtrace
+    if error.backtrace
+      log_lines << "Call stack:"
+      log_lines += error.backtrace
+    end
 
     log_message = log_lines.join("\n")
     elog(log_message)
+  end
+
+  # Records the load warning to {Msf::ModuleManager::Loading#module_load_warnings} and the log.
+  #
+  # @param [String] module_path Path to the module as returned by {#module_path}.
+  # @param [String] error Error message that caused the warning.
+  # @return [void]
+  #
+  # @see #module_path
+  def load_warning(module_path, error)
+    module_manager.module_load_warnings[module_path] = error.to_s
+
+    log_lines = []
+    log_lines << "#{module_path} generated a warning during load:"
+    log_lines << error.to_s
+    log_message = log_lines.join("\n")
+    wlog(log_message)
   end
 
   # @return [Msf::ModuleManager] The module manager for which this loader is loading modules.
@@ -455,7 +448,7 @@ class Msf::Modules::Loader::Base
     raise ::NotImplementedError
   end
 
-  # Returns whether the path could refer to a module.  The path would still need to be loaded in order to check if it
+  # Returns whether the path could refer to a module. The path would still need to be loaded in order to check if it
   # actually is a valid module.
   #
   # @param [String] path to module without the type directory.
@@ -502,8 +495,8 @@ class Msf::Modules::Loader::Base
   end
 
   # Returns an Array of names to make a fully qualified module name to
-  # wrap the Metasploit(1|2|3) class so that it doesn't overwrite other
-  # (metasploit) module's classes.  Invalid module name characters are
+  # wrap the MetasploitModule class so that it doesn't overwrite other
+  # (metasploit) module's classes. Invalid module name characters are
   # escaped by using 'H*' unpacking and prefixing each code with X so
   # the code remains a valid module name when it starts with a digit.
   #
@@ -626,28 +619,4 @@ class Msf::Modules::Loader::Base
     self.class.typed_path(type, module_reference_name)
   end
 
-  # Returns whether the metasploit_class is usable on the current system.  Defer's to metasploit_class's #is_usable if
-  # it is defined.
-  #
-  # @param [Msf::Module] metasploit_class As returned by {Msf::Modules::Namespace#metasploit_class}
-  # @return [false] if metasploit_class.is_usable returns false.
-  # @return [true] if metasploit_class does not respond to is_usable.
-  # @return [true] if metasploit_class.is_usable returns true.
-  def usable?(metasploit_class)
-    # If the module indicates that it is not usable on this system, then we
-    # will not try to use it.
-    usable = false
-
-    if metasploit_class.respond_to? :is_usable
-      begin
-        usable = metasploit_class.is_usable
-      rescue => error
-        elog("Exception caught during is_usable check: #{error}")
-      end
-    else
-      usable = true
-    end
-
-    usable
-  end
 end

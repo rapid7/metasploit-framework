@@ -50,13 +50,13 @@ module Msf::Payload::TransportConfig
     unless uri
       type = opts[:stageless] == true ? :init_connect : :connect
       sum = uri_checksum_lookup(type)
-      uri = generate_uri_uuid(sum, opts[:uuid])
+      uri = luri + generate_uri_uuid(sum, opts[:uuid])
     end
 
     {
       :scheme       => 'http',
-      :lhost        => opts[:lhost],
-      :lport        => opts[:lport].to_i,
+      :lhost        => opts[:lhost] || datastore['LHOST'],
+      :lport        => (opts[:lport] || datastore['LPORT']).to_i,
       :uri          => uri,
       :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
       :retry_total  => datastore['SessionRetryTotal'].to_i,

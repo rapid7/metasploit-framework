@@ -1,8 +1,7 @@
 load Metasploit::Framework.root.join('tools/exploit/egghunter.rb').to_path
+require 'spec_helper'
 
-require 'stringio'
-
-describe Egghunter do
+RSpec.describe Egghunter do
 
   describe Egghunter::Driver do
 
@@ -16,22 +15,11 @@ describe Egghunter do
 
     describe '#run' do
 
-      def get_stdout(&block)
-        out = $stdout
-        $stdout = fake = StringIO.new
-        begin
-          yield
-        ensure
-          $stdout = out
-        end
-        fake.string
-      end
-
       let(:default_opts) {
         { :platform => 'windows', :format => 'c', :eggtag => egg, :arch => 'x86' }
       }
 
-      before(:each) do
+      before(:example) do
         allow(Egghunter::OptsConsole).to receive(:parse).with(any_args).and_return(options)
       end
 

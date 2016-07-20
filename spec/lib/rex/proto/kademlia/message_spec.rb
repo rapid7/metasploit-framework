@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'rex/proto/kademlia/message'
 
-describe Rex::Proto::Kademlia::Message do
+RSpec.describe Rex::Proto::Kademlia::Message do
 
   context 'with a body' do
     let(:type) { 1 }

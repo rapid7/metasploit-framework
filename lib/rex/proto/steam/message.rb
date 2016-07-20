@@ -52,7 +52,7 @@ module Steam
 
   # Decodes an A2S_INFO response message
   #
-  # @parameter response [String] the A2S_INFO resposne to decode
+  # @param response [String] the A2S_INFO resposne to decode
   # @return [Hash] the fields extracted from the response
   def a2s_info_decode(response)
     # abort if it is impossibly short

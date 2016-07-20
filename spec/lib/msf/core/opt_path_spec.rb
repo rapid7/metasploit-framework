@@ -3,9 +3,10 @@
 require 'spec_helper'
 require 'msf/core/option_container'
 
-describe Msf::OptPath do
+RSpec.describe Msf::OptPath do
   valid_values = [
     { :value => __FILE__, :normalized => __FILE__   },
+    { :value => '~', :normalized => ::File.expand_path('~')  },
   ]
   invalid_values = [
     { :value => "yer mom", },

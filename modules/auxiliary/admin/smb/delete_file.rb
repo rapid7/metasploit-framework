@@ -5,12 +5,14 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::SMB::Client::RemotePaths
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -34,32 +36,37 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$']),
-      OptString.new('RPATH', [true, 'The name of the remote file relative to the share'])
+      OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$'])
     ], self.class)
   end
 
-  def smb_delete_file
-    print_status("Connecting to the server...")
+  def smb_delete_files
+    vprint_status("Connecting to the server...")
     connect()
     smb_login()
 
-    print_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+    vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
     self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
-    simple.delete("\\#{datastore['RPATH']}")
+    remote_paths.each do |remote_path|
+      begin
+        simple.delete("\\#{remote_path}")
 
-    # If there's no exception raised at this point, we assume the file has been removed.
-    print_status("File deleted: #{datastore['RPATH']}...")
+        # If there's no exception raised at this point, we assume the file has been removed.
+        print_good("Deleted: #{remote_path}")
+      rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        print_error("Cannot delete #{remote_path}: #{e.message}")
+      end
+    end
   end
 
-  def run
+  def run_host(_ip)
     begin
-      smb_delete_file
+      smb_delete_files
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
       print_error("Unable to login: #{e.message}")
-    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      print_error("Cannot delete the file: #{e.message}")
     end
   end
 
