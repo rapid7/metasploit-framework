@@ -333,15 +333,15 @@ module Msf
         gen_payload = format_payload(encoded_payload)
       end
 
-      if format.to_s != 'raw'
-        cli_print "Final size of #{format} file: #{gen_payload.length} bytes"
-      end
-
       if gen_payload.nil?
         raise PayloadGeneratorError, 'The payload could not be generated, check options'
       elsif gen_payload.length > @space and not @smallest
         raise PayloadSpaceViolation, 'The payload exceeds the specified space'
       else
+        if format.to_s != 'raw'
+          cli_print "Final size of #{format} file: #{gen_payload.length} bytes"
+        end
+
         gen_payload
       end
     end
