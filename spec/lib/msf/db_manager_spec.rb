@@ -21,7 +21,6 @@ RSpec.describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Adapter'
   it_should_behave_like 'Msf::DBManager::Client'
   it_should_behave_like 'Msf::DBManager::Connection'
-  it_should_behave_like 'Msf::DBManager::Cred'
   it_should_behave_like 'Msf::DBManager::Event'
   it_should_behave_like 'Msf::DBManager::ExploitAttempt'
   it_should_behave_like 'Msf::DBManager::ExploitedHost'
