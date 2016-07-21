@@ -474,68 +474,71 @@ module Auxiliary::Report
     return full_path.dup
   end
 
-  # Takes a credential from a script (shell or meterpreter), and
-  # sources it correctly to the originating user account or
-  # session. Note that the passed-in session ID should be the
-  # Session.local_id, which will be correlated with the Session.id
-  def store_cred(opts={})
-    if [opts[:port],opts[:sname]].compact.empty?
-      raise ArgumentError, "Missing option: :sname or :port"
-    end
-    cred_opts = opts
-    cred_opts = opts.merge(:workspace => myworkspace)
-    cred_host = myworkspace.hosts.find_by_address(cred_opts[:host])
-    unless opts[:port]
-      possible_services = myworkspace.services.where(host_id: cred_host[:id], name: cred_opts[:sname])
-      case possible_services.size
-      when 0
-        case cred_opts[:sname].downcase
-        when "smb"
-          cred_opts[:port] = 445
-        when "ssh"
-          cred_opts[:port] = 22
-        when "telnet"
-          cred_opts[:port] = 23
-        when "snmp"
-          cred_opts[:port] = 161
-          cred_opts[:proto] = "udp"
-        else
-          raise ArgumentError, "No matching :sname found to store this cred."
-        end
-      when 1
-        cred_opts[:port] = possible_services.first[:port]
-      else # SMB should prefer 445. Everyone else, just take the first hit.
-        if (cred_opts[:sname].downcase == "smb") && possible_services.map {|x| x[:port]}.include?(445)
-          cred_opts[:port] = 445
-        elsif (cred_opts[:sname].downcase == "ssh") && possible_services.map {|x| x[:port]}.include?(22)
-          cred_opts[:port] = 22
-        else
-          cred_opts[:port] = possible_services.first[:port]
-        end
-      end
-    end
-    if opts[:collect_user]
-      cred_service = cred_host.services.find_by_host_id(cred_host[:id])
-      myworkspace.creds.sort {|a,b| a.created_at.to_f}.each do |cred|
-        if(cred.user.downcase == opts[:collect_user].downcase &&
-           cred.pass == opts[:collect_pass]
-          )
-          cred_opts[:source_id] ||= cred.id
-          cred_opts[:source_type] ||= cred_opts[:collect_type]
-          break
-        end
-      end
-    end
-    if opts[:collect_session]
-      session = myworkspace.sessions.where(local_id: opts[:collect_session]).last
-      if !session.nil?
-        cred_opts[:source_id] = session.id
-        cred_opts[:source_type] = "exploit"
-      end
-    end
-    print_status "Collecting #{cred_opts[:user]}:#{cred_opts[:pass]}"
-    framework.db.report_auth_info(cred_opts)
-  end
+  # # Takes a credential from a script (shell or meterpreter), and
+  # # sources it correctly to the originating user account or
+  # # session. Note that the passed-in session ID should be the
+  # # Session.local_id, which will be correlated with the Session.id
+  # def store_cred(opts={})
+  #   if [opts[:port],opts[:sname]].compact.empty?
+  #     raise ArgumentError, "Missing option: :sname or :port"
+  #   end
+  #
+  #
+  #
+  #   cred_opts = opts
+  #   cred_opts = opts.merge(:workspace => myworkspace)
+  #   cred_host = myworkspace.hosts.find_by_address(cred_opts[:host])
+  #   unless opts[:port]
+  #     possible_services = myworkspace.services.where(host_id: cred_host[:id], name: cred_opts[:sname])
+  #     case possible_services.size
+  #     when 0
+  #       case cred_opts[:sname].downcase
+  #       when "smb"
+  #         cred_opts[:port] = 445
+  #       when "ssh"
+  #         cred_opts[:port] = 22
+  #       when "telnet"
+  #         cred_opts[:port] = 23
+  #       when "snmp"
+  #         cred_opts[:port] = 161
+  #         cred_opts[:proto] = "udp"
+  #       else
+  #         raise ArgumentError, "No matching :sname found to store this cred."
+  #       end
+  #     when 1
+  #       cred_opts[:port] = possible_services.first[:port]
+  #     else # SMB should prefer 445. Everyone else, just take the first hit.
+  #       if (cred_opts[:sname].downcase == "smb") && possible_services.map {|x| x[:port]}.include?(445)
+  #         cred_opts[:port] = 445
+  #       elsif (cred_opts[:sname].downcase == "ssh") && possible_services.map {|x| x[:port]}.include?(22)
+  #         cred_opts[:port] = 22
+  #       else
+  #         cred_opts[:port] = possible_services.first[:port]
+  #       end
+  #     end
+  #   end
+  #   if opts[:collect_user]
+  #     cred_service = cred_host.services.find_by_host_id(cred_host[:id])
+  #     myworkspace.creds.sort {|a,b| a.created_at.to_f}.each do |cred|
+  #       if(cred.user.downcase == opts[:collect_user].downcase &&
+  #          cred.pass == opts[:collect_pass]
+  #         )
+  #         cred_opts[:source_id] ||= cred.id
+  #         cred_opts[:source_type] ||= cred_opts[:collect_type]
+  #         break
+  #       end
+  #     end
+  #   end
+  #   if opts[:collect_session]
+  #     session = myworkspace.sessions.where(local_id: opts[:collect_session]).last
+  #     if !session.nil?
+  #       cred_opts[:source_id] = session.id
+  #       cred_opts[:source_type] = "exploit"
+  #     end
+  #   end
+  #   print_status "Collecting #{cred_opts[:user]}:#{cred_opts[:pass]}"
+  #   framework.db.report_auth_info(cred_opts)
+  # end
 
 
 
