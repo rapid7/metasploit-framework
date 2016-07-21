@@ -128,6 +128,8 @@ Gem::Specification.new do |spec|
   # Library which contains architecture specific information such as registers, opcodes, 
   # and stack manipulation routines.
   spec.add_runtime_dependency 'rex-arch'
+  # Library for working with OLE.
+  spec.add_runtime_dependency 'rex-ole'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
