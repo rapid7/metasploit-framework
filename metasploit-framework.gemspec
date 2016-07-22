@@ -125,6 +125,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-java'
   # Library for C-style structs
   spec.add_runtime_dependency 'rex-struct2'
+  # Library which contains architecture specific information such as registers, opcodes, 
+  # and stack manipulation routines.
+  spec.add_runtime_dependency 'rex-arch'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
