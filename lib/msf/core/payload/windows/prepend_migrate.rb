@@ -461,9 +461,9 @@ module Msf::Payload::Windows::PrependMigrate
 
       ; create the process
       push 0                    ; keep the stack aligned
-      lea rdi,[rsp+0x110]       ; Offset of empty space for lpProcessInformation
+      lea rdi,[rsp+0x120]       ; Offset of empty space for lpProcessInformation
       push rdi                  ; lpProcessInformation : write processinfo here
-      lea rcx,[rsp+0x58]
+      lea rcx,[rsp+0x60]
       push rcx                  ; lpStartupInfo : current info (read)
       xor rcx,rcx
       push rcx                  ; lpCurrentDirectory
