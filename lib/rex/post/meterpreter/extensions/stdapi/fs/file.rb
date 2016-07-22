@@ -280,12 +280,17 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # If a block is given, it will be called before each file is downloaded and
   # again when each download is complete.
   #
-  def File.download(dest, *src_files, &stat)
-    src_files.each { |src|
+  def File.download(dest, src_files, timestamp = nil, &stat)
+    [*src_files].each { |src|
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator
         dest += ::File::SEPARATOR + File.basename(src)
+      end
+
+      # XXX: dest can be the same object as src, so we use += instead of <<
+      if timestamp
+        dest += timestamp
       end
 
       stat.call('downloading', src, dest) if (stat)
