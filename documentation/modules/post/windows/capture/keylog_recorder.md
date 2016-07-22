@@ -23,7 +23,7 @@ This module captures keystrokes from a Windows target and saves them to a text f
 - **TimeOutAction** - This option sets the behavior the module takes if the key capture request times out. (See below.) Accepted: wait or exit. Default value is wait.
 
 ## Usage
-The Meterpreter session must be located in an appropriate process for keystroke recording to work properly. This is described in the below-listed capture types. This module can migrate the session if MIGRATE is set to TRUE. If winlogon or PID migration fails, the module will use explorer migration and CAPTURE_TYPE. Set MIGRATE to FALSE if migration will be performed manually or through another module. 
+The Meterpreter session must be located in an appropriate process for keystroke recording to work properly. This is described in the below-listed capture types. This module can migrate the session if MIGRATE is set to TRUE. If winlogon or PID migration fails, the module will exit. Set MIGRATE to FALSE if migration will be performed manually or through another module. 
 
 ### Capture Types
 - **Explorer.exe** - __Session must be in explorer.exe__ - The most common capture type. Keystrokes are recorded from most user level applications. Applications running at an elevated level will likely not get recorded. **NOTE: Sessions running with elevated privileges are downgraded to user level when migrated into explorer.exe.** It is recommended that a second session be opened for keystroke recording if elevated priveledges are to be maintained.
