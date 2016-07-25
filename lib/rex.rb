@@ -55,6 +55,8 @@ require 'rex/registry'
 require 'rex/java'
 # Library for creating C-style Structs
 require 'rex/struct2'
+# Library for working with OLE
+require 'rex/ole'
 
 # Generic classes
 require 'rex/constants'

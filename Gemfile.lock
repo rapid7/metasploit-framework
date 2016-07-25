@@ -33,6 +33,7 @@ PATH
       redcarpet
       rex-arch
       rex-java
+      rex-ole
       rex-powershell
       rex-random_identifier
       rex-registry
@@ -224,6 +225,7 @@ GEM
     rex-arch (0.1.0)
       rex-text
     rex-java (0.1.2)
+    rex-ole (0.1.2)
     rex-powershell (0.1.1)
       rex-random_identifier
       rex-text
