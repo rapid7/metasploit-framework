@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'msf/base/sessions/meterpreter_armle_linux'
+require 'msf/base/sessions/meterpreter_options'
 require 'rex/elfparsey'
 
 module MetasploitModule
@@ -79,6 +80,6 @@ module MetasploitModule
   end
 
   def generate_stage(_opts = {})
-    MetasploitPayloads::Mettle.read('arm-linux-musleabi', 'mettle.bin')
+    MetasploitPayloads::Mettle.read('armv5l-linux-musleabi', 'mettle.bin')
   end
 end
