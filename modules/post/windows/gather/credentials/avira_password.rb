@@ -10,7 +10,7 @@ require 'rex/parser/ini'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
-  
+
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Windows Gather Avira Password Extraction',
@@ -46,15 +46,15 @@ class MetasploitModule < Msf::Post
     ini = Rex::Parser::Ini.from_s(parse)
 
     if ini == {}
-	print_error("Unable to parse file")
-	return
+    print_error("Unable to parse file")
+    return
     end
 
-      	print_status("Processing configuration file...")
-      	passwd = ini["COMMON"]['Password']
-      	passwd = passwd.delete "\""
-      	print_good("MD5(Unicode) hash found: #{passwd}")
-	print_good("Info: Password length is limited to 20 characters.")
+        print_status("Processing configuration file...")
+        passwd = ini["COMMON"]['Password']
+        passwd = passwd.delete "\""
+        print_good("MD5(Unicode) hash found: #{passwd}")
+        print_good("Info: Password length is limited to 20 characters.")
   end
 
 end
