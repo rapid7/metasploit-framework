@@ -46,6 +46,7 @@ PATH
       sshkey
       tzinfo
       tzinfo-data
+      windows_error
 
 GEM
   remote: https://rubygems.org/
@@ -277,6 +278,7 @@ GEM
       thread_safe (~> 0.1)
     tzinfo-data (1.2016.6)
       tzinfo (>= 1.0.0)
+    windows_error (0.0.2)
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.9.0)

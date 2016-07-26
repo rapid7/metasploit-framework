@@ -12,18 +12,6 @@ module Windows
 
   ##
   #
-  # Errors
-  #
-  ##
-
-  ERROR_SUCCESS = 0x0
-  ERROR_FILE_NOT_FOUND = 0x2
-  ERROR_ACCESS_DENIED = 0x5
-  ERROR_SERVICE_REQUEST_TIMEOUT = 0x41D
-  ERROR_SERVICE_EXISTS = 0x431
-
-  ##
-  #
   # SVCCTL Protocol Functions
   # http://msdn.microsoft.com/en-us/library/cc245920.aspxa
   #
