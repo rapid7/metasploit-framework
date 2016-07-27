@@ -63,11 +63,11 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options for the 'ps' command.
   #
   @@ps_opts = Rex::Parser::Arguments.new(
-    "-S" => [ true,  "String to search for (converts to regex)"                ],
-    "-h" => [ false, "Help menu."                                              ],
-    "-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"	   ],
-    "-s" => [ false, "Show only SYSTEM processes"				   ],
-    "-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
+    "-S" => [ true,  "String to search for (converts to regex)" ],
+    "-h" => [ false, "Help menu." ],
+    "-A" => [ true,  "Filters processes on architecture" ],
+    "-s" => [ false, "Show only SYSTEM processes" ],
+    "-U" => [ true,  "Filters processes on the user using the supplied RegEx"])
 
   #
   # Options for the 'suspend' command.
@@ -445,8 +445,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
         processes.each do |proc|
           next if proc['arch'].nil? or proc['arch'].empty?
-          if val.nil? or val.empty? or !(val == "x86" or val == "x86_64")
-            print_line "You must select either x86 or x86_64"
+          if val.nil? or val.empty?
             return false
           end
           searched_procs << proc if proc["arch"] == val
