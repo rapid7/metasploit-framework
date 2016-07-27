@@ -1,7 +1,12 @@
 Before do
-  set_env('MSF_DATBASE_CONFIG', Rails.configuration.paths['config/database'].existent.first)
+  set_env('MSF_DATABASE_CONFIG', Rails.configuration.paths['config/database'].existent.first)
   set_env('RAILS_ENV', 'test')
   @aruba_timeout_seconds = 8.minutes
+end
+
+Before('@db') do |scenario|
+  dbconfig = YAML::load(File.open(Metasploit::Framework::Database.configurations_pathname))
+  ActiveRecord::Base.establish_connection(dbconfig["test"])
 end
 
 # don't setup child processes to load simplecov_setup.rb if simplecov isn't installed
