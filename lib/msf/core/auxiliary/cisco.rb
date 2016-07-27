@@ -9,7 +9,6 @@ module Msf
 module Auxiliary::Cisco
   include Msf::Auxiliary::Report
 
-
   def cisco_ios_decrypt7(inp)
     xlat = [
       0x64, 0x73, 0x66, 0x64, 0x3b, 0x6b, 0x66, 0x6f,
@@ -39,19 +38,29 @@ module Auxiliary::Cisco
     #
     # Create a template hash for cred reporting
     #
-    cred_info = {
-      :host  => thost,
-      :port  => tport,
-      :user  => "",
-      :pass  => "",
-      :type  => "",
-      :collect_type => "",
-      :active => true
+    # cred_info = {
+    #   :host  => thost,
+    #   :port  => tport,
+    #   :user  => "",
+    #   :pass  => "",
+    #   :type  => "",
+    #   :collect_type => "",
+    #   :active => true
+    # }
+    
+    credential_data = {
+      address: thost,
+      port: tport,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+    
+      origin_type: :service,
+      module_fullname: self.fullname,
     }
 
     # Default SNMP to UDP
     if tport == 161
-      cred_info[:proto] = 'udp'
+      credential_data[:protocol] = 'udp'
     end
 
     store_loot("cisco.ios.config", "text/plain", thost, config.strip, "config.txt", "Cisco IOS Configuration")
@@ -76,34 +85,32 @@ module Auxiliary::Cisco
             print_good("#{thost}:#{tport} Enable Password: #{shash}")
             store_loot("cisco.ios.enable_pass", "text/plain", thost, shash, "enable_password.txt", "Cisco IOS Enable Password")
 
-            cred = cred_info.dup
-            cred[:pass] = shash
-            cred[:type] = "password"
-            cred[:collect_type] = "password"
-            store_cred(cred)
+            cred = credential_data.dup
+            cred[:private_data] = shash
+            cred[:private_type] = :password_hash
+            create_credential(cred)
+
           end
 
           if stype == 7
             shash = cisco_ios_decrypt7(shash) rescue shash
             print_good("#{thost}:#{tport} Decrypted Enable Password: #{shash}")
             store_loot("cisco.ios.enable_pass", "text/plain", thost, shash, "enable_password.txt", "Cisco IOS Enable Password")
-
-            cred = cred_info.dup
-            cred[:pass] = shash
-            cred[:type] = "password"
-            cred[:collect_type] = "password"
-            store_cred(cred)
+            
+            cred = credential_data.dup
+            cred[:private_data] = shash
+            cred[:private_type] = :password
+            create_credential(cred)
           end
 
         when /^\s*enable password (.*)/i
           spass = $1.strip
           print_good("#{thost}:#{tport} Unencrypted Enable Password: #{spass}")
 
-          cred = cred_info.dup
-          cred[:pass] = spass
-          cred[:type] = "password"
-          cred[:collect_type] = "password"
-          store_cred(cred)
+          cred = credential_data.dup
+          cred[:private_data] = spass
+          cred[:private_type] = :password
+          create_credential(cred)
 
 #
 # SNMP

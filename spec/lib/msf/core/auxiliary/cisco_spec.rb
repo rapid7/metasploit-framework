@@ -14,10 +14,13 @@ RSpec.describe Msf::Auxiliary::Cisco do
       )
     end
     def print_good(str=nil)
-      raise StandardError("This method needs to be stubbed.")
+      raise StandardError.new("This method needs to be stubbed.")
     end
     def store_cred(hsh=nil)
-      raise StandardError("This method needs to be stubbed.")
+      raise StandardError.new("This method needs to be stubbed.")
+    end
+    def fullname
+      "Dummy Class / Dummy Ref"
     end
   end
   
@@ -55,15 +58,16 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 0 password0", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_cred).with(
+        expect(aux_cisco).to receive(:create_credential).with(
           {
-            :host=>"127.0.0.1",
-            :port=>1337,
-            :user=>"",
-            :pass=>"password0",
-            :type=>"password",
-            :collect_type=>"password",
-            :active=>true
+            address: "127.0.0.1",
+            port: 1337,
+            protocol: "tcp",
+            workspace_id: nil,
+            origin_type: :service,
+            module_fullname: "Dummy Class / Dummy Ref",
+            private_data: "password0",
+            private_type: :password
           }
         )
         aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'enable password 0 password0')
@@ -82,15 +86,16 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
-        expect(aux_cisco).to receive(:store_cred).with(
+        expect(aux_cisco).to receive(:create_credential).with(
           {
-            :host=>"127.0.0.1",
-            :port=>1337,
-            :user=>"",
-            :pass=>"cisco",
-            :type=>"password",
-            :collect_type=>"password",
-            :active=>true
+            address: "127.0.0.1",
+            port: 1337,
+            protocol: "tcp",
+            workspace_id: nil,
+            origin_type: :service,
+            module_fullname: "Dummy Class / Dummy Ref",
+            private_data: "cisco",
+            private_type: :password
           }
         )
         aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'enable password 7 1511021F0725')
@@ -103,15 +108,16 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
-      expect(aux_cisco).to receive(:store_cred).with(
+      expect(aux_cisco).to receive(:create_credential).with(
         {
-          host: "127.0.0.1",
+          address: "127.0.0.1",
           port: 1337,
-          user: "",
-          pass: "1511021F0725",
-          type: "password",
-          collect_type: "password",
-          active: true
+          protocol: "tcp",
+          workspace_id: nil,
+          origin_type: :service,
+          module_fullname: "Dummy Class / Dummy Ref",
+          private_data: "1511021F0725",
+          private_type: :password
         }
       )
       aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'enable password 1511021F0725')
