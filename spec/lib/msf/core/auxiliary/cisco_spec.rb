@@ -33,11 +33,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
   subject(:aux_cisco) { DummyClass.new }
   
   let!(:workspace) { FactoryGirl.create(:mdm_workspace) }
-  
-  before(:example) do
-    expect(aux_cisco).to receive(:myworkspace).and_return(workspace)
-  end
-  
+    
   context '#create_credential_and_login' do
     
     let(:session) { FactoryGirl.create(:mdm_session) }
@@ -52,6 +48,24 @@ RSpec.describe Msf::Auxiliary::Cisco do
     let(:service) { FactoryGirl.create(:mdm_service, host: FactoryGirl.create(:mdm_host, workspace: workspace)) }
     let(:task) { FactoryGirl.create(:mdm_task, workspace: workspace) }
     
+    let(:login_data) {
+      {
+        address: service.host.address,
+        port: service.port,
+        service_name: service.name,
+        protocol: service.proto,
+        workspace_id: workspace.id,
+        origin_type: :service,
+        module_fullname: 'auxiliary/scanner/smb/smb_login',
+        realm_key: 'Active Directory Domain',
+        realm_value: 'contosso',
+        username: 'Username',
+        private_data: 'password',
+        private_type: :password,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+    }
+    
     it 'creates a Metasploit::Credential::Login' do
       expect{test_object.create_credential_and_login(login_data)}.to change{Metasploit::Credential::Login.count}.by(1)
     end
@@ -62,6 +76,9 @@ RSpec.describe Msf::Auxiliary::Cisco do
   end
   
   context '#cisco_ios_config_eater' do
+    before(:example) do
+      expect(aux_cisco).to receive(:myworkspace).and_return(workspace)
+    end
     
     it 'deals with udp ports' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:161 Unencrypted Enable Password: 1511021F0725')
@@ -239,7 +256,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           origin_type: :service,
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
-          private_data: "1511021F0725",
+          private_data: "cisco",
           private_type: :password,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
@@ -248,12 +265,26 @@ RSpec.describe Msf::Auxiliary::Cisco do
     end
     
     it 'password|secret 5' do
-      expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 MD5 Encrypted VTY Password: password')
+      expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 MD5 Encrypted VTY Password: 1511021F0725')
       expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.vty_password", "text/plain", "127.0.0.1", "password", "vty_password_hash.txt", "Cisco IOS VTY Password Hash (MD5)"
+        "cisco.ios.vty_password", "text/plain", "127.0.0.1", "1511021F0725", "vty_password_hash.txt", "Cisco IOS VTY Password Hash (MD5)"
       )
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "password 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
+      )
+      expect(aux_cisco).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 1337,
+          protocol: "tcp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+          private_data: "1511021F0725",
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
       )
       aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'password 5 1511021F0725')
     end
@@ -263,15 +294,18 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "password 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
-      expect(aux_cisco).to receive(:store_cred).with(
+      expect(aux_cisco).to receive(:create_credential_and_login).with(
         {
-          host: "127.0.0.1",
+          address: "127.0.0.1",
           port: 1337,
-          user: "",
-          pass: "1511021F0725",
-          type: "password",
-          collect_type: "password",
-          active: true
+          protocol: "tcp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+          private_data: "1511021F0725",
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
       aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'password 0 1511021F0725')
@@ -282,15 +316,18 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "password 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
-      expect(aux_cisco).to receive(:store_cred).with(
+      expect(aux_cisco).to receive(:create_credential_and_login).with(
         {
-          host: "127.0.0.1",
+          address: "127.0.0.1",
           port: 1337,
-          user: "",
-          pass: "1511021F0725",
-          type: "password",
-          collect_type: "password",
-          active: true
+          protocol: "tcp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+          private_data: "1511021F0725",
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
       aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'password 1511021F0725')
@@ -316,15 +353,18 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.wireless_wpapsk", "text/plain", "127.0.0.1", "1511021F0725", "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Password"
         )
-        expect(aux_cisco).to receive(:store_cred).with(
+        expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
-            host: "127.0.0.1",
+            address: "127.0.0.1",
             port: 1337,
-            user: "",
-            pass: "1511021F0725",
-            type: "password",
-            collect_type: "password",
-            active: true
+            protocol: "tcp",
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+            private_data: "1511021F0725",
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
         aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'wpa-psk ascii 0 1511021F0725')
@@ -338,6 +378,20 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.wireless_wpapsk_hash", "text/plain", "127.0.0.1", "1511021F0725", "wireless_wpapsk_hash.txt", "Cisco IOS Wireless WPA-PSK Password Hash (MD5)"
         )
+        expect(aux_cisco).to receive(:create_credential_and_login).with(
+          {
+            address: "127.0.0.1",
+            port: 1337,
+            protocol: "tcp",
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+            private_data: "1511021F0725",
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
         aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'wpa-psk ascii 5 1511021F0725')
       end
       
@@ -349,42 +403,49 @@ RSpec.describe Msf::Auxiliary::Cisco do
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.wireless_wpapsk", "text/plain", "127.0.0.1", "cisco", "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Decrypted Password"
         )
-        expect(aux_cisco).to receive(:store_cred).with(
+        expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
-            host: "127.0.0.1",
+            address: "127.0.0.1",
             port: 1337,
-            user: "",
-            pass: "cisco",
-            type: "password",
-            collect_type: "password",
-            active: true
+            protocol: "tcp",
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+            private_data: "cisco",
+            private_type: :password,
+            status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
+        
         aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'wpa-psk ascii 7 1511021F0725')
       end
             
     end
     
     it 'crypto isakmp key' do
-      expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 VPN IPSEC ISAKMP Key 'somestring' Host 'someaddress'")
+      expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 VPN IPSEC ISAKMP Key '1511021F0725' Host 'someaddress'")
       expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.config", "text/plain", "127.0.0.1",  "crypto isakmp key somestring address someaddress", "config.txt", "Cisco IOS Configuration"
+        "cisco.ios.config", "text/plain", "127.0.0.1",  "crypto isakmp key 1511021F0725 address someaddress", "config.txt", "Cisco IOS Configuration"
       )
       expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.vpn_ipsec_key", "text/plain", "127.0.0.1", "somestring", "vpn_ipsec_key.txt", "Cisco VPN IPSEC Key"
+        "cisco.ios.vpn_ipsec_key", "text/plain", "127.0.0.1", "1511021F0725", "vpn_ipsec_key.txt", "Cisco VPN IPSEC Key"
       )
-      expect(aux_cisco).to receive(:store_cred).with(
+      expect(aux_cisco).to receive(:create_credential_and_login).with(
         {
-          host: "127.0.0.1",
+          address: "127.0.0.1",
           port: 1337,
-          user: "",
-          pass: "somestring",
-          type: "password",
-          collect_type: "password",
-          active: true
+          protocol: "tcp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+          private_data: "1511021F0725",
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
-      aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'crypto isakmp key somestring address someaddress')
+      aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'crypto isakmp key 1511021F0725 address someaddress')
     end
     
     it 'interface tunnel' do
@@ -395,25 +456,28 @@ RSpec.describe Msf::Auxiliary::Cisco do
     end
     
     it 'tunnel key' do
-      expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 GRE Tunnel Key somestring for Interface Tunnel ")
+      expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 GRE Tunnel Key 1511021F0725 for Interface Tunnel ")
       expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.gre_tunnel_key", "text/plain", "127.0.0.1", "tunnel_somestring", "gre_tunnel_key.txt", "Cisco GRE Tunnel Key"
+        "cisco.ios.gre_tunnel_key", "text/plain", "127.0.0.1", "tunnel_1511021F0725", "gre_tunnel_key.txt", "Cisco GRE Tunnel Key"
       )
       expect(aux_cisco).to receive(:store_loot).with(
-        "cisco.ios.config", "text/plain", "127.0.0.1",  "tunnel key somestring", "config.txt", "Cisco IOS Configuration"
+        "cisco.ios.config", "text/plain", "127.0.0.1",  "tunnel key 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
-      expect(aux_cisco).to receive(:store_cred).with(
+      expect(aux_cisco).to receive(:create_credential_and_login).with(
         {
-          host: "127.0.0.1",
+          address: "127.0.0.1",
           port: 1337,
-          user: "",
-          pass: "somestring",
-          type: "password",
-          collect_type: "password",
-          active: true
+          protocol: "tcp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+          private_data: "1511021F0725",
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
-      aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'tunnel key somestring')
+      aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'tunnel key 1511021F0725')
     end
     
     it 'ip nhrp authentication' do

@@ -176,10 +176,15 @@ module Auxiliary::Cisco
           
 
         when /^\s*(password|secret) 5 (.*)/i
-          shash = $1.strip
+          shash = $2.strip
           print_good("#{thost}:#{tport} MD5 Encrypted VTY Password: #{shash}")
           store_loot("cisco.ios.vty_password", "text/plain", thost, shash, "vty_password_hash.txt", "Cisco IOS VTY Password Hash (MD5)")
-
+          
+          cred = credential_data.dup
+          cred[:private_data] = shash
+          cred[:private_type] = :nonreplayable_hash
+          create_credential_and_login(cred)
+          
         when /^\s*password (0 |)([^\s]+)/i
           spass = $2.strip
           print_good("#{thost}:#{tport} Unencrypted VTY Password: #{spass}")
@@ -205,29 +210,29 @@ module Auxiliary::Cisco
           if stype == 5
             print_good("#{thost}:#{tport} Wireless WPA-PSK MD5 Password Hash: #{spass}")
             store_loot("cisco.ios.wireless_wpapsk_hash", "text/plain", thost, spass, "wireless_wpapsk_hash.txt", "Cisco IOS Wireless WPA-PSK Password Hash (MD5)")
+            cred = credential_data.dup
+            cred[:private_data] = spass
+            cred[:private_type] = :nonreplayable_hash
+            create_credential_and_login(cred)
           end
 
           if stype == 0
             print_good("#{thost}:#{tport} Wireless WPA-PSK Password: #{spass}")
-            cred = cred_info.dup
-            cred[:pass] = spass
-            cred[:type] = "password"
-            cred[:collect_type] = "password"
-            store_cred(cred)
-
             store_loot("cisco.ios.wireless_wpapsk", "text/plain", thost, spass, "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Password")
+            cred = credential_data.dup
+            cred[:private_data] = spass
+            cred[:private_type] = :nonreplayable_hash
+            create_credential_and_login(cred)
           end
 
           if stype == 7
             spass = cisco_ios_decrypt7(spass) rescue spass
             print_good("#{thost}:#{tport} Wireless WPA-PSK Decrypted Password: #{spass}")
-            cred = cred_info.dup
-            cred[:pass] = spass
-            cred[:type] = "password"
-            cred[:collect_type] = "password"
-            store_cred(cred)
-
             store_loot("cisco.ios.wireless_wpapsk", "text/plain", thost, spass, "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Decrypted Password")
+            cred = credential_data.dup
+            cred[:private_data] = spass
+            cred[:private_type] = :password
+            create_credential_and_login(cred)
           end
 
 #
@@ -240,11 +245,11 @@ module Auxiliary::Cisco
           print_good("#{thost}:#{tport} VPN IPSEC ISAKMP Key '#{spass}' Host '#{shost}'")
           store_loot("cisco.ios.vpn_ipsec_key", "text/plain", thost, "#{spass}", "vpn_ipsec_key.txt", "Cisco VPN IPSEC Key")
 
-          cred = cred_info.dup
-          cred[:pass] = spass
-          cred[:type] = "password"
-          cred[:collect_type] = "password"
-          store_cred(cred)
+          cred = credential_data.dup
+          cred[:private_data] = spass
+          cred[:private_type] = :nonreplayable_hash
+          create_credential_and_login(cred)
+          
         when /^\s*interface tunnel(\d+)/i
           tuniface = $1
 
@@ -254,25 +259,24 @@ module Auxiliary::Cisco
 
           print_good("#{thost}:#{tport} GRE Tunnel Key #{spass} for Interface Tunnel #{siface}")
           store_loot("cisco.ios.gre_tunnel_key", "text/plain", thost, "tunnel#{siface}_#{spass}", "gre_tunnel_key.txt", "Cisco GRE Tunnel Key")
-
-          cred = cred_info.dup
-          cred[:pass] = spass
-          cred[:type] = "password"
-          cred[:collect_type] = "password"
-          store_cred(cred)
-
+          
+          cred = credential_data.dup
+          cred[:private_data] = spass
+          cred[:private_type] = :nonreplayable_hash
+          create_credential_and_login(cred)
+          
         when /^\s*ip nhrp authentication ([^\s]+)/i
           spass = $1
           siface = tuniface
 
           print_good("#{thost}:#{tport} NHRP Authentication Key #{spass} for Interface Tunnel #{siface}")
           store_loot("cisco.ios.nhrp_tunnel_key", "text/plain", thost, "tunnel#{siface}_#{spass}", "nhrp_tunnel_key.txt", "Cisco NHRP Authentication Key")
-
-          cred = cred_info.dup
-          cred[:pass] = spass
-          cred[:type] = "password"
-          cred[:collect_type] = "password"
-          store_cred(cred)
+          
+          cred = credential_data.dup
+          cred[:private_data] = spass
+          cred[:private_type] = :nonreplayable_hash
+          create_credential_and_login(cred)
+          
 
 #
 # Various authentication secrets
