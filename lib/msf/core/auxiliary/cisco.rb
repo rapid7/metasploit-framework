@@ -391,34 +391,36 @@ module Auxiliary::Cisco
 
         when /^\s*ppp chap (secret|password) (\d+) ([^\s]+)/i
           stype = $2.to_i
-          shash = $3
+          spass = $3
 
           if stype == 5
-            print_good("#{thost}:#{tport} PPP CHAP MD5 Encrypted Password: #{shash}")
-            store_loot("cisco.ios.ppp_password_hash", "text/plain", thost, shash, "ppp_password_hash.txt", "Cisco IOS PPP Password Hash (MD5)")
+            print_good("#{thost}:#{tport} PPP CHAP MD5 Encrypted Password: #{spass}")
+            store_loot("cisco.ios.ppp_password_hash", "text/plain", thost, spass, "ppp_password_hash.txt", "Cisco IOS PPP Password Hash (MD5)")
+            cred = credential_data.dup
+            cred[:private_data] = spass
+            cred[:private_type] = :nonreplayable_hash
+            create_credential_and_login(cred)
           end
 
           if stype == 0
-            print_good("#{thost}:#{tport} Password: #{shash}")
-            store_loot("cisco.ios.ppp_password", "text/plain", thost, shash, "ppp_password.txt", "Cisco IOS PPP Password")
+            print_good("#{thost}:#{tport} Password: #{spass}")
+            store_loot("cisco.ios.ppp_password", "text/plain", thost, spass, "ppp_password.txt", "Cisco IOS PPP Password")
 
-            cred = cred_info.dup
-            cred[:pass] = shash
-            cred[:type] = "password"
-            cred[:collect_type] = "password"
-            store_cred(cred)
+            cred = credential_data.dup
+            cred[:private_data] = spass
+            cred[:private_type] = :nonreplayable_hash
+            create_credential_and_login(cred)
           end
 
           if stype == 7
-            shash = cisco_ios_decrypt7(shash) rescue shash
-            print_good("#{thost}:#{tport} PPP Decrypted Password: #{shash}")
-            store_loot("cisco.ios.ppp_password", "text/plain", thost, shash, "ppp_password.txt", "Cisco IOS PPP Password")
+            spass = cisco_ios_decrypt7(spass) rescue spass
+            print_good("#{thost}:#{tport} PPP Decrypted Password: #{spass}")
+            store_loot("cisco.ios.ppp_password", "text/plain", thost, spass, "ppp_password.txt", "Cisco IOS PPP Password")
 
-            cred = cred_info.dup
-            cred[:pass] = shash
-            cred[:type] = "password"
-            cred[:collect_type] = "password"
-            store_cred(cred)
+            cred = credential_data.dup
+            cred[:private_data] = spass
+            cred[:private_type] = :password
+            create_credential_and_login(cred)
           end
       end
     end
