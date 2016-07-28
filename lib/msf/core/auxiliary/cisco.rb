@@ -76,8 +76,9 @@ module Auxiliary::Cisco
       address: thost,
       port: tport,
       protocol: 'tcp',
-      workspace_id: myworkspace_id,
+      workspace_id: myworkspace.id,
       origin_type: :service,
+      service_name: '',
       module_fullname: self.fullname,
       status: Metasploit::Model::Login::Status::UNTRIED
     }
@@ -103,6 +104,10 @@ module Auxiliary::Cisco
           if stype == 5
             print_good("#{thost}:#{tport} MD5 Encrypted Enable Password: #{shash}")
             store_loot("cisco.ios.enable_hash", "text/plain", thost, shash, "enable_password_hash.txt", "Cisco IOS Enable Password Hash (MD5)")
+            cred = credential_data.dup
+            cred[:private_data] = shash
+            cred[:private_type] = :nonreplayable_hash
+            create_credential_and_login(cred)
           end
 
           if stype == 0
@@ -111,7 +116,7 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = shash
-            cred[:private_type] = :password
+            cred[:private_type] = :nonreplayable_hash
             create_credential_and_login(cred)
 
           end
@@ -133,7 +138,7 @@ module Auxiliary::Cisco
 
           cred = credential_data.dup
           cred[:private_data] = spass
-          cred[:private_type] = :password
+          cred[:private_type] = :nonreplayable_hash
           create_credential_and_login(cred)
 
 #
@@ -163,12 +168,12 @@ module Auxiliary::Cisco
           spass = cisco_ios_decrypt7(spass) rescue spass
 
           print_good("#{thost}:#{tport} Decrypted VTY Password: #{spass}")
-          cred = cred_info.dup
-
-          cred[:pass] = spass
-          cred[:type] = "password"
-          cred[:collect_type] = "password"
-          store_cred(cred)
+          
+          cred = credential_data.dup
+          cred[:private_data] = spass
+          cred[:private_type] = :password
+          create_credential_and_login(cred)
+          
 
         when /^\s*(password|secret) 5 (.*)/i
           shash = $1.strip
@@ -178,11 +183,11 @@ module Auxiliary::Cisco
         when /^\s*password (0 |)([^\s]+)/i
           spass = $2.strip
           print_good("#{thost}:#{tport} Unencrypted VTY Password: #{spass}")
-          cred = cred_info.dup
-          cred[:pass] = spass
-          cred[:type] = "password"
-          cred[:collect_type] = "password"
-          store_cred(cred)
+          
+          cred = credential_data.dup
+          cred[:private_data] = spass
+          cred[:private_type] = :nonreplayable_hash
+          create_credential_and_login(cred)
 
 #
 # WiFi Passwords

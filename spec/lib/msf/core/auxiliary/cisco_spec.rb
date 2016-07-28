@@ -25,9 +25,18 @@ RSpec.describe Msf::Auxiliary::Cisco do
     def fullname
       "auxiliary/scanner/snmp/cisco_dummy"
     end
+    def myworkspace
+      raise StandardError.new("This method needs to be stubbed.")
+    end
   end
   
   subject(:aux_cisco) { DummyClass.new }
+  
+  let!(:workspace) { FactoryGirl.create(:mdm_workspace) }
+  
+  before(:example) do
+    expect(aux_cisco).to receive(:myworkspace).and_return(workspace)
+  end
   
   context '#create_credential_and_login' do
     
@@ -37,31 +46,12 @@ RSpec.describe Msf::Auxiliary::Cisco do
 
     let(:user) { FactoryGirl.create(:mdm_user)}
 
-    let(:workspace) { FactoryGirl.create(:mdm_workspace) }
-
     subject(:test_object) { DummyClass.new }
     
     let(:workspace) { FactoryGirl.create(:mdm_workspace) }
     let(:service) { FactoryGirl.create(:mdm_service, host: FactoryGirl.create(:mdm_host, workspace: workspace)) }
     let(:task) { FactoryGirl.create(:mdm_task, workspace: workspace) }
     
-    let(:login_data) {
-      {
-        address: service.host.address,
-        port: service.port,
-        service_name: service.name,
-        protocol: service.proto,
-        workspace_id: workspace.id,
-        origin_type: :service,
-        module_fullname: 'auxiliary/scanner/smb/smb_login',
-        realm_key: 'Active Directory Domain',
-        realm_value: 'contosso',
-        username: 'Username',
-        private_data: 'password',
-        private_type: :password,
-        status: Metasploit::Model::Login::Status::UNTRIED
-      }
-    }
     it 'creates a Metasploit::Credential::Login' do
       expect{test_object.create_credential_and_login(login_data)}.to change{Metasploit::Credential::Login.count}.by(1)
     end
@@ -83,11 +73,12 @@ RSpec.describe Msf::Auxiliary::Cisco do
           address: "127.0.0.1",
           port: 161,
           protocol: "udp",
-          workspace_id: nil,
+          workspace_id: workspace.id,
           origin_type: :service,
+          service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :password,
+          private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -97,33 +88,34 @@ RSpec.describe Msf::Auxiliary::Cisco do
     context 'Enable Password|Secret' do
       
       it 'with password type 0' do
-        expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Enable Password: password0')
+        expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Enable Password: 1511021F0725')
         expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.enable_pass", "text/plain", "127.0.0.1", "password0", "enable_password.txt", "Cisco IOS Enable Password"
+          "cisco.ios.enable_pass", "text/plain", "127.0.0.1", "1511021F0725", "enable_password.txt", "Cisco IOS Enable Password"
         )
         expect(aux_cisco).to receive(:store_loot).with(
-          "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 0 password0", "config.txt", "Cisco IOS Configuration"
+          "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
             port: 1337,
             protocol: "tcp",
-            workspace_id: nil,
+            workspace_id: workspace.id,
             origin_type: :service,
+            service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
-            private_data: "password0",
-            private_type: :password,
+            private_data: "1511021F0725",
+            private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
         
-        aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'enable password 0 password0')
+        aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'enable password 0 1511021F0725')
       end
       
       it 'with password type 5' do
-        expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 MD5 Encrypted Enable Password: somehashlikestring')
-        aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'enable password 5 somehashlikestring')
+        expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 MD5 Encrypted Enable Password: 1511021F0725')
+        aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'enable password 5 1511021F0725')
       end
       
       it 'with password type 7' do
@@ -139,8 +131,9 @@ RSpec.describe Msf::Auxiliary::Cisco do
             address: "127.0.0.1",
             port: 1337,
             protocol: "tcp",
-            workspace_id: nil,
+            workspace_id: workspace.id,
             origin_type: :service,
+            service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "cisco",
             private_type: :password,
@@ -162,7 +155,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           address: "127.0.0.1",
           port: 1337,
           protocol: "tcp",
-          workspace_id: nil,
+          workspace_id: workspace.id,
           origin_type: :service,
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
@@ -182,7 +175,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             address: "127.0.0.1",
             port: 161,
             protocol: "udp",
-            workspace_id: nil,
+            workspace_id: workspace.id,
             origin_type: :service,
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
@@ -201,7 +194,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             address: "127.0.0.1",
             port: 161,
             protocol: "udp",
-            workspace_id: nil,
+            workspace_id: workspace.id,
             origin_type: :service,
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
@@ -220,15 +213,28 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "password 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
-      expect(aux_cisco).to receive(:store_cred).with(
+      # expect(aux_cisco).to receive(:store_cred).with(
+      #   {
+      #     host: "127.0.0.1",
+      #     port: 1337,
+      #     user: "",
+      #     pass: "cisco",
+      #     type: "password",
+      #     collect_type: "password",
+      #     active: true
+      #   }
+      # )
+      expect(aux_cisco).to receive(:create_credential_and_login).with(
         {
-          host: "127.0.0.1",
+          address: "127.0.0.1",
           port: 1337,
-          user: "",
-          pass: "cisco",
-          type: "password",
-          collect_type: "password",
-          active: true
+          protocol: "tcp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+          private_data: "1511021F0725",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
       aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'password 7 1511021F0725')
