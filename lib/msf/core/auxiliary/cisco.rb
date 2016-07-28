@@ -32,30 +32,54 @@ module Auxiliary::Cisco
     end
     clear
   end
+  
+  def create_credential_and_login(opts={})
+    return nil unless active_db?
+
+    if self.respond_to?(:[]) and self[:task]
+      opts[:task_id] ||= self[:task].record.id
+    end
+
+    core               = opts.fetch(:core, create_credential(opts))
+    access_level       = opts.fetch(:access_level, nil)
+    last_attempted_at  = opts.fetch(:last_attempted_at, nil)
+    status             = opts.fetch(:status, Metasploit::Model::Login::Status::UNTRIED)
+
+    login_object = nil
+    retry_transaction do
+      service_object = create_credential_service(opts)
+      login_object = Metasploit::Credential::Login.where(core_id: core.id, service_id: service_object.id).first_or_initialize
+
+      if opts[:task_id]
+        login_object.tasks << Mdm::Task.find(opts[:task_id])
+      end
+
+      login_object.access_level      = access_level if access_level
+      login_object.last_attempted_at = last_attempted_at if last_attempted_at
+      if status == Metasploit::Model::Login::Status::UNTRIED
+        if login_object.last_attempted_at.nil?
+          login_object.status = status
+        end
+      else
+        login_object.status = status
+      end
+      login_object.save!
+    end
+
+    login_object
+  end
+  
 
   def cisco_ios_config_eater(thost, tport, config)
-
-    #
-    # Create a template hash for cred reporting
-    #
-    # cred_info = {
-    #   :host  => thost,
-    #   :port  => tport,
-    #   :user  => "",
-    #   :pass  => "",
-    #   :type  => "",
-    #   :collect_type => "",
-    #   :active => true
-    # }
     
     credential_data = {
       address: thost,
       port: tport,
       protocol: 'tcp',
       workspace_id: myworkspace_id,
-    
       origin_type: :service,
       module_fullname: self.fullname,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }
 
     # Default SNMP to UDP
@@ -87,8 +111,8 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = shash
-            cred[:private_type] = :password_hash
-            create_credential(cred)
+            cred[:private_type] = :password
+            create_credential_and_login(cred)
 
           end
 
@@ -100,7 +124,7 @@ module Auxiliary::Cisco
             cred = credential_data.dup
             cred[:private_data] = shash
             cred[:private_type] = :password
-            create_credential(cred)
+            create_credential_and_login(cred)
           end
 
         when /^\s*enable password (.*)/i
@@ -110,7 +134,7 @@ module Auxiliary::Cisco
           cred = credential_data.dup
           cred[:private_data] = spass
           cred[:private_type] = :password
-          create_credential(cred)
+          create_credential_and_login(cred)
 
 #
 # SNMP
@@ -120,21 +144,17 @@ module Auxiliary::Cisco
           scomm = $1.strip
           print_good("#{thost}:#{tport} SNMP Community (#{stype}): #{scomm}")
 
+          cred = credential_data.dup
           if stype.downcase == "ro"
-            ptype = "password_ro"
+            cred[:access_level] = "RO"
           else
-            ptype = "password"
+            cred[:access_level] = "RW"
           end
-
-          cred = cred_info.dup
-          cred[:sname] = "snmp"
-          cred[:pass] = scomm
-          cred[:type] = ptype
-          cred[:collect_type] = ptype
-          cred[:proto] = "udp"
-          cred[:port]  = 161
-          store_cred(cred)
-
+          cred[:protocol] = "udp"
+          cred[:port] = 161
+          cred[:private_data] = scomm
+          cred[:private_type] = :password
+          create_credential_and_login(cred)
 #
 # VTY Passwords
 #
