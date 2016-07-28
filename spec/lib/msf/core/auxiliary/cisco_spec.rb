@@ -676,15 +676,18 @@ RSpec.describe Msf::Auxiliary::Cisco do
           "cisco.ios.ppp_username_password", "text/plain", "127.0.0.1", "someusername:1511021F0725", "ppp_username_password.txt",
           "Cisco IOS PPP Username and Password"
         )
-        expect(aux_cisco).to receive(:store_cred).with(
+        expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
-            host: "127.0.0.1",
+            address: "127.0.0.1",
             port: 1337,
-            user: "someusername",
-            pass: "1511021F0725",
-            type: "password",
-            collect_type: "password",
-            active: true
+            protocol: "tcp",
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+            private_data: "1511021F0725",
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
         aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'ppp123username someusername secret 0 1511021F0725')
@@ -699,6 +702,20 @@ RSpec.describe Msf::Auxiliary::Cisco do
           "cisco.ios.ppp_username_password_hash", "text/plain", "127.0.0.1", "someusername:1511021F0725", "ppp_username_password_hash.txt",
           "Cisco IOS PPP Username and Password Hash (MD5)"
         )
+        expect(aux_cisco).to receive(:create_credential_and_login).with(
+          {
+            address: "127.0.0.1",
+            port: 1337,
+            protocol: "tcp",
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+            private_data: "1511021F0725",
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
         aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'ppp123username someusername secret 5 1511021F0725')
       end
 
@@ -712,15 +729,18 @@ RSpec.describe Msf::Auxiliary::Cisco do
           "cisco.ios.ppp_username_password", "text/plain", "127.0.0.1", "someusername:cisco", "ppp_username_password.txt",
           "Cisco IOS PPP Username and Password"
         )
-        expect(aux_cisco).to receive(:store_cred).with(
+        expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
-            host: "127.0.0.1",
+            address: "127.0.0.1",
             port: 1337,
-            user: "someusername",
-            pass: "cisco",
-            type: "password",
-            collect_type: "password",
-            active: true
+            protocol: "tcp",
+            workspace_id: workspace.id,
+            origin_type: :service,
+            service_name: '',
+            module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
+            private_data: "cisco",
+            private_type: :password,
+            status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
         aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'ppp123username someusername secret 7 1511021F0725')
