@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.12.16)
+    metasploit-framework (4.12.17)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -226,6 +226,7 @@ GEM
       rex-text
     rex-java (0.1.2)
     rex-ole (0.1.2)
+      rex-text
     rex-powershell (0.1.1)
       rex-random_identifier
       rex-text
