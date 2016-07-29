@@ -99,8 +99,8 @@ class MetasploitModule < Msf::Post
         vprint_status("Checking for Userlist in MDaemons directory at: #{location}")
         begin
           session.fs.dir.foreach("#{location}") do |fdir|
-            ['userlist.dat', 'UserList.dat'].each do |datfile|
-              if fdir == datfile
+            ['userlist.dat'].each do |datfile|
+              if fdir.downcase == datfile.downcase
                 filepath = location + '\\' + datfile
                 print_good("Configuration file found: #{filepath}")
                 print_good("Found MDaemons on #{sysinfo['Computer']} via session ID: #{session.sid}")
