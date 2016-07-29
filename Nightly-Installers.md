@@ -16,15 +16,15 @@ These packages integrate into your OS's native package management and can either
 
 # OS X graphical installation
 
-The latest OS X installer package can also be downloaded directly here: http://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at http://osx.metasploit.com/. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.  Once installed, initially launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole```. A series of prompts will help you setup a database and add Metasploit to your local PATH. You can also follow the Linux instructions below to install in a single step.
+The latest OS X installer package can also be downloaded directly here: https://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at https://osx.metasploit.com/. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.  Once installed, initially launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole```. A series of prompts will help you setup a database and add Metasploit to your local PATH. You can also follow the Linux instructions below to install in a single step.
 
 # Linux package details
 
-Linux packages are built nightly for .deb (64-bit and 32-bit x86) and .rpm (64-bit x86) systems. Debian/Ubuntu packages are available at http://apt.metasploit.com and CentOS/Redhat/Fedora packages are located at http://rpm.metasploit.com. 
+Linux packages are built nightly for .deb (64-bit and 32-bit x86) and .rpm (64-bit x86) systems. Debian/Ubuntu packages are available at https://apt.metasploit.com and CentOS/Redhat/Fedora packages are located at https://rpm.metasploit.com.
 
 # Windows
 
-The latest Windows installer is located here: http://windows.metasploit.com/metasploitframework-latest.msi, with the last 10 builds archived at http://windows.metasploit.com/. To install, simply download the .msi package, adjust your Antivirus as-needed to ignore c:\metasploit-framework, double-click and enjoy. The msfconsole command and all related tools will be added to the system %PATH% environment variable.
+The latest Windows installer is located here: https://windows.metasploit.com/metasploitframework-latest.msi, with the last 10 builds archived at https://windows.metasploit.com/. To install, simply download the .msi package, adjust your Antivirus as-needed to ignore c:\metasploit-framework, double-click and enjoy. The msfconsole command and all related tools will be added to the system %PATH% environment variable.
 
 # Detailed installation guide
 
