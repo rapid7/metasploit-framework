@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return unless nbnsq_decodedname =~ /#{datastore['REGEX'].source}/i
 
-    vprint_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{spoof}")
+    print_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{spoof}")
 
     vprint_status("transid:        #{nbnsq_transid.unpack('H4')}")
     vprint_status("tlags:          #{nbnsq_flags.unpack('B16')}")
