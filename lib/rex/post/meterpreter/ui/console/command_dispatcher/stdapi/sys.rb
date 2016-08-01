@@ -448,7 +448,7 @@ class Console::CommandDispatcher::Stdapi::Sys
           if val.nil? or val.empty?
             return false
           end
-          searched_procs << proc if proc["arch"] == val
+          searched_procs << proc if proc["arch"] == (val == 'x64' ? 'x86_64' : val)
         end
         processes = searched_procs
       when "-s"
