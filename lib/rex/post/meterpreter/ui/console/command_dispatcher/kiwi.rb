@@ -38,8 +38,8 @@ class Console::CommandDispatcher::Kiwi
     super
     print_line
     print_line
-    print_line("  .#####.   mimikatz 2.0 alpha (#{client.session_type}) release \"Kiwi en C\"")
-    print_line(" .## ^ ##.")
+    print_line("  .#####.   mimikatz 2.1 (#{client.session_type})")
+    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
     print_line(" ## / \\ ##  /* * *")
     print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
     print_line(" '## v ##'   http://blog.gentilkiwi.com/mimikatz             (oe.eo)")
@@ -57,6 +57,7 @@ class Console::CommandDispatcher::Kiwi
   #
   def commands
     {
+      'kiwi_cmd'              => 'Execute an arbitary mimikatz command',
       'creds_wdigest'         => 'Retrieve WDigest creds',
       'creds_msv'             => 'Retrieve LM/NTLM creds (hashes)',
       'creds_livessp'         => 'Retrieve LiveSSP creds',
@@ -71,6 +72,12 @@ class Console::CommandDispatcher::Kiwi
       'lsa_dump'              => 'Dump LSA secrets',
       'wifi_list'             => 'List wifi profiles/creds'
     }
+  end
+
+  def cmd_kiwi_cmd(*args)
+    output = client.kiwi.exec_cmd(args.join(' '))
+    # TODO: clean up!
+    print_line(output)
   end
 
   #

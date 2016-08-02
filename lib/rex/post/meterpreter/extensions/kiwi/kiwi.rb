@@ -75,6 +75,14 @@ class Kiwi < Extension
       ])
   end
 
+  def exec_cmd(cmd)
+    request = Packet.create_request('kiwi_exec_cmd')
+    request.add_tlv(TLV_TYPE_KIWI_CMD, cmd)
+    response = client.send_request(request)
+    output = response.get_tlv_value(TLV_TYPE_KIWI_CMD_RESULT)
+    output[output.index(cmd) + cmd.length + 1, output.length]
+  end
+
   #
   # Dump the LSA secrets from the target machine.
   #
