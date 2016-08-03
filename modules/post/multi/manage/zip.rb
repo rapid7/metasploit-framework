@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
         'Name'          => 'Multi Manage File Compressor',
         'Description'   => %q{
-          This module zips a directory or a directory. On Linux, it uses the zip command.
+          This module zips a file or a directory. On Linux, it uses the zip command.
           On Windows, it will try to use remote target's 7Zip if found. If not, it falls
           back to its own VBScript.
         },
