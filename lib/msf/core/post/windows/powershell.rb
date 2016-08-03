@@ -31,6 +31,42 @@ module Powershell
   end
 
   #
+  # Returns the .Net version
+  #
+  def get_dotnet_version
+    cmd_out = cmd_exec('wmic /namespace:\\\\root\\cimv2 path win32_product where "name like \'%%.NET%%\'" get version')
+    cmd_out.scan(/[\d\.]+/).flatten.first || ''
+  end
+
+
+  #
+  # Returns the Powershell version
+  #
+  def get_powershell_version
+    return nil unless have_powershell?
+
+    process, pid, c = execute_script('$PSVersionTable.PSVersion')
+
+    o = ''
+
+    while (d = process.channel.read)
+      if d == ""
+        if (Time.now.to_i - start < time_out) && (o == '')
+          sleep 0.1
+        else
+          break
+        end
+      else
+        o << d
+      end
+    end
+
+    o
+
+    o.scan(/[\d \-]+/).last.split[0,2] * '.'
+  end
+
+  #
   # Get/compare list of current PS processes - nested execution can spawn many children
   # doing checks before and after execution allows us to kill more children...
   # This is a hack, better solutions are welcome since this could kill user
