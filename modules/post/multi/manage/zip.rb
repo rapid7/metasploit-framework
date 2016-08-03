@@ -31,9 +31,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_program_file_path
-    @program_file_path ||= lambda {
-      session.sys.config.getenvs("ProgramFiles")['ProgramFiles']
-    }.call
+    get_env('ProgramFiles')
   end
 
   def has_7zip?
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Post
 
   def upload_exec_vbs_zip
     script = vbs(datastore['DESTINATION'], datastore['SOURCE'])
-    tmp_path = "#{session.sys.config.getenvs('TEMP')['TEMP']}\\zip.vbs"
+    tmp_path = "#{get_env('TEMP')}\\zip.vbs"
     print_status("VBS file uploaded to #{tmp_path}")
     write_file(tmp_path, script)
     cmd_exec("wscript.exe #{tmp_path}")
