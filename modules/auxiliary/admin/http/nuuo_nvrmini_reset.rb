@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2016-5676'],
           ['US-CERT-VU', '856152'],
-          ['URL', 'TODO_GITHUB_URL'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/nuuo-nvr-vulns.txt'],
           ['URL', 'TODO_FULLDISC_URL']
         ],
       'DefaultTarget' => 0,
