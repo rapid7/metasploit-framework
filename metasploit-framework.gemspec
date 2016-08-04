@@ -70,13 +70,13 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.1.12'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.1.13'
+  # Needed for the next-generation POSIX Meterpreter
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.0.6'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
   spec.add_runtime_dependency 'network_interface'
-  # NTLM authentication
-  spec.add_runtime_dependency 'rubyntlm'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
@@ -104,6 +104,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bit-struct'
 
   #
+  # Protocol Libraries
+  #
+  spec.add_runtime_dependency 'net-ssh'
+
+  #
   # REX Libraries
   #
   # Text manipulation library for things like generating random string
@@ -118,6 +123,13 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-registry'
   # Library for parsing Java serialized streams
   spec.add_runtime_dependency 'rex-java'
+  # Library for C-style structs
+  spec.add_runtime_dependency 'rex-struct2'
+  # Library which contains architecture specific information such as registers, opcodes, 
+  # and stack manipulation routines.
+  spec.add_runtime_dependency 'rex-arch'
+  # Library for working with OLE.
+  spec.add_runtime_dependency 'rex-ole'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module

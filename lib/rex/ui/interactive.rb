@@ -185,7 +185,7 @@ protected
   # writing it to the other.  Both are expected to implement Rex::IO::Stream.
   #
   def interact_stream(stream)
-    while self.interacting
+    while self.interacting && _remote_fd(stream)
 
       # Select input and rstream
       sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.25)

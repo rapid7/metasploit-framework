@@ -3,6 +3,10 @@ require 'rex/socket'
 require 'rex/proto/http'
 require 'rex/text'
 require 'digest'
+require 'rex/proto/ntlm/crypt'
+require 'rex/proto/ntlm/constants'
+require 'rex/proto/ntlm/utils'
+require 'rex/proto/ntlm/exceptions'
 
 require 'rex/proto/http/client_request'
 
@@ -309,6 +313,7 @@ class Client
   # Send a series of requests to complete Digest Authentication
   #
   # @param opts [Hash] the options used to build an HTTP request
+  #
   # @return [Response] the last valid HTTP response we received
   def digest_auth(opts={})
     @nonce_count = 0
@@ -452,6 +457,13 @@ class Client
   #
   # @return [Response] the last valid HTTP response we received
   def negotiate_auth(opts={})
+    ntlm_options = {
+      :signing          => false,
+      :usentlm2_session => self.config['usentlm2_session'],
+      :use_ntlmv2       => self.config['use_ntlmv2'],
+      :send_lm          => self.config['send_lm'],
+      :send_ntlm        => self.config['send_ntlm']
+    }
 
     to = opts['timeout'] || 20
     opts['username'] ||= ''
@@ -460,27 +472,28 @@ class Client
     if opts['provider'] and opts['provider'].include? 'Negotiate'
       provider = "Negotiate "
     else
-      provider = "NTLM "
+      provider = 'NTLM '
     end
 
     opts['method']||= 'GET'
     opts['headers']||= {}
 
+    ntlmssp_flags = ::Rex::Proto::NTLM::Utils.make_ntlm_flags(ntlm_options)
     workstation_name = Rex::Text.rand_text_alpha(rand(8)+6)
     domain_name = self.config['domain']
 
-    ntlm_client = ::Net::NTLM::Client.new(
-      opts['username'],
-      opts['password'],
-      workstation: workstation_name,
-      domain: domain_name,
-    )
-    type1 = ntlm_client.init_context
+    b64_blob = Rex::Text::encode_base64(
+      ::Rex::Proto::NTLM::Utils::make_ntlmssp_blob_init(
+        domain_name,
+        workstation_name,
+        ntlmssp_flags
+    ))
+
+    ntlm_message_1 = provider + b64_blob
 
     begin
       # First request to get the challenge
-      opts['headers']['Authorization'] = provider + type1.encode64
-
+      opts['headers']['Authorization'] = ntlm_message_1
       r = request_cgi(opts)
       resp = _send_recv(r, to)
       unless resp.kind_of? Rex::Proto::Http::Response
@@ -493,10 +506,47 @@ class Client
       ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/ni).flatten[0]
       return resp unless ntlm_challenge
 
-      ntlm_message_3 = ntlm_client.init_context(ntlm_challenge)
+      ntlm_message_2 = Rex::Text::decode_base64(ntlm_challenge)
+      blob_data = ::Rex::Proto::NTLM::Utils.parse_ntlm_type_2_blob(ntlm_message_2)
+
+      challenge_key        = blob_data[:challenge_key]
+      server_ntlmssp_flags = blob_data[:server_ntlmssp_flags]       #else should raise an error
+      default_name         = blob_data[:default_name]         || '' #netbios name
+      default_domain       = blob_data[:default_domain]       || '' #netbios domain
+      dns_host_name        = blob_data[:dns_host_name]        || '' #dns name
+      dns_domain_name      = blob_data[:dns_domain_name]      || '' #dns domain
+      chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || '' #Client time
+
+      spnopt = {:use_spn => self.config['SendSPN'], :name =>  self.hostname}
+
+      resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = ::Rex::Proto::NTLM::Utils.create_lm_ntlm_responses(
+        opts['username'],
+        opts['password'],
+        challenge_key,
+        domain_name,
+        default_name,
+        default_domain,
+        dns_host_name,
+        dns_domain_name,
+        chall_MsvAvTimestamp,
+        spnopt,
+        ntlm_options
+      )
+
+      ntlm_message_3 = ::Rex::Proto::NTLM::Utils.make_ntlmssp_blob_auth(
+        domain_name,
+        workstation_name,
+        opts['username'],
+        resp_lm,
+        resp_ntlm,
+        '',
+        ntlmssp_flags
+      )
+
+      ntlm_message_3 = Rex::Text::encode_base64(ntlm_message_3)
 
       # Send the response
-      opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"
+      opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3}"
       r = request_cgi(opts)
       resp = _send_recv(r, to, true)
       unless resp.kind_of? Rex::Proto::Http::Response
@@ -508,7 +558,6 @@ class Client
       return nil
     end
   end
-
   #
   # Read a response from the server
   #
@@ -663,6 +712,7 @@ protected
   attr_accessor :ssl, :ssl_version # :nodoc:
 
   attr_accessor :hostname, :port # :nodoc:
+
 
 end
 

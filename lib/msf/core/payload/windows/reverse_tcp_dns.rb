@@ -38,7 +38,7 @@ module Payload::Windows::ReverseTcpDns
     }
 
     # Generate the advanced stager if we have space
-    unless self.available_space.nil? || required_space > self.available_space
+    if self.available_space && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end

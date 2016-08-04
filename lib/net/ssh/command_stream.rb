@@ -26,7 +26,7 @@ class CommandStream
     self.thread = Thread.new(ssh,cmd,cleanup) do |rssh,rcmd,rcleanup|
 
       begin
-        info = rssh.transport.socket.getpeername
+        info = rssh.transport.socket.getpeername_as_array
         self.lsock.peerinfo  = "#{info[1]}:#{info[2]}"
 
         info = rssh.transport.socket.getsockname
