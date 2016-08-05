@@ -37,11 +37,11 @@ module Powershell
     case sysinfo['OS']
     when /Windows 8|10/
       cmd_out = cmd_exec('wmic /namespace:\\\\root\\cimv2 path win32_optionalfeature where "caption like \'.NET Framework%\' and InstallState = 1" get caption')
-      cmd_out.scan(/(\d\.[\d\.]+)/).flatten.first || ''
     else
       cmd_out = cmd_exec('wmic /namespace:\\\\root\\cimv2 path win32_product where "name like \'%%.NET%%\'" get version')
-      cmd_out.scan(/[\d\.]+/).flatten.first || ''
     end
+
+    cmd_out.scan(/(\d\.[\d\.]+)/).flatten.first
   end
 
 
