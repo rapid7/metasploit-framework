@@ -50,6 +50,7 @@ class CommandShell
   def initialize(*args)
     self.platform ||= ""
     self.arch     ||= ""
+    self.max_threads = 1
     super
   end
 
@@ -235,6 +236,7 @@ class CommandShell
 
   attr_accessor :arch
   attr_accessor :platform
+  attr_accessor :max_threads
 
 protected
 

@@ -44,21 +44,7 @@ class MetasploitModule < Msf::Post
       iplst << ipa
     end
 
-    if session.type =~ /shell/
-      # Only one thread possible when shell
-      thread_num = 1
-      # Use the shell platform for selecting the command
-      platform = session.platform
-    else
-      # When in Meterpreter the safest thread number is 10
-      thread_num = 10
-      # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
-      platform = session.sys.config.sysinfo['OS']
-    end
-
-    platform = session.platform
-
-    case platform
+    case session.platform
     when /win/i
       cmd = "nslookup"
     when /solaris/i
@@ -66,12 +52,13 @@ class MetasploitModule < Msf::Post
     else
       cmd = "/usr/bin/host"
     end
-    while(not iplst.nil? and not iplst.empty?)
-      1.upto(thread_num) do
+
+    while !iplst.nil? && !iplst.empty?
+      1.upto session.max_threads do
         a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
           next if ip_add.nil?
           r = cmd_exec(cmd, " #{ip_add}")
-          case platform
+          case session.platform
           when /win/
             if r =~ /(Name)/
               r.scan(/Name:\s*\S*\s/) do |n|

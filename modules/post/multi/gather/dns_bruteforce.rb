@@ -32,23 +32,11 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
-
     domain = datastore['DOMAIN']
     hostlst = datastore['NAMELIST']
     a = []
 
     print_status("Performing DNS Forward Lookup Bruteforce for Domain #{domain}")
-    if session.type =~ /shell/
-      # Only one thread possible when shell
-      thread_num = 1
-      # Use the shell platform for selecting the command
-      platform = session.platform
-    else
-      # When in Meterpreter the safest thread number is 10
-      thread_num = 10
-      # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
-      platform = session.sys.config.sysinfo['OS']
-    end
 
     name_list = []
     if ::File.exist?(hostlst)
@@ -57,9 +45,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    platform = session.platform
-
-    case platform
+    case session.platform
     when /win/i
       cmd = "nslookup"
     when /solaris/i
@@ -67,8 +53,9 @@ class MetasploitModule < Msf::Post
     else
       cmd = "/usr/bin/host "
     end
-    while(not name_list.nil? and not name_list.empty?)
-      1.upto(thread_num) do
+
+    while !name_list.nil? && !name_list.empty?
+      1.upto session.max_threads  do
         a << framework.threads.spawn("Module(#{self.refname})", false, name_list.shift) do |n|
           next if n.nil?
           vprint_status("Trying #{n.strip}.#{domain}")
