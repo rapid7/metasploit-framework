@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
           print_error("The file " + f + " does not exist")
           send_response(cli, '')
         when "/"
-      	  resp = create_response(200, "OK")
+          resp = create_response(200, "OK")
           resp.body = %Q|<html>
 <head>
 <script type="text/javascript">
