@@ -36,9 +36,31 @@ module Powershell
   def get_dotnet_version
     case sysinfo['OS']
     when /Windows 8|10/
-      cmd_out = cmd_exec('wmic /namespace:\\\\root\\cimv2 path win32_optionalfeature where "caption like \'.NET Framework%\' and InstallState = 1" get caption')
+      cmd = 'wmic /namespace:\\\\root\\cimv2 path win32_optionalfeature where "caption like \'.NET Framework%\' and InstallState = 1" get caption'
     else
-      cmd_out = cmd_exec('wmic /namespace:\\\\root\\cimv2 path win32_product where "name like \'%%.NET%%\'" get version')
+      cmd = 'wmic /namespace:\\\\root\\cimv2 path win32_product where "name like \'%%.NET%%\'" get version'
+    end
+
+    if have_powershell?
+      process, pid, c = execute_script(cmd)
+      cmd_out = ''
+      while (d = process.channel.read)
+        if d == ""
+          if (Time.now.to_i - start < time_out) && (cmd_out == '')
+            sleep 0.1
+          else
+            break
+          end
+        else
+          cmd_out << d
+        end
+      end
+    else
+      begin
+        cmd_out = cmd_exec(cmd)
+      rescue Rex::TimeoutError
+        return nil
+      end
     end
 
     cmd_out.scan(/(\d\.[\d\.]+)/).flatten.first
