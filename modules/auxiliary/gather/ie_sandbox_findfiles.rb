@@ -43,12 +43,11 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SHARENAME', [ true, "The name of the top-level share.", "falcon" ]),
-        OptPort.new('SRVPORT', [ true, "The daemon port to listen on (do not change)", 80 ]),
-        OptString.new('URIPATH', [true, "The URI to use (do not change).", "/" ]),
         OptString.new('PATHS', [ true, "The list of files to check (comma separated).", "Testing/Not/Found/Check.txt, Windows/System32/calc.exe, Program Files (x86)/Mozilla Firefox/firefox.exe, Program Files/VMware/VMware Tools/TPAutoConnSvc.exe" ]),
       ], self.class)
 
-    deregister_options('SSL', 'SSLVersion', 'SSLCert') # no SSL
+    # no SSL
+    deregister_options('SSL', 'SSLVersion', 'SSLCert', 'SRVPORT', 'URIPATH')
   end
 
   def js
@@ -386,6 +385,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    datastore['URIPATH'] = '/'
+    datastore['SRVPORT'] = 80
     exploit
   end
 end
