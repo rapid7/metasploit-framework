@@ -95,7 +95,7 @@ class Console::CommandDispatcher::Mimikatz
     print_status("Retrieving #{provider} credentials")
     accounts = method.call
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header' => "#{provider} credentials",
       'Indent' => 0,
       'SortIndex' => 4,

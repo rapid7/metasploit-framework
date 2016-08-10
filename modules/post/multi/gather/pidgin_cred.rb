@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Post
     end
 
     data = ""
-    credentials = Rex::Ui::Text::Table.new(
+    credentials = Rex::Text::Table.new(
     'Header'    => "Pidgin Credentials",
     'Indent'    => 1,
     'Columns'   =>
@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Post
       "Port"
     ])
 
-    buddylists = Rex::Ui::Text::Table.new(
+    buddylists = Rex::Text::Table.new(
     'Header'    => "Pidgin Contact List",
     'Indent'    => 1,
     'Columns'   =>

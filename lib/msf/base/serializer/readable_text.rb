@@ -46,7 +46,7 @@ class ReadableText
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_exploit_targets(mod, indent = '', h = nil)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,
       'Columns' =>
@@ -70,7 +70,7 @@ class ReadableText
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_exploit_target(mod, indent = '', h = nil)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,
       'Columns' =>
@@ -92,7 +92,7 @@ class ReadableText
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_module_actions(mod, indent = '', h = nil)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,
       'Columns' =>
@@ -116,7 +116,7 @@ class ReadableText
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_module_action(mod, indent = '', h = nil)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,
       'Columns' =>
@@ -139,7 +139,7 @@ class ReadableText
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_compatible_payloads(exploit, indent = '', h = nil)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,
       'Columns' =>
@@ -390,7 +390,7 @@ class ReadableText
   # @param missing [Boolean] dump only empty required options.
   # @return [String] the string form of the information.
   def self.dump_options(mod, indent = '', missing = false)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Columns' =>
         [
@@ -419,7 +419,7 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_advanced_options(mod, indent = '')
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Columns' =>
         [
@@ -444,7 +444,7 @@ class ReadableText
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
   def self.dump_evasion_options(mod, indent = '')
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Columns' =>
         [
@@ -490,7 +490,7 @@ class ReadableText
   # @param col [Integer] the column width.
   # @return [String] the formatted DataStore contents.
   def self.dump_datastore(name, ds, indent = DefaultIndent, col = DefaultColumnWrap)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent,
       'Header'  => name,
       'Columns' =>
@@ -529,7 +529,7 @@ class ReadableText
     columns << 'Information'
     columns << 'Connection'
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent,
       'Header'  => "Active sessions",
       'Columns' => columns)
@@ -653,7 +653,7 @@ class ReadableText
       columns += [ "URIPATH", "Start Time", "Handler opts" ]
     end
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Indent'  => indent,
       'Header'  => "Jobs",
       'Columns' => columns

@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto => 'tcp'
           )
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'MS SQL Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']

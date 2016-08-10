@@ -254,7 +254,7 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Hosts", "Max Hosts", "In Use", "Comment"])
         id = 0
         @ov.target_get_all().each do |target|
@@ -320,7 +320,7 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Comment", "Status", "Progress"])
         id = 0
         @ov.task_get_all().each do |task|
@@ -418,7 +418,7 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Columns' => [ "ID", "Name" ])
 
         id = 0
@@ -442,7 +442,7 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Extension", "Summary"])
         id = 0
         @ov.formats.each do |format|
@@ -465,7 +465,7 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Task Name", "Start Time", "Stop Time"])
         id = 0
         @ov.report_get_all().each do |report|

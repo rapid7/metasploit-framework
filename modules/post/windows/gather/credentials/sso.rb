@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Post
       vprint_error("LiveSSP credentials not present")
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header' => "Windows SSO Credentials",
       'Indent' => 0,
       'SortIndex' => 0,

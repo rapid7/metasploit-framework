@@ -263,7 +263,7 @@ module Analyze
     end
 
     def table(name, cols)
-      Rex::Ui::Text::Table.new(
+      Rex::Text::Table.new(
         'Header'  => name,
         'Columns' => cols
       )

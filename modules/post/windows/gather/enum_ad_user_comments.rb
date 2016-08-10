@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
         'Header'     => "Domain Users",
         'Indent'     => 1,
         'SortIndex'  => -1,

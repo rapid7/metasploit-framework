@@ -25,7 +25,7 @@ class RopBase
       @gadgets = gadgets
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
     'Header'    => "#{@file} ROP Gadgets",
     'Indent'    => 1,
     'Columns'   =>

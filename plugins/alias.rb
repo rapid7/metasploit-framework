@@ -43,7 +43,7 @@ class Plugin::Alias < Msf::Plugin
         if @aliases.length == 0
           return print_status("No aliases currently defined")
         else
-          tbl = Rex::Ui::Text::Table.new(
+          tbl = Rex::Text::Table.new(
             'Header'  => "Current Aliases",
             'Prefix'  => "\n",
             'Postfix' => "\n",
