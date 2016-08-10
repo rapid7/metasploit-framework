@@ -59,7 +59,6 @@ require 'rex/struct2'
 require 'rex/ole'
 
 # Generic classes
-require 'rex/constants'
 require 'rex/exceptions'
 require 'rex/transformer'
 require 'rex/random_identifier'
