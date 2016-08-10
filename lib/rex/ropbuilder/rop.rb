@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'metasm'
 require 'rex/compat'
-require 'rex/ui/text/table'
+require 'rex/text/table'
 require 'rex/ui/text/output/stdio'
 require 'rex/ui/text/color'
 

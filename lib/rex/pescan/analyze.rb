@@ -3,7 +3,7 @@ module Rex
 module PeScan
 module Analyze
 
-  require "rex/ui/text/table"
+  require "rex/text/table"
 
   class Fingerprint
     attr_accessor :pe

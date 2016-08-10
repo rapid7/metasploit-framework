@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/socket'
-require 'rex/ui/text/table'
+require 'rex/text/table'
 
 module Rex::SSLScan
 class Result

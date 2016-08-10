@@ -1,4 +1,4 @@
-require 'rex/ui/text/table'
+require 'rex/text/table'
 
 module Msf
 

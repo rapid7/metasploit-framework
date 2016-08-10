@@ -15,7 +15,7 @@ require 'rex/ui/text/dispatcher_shell'
 require 'rex/ui/text/irb_shell'
 
 require 'rex/ui/text/color'
-require 'rex/ui/text/table'
+require 'rex/text/table'
 
 # Ui subscriber
 require 'rex/ui/subscriber'
