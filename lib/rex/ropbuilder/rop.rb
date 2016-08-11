@@ -3,7 +3,7 @@ require 'metasm'
 require 'rex/compat'
 require 'rex/text/table'
 require 'rex/ui/text/output/stdio'
-require 'rex/ui/text/color'
+require 'rex/text/color'
 
 module Rex
 module RopBuilder
