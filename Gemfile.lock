@@ -235,7 +235,7 @@ GEM
       rex-text
     rex-registry (0.1.0)
     rex-struct2 (0.1.0)
-    rex-text (0.1.2)
+    rex-text (0.2.0)
     rex-zip (0.1.0)
       rex-text
     rkelly-remix (0.0.6)
