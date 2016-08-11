@@ -6,7 +6,7 @@
 
 # General classes
 require 'rex/ui/output'
-require 'rex/ui/progress_tracker'
+
 
 # Text-based user interfaces
 require 'rex/ui/text/input'
