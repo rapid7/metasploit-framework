@@ -155,7 +155,7 @@ class Console::CommandDispatcher::Stdapi::Net
       end
     }
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
     'Header'  => 'Connection list',
     'Indent'  => 4,
     'Columns' => [
@@ -206,7 +206,7 @@ class Console::CommandDispatcher::Stdapi::Net
       end
     }
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
     'Header'  => 'ARP cache',
     'Indent'  => 4,
     'Columns' => [
@@ -280,7 +280,7 @@ class Console::CommandDispatcher::Stdapi::Net
         routes = client.net.config.routes
 
         # IPv4
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Header'  => 'IPv4 network routes',
           'Indent'  => 4,
           'Columns' => [
@@ -304,7 +304,7 @@ class Console::CommandDispatcher::Stdapi::Net
         end
 
         # IPv6
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Header'  => 'IPv6 network routes',
           'Indent'  => 4,
           'Columns' => [
@@ -412,7 +412,7 @@ class Console::CommandDispatcher::Stdapi::Net
     case args.shift
       when 'list'
 
-        table = Rex::Ui::Text::Table.new(
+        table = Rex::Text::Table.new(
           'Header'    => 'Active Port Forwards',
           'Indent'    => 3,
           'SortIndex' => -1,
@@ -616,7 +616,7 @@ class Console::CommandDispatcher::Stdapi::Net
 
     response = client.net.resolve.resolve_hosts(hostnames, family)
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'Host resolutions',
       'Indent'    => 4,
       'SortIndex' => 0,

@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
       workspace_id: myworkspace_id
     }
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'ManageEngine DeviceExpert User Credentials',
       'Indent'  => 1,
       'Columns' =>

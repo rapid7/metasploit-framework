@@ -18,9 +18,9 @@ class Output < Rex::Ui::Output
   require 'rex/ui/text/output/buffer'
   require 'rex/ui/text/output/file'
   require 'rex/ui/text/output/tee'
-  require 'rex/ui/text/color'
+  require 'rex/text/color'
 
-  include Rex::Ui::Text::Color
+  include Rex::Text::Color
 
   def initialize
     @config = {

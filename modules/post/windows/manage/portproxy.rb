@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
   end
 
   def enable_portproxy
-    rtable = Rex::Ui::Text::Table.new(
+    rtable = Rex::Text::Table.new(
       'Header' => 'Port Forwarding Table',
       'Indent' =>  3,
       'Columns' => ['LOCAL IP', 'LOCAL PORT', 'REMOTE IP', 'REMOTE PORT']

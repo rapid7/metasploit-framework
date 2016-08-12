@@ -376,7 +376,7 @@ class MetasploitModule < Msf::Post
 
   # Print all extracted LastPass data
   def print_lastpass_data(account_map)
-    lastpass_data_table = Rex::Ui::Text::Table.new(
+    lastpass_data_table = Rex::Text::Table.new(
       'Header' => "LastPass Accounts",
       'Indent' => 1,
       'Columns' => %w(Account LP_Username LP_Password LP_2FA LP_Key)
@@ -662,7 +662,7 @@ class MetasploitModule < Msf::Post
     account_map.each_pair do |account, browser_map|
       browser_map.each_pair do |browser, lp_data|
         lp_data['lp_creds'].each_pair do |username, user_data|
-          lastpass_vault_data_table = Rex::Ui::Text::Table.new(
+          lastpass_vault_data_table = Rex::Text::Table.new(
             'Header' => "Decrypted vault from #{username}",
             'Indent' => 1,
             'Columns' => %w(URL Username Password)

@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Postgres Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']

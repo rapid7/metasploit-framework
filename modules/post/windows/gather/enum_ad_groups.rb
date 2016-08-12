@@ -69,10 +69,10 @@ class MetasploitModule < Msf::Post
   # the database.
   #
   # @param [Array<Array<Hash>>] the LDAP query results to parse
-  # @return [Rex::Ui::Text::Table] the table containing all the result data
+  # @return [Rex::Text::Table] the table containing all the result data
   def parse_results(results)
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Domain Groups",
       'Indent'     => 1,
       'SortIndex'  => -1,

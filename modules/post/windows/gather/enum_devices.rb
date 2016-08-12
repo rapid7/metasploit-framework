@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
   end
 
   def list
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Device Information",
       'Indent'  => 1,
       'Columns' =>

@@ -184,7 +184,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     mounts = client.fs.mount.show_mount
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'Mounts / Drives',
       'Indent'    => 0,
       'SortIndex' => 0,
@@ -482,7 +482,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       return
     end
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Listing: #{path}",
       'SortIndex' => columns.index(sort),
       'SortOrder' => order,

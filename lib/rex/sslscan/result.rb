@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/socket'
-require 'rex/ui/text/table'
+require 'rex/text/table'
 
 module Rex::SSLScan
 class Result
@@ -161,7 +161,7 @@ class Result
     unless supports_ssl?
       return "Server does not appear to support SSL on this port!"
     end
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'      => 'SSL Ciphers',
       'Indent'       => 1,
       'Columns'   => ['Status', 'Weak', 'SSL Version', 'Key Length', 'Cipher'],

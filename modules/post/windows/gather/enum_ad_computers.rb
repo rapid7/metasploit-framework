@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
     return if q.nil? or q[:results].empty?
 
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Domain Computers",
       'Indent'     => 1,
       'SortIndex'  => -1,

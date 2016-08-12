@@ -297,7 +297,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     if vars.length == 0
       print_error("None of the specified environment variables were found/set.")
     else
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'    => 'Environment Variables',
         'Indent'    => 0,
         'SortIndex' => 1,

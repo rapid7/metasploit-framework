@@ -3,7 +3,7 @@ module Rex
 module PeScan
 module Analyze
 
-  require "rex/ui/text/table"
+  require "rex/text/table"
 
   class Fingerprint
     attr_accessor :pe
@@ -263,7 +263,7 @@ module Analyze
     end
 
     def table(name, cols)
-      Rex::Ui::Text::Table.new(
+      Rex::Text::Table.new(
         'Header'  => name,
         'Columns' => cols
       )
