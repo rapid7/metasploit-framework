@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'net/ssh'
+require 'net/ssh/command_stream'
 require 'metasploit/framework/login_scanner/ssh'
 require 'metasploit/framework/credential_collection'
 
@@ -68,6 +69,7 @@ class MetasploitModule < Msf::Auxiliary
     }
     info = "#{proto_from_fullname} #{result.credential} (#{@ip}:#{rport})"
     s = start_session(self, info, merge_me, false, conn.lsock)
+    self.sockets.delete(ssh_socket.transport.socket)
 
     # Set the session platform
     case result.proof

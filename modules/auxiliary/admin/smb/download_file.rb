@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def smb_download
-    vprint_status("#{peer}: Connecting...")
+    vprint_status("Connecting...")
     connect()
     smb_login()
 
@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
 
     remote_paths.each do |remote_path|
       begin
-        vprint_status("#{peer}: Trying to download #{remote_path}...")
+        vprint_status("Trying to download #{remote_path}...")
 
         data = ''
         fd = simple.open("\\#{remote_path}", 'ro')
@@ -62,10 +62,10 @@ class MetasploitModule < Msf::Auxiliary
 
         fname = remote_path.split("\\")[-1]
         path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
-        print_good("#{peer}: #{remote_path} saved as: #{path}")
+        print_good("#{remote_path} saved as: #{path}")
       rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
         elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-        print_error("#{peer} Unable to download #{remote_path}: #{e.message}")
+        print_error("Unable to download #{remote_path}: #{e.message}")
       end
     end
   end
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
       smb_download
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
       elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-      print_error("#{peer} Unable to login: #{e.message}")
+      print_error("Unable to login: #{e.message}")
     end
   end
 

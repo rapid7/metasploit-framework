@@ -2,7 +2,6 @@
 
 require 'msf/core'
 require 'msf/core/module/platform'
-require 'rex/constants'
 require 'rex/text'
 
 #

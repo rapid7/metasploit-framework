@@ -31,6 +31,18 @@ def initialize(info = {})
 
 end
 
+# If a module is using the scanner mixin, technically the RHOST datastore option should be
+# disabled. Only the mixin should be setting this. See #6989
+
+def setup
+  @original_rhost = datastore['RHOST']
+  datastore['RHOST'] = nil
+end
+
+def cleanup
+  datastore['RHOST'] = @original_rhost
+end
+
 
 def check
   nmod = replicant

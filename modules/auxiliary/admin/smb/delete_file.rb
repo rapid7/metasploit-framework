@@ -41,11 +41,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def smb_delete_files
-    vprint_status("#{peer}: Connecting to the server...")
+    vprint_status("Connecting to the server...")
     connect()
     smb_login()
 
-    vprint_status("#{peer}: Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+    vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
     self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
     remote_paths.each do |remote_path|
@@ -53,10 +53,10 @@ class MetasploitModule < Msf::Auxiliary
         simple.delete("\\#{remote_path}")
 
         # If there's no exception raised at this point, we assume the file has been removed.
-        print_good("#{peer}: Deleted: #{remote_path}")
+        print_good("Deleted: #{remote_path}")
       rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
         elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-        print_error("#{peer}: Cannot delete #{remote_path}: #{e.message}")
+        print_error("Cannot delete #{remote_path}: #{e.message}")
       end
     end
   end
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       smb_delete_files
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
       elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-      print_error("#{peer}: Unable to login: #{e.message}")
+      print_error("Unable to login: #{e.message}")
     end
   end
 

@@ -28,8 +28,11 @@ class OptRegexp < OptBase
   end
 
   def normalize(value)
-    return nil if value.nil?
-    return Regexp.compile(value.to_s)
+    if value.nil? || value.kind_of?(Regexp)
+      value
+    else
+      Regexp.compile(value.to_s)
+    end
   end
 
   def display_value(value)
@@ -38,8 +41,7 @@ class OptRegexp < OptBase
     elsif value.kind_of?(String)
       return display_value(normalize(value))
     end
-
-    return super
+    super
   end
 end
 

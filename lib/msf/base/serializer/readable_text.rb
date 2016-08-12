@@ -401,7 +401,7 @@ class ReadableText
         ])
 
     mod.options.sorted.each do |name, opt|
-      val = mod.datastore[name] || opt.default
+      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
 
       next if (opt.advanced?)
       next if (opt.evasion?)
@@ -431,7 +431,7 @@ class ReadableText
 
     mod.options.sorted.each do |name, opt|
       next unless opt.advanced?
-      val = mod.datastore[name] || opt.default
+      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
 
@@ -456,7 +456,7 @@ class ReadableText
 
     mod.options.sorted.each do |name, opt|
       next unless opt.evasion?
-      val = mod.datastore[name] || opt.default
+      val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
 
