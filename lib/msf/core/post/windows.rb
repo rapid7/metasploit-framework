@@ -21,4 +21,5 @@ module Msf::Post::Windows
   require 'msf/core/post/windows/ldap'
   require 'msf/core/post/windows/reflective_dll_injection'
   require 'msf/core/post/windows/kiwi'
+  require 'msf/core/post/windows/dotnet'
 end
