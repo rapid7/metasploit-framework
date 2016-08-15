@@ -132,6 +132,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-arch'
   # Library for working with OLE.
   spec.add_runtime_dependency 'rex-ole'
+  # Library for parsing and manipulating executable binaries
+  spec.add_runtime_dependency 'rex-bin_tools'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
