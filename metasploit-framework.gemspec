@@ -30,12 +30,8 @@ Gem::Specification.new do |spec|
   spec.bindir = '.'
   if ENV['CREATE_BINSTUBS']
     spec.executables   = [
-      'msfbinscan',
       'msfconsole',
       'msfd',
-      'msfelfscan',
-      'msfmachscan',
-      'msfpescan',
       'msfrop',
       'msfrpc',
       'msfrpcd',
