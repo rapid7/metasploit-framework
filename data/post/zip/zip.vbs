@@ -1,3 +1,5 @@
+On Error Resume Next
+
 Function WindowsZip(sFile, sZipFile)
   'This script is provided under the Creative Commons license located
   'at http://creativecommons.org/licenses/by-nc/2.5/ . It may not
