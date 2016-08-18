@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('DESTINATION', [false, 'The destination path']),
+        OptString.new('DESTINATION', [true, 'The destination path']),
         OptString.new('SOURCE', [true, 'The directory or file to compress'])
       ], self.class)
   end
