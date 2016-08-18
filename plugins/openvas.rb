@@ -10,7 +10,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 #
 
-require 'openvas/openvas-omp'
+require 'openvas-omp'
 
 module Msf
 class Plugin::OpenVAS < Msf::Plugin
@@ -149,7 +149,7 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        ver = @ov.get_version
+        ver = @ov.version_get
         print_good("Using OMP version #{ver}")
       rescue OpenVASOMP::OMPError => e
         print_error(e.to_s)
@@ -189,7 +189,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
         begin
           print_status("Connecting to OpenVAS instance at #{host}:#{port} with username #{user}...")
-          ov = OpenVASOMP::OpenVASOMP.new(user, pass, host, port)
+          ov = OpenVASOMP::OpenVASOMP.new('user' => user, 'password' => pass, 'host' => host, 'port' => port)
         rescue OpenVASOMP::OMPAuthError => e
           print_error("Authentication failed: #{e.reason}")
           return
@@ -422,7 +422,7 @@ class Plugin::OpenVAS < Msf::Plugin
           'Columns' => [ "ID", "Name" ])
 
         id = 0
-        @ov.configs.each do |config|
+        @ov.config_get_all.each do |config|
           tbl << [ id, config["name"] ]
           id += 1
         end
@@ -445,7 +445,7 @@ class Plugin::OpenVAS < Msf::Plugin
         tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Extension", "Summary"])
         id = 0
-        @ov.formats.each do |format|
+        format_get_all.each do |format|
           tbl << [ id, format["name"], format["extension"], format["summary"] ]
           id += 1
         end
@@ -468,8 +468,23 @@ class Plugin::OpenVAS < Msf::Plugin
         tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Task Name", "Start Time", "Stop Time"])
         id = 0
-        @ov.report_get_all().each do |report|
-          tbl << [ id, report["task"], report["start_time"], report["stop_time"] ]
+        resp = @ov.report_get_raw
+
+        resp.elements.each("//get_reports_response/report") do |report|
+          report_task = nil
+          report_start_time = nil
+          report_stop_time = nil
+
+          report.elements.each("//task/name") do |task_name|
+            report_task = task_name.get_text
+          end
+          report.elements.each("//creation_time") do |creation_time|
+            report_start_time = creation_time.get_text
+          end
+          report.elements.each("//modification_time") do |mod_time|
+            report_stop_time = mod_time.get_text
+          end
+          tbl << [ id, report_task, report_start_time, report_stop_time ]
           id += 1
         end
         print_good("OpenVAS list of reports")
@@ -534,6 +549,33 @@ class Plugin::OpenVAS < Msf::Plugin
       end
     end
 
+
+
+    #--------------------------
+    # Format Functions
+    #--------------------------
+    # Get a list of report formats
+    def format_get_all
+      begin
+        resp = @ov.omp_request_xml("<get_report_formats/>")
+        if @debug then print resp end
+
+        list = Array.new
+        resp.elements.each('//get_report_formats_response/report_format') do |report|
+          td = Hash.new
+          td["id"] = report.attributes["id"]
+          td["name"] = report.elements["name"].text
+          td["extension"] = report.elements["extension"].text
+          td["summary"] = report.elements["summary"].text
+          list.push td
+        end
+        @formats = list
+        return list
+      rescue
+        raise OMPResponseError
+      end
+    end
+
   end # End OpenVAS class
 
 #------------------------------
@@ -551,6 +593,7 @@ class Plugin::OpenVAS < Msf::Plugin
     print_status
     @ov = nil
     @formats = nil
+    @debug = nil
   end
 
   def cleanup
