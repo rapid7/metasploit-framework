@@ -44,6 +44,7 @@ module Msf::Post::Windows::Priv
   end
 
   # Steals the current user's token.
+  # @see steal_token
   def steal_current_user_token
     steal_token(get_env('COMPUTERNAME'), get_env('USERNAME'))
   end
