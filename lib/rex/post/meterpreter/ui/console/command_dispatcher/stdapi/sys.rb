@@ -67,6 +67,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-h" => [ false, "Help menu." ],
     "-A" => [ true,  "Filters processes on architecture" ],
     "-s" => [ false, "Show only SYSTEM processes" ],
+    "-c" => [ false, "Show only child processes of the current shell" ],
     "-U" => [ true,  "Filters processes on the user using the supplied RegEx"])
 
   #
@@ -456,6 +457,14 @@ class Console::CommandDispatcher::Stdapi::Sys
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
         processes.each do |proc|
           searched_procs << proc if proc["user"] == "NT AUTHORITY\\SYSTEM"
+        end
+        processes = searched_procs
+      when "-c"
+        print_line "Filtering on child processes of the current shell..."
+        current_shell_pid = client.sys.process.getpid
+        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
+        processes.each do |proc|
+          searched_procs << proc if proc['ppid'] == current_shell_pid
         end
         processes = searched_procs
       when "-U"
