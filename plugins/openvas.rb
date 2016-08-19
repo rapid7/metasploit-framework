@@ -222,7 +222,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 3)
         begin
-          resp = @ov.target_create(args[0], args[1], args[2])
+          resp = @ov.target_create('name' => args[0], 'hosts' => args[1], 'comment' => args[2])
           print_status(resp)
           cmd_openvas_target_list
         rescue OpenVASOMP::OMPError => e
@@ -279,7 +279,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 4)
         begin
-          resp = @ov.task_create(args[0], args[1], args[2], args[3])
+          resp = @ov.task_create('name' => args[0], 'comment' => args[1], 'config' => args[2], 'target'=> args[3])
           print_status(resp)
           cmd_openvas_task_list
         rescue OpenVASOMP::OMPError => e
@@ -517,12 +517,14 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 4)
         begin
-          report = @ov.report_get_by_id(args[0], args[1])
+          report = @ov.report_get_raw("report_id"=>args[0],"format"=>args[1])
           ::FileUtils.mkdir_p(args[2])
           name = ::File.join(args[2], args[3])
           print_status("Saving report to #{name}")
           output = ::File.new(name, "w")
-          output.puts(report)
+          data = nil
+          report.elements.each("//get_reports_response"){|r| data = r.to_s}
+          output.puts(data)
           output.close
         rescue OpenVASOMP::OMPError => e
           print_error(e.to_s)
@@ -537,9 +539,11 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 2)
         begin
-          report = @ov.report_get_by_id(args[0], args[1])
+          report = @ov.report_get_raw("report_id"=>args[0],"format"=>args[1])
+          data = nil
+          report.elements.each("//get_reports_response"){|r| data = r.to_s}
           print_status("Importing report to database.")
-          framework.db.import({:data => report})
+          framework.db.import({:data => data})
         rescue OpenVASOMP::OMPError => e
           print_error(e.to_s)
         end
