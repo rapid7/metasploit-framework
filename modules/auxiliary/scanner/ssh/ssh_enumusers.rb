@@ -11,7 +11,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
-  include Msf::Exploit::Remote::SSH
 
   def initialize(info = {})
     super(update_info(info,
@@ -80,15 +79,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_user(ip, user, port)
     pass = Rex::Text.rand_text_alphanumeric(64_000)
-    factory = ssh_socket_factory
+
     opt_hash = {
       :auth_methods  => ['password', 'keyboard-interactive'],
+      :msframework   => framework,
+      :msfmodule     => self,
       :port          => port,
-      :use_agent     => false,
+      :disable_agent => true,
       :password      => pass,
       :config        => false,
-      :proxy         => factory,
-      :non_interactive => true
+      :proxies       => datastore['Proxies']
     }
 
     opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

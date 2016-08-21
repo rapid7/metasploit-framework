@@ -57,7 +57,7 @@ module Rex::Socket::Tcp
   # Returns peer information (host + port) in host:port format.
   #
   def peerinfo
-    if (pi = getpeername_as_array)
+    if (pi = getpeername)
       return pi[1] + ':' + pi[2].to_s
     end
   end

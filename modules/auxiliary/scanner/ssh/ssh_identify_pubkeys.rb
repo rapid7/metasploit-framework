@@ -12,7 +12,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::SSH
 
   def initialize
     super(
@@ -204,18 +203,18 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       accepted = []
-      factory = ssh_socket_factory
       opt_hash = {
         :auth_methods => ['publickey'],
+        :msframework  => framework,
+        :msfmodule    => self,
         :port         => port,
         :key_data     => key_data[:public],
-        :use_agent     => false,
+        :disable_agent     => true,
         :record_auth_info  => true,
         :skip_private_keys => true,
         :config =>false,
         :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
-        :proxy	  => factory,
-        :non_interactive => true
+        :proxies	  => datastore['Proxies']
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
