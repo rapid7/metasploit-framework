@@ -122,18 +122,15 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
 
     context 'with a password' do
       it 'calls Net::SSH with the correct arguments' do
-        factory = Rex::Socket::SSHFactory.new(nil,nil,nil)
         opt_hash = {
+            :auth_methods  => ['password','keyboard-interactive'],
             :port          => ssh_scanner.port,
-            :use_agent     => false,
+            :disable_agent => true,
+            :password      => private,
             :config        => false,
             :verbose       => ssh_scanner.verbosity,
-            :proxy         => factory,
-            :auth_methods  => ['password','keyboard-interactive'],
-            :password      => private,
-            :non_interactive => true
+            :proxies       => nil
         }
-        allow(Rex::Socket::SSHFactory).to receive(:new).and_return factory
         expect(Net::SSH).to receive(:start).with(
             ssh_scanner.host,
             public,
@@ -145,17 +142,15 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
 
     context 'with a key' do
       it 'calls Net::SSH with the correct arguments' do
-        factory = Rex::Socket::SSHFactory.new(nil,nil,nil)
         opt_hash = {
             :auth_methods  => ['publickey'],
             :port          => ssh_scanner.port,
-            :use_agent     => false,
+            :disable_agent => true,
             :key_data      => key,
             :config        => false,
             :verbose       => ssh_scanner.verbosity,
-            :proxy         => factory
+            :proxies       => nil
         }
-        allow(Rex::Socket::SSHFactory).to receive(:new).and_return factory
         expect(Net::SSH).to receive(:start).with(
             ssh_scanner.host,
             public,

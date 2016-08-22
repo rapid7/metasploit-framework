@@ -18,7 +18,6 @@ PATH
       metasploit_data_models
       metasploit_payloads-mettle (= 0.0.6)
       msgpack
-      net-ssh
       network_interface
       nokogiri
       octokit
@@ -178,7 +177,6 @@ GEM
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
-    net-ssh (3.2.0)
     network_interface (0.0.1)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
