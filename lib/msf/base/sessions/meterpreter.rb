@@ -347,6 +347,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
           Msf::Module::Platform::OpenBSD
         when /sunos/i
           Msf::Module::Platform::Solaris
+        when /android/i
+          Msf::Module::Platform::Android
         else
           Msf::Module::Platform::Linux
       end.realname.downcase
