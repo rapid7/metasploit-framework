@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Zabbix toggle_ids SQL injection',
+      'Name'           => 'Zabbix toggle_ids SQL Injection',
       'Description'    => %q{
       This module will exploit a SQL injection in Zabbix 3.0.3 and
       likely prior in order to save the current usernames and
