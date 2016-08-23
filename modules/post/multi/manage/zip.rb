@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Post
   end
 
   def do_zip
-    output = cmd_exec("zip -D -d -q -r #{datastore['DESTINATION']} #{datastore['SOURCE']}")
+    output = cmd_exec("zip -D -q -r #{datastore['DESTINATION']} #{datastore['SOURCE']}")
     vprint_line(output)
   end
 
