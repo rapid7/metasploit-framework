@@ -151,4 +151,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'tzinfo'
   # Needed so that disk size output isn't horrible
   spec.add_runtime_dependency 'filesize'
+  # Needed for openvas plugin
+  spec.add_runtime_dependency 'openvas-omp'
 end
