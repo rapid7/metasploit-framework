@@ -358,7 +358,7 @@ class Rex::Socket::Comm::Local
       talk_mode = 1 # ref: http://help.sap.com/saphelp_dimp50/helpdata/En/f8/bb960899d743378ccb8372215bb767/content.htm
       num_rest_nodes = 1
 
-      shost, sport = sock.peerinfo.split(":")
+      _af, shost, sport = sock.getpeername_as_array
       first_route_item = [shost, 0, sport, 0, 0].pack("A*CA*cc")
       route_data = [first_route_item.length, first_route_item].pack("NA*")
       route_data << [host, 0, port.to_s, 0, 0].pack("A*CA*cc")
