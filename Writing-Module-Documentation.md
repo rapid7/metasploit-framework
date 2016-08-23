@@ -8,7 +8,7 @@ To write a KB, you'll need to:
 
 * Create an markdown (.md) file.
 * Write the content.
-* Save the file and name it after the module name. For example, the filename for ms08-067 is called ms08_067_netapi.md.
+* Save the file and name it after the module name. For example, the filename for ms08-067 is `exploits/windows/smb/ms08_067_netapi.rb`, so its documentation is `documentation/modules/exploits/windows/smb/ms08_067_netapi.md`.
 * Place it in the metasploit-framework/documentation/modules directory.
 
 ### Where to put the markdown files
@@ -16,8 +16,8 @@ To write a KB, you'll need to:
 If you go to metasploit-framework/documentation/modules, you'll see that there are documentation directories for each module type: auxiliary, exploit, payload, and post. To figure out where you need to put the file, you'll need to look at the module's path. 
 
  1. Start msfconsole.
- 2. Type ```use <module name>```.
- 3. Type ```info```.
+ 2. Type `use <module name>`.
+ 3. Type `info`.
  4. When the module name appears, look at the Module field. You'll see a file path for the module. That's the path where the KB needs to be added. 
 
 For example:
@@ -31,7 +31,7 @@ Module: auxiliary/scanner/smb/smb_login
 ....
 ```
 
-If you were creating a KB for the smb login scanner, you'd add it to ```metasploit-framework/documentation/modules/auxiliary/smb```. 
+If you were creating a KB for the smb login scanner, you'd add it to `metasploit-framework/documentation/modules/auxiliary/smb`. 
 
 ###Sections you should include in the KB
 
