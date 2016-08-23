@@ -28,6 +28,21 @@ module Rex
 
     ##
     #
+    # Factory
+    #
+    ##
+
+    #
+    # This method returns an instance of a file pool channel that can be read
+    # from, written to, seeked on, and other interacted with.
+    #
+    def Audio.open(client)
+      return Channel.create(client, 'stdapi_net_mic_broadcast',
+                            self, CHANNEL_FLAG_SYNCHRONOUS)
+    end
+
+    ##
+    #
     # Constructor
     #
     ##
@@ -35,70 +50,6 @@ module Rex
     # Initializes the file channel instance
     def initialize(client, cid, type, flags)
       super(client, cid, type, flags)
-
-      initialize_abstraction
-    end
-
-    ##
-    #
-    # Streaming pools don't support tell, seek, or eof.
-    #
-    ##
-
-    #
-    # This method returns the current offset into the pool.
-    #
-    def tell
-      raise NotImplementedError
-    end
-
-    #
-    # This method seeks to an offset in the pool.
-    #
-    def seek
-      raise NotImplementedError
-    end
-
-    #
-    # This method returns whether or not eof has been returned.
-    #
-    def eof
-      return false
-    end
-
-    #
-    # Transfers data to the local half of the pool for reading.
-    #
-    def dio_read_handler(packet, data)
-      rv = Rex::ThreadSafe.select(nil, [rsock], nil, 0.01)
-      if(rv)
-        lsock.write(rsock.read())
-        return true
-      else
-        return false
-      end
-    end
-
-    #
-    # Closes the local half of the pool stream.
-    #
-    def dio_close_handler(packet)
-      rsock.close
-
-      return super(packet)
-    end
-
-    #
-    # Cleans up resources used by the channel.
-    #
-    def cleanup
-      super
-
-      cleanup_abstraction
-    end
-
-    def listen
-      lsock.read
     end
 
   end

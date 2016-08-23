@@ -46,57 +46,24 @@ module Rex
             end
           end
 
-          def cmd_channel_create_stdapi_net_mic_broadcast(*args)
-            if client.mic.mic_list.length == 0
-              print_error("Target does not have a mic")
-              return
-            end
-
-            print_status("Starting...")
-
-            mic_stream_opts = Rex::Parser::Arguments.new(
-                ["-h" => [ false, "Help Banner" ],
-                "-s" => [ true, "The stream sample rate (Default: 48000kbps)" ],
-                "-f" => [ true, "The stream frame size (Default: '480kb')" ],
-                "-c" => [ true, "The number of channels (Default: 2)"]]
-            )
-
-            sample_rate = 48000
-            frame_size = 480
-            channel_count = 2
-
-            mic_stream_opts.parse(args) do |opt, _idx, val|
-              case opt
-                when "-h"
-                  print_line("Usage: mic_stream [options]\n")
-                  print_line("Stream from the specified mic.")
-                  print_line(mic_stream_opts.usage)
-                  return
-                when "-s"
-                  sample_rate = val.to_i
-                when "-f"
-                  frame_size = val.to_i
-                when "-c"
-                  channel_count = val.to_i
-              end
-            end
+          def cmd_channel_create_stdapi_net_mic_broadcast
 
             print_status("Streaming mic audio channel...")
 
-            begin
+            # begin
               response, audio_channel = client.mic.mic_start
-              mic_started = true
-              ::Timeout.timeout(10000) do
-                while client do
-                  audio_channel.listen
-                end
-              end
-            rescue ::Timeout::Error
-            ensure
-              client.mic.mic_stop if mic_started
-            end
+              #mic_started = true
+              # ::Timeout.timeout(10000) do
+              #   while client do
+              #     audio_channel.listen
+              #   end
+              # end
+            # rescue ::Timeout::Error
+            # ensure
+            #   client.mic.mic_stop if mic_started
+            # end
 
-            print_status("Stopped")
+            print_status("Started")
           end
         end
       end
