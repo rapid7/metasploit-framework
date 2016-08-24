@@ -96,6 +96,33 @@ module System
     return system_data
   end
 
+  #
+  # return true if possible chroot environment detect, if not true then false
+  #
+  def is_chroot?
+    chroot_env = false
+
+    if not directory?("/proc/")
+      chroot_env = true
+    else
+      dir("/proc/").each do |pid|
+        pid = Integer(pid) rescue nil
+        if pid
+          filename = ::File.readlink("/proc/#{pid}/exe") rescue nil
+          next if not filename
+
+          stat = session.fs.file.stat(filename) rescue nil
+          if not stat
+             chroot_env = true
+             break
+          end
+        end
+      end
+    end
+    return chroot_env
+  end
+
+
 
 end # System
 end # Linux
