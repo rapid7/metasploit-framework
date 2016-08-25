@@ -116,7 +116,7 @@ def parse_args(args)
     supported_platforms = []
     Msf::Module::Platform.subclasses.each {|c| supported_platforms << "#{c.realname.downcase}"}
     msg = "Platforms\n" +
-      "\t" + supported_platforms * ", "
+      "\t" + supported_platforms.sort * ", "
     raise HelpError, msg
   end
 
