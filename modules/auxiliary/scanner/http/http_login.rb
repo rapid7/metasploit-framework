@@ -48,6 +48,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ])
       ], self.class)
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
+
+    deregister_options('USERNAME', 'PASSWORD')
   end
 
   def to_uri(uri)
@@ -146,10 +148,10 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
+      password: datastore['HttpPassword'],
       user_file: datastore['USER_FILE'],
       userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['USERNAME'],
+      username: datastore['HttpUsername'],
       user_as_pass: datastore['USER_AS_PASS'],
     )
 
