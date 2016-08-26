@@ -135,7 +135,7 @@ Gem::Specification.new do |spec|
   # Library for parsing and manipulating executable binaries
   spec.add_runtime_dependency 'rex-bin_tools'
   # Rex Socket Abstraction Layer
-  #spec.add_runtime_dependency 'rex-socket'
+  spec.add_runtime_dependency 'rex-socket'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
