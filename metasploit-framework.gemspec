@@ -113,6 +113,8 @@ Gem::Specification.new do |spec|
   #
   # REX Libraries
   #
+  # Core of the Ruby Exploitation Library
+  spec.add_runtime_dependency 'rex-core'
   # Text manipulation library for things like generating random string
   spec.add_runtime_dependency 'rex-text'
   # Library for Generating Randomized strings valid as Identifiers such as variable names
@@ -132,6 +134,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-arch'
   # Library for working with OLE.
   spec.add_runtime_dependency 'rex-ole'
+  # Rex Socket Abstraction Layer
+  #spec.add_runtime_dependency 'rex-socket'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module

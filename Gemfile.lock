@@ -33,6 +33,7 @@ PATH
       recog
       redcarpet
       rex-arch
+      rex-core
       rex-java
       rex-ole
       rex-powershell
@@ -227,6 +228,7 @@ GEM
     redcarpet (3.3.4)
     rex-arch (0.1.1)
       rex-text
+    rex-core (0.1.2)
     rex-java (0.1.2)
     rex-ole (0.1.2)
       rex-text
