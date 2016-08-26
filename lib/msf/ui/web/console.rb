@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/ui/text/bidirectional_pipe'
 module Msf
 module Ui
 module Web
@@ -18,7 +19,7 @@ class WebConsole
   attr_accessor :thread
 
   # Wrapper class in case we need to extend the pipe
-  class WebConsolePipe < Rex::IO::BidirectionalPipe
+  class WebConsolePipe < Rex::Ui::Text::BidirectionalPipe
     def prompting?
       false
     end

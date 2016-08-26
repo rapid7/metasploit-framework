@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 module Rex
-module IO
+module Ui
+module Text
 
 require 'rex/ui/text/output'
 require 'rex/ui/text/output/buffer'
@@ -153,5 +154,6 @@ protected
 
 end
 
+end
 end
 end
