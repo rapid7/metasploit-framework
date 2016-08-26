@@ -2,7 +2,7 @@
 require 'rex/socket'
 require 'rex/socket/tcp_server'
 require 'rex/io/stream_server'
-require 'rex/parser/x509_certificate'
+require 'rex/socket/x509_certificate'
 
 ###
 #
@@ -115,7 +115,7 @@ module Rex::Socket::SslTcpServer
   # @param [String] ssl_cert
   # @return [String, String, Array]
   def self.ssl_parse_pem(ssl_cert)
-    Rex::Parser::X509Certificate.parse_pem(ssl_cert)
+    Rex::Socket::X509Certificate.parse_pem(ssl_cert)
   end
 
   #
