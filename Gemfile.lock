@@ -35,6 +35,7 @@ PATH
       redcarpet
       rex-arch
       rex-bin_tools
+      rex-core
       rex-java
       rex-mime
       rex-ole
@@ -237,7 +238,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.1)
+    rex-core (0.1.2)
     rex-java (0.1.2)
     rex-mime (0.1.1)
       rex-text
