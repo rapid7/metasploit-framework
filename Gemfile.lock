@@ -39,6 +39,7 @@ PATH
       rex-powershell
       rex-random_identifier
       rex-registry
+      rex-socket
       rex-struct2
       rex-text
       rex-zip
@@ -238,6 +239,8 @@ GEM
     rex-random_identifier (0.1.0)
       rex-text
     rex-registry (0.1.0)
+    rex-socket (0.1.0)
+      rex-core
     rex-struct2 (0.1.0)
     rex-text (0.2.1)
     rex-zip (0.1.0)

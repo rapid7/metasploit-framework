@@ -135,7 +135,7 @@ Gem::Specification.new do |spec|
   # Library for working with OLE.
   spec.add_runtime_dependency 'rex-ole'
   # Rex Socket Abstraction Layer
-  #spec.add_runtime_dependency 'rex-socket'
+  spec.add_runtime_dependency 'rex-socket'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
