@@ -321,7 +321,7 @@ class MetasploitModule < Msf::Auxiliary
     write = false
 
     # Creating a separate file for each IP address's results.
-    detailed_tbl = Rex::Ui::Text::Table.new(
+    detailed_tbl = Rex::Text::Table.new(
       'Header'  => "Spidered results for #{ip}.",
       'Indent'  => 1,
       'Columns' => [ 'IP Address', 'Type', 'Share', 'Path', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
@@ -368,7 +368,7 @@ class MetasploitModule < Msf::Auxiliary
           header << "\\#{x.sub("C$","C$\\")}" if simple.client.default_name
           header << subdirs[0]
 
-          pretty_tbl = Rex::Ui::Text::Table.new(
+          pretty_tbl = Rex::Text::Table.new(
             'Header'  => header,
             'Indent'  => 1,
             'Columns' => [ 'Type', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]

@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
   end
 
   def app_list
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Installed Applications",
       'Indent'  => 1,
       'Columns' =>

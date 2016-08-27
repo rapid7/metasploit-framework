@@ -17,7 +17,7 @@ var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\C
 
 def list_env_vars(var_names)
   print_status("Getting all System and User Variables")
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
       'Header'  => "Enviroment Variable list",
       'Indent'  => 1,
       'Columns' =>

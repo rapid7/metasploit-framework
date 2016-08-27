@@ -180,8 +180,8 @@ class Plugin::Beholder < Msf::Plugin
       # Attempt to migrate, but flag that we tried either way
       self.state[sid][:migrated] = true
 
-      # Grab the first explorer.exe process we find
-      target_ps = ps.select{|x| x['name'].to_s.downcase == 'explorer.exe' }.first
+      # Grab the first explorer.exe process we find that we have rights to
+      target_ps = ps.select{|x| x['name'].to_s.downcase == 'explorer.exe' && x['user'].to_s != '' }.first
       unless target_ps
         # No explorer.exe process?
         session_log(sid, "no explorer.exe process found for automigrate")

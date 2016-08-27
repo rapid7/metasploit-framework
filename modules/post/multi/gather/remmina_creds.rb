@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
       vprint_status('No Reminna credentials collected')
     else
       vprint_good("Collected #{creds.size} sets of Remmina credentials")
-      cred_table = Rex::Ui::Text::Table.new(
+      cred_table = Rex::Text::Table.new(
         'Header'  => 'Remmina Credentials',
         'Indent'  => 1,
         'Columns' => %w(Host Port Service User Password)

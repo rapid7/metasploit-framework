@@ -230,7 +230,7 @@ module Msf
       end
 
       def cmd_nessus_help(*args)
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Columns' => [
             "Command",
             "Help Text"
@@ -437,7 +437,7 @@ module Msf
         end
 
         resp = @n.server_properties
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Feed',
@@ -465,7 +465,7 @@ module Msf
           end
         end
 
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Status',
@@ -539,7 +539,7 @@ module Msf
           print_status("No templates created")
           return
         end
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Name',
@@ -567,7 +567,7 @@ module Msf
           return
         end
         list = @n.list_folders
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             "ID",
@@ -601,7 +601,7 @@ module Msf
           return
         end
         list = @n.list_scanners
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             "ID",
@@ -640,7 +640,7 @@ module Msf
           return
         end
 
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             "Host ID",
@@ -684,7 +684,7 @@ module Msf
           print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
           return
         end
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             "Plugin ID",
@@ -737,7 +737,7 @@ module Msf
           print_status("Use nessus_report_hosts <scan ID> to get a list of all the hosts along with their corresponding host IDs.")
           return
         end
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Plugin Name',
@@ -756,7 +756,7 @@ module Msf
         tbl << [ vuln["plugin_name"], vuln["plugin_family"], vuln["severity"] ]
         }
         print_line tbl.to_s
-        tbl2 = Rex::Ui::Text::Table.new(
+        tbl2 = Rex::Text::Table.new(
           'SearchTerm' => search_vuln,
           'Columns' => [
             'Plugin Name',
@@ -826,7 +826,7 @@ module Msf
           print_status("Use nessus_report_list to list all available reports")
           return
         end
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Port',
@@ -904,7 +904,7 @@ module Msf
           print_status("No scans performed.")
           return
         else
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Scan ID',
@@ -964,7 +964,7 @@ module Msf
         if valid_policy(uuid)
           print_status("Creating scan from policy number #{uuid}, called #{scan_name} - #{description} and scanning #{targets}")
           scan = @n.scan_create(uuid, scan_name, description, targets)
-          tbl = Rex::Ui::Text::Table.new(
+          tbl = Rex::Text::Table.new(
             'Columns' => [
               "Scan ID",
               "Scanner ID",
@@ -1299,7 +1299,7 @@ module Msf
 
         details = @n.scan_details(scan_id)
         if category == "info"
-          tbl = Rex::Ui::Text::Table.new(
+          tbl = Rex::Text::Table.new(
             'SearchTerm' => search_term,
             'Columns' => [
               "Status",
@@ -1311,7 +1311,7 @@ module Msf
             ])
          tbl << [ details["info"]["status"], details["info"]["policy"], details["info"]["name"], details["info"]["targets"], details["info"]["scan_start"], details["info"]["scan_end"] ]
         elsif category == "hosts"
-          tbl = Rex::Ui::Text::Table.new(
+          tbl = Rex::Text::Table.new(
             'SearchTerm' => search_term,
             'Columns' => [
               "Host ID",
@@ -1325,7 +1325,7 @@ module Msf
           tbl << [ host["host_id"], host["hostname"], host["critical"], host["high"], host["medium"], host["low"] ]
           }
         elsif category == "vulnerabilities"
-          tbl = Rex::Ui::Text::Table.new(
+          tbl = Rex::Text::Table.new(
             'SearchTerm' => search_term,
             'Columns' => [
               "Plugin ID",
@@ -1337,7 +1337,7 @@ module Msf
           tbl << [ vuln["plugin_id"], vuln["plugin_name"], vuln["plugin_family"], vuln["count"] ]
           }
         elsif category == "history"
-          tbl = Rex::Ui::Text::Table.new(
+          tbl = Rex::Text::Table.new(
             'SearchTerm' => search_term,
             'Columns' => [
               "History ID",
@@ -1443,7 +1443,7 @@ module Msf
           print_status("Use nessus_family_list to display all the plugin families along with their corresponding family IDs")
           return
         end
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Plugin ID',
@@ -1474,7 +1474,7 @@ module Msf
         end
 
         list = @n.list_families
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Family ID',
@@ -1516,7 +1516,7 @@ module Msf
           print_status("Use nessus_plugin_list to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
           return
         end
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'Reference',
@@ -1563,7 +1563,7 @@ module Msf
           print_status("Your Nessus user is not an admin")
         end
         list=@n.list_users
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'SearchTerm' => search_term,
           'Columns' => [
             'ID',
@@ -1723,7 +1723,7 @@ module Msf
           return
         end
 
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Columns' => [
             'Policy ID',
             'Name',

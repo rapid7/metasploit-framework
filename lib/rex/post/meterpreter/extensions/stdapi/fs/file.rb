@@ -280,16 +280,22 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # If a block is given, it will be called before each file is downloaded and
   # again when each download is complete.
   #
-  def File.download(dest, *src_files, continue, tries, tries_no, &stat)
-    src_files.each { |src|
+  def File.download(dest, src_files, opts = nil, &stat)
+    timestamp = opts["timestamp"] if opts
+    [*src_files].each { |src|
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator
         dest += ::File::SEPARATOR + File.basename(src)
       end
 
+      # XXX: dest can be the same object as src, so we use += instead of <<
+      if timestamp
+        dest += timestamp
+      end
+
       stat.call('downloading', src, dest) if (stat)
-      result = download_file(dest, src, continue, tries, tries_no, &stat)
+      result = download_file(dest, src, opts, &stat)
       stat.call(result, src, dest) if (stat)
     }
   end
@@ -297,7 +303,15 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Download a single file.
   #
-  def File.download_file(dest_file, src_file, continue=false, tries=false, tries_no=0, &stat)
+  def File.download_file(dest_file, src_file, opts, &stat)
+    continue=false
+    tries=false
+    tries_no=0
+    if opts
+      continue = true if opts["continue"]
+      tries = true if opts["tries"]
+      tries_no = opts["tries_no"]
+    end
     src_fd = client.fs.file.new(src_file, "rb")
 
     # Check for changes

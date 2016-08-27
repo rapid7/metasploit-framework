@@ -1,5 +1,5 @@
-shell_to_meterpreter allows you to upgrade a shell session to Meterpreter. It can be launched as
-a post module, or from the sessions command. By default, this module will use a reverse
+`shell_to_meterpreter` allows you to upgrade a shell session to Meterpreter. It can be launched as
+a post module, or from the `sessions` command. By default, this module will use a reverse
 Meterpreter.
 
 ## Important Options
@@ -29,7 +29,7 @@ use this.
 
 **Using sessions -u**
 
-```sessions -u``` is the same as running the post module against a specific session. However, this
+`sessions -u` is the same as running the post module against a specific session. However, this
 is limited to using the default reverse Meterpreter payload, so you will not be able to use it
 via a pivot.
 
@@ -46,7 +46,7 @@ Active sessions
   --  ----           -----------  ----------
   1   shell windows               192.168.146.1:4444 -> 192.168.146.128:1204 (192.168.146.128)
 
-msf > 
+msf >
 ```
 
 In this demonstration, session 1 is a shell, so we upgrade that:

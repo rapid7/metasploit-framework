@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
 
   def parse_txt(file)
     begin
-      creds = Rex::Ui::Text::Table.new(
+      creds = Rex::Text::Table.new(
         'Header'  => 'Meebo Instant Messenger Credentials',
         'Indent'	=> 1,
         'Columns' =>

@@ -1053,7 +1053,7 @@ RSpec.describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'java/shell_reverse_tcp'
   end
- 
+
  context 'linux/armbe/shell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4215,5 +4215,181 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_winhttps'
+  end
+
+  context 'linux/armle/mettle/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/armle/bind_tcp',
+                            'stages/linux/armle/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/mettle/bind_tcp'
+  end
+
+  context 'linux/armle/mettle/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/armle/reverse_tcp',
+                            'stages/linux/armle/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/mettle/reverse_tcp'
+  end
+
+  context 'linux/mipsbe/mettle/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/mipsbe/reverse_tcp',
+                            'stages/linux/mipsbe/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mipsbe/mettle/reverse_tcp'
+  end
+
+  context 'linux/mipsle/mettle/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/mipsle/reverse_tcp',
+                            'stages/linux/mipsle/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mipsle/mettle/reverse_tcp'
+  end
+
+  context 'linux/x64/mettle/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x64/bind_tcp',
+                            'stages/linux/x64/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/mettle/bind_tcp'
+  end
+
+  context 'linux/x64/mettle/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x64/reverse_tcp',
+                            'stages/linux/x64/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/mettle/reverse_tcp'
+  end
+
+  context 'linux/x86/mettle/bind_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/bind_ipv6_tcp',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/bind_ipv6_tcp'
+  end
+
+  context 'linux/x86/mettle/bind_ipv6_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/bind_ipv6_tcp_uuid',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/bind_ipv6_tcp_uuid'
+  end
+
+  context 'linux/x86/mettle/bind_nonx_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/bind_nonx_tcp',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/bind_nonx_tcp'
+  end
+
+  context 'linux/x86/mettle/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/bind_tcp',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/bind_tcp'
+  end
+
+  context 'linux/x86/mettle/bind_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/bind_tcp_uuid',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/bind_tcp_uuid'
+  end
+
+  context 'linux/x86/mettle/find_tag' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/find_tag',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/find_tag'
+  end
+
+  context 'linux/x86/mettle/reverse_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/reverse_ipv6_tcp',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/reverse_ipv6_tcp'
+  end
+
+  context 'linux/x86/mettle/reverse_nonx_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/reverse_nonx_tcp',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/reverse_nonx_tcp'
+  end
+
+  context 'linux/x86/mettle/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/reverse_tcp',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/reverse_tcp'
+  end
+
+  context 'linux/x86/mettle/reverse_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/x86/reverse_tcp_uuid',
+                            'stages/linux/x86/mettle'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle/reverse_tcp_uuid'
   end
 end

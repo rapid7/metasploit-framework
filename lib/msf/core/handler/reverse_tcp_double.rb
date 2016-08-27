@@ -207,7 +207,7 @@ protected
       initialize_abstraction
 
       self.lsock.extend(TcpReverseDoubleChannelExt)
-      self.lsock.peerinfo  = @sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
+      self.lsock.peerinfo  = @sock_inp.getpeername_as_array[1,2].map{|x| x.to_s}.join(":")
       self.lsock.localinfo = @sock_inp.getsockname[1,2].map{|x| x.to_s}.join(":")
 
       monitor_shell_stdout

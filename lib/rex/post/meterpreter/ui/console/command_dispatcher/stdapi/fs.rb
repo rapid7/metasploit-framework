@@ -25,8 +25,9 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@download_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
     "-c" => [ false, "Resume getting a partially-downloaded file." ],
-    "-t" => [ true, "Set number of retries (0 unlimits)" ],
-    "-r" => [ false, "Download recursively." ])
+    "-l" => [ true, "Set the limit of retries (0 unlimits)." ],
+    "-r" => [ false, "Download recursively." ],
+    "-t" => [ false, "Timestamp downloaded files." ])
   #
   # Options for the upload command.
   #
@@ -185,7 +186,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     mounts = client.fs.mount.show_mount
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'Mounts / Drives',
       'Indent'    => 0,
       'SortIndex' => 0,
@@ -340,16 +341,23 @@ class Console::CommandDispatcher::Stdapi::Fs
     continue  = false
     tries     = false
     tries_no  = 0
+    opts = {}
 
     @@download_opts.parse(args) { |opt, idx, val|
       case opt
       when "-r"
         recursive = true
+        opts['recursive'] = true
       when "-c"
         continue = true
-      when "-t"
+        opts['continue'] = true
+      when "-l"
         tries = true
         tries_no = val.to_i
+        opts['tries'] = true
+        opts['tries_no'] = tries_no
+      when "-t"
+        opts['timestamp'] = '_' + Time.now.iso8601
       when nil
         src_items << last if (last)
         last = val
@@ -399,7 +407,7 @@ class Console::CommandDispatcher::Stdapi::Fs
             src_path = file['path'] + client.fs.file.separator + file['name']
             dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
 
-            client.fs.file.download(dest_path, src_path, continue, tries, tries_no) do |step, src, dst|
+            client.fs.file.download(dest_path, src_path, opts) do |step, src, dst|
               puts step
               print_status("#{step.ljust(11)}: #{src} -> #{dst}")
               client.framework.events.on_session_download(client, src, dest) if msf_loaded?
@@ -427,12 +435,12 @@ class Console::CommandDispatcher::Stdapi::Fs
         end
 
         if (stat.directory?)
-          client.fs.dir.download(dest, src, recursive, true, glob, continue, tries, tries_no) do |step, src, dst|
+          client.fs.dir.download(dest, src, opts, true, glob) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
         elsif (stat.file?)
-          client.fs.file.download(dest, src, continue, tries, tries_no) do |step, src, dst|
+          client.fs.file.download(dest, src, opts) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
@@ -498,7 +506,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       return
     end
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Listing: #{path}",
       'SortIndex' => columns.index(sort),
       'SortOrder' => order,

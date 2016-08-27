@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    rtable = Rex::Ui::Text::Table.new(
+    rtable = Rex::Text::Table.new(
       'Header' => 'DNS Cached Entries',
       'Indent' =>  3,
       'Columns' => ['TYPE', 'DOMAIN']

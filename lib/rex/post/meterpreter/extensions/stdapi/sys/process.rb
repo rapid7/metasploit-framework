@@ -224,13 +224,15 @@ class Process < Rex::Post::Process
     response.each(TLV_TYPE_PROCESS_GROUP) { |p|
     arch = ""
 
-    pa = p.get_tlv_value( TLV_TYPE_PROCESS_ARCH )
-    if( pa != nil )
+    pa = p.get_tlv_value(TLV_TYPE_PROCESS_ARCH)
+    if !pa.nil?
       if pa == 1 # PROCESS_ARCH_X86
         arch = ARCH_X86
       elsif pa == 2 # PROCESS_ARCH_X64
         arch = ARCH_X86_64
       end
+    else
+      arch = p.get_tlv_value(TLV_TYPE_PROCESS_ARCH_NAME)
     end
 
     processes <<
@@ -377,15 +379,15 @@ end
 class ProcessList < Array
 
   #
-  # Create a Rex::Ui::Text::Table out of the processes stored in this list
+  # Create a Rex::Text::Table out of the processes stored in this list
   #
-  # +opts+ is passed on to Rex::Ui::Text::Table.new, mostly unmolested
+  # +opts+ is passed on to Rex::Text::Table.new, mostly unmolested
   #
   # Note that this output is affected by Rex::Post::Meterpreter::Client#unicode_filter_encode
   #
   def to_table(opts={})
     if empty?
-      return Rex::Ui::Text::Table.new(opts)
+      return Rex::Text::Table.new(opts)
     end
 
     cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
@@ -401,7 +403,7 @@ class ProcessList < Array
       'Columns' => cols
     }.merge(opts)
 
-    tbl = Rex::Ui::Text::Table.new(opts)
+    tbl = Rex::Text::Table.new(opts)
     each { |process|
       tbl << cols.map { |c|
         col = c.downcase

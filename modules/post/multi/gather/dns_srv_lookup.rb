@@ -55,22 +55,7 @@ class MetasploitModule < Msf::Post
 
     a = []
 
-
-    if session.type =~ /shell/
-      # Only one thread possible when shell
-      thread_num = 1
-      # Use the shell platform for selecting the command
-      platform = session.platform
-    else
-      # When in Meterpreter the safest thread number is 10
-      thread_num = 10
-      # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
-      platform = session.sys.config.sysinfo['OS']
-    end
-
-    platform = session.platform
-
-    case platform
+    case session.platform
     when /win/i
       ns_opt = " -query=srv "
       cmd = "nslookup"
@@ -82,13 +67,13 @@ class MetasploitModule < Msf::Post
       cmd = "/usr/bin/host"
     end
 
-    while(not srvrcd.nil? and not srvrcd.empty?)
-      1.upto(thread_num) do
+    while !srvrcd.nil? && !srvrcd.empty?
+      1.upto session.max_threads do
         a << framework.threads.spawn("Module(#{self.refname})", false, srvrcd.shift) do |srv|
           next if srv.nil?
           r = cmd_exec(cmd, ns_opt + "#{srv}#{domain}")
 
-          case platform
+          case session.platform
           when /win/
             if r =~ /\s*internet\saddress\s\=\s/
               nslookup_srv_consume("#{srv}#{domain}", r).each do |f|

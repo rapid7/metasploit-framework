@@ -198,7 +198,7 @@ else
   columns = [ 'Module', 'Reference' ]
 end
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Module References',
   'Indent'  => 2,
   'Columns' => columns

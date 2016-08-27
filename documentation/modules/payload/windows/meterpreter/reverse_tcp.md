@@ -580,7 +580,7 @@ The route command in Meterpreter allows you change the routing table that is on 
 The portfwd command allows you to talk to a remote service like it's local. For example, if you are able to compromise a host via SMB, but are not able to connect to the remote desktop service, then you can do:
 
 ```
-meterpreter > portfwd add –l 3389 –p 3389 –r > target host >
+meterpreter > portfwd add –l 3389 –p 3389 –r [Target Host]
 ```
 
 And that should allow you to connect to remote desktop this way on the attacker's box:
@@ -611,7 +611,8 @@ It is very simple to use. At the Meterpreter prompt, simply do:
 meterpreter > sleep 20
 ```
 
-And that will allow Meterpreter to sleep 20 seconds, and will reconnect.
+And that will allow Meterpreter to sleep 20 seconds, and will reconnect as long as the payload
+handler remains active (such as being a background job).
 
 To learn more about this feature, please [click here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Sleep-Control).
 
@@ -659,6 +660,7 @@ To learn more about timeout control, please [go here](https://github.com/rapid7/
 Transport Control allows you manage transports on the fly while the payload session is still running. Meterpreter can automatically cycle through the transports when communication fails, or you can do it manually.
 
 To learn more about this, please read this [documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control).
+
 
 ## Using the Post Exploitation API in IRB
 

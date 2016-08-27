@@ -177,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Create a table to store data
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'MysQL Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']
