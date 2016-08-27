@@ -303,7 +303,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Download a single file.
   #
-  def File.download_file(dest_file, src_file, opts, &stat)
+  def File.download_file(dest_file, src_file, opts = nil, &stat)
     continue=false
     tries=false
     tries_no=0
