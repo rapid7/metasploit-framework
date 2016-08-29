@@ -3,6 +3,7 @@ require 'msf/core/post/common'
 require 'msf/core/post/file'
 require 'msf/core/post/unix'
 
+
 module Msf
 class Post
 module Linux
@@ -108,13 +109,14 @@ module System
       dir("/proc/").each do |pid|
         pid = Integer(pid) rescue nil
         if pid
-          filename = ::File.readlink("/proc/#{pid}/exe") rescue nil
-          next if not filename
-
-          stat = session.fs.file.stat(filename) rescue nil
-          if not stat
-             chroot_env = true
-             break
+          begin
+            mfd = session.fs.file.new("/proc/#{pid}/exe", "rb")
+            mfd.close
+          rescue Rex::Post::Meterpreter::RequestError => e
+            if Errno::ENOENT::Errno == e.code
+              chroot_env = true
+              break
+            end
           end
         end
       end
