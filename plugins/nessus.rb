@@ -1,5 +1,5 @@
 # $Id$ $Revision$
-require 'nessus/nessus-xmlrpc'
+require 'nessus_rest'
 require 'rex/parser/nessus_xml'
 
 module Msf
@@ -44,7 +44,6 @@ module Msf
           "nessus_logout" => "Terminate the session",
           "nessus_server_status" => "Check the status of your Nessus server",
           "nessus_server_properties" => "Nessus server properties such as feed type, version, plugin set and server UUID",
-          "nessus_scanner_list" => "List all the scanners configured on the Nessus server",
           "nessus_report_download" => "Download a report from the nessus server in either Nessus, HTML, PDF, CSV, or DB format",
           "nessus_report_vulns" => "Get list of vulns from a report",
           "nessus_report_hosts" => "Get list of hosts from a report",
@@ -158,7 +157,11 @@ module Msf
         end
         @url = "https://#{@host}:#{@port}/"
         print_status("Connecting to #{@url} as #{@user}")
-        @n = Nessus::Client.new(@url, @user, @pass,@sslv)
+        verify_ssl=false
+        if @sslv == "verify_ssl" then
+          verify_ssl=true
+        end
+        @n = NessusREST::Client.new(:url=>@url,:username=>@user,:password=>@pass,:ssl_verify=>verify_ssl)
         if @n.authenticated
           print_status("User #{@user} authenticated successfully.")
           @token = 1
@@ -791,7 +794,7 @@ module Msf
             print_status("Report downloaded to #{msf_local} directory")
             end
           else
-            print_error("Only completed scans ca be downloaded")
+            print_error("Only completed scans can be downloaded")
           end
         else
           print_status("Usage: ")
@@ -963,7 +966,14 @@ module Msf
         end
         if valid_policy(uuid)
           print_status("Creating scan from policy number #{uuid}, called #{scan_name} - #{description} and scanning #{targets}")
-          scan = @n.scan_create(uuid, scan_name, description, targets)
+          et=Hash.new
+          et['enabled']=false
+          et['launch']='ONETIME'
+          et['name']=scan_name
+          et['text_targets']=targets
+          et['description']=description
+          et['launch_now']=false
+          scan = @n.scan_create(uuid, et)
           tbl = Rex::Text::Table.new(
             'Columns' => [
               "Scan ID",
@@ -1065,11 +1075,17 @@ module Msf
         end
         targets.chop!
         print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in all the workspaces")
-        scan = @n.scan_create(policy_id, name, desc, targets)
+        et=Hash.new
+        et['enabled']=false
+        et['launch']='ONETIME'
+        et['name']=name
+        et['text_targets']=targets
+        et['description']=desc
+        et['launch_now']=true
+        scan = @n.scan_create(policy_id, et)
         if !scan["error"]
           scan = scan["scan"]
-          print_status("Scan ID #{scan['id']} successfully created")
-          print_status("Run nessus_scan_launch #{scan['id']} to launch the scan")
+          print_status("Scan ID #{scan['id']} successfully created and launched")
         else
           print_error(JSON.pretty_generate(scan))
         end
