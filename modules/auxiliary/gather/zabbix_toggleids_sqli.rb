@@ -60,11 +60,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     match = /#{left_marker}(.*)#{right_marker}/.match(res.body)
-    
+
     unless match
       fail_with(Failure::Unknown, 'Server did not respond in an expected way')
     end
-    
+
     if match[1] == flag
       return Msf::Exploit::CheckCode::Vulnerable
     end
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     unless match
       fail_with(Failure::Unknown, 'Server did not respond in an expected way')
     end
-    
+
     count = match[1].to_i
 
     dbs = []
@@ -112,11 +112,11 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       match = /#{left_marker}(.*)#{right_marker}/.match(res.body)
-      
+
       unless match
         fail_with(Failure::Unknown, 'Server did not respond in an expected way')
       end
-    
+
       dbs << match[1]
     end
 
@@ -162,11 +162,11 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           match = /#{left_marker}(.*)#{right_marker}/.match(res.body)
-          
+
           unless match
             fail_with(Failure::Unknown, 'Server did not respond in an expected way')
           end
-          
+
           user[col] = match[1]
         end
         users << user
@@ -191,11 +191,11 @@ class MetasploitModule < Msf::Auxiliary
    cookies = res.get_cookies
 
    match = /name="sid" value="(.*?)">/.match(res.body)
-   
+
    unless match
      fail_with(Failure::Unknown, 'Server did not respond in an expected way')
    end
-   
+
    sid = match[1]
 
    if datastore['REQUIREAUTH']
@@ -235,11 +235,11 @@ class MetasploitModule < Msf::Auxiliary
 
        cookies = res.get_cookies
        match = /name="sid" value="(.*?)">/.match(res.body)
-   
+
        unless match
          fail_with(Failure::Unknown, 'Server did not respond in an expected way')
        end
-   
+
        sid = match[1]
      elsif
        fail_with(Failure::Unknown, 'Server did not respond in an expected way')
