@@ -37,7 +37,7 @@ module Ui
 
     def cmd_dump_ram(*args)
       unless args[0]
-        print_error("Usage: dump_ram [raw-memory-file]")
+        print_error("Usage: dump_ram [output_file]")
         return
       end
       path_raw = args[0]
@@ -46,16 +46,16 @@ module Ui
       memory_size, response_code, channel = client.winpmem.dump_ram
       case response_code
       when WINPMEM_ERROR_FAILED_LOAD_DRIVER
-        print_bad("Failed to load the driver")
+        print_error("Failed to load the driver")
         return true
       when WINPMEM_ERROR_FAILED_MEMORY_GEOMETRY
-        print_bad("Failed to get the memory geometry")
+        print_error("Failed to get the memory geometry")
         return true
       when WINPMEM_ERROR_FAILED_ALLOCATE_MEMORY
-        print_bad("Failed to allocate memory")
+        print_error("Failed to allocate memory")
         return true
       when WINPMEM_ERROR_FAILED_METERPRETER_CHANNEL
-        print_bad("Failed to open the meterpreter Channel")
+        print_error("Failed to open the meterpreter Channel")
         return true
       end
       print_good("Driver PMEM loaded successfully")
