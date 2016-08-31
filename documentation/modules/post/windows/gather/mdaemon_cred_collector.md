@@ -1,9 +1,3 @@
-<html><head>
-<meta http-equiv="content-type" content="text/html; charset=windows-1252">
-
-</head>
-<body onload="initDoc()">
-
 <div id="overview_info">
 <h2>Windows Gather MDaemonEmailServer Credential Cracking</h2><hr>
 <p>
@@ -72,6 +66,3 @@ end
 <p>Note: MDaemon can store the passwords on a database, in that case the module won't work, but you can search for the database location, username and password and still get them :)</p>
 
 </div>
-
-
-</body></html>
