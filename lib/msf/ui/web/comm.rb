@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/ui/text/bidirectional_pipe'
 module Msf
 module Ui
 module Web
@@ -83,7 +84,7 @@ module Comm
   end
 
   def self.create_session_pipe(session)
-    pipe = Rex::IO::BidirectionalPipe.new
+    pipe = Rex::Ui::BidirectionalPipe.new
 
     @session_pipes[session.id] = pipe
 

@@ -2,7 +2,7 @@
 require 'msf/core/payload/uuid'
 require 'msf/core/payload/windows'
 require 'msf/core/reflective_dll_loader'
-require 'rex/parser/x509_certificate'
+require 'rex/socket/x509_certificate'
 
 class Rex::Payloads::Meterpreter::Config
 
