@@ -35,6 +35,7 @@ PATH
       redcarpet
       rex-arch
       rex-java
+      rex-mime
       rex-ole
       rex-powershell
       rex-random_identifier
@@ -180,7 +181,7 @@ GEM
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
-    nessus_rest (0.1.3)
+    nessus_rest (0.1.4)
     net-ssh (3.2.0)
     network_interface (0.0.1)
     nokogiri (1.6.8)
@@ -224,15 +225,17 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (11.2.2)
     rb-readline-r7 (0.5.2.0)
-    recog (2.0.21)
+    recog (2.0.22)
       nokogiri
     redcarpet (3.3.4)
     rex-arch (0.1.1)
       rex-text
     rex-java (0.1.2)
+    rex-mime (0.1.1)
+      rex-text
     rex-ole (0.1.2)
       rex-text
-    rex-powershell (0.1.1)
+    rex-powershell (0.1.64)
       rex-random_identifier
       rex-text
     rex-random_identifier (0.1.0)
