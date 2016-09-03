@@ -19,9 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         'Kevin Gonzalvo'
       ],
       'License'   => MSF_LICENSE,
-      'References'  =>[
-        ['CVE', '1999-0532']
-      ]))
+      ))
     register_options(
       [
         OptString.new('DOMAIN', [true, 'The target domain']),
