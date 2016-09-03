@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'      => 'Enumerate subdomains',
+      'Name'      => 'Enumerate_subdomains',
       'Description' => %q{
         Enumerate subdomains of domain using a specific list.
       },
