@@ -33,6 +33,7 @@ OPTIONS:
     -ex <opt>  Expiration timeout (seconds) (default: same as current session)
     -h         Help menu
     -l  <opt>  LHOST parameter (for reverse transports)
+    -lu <opt>  Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)
     -p  <opt>  LPORT parameter
     -ph <opt>  Proxy host for http(s) transports (optional)
     -pp <opt>  Proxy port for http(s) transports (optional)
@@ -106,6 +107,7 @@ This command is what was used to create the transport that was listed in the sam
 
 It is also possible to specify the following:
 
+* The `-lu` option allows the addition of a local URI (`LURI`) value that is prepended to the UUID URI that is used for all requests. This URI value helps segregate listeners and payloads based on a URI.
 * The `-ph` option specifies a proxy host/IP. This parameter is optional.
 * The `-pt` option specifies a proxy type, and needs to be set to `http` or `socks`. If not specified alongside the `-ph` parameter, the default type is `http`.
 * The `-pp` option specifies the port that the proxy is listening on. This should be set when `-ph` is set.
