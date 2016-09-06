@@ -103,6 +103,10 @@ class Kiwi < Extension
     { wdigest: parse_wdigest(exec_cmd('sekurlsa::wdigest')) }
   end
 
+  def creds_tspkg
+    { tspkg: parse_tspkg(exec_cmd('sekurlsa::tspkg')) }
+  end
+
   def creds_kerberos
     { kerberos: parse_kerberos(exec_cmd('sekurlsa::kerberos')) }
   end
@@ -112,6 +116,7 @@ class Kiwi < Extension
     {
       msv: parse_msv(output),
       wdigest: parse_wdigest(output),
+      tspkg: parse_tspkg(output),
       kerberos: parse_kerberos(output)
     }
   end
@@ -129,7 +134,7 @@ class Kiwi < Extension
       line = lines.shift
 
       # are there interesting values?
-      next if line.blank?
+      next if line.blank? || line !~ /\s*\*/
 
       # no, the next 3 lines should be interesting
       wdigest = {}
@@ -141,6 +146,37 @@ class Kiwi < Extension
 
       if wdigest.length > 0
         results[wdigest.values.join('|')] = wdigest
+      end
+    end
+
+    results.values
+  end
+
+  def parse_tspkg(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an tspkg line
+      next if line !~ /\stspkg\s:/
+
+      line = lines.shift
+
+      # are there interesting values?
+      next if line.blank? || line !~ /\s*\*/
+
+      # no, the next 3 lines should be interesting
+      tspkg = {}
+      3.times do
+        k, v = read_value(line)
+        tspkg[k.strip] = v if k
+        line = lines.shift
+      end
+
+      if tspkg.length > 0
+        results[tspkg.values.join('|')] = tspkg
       end
     end
 
@@ -160,7 +196,7 @@ class Kiwi < Extension
       line = lines.shift
 
       # are there interesting values?
-      next if line.blank?
+      next if line.blank? || line !~ /\s*\*/
 
       # no, the next 3 lines should be interesting
       kerberos = {}

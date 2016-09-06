@@ -62,7 +62,7 @@ class Console::CommandDispatcher::Kiwi
       'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
       #'creds_livessp'         => 'Retrieve LiveSSP creds',
       #'creds_ssp'             => 'Retrieve SSP creds',
-      #'creds_tspkg'           => 'Retrieve TsPkg creds',
+      'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
       'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
       'creds_all'             => 'Retrieve all credentials (parsed)',
       #'golden_ticket_create'  => 'Create a golden kerberos ticket',
@@ -372,10 +372,10 @@ class Console::CommandDispatcher::Kiwi
   #
   # Dump all TSPKG credentials to screen.
   #
-  #def cmd_creds_tspkg(*args)
-  #  method = Proc.new { client.kiwi.tspkg }
-  #  scrape_passwords('tspkg', method, args)
-  #end
+  def cmd_creds_tspkg(*args)
+    method = Proc.new { client.kiwi.creds_tspkg }
+    scrape_passwords('tspkg', method, args)
+  end
 
   #
   # Dump all Kerberos credentials to screen.
