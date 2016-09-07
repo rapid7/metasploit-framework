@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/auxiliary/report'
 require 'openssl'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Auxiliary::Report
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
 
   def run
     print_status("Checking All Users...")
-    creds_tbl = Rex::Ui::Text::Table.new(
+    creds_tbl = Rex::Text::Table.new(
       'Header'  => 'RazorSQL User Credentials',
       'Indent'  => 1,
       'Columns' =>

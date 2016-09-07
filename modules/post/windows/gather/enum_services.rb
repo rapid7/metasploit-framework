@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Services
 
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
       print_status("Start Type Filter: #{qtype}")
     end
 
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
         'Header'     => 'Services',
         'Indent'     => 1,
         'SortIndex'  => 0,

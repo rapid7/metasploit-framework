@@ -236,6 +236,9 @@ class WindowsError
   PROCESS_MODE_NOT_BACKGROUND = 403
   INVALID_ADDRESS = 487
 
+  # Socket stuff
+  ADDRESS_IN_USE = 10048
+
   #
   # Return a string representation of the constant for a number
   #
@@ -687,6 +690,8 @@ class WindowsError
       "The process is not in background processing mode."
     when INVALID_ADDRESS
       "Attempt to access invalid address."
+    when ADDRESS_IN_USE
+      "The address/port is already in use."
     else
       "#{code}"
     end

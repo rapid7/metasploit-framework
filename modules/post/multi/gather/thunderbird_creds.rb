@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Post
     end
 
     # Create a rex table to store our data
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Thunderbird login data',
       'Indent'  => 1,
       'Columns' =>

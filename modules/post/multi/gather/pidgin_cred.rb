@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Post
     end
 
     data = ""
-    credentials = Rex::Ui::Text::Table.new(
+    credentials = Rex::Text::Table.new(
     'Header'    => "Pidgin Credentials",
     'Indent'    => 1,
     'Columns'   =>
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Post
       "Port"
     ])
 
-    buddylists = Rex::Ui::Text::Table.new(
+    buddylists = Rex::Text::Table.new(
     'Header'    => "Pidgin Contact List",
     'Indent'    => 1,
     'Columns'   =>

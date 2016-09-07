@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
   # Scanner mixin should be near last
@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptBool.new('STORE_NOTES', [ true, 'Store the captured information in notes. Use "notes -t http.title" to view', true ]),
-        OptBool.new('SHOW_ERRORS', [ true, 'Show error messages relating to grabbing titles on the console', true ]),
         OptBool.new('SHOW_TITLES', [ true, 'Show the titles on the console as they are grabbed', true ]),
         OptString.new('TARGETURI', [true, 'The base path', '/'])
       ], self.class)
@@ -35,8 +34,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    if datastore['STORE_NOTES'] == false && datastore['SHOW_ERRORS'] == false && datastore['SHOW_TITLES'] == false
-      print_error("Notes storage is false, errors have been turned off and titles are not being shown on the console. There isn't much point in running this module.")
+    if !datastore['STORE_NOTES'] && !datastore['SHOW_TITLES']
+      print_error("Notes storage is false and titles are not being shown on the console. There isn't much point in running this module.")
     else
       super
     end
@@ -51,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
         # If no response, quit now
         if res.nil?
-          print_error("[#{target_host}:#{rport}] No response") if datastore['SHOW_ERRORS'] == true
+          vprint_error("[#{target_host}:#{rport}] No response")
           return
         end
 
@@ -65,12 +64,12 @@ class Metasploit3 < Msf::Auxiliary
             server_header  = val if key.downcase == 'server'
           end
         else
-          print_error("[#{target_host}:#{rport}] No HTTP headers") if datastore['SHOW_ERRORS'] == true
+          vprint_error("[#{target_host}:#{rport}] No HTTP headers")
         end
 
         # If the body is blank, just stop now as there is no chance of a title
         if res.body.nil?
-          print_error("[#{target_host}:#{rport}] No webpage body") if datastore['SHOW_ERRORS'] == true
+          vprint_error("[#{target_host}:#{rport}] No webpage body")
           return
         end
 
@@ -78,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
         # there is no chance that we will have a title
         rx = %r{<title>[\n\t\s]*(?<title>.+?)[\s\n\t]*</title>}im.match(res.body.to_s)
         unless rx
-          print_error("[#{target_host}:#{rport}] No webpage title") if datastore['SHOW_ERRORS'] == true
+          vprint_error("[#{target_host}:#{rport}] No webpage title")
           return
         end
 
@@ -86,13 +85,15 @@ class Metasploit3 < Msf::Auxiliary
         rx[:title].strip!
         if rx[:title] != ''
           rx_title = Rex::Text.html_decode(rx[:title])
-          print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}") if datastore['SHOW_TITLES'] == true
-          if datastore['STORE_NOTES'] == true
+          if datastore['SHOW_TITLES']
+            print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}")
+          end
+          if datastore['STORE_NOTES']
             notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header, uri: datastore['TARGETURI'] }
             report_note(host: target_host, port: rport, type: "http.title", data: notedata, update: :unique_data)
           end
         else
-          print_error("[#{target_host}:#{rport}] No webpage title") if datastore['SHOW_ERRORS'] == true
+          vprint_error("[#{target_host}:#{rport}] No webpage title")
         end
       end
 

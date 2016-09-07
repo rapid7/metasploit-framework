@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
     # where we'll store hashes of found credentials while parsing.  reporting is done at the end.
     creds = []
     # A table to store the found credentials for loot storage afterward
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
     'Header'    => "mount.cifs credentials",
     'Indent'    => 1,
     'Columns'   =>

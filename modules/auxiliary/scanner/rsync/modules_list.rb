@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -56,10 +56,6 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def read_timeout
     datastore['READ_TIMEOUT']
   end
@@ -74,11 +70,11 @@ class Metasploit3 < Msf::Auxiliary
       elsif res =~ /^#{RSYNC_HEADER} OK$/
         'not required'
       else
-        vprint_error("#{peer} - unexpected response when connecting to #{rmodule}: #{res}")
+        vprint_error("unexpected response when connecting to #{rmodule}: #{res}")
         "unexpected response '#{res}'"
       end
     else
-      vprint_error("#{peer} - no response when connecting to #{rmodule}")
+      vprint_error("no response when connecting to #{rmodule}")
       'no response'
     end
   end
@@ -120,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     unless version
-      vprint_error("#{peer} - no rsync negotiation found")
+      vprint_error("no rsync negotiation found")
       return
     end
 
@@ -153,12 +149,12 @@ class Metasploit3 < Msf::Auxiliary
       connect
       version, motd = rsync_negotiate
       unless version
-        vprint_error("#{peer} - does not appear to be rsync")
+        vprint_error("does not appear to be rsync")
         disconnect
         return
       end
     rescue *HANDLED_EXCEPTIONS => e
-      vprint_error("#{peer} - error while connecting and negotiating: #{e}")
+      vprint_error("error while connecting and negotiating: #{e}")
       disconnect
       return
     end
@@ -172,24 +168,24 @@ class Metasploit3 < Msf::Auxiliary
       name: 'rsync',
       info: info
     )
-    print_status("#{peer} - rsync version: #{version}") if datastore['SHOW_VERSION']
-    print_status("#{peer} - rsync MOTD: #{motd}") if motd && datastore['SHOW_MOTD']
+    print_status("rsync version: #{version}") if datastore['SHOW_VERSION']
+    print_status("rsync MOTD: #{motd}") if motd && datastore['SHOW_MOTD']
 
     modules_metadata = {}
     begin
       modules_metadata = rsync_list
     rescue *HANDLED_EXCEPTIONS => e
-      vprint_error("#{peer} -- error while listing modules: #{e}")
+      vprint_error("Error while listing modules: #{e}")
       return
     ensure
       disconnect
     end
 
     if modules_metadata.empty?
-      print_status("#{peer} - no rsync modules found")
+      print_status("no rsync modules found")
     else
       modules = modules_metadata.map { |m| m[:name] }
-      print_good("#{peer} - #{modules.size} rsync modules found: #{modules.join(', ')}")
+      print_good("#{modules.size} rsync modules found: #{modules.join(', ')}")
 
       table_columns = %w(Name Comment)
       if datastore['TEST_AUTHENTICATION']
@@ -200,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
             rsync_negotiate
             module_metadata[:authentication] = get_rsync_auth_status(module_metadata[:name])
           rescue *HANDLED_EXCEPTIONS => e
-            vprint_error("#{peer} - error while testing authentication on #{module_metadata[:name]}: #{e}")
+            vprint_error("error while testing authentication on #{module_metadata[:name]}: #{e}")
             break
           ensure
             disconnect

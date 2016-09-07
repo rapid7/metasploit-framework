@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/nessus'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -21,15 +21,19 @@ class Metasploit3 < Msf::Auxiliary
         This module will attempt to authenticate to a Nessus server RPC interface.
       },
       'Author'         => [ 'void_in' ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' =>
+      {
+        'SSL'        => true,
+      }
     ))
     register_options(
       [
         Opt::RPORT(8834),
         OptString.new('TARGETURI', [ true,  'The path to the Nessus server login API', '/session']),
-        OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', true]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
       ], self.class)
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
 

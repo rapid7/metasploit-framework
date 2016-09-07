@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Postgres Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']

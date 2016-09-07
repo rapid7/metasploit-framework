@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -57,11 +57,6 @@ class Metasploit3 < Msf::Post
 
     version
   end
-
-  def peer
-    "#{session.session_host}:#{session.session_port}"
-  end
-
 
   #
   # Converts LastSession.plist to xml, and then read it
@@ -162,7 +157,7 @@ class Metasploit3 < Msf::Post
   # Runs the module
   #
   def run
-    cred_tbl = Rex::Ui::Text::Table.new({
+    cred_tbl = Rex::Text::Table.new({
       'Header'  => 'Credentials',
       'Indent'  => 1,
       'Columns' => ['Domain', 'Username', 'Password']

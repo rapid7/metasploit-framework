@@ -122,8 +122,6 @@ module ModuleCommandDispatcher
   # Checks to see if a target is vulnerable.
   #
   def cmd_check(*args)
-    defanged?
-
     ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     opt = Msf::OptAddressRange.new('RHOSTS')
 
@@ -176,7 +174,7 @@ module ModuleCommandDispatcher
 
   def check_simple(instance=nil)
     unless instance
-      instance = mod 
+      instance = mod
     end
 
     rhost = instance.datastore['RHOST']
@@ -193,13 +191,13 @@ module ModuleCommandDispatcher
         'LocalOutput' => driver.output)
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{peer} - #{code[1]}")
+          print_good("#{peer} #{code[1]}")
           report_vuln(instance)
         else
-          print_status("#{peer} - #{code[1]}")
+          print_status("#{peer} #{code[1]}")
         end
       else
-        msg = "#{peer} - Check failed: The state could not be determined."
+        msg = "#{peer} Check failed: The state could not be determined."
         print_error(msg)
         elog("#{msg}\n#{caller.join("\n")}")
       end
@@ -210,10 +208,10 @@ module ModuleCommandDispatcher
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue Msf::OptionValidateError => e
-      print_error("Check failed: #{e.message}")
+      print_error("{peer} - Check failed: #{e.message}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
-      print_error("#{peer} - Check failed: #{e.class} #{e}")
+      print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     end
   end

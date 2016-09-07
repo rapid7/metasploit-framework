@@ -146,7 +146,7 @@ class Unattend
 
   def self.create_table(results)
     return nil if results.nil? or results.empty?
-    table = Rex::Ui::Text::Table.new({
+    table = Rex::Text::Table.new({
       'Header' => 'Unattend Credentials',
       'Indent' => 1,
       'Columns' => ['Type', 'Domain', 'Username', 'Password', 'Groups']

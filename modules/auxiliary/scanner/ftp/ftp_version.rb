@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if(banner)
       banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
-      print_status("#{rhost}:#{rport} FTP Banner: '#{banner_sanitized}'")
+      print_status("FTP Banner: '#{banner_sanitized}'")
       report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
     end
 

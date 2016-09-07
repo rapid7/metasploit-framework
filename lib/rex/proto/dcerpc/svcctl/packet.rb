@@ -7,13 +7,16 @@ module Rex
 ###
 module Proto::DCERPC::SVCCTL
 
-  require 'rex/constants/windows'
+  require 'windows_error'
+  require 'windows_error/win32'
+  require 'msf/core/exploit/windows_constants'
   NDR = Rex::Encoder::NDR
 
 
 class Client
 
-  include Rex::Constants::Windows
+  include WindowsError::Win32
+  include Msf::Exploit::Windows_Constants
 
   attr_accessor :dcerpc_client
 
@@ -53,7 +56,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error getting scm handle: #{e}")
+      print_error("Error getting scm handle: #{e}")
     end
 
     [scm_handle, scm_status]
@@ -124,7 +127,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error creating service: #{e}")
+      print_error("Error creating service: #{e}")
     end
 
     return svc_handle, svc_status
@@ -149,7 +152,7 @@ class Client
       response = dcerpc_client.call(CHANGE_SERVICE_CONFIG2_W, stubdata) # ChangeServiceConfig2
       svc_status = error_code(response)
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error changing service description : #{e}")
+      print_error("Error changing service description : #{e}")
     end
 
     svc_status
@@ -169,7 +172,7 @@ class Client
         svc_status = error_code(response[20,4])
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error closing service handle: #{e}")
+      print_error("Error closing service handle: #{e}")
     end
 
     svc_status
@@ -195,7 +198,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error opening service handle: #{e}")
+      print_error("Error opening service handle: #{e}")
     end
 
     svc_handle
@@ -219,7 +222,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error starting service: #{e}")
+      print_error("Error starting service: #{e}")
     end
 
     svc_status
@@ -249,7 +252,7 @@ class Client
        svc_status =  error_code(response[28,4])
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error controlling service: #{e}")
+      print_error("Error controlling service: #{e}")
     end
 
     svc_status
@@ -268,7 +271,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error deleting service: #{e}")
+      print_error("Error deleting service: #{e}")
     end
 
     svc_status
@@ -292,7 +295,7 @@ class Client
         ret = 2
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("#{peer} - Error deleting service: #{e}")
+      print_error("Error deleting service: #{e}")
     end
 
     ret

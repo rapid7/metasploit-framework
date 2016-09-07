@@ -1,5 +1,5 @@
 # -*- coding:binary -*-
-shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML#check_msf_xml_version! with root tag' do |root_tag, options={}|
+RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML#check_msf_xml_version! with root tag' do |root_tag, options={}|
   options.assert_valid_keys(:allow_yaml)
   allow_yaml = options.fetch(:allow_yaml)
 
@@ -19,7 +19,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML#check_msf_
     end
 
     it "should have #{root_tag} as root tag" do
-      metadata[:root_tag].should == root_tag
+      expect(metadata[:root_tag]).to eq root_tag
     end
   end
 end

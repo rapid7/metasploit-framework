@@ -3,7 +3,7 @@ require 'msf/base/sessions/meterpreter'
 require 'rex/post/meterpreter/extensions/stdapi/net/interface'
 require 'rex/post/meterpreter/extensions/stdapi/net/route'
 
-describe Msf::Sessions::Meterpreter do
+RSpec.describe Msf::Sessions::Meterpreter do
   before do
     allow_any_instance_of(Rex::Post::Meterpreter::PacketDispatcher).to receive(:monitor_socket)
   end
@@ -33,9 +33,11 @@ describe Msf::Sessions::Meterpreter do
   describe "#find_internet_connected_address" do
 
     subject(:connected_address) do
+      allow_message_expectations_on_nil
       m = described_class.new(StringIO.new(""), skip_ssl: true)
-      m.stub_chain(:net, :config, :get_interfaces).and_return(interfaces)
-      m.stub_chain(:net, :config, :get_routes).and_return(routes)
+      allow(m).to receive_message_chain(:private_methods, :net)
+      allow(m).to receive_message_chain(:private_methods, :net, :config, :get_interfaces).and_return(interfaces)
+      allow(m).to receive_message_chain(:private_methods, :net, :config, :get_routes).and_return(routes)
       m.session_host = session_host
 
       m.send(:find_internet_connected_address)

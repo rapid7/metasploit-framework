@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/gitlab'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('USERNAME', [ true, 'The username to test', 'root' ]),
-        OptString.new('PASSWORD', [ true, 'The password to test', '5iveL!fe' ]),
+        OptString.new('HttpUsername', [ true, 'The username to test', 'root' ]),
+        OptString.new('HttpPassword', [ true, 'The password to test', '5iveL!fe' ]),
         OptString.new('TARGETURI', [true, 'The path to GitLab', '/'])
       ], self.class)
 
@@ -47,9 +47,9 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res && res.body && res.body.include?('user[email]')
-      vprint_status("#{peer} - GitLab v5 login page")
+      vprint_status("GitLab v5 login page")
     elsif res && res.body && res.body.include?('user[login]')
-      vprint_status("#{peer} - GitLab v7 login page")
+      vprint_status("GitLab v7 login page")
     else
       vprint_error('Not a valid GitLab login page')
       return
@@ -58,10 +58,10 @@ class Metasploit3 < Msf::Auxiliary
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
+      password: datastore['HttpPassword'],
       user_file: datastore['USER_FILE'],
       userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['USERNAME'],
+      username: datastore['HttpUsername'],
       user_as_pass: datastore['USER_AS_PASS']
     )
 

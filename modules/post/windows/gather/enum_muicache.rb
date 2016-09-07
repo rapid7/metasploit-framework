@@ -7,7 +7,7 @@ require 'rex'
 require 'msf/core'
 require 'rex/registry'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'  =>  'MUICache Information',
       'Indent'  =>  1,
       'Columns' =>

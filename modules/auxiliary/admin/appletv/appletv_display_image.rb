@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -27,7 +27,7 @@ class Metasploit4 < Msf::Auxiliary
         [
           ['URL', 'http://nto.github.io/AirPlay.html']
         ],
-      'DefaultOptions' => { 'USERNAME' => 'AirPlay' },
+      'DefaultOptions' => { 'HttpUsername' => 'AirPlay' },
       'License'        => MSF_LICENSE
     ))
 
@@ -36,7 +36,7 @@ class Metasploit4 < Msf::Auxiliary
       Opt::RPORT(7000),
       OptInt.new('TIME', [true, 'Time in seconds to show the image', 10]),
       OptPath.new('FILE', [true, 'Image to upload and show']),
-      OptString.new('PASSWORD', [false, 'The password for AppleTV AirPlay'])
+      OptString.new('HttpPassword', [false, 'The password for AppleTV AirPlay'])
     ], self.class)
 
     # We're not actually using any of these against AppleTV in our Rex HTTP client init,
@@ -72,8 +72,8 @@ class Metasploit4 < Msf::Auxiliary
       ssl,
       ssl_version,
       proxies,
-      datastore['USERNAME'],
-      datastore['PASSWORD']
+      datastore['HttpUsername'],
+      datastore['HttpPassword']
     )
     add_socket(http)
 

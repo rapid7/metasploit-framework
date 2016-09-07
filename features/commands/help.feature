@@ -22,7 +22,6 @@ Feature: Help command
           exit          Exit the console
           get           Gets the value of a context-specific variable
           getg          Gets the value of a global variable
-          go_pro        Launch Metasploit web GUI
           grep          Grep the output of another command
           help          Help menu
           info          Displays information about one or more modules

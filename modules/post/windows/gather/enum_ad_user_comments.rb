@@ -6,7 +6,7 @@
 require 'rex'
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
     end
 
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
         'Header'     => "Domain Users",
         'Indent'     => 1,
         'SortIndex'  => -1,

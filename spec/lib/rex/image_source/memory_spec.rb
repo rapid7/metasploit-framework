@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/image_source/memory'
 
-describe Rex::ImageSource::Memory do
+RSpec.describe Rex::ImageSource::Memory do
 
   let(:raw_data) { 'ABCDEFGHIJKLMNOP' }
 

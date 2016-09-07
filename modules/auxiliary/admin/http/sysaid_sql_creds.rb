@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
           fail_with(Failure::Unknown, 'Could not resolve database server hostname.')
         end
 
-        print_status("#{peer} - Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
+        print_status("Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
         return
       end
     else

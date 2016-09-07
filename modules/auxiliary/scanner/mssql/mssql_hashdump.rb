@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
 
-    if (not mssql_login_datastore)
+    if !mssql_login_datastore
       print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
       return
     end
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
           :proto => 'tcp'
           )
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'MS SQL Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']

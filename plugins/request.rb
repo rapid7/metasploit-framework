@@ -216,7 +216,7 @@ class Plugin::Requests < Msf::Plugin
     #   response.
     # @option opts [Boolean] :print_headers Whether or not to print the headers
     #   of the response.
-    # @options opts [String] :ssl_version The version of SSL to use if the
+    # @option opts [String] :ssl_version The version of SSL to use if the
     #   request scheme is HTTPS.
     # @option opts [String] :uri The target uri to request.
     # @option opts [String] :user_agent The value to use in the User-Agent
@@ -247,7 +247,7 @@ class Plugin::Requests < Msf::Plugin
     #   response.
     # @option opts [Boolean] :print_headers Whether or not to print the headers
     #   of the response.
-    # @options opts [String] :ssl_version The version of SSL to use if the
+    # @option opts [String] :ssl_version The version of SSL to use if the
     #   request scheme is HTTPS.
     # @option opts [String] :uri The target uri to request.
     # @option opts [String] :user_agent The value to use in the User-Agent

@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/cisco'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Cisco
   def initialize(info={})
     super( update_info( info,
@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Post
       end
     else
       if pass_file
-        if not ::File.exists?(pass_file)
+        if not ::File.exist?(pass_file)
           print_error("Wordlist File #{pass_file} does not exists!")
           return
         end

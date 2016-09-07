@@ -102,7 +102,7 @@ end
 $framework = Msf::Simple::Framework.create(framework_opts)
 
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Licensed Modules',
   'Indent'  => Indent.length,
   'Columns' => [ 'License','Type', 'Name' ]

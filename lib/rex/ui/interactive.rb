@@ -185,7 +185,7 @@ protected
   # writing it to the other.  Both are expected to implement Rex::IO::Stream.
   #
   def interact_stream(stream)
-    while self.interacting
+    while self.interacting && _remote_fd(stream)
 
       # Select input and rstream
       sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.25)
@@ -253,11 +253,11 @@ protected
   # Installs a signal handler to monitor suspend signal notifications.
   #
   def handle_suspend
-    if (orig_suspend == nil)
+    if orig_suspend.nil?
       begin
-        self.orig_suspend = Signal.trap("TSTP") {
-          _suspend
-        }
+        self.orig_suspend = Signal.trap("TSTP") do
+          Thread.new { _suspend }.join
+        end
       rescue
       end
     end
@@ -269,7 +269,7 @@ protected
   #
   def restore_suspend
     begin
-      if (orig_suspend)
+      if orig_suspend
         Signal.trap("TSTP", orig_suspend)
       else
         Signal.trap("TSTP", "DEFAULT")

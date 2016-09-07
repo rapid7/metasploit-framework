@@ -7,7 +7,7 @@ require 'rex'
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Registry
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
 
     print_status("Done, Databases Found.")
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Installed Databases",
       'Indent'  => 1,
       'Columns' =>

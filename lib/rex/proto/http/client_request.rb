@@ -391,8 +391,19 @@ class ClientRequest
 
   #
   # Return the content length header
+  #
   def set_content_len_header(clen)
-    return "" if opts['chunked_size'] > 0
+    if opts['method'] == 'GET' && (clen == 0 || opts['chunked_size'] > 0)
+      # This condition only applies to GET because of the specs.
+      # RFC-7230:
+      # A Content-Length header field is normally sent in a POST
+      # request even when the value is 0 (indicating an empty payload body)
+      return ''
+    elsif opts['headers'] && opts['headers']['Content-Length']
+      # If the module has a modified content-length header, respect that by
+      # not setting another one.
+      return ''
+    end
     set_formatted_header("Content-Length", clen)
   end
 

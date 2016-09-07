@@ -24,7 +24,8 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   @@download_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
-    "-r" => [ false, "Download recursively." ])
+    "-r" => [ false, "Download recursively." ],
+    "-t" => [ false, "Timestamp downloaded files." ])
   #
   # Options for the upload command.
   #
@@ -52,6 +53,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'cat'        => 'Read the contents of a file to the screen',
       'cd'         => 'Change directory',
       'del'        => 'Delete the specified file',
+      'dir'        => 'List files (alias for ls)',
       'download'   => 'Download a file or directory',
       'edit'       => 'Edit a file',
       'getlwd'     => 'Print local working directory',
@@ -73,6 +75,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'cat'        => [],
       'cd'         => ['stdapi_fs_chdir'],
       'del'        => ['stdapi_fs_rm'],
+      'dir'        => ['stdapi_fs_stat', 'stdapi_fs_ls'],
       'download'   => [],
       'edit'       => [],
       'getlwd'     => [],
@@ -181,7 +184,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     mounts = client.fs.mount.show_mount
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'Mounts / Drives',
       'Indent'    => 0,
       'SortIndex' => 0,
@@ -330,6 +333,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     end
 
     recursive = false
+    timestamp = false
     src_items = []
     last      = nil
     dest      = nil
@@ -338,6 +342,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       case opt
       when "-r"
         recursive = true
+      when "-t"
+        timestamp = true
       when nil
         src_items << last if (last)
         last = val
@@ -365,6 +371,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       dest = ::File.dirname(dest)
     end
 
+    if timestamp
+      ts = '_' + Time.now.iso8601
+    end
+
     # Go through each source item and download them
     src_items.each { |src|
       glob = nil
@@ -387,8 +397,7 @@ class Console::CommandDispatcher::Stdapi::Fs
             src_path = file['path'] + client.fs.file.separator + file['name']
             dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
 
-            client.fs.file.download(dest_path, src_path) do |step, src, dst|
-              puts step
+            client.fs.file.download(dest_path, src_path, ts) do |step, src, dst|
               print_status("#{step.ljust(11)}: #{src} -> #{dst}")
               client.framework.events.on_session_download(client, src, dest) if msf_loaded?
             end
@@ -402,12 +411,12 @@ class Console::CommandDispatcher::Stdapi::Fs
         # Perform direct matching
         stat = client.fs.file.stat(src)
         if (stat.directory?)
-          client.fs.dir.download(dest, src, recursive, true, glob) do |step, src, dst|
+          client.fs.dir.download(dest, src, recursive, true, glob, ts) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
         elsif (stat.file?)
-          client.fs.file.download(dest, src) do |step, src, dst|
+          client.fs.file.download(dest, src, ts) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
@@ -473,7 +482,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       return
     end
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Listing: #{path}",
       'SortIndex' => columns.index(sort),
       'SortOrder' => order,
@@ -599,6 +608,12 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   #
+  # Alias the ls command to dir, for those of us who have windows muscle-memory
+  #
+  alias cmd_dir cmd_ls
+
+
+  #
   # Make one or more directory.
   #
   def cmd_mkdir(*args)
@@ -694,7 +709,7 @@ class Console::CommandDispatcher::Stdapi::Fs
           client.framework.events.on_session_upload(client, src, dest) if msf_loaded?
         }
       elsif (stat.file?)
-        if client.fs.file.exists?(dest) and client.fs.file.stat(dest).directory?
+        if client.fs.file.exist?(dest) && client.fs.file.stat(dest).directory?
           client.fs.file.upload(dest, src) { |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_upload(client, src, dest) if msf_loaded?

@@ -1,9 +1,9 @@
 # -*- coding: binary -*-
 require 'metasm'
 require 'rex/compat'
-require 'rex/ui/text/table'
+require 'rex/text/table'
 require 'rex/ui/text/output/stdio'
-require 'rex/ui/text/color'
+require 'rex/text/color'
 
 module Rex
 module RopBuilder
@@ -25,7 +25,7 @@ class RopBase
       @gadgets = gadgets
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
     'Header'    => "#{@file} ROP Gadgets",
     'Indent'    => 1,
     'Columns'   =>

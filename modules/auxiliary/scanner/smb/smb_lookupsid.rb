@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
       resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 
       if ! (resp and resp.length == 24)
-        print_error("#{ip} Invalid response from the OpenPolicy request")
+        print_error("Invalid response from the OpenPolicy request")
         disconnect
         return
       end
@@ -193,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       if(perror != 0)
-        print_error("#{ip} Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
+        print_error("Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
         disconnect
         return
       end
@@ -211,7 +211,7 @@ class Metasploit3 < Msf::Auxiliary
       domain_sid, domain_name = smb_parse_sid(resp)
 
       # Store SID, local domain name, joined domain name
-      print_status("#{ip} PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
+      print_status("PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
 
       domain = {
         :name    => host_name,
@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Auxiliary
       when 'DOMAIN'
         # Fallthrough to the host SID if no domain SID was returned
         unless domain_sid
-          print_error("#{ip} No domain SID identified, falling back to the local SID...")
+          print_error("No domain SID identified, falling back to the local SID...")
         end
         domain_sid || host_sid
       end
@@ -265,13 +265,13 @@ class Metasploit3 < Msf::Auxiliary
         utype,uname = smb_parse_sid_lookup(resp)
         case utype
         when 1
-          print_status("#{ip} USER=#{uname} RID=#{rid}")
+          print_status("USER=#{uname} RID=#{rid}")
           domain[:users][rid] = uname
         when 2
           domain[:groups][rid] = uname
-          print_status("#{ip} GROUP=#{uname} RID=#{rid}")
+          print_status("GROUP=#{uname} RID=#{rid}")
         else
-          print_status("#{ip} TYPE=#{utype} NAME=#{uname} rid=#{rid}")
+          print_status("TYPE=#{utype} NAME=#{uname} rid=#{rid}")
         end
       end
 
@@ -284,7 +284,7 @@ class Metasploit3 < Msf::Auxiliary
         :data => domain
       )
 
-      print_status("#{ip} #{domain[:name].upcase} [#{domain[:users].keys.map{|k| domain[:users][k]}.join(", ")} ]")
+      print_status("#{domain[:name].upcase} [#{domain[:users].keys.map{|k| domain[:users][k]}.join(", ")} ]")
       disconnect
       return
 
@@ -295,7 +295,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Rex::Proto::SMB::Exceptions::LoginError
       next
     rescue ::Exception => e
-      print_line("Error: #{ip} #{e.class} #{e}")
+      print_line("Error: #{e.class} #{e}")
     end
     end
   end

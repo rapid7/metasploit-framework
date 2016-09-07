@@ -34,7 +34,7 @@ Msf::Ui::Common.process_cli_arguments($framework, ARGV)
 
 options = ARGV.join(',')
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Payload Lengths',
   'Indent'  => Indent.length,
   'Columns' => [ 'Payload', 'Length' ]

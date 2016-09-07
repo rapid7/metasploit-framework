@@ -8,7 +8,7 @@ require 'msf/core'
 require 'msf/core/payload/generic'
 
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 1
 

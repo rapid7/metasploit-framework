@@ -8,7 +8,7 @@ require 'msf/core'
 require 'yaml'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   #
   # This module sends email messages via smtp
@@ -119,7 +119,6 @@ class Metasploit3 < Msf::Auxiliary
     datastore['MAILFROM'] = from
 
     msg       = load_file(msg_file)
-    email_sig = load_file(sig_file)
 
     if (type !~ /text/i and type !~ /text\/html/i)
       print_error("YAML config: #{type}")

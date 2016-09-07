@@ -142,7 +142,7 @@ module Msf
 
         res = @manager.get_task_data(@hid_tasks[args[0]])
 
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Columns' => ['Title', 'Payload'])
 
         res['data'].each do |d|

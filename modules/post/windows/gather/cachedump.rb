@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -271,7 +271,7 @@ class Metasploit3 < Msf::Post
 
 
   def run
-    @credentials = Rex::Ui::Text::Table.new(
+    @credentials = Rex::Text::Table.new(
     'Header'    => "MSCACHE Credentials",
     'Indent'    => 1,
     'Columns'   =>

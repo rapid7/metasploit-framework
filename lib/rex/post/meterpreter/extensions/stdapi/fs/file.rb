@@ -184,7 +184,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Returns true if the remote file +name+ exists, false otherwise
   #
-  def File.exists?(name)
+  def File.exist?(name)
     r = client.fs.filestat.new(name) rescue nil
     r ? true : false
   end
@@ -280,12 +280,17 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # If a block is given, it will be called before each file is downloaded and
   # again when each download is complete.
   #
-  def File.download(dest, *src_files, &stat)
-    src_files.each { |src|
+  def File.download(dest, src_files, timestamp = nil, &stat)
+    [*src_files].each { |src|
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator
         dest += ::File::SEPARATOR + File.basename(src)
+      end
+
+      # XXX: dest can be the same object as src, so we use += instead of <<
+      if timestamp
+        dest += timestamp
       end
 
       stat.call('downloading', src, dest) if (stat)
@@ -302,7 +307,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     # Check for changes
     src_stat = client.fs.filestat.new(src_file)
-    if ::File.exists?(dest_file)
+    if ::File.exist?(dest_file)
       dst_stat = ::File.stat(dest_file)
       if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
         return 'skipped'

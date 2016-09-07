@@ -88,7 +88,7 @@ class GPP
   def self.create_tables(results, filetype, domain=nil, dc=nil)
     tables = []
     results.each do |result|
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'     => 'Group Policy Credential Info',
         'Indent'     => 1,
         'SortIndex'  => -1,

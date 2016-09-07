@@ -29,7 +29,10 @@ class Console::CommandDispatcher::Android
       'device_shutdown'   => 'Shutdown device',
       'send_sms'          => 'Sends SMS from target session',
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
-      'interval_collect'  => 'Manage interval collection capabilities'
+      'interval_collect'  => 'Manage interval collection capabilities',
+      'activity_start'    => 'Start an Android activity from a Uri string',
+      'sqlite_query'      => 'Query a SQLite database from storage',
+      'set_audio_mode'    => 'Set Ringer Mode'
     }
 
     reqs = {
@@ -41,7 +44,10 @@ class Console::CommandDispatcher::Android
       'device_shutdown'  => ['device_shutdown'],
       'send_sms'         => ['send_sms'],
       'wlan_geolocate'   => ['wlan_geolocate'],
-      'interval_collect' => ['interval_collect']
+      'interval_collect' => ['interval_collect'],
+      'activity_start'   => ['activity_start'],
+      'sqlite_query'     => ['sqlite_query'],
+      'set_audio_mode'   => ['set_audio_mode']
     }
 
     # Ensure any requirements of the command are met
@@ -105,7 +111,7 @@ class Console::CommandDispatcher::Android
           header << " at #{time.strftime('%Y-%m-%d %H:%M:%S')}"
         end
 
-        table = Rex::Ui::Text::Table.new(
+        table = Rex::Text::Table.new(
           'Header'    => header,
           'SortIndex' => 0,
           'Columns'   => result[:headers],
@@ -151,11 +157,41 @@ class Console::CommandDispatcher::Android
     end
   end
 
+  def cmd_set_audio_mode(*args)
+    help = false
+    mode = 1
+    set_audio_mode_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, "Help Banner" ],
+      '-m' => [ true, "Set Mode - (0 - Off, 1 - Normal, 2 - Max) (Default: '#{mode}')"]
+    )
+
+    set_audio_mode_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        help = true
+      when '-m'
+        mode = val.to_i
+      else
+        help = true
+      end
+    end
+
+    if help || mode < 0 || mode > 2
+      print_line('Usage: set_audio_mode [options]')
+      print_line('Set Ringer mode.')
+      print_line(set_audio_mode_opts.usage)
+      return
+    end
+
+    client.android.set_audio_mode(mode)
+    print_status("Ringer mode was changed to #{mode}!")
+  end
+
   def cmd_dump_sms(*args)
     path = "sms_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_sms_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for sms list']
+      '-o' => [ true, 'Output path for sms list']
     )
 
     dump_sms_opts.parse(args) do |opt, _idx, val|
@@ -243,7 +279,7 @@ class Console::CommandDispatcher::Android
 
     dump_contacts_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for contacts list']
+      '-o' => [ true, 'Output path for contacts list']
     )
 
     dump_contacts_opts.parse(args) do |opt, _idx, val|
@@ -347,7 +383,7 @@ class Console::CommandDispatcher::Android
     dump_calllog_opts = Rex::Parser::Arguments.new(
 
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for call log']
+      '-o' => [ true, 'Output path for call log']
 
     )
 
@@ -457,7 +493,7 @@ class Console::CommandDispatcher::Android
       end
     end
 
-    if dest.blank? || body.blank?
+    if dest.to_s.empty? || body.to_s.empty?
       print_error("You must enter both a destination address -d and the SMS text body -t")
       print_error('e.g. send_sms -d +351961234567 -t "GREETINGS PROFESSOR FALKEN."')
       print_line(send_sms_opts.usage)
@@ -509,7 +545,7 @@ class Console::CommandDispatcher::Android
       wlan_list << [mac, ssid, ss.to_s]
     end
 
-    if wlan_list.blank?
+    if wlan_list.to_s.empty?
       print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
       return
     end
@@ -525,6 +561,71 @@ class Console::CommandDispatcher::Android
     else
       print_status(g.to_s)
       print_status("Google Maps URL:  #{g.google_maps_url}")
+    end
+  end
+
+  def cmd_activity_start(*args)
+    if (args.length < 1)
+      print_line("Usage: activity_start <uri>\n")
+      print_line("Start an Android activity from a uri")
+      return
+    end
+
+    uri = args[0]
+    result = client.android.activity_start(uri)
+    if result.nil?
+      print_status("Intent started")
+    else
+      print_error("Error: #{result}")
+    end
+  end
+
+  def cmd_sqlite_query(*args)
+    sqlite_query_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ],
+      '-d' => [ true, 'The sqlite database file'],
+      '-q' => [ true, 'The sqlite statement to execute'],
+      '-w' => [ false, 'Open the database in writable mode (for INSERT/UPDATE statements)']
+    )
+
+    writeable = false
+    database = ''
+    query = ''
+    sqlite_query_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        print_line("Usage: sqlite_query -d <database_file> -q <statement>\n")
+        print_line(sqlite_query_opts.usage)
+        return
+      when '-d'
+        database = val
+      when '-q'
+        query = val
+      when '-w'
+        writeable = true
+      end
+    end
+
+    if database.blank? || query.blank?
+      print_error("You must enter both a database files and a query")
+      print_error("e.g. sqlite_query -d /data/data/com.android.browser/databases/webviewCookiesChromium.db -q 'SELECT * from cookies'")
+      print_line(sqlite_query_opts.usage)
+      return
+    end
+
+    result = client.android.sqlite_query(database, query, writeable)
+    unless writeable
+      header = "#{query} on database file #{database}"
+      table = Rex::Text::Table.new(
+        'Header'    => header,
+        'Columns'   => result[:columns],
+        'Indent'    => 0
+      )
+      result[:rows].each do |e|
+        table << e
+      end
+      print_line
+      print_line(table.to_s)
     end
   end
 

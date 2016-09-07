@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Auxiliary::Report
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Post
   # Extracts client, server, secret, and IP addresses
   #
   def extract_secrets(data)
-    tbl = Rex::Ui::Text::Table.new({
+    tbl = Rex::Text::Table.new({
       'Header'  => 'PPTPd chap-secrets',
       'Indent'  => 1,
       'Columns' => ['Client', 'Server', 'Secret', 'IP']

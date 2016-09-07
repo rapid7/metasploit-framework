@@ -537,7 +537,7 @@ protected
   #
   def find_context_key(buf, badchars, state)
     # Make sure our context information file is sane
-    if File.exists?(datastore['ContextInformationFile']) == false
+    if !File.exist?(datastore['ContextInformationFile'])
       raise NoKeyError, "A context information file must specified when using context encoding", caller
     end
 

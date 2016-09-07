@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -29,14 +29,14 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(5984),
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/_all_dbs']),
-        OptString.new('USERNAME', [false, 'The username to login as']),
-        OptString.new('PASSWORD', [false, 'The password to login with'])
+        OptString.new('HttpUsername', [false, 'The username to login as']),
+        OptString.new('HttpPassword', [false, 'The password to login with'])
       ], self.class)
   end
 
   def run
-    username = datastore['USERNAME']
-    password = datastore['PASSWORD']
+    username = datastore['HttpUsername']
+    password = datastore['HttpPassword']
 
     begin
       res = send_request_cgi(
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
       temp = JSON.parse(res.body)
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
-      print_error("#{peer} - The following Error was encountered: #{e.class}")
+      print_error("The following Error was encountered: #{e.class}")
       return
     end
 
@@ -64,9 +64,9 @@ class Metasploit3 < Msf::Auxiliary
         'CouchDB Enum'
       )
 
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      print_error("#{peer} - Unable to enum, received \"#{res.code}\"")
+      print_error("Unable to enum, received \"#{res.code}\"")
     end
   end
 end

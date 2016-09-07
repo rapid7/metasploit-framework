@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/post/windows/priv'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
       vprint_error("LiveSSP credentials not present")
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header' => "Windows SSO Credentials",
       'Indent' => 0,
       'SortIndex' => 0,

@@ -228,7 +228,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
     log = client.lanattacks.dhcp.log
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'DHCP Server Log',
       'Indent'    => 0,
       'SortIndex' => 0,

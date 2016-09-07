@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
 
@@ -11,13 +11,13 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'         => 'Windows Gather Deleted Files Enumeration and Recovering',
       'Description'  => %q{
-          This module list and try to recover deleted files from NTFS file systems. Use
-        the FILES option to guide recovery. Let it empty to enumerate deleted files in the
-        DRIVE. Set FILES to an extension (Ex. "pdf") to recover deleted files with that
-        extension. Or set FILES to a comma separated list of IDs (from enumeration) to
-        recover those files. The user must have into account file enumeration and recovery
-        could take a long time, use the TIMEOUT option to abort enumeration or recovery by
-        extension after that time (in seconds).
+        This module lists and attempts to recover deleted files from NTFS file systems. Use
+        the FILES option to guide recovery. Leave this option empty to enumerate deleted files in the
+        DRIVE. Set FILES to an extension (e.g., "pdf") to recover deleted files with that
+        extension, or set FILES to a comma separated list of IDs (from enumeration) to
+        recover those files. The user must have account file enumeration. Recovery
+        may take a long time; use the TIMEOUT option to abort enumeration or recovery by
+        extension after a specified period (in seconds).
       },
       'License'      => MSF_LICENSE,
       'Platform'     => ['win'],

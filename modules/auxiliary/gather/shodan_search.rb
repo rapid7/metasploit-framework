@@ -8,7 +8,7 @@ require 'rex'
 require 'net/https'
 require 'uri'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -144,7 +144,7 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     # Save the results to this table
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Search Results',
       'Indent'  => 1,
       'Columns' => ['IP:Port', 'City', 'Country', 'Hostname']

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SunRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     peer = "#{ip}:#{rport}"
-    vprint_status "#{peer} - SunRPC - Enumerating programs"
+    vprint_status "SunRPC - Enumerating programs"
 
     begin
       program		= 100000
@@ -48,9 +48,9 @@ class Metasploit3 < Msf::Auxiliary
       end
       sunrpc_destroy
       return if maps.empty?
-      vprint_good("#{peer} - Found #{maps.size} programs available")
+      vprint_good("Found #{maps.size} programs available")
 
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'  => "SunRPC Programs for #{ip}",
         'Indent'  => 1,
         'Columns' => %w(Name Number Version Port Protocol)

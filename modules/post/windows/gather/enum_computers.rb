@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
   end
 
   def list_computers(domain,hosts)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "List of Domain Hosts for the primary Domain.",
       'Indent'  => 1,
       'Columns' =>
