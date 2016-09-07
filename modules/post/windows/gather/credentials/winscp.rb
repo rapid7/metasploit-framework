@@ -115,11 +115,11 @@ class MetasploitModule < Msf::Post
     env = get_envs('APPDATA', prog_files_env, 'USERNAME')
 
     if env['APPDATA'].nil?
-      fail_with(Failure::Unknown, 'Target does not hav environment variable APPDATA')
+      fail_with(Failure::Unknown, 'Target does not have environment variable APPDATA')
     elsif env[prog_files_env].nil?
-      fail_with(Failure::Unknown, "Target does not hav environment variable #{prog_files_env}")
+      fail_with(Failure::Unknown, "Target does not have environment variable #{prog_files_env}")
     elsif env['USERNAME'].nil?
-      fail_with(Failure::Unknown, 'Target does not hav environment variable USERNAME')
+      fail_with(Failure::Unknown, 'Target does not have environment variable USERNAME')
     end
 
     user_dir = "#{env['APPDATA']}\\..\\.."
