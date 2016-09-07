@@ -1212,3 +1212,4 @@ SQL
 CMOSPWD
 dadmin
 wlcsystem
+vagrant
