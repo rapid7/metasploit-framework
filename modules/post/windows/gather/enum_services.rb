@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
       print_status("Start Type Filter: #{qtype}")
     end
 
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
         'Header'     => 'Services',
         'Indent'     => 1,
         'SortIndex'  => 0,

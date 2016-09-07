@@ -75,7 +75,7 @@ class Console::CommandDispatcher::Extapi::Wmi
     objects = client.extapi.wmi.query(query, root)
 
     if objects
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'    => query,
         'Indent'    => 0,
         'SortIndex' => 0,

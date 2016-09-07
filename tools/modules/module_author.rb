@@ -79,7 +79,7 @@ end
 $framework = Msf::Simple::Framework.create(framework_opts)
 
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Module References',
   'Indent'  => Indent.length,
   'Columns' => [ 'Module', 'Reference' ]
@@ -112,7 +112,7 @@ end
 
 puts tbl.to_s
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Module Count by Author',
   'Indent'  => Indent.length,
   'Columns' => [ 'Count', 'Name' ]

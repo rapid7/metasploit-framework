@@ -57,9 +57,10 @@ require 'rex/java'
 require 'rex/struct2'
 # Library for working with OLE
 require 'rex/ole'
+# Library for creating and/or parsing MIME messages
+require 'rex/mime'
 
 # Generic classes
-require 'rex/constants'
 require 'rex/exceptions'
 require 'rex/transformer'
 require 'rex/random_identifier'

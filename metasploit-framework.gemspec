@@ -30,12 +30,8 @@ Gem::Specification.new do |spec|
   spec.bindir = '.'
   if ENV['CREATE_BINSTUBS']
     spec.executables   = [
-      'msfbinscan',
       'msfconsole',
       'msfd',
-      'msfelfscan',
-      'msfmachscan',
-      'msfpescan',
       'msfrop',
       'msfrpc',
       'msfrpcd',
@@ -102,6 +98,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sshkey'
   # BitStruct Library used for handling certain Protocol Header/Packet construction
   spec.add_runtime_dependency 'bit-struct'
+  # Library for interpreting Windows error codes and strings
+  spec.add_runtime_dependency 'windows_error'
 
   #
   # Protocol Libraries
@@ -130,6 +128,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-arch'
   # Library for working with OLE.
   spec.add_runtime_dependency 'rex-ole'
+  # Library for creating and/or parsing MIME messages.
+  spec.add_runtime_dependency 'rex-mime'
+  # Library for parsing and manipulating executable binaries
+  spec.add_runtime_dependency 'rex-bin_tools'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
@@ -149,4 +151,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'tzinfo'
   # Needed so that disk size output isn't horrible
   spec.add_runtime_dependency 'filesize'
+  # Needed for openvas plugin
+  spec.add_runtime_dependency 'openvas-omp'
+  # Needed by metasploit nessus bridge
+  spec.add_runtime_dependency 'nessus_rest'
 end

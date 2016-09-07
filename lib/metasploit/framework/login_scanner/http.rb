@@ -161,6 +161,14 @@ module Metasploit
         #   @return [Boolean] Whether to conform to IIS digest authentication mode.
         attr_accessor :digest_auth_iis
 
+        # @!attribute http_username
+        # @return [String]
+        attr_accessor :http_username
+
+        # @!attribute http_password
+        # @return [String]
+        attr_accessor :http_password
+
 
         validates :uri, presence: true, length: { minimum: 1 }
 
@@ -171,7 +179,7 @@ module Metasploit
         # (see Base#check_setup)
         def check_setup
           http_client = Rex::Proto::Http::Client.new(
-            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies
+            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password
           )
           request = http_client.request_cgi(
             'uri' => uri,
@@ -213,8 +221,8 @@ module Metasploit
           cli_ssl         = opts['ssl'] || ssl
           cli_ssl_version = opts['ssl_version'] || ssl_version
           cli_proxies     = opts['proxies'] || proxies
-          username        = opts['credential'] ? opts['credential'].public : ''
-          password        = opts['credential'] ? opts['credential'].private : ''
+          username        = opts['credential'] ? opts['credential'].public : http_username
+          password        = opts['credential'] ? opts['credential'].private : http_password
           realm           = opts['credential'] ? opts['credential'].realm : nil
           context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
 

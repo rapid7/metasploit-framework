@@ -80,7 +80,7 @@ Windows and Linux.
     end
 
     if res && res.code == 200 && !res.body.empty?
-      cred_table = Rex::Ui::Text::Table.new(
+      cred_table = Rex::Text::Table.new(
         'Header'  => 'WebNMS Login Credentials',
         'Indent'  => 1,
         'Columns' =>

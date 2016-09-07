@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options(
         'USERNAME', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_USERS', 'NTLM::SendLM', 'NTLM::SendNTLM',
         'NTLM::SendSPN', 'NTLM::UseLMKey', 'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2',
-        'REMOVE_USERPASS_FILE', 'REMOVE_USER_FILE', 'DOMAIN'
+        'REMOVE_USERPASS_FILE', 'REMOVE_USER_FILE', 'DOMAIN', 'HttpUsername'
     )
   end
 

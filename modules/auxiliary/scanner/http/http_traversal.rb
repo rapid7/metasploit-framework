@@ -166,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
     req['uri']        = this_path
     req['headers']    = {'Cookie'=>datastore['COOKIE']} if not datastore['COOKIE'].empty?
     req['data']       = data if not data.empty?
-    req['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+    req['authorization'] = basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
 
     return req
   end

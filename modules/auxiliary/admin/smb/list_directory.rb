@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Listing \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}'...")
       end
       listing = self.simple.client.find_first("\\#{datastore['RPATH']}\\*")
-      directory = Rex::Ui::Text::Table.new(
+      directory = Rex::Text::Table.new(
             'Header' => "Directory Listing of \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}",
             'Indent' => 2,
             'SortIndex' => 2,

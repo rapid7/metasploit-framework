@@ -325,26 +325,39 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def update_session_info
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
+    tuple = self.platform.split('/')
 
-    self.platform =
-      self.sys.config.sysinfo["Architecture"].downcase + '/' +
-      self.platform.split('/')[0] +'/' +
-      case self.sys.config.sysinfo['OS']
-      when /windows/i
-        Msf::Module::Platform::Windows
-      when /darwin/i
-        Msf::Module::Platform::OSX
-      when /freebsd/i
-        Msf::Module::Platform::FreeBSD
-      when /netbsd/i
-        Msf::Module::Platform::NetBSD
-      when /openbsd/i
-        Msf::Module::Platform::OpenBSD
-      when /sunos/i
-        Msf::Module::Platform::Solaris
-      else
-        Msf::Module::Platform::Linux
+    #
+    # Windows meterpreter currently needs 'win32' or 'win64' to be in the
+    # second half of the platform tuple, in order for various modules and
+    # library code match on that specific string.
+    #
+    if self.platform !~ /win32|win64/
+
+      platform = case self.sys.config.sysinfo['OS']
+        when /windows/i
+          Msf::Module::Platform::Windows
+        when /darwin/i
+          Msf::Module::Platform::OSX
+        when /freebsd/i
+          Msf::Module::Platform::FreeBSD
+        when /netbsd/i
+          Msf::Module::Platform::NetBSD
+        when /openbsd/i
+          Msf::Module::Platform::OpenBSD
+        when /sunos/i
+          Msf::Module::Platform::Solaris
+        when /android/i
+          Msf::Module::Platform::Android
+        else
+          Msf::Module::Platform::Linux
       end.realname.downcase
+
+      #
+      # This normalizes the platform from 'python/python' to 'python/linux'
+      #
+      self.platform = "#{tuple[0]}/#{platform}"
+    end
 
 
     safe_info = "#{username} @ #{sysinfo['Computer']}"

@@ -356,7 +356,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # CREATE TABLE TO STORE SQL SERVER DATA LOOT
-    sql_data_tbl = Rex::Ui::Text::Table.new(
+    sql_data_tbl = Rex::Text::Table.new(
       'Header'  => 'SQL Server Data',
       'Indent'   => 1,
       'Columns' => ['Server', 'Database', 'Schema', 'Table', 'Column', 'Data Type', 'Sample Data', 'Row Count']

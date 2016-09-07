@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Post
 
     netview = netview.sort_by {|e| e[:type]}
 
-    results = Rex::Ui::Text::Table.new(
+    results = Rex::Text::Table.new(
       'Header' => 'Netdiscovery Results',
       'Indent' => 2,
       'Columns' => ['TYPE', 'IP', 'COMPUTER NAME', 'VERSION', 'COMMENT']

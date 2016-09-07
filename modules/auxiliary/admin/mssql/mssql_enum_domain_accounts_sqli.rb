@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{domain_users.length} user accounts, groups, and computer accounts were found.")
 
     # Create table for report
-    windows_domain_login_table = Rex::Ui::Text::Table.new(
+    windows_domain_login_table = Rex::Text::Table.new(
       'Header'  => 'Windows Domain Accounts',
       'Ident'   => 1,
       'Columns' => ['name']

@@ -226,7 +226,7 @@ class MetasploitModule < Msf::Post
       return nil
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'  =>  'MUICache Information',
       'Indent'  =>  1,
       'Columns' =>

@@ -259,7 +259,7 @@ class Console::CommandDispatcher::Kiwi
     fields = ['Server', 'Client', 'Start', 'End', 'Max Renew', 'Flags']
     fields << 'Export Path' if export
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'Kerberos Tickets',
       'Indent'    => 0,
       'SortIndex' => 0,
@@ -335,7 +335,7 @@ class Console::CommandDispatcher::Kiwi
 
     if results.length > 0
       results.each do |r|
-        table = Rex::Ui::Text::Table.new(
+        table = Rex::Text::Table.new(
           'Header'    => "#{r[:desc]} - #{r[:guid]}",
           'Indent'    => 0,
           'SortIndex' => 0,
@@ -471,7 +471,7 @@ protected
     print_status("Retrieving #{provider} credentials")
     accounts = method.call
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => "#{provider} credentials",
       'Indent'    => 0,
       'SortIndex' => 0,

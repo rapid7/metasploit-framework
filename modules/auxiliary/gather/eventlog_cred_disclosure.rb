@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'ManageEngine EventLog Analyzer Managed Devices Credentials',
       'Indent'  => 1,
       'Columns' =>

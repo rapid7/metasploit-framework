@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       return if maps.empty?
       vprint_good("Found #{maps.size} programs available")
 
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'  => "SunRPC Programs for #{ip}",
         'Indent'  => 1,
         'Columns' => %w(Name Number Version Port Protocol)

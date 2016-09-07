@@ -41,6 +41,7 @@ end
 
 def cleanup
   datastore['RHOST'] = @original_rhost
+  super
 end
 
 

@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Post
       print_status("No #{exclusion_type} exclusions for #{product}")
       return
     end
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => "#{product} excluded #{exclusion_type.pluralize}",
       'Indent'    => 1,
       'Columns'   => [ exclusion_type.capitalize ]
