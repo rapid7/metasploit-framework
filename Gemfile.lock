@@ -38,6 +38,7 @@ PATH
       rex-core
       rex-java
       rex-mime
+      rex-nop
       rex-ole
       rex-powershell
       rex-random_identifier
@@ -244,6 +245,8 @@ GEM
     rex-java (0.1.2)
     rex-mime (0.1.1)
       rex-text
+    rex-nop (0.1.0)
+      rex-arch
     rex-ole (0.1.2)
       rex-text
     rex-powershell (0.1.64)
@@ -260,7 +263,7 @@ GEM
       rex-text
     rkelly-remix (0.0.6)
     robots (0.10.1)
-    rspec-core (3.5.2)
+    rspec-core (3.5.3)
       rspec-support (~> 3.5.0)
     rspec-expectations (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
