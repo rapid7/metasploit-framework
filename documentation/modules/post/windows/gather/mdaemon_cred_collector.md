@@ -33,7 +33,7 @@ Output:
 [+] Found MDaemons on WIN-F7ANP3JL4GJ via session ID: 1
 [*]     Extracted: MDaemon:p0%AhBxvs4IZ
 [*]     Extracted: webmaster:Manuel123.
-[*] SMPT credentials saved in: /root/.msf4/loot/20160831194802_default_127.0.0.1_MDaemon.smtp_ser_754168.txt
+[*] SMTP credentials saved in: /root/.msf4/loot/20160831194802_default_127.0.0.1_MDaemon.smtp_ser_754168.txt
 [*]     Extracted: webmaster:Manuel123.
 [*] POP3 credentials saved in: /root/.msf4/loot/20160831194802_default_127.0.0.1_MDaemon.pop3_ser_608271.txt
 [*]     Extracted: webmaster:Manuel123.
@@ -73,7 +73,7 @@ Output:
 [*] Deleting tmp file: SFJOXMHZEFWA
 [*]     Extracted: MDaemon:p0%AhBxvs4IZ
 [*]     Extracted: webmaster:Manuel123.
-[*] SMPT credentials saved in: /root/.msf4/loot/20160831194819_default_127.0.0.1_MDaemon.smtp_ser_114741.txt
+[*] SMTP credentials saved in: /root/.msf4/loot/20160831194819_default_127.0.0.1_MDaemon.smtp_ser_114741.txt
 [*]     Extracted: webmaster:Manuel123.
 [*] POP3 credentials saved in: /root/.msf4/loot/20160831194819_default_127.0.0.1_MDaemon.pop3_ser_369240.txt
 [*]     Extracted: webmaster:Manuel123.
