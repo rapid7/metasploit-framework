@@ -54,7 +54,6 @@ module Msf::Payload::Dalvik
   def generate_config_hex(opts={})
     opts[:uuid] ||= generate_payload_uuid
 
-    # create the configuration block, which for staged connections is really simple.
     config_opts = {
       ascii_str:  true,
       arch:       opts[:uuid].arch,
@@ -63,7 +62,6 @@ module Msf::Payload::Dalvik
       transports: [transport_config(opts)]
     }
 
-    # create the configuration instance based off the parameters
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
     config.to_b.unpack('H*').first
   end
