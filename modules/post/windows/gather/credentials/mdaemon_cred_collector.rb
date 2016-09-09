@@ -204,7 +204,7 @@ class MetasploitModule < Msf::Post
     # report the goods!
     loot_path = store_loot('MDaemon.smtp_server.creds', 'text/csv', session, creds.to_csv,
       'mdaemon_smtp_server_credentials.csv', 'MDaemon SMTP Users Credentials')
-    print_status("SMPT credentials saved in: #{loot_path}")
+    print_status("SMTP credentials saved in: #{loot_path}")
   end
 
   def report_pop3(creds)
