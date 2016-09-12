@@ -32,7 +32,6 @@ Gem::Specification.new do |spec|
     spec.executables   = [
       'msfconsole',
       'msfd',
-      'msfrop',
       'msfrpc',
       'msfrpcd',
       'msfupdate',
@@ -142,6 +141,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-socket'
   # Library for scanning a server's SSL/TLS capabilities
   spec.add_runtime_dependency 'rex-sslscan'
+  # Library and tool for finding ROP gadgets in a supplied binary
+  spec.add_runtime_dependency 'rex-rop_builder'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
