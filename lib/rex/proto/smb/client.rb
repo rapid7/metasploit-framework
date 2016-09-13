@@ -840,7 +840,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       flags: ntlmssp_flags
     )
 
-
     blob = @ntlm_client.init_context.serialize
 
     native_data = ''
@@ -900,6 +899,14 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     # Save the temporary UserID for use in the next request
     temp_user_id = ack['Payload']['SMB'].v['UserID']
+
+    blob_data = NTLM_UTILS.parse_ntlm_type_2_blob(blob)
+    #netbios name
+    self.default_name =  blob_data[:default_name] || ''
+    #dns name
+    self.dns_host_name =  blob_data[:dns_host_name] || ''
+    #dns domain
+    self.dns_domain_name =  blob_data[:dns_domain_name] || ''
 
     type3 = @ntlm_client.init_context([blob].pack('m'))
     type3_blob = type3.serialize
