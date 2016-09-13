@@ -30,7 +30,10 @@ Windows and Linux.
         'License' => MSF_LICENSE,
         'References' =>
           [
-            [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ]
+            [ 'CVE', '2016-6601'],
+            [ 'CVE', '2016-6602'],
+            [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ],
+            [ 'URL', 'http://seclists.org/fulldisclosure/2016/Aug/54' ]
           ],
         'DisclosureDate' => 'Jul 4 2016'
       )
