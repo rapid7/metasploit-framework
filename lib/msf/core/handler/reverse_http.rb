@@ -3,7 +3,7 @@ require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
 require 'rex/payloads/meterpreter/uri_checksum'
 require 'rex/post/meterpreter'
-require 'rex/parser/x509_certificate'
+require 'rex/socket/x509_certificate'
 require 'msf/core/payload/windows/verify_ssl'
 require 'rex/user_agent'
 
