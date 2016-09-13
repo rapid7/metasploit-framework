@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Post
     else
       progs = progfiles_env['ProgramFiles'] # x86
     end
-    path = progs + '\\Steam\\config'
+    path = "#{progs}\\Steam\\config"
 
     print_status("Checking for Steam configs in #{path}")
 
