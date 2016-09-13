@@ -68,23 +68,21 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_vulnerable(ip)
-    options = {
-      :port => rport,
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :disable_agent => true,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+    opt_hash = {
+      port:          rport,
+      auth_methods:  ['password', 'keyboard-interactive'],
+      use_agent:     false,
+      config:        false,
+      proxies:       datastore['Proxies']
     }
 
     begin
-      transport = Net::SSH::Transport::Session.new(ip, options)
+      transport = Net::SSH::Transport::Session.new(ip, opt_hash)
     rescue Rex::ConnectionError
       return :connection_error
     end
 
-    auth = Net::SSH::Authentication::Session.new(transport, options)
+    auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
     auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
     auth_method = auth.allowed_auth_methods.join('|')
     print_status "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
@@ -111,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
       :msframework   => framework,
       :msfmodule     => self,
       :port          => port,
-      :disable_agent => true,
+      :use_agent     => false,
       :config        => false,
       :proxies       => datastore['Proxies']
     }

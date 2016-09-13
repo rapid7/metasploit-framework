@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.'])
+        OptPath.new('KEY_FILE', [true, 'Filename of one or several cleartext public keys.'])
       ]
     )
 
@@ -210,10 +210,9 @@ class MetasploitModule < Msf::Auxiliary
         :port         => port,
         :key_data     => key_data[:public],
         :use_agent     => false,
-        :record_auth_info  => true,
-        :skip_private_keys => true,
         :config =>false,
-        :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
+        #:skip_private_keys => true,
+        #:accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
         :proxy	  => factory,
         :non_interactive => true
       }
@@ -222,7 +221,7 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         ssh_socket = nil
-        ::Timeout.timeout(datastore['SSH_TIMEOUT']) { ssh_socket = Net::SSH.start(ip, user, opt_hash) } rescue nil
+        ::Timeout.timeout(datastore['SSH_TIMEOUT']) { ssh_socket = Net::SSH.start(ip, user, opt_hash) }
 
         if datastore['SSH_BYPASS'] and ssh_socket
           data = nil
@@ -257,8 +256,10 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       accepted.each do |key|
-        private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
-        print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key[:key][:fingerprint]}' (Private Key: #{private_key_present}) #{key_info}"
+        private_key_present = (key[:data][:private] != "") ? 'Yes' : 'No'
+        key_fingerprint = key[:key][:fingerprint]
+        print_brute :level => :good, :msg => \
+          "Public key accepted: '#{user}' with key '#{key_fingerprint}' (Private Key: #{private_key_present}) #{key_info}"
         do_report(ip, rport, user, key)
       end
     end
@@ -352,9 +353,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    # Since SSH collects keys and tries them all on one authentication session, it doesn't
-    # make sense to iteratively go through all the keys individually. So, ignore the pass variable,
-    # and try all available keys for all users.
+    # Since SSH collects keys and tries them all on one authentication session,
+    # it doesn't make sense to iteratively go through all the keys
+    # individually. So, ignore the pass variable, and try all available keys
+    # for all users.
     each_user_pass do |user,pass|
       ret, _ = do_login(ip, rport, user)
       case ret

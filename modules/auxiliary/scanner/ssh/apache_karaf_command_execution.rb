@@ -71,24 +71,27 @@ class MetasploitModule < Msf::Auxiliary
   def do_login(user, pass, ip)
     factory = ssh_socket_factory
     opts = {
-      :auth_methods => ['password'],
-      :port         => rport,
-      :disable_agent => true,
-      :config => false,
-      :password         => pass,
-      :record_auth_info => true,
-      :proxy            => factory,
-      :non_interactive => true
+      auth_methods:    ['password'],
+      port:            rport,
+      config:          false,
+      use_agent:       false,
+      password:        pass,
+      proxy:           factory,
+      non_interactive: true
     }
 
-    opts.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+    opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
     begin
-      ssh = nil
-      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        ssh = Net::SSH.start(ip, user, opts)
+      ssh = ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+        Net::SSH.start(ip, user, opts)
       end
-    rescue OpenSSL::Cipher::CipherError => e
+      if ssh
+        print_good("#{ip}:#{rport}- Login Successful with '#{user}:#{pass}'")
+      else
+        print_error "#{ip}:#{rport} - Unknown error"
+      end
+    rescue OpenSSL:Cipher::CipherError: e
       print_error("#{ip}:#{rport} SSH - Unable to connect to this Apache Karaf (#{e.message})")
       return
     rescue Rex::ConnectionError
@@ -101,16 +104,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     rescue Net::SSH::AuthenticationFailed
       print_error "#{ip}:#{rport} SSH - Failed authentication"
-    rescue Net::SSH::Exception => e
+    rescue Net:SSH::Exception: e
       print_error "#{ip}:#{rport} SSH Error: #{e.class} : #{e.message}"
       return
     end
 
-    if ssh
-      print_good("#{ip}:#{rport}- Login Successful with '#{user}:#{pass}'")
-    else
-      print_error "#{ip}:#{rport} - Unknown error"
-    end
     ssh
   end
 

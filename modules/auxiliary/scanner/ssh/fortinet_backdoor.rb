@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       port:         rport,
       auth_methods: ['fortinet-backdoor'],
       proxy: factory,
-      :non_interactive => true
+      non_interactive: true
     }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
