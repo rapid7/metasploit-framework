@@ -1,7 +1,5 @@
 ## Verification Steps
 
-  Example steps in this format:
-
   1. Start msfconsole
   2. Get a session via exploit of your choice
   3. Do: `use post/linux/gather/hashdump`
