@@ -43,6 +43,7 @@ PATH
       rex-powershell
       rex-random_identifier
       rex-registry
+      rex-rop_builder
       rex-socket
       rex-sslscan
       rex-struct2
@@ -256,6 +257,10 @@ GEM
     rex-random_identifier (0.1.0)
       rex-text
     rex-registry (0.1.0)
+    rex-rop_builder (0.1.0)
+      metasm
+      rex-core
+      rex-text
     rex-socket (0.1.0)
       rex-core
     rex-sslscan (0.1.0)
