@@ -33,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '48225' ],
         ],
       'Author'      => [ 'patrick' ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Jan 9 2009'
     )
 
     register_options(

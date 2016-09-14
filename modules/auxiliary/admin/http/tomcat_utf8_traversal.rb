@@ -33,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
         ],
       'Author'      => [ 'patrick','guerrino <ruggine> di massa' ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Jan 9 2009'
     )
 
     register_options(
