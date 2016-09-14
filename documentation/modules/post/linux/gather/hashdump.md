@@ -7,7 +7,7 @@
   3. Do: `use post/linux/gather/hashdump`
   4. Do: `set session <session>`
   5. Do: `run`
-  5. You should see the contents of the shadow file
+  6. You should see the contents of the shadow file
 
 ## Options
 

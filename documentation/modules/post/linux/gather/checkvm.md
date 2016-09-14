@@ -20,7 +20,7 @@ There are many locations that are checked for having evidence of being a virtual
   3. Do: `use post/linux/gather/checkvm`
   4. Do: `set session <session>`
   5. Do: `run`
-  5. You should get feedback if a virtual machine environment was detected
+  6. You should get feedback if a virtual machine environment was detected
 
 ## Options
 
