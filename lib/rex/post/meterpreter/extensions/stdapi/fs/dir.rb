@@ -203,7 +203,7 @@ class Dir < Rex::Post::Dir
     tries_cnt = 0
     if opts
       timestamp = opts["timestamp"]
-      recursive = true if opts["recursive"]     
+      recursive = true if opts["recursive"]
       continue = true if opts["continue"]
       tries = true if opts["tries"]
       tries_no = opts["tries_no"]

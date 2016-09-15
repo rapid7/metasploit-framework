@@ -377,7 +377,6 @@ private
 
     if stat.directory?
       client.fs.dir.download( dest, source, {"recursive" => true}, true ) { |step, src, dst|
-#      client.fs.dir.download( dest, source, true, true ) { |step, src, dst|
         print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
         client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
       }
