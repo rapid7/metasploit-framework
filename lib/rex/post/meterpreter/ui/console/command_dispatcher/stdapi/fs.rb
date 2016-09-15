@@ -25,7 +25,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@download_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
     "-c" => [ false, "Resume getting a partially-downloaded file." ],
-    "-l" => [ true, "Set the limit of retries (0 unlimits)." ],
+    "-l" => [ true,  "Set the limit of retries (0 unlimits)." ],
     "-r" => [ false, "Download recursively." ],
     "-t" => [ false, "Timestamp downloaded files." ])
   #
@@ -39,7 +39,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   @@ls_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
-    "-S" => [ true, "Search string." ],
+    "-S" => [ true,  "Search string." ],
     "-t" => [ false, "Sort by time" ],
     "-s" => [ false, "Sort by size" ],
     "-r" => [ false, "Reverse sort order" ],
@@ -66,7 +66,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'mkdir'      => 'Make directory',
       'pwd'        => 'Print working directory',
       'rm'         => 'Delete the specified file',
-      'mv'	       => 'Move source to destination',
+      'mv'         => 'Move source to destination',
       'rmdir'      => 'Remove directory',
       'search'     => 'Search for files',
       'upload'     => 'Upload a file or directory',
@@ -341,7 +341,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     continue  = false
     tries     = false
     tries_no  = 0
-    opts = {}
+    opts      = {}
 
     @@download_opts.parse(args) { |opt, idx, val|
       case opt
@@ -408,7 +408,6 @@ class Console::CommandDispatcher::Stdapi::Fs
             dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
 
             client.fs.file.download(dest_path, src_path, opts) do |step, src, dst|
-              puts step
               print_status("#{step.ljust(11)}: #{src} -> #{dst}")
               client.framework.events.on_session_download(client, src, dest) if msf_loaded?
             end
