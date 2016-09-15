@@ -211,8 +211,6 @@ class MetasploitModule < Msf::Auxiliary
         :key_data     => key_data[:public],
         :use_agent     => false,
         :config =>false,
-        #:skip_private_keys => true,
-        #:accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
         :proxy	  => factory,
         :non_interactive => true
       }
