@@ -778,8 +778,13 @@ class Core
         if dump_json
           print(Serializer::Json.dump_module(active_module) + "\n")
         elsif show_doc
-          print_status("Please wait, generating documentation for #{active_module.shortname}")
-          Msf::Util::DocumentGenerator.spawn_module_document(active_module)
+          f = Rex::Quickfile.new(["#{active_module.shortname}_doc", '.html'])
+          begin
+            print_status("Generating documentation for #{active_module.shortname}, then opening #{f.path} in a browser...")
+            Msf::Util::DocumentGenerator.spawn_module_document(active_module, f)
+          ensure
+            f.close if f
+          end
         else
           print(Serializer::ReadableText.dump_module(active_module))
         end
@@ -801,8 +806,13 @@ class Core
       elsif dump_json
         print(Serializer::Json.dump_module(mod) + "\n")
       elsif show_doc
-        print_status("Please wait, generating documentation for #{mod.shortname}")
-        Msf::Util::DocumentGenerator.spawn_module_document(mod)
+        f = Rex::Quickfile.new(["#{active_module.shortname}_doc", '.html'])
+        begin
+          print_status("Generating documentation for #{active_module.shortname}, then opening #{f.path} in a browser...")
+          Msf::Util::DocumentGenerator.spawn_module_document(active_module, f)
+        ensure
+          f.close if f
+        end
       else
         print(Serializer::ReadableText.dump_module(mod))
       end

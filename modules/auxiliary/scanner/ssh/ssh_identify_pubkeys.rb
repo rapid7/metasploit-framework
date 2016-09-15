@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH
 
   def initialize
     super(
@@ -46,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(22),
         OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.'])
-      ], self.class
+      ]
     )
 
     register_advanced_options(
@@ -59,7 +60,9 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS')
+    deregister_options(
+      'RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
+    )
 
     @good_credentials = {}
     @good_key = ''
@@ -69,6 +72,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def key_dir
     datastore['KEY_DIR']
+  end
+
+  def key_file
+    datastore['KEY_FILE']
   end
 
   def rport
@@ -95,8 +102,8 @@ class MetasploitModule < Msf::Auxiliary
     this_key = []
     in_key = false
     keyfile.split("\n").each do |line|
-      if line =~ /ssh-(dss|rsa)\s+/
-        keys << line
+      if /(?<key>ssh-(?:dss|rsa)\s+.*)/ =~ line
+        keys << key
         next
       end
       in_key = true if(line =~ /^-----BEGIN [RD]SA (PRIVATE|PUBLIC) KEY-----/)
@@ -162,8 +169,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_login(ip, port, user)
 
-    if datastore['KEY_FILE'] and File.readable?(datastore['KEY_FILE'])
-      keys = read_keyfile(datastore['KEY_FILE'])
+    if key_file && File.readable?(key_file)
+      keys = read_keyfile(key_file)
       cleartext_keys = pull_cleartext_keys(keys)
       msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
     elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
@@ -197,18 +204,18 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       accepted = []
+      factory = ssh_socket_factory
       opt_hash = {
         :auth_methods => ['publickey'],
-        :msframework  => framework,
-        :msfmodule    => self,
         :port         => port,
         :key_data     => key_data[:public],
-        :disable_agent     => true,
+        :use_agent     => false,
         :record_auth_info  => true,
         :skip_private_keys => true,
         :config =>false,
         :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
-        :proxies	  => datastore['Proxies']
+        :proxy	  => factory,
+        :non_interactive => true
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

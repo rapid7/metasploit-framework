@@ -13,7 +13,7 @@ class EXE
 require 'rex'
 require 'rex/peparsey'
 require 'rex/pescan'
-require 'rex/random_identifier_generator'
+require 'rex/random_identifier'
 require 'rex/zip'
 require 'rex/powershell'
 require 'metasm'
@@ -72,6 +72,29 @@ require 'msf/core/exe/segment_appender'
     template = ''
     File.open(template_pathname, "rb") {|f| template = f.read}
     template % hash_sub
+  end
+
+
+  # Generates a ZIP file.
+  #
+  # @param files [Array<Hash>] Items to compress. Each item is a hash that supports these options:
+  #  * :data - The content of the file.
+  #  * :fname - The file path in the ZIP file
+  #  * :comment - A comment
+  # @example Compressing two files, one in a folder called 'test'
+  #   Msf::Util::EXE.to_zip([{data: 'AAAA', fname: "file1.txt"}, {data: 'data', fname: 'test/file2.txt'}])
+  # @return [String]
+  def self.to_zip(files)
+    zip = Rex::Zip::Archive.new
+
+    files.each do |f|
+      data    = f[:data]
+      fname   = f[:fname]
+      comment = f[:comment] || ''
+      zip.add_file(fname, data, comment)
+    end
+
+    zip.pack
   end
 
   # Executable generators
@@ -1216,7 +1239,7 @@ require 'msf/core/exe/segment_appender'
                     method: 'reflection')
 
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:sub_auto_open)
     rig.init_var(:var_powershell)
 
@@ -1243,18 +1266,22 @@ require 'msf/core/exe/segment_appender'
 
     hash_sub = {}
     hash_sub[:exe_filename]  = opts[:exe_filename] || Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
+    hash_sub[:base64_filename]  = Rex::Text.rand_text_alpha(rand(8)+8) << '.b64'
     hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_fname]     = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_func]      = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_stream]    = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_obj]       = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_shell]     = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempdir]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempexe]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_basedir]   = Rex::Text.rand_text_alpha(rand(8)+8)
-
-    hash_sub[:hex_shellcode] = exes.unpack('H*').join('')
-
+    hash_sub[:base64_shellcode] = Rex::Text.encode_base64(exes)
+    hash_sub[:var_decodefunc] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_xml] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_xmldoc] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_decoded] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_adodbstream] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_decodebase64] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:init] = ""
 
     if persist
@@ -1307,7 +1334,7 @@ require 'msf/core/exe/segment_appender'
 
   def self.to_mem_aspx(framework, code, exeopts = {})
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:var_funcAddr)
     rig.init_var(:var_hThread)
     rig.init_var(:var_pInfo)
@@ -1370,7 +1397,7 @@ require 'msf/core/exe/segment_appender'
                     method: 'reflection')
 
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:var_shell)
     rig.init_var(:var_fso)
 
@@ -2237,9 +2264,9 @@ require 'msf/core/exe/segment_appender'
       "msi-nouac",
       "osx-app",
       "psh",
+      "psh-cmd",
       "psh-net",
       "psh-reflection",
-      "psh-cmd",
       "vba",
       "vba-exe",
       "vba-psh",

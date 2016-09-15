@@ -464,7 +464,7 @@ module Md5LookupUtility
     # Checks if the hash format is MD5 or not
     #
     # @param md5_hash [String] The MD5 hash (hex)
-    # @return [TrueClass/FlaseClass] True if the format is valid, otherwise false
+    # @return [TrueClass/FalseClass] True if the format is valid, otherwise false
     def is_md5_format?(md5_hash)
       (md5_hash =~ /^[a-f0-9]{32}$/i) ? true : false
     end

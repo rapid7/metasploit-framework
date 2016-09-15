@@ -12,24 +12,27 @@ class OptRegexp < OptBase
     return 'regexp'
   end
 
-  def valid?(value)
-    unless super
+  def valid?(value, check_empty: true)
+    if check_empty && empty_required_value?(value)
       return false
+    elsif value.nil?
+      return true
     end
-    return true if (not required? and value.nil?)
 
     begin
       Regexp.compile(value)
-
-      return true
+      return super
     rescue RegexpError, TypeError
       return false
     end
   end
 
   def normalize(value)
-    return nil if value.nil?
-    return Regexp.compile(value.to_s)
+    if value.nil? || value.kind_of?(Regexp)
+      value
+    else
+      Regexp.compile(value.to_s)
+    end
   end
 
   def display_value(value)
@@ -38,8 +41,7 @@ class OptRegexp < OptBase
     elsif value.kind_of?(String)
       return display_value(normalize(value))
     end
-
-    return super
+    super
   end
 end
 

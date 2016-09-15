@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       :info => "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
     )
 
-    table = Rex::Ui::Text::Table.new({
+    table = Rex::Text::Table.new({
       'Header' => 'Windows Deployment Services',
       'Indent' => 1,
       'Columns' => ['Architecture', 'Type', 'Domain', 'Username', 'Password']

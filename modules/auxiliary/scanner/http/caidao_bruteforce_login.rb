@@ -15,8 +15,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Chinese Caidao Backdoor Bruteorce',
-      'Description'    => 'This module attempts to brute chinese caidao asp/php/aspx backdoor.',
+      'Name'           => 'Chinese Caidao Backdoor Bruteforce',
+      'Description'    => 'This module attempts to bruteforce chinese caidao asp/php/aspx backdoor.',
       'Author'         => [ 'Nixawk' ],
       'References'     => [
         ['URL', 'https://www.fireeye.com/blog/threat-research/2013/08/breaking-down-the-china-chopper-web-shell-part-i.html'],
@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       ], self.class)
 
     # caidao does not have an username, there's only password
-    deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')
+    deregister_options('HttpUsername', 'HttpPassword', 'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')
   end
 
   def scanner(ip)
@@ -61,7 +61,9 @@ class MetasploitModule < Msf::Auxiliary
           cred_details:       cred_collection,
           stop_on_success:    datastore['STOP_ON_SUCCESS'],
           bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
-          connection_timeout: 5
+          connection_timeout: 5,
+          http_username: datastore['HttpUsername'],
+          http_password: datastore['HttpPassword']
         ))
     }.call
   end

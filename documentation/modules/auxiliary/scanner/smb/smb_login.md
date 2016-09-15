@@ -115,3 +115,12 @@ set SMBPass [password]
 
 Note: If an account has been successfully brute-forced, that account will not be tried again.
 
+Additionally, if you wish to disable automatic detection of all-access systems, you can change the following option:
+
+**The DETECT_ANY_AUTH option**
+
+This option enables detection of systems accepting any authentication. A bogus login will be attempted.
+
+```
+set DETECT_ANY_AUTH false
+```

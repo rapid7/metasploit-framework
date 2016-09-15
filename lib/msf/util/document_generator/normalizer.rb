@@ -6,6 +6,8 @@ module Redcarpet
     class MsfMdHTML < Redcarpet::Render::HTML
 
       def block_code(code, language)
+        code = $1 if code =~ /^<ruby>(.+)<\/ruby>/m
+
         "<pre>" \
           "<code>#{code}</code>" \
         "</pre>"

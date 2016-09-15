@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
 
     storage_data = vss_get_storage
     if storage_data
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
           'Header'  => 'Shadow Copy Storage Data',
           'Indent'  => 1,
           'Columns' => ['Field', 'Value']

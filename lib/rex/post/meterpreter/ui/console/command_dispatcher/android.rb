@@ -111,7 +111,7 @@ class Console::CommandDispatcher::Android
           header << " at #{time.strftime('%Y-%m-%d %H:%M:%S')}"
         end
 
-        table = Rex::Ui::Text::Table.new(
+        table = Rex::Text::Table.new(
           'Header'    => header,
           'SortIndex' => 0,
           'Columns'   => result[:headers],
@@ -616,7 +616,7 @@ class Console::CommandDispatcher::Android
     result = client.android.sqlite_query(database, query, writeable)
     unless writeable
       header = "#{query} on database file #{database}"
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'    => header,
         'Columns'   => result[:columns],
         'Indent'    => 0

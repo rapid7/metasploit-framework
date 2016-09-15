@@ -182,7 +182,7 @@ class Console::CommandDispatcher::Core
 
     case mode
     when :list
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => 4,
         'Columns' =>
           [
@@ -732,7 +732,7 @@ class Console::CommandDispatcher::Core
       end
 
       # next draw up a table of transport entries
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'SortIndex' => 0, # sort by ID
         'Indent'    => 4,
         'Columns'   => columns)

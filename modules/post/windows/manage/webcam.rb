@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Post
     end
 
     if show
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Header'  => 'Webcam List',
         'Indent'  => 1,
         'Columns' => ['Index', 'Name']

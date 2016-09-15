@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
 
   def run
 
-    tech = datastore['TECHNIQUE'].to_i
+    technique = datastore['TECHNIQUE'].to_i
 
     unsupported if client.platform !~ /win32|win64/i
 
@@ -48,11 +48,11 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    result = client.priv.getsystem( tech )
-    if result and result[0]
-      print_good( "Obtained SYSTEM via technique #{result[1]}" )
-    else
-      print_error( "Failed to obtain SYSTEM access" )
+    begin
+      result = client.priv.getsystem(technique)
+      print_good("Obtained SYSTEM via technique #{result[1]}")
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error("Failed to obtain SYSTEM access")
     end
   end
 

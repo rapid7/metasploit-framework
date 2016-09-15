@@ -7,6 +7,8 @@ require 'msf/core'
 require 'net/ssh'
 require 'metasploit/framework/login_scanner/ssh'
 require 'metasploit/framework/credential_collection'
+require 'sshkey'
+require 'net/ssh/command_stream'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -140,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
     return cleartext_keys
   end
 
-  def session_setup(result, ssh_socket)
+  def session_setup(result, ssh_socket, fingerprint)
     return unless ssh_socket
 
     # Create a new session from the socket
@@ -157,8 +159,9 @@ class MetasploitModule < Msf::Auxiliary
       'KEY_PATH'        => nil
     }
 
-    info = "SSH #{result.credential.public}:#{ssh_socket.auth_info[:pubkey_id]} (#{ip}:#{rport})"
+    info = "SSH #{result.credential.public}:#{fingerprint} (#{ip}:#{rport})"
     s = start_session(self, info, merge_me, false, conn.lsock)
+    self.sockets.delete(ssh_socket.transport.socket)
 
     # Set the session platform
     case result.proof
@@ -228,7 +231,9 @@ class MetasploitModule < Msf::Auxiliary
           credential_core = create_credential(credential_data)
           credential_data[:core] = credential_core
           create_credential_login(credential_data)
-          session_setup(result, scanner.ssh_socket)
+          tmp_key = result.credential.private
+          ssh_key = SSHKey.new tmp_key
+          session_setup(result, scanner.ssh_socket, ssh_key.fingerprint)
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']

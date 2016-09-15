@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
       'SessionTypes' => [ 'meterpreter' ],
       'References'   =>
             [
-              ['URL', 'https:/github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos']
+              ['URL', 'https://github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos']
             ]
     ))
 

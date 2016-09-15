@@ -1,24 +1,30 @@
-PhoenixContact Programmable Logic Controllers are built are using a variant of ProConOS. 
- Communicating using a proprietary protocol over ports TCP/1962 and TCP/41100 or TCP/20547.
-It allows a remote user to read out the PLC Type, Firmware and Build number on port TCP/1962.
-And also to read out the CPU State (Running or Stopped) AND start or stop the CPU on 
-port TCP/20547 (confirmed for the PLC series ILC 15x and 17x)
-or   TCP/41100 (confirmed for the ILC 39x series)
-other series may or may not work, a very big chance that they will
+PhoenixContact Programmable Logic Controllers are built are using a variant of
+ProConOS. The communicate using a proprietary protocol over ports TCP/1962 and
+TCP/41100 or TCP/20547.  This protocol allows a user to remotely determine the
+PLC type, firmware and build number on port TCP/1962.  A user can also
+determine the CPU State (Running or Stopped) and start or stop the CPU.
+
+This functionality is confirmed for the PLC series ILC 15x and 17x on TCP port
+20547, and for the ILC 39x series on TCP port 41100. Other series may or
+may not work, but there is a good chance that they will
 
 ## Vulnerable Application
 
-This is a hardware zero-day vulnerability that CANNOT be patched, the only mittigation is pulling the plug (literally),
-adding a separate network in front of it (Firewall, Router, IDS, IPS, network segmentation, etc...)
-or not allowing bad people on your network .
- 
-In general most, if not all, PLC's (computers that control engines, robots, conveyor belts, sensors, camera's, doorlocks, CRACs ...)
-have this vulnerability where, using their own tools, remote configuration and programming can be done *WITHOUT* authentication. 
-Investigators and underground hackers are just now creating simple tools to convert the often proprietary protocols into (simple) scripts.
- 
-The most important word here is proprietary. Right now the only thing stopping very bad stuff from happening.
-PhoenixContact uses an (unnamed?) low-level protocol for connection, information exchange and configuration of its PLC devices.
-This script utilises that protocol for finding information and switching the PLC mode from STOP to RUN and vice versa
+This is a hardware zero-day vulnerability that CANNOT be patched. Possible
+mitigations include: pulling the plug (literally), using network isolation
+(Firewall, Router, IDS, IPS, network segmentation, etc...) or not allowing bad
+people on your network.
+
+Most, if not all, PLC's (computers that control engines, robots, conveyor
+belts, sensors, camera's, doorlocks, CRACs ...) have vulnerabilities where,
+using their own tools, remote configuration and programming can be done
+*WITHOUT* authentication.  Investigators and underground hackers are just now
+creating simple tools to convert the, often proprietary, protocols into simple
+scripts.  The operating word here is proprietary. Right now, the only thing
+stopping very bad stuff from happening.  PhoenixContact uses an (unnamed?)
+low-level protocol for connection, information exchange and configuration of
+its PLC devices.  This script utilizes that protocol for finding information
+and switching the PLC mode from STOP to RUN and vice-versa.
 
 ## Verification Steps
 
@@ -58,7 +64,7 @@ msf auxiliary(phoenix_command) > run
 [*] Auxiliary module execution completed
 ```
 
-## Options
+## Module Options
 ```
 msf auxiliary(phoenix_command) > show options
 
@@ -72,38 +78,41 @@ Module options (auxiliary/admin/scada/phoenix_command):
    RPORT                       no        Set action port, will try autodetect when not set
 ```
 
-By default, the module only reads out the PLC Type, Firmware version, Build date and current CPU mode (RUNning or STOPped)
+By default, the module only reads out the PLC Type, Firmware version, Build
+date and current CPU mode (RUNing or STOPed)
 
-The first three pieces of data (Type, Firmware & Build) are always found on port TCP/1962 
- (there is no way of changing that port on the PLC, so also no reason to change the 'RINFOPORT' option)
+The first three pieces of data (Type, Firmware & Build) are always found on
+port TCP/1962 (there is no way of changing that port on the PLC, so also no
+reason to change the 'RINFOPORT' option)
 
- The CPU mode uses a TCP port depending on the PLC Type, the module will automatically detect the type and port to use,
-but can be overridden with the 'RPORT' option, however no real reason to configure it.
---> If 'RPORT' is set for some reason (e.g. because of an earlier "setg RPORT" command), it can be unset with:
-```
-msf auxiliary(phoenix_command) > unset RPORT
-Unsetting RPORT...
-```
+The CPU mode uses a TCP port depending on the PLC Type, the module will
+automatically detect the type and port to use, but can be overridden with the
+'RPORT' option, however no real reason to configure it. If you accidentally set RPORT, you can unset it with the ```unset RPORT``` command.
 
 **The ACTION option**
-Action only has four (4) possible values:
 
-By default, the module will do nothing to the PLC, therefore No Operation or 'NOOP'
+Action has four possible values:
+
+By default, the module will do nothing to the PLC, therefore No Operation or 'NOOP':
+
 ```
 msf auxiliary(phoenix_command) > set ACTION NOOP
 ```
 
-The PLC can be forced to go into STOP mode, meaning it stops all execution and all outputs are set to low
+The PLC can be forced to go into STOP mode, meaning it stops all execution and all outputs are set to low:
+
 ```
 msf auxiliary(phoenix_command) > set ACTION STOP
 ```
 
-The PLC can be forced to go into RUN mode, it keeps running it was or it will start executing its current boot programming
+The PLC can be forced to go into RUN mode, where it keeps running it was or it will start executing its current boot programming:
+
 ```
 msf auxiliary(phoenix_command) > set ACTION START
 ```
 
-The module can also just read out the CPU mode and then reverse whatever it finds, RUN becomes STOP, STOP becomes RUN
+The module can also just read out the CPU mode and then reverse whatever it finds, RUN becomes STOP, STOP becomes RUN:
+
 ```
 msf auxiliary(phoenix_command) > set ACTION REV
 ```

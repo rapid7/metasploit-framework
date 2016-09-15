@@ -32,6 +32,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8834),
         OptString.new('TARGETURI', [ true,  'The path to the Nessus server login API', '/session']),
       ], self.class)
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
 

@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
     shadow_copies = vss_list
     unless shadow_copies.empty?
       shadow_copies.each do |copy|
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Header'  => 'Shadow Copy Data',
           'Indent'  => 1,
           'Columns' => ['Field', 'Value']

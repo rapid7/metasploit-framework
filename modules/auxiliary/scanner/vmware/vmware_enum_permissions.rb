@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       when :error
         print_error "An error occured while trying to enumerate the permissions on #{ip}"
       else
-        tmp_perms = Rex::Ui::Text::Table.new(
+        tmp_perms = Rex::Text::Table.new(
             'Header'  => "Permissions for VMWare #{ip}",
             'Indent'  => 1,
             'Columns' => ['Name', 'IsAGroup', 'Role', 'Role Summary']

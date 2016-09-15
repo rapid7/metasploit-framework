@@ -4,3 +4,4 @@ role1
 root
 tomcat
 s3cret
+vagrant

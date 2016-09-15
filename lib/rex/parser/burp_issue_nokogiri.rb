@@ -111,7 +111,6 @@ module Rex
         return unless @state[:service_object]
         return unless @state[:vuln_name]
         return unless @state[:issue_detail]
-        return unless @state[:refs]
         vuln_info = {workspace: @args[:wspace]}
         vuln_info[:service_id] = @state[:service_object].id
         vuln_info[:host] = @state[:host]
