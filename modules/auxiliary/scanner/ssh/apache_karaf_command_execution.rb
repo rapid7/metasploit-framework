@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         print_error "#{ip}:#{rport} - Unknown error"
       end
-    rescue OpenSSL:Cipher::CipherError: e
+    rescue OpenSSL::Cipher::CipherError => e
       print_error("#{ip}:#{rport} SSH - Unable to connect to this Apache Karaf (#{e.message})")
       return
     rescue Rex::ConnectionError
@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     rescue Net::SSH::AuthenticationFailed
       print_error "#{ip}:#{rport} SSH - Failed authentication"
-    rescue Net:SSH::Exception: e
+    rescue Net::SSH::Exception => e
       print_error "#{ip}:#{rport} SSH Error: #{e.class} : #{e.message}"
       return
     end
