@@ -12,8 +12,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
-      'Description' => %q{
+      'Name'           => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
+      'Description'    => %q{
         This module tests whether a directory traversal vulnerablity is present
         in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.
         The vulnerability appears to be actually caused by the Tomcat UTF-8
@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         Note that in the Trend Micro appliance, /etc/shadow is not used and therefore
         password hashes are stored and anonymously accessible in the passwd file.
         },
-      'References'  =>
+      'References'     =>
         [
           [ 'URL', 'http://tomcat.apache.org/' ],
           [ 'OSVDB', '47464' ],
@@ -32,8 +32,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '17388' ],
           [ 'BID', '48225' ],
         ],
-      'Author'      => [ 'patrick' ],
-      'License'     => MSF_LICENSE
+      'Author'         => [ 'patrick' ],
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Jan 9 2009'
     )
 
     register_options(

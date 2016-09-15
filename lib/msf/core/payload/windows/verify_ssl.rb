@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'rex/parser/x509_certificate'
+require 'rex/socket/x509_certificate'
 
 module Msf
 
@@ -25,7 +25,7 @@ module Payload::Windows::VerifySsl
       raise ArgumentError, "Verifying SSL cert is enabled but no handler cert is configured"
     end
 
-    hash = Rex::Parser::X509Certificate.get_cert_file_hash(handler_cert)
+    hash = Rex::Socket::X509Certificate.get_cert_file_hash(handler_cert)
     print_status("Meterpreter will verify SSL Certificate with SHA1 hash #{hash.unpack("H*").first}")
     hash
   end
