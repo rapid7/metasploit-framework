@@ -208,7 +208,8 @@ class MetasploitModule < Msf::Auxiliary
       opt_hash = {
         :auth_methods => ['publickey'],
         :port         => port,
-        :key_data     => key_data[:public],
+        #:key_data     => key_data[:public],
+        :keys => [ datastore['KEY_FILE'] ],
         :use_agent     => false,
         :config =>false,
         :proxy	  => factory,
