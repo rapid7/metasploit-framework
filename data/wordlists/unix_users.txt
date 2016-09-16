@@ -109,3 +109,4 @@ www-data
 xpdb
 xpopr
 zabbix
+vagrant

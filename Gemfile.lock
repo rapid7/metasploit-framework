@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.12.23)
+    metasploit-framework (4.12.26)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -18,6 +18,7 @@ PATH
       metasploit_data_models
       metasploit_payloads-mettle (= 0.0.6)
       msgpack
+      nessus_rest
       net-ssh
       network_interface
       nokogiri
@@ -33,15 +34,23 @@ PATH
       recog
       redcarpet
       rex-arch
+      rex-bin_tools
+      rex-core
       rex-java
+      rex-mime
+      rex-nop
       rex-ole
       rex-powershell
       rex-random_identifier
       rex-registry
+      rex-rop_builder
+      rex-socket
+      rex-sslscan
       rex-struct2
       rex-text
       rex-zip
       robots
+      rubyntlm
       rubyzip
       sqlite3
       sshkey
@@ -82,7 +91,7 @@ GEM
     arel (6.0.3)
     arel-helpers (2.3.0)
       activerecord (>= 3.1.0, < 6)
-    aruba (0.14.1)
+    aruba (0.14.2)
       childprocess (~> 0.5.6)
       contracts (~> 0.9)
       cucumber (>= 1.3.19)
@@ -92,7 +101,7 @@ GEM
     bcrypt (3.1.11)
     bit-struct (0.15.0)
     builder (3.2.2)
-    capybara (2.7.1)
+    capybara (2.8.1)
       addressable
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -179,6 +188,7 @@ GEM
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
+    nessus_rest (0.1.4)
     net-ssh (3.2.0)
     network_interface (0.0.1)
     nokogiri (1.6.8)
@@ -222,27 +232,47 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (11.2.2)
     rb-readline-r7 (0.5.2.0)
-    recog (2.0.21)
+    recog (2.0.22)
       nokogiri
     redcarpet (3.3.4)
     rex-arch (0.1.1)
       rex-text
+    rex-bin_tools (0.1.0)
+      metasm
+      rex-arch
+      rex-core
+      rex-struct2
+      rex-text
+    rex-core (0.1.2)
     rex-java (0.1.2)
+    rex-mime (0.1.1)
+      rex-text
+    rex-nop (0.1.0)
+      rex-arch
     rex-ole (0.1.2)
       rex-text
-    rex-powershell (0.1.1)
+    rex-powershell (0.1.64)
       rex-random_identifier
       rex-text
     rex-random_identifier (0.1.0)
       rex-text
     rex-registry (0.1.0)
+    rex-rop_builder (0.1.0)
+      metasm
+      rex-core
+      rex-text
+    rex-socket (0.1.0)
+      rex-core
+    rex-sslscan (0.1.0)
+      rex-socket
+      rex-text
     rex-struct2 (0.1.0)
     rex-text (0.2.1)
     rex-zip (0.1.0)
       rex-text
     rkelly-remix (0.0.6)
     robots (0.10.1)
-    rspec-core (3.5.2)
+    rspec-core (3.5.3)
       rspec-support (~> 3.5.0)
     rspec-expectations (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
@@ -250,7 +280,7 @@ GEM
     rspec-mocks (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.5.0)
-    rspec-rails (3.5.1)
+    rspec-rails (3.5.2)
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       railties (>= 3.0)
@@ -306,4 +336,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.12.5
+   1.13.1
