@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Nop
       ], self.class)
   end
 
-  def get_register() 
+  def get_register()
       return rand(27) + 1
   end
 
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Nop
 
   def make_or(reg)
     op = 0x00000025
-  
+
     op = op | ( reg << 21 ) | ( reg << 11 )
     return op
   end
