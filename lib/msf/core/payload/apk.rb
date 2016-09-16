@@ -141,6 +141,17 @@ module Msf::Payload::Apk
       raise RuntimeError, "apktool version #{apk_v} not supported, please download at least version 2.0.1."
     end
 
+    unless File.readable?(File.expand_path("~/.android/debug.keystore"))
+      android_dir = File.expand_path("~/.android/")
+      unless File.directory?(android_dir)
+        FileUtils::mkdir_p android_dir
+      end
+      print_status "Creating android debug keystore...\n"
+      run_cmd("keytool -genkey -v -keystore ~/.android/debug.keystore \
+      -alias androiddebugkey -storepass android -keypass android -keyalg RSA \
+      -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'")
+    end
+
     #Create temporary directory where work will be done
     tempdir = Dir.mktmpdir
 
