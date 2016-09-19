@@ -106,9 +106,6 @@ require 'rex/parser/ini'
 # Compatibility
 require 'rex/compat'
 
-# Platforms
-require 'rex/platforms'
-
 # SSLScan 
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
