@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.12.24)
+    metasploit-framework (4.12.27)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -36,6 +36,7 @@ PATH
       rex-arch
       rex-bin_tools
       rex-core
+      rex-encoder
       rex-java
       rex-mime
       rex-nop
@@ -43,6 +44,7 @@ PATH
       rex-powershell
       rex-random_identifier
       rex-registry
+      rex-rop_builder
       rex-socket
       rex-sslscan
       rex-struct2
@@ -243,6 +245,10 @@ GEM
       rex-struct2
       rex-text
     rex-core (0.1.2)
+    rex-encoder (0.1.0)
+      metasm
+      rex-arch
+      rex-text
     rex-java (0.1.2)
     rex-mime (0.1.1)
       rex-text
@@ -256,6 +262,10 @@ GEM
     rex-random_identifier (0.1.0)
       rex-text
     rex-registry (0.1.0)
+    rex-rop_builder (0.1.0)
+      metasm
+      rex-core
+      rex-text
     rex-socket (0.1.0)
       rex-core
     rex-sslscan (0.1.0)
@@ -331,4 +341,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.12.5
+   1.13.1
