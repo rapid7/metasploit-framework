@@ -36,6 +36,7 @@ PATH
       rex-arch
       rex-bin_tools
       rex-core
+      rex-encoder
       rex-java
       rex-mime
       rex-nop
@@ -244,6 +245,10 @@ GEM
       rex-struct2
       rex-text
     rex-core (0.1.2)
+    rex-encoder (0.1.0)
+      metasm
+      rex-arch
+      rex-text
     rex-java (0.1.2)
     rex-mime (0.1.1)
       rex-text
