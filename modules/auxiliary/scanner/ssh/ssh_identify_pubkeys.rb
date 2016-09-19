@@ -6,6 +6,7 @@
 require 'msf/core'
 require 'net/ssh'
 require 'sshkey' # TODO: Actually include this!
+require 'net/ssh/pubkey_verifier'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -203,13 +204,11 @@ class MetasploitModule < Msf::Auxiliary
         key_info = "- #{$3.strip}"
       end
 
-      accepted = []
       factory = ssh_socket_factory
       opt_hash = {
         :auth_methods => ['publickey'],
         :port         => port,
-        #:key_data     => key_data[:public],
-        :keys => [ datastore['KEY_FILE'] ],
+        :key_data     => key_data[:public],
         :use_agent     => false,
         :config =>false,
         :proxy	  => factory,
@@ -220,7 +219,12 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         ssh_socket = nil
-        ::Timeout.timeout(datastore['SSH_TIMEOUT']) { ssh_socket = Net::SSH.start(ip, user, opt_hash) }
+        success = false
+        verifier = Net::SSH::PubkeyVerifier.new(ip,user,opt_hash)
+        ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+           success = verifier.verify
+           ssh_socket = verifier.connection
+        end
 
         if datastore['SSH_BYPASS'] and ssh_socket
           data = nil
@@ -246,21 +250,29 @@ class MetasploitModule < Msf::Auxiliary
         return [:fail,nil] # For whatever reason.
       end
 
-      if accepted.length == 0
+      unless success
         if @key_files
           print_brute :level => :verror, :msg =>  "User #{user} does not accept key #{@key_files[key_idx+1]} #{key_info}"
         else
           print_brute :level => :verror, :msg => "User #{user} does not accept key #{key_idx+1} #{key_info}"
         end
+        return [:fail,nil]
       end
 
-      accepted.each do |key|
-        private_key_present = (key[:data][:private] != "") ? 'Yes' : 'No'
-        key_fingerprint = key[:key][:fingerprint]
-        print_brute :level => :good, :msg => \
-          "Public key accepted: '#{user}' with key '#{key_fingerprint}' (Private Key: #{private_key_present}) #{key_info}"
-        do_report(ip, rport, user, key)
-      end
+      key = verifier.key
+      key_fingerprint = key.fingerprint
+      user = verifier.user
+      private_key_present = (key_data[:private] != "") ? 'Yes' : 'No'
+
+      print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key_fingerprint}' (Private Key: #{private_key_present}) #{key_info}"
+
+      key_hash = {
+        data: key_data,
+        key: key,
+        info: key_info
+      }
+      do_report(ip, rport, user, key_hash)
+
     end
   end
 

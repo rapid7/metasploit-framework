@@ -7,13 +7,13 @@ module Net
       include Net::SSH::Transport::Constants
       include Net::SSH::Authentication::Constants
 
-      attr_accessor :host, :key, :options, :user
+      attr_accessor :connection, :host, :key, :options, :user
 
       def initialize(host,user, opts)
         @host = host
-        # Parse Keyfile out into a PKey object
-        pubkey_file = opts.fetch(:pubkey_file)
-        @key = Net::SSH::KeyFactory.load_public_key(pubkey_file)
+        # Parse public key data out into a PKey object
+        pubkey_data = opts.fetch(:key_data)
+        @key = Net::SSH::KeyFactory.load_data_public_key(pubkey_data)
         @user = user
 
         # Always set auth methods to ONLY publickey regardless
@@ -45,6 +45,7 @@ module Net
         response_message = auth.next_message
         case response_message.type
           when USERAUTH_PK_OK
+            @connection = Net::SSH::Connection::Session.new(transport, options)
             true
           when USERAUTH_FAILURE
             false
