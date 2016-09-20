@@ -639,7 +639,7 @@ protected
   #
   def unknown_command(method, line)
     if File.basename(method) == 'msfconsole'
-      print_error('msfconsole cannot be run inside msfconsole');
+      print_error('msfconsole cannot be run inside msfconsole')
       return
     end
 
