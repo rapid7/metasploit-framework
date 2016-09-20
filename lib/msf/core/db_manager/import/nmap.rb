@@ -182,7 +182,6 @@ module Msf::DBManager::Import::Nmap
                 :info => 'Microsoft Windows Server Service Crafted RPC Request Handling Unspecified Remote Code Execution',
                 :refs =>['CVE-2008-4250',
                   'BID-31874',
-                  'OSVDB-49243',
                   'CWE-94',
                   'MSFT-MS08-067',
                   'MSF-Microsoft Server Service Relative Path Stack Corruption',
@@ -204,8 +203,6 @@ module Msf::DBManager::Import::Nmap
                   'BID-18325',
                   'BID-18358',
                   'BID-18424',
-                  'OSVDB-26436',
-                  'OSVDB-26437',
                   'MSFT-MS06-025',
                   'MSF-Microsoft RRAS Service RASMAN Registry Overflow',
                   'NSS-21689']
@@ -224,7 +221,6 @@ module Msf::DBManager::Import::Nmap
                 :info => 'Vulnerability in Windows DNS RPC Interface Could Allow Remote Code Execution',
                 # Add more refs based on nessus/nexpose .. results
                 :refs =>['CVE-2007-1748',
-                  'OSVDB-34100',
                   'MSF-Microsoft DNS RPC Service extractQuotedChar()',
                   'NSS-25168']
               }
