@@ -1334,14 +1334,13 @@ class Core
 
     when "add", "remove", "del"
       subnet = args.shift
-      subnet,cidr_mask = subnet.split("/")
-
-      if cidr_mask
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
-      else
-        netmask = args.shift
+      netmask = nil
+      if subnet
+        subnet, cidr_mask = subnet.split("/")
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i) if cidr_mask
       end
 
+      netmask = args.shift if netmask.nil?
       gateway_name = args.shift
 
       if (subnet.nil? || netmask.nil? || gateway_name.nil?)
@@ -1354,7 +1353,7 @@ class Core
       case gateway_name
       when /local/i
         gateway = Rex::Socket::Comm::Local
-      when /^[0-9]+$/
+      when /^(-1|[0-9]+)$/
         session = framework.sessions.get(gateway_name)
         if session.kind_of?(Msf::Session::Comm)
           gateway = session
@@ -1362,7 +1361,7 @@ class Core
           print_error("Not a session: #{gateway_name}")
           return false
         else
-          print_error("Cannout route through specified session (not a Comm)")
+          print_error("Cannot route through the specified session (not a Comm)")
           return false
         end
       else
