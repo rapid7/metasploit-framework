@@ -1327,10 +1327,7 @@ class Core
   # which session a given subnet should route through.
   #
   def cmd_route(*args)
-    if (args.length == 0)
-      cmd_route_help
-      return false
-    end
+    args << 'print' if args.length == 0
 
     action = args.shift
     case action
@@ -1420,8 +1417,7 @@ class Core
             'Netmask' => { 'MaxWidth' => 17 },
           })
 
-      Rex::Socket::SwitchBoard.each { |route|
-
+      Rex::Socket::SwitchBoard.each.with_index { |route, idx|
         if (route.comm.kind_of?(Msf::Session))
           gw = "Session #{route.comm.sid}"
         else
@@ -1431,7 +1427,11 @@ class Core
         tbl << [ route.subnet, route.netmask, gw ]
       }
 
-      print(tbl.to_s)
+      if tbl.rows.length == 0
+        print_status('There are currently no routes defined.')
+      else
+        print(tbl.to_s)
+      end
     else
       cmd_route_help
     end
