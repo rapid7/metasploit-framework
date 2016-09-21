@@ -15,6 +15,7 @@ Additional documentation about Meterpreter can be found on this wiki:
 
 Extension-specific documentation:
  * [[Python Extension]]
+ * [[Powershell Extension]]
 
 A wishlist of features is maintained at the [[Meterpreter Wishlist]] page.
 
