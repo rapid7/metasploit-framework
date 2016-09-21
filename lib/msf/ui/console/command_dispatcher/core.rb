@@ -1327,24 +1327,20 @@ class Core
   # which session a given subnet should route through.
   #
   def cmd_route(*args)
-    if (args.length == 0)
-      cmd_route_help
-      return false
-    end
+    args << 'print' if args.length == 0
 
     action = args.shift
     case action
 
     when "add", "remove", "del"
       subnet = args.shift
-      subnet,cidr_mask = subnet.split("/")
-
-      if cidr_mask
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
-      else
-        netmask = args.shift
+      netmask = nil
+      if subnet
+        subnet, cidr_mask = subnet.split("/")
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i) if cidr_mask
       end
 
+      netmask = args.shift if netmask.nil?
       gateway_name = args.shift
 
       if (subnet.nil? || netmask.nil? || gateway_name.nil?)
@@ -1357,7 +1353,7 @@ class Core
       case gateway_name
       when /local/i
         gateway = Rex::Socket::Comm::Local
-      when /^[0-9]+$/
+      when /^(-1|[0-9]+)$/
         session = framework.sessions.get(gateway_name)
         if session.kind_of?(Msf::Session::Comm)
           gateway = session
@@ -1365,7 +1361,7 @@ class Core
           print_error("Not a session: #{gateway_name}")
           return false
         else
-          print_error("Cannout route through specified session (not a Comm)")
+          print_error("Cannot route through the specified session (not a Comm)")
           return false
         end
       else
@@ -1421,7 +1417,6 @@ class Core
           })
 
       Rex::Socket::SwitchBoard.each { |route|
-
         if (route.comm.kind_of?(Msf::Session))
           gw = "Session #{route.comm.sid}"
         else
@@ -1431,7 +1426,11 @@ class Core
         tbl << [ route.subnet, route.netmask, gw ]
       }
 
-      print(tbl.to_s)
+      if tbl.rows.length == 0
+        print_status('There are currently no routes defined.')
+      else
+        print(tbl.to_s)
+      end
     else
       cmd_route_help
     end
