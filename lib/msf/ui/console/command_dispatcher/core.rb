@@ -1416,7 +1416,7 @@ class Core
             'Netmask' => { 'MaxWidth' => 17 },
           })
 
-      Rex::Socket::SwitchBoard.each.with_index { |route, idx|
+      Rex::Socket::SwitchBoard.each { |route|
         if (route.comm.kind_of?(Msf::Session))
           gw = "Session #{route.comm.sid}"
         else
