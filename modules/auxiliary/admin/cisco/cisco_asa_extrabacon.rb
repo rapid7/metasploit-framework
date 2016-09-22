@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def cleanup
-    # Cleanup is called once for every single thread
+
   end
 
   def check
