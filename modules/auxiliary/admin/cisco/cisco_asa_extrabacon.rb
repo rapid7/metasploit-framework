@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2016-6366'],
           [ 'URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20160817-asa-snmp'],
+          [ 'URL', 'https://github.com/RiskSense-Ops/CVE-2016-6366'],
         ],
       'License'     => MSF_LICENSE
     )
