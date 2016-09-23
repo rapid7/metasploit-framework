@@ -59,7 +59,7 @@ Again, there's always room on #metasploit on Freenode. Be helpful with the quest
 You probably shouldn't run proof of concept exploit code you find on the Internet on a machine you care about in a network you care about. That is generally considered a Bad Idea. You also probably shouldn't use your usual computer as a target for exploit development, since you are intentionally inducing unstable behavior.
 
 Our preferred method of module submission is via a git pull request from a feature branch on your own fork of Metasploit.  You can learn how to create one here:
-https://github.com/rapid7/metasploit-framework/wiki/Landing-a-Pull-Request
+https://github.com/rapid7/metasploit-framework/wiki/Landing-Pull-Requests
 
 Also, please take a peek at our guides on using git and our acceptance guidelines for new modules in case you're not familiar with them:
 https://github.com/rapid7/metasploit-framework/wiki
