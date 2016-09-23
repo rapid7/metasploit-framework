@@ -38,6 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     ], self.class)
 
     deregister_options("VERSION")
+
     datastore['VERSION'] = '2c' # SNMP v. 2c required it seems
 
     @asa_version_snmp = '1.3.6.1.2.1.47.1.1.1.1.10.1'
@@ -136,6 +137,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("Building #{mode} payload for version #{vers_string}...")
       overflow = build_offsets(vers_string, mode)
+
       payload = SNMP::ObjectId.new(overflow)
 
       print_status("Sending SNMP payload...")
