@@ -6,7 +6,7 @@ Before you write any module documentation, you should take a look at the sample 
 
 To write a KB, you'll need to:
 
-* Create an markdown (.md) file.
+* Create a markdown (.md) file.
 * Write the content.
 * Save the file and name it after the module name. For example, the filename for ms08-067 is `modules/exploits/windows/smb/ms08_067_netapi.rb`, so its documentation is `documentation/modules/exploits/windows/smb/ms08_067_netapi.md`.
 * Place it in the metasploit-framework/documentation/modules directory.
