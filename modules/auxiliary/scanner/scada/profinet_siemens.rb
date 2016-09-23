@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('INTERFACE', [ true, 'Set an interface', 'eth0' ]),
-        OptInt.new('TIMEOUT', [ true, 'Seconds to wait, set longer on slower networks', 2 ])
+        OptInt.new('ANSWERTIME', [ true, 'Seconds to wait for answers, set longer on slower networks', 2 ])
       ], self.class
     )
   end
@@ -107,23 +107,19 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def receive(iface, timeout)
+  def receive(iface, answertime)
     capture = PacketFu::Capture.new(iface: iface, start: true, filter: 'ether proto 0x8892')
-    sleep timeout
+    sleep answertime
     capture.save
     i = 0
     capture.array.each do |packet|
-      begin
-        data = bin_to_hex(packet).downcase
-        mac = data[12..13] + ':' + data[14..15] + ':' + data[16..17] + ':' + data[18..19] + ':' + data[20..21] + ':' + data[22..23]
-        next unless data[28..31] == 'feff'
-        print_good("Parsing packet from #{mac}")
-        parse_profinet(data[28..-1])
-        print_line('')
-        i += 1
-      rescue
-        next
-      end
+      data = bin_to_hex(packet).downcase
+      mac = data[12..13] + ':' + data[14..15] + ':' + data[16..17] + ':' + data[18..19] + ':' + data[20..21] + ':' + data[22..23]
+      next unless data[28..31] == 'feff'
+      print_good("Parsing packet from #{mac}")
+      parse_profinet(data[28..-1])
+      print_line('')
+      i += 1
     end
     if i.zero?
       print_warning('No devices found, maybe you are running virtually?')
@@ -134,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     iface = datastore['INTERFACE']
-    timeout = datastore['TIMEOUT']
+    answertime = datastore['ANSWERTIME']
     packet = "\x00\x00\x88\x92\xfe\xfe\x05\x00\x04\x00\x00\x03\x00\x80\x00\x04\xff\xff\x00\x00\x00\x00"
     packet += "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
@@ -151,6 +147,6 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Sending packet out to #{iface}")
     eth_pkt.to_w(iface)
 
-    receive(iface, timeout)
+    receive(iface, answertime)
   end
 end
