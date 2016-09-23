@@ -37,7 +37,7 @@ In some cases such as running a script in post exploitation, you might not have 
 session.exploit_datastore
 ```
 
-If you don't have access to the module, or to a session object, the last source is obviously the framework object, and there is ALWAYS a framework object. However, like we said earlier, if the user sets a model-level option, no other components will see it, this includes the framework object:
+If you don't have access to the module, or to a session object, the last source is obviously the framework object, and there is ALWAYS a framework object. However, like we said earlier, if the user sets a module-level option, no other components will see it, this includes the framework object:
 
 ```ruby
 framework.datastore
