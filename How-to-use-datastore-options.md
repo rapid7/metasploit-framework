@@ -85,7 +85,7 @@ OptBool.new('BLAH', [ true, 'Set a BLAH option', false ])
 
 ```ruby
 # Choices are: apple or range, defaults to apple
-OptEnum.new('FRUIT', [ true, 'Set a fruit', ['apple', 'orange'], 'apple' ])
+OptEnum.new('FRUIT', [ true, 'Set a fruit', 'apple', ['apple', 'orange']])
 ```
 
 * **OptPort** - For an input that's meant to be used as a port number. This number should be between 0 - 65535. Code example:
