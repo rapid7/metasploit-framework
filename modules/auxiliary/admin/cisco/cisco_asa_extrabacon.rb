@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           'Zachary Harding <zachary.harding@risksense.com>',
           'Nate Caroe <nate.caroe@risksense.com>',
           'Dylan Davis <dylan.davis@risksense.com>',
+          'William Webb <william_webb[at]rapid7.com>', # initial module and ASA hacking notes
           'Equation Group',
           'Shadow Brokers'
         ],
