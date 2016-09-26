@@ -76,6 +76,7 @@ module Msf
           "nessus_db_import" => "Import Nessus scan to the Metasploit connected database",
           "nessus_save" => "Save credentials of the logged in user to nessus.yml",
           "nessus_folder_list" => "List folders configured on the Nessus server",
+          "nessus_scanner_list" => "List the configured scanners on the Nessus server",
           "nessus_family_list" => "List all the plugin families along with their corresponding family IDs and plugin count"
         }
       end
