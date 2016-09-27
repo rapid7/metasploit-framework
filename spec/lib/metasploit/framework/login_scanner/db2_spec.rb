@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/db2'
 
-RSpec.describe Metasploit::Framework::LoginScanner::DB2 do
+RSpec.describe Metasploit::Framework::LoginScanner::DB2, :login_scanner => true do
   let(:public) { 'root' }
   let(:private) { 'toor' }
   let(:test_cred) {

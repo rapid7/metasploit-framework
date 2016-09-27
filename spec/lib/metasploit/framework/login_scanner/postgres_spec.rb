@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/postgres'
 
-RSpec.describe Metasploit::Framework::LoginScanner::Postgres do
+RSpec.describe Metasploit::Framework::LoginScanner::Postgres, :login_scanner => true do
   let(:public) { 'root' }
   let(:private) { 'toor' }
   let(:realm) { 'template1' }

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/telnet'
 
-RSpec.describe Metasploit::Framework::LoginScanner::Telnet do
+RSpec.describe Metasploit::Framework::LoginScanner::Telnet, :login_scanner => true do
 
   subject(:login_scanner) { described_class.new }
 

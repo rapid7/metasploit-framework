@@ -16,6 +16,7 @@ env:
   - RAKE_TASKS="cucumber cucumber:boot" CREATE_BINSTUBS=true
   - RAKE_TASKS=spec SPEC_OPTS="--tag content"
   - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
+  - SPEC_ALL=true
 
 matrix:
   fast_finish: true

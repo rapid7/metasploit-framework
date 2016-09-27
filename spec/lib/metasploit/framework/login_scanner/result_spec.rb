@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner'
 
-RSpec.describe Metasploit::Framework::LoginScanner::Result do
+RSpec.describe Metasploit::Framework::LoginScanner::Result, :login_scanner => true do
 
   let(:private) { 'toor' }
   let(:proof) { 'foobar' }

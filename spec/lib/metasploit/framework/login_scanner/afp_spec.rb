@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/afp'
 
-RSpec.describe Metasploit::Framework::LoginScanner::AFP do
+RSpec.describe Metasploit::Framework::LoginScanner::AFP, :login_scanner => true do
 
   subject(:scanner) { described_class.new }
 
