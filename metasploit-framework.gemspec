@@ -65,7 +65,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.1.13'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.1.15'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.0.6'
   # Needed by msfgui and other rpc components
@@ -126,7 +126,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-java'
   # Library for C-style structs
   spec.add_runtime_dependency 'rex-struct2'
-  # Library which contains architecture specific information such as registers, opcodes, 
+  # Library which contains architecture specific information such as registers, opcodes,
   # and stack manipulation routines.
   spec.add_runtime_dependency 'rex-arch'
   # Library for working with OLE.
