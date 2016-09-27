@@ -22,6 +22,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@hdm](https://github.com/hdm)                    | [hdm](https://keybase.io/hdm)                      |
 | [@jbarnett-r7](https://github.com/jbarnett-r7)    | [jmbarnett](https://keybase.io/jmbarnett)          |
 | [@jhart-r7](https://github.com/jhart-r7)          | [jhart](https://keybase.io/jhart)                  |
+| [@jmartin-r7](https://github.com/jmartin-r7)      | [jmartinr7](https://keybase.io/jmartinr7)          |
 | [@kgray-r7](https://github.com/wvu-r7)            | [noxferatu](https://keybase.io/noxferatu)          |
 | [@lsato-r7](https://github.com/lsato-r7)          | [louissato](https://keybase.io/lsato)              |
 | [@Meatballs1](https://github.com/Meatballs1)      | [meatballs](https://keybase.io/meatballs)          |
