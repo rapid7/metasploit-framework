@@ -12,12 +12,12 @@ module MetasploitModule
   CachedSize = :dynamic
 
   include Msf::Payload::Stager
-  include Msf::Payload::Dalvik
+  include Msf::Payload::Android
   include Msf::Payload::UUID::Options
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Dalvik Reverse HTTPS Stager',
+      'Name'        => 'Android Reverse HTTPS Stager',
       'Description' => 'Tunnel communication over HTTPS',
       'Author'      => ['anwarelmakrahy', 'OJ Reeves'],
       'License'     => MSF_LICENSE,

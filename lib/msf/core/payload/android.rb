@@ -3,7 +3,7 @@ require 'msf/core'
 require 'msf/core/payload/uuid/options'
 require 'msf/core/payload/transport_config'
 
-module Msf::Payload::Dalvik
+module Msf::Payload::Android
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::UUID::Options

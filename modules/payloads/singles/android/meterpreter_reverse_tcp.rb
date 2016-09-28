@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 require 'msf/core'
-require 'msf/core/payload/dalvik'
+require 'msf/core/payload/android'
 require 'msf/core/payload/transport_config'
 require 'msf/base/sessions/meterpreter_android'
 require 'msf/base/sessions/meterpreter_options'
@@ -15,7 +15,7 @@ module MetasploitModule
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Single
-  include Msf::Payload::Dalvik
+  include Msf::Payload::Android
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})

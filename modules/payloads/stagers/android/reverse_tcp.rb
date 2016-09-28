@@ -16,12 +16,12 @@ module MetasploitModule
 
   include Msf::Payload::Stager
   include Msf::Payload::TransportConfig
-  include Msf::Payload::Dalvik
+  include Msf::Payload::Android
   include Msf::Payload::UUID::Options
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Dalvik Reverse TCP Stager',
+      'Name'        => 'Android Reverse TCP Stager',
       'Description' => 'Connect back stager',
       'Author'      => ['timwr', 'OJ Reeves'],
       'License'     => MSF_LICENSE,
