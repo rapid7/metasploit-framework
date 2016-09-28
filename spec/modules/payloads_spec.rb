@@ -50,7 +50,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/android/meterpreter_reverse_http'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/meterpreter_reverse_http'
   end
@@ -60,7 +60,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/android/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'android/meterpreter_reverse_tcp'
   end
