@@ -371,6 +371,9 @@ class Utils
     return ntlmssp_flags
   end
 
+  def self.addr_encoding(buf)
+    buf.dup.gsub("\x00", '') == Rex::Text.to_ascii(buf, 'utf-16be') ? Rex::Text.to_ascii(buf, 'utf-16be') : buf
+  end
 
   # Parse an ntlm type 2 challenge blob and return usefull data
   def self.parse_ntlm_type_2_blob(blob)
@@ -397,16 +400,16 @@ class Utils
       case atype
       when 1
         #netbios name
-        data[:default_name] =  addr.gsub("\x00", '')
+        data[:default_name] = addr_encoding(addr)
       when 2
         #netbios domain
-        data[:default_domain] = addr.gsub("\x00", '')
+        data[:default_domain] = addr_encoding(addr)
       when 3
         #dns name
-        data[:dns_host_name] =  addr.gsub("\x00", '')
+        data[:dns_host_name] = addr_encoding(addr)
       when 4
         #dns domain
-        data[:dns_domain_name] =  addr.gsub("\x00", '')
+        data[:dns_domain_name] = addr_encoding(addr)
       when 5
         #The FQDN of the forest.
       when 6
@@ -434,11 +437,7 @@ class Utils
     # We have to set the timestamps here to the one in the challenge message from server if present
     # If we don't do that, recent server like Seven/2008 will send a STATUS_INVALID_PARAMETER error packet
     timestamp = chall_MsvAvTimestamp != '' ? chall_MsvAvTimestamp : self.time_unix_to_smb(Time.now.to_i).reverse.pack("VV")
-    # Make those values unicode as requested
-    win_domain = Rex::Text.to_unicode(win_domain)
-    win_name = Rex::Text.to_unicode(win_name)
-    dns_domain = Rex::Text.to_unicode(dns_domain)
-    dns_name = Rex::Text.to_unicode(dns_name)
+
     # Make the AV_PAIRs
     addr_list  = ''
     addr_list  << [2, win_domain.length].pack('vv') + win_domain
