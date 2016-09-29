@@ -204,7 +204,7 @@ module Msf::Payload::Apk
     print_status "Loading #{smalifile} and injecting payload..\n"
     File.open(smalifile, "wb") {|file| file.puts hookedsmali }
     injected_apk = "#{tempdir}/output.apk"
-    unaligned_apk = "#{tempdir}/unaligned.apk"
+    aligned_apk = "#{tempdir}/aligned.apk"
     print_status "Poisoning the manifest with meterpreter permissions..\n"
     fix_manifest(tempdir)
 
@@ -213,10 +213,9 @@ module Msf::Payload::Apk
     print_status "Signing #{injected_apk}\n"
     run_cmd("jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA #{injected_apk} androiddebugkey")
     print_status "Aligning #{injected_apk}\n"
-    FileUtils.mv("#{injected_apk}", "#{unaligned_apk}")
-    run_cmd("zipalign 4 #{unaligned_apk} #{injected_apk}")
+    run_cmd("zipalign 4 #{injected_apk} #{aligned_apk}")
 
-    outputapk = File.read(injected_apk)
+    outputapk = File.read(aligned_apk)
 
     FileUtils.remove_entry tempdir
     outputapk
