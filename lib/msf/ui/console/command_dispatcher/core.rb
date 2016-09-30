@@ -136,6 +136,7 @@ class Core
       "route"      => "Route traffic through a session",
       "save"       => "Saves the active datastores",
       "search"     => "Searches module names and descriptions",
+      "sess"       => "Interact with a given session",
       "sessions"   => "Dump session listings and display information about sessions",
       "set"        => "Sets a context-specific variable to a value",
       "setg"       => "Sets a global variable to a value",
@@ -1753,6 +1754,25 @@ class Core
     return
   end
 
+  def cmd_sess_help
+    print_line('Usage: sess <session id>')
+    print_line
+    print_line('Interact with the given session ID.')
+    print_line('This works the same as: sessions -i <session id>')
+    print_line
+  end
+
+  #
+  # Helper function to quickly select a session
+  #
+  def cmd_sess(*args)
+    if args.length == 0 || args[0].to_i == 0
+      cmd_sess_help
+    else
+      cmd_sessions('-i', args[0])
+    end
+  end
+
   def cmd_sessions_help
     print_line "Usage: sessions [options]"
     print_line
@@ -1954,22 +1974,26 @@ class Core
         end
       end
     when 'interact'
-      session = verify_session(sid)
-      if session
-        if session.respond_to?(:response_timeout)
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
-        end
-        print_status("Starting interaction with #{session.name}...\n") unless quiet
-        begin
-          self.active_session = session
-          session.interact(driver.input.dup, driver.output)
-          self.active_session = nil
-          driver.input.reset_tab_completion if driver.input.supports_readline
-        ensure
-          if session.respond_to?(:response_timeout) && last_known_timeout
-            session.response_timeout = last_known_timeout
+      while sid
+        session = verify_session(sid)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
           end
+          print_status("Starting interaction with #{session.name}...\n") unless quiet
+          begin
+            self.active_session = session
+            sid = session.interact(driver.input.dup, driver.output)
+            self.active_session = nil
+            driver.input.reset_tab_completion if driver.input.supports_readline
+          ensure
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
+          end
+        else
+          sid = nil
         end
       end
     when 'scriptall'
