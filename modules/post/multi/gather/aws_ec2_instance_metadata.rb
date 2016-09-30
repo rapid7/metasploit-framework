@@ -72,9 +72,13 @@ class MetasploitModule < Msf::Post
   def run
     check_curl
     resp = check_aws_metadata
+
+    print_status("Gathering AWS EC2 instance metadata")
     metadata = get_aws_metadata(@target_uri, resp)
+
     metadata_json = JSON.pretty_generate(metadata)
     file = store_loot("aws.ec2.instance.metadata", "text/json", session, metadata_json, "aws_ec2_instance_metadata.json", "AWS EC2 Instance Metadata")
+
     if datastore['VERBOSE']
       vprint_good("AWS EC2 instance metadata")
       print_line(metadata_json)
