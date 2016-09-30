@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Enumerate AWS EC2 Instance Metadata',
+        'Name'          => 'Gather AWS EC2 Instance Metadata',
         'Description'   => %q(
           This module will attempt to connect to the AWS EC2 instance metadata service
           and crawl and collect all metadata known about the session'd host.
@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
           'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
         ],
         # TODO: is there a way to do this on Windows?
-        'Platform'      => %w(linux osx unix),
+        'Platform'      => %w(unix),
         'SessionTypes'  => %w(shell meterpreter),
         'References'    =>
           [
@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        OptString.new('TARGETURI', [true, 'AWS EC2 Instance metadata URI', 'http://169.254.169.254/latest/meta-data/ '])
+        OptString.new('TARGETURI', [true, 'AWS EC2 Instance metadata URI', 'http://169.254.169.254/latest/meta-data/'])
       ]
     )
   end
