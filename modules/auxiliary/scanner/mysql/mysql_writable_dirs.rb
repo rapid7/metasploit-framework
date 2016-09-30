@@ -46,6 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Login...")
 
     if (not mysql_login_datastore)
+      print_error('Unable to login to the server.')
       return
     end
 
