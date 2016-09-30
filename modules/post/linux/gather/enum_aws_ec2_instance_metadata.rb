@@ -10,11 +10,11 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Enumerate AWS EC2 instance metadata',
+        'Name'          => 'Enumerate AWS EC2 Instance Metadata',
         'Description'   => %q(
           This module will attempt to connect to the AWS EC2 instance metadata service
           and crawl and collect all metadata known about the session'd host.
-    ),
+        ),
         'License'       => MSF_LICENSE,
         'Author'        => [
           'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
