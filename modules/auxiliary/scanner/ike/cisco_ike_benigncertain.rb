@@ -31,7 +31,11 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'CVE', '2016-6415' ]
+          [ 'CVE', '2016-6415' ],
+          [ 'URL', 'https://github.com/adamcaudill/EquationGroupLeak/tree/master/Firewall/TOOLS/BenignCertain/benigncertain-v1110' ],
+          [ 'URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20160916-ikev1' ],
+          [ 'URL', 'https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-6415' ],
+          [ 'URL', 'https://musalbas.com/2016/08/18/equation-group-benigncertain.html' ]
         ],
       'DisclosureDate' => 'Sep 29 2016'
     ))
