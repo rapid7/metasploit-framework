@@ -16,7 +16,8 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'MYSQL Directory Write Test',
       'Description'    => %Q{
           Enumerate writeable directories using the MySQL SELECT INTO DUMPFILE feature, for more
-        information see the URL in the references.
+        information see the URL in the references. ***Note: For every writable directory found,
+        a file called test with the text test will be written to the directory.***
       },
       'Author'         => [ 'AverageSecurityGuy <stephen[at]averagesecurityguy.info>' ],
       'References'  => [
