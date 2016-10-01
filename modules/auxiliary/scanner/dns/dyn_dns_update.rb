@@ -31,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
             ],
         'DefaultAction' => 'ADD'
     )
-    
     register_options(
         [
             OptString.new('DOMAIN', [true, 'The domain name']),
