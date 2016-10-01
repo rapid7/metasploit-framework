@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
           if find_packet == true #TNS Packet returned ERROR
                 print_error("#{ip}:#{rport} is not vulnerable")
           elsif split_hex[5] == "02" #TNS Packet Type: ACCEPT
-    	        print_good("#{ip}:#{rport} is vulnerable")
+                print_good("#{ip}:#{rport} is vulnerable")
           elsif split_hex[5] == "04" #TNS Packet Type: REFUSE
                 print_error("#{ip}:#{rport} is not vulnerable")
           else #All other TNS packet types or non-TNS packet type response cannot guarantee vulnerability
