@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     print_warning("For every writable directory found, a file called #{datastore['FILE_NAME']} with the text test will be written to the directory.")
-    vprint_status("Login...")
+    print_status("Login...")
 
     unless mysql_login_datastore
       print_error('Unable to login to the server.')
@@ -58,12 +58,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_dir(dir)
     begin
-      vprint_status("Checking #{dir}...")
+      print_status("Checking #{dir}...")
       res = mysql_query_no_handle("SELECT _utf8'test' INTO DUMPFILE '#{dir}/" + datastore['FILE_NAME'] + "'")
     rescue ::RbMysql::ServerError => e
-      vprint_warning("#{e.to_s}")
+      print_warning("#{e.to_s}")
     rescue Rex::ConnectionTimeout => e
-      vprint_error("Timeout: #{e.message}")
+      print_error("Timeout: #{e.message}")
     else
       print_good("#{dir} is writeable")
       report_note(
