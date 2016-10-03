@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     vprint_status("Login...")
 
-    if (not mysql_login_datastore)
+    unless mysql_login_datastore
       print_error('Unable to login to the server.')
       return
     end
