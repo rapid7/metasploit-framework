@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_warning("For every writable directory found, a file called test with the text test will be written to the directory."
+    print_warning("For every writable directory found, a file called test with the text test will be written to the directory.")
     vprint_status("Login...")
 
     unless mysql_login_datastore
