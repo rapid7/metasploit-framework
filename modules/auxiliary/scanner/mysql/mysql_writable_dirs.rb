@@ -64,10 +64,8 @@ class MetasploitModule < Msf::Auxiliary
       res = mysql_query_no_handle("SELECT _utf8'test' INTO DUMPFILE '#{dir}/" + datastore['FILE_NAME'] + "'")
     rescue ::RbMysql::ServerError => e
       vprint_warning("#{e.to_s}")
-      return
     rescue Rex::ConnectionTimeout => e
       vprint_error("Timeout: #{e.message}")
-      return
     else
       print_good("#{dir} is writeable")
       report_note(
@@ -79,8 +77,6 @@ class MetasploitModule < Msf::Auxiliary
         :update => :unique_data
       )
     end
-
-    return
   end
 
 end
