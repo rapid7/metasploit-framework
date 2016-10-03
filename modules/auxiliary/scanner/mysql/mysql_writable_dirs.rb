@@ -51,10 +51,8 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    File.open(datastore['DIR_LIST'], "r") do |f|
-      f.each_line do |line|
-        check_dir(line.chomp)
-      end
+    File.read(datastore['DIR_LIST']).each_line do |dir|
+      check_dir(dir.chomp)
     end
 
   end
