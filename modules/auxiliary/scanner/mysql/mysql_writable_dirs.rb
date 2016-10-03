@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptPath.new('DIR_LIST', [ true, "List of directories to test", '' ]),
       OptString.new('FILE_NAME', [ true, "Name of file to write", Rex::Text.rand_text_alpha(8) ]),
-      OptString.new('TABLE_NAME', [ true, "Name of table to use - Warning, if the table already exists its contents will be corrupted", Rex::Text.rand_text_alpha(8) ]),
       OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ])
     ])
 
