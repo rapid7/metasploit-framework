@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %Q{
           Enumerate writeable directories using the MySQL SELECT INTO DUMPFILE feature, for more
         information see the URL in the references. ***Note: For every writable directory found,
-        a file called test with the text test will be written to the directory.***
+        a file with the specified FILE_NAME containing the text test will be written to the directory.***
       },
       'Author'         => [ 'AverageSecurityGuy <stephen[at]averagesecurityguy.info>' ],
       'References'  => [
@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptPath.new('DIR_LIST', [ true, "List of directories to test", '' ]),
       OptString.new('FILE_NAME', [ true, "Name of file to write", Rex::Text.rand_text_alpha(8) ]),
-      OptString.new('TABLE_NAME', [ true, "Name of table to use - Warning, if the table already exists its contents will be corrupted", Rex::Text.rand_text_alpha(8) ]),
       OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ])
     ])
 
@@ -43,30 +42,28 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_warning("For every writable directory found, a file called test with the text test will be written to the directory.")
-    vprint_status("Login...")
+    print_warning("For every writable directory found, a file called #{datastore['FILE_NAME']} with the text test will be written to the directory.")
+    print_status("Login...")
 
     unless mysql_login_datastore
       print_error('Unable to login to the server.')
       return
     end
 
-    File.open(datastore['DIR_LIST'], "r") do |f|
-      f.each_line do |line|
-        check_dir(line.chomp)
-      end
+    File.read(datastore['DIR_LIST']).each_line do |dir|
+      check_dir(dir.chomp)
     end
 
   end
 
   def check_dir(dir)
     begin
-      vprint_status("Checking #{dir}...")
+      print_status("Checking #{dir}...")
       res = mysql_query_no_handle("SELECT _utf8'test' INTO DUMPFILE '#{dir}/" + datastore['FILE_NAME'] + "'")
     rescue ::RbMysql::ServerError => e
-      vprint_warning("#{e.to_s}")
+      print_warning(e.to_s)
     rescue Rex::ConnectionTimeout => e
-      vprint_error("Timeout: #{e.message}")
+      print_error("Timeout: #{e.message}")
     else
       print_good("#{dir} is writeable")
       report_note(
