@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'      =>
         [
           [ 'CVE', '2016-2776' ],
-          [ 'URL', 'http://blog.infobytesec.com/2016/09/a-tale-of-packet-cve-2016-2776.html' ]
+          [ 'URL', 'http://blog.infobytesec.com/2016/10/a-tale-of-dns-packet-cve-2016-2776.html' ]
         ],
       'DisclosureDate' => 'Sep 27 2016',
       'DefaultOptions' => {'ScannerRecvWindow' => 0}
