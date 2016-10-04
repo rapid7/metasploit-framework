@@ -19,6 +19,9 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   include Console::CommandDispatcher
 
+  CHECKSUM_ALGORITHMS = %w{ md5 sha1 }
+  private_constant :CHECKSUM_ALGORITHMS
+
   #
   # Options for the download command.
   #
@@ -54,6 +57,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     all = {
       'cat'        => 'Read the contents of a file to the screen',
       'cd'         => 'Change directory',
+      'checksum'   => 'Retrieve the checksum of a file',
       'del'        => 'Delete the specified file',
       'dir'        => 'List files (alias for ls)',
       'download'   => 'Download a file or directory',
@@ -76,6 +80,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     reqs = {
       'cat'        => [],
       'cd'         => ['stdapi_fs_chdir'],
+      'checksum'   => CHECKSUM_ALGORITHMS.map { |a| "stdapi_fs_#{a}" },
       'del'        => ['stdapi_fs_rm'],
       'dir'        => ['stdapi_fs_stat', 'stdapi_fs_ls'],
       'download'   => [],
@@ -269,6 +274,36 @@ class Console::CommandDispatcher::Stdapi::Fs
     ::Dir.chdir(args[0])
 
     return true
+  end
+
+  #
+  # Retrieve the checksum of a file
+  #
+  def cmd_checksum(*args)
+    algorithm = args.shift
+    algorithm.downcase! unless algorithm.nil?
+    unless args.length > 0 and CHECKSUM_ALGORITHMS.include?(algorithm)
+      print_line("Usage: checksum [#{ CHECKSUM_ALGORITHMS.join(' / ') }] file1 file2 file3 ...")
+      return true
+    end
+
+    args.each do |filepath|
+      checksum = client.fs.file.send(algorithm, filepath)
+      print_line("#{Rex::Text.to_hex(checksum, '')}  #{filepath}")
+    end
+
+    return true
+  end
+
+  def cmd_checksum_tabs(str, words)
+    tabs = []
+    return tabs unless words.length == 1
+
+    CHECKSUM_ALGORITHMS.each do |algorithm|
+      tabs << algorithm if algorithm.start_with?(str.downcase)
+    end
+
+    tabs
   end
 
   #
@@ -634,7 +669,6 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Alias the ls command to dir, for those of us who have windows muscle-memory
   #
   alias cmd_dir cmd_ls
-
 
   #
   # Make one or more directory.

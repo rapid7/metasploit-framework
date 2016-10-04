@@ -71,6 +71,7 @@ module Msf
           "nessus_index" => "Manually generates a search index for exploits",
           "nessus_template_list" => "List all the templates on the server",
           "nessus_db_scan" => "Create a scan of all IP addresses in db_hosts",
+          "nessus_db_scan_workspace" => "Create a scan of all IP addresses in db_hosts for a given workspace",
           "nessus_db_import" => "Import Nessus scan to the Metasploit connected database",
           "nessus_save" => "Save credentials of the logged in user to nessus.yml",
           "nessus_folder_list" => "List folders configured on the Nessus server",
@@ -256,6 +257,7 @@ module Msf
         tbl << [ "Nessus Database Commands", "" ]
         tbl << [ "-----------------", "-----------------" ]
         tbl << [ "nessus_db_scan", "Create a scan of all IP addresses in db_hosts" ]
+        tbl << [ "nessus_db_scan_workspace", "Create a scan of all IP addresses in db_hosts for a given workspace" ]
         tbl << [ "nessus_db_import", "Import Nessus scan to the Metasploit connected database" ]
         tbl << [ "", ""]
         tbl << [ "Reports Commands", "" ]
@@ -1086,6 +1088,59 @@ module Msf
         if !scan["error"]
           scan = scan["scan"]
           print_status("Scan ID #{scan['id']} successfully created and launched")
+        else
+          print_error(JSON.pretty_generate(scan))
+        end
+      end
+
+      def cmd_nessus_db_scan_workspace(*args)
+        if args[0] == "-h"
+          print_status("nessus_db_scan_workspace <policy ID> <scan name> <scan description> <workspace>")
+          print_status("Creates a scan based on all the hosts listed in db_hosts for a given workspace.")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding policy IDs")
+          return
+        end
+        if !nessus_verify_db
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 4
+          policy_id = args[0]
+          name = args[1]
+          desc = args[2]
+          new_workspace = framework.db.find_workspace(args[3])
+        else
+          print_status("Usage: ")
+          print_status("nessus_db_scan_workspace <policy ID> <scan name> <scan description> <workspace>")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding policy IDs")
+          return
+        end
+        if !valid_policy(policy_id)
+          print_error("That policy does not exist.")
+          return
+        end
+        if new_workspace.nil?
+          print_error("That workspace does not exist.")
+          return
+        end
+        framework.db.workspace = new_workspace
+        print_status("Switched workspace: #{framework.db.workspace.name}")
+        targets = ""
+        framework.db.hosts.each do |host|
+          targets << host.address
+          targets << ","
+        print_status("Targets: #{targets}")
+        end
+        targets.chop!
+        print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in #{framework.db.workspace.name}")
+        scan = @n.scan_create(policy_id, name, desc, targets)
+        if !scan["error"]
+          scan = scan["scan"]
+          print_status("Scan ID #{scan['id']} successfully created")
+          print_status("Run nessus_scan_launch #{scan['id']} to launch the scan")
         else
           print_error(JSON.pretty_generate(scan))
         end
