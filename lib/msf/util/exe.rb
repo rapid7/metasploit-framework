@@ -1227,9 +1227,7 @@ require 'msf/core/exe/segment_appender'
   # @param code       [String]
   #
   def self.to_powershell_vba(framework, arch, code)
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
+    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
 
     powershell = Rex::Powershell::Command.cmd_psh_payload(code,
                     arch,
@@ -1374,9 +1372,7 @@ require 'msf/core/exe/segment_appender'
   end
 
   def self.to_powershell_command(framework, arch, code)
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
+    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
     Rex::Powershell::Command.cmd_psh_payload(code,
                     arch,
                     template_path,
@@ -1385,9 +1381,7 @@ require 'msf/core/exe/segment_appender'
   end
 
   def self.to_powershell_hta(framework, arch, code)
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
+    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
 
     powershell = Rex::Powershell::Command.cmd_psh_payload(code,
                     arch,
