@@ -5,6 +5,7 @@
 require 'msf/core'
 require 'msf/core/payload/android'
 require 'msf/core/payload/transport_config'
+require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_android'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
