@@ -66,16 +66,12 @@ dynsection:
 ; DT_INIT
   dq    0x0c
   dq    _start
-; DT_HASH
-  dq    0x04
-  dq    strtab
 ; DT_STRTAB
   dq    0x05
   dq    strtab
 ; DT_SYMTAB
   dq    0x06
   dq    strtab
-; DT_STRSZ
   dq    0x0a
   dq    0
 ; DT_SYMENT
@@ -89,11 +85,7 @@ dynsz equ $ - dynsection
 strtab:
  db 0
  db 0
- db 0
- db 0
- db 0
 strtabsz equ $ - strtab
-
 global _start
 _start:
 
