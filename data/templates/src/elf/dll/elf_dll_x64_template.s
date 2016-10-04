@@ -72,6 +72,7 @@ dynsection:
 ; DT_SYMTAB
   dq    0x06
   dq    strtab
+; DT_STRSZ
   dq    0x0a
   dq    0
 ; DT_SYMENT
