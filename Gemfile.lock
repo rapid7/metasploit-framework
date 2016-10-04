@@ -256,7 +256,7 @@ GEM
       rex-arch
     rex-ole (0.1.2)
       rex-text
-    rex-powershell (0.1.64)
+    rex-powershell (0.1.65)
       rex-random_identifier
       rex-text
     rex-random_identifier (0.1.0)
@@ -341,4 +341,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.13.1
+   1.13.2
