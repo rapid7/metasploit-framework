@@ -104,7 +104,7 @@ class Config
   #
   # Returns a hash of information about the remote computer.
   #
-  def sysinfo(refresh = false)
+  def sysinfo(refresh: false)
     request  = Packet.create_request('stdapi_sys_config_sysinfo')
     if @sysinfo.nil? || refresh
       response = client.send_request(request)
