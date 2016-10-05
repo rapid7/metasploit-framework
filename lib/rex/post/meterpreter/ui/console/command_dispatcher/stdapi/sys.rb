@@ -808,7 +808,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Displays information about the remote system.
   #
   def cmd_sysinfo(*args)
-    info = client.sys.config.sysinfo
+    info = client.sys.config.sysinfo(refresh: true)
     width = "Meterpreter".length
     info.keys.each { |k| width = k.length if k.length > width and info[k] }
 
