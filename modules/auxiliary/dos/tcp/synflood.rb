@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     open_pcap
 
     sent = 0
-    num = datastore['NUM']
+    num = datastore['NUM'] || 0
 
     print_status("SYN flooding #{rhost}:#{rport}...")
 
