@@ -29,7 +29,6 @@ service service
 supervisor supervisor
 guest guest
 guest 12345
-guest 12345
 admin1 password
 administrator 1234
 666666 666666
@@ -55,7 +54,6 @@ admin 12345
 admin 54321
 admin 123456
 admin 7ujMko0admin
-admin 1234
 admin pass
 admin meinsm
 tech tech
