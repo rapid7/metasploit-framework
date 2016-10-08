@@ -76,12 +76,13 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
   #
-  # def cname_record(action)
-  #   case
-  #     when action == 'ADD'
-  #     when action == 'DEL'
-  #   end
-  # end
+  def cname_record(action)
+    case
+      when action == 'ADD'
+      when action == 'DEL'
+    end
+  end
+
   def txt_record(action)
     resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
     update   = Dnsruby::Update.new(datastore['DOMAIN'])
