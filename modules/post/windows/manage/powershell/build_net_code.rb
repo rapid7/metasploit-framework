@@ -20,9 +20,9 @@ class MetasploitModule < Msf::Post
       'Description'          => %q{
         This module will build a .NET source file using powershell. The compiler builds
         the executable or library in memory and produces a binary. After compilation the
-        PoweShell session can also sign the executable if provided a path the a .pfx formatted
-        certificate. Compiler options and a list of assemblies required can be configured
-        in the datastore.
+        PowerShell session can also sign the executable if provided a path the
+        a .pfx formatted certificate. Compiler options and a list of assemblies
+        required can be configured in the datastore.
       },
       'License'              => MSF_LICENSE,
       'Author'               => 'RageLtMan <rageltman[at]sempervictus>',
@@ -31,7 +31,6 @@ class MetasploitModule < Msf::Post
       'Targets' => [ [ 'Universal', {} ] ],
       'DefaultTarget' => 0,
       'DisclosureDate' => 'Aug 14 2012'
-
     ))
 
     register_options(
@@ -50,7 +49,7 @@ class MetasploitModule < Msf::Post
       ], self.class)
     register_advanced_options(
       [
-        OptString.new('NET_CLR_VER', [false, 'Minimun NET CLR version required to compile', '3.5']),
+        OptString.new('NET_CLR_VER', [false, 'Minimum NET CLR version required to compile', '4.0']),
       ], self.class)
 
   end
@@ -62,19 +61,19 @@ class MetasploitModule < Msf::Post
       print_error("Incompatible Environment")
       return 0
     end
-    # Havent figured this one out yet, but we need a PID owned by a user, cant steal tokens either
+
+    # Havent figured this one out yet, but we need a PID owned by a user, can't steal tokens either
     if client.sys.config.getuid == 'NT AUTHORITY\SYSTEM'
       print_error("Cannot run as system")
       return 0
     end
 
-
-
     # End of file marker
     eof = Rex::Text.rand_text_alpha(8)
     env_suffix = Rex::Text.rand_text_alpha(8)
     net_com_opts = {}
-    net_com_opts[:target] = datastore['OUTPUT_TARGET'] || session.fs.file.expand_path('%TEMP%') + "\\#{ Rex::Text.rand_text_alpha(rand(8)+8) }.exe"
+    net_com_opts[:target] = datastore['OUTPUT_TARGET'] ||
+      session.fs.file.expand_path('%TEMP%') + "\\#{ Rex::Text.rand_text_alpha(rand(8)+8) }.exe"
     net_com_opts[:com_opts] = datastore['COMPILER_OPTS']
     net_com_opts[:provider] = datastore['CODE_PROVIDER']
     net_com_opts[:assemblies] = datastore['ASSEMBLIES']
@@ -94,29 +93,11 @@ class MetasploitModule < Msf::Post
     end
 
     vprint_good("Writing to #{net_com_opts[:target]}")
-    # Compress
-    print_status('Compressing script contents:')
-    compressed_script = compress_script(script, eof)
-=begin
-    # If the compressed size is > 8100 bytes, launch stager
-    if (compressed_script.size > 8100)
-      print_error(" - Compressed size: #{compressed_script.size}")
-      error_msg =  "Compressed size may cause command to exceed "
-      error_msg += "cmd.exe's 8kB character limit."
-      print_error(error_msg)
-      print_status('Launching stager:')
-      script = stage_cmd_env(compressed_script, env_suffix)
-      print_good("Payload successfully staged.")
-    else
-      print_good(" - Compressed size: #{compressed_script.size}")
-      script = compressed_script
-    end
-=end
+
     # Execute the powershell script
-    print_status('Executing the script.')
-    #psh_exec(script,false,true)
+    print_status('Building remote code.')
     cmd_out, running_pids, open_channels = execute_script(script, true)
-    get_ps_output(cmd_out,eof)
+    get_ps_output(cmd_out, eof)
     vprint_good( "Cleaning up #{running_pids.join(', ')}" )
 
     clean_up(nil, eof, running_pids, open_channels, env_suffix, false)
@@ -126,7 +107,7 @@ class MetasploitModule < Msf::Post
       size = session.fs.file.stat(net_com_opts[:target].gsub('\\','\\\\')).size
       print_good("File #{net_com_opts[:target].gsub('\\','\\\\')} found, #{size}kb")
     rescue
-      print_error("File #{net_com_opts[:target].gsub('\\','\\\\')} not found")
+      print_error("File #{net_com_opts[:target].gsub('\\','\\\\')} not found, NET CLR version #{datastore['NET_CLR_VER']} possibly not available")
       return
     end
 
@@ -134,7 +115,6 @@ class MetasploitModule < Msf::Post
     if datastore['RUN_BINARY']
       session.sys.process.execute(net_com_opts[:target].gsub('\\','\\\\'), nil, {'Hidden' => true, 'Channelized' => true})
     end
-
 
     print_good('Finished!')
   end
