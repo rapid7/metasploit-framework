@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
         end
     end
   end
-  
+  #
   def cname_record(action)
     resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
     update   = Dnsruby::Update.new(datastore['DOMAIN'])
