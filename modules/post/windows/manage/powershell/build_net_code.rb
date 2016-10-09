@@ -39,21 +39,22 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('SOURCE_FILE', [true, 'Path to source code']),
         OptBool.new('RUN_BINARY', [false, 'Execute the generated binary', false]),
-        OptString.new('ASSEMBLIES', [false, 'Any assemblies outside the defaults',
-            "mscorlib.dll, System.dll, System.Xml.dll, System.Data.dll" ]),
+        OptString.new('ASSEMBLIES', [false, 'Any assemblies outside the defaults', "mscorlib.dll, System.dll, System.Xml.dll, System.Data.dll" ]),
         OptString.new('OUTPUT_TARGET', [false, 'Name and path of the generated binary, default random, omit extension' ]),
         OptString.new('COMPILER_OPTS', [false, 'Options to pass to compiler', '/optimize']),
         OptString.new('CODE_PROVIDER', [true, 'Code provider to use', 'Microsoft.CSharp.CSharpCodeProvider'])
-      ], self.class)
+      ], self.class
+    )
     register_advanced_options(
       [
         OptString.new('NET_CLR_VER', [false, 'Minimum NET CLR version required to compile', '4.0'])
-      ], self.class)
+      ], self.class
+    )
   end
 
   def run
     # Make sure we meet the requirements before running the script
-    if !(session.type == "meterpreter" || have_powershell?)
+    unless session.type == "meterpreter" || have_powershell?
       print_error "Incompatible Environment"
       return 0
     end
@@ -68,8 +69,9 @@ class MetasploitModule < Msf::Post
     eof = Rex::Text.rand_text_alpha(8)
     env_suffix = Rex::Text.rand_text_alpha(8)
     net_com_opts = {}
-    net_com_opts[:target] = datastore['OUTPUT_TARGET'] ||
-      session.fs.file.expand_path('%TEMP%') + "\\#{Rex::Text.rand_text_alpha(rand(8) + 8)}.exe"
+    net_com_opts[:target] =
+      datastore['OUTPUT_TARGET'] ||
+      "#{session.fs.file.expand_path('%TEMP%')}\\#{Rex::Text.rand_text_alpha(rand(8) + 8)}.exe"
     net_com_opts[:com_opts] = datastore['COMPILER_OPTS']
     net_com_opts[:provider] = datastore['CODE_PROVIDER']
     net_com_opts[:assemblies] = datastore['ASSEMBLIES']
@@ -110,8 +112,11 @@ class MetasploitModule < Msf::Post
 
     # Run the result
     if datastore['RUN_BINARY']
-      session.sys.process.execute(net_com_opts[:target].gsub('\\', '\\\\'),
-                                  nil, { 'Hidden' => true, 'Channelized' => true })
+      cmd_out = session.sys.process.execute(net_com_opts[:target].gsub('\\', '\\\\'),
+                                            nil, 'Hidden' => true, 'Channelized' => true)
+      while (out = cmd_out.channel.read)
+        print_good out
+      end
     end
 
     print_good 'Finished!'

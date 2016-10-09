@@ -18,8 +18,8 @@ To build and run the code:
 
 ```
 msf exploit(handler) > use post/windows/manage/powershell/build_net_code
-msf post(build_net_code) > set session -1
-session => -1
+msf post(build_net_code) > set SESSION -1
+SESSION => -1
 msf post(build_net_code) > show options
 
 Module options (post/windows/manage/powershell/build_net_code):
@@ -54,4 +54,24 @@ Microsoft Windows [Version 10.0.14393]
 E:\metasploit-framework>C:\cygwin64\tmp\aNwCFmmLzlYvPWw.exe
 C:\cygwin64\tmp\aNwCFmmLzlYvPWw.exe
 Hello, World!
+```
+
+You can also run the code automatically:
+
+```
+msf exploit(handler) > use post/windows/manage/powershell/build_net_code
+msf post(build_net_code) > set SOURCE_FILE /tmp/hello.cs
+SOURCE_FILE => /tmp/hello.cs
+msf post(build_net_code) > set RUN_BINARY true
+RUN_BINARY => true
+msf post(build_net_code) > set SESSION -1
+SESSION => -1
+msf post(build_net_code) > run
+
+[*] Building remote code.
+[+] File C:\cygwin64\tmp\QuEQSEifJOe.exe found, 3584kb
+[+] Hello, World!
+
+[+] Finished!
+[*] Post module execution completed
 ```
