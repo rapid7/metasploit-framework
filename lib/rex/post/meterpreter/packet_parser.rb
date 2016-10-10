@@ -62,7 +62,8 @@ class PacketParser
         # header size doesn't include the xor key, which is always tacked on the front
         self.payload_length_left = length_bytes.unpack("N")[0] - (HEADER_SIZE - 4)
       end
-    elsif (self.payload_length_left > 0)
+    end
+    if (self.payload_length_left > 0)
       buf = sock.read(self.payload_length_left)
 
       if (buf)
