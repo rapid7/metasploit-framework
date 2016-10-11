@@ -64,6 +64,8 @@ require 'rex/mime'
 require 'rex/encoder'
 # Architecture subsystem
 require 'rex/arch'
+# Exploit Helper Library
+require 'rex/exploitation'
 
 # Generic classes
 require 'rex/exceptions'
