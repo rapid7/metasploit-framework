@@ -374,7 +374,6 @@ class Utils
 
   # Parse an ntlm type 2 challenge blob and return usefull data
   def self.parse_ntlm_type_2_blob(blob)
-    puts("NTLM BLOB:\n#{blob.each_byte.map { |b| b.to_s(16)+" " }.join}")
     data = {}
     # Extract the NTLM challenge key the lazy way
     cidx = blob.index("NTLMSSP\x00\x02\x00\x00\x00")
@@ -393,38 +392,26 @@ class Utils
 
     while(alist_buf.length > 0)
       atype, alen = alist_buf.slice!(0,4).unpack('vv')
-#      puts("alen=#{alen}\natype=#{atype}")
       break if atype == 0x00
       addr = alist_buf.slice!(0, alen)
       case atype
       when 1
         #netbios name
-        puts("\nNETBIOS NAME")
-        data[:default_name] =  addr
-        puts("#{data[:default_name].each_byte.map { |b| b.to_s(16)+" " }.join}")
-        data[:default_name].force_encoding("UTF-16LE")
-        puts(data[:default_name].encode("UTF-8"))
+        temp_name = addr
+        temp_name.force_encoding("UTF-16LE")
+        data[:default_name] =  temp_name.encode("UTF-8")
       when 2
         #netbios domain
-        puts("\nNETBIOS DOMAIN")
         data[:default_domain] = addr
-        puts("#{data[:default_domain].each_byte.map { |b| b.to_s(16)+" " }.join}")
         data[:default_domain].force_encoding("UTF-16LE")
-        puts(data[:default_domain].encode("UTF-8"))
       when 3
         #dns name
-        puts("\nDNS NAME")
         data[:dns_host_name] =  addr
-        puts("#{data[:dns_host_name].each_byte.map { |b| b.to_s(16)+" " }.join}")
         data[:dns_host_name].force_encoding("UTF-16LE")
-        puts(data[:dns_host_name].encode("UTF-8"))
       when 4
         #dns domain
-        puts("\nDNS DOMAIN")
         data[:dns_domain_name] =  addr
-        puts("#{data[:dns_domain_name].each_byte.map { |b| b.to_s(16)+" " }.join}")
         data[:dns_domain_name].force_encoding("UTF-16LE")
-        puts(data[:dns_domain_name].encode("UTF-8"))
       when 5
         #The FQDN of the forest.
       when 6
