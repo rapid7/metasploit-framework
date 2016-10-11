@@ -131,12 +131,12 @@ class MetasploitModule < Msf::Auxiliary
       # Append filename if there isn't one
       if path !~ /(.+\.\w+)$/
         path << "#{Rex::Text.rand_text_alpha(5)}.txt"
-        vprint_status("#{ip}: No filename specified. Using: #{path}")
+        vprint_status("No filename specified. Using: #{path}")
       end
 
       # Upload file
       res = do_put(path, data)
-      vprint_status("Reply: #{res.code.to_s}") if not res.nil?
+      vprint_status("#{ip}: Reply: #{res.code.to_s}") if not res.nil?
 
       # Check file
       if not res.nil? and file_exists(path, data)
