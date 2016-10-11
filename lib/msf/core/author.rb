@@ -51,7 +51,8 @@ class Msf::Author
     'theLightCosine'      => 'theLightCosine' + 0x40.chr + 'metasploit.com',
     'todb'                => 'todb' + 0x40.chr + 'metasploit.com',
     'vlad902'             => 'vlad902' + 0x40.chr + 'gmail.com',
-    'wvu'                 => 'wvu' + 0x40.chr + 'metasploit.com'
+    'wvu'                 => 'wvu' + 0x40.chr + 'metasploit.com',
+    'zeroSteiner'         => 'zeroSteiner' + 0x40.chr + 'gmail.com'
   }
 
   #
