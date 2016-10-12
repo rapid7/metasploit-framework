@@ -71,11 +71,12 @@ class MetasploitModule < Msf::Auxiliary
       return if len <= 0
       print_good("#{peer} - IKE response with leak")
       report_vuln({
-        :host => rhost,
-        :port => rport,
+        :host => ip,
+        :port => datastore['RPORT'],
+        :proto => 'udp',
         :name => self.name,
         :refs => self.references,
-        :info => "Module #{self.fullname} successfully leaked info"
+        :info => "Vulnerable to Cisco IKE Information Disclosure"
       })
 
     rescue
