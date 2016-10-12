@@ -65,6 +65,12 @@ class MetasploitModule < Msf::Auxiliary
       res = udp_sock.get(3)
       return unless res && res.length > 36 # ISAKMP + 36 -> Notitication Data...
 
+      # Convert non-printable characters to periods
+      printable_data = res.gsub(/[^[:print:]]/, '.')
+
+      # Show abbreviated data
+      vprint_status("Printable info leaked:\n#{printable_data}")
+
       chars = res.unpack('C*')
       len = (chars[30].to_s(16) + chars[31].to_s(16)).hex
 
