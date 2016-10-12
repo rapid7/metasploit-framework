@@ -94,13 +94,14 @@ class Console::CommandDispatcher::Stdapi::Sys
       "kill"        => "Terminate a process",
       "ps"          => "List running processes",
       "reboot"      => "Reboots the remote computer",
-      "reg"	      => "Modify and interact with the remote registry",
+      "reg"         => "Modify and interact with the remote registry",
       "rev2self"    => "Calls RevertToSelf() on the remote machine",
       "shell"       => "Drop into a system command shell",
       "shutdown"    => "Shuts down the remote computer",
       "steal_token" => "Attempts to steal an impersonation token from the target process",
       "suspend"     => "Suspends or resumes a list of processes",
       "sysinfo"     => "Gets information about the remote system, such as OS",
+      "localtime"   => "Displays the target system's local date and time",
     }
     reqs = {
       "clearev"     => [ "stdapi_sys_eventlog_open", "stdapi_sys_eventlog_clear" ],
@@ -135,6 +136,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "steal_token" => [ "stdapi_sys_config_steal_token" ],
       "suspend"     => [ "stdapi_sys_process_attach"],
       "sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
+      "localtime"   => [ "stdapi_sys_config_localtime" ],
     }
 
     all.delete_if do |cmd, desc|
@@ -808,7 +810,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Displays information about the remote system.
   #
   def cmd_sysinfo(*args)
-    info = client.sys.config.sysinfo
+    info = client.sys.config.sysinfo(refresh: true)
     width = "Meterpreter".length
     info.keys.each { |k| width = k.length if k.length > width and info[k] }
 
@@ -817,6 +819,14 @@ class Console::CommandDispatcher::Stdapi::Sys
     end
     print_line("#{"Meterpreter".ljust(width+1)}: #{client.platform}")
 
+    return true
+  end
+
+  #
+  # Displays the local date and time at the remote system location.
+  #
+  def cmd_localtime(*args)
+    print_line("Local Date/Time: " + client.sys.config.localtime);
     return true
   end
 

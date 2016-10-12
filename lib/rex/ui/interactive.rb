@@ -83,8 +83,13 @@ module Interactive
       self.completed = true
     end
 
-    # Return whether or not EOF was reached
-    return eof
+    # if another session was requested, store it
+    next_session = self.next_session
+    # clear the value from the object
+    self.next_session = nil
+
+    # return this session id
+    return next_session
   end
 
   #
@@ -103,6 +108,11 @@ module Interactive
   # Whether or not the session is currently being interacted with
   #
   attr_accessor   :interacting
+
+  #
+  # If another session needs interaction, this is where it goes
+  #
+  attr_accessor   :next_session
 
   #
   # Whether or not the session has completed interaction

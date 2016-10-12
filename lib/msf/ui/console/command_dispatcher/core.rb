@@ -136,6 +136,7 @@ class Core
       "route"      => "Route traffic through a session",
       "save"       => "Saves the active datastores",
       "search"     => "Searches module names and descriptions",
+      "sess"       => "Interact with a given session",
       "sessions"   => "Dump session listings and display information about sessions",
       "set"        => "Sets a context-specific variable to a value",
       "setg"       => "Sets a global variable to a value",
@@ -806,10 +807,10 @@ class Core
       elsif dump_json
         print(Serializer::Json.dump_module(mod) + "\n")
       elsif show_doc
-        f = Rex::Quickfile.new(["#{active_module.shortname}_doc", '.html'])
+        f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
         begin
-          print_status("Generating documentation for #{active_module.shortname}, then opening #{f.path} in a browser...")
-          Msf::Util::DocumentGenerator.spawn_module_document(active_module, f)
+          print_status("Generating documentation for #{mod.shortname}, then opening #{f.path} in a browser...")
+          Msf::Util::DocumentGenerator.spawn_module_document(mod, f)
         ensure
           f.close if f
         end
@@ -1327,24 +1328,20 @@ class Core
   # which session a given subnet should route through.
   #
   def cmd_route(*args)
-    if (args.length == 0)
-      cmd_route_help
-      return false
-    end
+    args << 'print' if args.length == 0
 
     action = args.shift
     case action
 
     when "add", "remove", "del"
       subnet = args.shift
-      subnet,cidr_mask = subnet.split("/")
-
-      if cidr_mask
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
-      else
-        netmask = args.shift
+      netmask = nil
+      if subnet
+        subnet, cidr_mask = subnet.split("/")
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i) if cidr_mask
       end
 
+      netmask = args.shift if netmask.nil?
       gateway_name = args.shift
 
       if (subnet.nil? || netmask.nil? || gateway_name.nil?)
@@ -1357,7 +1354,7 @@ class Core
       case gateway_name
       when /local/i
         gateway = Rex::Socket::Comm::Local
-      when /^[0-9]+$/
+      when /^(-1|[0-9]+)$/
         session = framework.sessions.get(gateway_name)
         if session.kind_of?(Msf::Session::Comm)
           gateway = session
@@ -1365,7 +1362,7 @@ class Core
           print_error("Not a session: #{gateway_name}")
           return false
         else
-          print_error("Cannout route through specified session (not a Comm)")
+          print_error("Cannot route through the specified session (not a Comm)")
           return false
         end
       else
@@ -1421,7 +1418,6 @@ class Core
           })
 
       Rex::Socket::SwitchBoard.each { |route|
-
         if (route.comm.kind_of?(Msf::Session))
           gw = "Session #{route.comm.sid}"
         else
@@ -1431,7 +1427,11 @@ class Core
         tbl << [ route.subnet, route.netmask, gw ]
       }
 
-      print(tbl.to_s)
+      if tbl.rows.length == 0
+        print_status('There are currently no routes defined.')
+      else
+        print(tbl.to_s)
+      end
     else
       cmd_route_help
     end
@@ -1615,7 +1615,6 @@ class Core
       'cve'      => 'Modules with a matching CVE ID',
       'edb'      => 'Modules with a matching Exploit-DB ID',
       'name'     => 'Modules with a matching descriptive name',
-      'osvdb'    => 'Modules with a matching OSVDB ID',
       'platform' => 'Modules affecting this platform',
       'ref'      => 'Modules with a matching ref',
       'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
@@ -1753,6 +1752,25 @@ class Core
 
     print_status(msg)
     return
+  end
+
+  def cmd_sess_help
+    print_line('Usage: sess <session id>')
+    print_line
+    print_line('Interact with the given session ID.')
+    print_line('This works the same as: sessions -i <session id>')
+    print_line
+  end
+
+  #
+  # Helper function to quickly select a session
+  #
+  def cmd_sess(*args)
+    if args.length == 0 || args[0].to_i == 0
+      cmd_sess_help
+    else
+      cmd_sessions('-i', args[0])
+    end
   end
 
   def cmd_sessions_help
@@ -1956,22 +1974,26 @@ class Core
         end
       end
     when 'interact'
-      session = verify_session(sid)
-      if session
-        if session.respond_to?(:response_timeout)
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
-        end
-        print_status("Starting interaction with #{session.name}...\n") unless quiet
-        begin
-          self.active_session = session
-          session.interact(driver.input.dup, driver.output)
-          self.active_session = nil
-          driver.input.reset_tab_completion if driver.input.supports_readline
-        ensure
-          if session.respond_to?(:response_timeout) && last_known_timeout
-            session.response_timeout = last_known_timeout
+      while sid
+        session = verify_session(sid)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
           end
+          print_status("Starting interaction with #{session.name}...\n") unless quiet
+          begin
+            self.active_session = session
+            sid = session.interact(driver.input.dup, driver.output)
+            self.active_session = nil
+            driver.input.reset_tab_completion if driver.input.supports_readline
+          ensure
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
+          end
+        else
+          sid = nil
         end
       end
     when 'scriptall'

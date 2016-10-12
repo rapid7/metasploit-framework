@@ -414,8 +414,6 @@ protected
         url = payload_uri(req) + conn_id
         url << '/' unless url[-1] == '/'
 
-        p url
-
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
           :passive_dispatcher => self.service,
