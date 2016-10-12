@@ -16,7 +16,7 @@ PATH
       metasploit-model
       metasploit-payloads (= 1.1.21)
       metasploit_data_models
-      metasploit_payloads-mettle (= 0.0.7)
+      metasploit_payloads-mettle (= 0.0.8)
       msgpack
       nessus_rest
       net-ssh
@@ -178,7 +178,7 @@ GEM
       postgres_ext
       railties (~> 4.2.6)
       recog (~> 2.0)
-    metasploit_payloads-mettle (0.0.7)
+    metasploit_payloads-mettle (0.0.8)
     method_source (0.8.2)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
