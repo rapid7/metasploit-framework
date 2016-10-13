@@ -85,6 +85,12 @@ class MetasploitModule < Msf::Auxiliary
         :info => "Vulnerable to Cisco IKE Information Disclosure"
       })
 
+      # NETWORK may return the same packet data.
+      return if res.length < 2500
+      pkt_md5 = ::Rex::Text.md5(isakmp_pkt[isakmp_pkt.length-2500, isakmp_pkt.length])
+      res_md5 = ::Rex::Text.md5(res[res.length-2500, res.length])
+
+      print_warning("#{peer} - IKE response is same to payload data") if pkt_md5 == res_md5
     rescue
     ensure
       udp_sock.close
