@@ -161,19 +161,25 @@ class MetasploitModule < Msf::Auxiliary
   end
   # Run
   def run
-    print_status("Sending DNS query payload...")
-    case
-    when datastore['TYPE'] == 'A'
-      a_record(action.name)
-    when datastore['TYPE'] == 'CNAME'
-      cname_record(action.name)
-    when datastore['TYPE'] == 'TXT'
-      txt_record(action.name)
-    when datastore['TYPE'] == 'MX'
-      print_warning("Not implemented yet.")
-      mx_record(action.name)
-    else
-      print_error "Invalid Record Type!"
+    begin
+      print_status("Sending DNS query payload...")
+      case
+        when datastore['TYPE'] == 'A'
+          a_record(action.name)
+        when datastore['TYPE'] == 'CNAME'
+          cname_record(action.name)
+        when datastore['TYPE'] == 'TXT'
+          txt_record(action.name)
+        when datastore['TYPE'] == 'MX'
+          print_warning("Not implemented yet.")
+          mx_record(action.name)
+        else
+          print_error "Invalid Record Type!"
+      end
+    rescue Dnsruby::OtherResolvError
+      print_error("Connection Refused!")
+    rescue Dnsruby::DecodeError
+      print_error("None DNS protocol answer!, Make sure it's a DNS service")
     end
   end
 
