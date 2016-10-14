@@ -299,6 +299,52 @@ class Msf::Payload::UUID
   end
 
   #
+  # Return a string that represents the Meterpreter platform
+  #
+  def to_platform
+    # mini-patch for x86_64 so that it renders x64 instead. This is
+    # mostly to keep various external modules happy.
+    arch = self.arch
+    if arch == ARCH_X86_64
+        arch = ARCH_X64
+    end
+    "#{arch}/#{self.platform}"
+  end
+
+  #
+  # TODO: Not sure if this is the best place for this to go. Open to
+  # suggestions for moving it elsewhere
+  #
+  def binary_suffix
+    # generate a file/binary suffix based on the current platform
+    case self.platform
+    when 'windows'
+      # with windows, we also need to care about arch
+      if self.arch == ARCH_X86
+        'x86.dll'
+      else
+        'x64.dll'
+      end
+    when 'android', 'java'
+      'jar'
+    when 'ruby'
+      'rb'
+    when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
+      'lso'
+    when 'bsd' , 'openbsd' , 'bsdi' , 'netbsd' , 'freebsd'
+      'bso'
+    when 'php'
+      'php'
+    when 'python'
+      'py'
+    when 'nodejs', 'js'
+      'js'
+    else
+      nil
+    end
+  end
+
+  #
   # Provides a hash representation of a UUID
   #
   # @return [Hash] The hash representation of the UUID suitable for creating a new one

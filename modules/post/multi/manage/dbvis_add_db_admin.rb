@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Post
          user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
-    when /win/
+    when /windows/
       user_profile = session.sys.config.getenv('USERPROFILE')
       dbvis_file = "#{user_profile}\\.dbvis\\config70\\dbvis.xml"
     end
@@ -76,16 +76,18 @@ class MetasploitModule < Msf::Post
       #File not found, we next try with the old config path
       print_status("File not found: #{dbvis_file}")
       print_status("This could be an older version of dbvis, trying old path")
+
       case session.platform
       when /linux/
         dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
-      when /win/
+      when /windows/
         dbvis_file = "#{user_profile }\\.dbvis\\config\\dbvis.xml"
       end
       unless file?(dbvis_file)
         print_error("File not found: #{dbvis_file}")
         return
       end
+
       old_version = true
     end
 
@@ -162,7 +164,7 @@ class MetasploitModule < Msf::Post
       else
         print_good("Dbviscmd found : #{dbvis}")
       end
-    when /win/
+    when /windows/
       # Find program files
       progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
       progfiles_x86 = progfiles_env['ProgramFiles(X86)']

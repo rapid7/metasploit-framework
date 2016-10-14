@@ -54,8 +54,8 @@ class MetasploitModule < Msf::Post
     screenshot = Msf::Config.get_config_root + "/logs/" + host + ".jpg"
 
     migrate_explorer
-    if session.platform !~ /win32|win64/i
-      print_error("Unsupported Platform")
+    if session.platform !~ /windows/i
+      print_error('Unsupported Platform')
       return
     end
 

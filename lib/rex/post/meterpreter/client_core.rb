@@ -431,40 +431,42 @@ class ClientCore < Extension
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
-  def migrate(pid, writable_dir = nil, opts = {})
+  def migrate(target_pid, writable_dir = nil, opts = {})
     keepalive              = client.send_keepalives
     client.send_keepalives = false
-    process                = nil
+    target_process         = nil
+    current_process        = nil
     binary_suffix          = nil
-    old_platform           = client.platform
-    old_binary_suffix      = client.binary_suffix
 
     # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
     client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
 
-    # Determine the architecture for the pid we are going to migrate into...
+    current_pid = client.sys.process.getpid
+
+    # Find the current and target process instances
     client.sys.process.processes.each { | p |
-      if p['pid'] == pid
-        process = p
-        break
+      if p['pid'] == target_pid
+        target_process = p
+      elsif p['pid'] == current_pid
+        current_process = p
       end
     }
 
     # We cant migrate into a process that does not exist.
-    unless process
+    unless target_process
       raise RuntimeError, 'Cannot migrate into non existent process', caller
     end
 
     # We cannot migrate into a process that we are unable to open
     # On linux, arch is empty even if we can access the process
     if client.platform =~ /win/
-      if process['arch'] == nil || process['arch'].empty?
+      if target_process['arch'] == nil || target_process['arch'].empty?
         raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
       end
     end
 
     # And we also cannot migrate into our own current process...
-    if process['pid'] == client.sys.process.getpid
+    if current_process['pid'] == target_process['pid']
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
@@ -481,7 +483,7 @@ class ClientCore < Extension
       # Rex::Post::FileStat#writable? isn't available
     end
 
-    blob = generate_payload_stub(process)
+    blob = generate_payload_stub(target_process)
 
     # Build the migration request
     request = Packet.create_request('core_migrate')
@@ -507,14 +509,21 @@ class ClientCore < Extension
       request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
     end
 
-    request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
+    request.add_tlv( TLV_TYPE_MIGRATE_PID, target_pid )
     request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
     request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
 
-    if process['arch'] == ARCH_X86_64
+    if target_process['arch'] == ARCH_X86_64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
+
     else
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
+    end
+
+    # if we change architecture, we need to change UUID as well
+    if current_process['arch'] != target_process['arch']
+      client.payload_uuid.arch = target_process['arch']
+      request.add_tlv( TLV_TYPE_UUID, client.payload_uuid.to_raw )
     end
 
     # Send the migration request. Timeout can be specified by the caller, or set to a min
@@ -556,30 +565,6 @@ class ClientCore < Extension
         client.monitor_socket
 
       end
-    end
-
-    # Update the meterpreter platform/suffix for loading extensions as we may
-    # have changed target architecture
-    # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a
-    # module this is the simplest solution I could think of. If the platform
-    # specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change
-    # significantly we will need a better way to do this.
-
-    case client.platform
-    when /win/i
-      if process['arch'] == ARCH_X86_64
-        client.platform      = 'x64/win64'
-        client.binary_suffix = 'x64.dll'
-      else
-        client.platform      = 'x86/win32'
-        client.binary_suffix = 'x86.dll'
-      end
-    when /linux/i
-      client.platform        = 'x86/linux'
-      client.binary_suffix   = 'lso'
-    else
-      client.platform        = old_platform
-      client.binary_suffix   = old_binary_suffix
     end
 
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)

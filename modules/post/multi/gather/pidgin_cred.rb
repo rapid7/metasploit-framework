@@ -44,8 +44,8 @@ class MetasploitModule < Msf::Post
     when /osx/
       @platform = :osx
       paths = enum_users_unix
-    when /win/
-      @platform = :win
+    when /windows/
+      @platform = :windows
       profiles = grab_user_profiles()
       profiles.each do |user|
         next if user['AppData'] == nil
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Post
     print_status("Checking for Pidgin profile in: #{purpledir}")
     session.fs.dir.foreach(purpledir) do |dir|
       if dir =~ /\.purple/
-        if @platform == :win
+        if @platform == :windows
           print_status("Found #{purpledir}\\#{dir}")
           path = "#{purpledir}\\#{dir}"
         else

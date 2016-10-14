@@ -361,7 +361,7 @@ class DLL
 #		puts("
 #=== START of proccess_function_call snapshot ===
 #		{
-#			:platform => '#{native == 'Q' ? 'x64/win64' : 'x86/win32'}',
+#			:platform => '#{native == 'Q' ? 'x64/windows' : 'x86/windows'}',
 #			:name => '#{function.windows_name}',
 #			:params => #{function.params},
 #			:return_type => '#{function.return_type}',

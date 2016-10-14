@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Post
     case session.platform
     when /osx/
       osx_start_video(id)
-    when /win/
+    when /windows/
       win_start_video(id)
     when /linux/
       linux_start_video(id)

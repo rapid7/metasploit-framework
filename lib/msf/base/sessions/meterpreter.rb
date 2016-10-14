@@ -284,7 +284,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Load the stdapi extension.
   #
-  def load_stdapi()
+  def load_stdapi
     original = console.disable_output
     console.disable_output = true
     console.run_single('load stdapi')
@@ -294,9 +294,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Load the priv extension.
   #
-  def load_priv()
+  def load_priv
     original = console.disable_output
-
     console.disable_output = true
     console.run_single('load priv')
     console.disable_output = original
@@ -310,7 +309,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     begin
       self.machine_id = self.core.machine_id(timeout)
-      self.payload_uuid ||= self.core.uuid(timeout)
 
       return true
     rescue ::Rex::Post::Meterpreter::RequestError
@@ -325,40 +323,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def update_session_info
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
-    tuple = self.platform.split('/')
-
-    #
-    # Windows meterpreter currently needs 'win32' or 'win64' to be in the
-    # second half of the platform tuple, in order for various modules and
-    # library code match on that specific string.
-    #
-    if self.platform !~ /win32|win64/
-
-      platform = case self.sys.config.sysinfo['OS']
-        when /windows/i
-          Msf::Module::Platform::Windows
-        when /darwin/i
-          Msf::Module::Platform::OSX
-        when /freebsd/i
-          Msf::Module::Platform::FreeBSD
-        when /netbsd/i
-          Msf::Module::Platform::NetBSD
-        when /openbsd/i
-          Msf::Module::Platform::OpenBSD
-        when /sunos/i
-          Msf::Module::Platform::Solaris
-        when /android/i
-          Msf::Module::Platform::Android
-        else
-          Msf::Module::Platform::Linux
-      end.realname.downcase
-
-      #
-      # This normalizes the platform from 'python/python' to 'python/linux'
-      #
-      self.platform = "#{tuple[0]}/#{platform}"
-    end
-
 
     safe_info = "#{username} @ #{sysinfo['Computer']}"
     safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
@@ -505,8 +469,33 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     sock
   end
 
-  attr_accessor :platform
-  attr_accessor :binary_suffix
+  #
+  # Get a string representation of the current session platform
+  #
+  def platform
+    # TODO: talk about this with the devs because we seem to rely on this
+    # value when populating the DB before the session is even fully established.
+    if self.payload_uuid
+      # return the actual platform of the current session if it's there
+      self.payload_uuid.to_platform
+    else
+      # otherwise just use the base for the session type tied to this handler
+      self.base_platform
+    end
+  end
+
+  #
+  # Get the value to use for file suffixes based on the platform
+  #
+  def binary_suffix
+    self.payload_uuid.binary_suffix
+  end
+
+  # This is the base platform for the original payload, required for when the
+  # session is first created thanks to the fact that the DB session recording
+  # happens before the session is even established.
+  attr_accessor :base_platform
+
   attr_accessor :console # :nodoc:
   attr_accessor :skip_ssl
   attr_accessor :skip_cleanup

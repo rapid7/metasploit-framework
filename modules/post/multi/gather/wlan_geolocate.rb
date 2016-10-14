@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Post
   # Run Method for when run command is issued
   def run
     case session.platform
-    when /win/i
+    when /windows/i
       listing = cmd_exec('netsh wlan show networks mode=bssid')
       if listing.nil?
         print_error("Unable to generate wireless listing.")

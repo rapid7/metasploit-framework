@@ -86,8 +86,7 @@ class Meterpreter_Python_Python < Msf::Sessions::Meterpreter
 
   def initialize(rstream, opts={})
     super
-    self.platform      = 'python/python'
-    self.binary_suffix = 'py'
+    self.base_platform = 'python/python'
   end
 
   def lookup_error(error_code)
@@ -116,5 +115,6 @@ class Meterpreter_Python_Python < Msf::Sessions::Meterpreter
     false
   end
 end
+
 end
 end

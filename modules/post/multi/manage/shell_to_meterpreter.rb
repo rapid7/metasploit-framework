@@ -80,8 +80,8 @@ class MetasploitModule < Msf::Post
 
     # Handle platform specific variables and settings
     case session.platform
-    when /win/i
-      platform = 'win'
+    when /windows/i
+      platform = 'windows'
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Post
     end
 
     case platform
-    when 'win'
+    when 'windows'
       if session.type == 'powershell'
         template_path = File.join(Msf::Config.data_directory, 'templates', 'scripts')
         psh_payload = case datastore['Powershell::method']

@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Post
 
   def get_env_shell
     print_line @output if @output
-    if session.platform =~ /win/
+    if session.platform =~ /windows/
       @ltype = "windows.environment"
       cmd = "set"
     else

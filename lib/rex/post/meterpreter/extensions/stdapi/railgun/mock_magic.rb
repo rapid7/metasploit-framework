@@ -46,7 +46,7 @@ module MockMagic
     end
   end
 
-  def make_mock_client(platform = "x86/win32", target_request_tlvs = [], response_tlvs = [])
+  def make_mock_client(platform = "x86/windows", target_request_tlvs = [], response_tlvs = [])
     check_request = lambda do |request|
       target_request_tlvs.each_pair do |type, target_value|
         assert_equal(target_value, request.get_tlv_value(type),
@@ -62,7 +62,7 @@ module MockMagic
   def mock_function_descriptions
     [
       {
-        :platform => "x86/win32",
+        :platform => "x86/windows",
         :name => "LookupAccountSidA",
         :params => [
           ["PCHAR","lpSystemName","in"],
@@ -101,7 +101,7 @@ module MockMagic
         },
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'LookupAccountSidA',
         :params => [
           ["PCHAR", "lpSystemName", "in"],
@@ -140,7 +140,7 @@ module MockMagic
         },
       },
       {
-        :platform => 'x86/win32',
+        :platform => 'x86/windows',
         :name => 'CryptAcquireContextW',
         :params => [["PDWORD", "phProv", "out"], ["PWCHAR", "pszContainer", "in"], ["PWCHAR", "pszProvider", "in"], ["DWORD", "dwProvType", "in"], ["DWORD", "dwflags", "in"]],
         :return_type => 'BOOL',
@@ -163,7 +163,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true, "phProv"=>1371080},
       },
       {
-        :platform => 'x86/win32',
+        :platform => 'x86/windows',
         :name => 'CryptCreateHash',
         :params => [["LPVOID", "hProv", "in"], ["DWORD", "Algid", "in"], ["LPVOID", "hKey", "in"], ["DWORD", "dwFlags", "in"], ["PDWORD", "phHash", "out"]],
         :return_type => 'BOOL',
@@ -186,7 +186,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true, "phHash"=>1370736},
       },
       {
-        :platform => 'x86/win32',
+        :platform => 'x86/windows',
         :name => 'CryptHashData',
         :params => [["LPVOID", "hHash", "in"], ["PWCHAR", "pbData", "in"], ["DWORD", "dwDataLen", "in"], ["DWORD", "dwFlags", "in"]],
         :return_type => 'BOOL',
@@ -209,7 +209,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true},
       },
       {
-        :platform => 'x86/win32',
+        :platform => 'x86/windows',
         :name => 'CryptDeriveKey',
         :params => [["LPVOID", "hProv", "in"], ["DWORD", "Algid", "in"], ["LPVOID", "hBaseData", "in"], ["DWORD", "dwFlags", "in"], ["PDWORD", "phKey", "inout"]],
         :return_type => 'BOOL',
@@ -232,7 +232,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true, "phKey"=>1416352},
       },
       {
-        :platform => 'x86/win32',
+        :platform => 'x86/windows',
         :name => 'CryptDecrypt',
         :params => [["LPVOID", "hKey", "in"], ["LPVOID", "hHash", "in"], ["BOOL", "Final", "in"], ["DWORD", "dwFlags", "in"], ["PBLOB", "pbData", "inout"], ["PDWORD", "pdwDataLen", "inout"]],
         :return_type => 'BOOL',
@@ -255,7 +255,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true, "pbData"=>"q\x00u\x00x\x00", "pdwDataLen"=>6},
       },
       {
-        :platform => 'x86/win32',
+        :platform => 'x86/windows',
         :name => 'CryptDestroyHash',
         :params => [["LPVOID", "hHash", "in"]],
         :return_type => 'BOOL',
@@ -278,7 +278,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true},
       },
       {
-        :platform => 'x86/win32',
+        :platform => 'x86/windows',
         :name => 'CryptDestroyKey',
         :params => [["LPVOID", "hKey", "in"]],
         :return_type => 'BOOL',
@@ -301,7 +301,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true},
       },
       {
-        :platform => 'x86/win32',
+        :platform => 'x86/windows',
         :name => 'CryptReleaseContext',
         :params => [["LPVOID", "hProv", "in"], ["DWORD", "dwFlags", "in"]],
         :return_type => 'BOOL',
@@ -324,7 +324,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true},
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'CryptAcquireContextW',
         :params => [["PDWORD", "phProv", "out"], ["PWCHAR", "pszContainer", "in"], ["PWCHAR", "pszProvider", "in"], ["DWORD", "dwProvType", "in"], ["DWORD", "dwflags", "in"]],
         :return_type => 'BOOL',
@@ -347,7 +347,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true, "phProv"=>1756800},
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'CryptCreateHash',
         :params => [["LPVOID", "hProv", "in"], ["DWORD", "Algid", "in"], ["LPVOID", "hKey", "in"], ["DWORD", "dwFlags", "in"], ["PDWORD", "phHash", "out"]],
         :return_type => 'BOOL',
@@ -370,7 +370,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true, "phHash"=>1680128},
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'CryptHashData',
         :params => [["LPVOID", "hHash", "in"], ["PWCHAR", "pbData", "in"], ["DWORD", "dwDataLen", "in"], ["DWORD", "dwFlags", "in"]],
         :return_type => 'BOOL',
@@ -393,7 +393,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true},
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'CryptDeriveKey',
         :params => [["LPVOID", "hProv", "in"], ["DWORD", "Algid", "in"], ["LPVOID", "hBaseData", "in"], ["DWORD", "dwFlags", "in"], ["PDWORD", "phKey", "inout"]],
         :return_type => 'BOOL',
@@ -416,7 +416,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true, "phKey"=>1680240},
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'CryptDecrypt',
         :params => [["LPVOID", "hKey", "in"], ["LPVOID", "hHash", "in"], ["BOOL", "Final", "in"], ["DWORD", "dwFlags", "in"], ["PBLOB", "pbData", "inout"], ["PDWORD", "pdwDataLen", "inout"]],
         :return_type => 'BOOL',
@@ -439,7 +439,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true, "pbData"=>"b\x00a\x00z\x00", "pdwDataLen"=>6},
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'CryptDestroyHash',
         :params => [["LPVOID", "hHash", "in"]],
         :return_type => 'BOOL',
@@ -462,7 +462,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true},
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'CryptDestroyKey',
         :params => [["LPVOID", "hKey", "in"]],
         :return_type => 'BOOL',
@@ -485,7 +485,7 @@ module MockMagic
         :returned_hash => {"GetLastError"=>0, "return"=>true},
       },
       {
-        :platform => 'x64/win64',
+        :platform => 'x64/windows',
         :name => 'CryptReleaseContext',
         :params => [["LPVOID", "hProv", "in"], ["DWORD", "dwFlags", "in"]],
         :return_type => 'BOOL',

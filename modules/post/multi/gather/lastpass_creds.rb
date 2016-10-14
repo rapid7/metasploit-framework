@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if session.platform =~ /win/ && session.type == "shell" # No Windows shell support
+    if session.platform =~ /windows/ && session.type == "shell" # No Windows shell support
       print_error "Shell sessions on Windows are not supported"
       return
     end
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
       cookies_path_map = {}
 
       case platform
-      when /win/
+      when /windows/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles",
@@ -194,7 +194,7 @@ class MetasploitModule < Msf::Post
           "LocalAppData" => "/Users/#{user_name}/Library/Application Support"
         )
       end
-    when /win/
+    when /windows/
       user_profiles |= grab_user_profiles
     else
       print_error "OS not recognized: #{os}"
@@ -807,6 +807,6 @@ class MetasploitModule < Msf::Post
 
   # Returns OS separator in a session type agnostic way
   def system_separator
-    return session.platform =~ /win/ ? '\\' : '/'
+    return session.platform =~ /windows/ ? '\\' : '/'
   end
 end

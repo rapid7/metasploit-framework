@@ -14,8 +14,7 @@ module Sessions
 class Meterpreter_x64_Win < Msf::Sessions::Meterpreter
   def initialize(rstream, opts={})
     super
-    self.platform      = 'x64/win64'
-    self.binary_suffix = 'x64.dll'
+    self.base_platform = 'x64/windows'
   end
 
   def lookup_error(code)

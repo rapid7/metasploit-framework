@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Post
     case session.platform
     when /osx/
       osx_set_wallpaper(file)
-    when /win/
+    when /windows/
       win_set_wallpaper(file)
     when /android/
       android_set_wallpaper(file)

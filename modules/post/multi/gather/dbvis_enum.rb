@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Post
          user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
-    when /win/
+    when /windows/
       if session.type =~ /meterpreter/
         user_profile = session.sys.config.getenv('USERPROFILE')
       else
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
       case session.platform
       when /linux/
         dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
-      when /win/
+      when /windows/
         dbvis_file = user_profile + "\\.dbvis\\config\\dbvis.xml"
       end
       unless file?(dbvis_file)

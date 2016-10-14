@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Post
 
     # If we want WINAPI egress, make sure winsock is loaded
     if type == 'WINAPI'
-      unless client.railgun.ws2_32 && client.platform =~ /win/
+      unless client.railgun.ws2_32 && client.platform =~ /windows/
         print_error("The WINAPI method requires Windows, railgun and support for winsock APIs. Try using the NATIVE method instead.")
         return
       end

@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if session.platform =~ /win/
+    if session.platform =~ /windows/
       if session.type == 'meterpreter'
         begin
           res = cmd_exec('c:\\Program Files\\Oracle\\VirtualBox\\vboxmanage', 'list -l vms')

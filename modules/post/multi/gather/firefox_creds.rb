@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Post
       @platform = :unix
     when /osx/
       @platform = :osx
-    when /win/
+    when /windows/
       if session.type != "meterpreter"
         print_error "Only meterpreter sessions are supported on Windows hosts"
         return
@@ -367,7 +367,7 @@ class MetasploitModule < Msf::Post
     loot_file = Rex::Text::rand_text_alpha(6) + ".txt"
 
     case @platform
-    when /win/
+    when /windows/
       unless got_root || session.sys.config.sysinfo['OS'] =~ /xp/i
         print_warning("You may need SYSTEM privileges on this platform for the DECRYPT option to work")
       end
@@ -560,7 +560,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
       args.insert(0, "\"#{@paths['ff']}firefox --display=:0 ")
       args << "\""
       cmd = "su #{user} -c"
-    elsif @platform =~ /win|osx/
+    elsif @platform =~ /windows|osx/
       cmd = @paths['ff'] + "firefox"
       # On OSX, run in background
       args << "& sleep 5 && killall firefox" if @platform =~ /osx/

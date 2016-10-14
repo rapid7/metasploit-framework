@@ -60,7 +60,7 @@ module MeterpreterOptions
           session.load_session_info
         end
 
-        if session.platform =~ /win32|win64/i
+        if session.platform =~ /windows/i
           session.load_priv rescue nil
         end
       end

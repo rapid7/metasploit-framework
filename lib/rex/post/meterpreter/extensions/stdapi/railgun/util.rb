@@ -639,7 +639,7 @@ class  Util
   # Returns true if given platform has 64bit architecture
   # expects client.platform
   def is_64bit_platform?(platform)
-    platform =~ /win64/
+    platform =~ /x64/
   end
 
   #
