@@ -327,18 +327,12 @@ class Msf::Payload::UUID
       end
     when 'android', 'java'
       'jar'
-    when 'ruby'
-      'rb'
     when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
       'lso'
-    when 'bsd' , 'openbsd' , 'bsdi' , 'netbsd' , 'freebsd'
-      'bso'
     when 'php'
       'php'
     when 'python'
       'py'
-    when 'nodejs', 'js'
-      'js'
     else
       nil
     end
