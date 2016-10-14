@@ -2,6 +2,7 @@
 require 'msf/core'
 require 'msf/core/payload/uuid/options'
 require 'msf/core/payload/transport_config'
+require 'rex/payloads/meterpreter/config'
 
 module Msf::Payload::Android
 
