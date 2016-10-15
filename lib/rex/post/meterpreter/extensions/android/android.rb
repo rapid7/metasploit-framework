@@ -66,20 +66,20 @@ class Android < Extension
   end
 
   def device_shutdown(n)
-    request = Packet.create_request('device_shutdown')
+    request = Packet.create_request('android_device_shutdown')
     request.add_tlv(TLV_TYPE_SHUTDOWN_TIMER, n)
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_SHUTDOWN_OK).value
   end
 
   def set_audio_mode(n)
-    request = Packet.create_request('set_audio_mode')
+    request = Packet.create_request('android_set_audio_mode')
     request.add_tlv(TLV_TYPE_AUDIO_MODE, n)
     response = client.send_request(request)
   end
 
   def interval_collect(opts)
-    request = Packet.create_request('interval_collect')
+    request = Packet.create_request('android_interval_collect')
     request.add_tlv(TLV_TYPE_COLLECT_ACTION, COLLECT_ACTIONS[opts[:action]])
     request.add_tlv(TLV_TYPE_COLLECT_TYPE, COLLECT_TYPES[opts[:type]])
     request.add_tlv(TLV_TYPE_COLLECT_TIMEOUT, opts[:timeout])
@@ -182,7 +182,7 @@ class Android < Extension
 
   def dump_sms
     sms = []
-    request = Packet.create_request('dump_sms')
+    request = Packet.create_request('android_dump_sms')
     response = client.send_request(request)
 
     response.each(TLV_TYPE_SMS_GROUP) do |p|
@@ -199,7 +199,7 @@ class Android < Extension
 
   def dump_contacts
     contacts = []
-    request = Packet.create_request('dump_contacts')
+    request = Packet.create_request('android_dump_contacts')
     response = client.send_request(request)
 
     response.each(TLV_TYPE_CONTACT_GROUP) do |p|
@@ -214,7 +214,7 @@ class Android < Extension
 
   def geolocate
     loc = []
-    request = Packet.create_request('geolocate')
+    request = Packet.create_request('android_geolocate')
     response = client.send_request(request)
 
     loc << {
@@ -227,7 +227,7 @@ class Android < Extension
 
   def dump_calllog
     log = []
-    request = Packet.create_request('dump_calllog')
+    request = Packet.create_request('android_dump_calllog')
     response = client.send_request(request)
 
     response.each(TLV_TYPE_CALLLOG_GROUP) do |p|
@@ -243,13 +243,13 @@ class Android < Extension
   end
 
   def check_root
-    request = Packet.create_request('check_root')
+    request = Packet.create_request('android_check_root')
     response = client.send_request(request)
     response.get_tlv(TLV_TYPE_CHECK_ROOT_BOOL).value
   end
 
   def activity_start(uri)
-    request = Packet.create_request('activity_start')
+    request = Packet.create_request('android_activity_start')
     request.add_tlv(TLV_TYPE_URI_STRING, uri)
     response = client.send_request(request)
     if response.get_tlv(TLV_TYPE_ACTIVITY_START_RESULT).value
@@ -260,13 +260,13 @@ class Android < Extension
   end
 
   def set_wallpaper(data)
-    request = Packet.create_request('set_wallpaper')
+    request = Packet.create_request('android_set_wallpaper')
     request.add_tlv(TLV_TYPE_WALLPAPER_DATA, data)
     response = client.send_request(request)
   end
 
   def send_sms(dest, body, dr)
-    request = Packet.create_request('send_sms')
+    request = Packet.create_request('android_android_send_sms')
     request.add_tlv(TLV_TYPE_SMS_ADDRESS, dest)
     request.add_tlv(TLV_TYPE_SMS_BODY, body)
     request.add_tlv(TLV_TYPE_SMS_DR, dr)
@@ -283,7 +283,7 @@ class Android < Extension
   end
 
   def wlan_geolocate
-    request = Packet.create_request('wlan_geolocate')
+    request = Packet.create_request('android_wlan_geolocate')
     response = client.send_request(request, 30)
     networks = []
     response.each(TLV_TYPE_WLAN_GROUP) do |p|
@@ -297,7 +297,7 @@ class Android < Extension
   end
 
   def sqlite_query(dbname, query, writeable)
-    request = Packet.create_request('sqlite_query')
+    request = Packet.create_request('android_sqlite_query')
     request.add_tlv(TLV_TYPE_SQLITE_NAME, dbname)
     request.add_tlv(TLV_TYPE_SQLITE_QUERY, query)
     request.add_tlv(TLV_TYPE_SQLITE_WRITE, writeable)
