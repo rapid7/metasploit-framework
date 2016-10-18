@@ -145,6 +145,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-rop_builder'
   # Library for polymorphic encoders; used for payload encoding
   spec.add_runtime_dependency 'rex-encoder'
+  # Library for exploit development helpers
+  spec.add_runtime_dependency 'rex-exploitation'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
