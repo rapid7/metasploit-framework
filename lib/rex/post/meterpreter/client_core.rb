@@ -436,7 +436,6 @@ class ClientCore < Extension
     client.send_keepalives = false
     target_process         = nil
     current_process        = nil
-    binary_suffix          = nil
 
     # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
     client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
