@@ -410,7 +410,6 @@ class Utils
         temp_dns = addr
         temp_dns.force_encoding("UTF-16LE")
         data[:dns_host_name] =  temp_dns.encode("UTF-8")
-
       when 4
         #dns domain
         temp_dns_domain = addr
