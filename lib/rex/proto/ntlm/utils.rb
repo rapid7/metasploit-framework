@@ -402,16 +402,20 @@ class Utils
         data[:default_name] =  temp_name.encode("UTF-8")
       when 2
         #netbios domain
-        data[:default_domain] = addr
-        data[:default_domain].force_encoding("UTF-16LE")
+        temp_domain = addr
+        temp_domain.force_encoding("UTF-16LE")
+        data[:default_domain] =  temp_domain.encode("UTF-8")
       when 3
         #dns name
-        data[:dns_host_name] =  addr
-        data[:dns_host_name].force_encoding("UTF-16LE")
+        temp_dns = addr
+        temp_dns.force_encoding("UTF-16LE")
+        data[:dns_host_name] =  temp_dns.encode("UTF-8")
+
       when 4
         #dns domain
-        data[:dns_domain_name] =  addr
-        data[:dns_domain_name].force_encoding("UTF-16LE")
+        temp_dns_domain = addr
+        temp_dns_domain.force_encoding("UTF-16LE")
+        data[:dns_domain_name] =  temp_dns_domain.encode("UTF-8")
       when 5
         #The FQDN of the forest.
       when 6
