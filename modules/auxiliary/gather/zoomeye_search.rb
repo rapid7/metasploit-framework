@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
-  def dork_search(dork, resource, page, facet=['ip'])
+  def dork_search(dork, resource, page)
     # param: dork
     #        ex: country:cn
     #        access https://www.zoomeye.org/search/dorks for more details.
@@ -74,13 +74,14 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'GET',
         'headers' => { 'Authorization' => "JWT #{datastore['ZOOMEYE_APIKEY']}" },
         'vars_get' => {
-          'query' => Rex::Text.uri_encode(dork),
+          'query' => dork,
           'page' => page,
-          'facet' => facet
+          'facet' => 'ip'
         }
       })
 
       res = cli.send_recv(req)
+
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed")
     end
