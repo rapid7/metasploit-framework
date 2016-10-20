@@ -112,7 +112,6 @@ class MetasploitModule < Msf::Auxiliary
     maxpage = datastore['MAXPAGE']
 
     while page <= maxpage
-      break if page > maxpage
       print_status("ZoomEye #{resource} Search: #{dork} - page: #{page}")
       results = dork_search(dork, resource, page) if dork
       break unless match_records?(results)
