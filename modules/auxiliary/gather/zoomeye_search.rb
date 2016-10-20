@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def match_records?(records)
-    records && records.key?('matches') ? true : false
+    records && records.key?('matches')
   end
 
   def parse_host_records(records)
