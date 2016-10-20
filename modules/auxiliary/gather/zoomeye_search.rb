@@ -5,14 +5,11 @@
 
 
 require 'msf/core'
-require 'rex'
-require 'net/https'
-require 'uri'
+require 'rex/proto/http'
 
 
 class MetasploitModule < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -45,6 +42,17 @@ class MetasploitModule < Msf::Auxiliary
         ], self.class)
   end
 
+  # Check to see if api.zoomeye.org resolves properly
+  def zoomeye_resolvable?
+    begin
+      Rex::Socket.resolv_to_dotted("api.zoomeye.org")
+    rescue RuntimeError, SocketError
+      return false
+    end
+
+    true
+  end
+
   def dork_search(dork, resource, page, facet=['ip'])
     # param: dork
     #        ex: country:cn
@@ -57,19 +65,30 @@ class MetasploitModule < Msf::Auxiliary
     #        ex: [app, device]
     #         A comma-separated list of properties to get summary information
 
-    zoomeye_dork_api = "https://api.zoomeye.org/#{resource}/search"
-    zoomeye_dork_api << "?query=" + Rex::Text.uri_encode(dork)
-    zoomeye_dork_api << "&page=#{page}"
-    zoomeye_dork_api << "&facet=facet"
+    cli = Rex::Proto::Http::Client.new('api.zoomeye.org', 443, {}, true)
+    cli.connect
 
-    uri = URI.parse(zoomeye_dork_api)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    request = Net::HTTP::Get.new(uri.request_uri)
-    request['Authorization'] = "JWT #{datastore['ZOOMEYE_APIKEY']}"
+    begin
+      req = cli.request_cgi({
+        'uri' => "/#{resource}/search",
+        'method' => 'GET',
+        'headers' => { 'Authorization' => "JWT #{datastore['ZOOMEYE_APIKEY']}" },
+        'vars_get' => {
+          'query' => Rex::Text.uri_encode(dork),
+          'page' => page,
+          'facet' => facet
+        }
+      })
 
-    res = http.request(request)
-    return 'server_response_error' unless res
+      res = cli.send_recv(req)
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+      print_error("HTTP Connection Failed")
+    end
+
+    unless res
+      print_error('server_response_error')
+      return
+    end
 
     # Invalid Token, Not enough segments
     # Invalid Token, Signature has expired
@@ -78,7 +97,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     ActiveSupport::JSON.decode(res.body)
-
   end
 
   def match_records?(records)
@@ -106,11 +124,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    # check to ensure api.zoomeye.org is resolvable
+    unless zoomeye_resolvable?
+      print_error("Unable to resolve api.zoomeye.org")
+      return
+    end
+
+    # create ZoomEye request parameters
     dork = datastore['ZOOMEYE_DORK']
     resource = datastore['RESOURCE']
     page = 1
     maxpage = datastore['MAXPAGE']
 
+    # scroll max pages from ZoomEye
     while page <= maxpage
       print_status("ZoomEye #{resource} Search: #{dork} - page: #{page}")
       results = dork_search(dork, resource, page) if dork
