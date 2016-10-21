@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     @zoomeye_token = login(datastore['USERNAME'], datastore['PASSWORD'])
-    unless @zoomeye_token
+    if @zoomeye_token.blank?
       print_error("Unable to login api.zoomeye.org")
       return
     end
