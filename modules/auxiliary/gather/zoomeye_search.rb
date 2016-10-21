@@ -7,7 +7,6 @@
 require 'msf/core'
 require 'rex/proto/http'
 
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
