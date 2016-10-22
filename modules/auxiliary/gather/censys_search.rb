@@ -39,7 +39,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def search(keyword, search_type)
-    @uri = "https://www.censys.io/api/v1"
     # search_type should be one of ipv4, websites, certificates
 
     begin
