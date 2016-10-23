@@ -122,7 +122,14 @@ class MetasploitModule < Msf::Auxiliary
     records.each do |ipv4|
       # ip
       # protocols
-      print_status("#{ipv4['ip']} - #{ipv4['protocols'].join(',')}")
+      ip = ipv4['ip']
+      protocols = ipv4['protocols']
+
+      protocols.each do |protocol|
+        print_good("#{ipv4['ip']} - #{ipv4['protocols'].join(',')}")
+        port, name = protocol.split('/')
+        report_service(:host => ip, :port => port, :name => name)
+      end
     end
   end
 
@@ -130,7 +137,12 @@ class MetasploitModule < Msf::Auxiliary
     records.each do |website|
       # domain
       # alexa_rank
-      print_status("#{website['domain']} - #{website['alexa_rank']}")
+      print_good("#{website['domain']} - #{website['alexa_rank']}")
+      domain = website['domain']
+      ips = domain2ip(domain)
+      ips.each do |ip|
+        report_host(:host =>ip)
+      end
     end
   end
 
