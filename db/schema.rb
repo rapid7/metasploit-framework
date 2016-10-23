@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160415153312) do
+ActiveRecord::Schema.define(version: 20161004165612) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -800,12 +800,13 @@ ActiveRecord::Schema.define(version: 20160415153312) do
 
   create_table "workspaces", force: :cascade do |t|
     t.string   "name"
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
-    t.string   "boundary",         limit: 4096
-    t.string   "description",      limit: 4096
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
+    t.string   "boundary",           limit: 4096
+    t.string   "description",        limit: 4096
     t.integer  "owner_id"
-    t.boolean  "limit_to_network",              default: false, null: false
+    t.boolean  "limit_to_network",                default: false, null: false
+    t.boolean  "import_fingerprint",              default: false
   end
 
 end
