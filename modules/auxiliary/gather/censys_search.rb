@@ -9,6 +9,8 @@ require 'rex/proto/http'
 
 class MetasploitModule < Msf::Auxiliary
 
+  include Msf::Auxiliary::Report
+
   def initialize(info={})
     super(update_info(info,
       'Name' => 'Censys Search',
@@ -80,14 +82,39 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def valid_domain?(domain)
+    domain =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/
+  end
+
+  def domain2ip(domain)
+    ips = []
+    begin
+      ips = Rex::Socket.getaddresses(domain)
+    rescue SocketError
+    end
+    ips
+  end
+
   def parse_certificates(records)
+    ips = []
     records.each do |certificate|
       # parsed.fingerprint_sha256
       # parsed.subject_dn
       # parsed.issuer_dn
-      print_status(certificate['parsed.fingerprint_sha256'].join(','))
-      print_status(certificate['parsed.subject_dn'].join(','))
-      print_status(certificate['parsed.issuer_dn'].join(','))
+      subject_dn = certificate['parsed.subject_dn'].join(',')
+      next unless subject_dn.include?('CN=')
+
+      host = subject_dn.split('CN=')[1]
+      if Rex::Socket.is_ipv4?(host)
+        ips << host
+      elsif valid_domain?(host) # Fake DNS server
+        ips |= domain2ip(host)
+      end
+
+      ips.each do |ip|
+        print_good("#{ip} - #{subject_dn}")
+        report_host(:host => ip, :info => subject_dn)
+      end
     end
   end
 
