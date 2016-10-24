@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PORTS', [true, 'Ports to probe', '1-1024']),
-        OptString.new('PROBE', [false, 'UDP payload/probe to send.  Unset for an empty UDP datagram, or the `file://` resource to get content from a local file', 'test'])
+        OptString.new('PORTS', [true, 'Ports to probe']),
+        OptString.new('PROBE', [false, 'UDP payload/probe to send.  Unset for an empty UDP datagram, or the `file://` resource to get content from a local file'])
       ]
     )
 
