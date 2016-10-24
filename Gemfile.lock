@@ -14,7 +14,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.1.24)
+      metasploit-payloads (= 1.1.25)
       metasploit_data_models
       metasploit_payloads-mettle (= 0.0.8)
       msgpack
@@ -168,8 +168,8 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.1.24)
-    metasploit_data_models (2.0.4)
+    metasploit-payloads (1.1.25)
+    metasploit_data_models (2.0.5)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
       arel-helpers
@@ -186,7 +186,7 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.9.1)
-    msgpack (1.0.1)
+    msgpack (1.0.2)
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
@@ -319,7 +319,7 @@ GEM
     timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2016.7)
+    tzinfo-data (1.2016.8)
       tzinfo (>= 1.0.0)
     windows_error (0.0.2)
     xpath (2.0.0)
