@@ -91,7 +91,7 @@ module Msf::DBManager::Import
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
     self.send "import_#{ftype}".to_sym, args, &block
-    wspace.hosts.each(&:normalize_os)
+    wspace.hosts.each(&:normalize_os) unless args[:task].options["DS_PRESERVE_HOSTS"]
     wspace.update_attribute(:import_fingerprint, false)
   end
 
