@@ -8,9 +8,9 @@
 
   1. Start `msfconsole`
   2. Do: ```use auxiliary/scanner/udp/udp_amplification```
-  3. Do ```set RHOSTS <targets>```, replacing `<targets>` with the hosts you wish to assess.
-  4. Do ```set PORTS <ports>```, replacing `<ports>` with the list of UDP ports you wish to assess on each asset.
-  5. Optionally, ```set PROBE <probe>```, replacing `<probe>` with a string or `file://` resource to serve as the UDP payload
+  3. Do ```set RHOSTS <targets>```, replacing ```<targets>``` with the hosts you wish to assess.
+  4. Do ```set PORTS <ports>```, replacing ```<ports>``` with the list of UDP ports you wish to assess on each asset.
+  5. Optionally, ```set PROBE <probe>```, replacing ```<probe>``` with a string or `file://` resource to serve as the UDP payload
   6. Do: ```run```
   7. If any of the endpoints were discovered to be vulnerable to UDP amplification with the probe you specified, status will be printed indicating as such.
 
