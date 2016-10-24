@@ -85,10 +85,14 @@ module Msf::DBManager::Import
   # import_file_detect will raise an error if the filetype
   # is unknown.
   def import(args={}, &block)
+    wspace = args[:wspace] || args['wspace'] || workspace
+    wspace.update_attribute(:import_fingerprint, true)
     data = args[:data] || args['data']
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
     self.send "import_#{ftype}".to_sym, args, &block
+    wspace.hosts.each(&:normalize_os)
+    wspace.update_attribute(:import_fingerprint, false)
   end
 
   #
