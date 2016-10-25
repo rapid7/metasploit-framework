@@ -94,12 +94,12 @@ module Msf::DBManager::Import
     yield(:filetype, @import_filedata[:type]) if block
     self.send "import_#{ftype}".to_sym, args, &block
     if preserve_hosts
-      new_host_ids = wspace.hosts.map(&:id)
+      new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id)
       (new_host_ids - existing_host_ids).each do |id|
-        wspace.hosts.where(id: id).first.normalize_os
+        Mdm::Host.where(id: id).first.normalize_os
       end
     else
-      wspace.hosts.each(&:normalize_os)
+      Mdm::Host.where(workspace: wspace).each(&:normalize_os)
     end
     wspace.update_attribute(:import_fingerprint, false)
   end
