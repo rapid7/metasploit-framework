@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -109,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
           'Content-Length' => post_data.length,
           'Content-Type'  => ctype,
           'Cookie'  => cookie
-        } 
+        }
       }
     )
 
