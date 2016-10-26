@@ -312,33 +312,6 @@ class Msf::Payload::UUID
   end
 
   #
-  # TODO: Not sure if this is the best place for this to go. Open to
-  # suggestions for moving it elsewhere
-  #
-  def binary_suffix
-    # generate a file/binary suffix based on the current platform
-    case self.platform
-    when 'windows'
-      # with windows, we also need to care about arch
-      if self.arch == ARCH_X86
-        'x86.dll'
-      else
-        'x64.dll'
-      end
-    when 'android', 'java'
-      'jar'
-    when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
-      'lso'
-    when 'php'
-      'php'
-    when 'python'
-      'py'
-    else
-      nil
-    end
-  end
-
-  #
   # Provides a hash representation of a UUID
   #
   # @return [Hash] The hash representation of the UUID suitable for creating a new one

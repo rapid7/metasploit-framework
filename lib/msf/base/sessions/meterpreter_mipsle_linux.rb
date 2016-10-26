@@ -19,8 +19,7 @@ class Meterpreter_mipsle_Linux < Msf::Sessions::Meterpreter
   end
   def initialize(rstream, opts={})
     super
-    self.platform      = 'mipsle/linux'
-    self.binary_suffix = 'lso'
+    self.platform = 'mipsle/linux'
   end
 end
 

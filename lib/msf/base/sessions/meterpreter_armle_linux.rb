@@ -19,8 +19,7 @@ class Meterpreter_armle_Linux < Msf::Sessions::Meterpreter
   end
   def initialize(rstream, opts={})
     super
-    self.platform      = 'armle/linux'
-    self.binary_suffix = 'lso'
+    self.platform = 'armle/linux'
   end
 end
 
