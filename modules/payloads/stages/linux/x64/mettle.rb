@@ -21,7 +21,7 @@ module MetasploitModule
           'Brent Cook <bcook[at]rapid7.com>'
         ],
         'Platform'      => 'Linux',
-        'Arch'          => ARCH_X86_64,
+        'Arch'          => ARCH_X64,
         'License'       => MSF_LICENSE,
         'Session'       => Msf::Sessions::Meterpreter_x64_Mettle_Linux
       )

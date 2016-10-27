@@ -38,7 +38,7 @@ class Console::CommandDispatcher::Kiwi
     super
     print_line
     print_line
-    print_line("  .#####.   mimikatz 2.0 alpha (#{client.platform}) release \"Kiwi en C\"")
+    print_line("  .#####.   mimikatz 2.0 alpha (#{client.session_type}) release \"Kiwi en C\"")
     print_line(" .## ^ ##.")
     print_line(" ## / \\ ##  /* * *")
     print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
@@ -46,7 +46,7 @@ class Console::CommandDispatcher::Kiwi
     print_line("  '#####'    Ported to Metasploit by OJ Reeves `TheColonial` * * */")
     print_line
 
-    if client.platform =~ /x86/ and client.sys.config.sysinfo['Architecture'] =~ /x64/
+    if client.arch == ARCH_X86 and client.sys.config.sysinfo['Architecture'] == ARCH_X64
       print_line
       print_warning('Loaded x86 Kiwi on an x64 architecture.')
     end

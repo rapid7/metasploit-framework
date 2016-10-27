@@ -470,7 +470,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def platform
     if self.payload_uuid
       # return the actual platform of the current session if it's there
-      self.payload_uuid.to_platform
+      self.payload_uuid.platform
     else
       # otherwise just use the base for the session type tied to this handler.
       # If we don't do this, storage of sessions in the DB dies
@@ -479,18 +479,41 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   #
+  # Get a string representation of the current session architecture
+  #
+  def arch
+    if self.payload_uuid
+      # return the actual arch of the current session if it's there
+      self.payload_uuid.arch
+    else
+      # otherwise just use the base for the session type tied to this handler.
+      # If we don't do this, storage of sessions in the DB dies
+      self.base_arch
+    end
+  end
+
+  #
+  # Get an arch/platform combination
+  #
+  def session_type
+    if self.payload_uuid
+      # return the actual platform of the current session if it's there
+      self.payload_uuid.session_type
+    else
+      # otherwise just use the base for the session type tied to this handler.
+      # If we don't do this, storage of sessions in the DB dies
+      "#{self.base_arch}/#{self.base_platform}"
+    end
+  end
+
+  #
   # Generate a binary suffix based on arch
   #
   def binary_suffix
     # generate a file/binary suffix based on the current platform
-    case self.payload_uuid.platform
+    case self.platform
     when 'windows'
-      # with windows, we also need to care about arch
-      if self.payload_uuid.arch == ARCH_X86
-        'x86.dll'
-      else
-        'x64.dll'
-      end
+      "#{self.arch}.dll"
     when 'android', 'java'
       'jar'
     when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
@@ -504,9 +527,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     end
   end
 
-  # This is the base platform for the original payload, required for when the
+  # These are the base arch/platform for the original payload, required for when the
   # session is first created thanks to the fact that the DB session recording
   # happens before the session is even established.
+  attr_accessor :base_arch
   attr_accessor :base_platform
 
   attr_accessor :console # :nodoc:

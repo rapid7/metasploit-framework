@@ -315,7 +315,7 @@ module Msf::Post::Common
     when /i[3456]86|wow64/i
       return ARCH_X86
     when /(amd|ia|x)64/i
-      return ARCH_X86_64
+      return ARCH_X64
     end
 
     # Detect tricky variants of architecture types upfront
@@ -323,8 +323,8 @@ module Msf::Post::Common
     # Rely on ARCH_TYPES to tell us a framework-recognizable ARCH.
     # Notice we're sorting ARCH_TYPES first, so that the longest string
     # goes first. This step is used because sometimes let's say if the target
-    # is 'x86_64', and if the ARCH_X86 kicks in first, then we will get 'x86'
-    # instead of x86_64, which is inaccurate.
+    # is 'x64', and if the ARCH_X86 kicks in first, then we will get 'x86'
+    # instead of x64, which is inaccurate.
     recognizable_archs = ARCH_TYPES
     recognizable_archs = recognizable_archs.sort_by {|a| a.length}.reverse
     recognizable_archs.each do |a|

@@ -19,7 +19,8 @@ class Meterpreter_x64_Mettle_Linux < Msf::Sessions::Meterpreter
   end
   def initialize(rstream, opts={})
     super
-    self.base_platform = 'x64/linux'
+    self.base_platform = 'linux'
+    self.base_arch = 'x64'
   end
 end
 

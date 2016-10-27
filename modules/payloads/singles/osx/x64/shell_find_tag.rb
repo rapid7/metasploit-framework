@@ -23,7 +23,7 @@ module MetasploitModule
       'Author'        => 'nemo <nemo[at]felinemenace.org>',
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::FindTag,
       'Session'       => Msf::Sessions::CommandShellUnix
 

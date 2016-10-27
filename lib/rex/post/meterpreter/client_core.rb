@@ -512,7 +512,7 @@ class ClientCore < Extension
     request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
     request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
 
-    if target_process['arch'] == ARCH_X86_64
+    if target_process['arch'] == ARCH_X64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
 
     else
@@ -717,7 +717,7 @@ class ClientCore < Extension
     # Include the appropriate reflective dll injection module for the target process architecture...
     if process['arch'] == ARCH_X86
       c.include( ::Msf::Payload::Windows::MeterpreterLoader )
-    elsif process['arch'] == ARCH_X86_64
+    elsif process['arch'] == ARCH_X64
       c.include( ::Msf::Payload::Windows::MeterpreterLoader_x64 )
     else
       raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller

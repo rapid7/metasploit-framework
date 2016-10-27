@@ -25,8 +25,8 @@ class MetasploitModule < Msf::Post
         'Author'       => [ 'Christoph Sendner <christoph.sendner[at]stud-mail.uni-wuerzburg.de>',
                             'Aleksandar Milenkoski  <aleksandar.milenkoski[at]uni-wuerzburg.de>'],
         'Platform'     => [ 'linux' ],
-        'Arch'         => [ARCH_X86_64],
-        'Targets'      => [ ['Linux x86_64', { 'Arch' => ARCH_X86_64 } ] ],
+        'Arch'         => [ARCH_X64],
+        'Targets'      => [ ['Linux x86_64', { 'Arch' => ARCH_X64 } ] ],
         'SessionTypes' => ['shell']
       )
     )

@@ -10,7 +10,7 @@ module Msf
 
 ###
 #
-# Complex reverse_tcp payload generation for Windows ARCH_X86_64
+# Complex reverse_tcp payload generation for Windows ARCH_X64
 #
 ###
 

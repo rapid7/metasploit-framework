@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Post
 
     print_status("Running module against #{sysinfo['Computer']}")
 
-    if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
+    if session.arch == ARCH_X86 and sysinfo['Architecture'] == ARCH_X64
       print_error("x64 platform requires x64 meterpreter and mimikatz extension")
       return
     end
