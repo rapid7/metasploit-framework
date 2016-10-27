@@ -32,9 +32,6 @@ class MetasploitModule < Msf::Auxiliary
           'Filipe Reis <fr[at]integrity.pt>',     # module creation and privilege escalation
           'Vitor Oliveira <vo[at]integrity.pt>',  # module creation and privilege escalation
         ],
-      'Privileged'     => false,
-      'Platform'       => 'php',
-      'Arch'           => ARCH_PHP,
       'Targets'        => [['Joomla 3.4.4 - 3.6.3', {}]],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Oct 25 2016'
