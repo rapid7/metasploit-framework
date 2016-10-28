@@ -27,12 +27,12 @@ require 'zlib'
 #
 # Filter out sessions that this definitely won't work on.
 #
-if session.platform !~ /win32|win64|java/
+if session.arch !~ /x86|x64|java/
   print_error("#{session.platform} is not supported.")
   raise Rex::Script::Completed
 end
 
-if session.sys.config.sysinfo["Architecture"] =~ /wow64/i
+if session.sys.config.sysinfo["Architecture"] == ARCH_X64 && session.arch == ARCH_X86
   #
   # WOW64 Filesystem Redirection prevents us opening the file directly. To make matters
   # worse, meterpreter/railgun creates things in a new thread, making it much more
