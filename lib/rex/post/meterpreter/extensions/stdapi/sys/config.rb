@@ -120,7 +120,7 @@ class Config
 
       # make sure we map the architecture across to x64 if x86_64 is returned
       # to keep arch consistent across all session/machine types
-      @sysinfo['Architecture'] == ARCH_X64 if @sysinfo['Architecture'] == ARCH_X86_64
+      @sysinfo['Architecture'] = ARCH_X64 if @sysinfo['Architecture'].strip == ARCH_X86_64
     end
     @sysinfo
   end
