@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
             File.open(dest, 'wb') do |f|
               f.write(entry.read)
             end
-          File.chmod(entry.header.mode, dest)
+            File.chmod(entry.header.mode, dest)
           end
         end
       end
