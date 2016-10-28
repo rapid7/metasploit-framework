@@ -20,7 +20,9 @@ class MetasploitModule < Msf::Post
         info,
         'Name'          => 'UNIX Gather AWS Keys',
         'Description'   => %q(
-          This module will attempt to read AWS configuration files (.aws/config, .aws//credentials and .s3cfg)
+          This module will attempt to read AWS configuration files
+          (.aws/config, .aws//credentials and .s3cfg) for users discovered
+          on the session'd system and extract AWS keys from within.
         ),
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Jon Hart <jon_hart[at]rapid7.com>' ],
