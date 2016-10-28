@@ -26,7 +26,11 @@ class MetasploitModule < Msf::Post
         ),
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Jon Hart <jon_hart[at]rapid7.com>' ],
-        'SessionTypes'  => %w(shell meterpreter)
+        'SessionTypes'  => %w(shell meterpreter),
+        'References'    => [
+          [ 'URL', 'http://s3tools.org/kb/item14.htm' ],
+          [ 'URL', 'http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files' ]
+        ]
       )
     )
   end
