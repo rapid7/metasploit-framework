@@ -117,6 +117,10 @@ class Config
         'Domain'          => response.get_tlv_value(TLV_TYPE_DOMAIN),
         'Logged On Users' => response.get_tlv_value(TLV_TYPE_LOGGED_ON_USER_COUNT)
       }
+
+      # make sure we map the architecture across to x64 if x86_64 is returned
+      # to keep arch consistent across all session/machine types
+      @sysinfo['Architecture'] == ARCH_X64 if @sysinfo['Architecture'] == ARCH_X86_64
     end
     @sysinfo
   end

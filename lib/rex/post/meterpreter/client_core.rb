@@ -458,7 +458,7 @@ class ClientCore < Extension
 
     # We cannot migrate into a process that we are unable to open
     # On linux, arch is empty even if we can access the process
-    if client.platform =~ /win/
+    if client.platform == 'windows'
       if target_process['arch'] == nil || target_process['arch'].empty?
         raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
       end
@@ -469,7 +469,7 @@ class ClientCore < Extension
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
-    if client.platform =~ /linux/
+    if client.platform == 'linux'
       if writable_dir.to_s.strip.empty?
         writable_dir = tmp_folder
       end
@@ -487,7 +487,7 @@ class ClientCore < Extension
     # Build the migration request
     request = Packet.create_request('core_migrate')
 
-    if client.platform =~ /linux/i
+    if client.platform == 'linux'
       socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
 
       if socket_path.length > UNIX_PATH_MAX - 1
@@ -699,9 +699,9 @@ class ClientCore < Extension
 
   def generate_payload_stub(process)
     case client.platform
-    when /win/i
+    when 'windows'
       blob = generate_windows_stub(process)
-    when /linux/i
+    when 'linux'
       blob = generate_linux_stub
     else
       raise RuntimeError, "Unsupported platform '#{client.platform}'"
