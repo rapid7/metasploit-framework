@@ -20,7 +20,7 @@ class Meterpreter_Php_Php < Msf::Sessions::Meterpreter
   def initialize(rstream, opts={})
     super
     self.base_platform = 'php'
-    self.base_arch = 'php'
+    self.base_arch = ARCH_PHP
   end
 end
 
