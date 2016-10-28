@@ -10,6 +10,7 @@
 
   1. Download the [Telpho10 ISO image](http://www.telpho.de/downloads/telpho10/telpho10-v2.6.31-SATA.iso) and install in a VM (or on a system)
     - note that the ISO will default to a German keyboard layout
+    - note that the ISO expects a SATA hard drive (not IDE/PATA) for installation
   1. configure the Telpho10's IP address
     - edit /etc/networks/interfaces accordingly
   1. Start msfconsole
