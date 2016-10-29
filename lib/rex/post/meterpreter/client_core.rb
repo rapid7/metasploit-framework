@@ -296,16 +296,13 @@ class ClientCore < Extension
     return true
   end
 
-  def uuid(timeout=nil)
-    request = Packet.create_request('core_uuid')
+  def set_uuid(uuid)
+    request = Packet.create_request('core_set_uuid')
+    request.add_tlv(TLV_TYPE_UUID, uuid.to_raw)
 
-    args = [ request ]
-    args << timeout if timeout
-    response = client.send_request(*args)
+    client.send_request(request)
 
-    id = response.get_tlv_value(TLV_TYPE_UUID)
-
-    return Msf::Payload::UUID.new({:raw => id})
+    true
   end
 
   def machine_id(timeout=nil)

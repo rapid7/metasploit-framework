@@ -324,6 +324,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
+    # when updating session information, we need to make sure we update the platform
+    # in the UUID to match what the target is actually running on, but only for a
+    # subset of platforms.
+    if ['java', 'python', 'php'].include?(self.platform)
+      new_platform = guess_target_platform(sysinfo['OS'])
+      if self.platform != new_platform
+        self.payload_uuid.platform = new_platform
+        self.core.set_uuid(self.payload_uuid)
+      end
+    end
+
     safe_info = "#{username} @ #{sysinfo['Computer']}"
     safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
     # Should probably be using Rex::Text.ascii_safe_hex but leave
@@ -331,6 +342,24 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # showing up in various places in the UI.
     safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
     self.info = safe_info
+  end
+
+  def guess_target_platform(os)
+    case os
+    when /windows/i
+      Msf::Module::Platform::Windows.realname.downcase
+    when /darwin/i
+      Msf::Module::Platform::OSX.realname.downcase
+    when /mac os ?x/i
+      # this happens with java on OSX (for real!)
+      Msf::Module::Platform::OSX.realname.downcase
+    when /freebsd/i
+      Msf::Module::Platform::FreeBSD.realname.downcase
+    when /GENERIC\.MP/i, /netbsd/i
+      Msf::Module::Platform::BSD.realname.downcase
+    else
+      Msf::Module::Platform::Linux.realname.downcase
+    end
   end
 
   #
@@ -510,20 +539,31 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   # Generate a binary suffix based on arch
   #
   def binary_suffix
-    # generate a file/binary suffix based on the current platform
-    case self.platform
-    when 'windows'
-      "#{self.arch}.dll"
-    when 'android', 'java'
+    # generate a file/binary suffix based on the current arch and platform.
+    # Platform-agnostic archs go first
+    case self.arch
+    when 'java'
       'jar'
-    when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
-      'lso'
     when 'php'
       'php'
     when 'python'
       'py'
     else
-      nil
+      # otherwise we fall back to the platform
+      case self.platform
+      when 'windows'
+        "#{self.arch}.dll"
+      when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
+        'lso'
+      when 'android', 'java'
+        'jar'
+      when 'php'
+        'php'
+      when 'python'
+        'py'
+      else
+        nil
+      end
     end
   end
 
