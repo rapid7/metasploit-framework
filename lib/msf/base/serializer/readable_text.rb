@@ -546,7 +546,11 @@ class ReadableText
       row = []
       row << session.sid.to_s
       row << session.type.to_s
-      row[-1] << (" " + session.platform) if session.respond_to?(:platform)
+      if session.respond_to?(:session_type)
+        row[-1] << (" " + session.session_type)
+      elsif session.respond_to?(:platform)
+        row[-1] << (" " + session.platform)
+      end
 
       if show_extended
         if session.respond_to?(:last_checkin) && session.last_checkin
