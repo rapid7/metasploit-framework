@@ -102,6 +102,15 @@ class Config
   end
 
   #
+  # Returns the target's local system date and time.
+  #
+  def localtime
+    request = Packet.create_request('stdapi_sys_config_localtime')
+    response = client.send_request(request)
+    (response.get_tlv_value(TLV_TYPE_LOCAL_DATETIME) || "").strip
+  end
+
+  #
   # Returns a hash of information about the remote computer.
   #
   def sysinfo(refresh: false)

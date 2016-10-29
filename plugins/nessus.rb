@@ -1174,8 +1174,15 @@ module Msf
             file_id = export["file"]
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
             print_status("Checking export status...")
-            status = @n.scan_export_status(scan_id, file_id)
-            if status == "ready"
+            begin
+              status = @n.scan_export_status(scan_id, file_id)
+              print_status("Export status: " + status["status"])
+              if status["status"]=="ready"
+                break
+              end     
+              sleep(1)
+            end while (status["status"]=="loading")
+            if status["status"] == "ready"
               print_status("The status of scan ID #{scan_id} export is ready")
               select(nil, nil, nil, 5)
               report = @n.report_download(scan_id, file_id)
@@ -1449,9 +1456,16 @@ module Msf
           if export["file"]
             file_id = export["file"]
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
-            print_status("Checking export status...")
-            status = @n.scan_export_status(scan_id, file_id)
-            if status == "ready"
+            print_status("Checking export status...")            
+            begin
+              status = @n.scan_export_status(scan_id, file_id)
+              print_status("Export status: " + status["status"])
+              if status["status"]=="ready"
+                break
+              end     
+              sleep(1)
+            end while (status["status"]=="loading")
+            if status["status"] == "ready"
               print_good("The status of scan ID #{scan_id} export is ready")
             else
               print_error("There was some problem in exporting the scan. The error message is #{status}")
@@ -1477,8 +1491,15 @@ module Msf
         when 2
           scan_id = args[0]
           file_id = args[1]
-          status = @n.scan_export_status(scan_id, file_id)
-          if status == "ready"
+          begin
+            status = @n.scan_export_status(scan_id, file_id)
+            print_status("Export status: " + status["status"])
+            if status["status"]=="ready"
+              break
+            end     
+            sleep(1)
+          end while (status["status"]=="loading")
+          if status["status"] == "ready"
             print_status("The status of scan ID #{scan_id} export is ready")
           else
             print_error("There was some problem in exporting the scan. The error message is #{status}")

