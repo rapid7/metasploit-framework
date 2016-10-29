@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Post
 
 
     #Make sure we are on a Windows host
-    if client.platform !~ /windows/
+    if client.platform != 'windows'
         print_error('This module does not support this platform.')
         return
     end

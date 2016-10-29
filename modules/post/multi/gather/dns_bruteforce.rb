@@ -46,9 +46,9 @@ class MetasploitModule < Msf::Post
     end
 
     case session.platform
-    when /windows/i
+    when 'windows'
       cmd = "nslookup"
-    when /solaris/i
+    when 'solaris'
       cmd = "/usr/sbin/host "
     else
       cmd = "/usr/bin/host "
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Post
           r = cmd_exec(cmd, "#{n.strip}.#{domain}")
 
           case session.platform
-          when /windows/
+          when 'windows'
             proccess_win(r, "#{n.strip}.#{domain}")
           else
             process_nix(r, "#{n.strip}.#{domain}")

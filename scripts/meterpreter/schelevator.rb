@@ -27,7 +27,12 @@ require 'zlib'
 #
 # Filter out sessions that this definitely won't work on.
 #
-if session.arch !~ /x86|x64|java/
+unless [ARCH_X64, ARCH_X86, ARCH_JAVA].include(session.arch)
+  print_error("#{session.arch} is not supported.")
+  raise Rex::Script::Completed
+end
+
+unless session.platform == 'windows'
   print_error("#{session.platform} is not supported.")
   raise Rex::Script::Completed
 end

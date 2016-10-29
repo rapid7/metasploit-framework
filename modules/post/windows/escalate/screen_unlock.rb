@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Post
       { :sig => "8bff558bec83ec50a1",       :sigoffset => 0x97d3, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x9878, :os => /Windows XP.*Service Pack 3 - spanish/ }
     ]
 
-    unsupported if client.platform !~ /windows/i
+    unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)
     os = client.sys.config.sysinfo['OS']
 
     targets.each do |t|

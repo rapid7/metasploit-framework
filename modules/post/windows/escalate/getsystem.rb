@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Post
 
     technique = datastore['TECHNIQUE'].to_i
 
-    unsupported if client.platform !~ /windows/i
+    unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)
 
     if is_system?
       print_good("This session already has SYSTEM privileges")

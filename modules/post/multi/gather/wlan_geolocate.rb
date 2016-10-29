@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Post
   # Run Method for when run command is issued
   def run
     case session.platform
-    when /windows/i
+    when 'windows'
       listing = cmd_exec('netsh wlan show networks mode=bssid')
       if listing.nil?
         print_error("Unable to generate wireless listing.")
@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Post
         end
       end
 
-    when /osx/i
+    when 'osx'
       listing = cmd_exec('/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -s')
       if listing.nil?
         print_error("Unable to generate wireless listing.")
@@ -140,7 +140,7 @@ class MetasploitModule < Msf::Post
         end
       end
 
-    when /linux/i
+    when 'linux'
       listing = cmd_exec('iwlist scanning')
       if listing.nil?
         print_error("Unable to generate wireless listing.")
@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Post
         end
       end
 
-    when /solaris/i
+    when 'solaris'
       listing = cmd_exec('dladm scan-wifi')
       if listing.blank?
         print_error("Unable to generate wireless listing.")
@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Post
         return
       end
 
-    when /bsd/i
+    when 'bsd'
       interface = cmd_exec("dmesg | grep -i wlan | cut -d ':' -f1 | uniq")
       # Printing interface as this platform requires the interface to be specified
       # it might not be detected correctly.

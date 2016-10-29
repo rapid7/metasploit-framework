@@ -92,14 +92,14 @@ class MetasploitModule < Msf::Post
 
     # If we want WINAPI egress, make sure winsock is loaded
     if type == 'WINAPI'
-      unless client.railgun.ws2_32 && client.platform =~ /windows/
+      unless client.railgun.ws2_32 && client.platform == 'windows'
         print_error("The WINAPI method requires Windows, railgun and support for winsock APIs. Try using the NATIVE method instead.")
         return
       end
     end
 
-    if client.platform =~ /python/
-      print_error("This module cannot be used with python meterpreter at present")
+    if client.arch != ARCH_X64 && client.argc != ARCH_X86
+      print_error("This module cannot be used without native meterpreter at present")
       return
     end
 

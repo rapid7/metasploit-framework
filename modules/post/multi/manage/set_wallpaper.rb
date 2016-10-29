@@ -72,11 +72,11 @@ class MetasploitModule < Msf::Post
 
   def os_set_wallpaper(file)
     case session.platform
-    when /osx/
+    when 'osx'
       osx_set_wallpaper(file)
-    when /windows/
+    when 'windows'
       win_set_wallpaper(file)
-    when /android/
+    when 'android'
       android_set_wallpaper(file)
     end
   end

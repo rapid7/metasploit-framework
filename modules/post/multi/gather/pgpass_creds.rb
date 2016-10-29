@@ -30,9 +30,9 @@ class MetasploitModule < Msf::Post
 
     files = []
     case session.platform
-    when /unix|linux|bsd|osx/
+    when 'unix', 'linux', 'bsd', 'osx'
       files = enum_user_directories.map {|d| d + "/.pgpass"}.select { |f| file?(f) }
-    when /windows/
+    when 'windows'
       if session.type != "meterpreter"
         print_error("Only meterpreter sessions are supported on windows hosts")
         return

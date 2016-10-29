@@ -73,11 +73,11 @@ class MetasploitModule < Msf::Post
     # Certain shells for certain platform
     vprint_status("Determining session platform and type")
     case session.platform
-    when /unix|linux|bsd/
+    when 'unix', 'linux', 'bsd'
       @platform = :unix
-    when /osx/
+    when 'osx'
       @platform = :osx
-    when /windows/
+    when 'windows'
       if session.type != "meterpreter"
         print_error "Only meterpreter sessions are supported on Windows hosts"
         return

