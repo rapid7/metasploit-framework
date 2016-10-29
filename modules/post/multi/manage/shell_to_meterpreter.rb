@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Post
         vprint_status("Platform: Python [fallback]")
       end
     end
-    payload_name = datastore['PAYLOAD_OVERWRITE'] if datastore['PAYLOAD_OVERWRITE']
+    payload_name = datastore['PAYLOAD_OVERRIDE'] if datastore['PAYLOAD_OVERRIDE']
     vprint_status("Upgrade payload: #{payload_name}")
 
     if platform.blank?
