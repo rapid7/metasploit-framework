@@ -188,6 +188,7 @@ module Msf::PostMixin
     # Check to make sure architectures match
     mod_arch = self.module_info['Arch']
     mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
+    # TODO: what should be done with the likes of ARCH_CMD (and others) ?
     return false unless mod_arch.include?(self.arch)
 
     # If we got here, we haven't found anything that definitely
