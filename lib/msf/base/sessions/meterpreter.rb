@@ -522,20 +522,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   #
-  # Get an arch/platform combination
-  #
-  def session_type
-    if self.payload_uuid
-      # return the actual platform of the current session if it's there
-      self.payload_uuid.session_type
-    else
-      # otherwise just use the base for the session type tied to this handler.
-      # If we don't do this, storage of sessions in the DB dies
-      "#{self.base_arch}/#{self.base_platform}"
-    end
-  end
-
-  #
   # Generate a binary suffix based on arch
   #
   def binary_suffix

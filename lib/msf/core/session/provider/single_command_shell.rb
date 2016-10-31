@@ -77,7 +77,7 @@ module SingleCommandShell
   end
 
   def shell_command_token(cmd, timeout=10)
-    if platform =~ /win/
+    if platform == 'windows'
       output = shell_command_token_win32(cmd, timeout)
     else
       output = shell_command_token_unix(cmd, timeout)
