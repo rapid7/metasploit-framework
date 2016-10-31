@@ -355,7 +355,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       Msf::Module::Platform::OSX.realname.downcase
     when /freebsd/i
       Msf::Module::Platform::FreeBSD.realname.downcase
-    when /GENERIC\.MP/i, /netbsd/i
+    when /openbsd/i, /netbsd/i
       Msf::Module::Platform::BSD.realname.downcase
     else
       Msf::Module::Platform::Linux.realname.downcase
