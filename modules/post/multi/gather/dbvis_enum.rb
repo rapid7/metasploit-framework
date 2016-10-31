@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Post
     oldversion = false
 
     case session.platform
-    when /linux/
+    when 'linux'
       user = session.shell_command('whoami').chomp
       print_status("Current user is #{user}")
       if user =~ /root/
@@ -47,8 +47,8 @@ class MetasploitModule < Msf::Post
          user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
-    when /windows/
-      if session.type =~ /meterpreter/
+    when 'windows'
+      if session.type == 'meterpreter'
         user_profile = session.sys.config.getenv('USERPROFILE')
       else
         user_profile = cmd_exec("echo %USERPROFILE%").strip
