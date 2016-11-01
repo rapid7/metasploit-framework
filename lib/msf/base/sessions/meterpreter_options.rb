@@ -61,7 +61,7 @@ module MeterpreterOptions
         end
 
         # only load priv on native windows
-        if session.platform == 'windows' && [ARCH_X86, ARCH_64].include?(session.arch)
+        if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
           session.load_priv rescue nil
         end
       end
