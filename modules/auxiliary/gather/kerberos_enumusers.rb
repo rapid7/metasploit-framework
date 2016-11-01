@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
         report_cred(
           host: datastore['RHOST'],
           port: rport,
-          creds_name: 'Active Directory',
+          creds_name: 'Kerberos',
           user: user
         )
       elsif test == ["KDC_ERR_CLIENT_REVOKED", "Clients credentials have been revoked"]
