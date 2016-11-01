@@ -90,7 +90,9 @@ module MetasploitModule
     conn.put(midstager) == midstager.length
   end
 
-  def generate_stage(_opts = {})
-    MetasploitPayloads::Mettle.read('mips-linux-muslsf', 'mettle.bin')
+  def generate_stage(opts = {})
+    opts[:uuid] ||= generate_payload_uuid
+    MetasploitPayloads::Mettle.new('mips-linux-muslsf', opts.slice(:uuid, :url, :debug, :log_file)).
+      to_binary :process_image
   end
 end
