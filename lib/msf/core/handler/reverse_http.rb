@@ -380,7 +380,7 @@ protected
         begin
           # generate the stage, but pass in the existing UUID and connection id so that
           # we don't get new ones generated.
-          blob = self.stage_payload(
+          blob = self.generate_stage(
             uuid: uuid,
             uri:  conn_id,
             lhost: uri.host,
