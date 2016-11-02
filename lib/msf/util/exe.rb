@@ -1346,17 +1346,11 @@ require 'msf/core/exe/segment_appender'
   end
 
   def self.to_win32pe_psh_net(framework, code, opts={})
-    template_path = File.join(Msf::Config.data_directory,
-                                  "templates",
-                                  "scripts")
-    Rex::Powershell::Payload.to_win32pe_psh_net(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh_net(Rex::Powershell::Templates::TEMPLATE_DIR, code)
   end
 
   def self.to_win32pe_psh(framework, code, opts = {})
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
-    Rex::Powershell::Payload.to_win32pe_psh(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh(Rex::Powershell::Templates::TEMPLATE_DIR, code)
   end
 
   #
@@ -1365,10 +1359,7 @@ require 'msf/core/exe/segment_appender'
   # Originally from PowerSploit
   #
   def self.to_win32pe_psh_reflection(framework, code, opts = {})
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
-    Rex::Powershell::Payload.to_win32pe_psh_reflection(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh_reflection(Rex::Powershell::Templates::TEMPLATE_DIR, code)
   end
 
   def self.to_powershell_command(framework, arch, code)
