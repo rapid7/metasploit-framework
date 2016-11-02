@@ -318,7 +318,9 @@ protected
         resp.body = pkt.to_r
 
       when :init_python, :init_native, :init_java
+        # TODO: at some point we may normalise these three cases into just :init
         url = payload_uri(req) + conn_id + '/'
+
         # Damn you, python! Ruining my perfect world!
         url += "\x00" unless uuid.arch == ARCH_PYTHON
         uri = URI(payload_uri(req) + conn_id)
@@ -336,6 +338,8 @@ protected
           )
 
           blob = encode_stage(blob) if self.respond_to?(:encode_stage)
+
+          print_status("Staging #{uuid.arch} payload (#{blob.length} bytes) ...")
 
           resp.body = blob
 
