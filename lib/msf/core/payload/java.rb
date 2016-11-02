@@ -28,8 +28,8 @@ module Msf::Payload::Java
   #
   # Used by stagers to construct the payload jar file as a String
   #
-  def generate
-    generate_jar.pack
+  def generate(opts={})
+    generate_jar(opts).pack
   end
 
   #

