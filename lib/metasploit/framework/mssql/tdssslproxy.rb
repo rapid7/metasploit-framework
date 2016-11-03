@@ -51,8 +51,9 @@ class TDSSSLProxy
   def setup_ssl
     @running = true
     @t1 = Thread.start { ssl_setup_thread }
-    ssl_context = OpenSSL::SSL::SSLContext.new(:TLSv1)
-    @ssl_socket = OpenSSL::SSL::SSLSocket.new(@s1, ssl_context)
+    ctx = OpenSSL::SSL::SSLContext.new(:SSLv23)
+    ctx.ciphers = "ALL:!ADH:!EXPORT:!SSLv2:!SSLv3:+HIGH:+MEDIUM"
+    @ssl_socket = OpenSSL::SSL::SSLSocket.new(@s1, ctx)
     @ssl_socket.connect
   end
 
