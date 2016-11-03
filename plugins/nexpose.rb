@@ -81,7 +81,7 @@ class Plugin::Nexpose < Msf::Plugin
       group = "default"
 
       if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
-        config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port}}
+        config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port, 'trust_cert' => @trust_cert}}
         ::File.open("#{Nexpose_yaml}", "wb") { |f| f.puts YAML.dump(config) }
         print_good("#{Nexpose_yaml} created.")
       else
@@ -100,21 +100,21 @@ class Plugin::Nexpose < Msf::Plugin
           @pass = lconfig['default']['password']
           @host = lconfig['default']['server']
           @port = lconfig['default']['port']
-          @sslv = "ok" # TODO: Not super-thrilled about bypassing the SSL warning...
+          @trust_cert = lconfig['default']['trust_cert']
+          unless @trust_cert
+            @sslv = "ok" # TODO: Not super-thrilled about bypassing the SSL warning...
+          end
           nexpose_login
           return
         end
       end
 
       if(args.length == 0 or args[0].empty? or args[0] == "-h")
-        print_status("Usage: ")
-        print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
-        print_status("        -OR- ")
-        print_status("       nexpose_connect username password host port <ssl-confirm>")
+        nexpose_usage
         return
       end
 
-      @user = @pass = @host = @port = @sslv = nil
+      @user = @pass = @host = @port = @sslv = @trust_cert = @trust_cert_file = nil
 
       case args.length
       when 1,2
@@ -122,31 +122,44 @@ class Plugin::Nexpose < Msf::Plugin
         @user,@pass = cred.split(':', 2)
         targ ||= '127.0.0.1:3780'
         @host,@port = targ.split(':', 2)
-        port ||= '3780'
-        @sslv = args[1]
+        @port ||= '3780'
+        unless args.length == 1
+          @trust_cert_file = args[1]
+          if File.exists? @trust_cert_file
+            @trust_cert = File.read(@trust_cert_file)
+          end
+        end
       when 4,5
-        @user,@pass,@host,@port,@sslv = args
+        @user,@pass,@host,@port,@trust_cert = args
+        unless args.length == 4
+          @trust_cert_file = @trust_cert
+          if File.exists? @trust_cert_file
+            @trust_cert = File.read(@trust_cert_file)
+          end
+        end
       else
-        print_status("Usage: ")
-        print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
-        print_status("        -OR- ")
-        print_status("       nexpose_connect username password host port <ssl-confirm>")
+        nexpose_usage
         return
       end
       nexpose_login
     end
 
+    def nexpose_usage
+      print_status("Usage: ")
+      print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
+      print_status("        -OR- ")
+      print_status("       nexpose_connect username password host port <ssl-confirm>")
+    end
+
     def nexpose_login
 
       if ! ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
-        print_status("Usage: ")
-        print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
-        print_status("        -OR- ")
-        print_status("       nexpose_connect username password host port <ssl-confirm>")
+        nexpose_usage
         return
       end
 
-      if(@host != "localhost" and @host != "127.0.0.1" and @sslv != "ok")
+      if(@host != "localhost" and @host != "127.0.0.1" and (@trust_cert.nil? && @sslv != "ok"))
+        # consider removing this message and replacing with check on trust_store, and if trust_store is not found validate @host already has a truly trusted cert?
         print_error("Warning: SSL connections are not verified in this release, it is possible for an attacker")
         print_error("         with the ability to man-in-the-middle the Nexpose traffic to capture the Nexpose")
         print_error("         credentials. If you are running this on a trusted network, please pass in 'ok'")
@@ -154,7 +167,7 @@ class Plugin::Nexpose < Msf::Plugin
         return
       end
 
-      # Wrap this so a duplicate session doesnt prevent a new login
+      # Wrap this so a duplicate session does not prevent a new login
       begin
         cmd_nexpose_disconnect
       rescue ::Interrupt
@@ -164,7 +177,7 @@ class Plugin::Nexpose < Msf::Plugin
 
       begin
         print_status("Connecting to Nexpose instance at #{@host}:#{@port} with username #{@user}...")
-        nsc = Nexpose::Connection.new(@host, @user, @pass, @port)
+        nsc = Nexpose::Connection.new(@host, @user, @pass, @port, nil, nil, @trust_cert)
         nsc.login
       rescue ::Nexpose::APIError => e
         print_error("Connection failed: #{e.reason}")

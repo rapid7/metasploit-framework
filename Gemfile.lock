@@ -195,7 +195,7 @@ GEM
     nessus_rest (0.1.6)
     net-ssh (4.0.1)
     network_interface (0.0.1)
-    nexpose (5.1.0)
+    nexpose (5.3.0)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
     octokit (4.6.2)
@@ -350,4 +350,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.13.7
+   1.14.3
