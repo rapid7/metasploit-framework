@@ -33,7 +33,7 @@ module MetasploitModule
   end
 
   def stage_payload(opts={})
-    stage_meterpreter + generate_config(opts)
+    stage_meterpreter(opts) + generate_config(opts)
   end
 
   def generate_config(opts={})

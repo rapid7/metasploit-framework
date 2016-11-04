@@ -69,14 +69,14 @@ module Payload::Windows::MeterpreterLoader_x64
     ^
   end
 
-  def stage_meterpreter(stageless=false)
+  def stage_meterpreter(opts={})
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll'))
 
     asm_opts = {
       rdi_offset: offset,
       length:     dll.length,
-      stageless:  stageless
+      stageless:  opts[:stageless] == true
     }
 
     asm = asm_invoke_metsrv(asm_opts)
