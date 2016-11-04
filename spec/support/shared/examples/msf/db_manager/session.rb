@@ -70,7 +70,6 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
               session.exploit = module_instance
               session.exploit_datastore = exploit_datastore
               session.info = 'Info'
-              session.arch = 'Arch'
               session.platform = 'Platform'
               session.session_host = host.address
               session.sid = rand(100)
