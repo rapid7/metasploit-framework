@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     state
   end
- 
+
   def get_cpu(rhost, rport, devicetype)
     connect(true, 'RHOST' => rhost, 'RPORT' => rport)
     state = 'unknown'
