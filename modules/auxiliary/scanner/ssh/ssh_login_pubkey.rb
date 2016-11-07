@@ -10,6 +10,11 @@ require 'metasploit/framework/credential_collection'
 require 'sshkey'
 require 'net/ssh/command_stream'
 
+#load 'lib/msf/base/sessions/ssh.rb'
+#load 'lib/msf/base/sessions/ssh/ui/console.rb'
+#load 'lib/msf/base/sessions/ssh/ui/console/command_dispatcher.rb'
+#load 'lib/msf/base/sessions/ssh/ui/console/command_dispatcher/core.rb'
+
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::AuthBrute
@@ -117,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
       # Needs an end
       next unless key =~ /\n-----END [RD]SA PRIVATE KEY-----\x0d?\x0a?$/m
       # Shouldn't have binary.
-      next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff]/).empty?
+      next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff]/n).empty?
       # Add more tests to taste.
       keepers << key
     end
@@ -146,22 +151,28 @@ class MetasploitModule < Msf::Auxiliary
     return unless ssh_socket
 
     # Create a new session from the socket
-    conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
+    #conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
 
     # Clean up the stored data - need to stash the keyfile into
     # a datastore for later reuse.
-    merge_me = {
-      'USERPASS_FILE'  => nil,
-      'USER_FILE'      => nil,
-      'PASS_FILE'      => nil,
-      'USERNAME'       => result.credential.public,
-      'SSH_KEYFILE_B64' => [result.credential.private].pack("m*").gsub("\n",""),
-      'KEY_PATH'        => nil
-    }
+    #merge_me = {
+    #  'USERPASS_FILE'  => nil,
+    #  'USER_FILE'      => nil,
+    #  'PASS_FILE'      => nil,
+    #  'USERNAME'       => result.credential.public,
+    #  'SSH_KEYFILE_B64' => [result.credential.private].pack("m*").gsub("\n",""),
+    #  'KEY_PATH'        => nil
+    #}
 
-    info = "SSH #{result.credential.public}:#{fingerprint} (#{ip}:#{rport})"
-    s = start_session(self, info, merge_me, false, conn.lsock)
-    self.sockets.delete(ssh_socket.transport.socket)
+    #info = "SSH #{result.credential.public}:#{fingerprint} (#{ip}:#{rport})"
+    #s = start_session(self, info, merge_me, false, conn.lsock)
+    #self.sockets.delete(ssh_socket.transport.socket)
+
+    s = Msf::Sessions::SSH.new(ssh_socket)
+    s.framework = framework
+    #require 'pry'
+    #binding.pry
+    framework.sessions.register(s)
 
     # Set the session platform
     case result.proof
