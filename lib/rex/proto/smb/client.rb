@@ -760,7 +760,13 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     self.peer_native_os = info[0]
     self.peer_native_lm = info[1]
-    self.default_domain = info[2]
+    #
+    # if the PC belongs to a domain, this value is already populated
+    # if it is not populated, we're in a workgroup and need to pupulate it now
+    #
+    if self.default_domain.nil?
+      self.default_domain = info[2]
+    end
 
     return ack
   end
@@ -906,7 +912,13 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     #dns name
     self.dns_host_name =  blob_data[:dns_host_name] || ''
     #dns domain
-    self.dns_domain_name =  blob_data[:dns_domain_name] || ''
+    if blob_data[:default_name] != blob_data[:default_domain]
+      # We're in a domain; get the domain name now
+      self.default_domain =  blob_data[:default_domain] || ''
+    else
+      # We're in a workgroup; workgroup names come later in the handshake
+      self.default_domain = nil
+    end
 
     type3 = @ntlm_client.init_context([blob].pack('m'))
     type3_blob = type3.serialize

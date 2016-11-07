@@ -182,6 +182,25 @@ class APIRequest
       end
     end
 
+    @res.elements.each('//Failure') do |s|
+
+      # 1.1 returns lower case elements
+      s.elements.each('message') do |m|
+        @error = m.text
+      end
+      s.elements.each('stacktrace') do |m|
+        @trace = m.text
+      end
+
+      # 1.2 returns capitalized elements
+      s.elements.each('Message') do |m|
+        @error = m.text
+      end
+      s.elements.each('Stacktrace') do |m|
+        @trace = m.text
+      end
+    end
+
     # This is a hack to handle corner cases where a heavily loaded Nexpose instance
     # drops our HTTP connection before processing. We try 5 times to establish a
     # connection in these situations. The actual exception occurs in the Ruby

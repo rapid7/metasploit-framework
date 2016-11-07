@@ -2,6 +2,7 @@
 require 'msf/core'
 require 'msf/core/payload/uuid/options'
 require 'msf/core/payload/transport_config'
+require 'rex/payloads/meterpreter/config'
 
 module Msf::Payload::Android
 
@@ -37,29 +38,15 @@ module Msf::Payload::Android
   end
 
   def apply_options(classes, opts)
-    timeouts = [
-      datastore['SessionExpirationTimeout'].to_s,
-      datastore['SessionCommunicationTimeout'].to_s,
-      datastore['SessionRetryTotal'].to_s,
-      datastore['SessionRetryWait'].to_s
-    ].join('-')
+    config = generate_config_bytes(opts)
     if opts[:stageless]
-      config = generate_config_hex(opts)
-      string_sub(classes, 'UUUU' + ' ' * 8191, 'UUUU' + config)
+      config[0] = "\x01"
     end
-    if opts[:ssl]
-      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                           datastore['HandlerSSLCert'])
-      if verify_cert_hash
-        hash = 'WWWW' + verify_cert_hash.unpack("H*").first
-        string_sub(classes, 'WWWW                                        ', hash)
-      end
-    end
-    string_sub(classes, 'ZZZZ' + ' ' * 512, 'ZZZZ' + payload_uri)
-    string_sub(classes, 'TTTT' + ' ' * 48, 'TTTT' + timeouts)
+
+    string_sub(classes, "\xde\xad\xba\xad" + "\x00" * 8191, config)
   end
 
-  def generate_config_hex(opts={})
+  def generate_config_bytes(opts={})
     opts[:uuid] ||= generate_payload_uuid
 
     config_opts = {
@@ -71,11 +58,11 @@ module Msf::Payload::Android
     }
 
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-    config.to_b.unpack('H*').first
+    config.to_b
   end
 
   def string_sub(data, placeholder="", input="")
-    data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
+    data.gsub!(placeholder, input + "\x00" * (placeholder.length - input.length))
   end
 
   def sign_jar(jar)
