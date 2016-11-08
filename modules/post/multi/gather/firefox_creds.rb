@@ -663,7 +663,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     file_rm(@paths['loot'])
 
     # Create table to store
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header' => 'Firefox Credentials',
       'Indent' => 1,
       'Columns'=>

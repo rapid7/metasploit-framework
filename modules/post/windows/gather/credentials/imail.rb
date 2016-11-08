@@ -140,7 +140,7 @@ class MetasploitModule < Msf::Post
   end
 
   def report(users)
-    credentials = Rex::Ui::Text::Table.new(
+    credentials = Rex::Text::Table.new(
       'Header'  => 'Ipswitch iMail User Credentials',
       'Indent'   => 1,
       'Columns' =>

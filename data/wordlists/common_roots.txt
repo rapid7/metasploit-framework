@@ -4722,3 +4722,4 @@ zxcvbn
 zxcvbnm
 zzzz
 zzzzzz
+vagrant

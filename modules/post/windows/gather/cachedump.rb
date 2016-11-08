@@ -271,7 +271,7 @@ class MetasploitModule < Msf::Post
 
 
   def run
-    @credentials = Rex::Ui::Text::Table.new(
+    @credentials = Rex::Text::Table.new(
     'Header'    => "MSCACHE Credentials",
     'Indent'    => 1,
     'Columns'   =>

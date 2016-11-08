@@ -158,7 +158,6 @@ module Msf::DBManager::ModuleCache
   # +edb+:: Matches modules with the given Exploit-DB ID.
   # +name+:: Matches modules with the given full name or name.
   # +os+, +platform+:: Matches modules with the given platform or target name.
-  # +osvdb+:: Matches modules with the given OSVDB ID.
   # +ref+:: Matches modules with the given reference ID.
   # +type+:: Matches modules with the given type.
   #
@@ -277,7 +276,7 @@ module Msf::DBManager::ModuleCache
 
             query = query.includes(:refs).references(:refs)
             union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
-          when 'cve', 'bid', 'osvdb', 'edb'
+          when 'cve', 'bid', 'edb'
             formatted_values = value_set.collect { |value|
               prefix = keyword.upcase
 

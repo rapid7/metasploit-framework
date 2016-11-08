@@ -594,7 +594,12 @@ module Auxiliary::AuthBrute
       msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
       if old_msg.match(msg_regex) and !old_msg.match(msg_regex)[6].to_s.strip.empty?
         complete_message = ''
-        complete_message << (old_msg.match(msg_regex)[4] || proto).to_s
+        unless ip.blank? && port.blank?
+          complete_message << "#{ip}:#{rport}"
+        else
+          complete_message << (old_msg.match(msg_regex)[4] || proto).to_s
+        end
+
         complete_message << " - "
         progress = tried_over_total(ip,port)
         complete_message << progress if progress

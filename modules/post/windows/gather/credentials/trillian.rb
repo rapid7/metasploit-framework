@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
         return
       end
 
-      creds = Rex::Ui::Text::Table.new(
+      creds = Rex::Text::Table.new(
         'Header'  => 'Trillian versions 4-5 Instant Messenger Credentials',
         'Indent'	=> 1,
         'Columns' =>

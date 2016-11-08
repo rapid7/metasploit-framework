@@ -41,11 +41,13 @@ end
 
 def cleanup
   datastore['RHOST'] = @original_rhost
+  super
 end
 
 
 def check
   nmod = replicant
+  nmod.datastore['RHOST'] = @original_rhost
   begin
     nmod.check_host(datastore['RHOST'])
   rescue NoMethodError

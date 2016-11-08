@@ -54,6 +54,10 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts 
     [ pub_blank, pub_pub, pub_pri]
   }
 
+  let(:socket_error) {
+    ::SocketError.new("getaddrinfo: nodename nor servname provided, or not known")
+  }
+
   it { is_expected.to respond_to :connection_timeout }
   it { is_expected.to respond_to :cred_details }
   it { is_expected.to respond_to :host }
@@ -101,6 +105,12 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts 
     end
 
     context 'host' do
+      before do
+        allow(::Rex::Socket).to receive(:getaddress).with('192.168.1.1.5', true).and_raise(socket_error)
+        allow(::Rex::Socket).to receive(:getaddress).with('192.168', true).and_return('192.0.0.168')
+        allow(::Rex::Socket).to receive(:getaddress).with('192.300.675.123', true).and_raise(socket_error)
+        allow(::Rex::Socket).to receive(:getaddress).with('nosuchplace.metasploit.com', true).and_raise(socket_error)
+      end
 
       it 'is not valid for not set' do
         expect(login_scanner).to_not be_valid

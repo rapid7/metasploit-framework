@@ -82,7 +82,7 @@ class Console::CommandDispatcher::Extapi::Window
 
     header = parent_window ? "Child windows of #{parent_window}" : "Top-level windows"
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => header,
       'Indent'    => 0,
       'SortIndex' => 0,

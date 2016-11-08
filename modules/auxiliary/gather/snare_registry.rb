@@ -35,8 +35,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(6161),
-        OptString.new('USERNAME', [ false, 'The username for Snare remote access', 'snare' ]),
-        OptString.new('PASSWORD', [ false, 'The password for Snare remote access', '' ]),
+        OptString.new('HttpUsername', [ false, 'The username for Snare remote access', 'snare' ]),
+        OptString.new('HttpPassword', [ false, 'The password for Snare remote access', '' ]),
         OptString.new('REG_DUMP_KEY', [ false, 'Retrieve this registry key and all sub-keys', 'HKLM\\HARDWARE\\DESCRIPTION\\System' ]),
         OptBool.new('REG_DUMP_ALL', [false, 'Retrieve the entire Windows registry', false]),
         OptInt.new('TIMEOUT', [true, 'Timeout in seconds for downloading each registry key/hive', 300])
@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     res = send_request_cgi({
       'uri' => normalize_uri('RegDump'),
-      'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
       'vars_get' => vars_get
     }, datastore['TIMEOUT'])
     if !res
@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{peer} - Retrieving list of registry hives ...")
     res = send_request_cgi(
       'uri' => normalize_uri('RegDump'),
-      'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
     )
     if !res
       fail_with(Failure::Unreachable, "#{peer} - Connection failed")

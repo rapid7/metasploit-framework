@@ -294,7 +294,7 @@ class Console::CommandDispatcher::Extapi::Adsi
 
     objects = client.extapi.adsi.domain_query(domain, filter, max_results, page_size, args)
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => "#{domain} Objects",
       'Indent'    => 0,
       'SortIndex' => 0,

@@ -18,16 +18,8 @@ module Meterpreter
 ###
 module SocketAbstraction
 
-  class << self
-    def cls
-      raise NotImplementedError
-    end
-  end
-
   module SocketInterface
-    def type?
-      raise NotImplementedError
-    end
+    include Rex::Socket
 
     def getsockname
       return super if not channel
@@ -46,9 +38,8 @@ module SocketAbstraction
 
     def getpeername
       return super if not channel
-      address_family,_caddr,_cport = channel.client.sock.getpeername_as_array
       maddr,mport = [ channel.params.peerhost, channel.params.peerport ]
-      [ address_family, "#{maddr}", "#{mport}" ]
+      ::Socket.sockaddr_in(mport, maddr)
     end
 
     %i{localhost localport peerhost peerport}.map do |meth|

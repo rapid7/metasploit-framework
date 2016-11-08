@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    creds = Rex::Ui::Text::Table.new(
+    creds = Rex::Text::Table.new(
         'Header'  => 'Internet Downloader Manager Credentials',
         'Indent'   => 1,
         'Columns' =>

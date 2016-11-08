@@ -86,7 +86,7 @@ class Console::CommandDispatcher::Extapi::Service
 
     services = client.extapi.service.enumerate
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'Service List',
       'Indent'    => 0,
       'SortIndex' => 3,

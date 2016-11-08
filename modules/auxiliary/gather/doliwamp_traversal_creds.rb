@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
       print_warning("No credentials collected.")
       return
     end
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Dolibarr User Credentials',
       'Indent'  => 1,
       'Columns' => ['Username', 'Password', 'Admin', 'E-mail']

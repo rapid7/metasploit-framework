@@ -34,5 +34,11 @@ RSpec.describe Msf::Auxiliary::DRDoS do
       result, _ = subject.prove_amplification(map)
       expect(result).to be false
     end
+
+    it 'should handle empty responses' do
+      map = { '' => [ 'foo' ] }
+      result, _ = subject.prove_amplification(map)
+      expect(result).to be true
+    end
   end
 end

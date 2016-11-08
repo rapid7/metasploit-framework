@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Post
   # New config file parse function
   def parse_new_config_file(raw_xml)
 
-    db_table = Rex::Ui::Text::Table.new(
+    db_table = Rex::Text::Table.new(
     'Header'    => "DbVisualizer Databases",
     'Indent'    => 2,
     'Columns'   =>
@@ -219,7 +219,7 @@ class MetasploitModule < Msf::Post
   # New config file parse function
   def parse_old_config_file(raw_xml)
 
-    db_table = Rex::Ui::Text::Table.new(
+    db_table = Rex::Text::Table.new(
     'Header'    => 'DbVisualizer Databases',
     'Indent'    => 2,
     'Columns'   =>

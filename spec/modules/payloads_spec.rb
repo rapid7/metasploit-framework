@@ -45,6 +45,26 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'aix/ppc/shell_reverse_tcp'
   end
 
+  context 'android/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/android/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'android/meterpreter_reverse_http'
+  end
+
+  context 'android/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/android/meterpreter_reverse_tcp'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'android/meterpreter_reverse_tcp'
+  end
+
   context 'android/meterpreter/reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2262,6 +2282,17 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter/reverse_tcp'
+  end
+
+  context 'python/meterpreter/reverse_tcp_ssl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/python/reverse_tcp_ssl',
+                            'stages/python/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'python/meterpreter/reverse_tcp_ssl'
   end
 
   context 'python/meterpreter/reverse_tcp_uuid' do

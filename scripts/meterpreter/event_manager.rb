@@ -92,7 +92,7 @@ end
 #-------------------------------------------------------------------------------
 def print_log_details
   print_status("Retriving Event Log Configuration")
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
     'Header'  => "Event Logs on System",
     'Indent'  => 1,
     'Columns' => [

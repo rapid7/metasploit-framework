@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Post
     entries = buffer[0,4].unpack("V*")[0]
     print_status("Total TCP Entries: #{entries}")
 
-    rtable = Rex::Ui::Text::Table.new(
+    rtable = Rex::Text::Table.new(
       'Header' => 'Connection Table',
       'Indent' => 2,
       'Columns' => ['STATE', 'LHOST', 'LPORT', 'RHOST', 'RPORT']

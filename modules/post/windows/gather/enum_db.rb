@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Post
 
     print_status("Done, Databases Found.")
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Installed Databases",
       'Indent'  => 1,
       'Columns' =>

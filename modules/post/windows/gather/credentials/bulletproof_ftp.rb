@@ -290,7 +290,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Report / Show findings
-    @credentials = Rex::Ui::Text::Table.new(
+    @credentials = Rex::Text::Table.new(
       'Header'    => "BulletProof FTP Client Bookmarks",
       'Indent'    => 1,
       'Columns'   =>

@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Post
   def get_filezilla_creds(paths)
     fs_xml  = ""   # FileZilla Server.xml           - Settings for the local install
     fsi_xml = ""   # FileZilla Server Interface.xml - Last server used with the interface
-    credentials = Rex::Ui::Text::Table.new(
+    credentials = Rex::Text::Table.new(
     'Header'    => "FileZilla FTP Server Credentials",
     'Indent'    => 1,
     'Columns'   =>
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Post
       "SSL"
     ])
 
-    permissions = Rex::Ui::Text::Table.new(
+    permissions = Rex::Text::Table.new(
     'Header'    => "FileZilla FTP Server Permissions",
     'Indent'    => 1,
     'Columns'   =>
@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Post
       "Home"
     ])
 
-    configuration = Rex::Ui::Text::Table.new(
+    configuration = Rex::Text::Table.new(
     'Header'      => "FileZilla FTP Server Configuration",
     'Indent'      => 1,
     'Columns'     =>
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Post
       "SSL Key Password"
     ])
 
-    lastserver = Rex::Ui::Text::Table.new(
+    lastserver = Rex::Text::Table.new(
     'Header'   => "FileZilla FTP Last Server",
     'Indent'   => 1,
     'Columns'  =>

@@ -7,10 +7,18 @@ module Metasploit
       # IP Board login scanner
       class IPBoard < HTTP
 
+        # @!attribute http_username
+        # @return [String]
+        attr_accessor :http_username
+
+        # @!attribute http_password
+        # @return [String]
+        attr_accessor :http_password
+
         # (see Base#attempt_login)
         def attempt_login(credential)
           http_client = Rex::Proto::Http::Client.new(
-              host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies
+              host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, self.http_username, self.http_password
           )
           configure_http_client(http_client)
 

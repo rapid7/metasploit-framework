@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Network Shutdown Module Credentials',
       'Indent'  => 1,
       'Columns' => ['Username', 'Password']

@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
 
   def run
 
-    creds = Rex::Ui::Text::Table.new(
+    creds = Rex::Text::Table.new(
       'Header' => 'IMVU Credentials',
       'Indent' => 1,
       'Columns' =>[

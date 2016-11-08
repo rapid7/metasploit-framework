@@ -46,7 +46,11 @@ module Auxiliary::DRDoS
       bandwidth_amplification = total_size - request.size
       if bandwidth_amplification > 0
         vulnerable = true
-        multiplier = total_size / request.size
+        if request.size == 0
+          multiplier = total_size
+        else
+          multiplier = total_size / request.size
+        end
         this_proof += "a #{multiplier}x, #{bandwidth_amplification}-byte bandwidth amplification"
       else
         this_proof += 'no bandwidth amplification'

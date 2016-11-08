@@ -23,8 +23,8 @@ module Auxiliary::HttpCrawler
         OptInt.new('MAX_PAGES', [ true, 'The maximum number of pages to crawl per URL', 500]),
         OptInt.new('MAX_MINUTES', [ true, 'The maximum number of minutes to spend on each URL', 5]),
         OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4]),
-        OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication']),
-        OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication']),
+        OptString.new('HttpUsername', [false, 'The HTTP username to specify for authentication']),
+        OptString.new('HttpPassword', [false, 'The HTTP password to specify for authentication']),
         OptString.new('DOMAIN', [ true, 'The domain to use for windows authentication', 'WORKSTATION']),
         OptBool.new('SSL', [ false, 'Negotiate SSL/TLS for outgoing connections', false])
 
@@ -123,9 +123,9 @@ module Auxiliary::HttpCrawler
       :info     => ""
     })
 
-    if datastore['USERNAME'] and datastore['USERNAME'] != ''
-      t[:username] = datastore['USERNAME'].to_s
-      t[:password] = datastore['PASSWORD'].to_s
+    if datastore['HttpUsername'] and datastore['HttpUsername'] != ''
+      t[:username] = datastore['HttpUsername'].to_s
+      t[:password] = datastore['HttpPassword'].to_s
       t[:domain]   = datastore['DOMAIN'].to_s
     end
 

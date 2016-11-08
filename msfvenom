@@ -116,7 +116,7 @@ def parse_args(args)
     supported_platforms = []
     Msf::Module::Platform.subclasses.each {|c| supported_platforms << "#{c.realname.downcase}"}
     msg = "Platforms\n" +
-      "\t" + supported_platforms * ", "
+      "\t" + supported_platforms.sort * ", "
     raise HelpError, msg
   end
 
@@ -220,7 +220,7 @@ end
 
 def dump_payloads
   init_framework(:module_types => [ ::Msf::MODULE_PAYLOAD ])
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Payloads (#{framework.stats.num_payloads} total)",
     'Columns' =>
@@ -238,7 +238,7 @@ end
 
 def dump_encoders(arch = nil)
   init_framework(:module_types => [ ::Msf::MODULE_ENCODER ])
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : ""),
     'Columns' =>
@@ -261,7 +261,7 @@ end
 
 def dump_nops
   init_framework(:module_types => [ ::Msf::MODULE_NOP ])
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework NOPs (#{framework.stats.num_nops} total)",
     'Columns' =>

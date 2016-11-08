@@ -7,13 +7,16 @@ module Rex
 ###
 module Proto::DCERPC::SVCCTL
 
-  require 'rex/constants/windows'
+  require 'windows_error'
+  require 'windows_error/win32'
+  require 'msf/core/exploit/windows_constants'
   NDR = Rex::Encoder::NDR
 
 
 class Client
 
-  include Rex::Constants::Windows
+  include WindowsError::Win32
+  include Msf::Exploit::Windows_Constants
 
   attr_accessor :dcerpc_client
 

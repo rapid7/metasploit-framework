@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Create a rex table to store our data
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Thunderbird login data',
       'Indent'  => 1,
       'Columns' =>

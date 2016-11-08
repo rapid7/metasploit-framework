@@ -520,7 +520,14 @@ class Plugin::Nexpose < Msf::Plugin
         print_status(" >> Created temporary report configuration ##{report.config_id}") if opt_verbose
 
         # Run the scan
-        res = site.scanSite()
+        begin
+          res  = site.scanSite()
+        rescue Nexpose::APIError => e
+          nexpose_error_message = e.message
+          nexpose_error_message.gsub!(/NexposeAPI: Action failed: /, '')
+          print_error "#{nexpose_error_message}"
+          return
+        end
         sid = res[:scan_id]
 
         print_status(" >> Scan has been launched with ID ##{sid}") if opt_verbose

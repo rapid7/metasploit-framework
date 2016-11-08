@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
 
   # Takes the results of LDAP query, parses them into a table
   def parse_results(results)
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Users & Managers",
       'Indent'     => 1,
       'SortIndex'  => -1,

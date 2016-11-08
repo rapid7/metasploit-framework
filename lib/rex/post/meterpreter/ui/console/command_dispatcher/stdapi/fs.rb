@@ -19,11 +19,16 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   include Console::CommandDispatcher
 
+  CHECKSUM_ALGORITHMS = %w{ md5 sha1 }
+  private_constant :CHECKSUM_ALGORITHMS
+
   #
   # Options for the download command.
   #
   @@download_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
+    "-c" => [ false, "Resume getting a partially-downloaded file." ],
+    "-l" => [ true,  "Set the limit of retries (0 unlimits)." ],
     "-r" => [ false, "Download recursively." ],
     "-t" => [ false, "Timestamp downloaded files." ])
   #
@@ -37,7 +42,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   @@ls_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
-    "-S" => [ true, "Search string." ],
+    "-S" => [ true,  "Search string." ],
     "-t" => [ false, "Sort by time" ],
     "-s" => [ false, "Sort by size" ],
     "-r" => [ false, "Reverse sort order" ],
@@ -52,6 +57,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     all = {
       'cat'        => 'Read the contents of a file to the screen',
       'cd'         => 'Change directory',
+      'checksum'   => 'Retrieve the checksum of a file',
       'del'        => 'Delete the specified file',
       'dir'        => 'List files (alias for ls)',
       'download'   => 'Download a file or directory',
@@ -64,7 +70,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'mkdir'      => 'Make directory',
       'pwd'        => 'Print working directory',
       'rm'         => 'Delete the specified file',
-      'mv'	       => 'Move source to destination',
+      'mv'         => 'Move source to destination',
       'rmdir'      => 'Remove directory',
       'search'     => 'Search for files',
       'upload'     => 'Upload a file or directory',
@@ -74,6 +80,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     reqs = {
       'cat'        => [],
       'cd'         => ['stdapi_fs_chdir'],
+      'checksum'   => CHECKSUM_ALGORITHMS.map { |a| "stdapi_fs_#{a}" },
       'del'        => ['stdapi_fs_rm'],
       'dir'        => ['stdapi_fs_stat', 'stdapi_fs_ls'],
       'download'   => [],
@@ -184,7 +191,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     mounts = client.fs.mount.show_mount
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'Mounts / Drives',
       'Indent'    => 0,
       'SortIndex' => 0,
@@ -270,6 +277,36 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   #
+  # Retrieve the checksum of a file
+  #
+  def cmd_checksum(*args)
+    algorithm = args.shift
+    algorithm.downcase! unless algorithm.nil?
+    unless args.length > 0 and CHECKSUM_ALGORITHMS.include?(algorithm)
+      print_line("Usage: checksum [#{ CHECKSUM_ALGORITHMS.join(' / ') }] file1 file2 file3 ...")
+      return true
+    end
+
+    args.each do |filepath|
+      checksum = client.fs.file.send(algorithm, filepath)
+      print_line("#{Rex::Text.to_hex(checksum, '')}  #{filepath}")
+    end
+
+    return true
+  end
+
+  def cmd_checksum_tabs(str, words)
+    tabs = []
+    return tabs unless words.length == 1
+
+    CHECKSUM_ALGORITHMS.each do |algorithm|
+      tabs << algorithm if algorithm.start_with?(str.downcase)
+    end
+
+    tabs
+  end
+
+  #
   # Delete the specified file.
   #
   def cmd_rm(*args)
@@ -333,17 +370,29 @@ class Console::CommandDispatcher::Stdapi::Fs
     end
 
     recursive = false
-    timestamp = false
     src_items = []
     last      = nil
     dest      = nil
+    continue  = false
+    tries     = false
+    tries_no  = 0
+    opts      = {}
 
     @@download_opts.parse(args) { |opt, idx, val|
       case opt
       when "-r"
         recursive = true
+        opts['recursive'] = true
+      when "-c"
+        continue = true
+        opts['continue'] = true
+      when "-l"
+        tries = true
+        tries_no = val.to_i
+        opts['tries'] = true
+        opts['tries_no'] = tries_no
       when "-t"
-        timestamp = true
+        opts['timestamp'] = '_' + Time.now.iso8601
       when nil
         src_items << last if (last)
         last = val
@@ -371,10 +420,6 @@ class Console::CommandDispatcher::Stdapi::Fs
       dest = ::File.dirname(dest)
     end
 
-    if timestamp
-      ts = '_' + Time.now.iso8601
-    end
-
     # Go through each source item and download them
     src_items.each { |src|
       glob = nil
@@ -397,7 +442,7 @@ class Console::CommandDispatcher::Stdapi::Fs
             src_path = file['path'] + client.fs.file.separator + file['name']
             dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
 
-            client.fs.file.download(dest_path, src_path, ts) do |step, src, dst|
+            client.fs.file.download(dest_path, src_path, opts) do |step, src, dst|
               print_status("#{step.ljust(11)}: #{src} -> #{dst}")
               client.framework.events.on_session_download(client, src, dest) if msf_loaded?
             end
@@ -409,14 +454,27 @@ class Console::CommandDispatcher::Stdapi::Fs
 
       else
         # Perform direct matching
-        stat = client.fs.file.stat(src)
+        tries_cnt = 0
+        begin
+          stat = client.fs.file.stat(src)
+        rescue Rex::TimeoutError
+          if (tries && (tries_no == 0 || tries_cnt < tries_no))
+            tries_cnt += 1
+            print_error("Error opening: #{src} - retry (#{tries_cnt})")
+            retry
+          else
+            print_error("Error opening: #{src} - giving up")
+            raise
+          end
+        end
+
         if (stat.directory?)
-          client.fs.dir.download(dest, src, recursive, true, glob, ts) do |step, src, dst|
+          client.fs.dir.download(dest, src, opts, true, glob) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
         elsif (stat.file?)
-          client.fs.file.download(dest, src, ts) do |step, src, dst|
+          client.fs.file.download(dest, src, opts) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
@@ -482,7 +540,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       return
     end
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Listing: #{path}",
       'SortIndex' => columns.index(sort),
       'SortOrder' => order,
@@ -611,7 +669,6 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Alias the ls command to dir, for those of us who have windows muscle-memory
   #
   alias cmd_dir cmd_ls
-
 
   #
   # Make one or more directory.

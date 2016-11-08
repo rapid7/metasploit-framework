@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Post
 
   def process_files(username)
     secrets = ""
-    decrypt_table = Rex::Ui::Text::Table.new(
+    decrypt_table = Rex::Text::Table.new(
       "Header"  => "Decrypted data",
       "Indent"  => 1,
       "Columns" => ["Name", "Decrypted Data", "Origin"]

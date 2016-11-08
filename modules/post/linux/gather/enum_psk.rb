@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Post
   end
 
   def extract_all_creds
-    tbl = Rex::Ui::Text::Table.new({
+    tbl = Rex::Text::Table.new({
       'Header'  => '802-11-wireless-security',
       'Columns' => ['AccessPoint-Name', 'PSK'],
       'Indent'  => 1,

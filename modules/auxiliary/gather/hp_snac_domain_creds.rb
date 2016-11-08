@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Domain Controllers Credentials',
       'Indent'  => 1,
       'Columns' => ['Domain Controller', 'Username', 'Password']

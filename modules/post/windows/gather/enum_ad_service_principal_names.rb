@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Post
     fields << "Host"
 
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Service Principal Names",
       'Indent'     => 1,
       'SortIndex'  => -1,

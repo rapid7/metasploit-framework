@@ -26,13 +26,13 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    usr_tbl = Rex::Ui::Text::Table.new(
+    usr_tbl = Rex::Text::Table.new(
       'Header'  => 'Current User',
       'Indent'  => 1,
       'Columns' => ['Is Admin', 'Is System', 'Is In Local Admin Group', 'UAC Enabled', 'Foreground ID', 'UID']
     )
 
-    privs_tbl = Rex::Ui::Text::Table.new(
+    privs_tbl = Rex::Text::Table.new(
       'Header' =>"Windows Privileges",
       'Indent' => 1,
       'Columns' => ['Name']

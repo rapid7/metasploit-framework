@@ -227,17 +227,17 @@ class MetasploitModule < Msf::Post
     end
 
     #setup tables
-    @hist_table = Rex::Ui::Text::Table.new(
+    @hist_table = Rex::Text::Table.new(
       "Header"  => "History data",
       "Indent"  => 1,
       "Columns" => ["Date Modified", "Date Accessed", "Url"])
 
-    @cook_table = Rex::Ui::Text::Table.new(
+    @cook_table = Rex::Text::Table.new(
       "Header"  => "Cookies data",
       "Indent"  => 1,
       "Columns" => ["Date Modified", "Date Accessed", "Url"])
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       "Header"  => "Credential data",
       "Indent"  => 1,
       "Columns" => ["Type", "Url", "User", "Pass"])

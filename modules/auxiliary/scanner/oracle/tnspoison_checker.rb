@@ -42,8 +42,22 @@ class MetasploitModule < Msf::Auxiliary
       send_packet = tns_packet("(CONNECT_DATA=(COMMAND=service_register_NSGR))")
       sock.put(send_packet)
       packet = sock.read(100)
-      find_packet = /\(ERROR_STACK=\(ERROR=/ === packet
-      find_packet == true ? print_error("#{ip}:#{rport} is not vulnerable ") : print_good("#{ip}:#{rport} is vulnerable")
+      if packet
+        hex_packet = Rex::Text.to_hex(packet, ':')
+        split_hex = hex_packet.split(':')
+        find_packet = /\(ERROR_STACK=\(ERROR=/ === packet
+        if find_packet == true #TNS Packet returned ERROR
+          print_error("#{ip}:#{rport} is not vulnerable")
+        elsif split_hex[5] == '02' #TNS Packet Type: ACCEPT
+          print_good("#{ip}:#{rport} is vulnerable")
+        elsif split_hex[5] == '04' #TNS Packet Type: REFUSE
+          print_error("#{ip}:#{rport} is not vulnerable")
+        else #All other TNS packet types or non-TNS packet type response cannot guarantee vulnerability
+          print_error("#{ip}:#{rport} might not be vulnerable")
+        end
+      else
+        print_error("#{ip}:#{rport} is not vulnerable")
+      end
       # TODO: Module should report_vuln if this finding is solid.
       rescue ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{ip}:#{rport} unable to connect to the server")

@@ -423,7 +423,7 @@ class Db
     end
 
     # If we got here, we're searching.  Delete implies search
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       {
         'Header'  => "Hosts",
         'Columns' => col_names,
@@ -650,7 +650,7 @@ class Db
     if col_search
       col_names = col_search
     end
-    tbl = Rex::Ui::Text::Table.new({
+    tbl = Rex::Text::Table.new({
         'Header'  => "Services",
         'Columns' => ['host'] + col_names,
       })
@@ -1029,7 +1029,7 @@ class Db
       'Columns' => cred_table_columns
     }
 
-    tbl = Rex::Ui::Text::Table.new(tbl_opts)
+    tbl = Rex::Text::Table.new(tbl_opts)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
@@ -1341,7 +1341,7 @@ class Db
     end
 
     # Now display them
-    csv_table = Rex::Ui::Text::Table.new(
+    csv_table = Rex::Text::Table.new(
       'Header'  => 'Notes',
       'Indent'  => 1,
       'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data']
@@ -1501,7 +1501,7 @@ class Db
       end
     end
 
-    tbl = Rex::Ui::Text::Table.new({
+    tbl = Rex::Text::Table.new({
         'Header'  => "Loot",
         'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
       })

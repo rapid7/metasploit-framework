@@ -108,7 +108,23 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         if simple.client.default_domain
-          desc << " (domain:#{simple.client.default_domain})"
+          if simple.client.default_domain.encoding.name == "UTF-8"
+            desc << " (domain:#{simple.client.default_domain})"
+          else
+            # Workgroup names are in ANSI, but may contain invalid characters
+            # Go through each char and convert/check
+            temp_workgroup = simple.client.default_domain.dup
+            desc << " (workgroup:"
+            temp_workgroup.each_char do |i|
+              begin
+                desc << i.encode("UTF-8")
+              rescue Encoding::UndefinedConversionError => e
+                desc << '?'
+                print_error("Found incompatible (non-ANSI) character in Workgroup name. Replaced with '?'")
+              end
+            end
+            desc << " )"
+          end
           conf[:SMBDomain] = simple.client.default_domain
           match_conf['host.domain'] = conf[:SMBDomain]
         end

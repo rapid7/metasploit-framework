@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Post
         vprint_status("Platform: Python [fallback]")
       end
     end
-    payload_name = datastore['PAYLOAD_OVERWRITE'] if datastore['PAYLOAD_OVERWRITE']
+    payload_name = datastore['PAYLOAD_OVERRIDE'] if datastore['PAYLOAD_OVERRIDE']
     vprint_status("Upgrade payload: #{payload_name}")
 
     if platform.blank?
@@ -201,7 +201,7 @@ class MetasploitModule < Msf::Post
       #:nodelete => true # keep temp files (for debugging)
     }
     if session.platform =~ /win/i
-      opts[:decoder] = File.join(Msf::Config.data_directory, 'exploits', 'cmdstager', 'vbs_b64')
+      opts[:decoder] = File.join(Rex::Exploitation::DATA_DIR, "exploits", "cmdstager", 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
     else
       opts[:background] = true

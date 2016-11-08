@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
   # Method for enumerating the Community Strings configured
   def community_strings
     comm_str = []
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Community Strings",
       'Indent'  => 1,
       'Columns' =>

