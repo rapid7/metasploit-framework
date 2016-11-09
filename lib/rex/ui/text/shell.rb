@@ -242,13 +242,13 @@ module Shell
   def update_prompt(prompt = nil, new_prompt_char = nil, mode = false)
     if (self.input)
       if prompt
-        new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
+        new_prompt = self.init_prompt + prompt + ' ' + prompt_char + ' '
       else
         new_prompt = self.prompt || ''
       end
 
       if mode
-        new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
+        new_prompt = prompt + ' ' + (new_prompt_char || prompt_char) + ' '
       end
 
       # Save the prompt before any substitutions

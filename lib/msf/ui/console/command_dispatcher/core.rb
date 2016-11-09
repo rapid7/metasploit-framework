@@ -1748,7 +1748,7 @@ class Core
       prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
     end
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} ", prompt_char, true)
+    driver.update_prompt("#{prompt}", prompt_char, true)
 
     print_status(msg)
     return
@@ -2752,7 +2752,7 @@ class Core
     # Update the command prompt
     prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+    driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr)", prompt_char, true)
   end
 
   #
@@ -2966,7 +2966,7 @@ class Core
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
     mod = active_module
     if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr)", prompt_char, true)
     else
       driver.update_prompt("#{prompt} ", prompt_char, true)
     end
