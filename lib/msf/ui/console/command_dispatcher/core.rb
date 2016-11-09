@@ -1745,7 +1745,11 @@ class Core
     if active_module
       # intentionally += and not << because we don't want to modify
       # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
+      if Rex::Compat.is_windows
+        prompt += " #{active_module.type}(#{active_module.shortname})"
+      else
+        prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
+      end
     end
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
     driver.update_prompt("#{prompt} ", prompt_char, true)
@@ -2752,7 +2756,11 @@ class Core
     # Update the command prompt
     prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+    if Rex::Compat.is_windows
+      driver.update_prompt("#{prompt} #{mod.type}(#{mod.shortname}) ", prompt_char, true)
+    else
+      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+    end
   end
 
   #

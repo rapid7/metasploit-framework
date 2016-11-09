@@ -23,8 +23,8 @@ class Driver < Msf::Ui::Driver
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
 
-  DefaultPrompt     = "%undmsf%clr"
-  DefaultPromptChar = "%clr>"
+  DefaultPrompt     = Rex::Compat.is_windows ? "msf" : "%undmsf%clr"
+  DefaultPromptChar = Rex::Compat.is_windows ? ">" : "%clr>"
 
   #
   # The console driver processes various framework notified events.
