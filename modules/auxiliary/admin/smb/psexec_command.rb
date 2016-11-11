@@ -138,10 +138,11 @@ class MetasploitModule < Msf::Auxiliary
   def exclusive_access(*files)
     begin
       simple.connect("\\\\#{@ip}\\#{@smbshare}")
-    rescue
+    rescue Rex::Proto::SMB::Exceptions::ErrorCode => accesserror
+      print_status("Unable to get handle: #{accesserror}")
       return false
     end
-      files.each do |file|
+    files.each do |file|
       begin
         print_status("checking if the file is unlocked")
         fd = smb_open(file, 'rwo')
@@ -154,14 +155,14 @@ class MetasploitModule < Msf::Auxiliary
     end
     return true
   end
-
-
+  
+  
   # Removes files created during execution.
   def cleanup_after(*files)
     begin
       simple.connect("\\\\#{@ip}\\#{@smbshare}")
-    rescue
-      print_error("Unable to connect for cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
+    rescue Rex::Proto::SMB::Exceptions::ErrorCode => accesserror
+      print_error("Unable to connect for cleanup: #{accesserror}. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
       return
     end
     print_status("Executing cleanup...")
