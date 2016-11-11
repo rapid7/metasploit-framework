@@ -155,8 +155,8 @@ class MetasploitModule < Msf::Auxiliary
     end
     return true
   end
-  
-  
+
+
   # Removes files created during execution.
   def cleanup_after(*files)
     begin
