@@ -136,7 +136,11 @@ class MetasploitModule < Msf::Auxiliary
 
   # check if our process is done using these files
   def exclusive_access(*files)
+    begin
       simple.connect("\\\\#{@ip}\\#{@smbshare}")
+    rescue
+      return false
+    end
       files.each do |file|
       begin
         print_status("checking if the file is unlocked")
@@ -154,7 +158,12 @@ class MetasploitModule < Msf::Auxiliary
 
   # Removes files created during execution.
   def cleanup_after(*files)
-    simple.connect("\\\\#{@ip}\\#{@smbshare}")
+    begin
+      simple.connect("\\\\#{@ip}\\#{@smbshare}")
+    rescue
+      print_error("Unable to connect for cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
+      return
+    end
     print_status("Executing cleanup...")
     files.each do |file|
       begin
