@@ -5,7 +5,7 @@
 ## Verification Steps
 
   1. Get a `shell` or `meterpreter` session on some host.
-  2. Do: ```use post/multi/gather/aws_keys.rb```
+  2. Do: ```use post/multi/gather/aws_keys```
   3. Do: ```set SESSION [SESSION_ID]```, replacing ```[SESSION_ID]``` with the session number you wish to run this one.
   4. Do: ```run```
   5. If the system has readable configuration files containing AWS key material, they will be printed out.
