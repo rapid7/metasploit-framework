@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       simple.connect("\\\\#{@ip}\\#{@smbshare}")
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => accesserror
-      print_error("Unable to connect for cleanup: #{accesserror}. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
+      print_error("Unable to connect for cleanup: #{accesserror}. Maybe you'll need to manually remove #{files.join(", ")} from the target.")
       return
     end
     print_status("Executing cleanup...")
