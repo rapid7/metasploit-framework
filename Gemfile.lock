@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.12.41)
+    metasploit-framework (4.12.42)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -14,7 +14,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.1.26)
+      metasploit-payloads (= 1.1.28)
       metasploit_data_models
       metasploit_payloads-mettle (= 0.0.8)
       msgpack
@@ -169,7 +169,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.1.26)
+    metasploit-payloads (1.1.28)
     metasploit_data_models (2.0.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
