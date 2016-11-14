@@ -10,12 +10,12 @@ class Msf::Sessions::SSH::Ui::Console::CommandDispatcher
     @shell = shell
   end
 
-  def name
-    "metassh"
-  end
-
   def client
     shell.client
+  end
+
+  def name
+    "metassh"
   end
 
   def commands
@@ -43,20 +43,8 @@ class Msf::Sessions::SSH::Ui::Console::CommandDispatcher
   def cmd_execute(*args)
     args ||= []
     full_cmd = "#{args.join(' ')}\n"
-    out = ""
-    chan = self.shell.client.ssh.exec(full_cmd) do |ch, stream, data|
-      $stderr.puts 'getting output'
-      out << data
-    end
-
-    loop do
-      $stderr.puts("looping for eof")
-      self.shell.client.ssh.process(0.2)
-      break if chan.eof? or !chan.active?
-    end
+    out = self.shell.client.ssh.exec!(full_cmd)
     print_line out
-    return out
-
   end
 
   #

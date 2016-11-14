@@ -150,28 +150,8 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result, ssh_socket, fingerprint)
     return unless ssh_socket
 
-    # Create a new session from the socket
-    #conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
-
-    # Clean up the stored data - need to stash the keyfile into
-    # a datastore for later reuse.
-    #merge_me = {
-    #  'USERPASS_FILE'  => nil,
-    #  'USER_FILE'      => nil,
-    #  'PASS_FILE'      => nil,
-    #  'USERNAME'       => result.credential.public,
-    #  'SSH_KEYFILE_B64' => [result.credential.private].pack("m*").gsub("\n",""),
-    #  'KEY_PATH'        => nil
-    #}
-
-    #info = "SSH #{result.credential.public}:#{fingerprint} (#{ip}:#{rport})"
-    #s = start_session(self, info, merge_me, false, conn.lsock)
-    #self.sockets.delete(ssh_socket.transport.socket)
-
+    remove_socket(ssh_socket.transport.socket)
     s = Msf::Sessions::SSH.new(ssh_socket)
-    s.framework = framework
-    #require 'pry'
-    #binding.pry
     framework.sessions.register(s)
 
     # Set the session platform
