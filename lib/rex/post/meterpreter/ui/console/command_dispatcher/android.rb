@@ -31,23 +31,25 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
       'interval_collect'  => 'Manage interval collection capabilities',
       'activity_start'    => 'Start an Android activity from a Uri string',
+      'hide_app_icon'     => 'Hide the app icon from the launcher',
       'sqlite_query'      => 'Query a SQLite database from storage',
       'set_audio_mode'    => 'Set Ringer Mode'
     }
 
     reqs = {
-      'dump_sms'         => ['dump_sms'],
-      'dump_contacts'    => ['dump_contacts'],
-      'geolocate'        => ['geolocate'],
-      'dump_calllog'     => ['dump_calllog'],
-      'check_root'       => ['check_root'],
-      'device_shutdown'  => ['device_shutdown'],
-      'send_sms'         => ['send_sms'],
-      'wlan_geolocate'   => ['wlan_geolocate'],
-      'interval_collect' => ['interval_collect'],
-      'activity_start'   => ['activity_start'],
-      'sqlite_query'     => ['sqlite_query'],
-      'set_audio_mode'   => ['set_audio_mode']
+      'dump_sms'         => ['android_dump_sms'],
+      'dump_contacts'    => ['android_dump_contacts'],
+      'geolocate'        => ['android_geolocate'],
+      'dump_calllog'     => ['android_dump_calllog'],
+      'check_root'       => ['android_check_root'],
+      'device_shutdown'  => ['android_device_shutdown'],
+      'send_sms'         => ['android_send_sms'],
+      'wlan_geolocate'   => ['android_wlan_geolocate'],
+      'interval_collect' => ['android_interval_collect'],
+      'activity_start'   => ['android_activity_start'],
+      'hide_app_icon'    => ['android_hide_app_icon'],
+      'sqlite_query'     => ['android_sqlite_query'],
+      'set_audio_mode'   => ['android_set_audio_mode']
     }
 
     # Ensure any requirements of the command are met
@@ -577,6 +579,27 @@ class Console::CommandDispatcher::Android
       print_status("Intent started")
     else
       print_error("Error: #{result}")
+    end
+  end
+
+  def cmd_hide_app_icon(*args)
+    hide_app_icon_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ]
+    )
+
+    hide_app_icon_opts.parse(args) do |opt, _idx, _val|
+      case opt
+      when '-h'
+        print_line('Usage: hide_app_icon [options]')
+        print_line('Hide the application icon from the launcher.')
+        print_line(hide_app_icon_opts.usage)
+        return
+      end
+    end
+
+    result = client.android.hide_app_icon
+    if result
+      print_status("Activity #{result} was hidden")
     end
   end
 

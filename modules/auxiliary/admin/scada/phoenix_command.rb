@@ -20,8 +20,8 @@ class MetasploitModule < Msf::Auxiliary
         It allows a remote user to read out the PLC Type, Firmware and
          Build number on port TCP/1962.
         And also to read out the CPU State (Running or Stopped) AND start
-         or stop the CPU on port TCP/20547 (confirmed ILC 15x and 17x series)
-         or on port TCP/41100 (confirmed ILC 39x series)
+         or stop the CPU on port TCP/41100 (confirmed ILC 15x and 17x series)
+         or on port TCP/20547 (confirmed ILC 39x series)
       },
       'Author'         => 'Tijl Deneut <tijl.deneut[at]howest.be>',
       'License'        => MSF_LICENSE,
@@ -211,11 +211,11 @@ class MetasploitModule < Msf::Auxiliary
     if device.start_with?('ILC 15', 'ILC 17')
       devicetype = '15x'
       print_status('--> Detected 15x/17x series, getting current CPU state:')
-      ractionport == 0 ? (rport = 41100) : (rport = ractionport)
+      ractionport.nil? ? (rport = 41100) : (rport = ractionport)
     elsif device.start_with?('ILC 39')
       devicetype = '39x'
       print_status('--> Detected 39x series, getting current CPU state:')
-      ractionport == 0 ? (rport = 20547) : (rport = ractionport)
+      ractionport.nil? ? (rport = 20547) : (rport = ractionport)
     else
       print_error('Only ILC and (some) RFC devices are supported.')
       return

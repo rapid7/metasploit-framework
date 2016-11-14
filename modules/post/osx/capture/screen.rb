@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Post
         cmd_exec("mkdir -p #{tmp_path}")
         filename = Rex::Text.rand_text_alpha(7)
         file = "#{tmp_path}/#{filename}"
-        cmd_exec("#{exe_path} -C -t #{file_type} #{file}")
+        cmd_exec("#{exe_path} -x -C -t #{file_type} #{file}")
         data = read_file(file)
         file_rm(file)
       rescue ::Rex::Post::Meterpreter::RequestError => e

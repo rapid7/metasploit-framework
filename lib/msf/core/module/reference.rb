@@ -77,7 +77,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 
   #
   # Initializes a site reference from an array.  ary[0] is the site and
-  # ary[1] is the site context identifier, such as OSVDB.
+  # ary[1] is the site context identifier, such as CVE.
   #
   def self.from_a(ary)
     return nil if (ary.length < 2)
@@ -95,9 +95,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     self.ctx_id  = in_ctx_id
     self.ctx_val = in_ctx_val
 
-    if (in_ctx_id == 'OSVDB')
-      self.site = "http://www.osvdb.org/#{in_ctx_val}"
-    elsif (in_ctx_id == 'CVE')
+    if (in_ctx_id == 'CVE')
       self.site = "http://cvedetails.com/cve/#{in_ctx_val}/"
     elsif (in_ctx_id == 'CWE')
       self.site = "https://cwe.mitre.org/data/definitions/#{in_ctx_val}.html"
@@ -150,7 +148,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
   #
   attr_reader :site
   #
-  # The context identifier of the site, such as OSVDB.
+  # The context identifier of the site, such as CVE.
   #
   attr_reader :ctx_id
   #

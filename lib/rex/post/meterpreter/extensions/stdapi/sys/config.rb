@@ -52,6 +52,25 @@ class Config
   end
 
   #
+  # Returns a list of currently active drivers used by the target system
+  #
+  def getdrivers
+    request = Packet.create_request('stdapi_sys_config_driver_list')
+    response = client.send_request(request)
+
+    result = []
+
+    response.each(TLV_TYPE_DRIVER_ENTRY) do |driver|
+      result << {
+        basename: driver.get_tlv_value(TLV_TYPE_DRIVER_BASENAME),
+        filename: driver.get_tlv_value(TLV_TYPE_DRIVER_FILENAME)
+      }
+    end
+
+    result
+  end
+
+  #
   # Returns a hash of requested environment variables, along with their values.
   # If a requested value doesn't exist in the response, then the value wasn't found.
   #
@@ -83,11 +102,20 @@ class Config
   end
 
   #
+  # Returns the target's local system date and time.
+  #
+  def localtime
+    request = Packet.create_request('stdapi_sys_config_localtime')
+    response = client.send_request(request)
+    (response.get_tlv_value(TLV_TYPE_LOCAL_DATETIME) || "").strip
+  end
+
+  #
   # Returns a hash of information about the remote computer.
   #
-  def sysinfo
+  def sysinfo(refresh: false)
     request  = Packet.create_request('stdapi_sys_config_sysinfo')
-    if @sysinfo.nil?
+    if @sysinfo.nil? || refresh
       response = client.send_request(request)
 
       @sysinfo = {

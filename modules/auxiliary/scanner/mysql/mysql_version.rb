@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'MySQL Server Version Enumeration',
       'Description' => %q{
-        Enumerates the version of MySQL servers
+        Enumerates the version of MySQL servers.
       },
       'Author'      => 'kris katterjohn',
       'License'     => MSF_LICENSE

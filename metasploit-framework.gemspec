@@ -30,13 +30,8 @@ Gem::Specification.new do |spec|
   spec.bindir = '.'
   if ENV['CREATE_BINSTUBS']
     spec.executables   = [
-      'msfbinscan',
       'msfconsole',
       'msfd',
-      'msfelfscan',
-      'msfmachscan',
-      'msfpescan',
-      'msfrop',
       'msfrpc',
       'msfrpcd',
       'msfupdate',
@@ -70,13 +65,15 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.1.13'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.1.28'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.0.6'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.0.8'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
   spec.add_runtime_dependency 'network_interface'
+  # NTLM authentication
+  spec.add_runtime_dependency 'rubyntlm'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
@@ -113,6 +110,8 @@ Gem::Specification.new do |spec|
   #
   # REX Libraries
   #
+  # Core of the Ruby Exploitation Library
+  spec.add_runtime_dependency 'rex-core'
   # Text manipulation library for things like generating random string
   spec.add_runtime_dependency 'rex-text'
   # Library for Generating Randomized strings valid as Identifiers such as variable names
@@ -127,11 +126,27 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-java'
   # Library for C-style structs
   spec.add_runtime_dependency 'rex-struct2'
-  # Library which contains architecture specific information such as registers, opcodes, 
+  # Library which contains architecture specific information such as registers, opcodes,
   # and stack manipulation routines.
   spec.add_runtime_dependency 'rex-arch'
   # Library for working with OLE.
   spec.add_runtime_dependency 'rex-ole'
+  # Library for creating and/or parsing MIME messages.
+  spec.add_runtime_dependency 'rex-mime'
+  # Library for Dynamic Multi-byte x86 NOP generation
+  spec.add_runtime_dependency 'rex-nop'
+  # Library for parsing and manipulating executable binaries
+  spec.add_runtime_dependency 'rex-bin_tools'
+  # Rex Socket Abstraction Layer
+  spec.add_runtime_dependency 'rex-socket'
+  # Library for scanning a server's SSL/TLS capabilities
+  spec.add_runtime_dependency 'rex-sslscan'
+  # Library and tool for finding ROP gadgets in a supplied binary
+  spec.add_runtime_dependency 'rex-rop_builder'
+  # Library for polymorphic encoders; used for payload encoding
+  spec.add_runtime_dependency 'rex-encoder'
+  # Library for exploit development helpers
+  spec.add_runtime_dependency 'rex-exploitation'
 
   # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
@@ -153,4 +168,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'filesize'
   # Needed for openvas plugin
   spec.add_runtime_dependency 'openvas-omp'
+  # Needed by metasploit nessus bridge
+  spec.add_runtime_dependency 'nessus_rest'
 end

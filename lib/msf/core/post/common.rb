@@ -161,7 +161,7 @@ module Msf::Post::Common
       # /bin/sh.
       #
       # This problem was originally solved by using Shellwords.shellwords but
-      # unfortunately, it is retarded. When a backslash occurs inside double
+      # unfortunately, it is unsuitable. When a backslash occurs inside double
       # quotes (as is often the case with Windows commands) it inexplicably
       # removes them. So. Shellwords is out.
       #

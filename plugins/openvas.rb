@@ -256,11 +256,9 @@ class Plugin::OpenVAS < Msf::Plugin
       begin
         tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Hosts", "Max Hosts", "In Use", "Comment"])
-        id = 0
         @ov.target_get_all().each do |target|
-          tbl << [ id, target["name"], target["hosts"], target["max_hosts"],
+          tbl << [ target["id"], target["name"], target["hosts"], target["max_hosts"],
           target["in_use"], target["comment"] ]
-          id += 1
         end
         print_good("OpenVAS list of targets")
         print_line
@@ -322,10 +320,8 @@ class Plugin::OpenVAS < Msf::Plugin
       begin
         tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Comment", "Status", "Progress"])
-        id = 0
         @ov.task_get_all().each do |task|
-          tbl << [ id, task["name"], task["comment"], task["status"], task["progress"] ]
-          id += 1
+          tbl << [ task["id"], task["name"], task["comment"], task["status"], task["progress"] ]
         end
         print_good("OpenVAS list of tasks")
         print_line
@@ -421,10 +417,8 @@ class Plugin::OpenVAS < Msf::Plugin
         tbl = Rex::Text::Table.new(
           'Columns' => [ "ID", "Name" ])
 
-        id = 0
         @ov.config_get_all.each do |config|
-          tbl << [ id, config["name"] ]
-          id += 1
+          tbl << [ config["id"], config["name"] ]
         end
         print_good("OpenVAS list of configs")
         print_line
@@ -444,10 +438,8 @@ class Plugin::OpenVAS < Msf::Plugin
       begin
         tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Extension", "Summary"])
-        id = 0
         format_get_all.each do |format|
-          tbl << [ id, format["name"], format["extension"], format["summary"] ]
-          id += 1
+          tbl << [ format["id"], format["name"], format["extension"], format["summary"] ]
         end
         print_good("OpenVAS list of report formats")
         print_line
@@ -467,25 +459,16 @@ class Plugin::OpenVAS < Msf::Plugin
       begin
         tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Task Name", "Start Time", "Stop Time"])
-        id = 0
+
         resp = @ov.report_get_raw
 
         resp.elements.each("//get_reports_response/report") do |report|
-          report_task = nil
-          report_start_time = nil
-          report_stop_time = nil
+          report_id = report.elements["report"].attributes["id"]
+          report_task = report.elements["task/name"].get_text
+          report_start_time = report.elements["creation_time"].get_text
+          report_stop_time = report.elements["modification_time"].get_text
 
-          report.elements.each("//task/name") do |task_name|
-            report_task = task_name.get_text
-          end
-          report.elements.each("//creation_time") do |creation_time|
-            report_start_time = creation_time.get_text
-          end
-          report.elements.each("//modification_time") do |mod_time|
-            report_stop_time = mod_time.get_text
-          end
-          tbl << [ id, report_task, report_start_time, report_stop_time ]
-          id += 1
+          tbl << [ report_id, report_task, report_start_time, report_stop_time ]
         end
         print_good("OpenVAS list of reports")
         print_line

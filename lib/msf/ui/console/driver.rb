@@ -638,6 +638,10 @@ protected
   # executable.  This is only allowed if command passthru has been permitted
   #
   def unknown_command(method, line)
+    if File.basename(method) == 'msfconsole'
+      print_error('msfconsole cannot be run inside msfconsole')
+      return
+    end
 
     [method, method+".exe"].each do |cmd|
       if command_passthru && Rex::FileUtils.find_full_path(cmd)

@@ -1,5 +1,5 @@
 # $Id$ $Revision$
-require 'nessus/nessus-xmlrpc'
+require 'nessus_rest'
 require 'rex/parser/nessus_xml'
 
 module Msf
@@ -44,7 +44,6 @@ module Msf
           "nessus_logout" => "Terminate the session",
           "nessus_server_status" => "Check the status of your Nessus server",
           "nessus_server_properties" => "Nessus server properties such as feed type, version, plugin set and server UUID",
-          "nessus_scanner_list" => "List all the scanners configured on the Nessus server",
           "nessus_report_download" => "Download a report from the nessus server in either Nessus, HTML, PDF, CSV, or DB format",
           "nessus_report_vulns" => "Get list of vulns from a report",
           "nessus_report_hosts" => "Get list of hosts from a report",
@@ -72,6 +71,7 @@ module Msf
           "nessus_index" => "Manually generates a search index for exploits",
           "nessus_template_list" => "List all the templates on the server",
           "nessus_db_scan" => "Create a scan of all IP addresses in db_hosts",
+          "nessus_db_scan_workspace" => "Create a scan of all IP addresses in db_hosts for a given workspace",
           "nessus_db_import" => "Import Nessus scan to the Metasploit connected database",
           "nessus_save" => "Save credentials of the logged in user to nessus.yml",
           "nessus_folder_list" => "List folders configured on the Nessus server",
@@ -158,7 +158,11 @@ module Msf
         end
         @url = "https://#{@host}:#{@port}/"
         print_status("Connecting to #{@url} as #{@user}")
-        @n = Nessus::Client.new(@url, @user, @pass,@sslv)
+        verify_ssl=false
+        if @sslv == "verify_ssl" then
+          verify_ssl=true
+        end
+        @n = NessusREST::Client.new(:url=>@url,:username=>@user,:password=>@pass,:ssl_verify=>verify_ssl)
         if @n.authenticated
           print_status("User #{@user} authenticated successfully.")
           @token = 1
@@ -253,6 +257,7 @@ module Msf
         tbl << [ "Nessus Database Commands", "" ]
         tbl << [ "-----------------", "-----------------" ]
         tbl << [ "nessus_db_scan", "Create a scan of all IP addresses in db_hosts" ]
+        tbl << [ "nessus_db_scan_workspace", "Create a scan of all IP addresses in db_hosts for a given workspace" ]
         tbl << [ "nessus_db_import", "Import Nessus scan to the Metasploit connected database" ]
         tbl << [ "", ""]
         tbl << [ "Reports Commands", "" ]
@@ -791,7 +796,7 @@ module Msf
             print_status("Report downloaded to #{msf_local} directory")
             end
           else
-            print_error("Only completed scans ca be downloaded")
+            print_error("Only completed scans can be downloaded")
           end
         else
           print_status("Usage: ")
@@ -963,7 +968,14 @@ module Msf
         end
         if valid_policy(uuid)
           print_status("Creating scan from policy number #{uuid}, called #{scan_name} - #{description} and scanning #{targets}")
-          scan = @n.scan_create(uuid, scan_name, description, targets)
+          et=Hash.new
+          et['enabled']=false
+          et['launch']='ONETIME'
+          et['name']=scan_name
+          et['text_targets']=targets
+          et['description']=description
+          et['launch_now']=false
+          scan = @n.scan_create(uuid, et)
           tbl = Rex::Text::Table.new(
             'Columns' => [
               "Scan ID",
@@ -1065,6 +1077,65 @@ module Msf
         end
         targets.chop!
         print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in all the workspaces")
+        et=Hash.new
+        et['enabled']=false
+        et['launch']='ONETIME'
+        et['name']=name
+        et['text_targets']=targets
+        et['description']=desc
+        et['launch_now']=true
+        scan = @n.scan_create(policy_id, et)
+        if !scan["error"]
+          scan = scan["scan"]
+          print_status("Scan ID #{scan['id']} successfully created and launched")
+        else
+          print_error(JSON.pretty_generate(scan))
+        end
+      end
+
+      def cmd_nessus_db_scan_workspace(*args)
+        if args[0] == "-h"
+          print_status("nessus_db_scan_workspace <policy ID> <scan name> <scan description> <workspace>")
+          print_status("Creates a scan based on all the hosts listed in db_hosts for a given workspace.")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding policy IDs")
+          return
+        end
+        if !nessus_verify_db
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 4
+          policy_id = args[0]
+          name = args[1]
+          desc = args[2]
+          new_workspace = framework.db.find_workspace(args[3])
+        else
+          print_status("Usage: ")
+          print_status("nessus_db_scan_workspace <policy ID> <scan name> <scan description> <workspace>")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding policy IDs")
+          return
+        end
+        if !valid_policy(policy_id)
+          print_error("That policy does not exist.")
+          return
+        end
+        if new_workspace.nil?
+          print_error("That workspace does not exist.")
+          return
+        end
+        framework.db.workspace = new_workspace
+        print_status("Switched workspace: #{framework.db.workspace.name}")
+        targets = ""
+        framework.db.hosts.each do |host|
+          targets << host.address
+          targets << ","
+        print_status("Targets: #{targets}")
+        end
+        targets.chop!
+        print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in #{framework.db.workspace.name}")
         scan = @n.scan_create(policy_id, name, desc, targets)
         if !scan["error"]
           scan = scan["scan"]
@@ -1103,8 +1174,15 @@ module Msf
             file_id = export["file"]
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
             print_status("Checking export status...")
-            status = @n.scan_export_status(scan_id, file_id)
-            if status == "ready"
+            begin
+              status = @n.scan_export_status(scan_id, file_id)
+              print_status("Export status: " + status["status"])
+              if status["status"]=="ready"
+                break
+              end     
+              sleep(1)
+            end while (status["status"]=="loading")
+            if status["status"] == "ready"
               print_status("The status of scan ID #{scan_id} export is ready")
               select(nil, nil, nil, 5)
               report = @n.report_download(scan_id, file_id)
@@ -1378,9 +1456,16 @@ module Msf
           if export["file"]
             file_id = export["file"]
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
-            print_status("Checking export status...")
-            status = @n.scan_export_status(scan_id, file_id)
-            if status == "ready"
+            print_status("Checking export status...")            
+            begin
+              status = @n.scan_export_status(scan_id, file_id)
+              print_status("Export status: " + status["status"])
+              if status["status"]=="ready"
+                break
+              end     
+              sleep(1)
+            end while (status["status"]=="loading")
+            if status["status"] == "ready"
               print_good("The status of scan ID #{scan_id} export is ready")
             else
               print_error("There was some problem in exporting the scan. The error message is #{status}")
@@ -1406,8 +1491,15 @@ module Msf
         when 2
           scan_id = args[0]
           file_id = args[1]
-          status = @n.scan_export_status(scan_id, file_id)
-          if status == "ready"
+          begin
+            status = @n.scan_export_status(scan_id, file_id)
+            print_status("Export status: " + status["status"])
+            if status["status"]=="ready"
+              break
+            end     
+            sleep(1)
+          end while (status["status"]=="loading")
+          if status["status"] == "ready"
             print_status("The status of scan ID #{scan_id} export is ready")
           else
             print_error("There was some problem in exporting the scan. The error message is #{status}")
