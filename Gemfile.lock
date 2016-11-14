@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.12.35)
+    metasploit-framework (4.12.41)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -14,7 +14,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.1.24)
+      metasploit-payloads (= 1.1.26)
       metasploit_data_models
       metasploit_payloads-mettle (= 0.0.8)
       msgpack
@@ -37,6 +37,7 @@ PATH
       rex-bin_tools
       rex-core
       rex-encoder
+      rex-exploitation
       rex-java
       rex-mime
       rex-nop
@@ -88,7 +89,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.4.0)
+    addressable (2.5.0)
+      public_suffix (~> 2.0, >= 2.0.2)
     arel (6.0.3)
     arel-helpers (2.3.0)
       activerecord (>= 3.1.0, < 6)
@@ -155,7 +157,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-credential (2.0.4)
+    metasploit-credential (2.0.5)
       metasploit-concern
       metasploit-model
       metasploit_data_models
@@ -167,8 +169,8 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.1.24)
-    metasploit_data_models (2.0.4)
+    metasploit-payloads (1.1.26)
+    metasploit_data_models (2.0.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
       arel-helpers
@@ -185,7 +187,7 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.9.1)
-    msgpack (1.0.1)
+    msgpack (1.0.2)
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
@@ -194,8 +196,8 @@ GEM
     network_interface (0.0.1)
     nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
-    octokit (4.3.0)
-      sawyer (~> 0.7.0, >= 0.5.3)
+    octokit (4.6.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
     packetfu (1.1.11)
@@ -213,7 +215,8 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rack (1.6.4)
+    public_suffix (2.0.4)
+    rack (1.6.5)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails-deprecated_sanitizer (1.0.3)
@@ -231,10 +234,10 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (11.3.0)
     rb-readline-r7 (0.5.2.0)
-    recog (2.0.22)
+    recog (2.0.24)
       nokogiri
     redcarpet (3.3.4)
-    rex-arch (0.1.1)
+    rex-arch (0.1.2)
       rex-text
     rex-bin_tools (0.1.1)
       metasm
@@ -246,6 +249,12 @@ GEM
     rex-encoder (0.1.0)
       metasm
       rex-arch
+      rex-text
+    rex-exploitation (0.1.2)
+      jsobfu
+      metasm
+      rex-arch
+      rex-encoder
       rex-text
     rex-java (0.1.2)
     rex-mime (0.1.1)
@@ -294,8 +303,8 @@ GEM
     rspec-support (3.5.0)
     rubyntlm (0.6.1)
     rubyzip (1.2.0)
-    sawyer (0.7.0)
-      addressable (>= 2.3.5, < 2.5)
+    sawyer (0.8.0)
+      addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 0.10)
     shoulda-matchers (3.1.1)
       activesupport (>= 4.0.0)
@@ -312,7 +321,7 @@ GEM
     timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2016.7)
+    tzinfo-data (1.2016.9)
       tzinfo (>= 1.0.0)
     windows_error (0.0.2)
     xpath (2.0.0)
@@ -339,4 +348,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.13.4
+   1.13.6
