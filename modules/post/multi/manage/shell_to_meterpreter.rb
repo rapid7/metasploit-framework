@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Post
     case platform
     when 'win'
       if session.type == 'powershell'
-        template_path = File.join(Msf::Config.data_directory, 'templates', 'scripts')
+        template_path = Rex::Powershell::Templates::TEMPLATE_DIR
         psh_payload = case datastore['Powershell::method']
                       when 'net'
                         Rex::Powershell::Payload.to_win32pe_psh_net(template_path, payload_data)

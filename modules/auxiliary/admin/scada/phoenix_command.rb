@@ -211,11 +211,11 @@ class MetasploitModule < Msf::Auxiliary
     if device.start_with?('ILC 15', 'ILC 17')
       devicetype = '15x'
       print_status('--> Detected 15x/17x series, getting current CPU state:')
-      ractionport.nil? (rport = 41100) : (rport = ractionport)
+      ractionport.nil? ? (rport = 41100) : (rport = ractionport)
     elsif device.start_with?('ILC 39')
       devicetype = '39x'
       print_status('--> Detected 39x series, getting current CPU state:')
-      ractionport.nil? (rport = 20547) : (rport = ractionport)
+      ractionport.nil? ? (rport = 20547) : (rport = ractionport)
     else
       print_error('Only ILC and (some) RFC devices are supported.')
       return
