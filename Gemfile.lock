@@ -279,7 +279,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.0)
-    rex-text (0.2.4)
+    rex-text (0.2.5)
     rex-zip (0.1.0)
       rex-text
     rkelly-remix (0.0.6)
