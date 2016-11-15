@@ -4,7 +4,7 @@ Metaploit framework installers are built nightly for those wanting to track the 
 
 # Linux and OS X quick installation
 
-The following script invocation will Rapid7 signing key and setup the package for all supported Linux and OS X systems:
+The following script invocation will import the Rapid7 signing key and setup the package for all supported Linux and OS X systems:
 
 ```
 curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && \
