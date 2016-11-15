@@ -9,7 +9,7 @@ require 'rex/parser/ini'
 require 'rex/parser/winscp'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -113,6 +113,14 @@ class Metasploit3 < Msf::Post
       prog_files_env = 'ProgramFiles(x86)'
     end
     env = get_envs('APPDATA', prog_files_env, 'USERNAME')
+
+    if env['APPDATA'].nil?
+      fail_with(Failure::Unknown, 'Target does not have environment variable APPDATA')
+    elsif env[prog_files_env].nil?
+      fail_with(Failure::Unknown, "Target does not have environment variable #{prog_files_env}")
+    elsif env['USERNAME'].nil?
+      fail_with(Failure::Unknown, 'Target does not have environment variable USERNAME')
+    end
 
     user_dir = "#{env['APPDATA']}\\..\\.."
     user_dir << "\\.." if user_dir.include?('Users')

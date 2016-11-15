@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   # Exploitation is reliable, but the service hangs and needs manual restarting.
   Rank = ManualRanking
 

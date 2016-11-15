@@ -7,7 +7,7 @@ require 'rex'
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
@@ -75,11 +75,11 @@ class Metasploit3 < Msf::Post
   # the database if datastore option STORE_DB is true.
   #
   # @param [Array<Array<Hash>>] the LDAP query results to parse
-  # @return [Rex::Ui::Text::Table] the table containing all the result data
+  # @return [Rex::Text::Table] the table containing all the result data
   def parse_results(results)
     laps_results = []
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => 'Local Administrator Password Solution (LAPS) Results',
       'Indent'     => 1,
       'SortIndex'  => -1,

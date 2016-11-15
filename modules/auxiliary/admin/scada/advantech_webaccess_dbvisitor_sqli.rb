@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{@users.length} users found!")
     end
 
-    users_table = Rex::Ui::Text::Table.new(
+    users_table = Rex::Text::Table.new(
       'Header'  => 'Advantech WebAccess Users',
       'Indent'   => 1,
       'Columns' => ['Username', 'Encrypted Password', 'Key', 'Recovered password', 'Origin']

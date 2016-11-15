@@ -23,7 +23,6 @@
 _arguments \
   {-a,--ask}"[Ask before exiting Metasploit or accept 'exit -y']" \
   "-c[Load the specified configuration file]:configuration file:_files" \
-  {-d,--defanged}"[Execute the console as defanged]" \
   {-E,--environment}"[Specify the database environment to load from the configuration]:environment:(production development)" \
   {-h,--help}"[Show help text]" \
   {-L,--real-readline}"[Use the system Readline library instead of RbReadline]" \

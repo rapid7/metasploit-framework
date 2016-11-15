@@ -8,7 +8,7 @@ require 'bcrypt'
 require 'digest'
 require 'openssl'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 

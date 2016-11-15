@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
       return if keys.size == 0
 
       data = data_for_keys(keys)
-      result_table = Rex::Ui::Text::Table.new(
+      result_table = Rex::Text::Table.new(
         'Header'  => "Keys/Values Found for #{peer}",
         'Indent'  => 1,
         'Columns' => [ 'Key', 'Value' ]

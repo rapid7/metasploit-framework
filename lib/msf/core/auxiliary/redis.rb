@@ -20,7 +20,7 @@ module Msf
       register_options(
         [
           Opt::RPORT(6379),
-          OptString.new('Password', [false, 'Redis password for authentication test', 'foobared'])
+          OptString.new('PASSWORD', [false, 'Redis password for authentication test', 'foobared'])
         ]
       )
 
@@ -54,7 +54,7 @@ module Msf
       if /(?<auth_response>ERR operation not permitted|NOAUTH Authentication required)/i =~ command_response
         fail_with(::Msf::Module::Failure::BadConfig, "#{peer} requires authentication but Password unset") unless datastore['Password']
         vprint_status("Requires authentication (#{printable_redis_response(auth_response, false)})")
-        if (auth_response = send_redis_command('AUTH', datastore['Password']))
+        if (auth_response = send_redis_command('AUTH', datastore['PASSWORD']))
           unless auth_response =~ /\+OK/
             vprint_error("Authentication failure: #{printable_redis_response(auth_response)}")
             return

@@ -196,8 +196,8 @@ module Msf::DBManager::Import::Nexpose::Raw
   # Takes an array of vuln hashes, as returned by the NeXpose rawxml stream
   # parser, like:
   #   [
-  #     {"id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>[{"source"=>"BID", "value"=>"10600"}, ...]}
-  #     {"id"=>"windows-zotob-c", severity="8", "refs"=>[{"source"=>"BID", "value"=>"14513"}, ...]}
+  #     "id"=>"winreg-notes-protocol-handler", severity="8", "refs"=>["source"=>"BID", "value"=>"10600", ...]
+  #     "id"=>"windows-zotob-c", severity="8", "refs"=>["source"=>"BID", "value"=>"14513", ...]
   #   ]
   # and transforms it into a struct, containing :id, :refs, :title, and :severity
   #

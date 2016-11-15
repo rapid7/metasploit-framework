@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 
   def run
     # A table to store the found credentials.
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
     'Header'    => ".netrc credentials",
     'Indent'    => 1,
     'Columns'   =>

@@ -1,10 +1,13 @@
 # -*- coding: binary -*-
+
+require 'openssl/ccm'
+require 'metasm'
+
 ##
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'openssl/ccm'
-require 'metasm'
+
 module Rex
   module Parser
     ###
@@ -112,7 +115,7 @@ module Rex
 
       # Parse the metadata_entries and return a hashmap using the
       # following format:
-      # {metadata_entry_type => {metadata_value_type => [fve_entry,...]}}
+      # metadata_entry_type => metadata_value_type => [fve_entry,...]
       def fve_entries(metadata_entries)
         offset_entry = 0
         entry_size = metadata_entries[0, 2].unpack('v')[0]
@@ -215,7 +218,7 @@ module Rex
       end
 
       # Produce a hash map using the following format:
-      # {PROTECTION_TYPE => [fve_entry, fve_entry...]}
+      # PROTECTION_TYPE => [fve_entry, fve_entry...]
       def vmk_entries
         res = {}
         (@fve_metadata_entries[ENTRY_TYPE_VMK][VALUE_TYPE_VMK]).each do |vmk|

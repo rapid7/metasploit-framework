@@ -58,7 +58,7 @@ Usage: #{__FILE__} [options]|
         puts opts
         raise OptionParser::MissingArgument, "-i is a required option"
       end
-      unless ::File.exists?(options['input'])
+      unless ::File.exist?(options['input'])
         raise OptionParser::InvalidArgument, "Not found: #{options['input']}"
       end
     rescue OptionParser::InvalidOption
@@ -99,7 +99,7 @@ def load_files(in_f, out_f)
   handle_in = ::File.open(in_f, 'r')
 
   # Output file not found, assuming we should create one automatically
-  ::File.open(out_f, 'w') {} unless ::File.exists?(out_f)
+  ::File.open(out_f, 'w') {} unless ::File.exist?(out_f)
 
   handle_out = ::File.open(out_f, 'a')
 

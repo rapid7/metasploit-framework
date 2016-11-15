@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   # It removes large object in database, shoudn't be a problem, but just in case....
   Rank = ManualRanking
 

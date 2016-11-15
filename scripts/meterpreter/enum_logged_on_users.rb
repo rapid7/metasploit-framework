@@ -15,7 +15,7 @@
 def ls_logged
   sids = []
   sids << registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList")
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
       'Header'  => "Logged Users",
       'Indent'  => 1,
       'Columns' =>
@@ -32,7 +32,7 @@ end
 
 def ls_current
   key_base, username = "",""
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
       'Header'  => "Current Logged Users",
       'Indent'  => 1,
       'Columns' =>

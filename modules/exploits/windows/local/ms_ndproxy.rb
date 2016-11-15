@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/exploit/local/windows_kernel'
 require 'rex'
 
-class Metasploit3 < Msf::Exploit::Local
+class MetasploitModule < Msf::Exploit::Local
   Rank = AverageRanking
 
   include Msf::Exploit::Local::WindowsKernel

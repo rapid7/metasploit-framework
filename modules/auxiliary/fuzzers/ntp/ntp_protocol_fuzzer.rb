@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex/proto/ntp'
 require 'securerandom'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Fuzzer
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
@@ -53,10 +53,10 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options(
       [
         OptString.new('VERSIONS', [false, 'Specific versions to fuzz (csv)', '2,3,4']),
-        OptString.new('MODES', [false, 'Modes to fuzz (csv)', nil]),
-        OptString.new('MODE_6_OPERATIONS', [false, 'Mode 6 operations to fuzz (csv)', nil]),
-        OptString.new('MODE_7_IMPLEMENTATIONS', [false, 'Mode 7 implementations to fuzz (csv)', nil]),
-        OptString.new('MODE_7_REQUEST_CODES', [false, 'Mode 7 request codes to fuzz (csv)', nil])
+        OptString.new('MODES', [false, 'Modes to fuzz (csv)']),
+        OptString.new('MODE_6_OPERATIONS', [false, 'Mode 6 operations to fuzz (csv)']),
+        OptString.new('MODE_7_IMPLEMENTATIONS', [false, 'Mode 7 implementations to fuzz (csv)']),
+        OptString.new('MODE_7_REQUEST_CODES', [false, 'Mode 7 request codes to fuzz (csv)'])
       ], self.class)
   end
 
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
     thing = setting.upcase
     const_name = thing.to_sym
     var_name = thing.downcase
-    if datastore.key?(thing)
+    if datastore[thing]
       instance_variable_set("@#{var_name}", datastore[thing].split(/[^\d]/).select { |v| !v.empty? }.map { |v| v.to_i })
       unsupported_things = instance_variable_get("@#{var_name}") - Rex::Proto::NTP.const_get(const_name)
       fail "Unsupported #{thing}: #{unsupported_things}" unless unsupported_things.empty?
@@ -178,7 +178,11 @@ class Metasploit3 < Msf::Auxiliary
   # Sends +message+ to +host+ on UDP port +port+, returning all replies
   def probe(host, port, message)
     replies = []
-    udp_sock.sendto(message, host, port, 0)
+    begin
+      udp_sock.sendto(message, host, port, 0)
+    rescue ::Errno::EISCONN
+      udp_sock.write(message)
+    end
     reply = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0)
     while reply && reply[1]
       replies << reply

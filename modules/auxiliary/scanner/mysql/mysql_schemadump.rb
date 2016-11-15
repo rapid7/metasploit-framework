@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'yaml'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report

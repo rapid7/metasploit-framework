@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'json'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 

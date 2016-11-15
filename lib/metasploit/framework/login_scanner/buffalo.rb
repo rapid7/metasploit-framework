@@ -34,7 +34,7 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
           begin
-            cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version)
+            cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, http_username, http_password)
             configure_http_client(cli)
             cli.connect
             req = cli.request_cgi({

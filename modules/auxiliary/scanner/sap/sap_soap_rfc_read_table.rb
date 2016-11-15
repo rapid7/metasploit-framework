@@ -16,7 +16,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -45,8 +45,8 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('CLIENT', [true, 'SAP client', '001']),
-        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-        OptString.new('PASSWORD', [true, 'Password', '06071992']),
+        OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
+        OptString.new('HttpPassword', [true, 'Password', '06071992']),
         OptString.new('TABLE', [true, 'Table to read', 'USR02']),
         OptString.new('FIELDS', [true, 'Fields to read', 'BNAME,BCODE'])
       ], self.class)
@@ -87,7 +87,7 @@ class Metasploit4 < Msf::Auxiliary
         'method' => 'POST',
         'data' => data,
         'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'ctype' => 'text/xml; charset=UTF-8',
         'encode_params' => false,
         'headers' => {

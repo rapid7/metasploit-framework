@@ -16,6 +16,8 @@ require 'msf/sanity'
 # The framework-core depends on Rex
 require 'rex'
 require 'rex/ui'
+require 'rex/arch'
+include Rex::Arch
 
 module Msf
   autoload :Author, 'msf/core/author'

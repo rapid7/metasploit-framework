@@ -9,6 +9,9 @@ module Msf
   class EncoderSpaceViolation < PayloadGeneratorError
   end
 
+  class PayloadSpaceViolation < PayloadGeneratorError
+  end
+
   class IncompatibleArch < PayloadGeneratorError
   end
 
@@ -284,20 +287,26 @@ module Msf
       payload_module = framework.payloads.create(payload)
       payload_module.datastore.merge!(datastore)
       case format
-        when "raw", "jar"
-          if payload_module.respond_to? :generate_jar
-            payload_module.generate_jar.pack
-          else
-            payload_module.generate
-          end
-        when "war"
-          if payload_module.respond_to? :generate_war
-            payload_module.generate_war.pack
-          else
-            raise InvalidFormat, "#{payload} is not a Java payload"
-          end
+      when "raw", "jar"
+        if payload_module.respond_to? :generate_jar
+          payload_module.generate_jar.pack
         else
-          raise InvalidFormat, "#{format} is not a valid format for Java payloads"
+          payload_module.generate
+        end
+      when "war"
+        if payload_module.respond_to? :generate_war
+          payload_module.generate_war.pack
+        else
+          raise InvalidFormat, "#{payload} is not a Java payload"
+        end
+      when "axis2"
+        if payload_module.respond_to? :generate_axis2
+          payload_module.generate_axis2.pack
+        else
+          raise InvalidFormat, "#{payload} is not a Java payload"
+        end
+      else
+        raise InvalidFormat, "#{format} is not a valid format for Java payloads"
       end
     end
 
@@ -308,20 +317,32 @@ module Msf
       if platform == "java" or arch == "java" or payload.start_with? "java/"
         raw_payload = generate_java_payload
         cli_print "Payload size: #{raw_payload.length} bytes"
-        raw_payload
+        gen_payload = raw_payload
       elsif payload.start_with? "android/" and not template.blank?
         cli_print "Using APK template: #{template}"
-        apk_backdoor = ::Msf::Payload::Apk::ApkBackdoor::new()
+        apk_backdoor = ::Msf::Payload::Apk.new
         raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
         cli_print "Payload size: #{raw_payload.length} bytes"
-        raw_payload
+        gen_payload = raw_payload
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
         encoded_payload = encode_payload(raw_payload)
         encoded_payload = prepend_nops(encoded_payload)
         cli_print "Payload size: #{encoded_payload.length} bytes"
-        format_payload(encoded_payload)
+        gen_payload = format_payload(encoded_payload)
+      end
+
+      if gen_payload.nil?
+        raise PayloadGeneratorError, 'The payload could not be generated, check options'
+      elsif gen_payload.length > @space and not @smallest
+        raise PayloadSpaceViolation, 'The payload exceeds the specified space'
+      else
+        if format.to_s != 'raw'
+          cli_print "Final size of #{format} file: #{gen_payload.length} bytes"
+        end
+
+        gen_payload
       end
     end
 
@@ -376,7 +397,7 @@ module Msf
           encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
-      elsif badchars.present?
+      elsif !badchars.empty? && !badchars.nil?
         framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
           e = framework.encoders.create(name)
           e.datastore.import_options_from_hash(datastore)

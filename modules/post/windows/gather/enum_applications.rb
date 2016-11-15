@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
 
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
   end
 
   def app_list
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Installed Applications",
       'Indent'  => 1,
       'Columns' =>

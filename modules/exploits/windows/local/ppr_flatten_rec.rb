@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/post/windows/reflective_dll_injection'
 require 'rex'
 
-class Metasploit3 < Msf::Exploit::Local
+class MetasploitModule < Msf::Exploit::Local
   Rank = AverageRanking
 
   include Msf::Post::File

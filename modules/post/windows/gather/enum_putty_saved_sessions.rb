@@ -8,7 +8,7 @@ require 'msf/core/post/windows/priv'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/registry'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Common
   include Msf::Post::File
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 
   def display_saved_sessions_report(info)
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "PuTTY Saved Sessions",
       'Indent'     => 1,
       'SortIndex'  => -1,
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Post
 
   def display_private_key_analysis(info)
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "PuTTY Private Keys",
       'Indent'     => 1,
       'SortIndex'  => -1,
@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Post
 
   def display_stored_host_keys_report(info)
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Stored SSH host key fingerprints",
       'Indent'     => 1,
       'SortIndex'  => -1,

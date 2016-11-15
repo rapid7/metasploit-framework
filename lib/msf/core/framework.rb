@@ -38,14 +38,6 @@ class Framework
 
   Revision = "$Revision$"
 
-  # Repository information
-  RepoRevision        = ::Msf::Util::SVN.revision
-  RepoUpdated         = ::Msf::Util::SVN.updated
-  RepoUpdatedDays     = ::Msf::Util::SVN.days_since_update
-  RepoUpdatedDaysNote = ::Msf::Util::SVN.last_updated_friendly
-  RepoUpdatedDate     = ::Msf::Util::SVN.last_updated_date
-  RepoRoot            = ::Msf::Util::SVN.root
-
   # EICAR canary
   EICARCorrupted      = ::Msf::Util::EXE.is_eicar_corrupted?
 

@@ -57,7 +57,7 @@ Indent = '    '
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create('DisableDatabase' => true)
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Module Targets',
   'Indent'  => Indent.length,
   'Columns' => [ 'Module name','Target' ]

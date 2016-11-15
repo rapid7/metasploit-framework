@@ -13,7 +13,7 @@ class EXE
 require 'rex'
 require 'rex/peparsey'
 require 'rex/pescan'
-require 'rex/random_identifier_generator'
+require 'rex/random_identifier'
 require 'rex/zip'
 require 'rex/powershell'
 require 'metasm'
@@ -72,6 +72,29 @@ require 'msf/core/exe/segment_appender'
     template = ''
     File.open(template_pathname, "rb") {|f| template = f.read}
     template % hash_sub
+  end
+
+
+  # Generates a ZIP file.
+  #
+  # @param files [Array<Hash>] Items to compress. Each item is a hash that supports these options:
+  #  * :data - The content of the file.
+  #  * :fname - The file path in the ZIP file
+  #  * :comment - A comment
+  # @example Compressing two files, one in a folder called 'test'
+  #   Msf::Util::EXE.to_zip([{data: 'AAAA', fname: "file1.txt"}, {data: 'data', fname: 'test/file2.txt'}])
+  # @return [String]
+  def self.to_zip(files)
+    zip = Rex::Zip::Archive.new
+
+    files.each do |f|
+      data    = f[:data]
+      fname   = f[:fname]
+      comment = f[:comment] || ''
+      zip.add_file(fname, data, comment)
+    end
+
+    zip.pack
   end
 
   # Executable generators
@@ -1204,9 +1227,7 @@ require 'msf/core/exe/segment_appender'
   # @param code       [String]
   #
   def self.to_powershell_vba(framework, arch, code)
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
+    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
 
     powershell = Rex::Powershell::Command.cmd_psh_payload(code,
                     arch,
@@ -1216,7 +1237,7 @@ require 'msf/core/exe/segment_appender'
                     method: 'reflection')
 
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:sub_auto_open)
     rig.init_var(:var_powershell)
 
@@ -1243,18 +1264,22 @@ require 'msf/core/exe/segment_appender'
 
     hash_sub = {}
     hash_sub[:exe_filename]  = opts[:exe_filename] || Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
+    hash_sub[:base64_filename]  = Rex::Text.rand_text_alpha(rand(8)+8) << '.b64'
     hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_fname]     = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_func]      = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_stream]    = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_obj]       = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_shell]     = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempdir]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_tempexe]   = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:var_basedir]   = Rex::Text.rand_text_alpha(rand(8)+8)
-
-    hash_sub[:hex_shellcode] = exes.unpack('H*').join('')
-
+    hash_sub[:base64_shellcode] = Rex::Text.encode_base64(exes)
+    hash_sub[:var_decodefunc] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_xml] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_xmldoc] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_decoded] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_adodbstream] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_decodebase64] = Rex::Text.rand_text_alpha(rand(8)+8)
     hash_sub[:init] = ""
 
     if persist
@@ -1307,7 +1332,7 @@ require 'msf/core/exe/segment_appender'
 
   def self.to_mem_aspx(framework, code, exeopts = {})
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:var_funcAddr)
     rig.init_var(:var_hThread)
     rig.init_var(:var_pInfo)
@@ -1321,17 +1346,11 @@ require 'msf/core/exe/segment_appender'
   end
 
   def self.to_win32pe_psh_net(framework, code, opts={})
-    template_path = File.join(Msf::Config.data_directory,
-                                  "templates",
-                                  "scripts")
-    Rex::Powershell::Payload.to_win32pe_psh_net(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh_net(Rex::Powershell::Templates::TEMPLATE_DIR, code)
   end
 
   def self.to_win32pe_psh(framework, code, opts = {})
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
-    Rex::Powershell::Payload.to_win32pe_psh(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh(Rex::Powershell::Templates::TEMPLATE_DIR, code)
   end
 
   #
@@ -1340,16 +1359,11 @@ require 'msf/core/exe/segment_appender'
   # Originally from PowerSploit
   #
   def self.to_win32pe_psh_reflection(framework, code, opts = {})
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
-    Rex::Powershell::Payload.to_win32pe_psh_reflection(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh_reflection(Rex::Powershell::Templates::TEMPLATE_DIR, code)
   end
 
   def self.to_powershell_command(framework, arch, code)
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
+    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
     Rex::Powershell::Command.cmd_psh_payload(code,
                     arch,
                     template_path,
@@ -1358,9 +1372,7 @@ require 'msf/core/exe/segment_appender'
   end
 
   def self.to_powershell_hta(framework, arch, code)
-    template_path = File.join(Msf::Config.data_directory,
-                              "templates",
-                              "scripts")
+    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
 
     powershell = Rex::Powershell::Command.cmd_psh_payload(code,
                     arch,
@@ -1370,7 +1382,7 @@ require 'msf/core/exe/segment_appender'
                     method: 'reflection')
 
     # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
+    rig = Rex::RandomIdentifier::Generator.new()
     rig.init_var(:var_shell)
     rig.init_var(:var_fso)
 
@@ -1378,6 +1390,40 @@ require 'msf/core/exe/segment_appender'
     hash_sub[:powershell] = powershell
 
     read_replace_script_template("to_powershell.hta.template", hash_sub)
+  end
+
+  def self.to_jsp(exe)
+    hash_sub = {}
+    hash_sub[:var_payload]       = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_exepath]       = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_outputstream]  = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_payloadlength] = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_bytes]         = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_counter]       = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_exe]           = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_proc]          = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_fperm]         = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_fdel]          = Rex::Text.rand_text_alpha(rand(8)+8)
+    hash_sub[:var_exepatharray]  = Rex::Text.rand_text_alpha(rand(8)+8)
+
+    payload_hex = exe.unpack('H*')[0]
+    hash_sub[:payload]           = payload_hex
+
+    read_replace_script_template("to_exe.jsp.template", hash_sub)
+  end
+
+  # Creates a Web Archive (WAR) file containing a jsp page and hexdump of a
+  # payload.  The jsp page converts the hexdump back to a normal binary file
+  # and places it in the temp directory. The payload file is then executed.
+  #
+  # @see to_war
+  # @param exe [String] Executable to drop and run.
+  # @param opts (see to_war)
+  # @option opts (see to_war)
+  # @return (see to_war)
+  def self.to_jsp_war(exe, opts = {})
+    template = self.to_jsp(exe)
+    self.to_war(template, opts)
   end
 
   def self.to_win32pe_vbs(framework, code, opts = {})
@@ -1471,52 +1517,6 @@ require 'msf/core/exe/segment_appender'
     end
 
     zip.pack
-  end
-
-  # Creates a Web Archive (WAR) file containing a jsp page and hexdump of a
-  # payload.  The jsp page converts the hexdump back to a normal binary file
-  # and places it in the temp directory. The payload file is then executed.
-  #
-  # @see to_war
-  # @param exe [String] Executable to drop and run.
-  # @param opts (see to_war)
-  # @option opts (see to_war)
-  # @return (see to_war)
-  def self.to_jsp_war(exe, opts = {})
-    # begin <payload>.jsp
-    hash_sub = {}
-    hash_sub[:var_hexpath]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_exepath]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_data]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_inputstream]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_outputstream]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_numbytes]      = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_bytearray]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_bytes]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_counter]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_char1]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_char2]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_comb]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_exe]           = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_hexfile]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_proc]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_fperm]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_fdel]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_exepatharray]  = Rex::Text.rand_text_alpha(rand(8)+8)
-
-    # Specify the payload in hex as an extra file..
-    payload_hex = exe.unpack('H*')[0]
-    opts.merge!(
-      {
-        :extra_files =>
-          [
-            [ "#{hash_sub[:var_hexfile]}.txt", payload_hex ]
-          ]
-      })
-
-    template = read_replace_script_template("to_exe_jsp.war.template", hash_sub)
-
-    self.to_war(template, opts)
   end
 
   # Creates a .NET DLL which loads data into memory
@@ -2194,6 +2194,12 @@ require 'msf/core/exe/segment_appender'
     when 'loop-vbs'
       exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
+    when 'jsp'
+      arch ||= [ ARCH_X86 ]
+      tmp_plat = plat.platforms if plat
+      tmp_plat ||= Msf::Module::PlatformList.transform('win')
+      exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
+      Msf::Util::EXE.to_jsp(exe)
     when 'war'
       arch ||= [ ARCH_X86 ]
       tmp_plat = plat.platforms if plat
@@ -2221,6 +2227,7 @@ require 'msf/core/exe/segment_appender'
       "asp",
       "aspx",
       "aspx-exe",
+      "axis2",
       "dll",
       "elf",
       "elf-so",
@@ -2229,15 +2236,17 @@ require 'msf/core/exe/segment_appender'
       "exe-service",
       "exe-small",
       "hta-psh",
+      "jar",
+      "jsp",
       "loop-vbs",
       "macho",
       "msi",
       "msi-nouac",
       "osx-app",
       "psh",
+      "psh-cmd",
       "psh-net",
       "psh-reflection",
-      "psh-cmd",
       "vba",
       "vba-exe",
       "vba-psh",
@@ -2253,9 +2262,9 @@ require 'msf/core/exe/segment_appender'
     path = ::File.expand_path(::File.join(
       ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
     )
-    return true unless ::File.exists?(path)
+    return true unless ::File.exist?(path)
     ret = false
-    if ::File.exists?(path)
+    if ::File.exist?(path)
       begin
         data = ::File.read(path)
         unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"

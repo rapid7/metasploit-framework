@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -189,7 +189,7 @@ class Metasploit3 < Msf::Auxiliary
     count_users = data.to_i
     print_good("#{count_users} users found. Collecting credentials...")
 
-    users_table = Rex::Ui::Text::Table.new(
+    users_table = Rex::Text::Table.new(
       'Header'  => 'vBulletin Users',
       'Indent'   => 1,
       'Columns' => ['Username', 'Password Hash', 'Salt']

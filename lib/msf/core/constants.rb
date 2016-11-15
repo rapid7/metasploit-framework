@@ -88,6 +88,7 @@ module OperatingSystems
     SEVEN = "7"
     EIGHT = "8"
     EIGHTONE = "8.1"
+    TEN = "10.0"
   end
 
   UNKNOWN = "Unknown"
@@ -108,6 +109,7 @@ module OperatingSystems
     WINDOWS_2012    = /^(?:Microsoft )?Windows 2012/
     WINDOWS_8       = /^(?:Microsoft )?Windows 8/
     WINDOWS_81      = /^(?:Microsoft )?Windows 8\.1/
+    WINDOWS_10      = /^(?:Microsoft )?Windows 10/
 
     LINUX      = /^Linux/i
     MAC_OSX    = /^(?:Apple )?Mac OS X/

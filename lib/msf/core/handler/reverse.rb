@@ -52,7 +52,7 @@ module Msf
       # @return [Integer]
       def bind_port
         port = datastore['ReverseListenerBindPort'].to_i
-        port > 0 ? port : datastore['LPORT'].to_i
+        (port > 0) ? port : datastore['LPORT'].to_i
       end
 
       #

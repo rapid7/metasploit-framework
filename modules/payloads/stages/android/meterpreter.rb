@@ -4,12 +4,12 @@
 ##
 
 require 'msf/core'
-require 'msf/core/payload/dalvik'
+require 'msf/core/payload/android'
 require 'msf/base/sessions/meterpreter_android'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
 
-module Metasploit4
+module MetasploitModule
 
   include Msf::Sessions::MeterpreterOptions
 
@@ -30,7 +30,7 @@ module Metasploit4
   end
 
   #
-  # Override the Payload::Dalvik version so we can load a prebuilt jar to be
+  # Override the Payload::Android version so we can load a prebuilt jar to be
   # used as the final stage
   #
   def generate_stage(opts={})

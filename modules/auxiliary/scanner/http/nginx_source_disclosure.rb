@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
           save_source.puts(res.body.to_s)
           save_source.close
 
-          print_status("#{full_uri} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exists?("#{path_save}#{uri}"))
+          print_status("#{full_uri} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exist?("#{path_save}#{uri}"))
 
         else
           print_error("http://#{vhost}:#{rport} - nginx - Unrecognized #{res.code} response")

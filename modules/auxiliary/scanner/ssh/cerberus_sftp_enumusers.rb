@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'net/ssh'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -68,32 +68,30 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check_vulnerable(ip)
-    options = {
-      :port => rport,
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :disable_agent => true,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+    opt_hash = {
+      port:          rport,
+      auth_methods:  ['password', 'keyboard-interactive'],
+      use_agent:     false,
+      config:        false,
+      proxies:       datastore['Proxies']
     }
 
     begin
-      transport = Net::SSH::Transport::Session.new(ip, options)
+      transport = Net::SSH::Transport::Session.new(ip, opt_hash)
     rescue Rex::ConnectionError
       return :connection_error
     end
 
-    auth = Net::SSH::Authentication::Session.new(transport, options)
+    auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
     auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
     auth_method = auth.allowed_auth_methods.join('|')
     print_status "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
     report_service(
-      :host => ip,
-      :port => rport,
-      :name => "ssh",
-      :proto => "tcp",
-      :info => auth.transport.server_version.version
+      host:  ip,
+      port:  rport,
+      name:  "ssh",
+      proto: "tcp",
+      info:  auth.transport.server_version.version
     )
 
     if auth_method.empty?
@@ -107,16 +105,14 @@ class Metasploit3 < Msf::Auxiliary
     pass = Rex::Text.rand_text_alphanumeric(8)
 
     opt_hash = {
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :port          => port,
-      :disable_agent => true,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+      auth_methods: ['password', 'keyboard-interactive'],
+      port:         port,
+      use_agent:    false,
+      config:       false,
+      proxies:      datastore['Proxies']
     }
 
-    opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+    opt_hash.merge!(verbose: :debug) if datastore['SSH_DEBUG']
     transport = Net::SSH::Transport::Session.new(ip, opt_hash)
     auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
 

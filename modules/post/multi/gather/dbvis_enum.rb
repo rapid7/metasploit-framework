@@ -8,7 +8,7 @@ require 'msf/core/auxiliary/report'
 require 'openssl'
 require 'digest/md5'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
   # New config file parse function
   def parse_new_config_file(raw_xml)
 
-    db_table = Rex::Ui::Text::Table.new(
+    db_table = Rex::Text::Table.new(
     'Header'    => "DbVisualizer Databases",
     'Indent'    => 2,
     'Columns'   =>
@@ -219,7 +219,7 @@ class Metasploit3 < Msf::Post
   # New config file parse function
   def parse_old_config_file(raw_xml)
 
-    db_table = Rex::Ui::Text::Table.new(
+    db_table = Rex::Text::Table.new(
     'Header'    => 'DbVisualizer Databases',
     'Indent'    => 2,
     'Columns'   =>

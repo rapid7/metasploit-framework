@@ -13,7 +13,7 @@ require 'msf/core/payload/uuid'
 require 'rex/payloads/meterpreter/uri_checksum'
 
 # certificate hash checking
-require 'rex/parser/x509_certificate'
+require 'rex/socket/x509_certificate'
 
 module Rex
 module Post
@@ -469,7 +469,7 @@ class ClientCore < Extension
     end
 
     if client.platform =~ /linux/
-      if writable_dir.blank?
+      if writable_dir.to_s.strip.empty?
         writable_dir = tmp_folder
       end
 
@@ -599,15 +599,15 @@ class ClientCore < Extension
   def shutdown
     request  = Packet.create_request('core_shutdown')
 
-    # If this is a standard TCP session, send and return
-    if not client.passive_service
-      self.client.send_packet(request)
-    else
+    if client.passive_service
       # If this is a HTTP/HTTPS session we need to wait a few seconds
       # otherwise the session may not receive the command before we
       # kill the handler. This could be improved by the server side
       # sending a reply to shutdown first.
       self.client.send_packet_wait_response(request, 10)
+    else
+      # If this is a standard TCP session, send and forget.
+      self.client.send_packet(request)
     end
     true
   end
@@ -644,6 +644,16 @@ class ClientCore < Extension
     scheme = opts[:transport].split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
 
+    if opts[:luri] && opts[:luri].length > 0
+      if opts[:luri][0] != '/'
+        url << '/'
+      end
+      url << opts[:luri]
+      if url[-1] == '/'
+        url = url[0...-1]
+      end
+    end
+
     if opts[:comm_timeout]
       request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
     end
@@ -676,7 +686,7 @@ class ClientCore < Extension
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
       if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
-        hash = Rex::Parser::X509Certificate.get_cert_file_hash(opts[:cert])
+        hash = Rex::Socket::X509Certificate.get_cert_file_hash(opts[:cert])
         request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
       end
 
@@ -752,7 +762,7 @@ class ClientCore < Extension
   def tmp_folder
     tmp = client.sys.config.getenv('TMPDIR')
 
-    if tmp.blank?
+    if tmp.to_s.strip.empty?
       tmp = '/tmp'
     end
 

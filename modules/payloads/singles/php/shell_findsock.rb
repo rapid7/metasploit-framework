@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 require 'msf/core/handler/find_shell'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = :dynamic
 

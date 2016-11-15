@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = ManualRanking # Because only has been tested on a QEMU emulated environment
 
   HttpFingerprint = { :pattern => [ /Boa/ ] }

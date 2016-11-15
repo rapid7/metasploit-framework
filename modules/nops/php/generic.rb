@@ -12,7 +12,7 @@ require 'msf/core'
 # This class implements a "nop" generator for PHP payloads
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
   def initialize
     super(

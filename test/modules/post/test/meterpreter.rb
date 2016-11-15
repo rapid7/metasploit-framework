@@ -6,7 +6,7 @@ lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
 
@@ -233,7 +233,7 @@ class Metasploit4 < Msf::Post
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
       vprint_status("done")
-      res &&= session.fs.file.exists?(remote)
+      res &&= session.fs.file.exist?(remote)
       vprint_status("remote file exists? #{res.inspect}")
 
       if res
@@ -285,7 +285,7 @@ class Metasploit4 < Msf::Post
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
       vprint_status("done")
-      res &&= session.fs.file.exists?(remote)
+      res &&= session.fs.file.exist?(remote)
       vprint_status("remote file exists? #{res.inspect}")
 
       if res

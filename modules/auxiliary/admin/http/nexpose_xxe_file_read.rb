@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rapid7/nexpose'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report

@@ -36,7 +36,7 @@ module Metasploit::Framework::CommonEngine
     config.paths.add 'data/meterpreter', glob: '**/ext_*'
     config.paths.add 'modules'
 
-    config.active_support.deprecation = :notify
+    config.active_support.deprecation = :stderr
 
     #
     # `initializer`s

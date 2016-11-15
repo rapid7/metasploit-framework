@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Encoder::Xor
+class MetasploitModule < Msf::Encoder::Xor
 
   def initialize
     super(
@@ -23,6 +23,13 @@ class Metasploit3 < Msf::Encoder::Xor
           'BlockSize'    => 8,
         }
       )
+  end
+  # Indicate that this module can preserve some registers
+  # ...which is currently not true. This is a temp fix
+  # until the full preserve_registers functionality is
+  # implemented.
+  def can_preserve_registers?
+    true
   end
 
   def decoder_stub( state )

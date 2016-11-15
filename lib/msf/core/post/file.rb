@@ -136,6 +136,8 @@ module Msf::Post::File
     end
   end
 
+  alias :exists? :exist?
+
   #
   # Writes a given string to a given local file
   #
@@ -143,7 +145,7 @@ module Msf::Post::File
   # @param data [String]
   # @return [void]
   def file_local_write(local_file_name, data)
-    unless ::File.exists?(local_file_name)
+    unless ::File.exist?(local_file_name)
       ::FileUtils.touch(local_file_name)
     end
 
@@ -160,7 +162,7 @@ module Msf::Post::File
   # @param local_file_name [String] Local file name
   # @return [String] Hex digest of file contents
   def file_local_digestmd5(local_file_name)
-    if ::File.exists?(local_file_name)
+    if ::File.exist?(local_file_name)
       require 'digest/md5'
       chksum = nil
       chksum = Digest::MD5.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
@@ -191,7 +193,7 @@ module Msf::Post::File
   # @param local_file_name [String] Local file name
   # @return [String] Hex digest of file contents
   def file_local_digestsha1(local_file_name)
-    if ::File.exists?(local_file_name)
+    if ::File.exist?(local_file_name)
       require 'digest/sha1'
       chksum = nil
       chksum = Digest::SHA1.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
@@ -222,7 +224,7 @@ module Msf::Post::File
   # @param local_file_name [String] Local file name
   # @return [String] Hex digest of file contents
   def file_local_digestsha2(local_file_name)
-    if ::File.exists?(local_file_name)
+    if ::File.exist?(local_file_name)
       require 'digest/sha2'
       chksum = nil
       chksum = Digest::SHA256.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})

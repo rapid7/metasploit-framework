@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_java'
 require 'msf/base/sessions/meterpreter_options'
 
 
-module Metasploit4
+module MetasploitModule
 
   include Msf::Sessions::MeterpreterOptions
 

@@ -228,7 +228,7 @@ end
 
 # Check for Version of Meterpreter
 wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
-print_status("Running Persistance Script")
+print_status("Running Persistence Script")
 # Create undo script
 @clean_up_rc = log_file()
 print_status("Resource file for cleanup created at #{@clean_up_rc}")

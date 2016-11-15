@@ -113,7 +113,9 @@ class Channel
 
     # Transmit the request and wait for the response
     response = client.send_request(request)
-    cid      = response.get_tlv(TLV_TYPE_CHANNEL_ID).value
+    cid      = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+
+    return nil unless cid
 
     # Create the channel instance
     channel  = klass.new(client, cid, type, flags)
@@ -141,7 +143,9 @@ class Channel
     if (cid and client)
       client.add_channel(self)
     end
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.cid) )
+
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(client, cid))
   end
 
   def self.finalize(client,cid)
@@ -288,8 +292,11 @@ class Channel
   end
 
   def _close(addends = nil)
-    self.class._close(self.client, self.cid, addends)
-    self.cid = nil
+    unless self.cid.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class._close(self.client, self.cid, addends)
+      self.cid = nil
+    end
   end
   #
   # Enables or disables interactive mode.

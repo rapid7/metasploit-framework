@@ -2,7 +2,7 @@ module Msf::DBManager::Cred
   # This methods returns a list of all credentials in the database
   def creds(wspace=workspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    Mdm::Cred.includes({:service => :host}).where("hosts.workspace_id = ?", wspace.id)
+    Mdm::Cred.where("hosts.workspace_id = ?", wspace.id).joins(:service => :host)
   }
   end
 

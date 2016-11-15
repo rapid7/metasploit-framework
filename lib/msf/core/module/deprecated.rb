@@ -60,15 +60,15 @@ module Msf::Module::Deprecated
   #
   # @return [void]
   def print_deprecation_warning
-    print_warning("*"*72)
-    print_warning("*%red"+"The module #{refname} is deprecated!".center(70)+"%clr*")
+    print_warning("*"*90)
+    print_warning("*%red"+"The module #{refname} is deprecated!".center(88)+"%clr*")
     if deprecation_date
-      print_warning("*"+"It will be removed on or about #{deprecation_date}".center(70)+"*")
+      print_warning("*"+"It will be removed on or about #{deprecation_date}".center(88)+"*")
     end
     if replacement_module
-      print_warning("*"+"Use #{replacement_module} instead".center(70)+"*")
+      print_warning("*"+"Use #{replacement_module} instead".center(88)+"*")
     end
-    print_warning("*"*72)
+    print_warning("*"*90)
   end
 
   def init_ui(input = nil, output = nil)

@@ -24,7 +24,6 @@ require 'uri'
 def types
   {
     'ALL'         => '',
-    'OSVDB'       => 'http://www.osvdb.org/#{in_ctx_val}',
     'CVE'         => 'http://cvedetails.com/cve/#{in_ctx_val}/',
     'CWE'         => 'http://cwe.mitre.org/data/definitions/#{in_ctx_val}.html',
     'BID'         => 'http://www.securityfocus.com/bid/#{in_ctx_val}',
@@ -198,7 +197,7 @@ else
   columns = [ 'Module', 'Reference' ]
 end
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Module References',
   'Indent'  => 2,
   'Columns' => columns

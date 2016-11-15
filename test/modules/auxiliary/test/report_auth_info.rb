@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   FAKE_IP    = '192.168.12.123'
   FAKE_PORT  = 80

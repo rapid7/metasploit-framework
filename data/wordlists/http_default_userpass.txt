@@ -8,3 +8,4 @@ wampp xampp
 newuser wampp
 xampp-dav-unsecure ppmax2011 
 admin turnkey
+vagrant vagrant

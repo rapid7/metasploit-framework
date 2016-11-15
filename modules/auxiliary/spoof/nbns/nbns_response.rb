@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Capture
 
@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
           This module forges NetBIOS Name Service (NBNS) responses. It will listen for NBNS requests
           sent to the local subnet's broadcast address and spoof a response, redirecting the querying
-          machine to an IP of the attacker's choosing. Combined with auxiliary/capture/server/smb or
-          capture/server/http_ntlm it is a highly effective means of collecting crackable hashes on
+          machine to an IP of the attacker's choosing. Combined with auxiliary/server/capture/smb or
+          auxiliary/server/capture/http_ntlm it is a highly effective means of collecting crackable hashes on
           common networks.
 
           This module must be run as root and will bind to udp/137 on all interfaces.
@@ -82,9 +82,9 @@ class Metasploit3 < Msf::Auxiliary
     nbnsq_type         = packet[46..47]
     nbnsq_class        = packet[48..49]
 
-    return unless nbnsq_decodedname =~ /#{datastore['REGEX']}/i
+    return unless nbnsq_decodedname =~ /#{datastore['REGEX'].source}/i
 
-    vprint_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{spoof}")
+    print_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{spoof}")
 
     vprint_status("transid:        #{nbnsq_transid.unpack('H4')}")
     vprint_status("tlags:          #{nbnsq_flags.unpack('B16')}")
@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     }
 
-    print_status("NBNS Spoofer started. Listening for NBNS requests with REGEX \"#{datastore['REGEX']}\" ...")
+    print_status("NBNS Spoofer started. Listening for NBNS requests with REGEX \"#{datastore['REGEX'].source}\" ...")
 
     self.thread.join
     print_status("NBNS Monitor thread exited...")

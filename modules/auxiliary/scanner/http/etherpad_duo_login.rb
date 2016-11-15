@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -25,6 +25,7 @@ class Metasploit3 < Msf::Auxiliary
     'License'        => MSF_LICENSE
     ))
 
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(ip)

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -38,6 +38,8 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [true, "A specific username to authenticate as, default 'radware'", "radware"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'radware'", "radware"])
       ], self.class)
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(ip)

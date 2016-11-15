@@ -108,7 +108,7 @@ type = "auto"
       usage
     end
     extractfilename = val
-    if not ::File.exists?(extractfilename)
+    if not ::File.exist?(extractfilename)
       print_error("OpenSSH-SFX not found/accessible!")
       usage
     end
@@ -244,7 +244,7 @@ end
 #
 
 if manual == false
-  if not ::File.exists?(extractfilename)
+  if not ::File.exist?(extractfilename)
     print_status("openssh-extract.sfx could not be found. Downloading it now...")
     print_status(license)
     extractexe = Net::HTTP.get URI.parse(downloadurl)
@@ -262,7 +262,7 @@ if dirname == nil
   print_status("Creating directory #{dirname}.....")
   client.fs.dir.mkdir(dirname)
 else
-  if  !::File.exists?(dirname) && !::File.directory?(dirname)
+  if  !::File.exist?(dirname) && !::File.directory?(dirname)
     print_status("Creating directory #{dirname}.....")
     client.fs.dir.mkdir(dirname)
   end

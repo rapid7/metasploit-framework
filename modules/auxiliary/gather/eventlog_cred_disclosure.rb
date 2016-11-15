@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'ManageEngine EventLog Analyzer Managed Devices Credentials',
       'Indent'  => 1,
       'Columns' =>

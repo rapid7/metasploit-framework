@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SunRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
       return if maps.empty?
       vprint_good("Found #{maps.size} programs available")
 
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'  => "SunRPC Programs for #{ip}",
         'Indent'  => 1,
         'Columns' => %w(Name Number Version Port Protocol)

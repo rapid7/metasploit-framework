@@ -12,7 +12,7 @@ require 'msf/core'
 require 'rex/ui/text/shell'
 require 'rex/proto/tftp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text
   include Rex::Proto::TFTP
   include Msf::Exploit::Remote::Udp
@@ -222,7 +222,7 @@ class Metasploit3 < Msf::Auxiliary
     headerlen = makeword(f.read(2))
     f.seek(userentryptr + 40) # sorry decimal
     entrylen = makeword(f.read(2)) # sorry this is decimal
-    logins = Rex::Ui::Text::Table.new(
+    logins = Rex::Text::Table.new(
       'Header' => "D20 usernames, passwords, and account levels\n(use for TELNET authentication)",
       'Indent' => 1,
       'Columns' => ["Type", "User Name", "Password"])

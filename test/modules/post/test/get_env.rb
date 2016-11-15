@@ -7,7 +7,7 @@ require 'module_test'
 #load 'lib/rex/text.rb'
 #load 'lib/msf/core/post/common.rb'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
   include Msf::Post::Common

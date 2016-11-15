@@ -65,6 +65,7 @@ class Console::CommandDispatcher::Core
       "bgkill"     => "Kills a background meterpreter script",
       "get_timeouts" => "Get the current session timeout values",
       "set_timeouts" => "Set the current session timeout values",
+      "sess"       => "Quickly switch to another session",
       "bglist"     => "Lists running background scripts",
       "write"      => "Writes data to a channel",
       "enable_unicode_encoding"  => "Enables encoding of unicode strings",
@@ -109,6 +110,28 @@ class Console::CommandDispatcher::Core
   #
   def name
     "Core"
+  end
+
+  def cmd_sess_help
+    print_line('Usage: sess <session id>')
+    print_line
+    print_line('Interact with a different session Id.')
+    print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
+    print_line
+  end
+
+  def cmd_sess(*args)
+    if args.length == 0 || args[0].to_i == 0
+      cmd_sess_help
+    elsif args[0].to_s == client.name.to_s
+      print_status("Session #{client.name} is already interactive.")
+    else
+      print_status("Backgrounding session #{client.name}...")
+      # store the next session id so that it can be referenced as soon
+      # as this session is no longer interacting
+      client.next_session = args[0]
+      client.interacting = false
+    end
   end
 
   def cmd_background_help
@@ -182,7 +205,7 @@ class Console::CommandDispatcher::Core
 
     case mode
     when :list
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => 4,
         'Columns' =>
           [
@@ -575,6 +598,7 @@ class Console::CommandDispatcher::Core
     '-p'  => [ true,  'LPORT parameter' ],
     '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
     '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
+    '-lu' => [ true,  'Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)' ],
     '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
     '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
     '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
@@ -656,6 +680,8 @@ class Console::CommandDispatcher::Core
         opts[:uri] = val
       when '-i'
         transport_index = val.to_i
+      when '-lu'
+        opts[:luri] = val
       when '-ph'
         opts[:proxy_host] = val
       when '-pp'
@@ -729,7 +755,7 @@ class Console::CommandDispatcher::Core
       end
 
       # next draw up a table of transport entries
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'SortIndex' => 0, # sort by ID
         'Indent'    => 4,
         'Columns'   => columns)
@@ -866,7 +892,7 @@ class Console::CommandDispatcher::Core
         end
         pid = val.to_i
       when '-N'
-        if val.blank?
+        if val.to_s.empty?
           print_error("No process name provided")
           return
         end

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -32,7 +32,7 @@ class Metasploit4 < Msf::Auxiliary
 
     return unless res && res.code == 200
 
-    waps = Rex::Ui::Text::Table.new(
+    waps = Rex::Text::Table.new(
       'Header' => 'Wireless Access Points',
       'Columns' => [
         'BSSID',

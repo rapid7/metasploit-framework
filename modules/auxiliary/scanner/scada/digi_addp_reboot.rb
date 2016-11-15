@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'rex/proto/addp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner

@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_https'
 require 'msf/core/payload/python'
 require 'msf/core/payload/python/reverse_http'
 
-module Metasploit4
+module MetasploitModule
 
   CachedSize = 762
 

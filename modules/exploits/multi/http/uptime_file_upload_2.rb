@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'nokogiri'
 
-class Metasploit4 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::PhpEXE

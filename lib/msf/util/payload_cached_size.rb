@@ -44,7 +44,7 @@ class PayloadCachedSize
   def self.update_cache_constant(data, cached_size)
     data.
       gsub(/^\s*CachedSize\s*=\s*(\d+|:dynamic).*/, '').
-      gsub(/^(module Metasploit\d+)\s*\n/) do |m|
+      gsub(/^(module MetasploitModule)\s*\n/) do |m|
         "#{m.strip}\n\n  CachedSize = #{cached_size}\n\n"
       end
   end

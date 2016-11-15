@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
 
   Rank = ManualRanking
 

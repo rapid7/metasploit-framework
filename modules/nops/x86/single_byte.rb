@@ -13,7 +13,7 @@ require 'msf/core'
 # ADMmutate and from spoonfu.
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
 SINGLE_BYTE_SLED =
   {
@@ -106,7 +106,7 @@ SINGLE_BYTE_SLED =
 
     # Did someone specify random NOPs in the environment?
     if (!random and datastore['RandomNops'])
-      random = (datastore['RandomNops'].match(/true|1|y/i) != nil)
+      random = datastore['RandomNops']
     end
 
     # Generate the whole sled...

@@ -16,7 +16,7 @@ require 'msf/base/sessions/command_shell_options'
 # Injects the VNC server DLL and runs it over the established connection.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Osx::BundleInject
   include Msf::Sessions::CommandShellOptions
@@ -80,7 +80,7 @@ module Metasploit3
 
     print_status("Photo saved as #{dest}")
 
-    if (datastore['AUTOVIEW'] == true)
+    if datastore['AUTOVIEW']
       print_status("Opening photo in a web browser...")
       Rex::Compat.open_browser(File.expand_path(dest))
     end

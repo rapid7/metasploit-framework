@@ -1,11 +1,22 @@
+sudo: false
+group: stable
 bundler_args: --without coverage development pcap
 cache: bundler
+addons:
+  postgresql: '9.3'
+  apt:
+    packages:
+      - libpcap-dev
+      - graphviz
+language: ruby
+rvm:
+  - '2.3.1'
+
 env:
   - RAKE_TASKS="cucumber cucumber:boot" CREATE_BINSTUBS=true
   - RAKE_TASKS=spec SPEC_OPTS="--tag content"
   - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
 
-language: ruby
 matrix:
   fast_finish: true
 before_install:
@@ -23,9 +34,6 @@ before_script:
 script:
   # fail build if db/schema.rb update is not committed
   - git diff --exit-code db/schema.rb && bundle exec rake $RAKE_TASKS
-sudo: false
-rvm:
-  - '2.1.8'
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
@@ -38,9 +46,3 @@ branches:
   except:
     - gh-pages
     - metakitty
-
-addons:
-  postgresql: '9.3'
-  apt:
-    packages:
-      - libpcap-dev

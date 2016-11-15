@@ -131,7 +131,7 @@ end
     delay = val.to_i
   when "-s"
     script = val
-    if not ::File.exists?(script)
+    if not ::File.exist?(script)
       raise "Command List File does not exists!"
     else
       ::File.open(script, "r").each_line do |line|
@@ -140,7 +140,7 @@ end
     end
   when "-l"
     list = val
-    if not ::File.exists?(list)
+    if not ::File.exist?(list)
       raise "Command List File does not exists!"
     else
       ::File.open(list, "r").each_line do |line|

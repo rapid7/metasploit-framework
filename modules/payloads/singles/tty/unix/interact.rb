@@ -9,7 +9,7 @@ require 'msf/core/handler/find_tty'
 require 'msf/base/sessions/command_shell'
 
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 0
 

@@ -8,7 +8,7 @@ require 'openssl'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/afp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner

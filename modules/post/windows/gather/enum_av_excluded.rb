@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info = {})
@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Post
       print_status("No #{exclusion_type} exclusions for #{product}")
       return
     end
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => "#{product} excluded #{exclusion_type.pluralize}",
       'Indent'    => 1,
       'Columns'   => [ exclusion_type.capitalize ]

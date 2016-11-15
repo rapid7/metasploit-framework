@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+require 'stringio'
+
 ENV['RAILS_ENV'] = 'test'
 
 unless Bundler.settings.without.include?(:coverage)
@@ -114,3 +116,25 @@ end
 
 Metasploit::Framework::Spec::Constants::Suite.configure!
 Metasploit::Framework::Spec::Threads::Suite.configure!
+
+def get_stdout(&block)
+  out = $stdout
+  $stdout = tmp = StringIO.new
+  begin
+    yield
+  ensure
+    $stdout = out
+  end
+  tmp.string
+end
+
+def get_stderr(&block)
+  out = $stderr
+  $stderr = tmp = StringIO.new
+  begin
+    yield
+  ensure
+    $stderr = out
+  end
+  tmp.string
+end

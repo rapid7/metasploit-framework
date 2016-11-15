@@ -6,7 +6,7 @@
 require 'rex'
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Post
 
   # Takes the results of LDAP query, parses them into a table
   def parse_results(results)
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Groups with Managers",
       'Indent'     => 1,
       'SortIndex'  => -1,

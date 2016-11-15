@@ -1,6 +1,6 @@
 require 'rex/parser/fs/bitlocker'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Error
   include Msf::Post::Windows::ExtAPI

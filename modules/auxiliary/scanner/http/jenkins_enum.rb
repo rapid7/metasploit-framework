@@ -11,7 +11,7 @@ require 'rex/proto/http'
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -97,13 +97,13 @@ class Metasploit3 < Msf::Auxiliary
 
     case res.code
     when 200
-      print_good("#{uri_path} does not require authentication (200)")
+      print_good("#{full_uri} - #{uri_path} does not require authentication (200)")
       report_note({
         :type  => "jenkins_path",
         :host  => rhost,
         :port  => rport,
         :proto => 'tcp',
-        :data  => "#{uri_path} does not require authentication (200)",
+        :data  => "#{full_uri} - #{uri_path} does not require authentication (200)",
         :update => :unique_data
       })
       case app

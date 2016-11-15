@@ -13,7 +13,7 @@ require 'msf/core/payload/windows/reflectivedllinject'
 # Injects an arbitrary DLL in the exploited process via a reflective loader.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows::ReflectiveDllInject
 

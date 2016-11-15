@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
 
   # Store the creds to
   def parse_creds(f)
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Postgres Data',
       'Indent'  => 1,
       'Columns' => ['Host', 'Port', 'DB', 'User', 'Password']

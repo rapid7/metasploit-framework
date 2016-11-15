@@ -283,7 +283,7 @@ class Socks4a
               # close the listening socket
               bsock.close
               # verify the connection is from the dest_ip origionally specified by the client
-              rpeer = @rsock.getpeername
+              rpeer = @rsock.getpeername_as_array
               raise "Got connection from an invalid peer." if( rpeer[HOST] != request.dest_ip )
               # send back the client connect success to the client
               #

@@ -6,12 +6,14 @@
 require 'msf/core'
 require 'net/ssh'
 require 'sshkey' # TODO: Actually include this!
+require 'net/ssh/pubkey_verifier'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH
 
   def initialize
     super(
@@ -45,8 +47,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.'])
-      ], self.class
+        OptPath.new('KEY_FILE', [true, 'Filename of one or several cleartext public keys.'])
+      ]
     )
 
     register_advanced_options(
@@ -59,7 +61,9 @@ class Metasploit3 < Msf::Auxiliary
       ]
     )
 
-    deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS')
+    deregister_options(
+      'RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
+    )
 
     @good_credentials = {}
     @good_key = ''
@@ -69,6 +73,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def key_dir
     datastore['KEY_DIR']
+  end
+
+  def key_file
+    datastore['KEY_FILE']
   end
 
   def rport
@@ -95,8 +103,8 @@ class Metasploit3 < Msf::Auxiliary
     this_key = []
     in_key = false
     keyfile.split("\n").each do |line|
-      if line =~ /ssh-(dss|rsa)\s+/
-        keys << line
+      if /(?<key>ssh-(?:dss|rsa)\s+.*)/ =~ line
+        keys << key
         next
       end
       in_key = true if(line =~ /^-----BEGIN [RD]SA (PRIVATE|PUBLIC) KEY-----/)
@@ -162,8 +170,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_login(ip, port, user)
 
-    if datastore['KEY_FILE'] and File.readable?(datastore['KEY_FILE'])
-      keys = read_keyfile(datastore['KEY_FILE'])
+    if key_file && File.readable?(key_file)
+      keys = read_keyfile(key_file)
       cleartext_keys = pull_cleartext_keys(keys)
       msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
     elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
@@ -196,26 +204,27 @@ class Metasploit3 < Msf::Auxiliary
         key_info = "- #{$3.strip}"
       end
 
-      accepted = []
+      factory = ssh_socket_factory
       opt_hash = {
         :auth_methods => ['publickey'],
-        :msframework  => framework,
-        :msfmodule    => self,
         :port         => port,
         :key_data     => key_data[:public],
-        :disable_agent     => true,
-        :record_auth_info  => true,
-        :skip_private_keys => true,
+        :use_agent     => false,
         :config =>false,
-        :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
-        :proxies	  => datastore['Proxies']
+        :proxy	  => factory,
+        :non_interactive => true
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
 
       begin
         ssh_socket = nil
-        ::Timeout.timeout(datastore['SSH_TIMEOUT']) { ssh_socket = Net::SSH.start(ip, user, opt_hash) } rescue nil
+        success = false
+        verifier = Net::SSH::PubkeyVerifier.new(ip,user,opt_hash)
+        ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+           success = verifier.verify
+           ssh_socket = verifier.connection
+        end
 
         if datastore['SSH_BYPASS'] and ssh_socket
           data = nil
@@ -241,19 +250,29 @@ class Metasploit3 < Msf::Auxiliary
         return [:fail,nil] # For whatever reason.
       end
 
-      if accepted.length == 0
+      unless success
         if @key_files
           print_brute :level => :verror, :msg =>  "User #{user} does not accept key #{@key_files[key_idx+1]} #{key_info}"
         else
           print_brute :level => :verror, :msg => "User #{user} does not accept key #{key_idx+1} #{key_info}"
         end
+        return [:fail,nil]
       end
 
-      accepted.each do |key|
-        private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
-        print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key[:key][:fingerprint]}' (Private Key: #{private_key_present}) #{key_info}"
-        do_report(ip, rport, user, key)
-      end
+      key = verifier.key
+      key_fingerprint = key.fingerprint
+      user = verifier.user
+      private_key_present = (key_data[:private] != "") ? 'Yes' : 'No'
+
+      print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key_fingerprint}' (Private Key: #{private_key_present}) #{key_info}"
+
+      key_hash = {
+        data: key_data,
+        key: key,
+        info: key_info
+      }
+      do_report(ip, rport, user, key_hash)
+
     end
   end
 
@@ -345,9 +364,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    # Since SSH collects keys and tries them all on one authentication session, it doesn't
-    # make sense to iteratively go through all the keys individually. So, ignore the pass variable,
-    # and try all available keys for all users.
+    # Since SSH collects keys and tries them all on one authentication session,
+    # it doesn't make sense to iteratively go through all the keys
+    # individually. So, ignore the pass variable, and try all available keys
+    # for all users.
     each_user_pass do |user,pass|
       ret, _ = do_login(ip, rport, user)
       case ret

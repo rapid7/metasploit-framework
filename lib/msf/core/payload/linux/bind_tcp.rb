@@ -30,7 +30,7 @@ module Payload::Linux::BindTcp
     }
 
     # Generate the more advanced stager if we have the space
-    unless self.available_space.nil? || required_space > self.available_space
+    if self.available_space && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC'],
       conf[:reliable] = true
     end

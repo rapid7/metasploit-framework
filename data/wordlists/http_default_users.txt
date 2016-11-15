@@ -11,3 +11,4 @@ sys
 wampp
 newuser
 xampp-dav-unsecure
+vagrant

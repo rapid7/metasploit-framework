@@ -16,7 +16,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -49,6 +49,8 @@ class Metasploit4 < Msf::Auxiliary
         OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "sap_default.txt") ])
       ], self.class)
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(rhost)

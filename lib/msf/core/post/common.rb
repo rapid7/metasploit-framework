@@ -57,7 +57,7 @@ module Msf::Post::Common
   #    For example: you can use a python meterpreter on a Windows platform, and you will
   #    get 'python/python' as your arch/platform, and not 'x86/win32'.
   #
-  # @returns [String] The archtecture recognizable by framework's ARCH_TYPES.
+  # @return [String] The archtecture recognizable by framework's ARCH_TYPES.
   def get_target_arch
     arch = nil
 
@@ -161,7 +161,7 @@ module Msf::Post::Common
       # /bin/sh.
       #
       # This problem was originally solved by using Shellwords.shellwords but
-      # unfortunately, it is retarded. When a backslash occurs inside double
+      # unfortunately, it is unsuitable. When a backslash occurs inside double
       # quotes (as is often the case with Windows commands) it inexplicably
       # removes them. So. Shellwords is out.
       #
@@ -338,4 +338,3 @@ module Msf::Post::Common
   end
 
 end
-

@@ -409,6 +409,10 @@ class Msf::Module::Platform
       Rank = 700
       Alias = "10"
     end
+    class V11
+      Rank = 800
+      Alias = "11"
+    end
   end
 
   #

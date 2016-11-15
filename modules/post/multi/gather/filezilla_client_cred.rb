@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Post
       origin_type: :session,
       private_data: opts[:password],
       private_type: :password,
-      username: opts[:user]
+      username: opts[:username]
     }.merge(service_data)
 
     login_data = {

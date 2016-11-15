@@ -16,6 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'msf/util/document_generator'
 
 module Msf
 module Ui
@@ -95,10 +96,6 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
 
-  # The list of data store elements that cannot be set when in defanged
-  # mode.
-  DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
-
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
 
@@ -139,6 +136,7 @@ class Core
       "route"      => "Route traffic through a session",
       "save"       => "Saves the active datastores",
       "search"     => "Searches module names and descriptions",
+      "sess"       => "Interact with a given session",
       "sessions"   => "Dump session listings and display information about sessions",
       "set"        => "Sets a context-specific variable to a value",
       "setg"       => "Sets a global variable to a value",
@@ -224,6 +222,13 @@ class Core
       end
     end
 
+    if framework.modules.module_load_warnings.length > 0
+      print_warning("The following modules were loaded with warnings:")
+      framework.modules.module_load_warnings.each do |path, error|
+        print_warning("\t#{path}: #{error}")
+      end
+    end
+
     cmd_banner()
   end
 
@@ -245,7 +250,7 @@ class Core
 
     args.each do |res|
       good_res = nil
-      if ::File.exists?(res)
+      if ::File.exist?(res)
         good_res = res
       elsif
         # let's check to see if it's in the scripts/resource dir (like when tab completed)
@@ -254,7 +259,7 @@ class Core
           ::Msf::Config.user_script_directory + ::File::SEPARATOR + "resource"
         ].each do |dir|
           res_path = dir + ::File::SEPARATOR + res
-          if ::File.exists?(res_path)
+          if ::File.exist?(res_path)
             good_res = res_path
             break
           end
@@ -744,7 +749,9 @@ class Core
   def cmd_info_help
     print_line "Usage: info <module name> [mod2 mod3 ...]"
     print_line
-    print_line "Optionally the flag '-j' will print the data in json format"
+    print_line "Options:"
+    print_line "* The flag '-j' will print the data in json format"
+    print_line "* The flag '-d' will show the markdown version with a browser. More info, but could be slow."
     print_line "Queries the supplied module or modules for information. If no module is given,"
     print_line "show info for the currently active module."
     print_line
@@ -755,15 +762,30 @@ class Core
   #
   def cmd_info(*args)
     dump_json = false
+    show_doc = false
+
     if args.include?('-j')
       args.delete('-j')
       dump_json = true
+    end
+
+    if args.include?('-d')
+      args.delete('-d')
+      show_doc = true
     end
 
     if (args.length == 0)
       if (active_module)
         if dump_json
           print(Serializer::Json.dump_module(active_module) + "\n")
+        elsif show_doc
+          f = Rex::Quickfile.new(["#{active_module.shortname}_doc", '.html'])
+          begin
+            print_status("Generating documentation for #{active_module.shortname}, then opening #{f.path} in a browser...")
+            Msf::Util::DocumentGenerator.spawn_module_document(active_module, f)
+          ensure
+            f.close if f
+          end
         else
           print(Serializer::ReadableText.dump_module(active_module))
         end
@@ -784,6 +806,14 @@ class Core
         print_error("Invalid module: #{name}")
       elsif dump_json
         print(Serializer::Json.dump_module(mod) + "\n")
+      elsif show_doc
+        f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
+        begin
+          print_status("Generating documentation for #{mod.shortname}, then opening #{f.path} in a browser...")
+          Msf::Util::DocumentGenerator.spawn_module_document(mod, f)
+        ensure
+          f.close if f
+        end
       else
         print(Serializer::ReadableText.dump_module(mod))
       end
@@ -809,7 +839,7 @@ class Core
       end
     end
 
-    args.each { |name|
+    args.each do |name|
       mod = framework.modules.create(name)
 
       if (mod == nil)
@@ -817,7 +847,7 @@ class Core
       else
         show_options(mod)
       end
-    }
+    end
   end
 
   #
@@ -861,8 +891,6 @@ class Core
   # Goes into IRB scripting mode
   #
   def cmd_irb(*args)
-    defanged?
-
     expressions = []
 
     # Parse the command options
@@ -1211,8 +1239,6 @@ class Core
   # the framework root plugin directory is used.
   #
   def cmd_load(*args)
-    defanged?
-
     if (args.length == 0)
       cmd_load_help
       return false
@@ -1239,7 +1265,7 @@ class Core
 
       # If the plugin isn't in the user directory (~/.msf3/plugins/), use the base
       path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
-      if not File.exists?( path  + ".rb" )
+      if not File.exist?( path  + ".rb" )
         # If the following "path" doesn't exist it will be caught when we attempt to load
         path = Msf::Config.plugin_directory + File::SEPARATOR + plugin_file_name
       end
@@ -1302,24 +1328,20 @@ class Core
   # which session a given subnet should route through.
   #
   def cmd_route(*args)
-    if (args.length == 0)
-      cmd_route_help
-      return false
-    end
+    args << 'print' if args.length == 0
 
     action = args.shift
     case action
 
     when "add", "remove", "del"
       subnet = args.shift
-      subnet,cidr_mask = subnet.split("/")
-
-      if cidr_mask
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
-      else
-        netmask = args.shift
+      netmask = nil
+      if subnet
+        subnet, cidr_mask = subnet.split("/")
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i) if cidr_mask
       end
 
+      netmask = args.shift if netmask.nil?
       gateway_name = args.shift
 
       if (subnet.nil? || netmask.nil? || gateway_name.nil?)
@@ -1332,7 +1354,7 @@ class Core
       case gateway_name
       when /local/i
         gateway = Rex::Socket::Comm::Local
-      when /^[0-9]+$/
+      when /^(-1|[0-9]+)$/
         session = framework.sessions.get(gateway_name)
         if session.kind_of?(Msf::Session::Comm)
           gateway = session
@@ -1340,7 +1362,7 @@ class Core
           print_error("Not a session: #{gateway_name}")
           return false
         else
-          print_error("Cannout route through specified session (not a Comm)")
+          print_error("Cannot route through the specified session (not a Comm)")
           return false
         end
       else
@@ -1396,7 +1418,6 @@ class Core
           })
 
       Rex::Socket::SwitchBoard.each { |route|
-
         if (route.comm.kind_of?(Msf::Session))
           gw = "Session #{route.comm.sid}"
         else
@@ -1406,7 +1427,11 @@ class Core
         tbl << [ route.subnet, route.netmask, gw ]
       }
 
-      print(tbl.to_s)
+      if tbl.rows.length == 0
+        print_status('There are currently no routes defined.')
+      else
+        print(tbl.to_s)
+      end
     else
       cmd_route_help
     end
@@ -1469,8 +1494,6 @@ class Core
   # restarts of the console.
   #
   def cmd_save(*args)
-    defanged?
-
     # Save the console config
     driver.save_config
 
@@ -1501,8 +1524,6 @@ class Core
   # Adds one or more search paths.
   #
   def cmd_loadpath(*args)
-    defanged?
-
     if (args.length == 0 or args.include? "-h")
       cmd_loadpath_help
       return true
@@ -1594,7 +1615,6 @@ class Core
       'cve'      => 'Modules with a matching CVE ID',
       'edb'      => 'Modules with a matching Exploit-DB ID',
       'name'     => 'Modules with a matching descriptive name',
-      'osvdb'    => 'Modules with a matching OSVDB ID',
       'platform' => 'Modules affecting this platform',
       'ref'      => 'Modules with a matching ref',
       'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
@@ -1732,6 +1752,25 @@ class Core
 
     print_status(msg)
     return
+  end
+
+  def cmd_sess_help
+    print_line('Usage: sess <session id>')
+    print_line
+    print_line('Interact with the given session ID.')
+    print_line('This works the same as: sessions -i <session id>')
+    print_line
+  end
+
+  #
+  # Helper function to quickly select a session
+  #
+  def cmd_sess(*args)
+    if args.length == 0 || args[0].to_i == 0
+      cmd_sess_help
+    else
+      cmd_sessions('-i', args[0])
+    end
   end
 
   def cmd_sessions_help
@@ -1935,22 +1974,26 @@ class Core
         end
       end
     when 'interact'
-      session = verify_session(sid)
-      if session
-        if session.respond_to?(:response_timeout)
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
-        end
-        print_status("Starting interaction with #{session.name}...\n") unless quiet
-        begin
-          self.active_session = session
-          session.interact(driver.input.dup, driver.output)
-          self.active_session = nil
-          driver.input.reset_tab_completion if driver.input.supports_readline
-        ensure
-          if session.respond_to?(:response_timeout) && last_known_timeout
-            session.response_timeout = last_known_timeout
+      while sid
+        session = verify_session(sid)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
           end
+          print_status("Starting interaction with #{session.name}...\n") unless quiet
+          begin
+            self.active_session = session
+            sid = session.interact(driver.input.dup, driver.output)
+            self.active_session = nil
+            driver.input.reset_tab_completion if driver.input.supports_readline
+          ensure
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
+          end
+        else
+          sid = nil
         end
       end
     when 'scriptall'
@@ -2159,22 +2202,21 @@ class Core
       @cache_payloads = nil
     end
 
-    # Security check -- make sure the data store element they are setting
-    # is not prohibited
-    if global and DefangedProhibitedDataStoreElements.include?(name)
-      defanged?
-    end
-
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
       return true
     end
 
-    if append
-      datastore[name] = datastore[name] + value
-    else
-      datastore[name] = value
+    begin
+      if append
+        datastore[name] = datastore[name] + value
+      else
+        datastore[name] = value
+      end
+    rescue OptionValidateError => e
+      print_error(e.message)
+      elog(e.message)
     end
 
     print_line("#{name} => #{datastore[name]}")
@@ -2186,7 +2228,6 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
   def cmd_set_tabs(str, words)
 
     # A value has already been specified
@@ -2591,9 +2632,9 @@ class Core
   # Tab completion for the unset command
   #
   # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
-
+  # @param words [Array<String>] the previously completed words on the command
+  #   line. `words` is always at least 1 when tab completion has reached this
+  #   stage since the command itself has been completed.
   def cmd_unset_tabs(str, words)
     datastore = active_module ? active_module.datastore : self.framework.datastore
     datastore.keys
@@ -2830,16 +2871,8 @@ class Core
   # Returns the revision of the framework and console library
   #
   def cmd_version(*args)
-    svn_console_version = "$Revision: 15168 $"
-    svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
-    if svn_metasploit_version
-      print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")
-    else
-      print_line("Framework: #{Msf::Framework::Version}")
-    end
-    print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
-
-    return true
+    print_line("Framework: #{Msf::Framework::Version}")
+    print_line("Console  : #{Msf::Framework::Version}")
   end
 
   def cmd_grep_help
@@ -3290,7 +3323,7 @@ class Core
 
   # Determines if this is an apt-based install
   def is_apt
-    File.exists?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
+    File.exist?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
   end
 
   # Determines if we're a Metasploit Pro/Community/Express
@@ -3516,7 +3549,7 @@ class Core
       next if not o
 
       # handle a search string, search deep
-      if(
+      if (
         not regex or
         o.name.match(regex) or
         o.description.match(regex) or
@@ -3530,7 +3563,7 @@ class Core
             mod_opt_keys = o.options.keys.map { |x| x.downcase }
 
             opts.each do |opt,val|
-              if mod_opt_keys.include?(opt.downcase) == false or (val != nil and o.datastore[opt] != val)
+              if !mod_opt_keys.include?(opt.downcase) || (val != nil && o.datastore[opt] != val)
                 show = false
               end
             end

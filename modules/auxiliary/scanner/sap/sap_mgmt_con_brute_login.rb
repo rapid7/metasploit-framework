@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -39,6 +39,8 @@ class Metasploit4 < Msf::Auxiliary
                                    File.join(Msf::Config.data_directory, "wordlists", "sap_common.txt") ])
       ], self.class)
     register_autofilter_ports([ 50013 ])
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(rhost)

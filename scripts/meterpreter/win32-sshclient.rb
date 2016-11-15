@@ -90,7 +90,7 @@ EOS
 #
 
 def upload(client,file,trgloc = nil)
-  if not ::File.exists?(file)
+  if not ::File.exist?(file)
     raise "File to Upload does not exists!"
   else
     if trgloc == nil
@@ -164,7 +164,7 @@ downloaded = nil
       usage
     end
     plink = val
-    if not ::File.exists?(plink)
+    if not ::File.exist?(plink)
       print_error("Plink.exe not found/accessible!")
       usage
     end
@@ -258,7 +258,7 @@ downloaded = nil
       usage
     end
     keyfile = val
-    if not ::File.exists?(keyfile)
+    if not ::File.exist?(keyfile)
       print_error("keyfile not found or not accessible!")
       usage
     end
@@ -269,7 +269,7 @@ downloaded = nil
       usage
     end
     cmdfile = val
-    if not ::File.exists?(cmdfile)
+    if not ::File.exist?(cmdfile)
       print_error("cmd-file not found/accessible!")
       usage
     end
@@ -320,7 +320,7 @@ end
 # Ask user before downloading
 #
 if not manual
-  if not ::File.exists?(plink)
+  if not ::File.exist?(plink)
     print_status("plink.exe could not be found. Downloading it now...")
     print_status(license)
     plinkexe = Net::HTTP.get URI.parse(plinkurl)
