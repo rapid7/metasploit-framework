@@ -99,9 +99,9 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Executing the command...")
     begin
       return psexec(execute)
-    rescue Rex::Proto::DCERPC::Exceptions::Error, Rex::Proto::SMB::Exceptions::Error => exec_command_error
+    rescue Rex::Proto::DCERPC::Exceptions::Error, Rex::Proto::SMB::Exceptions::Error => e
       elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}", 'rex', LEV_3)
-      print_error("Unable to execute specified command: #{exec_command_error}")
+      print_error("Unable to execute specified command: #{e}")
       return false
     end
   end
