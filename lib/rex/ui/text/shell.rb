@@ -276,6 +276,8 @@ module Shell
     log_output(output.print_error(msg))
   end
 
+  alias_method :print_bad, :print_error
+
   #
   # Prints a status message to the output handle.
   #

@@ -326,5 +326,7 @@ class Auxiliary::Web::HTTP
     @parent.print_error message
   end
 
+  alias_method :print_bad, :print_error
+
 end
 end
