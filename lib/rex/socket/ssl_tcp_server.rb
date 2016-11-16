@@ -3,6 +3,7 @@ require 'rex/socket'
 require 'rex/socket/tcp_server'
 require 'rex/io/stream_server'
 require 'rex/parser/x509_certificate'
+require 'timeout'
 
 ###
 #
@@ -68,7 +69,14 @@ module Rex::Socket::SslTcpServer
       ssl = OpenSSL::SSL::SSLSocket.new(sock, self.sslctx)
 
       if not allow_nonblock?(ssl)
-        ssl.accept
+        begin
+          Timeout::timeout(2) {
+            ssl.accept
+          }
+          rescue ::Exception => e
+            sock.close 
+            raise ::OpenSSL::SSL::SSLError
+          end
       else
         begin
           ssl.accept_nonblock
