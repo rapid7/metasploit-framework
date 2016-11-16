@@ -75,17 +75,23 @@ class Msf::Payload::Apk
     original_manifest = parse_manifest("#{tempdir}/original/AndroidManifest.xml")
     original_permissions = original_manifest.xpath("//manifest/uses-permission")
 
-    manifest = original_manifest.xpath('/manifest')
     old_permissions = []
-    for permission in original_permissions
+    original_permissions.each do |permission|
       name = permission.attribute("name").to_s
       old_permissions << name
     end
-    for permission in payload_permissions
+
+    application = original_manifest.xpath('//manifest/application')
+    payload_permissions.each do |permission|
       name = permission.attribute("name").to_s
       unless old_permissions.include?(name)
         print_status("Adding #{name}")
-        original_permissions.before(permission.to_xml)
+        if original_permissions.empty?
+          application.before(permission.to_xml)
+          original_permissions = original_manifest.xpath("//manifest/uses-permission")
+        else
+          original_permissions.before(permission.to_xml)
+        end
       end
     end
 
@@ -93,7 +99,7 @@ class Msf::Payload::Apk
     application << payload_manifest.at_xpath('/manifest/application/receiver').to_xml
     application << payload_manifest.at_xpath('/manifest/application/service').to_xml
 
-    File.open("#{tempdir}/original/AndroidManifest.xml", "wb") {|file| file.puts original_manifest.to_xml }
+    File.open("#{tempdir}/original/AndroidManifest.xml", "wb") { |file| file.puts original_manifest.to_xml }
   end
 
   def parse_orig_cert_data(orig_apkfile)
