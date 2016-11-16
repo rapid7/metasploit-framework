@@ -70,10 +70,10 @@ module Rex::Socket::SslTcpServer
 
       if not allow_nonblock?(ssl)
         begin
-          Timeout::timeout(2) {
+          Timeout::timeout(3.5) {
             ssl.accept
           }
-          rescue ::Exception => e
+          rescue ::Timeout::Error => e
             sock.close 
             raise ::OpenSSL::SSL::SSLError
           end
