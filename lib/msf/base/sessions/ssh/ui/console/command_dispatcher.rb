@@ -3,13 +3,14 @@ class Msf::Sessions::SSH::Ui::Console::CommandDispatcher
 
   include Rex::Ui::Text::DispatcherShell::CommandDispatcher
 
+  # @return [Msf::Sessions::SSH::Ui::Console]
   attr_accessor :shell
 
   def initialize(shell)
-    $stderr.puts(shell.client.ssh.closed?)
     @shell = shell
   end
 
+  # @return [Msf::Sessions::SSH]
   def client
     shell.client
   end
@@ -52,11 +53,13 @@ class Msf::Sessions::SSH::Ui::Console::CommandDispatcher
   #
   def cmd_exit(*args)
     print_status("Shutting down metaSSH...")
+    shell.client.ssh.forward.active_locals.each do |port, host|
+      shell.client.ssh.forward.cancel_local(port, host)
+    end
     shell.stop
   end
 
   alias cmd_quit cmd_exit
-
 
   #
   # Runs the IRB scripting shell
@@ -74,9 +77,106 @@ class Msf::Sessions::SSH::Ui::Console::CommandDispatcher
       return cmd_portfwd_help
     end
 
-    self.shell.client.ssh.forward.extend(Msf::Sessions::SSH::Extensions::Stdapi::Net::SocketSubsystem::ForwardMixin)
     self.shell.client.ssh.forward.local(lport, rhost, rport)
-    true
+  end
+
+  #
+  # Options for the portfwd command.
+  #
+  @@portfwd_opts = Rex::Parser::Arguments.new(
+    '-h' => [false, 'Help banner.'],
+    '-R' => [false, 'Reverse forward, [remote bind address:]<remote port>:<host>:<port>'],
+    '-L' => [true,  'Local forward, [local bind address:]<local port>:<host>:<port>'])
+
+
+  def cmd_portfwd(*args)
+    args.unshift('list') if args.empty?
+
+    # For clarity's sake.
+    lport = nil
+    lhost = nil
+    rport = nil
+    rhost = nil
+    reverse = false
+    index = nil
+
+    # Parse the options
+    @@portfwd_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-h'
+        cmd_portfwd_help
+        return true
+      when '-l'
+        lport = val.to_i
+      when '-L'
+        parts = val.split(":")
+        rport = parts.pop
+        rhost = parts.pop
+        lport = parts.pop
+        lhost = parts.pop
+      when '-p'
+        rport = val.to_i
+      when '-r'
+        rhost = val
+      when '-R'
+        reverse = true
+      when '-i'
+        index = val.to_i
+      end
+    end
+
+    # Process the command
+    case args.shift
+    when 'list'
+
+      p shell.client.ssh.forward.active_locals
+      table = Rex::Text::Table.new(
+        'Header'    => 'Active Port Forwards',
+        'Indent'    => 3,
+        'SortIndex' => -1,
+        'Columns'   => ['Index', 'Local', 'Remote', 'Direction'])
+
+      cnt = 0
+
+      shell.client.ssh.forward.active_locals.each do |port, address|
+        cnt += 1
+        table << [ cnt, "#{address}:#{port}", "", "Forward" ]
+      end
+
+      shell.client.ssh.forward.active_remotes.each do |port, address|
+        cnt += 1
+        table << [ cnt, "", "#{address}:#{port}", "Reverse" ]
+      end
+
+      print_line
+      if cnt > 0
+        print_line(table.to_s)
+        print_line("#{cnt} total active port forwards.")
+      else
+        print_line('No port forwards are currently active.')
+      end
+      print_line
+
+    when 'add'
+      $stderr.puts(args.join("\n"))
+      if lhost.nil?
+        lhost = "127.0.0.1"
+      end
+      if lport.nil?
+        lport = 0
+      end
+      shell.client.ssh.logger.level = 0
+      listening_port = shell.client.ssh.forward.local(lhost, lport, rhost, rport)
+      sleep 1
+      p shell.client.ssh.forward.active_locals
+      p listening_port
+
+    when 'delete', 'remove', 'del', 'rm'
+    when 'flush'
+    else
+      cmd_portfwd_help
+    end
+    $stderr.puts("Done")
   end
 
   def cmd_portfwd_help
