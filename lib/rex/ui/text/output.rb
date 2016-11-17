@@ -29,6 +29,7 @@ class Output < Rex::Ui::Output
     super
   end
   attr_reader :config
+  attr_accessor :input
 
   def disable_color
     @config[:color] = false
@@ -60,7 +61,12 @@ class Output < Rex::Ui::Output
   end
 
   def print_line(msg = '')
-    print(msg + "\n")
+    print("\r\033[K" + msg + "\n")
+    if input and input.prompt
+      print("\r\033[K")
+      print(input.prompt)
+      print(input.line_buffer)
+    end
   end
 
   def print_warning(msg = '')
