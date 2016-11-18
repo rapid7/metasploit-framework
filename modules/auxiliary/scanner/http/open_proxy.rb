@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         # Verify return code && (headers.pattern or body.pattern)
-        if valid_codes.include?(res.code.to_s) && (res.headers.include?(datastore['VALIDPATTERN']) or res.body.include?(datastore['VALIDPATTERN']))
+        if valid_codes.include?(res.code.to_s) && (res.headers.include?(datastore['VALIDPATTERN']) || res.body.include?(datastore['VALIDPATTERN']))
 
           print_good("#{peer} - Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
 
