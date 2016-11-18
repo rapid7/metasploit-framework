@@ -52,6 +52,8 @@ class Output < Rex::Ui::Output
     print_line("%bld%red[-]%clr #{msg}")
   end
 
+  alias_method :print_bad, :print_error
+
   def print_good(msg = '')
     print_line("%bld%grn[+]%clr #{msg}")
   end

@@ -9,6 +9,7 @@ class Base
     def print_status(msg); end
     def print_good(msg); end
     def print_error(msg); end
+    alias_method :print_bad, :print_error
     def print_warning(msg); end
   end
 

