@@ -17,8 +17,8 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'HTTP Open Proxy Detection',
       'Description' => %q{
         Checks if an HTTP proxy is open. False positive are avoided
-        verifing the HTTP return code and matching a pattern.
-        For the CONNECT method is verified only the return code.
+        verifying the HTTP return code and matching a pattern.
+        The CONNECT method is verified only the return code.
         HTTP headers are shown regarding the use of proxy or load balancer.
       },
       'References'  =>
