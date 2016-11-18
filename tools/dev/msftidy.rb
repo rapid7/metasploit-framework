@@ -684,6 +684,15 @@ class Msftidy
     end
   end
 
+  # Check for modules using the deprecated architectures
+  #
+  # @see https://github.com/rapid7/metasploit-framework/pull/7507
+  def check_arch
+    if @source =~ /ARCH_X86_64/
+      error('Please don\'t use the ARCH_X86_64 architecture, use ARCH_X64 instead')
+    end
+  end
+
   #
   # Run all the msftidy checks.
   #
@@ -717,6 +726,7 @@ class Msftidy
     check_print_debug
     check_register_datastore_debug
     check_use_datastore_debug
+    check_arch
   end
 
   private
