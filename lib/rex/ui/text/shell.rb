@@ -184,7 +184,9 @@ module Shell
           self.init_prompt = input.prompt
         end
 
+        output.input = input
         line = input.pgets()
+        output.input = nil
         log_output(input.prompt)
 
         # If a block was passed in, pass the line to it.  If it returns true,
