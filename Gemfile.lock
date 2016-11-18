@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.13.0)
+    metasploit-framework (4.13.1)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -153,11 +153,11 @@ GEM
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     metasm (1.0.2)
-    metasploit-concern (2.0.1)
+    metasploit-concern (2.0.2)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-credential (2.0.5)
+    metasploit-credential (2.0.7)
       metasploit-concern
       metasploit-model
       metasploit_data_models
@@ -165,12 +165,12 @@ GEM
       railties
       rubyntlm
       rubyzip
-    metasploit-model (2.0.0)
+    metasploit-model (2.0.2)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
     metasploit-payloads (1.1.29)
-    metasploit_data_models (2.0.6)
+    metasploit_data_models (2.0.8)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
       arel-helpers
@@ -196,7 +196,7 @@ GEM
     network_interface (0.0.1)
     nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
-    octokit (4.6.0)
+    octokit (4.6.1)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
@@ -273,7 +273,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.0)
+    rex-socket (0.1.1)
       rex-core
     rex-sslscan (0.1.0)
       rex-socket
