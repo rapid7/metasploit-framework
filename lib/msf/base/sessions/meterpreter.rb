@@ -51,7 +51,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       :ssl => supports_ssl?,
       :zlib => supports_zlib?
     }
-
+    #
     # The caller didn't request to skip ssl, so make sure we support it
     if not opts[:skip_ssl]
       opts.merge!(:skip_ssl => (not supports_ssl?))

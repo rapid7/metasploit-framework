@@ -193,13 +193,13 @@ protected
   #
   def create_session(conn, opts={})
     # If there is a parent payload, then use that in preference.
-    return parent_payload.create_session(conn, opts) if (parent_payload)
+    return parent_payload.create_session(conn, opts) if parent_payload
 
     # If the payload we merged in with has an associated session factory,
     # allocate a new session.
-    if (self.session)
+    if (self.session_klass)
       begin
-        s = self.session.new(conn, opts)
+        s = self.session_klass.new(conn, opts)
       rescue ::Exception => e
         # We just wanna show and log the error, not trying to swallow it.
         print_error("#{e.class} #{e.message}")

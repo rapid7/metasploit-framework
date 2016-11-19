@@ -593,25 +593,27 @@ class Console::CommandDispatcher::Core
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
-    '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
-    '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
-    '-p'  => [ true,  'LPORT parameter' ],
-    '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
-    '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
-    '-lu' => [ true,  'Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)' ],
-    '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
-    '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
-    '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
-    '-pu' => [ true,  'Proxy username for HTTP/S transports (optional)' ],
-    '-ps' => [ true,  'Proxy password for HTTP/S transports (optional)' ],
-    '-pt' => [ true,  'Proxy type for HTTP/S transports (optional: http, socks; default: http)' ],
-    '-c'  => [ true,  'SSL certificate path for https transport verification (optional)' ],
-    '-to' => [ true,  'Comms timeout (seconds) (default: same as current session)' ],
-    '-ex' => [ true,  'Expiration timout (seconds) (default: same as current session)' ],
-    '-rt' => [ true,  'Retry total time (seconds) (default: same as current session)' ],
-    '-rw' => [ true,  'Retry wait time (seconds) (default: same as current session)' ],
-    '-v'  => [ false, 'Show the verbose format of the transport list' ],
-    '-h'  => [ false, 'Help menu' ])
+    '-t'  => [true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}"],
+    '-l'  => [true,  'LHOST parameter (for reverse transports)'],
+    '-p'  => [true,  'LPORT parameter'],
+    '-pi' => [true,  'PIPEHOST parameter'],
+    '-pn' => [true,  'PIPENAME parameter'],
+    '-i'  => [true,  'Specify transport by index (currently supported: remove)'],
+    '-u'  => [true,  'Custom URI for HTTP/S transports (used when removing transports)'],
+    '-lu' => [true,  'Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)'],
+    '-ua' => [true,  'User agent for HTTP/S transports (optional)'],
+    '-ph' => [true,  'Proxy host for HTTP/S transports (optional)'],
+    '-pp' => [true,  'Proxy port for HTTP/S transports (optional)'],
+    '-pu' => [true,  'Proxy username for HTTP/S transports (optional)'],
+    '-ps' => [true,  'Proxy password for HTTP/S transports (optional)'],
+    '-pt' => [true,  'Proxy type for HTTP/S transports (optional: http, socks; default: http)'],
+    '-c'  => [true,  'SSL certificate path for https transport verification (optional)'],
+    '-to' => [true,  'Comms timeout (seconds) (default: same as current session)'],
+    '-ex' => [true,  'Expiration timout (seconds) (default: same as current session)'],
+    '-rt' => [true,  'Retry total time (seconds) (default: same as current session)'],
+    '-rw' => [true,  'Retry wait time (seconds) (default: same as current session)'],
+    '-v'  => [false, 'Show the verbose format of the transport list'],
+    '-h'  => [false, 'Help menu'])
 
   #
   # Display help for transport management.
@@ -680,7 +682,7 @@ class Console::CommandDispatcher::Core
         opts[:uri] = val
       when '-i'
         transport_index = val.to_i
-      when '-lu'
+      when '-lu', '-pn'
         opts[:luri] = val
       when '-ph'
         opts[:proxy_host] = val
@@ -704,7 +706,7 @@ class Console::CommandDispatcher::Core
         opts[:retry_wait] = val.to_i if val
       when '-p'
         opts[:lport] = val.to_i if val
-      when '-l'
+      when '-l', '-pi'
         opts[:lhost] = val
       when '-v'
         opts[:verbose] = true

@@ -156,9 +156,7 @@ module Msf::Payload::Stager
   def handle_connection(conn, opts={})
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
-    if (stage_over_connection?)
-      opts = {}
-
+    if stage_over_connection?
       if respond_to? :include_send_uuid
         if include_send_uuid
           uuid_raw = conn.get_once(16, 1)
@@ -200,8 +198,8 @@ module Msf::Payload::Stager
       # The connection should always have a peerhost (even if it's a
       # tunnel), but if it doesn't, erroring out here means losing the
       # session, so make sure it does, just to be safe.
-      if conn.respond_to? :peerhost
-        sending_msg << " to #{conn.peerhost}"
+      if conn.respond_to?(:peerhost)
+        #sending_msg << " to #{conn.peerhost}"
       end
       print_status(sending_msg)
 

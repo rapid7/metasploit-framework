@@ -103,7 +103,7 @@ class Client
   #
   # Initializes the meterpreter client instance
   #
-  def init_meterpreter(sock,opts={})
+  def init_meterpreter(sock, opts={})
     self.sock         = sock
     self.parser       = PacketParser.new
     self.ext          = ObjectAliases.new
@@ -125,6 +125,8 @@ class Client
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
     self.send_keepalives  = true
+
+    self.use_ssl = capabilities[:ssl] && !opts[:skip_ssl]
 
     # TODO: Clarify why we don't allow unicode to be set in initial options
     # self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
@@ -152,9 +154,7 @@ class Client
       register_inbound_handler(Rex::Post::Meterpreter::Channel)
     else
       # Switch the socket to SSL mode and receive the hello if needed
-      if capabilities[:ssl] and not opts[:skip_ssl]
-        swap_sock_plain_to_ssl()
-      end
+      swap_sock_plain_to_ssl()
 
       register_extension_alias('core', ClientCore.new(self))
 
@@ -169,6 +169,8 @@ class Client
   end
 
   def swap_sock_plain_to_ssl
+    return unless self.use_ssl
+
     # Create a new SSL session on the existing socket
     ctx = generate_ssl_context()
     ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
@@ -213,6 +215,8 @@ class Client
   end
 
   def swap_sock_ssl_to_plain
+    return unless self.use_ssl
+
     # Remove references to the SSLSocket and Context
     self.sock.sslsock.close
     self.sock.sslsock = nil
@@ -421,6 +425,10 @@ class Client
   # The timeout value to use when waiting for responses.
   #
   attr_accessor :response_timeout
+  #
+  # Whether to wrap the socket in SSL
+  #
+  attr_accessor :use_ssl
   #
   # Whether to send pings every so often to determine liveness.
   #

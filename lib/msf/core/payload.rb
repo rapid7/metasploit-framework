@@ -295,7 +295,7 @@ class Payload < Msf::Module
   # Returns the session class that is associated with this payload and will
   # be used to create a session as necessary.
   #
-  def session
+  def session_klass
     return module_info['Session']
   end
 

