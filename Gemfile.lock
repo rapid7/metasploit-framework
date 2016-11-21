@@ -14,9 +14,9 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.1.29)
+      metasploit-payloads (= 1.2.1)
       metasploit_data_models
-      metasploit_payloads-mettle (= 0.0.8)
+      metasploit_payloads-mettle (= 0.1.1)
       msgpack
       nessus_rest
       net-ssh
@@ -169,7 +169,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.1.29)
+    metasploit-payloads (1.2.1)
     metasploit_data_models (2.0.8)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -180,7 +180,7 @@ GEM
       postgres_ext
       railties (~> 4.2.6)
       recog (~> 2.0)
-    metasploit_payloads-mettle (0.0.8)
+    metasploit_payloads-mettle (0.1.1)
     method_source (0.8.2)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
