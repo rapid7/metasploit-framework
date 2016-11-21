@@ -29,6 +29,7 @@ class Output < Rex::Ui::Output
     super
   end
   attr_reader :config
+  attr_accessor :input
 
   def disable_color
     @config[:color] = false
@@ -51,6 +52,8 @@ class Output < Rex::Ui::Output
     print_line("%bld%red[-]%clr #{msg}")
   end
 
+  alias_method :print_bad, :print_error
+
   def print_good(msg = '')
     print_line("%bld%grn[+]%clr #{msg}")
   end
@@ -60,7 +63,14 @@ class Output < Rex::Ui::Output
   end
 
   def print_line(msg = '')
-    print(msg + "\n")
+    print("\033[s") # Save cursor position
+    print("\r\033[K" + msg + "\n")
+    if input and input.prompt
+      print("\r\033[K")
+      print(input.prompt)
+      print(input.line_buffer)
+      print("\033[u\033[B") # Restore cursor, move down one line
+    end
   end
 
   def print_warning(msg = '')
