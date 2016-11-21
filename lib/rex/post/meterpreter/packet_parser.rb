@@ -57,7 +57,7 @@ class PacketParser
       # payload length left to the number of bytes
       # specified in the length
       if (self.hdr_length_left == 0)
-        xor_key = raw[0, 4]
+        xor_key = raw[0, 4].unpack('N')[0]
         length_bytes = packet.xor_bytes(xor_key, raw[4, 4])
         # header size doesn't include the xor key, which is always tacked on the front
         self.payload_length_left = length_bytes.unpack("N")[0] - (HEADER_SIZE - 4)

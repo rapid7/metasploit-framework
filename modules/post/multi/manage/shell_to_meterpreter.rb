@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Post
         vprint_status("Platform: Python [fallback]")
       end
     end
-    payload_name = datastore['PAYLOAD_OVERWRITE'] if datastore['PAYLOAD_OVERWRITE']
+    payload_name = datastore['PAYLOAD_OVERRIDE'] if datastore['PAYLOAD_OVERRIDE']
     vprint_status("Upgrade payload: #{payload_name}")
 
     if platform.blank?
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Post
     case platform
     when 'windows'
       if session.type == 'powershell'
-        template_path = File.join(Msf::Config.data_directory, 'templates', 'scripts')
+        template_path = Rex::Powershell::Templates::TEMPLATE_DIR
         psh_payload = case datastore['Powershell::method']
                       when 'net'
                         Rex::Powershell::Payload.to_win32pe_psh_net(template_path, payload_data)

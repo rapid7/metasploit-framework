@@ -79,7 +79,9 @@ module MetasploitModule
     conn.put(midstager) == midstager.length
   end
 
-  def generate_stage(_opts = {})
-    MetasploitPayloads::Mettle.read('armv5l-linux-musleabi', 'mettle.bin')
+  def generate_stage(opts = {})
+    opts[:uuid] ||= generate_payload_uuid
+    MetasploitPayloads::Mettle.new('armv5l-linux-musleabi', opts.slice(:uuid, :url, :debug, :log_file)).
+      to_bininary :process_image
   end
 end
