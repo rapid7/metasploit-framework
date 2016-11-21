@@ -8,8 +8,8 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/buffalo'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
