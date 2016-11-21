@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => ['Manuel Nader #AgoraSecurity'],
         'Platform'      => ['win'],
-        'Arch'          => ['x64','x86'],
+        'Arch'          => [ARCH_X86, ARCH_X64],
         'SessionTypes'  => ['meterpreter']
     ))
 

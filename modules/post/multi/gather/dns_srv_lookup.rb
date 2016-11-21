@@ -56,10 +56,10 @@ class MetasploitModule < Msf::Post
     a = []
 
     case session.platform
-    when /win/i
+    when 'windows'
       ns_opt = " -query=srv "
       cmd = "nslookup"
-    when /solaris/i
+    when 'solaris'
       ns_opt = " -t srv "
       cmd = "/usr/sbin/host"
     else
@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Post
           r = cmd_exec(cmd, ns_opt + "#{srv}#{domain}")
 
           case session.platform
-          when /win/
+          when 'windows'
             if r =~ /\s*internet\saddress\s\=\s/
               nslookup_srv_consume("#{srv}#{domain}", r).each do |f|
                 print_good("\t#{f[:srv]} #{f[:target]} #{f[:port]} #{f[:ip]}")

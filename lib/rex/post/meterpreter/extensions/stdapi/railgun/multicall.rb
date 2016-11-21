@@ -49,7 +49,7 @@ class MultiCaller
       # needed by DLL helper
       @win_consts = win_consts
 
-      if( @client.platform =~ /x64/i )
+      if @client.arch == ARCH_X64
         @native = 'Q<'
       else
         @native = 'V'

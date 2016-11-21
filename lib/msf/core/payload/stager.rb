@@ -138,8 +138,7 @@ module Msf::Payload::Stager
     if stage_assembly and !stage_assembly.empty?
       raw = build(stage_assembly, stage_offsets)
     else
-      # Options get ignored by the stage_payload method
-      raw = stage_payload
+      raw = stage_payload(opts)
     end
 
     # Substitute variables in the stage

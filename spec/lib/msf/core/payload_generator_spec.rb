@@ -642,7 +642,7 @@ RSpec.describe Msf::PayloadGenerator do
         let(:generator_opts) {
           {
               add_code: File.join(FILE_FIXTURES_PATH, "nop_shellcode.bin"),
-              arch: 'x86_64',
+              arch: 'x64',
               badchars: "\x20\x0D\x0A",
               encoder:  'x86/shikata_ga_nai',
               datastore: { 'LHOST' => '192.168.172.1', 'LPORT' => '8443' } ,
@@ -759,7 +759,7 @@ RSpec.describe Msf::PayloadGenerator do
         let(:generator_opts) {
           {
               add_code: false,
-              arch: 'x86_64',
+              arch: 'x64',
               badchars: '',
               encoder:  'x86/shikata_ga_nai',
               datastore: { 'LHOST' => '192.168.172.1', 'LPORT' => '8443' } ,

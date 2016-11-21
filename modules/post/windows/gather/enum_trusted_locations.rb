@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
   def run
     locations = ""
     [REGISTRY_VIEW_64_BIT, REGISTRY_VIEW_32_BIT].each do |registry_arch|
-      arch = registry_arch == REGISTRY_VIEW_64_BIT ? 'x64' : 'x86'
+      arch = registry_arch == REGISTRY_VIEW_64_BIT ? ARCH_X64 : ARCH_X86
       reg_keys = registry_enumkeys(OFFICE_REGISTRY_PATH, registry_arch)
       if reg_keys.nil?
         print_status("Failed to enumerate Office in #{arch} registry hive.")

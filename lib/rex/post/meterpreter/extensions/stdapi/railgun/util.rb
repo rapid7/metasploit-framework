@@ -313,10 +313,10 @@ class  Util
   }
 
   # param 'railgun' is a Railgun instance.
-  # param 'platform' is a value like client.platform
-  def initialize(railgun, platform)
+  # param 'arch' is the client.arch
+  def initialize(railgun, arch)
     @railgun = railgun
-    @is_64bit = is_64bit_platform?(platform)
+    @is_64bit = arch == ARCH_X64
   end
 
   #
@@ -634,12 +634,6 @@ class  Util
     else
       raise "Can not split non-array type #{type}"
     end
-  end
-
-  # Returns true if given platform has 64bit architecture
-  # expects client.platform
-  def is_64bit_platform?(platform)
-    platform =~ /win64/
   end
 
   #

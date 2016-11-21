@@ -26,7 +26,7 @@ class Console::CommandDispatcher::Mimikatz
   #
   def initialize(shell)
     super
-    if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
+    if client.arch == ARCH_X86 and client.sys.config.sysinfo['Architecture'] == ARCH_X64
       print_line
       print_warning "Loaded x86 Mimikatz on an x64 architecture."
     end

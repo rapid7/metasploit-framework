@@ -45,9 +45,9 @@ class MetasploitModule < Msf::Post
     end
 
     case session.platform
-    when /win/i
+    when 'windows'
       cmd = "nslookup"
-    when /solaris/i
+    when 'solaris'
       cmd = "/usr/sbin/host"
     else
       cmd = "/usr/bin/host"
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
           next if ip_add.nil?
           r = cmd_exec(cmd, " #{ip_add}")
           case session.platform
-          when /win/
+          when 'windows'
             if r =~ /(Name)/
               r.scan(/Name:\s*\S*\s/) do |n|
                 hostname = n.split(":    ")

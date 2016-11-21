@@ -109,13 +109,13 @@ class MetasploitModule < Msf::Post
 
   def start_video(id)
     case session.platform
-    when /osx/
+    when 'osx'
       osx_start_video(id)
-    when /win/
+    when 'windows'
       win_start_video(id)
-    when /linux/
+    when 'linux'
       linux_start_video(id)
-    when /android/
+    when 'android'
       android_start_video(id)
     end
   end

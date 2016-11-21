@@ -132,9 +132,7 @@ class MetasploitModule < Msf::Post
   def run
     @token_stolen = false
 
-    os = get_target_os
-    case os
-    when Msf::Module::Platform::Windows.realname.downcase
+    if session.platform == 'windows'
       windows_zip
     else
       linux_zip

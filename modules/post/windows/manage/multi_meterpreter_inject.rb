@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    unless client.platform =~ /win/
+    unless session.platform == 'windows' && [ARCH_X64, ARCH_X86].include?(session.arch)
       print_error("This module requires native Windows meterpreter functions not compatible with the selected session")
       return
     end

@@ -18,8 +18,8 @@ class Msf::Payload::UUID
   Architectures = {
      0 => nil,
      1 => ARCH_X86,
-     2 => ARCH_X86_64,
-     3 => ARCH_X64,     # Should be merged into X86_64 sometime
+     2 => ARCH_X64, # removed ARCH_X86_64, now consistent across the board
+     3 => ARCH_X64,
      4 => ARCH_MIPS,
      5 => ARCH_MIPSLE,
      6 => ARCH_MIPSBE,
@@ -296,6 +296,19 @@ class Msf::Payload::UUID
       [ self.platform || "noplatform", plat_id ].join("="),
       Time.at(self.timestamp.to_i).utc.strftime("%Y-%m-%dT%H:%M:%SZ")
     ].join("/")
+  end
+
+  #
+  # Return a string that represents the Meterpreter arch/platform
+  #
+  def session_type
+    # mini-patch for x86 so that it renders x64 instead. This is
+    # mostly to keep various external modules happy.
+    arch = self.arch
+    if arch == ARCH_X86_64
+        arch = ARCH_X64
+    end
+    "#{arch}/#{self.platform}"
   end
 
   #

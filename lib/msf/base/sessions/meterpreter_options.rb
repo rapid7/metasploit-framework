@@ -60,12 +60,13 @@ module MeterpreterOptions
           session.load_session_info
         end
 
-        if session.platform =~ /win32|win64/i
+        # only load priv on native windows
+        if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
           session.load_priv rescue nil
         end
       end
 
-      if session.platform =~ /android/i
+      if session.platform == 'android'
         if datastore['AutoLoadAndroid']
           session.load_android
         end
