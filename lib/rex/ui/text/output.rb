@@ -63,7 +63,7 @@ class Output < Rex::Ui::Output
   end
 
   def print_line(msg = '')
-    if (/mingw/ =~ RUBY_PLATFORM) != nil
+    if (/mingw/ =~ RUBY_PLATFORM)
       print(msg + "\n")
       return
     end
