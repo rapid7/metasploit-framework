@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Post
   def run
     # setup creds for making IAM API calls
     creds = metadata_creds
-    if datastore['ACCESS_KEY'].empty?
+    if datastore['AccessKeyId'].empty?
       if creds['AccessKeyId'].nil?
         print_error("Clould not find creds")
         return
