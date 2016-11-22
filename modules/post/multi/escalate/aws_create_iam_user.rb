@@ -21,19 +21,20 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('METADATA_IP', [true, 'The metadata service IP', '169.254.169.254']),
-        OptString.new('METADATA_PORT', [true, 'The metadata service TCP port', 80]),
-        OptString.new('METADATA_SSL', [true, 'Metadata service SSL', false]),
-        OptString.new('AWS_IAM_ENDPOINT', [true, 'AWS IAM Endpoint', 'iam.amazonaws.com']),
-        OptString.new('AWS_IAM_ENDPOINT_PORT', [true, 'AWS IAM Endpoint TCP Port', 443]),
-        OptString.new('AWS_IAM_ENDPOINT_SSL', [true, 'AWS IAM Endpoint SSL', true]),
+        OptString.new('RHOST', [true, 'AWS IAM Endpoint', 'iam.amazonaws.com']),
+        OptString.new('RPORT', [true, 'AWS IAM Endpoint TCP Port', 443]),
+        OptString.new('SSL', [true, 'AWS IAM Endpoint SSL', true]),
         OptString.new('IAM_GROUP_POL', [true, 'IAM group policy to use', '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*" }]}']),
         OptString.new('IAM_USERNAME', [true, 'Username for the user to be created', 'metasploit']),
-        OptString.new('ACCESS_KEY', [false, 'AWS access key', '']),
-        OptString.new('SECRET', [false, 'AWS secret key', '']),
-        OptString.new('TOKEN', [false, 'AWS session token', '']),
         OptString.new('Region', [true, 'The default region', 'us-east-1' ])
-      ], self.class)
-    deregister_options('RHOST', 'RPORT', 'SSL', 'VHOST')
+      ])
+    register_advanced_options(
+      [
+        OptString.new('AccessKeyId', [false, 'AWS access key', '']),
+        OptString.new('SecretAccessKey', [false, 'AWS secret key', '']),
+        OptString.new('Token', [false, 'AWS session token', ''])
+      ])
+    deregister_options('VHOST')
   end
 
 

