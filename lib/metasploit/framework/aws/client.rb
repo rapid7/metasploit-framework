@@ -149,7 +149,11 @@ module Metasploit
               'data' => body,
               'headers' => headers(creds, service, body_digest, body_length)
             )
-            Hash.from_xml(res.body)
+            if res.nil?
+              print_error "#{peer} did not respond"
+            else
+              Hash.from_xml(res.body)
+            end
           rescue => e
             print_error e.message
           end
