@@ -95,7 +95,7 @@ module Metasploit
           headers = {
             'Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8',
             'Accept-Encoding' => '',
-            'User-Agent' => "Metasploit #{Metasploit::Framework::VERSION} (jg)",
+            'User-Agent' => "aws-sdk-ruby2/2.6.27 ruby/2.3.2 x86_64-darwin15",
             'X-Amz-Date' => now,
             'Host' => datastore['RHOST'],
             'X-Amz-Content-Sha256' => body_digest,
@@ -143,14 +143,16 @@ module Metasploit
           body = body(api_params)
           body_length = body.length
           body_digest = hexdigest(body)
-          res = send_request_raw(
-            'method' => 'POST',
-            'data' => body,
-            'headers' => headers(service, body_digest, body_length)
-          )
-          Hash.from_xml(res.body)
-        rescue => e
-          print_error e.message
+          begin
+            res = send_request_raw(
+              'method' => 'POST',
+              'data' => body,
+              'headers' => headers(service, body_digest, body_length)
+            )
+            Hash.from_xml(res.body)
+          rescue => e
+            print_error e.message
+          end
         end
 
         def call_iam(api_params)
