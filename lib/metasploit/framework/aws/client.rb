@@ -62,8 +62,8 @@ module Metasploit
         end
 
 
-        def sign(service, headers, body_digest, now)
-          date_mac = hmac("AWS4" + datastore['SECRET'], now[0, 8])
+        def sign(creds, service, headers, body_digest, now)
+          date_mac = hmac("AWS4" + creds['SecretAccessKey'], now[0, 8])
           region_mac = hmac(date_mac, datastore['Region'])
           service_mac = hmac(region_mac, service)
           credentials_mac = hmac(service_mac, 'aws4_request')
@@ -74,9 +74,9 @@ module Metasploit
           [headers_list, signature]
         end
 
-        def auth(service, headers, body_digest, now)
-          headers_list, signature = sign(service, headers, body_digest, now)
-          "AWS4-HMAC-SHA256 Credential=#{datastore['ACCESS_KEY']}/#{now[0, 8]}/#{datastore['Region']}/#{service}/aws4_request, SignedHeaders=#{headers_list}, Signature=#{signature}"
+        def auth(creds, service, headers, body_digest, now)
+          headers_list, signature = sign(creds, service, headers, body_digest, now)
+          "AWS4-HMAC-SHA256 Credential=#{creds['AccessKeyId']}/#{now[0, 8]}/#{datastore['Region']}/#{service}/aws4_request, SignedHeaders=#{headers_list}, Signature=#{signature}"
         end
 
         def body(vars_post)
@@ -90,7 +90,7 @@ module Metasploit
           pstr
         end
 
-        def headers(service, body_digest, body_length)
+        def headers(creds, service, body_digest, body_length)
           now = Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
           headers = {
             'Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8',
@@ -101,10 +101,10 @@ module Metasploit
             'X-Amz-Content-Sha256' => body_digest,
             'Accept' => '*/*'
           }
-          headers['X-Amz-Security-Token'] = datastore['TOKEN'] if datastore['TOKEN']
+          headers['X-Amz-Security-Token'] = creds['Token'] if creds['Token']
           sign_headers = ['Content-Type', 'Host', 'User-Agent', 'X-Amz-Content-Sha256', 'X-Amz-Date']
           auth_headers = headers.select { |k, _| sign_headers.include?(k) }
-          headers['Authorization'] = auth(service, auth_headers, body_digest, now)
+          headers['Authorization'] = auth(creds, service, auth_headers, body_digest, now)
           headers
         end
 
@@ -138,7 +138,7 @@ module Metasploit
           idoc
         end
 
-        def call_api(service, api_params)
+        def call_api(creds, opts, service, api_params)
           print_status("#{peer} - Connecting (#{datastore['RHOST']})...")
           body = body(api_params)
           body_length = body.length
@@ -147,7 +147,7 @@ module Metasploit
             res = send_request_raw(
               'method' => 'POST',
               'data' => body,
-              'headers' => headers(service, body_digest, body_length)
+              'headers' => headers(creds, service, body_digest, body_length)
             )
             Hash.from_xml(res.body)
           rescue => e
@@ -155,19 +155,19 @@ module Metasploit
           end
         end
 
-        def call_iam(api_params)
+        def call_iam(creds, api_params)
           api_params['Version'] = '2010-05-08' unless api_params['Version']
-          call_api('iam', api_params)
+          call_api(creds, 'iam', api_params)
         end
 
-        def call_ec2(api_params)
+        def call_ec2(creds, api_params)
           api_params['Version'] = '2015-10-01' unless api_params['Version']
-          call_api('ec2', api_params)
+          call_api(creds, 'ec2', api_params)
         end
 
-        def call_sts(api_params)
+        def call_sts(creds, api_params)
           api_params['Version'] = '2011-06-15' unless api_params['Version']
-          call_api('sts', api_params)
+          call_api(creds, 'sts', api_params)
         end
       end
     end
