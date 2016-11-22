@@ -16,10 +16,10 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'          => 'OS X Gather Messages',
       'Description'   => %q{
-          This module will collect the Messages sqlite3 database files and chat logs 
-          from the victim's machine. There are four actions you may choose: DBFILE, 
+          This module will collect the Messages sqlite3 database files and chat logs
+          from the victim's machine. There are four actions you may choose: DBFILE,
           READABLE, LATEST and ALL. DBFILE and READABLE will retrieve all messages and
-          LATEST will retrieve the last X number of message (useful with 2FA). Module 
+          LATEST will retrieve the last X number of message (useful with 2FA). Module
           was tested with OSX 10.11 (El Capitan).
       },
       'License'       => MSF_LICENSE,
@@ -170,7 +170,7 @@ class MetasploitModule < Msf::Post
 
     # Check messages.  And then set the default profile path
     unless messages_path
-      fail_with(Failure::Unknown "#{peer} - Unable to find messages, will not continue")
+      fail_with(Failure::Unknown, "#{peer} - Unable to find messages, will not continue")
     end
 
     print_good("#{peer} - Found messages file: #{messages_path}")
