@@ -139,12 +139,16 @@ begin
       # for rb-readline to support setting input and output.  Output needs to be set so that colorization works for the
       # prompt on Windows.
       self.prompt = prompt
+      reset_sequence = "\001\r\033[K\002"
+      if (/mingw/ =~ RUBY_PLATFORM)
+        reset_sequence = ""
+      end
       if defined? RbReadline
         RbReadline.rl_instream = fd
         RbReadline.rl_outstream = output
 
         begin
-          line = RbReadline.readline("\001\r\033[K\002" + prompt)
+          line = RbReadline.readline(reset_sequence + prompt)
         rescue ::Exception => exception
           RbReadline.rl_cleanup_after_signal()
           RbReadline.rl_deprep_terminal()
@@ -158,7 +162,7 @@ begin
 
         line.try(:dup)
       else
-        ::Readline.readline("\001\r\033[K\002" + prompt, true)
+        ::Readline.readline(reset_sequence + prompt, true)
       end
     end
 

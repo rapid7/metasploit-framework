@@ -63,6 +63,10 @@ class Output < Rex::Ui::Output
   end
 
   def print_line(msg = '')
+    if (/mingw/ =~ RUBY_PLATFORM) != nil
+      print(msg + "\n")
+      return
+    end
     print("\033[s") # Save cursor position
     print("\r\033[K" + msg + "\n")
     if input and input.prompt
