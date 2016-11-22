@@ -1,3 +1,5 @@
+require 'metasploit/framework/tcp/client'
+require 'metasploit/framework/varnish/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 
@@ -6,12 +8,12 @@ module Metasploit
     module LoginScanner
 
       # This is the LoginScanner class for dealing with Varnish CLI.
-      # It is responsible for taking a single target, and a list of credentials
-      # and attempting them. It then saves the results.
+
       class VarnishCLI
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
+        include Metasploit::Framework::Varnish::Client
 
         DEFAULT_PORT         = 6082
         LIKELY_PORTS         = [ DEFAULT_PORT ]
@@ -20,47 +22,25 @@ module Metasploit
         REALM_KEY           = nil
 
         def attempt_login(credential)
-          result_opts = {
-            credential: credential,
-            host: host,
-            port: port,
-            service_name: 'varnishcli',
-            protocol: 'tcp',
-            max_send_size: datastore['TCP::max_send_size'],
-            send_delay: datastore['TCP::send_delay']
-          }
           begin
-            disconnect if self.sock
             connect
-            sock.put("auth #{Rex::Text.rand_text_alphanumeric(3)}\n") # Cause a login fail to get the challenge
-            res = sock.get_once(-1,3) # grab challenge
-            if res && res =~ /107 \d+\s\s\s\s\s\s\n(\w+)\n\nAuthentication required./ # 107 auth
-              challenge = $1
-              response = challenge + "\n"
-              response << credential.private + "\n"
-              response << challenge + "\n"
-              #secret = pass + "\n" # newline is needed
-              #response = challenge + "\n" + secret + challenge + "\n"
-              response = Digest::SHA256.hexdigest(response)
-              sock.put("auth #{response}\n")
-              res = sock.get_once(-1,3)
-              if res && res =~ /107 \d+/ # 107 auth
-                result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
-              elsif res.nil?
-                result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: 'No response')
-              elsif res =~ /200 \d+/ # 200 ok
-                result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: res)
-              end
-            elsif res && res =~ /Varnish Cache CLI 1.0/
-              result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: 'No Authentication Required')
-            else
-              result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: 'Unknown Response')
+          rescue Rex::ConnectionError, EOFError, Timeout::Error
+            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+          else
+            begin
+              success = login(credential.private)
+            rescue RuntimeError => e
+              return {:status => Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, :proof => e.message}
             end
-            disconnect
-          rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
-            result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+
+            status = (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
           end
-          Result.new(result_opts)
+          result = Result.new(credential: credential, status: status)
+          result.host         = host
+          result.port         = port
+          result.protocol     = 'tcp'
+          result.service_name = 'varnishcli'
+          result
         end
 
         def set_sane_defaults

