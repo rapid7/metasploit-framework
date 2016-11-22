@@ -1,6 +1,3 @@
-
-require 'msf/core'
-require 'net/http'
 require 'openssl'
 
 module Metasploit
