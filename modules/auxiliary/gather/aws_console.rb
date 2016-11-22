@@ -70,3 +70,4 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Paste this into your browser: #{login_url}")
   end
 end
+

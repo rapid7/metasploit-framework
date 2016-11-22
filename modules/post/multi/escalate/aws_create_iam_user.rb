@@ -2,7 +2,7 @@ require 'msf/core'
 require 'metasploit/framework/aws/client'
 
 class MetasploitModule < Msf::Post
-  
+
   include Metasploit::Framework::Aws::Client
 
   def initialize(info={})
@@ -101,3 +101,4 @@ class MetasploitModule < Msf::Post
     creds
   end
 end
+
