@@ -18,8 +18,8 @@ class MetasploitModule < Msf::Auxiliary
         This module acts as a simplistic administrative client for interfacing
         with Veeder-Root Automatic Tank Gauges (ATGs) or other devices speaking
         the TLS-250 and TLS-350 protocols.  This has been tested against
-        GasPot, a honeypot meant to simulate ATGs; it has not been tested
-        against anything else, so use at your own risk.
+        GasPot and Conpot, both honeypots meant to simulate ATGs; it has not
+        been tested against anything else, so use at your own risk.
       },
       'Author'         =>
         [
@@ -31,6 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://community.rapid7.com/community/infosec/blog/2015/01/22/the-internet-of-gas-station-tank-gauges'],
           ['URL', 'http://www.trendmicro.com/vinfo/us/security/news/cybercrime-and-digital-threats/the-gaspot-experiment'],
           ['URL', 'https://github.com/sjhilt/GasPot'],
+          ['URL', 'https://github.com/mushorg/conpot'],
           ['URL', 'http://www.veeder.com/us/automatic-tank-gauge-atg-consoles'],
           ['URL', 'http://www.chipkin.com/files/liz/576013-635.pdf'],
           ['URL', 'http://www.veeder.com/gold/download.cfm?doc_id=6227']
@@ -187,6 +188,8 @@ class MetasploitModule < Msf::Auxiliary
   def get_response(request)
     sock.put(request)
     response = sock.get_once(-1, timeout)
+    response.strip!
+    response += " (command not understood)" if response == "9999FF1B"
     response
   end
 
@@ -245,7 +248,8 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         response = get_response("#{action.opts[protocol_opt_name]}\n")
-        print_good("#{protocol} #{action.opts['Description']}:\n#{response}")
+        print_good("#{protocol} #{action.opts['Description']}:")
+        print_line(response)
       end
     ensure
       disconnect

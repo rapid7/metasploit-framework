@@ -61,6 +61,8 @@ module DispatcherShell
       shell.print_error(msg)
     end
 
+    alias_method :print_bad, :print_error
+
     #
     # Wraps shell.print_status
     #

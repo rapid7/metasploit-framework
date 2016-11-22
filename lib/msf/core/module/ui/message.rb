@@ -8,6 +8,8 @@ module Msf::Module::UI::Message
     super(print_prefix + msg)
   end
 
+  alias_method :print_bad, :print_error
+
   def print_good(msg='')
     super(print_prefix + msg)
   end
