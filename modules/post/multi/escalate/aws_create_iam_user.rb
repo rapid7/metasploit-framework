@@ -15,7 +15,10 @@ class MetasploitModule < Msf::Post
       'License'        => MSF_LICENSE,
       'Platform'      => %w(unix),
       'SessionTypes'  => %w(shell meterpreter),
-      'Author'         => ['Javier Godinez <godinezj[at]gmail.com>']
+      'Author'         => ['Javier Godinez <godinezj[at]gmail.com>'],
+      'References'     => [
+        [ 'URL', 'https://github.com/devsecops/bootcamp/raw/master/Week-6/slides/june-DSO-bootcamp-week-six-lesson-three.pdf' ]
+      ]
     ))
 
     register_options(
@@ -42,8 +45,8 @@ class MetasploitModule < Msf::Post
     # setup creds for making IAM API calls
     creds = metadata_creds
     if datastore['AccessKeyId'].empty?
-      if creds['AccessKeyId'].nil?
-        print_error("Clould not find creds")
+      if creds['AccessKeyId'].empty?
+        print_error("Could not find creds")
         return
       end
     else

@@ -5,6 +5,7 @@ accounts. Sure, it is fun enough to take over a single host, but you can own all
 hosts in the account if you simply create an admin user.
 
 ## Privileges
+
 This module depends on administrators being lazy and not using the least
 privileges possible. Only on rare cases should instances have the following
 privileges.
@@ -16,6 +17,7 @@ privileges.
 * iam:CreateAccessKey
 
 ## Establish a foothold
+
 You first need a foothold in AWS, e.g., here we use `sshexec` to get the
 foothold and launch a meterpreter session.
 
