@@ -195,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if not res
       print_error("#{msg} HTTP Connection Error, Aborting")
-      return :abort
+      return
     end
 
     if action.name != "OWA_2013" and res.get_cookies.empty?
