@@ -4,12 +4,18 @@ module Metasploit
   module Framework
     module Aws
       module Client
+        USER_AGENT = "aws-sdk-ruby2/2.6.27 ruby/2.3.2 x86_64-darwin15"
         include Msf::Exploit::Remote::HttpClient
+        # because Post modules require these to be defined when including HttpClient
         def register_autofilter_ports(ports=[]); end
         def register_autofilter_hosts(ports=[]); end
         def register_autofilter_services(services=[]); end
 
         def hexdigest(value)
+          if value.nil? || !value.instance_of?(String)
+            print_error "Unexpected value format"
+            return nil
+          end
           digest = OpenSSL::Digest::SHA256.new
           if value.respond_to?(:read)
             chunk = nil
@@ -23,15 +29,25 @@ module Metasploit
         end
 
         def hmac(key, value)
+          if key.nil? || !key.instance_of?(String) || value.nil? || !value.instance_of?(String)
+            print_error "Unexpected key/value format"
+            return nil
+          end
           OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha256'), key, value)
         end
 
         def hexhmac(key, value)
+          if key.nil? || !key.instance_of?(String) || value.nil? || !value.instance_of?(String)
+            print_error "Unexpected key/value format"
+            return nil
+          end
           OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), key, value)
         end
 
-
         def request_to_sign(headers, body_digest)
+          if headers.nil? || !headers.instance_of?(Hash) || body_digest.nil? || !body_digest.instance_of?(String)
+            return nil, nil
+          end
           headers_block = headers.sort_by(&:first).map do |k,v|
             v = "#{v},#{v}" if k == 'Host'
             "#{k.downcase}:#{v}"
@@ -41,9 +57,8 @@ module Metasploit
           [headers_list, flat_request]
         end
 
-
         def sign(creds, service, headers, body_digest, now)
-          date_mac = hmac("AWS4" + creds['SecretAccessKey'], now[0, 8])
+          date_mac = hmac("AWS4" + creds.fetch('SecretAccessKey'), now[0, 8])
           region_mac = hmac(date_mac, datastore['Region'])
           service_mac = hmac(region_mac, service)
           credentials_mac = hmac(service_mac, 'aws4_request')
@@ -56,7 +71,7 @@ module Metasploit
 
         def auth(creds, service, headers, body_digest, now)
           headers_list, signature = sign(creds, service, headers, body_digest, now)
-          "AWS4-HMAC-SHA256 Credential=#{creds['AccessKeyId']}/#{now[0, 8]}/#{datastore['Region']}/#{service}/aws4_request, SignedHeaders=#{headers_list}, Signature=#{signature}"
+          "AWS4-HMAC-SHA256 Credential=#{creds.fetch('AccessKeyId')}/#{now[0, 8]}/#{datastore['Region']}/#{service}/aws4_request, SignedHeaders=#{headers_list}, Signature=#{signature}"
         end
 
         def body(vars_post)
@@ -70,12 +85,12 @@ module Metasploit
           pstr
         end
 
-        def headers(creds, service, body_digest, body_length)
-          now = Time.now.utc.strftime("%Y%m%dT%H%M%SZ")
+        def headers(creds, service, body_digest, body_length, now = nil)
+          now = Time.now.utc.strftime("%Y%m%dT%H%M%SZ") if now.nil?
           headers = {
             'Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8',
             'Accept-Encoding' => '',
-            'User-Agent' => "aws-sdk-ruby2/2.6.27 ruby/2.3.2 x86_64-darwin15",
+            'User-Agent' => USER_AGENT,
             'X-Amz-Date' => now,
             'Host' => datastore['RHOST'],
             'X-Amz-Content-Sha256' => body_digest,
@@ -89,6 +104,7 @@ module Metasploit
         end
 
         def print_hsh(hsh)
+          return if hsh.nil? || !hsh.instance_of?(Hash)
           hsh.each do |key, value|
             print_warning "#{key}: #{value}"
           end
@@ -104,7 +120,11 @@ module Metasploit
             return nil
           end
 
-          idoc = doc[response] if doc[response]
+          idoc = doc.fetch(response)
+          if idoc.nil? || !idoc.instance_of?(Hash)
+            print_error "Unexpected response structure"
+            return {}
+          end
           idoc = idoc[result] if idoc[result]
           idoc = idoc[resource] if idoc[resource]
 
