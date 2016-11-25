@@ -24,8 +24,10 @@ module MetasploitModule
       'Name'          => 'Architecture-Independent Meterpreter Stage',
       'Description'   => 'Handle Meterpreter sessions regardless of the target arch/platform',
       'Author'        => ['OJ Reeves'],
-      'PayloadCompat' => {'Convention' => ['http', 'https']},
+      'PayloadCompat' => {'Convention' => 'http'},
       'License'       => MSF_LICENSE,
+      'Platform'      => ['win', 'osx', 'python', 'linux', 'android', 'java'],
+      'Arch'          => [ARCH_X64, ARCH_X86, ARCH_JAVA, ARCH_PYTHON, ARCH_DALVIK],
       'Session'       => Msf::Sessions::Meterpreter_Multi))
   end
 

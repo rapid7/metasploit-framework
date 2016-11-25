@@ -24,7 +24,14 @@ module Msf::Payload::Multi
 
   # TODO: figure out what to do here
   def initialize(info={})
-    super(info)
+    super(update_info(info,
+      'Name'          => 'Multi-Platform Meterpreter Payload',
+      'Description'   => 'Detect and generate the appropriate payload based on platform/arch',
+      'Author'        => ['OJ Reeves'],
+      'Platform'      => ['win', 'osx', 'python', 'linux', 'android', 'java'],
+      'Arch'          => [ARCH_X64, ARCH_X86, ARCH_JAVA, ARCH_PYTHON, ARCH_DALVIK],
+      'PayloadCompat' => { 'Convention' => 'sockedi sockrdi http https' },
+      ))
   end
 
   # TODO: figure out what to do here
