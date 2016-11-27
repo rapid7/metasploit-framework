@@ -199,7 +199,14 @@ protected
     # allocate a new session.
     if (self.session)
       begin
-        s = self.session.new(conn, opts)
+        # if there's a create_session method then use it, as this
+        # can form a factory for arb session types based on the
+        # payload.
+        if self.session.respond_to?('create_session')
+          s = self.session.create_session(conn, opts)
+        else
+          s = self.session.new(conn, opts)
+        end
       rescue ::Exception => e
         # We just wanna show and log the error, not trying to swallow it.
         print_error("#{e.class} #{e.message}")

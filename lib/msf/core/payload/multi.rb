@@ -28,9 +28,10 @@ module Msf::Payload::Multi
       'Name'          => 'Multi-Platform Meterpreter Payload',
       'Description'   => 'Detect and generate the appropriate payload based on platform/arch',
       'Author'        => ['OJ Reeves'],
-      'Platform'      => ['win', 'osx', 'python', 'linux', 'android', 'java'],
-      'Arch'          => [ARCH_X64, ARCH_X86, ARCH_JAVA, ARCH_PYTHON, ARCH_DALVIK],
-      'PayloadCompat' => { 'Convention' => 'sockedi sockrdi http https' },
+      'Platform'      => ['multi'],
+      'Arch'          => ARCH_ALL,
+      'Stage'         => {'Payload' => ''},
+      'PayloadCompat' => {'Convention' => 'sockedi sockrdi http https'},
       ))
   end
 

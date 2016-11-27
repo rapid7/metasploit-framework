@@ -97,7 +97,10 @@ module Msf::Payload::Stager
   #
   # @return [String]
   def stage_assembly
-    return module_info['Stage']['Assembly']
+    if module_info['Stage']
+      return module_info['Stage']['Assembly']
+    end
+    nil
   end
 
   #
@@ -108,7 +111,10 @@ module Msf::Payload::Stager
   #
   # @return [Hash]
   def stage_offsets
-    return module_info['Stage']['Offsets']
+    if module_info['Stage']
+      return module_info['Stage']['Offsets']
+    end
+    nil
   end
 
   #

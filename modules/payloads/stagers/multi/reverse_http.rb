@@ -21,9 +21,10 @@ module MetasploitModule
       'Description' => 'Tunnel communication over HTTP',
       'Author'      => 'OJ Reeves',
       'License'     => MSF_LICENSE,
-      'Platform'    => ['win', 'osx', 'python', 'linux', 'android', 'java'],
-      'Arch'        => [ARCH_X64, ARCH_X86, ARCH_JAVA, ARCH_PYTHON, ARCH_DALVIK],
+      'Platform'    => ['multi'],
+      'Arch'        => ARCH_ALL,
       'Handler'     => Msf::Handler::ReverseHttp,
+      'Stager'      => {'Payload' => ''},
       'Convention'  => 'http'))
   end
 

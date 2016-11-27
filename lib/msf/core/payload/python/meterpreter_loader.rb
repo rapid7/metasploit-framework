@@ -32,6 +32,10 @@ module Payload::Python::MeterpreterLoader
     ], self.class)
   end
 
+  def stage_payload(opts={})
+    stage_meterpreter(opts)
+  end
+
   # Get the raw Python Meterpreter stage and patch in values based on the
   # configuration
   #

@@ -318,6 +318,7 @@ protected
         resp.body = pkt.to_r
 
       when :init_python, :init_native, :init_java
+        STDERR.puts("#{uuid}\n")
         # TODO: at some point we may normalise these three cases into just :init
         url = payload_uri(req) + conn_id + '/'
 

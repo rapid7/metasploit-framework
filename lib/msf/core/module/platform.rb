@@ -536,4 +536,12 @@ class Msf::Module::Platform
     Rank = 100
     Alias = "mainframe"
   end
+
+  #
+  # Multi (for wildcard-style platform functions)
+  #
+  class Multi < Msf::Module::Platform
+    Rank = 100
+    Alias = "multi"
+  end
 end
