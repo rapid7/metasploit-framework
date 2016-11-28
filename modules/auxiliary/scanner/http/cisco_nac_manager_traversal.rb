@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
+        OptBool.new('SSL', [ false, 'Negotiate SSL/TLS for outgoing connections', true]),
         OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd']),
         OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),
       ], self.class)
