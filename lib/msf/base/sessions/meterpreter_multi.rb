@@ -12,13 +12,9 @@ module Sessions
 ###
 class Meterpreter_Multi < Msf::Sessions::Meterpreter
   def initialize(rstream, opts={})
+    super
     self.base_platform = 'multi'
     self.base_arch = ARCH_ANY
-
-    # TODO: can we read the opts and find the UUID to instantiate the right
-    # session type? Is it important?
-
-    super
   end
 
   def self.create_session(rstream, opts={})
