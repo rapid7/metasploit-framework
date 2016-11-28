@@ -368,11 +368,14 @@ protected
         url = payload_uri(req) + conn_id
         url << '/' unless url[-1] == '/'
 
+        # Damn you, python! Ruining my perfect world!
+        url += "\x00" unless uuid.arch == ARCH_PYTHON
+
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
           :passive_dispatcher => self.service,
           :conn_id            => conn_id,
-          :url                => url + "\x00",
+          :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :retry_total        => datastore['SessionRetryTotal'].to_i,
