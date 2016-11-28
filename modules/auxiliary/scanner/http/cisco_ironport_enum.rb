@@ -61,6 +61,7 @@ class MetasploitModule < Msf::Auxiliary
         'method'    => 'GET'
       })
       print_good("#{rhost}:#{rport} - Server is responsive...")
+      return 1
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       return
     end
