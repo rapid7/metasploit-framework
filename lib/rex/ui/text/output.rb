@@ -71,8 +71,8 @@ class Output < Rex::Ui::Output
     print("\r\033[K" + msg + "\n")
     if input and input.prompt
       print("\r\033[K")
-      print(input.prompt)
-      print(input.line_buffer)
+      print(input.prompt.tr("\001\002", ''))
+      print(input.line_buffer.tr("\001\002", ''))
       print("\033[u\033[B") # Restore cursor, move down one line
     end
   end
