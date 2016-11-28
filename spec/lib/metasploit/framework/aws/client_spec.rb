@@ -121,9 +121,4 @@ RSpec.describe Metasploit::Framework::Aws::Client do
     expect { subject.print_hsh(-42) }.not_to raise_error
     expect { subject.print_hsh('A' * 5000) }.not_to raise_error
   end
-
-  it 'should attempt an http call' do
-    expect(subject).to receive(:connect).and_raise(Rex::ConnectionError)
-    subject.call_api(creds, service, body_hash)
-  end
 end
