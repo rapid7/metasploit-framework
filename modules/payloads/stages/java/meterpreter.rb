@@ -12,18 +12,19 @@ require 'msf/base/sessions/meterpreter_options'
 
 module MetasploitModule
 
+  include Msf::Payload::Java::MeterpreterLoader
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Java Meterpreter',
-      'Description'    => 'Run a meterpreter server in Java',
-      'Author'         => ['mihi', 'egypt', 'OJ Reeves'],
-      'Platform'       => 'java',
-      'Arch'           => ARCH_JAVA,
-      'PayloadCompat'  => {'Convention' => 'javasocket javaurl'},
-      'License'        => MSF_LICENSE,
-      'Session'        => Msf::Sessions::Meterpreter_Java_Java
+      'Name'          => 'Java Meterpreter',
+      'Description'   => 'Run a meterpreter server in Java',
+      'Author'        => ['mihi', 'egypt', 'OJ Reeves'],
+      'Platform'      => 'java',
+      'Arch'          => ARCH_JAVA,
+      'PayloadCompat' => {'Convention' => 'javasocket javaurl'},
+      'License'       => MSF_LICENSE,
+      'Session'       => Msf::Sessions::Meterpreter_Java_Java
     ))
   end
 

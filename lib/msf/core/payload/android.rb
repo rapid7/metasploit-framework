@@ -24,41 +24,41 @@ module Msf::Payload::Android
   # We could compile the .class files with dx here
   #
   def generate_stage(opts={})
+    ''
+  end
+
+  def generate_default_stage(opts={})
+    ''
   end
 
   #
   # Used by stagers to construct the payload jar file as a String
   #
-  def generate
-    generate_jar.pack
+  def generate(opts={})
+    generate_jar(opts).pack
   end
 
   def java_string(str)
     [str.length].pack("N") + str
   end
 
-  def apply_options(classes, opts)
-    config = generate_config_bytes(opts)
-    if opts[:stageless]
-      config[0] = "\x01"
-    end
-
-    string_sub(classes, "\xde\xad\xba\xad" + "\x00" * 8191, config)
-  end
-
-  def generate_config_bytes(opts={})
+  def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
+    ds = opts[:datastore] || datastore
 
     config_opts = {
       ascii_str:  true,
       arch:       opts[:uuid].arch,
-      expiration: datastore['SessionExpirationTimeout'].to_i,
+      expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
       transports: [transport_config(opts)]
     }
 
     config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-    config.to_b
+    result = config.to_b
+
+    result[0] = "\x01" if opts[:stageless]
+    result
   end
 
   def string_sub(data, placeholder="", input="")
@@ -104,7 +104,8 @@ module Msf::Payload::Android
       classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
     end
 
-    apply_options(classes, opts)
+    config = generate_config(opts)
+    string_sub(classes, "\xde\xad\xba\xad" + "\x00" * 8191, config)
 
     jar = Rex::Zip::Jar.new
     files = [

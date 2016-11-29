@@ -20,12 +20,12 @@ module Payload::Java::MeterpreterLoader
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Meterpreter & Configuration',
+      'Name'          => 'Java Meterpreter & Configuration',
       'Description'   => 'Java-specific meterpreter generation',
       'Author'        => ['OJ Reeves'],
       'Platform'      => 'java',
       'Arch'          => ARCH_JAVA,
-      'PayloadCompat' => {'Convention' => 'http'},
+      'PayloadCompat' => {'Convention' => 'http https'},
       'Stage'         => {'Payload' => ''}
       ))
   end

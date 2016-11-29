@@ -26,6 +26,9 @@ class Meterpreter_Multi < Msf::Sessions::Meterpreter
     when 'java'
       require 'msf/base/sessions/meterpreter_java'
       return Msf::Sessions::Meterpreter_Java_Java.new(rstream, opts)
+    when 'android'
+      require 'msf/base/sessions/meterpreter_android'
+      return Msf::Sessions::Meterpreter_Java_Android.new(rstream, opts)
     when 'php'
       require 'msf/base/sessions/meterpreter_php'
       return Msf::Sessions::Meterpreter_Php_Java.new(rstream, opts)

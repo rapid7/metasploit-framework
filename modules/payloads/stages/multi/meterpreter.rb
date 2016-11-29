@@ -47,8 +47,11 @@ module MetasploitModule
       require 'msf/core/payload/python/meterpreter_loader'
       c.include(::Msf::Payload::Python::MeterpreterLoader)
     when 'java'
-      require 'msf/core/payload/java/meterpreter_loader'
-      c.include(::Msf::Payload::Java::MeterpreterLoader)
+        require 'msf/core/payload/java/meterpreter_loader'
+        c.include(::Msf::Payload::Java::MeterpreterLoader)
+    when 'android'
+      require 'msf/core/payload/android/meterpreter_loader'
+      c.include(::Msf::Payload::Android::MeterpreterLoader)
     when 'php'
       require 'msf/core/payload/php/meterpreter_loader'
       c.include(::Msf::Payload::Php::MeterpreterLoader)

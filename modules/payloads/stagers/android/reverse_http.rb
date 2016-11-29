@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_http'
+require 'msf/core/payload/android/reverse_http'
 require 'msf/core/payload/uuid/options'
 
 module MetasploitModule
@@ -13,6 +14,7 @@ module MetasploitModule
 
   include Msf::Payload::Stager
   include Msf::Payload::Android
+  include Msf::Payload::Android::ReverseHttp
   include Msf::Payload::UUID::Options
 
   def initialize(info = {})
@@ -24,21 +26,8 @@ module MetasploitModule
       'Platform'    => 'android',
       'Arch'        => ARCH_DALVIK,
       'Handler'     => Msf::Handler::ReverseHttp,
+      'Convention'  => 'javaurl',
       'Stager'      => {'Payload' => ''}
     ))
   end
-
-  #
-  # Generate the transport-specific configuration
-  #
-  def transport_config(opts={})
-    transport_config_reverse_http(opts)
-  end
-
-  def generate_config_bytes(opts={})
-    uri_req_len = 30 + luri.length + rand(256 - (30 + luri.length))
-    opts[:uri] = generate_uri_uuid_mode(:init_java, uri_req_len)
-    super(opts)
-  end
-
 end

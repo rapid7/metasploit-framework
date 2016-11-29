@@ -26,8 +26,9 @@ module MetasploitModule
       'Name'          => 'Windows Meterpreter (Reflective Injection)',
       'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged)',
       'Author'        => ['skape','sf'],
-      'PayloadCompat' => { 'Convention' => 'sockedi', },
+      'PayloadCompat' => { 'Convention' => 'sockedi'},
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_x86_Win))
+      'Session'       => Msf::Sessions::Meterpreter_x86_Win
+    ))
   end
 end
