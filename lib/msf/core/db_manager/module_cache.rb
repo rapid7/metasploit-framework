@@ -289,7 +289,7 @@ module Msf::DBManager::ModuleCache
       end
 
       unioned_conditions = union_conditions.inject { |union, condition|
-        union.or(condition)
+.        union.and(condition)
       }
 
       query = query.where(unioned_conditions).to_a.uniq { |m| m.fullname }
