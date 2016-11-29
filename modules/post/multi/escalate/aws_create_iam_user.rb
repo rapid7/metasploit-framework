@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Post
     end
 
     # create user
-    username = datastore['IAM_USERNAME'] ? datastore['IAM_USERNAME'] : Rex::Text.rand_text_alphanumeric(16)
+    username = datastore['IAM_USERNAME'].empty? ? Rex::Text.rand_text_alphanumeric(16) : datastore['IAM_USERNAME']
     print_status("Creating user: #{username}")
     action = 'CreateUser'
     doc = call_iam(creds, 'Action' => action, 'UserName' => username)
