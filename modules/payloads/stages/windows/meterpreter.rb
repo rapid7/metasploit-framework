@@ -8,7 +8,6 @@ require 'msf/core'
 require 'msf/core/payload/windows/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
 
 ###
 #
@@ -31,30 +30,4 @@ module MetasploitModule
       'License'       => MSF_LICENSE,
       'Session'       => Msf::Sessions::Meterpreter_x86_Win))
   end
-
-  def stage_payload(opts={})
-    stage_meterpreter(opts) + generate_config(opts)
-  end
-
-  def generate_config(opts={})
-    ds = opts[:datastore] || datastore
-    opts[:uuid] ||= generate_payload_uuid
-
-    # create the configuration block, which for staged connections is really simple.
-    config_opts = {
-      arch:       opts[:uuid].arch,
-      exitfunk:   ds['EXITFUNC'],
-      expiration: ds['SessionExpirationTimeout'].to_i,
-      uuid:       opts[:uuid],
-      transports: [transport_config(opts)],
-      extensions: []
-    }
-
-    # create the configuration instance based off the parameters
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-
-    # return the binary version of it
-    config.to_b
-  end
-
 end

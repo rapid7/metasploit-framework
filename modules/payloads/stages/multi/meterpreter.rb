@@ -64,11 +64,11 @@ module MetasploitModule
 
     second_stage = c.new()
 
+    # wire in the appropriate values for transport and datastore configs
     opts[:transport_config] = [transport_config(opts)]
     opts[:datastore] = datastore
 
-    res = second_stage.stage_meterpreter(opts)
-    res
+    second_stage.stage_payload(opts)
   end
 
 end

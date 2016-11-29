@@ -26,6 +26,6 @@ module MetasploitModule
       'Handler'     => Msf::Handler::ReverseHttp,
       'Convention'  => 'javaurl',
       'Stager'      => {'Payload' => ''}
-      ))
+    ))
   end
 end

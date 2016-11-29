@@ -52,14 +52,15 @@ module MetasploitModule
 
   def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
+    ds = opts[:datastore] || datastore
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
       ascii_str:  true,
       arch:       opts[:uuid].arch,
-      expiration: datastore['SessionExpirationTimeout'].to_i,
+      expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: [transport_config(opts)]
+      transports: opts[:transport_config] || [transport_config(opts)]
     }
 
     # create the configuration instance based off the parameters

