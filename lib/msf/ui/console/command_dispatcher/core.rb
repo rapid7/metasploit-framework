@@ -99,8 +99,11 @@ class Core
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
 
-  # Constant for a retry timeout on using modules before they're loaded
-  CMD_USE_TIMEOUT = 3
+  # Sleep time in seconds between module use retries (see #4340)
+  CMD_USE_TIMEOUT = 0.1
+
+  # Total retry attempts before giving up on using a module (see #4340)
+  CMD_USE_ATTEMPTS = 300
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -2687,17 +2690,17 @@ class Core
 
     # Try to create an instance of the supplied module name
     mod_name = args[0]
+    mod = nil
 
     begin
-      mod = framework.modules.create(mod_name)
-      unless mod
-        # Try one more time; see #4549
-        sleep CMD_USE_TIMEOUT
+      CMD_USE_ATTEMPTS.times do
         mod = framework.modules.create(mod_name)
-        unless mod
-          print_error("Failed to load module: #{mod_name}")
-          return false
-        end
+        break if mod
+        sleep CMD_USE_TIMEOUT
+      end
+      unless mod
+        print_error("Failed to load module: #{mod_name}")
+        return false
       end
     rescue Rex::AmbiguousArgumentError => info
       print_error(info.to_s)
@@ -2705,7 +2708,7 @@ class Core
       log_error("The supplied module name is ambiguous: #{$!}.")
     end
 
-    return false if (mod == nil)
+    return false unless mod
 
     # Enstack the command dispatcher for this module type
     dispatcher = nil
