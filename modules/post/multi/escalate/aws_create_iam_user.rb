@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
         OptString.new('RPORT', [true, 'AWS IAM Endpoint TCP Port', 443]),
         OptString.new('SSL', [true, 'AWS IAM Endpoint SSL', true]),
         OptString.new('IAM_GROUP_POL', [true, 'IAM group policy to use', '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*" }]}']),
-        OptString.new('IAM_USERNAME', [true, 'Username for the user to be created', 'metasploit']),
+        OptString.new('IAM_USERNAME', [false, 'Username for the user to be created', '']),
         OptString.new('Region', [true, 'The default region', 'us-east-1' ])
       ])
     register_advanced_options(
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Post
     end
 
     # create user
-    username = datastore['IAM_USERNAME']
+    username = datastore['IAM_USERNAME'] ? datastore['IAM_USERNAME'] : Rex::Text.rand_text_alphanumeric(16)
     print_status("Creating user: #{username}")
     action = 'CreateUser'
     doc = call_iam(creds, 'Action' => action, 'UserName' => username)
