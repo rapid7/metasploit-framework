@@ -6,7 +6,6 @@
 require 'msf/core'
 require 'msf/base/sessions/meterpreter_multi'
 require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
 
 ###
 #
@@ -34,7 +33,8 @@ module MetasploitModule
   def stage_payload(opts={})
     return '' unless opts[:uuid]
 
-    ## TODO: load the "stuff" from the JSON file?
+    ## TODO: load the datastore "stuff" from the JSON file
+    ## and wire it into opts[:datastore].
     ## and if we find an instance, hydrate based on that.
     ## otherwise use some "sane defaults" as shown below.
 
@@ -64,7 +64,11 @@ module MetasploitModule
 
     second_stage = c.new()
 
-    second_stage.stage_payload(opts)
+    opts[:transport_config] = [transport_config(opts)]
+    opts[:datastore] = datastore
+
+    res = second_stage.stage_meterpreter(opts)
+    res
   end
 
 end

@@ -89,7 +89,10 @@ module Msf::Payload::Stager
   #
   # @return [String,nil]
   def stage_payload(opts = {})
-    return module_info['Stage']['Payload']
+    if module_info['Stage']
+      return module_info['Stage']['Payload']
+    end
+    nil
   end
 
   #

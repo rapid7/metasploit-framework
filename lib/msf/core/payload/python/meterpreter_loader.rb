@@ -14,6 +14,7 @@ module Msf
 
 module Payload::Python::MeterpreterLoader
 
+  include Msf::Payload::Python
   include Msf::Payload::UUID::Options
   include Msf::Sessions::MeterpreterOptions
 
