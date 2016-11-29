@@ -106,7 +106,7 @@ msf post(aws_create_iam_user) > exploit
 msf post(aws_create_iam_user) > exit -y
 ```
 
-You can see that the API keys stored in loot. Want console access, use [aws_console](../../gather/aws_console.md)
+You can see the API keys stored in loot:
 
 ```
 $ cat ~/.msf4/loot/20161121175902_default_52.1.2.3_AKIA_881948.txt
