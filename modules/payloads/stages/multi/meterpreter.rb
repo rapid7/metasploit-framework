@@ -23,11 +23,12 @@ module MetasploitModule
       'Name'          => 'Architecture-Independent Meterpreter Stage',
       'Description'   => 'Handle Meterpreter sessions regardless of the target arch/platform',
       'Author'        => ['OJ Reeves'],
-      'PayloadCompat' => {'Convention' => 'http'},
+      'PayloadCompat' => {'Convention' => 'http https'},
       'License'       => MSF_LICENSE,
       'Platform'      => ['multi'],
       'Arch'          => ARCH_ALL,
-      'Session'       => Msf::Sessions::Meterpreter_Multi))
+      'Session'       => Msf::Sessions::Meterpreter_Multi
+   ))
   end
 
   def stage_payload(opts={})

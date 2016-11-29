@@ -18,11 +18,10 @@ module Payload::Multi::ReverseHttps
   include Msf::Payload::Multi::ReverseHttp
 
   #
-  # Generate the first stage
+  # Generate the transport-specific configuration
   #
-  def generate(opts={})
-    opts[:ssl] = true
-    super(opts)
+  def transport_config(opts={})
+    transport_config_reverse_https(opts)
   end
 
 end
