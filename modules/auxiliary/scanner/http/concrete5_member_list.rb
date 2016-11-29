@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def extract_members(res, url)
-    members = res.body.scan(/<div class="ccm\-profile\-member\-username">(.*)<\/div>/i)
+    members = res.body.scan(/<div class="ccm\-profile\-member\-username">(.*?)<\/div>/i)
 
     if members
       print_good("#{peer} Extracted #{members.length} entries")
