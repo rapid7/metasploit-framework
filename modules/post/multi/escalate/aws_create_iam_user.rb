@@ -23,7 +23,6 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('METADATA_IP', [true, 'The metadata service IP', '169.254.169.254']),
         OptString.new('RHOST', [true, 'AWS IAM Endpoint', 'iam.amazonaws.com']),
         OptString.new('RPORT', [true, 'AWS IAM Endpoint TCP Port', 443]),
         OptString.new('SSL', [true, 'AWS IAM Endpoint SSL', true]),
@@ -33,6 +32,7 @@ class MetasploitModule < Msf::Post
       ])
     register_advanced_options(
       [
+        OptString.new('METADATA_IP', [true, 'The metadata service IP', '169.254.169.254']),
         OptString.new('AccessKeyId', [false, 'AWS access key', '']),
         OptString.new('SecretAccessKey', [false, 'AWS secret key', '']),
         OptString.new('Token', [false, 'AWS session token', ''])
