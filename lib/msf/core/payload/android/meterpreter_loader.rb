@@ -28,10 +28,6 @@ module Payload::Android::MeterpreterLoader
       'PayloadCompat' => {'Convention' => 'http https'},
       'Stage'         => {'Payload' => ''}
     ))
-
-    register_options([
-      OptBool.new('AutoLoadAndroid', [true, "Automatically load the Android extension", true])
-    ])
   end
 
   def stage_payload(opts={})
