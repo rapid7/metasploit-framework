@@ -199,28 +199,19 @@ module Msf::DBManager::ModuleCache
     ActiveRecord::Base.connection_pool.with_connection do
       @query = Mdm::Module::Detail.all
       
-      @authors = Set.new
-      @names = Set.new
-      @os = Set.new
-      @text = Set.new
-      @types = Set.new
-      @stances = Set.new
-      @refs = Set.new
+      @archs    = Set.new
+      @authors  = Set.new
+      @names    = Set.new
+      @os       = Set.new
+      @refs     = Set.new
+      @stances  = Set.new
+      @text     = Set.new
+      @types    = Set.new
             
       value_set_by_keyword.each do |keyword, value_set|
         formatted_values = match_values(value_set)
         
         case keyword
-          when 'author'
-            @authors << formatted_values
-          when 'name'
-            @names << formatted_values
-          when 'os', 'platform'
-            @os << formatted_values
-          when 'text'
-            @text << formatted_values
-          when 'type'
-            @types << formatted_values
           when 'app'
             formatted_values = value_set.collect { |value|
               formatted_value = 'aggressive'
@@ -230,6 +221,14 @@ module Msf::DBManager::ModuleCache
               formatted_value
             }
             @stances << formatted_values
+          when 'arch'
+            @archs << formatted_values
+          when 'author'
+            @authors << formatted_values
+          when 'name'
+            @names << formatted_values
+          when 'os', 'platform'
+            @os << formatted_values
           when 'ref'
             @refs << formatted_values
           when 'cve', 'bid', 'edb'
@@ -237,6 +236,11 @@ module Msf::DBManager::ModuleCache
               prefix = keyword.upcase
               "#{prefix}-%#{value}%"
             }
+            @refs << formatted_values
+          when 'text'
+            @text << formatted_values
+          when 'type'
+            @types << formatted_values
         end
       end
 
@@ -246,13 +250,14 @@ module Msf::DBManager::ModuleCache
       #
       # @query = @query.where(unioned_conditions).to_a.uniq { |m| m.fullname }
     end
-     
+        
+    @query = @query.module_arch(            @archs.to_a.flatten   ) if @archs.any?
     @query = @query.module_author(          @authors.to_a.flatten ) if @authors.any?
     @query = @query.module_name(            @names.to_a.flatten   ) if @names.any?
     @query = @query.module_os_or_platform(  @os.to_a.flatten      ) if @os.any?
     @query = @query.module_text(            @text.to_a.flatten    ) if @text.any?
     @query = @query.module_type(            @types.to_a.flatten   ) if @types.any?
-    @query = @query.module_app(             @stances.to_a.flatten ) if @stances.any?
+    @query = @query.module_stance(          @stances.to_a.flatten ) if @stances.any?
     @query = @query.module_ref(             @refs.to_a.flatten    ) if @refs.any?
 
     @query.uniq
