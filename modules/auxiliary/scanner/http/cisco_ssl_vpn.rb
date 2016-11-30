@@ -84,6 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi('uri' => '/', 'method' => 'GET')
       vprint_good("Server is responsive...")
+      return true
     rescue ::Rex::ConnectionRefused,
            ::Rex::HostUnreachable,
            ::Rex::ConnectionTimeout,
