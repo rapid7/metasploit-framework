@@ -41,7 +41,7 @@ module MetasploitModule
     @class_files = [ ]
   end
 
-  def config
+  def stager_config
     spawn = datastore["Spawn"] || 2
     c =  ""
     c << "Spawn=#{spawn}\n"

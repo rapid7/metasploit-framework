@@ -9,7 +9,7 @@ require 'msf/core/payload/multi/reverse_http'
 
 module MetasploitModule
 
-  CachedSize = :dynamic
+  CachedSize = 0
 
   include Msf::Payload::Stager
   include Msf::Payload::Multi
