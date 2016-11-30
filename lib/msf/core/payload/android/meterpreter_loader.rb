@@ -51,25 +51,6 @@ module Payload::Android::MeterpreterLoader
     (blocks + [blocks.length]).pack('A*' * blocks.length + 'N')
   end
 
-  def generate_config(opts={})
-    opts[:uuid] ||= generate_payload_uuid
-    ds = opts[:datastore] || datastore
-
-    # create the configuration block, which for staged connections is really simple.
-    config_opts = {
-      ascii_str:  true,
-      arch:       opts[:uuid].arch,
-      expiration: ds['SessionExpirationTimeout'].to_i,
-      uuid:       opts[:uuid],
-      transports: opts[:transport_config] || [transport_config(opts)]
-    }
-
-    # create the configuration instance based off the parameters
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-
-    # return the XML version of it
-    config.to_b
-  end
 end
 end
 
