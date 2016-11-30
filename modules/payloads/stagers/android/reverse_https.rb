@@ -14,7 +14,7 @@ module MetasploitModule
 
   include Msf::Payload::Stager
   include Msf::Payload::Android
-  include Msf::Payload::Android::ReverseHttps
+  include Msf::Payload::Android::ReverseHttp
 
   def initialize(info = {})
     super(merge_info(info,
@@ -25,6 +25,7 @@ module MetasploitModule
       'Platform'    => 'android',
       'Arch'        => ARCH_DALVIK,
       'Handler'     => Msf::Handler::ReverseHttps,
+      'Convention'  => 'javaurl',
       'Stager'      => {'Payload' => ''}
     ))
   end

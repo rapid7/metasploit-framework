@@ -15,7 +15,6 @@ module MetasploitModule
   include Msf::Payload::Stager
   include Msf::Payload::Android
   include Msf::Payload::Android::ReverseHttp
-  include Msf::Payload::UUID::Options
 
   def initialize(info = {})
     super(merge_info(info,

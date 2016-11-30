@@ -8,7 +8,7 @@ require 'msf/core/payload/android'
 require 'msf/core/payload/android/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_android'
 require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
+
 
 module MetasploitModule
 
@@ -18,8 +18,8 @@ module MetasploitModule
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Android Meterpreter',
-      'Description'   => 'Run a meterpreter server on Android',
-      'Author'        => ['mihi', 'egypt', 'anwarelmakrahy', 'OJ Reeves'],
+      'Description'   => 'Run a meterpreter server in Android',
+      'Author'        => ['mihi', 'egypt', 'OJ Reeves'],
       'Platform'      => 'android',
       'Arch'          => ARCH_DALVIK,
       'PayloadCompat' => {'Convention' => 'javasocket javaurl'},

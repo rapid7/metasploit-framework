@@ -17,15 +17,15 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Java Reverse TCP Stager',
-      'Description'   => 'Connect back stager',
-      'Author'        => ['mihi', 'egypt'],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'java',
-      'Arch'          => ARCH_JAVA,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Convention'    => 'javasocket',
-      'Stager'        => {'Payload' => ''}
-      ))
+      'Name'        => 'Java Reverse TCP Stager',
+      'Description' => 'Connect back stager',
+      'Author'      => ['mihi', 'egypt'],
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'java',
+      'Arch'        => ARCH_JAVA,
+      'Handler'     => Msf::Handler::ReverseTcp,
+      'Convention'  => 'javasocket',
+      'Stager'      => {'Payload' => ''}
+    ))
   end
 end
