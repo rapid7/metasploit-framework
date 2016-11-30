@@ -312,7 +312,7 @@ class MetasploitModule < Msf::Auxiliary
           extra << "PasswordMin=#{domains[domain][:pass_min]} "
           extra << ")"
         end
-        print_status("#{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
+        print_good("#{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
       end
 
       # cleanup
