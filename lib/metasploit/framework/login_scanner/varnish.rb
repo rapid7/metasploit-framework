@@ -24,17 +24,16 @@ module Metasploit
         def attempt_login(credential)
           begin
             connect
+            success = login(credential.private)
+            close_session
+            disconnect
+          rescue RuntimeError => e
+            return {:status => Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, :proof => e.message}
           rescue Rex::ConnectionError, EOFError, Timeout::Error
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-          else
-            begin
-              success = login(credential.private)
-            rescue RuntimeError => e
-              return {:status => Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, :proof => e.message}
-            end
-
-            status = (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
           end
+          status = (success == true) ? Metasploit::Model::Login::Status::SUCCESSFUL : Metasploit::Model::Login::Status::INCORRECT
+
           result = Result.new(credential: credential, status: status)
           result.host         = host
           result.port         = port
