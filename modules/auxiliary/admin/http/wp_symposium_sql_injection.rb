@@ -13,9 +13,9 @@ class MetasploitModule < Msf::Auxiliary
       info,
       'Name'            => 'WordPress Symposium Plugin SQL Injection',
       'Description'     => %q{
-        SQL injection vulnerability in the WP Symposium plugin before 15.8 for WordPress
-        allows remote attackers to execute arbitrary SQL commands via the size parameter
-        to get_album_item.php.
+        This module exploits a SQL injection vulnerability in the WP Symposium plugin
+        before 15.8 for WordPress, which allows remote attackers to extract credentials
+        via the size parameter to get_album_item.php.
       },
       'Author'          =>
         [
