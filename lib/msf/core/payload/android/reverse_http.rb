@@ -26,7 +26,7 @@ module Payload::Android::ReverseHttp
   end
 
   def generate_config(opts={})
-    opts[:uri] ||= generate_uri(opts)
+    opts[:uri] ||= luri + generate_uri(opts)
     super(opts)
   end
 
