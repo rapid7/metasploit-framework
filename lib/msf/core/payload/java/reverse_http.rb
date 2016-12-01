@@ -55,13 +55,6 @@ module Payload::Java::ReverseHttp
   end
 
   #
-  # Generate the URI for the initial stager
-  #
-  def generate_small_uri
-    generate_uri_uuid_mode(:init_java, 5)
-  end
-
-  #
   # Generate configuration that is to be included in the stager.
   #
   def stager_config(opts={})
