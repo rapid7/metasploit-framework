@@ -243,12 +243,6 @@ module Msf::DBManager::ModuleCache
             @types << formatted_values
         end
       end
-
-      # unioned_conditions = union_conditions.inject { |union, condition|
-      #   union.or(condition)
-      # }
-      #
-      # @query = @query.where(unioned_conditions).to_a.uniq { |m| m.fullname }
     end
         
     @query = @query.module_arch(            @archs.to_a.flatten   ) if @archs.any?
@@ -259,7 +253,7 @@ module Msf::DBManager::ModuleCache
     @query = @query.module_type(            @types.to_a.flatten   ) if @types.any?
     @query = @query.module_stance(          @stances.to_a.flatten ) if @stances.any?
     @query = @query.module_ref(             @refs.to_a.flatten    ) if @refs.any?
-
+    
     @query.uniq
   end
 
