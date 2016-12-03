@@ -12,8 +12,13 @@ module Metasploit
 
         def require_auth?
           # function returns false if no auth is required, else the challenge string
-          sock.put("auth #{Rex::Text.rand_text_alphanumeric(64)}\n") # Cause a login fail to get the challenge. Length is correct, but this has upper chars, subtle diff
-          res = sock.get_once(-1,3) # grab challenge
+          res = sock.get_once # varnish can give the challenge on connect, so check if we have it already
+          if res && res =~ @@AUTH_REQUIRED_REGEX
+            return $1
+          end
+          # Cause a login fail to get the challenge. Length is correct, but this has upper chars, subtle diff for debugging
+          sock.put("auth #{Rex::Text.rand_text_alphanumeric(64)}\n")
+          res = sock.get_once # grab challenge
           if res && res =~ @@AUTH_REQUIRED_REGEX
             return $1
           end
@@ -27,11 +32,10 @@ module Metasploit
             if !!challenge
               response = Digest::SHA256.hexdigest("#{challenge}\n#{pass.strip}\n#{challenge}\n")
               sock.put("auth #{response}\n")
-              res = sock.get_once(-1,3)
+              res = sock.get_once
               if res && res =~ @@AUTH_SUCCESS_REGEX
                 return true
               else
-                raise RuntimeError, "|||#{challenge}|||#{pass.strip}|||#{response}"
                 return false
               end
             else
