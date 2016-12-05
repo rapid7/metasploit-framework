@@ -31,7 +31,7 @@ module Msf
           # Returns the name of the command dispatcher.
           #
           def name
-            "Resource Scripts"
+            "Resource Script"
           end
 
           def cmd_resource_help

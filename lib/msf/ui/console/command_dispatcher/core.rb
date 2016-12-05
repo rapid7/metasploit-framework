@@ -91,10 +91,6 @@ class Core
     "-e" => [ true,  "Expression to evaluate."                        ])
 
 
-
-  # Constant for a retry timeout on using modules before they're loaded
-  CMD_USE_TIMEOUT = 3
-
   # Returns the list of commands supported by this command dispatcher
   def commands
     {

@@ -19,6 +19,9 @@ module Msf
 
           include Msf::Ui::Console::CommandDispatcher
 
+          # Constant for a retry timeout on using modules before they're loaded
+          CMD_USE_TIMEOUT = 3
+
           # Constant for disclosure date formatting in search functions
           DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
 
@@ -60,7 +63,7 @@ module Msf
           # Returns the name of the command dispatcher.
           #
           def name
-            "Modules"
+            "Module"
           end
 
 

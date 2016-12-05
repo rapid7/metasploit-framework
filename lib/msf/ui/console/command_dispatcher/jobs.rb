@@ -39,7 +39,7 @@ module CommandDispatcher
     # Returns the name of the command dispatcher.
     #
     def name
-      "Jobs"
+      "Job"
     end
 
     def cmd_rename_job_help
