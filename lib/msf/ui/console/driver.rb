@@ -30,7 +30,8 @@ class Driver < Msf::Ui::Driver
   # Console Command Dispatchers to be loaded after the Core dispatcher.
   #
   CommandDispatchers = [
-    CommandDispatcher::Jobs
+    CommandDispatcher::Jobs,
+    CommandDispatcher::Resource
   ]
 
   #
