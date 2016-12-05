@@ -162,14 +162,14 @@ module Msf::PostMixin
 
     # Types are okay, now check the platform.
     if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
-      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.base_platform))
+      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
     # Check to make sure architectures match
     mod_arch = self.module_info['Arch']
     unless mod_arch.nil?
     mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
-      return false unless mod_arch.include? s.base_arch
+      return false unless mod_arch.include? s.arch
     end
 
     # If we got here, we haven't found anything that definitely
