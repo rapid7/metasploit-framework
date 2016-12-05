@@ -90,8 +90,7 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
 
-  # Constant for disclosure date formatting in search functions
-  DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
+
 
   # Constant for a retry timeout on using modules before they're loaded
   CMD_USE_TIMEOUT = 3

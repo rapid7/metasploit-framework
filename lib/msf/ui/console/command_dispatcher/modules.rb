@@ -19,6 +19,9 @@ module Msf
 
           include Msf::Ui::Console::CommandDispatcher
 
+          # Constant for disclosure date formatting in search functions
+          DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
+
           @@search_opts = Rex::Parser::Arguments.new(
             "-h" => [ false, "Help banner."]
           )
