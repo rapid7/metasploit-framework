@@ -169,7 +169,7 @@ module Msf::PostMixin
     mod_arch = self.module_info['Arch']
     unless mod_arch.nil?
     mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
-      return false unless mod_arch.include? s.base_arch
+      return false unless mod_arch.include? s.arch
     end
 
     # If we got here, we haven't found anything that definitely
