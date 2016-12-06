@@ -95,7 +95,7 @@ class Console::CommandDispatcher::Core
     # the platform update feature we can remove some of these conditions
     if client.platform == 'windows' || client.platform == 'linux' ||
         client.platform == 'python' || client.platform == 'java' ||
-        client.arch == ARCH_PYTHON || (client.arch == ARCH_JAVA && client.platform != 'android')
+        client.arch == ARCH_PYTHON || client.platform == 'android'
       # Yet to implement transport hopping for other meterpreters.
       c["transport"] = "Change the current transport mechanism"
 

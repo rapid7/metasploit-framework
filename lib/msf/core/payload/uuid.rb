@@ -138,7 +138,7 @@ class Msf::Payload::UUID
       raise ArgumentError, "Raw UUID must be at least 16 bytes"
     end
 
-    puid, plat_xor, arch_xor, plat_id, arch_id, tstamp = raw.unpack('A8C4N')
+    puid, plat_xor, arch_xor, plat_id, arch_id, tstamp = raw.unpack('a8C4N')
     plat     = find_platform_name(plat_xor ^ plat_id)
     arch     = find_architecture_name(arch_xor ^ arch_id)
     time_xor = [plat_xor, arch_xor, plat_xor, arch_xor].pack('C4').unpack('N').first

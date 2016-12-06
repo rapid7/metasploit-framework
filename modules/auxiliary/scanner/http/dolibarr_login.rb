@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     return [nil, nil] if res.nil? || res.get_cookies.empty?
 
     # Get the session ID from the cookie
-    m = get_cookies.match(/(DOLSESSID_.+);/)
+    m = res.get_cookies.match(/(DOLSESSID_.+);/)
     id = (m.nil?) ? nil : m[1]
 
     # Get the token from the decompressed HTTP body response
