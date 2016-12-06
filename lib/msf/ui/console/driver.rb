@@ -27,6 +27,15 @@ class Driver < Msf::Ui::Driver
   DefaultPromptChar = "%clr>"
 
   #
+  # Console Command Dispatchers to be loaded after the Core dispatcher.
+  #
+  CommandDispatchers = [
+    CommandDispatcher::Modules,
+    CommandDispatcher::Jobs,
+    CommandDispatcher::Resource
+  ]
+
+  #
   # The console driver processes various framework notified events.
   #
   include FrameworkEventManager
@@ -108,6 +117,10 @@ class Driver < Msf::Ui::Driver
       print_error("***")
     end
 
+    # Load the other "core" command dispatchers
+    CommandDispatchers.each do |dispatcher|
+      enstack_dispatcher(dispatcher)
+    end
 
     # Add the database dispatcher if it is usable
     if (framework.db.usable)
