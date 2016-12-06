@@ -26,7 +26,8 @@ module Msf
             "-P" => [ true,  "The RPORT/LPORT to configure the handler for"],
             "-H" => [ true,  "The RHOST/LHOST to configure the handler for"],
             "-e" => [ true,  "An Encoder to use for Payload Stage Encoding"],
-            "-n" => [ true,  "The custom name to give the handler job"])
+            "-n" => [ true,  "The custom name to give the handler job"]
+          )
 
 
 
@@ -36,7 +37,8 @@ module Msf
             "-K" => [ false, "Terminate all running jobs."                    ],
             "-i" => [ true,  "Lists detailed information about a running job."],
             "-l" => [ false, "List all running jobs."                         ],
-            "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
+            "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ]
+          )
 
           def commands
             {
@@ -102,7 +104,7 @@ module Msf
             print_line "Usage: jobs [options]"
             print_line
             print_line "Active job manipulation and interaction."
-            print @@jobs_opts.usage()
+            print @@jobs_opts.usage
           end
 
           #
@@ -174,7 +176,7 @@ module Msf
                 show_options(mod) if mod.options.has_options?
 
                 if verbose
-                  mod_opt = Serializer::ReadableText.dump_advanced_options(mod,'   ')
+                  mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ')
                   if mod_opt && mod_opt.length > 0
                     print_line("\nModule advanced options:\n\n#{mod_opt}\n")
                   end
@@ -197,7 +199,7 @@ module Msf
               return @@jobs_opts.fmt.keys
             end
 
-            if words.length == 2 and (@@jobs_opts.fmt[words[1]] || [false])[0]
+            if words.length == 2 && (@@jobs_opts.fmt[words[1]] || [false])[0]
               return framework.jobs.keys
             end
 
