@@ -58,7 +58,7 @@ module Msf::Payload::Java
 
     jar = Rex::Zip::Jar.new
     jar.add_sub("metasploit") if opts[:random]
-    jar.add_file("metasploit.dat", stager_config)
+    jar.add_file("metasploit.dat", stager_config(opts))
     jar.add_files(paths, MetasploitPayloads.path('java'))
     jar.build_manifest(:main_class => main_class)
 
@@ -105,7 +105,7 @@ module Msf::Payload::Java
     zip.add_file('WEB-INF/web.xml', web_xml)
     zip.add_file("WEB-INF/classes/", "")
     zip.add_files(paths, MetasploitPayloads.path('java'), 'WEB-INF/classes/')
-    zip.add_file("WEB-INF/classes/metasploit.dat", stager_config)
+    zip.add_file("WEB-INF/classes/metasploit.dat", stager_config(opts))
 
     zip
   end
@@ -140,7 +140,7 @@ module Msf::Payload::Java
     zip.add_file('META-INF/', '')
     zip.add_file('META-INF/services.xml', services_xml)
     zip.add_files(paths, MetasploitPayloads.path('java'))
-    zip.add_file('metasploit.dat', stager_config)
+    zip.add_file('metasploit.dat', stager_config(opts))
     zip.build_manifest(:app_name => app_name)
 
     zip

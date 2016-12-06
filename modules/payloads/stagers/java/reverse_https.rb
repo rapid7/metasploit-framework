@@ -10,7 +10,7 @@ require 'msf/core/payload/java/reverse_https'
 
 module MetasploitModule
 
-  CachedSize = :dynamic
+  CachedSize = 5932
 
   include Msf::Payload::Stager
   include Msf::Payload::Java

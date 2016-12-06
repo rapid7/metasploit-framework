@@ -29,7 +29,8 @@ class PayloadCachedSize
       'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
       'RC4PASSWORD' => 'Metasploit',
       'DNSZONE' => 'corelan.eu',
-      'PEXEC' => '/bin/sh'
+      'PEXEC' => '/bin/sh',
+      'StagerURILength' => 5
     },
     'Encoder'     => nil,
     'DisableNops' => true

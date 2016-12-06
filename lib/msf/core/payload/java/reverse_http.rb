@@ -24,7 +24,8 @@ module Payload::Java::ReverseHttp
   def initialize(*args)
     super
     register_advanced_options([
-      Msf::OptInt.new('Spawn', [true, "Number of subprocesses to spawn", 2])
+      Msf::OptInt.new('Spawn', [true, 'Number of subprocesses to spawn', 2]),
+      Msf::OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)'])
     ])
   end
 

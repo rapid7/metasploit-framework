@@ -15,7 +15,7 @@ module MetasploitModule
   include Msf::Payload::Java
   include Msf::Payload::Java::ReverseTcp
 
-  def initialize(info = {})
+  def initialize(info={})
     super(merge_info(info,
       'Name'        => 'Java Reverse TCP Stager',
       'Description' => 'Connect back stager',
