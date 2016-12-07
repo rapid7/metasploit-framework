@@ -68,6 +68,7 @@ to [[Setting Up a Metasploit Development Environment]].
 # Metasploit Payloads #
 
 - [[How Payloads Work]]
+- [[Merging Metasploit Payload Gem Updates]]
 - [[State of Meterpreter]]
 - [[Meterpreter Configuration]]
 - [[Meterpreter HTTP Communication]]
