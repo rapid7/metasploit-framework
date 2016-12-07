@@ -86,7 +86,7 @@ module Metasploit
           pstr
         end
 
-        def headers(creds, service, body_digest, body_length, now = nil)
+        def headers(creds, service, body_digest, now = nil)
           now = Time.now.utc.strftime("%Y%m%dT%H%M%SZ") if now.nil?
           headers = {
             'Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8',
@@ -140,7 +140,7 @@ module Metasploit
         end
 
         def call_api(creds, service, api_params)
-          print_status("#{peer} - Connecting (#{datastore['RHOST']})...")
+          print_status("Connecting (#{datastore['RHOST']})...")
           body = body(api_params)
           body_length = body.length
           body_digest = hexdigest(body)
@@ -148,7 +148,7 @@ module Metasploit
             res = send_request_raw(
               'method' => 'POST',
               'data' => body,
-              'headers' => headers(creds, service, body_digest, body_length)
+              'headers' => headers(creds, service, body_digest)
             )
             if res.nil?
               print_error "#{peer} did not respond"
