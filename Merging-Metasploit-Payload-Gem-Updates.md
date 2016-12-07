@@ -18,3 +18,5 @@ To do this, committers must:
 * Create the Pull Request.
 
 Done!
+
+A sample update PR/commit can be found here: https://github.com/rapid7/metasploit-framework/pull/7666/files
