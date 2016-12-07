@@ -139,7 +139,7 @@ begin
       # for rb-readline to support setting input and output.  Output needs to be set so that colorization works for the
       # prompt on Windows.
       self.prompt = prompt
-      reset_sequence = "\001\r\033[K\002"
+      reset_sequence = "\n\001\r\033[K\002"
       if (/mingw/ =~ RUBY_PLATFORM)
         reset_sequence = ""
       end
