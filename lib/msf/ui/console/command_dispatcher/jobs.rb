@@ -288,9 +288,9 @@ module Msf
             payload_datastore = payload_module.datastore
 
             # Set The RHOST or LHOST for the payload
-            if payload_datastore.key? "LHOST"
+            if payload_datastore.has_key? "LHOST"
               payload_datastore['LHOST'] = host
-            elsif payload_datastore.key? "RHOST"
+            elsif payload_datastore.has_key? "RHOST"
               payload_datastore['RHOST'] = host
             else
               print_error "Could not determine how to set Host on this payload..."
@@ -298,9 +298,9 @@ module Msf
             end
 
             # Set the RPORT or LPORT for the payload
-            if payload_datastore.key? "LPORT"
+            if payload_datastore.has_key? "LPORT"
               payload_datastore['LPORT'] = port
-            elsif payload_datastore.key? "RPORT"
+            elsif payload_datastore.has_key? "RPORT"
               payload_datastore['RPORT'] = port
             else
               print_error "Could not determine how to set Port on this payload..."
@@ -321,7 +321,7 @@ module Msf
               'ExitOnSession'  => exit_on_session,
               'RunAsJob'       => true
             }
-            handler_opts.reverse_merge!(payload_datastore)
+            handler.datastore.reverse_merge!(payload_datastore)
 
             # Launch our Handler and get the Job ID
             handler.exploit_simple(handler_opts)
