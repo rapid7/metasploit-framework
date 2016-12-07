@@ -97,7 +97,7 @@ RSpec.describe Metasploit::Framework::Aws::Client do
   end
 
   it 'should create proper headers' do
-    h = subject.headers(creds, service, digest, digest.length, now)
+    h = subject.headers(creds, service, digest, now)
     expect(h.fetch('Content-Type')).to eq("application/x-www-form-urlencoded; charset=utf-8")
     expect(h.fetch('Accept-Encoding')).to be_empty
     expect(h.fetch('User-Agent')).to eq(Metasploit::Framework::Aws::Client::USER_AGENT)
