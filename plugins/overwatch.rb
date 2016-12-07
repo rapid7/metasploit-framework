@@ -1,0 +1,660 @@
+# Overwatch plugin - Active Routing and Session Management
+#
+# Author: sn0wfa11 - jhale85446[at]gmail.com
+#
+# Session stepping and logging functionality borrowed on HDM's Beholder plugin.
+
+require 'fileutils'
+
+module Msf
+
+class Plugin::Overwatch < Msf::Plugin
+
+  # Worker Thread
+  #
+  # @return [void] A useful return value is not expected here
+
+  class OverwatchWorker
+    attr_accessor :framework, :config, :driver, :thread
+    attr_accessor :state
+
+    def initialize(framework, config, driver)
+      self.state     = { }
+      self.framework = framework
+      self.config    = config
+      self.driver    = driver
+      self.thread    = framework.threads.spawn('OverwatchWorker', false) {
+        begin
+          self.start
+        rescue ::Exception => e
+          $stderr.puts "OverwatchWorker: #{e.class} #{e.to_s} #{e.backtrace}"
+        end
+
+        # Mark this worker as dead
+        self.thread = nil
+      }
+    end
+
+    def stop
+      return unless self.thread
+      self.thread.kill rescue nil
+      self.thread = nil
+    end
+
+    # Starts the overwatch worker and loops through the open sessions
+    # based on the defined timeframe.
+    # Primary error handling to the log file occurs here as well.
+    #
+    # @return [void] A useful return value is not expected here
+    def start
+      if self.config[:log]
+        self.driver.print_status("Overwatch is logging to #{self.config[:base]}. Use 'overwatch_start -h' for plugin information.")
+      else
+        self.driver.print_status("Overwatch started, logging is disabled. Use 'overwatch_start -h' for plugin information.")
+      end
+
+      bool_options = [ :autoroute, :reroute_stale, :kill_stale, :kill_stale_dup, :log ]
+      bool_options.each do |o|
+        self.config[o] = !!( self.config[o].to_s =~ /^[yt1]/i)
+      end
+
+      int_options = [ :freq, :route_timeout, :session_timeout, :session_dup_timeout ]
+      int_options.each do |o|
+        self.config[o] = self.config[o].to_i
+      end
+
+      # Setup the log file if logging is active.
+      ::FileUtils.mkdir_p(self.config[:base]) if self.config[:log]
+
+      loop do
+        framework.sessions.keys.each do |sid|
+
+          begin
+            if self.state[sid].nil? ||
+              (self.state[sid][:last_update] + self.config[:freq] < Time.now.to_f)
+              process(sid)
+            end
+
+          # Error handling - Yea, lots of stuff in here to keep errors from popping up in the console when sessions die or go stale. 
+          # We also skip sessions below that have more than three errors because they slow down processing.
+          rescue ::Exception => e
+            if e.class.to_s == "Rex::TimeoutError"  # Error when a session stops responding and the requests time out.
+              session_log(sid, "Timed out.")
+            elsif e.class.to_s == "Rex::Post::Meterpreter::RequestError" # Error when a session does not have access to routing information (PHP/Meterpreter sessions throw this error.
+              if self.state[sid][:error_count]
+                self.state[sid][:error_count] = self.state[sid][:error_count] + 1
+              else
+                self.state[sid][:error_count] = 1
+              end
+              session_log(sid, "Access error: #{self.state[sid][:error_count].to_s} of 3. Possibly migrating or routing not available.") # Only log this error three times
+              session_log(sid, "No access to routing, skipping session.") if self.state[sid][:error_count] >= 3 # Skip this session after it errored three times
+            else
+              session_log(sid, "Triggered an exception: #{e.class} <> #{e} #{e.backtrace}") # Log any other errors.
+            end
+          end
+        end
+        sleep(0.5) # This sleep time seams to work the best to keep processes from stepping on each other.
+      end
+    end
+
+    # Manages the top level of processing the sessions.
+    # Sessions must be fully operational before the subprocesses can work.
+    #
+    # @sid [int class] Session ID of the current session being processed
+    #
+    # @return [void] A useful return value is not expected here
+    def process(sid)
+      return unless framework.sessions[sid].info #Make sure session is fully active before processing
+      self.state[sid] ||= {}
+      store_session_info(sid)
+      process_routing(sid)
+      process_sessions(sid)
+    end
+
+    # Initialization and update session information.
+    #
+    # @sid [int class] Session ID of the current session
+    #
+    # @return [void] A useful return value is not expected here
+    def store_session_info(sid)
+      self.state[sid][:last_update] = Time.now.to_f
+      return if self.state[sid][:initialized]
+      self.state[sid][:info] = framework.sessions[sid].inspect
+      session_log(sid, "registered")
+      self.state[sid][:initialized] = true
+      self.state[sid][:error_count] = 0
+    end
+
+    # Prints lines of the log along with session information.
+    # Only prints to log if logging is enabled.
+    #
+    # @sid [int class] Session ID of the current session
+    # @msg [string class] Message to be displayed in the log
+    #
+    # @return [void] A useful return value is not expected here
+    def session_log(sid, msg)
+      return unless self.config[:log]
+      ::File.open(::File.join(self.config[:base], "session.log"), "a") do |fd|
+        fd.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} Session #{sid} [#{self.state[sid][:info]}] #{msg}"
+      end
+    end
+
+    ##################################################################################
+    # Route Management Functions
+    ##################################################################################
+
+    # Perform the routing operations
+    # Response_timeout is changed to the defined stale time to stay consistant
+    # and not wait 300 seconds for timeout.
+    #
+    # @sid [int class] Session ID of of the session currently being processed.
+    #
+    # @return [int array] Array of session id's for stale sessions based on routing settings.
+    def process_routing(sid)
+      return unless self.config[:autoroute]
+      return if self.state[sid][:error_count] >= 3
+      
+      if self.config[:reroute_stale]
+        stale_sids = get_stale_route_sids
+        return if stale_sids.include? sid # Skip this session if it has been tagged as routing stale
+      end
+
+      if framework.sessions[sid].respond_to?(:response_timeout)
+        last_known_timeout = framework.sessions[sid].response_timeout
+        framework.sessions[sid].response_timeout = self.config[:route_timeout] # Don't want to wait 300 secs for a time out!
+      end
+
+      add_routes(sid, stale_sids)
+
+      if framework.sessions[sid].respond_to?(:response_timeout) && last_known_timeout 
+        framework.sessions[sid].response_timeout = last_known_timeout # Set it back now that we are done trying to add routes.
+      end
+    end
+
+    # Step through all of the current sessions and look at their age.
+    # Return an array of sessions that are passed the defined timeout age (route_timeout).
+    # Skips sessions that are not compatabile with this check.
+    #
+    # @return [int array] Array of session id's for stale sessions based on routing settings.
+    def get_stale_route_sids
+      stale_sids = []
+      framework.sessions.keys.each do | sid |
+        next unless stale_check_compatible?(sid)
+        session_age = Time.now.to_i - framework.sessions[sid].last_checkin.to_i
+        stale_sids << sid if session_age >= self.config[:route_timeout]
+      end
+      return stale_sids
+    end
+
+    # Search for valid subnets on the target and attempt
+    # add a route to each.
+    #
+    # @sid [int class] Session ID of the current session
+    # @stale_sids [int array] Array of session id's of sessions marked as stale
+    #
+    # @return [void] A useful return value is not expected here
+    def add_routes(sid, stale_sids)
+      return unless route_compatible?(sid)
+      return unless framework.sessions[sid].alive?
+
+      switch_board = Rex::Socket::SwitchBoard.instance
+
+      framework.sessions[sid].net.config.each_route do | route |
+        next unless route.subnet =~ /\./ # Pick out the IPv4 addresses
+        subnet = get_subnet(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
+        next unless is_routable?(subnet, route.netmask)
+
+        if subnet
+          remove_if_stale(subnet, route.netmask, sid, stale_sids) if self.config[:reroute_stale]
+
+          if !switch_board.route_exists?(subnet, route.netmask)
+            begin
+              if Rex::Socket::SwitchBoard.add_route(subnet, route.netmask, framework.sessions[sid])
+                session_log(sid, "Route added to subnet #{subnet}/#{route.netmask} from host's routing table.")
+              else
+                session_log(sid, "Could not add route to subnet #{subnet}/#{route.netmask} from host's routing table.")
+              end
+            rescue ::Exception => error
+              session_log(sid, "Could not add route to subnet #{subnet}/(#{route.netmask}) from host's routing table.")
+              session_log(sid, error.to_s)
+            end
+          end
+        end
+      end
+
+      add_interface_routes(sid, stale_sids) # Check interface list for more possible routes
+    end
+
+    # Look at network interfaces as options for additional routes.
+    # If the routes are not already included they will be added.
+    #
+    # @sid [int class] session id of the current session
+    # @stale_sids [int array] array of session id's of sessions marked as stale
+    #
+    # @return [true] A route from the interface list was added
+    # @return [false] No additional routes were added
+    def add_interface_routes(sid, stale_sids)
+      return unless interface_compatible?(sid)
+      return unless framework.sessions[sid].alive?
+
+      switch_board = Rex::Socket::SwitchBoard.instance
+
+      framework.sessions[sid].net.config.each_interface do | interface | # Step through each of the network interfaces
+
+        (0..(interface.addrs.size - 1)).each do | index | # Step through the addresses for the interface
+
+          ip_addr = interface.addrs[index]
+          netmask = interface.netmasks[index]
+
+          next unless ip_addr =~ /\./ # Pick out the IPv4 addresses
+          subnet = get_subnet(ip_addr, netmask)
+          next unless is_routable?(subnet, netmask)
+
+          if subnet
+            remove_if_stale(subnet, netmask, sid, stale_sids) if self.config[:reroute_stale]
+
+            if !switch_board.route_exists?(subnet, netmask)
+              begin
+                if Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
+                  session_log(sid, "Route added to subnet #{subnet}/#{netmask} from #{interface.mac_name}.")
+                else
+                  session_log(sid, "Could not add route to subnet #{subnet}/#{netmask} from #{interface.mac_name}")
+                end
+              rescue ::Exception => error
+                session_log(sid, "Could not add route to subnet #{subnet}/#{netmask} from #{interface.mac_name}")
+                session_log(sid, error.to_s)
+              end
+            end
+          end 
+        end
+      end
+    end
+
+    # Removes routes associated with stale sessions only if they are
+    # also present in sessions that are still active.
+    #
+    # @subnet [string class] route subnet
+    # @netmask [string array] route netmask
+    # @curr_sid [int class] Session ID of the current session being processed
+    # @stale_sids [int array] Array of session ID's that have been marked as stale.
+    #
+    # @return [void] A useful return value is not expected here
+    def remove_if_stale(subnet, netmask, curr_sid, stale_sids)
+      Rex::Socket::SwitchBoard.each do | route |
+        if stale_sids.include? route.comm.sid # See if a route is associated with a stale session
+          if route.subnet == subnet && route.netmask == netmask # See if that route matches the one currently being processed
+            session_log(route.comm.sid, "Deleting route #{route.subnet}/#{route.netmask}")
+            begin
+              Rex::Socket::SwitchBoard.remove_route(route.subnet, route.netmask, route.comm) # Remove so fresh matching route can be added
+            rescue ::Exception => error
+              session_log(route.comm.sid, "Could not remove route to subnet #{route.subnet}/#{route.netmask}")
+              session_log(route.comm.sid, error.to_s)
+            end
+            return
+          end
+        end
+      end
+    end
+
+    # Take an IP address and a netmask and return the appropreate subnet "Network"
+    #
+    # @ip_addr [string class] Input IPv4 Address
+    # @netmask [string class] Input IPv4 Netmask
+    #
+    # @return [string class] The subnet related to the IP address and netmask
+    # @return [nil class] Something is out of range
+    def get_subnet(ip_addr, netmask)
+      return nil if !validate_cmd(ip_addr, netmask) #make sure IP and netmask are valid
+
+      nets = ip_addr.split('.')
+      masks = netmask.split('.')
+      output = ""
+
+      (0..3).each do | index |
+        octet = get_subnet_octet(int_or_nil(nets[index]), int_or_nil(masks[index]))
+        return nil if !octet
+        output << octet.to_s
+        output << '.' if index < 3
+      end
+      return output
+    end
+
+    # Input an octet of an IPv4 address and the cooresponding octet of the
+    # IPv4 netmask then return the appropreate subnet octet.
+    #
+    # @net  [integer class] IPv4 address octet
+    # @mask [integer class] Ipv4 netmask octet
+    #
+    # @return [integer class] Octet of the subnet
+    # @return [nil class] If an input is nil
+    def get_subnet_octet(net, mask)
+      return nil if !net || !mask
+      subnet_range = 256 - mask  # This is the address space of the subnet octet
+      multi = net / subnet_range # Integer division to get the multiplier needed to determine subnet octet
+      return(subnet_range * multi) # Multiply to get subnet octet
+    end
+
+    # Take a string of numbers and converts it to an integer.
+    #
+    # @string [string class] Input string, needs to be all numbers (0..9)
+    #
+    # @return [integer class] Integer representation of the number string
+    # @return [nil class] string contains non-numbers, cannot convert
+    def int_or_nil(string)
+      num = string.to_i
+      num if num.to_s == string
+    end
+
+    # This function will exclude loopback, multicast, and default routes
+    #
+    # @subnet [string class] IPv4 subnet or address to check
+    # @netmask [string class] IPv4 netmask to check
+    #
+    # @return [true]  If good to add
+    # @return [false] If not
+    def is_routable?(subnet, netmask)
+      if subnet =~ /^224\.|^127\./
+        return false
+      elsif subnet == '0.0.0.0'
+        return false
+      elsif netmask == '255.255.255.255'
+        return false
+      end
+      return true
+    end
+
+    # Validates the IPv4 address
+    #
+    # @net  [integer class] IPv4 subnet address
+    # @mask [integer class] Ipv4 netmask
+    #
+    # @return [true class] Address is valid
+    # @return [false class] Address is not valid
+    def validate_cmd(subnet=nil,netmask=nil)
+      return false if subnet.nil?
+      return false unless(check_ip(subnet))
+      return false if(netmask and !(Rex::Socket.addr_atoc(netmask)))
+      return false if(netmask and !check_ip(netmask))
+      return true
+    end
+  
+    # Another step in IPv4 address validation.
+    #
+    # @net  [integer class] IPv4 subnet address
+    # @mask [integer class] Ipv4 netmask
+    #
+    # @return [true class] Address is valid
+    # @return [false class] Address is not valid
+    def check_ip(ip=nil)
+      return false if(ip.nil? || ip.strip.empty?)
+      begin
+        rw = Rex::Socket::RangeWalker.new(ip.strip)
+        (rw.valid? && rw.length == 1) ? true : false
+      rescue
+        return false
+      end
+    end
+
+    ###############################################################################
+    # Session Management Functions
+    ###############################################################################
+
+    # Processing function for session management
+    #
+    # @sid [int class] Session ID of the current session
+    #
+    # @return [void] A useful return value is not expected here
+    def process_sessions(sid)
+      kill_stale(sid) if self.config[:kill_stale]
+      kill_stale_dup(sid) if self.config[:kill_stale_dup]
+    end
+
+    # Kills a session that is marked as stale based on user settings
+    #
+    # @sid [int class] Session ID of the current session
+    #
+    # @return [void] A useful return value is not expected here
+    def kill_stale(sid)
+      return unless framework.sessions[sid].respond_to?(:last_checkin)
+      session_age = Time.now.to_i - framework.sessions[sid].last_checkin.to_i
+      if session_age >= self.config[:session_timeout]
+        session_log(sid, "Session killed for being stale.")
+        self.driver.print_status("Session #{sid.to_s} has become stale and is being killed.")
+        framework.sessions[sid].kill
+        return
+      end
+    end
+
+    # Kills a session that is marked as stale based on user settings
+    # that has a duplicate or twin session that is still active
+    #
+    # @sid [int class] Session ID of the current session
+    #
+    # @return [void] A useful return value is not expected here
+    def kill_stale_dup(sid)
+      return unless kill_dup_compatible?(sid)
+      session_age = Time.now.to_i - framework.sessions[sid].last_checkin.to_i
+      if session_age >= self.config[:session_dup_timeout]
+
+        framework.sessions.keys.each do | sid_other |
+          next if sid == sid_other
+          next unless kill_dup_compatible?(sid_other)
+          session_age_other = Time.now.to_i - framework.sessions[sid_other].last_checkin.to_i
+          if is_dup?(sid, sid_other) && session_age >= session_age_other
+            session_log(sid, "Session killed for being stale.")
+            self.driver.print_status("Session #{sid.to_s} is stale and is being killed. Duplicate as Session #{sid_other.to_s}")
+            framework.sessions[sid].kill
+            return
+          end
+        end
+      end
+    end
+
+    # Compares the two sessions to see if they match enough to kill the
+    # stale session.
+    #
+    # @sid_1 [int class] Session 1 to compare
+    # @sid_2 [int class] Session 2 to compare
+    #
+    # @return [bool class] True - Session has a twin, False - Session does not 
+    def is_dup?(sid_1, sid_2)
+      session1 = framework.sessions[sid_1]
+      session2 = framework.sessions[sid_2]
+
+      session1.info == session2.info &&
+      session1.session_host == session2.session_host &&
+      session1.type == session2.type &&
+      session1.platform == session1.platform && 
+      session1.machine_id == session2.machine_id
+    end
+
+    ###############################################################################
+    # Compatibility Checks
+    ###############################################################################
+
+    # Checks to see if the session has routing capabilities
+    #
+    # @sid [int class] Session ID of the current session
+    #
+    # @return [true class] Session has routing capabilities
+    # @return [false class] Session does not
+    def route_compatible?(sid)
+      framework.sessions[sid].respond_to?(:net) &&
+      framework.sessions[sid].net.config.respond_to?(:each_route)
+    end
+
+    # Checks to see if the session has capabilities of accessing network interfaces
+    #
+    # @sid [int class] Session ID of the current session
+    #
+    # @return [true class] Session has ability to access network interfaces
+    # @return [false class] Session does not
+    def interface_compatible?(sid)
+      framework.sessions[sid].respond_to?(:net) &&
+      framework.sessions[sid].net.config.respond_to?(:each_interface)
+    end
+
+    # Checks to see if the session responds to the last_checkin request
+    #
+    # @sid [int class] Session ID of the current session
+    #
+    # @return [true class] Session responds to last_checkin
+    # @return [false class] Session does not
+    def stale_check_compatible?(sid)
+      framework.sessions[sid].respond_to?(:last_checkin)
+    end
+
+    # Checks to see if the session is able to be checked for twins
+    #
+    # @sid [int class] Session ID of the current session
+    #
+    # @return [true class] Session can be checked for twins
+    # @return [false class] Session can not
+    def kill_dup_compatible?(sid)
+      framework.sessions[sid].respond_to?(:last_checkin) &&
+      framework.sessions[sid].respond_to?(:info) &&
+      framework.sessions[sid].respond_to?(:session_host) &&
+      framework.sessions[sid].respond_to?(:type) &&
+      framework.sessions[sid].respond_to?(:platform) &&
+      framework.sessions[sid].respond_to?(:machine_id)
+    end
+  end
+
+  ###################################################################################
+  # Command Dispatcher
+  ###################################################################################
+
+  class OverwatchCommandDispatcher
+    include Msf::Ui::Console::CommandDispatcher
+
+    # Set Defaults
+    @@overwatch_config = {
+      autoroute: true,
+      reroute_stale: true,
+      route_timeout: 30,
+      kill_stale: false,
+      kill_stale_dup: false,
+      session_timeout: 86400,
+      session_dup_timeout: 14400,
+      freq: 10, # Ten Seconds - Appears to be a good balance for this plugin
+      log: false,
+      base: ::File.join(Msf::Config.get_config_root, "overwatch", Time.now.strftime("%Y-%m-%d.%s")),
+    }
+
+   @@overwatch_worker = nil
+
+    def name
+      "Overwatch"
+    end
+
+    def commands
+      {
+        'overwatch_start'         => "Start route and session management",
+        'overwatch_stop'          => "Stop route and session management",
+        'overwatch_conf'          => "Configure plugin parameters",
+      }
+    end
+
+    def cmd_overwatch_stop(*args)
+      unless @@overwatch_worker
+        print_error("Error: Overwatch is not active")
+        return
+      end
+
+      print_status("Overwatch is shutting down...")
+      stop_overwatch
+    end
+
+    def cmd_overwatch_conf(*args)
+      parse_config(*args)
+      print_status("Overwatch Configuration")
+      print_status("----------------------")
+      @@overwatch_config.each_pair do |k,v|
+        print_status("  #{k}: #{v}")
+      end
+      print_status("----------------------")
+    end
+
+    def cmd_overwatch_start(*args)
+      opts = Rex::Parser::Arguments.new(
+        "-h"   => [ false,  "This help menu"],
+      )
+
+      opts.parse(args) do |opt, idx, val|
+        case opt
+        when "-h"
+          print_line("\nOverwatch is a plugin for active routing and session management.")
+          print_line("\nRoute Management:")
+          print_line("'autoroute' will automatically add routes from active sessions' routing tables and network interfaces.")
+          print_line("'reroute_stale' will automatically re-route to active sessions with matching routes if 'route_timeout' (in seconds) is reached by a non-responsive session.")
+          print_line("'autoroute' must be active for 'reroute_stale' to function.")
+          print_line("\nSession Management:")
+          print_line("'kill_stale' will kill non-responsive sessions when they reach 'session_timeout' (in seconds).")
+          print_line("'kill_stale_dup' will kill non-responsive sessions when they reach 'session_dup_timeout' (in seconds) only")
+          print_line("if the session has a twin based on domain, computer name, user ID, platform, computer ID, and IP address.")
+          print_line("\nAdditional Options:")
+          print_line("'freq' sets the cycle time in seconds.")
+          print_line("Setting 'log' to true will generate a text file log of Overwatch's activities.")
+          print_line("\nUsage: overwatch_start [base=</path/to/directory>] [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10] [log=<true|false>]")
+          print_line("\nConfig Usage: overwatch_config [base=</path/to/directory>] [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10] [log=<true|false>]")
+          print_line("\nUse 'overwatch_config' to view current settings.")
+          print_line(opts.usage)
+          
+          return
+        end
+      end
+
+      if @@overwatch_worker
+        print_error("Error: Overwatch is already active, use overwatch_stop to terminate")
+        return
+      end
+
+      parse_config(*args)
+      start_overwatch
+    end
+
+    def parse_config(*args)
+      new_config = args.map{|x| x.split("=", 2) }
+      new_config.each do |c|
+        unless @@overwatch_config.has_key?(c.first.to_sym)
+          print_error("Invalid configuration option: #{c.first}")
+          next
+        end
+        @@overwatch_config[c.first.to_sym] = c.last
+      end
+    end
+
+    def stop_overwatch
+      @@overwatch_worker.stop if @@overwatch_worker
+      @@overwatch_worker = nil
+    end
+
+    def start_overwatch
+      @@overwatch_worker = OverwatchWorker.new(framework, @@overwatch_config, driver)
+    end
+
+  end
+
+  ####################################################################################
+  # Plugin Interface
+  ####################################################################################
+
+  def initialize(framework, opts)
+    super
+    add_console_dispatcher(OverwatchCommandDispatcher)
+  end
+
+  def cleanup
+    remove_console_dispatcher('Overwatch')
+  end
+
+  def name
+    "overwatch"
+  end
+
+  def desc
+    "Active Route and Session Management"
+  end
+end
+end
+
