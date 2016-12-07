@@ -123,8 +123,13 @@ class MetasploitModule < Msf::Auxiliary
     @scanner.scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::LOCKED_OUT
-        print_error("Account lockout detected on '#{result.credential}'")
-        return if datastore['ABORT_ON_LOCKOUT']
+        if datastore['ABORT_ON_LOCKOUT']
+          print_error("Account lockout detected on '#{result.credential.public}', aborting.")
+          return
+        else
+          print_error("Account lockout detected on '#{result.credential.public}', skipping this user.")
+        end
+
       when Metasploit::Model::Login::Status::DENIED_ACCESS
         print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}', #{result.proof}"
         report_creds(ip, rport, result)
