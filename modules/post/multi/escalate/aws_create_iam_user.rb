@@ -61,9 +61,9 @@ class MetasploitModule < Msf::Post
     else
       creds = {
         'AccessKeyId' => datastore['AccessKeyId'],
-        'SecretAccessKey' => datastore['SecretAccessKey'],
-        'Token' => datastore['Token']
+        'SecretAccessKey' => datastore['SecretAccessKey']
       }
+      creds['Token'] = datastore['Token'] unless datastore['Token'].blank?
     end
 
     # create user
