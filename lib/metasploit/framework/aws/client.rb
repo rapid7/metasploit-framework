@@ -6,6 +6,7 @@ module Metasploit
       module Client
         USER_AGENT = "aws-sdk-ruby2/2.6.27 ruby/2.3.2 x86_64-darwin15"
         include Msf::Exploit::Remote::HttpClient
+
         # because Post modules require these to be defined when including HttpClient
         def register_autofilter_ports(ports=[]); end
         def register_autofilter_hosts(ports=[]); end
@@ -48,7 +49,7 @@ module Metasploit
           if headers.nil? || !headers.instance_of?(Hash) || body_digest.nil? || !body_digest.instance_of?(String)
             return nil, nil
           end
-          headers_block = headers.sort_by(&:first).map do |k,v|
+          headers_block = headers.sort_by(&:first).map do |k, v|
             v = "#{v},#{v}" if k == 'Host'
             "#{k.downcase}:#{v}"
           end.join("\n")
@@ -76,8 +77,8 @@ module Metasploit
 
         def body(vars_post)
           pstr = ""
-          vars_post.each_pair do |var,val|
-            pstr << '&' if pstr.length > 0
+          vars_post.each_pair do |var, val|
+            pstr << '&' unless pstr.empty?
             pstr << var
             pstr << '='
             pstr << val

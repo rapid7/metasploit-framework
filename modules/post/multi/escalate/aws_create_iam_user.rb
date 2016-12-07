@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core'
 require 'metasploit/framework/aws/client'
 
@@ -5,26 +10,30 @@ class MetasploitModule < Msf::Post
 
   include Metasploit::Framework::Aws::Client
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Create an AWS IAM User",
-      'Description'    => %q{
-        This module will attempt to create an AWS (Amazon Web Services) IAM
-        (Identity and Access Management) user with Admin privileges.
-      },
-      'License'        => MSF_LICENSE,
-      'Platform'      => %w(unix),
-      'SessionTypes'  => %w(shell meterpreter),
-      'Author'         => ['Javier Godinez <godinezj[at]gmail.com>'],
-      'References'     => [
-        [ 'URL', 'https://github.com/devsecops/bootcamp/raw/master/Week-6/slides/june-DSO-bootcamp-week-six-lesson-three.pdf' ]
-      ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'           => "Create an AWS IAM User",
+        'Description'    => %q{
+          This module will attempt to create an AWS (Amazon Web Services) IAM
+          (Identity and Access Management) user with Admin privileges.
+        },
+        'License'        => MSF_LICENSE,
+        'Platform'       => %w(unix),
+        'SessionTypes'   => %w(shell meterpreter),
+        'Author'         => ['Javier Godinez <godinezj[at]gmail.com>'],
+        'References'     => [
+          [ 'URL', 'https://github.com/devsecops/bootcamp/raw/master/Week-6/slides/june-DSO-bootcamp-week-six-lesson-three.pdf' ]
+        ]
+      )
+    )
 
     register_options(
       [
         OptString.new('IAM_USERNAME', [false, 'Name of the user to be created (leave empty or unset to use a random name)', ''])
-      ])
+      ]
+    )
     register_advanced_options(
       [
         OptString.new('METADATA_IP', [true, 'The metadata service IP', '169.254.169.254']),
@@ -36,10 +45,10 @@ class MetasploitModule < Msf::Post
         OptString.new('SSL', [true, 'AWS IAM Endpoint SSL', true]),
         OptString.new('IAM_GROUP_POL', [true, 'IAM group policy to use', '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*" }]}']),
         OptString.new('Region', [true, 'The default region', 'us-east-1' ])
-      ])
+      ]
+    )
     deregister_options('VHOST')
   end
-
 
   def run
     # setup creds for making IAM API calls
@@ -119,4 +128,3 @@ class MetasploitModule < Msf::Post
     {}
   end
 end
-
