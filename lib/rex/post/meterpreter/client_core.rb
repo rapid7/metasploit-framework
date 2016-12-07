@@ -518,6 +518,9 @@ class ClientCore < Extension
 
     # if we change architecture, we need to change UUID as well
     if current_process['arch'] != target_process['arch']
+      if client.payload_uuid.nil?
+        client.payload_uuid = Msf::Payload::UUID.new(arch: client.arch, platform: client.platform)
+      end
       client.payload_uuid.arch = target_process['arch']
       request.add_tlv( TLV_TYPE_UUID, client.payload_uuid.to_raw )
     end
