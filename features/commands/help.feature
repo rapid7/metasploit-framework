@@ -64,6 +64,7 @@ Feature: Help command
 
           Command       Description
           -------       -----------
+          handler       Start a payload handler as job
           jobs          Displays and manages jobs
           kill          Kill a job
           rename_job    Rename a job
