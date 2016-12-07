@@ -55,6 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
+        OptBool.new('ABORT_ON_LOCKOUT', [ true, "Abort the run when an account lockout is detected", true ]),
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ]),
         OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', true])
@@ -121,6 +122,9 @@ class MetasploitModule < Msf::Auxiliary
 
     @scanner.scan! do |result|
       case result.status
+      when Metasploit::Model::Login::Status::LOCKED_OUT
+        print_error("Account lockout detected on '#{result.credential}'")
+        return if datastore['ABORT_ON_LOCKOUT']
       when Metasploit::Model::Login::Status::DENIED_ACCESS
         print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}', #{result.proof}"
         report_creds(ip, rport, result)
