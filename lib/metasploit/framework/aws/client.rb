@@ -107,7 +107,7 @@ module Metasploit
         def print_hsh(hsh)
           return if hsh.nil? || !hsh.instance_of?(Hash)
           hsh.each do |key, value|
-            print_warning "#{key}: #{value}"
+            vprint_status "#{key}: #{value}"
           end
         end
 
