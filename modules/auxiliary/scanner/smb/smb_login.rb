@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
-        OptBool.new('ABORT_ON_LOCKOUT', [ true, "Abort the run when an account lockout is detected", true ]),
+        OptBool.new('ABORT_ON_LOCKOUT', [ true, "Abort the run when an account lockout is detected", false ]),
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ]),
         OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', true])
