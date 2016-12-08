@@ -65,8 +65,8 @@ aws_create_iam_user can be used to take over an AWS account given access to
 a host having 1). overly permissive instance profile/role, 2). API Access keys.
 Once a foothold is established, you can run the module to pull temporary
 access keys from the metadata service. If this fails, search the instance for
-API access keys, e.g., see ~/aws/credentals, and set `AccessKeyId`,
-`SecretAccessKey`, & `Token` (optional). 
+API access keys, e.g., see ~/.aws/credentials, and set `AccessKeyId`,
+`SecretAccessKey`, & `Token` (optional).
 
 ## Options
 
@@ -75,6 +75,8 @@ API access keys, e.g., see ~/aws/credentals, and set `AccessKeyId`,
 * `SecretAccessKey`: set this if you find access keys on the host and instance has no profile/privileges
 * `Token`: set this if you find access keys on the host and instance has no profile/privileges. This is optional as this signifies temporary keys, if you find these, these are most likely expired.
 * `Proxies`: depending on your environment, you may wan to proxy your calls to AWS.
+* `CREATE_API`: when true, creates API keys for this user
+* `CREATE_CONSOLE`: when true, creates a password for this user so that they can access the AWS console
 
 
 ### Establish a foothold
