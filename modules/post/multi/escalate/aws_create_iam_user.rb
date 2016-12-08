@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Post
       print_good("AWS console URL https://#{results['AccountId']}.signin.aws.amazon.com/console may be used to access this account")
     end
 
-    path = store_loot('what', 'text/plain', datastore['RHOST'], results.to_json)
+    path = store_loot('AWS credentials', 'text/json', session, results.to_json)
     print_good("AWS loot stored at: " + path)
   end
 
