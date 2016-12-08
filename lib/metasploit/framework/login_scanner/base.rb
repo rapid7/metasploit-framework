@@ -291,6 +291,11 @@ module Metasploit
             unless cred_details.respond_to? :each
               errors.add(:cred_details, "must respond to :each")
             end
+
+            if !(cred_details.pass_file.present? || cred_details.username.present? || cred_details.user_file.present? ||
+                      cred_details.userpass_file.present? || !cred_details.additional_publics.empty?)
+              errors.add(:cred_details, 'No credentials provided')
+            end
           end
 
         end
