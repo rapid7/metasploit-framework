@@ -12,6 +12,16 @@ RSpec.describe Metasploit::Framework::LoginScanner::Telnet do
   it { is_expected.to respond_to :banner_timeout }
   it { is_expected.to respond_to :telnet_timeout }
 
+  before(:each) do
+    creds = double('Metasploit::Framework::CredentialCollection')
+    allow(creds).to receive(:pass_file)
+    allow(creds).to receive(:username)
+    allow(creds).to receive(:user_file)
+    allow(creds).to receive(:userpass_file)
+    allow(creds).to receive(:additional_publics)
+    login_scanner.cred_details = creds
+  end
+
   context 'validations' do
     context 'banner_timeout' do
       it 'is not valid for a non-number' do
