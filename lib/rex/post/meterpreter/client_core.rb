@@ -7,6 +7,8 @@ require 'rex/post/meterpreter/client'
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
+require 'msf/core/payload/windows/migrate'
+require 'msf/core/payload/windows/x64/migrate'
 
 # URI uuid and checksum stuff
 require 'msf/core/payload/uuid'
@@ -479,7 +481,8 @@ class ClientCore < Extension
       # Rex::Post::FileStat#writable? isn't available
     end
 
-    blob = generate_payload_stub(target_process)
+    migrate_stub = generate_migrate_stub(target_process)
+    migrate_payload = generate_migrate_payload(target_process)
 
     # Build the migration request
     request = Packet.create_request('core_migrate')
@@ -491,23 +494,25 @@ class ClientCore < Extension
         raise RuntimeError, 'The writable dir is too long', caller
       end
 
-      pos = blob.index(DEFAULT_SOCK_PATH)
+      pos = migrate_payload.index(DEFAULT_SOCK_PATH)
 
       if pos.nil?
         raise RuntimeError, 'The meterpreter binary is wrong', caller
       end
 
-      blob[pos, socket_path.length + 1] = socket_path + "\x00"
+      migrate_payload[pos, socket_path.length + 1] = socket_path + "\x00"
 
-      ep = elf_ep(blob)
+      ep = elf_ep(migrate_payload)
       request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
       request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
       request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
     end
 
     request.add_tlv( TLV_TYPE_MIGRATE_PID, target_pid )
-    request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
+    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
+    request.add_tlv( TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
 
     if target_process['arch'] == ARCH_X64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
@@ -604,7 +609,47 @@ class ClientCore < Extension
     end
   end
 
-  private
+private
+
+  def get_current_transport
+    transport_list[:transports][0]
+  end
+
+  def generate_migrate_stub(target_process)
+    stub = nil
+
+    if client.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(client.arch)
+      t = get_current_transport
+
+      c = Class.new(::Msf::Payload)
+
+      if target_process['arch'] == ARCH_X86
+        c.include(::Msf::Payload::Windows::BlockApi)
+        case t[:url]
+        when /^tcp/i
+          c.include(::Msf::Payload::Windows::MigrateTcp)
+        when /^http/i
+          # Covers HTTP and HTTPS
+          c.include(::Msf::Payload::Windows::MigrateHttp)
+        end
+      else
+        c.include(::Msf::Payload::Windows::BlockApi_x64)
+        case t[:url]
+        when /^tcp/i
+          c.include(::Msf::Payload::Windows::MigrateTcp_x64)
+        when /^http/i
+          # Covers HTTP and HTTPS
+          c.include(::Msf::Payload::Windows::MigrateHttp_x64)
+        end
+      end
+
+      stub = c.new().generate
+    else
+      raise RuntimeError, "Unsupported session #{client.session_type}"
+    end
+
+    stub
+  end
 
   def transport_prepare_request(method, opts={})
     unless valid_transport?(opts[:transport]) && opts[:lport]
@@ -694,12 +739,12 @@ class ClientCore < Extension
   end
 
 
-  def generate_payload_stub(process)
+  def generate_migrate_payload(target_process)
     case client.platform
     when 'windows'
-      blob = generate_windows_stub(process)
+      blob = generate_migrate_windows_payload(target_process)
     when 'linux'
-      blob = generate_linux_stub
+      blob = generate_migrate_linux_payload
     else
       raise RuntimeError, "Unsupported platform '#{client.platform}'"
     end
@@ -707,31 +752,27 @@ class ClientCore < Extension
     blob
   end
 
-  def generate_windows_stub(process)
+  def generate_migrate_windows_payload(target_process)
     c = Class.new( ::Msf::Payload )
     c.include( ::Msf::Payload::Stager )
 
     # Include the appropriate reflective dll injection module for the target process architecture...
-    if process['arch'] == ARCH_X86
+    if target_process['arch'] == ARCH_X86
       c.include( ::Msf::Payload::Windows::MeterpreterLoader )
-    elsif process['arch'] == ARCH_X64
+    elsif target_process['arch'] == ARCH_X64
       c.include( ::Msf::Payload::Windows::MeterpreterLoader_x64 )
     else
-      raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
+      raise RuntimeError, "Unsupported target architecture '#{target_process['arch']}' for process '#{target_process['name']}'.", caller
     end
 
     # Create the migrate stager
     migrate_stager = c.new()
 
-    blob = migrate_stager.stage_meterpreter
-
-    blob
+    migrate_stager.stage_meterpreter
   end
 
-  def generate_linux_stub
-    blob = MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
-
-    blob
+  def generate_migrate_linux_payload
+    MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
   end
 
   def elf_ep(payload)
