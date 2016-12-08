@@ -140,7 +140,7 @@ module Metasploit
         end
 
         def call_api(creds, service, api_params)
-          print_status("Connecting (#{datastore['RHOST']})...")
+          vprint_status("Connecting (#{datastore['RHOST']})...")
           body = body(api_params)
           body_length = body.length
           body_digest = hexdigest(body)
