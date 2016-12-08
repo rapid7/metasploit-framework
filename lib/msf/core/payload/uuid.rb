@@ -38,7 +38,11 @@ class Msf::Payload::UUID
     19 => ARCH_DALVIK,
     20 => ARCH_PYTHON,
     21 => ARCH_NODEJS,
-    22 => ARCH_FIREFOX
+    22 => ARCH_FIREFOX,
+    23 => ARCH_ZARCH,
+    24 => ARCH_AARCH64,
+    25 => ARCH_MIPS64,
+    26 => ARCH_PPC64LE
   }
 
   Platforms = {

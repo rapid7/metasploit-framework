@@ -33,7 +33,7 @@ PATH
       rb-readline-r7
       recog
       redcarpet
-      rex-arch (= 0.1.2)
+      rex-arch (= 0.1.4)
       rex-bin_tools
       rex-core
       rex-encoder
@@ -237,7 +237,7 @@ GEM
     recog (2.1.2)
       nokogiri
     redcarpet (3.3.4)
-    rex-arch (0.1.2)
+    rex-arch (0.1.4)
       rex-text
     rex-bin_tools (0.1.1)
       metasm
@@ -250,7 +250,7 @@ GEM
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.3)
+    rex-exploitation (0.1.4)
       jsobfu
       metasm
       rex-arch
