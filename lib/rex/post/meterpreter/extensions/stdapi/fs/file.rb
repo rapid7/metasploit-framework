@@ -337,6 +337,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     if ::File.exist?(dest_file)
       dst_stat = ::File.stat(dest_file)
       if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
+        src_fd.close
         return 'skipped'
       end
     end
