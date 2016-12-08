@@ -18,7 +18,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Telnet do
     allow(creds).to receive(:username)
     allow(creds).to receive(:user_file)
     allow(creds).to receive(:userpass_file)
-    allow(creds).to receive(:additional_publics)
+    allow(creds).to receive(:additional_publics).and_return([])
     login_scanner.cred_details = creds
   end
 
