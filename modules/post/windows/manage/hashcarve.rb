@@ -198,7 +198,7 @@ class MetasploitModule < Msf::Post
         cipher.key = k
         result << cipher.update(lm_magic)
       end
-      return result.unpack("H*")[0] 
+      return result.unpack("H*")[0]
     end
 
     def create_des_keys(string)
