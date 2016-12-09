@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def base_uri
-    @base_uri ||= "#{normalize_uri(target_uri.path)}?q=admin/views/ajax/autocomplete/user/"
+    @base_uri ||= normalize_uri("#{target_uri.path}/?q=admin/views/ajax/autocomplete/user/")
   end
 
   def check_host(ip)
