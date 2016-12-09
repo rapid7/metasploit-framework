@@ -38,19 +38,20 @@ class Core
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
-    "-c"  => [ true,  "Run a command on the session given with -i, or all"          ],
-    "-h"  => [ false, "Help banner"                                                 ],
-    "-i"  => [ true,  "Interact with the supplied session ID   "                    ],
-    "-l"  => [ false, "List all active sessions"                                    ],
-    "-v"  => [ false, "List sessions in verbose mode"                               ],
-    "-q"  => [ false, "Quiet mode"                                                  ],
-    "-k"  => [ true,  "Terminate sessions by session ID and/or range"               ],
-    "-K"  => [ false, "Terminate all sessions"                                      ],
-    "-s"  => [ true,  "Run a script on the session given with -i, or all"           ],
-    "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all" ],
-    "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"  ],
-    "-t"  => [ true,  "Set a response timeout (default: 15)"                        ],
-    "-x" =>  [ false, "Show extended information in the session table"              ])
+    "-c"  => [ true,  "Run a command on the session given with -i, or all"             ],
+    "-C"  => [ true,  "Run a Meterpreter Command on the session given with -i, or all" ],
+    "-h"  => [ false, "Help banner"                                                    ],
+    "-i"  => [ true,  "Interact with the supplied session ID   "                       ],
+    "-l"  => [ false, "List all active sessions"                                       ],
+    "-v"  => [ false, "List sessions in verbose mode"                                  ],
+    "-q"  => [ false, "Quiet mode"                                                     ],
+    "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
+    "-K"  => [ false, "Terminate all sessions"                                         ],
+    "-s"  => [ true,  "Run a script on the session given with -i, or all"              ],
+    "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
+    "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
+    "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
+    "-x" =>  [ false, "Show extended information in the session table"                 ])
 
   @@threads_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -1045,6 +1046,9 @@ class Core
       when "-c"
         method = 'cmd'
         cmds << val if val
+      when "-C"
+          method = 'meterp-cmd'
+          cmds << val if val
       when "-x"
         show_extended = true
       when "-v"
@@ -1167,6 +1171,40 @@ class Core
           # commands on), so don't bother.
         end
       end
+      when 'meterp-cmd'
+        if cmds.length < 1
+          print_error("No command specified!")
+          return false
+        end
+
+        if sid
+          sessions = session_list
+        else
+          sessions = framework.sessions.keys.sort
+        end
+        if sessions.blank?
+          print_error("Please specify valid session identifier(s) using -i")
+          return false
+        end
+
+        cmds.each do |cmd|
+          sessions.each do |session|
+            session = verify_session(session)
+            unless session.type == 'meterpreter'
+              print_error "Session ##{session.sid} is not a Meterpreter shell. Skipping..."
+              next
+            end
+
+            next unless session
+            print_status("Running '#{cmd}' on #{session.type} session #{session.sid} (#{session.session_host})")
+            if session.respond_to?(:response_timeout)
+              last_known_timeout = session.response_timeout
+              session.response_timeout = response_timeout
+            end
+
+            output = session.run_cmd cmd
+          end
+        end
     when 'kill'
       print_status("Killing the following session(s): #{session_list.join(', ')}")
       session_list.each do |sess_id|
