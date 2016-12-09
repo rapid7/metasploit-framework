@@ -80,10 +80,10 @@ class MetasploitModule < Msf::Post
             #print_status("Decrypting user keys...")
             #users    = decrypt_user_keys(hbootkey, users)
                      
-            print_status("Modifying User Key")
+            print_status("Modifying user key")
             modify_user_key(hbootkey, ridInt, user,[nthash].pack("H*"),[lmhash].pack("H*"))
             
-            print_status("Carving User Key")
+            print_status("Carving user key")
             write_user_key(rid, user)
             
             print_status("Completed! Let's hope for the best")
