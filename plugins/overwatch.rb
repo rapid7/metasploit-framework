@@ -55,7 +55,7 @@ class Plugin::Overwatch < Msf::Plugin
 
       bool_options = [ :autoroute, :reroute_stale, :kill_stale, :kill_stale_dup, :log ]
       bool_options.each do |o|
-        self.config[o] = !!( self.config[o].to_s =~ /^[yt1]/i)
+        self.config[o] = (self.config[o].to_s =~ /^[yt1]/i) ? true : false # Set option to true if (true, yes, or 1)
       end
 
       int_options = [ :freq, :route_timeout, :session_timeout, :session_dup_timeout ]
@@ -77,21 +77,22 @@ class Plugin::Overwatch < Msf::Plugin
 
           # Error handling - Yea, lots of stuff in here to keep errors from popping up in the console when sessions die or go stale. 
           # We also skip sessions below that have more than three errors because they slow down processing.
-          rescue ::Exception => e
-            if e.class.to_s == "Rex::TimeoutError"  # Error when a session stops responding and the requests time out.
-              session_log(sid, "Timed out.")
-            elsif e.class.to_s == "Rex::Post::Meterpreter::RequestError" # Error when a session does not have access to routing information (PHP/Meterpreter sessions throw this error.
-              if self.state[sid][:error_count]
-                self.state[sid][:error_count] = self.state[sid][:error_count] + 1
-              else
-                self.state[sid][:error_count] = 1
-              end
-              session_log(sid, "Access error: #{self.state[sid][:error_count].to_s} of 3. Possibly migrating or routing not available.") # Only log this error three times
-              session_log(sid, "No access to routing, skipping session.") if self.state[sid][:error_count] >= 3 # Skip this session after it errored three times
+          rescue Rex::TimeoutError => te # Error when a session stops responding and the requests time out.
+            session_log(sid, "Timed out.")
+
+          rescue Rex::Post::Meterpreter::RequestError => re # Error when a session does not have access to routing information (PHP/Meterpreter sessions throw this error.
+            if self.state[sid][:error_count]
+              self.state[sid][:error_count] = self.state[sid][:error_count] + 1
             else
-              session_log(sid, "Triggered an exception: #{e.class} <> #{e} #{e.backtrace}") # Log any other errors.
+              self.state[sid][:error_count] = 1
             end
+            session_log(sid, "Access error: #{self.state[sid][:error_count].to_s} of 3. Possibly migrating or routing not available.") # Only log this error three times
+            session_log(sid, "No access to routing, skipping session.") if self.state[sid][:error_count] >= 3 # Skip this session after it errored three times
+
+          rescue ::Exception => e
+            session_log(sid, "Triggered an exception: #{e.class} <> #{e} #{e.backtrace}") # Log any other errors.
           end
+
         end
         sleep(0.5) # This sleep time seams to work the best to keep processes from stepping on each other.
       end
@@ -221,7 +222,6 @@ class Plugin::Overwatch < Msf::Plugin
           end
         end
       end
-
       add_interface_routes(sid, stale_sids) # Check interface list for more possible routes
     end
 
@@ -328,7 +328,7 @@ class Plugin::Overwatch < Msf::Plugin
     # @return [integer class] Octet of the subnet
     # @return [nil class] If an input is nil
     def get_subnet_octet(net, mask)
-      return nil if !net || !mask
+      return nil unless (net && mask)
       subnet_range = 256 - mask  # This is the address space of the subnet octet
       multi = net / subnet_range # Integer division to get the multiplier needed to determine subnet octet
       return(subnet_range * multi) # Multiply to get subnet octet
@@ -371,7 +371,7 @@ class Plugin::Overwatch < Msf::Plugin
     # @return [true class] Address is valid
     # @return [false class] Address is not valid
     def validate_cmd(subnet=nil,netmask=nil)
-      return false if subnet.nil?
+      return false unless (subnet && netmask)
       return false unless(check_ip(subnet))
       return false if(netmask and !(Rex::Socket.addr_atoc(netmask)))
       return false if(netmask and !check_ip(netmask))
