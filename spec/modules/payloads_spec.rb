@@ -4362,6 +4362,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/ppc/mettle_reverse_tcp'
   end
 
+  context 'linux/ppc64le/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/ppc64le/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppc64le/mettle_reverse_tcp'
+  end
+
   context 'linux/x64/mettle/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
