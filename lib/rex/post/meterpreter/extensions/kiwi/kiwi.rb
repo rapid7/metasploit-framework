@@ -337,6 +337,9 @@ class Kiwi < Extension
   # @return [Array<Hash>]
   #
   def kerberos_ticket_list(export)
+    result = exec_cmd('kerberos::list')
+    # TODO figure out the structure and parse it
+    return result
     export ||= false
     request = Packet.create_request('kiwi_kerberos_ticket_list')
     request.add_tlv(TLV_TYPE_KIWI_KERB_EXPORT, export)
@@ -382,9 +385,8 @@ class Kiwi < Extension
   # @return [void]
   #
   def kerberos_ticket_purge
-    request = Packet.create_request('kiwi_kerberos_ticket_purge')
-    client.send_request(request)
-    return true
+    result = exec_cmd('kerberos::purge').strip
+    return 'Ticket(s) purge for current session is OK' == result
   end
 
   #
@@ -421,31 +423,25 @@ class Kiwi < Extension
   #
   # @return [Array<Hash>]
   def wifi_list
-    request = Packet.create_request('kiwi_wifi_profile_list')
-
-    response = client.send_request(request)
-
+    response_xml = exec_cmd('misc::wifi')
     results = []
+    # TODO: check for XXE?
+    doc = REXML::Document.new(response_xml)
 
-    response.each(TLV_TYPE_KIWI_WIFI_INT) do |i|
+    doc.get_elements('wifilist/interface').each do |i|
       interface = {
-        :guid     => Rex::Text::to_guid(i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_GUID)),
-        :desc     => i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_DESC),
-        :state    => i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_STATE),
+        :guid     => Rex::Text::to_guid(i.elements['guid'].text),
+        :desc     => i.elements['description'].text,
+        :state    => i.elements['state'].text,
         :profiles => []
       }
 
-      i.each(TLV_TYPE_KIWI_WIFI_PROFILE) do |p|
-
-        xml = p.get_tlv_value(TLV_TYPE_KIWI_WIFI_PROFILE_XML)
-        doc = REXML::Document.new(xml)
-        profile = doc.elements['WLANProfile']
-
+      i.get_elements('profiles/WLANProfile').each do |p|
         interface[:profiles] << {
-          :name        => p.get_tlv_value(TLV_TYPE_KIWI_WIFI_PROFILE_NAME),
-          :auth        => profile.elements['MSM/security/authEncryption/authentication'].text,
-          :key_type    => profile.elements['MSM/security/sharedKey/keyType'].text,
-          :shared_key  => profile.elements['MSM/security/sharedKey/keyMaterial'].text
+          :name        => p.elements['name'].text,
+          :auth        => p.elements['MSM/security/authEncryption/authentication'].text,
+          :key_type    => p.elements['MSM/security/sharedKey/keyType'].text,
+          :shared_key  => p.elements['MSM/security/sharedKey/keyMaterial'].text
         }
       end
 

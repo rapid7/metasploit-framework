@@ -67,10 +67,10 @@ class Console::CommandDispatcher::Kiwi
       'creds_all'             => 'Retrieve all credentials (parsed)',
       #'golden_ticket_create'  => 'Create a golden kerberos ticket',
       #'kerberos_ticket_use'   => 'Use a kerberos ticket',
-      #'kerberos_ticket_purge' => 'Purge any in-use kerberos tickets',
-      #'kerberos_ticket_list'  => 'List all kerberos tickets',
+      'kerberos_ticket_purge' => 'Purge any in-use kerberos tickets',
+      'kerberos_ticket_list'  => 'List all kerberos tickets',
       'lsa_dump_secrets'      => 'Dump LSA secrets (unparsed)',
-      #'wifi_list'             => 'List wifi profiles/creds',
+      'wifi_list'             => 'List wifi profiles/creds',
     }
   end
 
@@ -429,7 +429,7 @@ protected
 
       next if accounts[k].length == 0
 
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'    => "#{k} credentials",
         'Indent'    => 0,
         'SortIndex' => 0,
