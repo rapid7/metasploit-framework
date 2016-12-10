@@ -1136,7 +1136,14 @@ module Msf
         end
         targets.chop!
         print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in #{framework.db.workspace.name}")
-        scan = @n.scan_create(policy_id, name, desc, targets)
+        et=Hash.new
+        et['enabled']=false
+        et['launch']='ONETIME'
+        et['name']=name
+        et['text_targets']=targets
+        et['description']=desc
+        et['launch_now']=false
+        scan = @n.scan_create(policy_id, et)
         if !scan["error"]
           scan = scan["scan"]
           print_status("Scan ID #{scan['id']} successfully created")
