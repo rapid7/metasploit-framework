@@ -198,8 +198,6 @@ class Plugin::Overwatch < Msf::Plugin
       return unless route_compatible?(sid)
       return unless framework.sessions[sid].alive?
 
-      switch_board = Rex::Socket::SwitchBoard.instance
-
       framework.sessions[sid].net.config.each_route do | route |
         next unless route.subnet =~ /\./ # Pick out the IPv4 addresses
         subnet = get_subnet(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
@@ -208,7 +206,7 @@ class Plugin::Overwatch < Msf::Plugin
         if subnet
           remove_if_stale(subnet, route.netmask, sid, stale_sids) if self.config[:reroute_stale]
 
-          if !switch_board.route_exists?(subnet, route.netmask)
+          if !Rex::Socket::SwitchBoard.route_exists?(subnet, route.netmask)
             begin
               if Rex::Socket::SwitchBoard.add_route(subnet, route.netmask, framework.sessions[sid])
                 session_log(sid, "Route added to subnet #{subnet}/#{route.netmask} from host's routing table.")
@@ -237,8 +235,6 @@ class Plugin::Overwatch < Msf::Plugin
       return unless interface_compatible?(sid)
       return unless framework.sessions[sid].alive?
 
-      switch_board = Rex::Socket::SwitchBoard.instance
-
       framework.sessions[sid].net.config.each_interface do | interface | # Step through each of the network interfaces
 
         (0..(interface.addrs.size - 1)).each do | index | # Step through the addresses for the interface
@@ -253,7 +249,7 @@ class Plugin::Overwatch < Msf::Plugin
           if subnet
             remove_if_stale(subnet, netmask, sid, stale_sids) if self.config[:reroute_stale]
 
-            if !switch_board.route_exists?(subnet, netmask)
+            if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
               begin
                 if Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
                   session_log(sid, "Route added to subnet #{subnet}/#{netmask} from #{interface.mac_name}.")
