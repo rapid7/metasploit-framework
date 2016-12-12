@@ -126,9 +126,7 @@ class MetasploitModule < Msf::Post
         hoff = user[0x9c, 4].unpack("V")[0] + 0xcc
         #Check if hashes exist (if 20, then we've got a hash)
         lm_exists = user[0x9c+4,4].unpack("V")[0] == 20 ? true : false
-        print_status('%08x' % user[0x9c+4,4].unpack("V")[0])
         nt_exists = user[0x9c+16,4].unpack("V")[0] == 20 ? true : false
-        print_status('%08x' % user[0x9c+16,4].unpack("V")[0])
         if !lm_exists and !nt_exists
             raise 'No password is currently set for the user'
         end
