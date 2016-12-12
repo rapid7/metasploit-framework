@@ -116,7 +116,7 @@ Active sessions
 By default the module will:
 
 * create a randomly named IAM user and group
-* generate API Keys and User password for after  
+* generate API Keys and User password for after
 
 In the event that the session'd AWS instance does not have an IAM role assigned
 to it with sufficient privileges, the following options can be used to provide
@@ -129,6 +129,7 @@ specific authentication material:
 The following options control the account that is being created:
 
 * `IAM_USERNAME`: set this if you would like to control the username for to user to be created
+* `IAM_PASSWORD`: set this if you would like to control the password for the created user
 * `CREATE_API`: when true, creates API keys for this user
 * `CREATE_CONSOLE`: when true, creates a password for this user so that they can access the AWS console
 
@@ -144,9 +145,10 @@ Module options (post/multi/escalate/aws_create_iam_user):
    CREATE_API       true             yes       Add access key ID and secret access key to account (API, CLI, and SDK access)
    CREATE_CONSOLE   true             yes       Create an account with a password for accessing the AWS management console
    IAM_GROUPNAME                     no        Name of the group to be created (leave empty or unset to use a random name)
+   IAM_PASSWORD                      no        Password to set for the user to be created (leave empty or unset to use a random name)
    IAM_USERNAME                      no        Name of the user to be created (leave empty or unset to use a random name)
    Proxies                           no        A proxy chain of format type:host:port[,type:host:port][...]
-   SESSION          1                yes       The session to run this module on.
+   SESSION                           yes       The session to run this module on.
    SecretAccessKey                   no        AWS secret key
    Token                             no        AWS session token
 
