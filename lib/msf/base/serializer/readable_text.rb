@@ -674,6 +674,7 @@ class ReadableText
       row[1] = framework.jobs[job_id].name
 
       pinst = exploit_mod.respond_to?(:payload_instance) ? exploit_mod.payload_instance : nil
+      payload_uri = ''
 
       if pinst.nil?
         row[2] = ""
@@ -682,7 +683,8 @@ class ReadableText
         row[2] = pinst.refname
         row[3] = ""
         if pinst.respond_to?(:payload_uri)
-          row[3] << pinst.payload_uri
+          payload_uri = pinst.payload_uri.strip
+          row[3] << payload_uri
         end
         if pinst.respond_to?(:luri)
           row[3] << pinst.luri
@@ -694,7 +696,12 @@ class ReadableText
         uripath ||= exploit_mod.datastore['URIPATH']
         row[4] = uripath
         row[5] = framework.jobs[job_id].start_time
-        row[6] = pinst.respond_to?(:listener_uri) ? pinst.listener_uri : ""
+        row[6] = ''
+
+        if pinst.respond_to?(:listener_uri)
+          listener_uri = pinst.listener_uri.strip
+          row[6] = listener_uri unless listener_uri == payload_uri
+        end
       end
       tbl << row
     end
