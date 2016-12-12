@@ -587,7 +587,7 @@ class Db
         end
         output_file = ::File.expand_path(output_file)
       when '-O'
-        if (order_by = args.shift.to_i - 1) == -1
+        if (order_by = args.shift.to_i - 1) < 0
           print_error('Please specify a column number starting from 1')
           return
         end
