@@ -1,11 +1,11 @@
-The php/meterpreter/reverse_tcp is a staged payload used to gain meterpreter access to a compromised system. This is a unique payload in the Metasploit Framework because this payload is one of the only payloads that are used in RFI vulnerabilities in web apps. This module _can_ be cross platform, but the target needs to ba able to run php code.
+The php/meterpreter/reverse_tcp is a staged payload used to gain meterpreter access to a compromised system. This is a unique payload in the Metasploit Framework because this payload is one of the only payloads that are used in RFI vulnerabilities in web apps. This module _can_ be cross platform, but the target needs to be able to run php code.
 
 
 ## Vulnerable Application
 
-  The Php Meterpreter is suitable for any system that supports PHP. For example, the module can be used against webservers which run PHP code for a website. OS X has PHP installed by default.
+  The PHP Meterpreter is suitable for any system that supports PHP. For example, the module can be used against webservers which run PHP code for a website. OS X has PHP installed by default.
 
-## Deploying /meterpreter/reverse_tcp
+## Deploying php/meterpreter/reverse_tcp
 ### Scenarios
 
   Specific demo of using the module that might be useful in a real world scenario.
