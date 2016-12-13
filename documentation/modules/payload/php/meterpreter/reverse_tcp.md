@@ -5,12 +5,6 @@ The php/meterpreter/reverse_tcp is a staged payload used to gain meterpreter acc
 
   The Php Meterpreter is suitable for any system that supports PHP. For example, the module can be used against webservers which run PHP code for a website. OS X has PHP installed by default.
 
-## Options
-
-  **Option name**
-
-  Talk about what it does, and how to use it appropriately.
-
 ## Deploying /meterpreter/reverse_tcp
 ### Scenarios
 
