@@ -3,7 +3,7 @@ The php/meterpreter/reverse_tcp is a staged payload used to gain meterpreter acc
 
 ## Vulnerable Application
 
-  The php Meterpreter is suitable for any system that supports php. For example, the module can be used against webservers which run php code for a website. OS X has php installed by default.
+  The Php Meterpreter is suitable for any system that supports PHP. For example, the module can be used against webservers which run PHP code for a website. OS X has PHP installed by default.
 
 ## Options
 
@@ -11,7 +11,7 @@ The php/meterpreter/reverse_tcp is a staged payload used to gain meterpreter acc
 
   Talk about what it does, and how to use it appropriately.
 
-## Deploying php/meterpreter/reverse_tcp
+## Deploying /meterpreter/reverse_tcp
 ### Scenarios
 
   Specific demo of using the module that might be useful in a real world scenario.
@@ -32,7 +32,7 @@ msf exploit(handler) > set LHOST [IP]
   
 ## Important Basic Commands
 
-Compared to a native Meterpreter such as windows/meterpreter/reverse_tcp, the Php Meterpreter
+Compared to a native Meterpreter such as windows/meterpreter/reverse_tcp, the PHP Meterpreter
 has less commands, but here's a list of all the common ones you might need:
 
 **pwd command**
@@ -153,7 +153,7 @@ The ```sysinfo``` command shows you basic information about the remote machine. 
 * Meterpreter type
 
 ## Using `post` modules
-When using the Php Meterpreter, you have the feature of using Metasploit's `post` modules on that specific session. By default, most `multi` post modules will work; however, you can also use OS specific modules depending on the OS of the compromised system. For example, if you have a Php Meterpreter session running on OS X, you can use `osx` post modules on that session. 
+When using the PHP Meterpreter, you have the feature of using Metasploit's `post` modules on that specific session. By default, most `multi` post modules will work; however, you can also use OS specific modules depending on the OS of the compromised system. For example, if you have a PHP Meterpreter session running on OS X, you can use `osx` post modules on that session. 
 
   __Don't forget to:__
   - Set the `LHOST` datastore option to the connect-back IP Address
