@@ -75,6 +75,9 @@ class MetasploitModule < Msf::Auxiliary
         # read the file data from the socket that we opened
         # dont assume theres still a sock to read from. Per #7582
         if sock.nil?
+          error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; posssible invalid response'
+          print_status(error_msg)
+          elog(error_msg)
           return
         else
           # read the file data from the socket that we opened
