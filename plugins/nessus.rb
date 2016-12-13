@@ -968,13 +968,14 @@ module Msf
         end
         if valid_policy(uuid)
           print_status("Creating scan from policy number #{uuid}, called #{scan_name} - #{description} and scanning #{targets}")
-          et=Hash.new
-          et['enabled']=false
-          et['launch']='ONETIME'
-          et['name']=scan_name
-          et['text_targets']=targets
-          et['description']=description
-          et['launch_now']=false
+          et = {
+            'enabled'      => false,
+            'launch'       => 'ONETIME',
+            'name'         => scan_name,
+            'text_targets' => targets,
+            'description'  => description,
+            'launch_now'   => false
+          }
           scan = @n.scan_create(uuid, et)
           tbl = Rex::Text::Table.new(
             'Columns' => [
@@ -1077,13 +1078,14 @@ module Msf
         end
         targets.chop!
         print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in all the workspaces")
-        et=Hash.new
-        et['enabled']=false
-        et['launch']='ONETIME'
-        et['name']=name
-        et['text_targets']=targets
-        et['description']=desc
-        et['launch_now']=true
+        et = {
+          'enabled'      => false,
+          'launch'       => 'ONETIME',
+          'name'         => name,
+          'text_targets' => targets,
+          'description'  => desc,
+          'launch_now'   => true
+        }
         scan = @n.scan_create(policy_id, et)
         if !scan["error"]
           scan = scan["scan"]
@@ -1136,13 +1138,14 @@ module Msf
         end
         targets.chop!
         print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in #{framework.db.workspace.name}")
-        et=Hash.new
-        et['enabled']=false
-        et['launch']='ONETIME'
-        et['name']=name
-        et['text_targets']=targets
-        et['description']=desc
-        et['launch_now']=false
+        et = {
+          'enabled'      => false,
+          'launch'       => 'ONETIME',
+          'name'         => name,
+          'text_targets' => targets,
+          'description'  => desc,
+          'launch_now'   => false
+        }
         scan = @n.scan_create(policy_id, et)
         if !scan["error"]
           scan = scan["scan"]
