@@ -108,7 +108,7 @@ class Msf::Payload::UUID
       puid = seed_to_puid(opts[:seed])
     end
 
-    puid ||= Rex::Text.rand_text(8)
+    puid ||= SecureRandom.random_bytes(8)
 
     if puid.length != 8
       raise ArgumentError, "The :puid parameter must be exactly 8 bytes"
@@ -256,7 +256,7 @@ class Msf::Payload::UUID
     end
 
     # Generate some sensible defaults
-    self.puid ||= Rex::Text.rand_text(8)
+    self.puid ||= SecureRandom.random_bytes(8)
     self.xor1 ||= rand(256)
     self.xor2 ||= rand(256)
     self.timestamp ||= Time.now.utc.to_i

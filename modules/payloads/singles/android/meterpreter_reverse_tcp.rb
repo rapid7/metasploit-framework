@@ -30,9 +30,6 @@ module MetasploitModule
       'Session'     => Msf::Sessions::Meterpreter_Java_Android,
       'Payload'     => '',
     ))
-    register_options([
-      OptBool.new('AutoLoadAndroid', [true, "Automatically load the Android extension", true])
-    ], self.class)
   end
 
   #

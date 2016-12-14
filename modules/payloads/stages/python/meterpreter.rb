@@ -27,7 +27,7 @@ module MetasploitModule
   end
 
   def generate_stage(opts={})
-    stage_meterpreter(opts)
+    stage_payload(opts)
   end
 
 end

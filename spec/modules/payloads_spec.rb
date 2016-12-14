@@ -1697,6 +1697,28 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'mainframe/shell_reverse_tcp'
   end
 
+  context 'multi/meterpreter/reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/multi/reverse_http',
+                            'stages/multi/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'multi/meterpreter/reverse_http'
+  end
+
+  context 'multi/meterpreter/reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/multi/reverse_https',
+                            'stages/multi/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'multi/meterpreter/reverse_https'
+  end
+
   context 'netware/shell/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

