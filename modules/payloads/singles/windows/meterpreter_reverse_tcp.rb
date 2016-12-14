@@ -40,8 +40,9 @@ module MetasploitModule
     ], self.class)
   end
 
-  def generate
-    stage_meterpreter(true) + generate_config
+  def generate(opts={})
+    opts[:stageless] = true
+    stage_meterpreter(opts) + generate_config(opts)
   end
 
   def generate_config(opts={})
