@@ -29,8 +29,8 @@ module Msf::PostMixin
   #
   # @raise [OptionValidateError] if {#session} returns nil
   def setup
-    if not session
-      raise Msf::OptionValidateError.new(["SESSION"])
+    unless session_compatible?(session)
+      raise Msf::OptionValidateError.new(["SESSION (type not valid for this module)"])
     end
 
     super
