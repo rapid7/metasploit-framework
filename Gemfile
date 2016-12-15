@@ -21,7 +21,7 @@ group :development do
   # module documentation
   gem 'octokit', '~> 4.0'
   # rails-upgrade staging gems
-  gem 'metasploit-aggregator', git: 'git@github.com:rapid7/metasploit-aggregator', branch: "master"
+  gem 'metasploit-aggregator', git: 'git@github.com:rapid7/metasploit-aggregator', branch: "feature/add_paranoid"
 end
 
 group :development, :test do
