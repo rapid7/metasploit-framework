@@ -272,6 +272,7 @@ module Shell
   #
   def print_error(msg='')
     return if (output.nil?)
+    return if (msg.nil?)
 
     self.on_print_proc.call(msg) if self.on_print_proc
     # Errors are not subject to disabled output
