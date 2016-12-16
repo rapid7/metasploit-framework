@@ -48,7 +48,7 @@ def check
     'method' => 'HEAD',
     'uri'    => normalize_uri(@uri)
   })
-      # TODO: fix line 52, this isn't working right
+      # TODO: fix line 53, this isn't working right
       #This is supposed to parse the WWW-Authenticate: Basic realm="ROUTER HARDWARE"
       m = res.body.match(/Basic realm="NETGEAR R7000"/ || /Basic realm="NETGEAR R6400"/)
 
