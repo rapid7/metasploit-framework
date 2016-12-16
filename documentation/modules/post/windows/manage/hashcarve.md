@@ -30,6 +30,6 @@ At some point, Windows 10 stopped storing users in that exact way, users whose p
 The module does not modify the user key architecture, you cannot set a hash on a user that does not have a password.
 
 ## Usage
-run post/windows/manage/hashcarve user=test pass=password
-run post/windows/manage/hashcarve user=test pass=nthash
-run post/windows/manage/hashcarve user=test pass=lmhash:nthash
+- run post/windows/manage/hashcarve user=test pass=password
+- run post/windows/manage/hashcarve user=test pass=nthash
+- run post/windows/manage/hashcarve user=test pass=lmhash:nthash
