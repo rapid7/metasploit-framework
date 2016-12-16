@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
 
     elsif res and res.code == 200
       pattern_end = "     UTC +1 - Load:"
-      data = res.body.scan(/\<div id\=\"bottom\"\>\n(.+)\n\x20{5}UTC.+/m).flatten[0].lstrip
+      data = res.body.scan(/\<div id\=\"bottom\"\>\n(.+)\n\x20{5}UTC/).flatten[0].lstrip
       fname = datastore['FILE']
       p = store_loot(
         'clansphere.cms',
