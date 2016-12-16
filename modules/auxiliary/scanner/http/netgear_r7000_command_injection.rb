@@ -7,7 +7,6 @@ require 'msf/core'
 require 'rex'
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
   include Msf::Exploit::Remote::HttpClient #For sending the http request
   include Rex::Proto::Http
 
