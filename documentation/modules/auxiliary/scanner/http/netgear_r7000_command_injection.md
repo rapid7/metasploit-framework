@@ -7,12 +7,12 @@ Netgear R7000 and R6400 routers running firmware version `1.0.7.2_1.1.93` and po
 
 ## Verification Steps
 
-  2. Start msfconsole
-  3. Do: `use auxiliary/scanner/http/netgear_r7000_command_injection`
-  4. Do: `set RHOST <RouterIP>`
-  5. Do: `set CMD "Command to execute"`
-  6. Do: `run`
-  5. If the router is running the vulnerable firmware, the command should run.
+  1. Start msfconsole
+  2. Do: `use auxiliary/scanner/http/netgear_r7000_command_injection`
+  3. Do: `set RHOST <RouterIP>`
+  4. Do: `set CMD "Command to execute"`
+  5. Do: `run`
+  6. If the router is running the vulnerable firmware, the command should run.
 
 ## Options
 
@@ -22,7 +22,7 @@ Netgear R7000 and R6400 routers running firmware version `1.0.7.2_1.1.93` and po
 
   **CMD**
 
-  This is the command to execute on the router. if you input spaces, they will be converted to `$IFS` when running the command.
+  This is the command to execute on the router. If you input spaces, they will be converted to `$IFS` when running the command.
 
 ## Scenarios
 
