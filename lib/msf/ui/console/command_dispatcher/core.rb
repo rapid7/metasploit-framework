@@ -114,7 +114,6 @@ class Core
       "set"        => "Sets a context-specific variable to a value",
       "setg"       => "Sets a global variable to a value",
       "sleep"      => "Do nothing for the specified number of seconds",
-      "terminal"   => "Interact with a given session",
       "threads"    => "View and manipulate background threads",
       "unload"     => "Unload a framework plugin",
       "unset"      => "Unsets one or more context-specific variables",
@@ -988,33 +987,14 @@ class Core
     return
   end
 
-  def cmd_terminal_help
-    print_line('Usage: terminal <session id>')
-    print_line
-    print_line('Interact with the given session ID.')
-    print_line('This works the same as: sessions -i <session id>')
-    print_line
-  end
-
-  #
-  # Helper function to quickly select a session
-  #
-  def cmd_terminal(*args)
-    if args.length == 0 || args[0].to_i == 0
-      cmd_terminal_help
-    else
-      cmd_sessions('-i', args[0])
-    end
-  end
-
   def cmd_sessions_help
-    print_line "Usage: sessions [options]"
+    print_line('Usage: sessions [options] or sessions [id]')
     print_line
-    print_line "Active session manipulation and interaction."
+    print_line('Active session manipulation and interaction.')
     print(@@sessions_opts.usage)
     print_line
-    print_line "Many options allow specifying session ranges using commas and dashes."
-    print_line "For example:  sessions -s checkvm -i 1,3-5  or  sessions -k 1-2,5,6"
+    print_line('Many options allow specifying session ranges using commas and dashes.')
+    print_line('For example:  sessions -s checkvm -i 1,3-5  or  sessions -k 1-2,5,6')
     print_line
   end
 
@@ -1037,58 +1017,63 @@ class Core
     # be put in here
     extra   = []
 
-    # Parse the command options
-    @@sessions_opts.parse(args) do |opt, idx, val|
-      case opt
-      when "-q"
-        quiet = true
-      # Run a command on all sessions, or the session given with -i
-      when "-c"
-        method = 'cmd'
-        cmds << val if val
-      when "-C"
-          method = 'meterp-cmd'
+    if args.length == 1 && args[0] =~ /-?\d+/
+      method = 'interact'
+      sid = args[0].to_i
+    else
+      # Parse the command options
+      @@sessions_opts.parse(args) do |opt, idx, val|
+        case opt
+        when '-q'
+          quiet = true
+        # Run a command on all sessions, or the session given with -i
+        when '-c'
+          method = 'cmd'
           cmds << val if val
-      when "-x"
-        show_extended = true
-      when "-v"
-        verbose = true
-      # Do something with the supplied session identifier instead of
-      # all sessions.
-      when "-i"
-        sid = val
-      # Display the list of active sessions
-      when "-l"
-        method = 'list'
-      when "-k"
-        method = 'kill'
-        sid = val || false
-      when "-K"
-        method = 'killall'
-      # Run a script on all meterpreter sessions
-      when "-s"
-        unless script
-          method = 'scriptall'
-          script = val
+        when '-C'
+            method = 'meterp-cmd'
+            cmds << val if val
+        when '-x'
+          show_extended = true
+        when '-v'
+          verbose = true
+        # Do something with the supplied session identifier instead of
+        # all sessions.
+        when '-i'
+          sid = val
+        # Display the list of active sessions
+        when '-l'
+          method = 'list'
+        when '-k'
+          method = 'kill'
+          sid = val || false
+        when '-K'
+          method = 'killall'
+        # Run a script on all meterpreter sessions
+        when '-s'
+          unless script
+            method = 'scriptall'
+            script = val
+          end
+        # Upload and exec to the specific command session
+        when '-u'
+          method = 'upexec'
+          sid = val || false
+        # Reset the ring buffer read pointer
+        when '-r'
+          reset_ring = true
+          method = 'reset_ring'
+        # Display help banner
+        when '-h'
+          cmd_sessions_help
+          return false
+        when '-t'
+          if val.to_s =~ /^\d+$/
+            response_timeout = val.to_i
+          end
+        else
+          extra << val
         end
-      # Upload and exec to the specific command session
-      when "-u"
-        method = 'upexec'
-        sid = val || false
-      # Reset the ring buffer read pointer
-      when "-r"
-        reset_ring = true
-        method = 'reset_ring'
-      # Display help banner
-      when "-h"
-        cmd_sessions_help
-        return false
-      when "-t"
-        if val.to_s =~ /^\d+$/
-          response_timeout = val.to_i
-        end
-      else
-        extra << val
       end
     end
 
