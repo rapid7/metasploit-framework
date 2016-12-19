@@ -827,10 +827,33 @@ class Core
   end
 
   def cmd_route_help
-    print_line "Usage: route [add/remove/get/flush/print] subnet netmask [comm/sid]"
-    print_line
     print_line "Route traffic destined to a given subnet through a supplied session."
-    print_line "The default comm is Local."
+    print_line
+    print_line "Usage:"
+    print_line "  route [add/remove] subnet netmask [comm/sid]"
+    print_line "  route [add/remove] cidr [comm/sid]"
+    print_line "  route [get] <host or network>"
+    print_line "  route [flush]"
+    print_line "  route [print]"
+    print_line
+    print_line "Subcommands:"
+    print_line "  add - make a new route"
+    print_line "  remove - delete a route; 'del' is an alias"
+    print_line "  flush - remove all routes"
+    print_line "  get - display the route for a given target"
+    print_line "  print - show all active routes"
+    print_line
+    print_line "Examples:"
+    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.0 through session 1"
+    print_line "    route add 192.168.0.0 255.255.255.0 1"
+    print_line "    route add 192.168.0.0/24 1"
+    print_line
+    print_line "  Delete the above route"
+    print_line "    route remove 192.168.0.0/24 1"
+    print_line "    route del 192.168.0.0 255.255.255.0 1"
+    print_line
+    print_line "  Display the route that would be used for the given host or network"
+    print_line "    route get 192.168.0.11"
     print_line
   end
 
