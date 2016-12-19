@@ -110,11 +110,11 @@ class Core
       "quit"       => "Exit the console",
       "route"      => "Route traffic through a session",
       "save"       => "Saves the active datastores",
-      "sess"       => "Interact with a given session",
       "sessions"   => "Dump session listings and display information about sessions",
       "set"        => "Sets a context-specific variable to a value",
       "setg"       => "Sets a global variable to a value",
       "sleep"      => "Do nothing for the specified number of seconds",
+      "terminal"   => "Interact with a given session",
       "threads"    => "View and manipulate background threads",
       "unload"     => "Unload a framework plugin",
       "unset"      => "Unsets one or more context-specific variables",
@@ -988,8 +988,8 @@ class Core
     return
   end
 
-  def cmd_sess_help
-    print_line('Usage: sess <session id>')
+  def cmd_terminal_help
+    print_line('Usage: terminal <session id>')
     print_line
     print_line('Interact with the given session ID.')
     print_line('This works the same as: sessions -i <session id>')
@@ -999,9 +999,9 @@ class Core
   #
   # Helper function to quickly select a session
   #
-  def cmd_sess(*args)
+  def cmd_terminal(*args)
     if args.length == 0 || args[0].to_i == 0
-      cmd_sess_help
+      cmd_terminal_help
     else
       cmd_sessions('-i', args[0])
     end

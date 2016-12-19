@@ -65,7 +65,7 @@ class Console::CommandDispatcher::Core
       "bgkill"     => "Kills a background meterpreter script",
       "get_timeouts" => "Get the current session timeout values",
       "set_timeouts" => "Set the current session timeout values",
-      "sess"       => "Quickly switch to another session",
+      "terminal"   => "Quickly switch to another session",
       "bglist"     => "Lists running background scripts",
       "write"      => "Writes data to a channel",
       "enable_unicode_encoding"  => "Enables encoding of unicode strings",
@@ -118,17 +118,17 @@ class Console::CommandDispatcher::Core
     "Core"
   end
 
-  def cmd_sess_help
-    print_line('Usage: sess <session id>')
+  def cmd_terminal_help
+    print_line('Usage: terminal <session id>')
     print_line
     print_line('Interact with a different session Id.')
     print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
     print_line
   end
 
-  def cmd_sess(*args)
+  def cmd_terminal(*args)
     if args.length == 0 || args[0].to_i == 0
-      cmd_sess_help
+      cmd_terminal_help
     elsif args[0].to_s == client.name.to_s
       print_status("Session #{client.name} is already interactive.")
     else
