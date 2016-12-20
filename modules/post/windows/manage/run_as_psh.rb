@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Post
     include Msf::Post::Windows::Powershell
     def initialize(info={})
         super( update_info( info,
-            'Name'          => 'Windows Shell As Another User',
+            'Name'          => 'Windows \'Run As\' Using Powershell',
             'Description'   => %q{ This module will start a process as another user using powershell. },
             'License'       => MSF_LICENSE,
             'Author'        => [ 'p3nt4' ],
@@ -42,7 +42,6 @@ class MetasploitModule < Msf::Post
         inter = datastore['interactive']
         args = datastore['args']
         path = datastore['path'].gsub("\\","\\\\\\\\")
-        sessNo = datastore['session']
         channelized = datastore['channelize']
         hidden = datastore['hidden']
         #Check if session is interactive
