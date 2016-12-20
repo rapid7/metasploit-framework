@@ -126,6 +126,8 @@ class Driver < Msf::Ui::Driver
     if (framework.db.usable)
       require 'msf/ui/console/command_dispatcher/db'
       enstack_dispatcher(CommandDispatcher::Db)
+      require 'msf/ui/console/command_dispatcher/creds'
+      enstack_dispatcher(CommandDispatcher::Creds)
     else
       print_error("***")
       if framework.db.error == "disabled"
