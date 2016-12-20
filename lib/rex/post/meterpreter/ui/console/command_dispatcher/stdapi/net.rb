@@ -378,25 +378,38 @@ class Console::CommandDispatcher::Stdapi::Net
     index = nil
 
     # Parse the options
-    @@portfwd_opts.parse(args) { |opt, idx, val|
+    @@portfwd_opts.parse(args) do |opt, idx, val|
+      p opt, idx, val
       case opt
-        when '-h'
-          cmd_portfwd_help
-          return true
-        when '-l'
-          lport = val.to_i
-        when '-L'
+      when '-h'
+        cmd_portfwd_help
+        return true
+      when '-l'
+        lport = val.to_i
+      when '-L'
+        parts = val.split(":")
+        case parts.count
+        when 4
+          lhost, lport, rhost, rport = parts
+        when 3
+          lport, rhost, rport = parts
+        when 1
+          # Assume this is just a host.
           lhost = val
-        when '-p'
-          rport = val.to_i
-        when '-r'
-          rhost = val
-        when '-R'
-          reverse = true
-        when '-i'
-          index = val.to_i
+        else
+          print_error("-L expects [bind_address:]local_port:remote_host:remote_port")
+          return true
+        end
+      when '-p'
+        rport = val.to_i
+      when '-r'
+        rhost = val
+      when '-R'
+        reverse = true
+      when '-i'
+        index = val.to_i
       end
-    }
+    end
 
     # If we haven't extended the session, then do it now since we'll
     # need to track port forwards
@@ -574,6 +587,8 @@ class Console::CommandDispatcher::Stdapi::Net
 
   def cmd_portfwd_help
     print_line 'Usage: portfwd [-h] [add | delete | list | flush] [args]'
+    print_line
+    print_line ''
     print_line
     print @@portfwd_opts.usage
   end
