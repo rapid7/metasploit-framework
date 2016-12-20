@@ -8,7 +8,7 @@ By default, it will start an interactive cmd as the target user.
 - **DOMAIN** - The domain of the user
 - **EXE** - The program to run (default cmd.exe)
 - **PASS** - The program arguments 
-- **PATH** - The path to run the program in (default C:\)
+- **PATH** - The path to run the program in (default C:\\)
 - **CHANNELIZE** - Channelize the output, required to read output or interact
 - **INTERACT** - Interact with program
 - **HIDDEN** - Hide the console window
@@ -33,11 +33,11 @@ meterpreter > run post/windows/manage/run_as_psh user=test pass=mypassword
 Microsoft Windows [Version 10.0.14393]
 (c) 2016 Microsoft Corporation. All rights reserved.
 
-C:\>whoami
+C:\\>whoami
 whoami
 my-pc\test
 
-C:\>
+C:\\>
 
 meterpreter > run post/windows/manage/run_as_psh user=test pass=mypassword hidden=false channelize=false interactive=false exe=cmd path=C:\\windows args="/c start notepad"
 
