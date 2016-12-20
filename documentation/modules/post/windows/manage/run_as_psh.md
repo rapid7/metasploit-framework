@@ -39,7 +39,7 @@ my-pc\test
 
 C:\\>
 
-meterpreter > run post/windows/manage/run_as_psh user=test pass=mypassword hidden=false channelize=false interactive=false exe=cmd path=C:\\windows args="/c start notepad"
+meterpreter > run post/windows/manage/run_as_psh user=test pass=mypassword hidden=false channelize=false interactive=false exe=cmd path=C:\\\\windows args="/c start notepad"
 
 [*] Process 9768 created.
 meterpreter > 
