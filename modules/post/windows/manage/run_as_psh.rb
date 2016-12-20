@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Post
         sessNo = datastore['session']
         channelized = datastore['channelize']
         hidden = datastore['hidden']
-        #Check if session si interactive
+        #Check if session is interactive
         if (!session.interacting and inter)
             print_error("Interactive mode can only be used in a meterpreter console")
             print_error("Use 'run post/windows/manage/run_as_psh USER=x PASS=X EXE=X' or 'SET INTERACTIVE false'")
