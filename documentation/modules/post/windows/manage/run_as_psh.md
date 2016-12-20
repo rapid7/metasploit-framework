@@ -7,7 +7,7 @@ By default, it will start an interactive cmd as the target user.
 - **PASS** - The user's password  
 - **DOMAIN** - The domain of the user
 - **EXE** - The program to run (default cmd.exe)
-- **PASS** - The program arguments 
+- **ARGS** - The program arguments 
 - **PATH** - The path to run the program in (default C:\\)
 - **CHANNELIZE** - Channelize the output, required to read output or interact
 - **INTERACT** - Interact with program
@@ -15,10 +15,11 @@ By default, it will start an interactive cmd as the target user.
 
 ## Module Process
 The process will use the Start-Process command of powershell to run a process as another user.
+
 ## Limitations
 - Requires Powershell
 - Hidden Mode does not work with older powershell versions
-- Interactive mode needs to be ran from a meterpreter console
+- Interactive mode needs to be run from a meterpreter console
 
 ## Examples
 
