@@ -597,6 +597,14 @@ module Msf
             # Try to create an instance of the supplied module name
             mod_name = args[0]
 
+            # Ensure we have a reference name and not a path
+            if mod_name.start_with?('modules/')
+              mod_name.sub!(/^modules\//, '')
+            end
+            if mod_name.end_with?('.', '.rb')
+              mod_name.sub!(/\.(?:rb)?$/, '')
+            end
+
             begin
               mod = framework.modules.create(mod_name)
               unless mod
