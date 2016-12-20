@@ -186,7 +186,7 @@ class Plugin::Aggregator < Msf::Plugin
           host, port = args[0].split(':', 2)
         when 2
           host, port = args[0].split(':', 2)
-          if host.nil?
+          if port.nil?
             port = args[1]
           else
             certificate = args[1]
@@ -197,7 +197,7 @@ class Plugin::Aggregator < Msf::Plugin
           usage_cable_add
           return
       end
-      if host.nil?
+      if port.nil? || port.to_i <= 0
         usage_cable_add
       end
       if certificate && File.exists?(certificate)
