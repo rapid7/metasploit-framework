@@ -30,7 +30,7 @@ module Msf::PostMixin
   # @raise [OptionValidateError] if {#session} returns nil
   def setup
     unless session_compatible?(session)
-      raise Msf::OptionValidateError.new(["SESSION (type not valid for this module)"])
+      print_warning('SESSION may not be compatible with this module.')
     end
 
     super
@@ -168,8 +168,8 @@ module Msf::PostMixin
     # Check to make sure architectures match
     mod_arch = self.module_info['Arch']
     unless mod_arch.nil?
-    mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
-      return false unless mod_arch.include? s.arch
+      mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
+      return false unless mod_arch.include?(s.arch)
     end
 
     # If we got here, we haven't found anything that definitely
