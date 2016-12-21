@@ -58,18 +58,22 @@ class Output::Stdio < Rex::Ui::Text::Output
   # Use ANSI Control chars to reset prompt position for async output
   # SEE https://github.com/rapid7/metasploit-framework/pull/7570
   def print_line(msg = '')
-    if (/mingw/ =~ RUBY_PLATFORM)
-      print(msg + "\n")
-      return
-    end
-    print("\033[s") # Save cursor position
-    print("\r\033[K" + msg + "\n")
-    if input and input.prompt
-      print("\r\033[K")
-      print(input.prompt.tr("\001\002", ''))
-      print(input.line_buffer.tr("\001\002", ''))
-      print("\033[u\033[B") # Restore cursor, move down one line
-    end
+
+    # TODO: there are unhandled quirks in async output buffering that
+    # we have not solved yet, for instance when loading meterpreter
+    # extensions, supporting Windows, printing output from commands, etc.
+    # Remove this guard when issues are resolved.
+    #
+    # print("\033[s") # Save cursor position
+    # print("\r\033[K" + msg + "\n")
+    # if input and input.prompt
+    #   print("\r\033[K")
+    #   print(input.prompt.tr("\001\002", ''))
+    #   print(input.line_buffer.tr("\001\002", ''))
+    #   print("\033[u\033[B") # Restore cursor, move down one line
+    # end
+
+    print(msg + "\n")
   end
 
   #
