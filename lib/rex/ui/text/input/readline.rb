@@ -140,14 +140,18 @@ begin
       # []`Readline.readline`](https://github.com/luislavena/rb-readline/blob/ce4908dae45dbcae90a6e42e3710b8c3a1f2cd64/lib/readline.rb#L36-L58)
       # for rb-readline to support setting input and output.  Output needs to
       # be set so that colorization works for the prompt on Windows.
-      #
       self.prompt = prompt
 
       # TODO: there are unhandled quirks in async output buffering that
       # we have not solved yet, for instance when loading meterpreter
       # extensions, supporting Windows, printing output from commands, etc.
       # Remove this guard when issues are resolved.
-      # reset_sequence = "\n\001\r\033[K\002"
+=begin
+      reset_sequence = "\n\001\r\033[K\002"
+      if (/mingw/ =~ RUBY_PLATFORM)
+        reset_sequence = ""
+      end
+=end
       reset_sequence = ""
 
       if defined? RbReadline
