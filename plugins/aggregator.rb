@@ -27,12 +27,12 @@ class Plugin::Aggregator < Msf::Plugin
         'aggregator_save'            => "Save connection details to an Aggregator instance",
         'aggregator_disconnect'      => "Disconnect from an active Aggregator instance",
         'aggregator_addresses'       => "List all remote ip addresses available for ingress",
-        'aggregator_cable_list'      => "List all remote listeners for sessions",
-        'aggregator_cable_add'       => "Setup remote listener for sessions",
+        'aggregator_cables'          => "List all remote listeners for sessions",
+        'aggregator_cable_add'       => "Setup remote https listener for sessions",
         'aggregator_cable_remove'    => "Stop remote listener for sessions",
         'aggregator_default_forward' => "forward a unlisted/unhandled sessions to a specified listener",
         'aggregator_session_forward' => "forward a session to a specified listener",
-        'aggregator_session_list'    => "List all remote sessions currently available from the Aggregator instance",
+        'aggregator_sessions'        => "List all remote sessions currently available from the Aggregator instance",
         'aggregator_session_park'    => "Park an existing session on the Aggregator instance",
         'aggregator_sysinfo'         => "Display detailed system information about the Aggregator instance",
       }
@@ -156,7 +156,7 @@ class Plugin::Aggregator < Msf::Plugin
       aggregator_login
     end
 
-    def cmd_aggregator_session_list(*args)
+    def cmd_aggregator_sessions(*args)
       return if not aggregator_verify
       sessions_list = @aggregator.sessions
       unless sessions_list.nil?
@@ -206,7 +206,7 @@ class Plugin::Aggregator < Msf::Plugin
       @aggregator.add_cable(Msf::Aggregator::Cable::HTTPS, host, port, certificate)
     end
 
-    def cmd_aggregator_cable_list
+    def cmd_aggregator_cables
       return if not aggregator_verify
       res = @aggregator.cables
       print_status("Remote Cables:")
