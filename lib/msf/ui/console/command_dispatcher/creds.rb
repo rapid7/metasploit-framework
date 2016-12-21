@@ -122,7 +122,7 @@ class Creds
       private_data: password,
       private_type: private_type,
       workspace_id: framework.db.workspace,
-      origin_type: :manual,
+      origin_type: :import,
       filename: "msfconsole"
     }
     if realm.present?
