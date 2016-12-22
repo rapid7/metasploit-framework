@@ -39,7 +39,7 @@ class Kiwi < Extension
 
     # by default, we want all output in base64, so fire that up
     # first so that everything uses this down the track
-    exec_cmd('base64')
+    exec_cmd('"base64 /in:on /out:on"')
   end
 
   def exec_cmd(cmd)
