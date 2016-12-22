@@ -62,7 +62,6 @@ class Console::CommandDispatcher::Kiwi
       'dcsync_ntlm'           => 'Retrieve user account NTLM hash, SID and RID via DCSync',
       'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
       'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
-      #'creds_livessp'         => 'Retrieve LiveSSP creds',
       'creds_ssp'             => 'Retrieve SSP creds',
       'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
       'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
@@ -362,14 +361,6 @@ class Console::CommandDispatcher::Kiwi
     method = Proc.new { client.kiwi.creds_msv }
     scrape_passwords('msv', method, args)
   end
-
-  #
-  # Dump all LiveSSP credentials to screen.
-  #
-  #def cmd_creds_livessp(*args)
-  #  method = Proc.new { client.kiwi.livessp }
-  #  scrape_passwords('livessp', method, args)
-  #end
 
   #
   # Dump all SSP credentials to screen.
