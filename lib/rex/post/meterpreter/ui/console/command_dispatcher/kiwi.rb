@@ -63,7 +63,7 @@ class Console::CommandDispatcher::Kiwi
       'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
       'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
       #'creds_livessp'         => 'Retrieve LiveSSP creds',
-      #'creds_ssp'             => 'Retrieve SSP creds',
+      'creds_ssp'             => 'Retrieve SSP creds',
       'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
       'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
       'creds_all'             => 'Retrieve all credentials (parsed)',
@@ -228,8 +228,6 @@ class Console::CommandDispatcher::Kiwi
   #
   @@kerberos_ticket_list_opts = Rex::Parser::Arguments.new(
     '-h' => [ false, 'Help banner' ],
-    '-e' => [ false, 'Export Kerberos tickets to disk' ],
-    '-p' => [ true,  'Path to export Kerberos tickets to' ]
   )
 
   #
@@ -251,64 +249,14 @@ class Console::CommandDispatcher::Kiwi
       return
     end
 
-    # default to not exporting
-    export = false
-    # default to the current folder for dumping tickets
-    export_path = '.'
-
-    @@kerberos_ticket_list_opts.parse(args) { |opt, idx, val|
-      case opt
-      when '-e'
-        export = true
-      when '-p'
-        export_path = val
-      end
-    }
-
-    tickets = client.kiwi.kerberos_ticket_list(export)
-    print_line(tickets)
-
-    fields = ['Server', 'Client', 'Start', 'End', 'Max Renew', 'Flags']
-    fields << 'Export Path' if export
-
-    table = Rex::Text::Table.new(
-      'Header'    => 'Kerberos Tickets',
-      'Indent'    => 0,
-      'SortIndex' => 0,
-      'Columns'   => fields
-    )
-
-    tickets.each do |t|
-      flag_list = client.kiwi.to_kerberos_flag_list(t[:flags]).join(", ")
-      values = [
-        "#{t[:server]} @ #{t[:server_realm]}",
-        "#{t[:client]} @ #{t[:client_realm]}",
-        t[:start],
-        t[:end],
-        t[:max_renew],
-        "#{t[:flags].to_s(16).rjust(8, '0')} (#{flag_list})"
-      ]
-
-      # write out each ticket to disk if export is enabled.
-      if export
-        path = '<no data retrieved>'
-        if t[:raw]
-          id = "#{values[0]}-#{values[1]}".gsub(/[\\\/\$ ]/, '-')
-          file = "kerb-#{id}-#{Rex::Text.rand_text_alpha(8)}.tkt"
-          path = ::File.expand_path(File.join(export_path, file))
-          ::File.open(path, 'wb') do |x|
-            x.write t[:raw]
-          end
-        end
-        values << path
-      end
-
-      table << values
+    output = client.kiwi.kerberos_ticket_list.strip
+    if output == ''
+      print_error('No kerberos tickets exist in the current session.')
+    else
+      print_good('Kerberos tickets found in the current session.')
+      print_line(output)
     end
-
     print_line
-    print_line(table.to_s)
-    print_line("Total Tickets : #{tickets.length}")
   end
 
   #
@@ -334,9 +282,12 @@ class Console::CommandDispatcher::Kiwi
       ticket += f.read(f.stat.size)
     end
 
-    print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes")
-    client.kiwi.kerberos_ticket_use(ticket)
-    print_good('Kerberos ticket applied successfully')
+    print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes ...")
+    if client.kiwi.kerberos_ticket_use(ticket)
+      print_good('Kerberos ticket applied successfully.')
+    else
+      print_error('Kerberos ticket application failed.')
+    end
   end
 
   #
@@ -423,10 +374,10 @@ class Console::CommandDispatcher::Kiwi
   #
   # Dump all SSP credentials to screen.
   #
-  #def cmd_creds_ssp(*args)
-  #  method = Proc.new { client.kiwi.ssp }
-  #  scrape_passwords('ssp', method, args)
-  #end
+  def cmd_creds_ssp(*args)
+    method = Proc.new { client.kiwi.creds_ssp }
+    scrape_passwords('ssp', method, args)
+  end
 
   #
   # Dump all TSPKG credentials to screen.

