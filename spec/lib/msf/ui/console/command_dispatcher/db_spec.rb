@@ -387,6 +387,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -h,--help         Show this help information",
           "  -u,--up           Only show hosts which are up",
           "  -o <file>         Send output to a file in csv format",
+          "  -O <column>       Order rows by specified column number",
           "  -R,--rhosts       Set RHOSTS from the results of the search",
           "  -S,--search       Search string to filter by",
           "  -i,--info         Change the info of a host",
@@ -462,6 +463,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -r <protocol>     Only show [tcp|udp] services",
           "  -u,--up           Only show services which are up",
           "  -o <file>         Send output to a file in csv format",
+          "  -O <column>       Order rows by specified column number",
           "  -R,--rhosts       Set RHOSTS from the results of the search",
           "  -S,--search       Search string to filter by",
           "Available columns: created_at, info, name, port, proto, state, updated_at"

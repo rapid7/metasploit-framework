@@ -360,6 +360,11 @@ class Db
         onlyup = true
       when '-o'
         output = args.shift
+      when '-O'
+        if (order_by = args.shift.to_i - 1) < 0
+          print_error('Please specify a column number starting from 1')
+          return
+        end
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
@@ -386,6 +391,7 @@ class Db
         print_line "  -h,--help         Show this help information"
         print_line "  -u,--up           Only show hosts which are up"
         print_line "  -o <file>         Send output to a file in csv format"
+        print_line "  -O <column>       Order rows by specified column number"
         print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
         print_line "  -S,--search       Search string to filter by"
         print_line "  -i,--info         Change the info of a host"
@@ -425,8 +431,9 @@ class Db
     # If we got here, we're searching.  Delete implies search
     tbl = Rex::Text::Table.new(
       {
-        'Header'  => "Hosts",
-        'Columns' => col_names,
+        'Header'    => "Hosts",
+        'Columns'   => col_names,
+        'SortIndex' => order_by
       })
 
     # Sentinal value meaning all
@@ -586,6 +593,11 @@ class Db
           return
         end
         output_file = ::File.expand_path(output_file)
+      when '-O'
+        if (order_by = args.shift.to_i - 1) < 0
+          print_error('Please specify a column number starting from 1')
+          return
+        end
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
@@ -604,6 +616,7 @@ class Db
         print_line "  -r <protocol>     Only show [tcp|udp] services"
         print_line "  -u,--up           Only show services which are up"
         print_line "  -o <file>         Send output to a file in csv format"
+        print_line "  -O <column>       Order rows by specified column number"
         print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
         print_line "  -S,--search       Search string to filter by"
         print_line
@@ -651,8 +664,9 @@ class Db
       col_names = col_search
     end
     tbl = Rex::Text::Table.new({
-        'Header'  => "Services",
-        'Columns' => ['host'] + col_names,
+        'Header'    => "Services",
+        'Columns'   => ['host'] + col_names,
+        'SortIndex' => order_by
       })
 
     # Sentinal value meaning all
