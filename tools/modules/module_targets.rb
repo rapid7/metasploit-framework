@@ -55,12 +55,12 @@ opts.parse(ARGV) { |opt, idx, val|
 Indent = '    '
 
 # Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create('DisableDatabase' => true, module_types: [ 'exploit' ])
+$framework = Msf::Simple::Framework.create('DisableDatabase' => true)
 
 tbl = Rex::Text::Table.new(
   'Header'  => 'Module Targets',
   'Indent'  => Indent.length,
-  'Columns' => [ 'Module name','Space' ]
+  'Columns' => [ 'Module name','Target' ]
 )
 
 all_modules = $framework.exploits
@@ -69,8 +69,7 @@ all_modules.each_module { |name, mod|
   x = mod.new
   x.targets.each do |targ|
     if fil==0 or targ.name=~/#{filter}/
-      next unless x.payload_space(targ).to_i > 0
-      tbl << [ x.fullname, x.payload_space(targ) ]
+      tbl << [ x.fullname, targ.name ]
     end
   end
 }
