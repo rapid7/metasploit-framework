@@ -6,10 +6,12 @@
 require 'msf/core'
 require 'msf/base/sessions/meterpreter_x64_mettle_linux'
 require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/mettle_config'
 require 'rex/elfparsey'
 
 module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MettleConfig
 
   def initialize(info = {})
     super(
@@ -88,8 +90,6 @@ module MetasploitModule
   end
 
   def generate_stage(opts = {})
-    opts[:uuid] ||= generate_payload_uuid
-    MetasploitPayloads::Mettle.new('x86_64-linux-musl', opts.slice(:uuid, :url, :debug, :log_file)).
-      to_binary :process_image
+    MetasploitPayloads::Mettle.new('x86_64-linux-musl', generate_config(opts)).to_binary :process_image
   end
 end

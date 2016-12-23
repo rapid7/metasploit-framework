@@ -1,4 +1,9 @@
+# frozen_string_literal: true
 # -*- coding: binary -*-
+
+#
+# Rex
+#
 
 require 'rex/ui/text/output/buffer/stdout'
 
@@ -11,6 +16,16 @@ module Msf
         #
         class Jobs
           include Msf::Ui::Console::CommandDispatcher
+
+          @@handler_opts = Rex::Parser::Arguments.new(
+            "-h" => [ false, "Help Banner"],
+            "-x" => [ false, "Shut the Handler down after a session is established"],
+            "-p" => [ true,  "The payload to configure the handler for"],
+            "-P" => [ true,  "The RPORT/LPORT to configure the handler for"],
+            "-H" => [ true,  "The RHOST/LHOST to configure the handler for"],
+            "-e" => [ true,  "An Encoder to use for Payload Stage Encoding"],
+            "-n" => [ true,  "The custom name to give the handler job"]
+          )
 
           @@jobs_opts = Rex::Parser::Arguments.new(
             "-h" => [ false, "Help banner."                                   ],
@@ -26,6 +41,7 @@ module Msf
               "jobs"       => "Displays and manages jobs",
               "rename_job" => "Rename a job",
               "kill"       => "Kill a job",
+              "handler"    => "Start a payload handler as job"
             }
           end
 
@@ -75,7 +91,7 @@ module Msf
           # @param words [Array<String>] the previously completed words on the command line.  words is always
           # at least 1 when tab completion has reached this stage since the command itself has been completed
 
-          def cmd_rename_job_tabs(str, words)
+          def cmd_rename_job_tabs(_str, words)
             return [] if words.length > 1
             framework.jobs.keys
           end
@@ -94,7 +110,7 @@ module Msf
           def cmd_jobs(*args)
             # Make the default behavior listing all jobs if there were no options
             # or the only option is the verbose flag
-            args.unshift("-l") if args.length == 0 || args == ["-v"]
+            args.unshift("-l") if args.empty? || args == ["-v"]
 
             verbose = false
             dump_list = false
@@ -102,41 +118,41 @@ module Msf
             job_id = nil
 
             # Parse the command options
-            @@jobs_opts.parse(args) do |opt, idx, val|
+            @@jobs_opts.parse(args) do |opt, _idx, val|
               case opt
-                when "-v"
-                  verbose = true
-                when "-l"
-                  dump_list = true
+              when "-v"
+                verbose = true
+              when "-l"
+                dump_list = true
                 # Terminate the supplied job ID(s)
-                when "-k"
-                  job_list = build_range_array(val)
-                  if job_list.blank?
-                    print_error("Please specify valid job identifier(s)")
-                    return false
-                  end
-                  print_status("Stopping the following job(s): #{job_list.join(', ')}")
-                  job_list.map(&:to_s).each do |job|
-                    if framework.jobs.has_key?(job)
-                      print_status("Stopping job #{job}")
-                      framework.jobs.stop_job(job)
-                    else
-                      print_error("Invalid job identifier: #{job}")
-                    end
-                  end
-                when "-K"
-                  print_line("Stopping all jobs...")
-                  framework.jobs.each_key do |i|
-                    framework.jobs.stop_job(i)
-                  end
-                when "-i"
-                  # Defer printing anything until the end of option parsing
-                  # so we can check for the verbose flag.
-                  dump_info = true
-                  job_id = val
-                when "-h"
-                  cmd_jobs_help
+              when "-k"
+                job_list = build_range_array(val)
+                if job_list.blank?
+                  print_error("Please specify valid job identifier(s)")
                   return false
+                end
+                print_status("Stopping the following job(s): #{job_list.join(', ')}")
+                job_list.map(&:to_s).each do |job|
+                  if framework.jobs.key?(job)
+                    print_status("Stopping job #{job}")
+                    framework.jobs.stop_job(job)
+                  else
+                    print_error("Invalid job identifier: #{job}")
+                  end
+                end
+              when "-K"
+                print_line("Stopping all jobs...")
+                framework.jobs.each_key do |i|
+                  framework.jobs.stop_job(i)
+                end
+              when "-i"
+                # Defer printing anything until the end of option parsing
+                # so we can check for the verbose flag.
+                dump_info = true
+                job_id = val
+              when "-h"
+                cmd_jobs_help
+                return false
               end
             end
 
@@ -157,7 +173,7 @@ module Msf
 
                 if verbose
                   mod_opt = Serializer::ReadableText.dump_advanced_options(mod, '   ')
-                  if mod_opt && mod_opt.length > 0
+                  if mod_opt && !mod_opt.empty?
                     print_line("\nModule advanced options:\n\n#{mod_opt}\n")
                   end
                 end
@@ -174,10 +190,8 @@ module Msf
           # @param words [Array<String>] the previously completed words on the command line.  words is always
           # at least 1 when tab completion has reached this stage since the command itself has been completed
 
-          def cmd_jobs_tabs(str, words)
-            if words.length == 1
-              return @@jobs_opts.fmt.keys
-            end
+          def cmd_jobs_tabs(_str, words)
+            return @@jobs_opts.fmt.keys if words.length == 1
 
             if words.length == 2 && (@@jobs_opts.fmt[words[1]] || [false])[0]
               return framework.jobs.keys
@@ -204,9 +218,121 @@ module Msf
           # @param words [Array<String>] the previously completed words on the command line.  words is always
           # at least 1 when tab completion has reached this stage since the command itself has been completed
 
-          def cmd_kill_tabs(str, words)
+          def cmd_kill_tabs(_str, words)
             return [] if words.length > 1
             framework.jobs.keys
+          end
+
+          def cmd_handler_help
+            print_line "Usage: handler [options]"
+            print_line
+            print_line "Spin up a Payload Handler as background job."
+            print @@handler_opts.usage
+          end
+
+          # Allows the user to setup a payload handler as a background job from a single command.
+          def cmd_handler(*args)
+            # Display the help banner if no arguments were passed
+            if args.empty?
+              cmd_handler_help
+              return
+            end
+
+            exit_on_session     = false
+            payload_module      = nil
+            port                = nil
+            host                = nil
+            job_name            = nil
+            stage_encoder       = nil
+
+            # Parse the command options
+            @@handler_opts.parse(args) do |opt, _idx, val|
+              case opt
+              when "-x"
+                exit_on_session = true
+              when "-p"
+                payload_module = framework.payloads.create(val)
+                if payload_module.nil?
+                  print_error "Invalid Payload Name Supplied!"
+                  return
+                end
+              when "-P"
+                port = val
+              when "-H"
+                host = val
+              when "-n"
+                job_name = val
+              when "-e"
+                encoder_module = framework.encoders.create(val)
+                if encoder_module.nil?
+                  print_error "Invalid Encoder Name Supplied"
+                end
+                stage_encoder = encoder_module.refname
+              when "-h"
+                cmd_handler_help
+                return
+              end
+            end
+
+            # If we are missing any of the required options, inform the user about each
+            # missing options, and not just one. Then exit so they can try again.
+            print_error "You must select a payload with -p <payload>" if payload_module.nil?
+            print_error "You must select a port(RPORT/LPORT) with -P <port number>" if port.nil?
+            print_error "You must select a host(RHOST/LHOST) with -H <hostname or address>" if host.nil?
+            if payload_module.nil? || port.nil? || host.nil?
+              print_error "Please supply missing arguments and try again."
+              return
+            end
+
+            handler = framework.modules.create('exploit/multi/handler')
+            payload_datastore = payload_module.datastore
+
+            # Set The RHOST or LHOST for the payload
+            if payload_datastore.has_key? "LHOST"
+              payload_datastore['LHOST'] = host
+            elsif payload_datastore.has_key? "RHOST"
+              payload_datastore['RHOST'] = host
+            else
+              print_error "Could not determine how to set Host on this payload..."
+              return
+            end
+
+            # Set the RPORT or LPORT for the payload
+            if payload_datastore.has_key? "LPORT"
+              payload_datastore['LPORT'] = port
+            elsif payload_datastore.has_key? "RPORT"
+              payload_datastore['RPORT'] = port
+            else
+              print_error "Could not determine how to set Port on this payload..."
+              return
+            end
+
+            # Set StageEncoder if selected
+            if stage_encoder.present?
+              payload_datastore["EnableStageEncoding"] = true
+              payload_datastore["StageEncoder"] = stage_encoder
+            end
+
+            # Merge payload datastore options into the handler options
+            handler_opts = {
+              'Payload'        => payload_module.refname,
+              'LocalInput'     => driver.input,
+              'LocalOutput'    => driver.output,
+              'ExitOnSession'  => exit_on_session,
+              'RunAsJob'       => true
+            }
+            handler.datastore.reverse_merge!(payload_datastore)
+
+            # Launch our Handler and get the Job ID
+            handler.exploit_simple(handler_opts)
+            job_id = handler.job_id
+
+            # Customise the job name if the user asked for it
+            if job_name.present?
+              framework.jobs[job_id.to_s].send(:name=, job_name)
+            end
+
+            print_status "Payload Handler Started as Job #{job_id}"
           end
         end
       end

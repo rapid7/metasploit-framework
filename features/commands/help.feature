@@ -26,7 +26,6 @@ Feature: Help command
           quit          Exit the console
           route         Route traffic through a session
           save          Saves the active datastores
-          sess          Interact with a given session
           sessions      Dump session listings and display information about sessions
           set           Sets a context-specific variable to a value
           setg          Sets a global variable to a value
@@ -64,6 +63,7 @@ Feature: Help command
 
           Command       Description
           -------       -----------
+          handler       Start a payload handler as job
           jobs          Displays and manages jobs
           kill          Kill a job
           rename_job    Rename a job

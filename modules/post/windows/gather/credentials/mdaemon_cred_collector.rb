@@ -296,7 +296,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_mdaemon_creds(userlist)
-    credentials = Rex::Ui::Text::Table.new(
+    credentials = Rex::Text::Table.new(
       'Header'    => 'MDaemon Email Server Credentials',
       'Indent'    => 1,
       'Columns'   =>

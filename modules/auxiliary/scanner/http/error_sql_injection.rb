@@ -78,12 +78,14 @@ class MetasploitModule < Msf::Auxiliary
       if not datastore['QUERY'].empty?
         qvars = queryparse(datastore['QUERY']) #Now its a Hash
       else
+        print_error("You need to set QUERY param for GET")
         return
       end
     else
       if not datastore['DATA'].empty?
         qvars = queryparse(datastore['DATA']) #Now its a Hash
       else
+        print_error("You need to set DATA parameter for POST")
         return
       end
     end
