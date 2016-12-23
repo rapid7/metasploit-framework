@@ -84,11 +84,23 @@ class Console::CommandDispatcher::Kiwi
   def cmd_dcsync(*args)
     return unless check_is_domain_user
 
+    if args.length != 1
+      print_line('Usage: dcsync <DOMAIN\user>')
+      print_line
+      return
+    end
+
     print_line(client.kiwi.dcsync(args[0]))
   end
 
   def cmd_dcsync_ntlm(*args)
     return unless check_is_domain_user
+
+    if args.length != 1
+      print_line('Usage: dcsync_ntlm <DOMAIN\user>')
+      print_line
+      return
+    end
 
     user = args[0]
     result = client.kiwi.dcsync_ntlm(user)
