@@ -166,7 +166,6 @@ class Console::CommandDispatcher::Kiwi
   # Invoke the golden kerberos ticket creation functionality on the target.
   #
   def cmd_golden_ticket_create(*args)
-    return unless check_is_domain_user
 
     if args.include?("-h")
       golden_ticket_create_usage
@@ -210,6 +209,8 @@ class Console::CommandDispatcher::Kiwi
 
     # is anything else missing?
     unless opts[:domain_sid] && opts[:krbtgt_hash]
+      return unless check_is_domain_user('Unable to run module as SYSTEM unless krbtgt and domain sid are provided')
+
       # let's go discover it
       krbtgt_username = opts[:user].split('\\')[0] + '\\krbtgt'
       dcsync_result = client.kiwi.dcsync_ntlm(krbtgt_username)
@@ -400,9 +401,9 @@ class Console::CommandDispatcher::Kiwi
 
 protected
 
-  def check_is_domain_user
+  def check_is_domain_user(msg='Running as SYSTEM, function will not work.')
     if client.sys.config.is_system?
-      print_warning('Running as SYSTEM, function will not work.')
+      print_warning(msg)
       return false
     end
 
