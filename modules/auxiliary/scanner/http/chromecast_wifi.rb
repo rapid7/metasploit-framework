@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     unless waps_table.rows.empty?
       print_line(waps_table.to_s)
       report_note(
-        :host => rhost,
+        :host => ip,
         :port => rport,
         :proto => 'tcp',
         :type => 'chromecast.wifi',
@@ -70,23 +70,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scan
-    begin
-      send_request_raw(
-        'method' => 'POST',
-        'uri' => '/setup/scan_wifi',
-        'agent' => Rex::Text.rand_text_english(rand(42) + 1)
-      )
-      send_request_raw(
-        'method' => 'GET',
-        'uri' => '/setup/scan_results',
-        'agent' => Rex::Text.rand_text_english(rand(42) + 1)
-      )
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable => e
-      fail_with(Failure::Unreachable, e)
-    ensure
-      disconnect
-    end
+    send_request_raw(
+      'method' => 'POST',
+      'uri' => '/setup/scan_wifi',
+      'agent' => Rex::Text.rand_text_english(rand(42) + 1)
+    )
+    send_request_raw(
+      'method' => 'GET',
+      'uri' => '/setup/scan_results',
+      'agent' => Rex::Text.rand_text_english(rand(42) + 1)
+    )
   end
 
   def enc(wap)
