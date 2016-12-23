@@ -8,6 +8,7 @@ require 'msf/core'
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
@@ -24,16 +25,16 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(8008)
-    ], self.class)
+    ])
   end
 
-  def run
+  def run_host(ip)
     res = scan
 
     return unless res && res.code == 200
 
-    waps = Rex::Text::Table.new(
-      'Header' => 'Wireless Access Points',
+    waps_table = Rex::Text::Table.new(
+      'Header' => "Wireless Access Points from #{rhost}",
       'Columns' => [
         'BSSID',
         'PWR',
@@ -46,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     JSON.parse(res.body).each do |wap|
-      waps << [
+      waps_table << [
         wap['bssid'],
         wap['signal_level'],
         enc(wap),
@@ -56,15 +57,16 @@ class MetasploitModule < Msf::Auxiliary
       ]
     end
 
-    print_line(waps.to_s)
-
-    report_note(
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :type => 'chromecast.wifi',
-      :data => waps.to_csv
-    )
+    unless waps_table.rows.empty?
+      print_line(waps_table.to_s)
+      report_note(
+        :host => rhost,
+        :port => rport,
+        :proto => 'tcp',
+        :type => 'chromecast.wifi',
+        :data => waps_table.to_csv
+      )
+    end
   end
 
   def scan
