@@ -1,9 +1,10 @@
+dist: trusty
 sudo: false
 group: stable
 bundler_args: --without coverage development pcap
 cache: bundler
 addons:
-  postgresql: '9.3'
+  postgresql: '9.6'
   apt:
     packages:
       - libpcap-dev
