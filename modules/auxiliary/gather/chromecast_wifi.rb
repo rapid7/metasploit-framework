@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless res && res.code == 200
 
     waps_table = Rex::Text::Table.new(
-      'Header' => "Wireless Access Points from #{rhost}",
+      'Header' => "Wireless Access Points from #{ip}",
       'Columns' => [
         'BSSID',
         'PWR',
