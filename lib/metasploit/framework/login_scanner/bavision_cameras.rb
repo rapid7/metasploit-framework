@@ -88,7 +88,7 @@ module Metasploit
         end
 
 
-        # Attempts to login to Symantec Web Gateway. This is called first.
+        # Attempts to login to the camera. This is called first.
         #
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result] A Result object indicating success or failure
