@@ -100,6 +100,8 @@ do so (now or later) by using -b with the checkout command again. Example:
 
 HEAD is now at 9e499e5... Make BindTCP test more robust
 ((no branch)) todb@mazikeen:~/git/rapid7/metasploit-framework
+```
+```
 $ git checkout -b landing-1217
 ````
 
