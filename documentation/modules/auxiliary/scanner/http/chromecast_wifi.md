@@ -1,4 +1,4 @@
-This module is scanner which enumerates wifi access points visible from a Google Chromecast via its HTTP interface (default port 8080).  Any wifi access point the Chromecast is associated with or can be associated with is marked with an `(*)`.
+This module is a scanner which enumerates wifi access points visible from a Google Chromecast via its HTTP interface (default port 8080).  Any wifi access point the Chromecast is associated with or can be associated with is marked with an `(*)`.
 
 ## Verification Steps
 
