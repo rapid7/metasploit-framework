@@ -89,7 +89,10 @@ module Msf::Payload::Stager
   #
   # @return [String,nil]
   def stage_payload(opts = {})
-    return module_info['Stage']['Payload']
+    if module_info['Stage']
+      return module_info['Stage']['Payload']
+    end
+    nil
   end
 
   #
@@ -97,7 +100,10 @@ module Msf::Payload::Stager
   #
   # @return [String]
   def stage_assembly
-    return module_info['Stage']['Assembly']
+    if module_info['Stage']
+      return module_info['Stage']['Assembly']
+    end
+    nil
   end
 
   #
@@ -108,7 +114,10 @@ module Msf::Payload::Stager
   #
   # @return [Hash]
   def stage_offsets
-    return module_info['Stage']['Offsets']
+    if module_info['Stage']
+      return module_info['Stage']['Offsets']
+    end
+    nil
   end
 
   #
@@ -138,8 +147,7 @@ module Msf::Payload::Stager
     if stage_assembly and !stage_assembly.empty?
       raw = build(stage_assembly, stage_offsets)
     else
-      # Options get ignored by the stage_payload method
-      raw = stage_payload
+      raw = stage_payload(opts)
     end
 
     # Substitute variables in the stage

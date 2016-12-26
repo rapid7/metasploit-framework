@@ -184,7 +184,9 @@ module Shell
           self.init_prompt = input.prompt
         end
 
+        output.input = input
         line = input.pgets()
+        output.input = nil
         log_output(input.prompt)
 
         # If a block was passed in, pass the line to it.  If it returns true,
@@ -270,11 +272,14 @@ module Shell
   #
   def print_error(msg='')
     return if (output.nil?)
+    return if (msg.nil?)
 
     self.on_print_proc.call(msg) if self.on_print_proc
     # Errors are not subject to disabled output
     log_output(output.print_error(msg))
   end
+
+  alias_method :print_bad, :print_error
 
   #
   # Prints a status message to the output handle.

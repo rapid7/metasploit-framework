@@ -107,6 +107,10 @@ require 'msf/core/exe/segment_appender'
   # @return           [String]
   # @return           [NilClass]
   def self.to_executable(framework, arch, plat, code = '', opts = {})
+    if elf? code
+      return code
+    end
+
     if arch.index(ARCH_X86)
 
       if plat.index(Msf::Module::Platform::Windows)
@@ -132,7 +136,7 @@ require 'msf/core/exe/segment_appender'
       # XXX: Add remaining x86 systems here
     end
 
-    if arch.index(ARCH_X86_64) || arch.index(ARCH_X64)
+    if arch.index(ARCH_X64)
       if (plat.index(Msf::Module::Platform::Windows))
         return to_win64pe(framework, code, opts)
       end
@@ -362,8 +366,7 @@ require 'msf/core/exe/segment_appender'
   # @param code       [String]
   # @param opts       [Hash]
   # @param arch       [String] Default is "x86"
-  def self.to_winpe_only(framework, code, opts = {}, arch="x86")
-    arch = ARCH_X64 if arch == ARCH_X86_64
+  def self.to_winpe_only(framework, code, opts = {}, arch=ARCH_X86)
 
     # Allow the user to specify their own EXE template
     set_template_default(opts, "template_#{arch}_windows.exe")
@@ -960,6 +963,9 @@ require 'msf/core/exe/segment_appender'
   # @param big_endian [Boolean]  Set to "false" by default
   # @return           [String]
   def self.to_exe_elf(framework, opts, template, code, big_endian=false)
+    if elf? code
+      return code
+    end
 
     # Allow the user to specify their own template
     set_template_default(opts, template)
@@ -2079,8 +2085,6 @@ require 'msf/core/exe/segment_appender'
       case arch
       when ARCH_X86,nil
         to_win32pe_dll(framework, code, exeopts)
-      when ARCH_X86_64
-        to_win64pe_dll(framework, code, exeopts)
       when ARCH_X64
         to_win64pe_dll(framework, code, exeopts)
       end
@@ -2088,8 +2092,6 @@ require 'msf/core/exe/segment_appender'
       case arch
       when ARCH_X86,nil
         to_win32pe(framework, code, exeopts)
-      when ARCH_X86_64
-        to_win64pe(framework, code, exeopts)
       when ARCH_X64
         to_win64pe(framework, code, exeopts)
       end
@@ -2097,8 +2099,6 @@ require 'msf/core/exe/segment_appender'
       case arch
       when ARCH_X86,nil
         to_win32pe_service(framework, code, exeopts)
-      when ARCH_X86_64
-        to_win64pe_service(framework, code, exeopts)
       when ARCH_X64
         to_win64pe_service(framework, code, exeopts)
       end
@@ -2106,15 +2106,13 @@ require 'msf/core/exe/segment_appender'
       case arch
       when ARCH_X86,nil
         to_win32pe_old(framework, code, exeopts)
-      when ARCH_X86_64,ARCH_X64
+      when ARCH_X64
         to_win64pe(framework, code, exeopts)
       end
     when 'exe-only'
       case arch
       when ARCH_X86,nil
         to_winpe_only(framework, code, exeopts)
-      when ARCH_X86_64
-        to_winpe_only(framework, code, exeopts, arch)
       when ARCH_X64
         to_winpe_only(framework, code, exeopts, arch)
       end
@@ -2122,7 +2120,7 @@ require 'msf/core/exe/segment_appender'
       case arch
         when ARCH_X86,nil
           exe = to_win32pe(framework, code, exeopts)
-        when ARCH_X86_64,ARCH_X64
+        when ARCH_X64
           exe = to_win64pe(framework, code, exeopts)
       end
       Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
@@ -2130,17 +2128,20 @@ require 'msf/core/exe/segment_appender'
       case arch
       when ARCH_X86,nil
         exe = to_win32pe(framework, code, exeopts)
-      when ARCH_X86_64,ARCH_X64
+      when ARCH_X64
         exe = to_win64pe(framework, code, exeopts)
       end
       exeopts[:uac] = true
       Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
     when 'elf'
+      if elf? code
+        return code
+      end
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
         when ARCH_X86,nil
           to_linux_x86_elf(framework, code, exeopts)
-        when ARCH_X86_64, ARCH_X64
+        when ARCH_X64
           to_linux_x64_elf(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf(framework, code, exeopts)
@@ -2153,7 +2154,7 @@ require 'msf/core/exe/segment_appender'
         case arch
         when ARCH_X86,nil
           Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
-        when ARCH_X86_64, ARCH_X64
+        when ARCH_X64
           Msf::Util::EXE.to_bsd_x64_elf(framework, code, exeopts)
         end
       elsif plat && plat.index(Msf::Module::Platform::Solaris)
@@ -2163,9 +2164,12 @@ require 'msf/core/exe/segment_appender'
         end
       end
     when 'elf-so'
+      if elf? code
+        return code
+      end
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
-        when ARCH_X86_64, ARCH_X64
+        when ARCH_X64
           to_linux_x64_elf_dll(framework, code, exeopts)
         end
       end
@@ -2173,7 +2177,7 @@ require 'msf/core/exe/segment_appender'
       macho = case arch
       when ARCH_X86,nil
         to_osx_x86_macho(framework, code, exeopts)
-      when ARCH_X86_64, ARCH_X64
+      when ARCH_X64
         to_osx_x64_macho(framework, code, exeopts)
       when ARCH_ARMLE
         to_osx_arm_macho(framework, code, exeopts)
@@ -2300,6 +2304,10 @@ require 'msf/core/exe/segment_appender'
       raise RuntimeError, err_msg
     end
     bo
+  end
+
+  def self.elf?(code)
+    code[0..3] == "\x7FELF"
   end
 
 end

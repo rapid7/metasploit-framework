@@ -6,7 +6,7 @@ module Msf
 
 ###
 #
-# Basic block_api stubs for Windows ARCH_X86_64 payloads
+# Basic block_api stubs for Windows ARCH_X64 payloads
 #
 ###
 

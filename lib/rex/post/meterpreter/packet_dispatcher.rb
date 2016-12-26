@@ -3,6 +3,7 @@
 require 'rex/post/meterpreter/packet_response_waiter'
 require 'rex/logging'
 require 'rex/exceptions'
+require 'msf/core/payload/uuid'
 
 module Rex
 module Post
@@ -243,6 +244,13 @@ module PacketDispatcher
     # Remove the waiter from the list of waiters in case it wasn't
     # removed. This happens if the waiter timed out above.
     remove_response_waiter(waiter)
+
+    # wire in the UUID for this, as it should be part of every response
+    # packet
+    if response && !self.payload_uuid
+      uuid = response.get_tlv_value(TLV_TYPE_UUID)
+      self.payload_uuid = Msf::Payload::UUID.new({:raw => uuid}) if uuid
+    end
 
     # Return the response packet, if any
     return response

@@ -22,12 +22,13 @@ module Payload::Python::ReverseHttp
   # Generate the first stage
   #
   def generate(opts={})
+    ds = opts[:datastore] || datastore
     opts.merge!({
-      host:       datastore['LHOST'] || '127.127.127.127',
-      port:       datastore['LPORT'],
-      proxy_host: datastore['PayloadProxyHost'],
-      proxy_port: datastore['PayloadProxyPort'],
-      user_agent: datastore['MeterpreterUserAgent']
+      host:       ds['LHOST'] || '127.127.127.127',
+      port:       ds['LPORT'],
+      proxy_host: ds['PayloadProxyHost'],
+      proxy_port: ds['PayloadProxyPort'],
+      user_agent: ds['MeterpreterUserAgent']
     })
     opts[:scheme] = 'http' if opts[:scheme].nil?
 

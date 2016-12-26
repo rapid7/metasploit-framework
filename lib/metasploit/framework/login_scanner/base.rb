@@ -199,6 +199,7 @@ module Metasploit
             total_error_count = 0
 
             successful_users = Set.new
+            ignored_users = Set.new
             first_attempt = true
 
             each_credential do |credential|
@@ -209,6 +210,14 @@ module Metasploit
                 if credential.parent.respond_to?(:skipped)
                   credential.parent.skipped = true
                   credential.parent.save!
+                end
+                next
+              end
+
+              # Users that went into the lock-out list
+              if ignored_users.include?(credential.public)
+                if credential.parent.respond_to?(:skipped)
+                  credential.parent.skipped = true
                 end
                 next
               end
@@ -228,6 +237,10 @@ module Metasploit
                 consecutive_error_count = 0
                 successful_users << credential.public
                 break if stop_on_success
+              elsif result.status == Metasploit::Model::Login::Status::LOCKED_OUT
+                ignored_users << credential.public
+              elsif result.status == Metasploit::Model::Login::Status::DISABLED
+                ignored_users << credential.public
               else
                 if result.status == Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
                   consecutive_error_count += 1

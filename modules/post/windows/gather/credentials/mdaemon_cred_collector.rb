@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => ['Manuel Nader #AgoraSecurity'],
         'Platform'      => ['win'],
-        'Arch'          => ['x64','x86'],
+        'Arch'          => [ARCH_X86, ARCH_X64],
         'SessionTypes'  => ['meterpreter']
     ))
 
@@ -296,7 +296,7 @@ class MetasploitModule < Msf::Post
   end
 
   def get_mdaemon_creds(userlist)
-    credentials = Rex::Ui::Text::Table.new(
+    credentials = Rex::Text::Table.new(
       'Header'    => 'MDaemon Email Server Credentials',
       'Indent'    => 1,
       'Columns'   =>

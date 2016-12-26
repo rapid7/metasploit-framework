@@ -119,7 +119,7 @@ class DLL
   def process_function_call(function, args, client)
     raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
 
-    if( client.platform =~ /x64/i )
+    if client.arch == ARCH_X64
       native = 'Q<'
     else
       native = 'V'
@@ -361,7 +361,7 @@ class DLL
 #		puts("
 #=== START of proccess_function_call snapshot ===
 #		{
-#			:platform => '#{native == 'Q' ? 'x64/win64' : 'x86/win32'}',
+#			:platform => '#{native == 'Q' ? 'x64/windows' : 'x86/windows'}',
 #			:name => '#{function.windows_name}',
 #			:params => #{function.params},
 #			:return_type => '#{function.return_type}',

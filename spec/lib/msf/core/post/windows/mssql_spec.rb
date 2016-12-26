@@ -7,7 +7,8 @@ RSpec.describe Msf::Post::Windows::MSSQL do
   let(:subject) do
     mod = double(Module.new)
     mod.extend described_class
-    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error, :print_warning ]
+    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good,
+      :print_error, :vprint_error, :print_bad, :vprint_bad, :print_warning ]
     stubs.each { |meth| allow(mod).to receive(meth) }
     allow(mod).to receive(:service_info).and_return({})
     mod

@@ -10,7 +10,7 @@ module Msf
 
 ###
 #
-# Complex bindtcp payload generation for Windows ARCH_X86_64
+# Complex bindtcp payload generation for Windows ARCH_X64
 #
 ###
 

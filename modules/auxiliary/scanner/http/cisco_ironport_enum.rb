@@ -60,10 +60,13 @@ class MetasploitModule < Msf::Auxiliary
         'uri'       => '/',
         'method'    => 'GET'
       })
-      print_good("#{rhost}:#{rport} - Server is responsive...")
+      if res
+        print_good("#{rhost}:#{rport} - Server is responsive...")
+        return true
+      end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      return
     end
+    false
   end
 
   #

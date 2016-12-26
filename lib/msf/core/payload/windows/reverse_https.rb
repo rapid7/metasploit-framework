@@ -20,8 +20,9 @@ module Payload::Windows::ReverseHttps
   #
   # Generate the first stage
   #
-  def generate
-    super(ssl: true)
+  def generate(opts={})
+    opts[:ssl] = true
+    super(opts)
   end
 
   #

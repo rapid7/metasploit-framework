@@ -29,8 +29,8 @@ module Msf::PostMixin
   #
   # @raise [OptionValidateError] if {#session} returns nil
   def setup
-    if not session
-      raise Msf::OptionValidateError.new(["SESSION"])
+    unless session_compatible?(session)
+      print_warning('SESSION may not be compatible with this module.')
     end
 
     super
@@ -160,37 +160,16 @@ module Msf::PostMixin
       return false unless self.module_info["SessionTypes"].include?(s.type)
     end
 
-    # XXX: Special-case java and php for now.  This sucks and Session
-    # should have a method to auto-detect the underlying platform of
-    # platform-independent sessions such as these.
-    plat = s.platform
-    if plat =~ /php|java/ and sysinfo and sysinfo["OS"]
-      plat = sysinfo["OS"]
+    # Types are okay, now check the platform.
+    if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
+      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
-    # Types are okay, now check the platform.  This is kind of a ghetto
-    # workaround for session platforms being ad-hoc and Platform being
-    # inflexible.
-    if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
-      [
-        # Add as necessary
-        "win", "linux", "osx"
-      ].each do |name|
-        if plat =~ /#{name}/
-          p = Msf::Module::PlatformList.transform(name)
-          return false unless self.platform.supports? p
-        end
-      end
-    elsif self.platform and self.platform.kind_of?(Msf::Module::Platform)
-      p_klass = Msf::Module::Platform
-      case plat.downcase
-      when /win/
-        return false unless self.platform.kind_of?(p_klass::Windows)
-      when /osx/
-        return false unless self.platform.kind_of?(p_klass::OSX)
-      when /linux/
-        return false unless self.platform.kind_of?(p_klass::Linux)
-      end
+    # Check to make sure architectures match
+    mod_arch = self.module_info['Arch']
+    unless mod_arch.nil?
+      mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
+      return false unless mod_arch.include?(s.arch)
     end
 
     # If we got here, we haven't found anything that definitely

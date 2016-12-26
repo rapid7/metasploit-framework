@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
     if lsa_vista_style?
       nlkm_dec = decrypt_lsa_data(nlkm, lsakey)
     else
-      if sysinfo['Architecture'] =~ /wow64/i || sysinfo['Architecture'] =~ /x64/
+      if sysinfo['Architecture'] == ARCH_X64
         nlkm_dec = decrypt_secret_data(nlkm[0x10..-1], lsakey)
       else # 32 bits
         nlkm_dec = decrypt_secret_data(nlkm[0xC..-1], lsakey)

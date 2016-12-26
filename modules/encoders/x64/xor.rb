@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Encoder::Xor
       'Name'             => 'XOR Encoder',
       'Description'      => 'An x64 XOR encoder. Uses an 8 byte key and takes advantage of x64 relative addressing.',
       'Author'           => [ 'sf' ],
-      'Arch'             => ARCH_X86_64,
+      'Arch'             => ARCH_X64,
       'License'          => MSF_LICENSE,
       'Decoder'          =>
         {

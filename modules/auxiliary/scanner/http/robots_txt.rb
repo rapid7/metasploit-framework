@@ -60,6 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status("[#{target_host}] #{tpath}robots.txt found")
+      print_good("Contents of Robots.txt:\n#{res.body}")
 
       # short url regex
       aregex = /llow:[ ]{0,2}(.*?)$/i

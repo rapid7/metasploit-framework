@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161004165612) do
+ActiveRecord::Schema.define(version: 20161107203710) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -248,12 +248,12 @@ ActiveRecord::Schema.define(version: 20161004165612) do
   add_index "metasploit_credential_cores", ["private_id"], name: "index_metasploit_credential_cores_on_private_id", using: :btree
   add_index "metasploit_credential_cores", ["public_id"], name: "index_metasploit_credential_cores_on_public_id", using: :btree
   add_index "metasploit_credential_cores", ["realm_id"], name: "index_metasploit_credential_cores_on_realm_id", using: :btree
-  add_index "metasploit_credential_cores", ["workspace_id", "private_id"], name: "unique_private_metasploit_credential_cores", unique: true, where: "(((realm_id IS NULL) AND (public_id IS NULL)) AND (private_id IS NOT NULL))", using: :btree
-  add_index "metasploit_credential_cores", ["workspace_id", "public_id", "private_id"], name: "unique_realmless_metasploit_credential_cores", unique: true, where: "(((realm_id IS NULL) AND (public_id IS NOT NULL)) AND (private_id IS NOT NULL))", using: :btree
-  add_index "metasploit_credential_cores", ["workspace_id", "public_id"], name: "unique_public_metasploit_credential_cores", unique: true, where: "(((realm_id IS NULL) AND (public_id IS NOT NULL)) AND (private_id IS NULL))", using: :btree
-  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "private_id"], name: "unique_publicless_metasploit_credential_cores", unique: true, where: "(((realm_id IS NOT NULL) AND (public_id IS NULL)) AND (private_id IS NOT NULL))", using: :btree
-  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "public_id", "private_id"], name: "unique_complete_metasploit_credential_cores", unique: true, where: "(((realm_id IS NOT NULL) AND (public_id IS NOT NULL)) AND (private_id IS NOT NULL))", using: :btree
-  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "public_id"], name: "unique_privateless_metasploit_credential_cores", unique: true, where: "(((realm_id IS NOT NULL) AND (public_id IS NOT NULL)) AND (private_id IS NULL))", using: :btree
+  add_index "metasploit_credential_cores", ["workspace_id", "private_id"], name: "unique_private_metasploit_credential_cores", unique: true, where: "((realm_id IS NULL) AND (public_id IS NULL) AND (private_id IS NOT NULL))", using: :btree
+  add_index "metasploit_credential_cores", ["workspace_id", "public_id", "private_id"], name: "unique_realmless_metasploit_credential_cores", unique: true, where: "((realm_id IS NULL) AND (public_id IS NOT NULL) AND (private_id IS NOT NULL))", using: :btree
+  add_index "metasploit_credential_cores", ["workspace_id", "public_id"], name: "unique_public_metasploit_credential_cores", unique: true, where: "((realm_id IS NULL) AND (public_id IS NOT NULL) AND (private_id IS NULL))", using: :btree
+  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "private_id"], name: "unique_publicless_metasploit_credential_cores", unique: true, where: "((realm_id IS NOT NULL) AND (public_id IS NULL) AND (private_id IS NOT NULL))", using: :btree
+  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "public_id", "private_id"], name: "unique_complete_metasploit_credential_cores", unique: true, where: "((realm_id IS NOT NULL) AND (public_id IS NOT NULL) AND (private_id IS NOT NULL))", using: :btree
+  add_index "metasploit_credential_cores", ["workspace_id", "realm_id", "public_id"], name: "unique_privateless_metasploit_credential_cores", unique: true, where: "((realm_id IS NOT NULL) AND (public_id IS NOT NULL) AND (private_id IS NULL))", using: :btree
   add_index "metasploit_credential_cores", ["workspace_id"], name: "index_metasploit_credential_cores_on_workspace_id", using: :btree
 
   create_table "metasploit_credential_logins", force: :cascade do |t|
@@ -320,7 +320,8 @@ ActiveRecord::Schema.define(version: 20161004165612) do
     t.string   "jtr_format"
   end
 
-  add_index "metasploit_credential_privates", ["type", "data"], name: "index_metasploit_credential_privates_on_type_and_data", unique: true, using: :btree
+  add_index "metasploit_credential_privates", ["type", "data"], name: "index_metasploit_credential_privates_on_type_and_data", unique: true, where: "(NOT ((type)::text = 'Metasploit::Credential::SSHKey'::text))", using: :btree
+  add_index "metasploit_credential_privates", ["type"], name: "index_metasploit_credential_privates_on_type_and_data_sshkey", unique: true, where: "((type)::text = 'Metasploit::Credential::SSHKey'::text)", using: :btree
 
   create_table "metasploit_credential_publics", force: :cascade do |t|
     t.string   "username",   null: false

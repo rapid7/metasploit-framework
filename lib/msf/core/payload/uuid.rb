@@ -18,8 +18,8 @@ class Msf::Payload::UUID
   Architectures = {
      0 => nil,
      1 => ARCH_X86,
-     2 => ARCH_X86_64,
-     3 => ARCH_X64,     # Should be merged into X86_64 sometime
+     2 => ARCH_X64, # removed ARCH_X86_64, now consistent across the board
+     3 => ARCH_X64,
      4 => ARCH_MIPS,
      5 => ARCH_MIPSLE,
      6 => ARCH_MIPSBE,
@@ -38,7 +38,11 @@ class Msf::Payload::UUID
     19 => ARCH_DALVIK,
     20 => ARCH_PYTHON,
     21 => ARCH_NODEJS,
-    22 => ARCH_FIREFOX
+    22 => ARCH_FIREFOX,
+    23 => ARCH_ZARCH,
+    24 => ARCH_AARCH64,
+    25 => ARCH_MIPS64,
+    26 => ARCH_PPC64LE
   }
 
   Platforms = {
@@ -104,7 +108,7 @@ class Msf::Payload::UUID
       puid = seed_to_puid(opts[:seed])
     end
 
-    puid ||= Rex::Text.rand_text(8)
+    puid ||= SecureRandom.random_bytes(8)
 
     if puid.length != 8
       raise ArgumentError, "The :puid parameter must be exactly 8 bytes"
@@ -138,7 +142,7 @@ class Msf::Payload::UUID
       raise ArgumentError, "Raw UUID must be at least 16 bytes"
     end
 
-    puid, plat_xor, arch_xor, plat_id, arch_id, tstamp = raw.unpack('A8C4N')
+    puid, plat_xor, arch_xor, plat_id, arch_id, tstamp = raw.unpack('a8C4N')
     plat     = find_platform_name(plat_xor ^ plat_id)
     arch     = find_architecture_name(arch_xor ^ arch_id)
     time_xor = [plat_xor, arch_xor, plat_xor, arch_xor].pack('C4').unpack('N').first
@@ -252,7 +256,7 @@ class Msf::Payload::UUID
     end
 
     # Generate some sensible defaults
-    self.puid ||= Rex::Text.rand_text(8)
+    self.puid ||= SecureRandom.random_bytes(8)
     self.xor1 ||= rand(256)
     self.xor2 ||= rand(256)
     self.timestamp ||= Time.now.utc.to_i
@@ -296,6 +300,19 @@ class Msf::Payload::UUID
       [ self.platform || "noplatform", plat_id ].join("="),
       Time.at(self.timestamp.to_i).utc.strftime("%Y-%m-%dT%H:%M:%SZ")
     ].join("/")
+  end
+
+  #
+  # Return a string that represents the Meterpreter arch/platform
+  #
+  def session_type
+    # mini-patch for x86 so that it renders x64 instead. This is
+    # mostly to keep various external modules happy.
+    arch = self.arch
+    if arch == ARCH_X86_64
+        arch = ARCH_X64
+    end
+    "#{arch}/#{self.platform}"
   end
 
   #

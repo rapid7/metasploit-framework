@@ -213,7 +213,7 @@ module LDAP
       entry = get_entry(pEntries[i])
 
       # Entries are a linked list...
-      if client.platform =~ /x64/
+      if client.arch == ARCH_X64
         pEntries[i+1] = entry[4]
       else
         pEntries[i+1] = entry[3]
@@ -259,7 +259,7 @@ module LDAP
     ber = client.railgun.memread(msg[2],60).unpack('V*')
 
     # BER Pointer is different between x86 and x64
-    if client.platform =~ /x64/
+    if client.arch == ARCH_X64
       ber_data = client.railgun.memread(ber[4], ber[0])
     else
       ber_data = client.railgun.memread(ber[3], ber[0])

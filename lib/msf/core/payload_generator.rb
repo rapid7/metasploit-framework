@@ -143,7 +143,7 @@ module Msf
     # @param shellcode [String] The shellcode to add to
     # @return [String] the combined shellcode which executes the added code in a separate thread
     def add_shellcode(shellcode)
-      if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
+      if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == ARCH_X86
         cli_print "Adding shellcode from #{add_code} to the payload"
         shellcode_file = File.open(add_code)
         shellcode_file.binmode

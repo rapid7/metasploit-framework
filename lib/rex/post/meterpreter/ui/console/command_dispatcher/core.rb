@@ -65,7 +65,7 @@ class Console::CommandDispatcher::Core
       "bgkill"     => "Kills a background meterpreter script",
       "get_timeouts" => "Get the current session timeout values",
       "set_timeouts" => "Set the current session timeout values",
-      "sess"       => "Quickly switch to another session",
+      "sessions"   => "Quickly switch to another session",
       "bglist"     => "Lists running background scripts",
       "write"      => "Writes data to a channel",
       "enable_unicode_encoding"  => "Enables encoding of unicode strings",
@@ -77,19 +77,25 @@ class Console::CommandDispatcher::Core
     end
 
     # Currently we have some windows-specific core commands`
-    if client.platform =~ /win/
+    if client.platform == 'windows'
       # only support the SSL switching for HTTPS
       if client.passive_service && client.sock.type? == 'tcp-ssl'
         c["ssl_verify"] = "Modify the SSL certificate verification setting"
       end
     end
 
-    if client.platform =~ /win/ || client.platform =~ /linux/
+    if client.platform == 'windows' || client.platform == 'linux'
       # Migration only supported on windows and linux
       c["migrate"] = "Migrate the server to another process"
     end
 
-    if client.platform =~ /win/ || client.platform =~ /linux/ || client.platform =~ /python/ || client.platform =~ /java/
+    # TODO: This code currently checks both platform and architecture for the python
+    # and java types because technically the platform should be updated to indicate
+    # the OS platform rather than the meterpreter arch. When we've properly implemented
+    # the platform update feature we can remove some of these conditions
+    if client.platform == 'windows' || client.platform == 'linux' ||
+        client.platform == 'python' || client.platform == 'java' ||
+        client.arch == ARCH_PYTHON || client.platform == 'android'
       # Yet to implement transport hopping for other meterpreters.
       c["transport"] = "Change the current transport mechanism"
 
@@ -98,7 +104,7 @@ class Console::CommandDispatcher::Core
       c["sleep"] = "Force Meterpreter to go quiet, then re-establish session."
     end
 
-    if (msf_loaded?)
+    if msf_loaded?
       c["info"] = "Displays information about a Post module"
     end
 
@@ -112,17 +118,17 @@ class Console::CommandDispatcher::Core
     "Core"
   end
 
-  def cmd_sess_help
-    print_line('Usage: sess <session id>')
+  def cmd_sessions_help
+    print_line('Usage: sessions <id>')
     print_line
     print_line('Interact with a different session Id.')
     print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
     print_line
   end
 
-  def cmd_sess(*args)
+  def cmd_sessions(*args)
     if args.length == 0 || args[0].to_i == 0
-      cmd_sess_help
+      cmd_sessions_help
     elsif args[0].to_s == client.name.to_s
       print_status("Session #{client.name} is already interactive.")
     else
@@ -462,10 +468,9 @@ class Console::CommandDispatcher::Core
   end
 
   #
-  # Get the machine ID of the target
+  # Get the machine ID of the target (should always be up to date locally)
   #
   def cmd_uuid(*args)
-    client.payload_uuid = client.core.uuid unless client.payload_uuid
     print_good("UUID: #{client.payload_uuid}")
   end
 
@@ -850,7 +855,7 @@ class Console::CommandDispatcher::Core
   )
 
   def cmd_migrate_help
-    if client.platform =~ /linux/
+    if client.platform == 'linux'
       print_line('Usage: migrate <<pid> | -P <pid> | -N <name>> [-p writable_path] [-t timeout]')
     else
       print_line('Usage: migrate <<pid> | -P <pid> | -N <name>> [-t timeout]')

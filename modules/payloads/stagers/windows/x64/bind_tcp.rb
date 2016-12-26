@@ -21,7 +21,7 @@ module MetasploitModule
       'Author'        => [ 'sf' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::BindTcp,
       'Convention'    => 'sockrdi',
       'Stager'        => { 'RequiresMidstager' => false }

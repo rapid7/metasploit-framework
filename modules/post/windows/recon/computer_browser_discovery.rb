@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Post
       when 'LOCAL' then lookuptype = "40000000".hex
     end
 
-    if client.platform =~ /^x64/
+    if session.arch == ARCH_X64
       nameiterator = 8
       size = 64
       addrinfoinmem = 32

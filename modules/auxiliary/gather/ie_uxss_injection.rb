@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
       host = "[#{host}]"
     end
 
-    if datastore['URIPORT'] != 0
+    if datastore['URIPORT']
       port = ':' + datastore['URIPORT'].to_s
     elsif (ssl and datastore["SRVPORT"] == 443)
       port = ''
