@@ -570,7 +570,7 @@ module Msf
 
             res = %w{all encoders nops exploits payloads auxiliary post plugins options}
             if (active_module)
-              res.concat(%w{ missing advanced evasion targets actions })
+              res.concat %w{missing advanced evasion targets actions info}
               if (active_module.respond_to? :compatible_sessions)
                 res << "sessions"
               end
