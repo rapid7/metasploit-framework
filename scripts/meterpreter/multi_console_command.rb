@@ -30,7 +30,7 @@ silence = 0
 
 ################## Function Declarations ##################
 # Function for running a list of commands stored in a array, returs string
-def list_con_exec(cmdlst)
+def list_con_exec(cmdlst, silence)
   print_status("Running Command List ...")
   cmdout = ""
   cmdlst.each do |cmd|
@@ -88,7 +88,7 @@ end
 if args.length == 0 or help == 1 or commands.nil?
   usage
 else
-  list_con_exec(commands)
+  list_con_exec(commands, silence)
   raise Rex::Script::Completed
 end
 
