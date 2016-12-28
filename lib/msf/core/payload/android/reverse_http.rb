@@ -26,6 +26,7 @@ module Payload::Android::ReverseHttp
   end
 
   def generate_config(opts={})
+    opts[:uuid] ||= generate_payload_uuid
     opts[:uri] ||= luri + generate_uri(opts)
     super(opts)
   end
@@ -46,7 +47,7 @@ module Payload::Android::ReverseHttp
       raise ArgumentError, "Minimum StagerURILength is 5"
     end
 
-    generate_uri_uuid_mode(:init_java, uri_req_len)
+    generate_uri_uuid_mode(:init_java, uri_req_len, uuid: opts[:uuid])
   end
 
   #
