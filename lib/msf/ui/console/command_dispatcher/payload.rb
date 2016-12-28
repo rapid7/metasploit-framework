@@ -38,7 +38,29 @@ module Msf
         def commands
           super.update({
             "generate" => "Generates a payload",
+            "to_handler" => "Creates a handler with the specified payload"
           })
+        end
+
+        def cmd_to_handler(*args)
+          handler = framework.modules.create('exploit/multi/handler')
+
+          handler_opts = {
+            'Payload'        => mod.refname, #mod.fullname,
+            'LocalInput'     => driver.input,
+            'LocalOutput'    => driver.output,
+            'ExitOnSession'  => false,
+            'RunAsJob'       => true
+          }
+          
+          #handler.datastore.reverse_merge!(mod.datastore)
+          handler.datastore.merge!(mod.datastore)
+          handler.exploit_simple(handler_opts)
+          job_id = handler.job_id
+
+          print_status "Payload Handler Started as Job #{job_id}"
+
+
         end
 
         #
