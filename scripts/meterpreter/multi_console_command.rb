@@ -17,6 +17,7 @@
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h" => [ false,"Help menu."                        ],
+  "-sl" => [ false,"Hide commands output for work in background sessions"],
   "-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
   "-rc" => [ true,"Text file with list of commands, one per line."]
 )
@@ -25,6 +26,7 @@
 commands = nil
 script = []
 help = 0
+silence = 0
 
 ################## Function Declarations ##################
 # Function for running a list of commands stored in a array, returs string
@@ -36,7 +38,16 @@ def list_con_exec(cmdlst)
     next if cmd[0,1] == "#"
     begin
       print_status "\tRunning command #{cmd}"
+      if silence == 1     
+          @client.console.disable_output = true
+      end
+      
       @client.console.run_single(cmd)
+      
+      if silence == 1           
+        @client.console.disable_output = false
+      end  
+      
     rescue ::Exception => e
       print_status("Error Running Command #{cmd}: #{e.class} #{e}")
     end
@@ -69,6 +80,8 @@ end
 
   when "-h"
     help = 1
+  when "-sl"
+    silence = 1
   end
 }
 
