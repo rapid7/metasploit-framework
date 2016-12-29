@@ -60,20 +60,6 @@ PATH
       tzinfo-data
       windows_error
 
-PATH
-  remote: /Users/dmaloney/rapid7/metasploit_data_models
-  specs:
-    metasploit_data_models (2.0.11)
-      activerecord (~> 4.2.6)
-      activesupport (~> 4.2.6)
-      arel-helpers
-      metasploit-concern
-      metasploit-model
-      pg
-      postgres_ext
-      railties (~> 4.2.6)
-      recog (~> 2.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -183,7 +169,17 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.2.4)
+    metasploit-payloads (1.2.6)
+    metasploit_data_models (2.0.10)
+      activerecord (~> 4.2.6)
+      activesupport (~> 4.2.6)
+      arel-helpers
+      metasploit-concern
+      metasploit-model
+      pg
+      postgres_ext
+      railties (~> 4.2.6)
+      recog (~> 2.0)
     metasploit_payloads-mettle (0.1.4)
     method_source (0.8.2)
     mime-types (3.1)
@@ -341,7 +337,6 @@ DEPENDENCIES
   factory_girl_rails
   fivemat
   metasploit-framework!
-  metasploit_data_models!
   octokit (~> 4.0)
   pry
   rake
