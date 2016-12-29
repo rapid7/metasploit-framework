@@ -63,6 +63,8 @@ class Creds
     subcommand = args.shift
     
     case subcommand
+    when 'help'
+      cmd_creds_help
     when 'add'
       creds_add(*args)
     else
@@ -87,14 +89,39 @@ class Creds
     print_line "  creds [filter options] [address range]"
     print_line
     print_line "Usage - Adding credentials:"
-    print_line "  creds add-ntlm <user> <ntlm hash> [domain]"
-    print_line "  creds add-password <user> <password> [realm] [realm-type]"
-    print_line "  creds add-ssh-key <user> </path/to/id_rsa> [realm-type]"
-    print_line "Where [realm type] can be one of:"
-    Metasploit::Model::Realm::Key::SHORT_NAMES.each do |short, description|
-      print_line "  #{short} - #{description}"
+    print_line "  creds add uses the following named parameters."
+    {
+      user:         'Public, usually a username',
+      password:     'Private, private_type Password.',
+      ntlm:         'Private, private_type NTLM Hash.',
+      'ssh-key':    'Private, private_type SSH key, must be a file path.',
+      hash:         'Private, private_type Nonreplayable hash',
+      realm:        'Realm, ',
+      'realm-type': "Realm, realm_type (#{Metasploit::Model::Realm::Key::SHORT_NAMES.keys.join(' ')}), defaults to domain."
+    }.each_pair do |keyword, description|
+      print_line "    #{keyword.to_s.ljust 10}:  #{description}"
     end
-
+    print_line
+    print_line "Examples: Adding"
+    print_line "   # Add a user, password and realm"
+    print_line "   creds add user:admin password:notpassword realm:workgroup"
+    print_line "   # Add a user and password"
+    print_line "   creds add user:guest password:'guest password'"
+    print_line "   # Add a password"
+    print_line "   creds add password:'password without username'"
+    print_line "   # Add a user with an NTLMHash"
+    print_line "   creds add user:admin ntlm:E2FC15074BF7751DD408E6B105741864:A1074A69B1BDE45403AB680504BBDD1A"
+    print_line "   # Add a NTLMHash"
+    print_line "   creds add ntlm:E2FC15074BF7751DD408E6B105741864:A1074A69B1BDE45403AB680504BBDD1A"
+    print_line "   # Add a user with an SSH key"
+    print_line "   creds add user:sshadmin ssh-key:/path/to/id_rsa"
+    print_line "   # Add a SSH key"
+    print_line "   creds add ssh-key:/path/to/id_rsa"
+    print_line "   # Add a user and a NonReplayableHash"
+    print_line "   creds add user:other hash:d19c32489b870735b5f587d76b934283"
+    print_line "   # Add a NonReplayableHash"
+    print_line "   creds add hash:d19c32489b870735b5f587d76b934283"
+    
     print_line
     print_line "General options"
     print_line "  -h,--help             Show this help information"
@@ -106,7 +133,7 @@ class Creds
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
-    print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    # print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
     print_line "  -O,--origins          List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 
@@ -117,16 +144,6 @@ class Creds
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
     print_line "  creds -t ntlm       # All NTLM creds"
-    print_line
-
-    print_line
-    print_line "Examples, adding:"
-    print_line "  # Add a user with an NTLMHash"
-    print_line "  creds add-ntlm alice 5cfe4c82d9ab8c66590f5b47cd6690f1:978a2e2e1dec9804c6b936f254727f9a"
-    print_line "  # Add a user with a blank password and a domain"
-    print_line "  creds add-password bob '' contosso"
-    print_line "  # Add a user with an SSH key"
-    print_line "  creds add-ssh-key root /root/.ssh/id_rsa"
     print_line
 
     print_line "Example, deleting:"
@@ -196,7 +213,7 @@ class Creds
     end
 
     if params.key? 'hash'
-      data[:private_type] = :ntlm_hash
+      data[:private_type] = :nonreplayable_hash
       data[:private_data] = params['hash']
     end
     
