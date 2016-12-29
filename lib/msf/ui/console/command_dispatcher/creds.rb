@@ -26,22 +26,18 @@ class Creds
   # Returns the hash of commands supported by this dispatcher.
   #
   def commands
-    base = {
-      "creds"         => "List all credentials in the database"
+    {
+      "creds" => "List all credentials in the database"
     }
-    base
   end
-  
-  def allowed_cred_types
-    %w(password ntlm hash)
-  end
-  
+    
   #
   # Returns true if the db is connected, prints an error and returns
   # false if not.
   #
   # All commands that require an active database should call this before
   # doing anything.
+  # TODO: abstract the db methothds to a mixin that can be used by both dispatchers
   #
   def active?
     if not framework.db.active
@@ -51,7 +47,35 @@ class Creds
     true
   end
   
+  #
+  # Can return return active or all, on a certain host or range, on a
+  # certain port or range, and/or on a service name.
+  #
+  def cmd_creds(*args)
+    return unless active?
+
+    # Short-circuit help
+    if args.delete "-h"
+      cmd_creds_help
+      return
+    end
+    
+    subcommand = args.shift
+    
+    case subcommand
+    when 'add'
+      creds_add(*args)
+    else
+      # then it's not actually a subcommand
+      args.unshift(subcommand) if subcommand
+      creds_search(*args)
+    end
+
+  end
   
+  #
+  # TODO: this needs to be cleaned up to use the new syntax
+  #
   def cmd_creds_help
     print_line
     print_line "With no sub-command, list credentials. If an address range is"
@@ -110,64 +134,76 @@ class Creds
     print_line "  creds -d -s smb"
     print_line
   end
-
+  
   # @param private_type [Symbol] See `Metasploit::Credential::Creation#create_credential`
   # @param username [String]
   # @param password [String]
   # @param realm [String]
   # @param realm_type [String] A key in `Metasploit::Model::Realm::Key::SHORT_NAMES`
-  def creds_add(private_type, username, password=nil, realm=nil, realm_type=nil)
-    cred_data = {
-      username: username,
-      private_data: password,
-      private_type: private_type,
+  def creds_add(*args)
+    params = args.inject({}) do |hsh, n|
+      opt = n.split(':') # Splitting the string on colons.
+      hsh[opt[0]] = opt[1..-1].join(':') # everything before the first : is the key, reasembling everything after the colon. why ntlm hashes
+      hsh
+    end
+    
+    begin
+      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','host','port')
+    rescue ArgumentError => e
+      print_error(e.message)
+    end
+    
+    data = {
       workspace_id: framework.db.workspace,
       origin_type: :import,
-      filename: "msfconsole"
+      filename: 'msfconsole'
     }
-    if realm.present?
-      if realm_type.present?
-        realm_key = Metasploit::Model::Realm::Key::SHORT_NAMES[realm_type]
-        if realm_key.nil?
+    
+    data[:username] = params['user'] if params.key? 'user'
+    
+    if params.key? 'realm'
+      if params.key? 'realm-type'
+        if Metasploit::Model::Realm::Key::SHORT_NAMES.key? params['realm-type']
+          cred_data[:realm_key] = Metasploit::Model::Realm::Key::SHORT_NAMES[realm_type]
+        else
           valid = Metasploit::Model::Realm::Key::SHORT_NAMES.keys.map{|n|"'#{n}'"}.join(", ")
-          print_error("Invalid realm type: #{realm_type}. Valid values: #{valid}")
-          return
+          print_error("Invalid realm type: #{params['realm_type']}. Valid Values: #{valid}")
         end
+      else
+        data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
       end
-      realm_key ||= Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
-      cred_data.merge!(
-        realm_value: realm,
-        realm_key: realm_key
-      )
+      data[:realm_value] = params['realm']
     end
 
+    if params.key? 'password'
+      data[:private_type] = :password
+      data[:private_data] = params['password']
+    end
+
+    if params.key? 'ntlm'
+      data[:private_type] = :ntlm_hash
+      data[:private_data] = params['ntlm']
+    end
+
+    if params.key? 'ssh-key'
+      begin
+        key_data = File.read(params['ssh-key'])
+      rescue ::Errno::EACCES, ::Errno::ENOENT => e
+        print_error("Failed to add ssh key: #{e}")
+      end
+      data[:private_type] = :ssh_key
+      data[:private_data] = key_data
+    end
+
+    if params.key? 'hash'
+      data[:private_type] = :ntlm_hash
+      data[:private_data] = params['hash']
+    end
+    
     begin
-      create_credential(cred_data)
+      create_credential(data)
     rescue ActiveRecord::RecordInvalid => e
-      print_error("Failed to add #{private_type}: #{e}")
-    end
-  end
-
-  def creds_add_non_replayable_hash(*args)
-    creds_add(:non_replayable_hash, *args)
-  end
-
-  def creds_add_ntlm_hash(*args)
-    creds_add(:ntlm_hash, *args)
-  end
-
-  def creds_add_password(*args)
-    creds_add(:password, *args)
-  end
-
-  def creds_add_ssh_key(username, *args)
-    key_file, realm = args
-    begin
-      key_data = File.read(key_file)
-    rescue ::Errno::EACCES, ::Errno::ENOENT => e
-      print_error("Failed to add ssh key: #{e}")
-    else
-      creds_add(:ssh_key, username, key_data, realm)
+      print_error("Failed to add #{data['private_type']}: #{e}")
     end
   end
   
@@ -381,39 +417,6 @@ class Creds
       set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
       print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
-  end
-
-  #
-  # Can return return active or all, on a certain host or range, on a
-  # certain port or range, and/or on a service name.
-  #
-  def cmd_creds(*args)
-    return unless active?
-
-    # Short-circuit help
-    if args.delete "-h"
-      cmd_creds_help
-      return
-    end
-
-    subcommand = args.shift
-    case subcommand
-    when "add-ntlm"
-      creds_add_ntlm_hash(*args)
-    when "add-password"
-      creds_add_password(*args)
-    when "add-hash"
-      creds_add_non_replayable_hash(*args)
-    when "add-ssh-key"
-      creds_add_ssh_key(*args)
-    when "add-login"
-      creds_add_login(*args)
-    else
-      # then it's not actually a subcommand
-      args.unshift(subcommand) if subcommand
-      creds_search(*args)
-    end
-
   end
 
   def cmd_creds_tabs(str, words)
