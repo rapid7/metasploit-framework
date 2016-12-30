@@ -30,7 +30,11 @@ class Creds
       "creds" => "List all credentials in the database"
     }
   end
-    
+  
+  def allowed_cred_types
+    %w(password ntlm hash)
+  end
+  
   #
   # Returns true if the db is connected, prints an error and returns
   # false if not.
@@ -48,12 +52,45 @@ class Creds
   end
   
   #
+  # Miscellaneous option helpers
+  #
+
+  # Parse +arg+ into a {Rex::Socket::RangeWalker} and append the result into +host_ranges+
+  #
+  # @note This modifies +host_ranges+ in place
+  #
+  # @param arg [String] The thing to turn into a RangeWalker
+  # @param host_ranges [Array] The array of ranges to append
+  # @param required [Boolean] Whether an empty +arg+ should be an error
+  # @return [Boolean] true if parsing was successful or false otherwise
+  def arg_host_range(arg, host_ranges, required=false)
+    if (!arg and required)
+      print_error("Missing required host argument")
+      return false
+    end
+    begin
+      rw = Rex::Socket::RangeWalker.new(arg)
+    rescue
+      print_error("Invalid host parameter, #{arg}.")
+      return false
+    end
+
+    if rw.valid?
+      host_ranges << rw
+    else
+      print_error("Invalid host parameter, #{arg}.")
+      return false
+    end
+    return true
+  end
+  
+  #
   # Can return return active or all, on a certain host or range, on a
   # certain port or range, and/or on a service name.
   #
   def cmd_creds(*args)
     return unless active?
-
+    
     # Short-circuit help
     if args.delete "-h"
       cmd_creds_help
@@ -133,7 +170,7 @@ class Creds
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
-    # print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
     print_line "  -O,--origins          List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 

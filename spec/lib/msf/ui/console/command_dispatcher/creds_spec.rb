@@ -13,10 +13,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
 
   it { is_expected.to respond_to :active? }
   it { is_expected.to respond_to :creds_add }
-  it { is_expected.to respond_to :creds_add_non_replayable_hash }
-  it { is_expected.to respond_to :creds_add_ntlm_hash }
-  it { is_expected.to respond_to :creds_add_password }
-  it { is_expected.to respond_to :creds_add_ssh_key }
   it { is_expected.to respond_to :creds_search }
   
   describe "#cmd_creds" do
@@ -242,11 +238,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
       end
     end
 
-    describe "add-password" do
+    describe "add" do
       context "when no core exists" do
         it "should add a Core" do
           expect {
-            creds.cmd_creds("add-password", username, password)
+            creds.cmd_creds("add", "user:#{username}", "password:#{password}")
           }.to change{ Metasploit::Credential::Core.count }.by 1
         end
       end
@@ -263,7 +259,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
         end
         it "should not add a Core" do
           expect {
-            creds.cmd_creds("add-password", username, password)
+            creds.cmd_creds("add", "user:#{username}", "password:#{password}")
           }.to_not change{ Metasploit::Credential::Core.count }
         end
       end
