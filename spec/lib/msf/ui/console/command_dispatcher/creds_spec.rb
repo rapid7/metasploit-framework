@@ -244,9 +244,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
 
       context 'username password and realm' do
         it 'creates a core if one does not exist' do
-          expect do
+          expect {
             creds.cmd_creds('add', "user:#{username}", "password:#{password}", "realm:#{realm}")
-          end.to change { Metasploit::Credential::Core.count }.by 1
+          }.to change { Metasploit::Credential::Core.count }.by 1
         end
         it 'does not create a core if it already exists' do
           FactoryGirl.create(:metasploit_credential_core,
@@ -255,17 +255,17 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                              public: pub,
                              realm: r,
                              workspace: framework.db.workspace)
-          expect do
+          expect {
             creds.cmd_creds('add', "user:#{username}", "password:#{password}", "realm:#{realm}")
-          end.to_not change { Metasploit::Credential::Core.count }
+          }.to_not change { Metasploit::Credential::Core.count }
         end
       end
 
       context 'username and realm' do
         it 'creates a core if one does not exist' do
-          expect do
+          expect {
             creds.cmd_creds('add', "user:#{username}", "realm:#{realm}")
-          end.to change { Metasploit::Credential::Core.count }.by 1
+          }.to change { Metasploit::Credential::Core.count }.by 1
         end
         it 'does not create a core if it already exists' do
           FactoryGirl.create(:metasploit_credential_core,
@@ -274,17 +274,17 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                              public: pub,
                              realm: r,
                              workspace: framework.db.workspace)
-          expect do
+          expect {
             creds.cmd_creds('add', "user:#{username}", "realm:#{realm}")
-          end.to_not change { Metasploit::Credential::Core.count }
+          }.to_not change { Metasploit::Credential::Core.count }
         end
       end
 
       context 'username and password' do
         it 'creates a core if one does not exist' do
-          expect do
+          expect {
             creds.cmd_creds('add', "user:#{username}", "password:#{password}")
-          end.to change { Metasploit::Credential::Core.count }.by 1
+          }.to change { Metasploit::Credential::Core.count }.by 1
         end
         it 'does not create a core if it already exists' do
           FactoryGirl.create(:metasploit_credential_core,
@@ -293,17 +293,17 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                              public: pub,
                              realm: nil,
                              workspace: framework.db.workspace)
-          expect do
+          expect {
             creds.cmd_creds('add', "user:#{username}", "password:#{password}")
-          end.to_not change { Metasploit::Credential::Core.count }
+          }.to_not change { Metasploit::Credential::Core.count }
         end
       end
 
       context 'password and realm' do
         it 'creates a core if one does not exist' do
-          expect do
+          expect {
             creds.cmd_creds('add', "password:#{password}", "realm:#{realm}")
-          end.to change { Metasploit::Credential::Core.count }.by 1
+          }.to change { Metasploit::Credential::Core.count }.by 1
         end
         it 'does not create a core if it already exists' do
           FactoryGirl.create(:metasploit_credential_core,
@@ -312,17 +312,17 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                              public: nil,
                              realm: r,
                              workspace: framework.db.workspace)
-          expect do
+          expect {
             creds.cmd_creds('add', "password:#{password}", "realm:#{realm}")
-          end.to_not change { Metasploit::Credential::Core.count }
+          }.to_not change { Metasploit::Credential::Core.count }
         end
       end
 
       context 'username' do
         it 'creates a core if one does not exist' do
-          expect do
+          expect {
             creds.cmd_creds('add', "user:#{username}")
-          end.to change { Metasploit::Credential::Core.count }.by 1
+          }.to change { Metasploit::Credential::Core.count }.by 1
         end
         it 'does not create a core if it already exists' do
           FactoryGirl.create(:metasploit_credential_core,
@@ -331,18 +331,18 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                              public: pub,
                              realm: nil,
                              workspace: framework.db.workspace)
-          expect do
+          expect {
             creds.cmd_creds('add', "user:#{username}")
-          end.to_not change { Metasploit::Credential::Core.count }
+          }.to_not change { Metasploit::Credential::Core.count }
         end
       end
 
       context 'private_types' do
         context 'password' do
           it 'creates a core if one does not exist' do
-            expect do
+            expect {
               creds.cmd_creds('add', "password:#{password}")
-            end.to change { Metasploit::Credential::Core.count }.by 1
+            }.to change { Metasploit::Credential::Core.count }.by 1
           end
           it 'does not create a core if it already exists' do
             FactoryGirl.create(:metasploit_credential_core,
@@ -351,17 +351,17 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                                public: nil,
                                realm: nil,
                                workspace: framework.db.workspace)
-            expect do
+            expect {
               creds.cmd_creds('add', "password:#{password}")
-            end.to_not change { Metasploit::Credential::Core.count }
+            }.to_not change { Metasploit::Credential::Core.count }
           end
         end
         context 'ntlm' do
           let(:priv) { FactoryGirl.create(:metasploit_credential_ntlm_hash) }
           it 'creates a core if one does not exist' do
-            expect do
+            expect {
               creds.cmd_creds('add', "ntlm:#{priv.data}")
-            end.to change { Metasploit::Credential::Core.count }.by 1
+            }.to change { Metasploit::Credential::Core.count }.by 1
           end
           it 'does not create a core if it already exists' do
             FactoryGirl.create(:metasploit_credential_core,
@@ -370,17 +370,17 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                                public: nil,
                                realm: nil,
                                workspace: framework.db.workspace)
-            expect do
+            expect {
               creds.cmd_creds('add', "ntlm:#{priv.data}")
-            end.to_not change { Metasploit::Credential::Core.count }
+            }.to_not change { Metasploit::Credential::Core.count }
           end
         end
         context 'hash' do
           let(:priv) { FactoryGirl.create(:metasploit_credential_nonreplayable_hash) }
           it 'creates a core if one does not exist' do
-            expect do
+            expect {
               creds.cmd_creds('add', "hash:#{priv.data}")
-            end.to change { Metasploit::Credential::Core.count }.by 1
+            }.to change { Metasploit::Credential::Core.count }.by 1
           end
           it 'does not create a core if it already exists' do
             FactoryGirl.create(:metasploit_credential_core,
@@ -389,9 +389,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                                public: nil,
                                realm: nil,
                                workspace: framework.db.workspace)
-            expect do
+            expect {
               creds.cmd_creds('add', "hash:#{priv.data}")
-            end.to_not change { Metasploit::Credential::Core.count }
+            }.to_not change { Metasploit::Credential::Core.count }
           end
         end
         context 'ssh-key' do
@@ -402,9 +402,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
             @file.close
           end
           it 'creates a core if one does not exist' do
-            expect do
+            expect {
               creds.cmd_creds('add', "user:#{username}", "ssh-key:#{@file.path}")
-            end.to change { Metasploit::Credential::Core.count }.by 1
+            }.to change { Metasploit::Credential::Core.count }.by 1
           end
           it 'does not create a core if it already exists' do
             FactoryGirl.create(:metasploit_credential_core,
@@ -413,29 +413,33 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                                public: pub,
                                realm: nil,
                                workspace: framework.db.workspace)
-            expect do
+            expect {
               creds.cmd_creds('add', "user:#{username}", "ssh-key:#{@file.path}")
-            end.to_not change { Metasploit::Credential::Core.count }
+            }.to_not change { Metasploit::Credential::Core.count }
           end
         end
       end
 
-      context 'realm' do
-        it 'creates a core if one does not exist' do
-          expect do
-            creds.cmd_creds('add', "realm:#{realm}")
-          end.to change { Metasploit::Credential::Core.count }.by 1
-        end
-        it 'does not create a core if it already exists' do
-          FactoryGirl.create(:metasploit_credential_core,
-                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                             private: nil,
-                             public: nil,
-                             realm: r,
-                             workspace: framework.db.workspace)
-          expect do
-            creds.cmd_creds('add', "realm:#{realm}")
-          end.to_not change { Metasploit::Credential::Core.count }
+      context 'realm-types' do
+        let(:r) { FactoryGirl.create(:metasploit_credential_realm, key: realm_type, value: realm) }
+        context 'domain' do
+          it 'creates a core if one does not exist' do
+            expect {
+              creds.cmd_creds('add', "realm:#{realm}")
+            }.to change { Metasploit::Credential::Core.count }.by 1
+          end
+          it 'does not create a core if it already exists' do
+            FactoryGirl.create(:metasploit_credential_core,
+                               origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                               private: nil,
+                               public: nil,
+                               realm: r,
+                               workspace: framework.db.workspace)
+            expect {
+              creds.cmd_creds('add', "realm:#{realm}")
+            }.to_not change { Metasploit::Credential::Core.count }
+          end
+
         end
       end
     end
