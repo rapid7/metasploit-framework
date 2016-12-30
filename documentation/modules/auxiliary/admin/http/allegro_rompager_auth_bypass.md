@@ -109,7 +109,7 @@ Module options (auxiliary/admin/http/allegro_rompager_auth_bypass):
    Name       Current Setting  Required  Description
    ----       ---------------  --------  -----------
    Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOST      90.178.222.214   yes       The target address
+   RHOST      192.168.1.1      yes       The target address
    RPORT      80               yes       The target port
    SSL        false            no        Negotiate SSL/TLS for outgoing connections
    TARGETURI  /                yes       URI to test
