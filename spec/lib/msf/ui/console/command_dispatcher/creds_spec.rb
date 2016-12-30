@@ -421,26 +421,28 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
       end
 
       context 'realm-types' do
-        let(:r) { FactoryGirl.create(:metasploit_credential_realm, key: realm_type, value: realm) }
-        context 'domain' do
-          it 'creates a core if one does not exist' do
-            expect {
-              creds.cmd_creds('add', "realm:#{realm}")
-            }.to change { Metasploit::Credential::Core.count }.by 1
+        Metasploit::Model::Realm::Key::SHORT_NAMES.each do |short_name, long_name|
+          context "#{short_name}" do
+            let(:r) { FactoryGirl.create(:metasploit_credential_realm, key: long_name) }
+            it 'creates a core if one does not exist' do
+              expect {
+                creds.cmd_creds('add', "realm:#{r.value}", "realm-type:#{short_name}")
+              }.to change { Metasploit::Credential::Core.count }.by 1
+            end
+            it 'does not create a core if it already exists' do
+              FactoryGirl.create(:metasploit_credential_core,
+                                 origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                                 private: nil,
+                                 public: nil,
+                                 realm: r,
+                                 workspace: framework.db.workspace)
+              expect {
+                creds.cmd_creds('add', "realm:#{r.value}", "realm-type:#{short_name}")
+              }.to_not change { Metasploit::Credential::Core.count }
+            end
           end
-          it 'does not create a core if it already exists' do
-            FactoryGirl.create(:metasploit_credential_core,
-                               origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                               private: nil,
-                               public: nil,
-                               realm: r,
-                               workspace: framework.db.workspace)
-            expect {
-              creds.cmd_creds('add', "realm:#{realm}")
-            }.to_not change { Metasploit::Credential::Core.count }
-          end
-
         end
+
       end
     end
   end

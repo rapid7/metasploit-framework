@@ -218,7 +218,7 @@ class Creds
     if params.key? 'realm'
       if params.key? 'realm-type'
         if Metasploit::Model::Realm::Key::SHORT_NAMES.key? params['realm-type']
-          cred_data[:realm_key] = Metasploit::Model::Realm::Key::SHORT_NAMES[realm_type]
+          data[:realm_key] = Metasploit::Model::Realm::Key::SHORT_NAMES[params['realm-type']]
         else
           valid = Metasploit::Model::Realm::Key::SHORT_NAMES.keys.map{|n|"'#{n}'"}.join(", ")
           print_error("Invalid realm type: #{params['realm_type']}. Valid Values: #{valid}")
