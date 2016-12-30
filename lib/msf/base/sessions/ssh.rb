@@ -11,10 +11,11 @@ class Msf::Sessions::SSH
   # @return [Net::SSH::Connection::Session]
   attr_accessor :ssh
   attr_accessor :console
-  attr_accessor :platform
   attr_accessor :framework
+  attr_accessor :platform
   attr_accessor :user_input
   attr_accessor :user_output
+
   # @return [Bool]
   attr_accessor :interacting
 
@@ -40,6 +41,7 @@ class Msf::Sessions::SSH
   # @param ssh [Net::SSH::Connection::Session]
   def initialize(ssh, opts={})
     @ssh = ssh
+    @platform = 'ssh'
     self.console = Ui::Console.new(self)
   end
 
@@ -59,10 +61,6 @@ class Msf::Sessions::SSH
       )
 
     end
-  end
-
-  def platform
-    'ssh'
   end
 
   ##
