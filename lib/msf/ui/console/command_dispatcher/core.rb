@@ -87,8 +87,8 @@ class Core
 
   @@history_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
-    "-a" => [ false, "Show all commands in history"                ],
-    "-n" => [ true, "Show the last n commands"                       ])
+    "-a" => [ false, "Show all commands in history."                  ],
+    "-n" => [ true, "Show the last n commands."                       ])
 
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -489,7 +489,7 @@ class Core
       when "-a"
         limit = length
       when "-n"
-        return cmd_history_help unless val.match /\A[-+]?\d+\z/
+        return cmd_history_help unless !val.nil? && val.match(/\A[-+]?\d+\z/)
         limit = val.to_i
         limit = length if limit >= length
       when "-h"
@@ -508,7 +508,7 @@ class Core
     print_line "Usage: history [options]"
     print_line
     print_line "Shows the command history."
-    print_line "If -n is not set, it will only be shown the last #{@history_limit} commands"
+    print_line "If -n is not set, it will only be shown the last #{@history_limit} commands."
     print_line
     print @@history_opts.usage
   end
