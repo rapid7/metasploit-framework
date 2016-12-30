@@ -88,7 +88,7 @@ class Core
   @@history_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
-    "-n" => [ true, "Show the last n commands."                       ])
+    "-n" => [ true,  "Show the last n commands."                      ])
 
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -108,7 +108,7 @@ class Core
       "getg"       => "Gets the value of a global variable",
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
-      "history"    => "Show commands history",
+      "history"    => "Show command history",
       "irb"        => "Drop into irb scripting mode",
       "load"       => "Load a framework plugin",
       "quit"       => "Exit the console",
@@ -478,18 +478,18 @@ class Core
 
   alias cmd_quit cmd_exit
 
-
   def cmd_history(*args)
-    
+    return cmd_history_help if args.length == 0
+
     limit = @history_limit
-    length = Readline::HISTORY.length 
+    length = Readline::HISTORY.length
 
     @@history_opts.parse(args) do |opt, _idx, val|
       case opt
       when "-a"
         limit = length
       when "-n"
-        return cmd_history_help unless !val.nil? && val.match(/\A[-+]?\d+\z/)
+        return cmd_history_help unless val && val.match(/\A[-+]?\d+\z/)
         limit = val.to_i
         limit = length if limit >= length
       when "-h"
@@ -498,9 +498,9 @@ class Core
       end
     end
 
-    start = length - limit 
+    start = length - limit
     (start..length-1).each do |pos|
-      print "#{pos}  #{Readline::HISTORY[pos]}\n"
+      print "#{pos + 1}  #{Readline::HISTORY[pos]}\n"
     end
   end
 
@@ -508,12 +508,10 @@ class Core
     print_line "Usage: history [options]"
     print_line
     print_line "Shows the command history."
-    print_line "If -n is not set, it will only be shown the last #{@history_limit} commands."
+    print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
     print_line
     print @@history_opts.usage
   end
-
-
 
   def cmd_sleep_help
     print_line "Usage: sleep <seconds>"
