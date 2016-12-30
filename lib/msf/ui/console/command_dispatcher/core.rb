@@ -137,6 +137,7 @@ class Core
     @cache_payloads = nil
     @previous_module = nil
     @module_name_stack = []
+    @history_limit = 100
   end
 
   #
@@ -480,7 +481,7 @@ class Core
 
   def cmd_history(*args)
     
-    limit = 100
+    limit = @history_limit
     length = Readline::HISTORY.length 
 
     @@history_opts.parse(args) do |opt, _idx, val|
@@ -507,7 +508,7 @@ class Core
     print_line "Usage: history [options]"
     print_line
     print_line "Shows the command history."
-    print_line "If -n is not set, it will only be shown the last 100 commands"
+    print_line "If -n is not set, it will only be shown the last #{@history_limit} commands"
     print_line
     print @@history_opts.usage
   end
