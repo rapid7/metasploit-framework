@@ -479,28 +479,37 @@ class Core
   alias cmd_quit cmd_exit
 
   def cmd_history(*args)
-    return cmd_history_help if args.length == 0
-
-    limit = @history_limit
     length = Readline::HISTORY.length
 
-    @@history_opts.parse(args) do |opt, _idx, val|
+    if length < @history_limit
+      limit = length
+    else
+      limit = @history_limit
+    end
+
+    @@history_opts.parse(args) do |opt, idx, val|
       case opt
       when "-a"
         limit = length
       when "-n"
         return cmd_history_help unless val && val.match(/\A[-+]?\d+\z/)
-        limit = val.to_i
-        limit = length if limit >= length
+        if length < val.to_i
+          limit = length
+        else
+          limit = val.to_i
+        end
       when "-h"
         cmd_history_help
         return false
       end
     end
 
-    start = length - limit
+    start   = length - limit
+    pad_len = length.to_s.length
+
     (start..length-1).each do |pos|
-      print "#{pos + 1}  #{Readline::HISTORY[pos]}\n"
+      cmd_num = (pos + 1).to_s
+      print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
     end
   end
 
