@@ -4,6 +4,7 @@
 # Auxiliary mixins
 #
 require 'msf/core/auxiliary/auth_brute'
+require 'msf/core/auxiliary/crand'
 require 'msf/core/auxiliary/dos'
 require 'msf/core/auxiliary/drdos'
 require 'msf/core/auxiliary/fuzzer'
