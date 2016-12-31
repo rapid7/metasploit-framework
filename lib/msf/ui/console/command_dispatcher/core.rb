@@ -88,7 +88,9 @@ class Core
   @@history_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
-    "-n" => [ true,  "Show the last n commands."                      ])
+    "-n" => [ true,  "Show the last n commands."                      ],
+    "-u" => [ false, "Show only unique commands."                     ],
+    "-c" => [ false, "Clear command history."                         ])
 
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -480,6 +482,7 @@ class Core
 
   def cmd_history(*args)
     length = Readline::HISTORY.length
+    uniq   = false
 
     if length < @history_limit
       limit = length
@@ -498,6 +501,11 @@ class Core
         else
           limit = val.to_i
         end
+      when "-u"
+        uniq = true
+      when "-c"
+        Readline::HISTORY.clear
+        return
       when "-h"
         cmd_history_help
         return false
@@ -508,6 +516,9 @@ class Core
     pad_len = length.to_s.length
 
     (start..length-1).each do |pos|
+      if uniq && Readline::HISTORY[pos] == Readline::HISTORY[pos-1]
+        next unless pos == 0
+      end
       cmd_num = (pos + 1).to_s
       print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
     end
