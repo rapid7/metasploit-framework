@@ -56,9 +56,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
           'value' => params.retries
         }
       ])
-    if c
-      c.params = params
-    end
+    c.params = params
     c
   end
 

