@@ -529,7 +529,6 @@ class Core
     print_line
     print_line "Shows the command history."
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
-    print_line
     print @@history_opts.usage
   end
 
