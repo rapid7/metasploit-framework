@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("#{peer} - Got time #{end_time} from router, starting exploitation attempt.")
-    print_status("#{peer} - Be patient, this might take a long time (typically a few minutes, but maybe an hour or more).")
+    print_status("#{peer} - Be patient, this might take a long time (typically a few minutes, but it might take hours).")
 
     # work back from the current router time minus datastore['TIME_OFFSET']
     while true
@@ -217,7 +217,10 @@ class MetasploitModule < Msf::Auxiliary
         end_time = start_time
         start_time -= datastore['TIME_OFFSET']
       end
-      print_status("#{peer} - Going for another round, starting at #{start_time} and finishing at #{end_time}")
+      print_status("#{peer} - Going for another round, finishing at #{start_time} and starting at #{end_time}")
+
+      # let the router clear the buffers a bit...
+      sleep 30
     end
   end
 end
