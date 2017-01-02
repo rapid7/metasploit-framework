@@ -39,8 +39,15 @@ class Datagram < Rex::Post::Meterpreter::Channel
       [data, sockaddr]
     end
 
-    def send(buf, flags, saddr)
-      channel.send(buf, flags, saddr)
+    #
+    # This should work just like a UDPSocket.send method
+    #
+    # send(mesg, flags, host, port) => numbytes_sent click to toggle source
+    # send(mesg, flags, sockaddr_to) => numbytes_sent
+    # send(mesg, flags) => numbytes_sent
+    #
+    def send(buf, flags, a = nil, b = nil)
+      channel.send(buf, flags, a, b)
     end
   end
 
