@@ -32,6 +32,9 @@ class Payload < Msf::Module
   require 'msf/core/payload/firefox'
   require 'msf/core/payload/mainframe'
 
+  # Universal payload includes
+  require 'msf/core/payload/multi'
+
   ##
   #
   # Payload types

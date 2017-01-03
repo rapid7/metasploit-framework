@@ -67,9 +67,7 @@ module MeterpreterOptions
       end
 
       if session.platform == 'android'
-        if datastore['AutoLoadAndroid']
-          session.load_android
-        end
+        session.load_android
       end
 
       [ 'InitialAutoRunScript', 'AutoRunScript' ].each do |key|

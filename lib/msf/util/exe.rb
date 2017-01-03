@@ -107,6 +107,10 @@ require 'msf/core/exe/segment_appender'
   # @return           [String]
   # @return           [NilClass]
   def self.to_executable(framework, arch, plat, code = '', opts = {})
+    if elf? code
+      return code
+    end
+
     if arch.index(ARCH_X86)
 
       if plat.index(Msf::Module::Platform::Windows)
@@ -959,6 +963,9 @@ require 'msf/core/exe/segment_appender'
   # @param big_endian [Boolean]  Set to "false" by default
   # @return           [String]
   def self.to_exe_elf(framework, opts, template, code, big_endian=false)
+    if elf? code
+      return code
+    end
 
     # Allow the user to specify their own template
     set_template_default(opts, template)
@@ -2127,6 +2134,9 @@ require 'msf/core/exe/segment_appender'
       exeopts[:uac] = true
       Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
     when 'elf'
+      if elf? code
+        return code
+      end
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
         when ARCH_X86,nil
@@ -2154,6 +2164,9 @@ require 'msf/core/exe/segment_appender'
         end
       end
     when 'elf-so'
+      if elf? code
+        return code
+      end
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
         when ARCH_X64
@@ -2291,6 +2304,10 @@ require 'msf/core/exe/segment_appender'
       raise RuntimeError, err_msg
     end
     bo
+  end
+
+  def self.elf?(code)
+    code[0..3] == "\x7FELF"
   end
 
 end

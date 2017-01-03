@@ -553,8 +553,8 @@ module NexposeAPI
         res << {
           :site_id       => site.attributes['id'].to_i,
           :name          => site.attributes['name'].to_s,
-          :risk_factor   => site.attributes['risk_factor'].to_f,
-          :risk_score    => site.attributes['risk_score'].to_f,
+          :risk_factor   => site.attributes['riskfactor'].to_f,
+          :risk_score    => site.attributes['riskscore'].to_f,
         }
       end
       return res
@@ -595,8 +595,8 @@ module NexposeAPI
         res << {
           :device_id     => device.attributes['id'].to_i,
           :address       => device.attributes['address'].to_s,
-          :risk_factor   => device.attributes['risk_factor'].to_f,
-          :risk_score    => device.attributes['risk_score'].to_f,
+          :risk_factor   => device.attributes['riskfactor'].to_f,
+          :risk_score    => device.attributes['riskscore'].to_f,
         }
       end
       return res

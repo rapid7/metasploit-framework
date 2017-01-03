@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def base_uri
-    @base_uri ||= "#{normalize_uri(target_uri.path)}?q=admin/views/ajax/autocomplete/user/"
+    @base_uri ||= normalize_uri("#{target_uri.path}/?q=admin/views/ajax/autocomplete/user/")
   end
 
   def check_host(ip)
@@ -126,9 +126,9 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
     end
-
+    results = results.flatten.uniq
     print_status("Done. #{results.length} usernames found...")
-    results.flatten.uniq.each do |user|
+    results.each do |user|
       print_good("Found User: #{user}")
 
       report_cred(
