@@ -1,6 +1,6 @@
 # Like hacking things? Start here.
 
-Every so often, we'll get a request on the Metasploit Developer's mailing list, <metasploit-hackers@sourceforge.net>, along the lines of, "Hey, I'm new to Metasploit, and I want to help!" The usual answer is something like, "Great! Here's our [framework bug tracker](https://github.com/rapid7/metasploit-framework/issues), get crackin!"
+Every so often, we'll get a request along the lines of, "Hey, I'm new to Metasploit, and I want to help!" The usual answer is something like, "Great! Here's our [framework bug tracker](https://github.com/rapid7/metasploit-framework/issues), get crackin!"
 
 However, tackling core Metasploit Framework bugs or particularly squirrelly exploits probably isn't the right place for the new contributor. Believe me, everyone was a newbie once, there's no shame in that. Those bugs and vulns are usually complicated, nuanced, and there's so many to choose from, it's hard to get started. Here are some ideas to get you started.
 
