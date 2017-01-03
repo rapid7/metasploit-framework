@@ -63,7 +63,7 @@ https://github.com/rapid7/metasploit-framework/wiki/Landing-Pull-Requests
 Also, please take a peek at our guides on using git and our acceptance guidelines for new modules in case you're not familiar with them:
 https://github.com/rapid7/metasploit-framework/wiki
 
-If you get stuck, try to explain your specific problem as best you can on our [Freenode IRC](https://freenode.net/) channel, #metasploit (joining requires a registered nick). Someone should be able to lend a hand. Apparently, some of those people never sleep. Alternatively, we have the [metasploit-hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers) mailing list if that's more your speed.
+If you get stuck, try to explain your specific problem as best you can on our [Freenode IRC](https://freenode.net/) channel, #metasploit (joining requires a registered nick). Someone should be able to lend a hand. Apparently, some of those people never sleep.
 
 ## Thank you
 
