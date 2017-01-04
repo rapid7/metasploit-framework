@@ -407,7 +407,22 @@ class ReadableText
       next if (opt.evasion?)
       next if (missing && opt.valid?(val))
 
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+      desc = opt.desc.dup
+
+      # Hint at RPORT proto by regexing mixins
+      if name == 'RPORT' && opt.kind_of?(Msf::OptPort)
+        mod.class.included_modules.each do |m|
+          if m.name =~ /tcp/i
+            desc << ' (TCP)'
+            break
+          elsif m.name =~ /udp/i
+            desc << ' (UDP)'
+            break
+          end
+        end
+      end
+
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", desc ]
     end
 
     return tbl.to_s
