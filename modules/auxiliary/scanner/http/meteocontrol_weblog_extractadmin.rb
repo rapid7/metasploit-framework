@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
 
  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
-      return :abort
+      return
     end
 
     if (res and res.code == 200 and res.body.include?("szWebAdminPassword") or res.body=~ /Admin Monitoring/)
