@@ -277,8 +277,23 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Explicitly runs a command in the meterpreter console.
   #
-  def run_cmd(cmd)
-    console.run_single(cmd)
+  def run_cmd(cmd,output_object=nil)
+    stored_output_state = nil
+    # If the user supplied an Output IO object, then we tell
+    # the console to use that, while saving it's previous output/
+    if output_object
+      stored_output_state = console.output
+      console.send(:output=, output_object)
+    end
+    success = console.run_single(cmd)
+    # If we stored the previous output object of the channel
+    # we restore it here to put everything back the way we found it
+    # We re-use the conditional above, because we expect in many cases for
+    # the stored state to actually be nil here.
+    if output_object
+      console.send(:output=,stored_output_state)
+    end
+    success
   end
 
   #
