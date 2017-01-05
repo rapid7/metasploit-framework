@@ -55,6 +55,7 @@ module HttpClients
   SAFARI = "Safari"
   OPERA  = "Opera"
   CHROME = "Chrome"
+  EDGE = "Edge"
 
   UNKNOWN = "Unknown"
 end
