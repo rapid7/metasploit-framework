@@ -145,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return [username, password]
   end
-  
+
   def report_cred(opts)
     service_data = {
       address: opts[:ip],
