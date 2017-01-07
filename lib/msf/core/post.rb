@@ -17,6 +17,7 @@ class Msf::Post < Msf::Module
   require 'msf/core/post/unix'
   require 'msf/core/post/windows'
   require 'msf/core/post/android'
+  require 'msf/core/post/hardware'
 
   include Msf::PostMixin
 
