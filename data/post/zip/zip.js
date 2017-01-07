@@ -1,9 +1,16 @@
+/*
+ * Original technique from http://naterice.com/zip-and-unzip-files-using-the-windows-shell-and-vbscript/
+ */
+
 function create_zip(dst)
 {
 	var header = "\x50\x4b\x05\x06" +
 		"\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
 		"\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
+	/*
+	 * Trick to write a binary file regardless of the system locale
+	 */
 	var outw = new ActiveXObject("ADODB.Stream");
 	outw.Type = 2;
 	outw.Open();
@@ -38,13 +45,23 @@ function zip(src, dst)
 {
 	var shell = new ActiveXObject('Shell.Application');
 	var fso = new ActiveXObject('Scripting.FileSystemObject');
+
+	/*
+	 * Normalize paths, required by the shell commands
+	 */
 	src = fso.GetAbsolutePathName(src);
 	dst = fso.GetAbsolutePathName(dst);
 
+	/*
+	 * Create an empty zip file if necessary
+	 */
 	if (!fso.FileExists(dst)) {
 		create_zip(dst);
 	}
 
+	/*
+	 * Check for duplicates
+	 */
 	var zipfile = shell.Namespace(dst);
 	var files = zipfile.items();
 	var count = files.Count;
@@ -55,6 +72,11 @@ function zip(src, dst)
 	}
 
 	zipfile.CopyHere(src);
+
+	/*
+	 * Wait for completion, but data can be stale on network shares, so we
+	 * abort after 5 seconds.
+	 */
 	var max_tries = 50;
 	while (count == zipfile.items().Count) {
 		WScript.Sleep(100);
