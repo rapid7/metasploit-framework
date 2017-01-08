@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Meteocontrol WEBlog Password Extractor',
       'Description' => %{
-          This module exploits an authentication bypass vulnerability in Meteocontrol WEBLog (all models). This vulnerability allows extracting Administrator password for the device management portal.
+          This module exploits an authentication bypass vulnerability in Meteocontrol WEBLog (all models) to extract Administrator password for the device management portal.
       },
       'References'  =>
         [
