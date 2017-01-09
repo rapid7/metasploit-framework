@@ -207,6 +207,13 @@ class Creds
       print_error(e.message)
     end
     
+    # Verify we only have one type of private
+    if params.slice('password','ntlm','ssh-key','hash').length > 1
+      private_keys = params.slice('password','ntlm','ssh-key','hash').keys
+      print_error("You can only specify a single Private type. Private types given: #{private_keys.join(', ')}")
+      return
+    end
+   
     data = {
       workspace_id: framework.db.workspace,
       origin_type: :import,
