@@ -103,9 +103,9 @@ Feature: Help command
     Credentials Backend Commands
     ============================
 
-        Command       Description
-        -------       -----------
-        creds         List all credentials in the database
+          Command       Description
+          -------       -----------
+          creds         List all credentials in the database
 
 
       """
