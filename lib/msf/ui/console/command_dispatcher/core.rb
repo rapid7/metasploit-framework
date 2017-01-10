@@ -1236,7 +1236,7 @@ class Core
               session.response_timeout = response_timeout
             end
 
-            output = session.run_cmd cmd
+            output = session.run_cmd(cmd, driver.output)
           end
         end
     when 'kill'
