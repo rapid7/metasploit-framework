@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
 
   def run
     pids = get_current_data_pids(datastore["CANBUS"], datastore["SRCID"], datastore["DSTID"])
-    print_status("Avaiable PIDS for pulling realitme data: #{pids.size} pids")
+    print_status("Available PIDS for pulling realtime data: #{pids.size} pids")
     print_status("  #{pids.inspect}")
     if pids.include? 1
       data = get_monitor_status(datastore["CANBUS"], datastore["SRCID"], datastore["DSTID"])
