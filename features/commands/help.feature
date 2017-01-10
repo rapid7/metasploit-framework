@@ -99,7 +99,6 @@ Feature: Help command
           workspace         Switch between database workspaces
 
 
-
     Credentials Backend Commands
     ============================
 
