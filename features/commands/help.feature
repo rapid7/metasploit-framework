@@ -46,7 +46,7 @@ Feature: Help command
           -------       -----------
           advanced      Displays advanced options for one or more modules
           back          Move back from the current context
-          edit          Edit the current module with $VISUAL or $EDITOR
+          edit          Edit the current module with the preferred editor
           info          Displays information about one or more modules
           loadpath      Searches for and loads modules from a path
           options       Displays global options or for one or more modules
