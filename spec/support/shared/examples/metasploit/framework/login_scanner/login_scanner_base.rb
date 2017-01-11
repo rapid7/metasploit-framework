@@ -183,7 +183,9 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts 
         allow(creds).to receive(:username)
         allow(creds).to receive(:user_file)
         allow(creds).to receive(:userpass_file)
-        allow(creds).to receive(:additional_publics).and_return([])
+        allow(creds).to receive(:prepended_creds).and_return([])
+        allow(creds).to receive(:additional_privates).and_return([])
+        allow(creds).to receive(:additional_publics).and_return(['user'])
         login_scanner.cred_details = creds
         expect(login_scanner).to_not be_valid
         expect(login_scanner.errors[:cred_details]).to include "must respond to :each"
