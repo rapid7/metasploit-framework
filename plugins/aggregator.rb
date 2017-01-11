@@ -10,6 +10,7 @@ require "msf/aggregator"
 
 module Msf
   Aggregator_yaml = "#{Msf::Config.get_config_root}/aggregator.yaml" #location of the aggregator.yml containing saved aggregator creds
+  Aggregator_Temp = "#{Msf::Config.get_config_root}/aggregator.temp"
 
 class Plugin::Aggregator < Msf::Plugin
   class AggregatorCommandDispatcher
@@ -268,40 +269,38 @@ class Plugin::Aggregator < Msf::Plugin
 
     def cmd_aggregator_default_forward(*args)
       return if not aggregator_verify
-      host, port = nil
-      case args.length
-        when 1
-          host, port = args[0].split(':', 2)
-        when 2
-          host, port = args
-      end
-      if port.nil?
-        usage_default_forward
-        return
-      end
-      @aggregator.register_default(host, port, nil)
+      # host, port = nil
+      # case args.length
+      #   when 1
+      #     host, port = args[0].split(':', 2)
+      #   when 2
+      #     host, port = args
+      # end
+      # if port.nil?
+      #   usage_default_forward
+      #   return
+      # end
+      @aggregator.register_default(@aggregator.uuid, nil)
     end
 
     def cmd_aggregator_session_forward(*args)
       return if not aggregator_verify
-      session_uri, host, port = nil
+      session_uri = nil
       case args.length
-        when 2
-          session_uri, handler = args
-          host, port = handler.split(':', 2)
-        when 3
-          session_uri, host, port = args
+        when 1
+          session_uri = args[0]
         else
           usage_session_forward
           return
       end
       # TODO: call @aggregator.session and make sure session_uri is listed
       # TODO: ensure listener at host:port is open local if not start multi/handler universal
-      @aggregator.obtain_session(session_uri, host, port)
+      @aggregator.obtain_session(session_uri, @aggregator.uuid)
     end
 
     def cmd_aggregator_disconnect(*args)
       @aggregator.stop if @aggregator
+      # exit @payload_job_ids if @payload_job_ids
       @aggregator = nil
     end
 
@@ -315,7 +314,7 @@ class Plugin::Aggregator < Msf::Plugin
       if(@host != "localhost" and @host != "127.0.0.1")
         print_error("Warning: SSL connections are not verified in this release, it is possible for an attacker")
         print_error("         with the ability to man-in-the-middle the Aggregator traffic to capture the Aggregator")
-        print_error("         traffic. If you are running this on an untrusted network.")
+        print_error("         traffic, if you are running this on an untrusted network.")
         return
       end
 
@@ -333,6 +332,13 @@ class Plugin::Aggregator < Msf::Plugin
       end
 
       aggregator_compatibility_check
+
+      unless @payload_job_ids
+        @payload_job_ids = []
+        @my_io = get_local_handler
+      end
+
+      @aggregator.register_response_channel(@my_io)
       @aggregator
     end
 
@@ -345,10 +351,43 @@ class Plugin::Aggregator < Msf::Plugin
       end
     end
 
+    def get_local_handler
+      multi_handler = framework.exploits.create('multi/handler')
+
+      multi_handler.datastore['LHOST']                = "127.0.0.1"
+      # multi_handler.datastore['PAYLOAD']              = "multi/meterpreter/reverse_https"
+      multi_handler.datastore['PAYLOAD']              = "multi/meterpreter/reverse_http"
+      multi_handler.datastore['LPORT']                = "5000" # make this find a random local port
+
+      # %w(DebugOptions PrependMigrate PrependMigrateProc
+      #  InitialAutoRunScript AutoRunScript CAMPAIGN_ID HandlerSSLCert
+      #  StagerVerifySSLCert PayloadUUIDTracking PayloadUUIDName
+      #  IgnoreUnknownPayloads SessionRetryTotal SessionRetryWait
+      #  SessionExpirationTimeout SessionCommunicationTimeout).each do |opt|
+      #   multi_handler.datastore[opt] = datastore[opt] if datastore[opt]
+      # end
+
+      multi_handler.datastore['ExitOnSession'] = false
+      multi_handler.datastore['EXITFUNC']      = 'thread'
+
+      # Now we're ready to start the handler
+      multi_handler.exploit_simple(
+          'LocalInput' => nil,
+          'LocalOutput' => nil,
+          'Payload' => multi_handler.datastore['PAYLOAD'],
+          'RunAsJob' => true
+      )
+      @payload_job_ids << multi_handler.job_id
+      # requester = Msf::Aggregator::Http::SslRequester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])
+      requester = Msf::Aggregator::Http::Requester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])
+      requester
+    end
+
     private :aggregator_login
     private :aggregator_compatibility_check
     private :aggregator_verify
     private :aggregator_verify_db
+    private :get_local_handler
   end
 
   #
