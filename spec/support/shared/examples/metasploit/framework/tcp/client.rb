@@ -11,7 +11,7 @@ RSpec.shared_examples_for 'Metasploit::Framework::Tcp::Client' do
     allow(creds).to receive(:username)
     allow(creds).to receive(:user_file)
     allow(creds).to receive(:userpass_file)
-    allow(creds).to receive(:prepend_creds).and_return([])
+    allow(creds).to receive(:prepended_creds).and_return([])
     allow(creds).to receive(:additional_privates).and_return([])
     allow(creds).to receive(:additional_publics).and_return(['user'])
     login_scanner.cred_details = creds
