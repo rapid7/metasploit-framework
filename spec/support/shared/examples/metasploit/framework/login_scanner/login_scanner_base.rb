@@ -172,6 +172,15 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts 
 
     context 'cred_details' do
       it 'is not valid for not set' do
+        creds = double('Metasploit::Framework::CredentialCollection')
+        allow(creds).to receive(:pass_file)
+        allow(creds).to receive(:username)
+        allow(creds).to receive(:user_file)
+        allow(creds).to receive(:userpass_file)
+        allow(creds).to receive(:prepended_creds).and_return([])
+        allow(creds).to receive(:additional_privates).and_return([])
+        allow(creds).to receive(:additional_publics).and_return([])
+        login_scanner.cred_details = creds
         expect(login_scanner).to_not be_valid
         expect(login_scanner.errors[:cred_details]).to include "can't be blank"
       end
