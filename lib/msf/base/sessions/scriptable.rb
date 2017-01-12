@@ -101,7 +101,7 @@ module Scriptable
   #
   def execute_script(script_name, *args)
     post_module = legacy_script_to_post_module(script_name)
-    script_name == post_module if !post_module.nil?
+    script_name = post_module if !post_module.nil?
     mod = framework.modules.create(script_name)
     if mod
       # Don't report module run events here as it will be taken care of
