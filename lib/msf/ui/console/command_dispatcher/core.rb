@@ -1653,16 +1653,15 @@ class Core
       return false
     end
 
-    # Walk the plugins array
-    framework.plugins.each { |plugin|
-      # Unload the plugin if it matches the name we're searching for
-      if (plugin.name.downcase == args[0].downcase)
-        print("Unloading plugin #{args[0]}...")
-        framework.plugins.unload(plugin)
-        print_line("unloaded.")
-        break
-      end
-    }
+    # Find a plugin within the plugins array
+    plugin = framework.plugins.find { |p| p.name.downcase == args[0].downcase }
+
+    # Unload the plugin if it matches the name we're searching for
+    if plugin
+      print("Unloading plugin #{args[0]}...")
+      framework.plugins.unload(plugin)
+      print_line("unloaded.")
+    end
   end
 
   #

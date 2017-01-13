@@ -57,15 +57,16 @@ class RPC_Plugin < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('plugin.unload', 'nexpose')
   def rpc_unload(name)
-    self.framework.plugins.each { |plugin|
-      # Unload the plugin if it matches the name we're searching for
-      if (plugin.name == name)
-        self.framework.plugins.unload(plugin)
-        return 	{ "result" => "success" }
-      end
-    }
-    return 	{ "result" => "failure" }
+    # Find a plugin within the plugins array
+    plugin = self.framework.plugins.find { |p| p.name == name }
 
+    # Unload the plugin if it matches the name we're searching for
+    if plugin
+      self.framework.plugins.unload(plugin)
+      return 	{ "result" => "success" }
+    end
+
+    return 	{ "result" => "failure" }
   end
 
 
