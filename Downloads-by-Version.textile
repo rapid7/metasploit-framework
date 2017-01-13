@@ -8,6 +8,8 @@ h2. Metasploit Community / Pro Combined Installers
 These include the Metasploit Community / Pro UI as well as Framework.
 Updates are released about once a week for Windows and Linux.
 
+The pgp signatures below can be verified with the following "public key":https://pgp.mit.edu/pks/lookup?op=get&search=0xCDFB5FA52007B954
+
 |Download Link|File Type|SHA1|PGP|
 | | | | |
 | "metasploit-4.13.0-windows-installer.exe":https://downloads.metasploit.com/data/releases/metasploit-latest-windows-installer.exe | Windows | "SHA1":https://downloads.metasploit.com/data/releases/metasploit-latest-windows-installer.exe.sha1 | "PGP":https://downloads.metasploit.com/data/releases/metasploit-latest-windows-installer.exe.asc|
