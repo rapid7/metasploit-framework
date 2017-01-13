@@ -37,12 +37,12 @@ class RPC_Plugin < RPC_Base
     end
 
     begin
-      if (inst = self.framework.plugins.load(path, opts))
-        return 	{ "result" => "success" }
+      if (self.framework.plugins.load(path, opts))
+        return { "result" => "success" }
       end
     rescue ::Exception => e
-      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
-      return 	{ "result" => "failure" }
+      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", 'core', 0, caller)
+      return { "result" => "failure" }
     end
 
   end
@@ -61,10 +61,10 @@ class RPC_Plugin < RPC_Base
       # Unload the plugin if it matches the name we're searching for
       if (plugin.name == name)
         self.framework.plugins.unload(plugin)
-        return 	{ "result" => "success" }
+        return { "result" => "success" }
       end
     }
-    return 	{ "result" => "failure" }
+    return { "result" => "failure" }
 
   end
 
