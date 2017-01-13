@@ -69,11 +69,8 @@ class PluginManager < Array
     end
 
     # Force unloading if already loaded
-    self.each do |plugin|
-      if plugin.class == klass
-        unload(plugin)
-      end
-    end
+    plugin = self.find { |p| p.class == klass }
+    unload(plugin) if plugin
 
     # Create an instance of the plugin and let it initialize
     instance = klass.create(framework, opts)
