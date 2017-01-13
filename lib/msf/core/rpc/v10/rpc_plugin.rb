@@ -17,27 +17,27 @@ class RPC_Plugin < RPC_Base
   #  # Load the nexpose plugin
   #  rpc.call('plugin.load', 'nexpose')
   def rpc_load(path, xopts = {})
-    opts  = {}
+    opts = {}
 
-    xopts.each do |k,v|
+    xopts.each do |k, v|
       if k.class == String
         opts[k.to_sym] = v
       end
     end
 
-    if (path !~ /#{File::SEPARATOR}/)
+    if path !~ /#{File::SEPARATOR}/
       plugin_file_name = path
 
       # If the plugin isn't in the user direcotry (~/.msf3/plugins/), use the base
       path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
-      if not File.exist?( path  + ".rb" )
+      if not File.exist?(path + ".rb")
         # If the following "path" doesn't exist it will be caught when we attempt to load
         path = Msf::Config.plugin_directory + File::SEPARATOR + plugin_file_name
       end
     end
 
     begin
-      if (self.framework.plugins.load(path, opts))
+      if self.framework.plugins.load(path, opts)
         return { "result" => "success" }
       end
     rescue ::Exception => e
@@ -57,13 +57,13 @@ class RPC_Plugin < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('plugin.unload', 'nexpose')
   def rpc_unload(name)
-    self.framework.plugins.each { |plugin|
+    self.framework.plugins.each do |plugin|
       # Unload the plugin if it matches the name we're searching for
-      if (plugin.name == name)
+      if plugin.name == name
         self.framework.plugins.unload(plugin)
         return { "result" => "success" }
       end
-    }
+    end
     return { "result" => "failure" }
 
   end
@@ -78,7 +78,7 @@ class RPC_Plugin < RPC_Base
   def rpc_loaded
     ret = {}
     ret[:plugins] = []
-    self.framework.plugins.each do  |plugin|
+    self.framework.plugins.each do |plugin|
       ret[:plugins] << plugin.name
     end
     ret
