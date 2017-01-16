@@ -542,9 +542,29 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       db.cmd_workspace "-D"
       @output = []
     end
+
     describe "<no arguments>" do
       it "should list default workspace" do
         db.cmd_workspace
+        expect(@output).to match_array [
+          "* default"
+        ]
+      end
+
+      it "should list all workspaces" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace
+        expect(@output).to match_array [
+          "  default",
+          "* foo"
+        ]
+      end
+    end
+
+    describe "-v" do
+      it "should list default workspace verbosely" do
+        db.cmd_workspace("-v")
         expect(@output).to match_array [
           "",
           "Workspaces",
@@ -555,10 +575,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         ]
       end
 
-      it "should list all workspaces" do
+      it "should list all workspaces verbosely" do
         db.cmd_workspace("-a", "foo")
         @output = []
-        db.cmd_workspace
+        db.cmd_workspace("-v")
         expect(@output).to match_array [
           "",
           "Workspaces",
@@ -613,6 +633,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "Usage:",
           "    workspace                  List workspaces",
+          "    workspace -v               List workspaces verbosely",
           "    workspace [name]           Switch workspace",
           "    workspace -a [name] ...    Add workspace(s)",
           "    workspace -d [name] ...    Delete workspace(s)",
