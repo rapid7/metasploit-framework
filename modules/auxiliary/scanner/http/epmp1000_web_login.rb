@@ -15,22 +15,23 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Cambium ePMP 1000 Login Scanner',
       'Description' => %{
-        This module scans for Cambium ePMP 1000 management login portal(s), and attempts to identify valid credentials. Default login credentials are - admin/admin, installer/installer, home/home and readonly/readonly.
+        This module scans for Cambium ePMP 1000 management login portal(s), and attempts to identify valid credentials. Default login credentials are - admin/admin, installer/installer, home/home and readonly/readonly. Tested versions <=3.2.1 (current version). This should work fine for any future releases.
       },
       'Author'         =>
         [
-          'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
+          'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
       'License'        => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => true }
-    ))
+      'DefaultOptions' => { 'VERBOSE' => true })
+    )
 
     register_options(
-    [
-      Opt::RPORT(80),	# Application may run on a different port too. Change port accordingly.
-      OptString.new('USERNAME', [false, "A specific username to authenticate as", "admin"]),
-      OptString.new('PASSWORD', [false, "A specific password to authenticate with", "admin"])
-    ], self.class)
+      [
+        Opt::RPORT(80),	# Application may run on a different port too. Change port accordingly.
+        OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'admin']),
+        OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'admin'])
+      ], self.class
+    )
   end
 
   def run_host(ip)
@@ -78,16 +79,17 @@ class MetasploitModule < Msf::Auxiliary
   def is_app_epmp1000?
     begin
       res = send_request_cgi(
-      {
-        'uri'       => '/',
-        'method'    => 'GET'
-      })
+        {
+          'uri'       => '/',
+          'method'    => 'GET'
+        }
+      )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return false
     end
 
-    if (res and res.code == 200 and res.headers['Server'] and (res.headers['Server'].include?("Cambium HTTP Server") or res.body.include?("cambiumnetworks.com")))
+    if (res && res.code == 200 && res.headers['Server'] && (res.headers['Server'].include?('Cambium HTTP Server') || res.body.include?('cambiumnetworks.com')))
 
       get_epmp_ver = res.body.match(/"sw_version">([^<]*)/)
       epmp_ver = get_epmp_ver[1]
@@ -114,73 +116,72 @@ class MetasploitModule < Msf::Auxiliary
     begin
 
       res = send_request_cgi(
-      {
-        'uri'       => '/cgi-bin/luci',
-        'method'    => 'POST',
-        'headers'   => {'X-Requested-With' => 'XMLHttpRequest','Accept'	=> 'application/json, text/javascript, */*; q=0.01'},
-        'vars_post' =>
-          {
-            'username' => 'dashboard',
-            'password' => ''
-          }
-      })
+        {
+          'uri'       => '/cgi-bin/luci',
+          'method'    => 'POST',
+          'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept'	=> 'application/json, text/javascript, */*; q=0.01' },
+          'vars_post' =>
+            {
+              'username' => 'dashboard',
+              'password' => ''
+            }
+        }
+      )
 
-rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
 
       vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return :abort
 
     end
 
-    if (res and res.code == 200 and res.headers.include?("Set-Cookie") and res.headers['Set-Cookie'].include?("sysauth"))
+    if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('sysauth'))
 
       get_cookie = res.headers['Set-Cookie']
       get_stok = res.headers['Set-Cookie'].match(/stok=(.*)/)
       stok_value = get_stok[1]
       sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
-      cookie1 = "#{sysauth_value}; "+"globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
+      cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
 
       res = send_request_cgi(
-      {
-        'uri'       => '/cgi-bin/luci',
-        'method'    => 'POST',
-        'cookie'    => cookie1,
-        'headers'   => {
-           'X-Requested-With' => 'XMLHttpRequest',
-           'Accept'	      => 'application/json, text/javascript, */*; q=0.01',
-           'Connection'	      => 'close'
-        },
-        'vars_post' =>
-          {
-            'username' => user,
-            'password' => pass
-          }
-      })
+        {
+          'uri'       => '/cgi-bin/luci',
+          'method'    => 'POST',
+          'cookie'    => cookie1,
+          'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'application/json, text/javascript, */*; q=0.01', 'Connection' => 'close' },
+          'vars_post' =>
+            {
+              'username' => user,
+              'password' => pass
+            }
+        }
+      )
 
     end
 
-    if (res and res.code == 200 and res.headers.include?("Set-Cookie") and res.headers['Set-Cookie'].include?("stok="))
+    if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('stok='))
 
       print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
 
-  #
-  # Extract ePMP version
-  #
+     #
+     # Extract ePMP version
+     #
       res = send_request_cgi(
-      {
-        'uri'       => '/',
-        'method'    => 'GET'
-      })
+        {
+          'uri' => '/',
+          'method' => 'GET'
+        }
+      )
 
       get_epmp_ver = res.body.match(/"sw_version">([^<]*)/)
       epmp_ver = get_epmp_ver[1]
 
       report_cred(
-              ip: rhost,
-              port: rport,
-              service_name: "Cambium ePMP 1000 version #{epmp_ver}",
-              user: user,
-              password: pass
+        ip: rhost,
+        port: rport,
+        service_name: "Cambium ePMP 1000 version #{epmp_ver}",
+        user: user,
+        password: pass
       )
 
     else
