@@ -2,7 +2,7 @@
 
   The administrator application was removed as of Tomcat 6.  Tomcat 5.5.36 is available from [apache](https://archive.apache.org/dist/tomcat/tomcat-5/v5.5.36/).  This does not have the `admin` app bundled though, and can be downloaded [here](https://archive.apache.org/dist/tomcat/tomcat-5/v5.5.36/bin/apache-tomcat-5.5.36-admin.zip).
   
-  To utilize the `admin` application, a user must have the permission `admin` applied to their account.  The following user line will handle all necessary permissions: `<user username="tomcat" password="tomcat" roles="admin">`.
+  To utilize the `admin` application, a user must have the permission `admin` applied to their account.  The following user line will handle all necessary permissions: `<user username="tomcat" password="tomcat" roles="admin"/>`.
 
 ## Verification Steps
 
@@ -21,7 +21,7 @@
 
   **rport**
 
-  The default is set to `8180`, which is only default on FreeBSD.  All other operating systems, and the software itself, default to 8080.
+  The default is set to `8180`, which is only default on FreeBSD.  All other operating systems, and the software itself, default to `8080`.
 
 ## Scenarios
 
