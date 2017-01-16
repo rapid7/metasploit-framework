@@ -546,7 +546,12 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       it "should list default workspace" do
         db.cmd_workspace
         expect(@output).to match_array [
-          "* default"
+          "",
+          "Workspaces",
+          "==========",
+          "current  name     hosts  services  vulns  creds  loots  notes",
+          "-------  ----     -----  --------  -----  -----  -----  -----",
+          "*        default  0      0         0      0      0      0"
         ]
       end
 
@@ -555,8 +560,13 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         @output = []
         db.cmd_workspace
         expect(@output).to match_array [
-          "  default",
-          "* foo"
+          "",
+          "Workspaces",
+          "==========",
+          "current  name     hosts  services  vulns  creds  loots  notes",
+          "-------  ----     -----  --------  -----  -----  -----  -----",
+          "         default  0      0         0      0      0      0",
+          "*        foo      0      0         0      0      0      0"
         ]
       end
     end

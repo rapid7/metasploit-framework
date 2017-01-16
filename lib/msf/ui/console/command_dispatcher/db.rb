@@ -177,11 +177,31 @@ class Db
         return
       end
     else
+      workspace = framework.db.workspace
+      col_names = %w{current name hosts services vulns creds loots notes}
+
+      tbl = Rex::Text::Table.new(
+        'Header'    => 'Workspaces',
+        'Columns'   => col_names,
+        'SortIndex' => 1
+      )
+
       # List workspaces
-      framework.db.workspaces.each do |s|
-        pad = (s.name == framework.db.workspace.name) ? "* " : "  "
-        print_line("#{pad}#{s.name}")
+      framework.db.workspaces.each do |ws|
+        tbl << [
+          ws == workspace ? '*' : '',
+          ws.name,
+          ws.hosts.count,
+          ws.services.count,
+          ws.vulns.count,
+          ws.core_credentials.count,
+          ws.loots.count,
+          ws.notes.count
+        ]
       end
+
+      print_line
+      print_line(tbl.to_s)
     end
   }
   end
