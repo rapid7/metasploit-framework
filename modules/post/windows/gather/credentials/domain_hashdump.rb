@@ -45,7 +45,8 @@ class MetasploitModule < Msf::Post
           ad_account.nt_history.each_with_index do |nt_hash, index|
             hash_string = ad_account.lm_history[index] || Metasploit::Credential::NTLMHash::BLANK_LM_HASH
             hash_string << ":#{nt_hash}"
-            report_hash(hash_string.downcase,ad_account.name, realm)
+            ad_account_name_indexed = ad_account.name + "_" + index.to_s
+            report_hash(hash_string.downcase,ad_account_name_indexed, realm)
           end
         end
         rm_f(ntds_file)
