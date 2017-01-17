@@ -2,7 +2,11 @@
 
   The administrator application was removed as of Tomcat 6.  Tomcat 5.5.36 is available from [apache](https://archive.apache.org/dist/tomcat/tomcat-5/v5.5.36/).  This does not have the `admin` app bundled though, and can be downloaded [here](https://archive.apache.org/dist/tomcat/tomcat-5/v5.5.36/bin/apache-tomcat-5.5.36-admin.zip).
   
-  To utilize the `admin` application, a user must have the permission `admin` applied to their account.  The following user line will handle all necessary permissions: `<user username="tomcat" password="tomcat" roles="admin"/>`.
+  To utilize the `admin` application, a user must have the permission `admin` applied to their account.  The following user line will handle all necessary permissions:
+
+  ```
+  <user username="tomcat" password="tomcat" roles="admin"/>
+  ```
 
 ## Verification Steps
 
@@ -10,10 +14,10 @@
   2. Install the admin app
   3. Start msfconsole
   4. Do: ```use auxiliary/admin/http/tomcat_administration```
-  5. Do: ```set rhosts <ips>```
-  6. Do: ```set tomcat_user <username>```
-  7. Do: ```set tomcat_pass <username>```
-  8. Do: ```set rport <port>```
+  5. Do: ```set rhosts [ips]```
+  6. Do: ```set tomcat_user [username]```
+  7. Do: ```set tomcat_pass [username]```
+  8. Do: ```set rport [port]```
   9. Do: ```run```
   10. Find all the Tomcat admin portals
 
