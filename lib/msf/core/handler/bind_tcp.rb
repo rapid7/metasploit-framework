@@ -180,7 +180,7 @@ module BindTcp
     key = m.digest(datastore["AESPassword"] || "")
 
     Rex::ThreadFactory.spawn('AESEncryption', false) {
-      c1 = OpenSSL::Cipher::Cipher.new('aes-128-cfb8')
+      c1 = OpenSSL::Cipher.new('aes-128-cfb8')
       c1.encrypt
       c1.key=key
       sock.put([0].pack('N'))
@@ -194,7 +194,7 @@ module BindTcp
     }
 
     Rex::ThreadFactory.spawn('AESEncryption', false) {
-      c2 = OpenSSL::Cipher::Cipher.new('aes-128-cfb8')
+      c2 = OpenSSL::Cipher.new('aes-128-cfb8')
       c2.decrypt
       c2.key=key
       iv=""

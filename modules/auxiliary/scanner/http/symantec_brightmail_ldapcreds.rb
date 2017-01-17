@@ -194,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
     (dk, iv) = get_derived_key(pbe_key, salt, 1000)
     alg = 'des-cbc'
 
-    decode_cipher = OpenSSL::Cipher::Cipher.new(alg)
+    decode_cipher = OpenSSL::Cipher.new(alg)
     decode_cipher.decrypt
     decode_cipher.padding = 0
     decode_cipher.key = dk

@@ -23,7 +23,7 @@ module Rex
             k1 = OpenSSL::HMAC.digest('MD5', key, [msg_type].pack('V'))
             k3 = OpenSSL::HMAC.digest('MD5', k1, checksum)
 
-            cipher = OpenSSL::Cipher::Cipher.new('rc4')
+            cipher = OpenSSL::Cipher.new('rc4')
             cipher.decrypt
             cipher.key = k3
             decrypted = cipher.update(data) + cipher.final
@@ -50,7 +50,7 @@ module Rex
 
             k3 = OpenSSL::HMAC.digest('MD5', k1, checksum)
 
-            cipher = OpenSSL::Cipher::Cipher.new('rc4')
+            cipher = OpenSSL::Cipher.new('rc4')
             cipher.encrypt
             cipher.key = k3
             encrypted = cipher.update(data_encrypt) + cipher.final

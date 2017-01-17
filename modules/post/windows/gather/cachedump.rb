@@ -246,7 +246,7 @@ class MetasploitModule < Msf::Post
 
   def decrypt_hash(edata, nlkm, ch)
     rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest.new('md5'), nlkm, ch)
-    rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+    rc4 = OpenSSL::Cipher.new("rc4")
     rc4.key = rc4key
     decrypted  = rc4.update(edata)
     decrypted << rc4.final
@@ -255,7 +255,7 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_hash_vista(edata, nlkm, ch)
-    aes = OpenSSL::Cipher::Cipher.new('aes-128-cbc')
+    aes = OpenSSL::Cipher.new('aes-128-cbc')
     aes.key = nlkm[16...-1]
     aes.padding = 0
     aes.decrypt
