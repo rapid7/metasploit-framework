@@ -60,12 +60,14 @@ msf auxiliary(tomcat_mgr_login) > run
 [-] 192.168.2.156:8080 - LOGIN FAILED: admin:admin (Incorrect)
 ```
 ...snip...
+
 ```
 [-] 192.168.2.156:8080 - LOGIN FAILED: tomcat:root (Incorrect)
 [+] 192.168.2.156:8080 - LOGIN SUCCESSFUL: tomcat:tomcat
 [-] 192.168.2.156:8080 - LOGIN FAILED: both:admin (Incorrect)
 ```
 ...snip...
+
 ```
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
@@ -86,13 +88,17 @@ msf auxiliary(tomcat_mgr_login) > run
 [!] No active DB -- Credential data will not be saved!
 [-] 192.168.2.108:8087 - LOGIN FAILED: admin:admin (Incorrect)
 ```
+
 ...snip...
+
 ```
 [-] 192.168.2.108:8087 - LOGIN FAILED: tomcat:root (Incorrect)
 [+] 192.168.2.108:8087 - LOGIN SUCCESSFUL: tomcat:tomcat
 [-] 192.168.2.108:8087 - LOGIN FAILED: both:admin (Incorrect)
 ```
+
 ...snip...
+
 ```
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
@@ -113,13 +119,17 @@ msf auxiliary(tomcat_mgr_login) > run
 [!] No active DB -- Credential data will not be saved!
 [-] 192.168.2.108:8088 - LOGIN FAILED: admin:admin (Incorrect)
 ```
+
 ...snip...
+
 ```
 [-] 192.168.2.108:8088 - LOGIN FAILED: tomcat:root (Incorrect)
 [+] 192.168.2.108:8088 - LOGIN SUCCESSFUL: tomcat:tomcat
 [-] 192.168.2.108:8088 - LOGIN FAILED: both:admin (Incorrect)
 ```
+
 ...snip...
+
 ```
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
