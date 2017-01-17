@@ -94,8 +94,8 @@ class Msf::Payload::UUID
   # @option opts [String] :arch The hardware architecture for this payload
   # @option opts [String] :platform The operating system platform for this payload
   # @option opts [String] :timestamp The timestamp in UTC Unix epoch format
-  # @option opts [Fixnum] :xor1 An optional 8-bit XOR ID for obfuscation
-  # @option opts [Fixnum] :xor2 An optional 8-bit XOR ID for obfuscation
+  # @option opts [Integer] :xor1 An optional 8-bit XOR ID for obfuscation
+  # @option opts [Integer] :xor2 An optional 8-bit XOR ID for obfuscation
   # @return [String] The encoded payoad UUID as a binary string
   #
   def self.generate_raw(opts={})
@@ -195,7 +195,7 @@ class Msf::Payload::UUID
   # Look up the numeric platform ID given a string or PlatformList as input
   #
   # @param platform [String] The name of the platform to lookup
-  # @return [Fixnum] The integer value of this platform
+  # @return [Integer] The integer value of this platform
   #
   def self.find_platform_id(platform)
     # Handle a PlatformList input by grabbing the first entry
@@ -218,7 +218,7 @@ class Msf::Payload::UUID
   # Look up the numeric architecture ID given a string as input
   #
   # @param name [String] The name of the architecture to lookup
-  # @return [Fixnum] The integer value of this architecture
+  # @return [Integer] The integer value of this architecture
   #
   def self.find_architecture_id(name)
     name = name.first if name.kind_of? ::Array

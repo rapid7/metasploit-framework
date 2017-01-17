@@ -145,14 +145,14 @@ module Payload::Windows::ReverseHttp
   # @option opts [Bool] :ssl Whether or not to enable SSL
   # @option opts [String] :url The URI to request during staging
   # @option opts [String] :host The host to connect to
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
   # @option opts [String] :proxy_host The optional proxy server host to use
-  # @option opts [Fixnum] :proxy_port The optional proxy server port to use
+  # @option opts [Integer] :proxy_port The optional proxy server port to use
   # @option opts [String] :proxy_type The optional proxy server type, one of HTTP or SOCKS
   # @option opts [String] :proxy_user The optional proxy server username
   # @option opts [String] :proxy_pass The optional proxy server password
-  # @option opts [Fixnum] :retry_count The number of times to retry a failed request before giving up
+  # @option opts [Integer] :retry_count The number of times to retry a failed request before giving up
   #
   def asm_reverse_http(opts={})
 

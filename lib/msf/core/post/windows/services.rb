@@ -55,11 +55,11 @@ module Services
   # @param opts [Hash]
   # @option opts [String] :host (nil) The host on which to open the
   #   service manager. May be a hostname or IP address.
-  # @option opts [Fixnum] :access (0xF003F) Bitwise-or of the
+  # @option opts [Integer] :access (0xF003F) Bitwise-or of the
   #   SC_MANAGER_* constants (see
   #   {http://msdn.microsoft.com/en-us/library/windows/desktop/ms685981(v=vs.85).aspx})
   #
-  # @return [Fixnum] Opaque Windows handle SC_HANDLE as returned by
+  # @return [Integer] Opaque Windows handle SC_HANDLE as returned by
   #   OpenSCManagerA()
   # @yield [manager] Gives the block a manager handle as returned by
   #   advapi32.dll!OpenSCManagerA. When the block returns, the handle
@@ -105,7 +105,7 @@ module Services
   # Open the service with advapi32.dll!OpenServiceA on the
   # target manager
   #
-  # @return [Fixnum] Opaque Windows handle SC_HANDLE as returned by
+  # @return [Integer] Opaque Windows handle SC_HANDLE as returned by
   #   OpenServiceA()
   # @yield [manager] Gives the block a service handle as returned by
   #   advapi32.dll!OpenServiceA. When the block returns, the handle
@@ -376,7 +376,7 @@ module Services
   # @param server [String,nil] A hostname or IP address. Default is the
   #   remote localhost
   #
-  # @return [Fixnum] 0 if service started successfully, 1 if it failed
+  # @return [Integer] 0 if service started successfully, 1 if it failed
   #   because the service is already running, 2 if it is disabled
   #
   # @raise [RuntimeError] if OpenServiceA failed
@@ -395,7 +395,7 @@ module Services
   # Stop a service.
   #
   # @param (see #service_start)
-  # @return [Fixnum] 0 if service stopped successfully, 1 if it failed
+  # @return [Integer] 0 if service stopped successfully, 1 if it failed
   #   because the service is already stopped or disabled, 2 if it
   #   cannot be stopped for some other reason.
   #

@@ -21,7 +21,7 @@ class RPC_Job < RPC_Base
 
   # Stops a job.
   #
-  # @param [Fixnum] jid Job ID.
+  # @param [Integer] jid Job ID.
   # @raise [Msf::RPC::Exception] A 500 response indicating an invalid job ID was given.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] A successful message: 'success'
@@ -37,12 +37,12 @@ class RPC_Job < RPC_Base
 
   # Returns information about a job.
   #
-  # @param [Fixnum] jid Job ID.
+  # @param [Integer] jid Job ID.
   # @raise [Msf::RPC::Exception] A 500 response indicating an invalid job ID was given.
   # @return [Hash] A hash that contains information about the job, such as the following (and maybe more):
-  #  * 'jid' [Fixnum] The Job ID.
+  #  * 'jid' [Integer] The Job ID.
   #  * 'name' [String] The name of the job.
-  #  * 'start_time' [Fixnum] The start time.
+  #  * 'start_time' [Integer] The start time.
   #  * 'datastore' [Hash] Datastore options for the module.
   # @example Here's how you would use this from the client:
   #  rpc.call('job.info', 0)

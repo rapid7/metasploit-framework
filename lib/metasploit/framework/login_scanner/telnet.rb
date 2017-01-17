@@ -24,13 +24,13 @@ module Metasploit
         # @!attribute verbosity
         #   The timeout to wait for the telnet banner.
         #
-        #   @return [Fixnum]
+        #   @return [Integer]
         attr_accessor :banner_timeout
 
         # @!attribute verbosity
         #   The timeout to wait for the response from a telnet command.
         #
-        #   @return [Fixnum]
+        #   @return [Integer]
         attr_accessor :telnet_timeout
 
         # @!attribute verbosity

@@ -533,7 +533,7 @@ protected
   #
   # Calculate the maximum line length for a unix shell.
   #
-  # @return [Fixnum]
+  # @return [Integer]
   def _unix_max_line_length
     # Based on autoconf's arg_max calculator, see
     # http://www.in-ulm.de/~mascheck/various/argmax/autoconf_check.html

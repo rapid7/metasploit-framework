@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     case value
     when String, Symbol
       "s:#{value.bytesize}:\"#{value}\";"
-    when Fixnum
+    when Integer
       "i:#{value};"
     end
   end

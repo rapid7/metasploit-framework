@@ -332,8 +332,8 @@ class Kiwi < Extension
   # @param opts[:domain_name] [String] Domain name.
   # @param opts[:domain_sid] [String] SID of the domain.
   # @param opts[:krbtgt_hash] [String] The kerberos ticket granting token.
-  # @param opts[:id] [Fixnum] ID of the user to grant the token for.
-  # @param opts[:group_ids] [Array<Fixnum>] IDs of the groups to assign to the user
+  # @param opts[:id] [Integer] ID of the user to grant the token for.
+  # @param opts[:group_ids] [Array<Integer>] IDs of the groups to assign to the user
   #
   # @return [Array<Byte>]
   #

@@ -181,7 +181,7 @@ end
 # and combinations thereof.
 def nmap_validate_rports
   # If there's an RPORT specified, use that instead.
-  if datastore['RPORT'] && (datastore['RPORT'].kind_of?(Fixnum) || !datastore['RPORT'].empty?)
+  if datastore['RPORT'] && (datastore['RPORT'].kind_of?(Integer) || !datastore['RPORT'].empty?)
     return true
   end
   if rports.nil? || rports.empty?

@@ -29,9 +29,9 @@ module Msf::ReflectiveDLLLoader
   # Load a reflectively-injectable DLL from an string and find the offset
   # to the ReflectiveLoader function inside the DLL.
   #
-  # @param [Fixnum] dll_data the DLL to load.
+  # @param [Integer] dll_data the DLL to load.
   #
-  # @return [Fixnum] offset to the +ReflectiveLoader+ function within the DLL.
+  # @return [Integer] offset to the +ReflectiveLoader+ function within the DLL.
   def load_rdi_dll_from_data(dll_data)
     offset = parse_pe(dll_data)
 
