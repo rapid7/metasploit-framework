@@ -35,7 +35,7 @@ module Metasploit
           pathname = configurations_pathnames.first
         end
 
-        if pathname.present? && pathname.exist?
+        if pathname.exist?
           pathname
         else
           nil
