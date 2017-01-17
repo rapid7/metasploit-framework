@@ -25,3 +25,7 @@ admin:Admin123 by default:
 
 If the file is found, it will be saved in the loot directory. If not found, the module should
 print an error indicating so.
+
+## Demo
+
+![cisco_download_demo](https://cloud.githubusercontent.com/assets/1170914/21782825/78ada38e-d67a-11e6-9b7b-c7b8e2956fba.gif)
