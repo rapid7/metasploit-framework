@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Advantech WebAccess SQL Injection',
+      'Name'           => 'Advantech WebAccess DBVisitor.dll ChartThemeConfig SQL Injection',
       'Description'    => %q{
         This module exploits a SQL injection vulnerability found in Advantech WebAccess 7.1. The
         vulnerability exists in the DBVisitor.dll component, and can be abused through malicious
