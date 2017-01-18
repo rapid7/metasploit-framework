@@ -269,17 +269,6 @@ class Plugin::Aggregator < Msf::Plugin
 
     def cmd_aggregator_default_forward(*args)
       return if not aggregator_verify
-      # host, port = nil
-      # case args.length
-      #   when 1
-      #     host, port = args[0].split(':', 2)
-      #   when 2
-      #     host, port = args
-      # end
-      # if port.nil?
-      #   usage_default_forward
-      #   return
-      # end
       @aggregator.register_default(@aggregator.uuid, nil)
     end
 
@@ -299,8 +288,37 @@ class Plugin::Aggregator < Msf::Plugin
     end
 
     def cmd_aggregator_disconnect(*args)
+      if @aggregator && @aggregator.available?
+        # check if this connection is the default forward
+        @aggregator.register_default(nil, nil) if @aggregator.default == @aggregator.uuid
+
+        # now check for any specifically forwarded sessions
+        local_sessions_by_id = {}
+        framework.sessions.each_pair do |id, s|
+          local_sessions_by_id[s.conn_id] = s
+        end
+
+        sessions = @aggregator.sessions
+        unless sessions.nil?
+          sessions.each_pair do |session, console|
+            next unless local_sessions_by_id.keys.include?(session)
+            if console == @aggregator.uuid
+               # park each session locally addressed
+              cmd_aggregator_session_park(framework.sessions.key(local_sessions_by_id[session]))
+            else
+              # simple disconnect session that were from the default forward
+              framework.sessions.deregister(local_sessions_by_id[session])
+            end
+          end
+        end
+      end
       @aggregator.stop if @aggregator
-      # exit @payload_job_ids if @payload_job_ids
+      if @payload_job_ids
+        @payload_job_ids.each do |id|
+          framework.jobs.stop_job(id)
+        end
+        @payload_job_ids = nil
+      end
       @aggregator = nil
     end
 
@@ -370,7 +388,6 @@ class Plugin::Aggregator < Msf::Plugin
       multi_handler.datastore['ExitOnSession'] = false
       multi_handler.datastore['EXITFUNC']      = 'thread'
 
-      # Now we're ready to start the handler
       multi_handler.exploit_simple(
           'LocalInput' => nil,
           'LocalOutput' => nil,
