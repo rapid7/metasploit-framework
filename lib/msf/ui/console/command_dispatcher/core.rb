@@ -89,8 +89,7 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
     "-n" => [ true,  "Show the last n commands."                      ],
-    "-u" => [ false, "Show only unique commands."                     ],
-    "-c" => [ false, "Clear command history."                         ])
+    "-u" => [ false, "Show only unique commands."                     ])
 
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -503,9 +502,6 @@ class Core
         end
       when "-u"
         uniq = true
-      when "-c"
-        Readline::HISTORY.clear
-        return
       when "-h"
         cmd_history_help
         return false
