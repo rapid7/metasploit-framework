@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+            print_brute :level => :verror, :ip => ip, :msg => result.proof
           end
           invalidate_login(credential_data)
           :abort
