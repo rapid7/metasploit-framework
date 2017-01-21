@@ -6,18 +6,18 @@
 4. Unzip sample-multipart-form.zip && cd sample-multipart-form
   1. If Compiling: `mvn clean package`
 5.  `cp target/sample-multipart-form.war $TOMCAT-7.0.50/webapps/`
-6. Start Tomcat (linux: `$TOMCAT-7.0.50/bin/startup.sh`
+6. Start Tomcat (linux: `$TOMCAT-7.0.50/bin/startup.sh`)
 7. Check if the webapp is running: `http://localhost:8080/sample-multipart-form/multipartForm`
 
 ## Verification Steps
 
-  Example steps in this format:
-
-  1. Install the application
+  1. Install Tomcat, and the vulnerable form
   2. Start msfconsole
-  3. Do: ```use [module path]```
-  4. Do: ```run```
-  5. You should get a shell.
+  3. Do: ```use auxiliary/dos/http/apache_commons_fileupload_dos```
+  4. Do: ```set rhost <rhost>```
+  5. Do: ```set TARGETURI <uri>```
+  6. Do: ```run```
+  7. Tomcat should be utilizing 99%+ of the CPU
 
 ## Options
 
