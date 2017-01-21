@@ -1,3 +1,5 @@
+## Description
+
 This module exploits a SQL injection vulnerability in Advantech WebAccess. The flaw can be found
 in the ```updateSubmit_Click``` function of the ```updateTemplate``` class, which is normally used for
 updating a *.xlsx template.
