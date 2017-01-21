@@ -412,10 +412,11 @@ class ReadableText
       # Hint at RPORT proto by regexing mixins
       if name == 'RPORT' && opt.kind_of?(Msf::OptPort)
         mod.class.included_modules.each do |m|
-          if m.name =~ /tcp/i
+          case m.name
+          when /tcp/i, /HttpClient$/
             desc << ' (TCP)'
             break
-          elsif m.name =~ /udp/i
+          when /udp/i
             desc << ' (UDP)'
             break
           end
