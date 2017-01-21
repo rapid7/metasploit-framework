@@ -82,3 +82,4 @@ not require a password, therefore this option is optional by default.
 
 ## Demo
 
+![webaccess_demo](https://cloud.githubusercontent.com/assets/1170914/22172751/34cff104-df75-11e6-9243-efd97f3762ac.gif)
