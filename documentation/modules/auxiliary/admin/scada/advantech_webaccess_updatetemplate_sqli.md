@@ -43,6 +43,14 @@ To download this software for testing:
 
 http://advcloudfiles.advantech.com/web/Download/webaccess/8.1/AdvantechWebAccessUSANode8.1_20151230.exe
 
+Before testing, you should make sure that WebAccess has:
+
+* At least one project.
+* At least one node
+* At least one project user.
+
+All the above can be configured from the management console.
+
 
 ## Usage
 
