@@ -117,7 +117,15 @@ module ReverseHttp
       callback_host = "[#{callback_host}]"
     end
 
-    "#{scheme}://#{callback_host}:#{callback_port}"
+    if callback_host.nil?
+      raise ArgumentError, "No host specified for payload_uri"
+    end
+
+    if callback_port
+      "#{scheme}://#{callback_host}:#{callback_port}"
+    else
+      "#{scheme}://#{callback_host}"
+    end
   end
 
   # Use the #refname to determine whether this handler uses SSL or not

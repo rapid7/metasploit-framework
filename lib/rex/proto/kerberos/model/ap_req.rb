@@ -9,13 +9,13 @@ module Rex
         # themselves
         class ApReq < Element
           # @!attribute pvno
-          #   @return [Fixnum] The protocol version number
+          #   @return [Integer] The protocol version number
           attr_accessor :pvno
           # @!attribute msg_type
-          #   @return [Fixnum] The type of the protocol message
+          #   @return [Integer] The type of the protocol message
           attr_accessor :msg_type
           # @!attribute options
-          #   @return [Fixnum] request options, affects processing
+          #   @return [Integer] request options, affects processing
           attr_accessor :options
           # @!attribute ticket
           #   @return [Rex::Proto::Kerberos::Model::Ticket] The ticket authenticating the client to the server

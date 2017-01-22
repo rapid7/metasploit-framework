@@ -159,7 +159,7 @@ class Client
   #
   # Connects to the remote server if possible.
   #
-  # @param t [Fixnum] Timeout
+  # @param t [Integer] Timeout
   # @see Rex::Socket::Tcp.create
   # @return [Rex::Socket::Tcp]
   def connect(t = -1)
@@ -250,7 +250,7 @@ class Client
   #
   # @param res [Response] the HTTP Response object
   # @param opts [Hash] the options used to generate the original HTTP request
-  # @param t [Fixnum] the timeout for the request in seconds
+  # @param t [Integer] the timeout for the request in seconds
   # @param persist [Boolean] whether or not to persist the TCP connection (pipelining)
   #
   # @return [Response] the last valid HTTP response object we received

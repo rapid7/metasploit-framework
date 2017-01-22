@@ -124,7 +124,7 @@ puts hash.hexdigest
     # Concatinate SHA digests for AES key
     sha = Digest::SHA1.digest("\x00\x00\x00\x00" + salt) + Digest::SHA1.digest("\x00\x00\x00\x01" + salt)
 
-    aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
+    aes = OpenSSL::Cipher.new("AES-256-CBC")
     aes.encrypt
     aes.key = sha[0,32] # Use only 32 bytes of key
     final = aes.update([0].pack("N*") * 4) # Encrypt 16 \x00 bytes

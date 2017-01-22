@@ -22,7 +22,7 @@ module Msf::Module::UI::Message
 
       xn ||= datastore['ExploitNumber']
       xn ||= framework.datastore['ExploitNumber']
-      if xn.is_a?(Fixnum)
+      if xn.is_a?(Integer)
         prefix << "[%04d] " % xn
       end
 

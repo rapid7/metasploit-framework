@@ -1465,7 +1465,7 @@ class Db
     case input
     when String
       input = input.downcase
-    when Fixnum
+    when Integer
       input = "%016" % input
     when Time
       input = input.strftime("%Y%m%d%H%M%S%L")

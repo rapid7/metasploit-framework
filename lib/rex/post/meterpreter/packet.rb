@@ -139,7 +139,7 @@ class Tlv
 
     if (value != nil)
       if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
-        if (value.kind_of?(Fixnum))
+        if (value.kind_of?(Integer))
           @value = value.to_s
         else
           @value = value.dup
