@@ -33,7 +33,8 @@ class Console::CommandDispatcher::Android
       'activity_start'    => 'Start an Android activity from a Uri string',
       'hide_app_icon'     => 'Hide the app icon from the launcher',
       'sqlite_query'      => 'Query a SQLite database from storage',
-      'set_audio_mode'    => 'Set Ringer Mode'
+      'set_audio_mode'    => 'Set Ringer Mode',
+      'wakelock'          => 'Enable/Disable Wakelock',
     }
 
     reqs = {
@@ -49,7 +50,8 @@ class Console::CommandDispatcher::Android
       'activity_start'   => ['android_activity_start'],
       'hide_app_icon'    => ['android_hide_app_icon'],
       'sqlite_query'     => ['android_sqlite_query'],
-      'set_audio_mode'   => ['android_set_audio_mode']
+      'set_audio_mode'   => ['android_set_audio_mode'],
+      'wakelock'         => ['android_wakelock'],
     }
 
     # Ensure any requirements of the command are met
@@ -692,6 +694,35 @@ class Console::CommandDispatcher::Android
       end
       print_line
       print_line(table.to_s)
+    end
+  end
+
+  def cmd_wakelock(*args)
+    wakelock_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ],
+      '-r' => [ false, 'Release wakelock' ],
+      '-f' => [ true, 'Advanced Wakelock flags (e.g 268435456)' ],
+    )
+
+    flags = 1 # PARTIAL_WAKE_LOCK
+    wakelock_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        print_line('Usage: wakelock [options]')
+        print_line(wakelock_opts.usage)
+        return
+      when '-r'
+        flags = 0
+      when '-f'
+        flags = val.to_i
+      end
+    end
+
+    client.android.wakelock(flags)
+    if flags == 0
+      print_status("Wakelock was released")
+    else
+      print_status("Wakelock was acquired")
     end
   end
 

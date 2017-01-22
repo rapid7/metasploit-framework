@@ -328,6 +328,12 @@ class Android < Extension
     end
   end
 
+  def wakelock(flags)
+    request = Packet.create_request('android_wakelock')
+    request.add_tlv(TLV_TYPE_FLAGS, flags)
+    response = client.send_request(request)
+  end
+
 end
 end
 end
