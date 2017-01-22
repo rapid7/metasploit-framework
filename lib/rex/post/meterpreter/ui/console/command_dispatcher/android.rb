@@ -279,11 +279,13 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_dump_contacts(*args)
-    path = "contacts_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
+    path   = "contacts_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}"
+    format = :text
 
     dump_contacts_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ true, 'Output path for contacts list']
+      '-o' => [ true, 'Output path for contacts list' ],
+      '-f' => [ true, 'Output format for contacts list (text, csv, vcard)' ]
     )
 
     dump_contacts_opts.parse(args) do |opt, _idx, val|
@@ -295,6 +297,18 @@ class Console::CommandDispatcher::Android
         return
       when '-o'
         path = val
+      when '-f'
+        case val
+        when 'text'
+          format = :text
+        when 'csv'
+          format = :csv
+        when 'vcard'
+          format = :vcard
+        else
+          print_error('Invalid output format specified')
+          return
+        end
       end
     end
 
@@ -303,33 +317,62 @@ class Console::CommandDispatcher::Android
     if contact_list.count > 0
       print_status("Fetching #{contact_list.count} #{contact_list.count == 1 ? 'contact' : 'contacts'} into list")
       begin
-        info = client.sys.config.sysinfo
+        data = ''
 
-        data = ""
-        data << "\n======================\n"
-        data << "[+] Contacts list dump\n"
-        data << "======================\n\n"
+        case format
+        when :text
+          info  = client.sys.config.sysinfo
+          path << '.txt' unless path.end_with?('.txt')
 
-        time = Time.new
-        data << "Date: #{time.inspect}\n"
-        data << "OS: #{info['OS']}\n"
-        data << "Remote IP: #{client.sock.peerhost}\n"
-        data << "Remote Port: #{client.sock.peerport}\n\n"
+          data << "\n======================\n"
+          data << "[+] Contacts list dump\n"
+          data << "======================\n\n"
 
-        contact_list.each_with_index do |c, index|
+          time = Time.new
+          data << "Date: #{time.inspect}\n"
+          data << "OS: #{info['OS']}\n"
+          data << "Remote IP: #{client.sock.peerhost}\n"
+          data << "Remote Port: #{client.sock.peerport}\n\n"
 
-          data << "##{index.to_i + 1}\n"
-          data << "Name\t: #{c['name']}\n"
+          contact_list.each_with_index do |c, index|
 
-          c['number'].each do |n|
-            data << "Number\t: #{n}\n"
+            data << "##{index.to_i + 1}\n"
+            data << "Name\t: #{c['name']}\n"
+
+            c['number'].each do |n|
+              data << "Number\t: #{n}\n"
+            end
+
+            c['email'].each do |n|
+              data << "Email\t: #{n}\n"
+            end
+
+            data << "\n"
           end
+        when :csv
+          path << '.csv' unless path.end_with?('.csv')
 
-          c['email'].each do |n|
-            data << "Email\t: #{n}\n"
+          contact_list.each do |contact|
+            data << contact.values.to_csv
           end
+        when :vcard
+          path << '.vcf' unless path.end_with?('.vcf')
 
-          data << "\n"
+          contact_list.each do |contact|
+            data << "BEGIN:VCARD\n"
+            data << "VERSION:3.0\n"
+            data << "FN:#{contact['name']}\n"
+
+            contact['number'].each do |number|
+              data << "TEL:#{number}\n"
+            end
+
+            contact['email'].each do |email|
+              data << "EMAIL:#{email}\n"
+            end
+
+            data << "END:VCARD\n"
+          end
         end
 
         ::File.write(path, data)

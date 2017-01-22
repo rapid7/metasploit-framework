@@ -394,7 +394,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -n,--name         Change the name of a host",
           "  -m,--comment      Change the comment of a host",
           "  -t,--tag          Add or specify a tag to a range of hosts",
-          "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count, tags"
+          "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_family, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count, tags"
         ]
       end
     end
@@ -542,6 +542,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       db.cmd_workspace "-D"
       @output = []
     end
+
     describe "<no arguments>" do
       it "should list default workspace" do
         db.cmd_workspace
@@ -557,6 +558,35 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "  default",
           "* foo"
+        ]
+      end
+    end
+
+    describe "-v" do
+      it "should list default workspace verbosely" do
+        db.cmd_workspace("-v")
+        expect(@output).to match_array [
+          "",
+          "Workspaces",
+          "==========",
+          "current  name     hosts  services  vulns  creds  loots  notes",
+          "-------  ----     -----  --------  -----  -----  -----  -----",
+          "*        default  0      0         0      0      0      0"
+        ]
+      end
+
+      it "should list all workspaces verbosely" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace("-v")
+        expect(@output).to match_array [
+          "",
+          "Workspaces",
+          "==========",
+          "current  name     hosts  services  vulns  creds  loots  notes",
+          "-------  ----     -----  --------  -----  -----  -----  -----",
+          "         default  0      0         0      0      0      0",
+          "*        foo      0      0         0      0      0      0"
         ]
       end
     end
@@ -603,6 +633,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "Usage:",
           "    workspace                  List workspaces",
+          "    workspace -v               List workspaces verbosely",
           "    workspace [name]           Switch workspace",
           "    workspace -a [name] ...    Add workspace(s)",
           "    workspace -d [name] ...    Delete workspace(s)",

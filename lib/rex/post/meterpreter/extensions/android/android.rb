@@ -272,7 +272,7 @@ class Android < Extension
   end
 
   def send_sms(dest, body, dr)
-    request = Packet.create_request('android_android_send_sms')
+    request = Packet.create_request('android_send_sms')
     request.add_tlv(TLV_TYPE_SMS_ADDRESS, dest)
     request.add_tlv(TLV_TYPE_SMS_BODY, body)
     request.add_tlv(TLV_TYPE_SMS_DR, dr)

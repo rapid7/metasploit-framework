@@ -52,12 +52,56 @@ module Scriptable
   end
 
   #
+  # Maps legacy Meterpreter script names to replacement post modules
+  def legacy_script_to_post_module(script_name)
+    {
+      'autoroute' => 'post/windows/manage/autoroute',
+      'checkvm' => 'post/windows/gather/checkvm',
+      'duplicate' => 'post/windows/manage/multi_meterpreter_inject',
+      'enum_chrome' => 'post/windows/gather/enum_chrome',
+      'enum_firefox' => 'post/windows/gather/enum_firefox',
+      'enum_logged_on_users' => 'post/windows/gather/enum_logged_on_users',
+      'enum_powershell_env' => 'post/windows/gather/enum_powershell_env',
+      'enum_putty' => 'post/windows/gather/enum_putty_saved_sessions',
+      'enum_shares' => 'post/windows/gather/enum_shares',
+      'file_collector' => 'post/windows/gather/enum_files',
+      'get_application_list' => 'post/windows/gather/enum_applications',
+      'getcountermeasure' => 'post/windows/manage/killav',
+      'get_filezilla_creds' => 'post/windows/gather/credentials/filezilla_server',
+      'getgui' => 'post/windows/manage/enable_rdp',
+      'get_local_subnets' => 'post/windows/manage/autoroute',
+      'get_valid_community' => 'post/windows/gather/enum_snmp',
+      'getvncpw' => 'post/windows/gather/credentials/vnc',
+      'hashdump' => 'post/windows/gather/smart_hashdump',
+      'hostsedit' => 'post/windows/manage/inject_host',
+      'keylogrecorder' => 'post/windows/capture/keylog_recorder',
+      'killav' => 'post/windows/manage/killav',
+      'metsvc' => 'post/windows/manage/persistence_exe',
+      'migrate' => 'post/windows/manage/migrate',
+      'packetrecorder' => 'post/windows/manage/rpcapd_start',
+      'persistence' => 'post/window/manager/persistence_exe',
+      'prefetchtool' => 'post/windows/gather/enum_prefetch',
+      'remotewinenum' => 'post/windows/gather/wmic_command',
+      'schelevator' => 'exploits/windows/local/ms10_092_schelevator',
+      'screenspy' => 'post/windows/gather/screen_spy',
+      'screen_unlock' => 'post/windows/escalate/screen_unlock',
+      'search_dwld' => 'post/windows/gather/enum_files',
+      'service_permissions_escalate' => 'exploits/windows/local/service_permissions',
+      'uploadexec' => 'post/windows/manage/download_exec',
+      'webcam' => 'post/windows/manage/webcam',
+      'wmic' => 'post/windows/gather/wmic_command',
+    }[script_name]
+  end
+
+  #
   # Executes the supplied script, Post module, or local Exploit module with
   #   arguments +args+
   #
   # Will search the script path.
   #
   def execute_script(script_name, *args)
+    post_module = legacy_script_to_post_module(script_name)
+    script_name = post_module if !post_module.nil?
     mod = framework.modules.create(script_name)
     if mod
       # Don't report module run events here as it will be taken care of

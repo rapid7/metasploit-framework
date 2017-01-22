@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.13.11)
+    metasploit-framework (4.13.16)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -16,7 +16,7 @@ PATH
       metasploit-model
       metasploit-payloads (= 1.2.6)
       metasploit_data_models
-      metasploit_payloads-mettle (= 0.1.4)
+      metasploit_payloads-mettle (= 0.1.6)
       msgpack
       nessus_rest
       net-ssh
@@ -103,7 +103,7 @@ GEM
       thor (~> 0.19)
     bcrypt (3.1.11)
     bit-struct (0.15.0)
-    builder (3.2.2)
+    builder (3.2.3)
     capybara (2.11.0)
       addressable
       mime-types (>= 1.16)
@@ -132,7 +132,7 @@ GEM
       nokogiri (~> 1.5)
       railties (>= 3, < 5.1)
     cucumber-wire (0.0.1)
-    diff-lcs (1.2.5)
+    diff-lcs (1.3)
     docile (1.1.5)
     erubis (2.7.0)
     factory_girl (4.8.0)
@@ -140,16 +140,16 @@ GEM
     factory_girl_rails (4.8.0)
       factory_girl (~> 4.8.0)
       railties (>= 3.0.0)
-    faraday (0.10.1)
+    faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
-    ffi (1.9.14)
+    ffi (1.9.17)
     filesize (0.1.1)
     fivemat (1.3.2)
     gherkin (4.0.0)
     i18n (0.7.0)
-    jsobfu (0.4.1)
-      rkelly-remix (= 0.0.6)
-    json (1.8.3)
+    jsobfu (0.4.2)
+      rkelly-remix
+    json (1.8.6)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     metasm (1.0.2)
@@ -180,7 +180,7 @@ GEM
       postgres_ext
       railties (~> 4.2.6)
       recog (~> 2.0)
-    metasploit_payloads-mettle (0.1.4)
+    metasploit_payloads-mettle (0.1.6)
     method_source (0.8.2)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
@@ -192,7 +192,7 @@ GEM
     multi_test (0.1.2)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
-    net-ssh (4.0.0)
+    net-ssh (4.0.1)
     network_interface (0.0.1)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
@@ -234,7 +234,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.0.0)
     rb-readline-r7 (0.5.2.0)
-    recog (2.1.2)
+    recog (2.1.4)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.4)
@@ -245,7 +245,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.5)
+    rex-core (0.1.6)
     rex-encoder (0.1.2)
       metasm
       rex-arch
@@ -257,7 +257,7 @@ GEM
       rex-encoder
       rex-text
     rex-java (0.1.3)
-    rex-mime (0.1.1)
+    rex-mime (0.1.3)
       rex-text
     rex-nop (0.1.0)
       rex-arch
@@ -273,16 +273,16 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.2)
+    rex-socket (0.1.3)
       rex-core
-    rex-sslscan (0.1.1)
+    rex-sslscan (0.1.2)
       rex-socket
       rex-text
     rex-struct2 (0.1.0)
-    rex-text (0.2.10)
+    rex-text (0.2.11)
     rex-zip (0.1.1)
       rex-text
-    rkelly-remix (0.0.6)
+    rkelly-remix (0.0.7)
     robots (0.10.1)
     rspec-core (3.5.4)
       rspec-support (~> 3.5.0)
@@ -323,10 +323,10 @@ GEM
       thread_safe (~> 0.1)
     tzinfo-data (1.2016.10)
       tzinfo (>= 1.0.0)
-    windows_error (0.0.2)
+    windows_error (0.1.0)
     xpath (2.0.0)
       nokogiri (~> 1.3)
-    yard (0.9.5)
+    yard (0.9.8)
 
 PLATFORMS
   ruby

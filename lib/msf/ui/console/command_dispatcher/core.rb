@@ -88,7 +88,8 @@ class Core
   @@history_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
-    "-n" => [ true,  "Show the last n commands."                      ])
+    "-n" => [ true,  "Show the last n commands."                      ],
+    "-u" => [ false, "Show only unique commands."                     ])
 
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -480,6 +481,7 @@ class Core
 
   def cmd_history(*args)
     length = Readline::HISTORY.length
+    uniq   = false
 
     if length < @history_limit
       limit = length
@@ -498,6 +500,8 @@ class Core
         else
           limit = val.to_i
         end
+      when "-u"
+        uniq = true
       when "-h"
         cmd_history_help
         return false
@@ -508,6 +512,9 @@ class Core
     pad_len = length.to_s.length
 
     (start..length-1).each do |pos|
+      if uniq && Readline::HISTORY[pos] == Readline::HISTORY[pos-1]
+        next unless pos == 0
+      end
       cmd_num = (pos + 1).to_s
       print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
     end
@@ -518,7 +525,6 @@ class Core
     print_line
     print_line "Shows the command history."
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
-    print_line
     print @@history_opts.usage
   end
 
@@ -1236,7 +1242,7 @@ class Core
               session.response_timeout = response_timeout
             end
 
-            output = session.run_cmd cmd
+            output = session.run_cmd(cmd, driver.output)
           end
         end
     when 'kill'
@@ -1653,16 +1659,15 @@ class Core
       return false
     end
 
-    # Walk the plugins array
-    framework.plugins.each { |plugin|
-      # Unload the plugin if it matches the name we're searching for
-      if (plugin.name.downcase == args[0].downcase)
-        print("Unloading plugin #{args[0]}...")
-        framework.plugins.unload(plugin)
-        print_line("unloaded.")
-        break
-      end
-    }
+    # Find a plugin within the plugins array
+    plugin = framework.plugins.find { |p| p.name.downcase == args[0].downcase }
+
+    # Unload the plugin if it matches the name we're searching for
+    if plugin
+      print("Unloading plugin #{args[0]}...")
+      framework.plugins.unload(plugin)
+      print_line("unloaded.")
+    end
   end
 
   #
