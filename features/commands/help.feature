@@ -84,7 +84,6 @@ Feature: Help command
 
           Command           Description
           -------           -----------
-          creds             List all credentials in the database
           db_connect        Connect to an existing database
           db_disconnect     Disconnect from the current database instance
           db_export         Export a file containing the contents of the database
@@ -98,5 +97,15 @@ Feature: Help command
           services          List all services in the database
           vulns             List all vulnerabilities in the database
           workspace         Switch between database workspaces
+
+
+    Credentials Backend Commands
+    ============================
+
+          Command       Description
+          -------       -----------
+          creds         List all credentials in the database
+
+
       """
 
