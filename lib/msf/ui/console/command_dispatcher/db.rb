@@ -86,6 +86,7 @@ class Db
   def cmd_workspace_help
     print_line "Usage:"
     print_line "    workspace                  List workspaces"
+    print_line "    workspace -v               List workspaces verbosely"
     print_line "    workspace [name]           Switch workspace"
     print_line "    workspace -a [name] ...    Add workspace(s)"
     print_line "    workspace -d [name] ...    Delete workspace(s)"
@@ -111,6 +112,8 @@ class Db
         delete_all = true
       when '-r','--rename'
         renaming = true
+      when '-v'
+        verbose = true
       else
         names ||= []
         names << arg
@@ -177,11 +180,40 @@ class Db
         return
       end
     else
-      # List workspaces
-      framework.db.workspaces.each do |s|
-        pad = (s.name == framework.db.workspace.name) ? "* " : "  "
-        print_line("#{pad}#{s.name}")
+      workspace = framework.db.workspace
+
+      unless verbose
+        framework.db.workspaces.each do |ws|
+          pad = (ws == workspace) ? '* ' : '  '
+          print_line("#{pad}#{ws.name}")
+        end
+        return
       end
+
+      col_names = %w{current name hosts services vulns creds loots notes}
+
+      tbl = Rex::Text::Table.new(
+        'Header'    => 'Workspaces',
+        'Columns'   => col_names,
+        'SortIndex' => -1
+      )
+
+      # List workspaces
+      framework.db.workspaces.each do |ws|
+        tbl << [
+          ws == workspace ? '*' : '',
+          ws.name,
+          ws.hosts.count,
+          ws.services.count,
+          ws.vulns.count,
+          ws.core_credentials.count,
+          ws.loots.count,
+          ws.notes.count
+        ]
+      end
+
+      print_line
+      print_line(tbl.to_s)
     end
   }
   end
