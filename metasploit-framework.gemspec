@@ -156,6 +156,8 @@ Gem::Specification.new do |spec|
     spec.add_runtime_dependency 'rb-readline-r7'
   end
 
+  spec.add_runtime_dependency 'dnsruby'
+
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules
