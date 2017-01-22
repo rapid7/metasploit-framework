@@ -79,7 +79,7 @@ attr_accessor :sock, :thread
         print_good("#{rhost.to_s.ljust 16} llmnr - #{name} matches regex, responding with #{datastore['SPOOFIP']}")
       end
 
-      # qType is not a Fixnum, so to compare it with `case` we have to
+      # qType is not a Integer, so to compare it with `case` we have to
       # convert it
       case question.qType.to_i
       when ::Net::DNS::A

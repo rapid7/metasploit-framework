@@ -43,6 +43,8 @@ module SingleCommandShell
   # Read data until we find the token
   #
   def shell_read_until_token(token, wanted_idx=0, timeout=10)
+    return if timeout.to_i == 0
+
     if (wanted_idx == 0)
       parts_needed = 2
     else

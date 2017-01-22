@@ -2297,7 +2297,7 @@ require 'msf/core/exe/segment_appender'
   # @param mo       [String]
   # @param err_msg  [String]
   # @raise [RuntimeError] if the "PAYLOAD:" is not found
-  # @return         [Fixnum]
+  # @return         [Integer]
   def self.find_payload_tag(mo, err_msg)
     bo = mo.index('PAYLOAD:')
     unless bo

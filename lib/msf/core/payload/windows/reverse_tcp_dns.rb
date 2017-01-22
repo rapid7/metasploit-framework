@@ -65,9 +65,9 @@ module Payload::Windows::ReverseTcpDns
   #
   # Generate an assembly stub with the configured feature set and options.
   #
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
-  # @option opts [Fixnum] :retry_count Number of retry attempts
+  # @option opts [Integer] :retry_count Number of retry attempts
   #
   def asm_reverse_tcp_dns(opts={})
 

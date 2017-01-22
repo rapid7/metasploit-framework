@@ -13,14 +13,14 @@ module Rex
           #   of the last request by a principal
           attr_accessor :last_req
           # @!attribute nonce
-          #   @return [Fixnum] random number
+          #   @return [Integer] random number
           attr_accessor :nonce
           # @!attribute key_expiration
           #   @return [Time] The key-expiration field is part of the response from the
           #   KDC and specifies the time that the client's secret key is due to expire
           attr_accessor :key_expiration
           # @!attribute flags
-          #   @return [Fixnum] This field indicates which of various options were used or
+          #   @return [Integer] This field indicates which of various options were used or
           #   requested when the ticket was issued
           attr_accessor :flags
           # @!attribute auth_time
@@ -140,7 +140,7 @@ module Rex
           # Decodes the nonce field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_nonce(input)
             input.value[0].value.to_i
           end
@@ -156,7 +156,7 @@ module Rex
           # Decodes the flags field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_flags(input)
             input.value[0].value.to_i
           end

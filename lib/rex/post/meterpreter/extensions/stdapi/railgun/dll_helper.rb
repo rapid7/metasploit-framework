@@ -76,11 +76,9 @@ module DLLHelper
   def param_to_number(v, win_consts = @win_consts)
     if v.class == NilClass then
       return 0
-    elsif v.class == Fixnum then
+    elsif v.kind_of? Integer then
       return v # ok, it's already a number
-    elsif v.class == Bignum then
-      return v # ok, it's already a number
-    elsif v.class == String then
+    elsif v.kind_of? String then
       dw = win_consts.parse(v) # might raise an exception
       if dw != nil
         return dw

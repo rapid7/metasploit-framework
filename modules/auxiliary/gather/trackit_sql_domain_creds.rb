@@ -260,7 +260,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if loot[database_pw]
-      cipher = OpenSSL::Cipher::Cipher.new("des")
+      cipher = OpenSSL::Cipher.new("des")
       cipher.decrypt
       cipher.key = 'NumaraTI'
       cipher.iv = 'NumaraTI'
@@ -274,7 +274,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if loot[domain_admin_pw]
-      cipher = OpenSSL::Cipher::Cipher.new("des")
+      cipher = OpenSSL::Cipher.new("des")
       cipher.decrypt
       cipher.key = 'NumaraTI'
       cipher.iv = 'NumaraTI'

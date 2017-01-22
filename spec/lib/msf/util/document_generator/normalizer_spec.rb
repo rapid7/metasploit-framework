@@ -143,7 +143,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   describe 'normalize_authors' do
     context 'when an array of authors is given' do
       it 'returns the author list in markdown' do
-        expect(subject.send(:normalize_authors, Rex::Text.html_decode(msf_mod.authors))).to include('* ')
+        expect(subject.send(:normalize_authors, msf_mod.authors)).to include('* ')
       end
     end
   end

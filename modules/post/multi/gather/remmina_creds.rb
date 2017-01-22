@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt(secret, data)
-    c = OpenSSL::Cipher::Cipher.new('des3')
+    c = OpenSSL::Cipher.new('des3')
     key_data = Base64.decode64(secret)
     # the key is the first 24 bytes of the secret
     c.key = key_data[0, 24]

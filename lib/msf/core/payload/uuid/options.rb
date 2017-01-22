@@ -27,7 +27,7 @@ module Msf::Payload::UUID::Options
   # the desired length can accommodate it.
   #
   # @param mode [Symbol] The type of checksum to generate (:connect, :init_native, :init_python, :init_java)
-  # @param len [Fixnum] The length of the URI not including the leading slash, optionally nil for random
+  # @param len [Integer] The length of the URI not including the leading slash, optionally nil for random
   # @return [String] A URI with a leading slash that hashes to the checksum, with an optional UUID
   #
   def generate_uri_uuid_mode(mode, len = nil, uuid: nil)

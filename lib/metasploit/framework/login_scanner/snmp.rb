@@ -31,7 +31,7 @@ module Metasploit
         attr_accessor :version
 
         # The number of logins to try in each batch
-        # @return [Fixnum]
+        # @return [Integer]
         attr_accessor :queue_size
 
         validates :version,
