@@ -54,6 +54,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::FTP do
     allow(creds).to receive(:pass_file)
     allow(creds).to receive(:username)
     allow(creds).to receive(:user_file)
+    allow(creds).to receive(:password)
     allow(creds).to receive(:userpass_file)
     allow(creds).to receive(:prepended_creds).and_return([])
     allow(creds).to receive(:additional_privates).and_return([])

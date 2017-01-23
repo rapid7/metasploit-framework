@@ -16,6 +16,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
     creds = double('Metasploit::Framework::CredentialCollection')
     allow(creds).to receive(:pass_file)
     allow(creds).to receive(:username).and_return('user')
+    allow(creds).to receive(:password).and_return('pass')
     allow(creds).to receive(:user_file)
     allow(creds).to receive(:userpass_file)
     allow(creds).to receive(:prepended_creds).and_return([])
