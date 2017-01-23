@@ -10,7 +10,6 @@ require "msf/aggregator"
 
 module Msf
   Aggregator_yaml = "#{Msf::Config.get_config_root}/aggregator.yaml" #location of the aggregator.yml containing saved aggregator creds
-  Aggregator_Temp = "#{Msf::Config.get_config_root}/aggregator.temp"
 
 class Plugin::Aggregator < Msf::Plugin
   class AggregatorCommandDispatcher
