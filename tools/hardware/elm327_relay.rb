@@ -100,7 +100,7 @@ module ELM327HWBridgeRelay
             'URIPATH' => "/" 
           }))
        self.serial_port = @opts[:serial]
-       self.serial_baud = @opts[:baud]
+       self.serial_baud = @opts[:baud].to_i
        self.serial_bits = 8
        self.serial_stop_bits = 1
        @operational_status = 0
