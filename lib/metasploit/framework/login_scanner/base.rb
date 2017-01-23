@@ -292,7 +292,11 @@ module Metasploit
               errors.add(:cred_details, "must respond to :each")
             end
 
-            if cred_details.prepended_creds.empty? && cred_details.additional_publics.empty? && cred_details.additional_privates.empty?
+            if cred_details.prepended_creds.empty? &&
+              cred_details.additional_publics.empty? &&
+              cred_details.additional_privates.empty? &&
+              !cred_details.username.present? &&
+              !cred_details.password.present?
               errors.add(:cred_details, "can't be blank")
             end
           end
