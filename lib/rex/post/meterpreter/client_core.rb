@@ -509,7 +509,7 @@ class ClientCore < Extension
     end
 
     request.add_tlv( TLV_TYPE_MIGRATE_PID, target_pid )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_LEN, migrate_payload.length )
     request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
     request.add_tlv( TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length )
     request.add_tlv( TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
