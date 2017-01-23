@@ -47,6 +47,19 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
   it { is_expected.to respond_to :smb_pipe_evasion }
 
   context 'validations' do
+    before(:each) do
+        creds = double('Metasploit::Framework::CredentialCollection')
+        allow(creds).to receive(:pass_file)
+        allow(creds).to receive(:username)
+        allow(creds).to receive(:password)
+        allow(creds).to receive(:user_file)
+        allow(creds).to receive(:userpass_file)
+        allow(creds).to receive(:prepended_creds).and_return([])
+        allow(creds).to receive(:additional_privates).and_return([])
+        allow(creds).to receive(:additional_publics).and_return([])
+        login_scanner.cred_details = creds
+    end
+
     context '#smb_verify_signature' do
       it 'is not valid for the string true' do
         login_scanner.smb_verify_signature = 'true'
