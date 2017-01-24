@@ -6,7 +6,7 @@
 #
 # $Revision$
 #
-require "msf/aggregator"
+require "metasploit/aggregator"
 
 module Msf
   Aggregator_yaml = "#{Msf::Config.get_config_root}/aggregator.yaml" #location of the aggregator.yml containing saved aggregator creds
@@ -203,7 +203,7 @@ class Plugin::Aggregator < Msf::Plugin
       if certificate && File.exists?(certificate)
         certificate = File.new(certificate).read
       end
-      @aggregator.add_cable(Msf::Aggregator::Cable::HTTPS, host, port, certificate)
+      @aggregator.add_cable(Metasploit::Aggregator::Cable::HTTPS, host, port, certificate)
     end
 
     def cmd_aggregator_cables
@@ -345,7 +345,7 @@ class Plugin::Aggregator < Msf::Plugin
 
       begin
         print_status("Connecting to Aggregator instance at #{@host}:#{@port}...")
-        @aggregator = Msf::Aggregator::ServerProxy.new(@host, @port)
+        @aggregator = Metasploit::Aggregator::ServerProxy.new(@host, @port)
       end
 
       aggregator_compatibility_check
@@ -394,8 +394,8 @@ class Plugin::Aggregator < Msf::Plugin
           'RunAsJob' => true
       )
       @payload_job_ids << multi_handler.job_id
-      # requester = Msf::Aggregator::Http::SslRequester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])
-      requester = Msf::Aggregator::Http::Requester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])
+      # requester = Metasploit::Aggregator::Http::SslRequester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])
+      requester = Metasploit::Aggregator::Http::Requester.new(multi_handler.datastore['LHOST'], multi_handler.datastore['LPORT'])
       requester
     end
 
