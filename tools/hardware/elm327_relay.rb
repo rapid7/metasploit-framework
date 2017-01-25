@@ -71,6 +71,9 @@ module ELM327HWBridgeRelay
     attr_accessor :serial_stop_bits
 
     def initialize(info={})
+      # Set some defaults
+      self.serial_port = "/dev/ttyUSB0"
+      self.serial_baud = 115200
       begin
         @opts = OptsConsole.parse(ARGV)
       rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
@@ -99,8 +102,8 @@ module ELM327HWBridgeRelay
          {
             'URIPATH' => "/" 
           }))
-       self.serial_port = @opts[:serial]
-       self.serial_baud = @opts[:baud].to_i
+       self.serial_port = @opts[:serial] if @opts.has_key? :serial
+       self.serial_baud = @opts[:baud].to_i if @opts.has_key? :baud
        self.serial_bits = 8
        self.serial_stop_bits = 1
        @operational_status = 0

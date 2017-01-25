@@ -77,7 +77,8 @@ class Automotive < Extension
   #
   # @return [Array] Array of Hex string equivalents
   def array2hex(arr)
-    arr.map { |b| "%02x" % b.hex }
+    # We give the flexibility of sending Integers or string hexes in the array
+    arr.map { |b| "%02x" % (b.respond_to?("hex") ? b.hex : b )}
   end
 
   def set_active_bus(bus)

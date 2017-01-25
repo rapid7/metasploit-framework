@@ -496,6 +496,7 @@ module UDS
     packets = get_vehicle_info(bus, srcId, dstId, 0x02)
     return "UDS ERR: #{packets["error"]}" if packets.has_key? "error"
     data = response_hash_to_data_array(dstId.to_s(16), packets)
+    return "" if data == nil
     data.map! { |d| d.hex.chr }
     data.join
   end
@@ -511,6 +512,7 @@ module UDS
     packets = get_vehicle_info(bus, srcId, dstId, 0x04)
     return "UDS ERR: #{packets["error"]}" if packets.has_key? "error"
     data = response_hash_to_data_array(dstId.to_s(16), packets)
+    return "" if data == nil
     data.map! { |d| d.hex.chr }
     data.join
   end
@@ -526,6 +528,7 @@ module UDS
     packets = get_vehicle_info(bus, srcId, dstId, 0x0A)
     return "UDS ERR: #{packets["error"]}" if packets.has_key? "error"
     data = response_hash_to_data_array(dstId.to_s(16), packets)
+    return "" if data == nil
     data.map! { |d| d.hex.chr }
     data.join
   end
