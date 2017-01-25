@@ -6,8 +6,7 @@
 #
 # $Revision$
 #
-
-require 'rapid7/nexpose'
+require 'nexpose'
 
 module Msf
   Nexpose_yaml = "#{Msf::Config.get_config_root}/nexpose.yaml" #location of the nexpose.yml containing saved nexpose creds
@@ -165,7 +164,7 @@ class Plugin::Nexpose < Msf::Plugin
 
       begin
         print_status("Connecting to Nexpose instance at #{@host}:#{@port} with username #{@user}...")
-        nsc = ::Nexpose::Connection.new(@host, @user, @pass, @port)
+        nsc = Nexpose::Connection.new(@host, @user, @pass, @port)
         nsc.login
       rescue ::Nexpose::APIError => e
         print_error("Connection failed: #{e.reason}")
@@ -191,21 +190,21 @@ class Plugin::Nexpose < Msf::Plugin
       end
 
       scans.each do |scan|
-        print_status("    Scan ##{scan[:scan_id]} is running on Engine ##{scan[:engine_id]} against site ##{scan[:site_id]} since #{scan[:start_time].to_s}")
+        print_status("    Scan ##{scan.scan_id} is running on Engine ##{scan.engine_id} against site ##{scan.site_id} since #{scan.start_time.to_s}")
       end
     end
 
     def cmd_nexpose_sites(*args)
       return if not nexpose_verify
 
-      sites = @nsc.site_listing || []
+      sites = @nsc.list_sites || []
       case sites.length
       when 0
         print_status("There are currently no active sites on this Nexpose instance")
       end
 
       sites.each do |site|
-        print_status("    Site ##{site[:site_id]} '#{site[:name]}' Risk Factor: #{site[:risk_factor]} Risk Score: #{site[:risk_score]}")
+        print_status("    Site ##{site.id} '#{site.name}' Risk Factor: #{site.risk_factor} Risk Score: #{site.risk_score}")
       end
     end
 
@@ -218,24 +217,24 @@ class Plugin::Nexpose < Msf::Plugin
         return
       end
 
-      devices = @nsc.site_device_listing(site_id) || []
+      devices = @nsc.list_site_devices(site_id) || []
       case devices.length
       when 0
         print_status("There are currently no devices within this site")
       end
 
       devices.each do |device|
-        print_status("    Host: #{device[:address]} ID: #{device[:device_id]} Risk Factor: #{device[:risk_factor]} Risk Score: #{device[:risk_score]}")
+        print_status("    Host: #{device.address} ID: #{device.id} Risk Factor: #{device.risk_factor} Risk Score: #{device.risk_score}")
       end
     end
 
     def cmd_nexpose_report_templates(*args)
       return if not nexpose_verify
 
-      res = @nsc.report_template_listing || []
+      res = @nsc.list_report_templates || []
 
       res.each do |report|
-        print_status("    Template: #{report[:template_id]} Name: '#{report[:name]}' Description: #{report[:description]}")
+        print_status("    Template: #{report.id} Name: '#{report.name}' Description: #{report.description}")
       end
     end
 
@@ -287,17 +286,12 @@ class Plugin::Nexpose < Msf::Plugin
       report_formats = ["raw-xml-v2", "ns-xml"]
       report_format  = report_formats.shift
 
-      report = Nexpose::ReportConfig.new(@nsc)
-      report.set_name("Metasploit Export #{msfid}")
-      report.set_template_id("pentest-audit")
-
-      report.addFilter("SiteFilter", site_id)
-      report.set_generate_after_scan(0)
-      report.set_storeOnServer(1)
+      report = Nexpose::ReportConfig.build(@nsc, site_id, "Metasploit Export #{msfid}", "pentest-audit", report_format, true)
+      report.delivery = Nexpose::Delivery.new(true)
 
       begin
-        report.set_format(report_format)
-        report.saveReport()
+        report.format = report_format
+        report.save(@nsc)
       rescue ::Exception => e
         report_format = report_formats.shift
         if report_format
@@ -307,17 +301,18 @@ class Plugin::Nexpose < Msf::Plugin
       end
 
       print_status("Generating the export data file...")
-      url = nil
-      while(! url)
-        url = @nsc.report_last(report.config_id)
+      last_report = nil
+      while(! last_report)
+        last_report = @nsc.last_report(report.id)
         select(nil, nil, nil, 1.0)
       end
+      url = last_report.uri
 
       print_status("Downloading the export data...")
       data = @nsc.download(url)
 
       # Delete the temporary report ID
-      @nsc.report_config_delete(report.config_id)
+      @nsc.delete_report_config(report.id)
 
       print_status("Importing Nexpose data...")
       process_nexpose_data(report_format, data)
@@ -390,8 +385,9 @@ class Plugin::Nexpose < Msf::Plugin
         when "-c"
           if (val =~ /^([^:]+):([^:]+):(.+)/)
             type, user, pass = [ $1, $2, $3 ]
-            newcreds = Nexpose::AdminCredentials.new
-            newcreds.setCredentials(type, nil, nil, user, pass, nil)
+            newcreds = Nexpose::SiteCredentials.for_service("temporary_name", nil, nil, nil, nil, type)
+            newcreds.user_name = user
+            newcreds.password = pass
             opt_credentials << newcreds
           else
             print_error("Unrecognized Nexpose scan credentials: #{val}")
@@ -482,33 +478,24 @@ class Plugin::Nexpose < Msf::Plugin
         msfid = Time.now.to_i
 
         # Create a temporary site
-        site = Nexpose::Site.new(@nsc)
-        site.setSiteConfig("Metasploit-#{msfid}", "Autocreated by the Metasploit Framework")
-        queue.each do |ip|
-          site.site_config.addHost(Nexpose::IPRange.new(ip))
-        end
-        site.site_config._set_scanConfig(Nexpose::ScanConfig.new(-1, "tmp", opt_template))
-        opt_credentials.each do |c|
-          site.site_config.addCredentials(c)
-        end
-        site.saveSite()
+        site = Nexpose::Site.new(nil, opt_template)
+        site.name = "Metasploit-#{msfid}"
+        site.description = "Autocreated by the Metasploit Framework"
+        site.included_addresses = queue
+        site.site_credentials = opt_credentials
+        site.save(@nsc)
 
-        print_status(" >> Created temporary site ##{site.site_id}") if opt_verbose
+        print_status(" >> Created temporary site ##{site.id}") if opt_verbose
 
         report_formats = ["raw-xml-v2", "ns-xml"]
         report_format  = report_formats.shift
 
-        report = Nexpose::ReportConfig.new(@nsc)
-        report.set_name("Metasploit Export #{msfid}")
-        report.set_template_id(opt_template)
-
-        report.addFilter("SiteFilter", site.site_id)
-        report.set_generate_after_scan(1)
-        report.set_storeOnServer(1)
+        report = Nexpose::ReportConfig.build(@nsc, site.id, site.name, opt_template, report_format, true)
+        report.delivery = Nexpose::Delivery.new(true)
 
         begin
-          report.set_format(report_format)
-          report.saveReport()
+          report.format = report_format
+          report.save(@nsc, true)
         rescue ::Exception => e
         report_format = report_formats.shift
           if report_format
@@ -517,18 +504,19 @@ class Plugin::Nexpose < Msf::Plugin
           raise e
         end
 
-        print_status(" >> Created temporary report configuration ##{report.config_id}") if opt_verbose
+        print_status(" >> Created temporary report configuration ##{report.id}") if opt_verbose
 
         # Run the scan
         begin
-          res  = site.scanSite()
+          res = site.scan(@nsc)
         rescue Nexpose::APIError => e
           nexpose_error_message = e.message
           nexpose_error_message.gsub!(/NexposeAPI: Action failed: /, '')
           print_error "#{nexpose_error_message}"
           return
         end
-        sid = res[:scan_id]
+
+        sid = res.id
 
         print_status(" >> Scan has been launched with ID ##{sid}") if opt_verbose
 
@@ -537,8 +525,8 @@ class Plugin::Nexpose < Msf::Plugin
         prev = nil
         while(true)
           info = @nsc.scan_statistics(sid)
-          break if info[:summary]['status'] != "running"
-          stat = "Found #{info[:nodes]['live']} devices and #{info[:nodes]['dead']} unresponsive"
+          break if info.status != "running"
+          stat = "Found #{info.nodes.live} devices and #{info.nodes.dead} unresponsive"
           if(stat != prev)
             print_status(" >> #{stat}") if opt_verbose
           end
@@ -549,18 +537,19 @@ class Plugin::Nexpose < Msf::Plugin
         rescue ::Interrupt
           rep = false
           print_status(" >> Terminating scan ID ##{sid} due to console interupt") if opt_verbose
-          @nsc.scan_stop(sid)
+          @nsc.stop_scan(sid)
           break
         end
 
         # Wait for the automatic report generation to complete
         if(rep)
           print_status(" >> Waiting on the report to generate...") if opt_verbose
-          url = nil
-          while(! url)
-            url = @nsc.report_last(report.config_id)
+          last_report = nil
+          while(! last_report)
+            last_report = @nsc.last_report(report.id)
             select(nil, nil, nil, 1.0)
           end
+          url = last_report.uri
 
           print_status(" >> Downloading the report data from Nexpose...") if opt_verbose
           data = @nsc.download(url)
@@ -577,7 +566,11 @@ class Plugin::Nexpose < Msf::Plugin
 
         if ! opt_preserve
           print_status(" >> Deleting the temporary site and report...") if opt_verbose
-          @nsc.site_delete(site.site_id)
+          begin
+            @nsc.delete_site(site.id)
+          rescue ::Nexpose::APIError => e
+            print_status(" >> Deletion of temporary site and report failed: #{e.inspect}")
+          end
         end
       end
 
@@ -674,4 +667,16 @@ class Plugin::Nexpose < Msf::Plugin
     "Integrates with the Rapid7 Nexpose vulnerability management product"
   end
 end
+end
+
+module Nexpose
+  class IPRange
+    def to_json
+      if @to.present?
+        "#{@from} - #{@to}".to_json
+      else
+        @from.to_json
+      end
+    end
+  end
 end
