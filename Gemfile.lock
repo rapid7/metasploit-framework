@@ -21,6 +21,7 @@ PATH
       nessus_rest
       net-ssh
       network_interface
+      nexpose
       nokogiri
       octokit
       openssl-ccm
@@ -187,13 +188,14 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.10.1)
-    msgpack (1.0.2)
+    msgpack (1.0.3)
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
     net-ssh (4.0.1)
     network_interface (0.0.1)
+    nexpose (5.1.0)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
     octokit (4.6.2)
