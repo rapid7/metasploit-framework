@@ -13,9 +13,8 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => "Advantech WebAccess 8.1 Post Authentication Credential Collector",
       'Description'    => %q{
-        This module allows you to log into Advantech WebAccess 8.1, and collect all the credentials.
-        Although authentication is required, you do not need to be admin to be able to see other
-        people's passwords. Any user would work.
+        This module allows you to log into Advantech WebAccess 8.1, and collect all of the credentials.
+        Although authentication is required, any level of user permission can exploit this vulnerability.
 
         Note that 8.2 is not suitable for this.
       },
