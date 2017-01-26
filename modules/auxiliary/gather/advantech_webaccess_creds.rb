@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     html = res.get_html_document
     pass_field = html.at('input[@name="Password"]')
 
-    pass_field.attributes['value'].text
+    pass_field ? pass_field.attributes['value'].text : nil
   end
 
   def get_users_page(sid)
@@ -158,14 +158,17 @@ class MetasploitModule < Msf::Auxiliary
 
     users.each do |user|
       pass = get_user_cred_detail(cookie, user)
-      report_cred(
-        user: user,
-        password: pass,
-        status: Metasploit::Model::Login::Status::SUCCESSFUL,
-        proof: 'AdminPg.asp'
-      )
 
-      print_good("Found password: #{user}:#{pass}")
+      if pass
+        report_cred(
+          user: user,
+          password: pass,
+          status: Metasploit::Model::Login::Status::SUCCESSFUL,
+          proof: 'AdminPg.asp'
+        )
+
+        print_good("Found password: #{user}:#{pass}")
+      end
     end
   end
 
