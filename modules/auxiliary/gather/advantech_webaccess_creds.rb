@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('WEBACCESSUSER', [true, 'Username for Advantech WebAccess', 'admin']),
-        OptString.new('WEBACCESSPASS', [true, 'Password for Advantech WebAccess', '']),
+        OptString.new('WEBACCESSPASS', [false, 'Password for Advantech WebAccess', '']),
         OptString.new('TARGETURI', [true, 'The base path to Advantech WebAccess', '/']),
       ], self.class)
   end
