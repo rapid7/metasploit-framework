@@ -11,11 +11,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "Advantech WebAccess Post Authentication Credential Collector",
+      'Name'           => "Advantech WebAccess 8.1 Post Authentication Credential Collector",
       'Description'    => %q{
         This module allows you to log into Advantech WebAccess 8.1, and collect all the credentials.
         Although authentication is required, you do not need to be admin to be able to see other
         people's passwords. Any user would work.
+
+        Note that 8.2 is not suitable for this.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
