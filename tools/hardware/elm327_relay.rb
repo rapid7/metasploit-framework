@@ -134,6 +134,7 @@ module ELM327HWBridgeRelay
     def connect_to_device()
       @ser = SerialPort.new(self.serial_port, self.serial_baud, self.serial_bits, self.serial_stop_bits, SerialPort::NONE)
       resp = send_cmd("ATZ")  # Turn off ECHO
+      #if resp =~ /ELM327/
       if resp =~ /ELM327/
         send_cmd("ATE0")  # Turn off ECHO
         send_cmd("ATL0")  # Disble linefeeds
@@ -144,6 +145,9 @@ module ELM327HWBridgeRelay
       else
         $stdout.puts("Connected but invalid ELM response: #{resp.inspect}")
         @operational_status = 2
+        # Down the road we may make a way to re-init via the hwbridge but for now just exit
+        $stdout.puts("The device may not have been fully initialized, try reconnecting")
+        exit(-1)
       end
       @ser
     end

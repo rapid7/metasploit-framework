@@ -104,6 +104,7 @@ module UDS
   def get_current_data_pids(bus, srcId, dstId)
     pids = []
     packets = get_current_data(bus, srcId, dstId, 0, {"MAXPKTS" => 1})
+    return pids if packets == nil
     if packets.has_key? "Packets" and packets["Packets"].size > 0
       hexpids = packets["Packets"][0]["DATA"][3,6]
       hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
@@ -184,6 +185,7 @@ module UDS
   # @return [Hash] Packet Hash with { "MIL" => true|false "DTC_COUNT" => 0 }
   def get_monitor_status(bus, srcId, dstId)
     packets = get_current_data(bus, srcId, dstId, 0x01, {"MAXPKTS" => 1})
+    return {} if packets == nil
     return packets if packets.has_key? "error"
     return packets if not packets.has_key? "Packets"
     packets["MIL"] = packets["Packets"][0]["DATA"][3].hex & 0xB0 == 1 ? true : false
@@ -201,6 +203,7 @@ module UDS
   # @return [Hash] Packet Hash with { "TEMP_C" => <Celcious Temp>, "TEMP_F" => <Fahrenheit TEmp> }
   def get_engine_coolant_temp(bus, srcId, dstId)
     packets = get_current_data(bus, srcId, dstId, 0x05, {"MAXPKTS" => 1})
+    return {} if packets == nil
     return packets if packets.has_key? "error"
     return packets if not packets.has_key? "Packets"
     celcious = packets["Packets"][0]["DATA"][3].hex - 40
@@ -220,6 +223,7 @@ module UDS
   # @return [Hash] Packet Hash with { "RPM" => <RPMs> }
   def get_rpms(bus, srcId, dstId)
     packets = get_current_data(bus, srcId, dstId, 0x0C, {"MAXPKTS" => 1})
+    return {} if packets == nil
     return packets if packets.has_key? "error"
     return packets if not packets.has_key? "Packets"
     packets["RPM"] = (256 * packets["Packets"][0]["DATA"][3].hex + packets["Packets"][0]["DATA"][4].hex) / 4
@@ -236,6 +240,7 @@ module UDS
   # @return [Hash] Packet Hash with { "SPEED_K" => <km/h>, "SPEED_M" => <mph> }
   def get_vehicle_speed(bus, srcId, dstId)
     packets = get_current_data(bus, srcId, dstId, 0x0D, {"MAXPKTS" => 1})
+    return {} if packets == nil
     return packets if packets.has_key? "error"
     return packets if not packets.has_key? "Packets"
     packets["SPEED_K"] = packets["Packets"][0]["DATA"][3].hex
@@ -254,6 +259,7 @@ module UDS
   # @return [String] Description of standard
   def get_obd_standards(bus, srcId, dstId)
     packets = get_current_data(bus, srcId, dstId, 0x1C, {"MAXPKTS" => 1})
+    return "" if packets == nil
     if packets.has_key? "error"
       print_error("OBD ERR: #{packets["error"]}")
       return ""
@@ -379,6 +385,7 @@ module UDS
       return {}
     end
     data = client.automotive.send_isotp_and_wait_for_response(bus,srcId, dstId, [0x03], opt)
+    return [] if data == nil
     if data.has_key? "error"
       print_error("UDS ERR: #{data["error"]}")
       return []
@@ -474,6 +481,7 @@ module UDS
   def get_vinfo_supported_pids(bus, srcId, dstId)
     pids = []
     packets = get_vehicle_info(bus, srcId, dstId, 0, {"MAXPKTS" => 1})
+    return pids if packets == nil
     if packets.has_key? "Packets" and packets["Packets"].size > 0
       hexpids = packets["Packets"][0]["DATA"][3,6]
       hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
@@ -494,6 +502,7 @@ module UDS
   # @return [String] VIN as ASCII
   def get_vin(bus, srcId, dstId)
     packets = get_vehicle_info(bus, srcId, dstId, 0x02)
+    return "" if packets == nil
     return "UDS ERR: #{packets["error"]}" if packets.has_key? "error"
     data = response_hash_to_data_array(dstId.to_s(16), packets)
     return "" if data == nil
@@ -510,6 +519,7 @@ module UDS
   # @return [String] Calibration ID as ASCII
   def get_calibration_id(bus, srcId, dstId)
     packets = get_vehicle_info(bus, srcId, dstId, 0x04)
+    return "" if packets == nil
     return "UDS ERR: #{packets["error"]}" if packets.has_key? "error"
     data = response_hash_to_data_array(dstId.to_s(16), packets)
     return "" if data == nil
@@ -526,6 +536,7 @@ module UDS
   # @return [String] ECU Name as ASCII
   def get_ecu_name(bus, srcId, dstId)
     packets = get_vehicle_info(bus, srcId, dstId, 0x0A)
+    return "" if packets == nil
     return "UDS ERR: #{packets["error"]}" if packets.has_key? "error"
     data = response_hash_to_data_array(dstId.to_s(16), packets)
     return "" if data == nil
@@ -634,6 +645,7 @@ module UDS
     opt = {}
     opt["MAXPKTS"] = 15
     packets = client.automotive.send_isotp_and_wait_for_response(bus,srcId, dstId, [0x22] + id, opt)
+    return [] if packets == nil
     if packets.has_key? "error"
       return packets if show_error
     else
@@ -669,6 +681,7 @@ module UDS
     opt={}
     opt["MAXPKTS"]=1
     packets = client.automotive.send_isotp_and_wait_for_response(bus,srcId, dstId, [0x27, level], opt)
+    return {} if packets == nil
     if not packets.has_key? "error"
       packets["SEED"] = response_hash_to_data_array(dstId, packets)
     end
