@@ -1,5 +1,5 @@
 Scans the CANBUS for devices responding to UDS DSC queries.  By trying to set
-the Diagnostic Sesscion Control (DSC) devices that support UDS will typically respond
+the Diagnostic Session Control (DSC) devices that support UDS will typically respond
 with an error or an acknowldegment.  We use this information to map out modules in a vehicle.
 
 ## Options
