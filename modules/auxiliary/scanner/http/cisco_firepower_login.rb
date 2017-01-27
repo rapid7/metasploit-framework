@@ -18,9 +18,8 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Cisco Firepower Management Console 6.0 Login',
       'Description' => %q{
-        This module will attempt to authenticate to a Cisco Firepower Management console via HTTPS.
-        The credentials are also used for SSH, which would potentially give you remote code
-        execution.
+        This module attempts to authenticate to a Cisco Firepower Management console via HTTPS.
+        The credentials are also used for SSH, which could allow remote code execution.
       },
       'Author'      => [ 'sinn3r' ],
       'License'     => MSF_LICENSE,
