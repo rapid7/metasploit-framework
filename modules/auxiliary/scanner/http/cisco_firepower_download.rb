@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       cgi_sid = res_cookie.scan(/CGISESSID=(\w+);/).flatten.first
       vprint_status("CGI Session ID: #{cgi_sid}")
       print_good("Authenticated as #{console_user}:#{console_pass}")
-      report_cred(ip: ip, username: console_user, password: console_pass)
+      report_cred(ip: ip, user: console_user, password: console_pass)
       return cgi_sid
     end
 
