@@ -131,10 +131,10 @@ class Creds
       user:         'Public, usually a username',
       password:     'Private, private_type Password.',
       ntlm:         'Private, private_type NTLM Hash.',
-      'ssh-key':    'Private, private_type SSH key, must be a file path.',
+      'ssh-key' =>  'Private, private_type SSH key, must be a file path.',
       hash:         'Private, private_type Nonreplayable hash',
       realm:        'Realm, ',
-      'realm-type': "Realm, realm_type (#{Metasploit::Model::Realm::Key::SHORT_NAMES.keys.join(' ')}), defaults to domain."
+      'realm-type'=>"Realm, realm_type (#{Metasploit::Model::Realm::Key::SHORT_NAMES.keys.join(' ')}), defaults to domain."
     }.each_pair do |keyword, description|
       print_line "    #{keyword.to_s.ljust 10}:  #{description}"
     end
