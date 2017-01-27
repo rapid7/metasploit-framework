@@ -119,8 +119,8 @@ class MetasploitModule < Msf::Auxiliary
     html = res.get_html_document
 
     users = html.search('a').map { |a|
-      a.attributes['href'].text.scan(/broadWeb\/user\/upAdminPg\.asp\?uname=(.+)/).flatten.first
-    }.delete_if { |user| user.nil? }
+      Rex::Text.uri_decode(a.attributes['href'].text.scan(/broadWeb\/user\/upAdminPg\.asp\?uname=(.+)/).flatten.first || '')
+    }.delete_if { |user| user.blank? }
 
     users
   end
