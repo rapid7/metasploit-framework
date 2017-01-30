@@ -445,7 +445,31 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
         end
       end
       context 'Cores with Logins' do
-        
+        let(:address) { '192.168.0.1' }
+        let(:port)    { 80 }
+        let(:proto)   { 'tcp' }
+        let(:name)    { 'Web Service' }
+        context 'With valid params' do
+          let(:create_core_with_login) {
+            creds.cmd_creds(
+              'add', "user:#{username}", "password:#{password}", "realm:#{realm}",
+              "address:#{address}", "port:#{port}", "protocol:#{proto}", "service-name:#{name}")
+          }
+          it 'creates a core' do
+            expect { create_core_with_login }.to change { Metasploit::Credential::Core.count }.by 1
+          end
+          it 'creates a login' do
+            expect { create_core_with_login }.to change { Metasploit::Credential::Login.count }.by 1
+          end
+          it 'creates a service' do
+            expect { create_core_with_login }.to change { Mdm::Service.count }.by 1
+          end
+          it 'creates a host' do
+            expect { create_core_with_login }.to change { Mdm::Host.count }.by 1
+          end
+        end
+
+
       end
     end
   end
