@@ -29,6 +29,11 @@ module Msf::PostMixin
   #
   # @raise [OptionValidateError] if {#session} returns nil
   def setup
+    unless session
+      # Always fail if the session doesn't exist.
+      raise Msf::OptionValidateError.new(['SESSION'])
+    end
+
     unless session_compatible?(session)
       print_warning('SESSION may not be compatible with this module.')
     end
