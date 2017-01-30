@@ -10,7 +10,7 @@ Perl, Python, and Ruby scripts can all be run via a short command line invocatio
 
 # Automated exploit reliability scoring [@busterb](https://github.com/busterb)
 
-Automatically run vuln over and over, determine success rates.
+Automatically run a module over and over, determine success rates.
 
 # Exploit regression testing. 
 
@@ -20,6 +20,6 @@ Automatically run vuln over and over, determine success rates.
 
 # Make it possible for post modules to take a payload, move the `exploit/*/local` modules that aren't actually exploits back to `post/` [@egypt](https://github.com/egypt)
 
-# SMB2 support
+# SMB2 support [@egypt](https://github.com/egypt)
 
 (see also https://github.com/rapid7/ruby_smb)
