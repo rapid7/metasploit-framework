@@ -1,3 +1,5 @@
+Project Ideas in no particular order.
+
 # Convert between cmd/unix/* and the various interpreted language architectures
 
 Perl, Python, and Ruby scripts can all be run via a short command line invocation. It would be nice to be able to use these payloads in `ARCH_CMD` contexts as well as their own separate architectures (`ARCH_PYTHON`, `ARCH_RUBY`).
@@ -18,3 +20,6 @@ Automatically run vuln over and over, determine success rates.
 
 # Make it possible for post modules to take a payload, move the `exploit/*/local` modules that aren't actually exploits back to `post/` [@egypt](https://github.com/egypt)
 
+# SMB2 support
+
+(see also https://github.com/rapid7/ruby_smb)
