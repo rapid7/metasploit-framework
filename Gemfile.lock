@@ -250,7 +250,7 @@ GEM
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.8)
+    rex-exploitation (0.1.10)
       jsobfu
       metasm
       rex-arch
