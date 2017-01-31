@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if (res && res.code == 200 && res.headers['Server'] && (res.headers['Server'].include?('Team-R Web') || res.body.include?('binom_ico') || res.body.include?('team-r')))
 
-      print_good("#{rhost}:#{rport} - Running Binom3...")
+      print_good("#{rhost}:#{rport} - Binom3 confirmed...")
 
       return true
     else

