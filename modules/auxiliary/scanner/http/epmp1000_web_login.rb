@@ -42,7 +42,6 @@ class MetasploitModule < Msf::Auxiliary
     each_user_pass do |user, pass|
       do_login(user, pass)
     end
-
   end
 
   def report_cred(opts)
@@ -110,7 +109,6 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_login(user, pass)
-
     print_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
 
     begin
@@ -119,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
         {
           'uri'       => '/cgi-bin/luci',
           'method'    => 'POST',
-          'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept'	=> 'application/json, text/javascript, */*; q=0.01' },
+          'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'application/json, text/javascript, */*; q=0.01' },
           'vars_post' =>
             {
               'username' => 'dashboard',
@@ -137,9 +135,6 @@ class MetasploitModule < Msf::Auxiliary
 
     if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('sysauth'))
 
-      get_cookie = res.headers['Set-Cookie']
-      get_stok = res.headers['Set-Cookie'].match(/stok=(.*)/)
-      stok_value = get_stok[1]
       sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
       cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
 
@@ -163,9 +158,9 @@ class MetasploitModule < Msf::Auxiliary
 
       print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
 
-     #
-     # Extract ePMP version
-     #
+      #
+      # Extract ePMP version
+      #
       res = send_request_cgi(
         {
           'uri' => '/',
