@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if res && res.code == 200
         print_good('++++++++++++++++++++++++++++++++++++++')
-        print_good('#{rhost} - dumping configuration')
+        print_good("#{rhost} - dumping configuration")
         print_good('++++++++++++++++++++++++++++++++++++++')
 
         print_good("#{rhost}:#{rport} - File retrieved successfully!")
@@ -181,7 +181,7 @@ class MetasploitModule < Msf::Auxiliary
 
         if res && res.code == 200
           print_good('++++++++++++++++++++++++++++++++++++++')
-          print_good('#{rhost} - dumping password file')
+          print_good("#{rhost} - dumping password file")
           print_good('++++++++++++++++++++++++++++++++++++++')
 
           print_good("#{rhost}:#{rport} - File retrieved successfully!")
