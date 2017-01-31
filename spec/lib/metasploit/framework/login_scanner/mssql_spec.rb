@@ -49,6 +49,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
     allow(creds).to receive(:prepended_creds).and_return([])
     allow(creds).to receive(:additional_privates).and_return([])
     allow(creds).to receive(:additional_publics).and_return([])
+    allow(creds).to receive(:empty?).and_return(true)
     login_scanner.cred_details = creds
   end
 
