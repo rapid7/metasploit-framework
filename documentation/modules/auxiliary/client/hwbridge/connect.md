@@ -22,7 +22,7 @@ This should **not** be taken as an endorcement for a specific brand/vendor/selle
   Band rate: 38400
   ```
 
-2. Generic ELM327 [ebay](http://www.ebay.com/itm/like/221821719820)
+2. Generic ELM327: [ebay](http://www.ebay.com/itm/like/221821719820)
 
 ## Bluetooth Adapter Connection
 
