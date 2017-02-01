@@ -13,7 +13,8 @@ This should **not** be taken as an endorcement for a specific brand/vendor/selle
 
 ### Bluetooth (less stable)
 
-1. BAFX Products 34t5: [amazon](https://www.amazon.com/gp/product/B005NLQAHS) [BAFX Site](https://bafxpro.com/products/obdreader)
+1. BAFX Products 34t5: [amazon](https://www.amazon.com/gp/product/B005NLQAHS), [BAFX Site](https://bafxpro.com/products/obdreader)
+
   ```
   Part Number: 1008
   Controller: ELM327
@@ -34,6 +35,7 @@ on setting up the BAFX 34t5 with Kali Linux 2016.2 (rolling).
 5. Turn on agent: `agent on`
 6. Make sure we can see OBDII: `devices`
 7. Attempt to pair: `[bluetooth]# pair 00:0D:18:AA:AA:AA`
+
   ```
   Attempting to pair with 00:0D:18:AA:AA:AA
   [CHG] Device 00:0D:18:AA:AA:AA Connected: yes
