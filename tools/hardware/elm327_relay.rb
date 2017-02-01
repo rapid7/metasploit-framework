@@ -132,7 +132,12 @@ module ELM327HWBridgeRelay
     #
     # @return [SerialPort] SerialPort object for communications.  Also available as @ser
     def connect_to_device()
-      @ser = SerialPort.new(self.serial_port, self.serial_baud, self.serial_bits, self.serial_stop_bits, SerialPort::NONE)
+      begin
+        @ser = SerialPort.new(self.serial_port, self.serial_baud, self.serial_bits, self.serial_stop_bits, SerialPort::NONE)
+      rescue
+        $stdout.puts "Unable to connect to serial port.  See -h for help"
+        exit -2
+      end
       resp = send_cmd("ATZ")  # Turn off ECHO
       #if resp =~ /ELM327/
       if resp =~ /ELM327/
