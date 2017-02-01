@@ -1,32 +1,30 @@
 ## Overview
 
 This module connects to any Hardware device that supports the HWBridge API.  For details
-on the HWBridge API see [API Reference](http://api.hwbridge.reference.rapid7.com).  On successful connection to a HWBridge a
+on the HWBridge API see [API Reference](http://opengarages.org/hwbridge).  On successful connection to a HWBridge a
 HWBridge session will be established.
 
 ## Devices
 
-Any ELM327 or STN1100 interface will work with the HWBridge.  However, the below list of devices was utilized for this testing, and are known goods.
-This should **not** be taken as an endorcement for a specific brand/vendor/seller in any way shape or form.
+When run on linux you can use the auxiliary/server/local_hwbridge to talk to any device supported by SocketCAN.
+It will work with natively supported devices (can), serial devices (slcan) and even virtual devices (vcan). For
+a list of supported SocketCAN hardware see the [eLinux website](http://elinux.org/CAN_Bus).
 
-### USB
+Any ELM327 or STN1100 interface will work with the HWBridge. If you pick up any device that uses either of
+these chipsets can can connect via serial (USB or Bluetooth) it will work.  These are popular and inexpensive
+devices.  They are not as fast as some of the native CAN devices but they are plentiful and cheap.
 
-### Bluetooth (less stable)
-
-1. BAFX Products 34t5: [amazon](https://www.amazon.com/gp/product/B005NLQAHS), [BAFX Site](https://bafxpro.com/products/obdreader)
-
-  ```
-  Part Number: 1008
-  Controller: ELM327
-  Firmware Revision: 1.5
-  Band rate: 38400
-  ```
+This module was also tested with the [Particle](https://Particle.io) Photon board.  To utilize a Particle.io Photon board you
+will want to add the spark-msf-relay library to your project.  See the library examples for details on
+how to extend your project to integrate it with Metasploit.  If you are building an automotive project
+and you are using the [Carloop](https://carloop.io) then the spark-msf-relay library also includes an example app for carloop
+that you can simply flash to the device for full support.
 
 ## Bluetooth Adapter Connection
 
 Bluetooth HWBridge adapters, depending on the Operating System, may take several additional steps to establish a connection and communications bus.
 The following steps were [recorded during the testing of this module](https://github.com/rapid7/metasploit-framework/pull/7795#issuecomment-274302326)
-on setting up the BAFX 34t5 with Kali Linux 2016.2 (rolling).
+on setting up the [BAFX 34t5](https://bafxpro.com/products/obdreader) with Kali Linux 2016.2 (rolling).
 
 1. Ensure no locks on the Bluetooth device via: `rfkill list` (and subsequent `unblock` commands)
 2. Make sure Bluetooth service is started: `/etc/init.d/bluetooth start`, or `bluetoothd`
