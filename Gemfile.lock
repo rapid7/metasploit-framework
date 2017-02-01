@@ -115,6 +115,7 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.1)
     contracts (0.14.0)
+    cool.io (1.4.6)
     cucumber (2.4.0)
       builder (>= 2.1.2)
       cucumber-core (~> 1.5.0)
@@ -153,6 +154,10 @@ GEM
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     metasm (1.0.2)
+    metasploit-aggregator (0.1.2)
+      msgpack
+      msgpack-rpc
+      rex-arch
     metasploit-concern (2.0.3)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -187,7 +192,10 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.10.1)
-    msgpack (1.0.3)
+    msgpack (0.5.12)
+    msgpack-rpc (0.5.4)
+      cool.io (~> 1.4.3)
+      msgpack (~> 0.5.10)
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
@@ -336,6 +344,7 @@ DEPENDENCIES
   cucumber-rails
   factory_girl_rails
   fivemat
+  metasploit-aggregator
   metasploit-framework!
   octokit (~> 4.0)
   pry

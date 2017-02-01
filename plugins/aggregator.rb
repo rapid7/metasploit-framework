@@ -31,25 +31,13 @@ class Plugin::Aggregator < Msf::Plugin
         'aggregator_cable_add'       => "Setup remote https listener for sessions",
         'aggregator_cable_remove'    => "Stop remote listener for sessions",
         'aggregator_default_forward' => "forward a unlisted/unhandled sessions to a specified listener",
-        'aggregator_session_forward' => "forward a session to a specified listener",
         'aggregator_sessions'        => "List all remote sessions currently available from the Aggregator instance",
-        'aggregator_session_park'    => "Park an existing session on the Aggregator instance",
-        'aggregator_sysinfo'         => "Display detailed system information about the Aggregator instance",
+        'aggregator_session_forward' => "forward a session to a specified listener",
+        'aggregator_session_park'    => "Park an existing session on the Aggregator instance"
       }
     end
 
-    def aggregator_verify_db
-      if ! (framework.db and framework.db.usable and framework.db.active)
-        print_error("No database has been configured, please use db_create/db_connect first")
-        return false
-      end
-
-      true
-    end
-
     def aggregator_verify
-      # return false if not aggregator_verify_db
-
       if ! @aggregator
         print_error("No active Aggregator instance has been configured, please use 'aggregator_connect'")
         return false
@@ -88,15 +76,11 @@ class Plugin::Aggregator < Msf::Plugin
     end
 
     def usage_session_forward
-      usage("aggregator_session_forward uri host:port",
-            " -OR- ",
-            "aggregator_session_forward uri host port")
+      usage("aggregator_session_forward remote_id")
     end
 
     def usage_default_forward
-      usage("aggregator_session_forward host:port",
-            " -OR- ",
-            "aggregator_session_forward host port")
+      usage("aggregator_session_forward")
     end
 
     def cmd_aggregator_save(*args)
@@ -124,8 +108,6 @@ class Plugin::Aggregator < Msf::Plugin
     end
 
     def cmd_aggregator_connect(*args)
-      # return if not aggregator_verify_db
-
       if ! args[0]
         if ::File.readable?("#{Aggregator_yaml}")
           lconfig = YAML.load_file("#{Aggregator_yaml}")
@@ -160,9 +142,35 @@ class Plugin::Aggregator < Msf::Plugin
       return if not aggregator_verify
       sessions_list = @aggregator.sessions
       unless sessions_list.nil?
+        # get details for each session and print in format of sessions -v
         print_status("Sessions found:")
         sessions_list.each do |session|
-          print_status("    #{session}")
+          session_id, target = session
+          details = @aggregator.session_details(session_id)
+          local_id = nil
+          framework.sessions.each_pair do |key, value|
+            next unless value.conn_id == session_id
+            local_id = key
+          end
+          #filter session that do not have details as forwarding options (this may change later)
+          if details && details['ID']
+            print_status  "\t Remote ID: #{details['ID']}"
+            print_status  "\t      Type: meterpreter #{guess_target_platform(details['OS'])}"
+            print_status  "\t      Info: #{details['USER']} @ #{details['HOSTNAME']}"
+            print_status  "\t    Tunnel: #{details['LOCAL_SOCKET']} -> #{details['REMOTE_SOCKET']}"
+            print_status  "\t       Via: exploit/multi/handler"
+            print_status  "\t      UUID: #{details['UUID']}"
+            print_status  "\t MachineID: #{details['MachineID']}"
+            unless details['LAST_SEEN'].nil?
+              print_status"\t   CheckIn: #{details['LAST_SEEN'].to_i}s ago"
+            end
+            print_status  "\tRegistered: Not Yet Implemented"
+            print_status  "\t   Forward: #{target}"
+            unless local_id.nil?
+              print_status"\tSession ID: #{local_id}"
+            end
+            print_status  ""
+          end
         end
       end
     end
@@ -255,17 +263,6 @@ class Plugin::Aggregator < Msf::Plugin
       end
     end
 
-    def cmd_aggregator_sysinfo(*args)
-      return if not aggregator_verify
-
-      res = { "wip" => "not implemented"}
-
-      print_status("System Information")
-      res.each_pair do |k,v|
-        print_status("    #{k}: #{v}")
-      end
-    end
-
     def cmd_aggregator_default_forward(*args)
       return if not aggregator_verify
       @aggregator.register_default(@aggregator.uuid, nil)
@@ -273,17 +270,23 @@ class Plugin::Aggregator < Msf::Plugin
 
     def cmd_aggregator_session_forward(*args)
       return if not aggregator_verify
-      session_uri = nil
+      remote_id = nil
       case args.length
         when 1
-          session_uri = args[0]
+          remote_id = args[0]
         else
           usage_session_forward
           return
       end
-      # TODO: call @aggregator.session and make sure session_uri is listed
-      # TODO: ensure listener at host:port is open local if not start multi/handler universal
-      @aggregator.obtain_session(session_uri, @aggregator.uuid)
+      # find session with ID matching request
+      @aggregator.sessions.each do |session|
+        session_uri, target = session
+        details = @aggregator.session_details(session_uri)
+        if details['ID'] == remote_id
+          return @aggregator.obtain_session(session_uri, @aggregator.uuid)
+        end
+        print_error("#{remote_id} was not found.")
+      end
     end
 
     def cmd_aggregator_disconnect(*args)
@@ -369,12 +372,16 @@ class Plugin::Aggregator < Msf::Plugin
     end
 
     def get_local_handler
+      server = TCPServer.new('127.0.0.1', 0)
+      port = server.addr[1]
+      server.close
+
       multi_handler = framework.exploits.create('multi/handler')
 
       multi_handler.datastore['LHOST']                = "127.0.0.1"
       # multi_handler.datastore['PAYLOAD']              = "multi/meterpreter/reverse_https"
       multi_handler.datastore['PAYLOAD']              = "multi/meterpreter/reverse_http"
-      multi_handler.datastore['LPORT']                = "5000" # make this find a random local port
+      multi_handler.datastore['LPORT']                = "#{port}"
 
       # %w(DebugOptions PrependMigrate PrependMigrateProc
       #  InitialAutoRunScript AutoRunScript CAMPAIGN_ID HandlerSSLCert
@@ -399,10 +406,29 @@ class Plugin::Aggregator < Msf::Plugin
       requester
     end
 
+    # borrowed from Msf::Sessions::Meterpreter for now
+    def guess_target_platform(os)
+      case os
+        when /windows/i
+          Msf::Module::Platform::Windows.realname.downcase
+        when /darwin/i
+          Msf::Module::Platform::OSX.realname.downcase
+        when /mac os ?x/i
+          # this happens with java on OSX (for real!)
+          Msf::Module::Platform::OSX.realname.downcase
+        when /freebsd/i
+          Msf::Module::Platform::FreeBSD.realname.downcase
+        when /openbsd/i, /netbsd/i
+          Msf::Module::Platform::BSD.realname.downcase
+        else
+          Msf::Module::Platform::Linux.realname.downcase
+      end
+    end
+
+    private :guess_target_platform
     private :aggregator_login
     private :aggregator_compatibility_check
     private :aggregator_verify
-    private :aggregator_verify_db
     private :get_local_handler
   end
 
