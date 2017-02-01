@@ -70,6 +70,10 @@ module ELM327HWBridgeRelay
     #  @return [Integer] Stop bit
     attr_accessor :serial_stop_bits
 
+    # @!attribute server_port
+    #  @return [Integer] HTTP Relay server port
+    attr_accessor :server_port
+
     def initialize(info={})
       # Set some defaults
       self.serial_port = "/dev/ttyUSB0"
@@ -79,6 +83,12 @@ module ELM327HWBridgeRelay
       rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
         print_error("#{e.message} (please see -h)")
         exit
+      end
+
+      if @opts.has_key? :server_port
+        self.server_port = @opts[:server_port]
+      else
+        self.server_port = 8080
       end
 
     super(update_info(info,
@@ -100,6 +110,7 @@ module ELM327HWBridgeRelay
       'DefaultAction'  => 'WebServer',
         'DefaultOptions' =>
          {
+            'SRVPORT' => self.server_port,
             'URIPATH' => "/" 
           }))
        self.serial_port = @opts[:serial] if @opts.has_key? :serial
@@ -367,6 +378,11 @@ module ELM327HWBridgeRelay
         opt.on('-s', '--serial <serial_device>',
           "(Optional) Sets the serial device (Default=#{DEFAULT_SERIAL})") do |v|
           options[:serial] = v
+        end
+
+        opt.on('-p', '--port <server_port>',
+          "(Optional) Sets the listening HTTP server port (Default=8080)") do |v|
+          options[:server_port] = v
         end
 
         opt.on_tail('-h', '--help', 'Show this message') do

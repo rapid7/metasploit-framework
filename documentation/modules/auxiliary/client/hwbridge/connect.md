@@ -20,6 +20,8 @@ how to extend your project to integrate it with Metasploit.  If you are building
 and you are using the [Carloop](https://carloop.io) then the spark-msf-relay library also includes an example app for carloop
 that you can simply flash to the device for full support.
 
+2. Generic ELM327: [ebay](http://www.ebay.com/itm/like/221821719820)
+
 ## Bluetooth Adapter Connection
 
 Bluetooth HWBridge adapters, depending on the Operating System, may take several additional steps to establish a connection and communications bus.
