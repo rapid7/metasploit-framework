@@ -205,6 +205,13 @@ class Metasploit::Framework::CredentialCollection
     pass_fd.close if pass_fd && !pass_fd.closed?
   end
 
+  # Returns true when #each will have no results to iterate
+  def empty?
+    hasUser = username.present? || user_file.present? || !additional_publics.empty?
+    hasPass = password.present? || pass_file.present? || !additional_privates.empty? || blank_passwords
+    prepended_creds.empty? && !hasUser || (hasUser && !hasPass)
+  end
+
   private
 
   def private_type(private)

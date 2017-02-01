@@ -70,6 +70,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
     allow(creds).to receive(:prepended_creds).and_return([])
     allow(creds).to receive(:additional_privates).and_return([])
     allow(creds).to receive(:additional_publics).and_return([])
+    allow(creds).to receive(:empty?).and_return(true)
     ssh_scanner.cred_details = creds
   end
 
