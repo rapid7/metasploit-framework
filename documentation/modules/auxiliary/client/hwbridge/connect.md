@@ -1,14 +1,52 @@
 ## Overview
 
 This module connects to any Hardware device that supports the HWBridge API.  For details
-on the HWBridge API see [API Reference].  On successful connection to a HW Bridge a
-hwbridge session will be established.
+on the HWBridge API see [API Reference](http://api.hwbridge.reference.rapid7.com).  On successful connection to a HWBridge a
+HWBridge session will be established.
+
+## Devices
+
+Any ELM327 or STN1100 interface will work with the HWBridge.  However, the below list of devices was utilized for this testing, and are known goods.
+This should **not** be taken as an endorcement for a specific brand/vendor/seller in any way shape or form.
+
+### USB
+
+### Bluetooth (less stable)
+
+1. BAFX Products 34t5: [amazon](https://www.amazon.com/gp/product/B005NLQAHS) [BAFX Site](https://bafxpro.com/products/obdreader)
+  ```
+  Part Number: 1008
+  Controller: ELM327
+  Firmware Revision: 1.5
+  Band rate: 38400
+  ```
+
+## Bluetooth Adapter Connection
+
+Bluetooth HWBridge adapters, depending on the Operating System, may take several additional steps to establish a connection and communications bus.
+The following steps were [recorded during the testing of this module](https://github.com/rapid7/metasploit-framework/pull/7795#issuecomment-274302326)
+on setting up the BAFX 34t5 with Kali Linux 2016.2 (rolling).
+
+1. Ensure no locks on the Bluetooth device via: `rfkill list` (and subsequent `unblock` commands)
+2. Make sure Bluetooth service is started: `/etc/init.d/bluetooth start`, or `bluetoothd`
+3. Start bluetoothctl: `bluetoothctl`
+4. Turn on scanning: `scan on`
+5. Turn on agent: `agent on`
+6. Make sure we can see OBDII: `devices`
+7. Attempt to pair: `[bluetooth]# pair 00:0D:18:AA:AA:AA`
+  ```
+  Attempting to pair with 00:0D:18:AA:AA:AA
+  [CHG] Device 00:0D:18:AA:AA:AA Connected: yes
+  ```
+9. If prompted for pin: `1234`
+10. Trust the device in order to not put in the pin again: `trust 00:0D:18:AA:AA:AA`
+11. Use rfcomm to make the connection and serial interface in a different window (not bluetoothctl): `rfcomm connect /dev/rfcomm1 "00:0D:18:AA:AA:AA"`
 
 ## Options
 
  **TARGETURI**
 
- Specifies the base target URI to communicate to the HW Bridge API.  By default this is '/' but it
+ Specifies the base target URI to communicate to the HWBridge API.  By default this is '/' but it
  could be things such as '/api' or the randomly generated URI from the local_hwbridge module
 
  **DEBUGJSON**
@@ -40,7 +78,7 @@ msf auxiliary(connect) > run
 ```
 
 On successful connection to a Hardware device you will be prompted with a special notice to
-remind you that any action you take on the hwbridge could have physical affects and consequences.
+remind you that any action you take on the HWBridge could have physical affects and consequences.
 Our lawyers asked us to put that there.  You can verify the session was created by type 'sessions'
 
 ```
@@ -88,5 +126,4 @@ and their argument syntax.  These methods will become available as command line 
 within the hardware bridge.
 
 For a simple example of a custom method see auxiliary/server/local_hwbridge for a more complete
-list on how to define custom methods see the [API Reference]
-
+list on how to define custom methods see the [API Reference](http://api.hwbridge.reference.rapid7.com)
