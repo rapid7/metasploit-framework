@@ -9,5 +9,5 @@ Metasploit Hackers is dead, long live [Metasploit Hackers](https://groups.google
 
 ### Abuse
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project maintainers at msfdev@metasploit.com. If the incident involves a committer, you may report directly to egypt@metasploit.com or todb@metasploit.com.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to msfdev@metasploit.com which goes to all the current committers. If the incident involves a committer, you may report directly to egypt@metasploit.com or todb@metasploit.com.
 
