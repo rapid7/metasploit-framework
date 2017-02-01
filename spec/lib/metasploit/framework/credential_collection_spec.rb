@@ -141,6 +141,15 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
   end
 
   describe "#empty?" do
+    context "when only :userpass_file is set" do
+      let(:username) { nil }
+      let(:password) { nil }
+      let(:userpass_file) { "test_file" }
+      specify do
+        expect(collection.empty?).to eq false
+      end
+    end
+
     context "when :username is set" do
       context "and :password is set" do
         specify do
