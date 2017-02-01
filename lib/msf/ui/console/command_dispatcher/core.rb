@@ -85,7 +85,11 @@ class Core
     "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
     "-c" => [ false, "Only print a count of matching lines."          ])
 
-
+  @@history_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-a" => [ false, "Show all commands in history."                  ],
+    "-n" => [ true,  "Show the last n commands."                      ],
+    "-u" => [ false, "Show only unique commands."                     ])
 
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -105,6 +109,7 @@ class Core
       "getg"       => "Gets the value of a global variable",
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
+      "history"    => "Show command history",
       "irb"        => "Drop into irb scripting mode",
       "load"       => "Load a framework plugin",
       "quit"       => "Exit the console",
@@ -133,6 +138,7 @@ class Core
     @cache_payloads = nil
     @previous_module = nil
     @module_name_stack = []
+    @history_limit = 100
   end
 
   #
@@ -472,6 +478,55 @@ class Core
   end
 
   alias cmd_quit cmd_exit
+
+  def cmd_history(*args)
+    length = Readline::HISTORY.length
+    uniq   = false
+
+    if length < @history_limit
+      limit = length
+    else
+      limit = @history_limit
+    end
+
+    @@history_opts.parse(args) do |opt, idx, val|
+      case opt
+      when "-a"
+        limit = length
+      when "-n"
+        return cmd_history_help unless val && val.match(/\A[-+]?\d+\z/)
+        if length < val.to_i
+          limit = length
+        else
+          limit = val.to_i
+        end
+      when "-u"
+        uniq = true
+      when "-h"
+        cmd_history_help
+        return false
+      end
+    end
+
+    start   = length - limit
+    pad_len = length.to_s.length
+
+    (start..length-1).each do |pos|
+      if uniq && Readline::HISTORY[pos] == Readline::HISTORY[pos-1]
+        next unless pos == 0
+      end
+      cmd_num = (pos + 1).to_s
+      print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
+    end
+  end
+
+  def cmd_history_help
+    print_line "Usage: history [options]"
+    print_line
+    print_line "Shows the command history."
+    print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
+    print @@history_opts.usage
+  end
 
   def cmd_sleep_help
     print_line "Usage: sleep <seconds>"
@@ -1187,7 +1242,7 @@ class Core
               session.response_timeout = response_timeout
             end
 
-            output = session.run_cmd cmd
+            output = session.run_cmd(cmd, driver.output)
           end
         end
     when 'kill'
@@ -1604,16 +1659,15 @@ class Core
       return false
     end
 
-    # Walk the plugins array
-    framework.plugins.each { |plugin|
-      # Unload the plugin if it matches the name we're searching for
-      if (plugin.name.downcase == args[0].downcase)
-        print("Unloading plugin #{args[0]}...")
-        framework.plugins.unload(plugin)
-        print_line("unloaded.")
-        break
-      end
-    }
+    # Find a plugin within the plugins array
+    plugin = framework.plugins.find { |p| p.name.downcase == args[0].downcase }
+
+    # Unload the plugin if it matches the name we're searching for
+    if plugin
+      print("Unloading plugin #{args[0]}...")
+      framework.plugins.unload(plugin)
+      print_line("unloaded.")
+    end
   end
 
   #

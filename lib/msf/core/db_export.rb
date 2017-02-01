@@ -171,7 +171,7 @@ class Export
     case obj
     when String
       obj.strip
-    when TrueClass, FalseClass, Float, Fixnum, Bignum, Time
+    when TrueClass, FalseClass, Float, Integer, Time
       obj.to_s.strip
     when BigDecimal
       obj.to_s("F")

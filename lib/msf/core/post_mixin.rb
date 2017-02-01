@@ -29,6 +29,11 @@ module Msf::PostMixin
   #
   # @raise [OptionValidateError] if {#session} returns nil
   def setup
+    unless session
+      # Always fail if the session doesn't exist.
+      raise Msf::OptionValidateError.new(['SESSION'])
+    end
+
     unless session_compatible?(session)
       print_warning('SESSION may not be compatible with this module.')
     end
@@ -131,7 +136,7 @@ module Msf::PostMixin
   #
   # Checks the session's type against this module's
   # <tt>module_info["SessionTypes"]</tt> as well as examining platform
-  # compatibility.  +sess_or_sid+ can be a Session object, Fixnum, or
+  # compatibility.  +sess_or_sid+ can be a Session object, Integer, or
   # String.  In the latter cases it should be a key in
   # +framework.sessions+.
   #
@@ -139,14 +144,14 @@ module Msf::PostMixin
   #   value from this method does not guarantee the module will work
   #   with the session.
   #
-  # @param sess_or_sid [Msf::Session,Fixnum,String]
+  # @param sess_or_sid [Msf::Session,Integer,String]
   #   A session or session ID to compare against this module for
   #   compatibility.
   #
   def session_compatible?(sess_or_sid)
     # Normalize the argument to an actual Session
     case sess_or_sid
-    when ::Fixnum, ::String
+    when ::Integer, ::String
       s = framework.sessions[sess_or_sid.to_i]
     when ::Msf::Session
       s = sess_or_sid

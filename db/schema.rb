@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161107203710) do
+ActiveRecord::Schema.define(version: 20161227212223) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -177,6 +177,7 @@ ActiveRecord::Schema.define(version: 20161107203710) do
     t.integer  "exploit_attempt_count",               default: 0
     t.integer  "cred_count",                          default: 0
     t.string   "detected_arch"
+    t.string   "os_family"
   end
 
   add_index "hosts", ["name"], name: "index_hosts_on_name", using: :btree

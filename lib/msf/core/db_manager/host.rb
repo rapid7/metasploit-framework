@@ -181,6 +181,16 @@ module Msf::DBManager::Host
       opts[:name] = opts[:name][0,255]
     end
 
+    if opts[:os_name]
+      os_name, os_flavor = split_windows_os_name(opts[:os_name])
+      opts[:os_name] = os_name if os_name.present?
+      if opts[:os_flavor].present?
+        opts[:os_flavor] = os_flavor + opts[:os_flavor]
+      else
+        opts[:os_flavor] = os_flavor
+      end
+    end
+
     opts.each { |k,v|
       if (host.attribute_names.include?(k.to_s))
         unless host.attribute_locked?(k.to_s)
@@ -211,6 +221,13 @@ module Msf::DBManager::Host
 
     host
   }
+  end
+
+  def split_windows_os_name(os_name)
+    return [] if os_name.nil?
+    flavor_match = os_name.match(/Windows\s+(.*)/)
+    return [] if flavor_match.nil?
+    ["Windows", flavor_match.captures.first]
   end
 
   #
@@ -273,7 +290,8 @@ module Msf::DBManager::Host
     end
 
     if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
-      res[:os_name]   = "Windows #{$1.strip}"
+      res[:os_name]   = "Windows"
+      res[:os_flavor] = $1.strip
       build = $2.strip
 
       if build =~ /Service Pack (\d+)/

@@ -27,7 +27,7 @@ module Msf
           def commands
             {
               "back"       => "Move back from the current context",
-              "edit"       => "Edit the current module with $VISUAL or $EDITOR",
+              "edit"       => "Edit the current module with the preferred editor",
               "advanced"   => "Displays advanced options for one or more modules",
               "info"       => "Displays information about one or more modules",
               "options"    => "Displays global options or for one or more modules",
@@ -61,18 +61,17 @@ module Msf
             "Module"
           end
 
-
           def local_editor
-            Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR') || '/usr/bin/vim'
+            framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
           end
 
           def cmd_edit_help
             msg = "Edit the currently active module"
-            msg = "#{msg} #{local_editor ? "with #{local_editor}" : "($VISUAL or $EDITOR must be set first)"}."
+            msg = "#{msg} #{local_editor ? "with #{local_editor}" : "(LocalEditor or $VISUAL/$EDITOR should be set first)"}."
             print_line "Usage: edit"
             print_line
             print_line msg
-            print_line "When done editing, you must reload the module with 'reload' or 'rexploit'."
+            print_line "When done editing, you must reload the module with 'reload' or 'rerun'."
             print_line
           end
 
@@ -80,19 +79,21 @@ module Msf
           # Edit the currently active module
           #
           def cmd_edit
-            unless local_editor
-              print_error "$VISUAL or $EDITOR must be set first. Try 'export EDITOR=/usr/bin/vim'"
-              return
-            end
             if active_module
-              path = active_module.file_path
-              print_status "Launching #{local_editor} #{path}"
-              system(local_editor,path)
+              editor = local_editor
+              path   = active_module.file_path
+
+              if editor.nil?
+                editor = 'vim'
+                print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
+              end
+
+              print_status("Launching #{editor} #{path}")
+              system(editor, path)
             else
-              print_error "Nothing to edit -- try using a module first."
+              print_error('Nothing to edit -- try using a module first.')
             end
           end
-
 
           def cmd_advanced_help
             print_line 'Usage: advanced [mod1 mod2 ...]'
@@ -570,7 +571,7 @@ module Msf
 
             res = %w{all encoders nops exploits payloads auxiliary post plugins options}
             if (active_module)
-              res.concat(%w{ missing advanced evasion targets actions })
+              res.concat %w{missing advanced evasion targets actions info}
               if (active_module.respond_to? :compatible_sessions)
                 res << "sessions"
               end

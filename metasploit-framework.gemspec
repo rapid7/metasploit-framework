@@ -65,9 +65,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.2.5'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.2.11'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.4'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.7'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -147,15 +147,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-encoder'
   # Library for exploit development helpers
   spec.add_runtime_dependency 'rex-exploitation'
-
-  # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
-  #   NoMethodError undefined method `dlopen' for Fiddle:Module
-  unless Gem.win_platform?
-    # Command line editing, history, and tab completion in msfconsole
-    # Use the Rapid7 fork until the official gem catches up
-    spec.add_runtime_dependency 'rb-readline-r7'
-  end
-
+  # Command line editing, history, and tab completion in msfconsole
+  spec.add_runtime_dependency 'rb-readline'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules

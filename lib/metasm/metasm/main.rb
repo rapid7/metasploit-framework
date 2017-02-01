@@ -1128,11 +1128,11 @@ class EncodedData
     ((val + len - 1) / len).to_i * len
   end
 
-  # concatenation of another +EncodedData+ (or nil/Fixnum/anything supporting String#<<)
+  # concatenation of another +EncodedData+ (or nil/Integer/anything supporting String#<<)
   def <<(other)
     case other
     when nil
-    when ::Fixnum
+    when ::Integer
       fill
       @data = @data.to_str if not @data.kind_of? String
       @data << other

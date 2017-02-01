@@ -148,7 +148,7 @@ module Md5LookupUtility
     attr_accessor :rhost
 
     # @!attribute rport
-    #  @return [Fixnum] The port number to md5cracker.org
+    #  @return [Integer] The port number to md5cracker.org
     attr_accessor :rport
 
     # @!attribute target_uri

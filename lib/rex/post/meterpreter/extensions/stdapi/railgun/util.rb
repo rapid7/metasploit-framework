@@ -641,7 +641,7 @@ class  Util
   # state of each bit.
   #
   # Parameters:
-  #   +value+:: a bit field represented by a Fixnum
+  #   +value+:: a bit field represented by a Integer
   #   +mappings+:: { 'WINAPI_CONSTANT_NAME' => :descriptive_symbol, ... }
   #
   # Returns:

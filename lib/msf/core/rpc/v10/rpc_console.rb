@@ -19,7 +19,7 @@ class RPC_Console < RPC_Base
   #
   # @param [Hash] opts See Msf::Ui::Web::Driver#create_console
   # @return [Hash] Information about the new console. It contains the following keys:
-  #  * 'id' [Fixnum] The console's ID.
+  #  * 'id' [Integer] The console's ID.
   #  * 'prompt' [String] The framework prompt (example: 'msf > ')
   #  * 'busy' [TrueClass] The console's busy state, or
   #  * 'busy' [FalseClass] The console's busy state.
@@ -39,7 +39,7 @@ class RPC_Console < RPC_Base
   #
   # @return [Hash] Console information.
   #  * 'consoles' [Array<Hash>] consoles, each element is a hash that includes:
-  #    * 'id' [Fixnum] The console's ID
+  #    * 'id' [Integer] The console's ID
   #    * 'prompt' [String] The framework prompt (example: 'msf > ')
   #    * 'busy' [TrueClass] The console's busy state, or
   #    * 'busy' [FalseClass] The console's busy state.
@@ -60,7 +60,7 @@ class RPC_Console < RPC_Base
 
   # Deletes a framework console instance.
   #
-  # @param [Fixnum] cid Framework console ID.
+  # @param [Integer] cid Framework console ID.
   # @return [Hash] A result indicating whether the action was successful or not.
   #                It contains the following key:
   #                * 'result' [String] Either 'success' or 'failure'.
@@ -76,7 +76,7 @@ class RPC_Console < RPC_Base
 
   # Returns the framework console output in raw form.
   #
-  # @param [Fixnum] cid Framework console ID.
+  # @param [Integer] cid Framework console ID.
   # @return [Hash] There are two different hashes you might get:
   #
   #  If the console ID is invalid, you will get a hash like the following:
@@ -101,14 +101,14 @@ class RPC_Console < RPC_Base
 
   # Sends an input (such as a command) to the framework console.
   #
-  # @param [Fixnum] cid Framework console ID.
+  # @param [Integer] cid Framework console ID.
   # @param [String] data User input.
   # @return [Hash] There are two different hashes you might get:
   #
   #  If the console ID is invalid, you will get a hash like the following:
   #  * 'result' [String] A value that says 'failure'.
   #  If the console ID is invalid, you will get a hash like the following:
-  #  * 'wrote' [Fixnum] Number of bytes sent.
+  #  * 'wrote' [Integer] Number of bytes sent.
   # @note Remember to add a newline (\\r\\n) at the end of input, otherwise
   #       the console will not do anything. And you will need to use the
   #       #rpc_read method to retrieve the output again.
@@ -124,7 +124,7 @@ class RPC_Console < RPC_Base
 
   # Returns the tab-completed version of your input (such as a module path).
   #
-  # @param [Fixnum] cid Framework console ID.
+  # @param [Integer] cid Framework console ID.
   # @param [String] line Command.
   # @return [Hash] There are two different hashes you might get:
   #
@@ -146,7 +146,7 @@ class RPC_Console < RPC_Base
   # Kills a framework session. This serves the same purpose as [CTRL]+[C] to abort an interactive session.
   # You might also want to considering using the session API calls instead of this.
   #
-  # @param [Fixnum] cid Framework console ID.
+  # @param [Integer] cid Framework console ID.
   # @return [Hash] A hash indicating whether the action was successful or not. It contains:
   #  * 'result' [String] A message that says 'success' if the console ID is valid (and successfully killed, otherwise 'failed')
   # @example Here's how you would use this from the client:
@@ -162,7 +162,7 @@ class RPC_Console < RPC_Base
   # Detaches a framework session. This serves the same purpose as [CTRL]+[Z] to
   # background an interactive session.
   #
-  # @param [Fixnum] cid Framework console ID.
+  # @param [Integer] cid Framework console ID.
   # @return [Hash] A hash indicating whether the action was successful or not. It contains:
   #  * 'result' [String] A message that says 'success' if the console ID is valid (and successfully detached, otherwise 'failed')
   # @example Here's how you would use this from the client:

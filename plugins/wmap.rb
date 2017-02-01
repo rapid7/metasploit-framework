@@ -2244,6 +2244,10 @@ class Plugin::Wmap < Msf::Plugin
   def initialize(framework, opts)
     super
 
+    if framework.db.active == false
+      raise 'Database not connected (try db_connect)'
+    end
+
     color = self.opts["ConsoleDriver"].output.supports_color? rescue false
 
     wmapversion = '1.5.1'

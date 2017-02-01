@@ -115,10 +115,10 @@ module Payload::Windows::ReverseWinHttp
   # @option opts [Bool] :ssl Whether or not to enable SSL
   # @option opts [String] :uri The URI to request during staging
   # @option opts [String] :host The host to connect to
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :verify_cert_hash A 20-byte raw SHA-1 hash of the certificate to verify, or nil
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
-  # @option opts [Fixnum] :retry_count The number of times to retry a failed request before giving up
+  # @option opts [Integer] :retry_count The number of times to retry a failed request before giving up
   #
   def asm_reverse_winhttp(opts={})
 
