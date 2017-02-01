@@ -128,4 +128,4 @@ and their argument syntax.  These methods will become available as command line 
 within the hardware bridge.
 
 For a simple example of a custom method see auxiliary/server/local_hwbridge for a more complete
-list on how to define custom methods see the [API Reference](http://api.hwbridge.reference.rapid7.com)
+list on how to define custom methods see the [API Reference](http://opengarages.org/hwbridge).

@@ -206,9 +206,9 @@ module UDS
     return {} if packets == nil
     return packets if packets.has_key? "error"
     return packets if not packets.has_key? "Packets"
-    celcious = packets["Packets"][0]["DATA"][3].hex - 40
-    fahrenheit = celcious * 9/5 + 32
-    packets["TEMP_C"] = celcious
+    celsius = packets["Packets"][0]["DATA"][3].hex - 40
+    fahrenheit = celsius * 9/5 + 32
+    packets["TEMP_C"] = celsius
     packets["TEMP_F"] = fahrenheit
     packets
   end

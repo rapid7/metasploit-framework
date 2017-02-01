@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Sample Module to Flood Temp Guage on 2006 Malibu',
+        'Name'          => 'Sample Module to Flood Temp Gauge on 2006 Malibu',
         'Description'   => %q{ Simple sample temp flood for the 2006 Malibu},
         'License'       => MSF_LICENSE,
         'Author'        => ['Craig Smith'],

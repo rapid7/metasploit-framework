@@ -19,7 +19,7 @@ class Console::CommandDispatcher::Automotive
   def commands
     all = {
       'supported_buses'   => 'Get supported buses',
-      'busconfig'         => 'Get buad configs',
+      'busconfig'         => 'Get baud configs',
       'connect'           => 'Get HW supported methods for a bus',
       'cansend'           => 'Send a CAN packet'
     }
@@ -32,9 +32,6 @@ class Console::CommandDispatcher::Automotive
     }
 
     # Ensure any requirements of the command are met
-#    all.delete_if do |cmd, _desc|
-#      reqs[cmd].any? { |req| !client.commands.include?(req) }
-#    end
     all
   end
 

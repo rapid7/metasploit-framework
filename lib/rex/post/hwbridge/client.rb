@@ -81,7 +81,6 @@ class Client
   # if a matching extension alias exists for the supplied symbol.
   #
   def method_missing(symbol, *args)
-    #$stdout.puts("method_missing: #{symbol}")
     self.ext_aliases.aliases[symbol.to_s]
   end
 

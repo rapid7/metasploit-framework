@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         'SessionTypes'  => [ 'hwbridge' ],
         'References'    =>
           [
-            [ 'URL', 'http://api.hwbridge.reference.rapid7.com' ]  # TODO
+            [ 'URL', 'http://opengarages.org/hwbridge' ]  # TODO
           ],
       }
       ))

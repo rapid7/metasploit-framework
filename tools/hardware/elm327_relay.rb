@@ -10,7 +10,7 @@
 ####
 # This module requires a connected ELM327 or STN1100 is connected to
 # the machines serial.  Sets up a basic RESTful web server to communicate
-# Requers MSF and the serialport gem
+# Requires MSF and the serialport gem
 ####
 
 
@@ -150,7 +150,6 @@ module ELM327HWBridgeRelay
         exit -2
       end
       resp = send_cmd("ATZ")  # Turn off ECHO
-      #if resp =~ /ELM327/
       if resp =~ /ELM327/
         send_cmd("ATE0")  # Turn off ECHO
         send_cmd("ATL0")  # Disble linefeeds

@@ -174,32 +174,6 @@ class HWBridge  < Rex::Post::HWBridge::Client
     return true
   end
 
-#  #
-#  # Read from the command shell.
-#  #
-#  def shell_read(length = nil)
-#    if length.nil?
-#      rv = rstream.get
-#    else
-#      rv = rstream.read(length)
-#    end
-#    return rv
-#  end
-#
-#  #
-#  # Writes to the command shell.
-#  #
-#  def shell_write(buf)
-#    rstream.write(buf)
-#  end
-#
-#  #
-#  # Closes the shell.
-#  #
-#  def shell_close()
-#    rstream.close
-#  end
-
   attr_accessor :console # :nodoc:
   attr_accessor :alive # :nodoc:
 private
