@@ -544,4 +544,13 @@ class Msf::Module::Platform
     Rank = 100
     Alias = "multi"
   end
+
+  #
+  # Hardware
+  #
+  class Hardware < Msf::Module::Platform
+    Rank = 100
+    Alias = "hardware"
+  end
+
 end
