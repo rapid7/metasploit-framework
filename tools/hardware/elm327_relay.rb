@@ -22,7 +22,7 @@ begin
   require 'serialport'
 rescue LoadError => e
   gem = e.message.split.last
-  abort "#{gem} is not installed. Please install with `gem install #{gem}' or, if using rvm, `rvm gemset install #{gem}' and try again."
+  abort "#{gem} gem is not installed. Please install with `gem install #{gem}' or, if using rvm, `rvm gemset install #{gem}' and try again."
 end
 
 #
