@@ -1,8 +1,8 @@
-Please don't use markdown here, we have to copy paste it into a form.
+Please don't use markdown here, we have to copy paste it into a form. All answers are limited to 1000 chars.
 
 --
 
-**Why does your org want to participate in Google Summer of Code?**
+**Why does your org want to participate in Google Summer of Code?** 
 
 Most Metasploit contributors are already fairly established in their careers as penetration testers or exploit developers.
 
