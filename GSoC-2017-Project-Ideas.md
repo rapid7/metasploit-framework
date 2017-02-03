@@ -12,17 +12,25 @@ Perl, Python, and Ruby scripts can all be run via a short command line invocatio
 
 [SChannel](https://msdn.microsoft.com/en-us/library/windows/desktop/ms678421(v=vs.85).aspx) is Windows' built-in TLS library.
 
-## Automated exploit reliability scoring [@busterb](https://github.com/busterb)
+## Automated exploit reliability scoring[@busterb](https://github.com/busterb)
 
 Automatically run a module over and over, determine success rates.
 
 ## Exploit regression testing. 
 
-## A categorical focus, like "make all X exploits badass", or add a full suite of modules around particular gear or vendor stack. [@hdm](https://github.com/hdm)
+## A categorical focus, like "make all X exploits badass", or add a full suite of modules around particular gear or vendor stack.
 
-## Modifications to Meterpreter that allow for scripts to run asynchronously. [@OJ](https://github.com/oj)
+**Mentor**: [@hdm](https://github.com/hdm)
 
-## Make it possible for post modules to take a payload, move the `exploit/*/local` modules that aren't actually exploits back to `post/` [@egypt](https://github.com/egypt)
+## Modifications to Meterpreter that allow for scripts to run asynchronously.
+
+**Mentor**: [@OJ](https://github.com/oj)
+
+## Make it possible for post modules to take a payload
+
+And then move the `exploit/*/local` modules that aren't actually exploits back to `post/` 
+
+**Mentor**: [@egypt](https://github.com/egypt)
 
 ## SMB2 support [@egypt](https://github.com/egypt)
 
