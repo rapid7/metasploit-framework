@@ -10,9 +10,9 @@ Perl, Python, and Ruby scripts can all be run via a short command line invocatio
 
 ## Use SChannel in native Windows Meterpreter instead of embedded OpenSSL
 
-**Mentor**: [@OJ](https://github.com/oj)
-
 [SChannel](https://msdn.microsoft.com/en-us/library/windows/desktop/ms678421(v=vs.85).aspx) is Windows' built-in TLS library.
+
+**Mentor**: [@OJ](https://github.com/oj)
 
 ## Automated exploit reliability scoring
 
