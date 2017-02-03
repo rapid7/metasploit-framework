@@ -27,3 +27,17 @@ Automatically run a module over and over, determine success rates.
 ## SMB2 support [@egypt](https://github.com/egypt)
 
 (see also https://github.com/rapid7/ruby_smb)
+
+
+## Gossip protocol for payload communications
+
+Allow meterpreter to act as a mesh network inside a corporate environment.
+
+
+## Asynchronous victim-side scripting 
+
+Using either python or powershell (or maybe both if it can be abstract enough). This could allow things like running Responder.py or Empire on a compromised host.
+
+
+
+
