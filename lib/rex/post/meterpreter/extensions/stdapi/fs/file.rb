@@ -227,6 +227,24 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   end
 
   #
+  # Performs a copy from oldname to newname
+  #
+  def File.cp(oldname, newname)
+    request = Packet.create_request('stdapi_fs_file_copy')
+
+    request.add_tlv(TLV_TYPE_FILE_NAME, client.unicode_filter_decode( oldname ))
+    request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( newname ))
+
+    response = client.send_request(request)
+
+    return response
+  end
+
+  class << self
+    alias copy cp
+  end
+
+  #
   # Upload one or more files to the remote remote directory supplied in
   # +destination+.
   #
@@ -319,6 +337,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     if ::File.exist?(dest_file)
       dst_stat = ::File.stat(dest_file)
       if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
+        src_fd.close
         return 'skipped'
       end
     end

@@ -83,14 +83,17 @@ class MetasploitModule < Msf::Auxiliary
   def check_conn?
     begin
       res = send_request_cgi('uri' => '/', 'method' => 'GET')
-      vprint_good("Server is responsive...")
+      if res
+        vprint_good("Server is responsive...")
+        return true
+      end
     rescue ::Rex::ConnectionRefused,
            ::Rex::HostUnreachable,
            ::Rex::ConnectionTimeout,
            ::Rex::ConnectionError,
            ::Errno::EPIPE
-      return
     end
+    false
   end
 
   def enumerate_vpn_groups

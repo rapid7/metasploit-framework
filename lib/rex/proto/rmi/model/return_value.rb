@@ -8,7 +8,7 @@ module Rex
         class ReturnValue < Element
 
           # @!attribute code
-          #   @return [Fixnum] the return code
+          #   @return [Integer] the return code
           attr_accessor :code
           # @!attribute uid
           #   @return [Rex::Proto::Rmi::Model::UniqueIdentifier] unique identifier of the returned value

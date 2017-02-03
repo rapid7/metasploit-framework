@@ -75,7 +75,7 @@ module Payload::Windows::Rc4
   def generate_stage(opts = {})
     p = super(opts)
     xorkey, rc4key = rc4_keys(datastore['RC4PASSWORD'])
-    c1 = OpenSSL::Cipher::Cipher.new('RC4')
+    c1 = OpenSSL::Cipher.new('RC4')
     c1.decrypt
     c1.key = rc4key
     p = c1.update(p)

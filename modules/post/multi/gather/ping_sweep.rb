@@ -42,10 +42,10 @@ class MetasploitModule < Msf::Post
       end
 
       case session.platform
-      when /win/i
+      when 'windows'
         count = " -n 1 "
         cmd = "ping"
-      when /solaris/i
+      when 'solaris'
         cmd = "/usr/sbin/ping"
       else
         count = " -n -c 1 -W 2 "

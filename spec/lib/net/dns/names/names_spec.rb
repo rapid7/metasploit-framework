@@ -99,7 +99,7 @@ RSpec.describe Net::DNS::Names do
       v = subject.dn_comp(name, offset, compnames)
       expect(v.length).to eq(3)
       expect(v[0]).to be_kind_of(String)
-      expect(v[1]).to be_kind_of(Fixnum)
+      expect(v[1]).to be_kind_of(Integer)
       expect(v[2]).to be_kind_of(Hash)
     end
   end

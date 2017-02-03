@@ -108,7 +108,7 @@ module LDAP
   # Performs an ldap query
   #
   # @param filter [String] LDAP search filter
-  # @param max_results [Fixnum] Maximum results
+  # @param max_results [Integer] Maximum results
   # @param fields [Array<String>] Attributes to retrieve
   # @param domain [String] Optional domain or distinguished name
   # @return [Hash] Entries found
@@ -158,9 +158,9 @@ module LDAP
   # Performs a query on the LDAP session
   #
   # @param session_handle [Handle] LDAP Session Handle
-  # @param base [Fixnum] Pointer to string that contains distinguished
+  # @param base [Integer] Pointer to string that contains distinguished
   #   name of entry to start the search
-  # @param scope [Fixnum] Search Scope
+  # @param scope [Integer] Search Scope
   # @param filter [String] Search Filter
   # @param fields [Array<String>] Attributes to retrieve
   # @return [Hash] Entries found
@@ -213,7 +213,7 @@ module LDAP
       entry = get_entry(pEntries[i])
 
       # Entries are a linked list...
-      if client.platform =~ /x64/
+      if client.arch == ARCH_X64
         pEntries[i+1] = entry[4]
       else
         pEntries[i+1] = entry[3]
@@ -245,7 +245,7 @@ module LDAP
 
   # Gets the LDAP Entry
   #
-  # @param pEntry [Fixnum] Pointer to the Entry
+  # @param pEntry [Integer] Pointer to the Entry
   # @return [Array] Entry data structure
   def get_entry(pEntry)
     return client.railgun.memread(pEntry,41).unpack('VVVVVVVVVvCCC')
@@ -259,7 +259,7 @@ module LDAP
     ber = client.railgun.memread(msg[2],60).unpack('V*')
 
     # BER Pointer is different between x86 and x64
-    if client.platform =~ /x64/
+    if client.arch == ARCH_X64
       ber_data = client.railgun.memread(ber[4], ber[0])
     else
       ber_data = client.railgun.memread(ber[3], ber[0])
@@ -328,7 +328,7 @@ module LDAP
   end
 
   # Binds to the default LDAP Server
-  # @param size_limit [Fixnum] Maximum number of results to return in a query
+  # @param size_limit [Integer] Maximum number of results to return in a query
   # @param domain [String] Optional domain or distinguished name
   # @return LDAP session handle
   def bind_default_ldap_server(size_limit, domain=nil)

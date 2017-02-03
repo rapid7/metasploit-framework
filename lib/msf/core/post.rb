@@ -17,6 +17,7 @@ class Msf::Post < Msf::Module
   require 'msf/core/post/unix'
   require 'msf/core/post/windows'
   require 'msf/core/post/android'
+  require 'msf/core/post/hardware'
 
   include Msf::PostMixin
 
@@ -57,7 +58,7 @@ class Msf::Post < Msf::Module
   # is currently running against.
   #
   # @return [NilClass] if there is no database record for the session
-  # @return [Fixnum] if there is a database record to get the id for
+  # @return [Integer] if there is a database record to get the id for
   def session_db_id
     if session.db_record
       session.db_record.id

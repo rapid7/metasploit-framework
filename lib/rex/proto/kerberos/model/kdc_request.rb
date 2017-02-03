@@ -8,10 +8,10 @@ module Rex
         # definition
         class KdcRequest < Element
           # @!attribute pvno
-          #   @return [Fixnum] The protocol version number
+          #   @return [Integer] The protocol version number
           attr_accessor :pvno
           # @!attribute msg_type
-          #   @return [Fixnum] The type of a protocol message
+          #   @return [Integer] The type of a protocol message
           attr_accessor :msg_type
           # @!attribute pa_data
           #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>] Authentication information which may
@@ -126,7 +126,7 @@ module Rex
           # Decodes the pvno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_asn1_pvno(input)
             input.value[0].value.to_i
           end
@@ -134,7 +134,7 @@ module Rex
           # Decodes the msg_type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_asn1_msg_type(input)
             input.value[0].value.to_i
           end

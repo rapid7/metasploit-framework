@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(8008),
-      OptString.new('VID', [true, 'Video ID', 'HkhSZyYmpO4'])
+      OptString.new('VID', [true, 'Video ID', 'kxopViU98Xo'])
     ])
   end
 

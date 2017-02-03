@@ -38,10 +38,10 @@ class MetasploitModule < Msf::Post
   #
   def run
     case session.platform
-    when /osx/
+    when 'osx'
       @platform = :osx
       paths = enum_users_unix
-    when /win/
+    when 'windows'
       @platform = :windows
       drive = session.sys.config.getenv('SystemDrive')
       os = session.sys.config.sysinfo['OS']

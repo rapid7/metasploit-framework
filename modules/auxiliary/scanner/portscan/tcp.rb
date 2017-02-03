@@ -80,8 +80,10 @@ class MetasploitModule < Msf::Auxiliary
                 'ConnectTimeout' => (timeout / 1000.0)
               }
             )
-            print_status("#{ip}:#{port} - TCP OPEN")
-            r << [ip,port,"open"]
+            if s
+              print_status("#{ip}:#{port} - TCP OPEN")
+              r << [ip,port,"open"]
+            end
           rescue ::Rex::ConnectionRefused
             vprint_status("#{ip}:#{port} - TCP closed")
             r << [ip,port,"closed"]
@@ -92,7 +94,9 @@ class MetasploitModule < Msf::Auxiliary
           rescue ::Exception => e
             print_error("#{ip}:#{port} exception #{e.class} #{e} #{e.backtrace}")
           ensure
-            disconnect(s) rescue nil
+            if s
+              disconnect(s) rescue nil
+            end
           end
         end
       end

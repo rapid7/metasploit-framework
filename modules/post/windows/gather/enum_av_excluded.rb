@@ -109,13 +109,18 @@ class MetasploitModule < Msf::Post
   end
 
   def setup
+    unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
+      fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
+    end
+
     # all of these target applications seemingly store their registry
     # keys/values at the same architecture of the host, so if we happen to be
     # in a 32-bit process on a 64-bit machine, ensure that we read from the
     # 64-bit keys/values, and otherwise use the native keys/values
-    @registry_view = sysinfo['Architecture'] =~ /WOW64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_NATIVE
-    unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
-      fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
+    if sysinfo['Architecture'] == ARCH_X64 && session.arch == ARCH_X86
+      @registry_view = REGISTRY_VIEW_64_BIT
+    else
+      @registry_view = REGISTRY_VIEW_NATIVE
     end
   end
 

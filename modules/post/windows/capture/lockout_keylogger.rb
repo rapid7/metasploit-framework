@@ -153,8 +153,8 @@ class MetasploitModule < Msf::Post
 
 
     #Make sure we are on a Windows host
-    if client.platform !~ /win32|win64/
-        print_status "This module does not support this meterpreter type"
+    if client.platform != 'windows'
+        print_error('This module does not support this platform.')
         return
     end
 

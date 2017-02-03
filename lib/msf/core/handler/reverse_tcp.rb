@@ -77,9 +77,23 @@ module ReverseTcp
     "reverse TCP"
   end
 
+  # A URI describing what the payload is configured to use for transport
   def payload_uri
-    "tcp://#{datastore['LHOST']}:#{datastore['LPORT']}"
+    addr = datastore['LHOST']
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "tcp://#{uri_host}:#{datastore['LPORT']}"
   end
+
+  # A URI describing where we are listening
+  #
+  # @param addr [String] the address that
+  # @return [String] A URI of the form +scheme://host:port/+
+  def listener_uri(addr=datastore['ReverseListenerBindAddress'])
+    addr = datastore['LHOST'] if addr.nil? || addr.empty?
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "tcp://#{uri_host}:#{bind_port}"
+  end
+
 
   #
   # Starts monitoring for an inbound connection.

@@ -407,7 +407,23 @@ class ReadableText
       next if (opt.evasion?)
       next if (missing && opt.valid?(val))
 
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+      desc = opt.desc.dup
+
+      # Hint at RPORT proto by regexing mixins
+      if name == 'RPORT' && opt.kind_of?(Msf::OptPort)
+        mod.class.included_modules.each do |m|
+          case m.name
+          when /tcp/i, /HttpClient$/
+            desc << ' (TCP)'
+            break
+          when /udp/i
+            desc << ' (UDP)'
+            break
+          end
+        end
+      end
+
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", desc ]
     end
 
     return tbl.to_s
@@ -546,7 +562,11 @@ class ReadableText
       row = []
       row << session.sid.to_s
       row << session.type.to_s
-      row[-1] << (" " + session.platform) if session.respond_to?(:platform)
+      if session.respond_to?(:session_type)
+        row[-1] << (" " + session.session_type)
+      elsif session.respond_to?(:platform)
+        row[-1] << (" " + session.platform)
+      end
 
       if show_extended
         if session.respond_to?(:last_checkin) && session.last_checkin
@@ -670,6 +690,7 @@ class ReadableText
       row[1] = framework.jobs[job_id].name
 
       pinst = exploit_mod.respond_to?(:payload_instance) ? exploit_mod.payload_instance : nil
+      payload_uri = ''
 
       if pinst.nil?
         row[2] = ""
@@ -678,7 +699,8 @@ class ReadableText
         row[2] = pinst.refname
         row[3] = ""
         if pinst.respond_to?(:payload_uri)
-          row[3] << pinst.payload_uri
+          payload_uri = pinst.payload_uri.strip
+          row[3] << payload_uri
         end
         if pinst.respond_to?(:luri)
           row[3] << pinst.luri
@@ -690,7 +712,12 @@ class ReadableText
         uripath ||= exploit_mod.datastore['URIPATH']
         row[4] = uripath
         row[5] = framework.jobs[job_id].start_time
-        row[6] = pinst.respond_to?(:listener_uri) ? pinst.listener_uri : ""
+        row[6] = ''
+
+        if pinst.respond_to?(:listener_uri)
+          listener_uri = pinst.listener_uri.strip
+          row[6] = listener_uri unless listener_uri == payload_uri
+        end
       end
       tbl << row
     end

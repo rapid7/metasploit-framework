@@ -229,7 +229,7 @@ class Process < Rex::Post::Process
       if pa == 1 # PROCESS_ARCH_X86
         arch = ARCH_X86
       elsif pa == 2 # PROCESS_ARCH_X64
-        arch = ARCH_X86_64
+        arch = ARCH_X64
       end
     else
       arch = p.get_tlv_value(TLV_TYPE_PROCESS_ARCH_NAME)
@@ -410,10 +410,6 @@ class ProcessList < Array
         val = process[col]
         if col == 'session'
           val == 0xFFFFFFFF ? '' : val.to_s
-        elsif col == 'arch'
-          # for display and consistency with payload naming we switch the internal
-          # 'x86_64' value to display 'x64'
-          val == ARCH_X86_64 ? 'x64' : val
         else
           val
         end

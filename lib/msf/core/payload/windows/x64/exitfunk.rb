@@ -7,7 +7,7 @@ module Msf
 
 ###
 #
-# Implements arbitrary exit routines for Windows ARCH_X86_64 payloads
+# Implements arbitrary exit routines for Windows ARCH_X64 payloads
 #
 ###
 

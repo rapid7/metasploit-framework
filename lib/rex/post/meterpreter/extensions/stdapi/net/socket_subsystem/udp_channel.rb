@@ -77,24 +77,41 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
   end
 
   #
-  # This function is called by Rex::Socket::Udp.sendto and writes data to a specified
-  # remote peer host/port via the remote end of the channel.
+  # This function is called by Rex::Socket::Udp.sendto and writes data to a
+  # specified remote peer host/port via the remote end of the channel.
   #
-  def send(buf, flags, saddr)
-    _af, peerhost, peerport = Rex::Socket.from_sockaddr(saddr)
+  # This should work just like a UDPSocket.send method
+  #
+  # send(mesg, flags, host, port) => numbytes_sent click to toggle source
+  # send(mesg, flags, sockaddr_to) => numbytes_sent
+  # send(mesg, flags) => numbytes_sent
+  #
+  def send(buf, flags, a = nil, b = nil)
+    host = nil
+    port = nil
 
-    addends = [
-      {
-        'type'  => TLV_TYPE_PEER_HOST,
-        'value' => peerhost
-      },
-      {
-        'type'  => TLV_TYPE_PEER_PORT,
-        'value' => peerport
-      }
-    ]
+    if a && b.nil?
+      _, host, port = Rex::Socket.from_sockaddr(a)
+    elsif a && b
+      host = a
+      port = b
+    end
 
-    return _write(buf, buf.length, addends)
+    addends = nil
+    if host && port
+      addends = [
+        {
+          'type'  => TLV_TYPE_PEER_HOST,
+          'value' => host
+        },
+        {
+          'type'  => TLV_TYPE_PEER_PORT,
+          'value' => port
+        }
+      ]
+    end
+
+    _write(buf, buf.length, addends)
   end
 
 end

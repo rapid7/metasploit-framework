@@ -313,10 +313,10 @@ class  Util
   }
 
   # param 'railgun' is a Railgun instance.
-  # param 'platform' is a value like client.platform
-  def initialize(railgun, platform)
+  # param 'arch' is the client.arch
+  def initialize(railgun, arch)
     @railgun = railgun
-    @is_64bit = is_64bit_platform?(platform)
+    @is_64bit = arch == ARCH_X64
   end
 
   #
@@ -636,18 +636,12 @@ class  Util
     end
   end
 
-  # Returns true if given platform has 64bit architecture
-  # expects client.platform
-  def is_64bit_platform?(platform)
-    platform =~ /win64/
-  end
-
   #
   # Evaluates a bit field, returning a hash representing the meaning and
   # state of each bit.
   #
   # Parameters:
-  #   +value+:: a bit field represented by a Fixnum
+  #   +value+:: a bit field represented by a Integer
   #   +mappings+:: { 'WINAPI_CONSTANT_NAME' => :descriptive_symbol, ... }
   #
   # Returns:

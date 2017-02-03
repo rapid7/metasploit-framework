@@ -75,6 +75,36 @@ module CommandDispatcher
   end
 
   #
+  # Generate an array of job or session IDs from a given range String.
+  # Always returns an Array.
+  #
+  # @param id_list [String] Range or list description such as 1-5 or 1,3,5 etc
+  # @return [Array<String>] Representing the range
+  def build_range_array(id_list)
+    item_list = []
+    unless id_list.blank?
+      temp_list = id_list.split(',')
+      temp_list.each do |ele|
+        return if ele.count('-') > 1
+        return if ele.first == '-' || ele[-1] == '-'
+        return if ele.first == '.' || ele[-1] == '.'
+
+        if ele.include? '-'
+          temp_array = (ele.split("-").inject { |s, e| s.to_i..e.to_i }).to_a
+          item_list.concat(temp_array)
+        elsif ele.include? '..'
+          temp_array = (ele.split("..").inject { |s, e| s.to_i..e.to_i }).to_a
+          item_list.concat(temp_array)
+        else
+          item_list.push(ele.to_i)
+        end
+      end
+    end
+
+    item_list.uniq.sort
+  end
+
+  #
   # The driver that this command dispatcher is associated with.
   #
   attr_accessor :driver

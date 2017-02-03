@@ -43,16 +43,41 @@ module Auxiliary::UDPScanner
     datastore['BATCHSIZE'].to_i
   end
 
+  def udp_sock(ip, port)
+    @udp_socks_mutex.synchronize do
+      key = "#{ip}:#{port}"
+      unless @udp_socks.key?(key)
+        @udp_socks[key] =
+          Rex::Socket::Udp.create({
+            'LocalHost' => datastore['CHOST'] || nil,
+            'LocalPort' => datastore['CPORT'] || 0,
+            'PeerHost'  => ip,
+            'PeerPort'  => port,
+            'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
+          })
+        add_socket(@udp_socks[key])
+      end
+      return @udp_socks[key]
+    end
+  end
+
+  def cleanup_udp_socks
+    @udp_socks_mutex.synchronize do
+      @udp_socks.each do |key, sock|
+        @udp_socks.delete(key)
+        remove_socket(sock)
+        sock.close
+      end
+    end
+  end
+
   # Start scanning a batch of IP addresses
   def run_batch(batch)
-    @udp_sock = Rex::Socket::Udp.create({
-      'LocalHost' => datastore['CHOST'] || nil,
-      'LocalPort' => datastore['CPORT'] || 0,
-      'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
-    })
-    add_socket(@udp_sock)
+    @udp_socks = {}
+    @udp_socks_mutex = Mutex.new
 
     @udp_send_count = 0
+    @interval_mutex = Mutex.new
 
     # Provide a hook for pre-scanning setup
     scanner_prescan(batch)
@@ -95,9 +120,10 @@ module Auxiliary::UDPScanner
   def scanner_send(data, ip, port)
 
     resend_count = 0
+    sock = nil
     begin
-
-      @udp_sock.sendto(data, ip, port, 0)
+      sock = udp_sock(ip, port)
+      sock.send(data, 0)
 
     rescue ::Errno::ENOBUFS
       resend_count += 1
@@ -112,15 +138,16 @@ module Auxiliary::UDPScanner
 
       retry
 
-    rescue ::Rex::ConnectionError
+    rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED
       # This fires for host unreachable, net unreachable, and broadcast sends
       # We can safely ignore all of these for UDP sends
     end
 
-    @udp_send_count += 1
-
-    if @udp_send_count % datastore['ScannerRecvInterval'] == 0
-      scanner_recv(0.1)
+    @interval_mutex.synchronize do
+      @udp_send_count += 1
+      if @udp_send_count % datastore['ScannerRecvInterval'] == 0
+        scanner_recv(0.1)
+      end
     end
 
     true
@@ -129,28 +156,37 @@ module Auxiliary::UDPScanner
   # Process incoming packets and dispatch to the module
   # Ensure a response flood doesn't trap us in a loop
   # Ignore packets outside of our project's scope
-  def scanner_recv(timeout=0.1)
+  def scanner_recv(timeout = 0.1)
     queue = []
-    while (res = @udp_sock.recvfrom(65535, timeout))
+    start = Time.now
+    while Time.now - start < timeout do
+      readable, _, _ = ::IO.select(@udp_socks.values, nil, nil, timeout)
+      if readable
+        for sock in readable
+          res = sock.recvfrom(65535, timeout)
 
-      # Ignore invalid responses
-      break if not res[1]
+          # Ignore invalid responses
+          break if not res[1]
 
-      # Ignore empty responses
-      next if not (res[0] and res[0].length > 0)
+          # Ignore empty responses
+          next if not (res[0] and res[0].length > 0)
 
-      # Trim the IPv6-compat prefix off if needed
-      shost = res[1].sub(/^::ffff:/, '')
+          # Trim the IPv6-compat prefix off if needed
+          shost = res[1].sub(/^::ffff:/, '')
 
-      # Ignore the response if we have a boundary
-      next unless inside_workspace_boundary?(shost)
+          # Ignore the response if we have a boundary
+          next unless inside_workspace_boundary?(shost)
 
-      queue << [res[0], shost, res[2]]
+          queue << [res[0], shost, res[2]]
 
-      if queue.length > datastore['ScannerRecvQueueLimit']
-        break
+          if queue.length > datastore['ScannerRecvQueueLimit']
+            break
+          end
+        end
       end
     end
+
+    cleanup_udp_socks
 
     queue.each do |q|
       scanner_process(*q)

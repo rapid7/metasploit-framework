@@ -33,7 +33,7 @@ module Metasploit
         attr_accessor :john_path
 
         # @!attribute max_runtime
-        #   @return [Fixnum] An optional maximum duration of the cracking attempt in seconds
+        #   @return [Integer] An optional maximum duration of the cracking attempt in seconds
         attr_accessor :max_runtime
 
         # @!attribute pot
