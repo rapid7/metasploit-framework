@@ -8,7 +8,10 @@ A brief description of what you would like to work on.
 ## Vitals
 
 * Your name
-* Contact info - include at least an email address, a github user name, and a Freenode nick.
+* Contact info - include at least:
+  - an email address
+  - github user name
+  - Freenode nick
 
 ## Skillz
 
