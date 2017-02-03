@@ -4,7 +4,6 @@ Please don't use markdown here, we have to copy paste it into a form. All answer
 
 **Why does your org want to participate in Google Summer of Code?** 
 
-Most Metasploit contributors are already fairly established in their careers as penetration testers or exploit developers.
 
 **How will you keep mentors engaged with their students?**
 
