@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %{
           This module exploits an authentication bypass vulnerability in Meteocontrol WEBLog appliances (software version < May 2016 release) to extract Administrator password for the device management portal.
       },
-      'References' => 
+      'References' =>
         [
           ['URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-16-133-01'],
           ['CVE', '2016-2296'],
