@@ -19,7 +19,8 @@ class Plugin::Overwatch < Msf::Plugin
     attr_accessor :state
 
     def initialize(framework, config, driver)
-      self.state     = { }
+      #self.state     = { }
+      self.state     = Array.new
       self.framework = framework
       self.config    = config
       self.driver    = driver
@@ -70,8 +71,7 @@ class Plugin::Overwatch < Msf::Plugin
         framework.sessions.keys.each do |sid|
 
           begin
-            if self.state[sid].nil? ||
-              (self.state[sid][:last_update] + self.config[:freq] < Time.now.to_f)
+            if self.state[sid].nil? || (self.state[sid].last_update + self.config[:freq] < Time.now.to_f)
               process(sid)
             end
 
@@ -81,18 +81,13 @@ class Plugin::Overwatch < Msf::Plugin
             session_log(sid, "Timed out.")
 
           rescue Rex::Post::Meterpreter::RequestError => re # Error when a session does not have access to routing information (PHP/Meterpreter sessions throw this error.
-            if self.state[sid][:error_count]
-              self.state[sid][:error_count] = self.state[sid][:error_count] + 1
-            else
-              self.state[sid][:error_count] = 1
-            end
-            session_log(sid, "Access error: #{self.state[sid][:error_count].to_s} of 3. Possibly migrating or routing not available.") # Only log this error three times
-            session_log(sid, "No access to routing, skipping session.") if self.state[sid][:error_count] >= 3 # Skip this session after it errored three times
+            self.state[sid].add_error
+            session_log(sid, "Access error: #{self.state[sid].get_error_count.to_s} of 3. Possibly migrating or routing not available.") # Only log this error three times
+            session_log(sid, "No access to routing, skipping session.") if self.state[sid].errored_out? # Skip this session after it errored three times
 
           rescue ::Exception => e
             session_log(sid, "Triggered an exception: #{e.class} <> #{e} #{e.backtrace}") # Log any other errors.
           end
-
         end
         sleep(0.5) # This sleep time seams to work the best to keep processes from stepping on each other.
       end
@@ -106,24 +101,10 @@ class Plugin::Overwatch < Msf::Plugin
     # @return [void] A useful return value is not expected here
     def process(sid)
       return unless framework.sessions[sid].info #Make sure session is fully active before processing
-      self.state[sid] ||= {}
-      store_session_info(sid)
-      process_routing(sid)
+      self.state[sid] = SessionState.new(sid, framework.sessions[sid].inspect) if self.state[sid].nil?
+      self.state[sid].update
+      process_routing(sid) unless self.state[sid].errored_out?
       process_sessions(sid)
-    end
-
-    # Initialization and update session information.
-    #
-    # @sid [int class] Session ID of the current session
-    #
-    # @return [void] A useful return value is not expected here
-    def store_session_info(sid)
-      self.state[sid][:last_update] = Time.now.to_f
-      return if self.state[sid][:initialized]
-      self.state[sid][:info] = framework.sessions[sid].inspect
-      session_log(sid, "registered")
-      self.state[sid][:initialized] = true
-      self.state[sid][:error_count] = 0
     end
 
     # Prints lines of the log along with session information.
@@ -136,7 +117,7 @@ class Plugin::Overwatch < Msf::Plugin
     def session_log(sid, msg)
       return unless self.config[:log]
       ::File.open(::File.join(self.config[:base], "session.log"), "a") do |fd|
-        fd.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} Session #{sid} [#{self.state[sid][:info]}] #{msg}"
+        fd.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} Session #{sid} [#{self.state[sid].info}] #{msg}"
       end
     end
 
@@ -153,7 +134,6 @@ class Plugin::Overwatch < Msf::Plugin
     # @return [int array] Array of session id's for stale sessions based on routing settings.
     def process_routing(sid)
       return unless self.config[:autoroute]
-      return if self.state[sid][:error_count] >= 3
       
       if self.config[:reroute_stale]
         stale_sids = get_stale_route_sids
@@ -537,7 +517,7 @@ class Plugin::Overwatch < Msf::Plugin
       base: ::File.join(Msf::Config.get_config_root, "overwatch", Time.now.strftime("%Y-%m-%d.%s")),
     }
 
-   @@overwatch_worker = nil
+    @@overwatch_worker = nil
 
     def name
       "Overwatch"
@@ -651,6 +631,35 @@ class Plugin::Overwatch < Msf::Plugin
   def desc
     "Active Route and Session Management"
   end
-end
-end
+
+end #class Plugin::Overwatch < Msf::Plugin
+
+class SessionState
+  attr_accessor :error_count, :info, :last_update, :sid
+
+  def initialize(sid, info)
+    @sid = sid
+    @info = info
+    @error_count = 0
+    @last_update = Time.now.to_f
+  end
+
+  def add_error
+    @error_count = @error_count + 1
+  end
+
+  def update
+    @last_update = Time.now.to_f
+  end
+
+  def errored_out?
+    @error_count >= 3 ? true : false
+  end
+
+  def get_error_count
+    @error_count
+  end
+end #class SessionState
+
+end #module Msf
 
