@@ -116,7 +116,6 @@ class Channel
     begin
       response = client.send_request(request)
       cid = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
-    rescue RequestError
       # Handle channel open failure exceptions
     end
 
