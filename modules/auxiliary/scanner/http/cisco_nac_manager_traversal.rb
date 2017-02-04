@@ -5,26 +5,29 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
-      'Name'        => 'Cisco Network Access Manager Directory Traversal Vulnerability',
-      'Description' => %q{
+      'Name'           => 'Cisco Network Access Manager Directory Traversal Vulnerability',
+      'Description'    => %q{
         This module tests whether a directory traversal vulnerablity is present
         in versions of Cisco Network Access Manager 4.8.x You may wish to change
         FILE (e.g. passwd or hosts), MAXDIRS and RPORT depending on your environment.
         },
-      'References'   =>
+      'References'     =>
         [
           [ 'CVE', '2011-3305' ],
           [ 'OSVDB', '76080']
         ],
-      'Author'      => [ 'Nenad Stojanovski <nenad.stojanovski[at]gmail.com>' ],
-      'License'     => MSF_LICENSE
+      'Author'         => [ 'Nenad Stojanovski <nenad.stojanovski[at]gmail.com>' ],
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => {
+        'SSL'          => true
+      }
     )
 
     register_options(

@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
@@ -40,25 +40,12 @@ class Metasploit3 < Msf::Post
         end
         iplst << ipa
       end
-      if session.type =~ /shell/
-        # Only one thread possible when shell
-        thread_num = 1
-        # Use the shell platform for selecting the command
-        platform = session.platform
-      else
-        # When in Meterpreter the safest thread number is 10
-        thread_num = 10
-        # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
-        platform = session.sys.config.sysinfo['OS']
-      end
 
-      platform = session.platform
-
-      case platform
-      when /win/i
+      case session.platform
+      when 'windows'
         count = " -n 1 "
         cmd = "ping"
-      when /solaris/i
+      when 'solaris'
         cmd = "/usr/sbin/ping"
       else
         count = " -n -c 1 -W 2 "
@@ -69,10 +56,10 @@ class Metasploit3 < Msf::Post
 
       while(not iplst.nil? and not iplst.empty?)
         a = []
-        1.upto(thread_num) do
+        1.upto session.max_threads do
           a << framework.threads.spawn("Module(#{self.refname})", false, iplst.shift) do |ip_add|
             next if ip_add.nil?
-            if platform =~ /solaris/i
+            if session.platform =~ /solaris/i
               r = cmd_exec(cmd, "-n #{ip_add} 1")
             else
               r = cmd_exec(cmd, count + ip_add)

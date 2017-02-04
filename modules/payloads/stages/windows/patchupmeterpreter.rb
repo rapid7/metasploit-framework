@@ -14,7 +14,7 @@ require 'msf/base/sessions/meterpreter_options'
 # Injects the meterpreter server instance DLL via the DLL injection payload.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows::DllInject
   include Msf::Sessions::MeterpreterOptions

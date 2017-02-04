@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'recog'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
 
   # Exploit mixins should be called first
@@ -108,12 +108,28 @@ class Metasploit3 < Msf::Auxiliary
         end
 
         if simple.client.default_domain
-          desc << " (domain:#{simple.client.default_domain})"
+          if simple.client.default_domain.encoding.name == "UTF-8"
+            desc << " (domain:#{simple.client.default_domain})"
+          else
+            # Workgroup names are in ANSI, but may contain invalid characters
+            # Go through each char and convert/check
+            temp_workgroup = simple.client.default_domain.dup
+            desc << " (workgroup:"
+            temp_workgroup.each_char do |i|
+              begin
+                desc << i.encode("UTF-8")
+              rescue Encoding::UndefinedConversionError => e
+                desc << '?'
+                print_error("Found incompatible (non-ANSI) character in Workgroup name. Replaced with '?'")
+              end
+            end
+            desc << " )"
+          end
           conf[:SMBDomain] = simple.client.default_domain
           match_conf['host.domain'] = conf[:SMBDomain]
         end
 
-        print_status("#{rhost}:#{rport} is running #{desc}")
+        print_status("Host is running #{desc}")
 
         # Report the service with a friendly banner
         report_service(
@@ -136,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
       else
         desc = "#{res['native_os']} (#{res['native_lm']})"
         report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
-        print_status("#{rhost}:#{rport} could not be identified: #{desc}")
+        print_status("Host could not be identified: #{desc}")
       end
 
       # Report a smb.fingerprint hash of attributes for OS fingerprinting

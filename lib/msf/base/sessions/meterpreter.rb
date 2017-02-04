@@ -69,6 +69,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # Don't pass the datastore into the init_meterpreter method
     opts.delete(:datastore)
 
+    # Assume by default that 10 threads is a safe number for this session
+    self.max_threads ||= 10
+
     #
     # Initialize the meterpreter client
     #
@@ -274,14 +277,29 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Explicitly runs a command in the meterpreter console.
   #
-  def run_cmd(cmd)
-    console.run_single(cmd)
+  def run_cmd(cmd,output_object=nil)
+    stored_output_state = nil
+    # If the user supplied an Output IO object, then we tell
+    # the console to use that, while saving it's previous output/
+    if output_object
+      stored_output_state = console.output
+      console.send(:output=, output_object)
+    end
+    success = console.run_single(cmd)
+    # If we stored the previous output object of the channel
+    # we restore it here to put everything back the way we found it
+    # We re-use the conditional above, because we expect in many cases for
+    # the stored state to actually be nil here.
+    if output_object
+      console.send(:output=,stored_output_state)
+    end
+    success
   end
 
   #
   # Load the stdapi extension.
   #
-  def load_stdapi()
+  def load_stdapi
     original = console.disable_output
     console.disable_output = true
     console.run_single('load stdapi')
@@ -291,9 +309,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Load the priv extension.
   #
-  def load_priv()
+  def load_priv
     original = console.disable_output
-
     console.disable_output = true
     console.run_single('load priv')
     console.disable_output = original
@@ -307,7 +324,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     begin
       self.machine_id = self.core.machine_id(timeout)
-      self.payload_uuid ||= self.core.uuid(timeout)
 
       return true
     rescue ::Rex::Post::Meterpreter::RequestError
@@ -323,6 +339,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
+    # when updating session information, we need to make sure we update the platform
+    # in the UUID to match what the target is actually running on, but only for a
+    # subset of platforms.
+    if ['java', 'python', 'php'].include?(self.platform)
+      new_platform = guess_target_platform(sysinfo['OS'])
+      if self.platform != new_platform
+        self.payload_uuid.platform = new_platform
+        self.core.set_uuid(self.payload_uuid)
+      end
+    end
+
     safe_info = "#{username} @ #{sysinfo['Computer']}"
     safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
     # Should probably be using Rex::Text.ascii_safe_hex but leave
@@ -330,6 +357,24 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # showing up in various places in the UI.
     safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
     self.info = safe_info
+  end
+
+  def guess_target_platform(os)
+    case os
+    when /windows/i
+      Msf::Module::Platform::Windows.realname.downcase
+    when /darwin/i
+      Msf::Module::Platform::OSX.realname.downcase
+    when /mac os ?x/i
+      # this happens with java on OSX (for real!)
+      Msf::Module::Platform::OSX.realname.downcase
+    when /freebsd/i
+      Msf::Module::Platform::FreeBSD.realname.downcase
+    when /openbsd/i, /netbsd/i
+      Msf::Module::Platform::BSD.realname.downcase
+    else
+      Msf::Module::Platform::Linux.realname.downcase
+    end
   end
 
   #
@@ -456,11 +501,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     sock = net.socket.create(param)
 
-    # sf: unsure if we should raise an exception or just return nil. returning nil for now.
-    #if( sock == nil )
-    #  raise Rex::UnsupportedProtocol.new(param.proto), caller
-    #end
-
     # Notify now that we've created the socket
     notify_socket_created(self, sock, param)
 
@@ -468,12 +508,77 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     sock
   end
 
-  attr_accessor :platform
-  attr_accessor :binary_suffix
+  #
+  # Get a string representation of the current session platform
+  #
+  def platform
+    if self.payload_uuid
+      # return the actual platform of the current session if it's there
+      self.payload_uuid.platform
+    else
+      # otherwise just use the base for the session type tied to this handler.
+      # If we don't do this, storage of sessions in the DB dies
+      self.base_platform
+    end
+  end
+
+  #
+  # Get a string representation of the current session architecture
+  #
+  def arch
+    if self.payload_uuid
+      # return the actual arch of the current session if it's there
+      self.payload_uuid.arch
+    else
+      # otherwise just use the base for the session type tied to this handler.
+      # If we don't do this, storage of sessions in the DB dies
+      self.base_arch
+    end
+  end
+
+  #
+  # Generate a binary suffix based on arch
+  #
+  def binary_suffix
+    # generate a file/binary suffix based on the current arch and platform.
+    # Platform-agnostic archs go first
+    case self.arch
+    when 'java'
+      'jar'
+    when 'php'
+      'php'
+    when 'python'
+      'py'
+    else
+      # otherwise we fall back to the platform
+      case self.platform
+      when 'windows'
+        "#{self.arch}.dll"
+      when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
+        'lso'
+      when 'android', 'java'
+        'jar'
+      when 'php'
+        'php'
+      when 'python'
+        'py'
+      else
+        nil
+      end
+    end
+  end
+
+  # These are the base arch/platform for the original payload, required for when the
+  # session is first created thanks to the fact that the DB session recording
+  # happens before the session is even established.
+  attr_accessor :base_arch
+  attr_accessor :base_platform
+
   attr_accessor :console # :nodoc:
   attr_accessor :skip_ssl
   attr_accessor :skip_cleanup
   attr_accessor :target_id
+  attr_accessor :max_threads
 
 protected
 

@@ -21,7 +21,7 @@ module Msf
             allowed_module_paths << Msf::Config.user_module_directory
           end
 
-          Rails.application.railties.engines.each do |engine|
+          ::Rails::Engine.subclasses.map(&:instance).each do |engine|
             extract_engine_module_paths(engine).each do |path|
               allowed_module_paths << path
             end
@@ -58,7 +58,6 @@ module Msf
         # Extract directories `engine.paths['modules']` from `engine`.
         #
         # @param engine [Rails::Engine] a rails engine or application
-        # @param options [Hash] options for {Msf::ModuleManager::ModulePaths#add_module_paths}
         # @return [Array<String>] The list of module paths to load
         def extract_engine_module_paths(engine)
           engine.paths['modules'] ? engine.paths['modules'].existent_directories : []

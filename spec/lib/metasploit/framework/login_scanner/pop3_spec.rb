@@ -46,7 +46,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::POP3 do
     context "Open Connection" do
       let(:sock) {double('socket')}
 
-      before(:each) do
+      before(:example) do
         allow(sock).to receive(:shutdown)
         allow(sock).to receive(:close)
         allow(sock).to receive(:closed?)

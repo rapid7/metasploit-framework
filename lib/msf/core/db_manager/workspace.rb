@@ -30,7 +30,7 @@ module Msf::DBManager::Workspace
 
   def workspaces
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.order('updated_at asc').all
+    ::Mdm::Workspace.order('updated_at asc').load
   }
   end
 end

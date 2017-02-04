@@ -7,10 +7,10 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
-  include ::Rex::Platforms::Windows
+  include Msf::Post::Windows::Registry
 
   def initialize(info = {})
     super(update_info(info,

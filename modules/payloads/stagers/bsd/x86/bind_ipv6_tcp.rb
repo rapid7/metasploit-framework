@@ -16,7 +16,7 @@ require 'msf/core/handler/bind_tcp'
 # BSD bind TCP stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 63
 

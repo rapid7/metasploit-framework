@@ -7,7 +7,7 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
   subject(:parser){
     Rex::Post::Meterpreter::PacketParser.new
   }
-  before(:each) do
+  before(:example) do
     @req_packt = Rex::Post::Meterpreter::Packet.new(
           Rex::Post::Meterpreter::PACKET_TYPE_REQUEST,
           "test_method")
@@ -20,7 +20,7 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
 
   it "should initialise with expected defaults" do
     expect(parser.send(:raw)).to eq ""
-    expect(parser.send(:hdr_length_left)).to eq 8
+    expect(parser.send(:hdr_length_left)).to eq 12
     expect(parser.send(:payload_length_left)).to eq 0
   end
 

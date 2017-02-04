@@ -65,6 +65,7 @@ class Console::CommandDispatcher::Core
       "bgkill"     => "Kills a background meterpreter script",
       "get_timeouts" => "Get the current session timeout values",
       "set_timeouts" => "Set the current session timeout values",
+      "sessions"   => "Quickly switch to another session",
       "bglist"     => "Lists running background scripts",
       "write"      => "Writes data to a channel",
       "enable_unicode_encoding"  => "Enables encoding of unicode strings",
@@ -76,19 +77,25 @@ class Console::CommandDispatcher::Core
     end
 
     # Currently we have some windows-specific core commands`
-    if client.platform =~ /win/
+    if client.platform == 'windows'
       # only support the SSL switching for HTTPS
       if client.passive_service && client.sock.type? == 'tcp-ssl'
         c["ssl_verify"] = "Modify the SSL certificate verification setting"
       end
     end
 
-    if client.platform =~ /win/ || client.platform =~ /linux/
+    if client.platform == 'windows' || client.platform == 'linux'
       # Migration only supported on windows and linux
       c["migrate"] = "Migrate the server to another process"
     end
 
-    if client.platform =~ /win/ || client.platform =~ /linux/ || client.platform =~ /python/ || client.platform =~ /java/
+    # TODO: This code currently checks both platform and architecture for the python
+    # and java types because technically the platform should be updated to indicate
+    # the OS platform rather than the meterpreter arch. When we've properly implemented
+    # the platform update feature we can remove some of these conditions
+    if client.platform == 'windows' || client.platform == 'linux' ||
+        client.platform == 'python' || client.platform == 'java' ||
+        client.arch == ARCH_PYTHON || client.platform == 'android'
       # Yet to implement transport hopping for other meterpreters.
       c["transport"] = "Change the current transport mechanism"
 
@@ -97,7 +104,7 @@ class Console::CommandDispatcher::Core
       c["sleep"] = "Force Meterpreter to go quiet, then re-establish session."
     end
 
-    if (msf_loaded?)
+    if msf_loaded?
       c["info"] = "Displays information about a Post module"
     end
 
@@ -109,6 +116,28 @@ class Console::CommandDispatcher::Core
   #
   def name
     "Core"
+  end
+
+  def cmd_sessions_help
+    print_line('Usage: sessions <id>')
+    print_line
+    print_line('Interact with a different session Id.')
+    print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
+    print_line
+  end
+
+  def cmd_sessions(*args)
+    if args.length == 0 || args[0].to_i == 0
+      cmd_sessions_help
+    elsif args[0].to_s == client.name.to_s
+      print_status("Session #{client.name} is already interactive.")
+    else
+      print_status("Backgrounding session #{client.name}...")
+      # store the next session id so that it can be referenced as soon
+      # as this session is no longer interacting
+      client.next_session = args[0]
+      client.interacting = false
+    end
   end
 
   def cmd_background_help
@@ -182,7 +211,7 @@ class Console::CommandDispatcher::Core
 
     case mode
     when :list
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => 4,
         'Columns' =>
           [
@@ -439,10 +468,9 @@ class Console::CommandDispatcher::Core
   end
 
   #
-  # Get the machine ID of the target
+  # Get the machine ID of the target (should always be up to date locally)
   #
   def cmd_uuid(*args)
-    client.payload_uuid = client.core.uuid unless client.payload_uuid
     print_good("UUID: #{client.payload_uuid}")
   end
 
@@ -575,6 +603,7 @@ class Console::CommandDispatcher::Core
     '-p'  => [ true,  'LPORT parameter' ],
     '-i'  => [ true,  'Specify transport by index (currently supported: remove)' ],
     '-u'  => [ true,  'Custom URI for HTTP/S transports (used when removing transports)' ],
+    '-lu' => [ true,  'Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)' ],
     '-ua' => [ true,  'User agent for HTTP/S transports (optional)' ],
     '-ph' => [ true,  'Proxy host for HTTP/S transports (optional)' ],
     '-pp' => [ true,  'Proxy port for HTTP/S transports (optional)' ],
@@ -656,6 +685,8 @@ class Console::CommandDispatcher::Core
         opts[:uri] = val
       when '-i'
         transport_index = val.to_i
+      when '-lu'
+        opts[:luri] = val
       when '-ph'
         opts[:proxy_host] = val
       when '-pp'
@@ -729,7 +760,7 @@ class Console::CommandDispatcher::Core
       end
 
       # next draw up a table of transport entries
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'SortIndex' => 0, # sort by ID
         'Indent'    => 4,
         'Columns'   => columns)
@@ -824,7 +855,7 @@ class Console::CommandDispatcher::Core
   )
 
   def cmd_migrate_help
-    if client.platform =~ /linux/
+    if client.platform == 'linux'
       print_line('Usage: migrate <<pid> | -P <pid> | -N <name>> [-p writable_path] [-t timeout]')
     else
       print_line('Usage: migrate <<pid> | -P <pid> | -N <name>> [-t timeout]')
@@ -866,7 +897,7 @@ class Console::CommandDispatcher::Core
         end
         pid = val.to_i
       when '-N'
-        if val.blank?
+        if val.to_s.empty?
           print_error("No process name provided")
           return
         end

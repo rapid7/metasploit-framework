@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/auxiliary/report'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   # set of accounts to ignore while pilfering data
   OSX_IGNORE_ACCOUNTS = ["Shared", ".localized"]
 

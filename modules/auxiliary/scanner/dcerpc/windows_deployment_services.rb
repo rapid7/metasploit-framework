@@ -8,7 +8,7 @@ require 'rex/proto/dcerpc'
 require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
       :info => "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
     )
 
-    table = Rex::Ui::Text::Table.new({
+    table = Rex::Text::Table.new({
       'Header' => 'Windows Deployment Services',
       'Indent' => 1,
       'Columns' => ['Architecture', 'Type', 'Domain', 'Username', 'Password']

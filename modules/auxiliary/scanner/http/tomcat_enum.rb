@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt") ]),
       ], self.class)
 
-    deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','USER_AS_PASS','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
+    deregister_options('PASS_FILE','USERPASS_FILE','USER_AS_PASS','STOP_ON_SUCCESS','BLANK_PASSWORDS')
   end
 
   def has_j_security_check?

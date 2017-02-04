@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
   def show_results(target_host)
     print_good("#{rhost}:#{rport} JBoss application server found")
 
-    req_table = Rex::Ui::Text::Table.new(
+    req_table = Rex::Text::Table.new(
       'Header'  => 'JBoss application server requests',
         'Indent'  => 1,
         'Columns' => ['Client', 'Vhost target', 'Request']

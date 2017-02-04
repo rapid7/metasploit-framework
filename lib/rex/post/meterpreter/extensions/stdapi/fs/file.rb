@@ -184,7 +184,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Returns true if the remote file +name+ exists, false otherwise
   #
-  def File.exists?(name)
+  def File.exist?(name)
     r = client.fs.filestat.new(name) rescue nil
     r ? true : false
   end
@@ -224,6 +224,24 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   class << self
     alias move mv
     alias rename mv
+  end
+
+  #
+  # Performs a copy from oldname to newname
+  #
+  def File.cp(oldname, newname)
+    request = Packet.create_request('stdapi_fs_file_copy')
+
+    request.add_tlv(TLV_TYPE_FILE_NAME, client.unicode_filter_decode( oldname ))
+    request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( newname ))
+
+    response = client.send_request(request)
+
+    return response
+  end
+
+  class << self
+    alias copy cp
   end
 
   #
@@ -280,16 +298,22 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # If a block is given, it will be called before each file is downloaded and
   # again when each download is complete.
   #
-  def File.download(dest, *src_files, &stat)
-    src_files.each { |src|
+  def File.download(dest, src_files, opts = nil, &stat)
+    timestamp = opts["timestamp"] if opts
+    [*src_files].each { |src|
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator
         dest += ::File::SEPARATOR + File.basename(src)
       end
 
+      # XXX: dest can be the same object as src, so we use += instead of <<
+      if timestamp
+        dest += timestamp
+      end
+
       stat.call('downloading', src, dest) if (stat)
-      result = download_file(dest, src)
+      result = download_file(dest, src, opts, &stat)
       stat.call(result, src, dest) if (stat)
     }
   end
@@ -297,14 +321,23 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Download a single file.
   #
-  def File.download_file(dest_file, src_file)
+  def File.download_file(dest_file, src_file, opts = nil, &stat)
+    continue=false
+    tries=false
+    tries_no=0
+    if opts
+      continue = true if opts["continue"]
+      tries = true if opts["tries"]
+      tries_no = opts["tries_no"]
+    end
     src_fd = client.fs.file.new(src_file, "rb")
 
     # Check for changes
     src_stat = client.fs.filestat.new(src_file)
-    if ::File.exists?(dest_file)
+    if ::File.exist?(dest_file)
       dst_stat = ::File.stat(dest_file)
       if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
+        src_fd.close
         return 'skipped'
       end
     end
@@ -313,12 +346,61 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     dir = ::File.dirname(dest_file)
     ::FileUtils.mkdir_p(dir) if dir and not ::File.directory?(dir)
 
-    dst_fd = ::File.new(dest_file, "wb")
+    if continue
+      # continue downloading the file - skip downloaded part in the source
+      dst_fd = ::File.new(dest_file, "ab")
+      begin
+        dst_fd.seek(0, ::IO::SEEK_END)
+        in_pos = dst_fd.pos
+        src_fd.seek(in_pos)
+        stat.call('continuing from ', in_pos, src_file) if (stat)
+      rescue
+        # if we can't seek, download again
+        stat.call('error continuing - downloading from scratch', src_file, dest_file) if (stat)
+        dst_fd.close
+        dst_fd = ::File.new(dest_file, "wb")
+      end
+    else
+      dst_fd = ::File.new(dest_file, "wb")
+    end
 
     # Keep transferring until EOF is reached...
     begin
-      while ((data = src_fd.read) != nil)
-        dst_fd.write(data)
+      if tries
+        # resume when timeouts encountered
+        seek_back = false
+        tries_cnt = 0
+        begin # while
+          begin # exception
+            if seek_back
+              in_pos = dst_fd.pos
+              src_fd.seek(in_pos)
+              seek_back = false
+              stat.call('resuming at ', in_pos, src_file) if (stat)
+            else
+              # succesfully read and wrote - reset the counter
+              tries_cnt = 0
+            end
+            data = src_fd.read
+          rescue Rex::TimeoutError
+            # timeout encountered - either seek back and retry or quit
+            if (tries && (tries_no == 0 || tries_cnt < tries_no))
+              tries_cnt += 1
+              seek_back = true
+              stat.call('error downloading - retry #', tries_cnt, src_file) if (stat)
+              retry
+            else
+              stat.call('error downloading - giving up', src_file, dest_file) if (stat)
+              raise
+            end
+          end
+          dst_fd.write(data) if (data != nil)
+        end while (data != nil)
+      else
+        # do the simple copying quiting on the first error
+        while ((data = src_fd.read) != nil)
+          dst_fd.write(data)
+        end
       end
     rescue EOFError
     ensure

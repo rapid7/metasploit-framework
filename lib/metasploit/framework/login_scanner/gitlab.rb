@@ -35,7 +35,9 @@ module Metasploit
                                                },
                                                ssl,
                                                ssl_version,
-                                               proxies)
+                                               proxies,
+                                               http_username,
+                                               http_password)
             configure_http_client(cli)
             cli.connect
 

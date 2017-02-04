@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::DCERPC
@@ -255,13 +255,13 @@ class Metasploit3 < Msf::Auxiliary
     peer = "#{ip}:#{rport}"
     case check_host(ip)
     when Exploit::CheckCode::Vulnerable
-      print_good("#{peer} - The target is vulnerable to CVE-2015-0240.")
+      print_good("The target is vulnerable to CVE-2015-0240.")
     when Exploit::CheckCode::Appears
-      print_good("#{peer} - The target appears to be vulnerable to CVE-2015-0240.")
+      print_good("The target appears to be vulnerable to CVE-2015-0240.")
     when Exploit::CheckCode::Detected
-      print_status("#{peer} - The target appears to be running Samba.")
+      print_status("The target appears to be running Samba.")
     else
-      print_status("#{peer} - The target appears to be safe")
+      print_status("The target appears to be safe")
     end
   end
 

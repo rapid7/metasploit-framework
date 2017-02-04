@@ -7,7 +7,7 @@ require 'json'
 require 'msf/core'
 require 'msf/core/payload/firefox'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Payload::Firefox
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation

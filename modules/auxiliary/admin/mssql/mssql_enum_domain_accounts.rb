@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/exploit/mssql_commands'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Create table for report
-    windows_domain_login_table = Rex::Ui::Text::Table.new(
+    windows_domain_login_table = Rex::Text::Table.new(
       'Header'  => 'Windows Domain Accounts',
       'Ident'   => 1,
       'Columns' => ['name']

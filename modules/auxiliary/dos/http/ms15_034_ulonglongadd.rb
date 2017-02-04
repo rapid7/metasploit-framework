@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Watch out, dos all the things
   include Msf::Auxiliary::Scanner
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
     if check_host(ip) == Exploit::CheckCode::Vulnerable
       dos_host(ip)
     else
-      print_status("#{peer} - Probably not vulnerable, will not dos it.")
+      print_status("Probably not vulnerable, will not dos it.")
     end
   end
 
@@ -72,17 +72,17 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw('uri' => uri)
 
       unless res
-        vprint_error("#{peer} - Connection timed out")
+        vprint_error("Connection timed out")
         return file_size
       end
 
       if res.code == 404
-        vprint_error("#{peer} - You got a 404. URI must be a valid resource.")
+        vprint_error("You got a 404. URI must be a valid resource.")
         return file_size
       end
 
       file_size = res.body.length
-      vprint_status("#{peer} - File length: #{file_size} bytes")
+      vprint_status("File length: #{file_size} bytes")
 
       return file_size
     }.call
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Errno::EPIPE, ::Timeout::Error
       # Same exceptions the HttpClient mixin catches
     end
-    print_status("#{peer} - DOS request sent")
+    print_status("DOS request sent")
   end
 
   def potential_static_files_uris

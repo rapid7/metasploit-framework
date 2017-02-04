@@ -1,2 +1,7 @@
-WINDOWS: spider-wxp.vuln.lax.rapid7.com
-LINUX: spider-ubuntu.vuln.lax.rapid7.com
+windows:
+  -
+    hostname: wxpsp0
+    ip: 127.0.0.100
+  -
+    hostname: wxpsp2
+    ip: 127.0.0.101

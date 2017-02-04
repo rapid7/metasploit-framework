@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Post
 
   def decrypt(encoded)
     cipher = [encoded].pack("H*")
-    aes = OpenSSL::Cipher::Cipher.new("AES-128-ECB")
+    aes = OpenSSL::Cipher.new("AES-128-ECB")
     aes.padding = 0
     aes.decrypt
     aes.key = "hdfzpysvpzimorhk"

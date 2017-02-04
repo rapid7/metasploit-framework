@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex/struct2'
 require 'rex/proto/smb'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 

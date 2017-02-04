@@ -105,12 +105,12 @@ class Msfupdate
   end
 
   def apt?
-    File.exists?(File.expand_path(File.join(@msfbase_dir, '.apt')))
+    File.exist?(File.expand_path(File.join(@msfbase_dir, '.apt')))
   end
 
   # Are you an installer, or did you get here via a source checkout?
   def binary_install?
-    File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))) && !apt?
+    File.exist?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))) && !apt?
   end
 
   def git?
@@ -185,7 +185,14 @@ class Msfupdate
     system("git", "merge", "#{remote}/#{branch}")
 
     stdout.puts "[*] Updating gems..."
-    require 'bundler'
+    begin
+      require 'bundler'
+    rescue LoadError
+      stderr.puts '[*] Installing bundler'
+      system('gem', 'install', 'bundler')
+      Gem.clear_paths
+      require 'bundler'
+    end
     Bundler.with_clean_env do
       system("bundle", "install")
     end
@@ -194,7 +201,7 @@ class Msfupdate
   def update_binary_install!
     update_script = File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))
     product_key =   File.expand_path(File.join(@msfbase_dir, "..", "engine", "license", "product.key"))
-    if File.exists? product_key
+    if File.exist? product_key
       if File.readable? product_key
         if (@offline_file)
           system("ruby", update_script, @offline_file)

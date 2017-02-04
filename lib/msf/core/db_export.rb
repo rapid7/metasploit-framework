@@ -125,7 +125,7 @@ class Export
     @owned_hosts = []
     @hosts = myworkspace.hosts
     @hosts.each do |host|
-      if host.notes.find :first, :conditions => { :ntype => 'pro.system.compromise' }
+      if host.notes.where(ntype: 'pro.system.compromise').first
         @owned_hosts << host
       end
     end
@@ -133,7 +133,7 @@ class Export
 
   # Extracts all events from a project, storing them in @events
   def extract_event_entries
-    @events = myworkspace.events.find :all, :order => 'created_at ASC'
+    @events = myworkspace.events.order('created_at ASC')
   end
 
   # Extracts all services from a project, storing them in @services
@@ -171,7 +171,7 @@ class Export
     case obj
     when String
       obj.strip
-    when TrueClass, FalseClass, Float, Fixnum, Bignum, Time
+    when TrueClass, FalseClass, Float, Integer, Time
       obj.to_s.strip
     when BigDecimal
       obj.to_s("F")

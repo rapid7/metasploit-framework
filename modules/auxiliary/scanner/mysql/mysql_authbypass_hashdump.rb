@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %Q{
           This module exploits a password bypass vulnerability in MySQL in order
         to extract the usernames and encrypted password hashes from a MySQL server.
-        These hashes ares stored as loot for later cracking.
+        These hashes are stored as loot for later cracking.
       },
       'Author'        => [
           'theLightCosine', # Original hashdump module
@@ -177,7 +177,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Create a table to store data
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'MysQL Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']

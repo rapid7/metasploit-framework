@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -160,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
       resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 
       if ! (resp and resp.length == 24)
-        print_error("#{ip} Invalid response from the Connect5 request")
+        print_error("Invalid response from the Connect5 request")
         disconnect
         return
       end
@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       if(perror != 0)
-        print_error("#{ip} Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
+        print_error("Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
         disconnect
         return
       end
@@ -312,7 +312,7 @@ class Metasploit3 < Msf::Auxiliary
           extra << "PasswordMin=#{domains[domain][:pass_min]} "
           extra << ")"
         end
-        print_status("#{ip} #{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
+        print_good("#{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
       end
 
       # cleanup

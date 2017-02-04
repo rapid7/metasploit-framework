@@ -7,7 +7,7 @@ require 'msf/core'
 require 'msf/core/payload/generic'
 require 'msf/core/handler/reverse_tcp'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 0
 

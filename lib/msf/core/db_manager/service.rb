@@ -43,6 +43,7 @@ module Msf::DBManager::Service
   # opts may contain
   # +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
   # +:sname+:: an alias for the above
+  # +:workspace+:: the workspace for the service
   #
   def report_service(opts)
     return if not active

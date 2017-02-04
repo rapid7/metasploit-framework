@@ -10,7 +10,7 @@ require 'msf/core/payload/python/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_python'
 require 'msf/base/sessions/meterpreter_options'
 
-module Metasploit4
+module MetasploitModule
 
   include Msf::Payload::Python::MeterpreterLoader
 
@@ -27,7 +27,7 @@ module Metasploit4
   end
 
   def generate_stage(opts={})
-    stage_meterpreter(opts)
+    stage_payload(opts)
   end
 
 end

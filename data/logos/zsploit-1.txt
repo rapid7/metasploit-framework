@@ -1,0 +1,11 @@
+%bld%blk                                   ____________%whi
+ [%%%%%clr%%%%%%%%%bld%blk%%%%%%%%blk%%%%%%%%%%%%%| %red$a,%blk        |%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%whi]
+ [%%%%clr%%%%%%%%%%bld%blk%%%%%%%%%%%%%%%%%%%%| %red$S`?a,%blk     |%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%whi]
+ [%%%clr%%%%%%%%bld%blk%%%%%%%%%%%%whi_%cya_%blk%%%%%%%%%%|       %red`?a,%blk |%%%%%%%%%whi_%grn_%blk%%%%%%%%%%whi_%grn_%blk%%%whi_%grn_ %blk%%%%%whi]
+ [% .-%cya--%clr%cya-----.%bld%whi.-%cya-%clr%cya---.%bld%whi|  %clr%cya|_ %bld%whi.-%cya-%clr%cya-.-.%bld%blk|       %red.,a$%%blk|%whi.-%grn---%clr%grn-.%bld%whi|  %clr%grn|%bld%whi.-%grn--%clr%grn--.%bld%whi|%grn_%clr%grn_|%bld%whi|  %clr%grn|_ %bld%blk%%%whi]
+ [% |        %clr%cya|%bld%whi|  %clr%cya-__|%clr%cya|   %clr%cya_|%bld%whi|  %clr%cya_  |%bld%blk|  %red,,aS$""`%blk  |%whi|  %clr%grn_  |%bld%grn|  %clr%grn|%bld%whi|  %clr%grn_  |%bld%grn|  %clr%grn|%bld%grn|   %clr%grn_|%bld%blk%%%whi]
+ [% %cya|%clr%cya__|__|__|%bld%cya|_%clr%cya____|%bld%cya|_%clr%cya___|%bld%cya|_%clr%cya__._|%bld%blk|%red%$P"`%blk       |%grn|   %clr%grn__|%bld%grn|_%clr%grn_|%bld%grn|_%clr%grn____|%bld%grn|_%clr%grn_|%bld%grn|_%clr%grn___|%bld%blk%%%bld%whi]
+ [%%clr%%%%bld%blk%%%%%%%%%%%%%%%%%%%%%%%%%%%%| %red`"a,%blk       |%clr%grn|__|%bld%blk%%%%%%%%%%%%%%%%%%%%%%%%%%%whi]
+ [%%clr%%%bld%blk%%%%%%%%%%%%%%%%%%%%%%%%%%%%%|____%red`"a,$$%blk__|%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%whi]
+ [%clr%%%bld%blk%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        %red`"$%blk   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%whi]
+ [%clr%%bld%blk%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%whi]

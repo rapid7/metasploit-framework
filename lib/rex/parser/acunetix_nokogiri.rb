@@ -59,6 +59,8 @@ module Rex
         @text = nil
       when "StartURL" # Populates @state[:starturl_uri], we use this a lot
         @state[:has_text] = false
+        # StartURL does not always include the scheme
+        @text.prepend("http://") unless URI.parse(@text).scheme
         collect_host
         collect_service
         @text = nil
@@ -331,9 +333,9 @@ module Rex
       return unless (host && port && scheme)
       address = resolve_address(host)
       return unless address
-      service_info = [ @args[:wspace], address, "tcp", port ]
-      service_object = db.get_service(*service_info)
-      service_object = db_report(:service,service_info) unless service_object
+      # If we didn't create the service, we don't care about the site
+      service_object = db.get_service @args[:wspace], address, "tcp", port
+      return unless service_object
       web_site_info = {
         :workspace => @args[:wspace],
         :service => service_object,

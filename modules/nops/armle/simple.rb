@@ -15,7 +15,7 @@ require 'msf/core'
 # This class implements simple NOP generator for ARM (little endian)
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
 
   def initialize
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Nop
       0xe1a0b00b
     ]
 
-    if( random and random.match(/^(t|y|1)/i) )
+    if random
       return ([nops[rand(nops.length)]].pack("V*") * (length/4))
     end
 

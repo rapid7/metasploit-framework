@@ -5,7 +5,7 @@
 
 require 'rex/parser/fs/ntfs'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Error
 

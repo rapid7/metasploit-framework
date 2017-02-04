@@ -193,6 +193,13 @@ module Rex
       vuln_instances = @report_data[:vuln][:matches].size
       db.emit(:vuln, [refs.last,vuln_instances], &block) if block
 
+      # TODO: potential remove the size limit on this field, might require
+      # some additional UX
+      if @report_data[:vuln]['title'].length > 255
+        db.emit :warning, 'Vulnerability name longer than 255 characters, truncating.', &block if block
+        @report_data[:vuln]['title'] = @report_data[:vuln]['title'][0..254]
+      end
+
       vuln_ids = @report_data[:vuln][:matches].map{ |v| v[0] }
       vdet_ids = @report_data[:vuln][:matches].map{ |v| v[1] }
 

@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
+RSpec.shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
 
   it 'should destroy Mdm::Module::Detail' do
     expect {
@@ -13,7 +13,7 @@ shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
       framework.exploits
     end
 
-    before(:each) do
+    before(:example) do
       module_set[module_detail.refname] = Msf::SymbolicModule
 
       framework.modules.send(:module_info_by_path)[module_detail.file] = {
@@ -40,7 +40,7 @@ shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
     end
 
     context 'with exception raised by #update_module_details' do
-      before(:each) do
+      before(:example) do
         expect(db_manager).to receive(:update_module_details).and_raise(Exception)
       end
 

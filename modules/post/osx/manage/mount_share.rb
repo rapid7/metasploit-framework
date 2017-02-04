@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   # list of accepted file share protocols. other "special" URLs (like vnc://) will be ignored.
   FILE_SHARE_PROTOCOLS = %w(smb nfs cifs ftp afp)

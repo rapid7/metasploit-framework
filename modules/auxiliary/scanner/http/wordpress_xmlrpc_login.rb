@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/wordpress_rpc'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    print_status("#{peer} - Starting XML-RPC login sweep...")
+    print_status("Starting XML-RPC login sweep...")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
         blank_passwords: datastore['BLANK_PASSWORDS'],
@@ -70,6 +70,8 @@ class Metasploit3 < Msf::Auxiliary
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
+        http_username: datastore['HttpUsername'],
+        http_password: datastore['HttpPassword']
       )
     )
 

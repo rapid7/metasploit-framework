@@ -11,9 +11,9 @@ require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
 
-module Metasploit4
+module MetasploitModule
 
-  CachedSize = 1188911
+  CachedSize = 1189423
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -40,8 +40,9 @@ module Metasploit4
     ], self.class)
   end
 
-  def generate
-    stage_meterpreter(true) + generate_config
+  def generate(opts={})
+    opts[:stageless] = true
+    stage_meterpreter(opts) + generate_config(opts)
   end
 
   def generate_config(opts={})

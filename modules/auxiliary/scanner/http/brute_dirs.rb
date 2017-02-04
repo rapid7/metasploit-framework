@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'enumerable'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 
         # Look for a string we can signature on as well
         if(tcode >= 200 and tcode <= 299)
-
+          emesg = nil
           File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
             if(res.body.index(str))
               emesg = str

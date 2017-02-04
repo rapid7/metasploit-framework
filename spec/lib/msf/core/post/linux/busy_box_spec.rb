@@ -12,7 +12,7 @@ RSpec.describe Msf::Post::Linux::BusyBox do
 
   describe "#busy_box_file_exist?" do
     describe "when file exists" do
-      before :each do
+      before :example do
         allow(subject).to receive(:read_file) do
           'test data'
         end
@@ -24,7 +24,7 @@ RSpec.describe Msf::Post::Linux::BusyBox do
     end
 
     describe "when file doesn't exist" do
-      before :each do
+      before :example do
         allow(subject).to receive(:read_file) do
           ''
         end
@@ -37,14 +37,14 @@ RSpec.describe Msf::Post::Linux::BusyBox do
   end
 
   describe "#busy_box_is_writable_dir?" do
-    before :each do
+    before :example do
       allow(subject).to receive(:cmd_exec) do
         ''
       end
     end
 
     describe "when dir is writable" do
-      before :each do
+      before :example do
         allow(subject).to receive(:read_file) do
           "#{'A' * 16}XXX#{'A' * 16}"
         end
@@ -60,7 +60,7 @@ RSpec.describe Msf::Post::Linux::BusyBox do
     end
 
     describe "when dir isn't writable" do
-      before :each do
+      before :example do
         allow(subject).to receive(:read_file) do
           ''
         end
@@ -74,14 +74,14 @@ RSpec.describe Msf::Post::Linux::BusyBox do
 
 
   describe "#busy_box_writable_dir" do
-    before :each do
+    before :example do
       allow(subject).to receive(:cmd_exec) do
         ''
       end
     end
 
     describe "when a writable directory doesn't exist" do
-      before :each do
+      before :example do
         allow(subject).to receive(:read_file) do
           ''
         end
@@ -93,7 +93,7 @@ RSpec.describe Msf::Post::Linux::BusyBox do
     end
 
     describe "when a writable directory exists" do
-      before :each do
+      before :example do
         allow(subject).to receive(:read_file) do
           "#{'A' * 16}XXX#{'A' * 16}"
         end
@@ -111,14 +111,14 @@ RSpec.describe Msf::Post::Linux::BusyBox do
 
 
   describe "#busy_box_write_file" do
-    before :each do
+    before :example do
       allow(subject).to receive(:cmd_exec) do
         ''
       end
     end
 
     describe "when the file isn't writable" do
-      before :each do
+      before :example do
         allow(subject).to receive(:read_file) do
           ''
         end
@@ -130,7 +130,7 @@ RSpec.describe Msf::Post::Linux::BusyBox do
     end
 
     describe "when the file is writable" do
-      before :each do
+      before :example do
         allow(subject).to receive(:read_file) do
           "#{'A' * 16}XXX#{'A' * 16}"
         end
@@ -148,7 +148,7 @@ RSpec.describe Msf::Post::Linux::BusyBox do
     describe "when prepend is true" do
       describe "when there is a writable dir" do
         describe "when the target file is writable" do
-          before :each do
+          before :example do
             allow(subject).to receive(:busy_box_writable_dir) do
               '/tmp/'
             end
@@ -169,7 +169,7 @@ RSpec.describe Msf::Post::Linux::BusyBox do
       end
 
       describe "when there isn't a writable dir" do
-        before :each do
+        before :example do
           allow(subject).to receive(:busy_box_writable_dir) do
             nil
           end

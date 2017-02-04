@@ -80,12 +80,14 @@ TLV_TYPE_EXCEPTION_STRING    = TLV_META_TYPE_STRING | 301
 TLV_TYPE_LIBRARY_PATH        = TLV_META_TYPE_STRING | 400
 TLV_TYPE_TARGET_PATH         = TLV_META_TYPE_STRING | 401
 TLV_TYPE_MIGRATE_PID         = TLV_META_TYPE_UINT   | 402
-TLV_TYPE_MIGRATE_LEN         = TLV_META_TYPE_UINT   | 403
+TLV_TYPE_MIGRATE_PAYLOAD_LEN = TLV_META_TYPE_UINT   | 403
 TLV_TYPE_MIGRATE_PAYLOAD     = TLV_META_TYPE_STRING | 404
 TLV_TYPE_MIGRATE_ARCH        = TLV_META_TYPE_UINT   | 405
 TLV_TYPE_MIGRATE_BASE_ADDR   = TLV_META_TYPE_UINT   | 407
 TLV_TYPE_MIGRATE_ENTRY_POINT = TLV_META_TYPE_UINT   | 408
 TLV_TYPE_MIGRATE_SOCKET_PATH = TLV_META_TYPE_STRING | 409
+TLV_TYPE_MIGRATE_STUB_LEN    = TLV_META_TYPE_UINT   | 410
+TLV_TYPE_MIGRATE_STUB        = TLV_META_TYPE_STRING | 411
 
 
 TLV_TYPE_TRANS_TYPE          = TLV_META_TYPE_UINT   | 430
@@ -137,7 +139,7 @@ class Tlv
 
     if (value != nil)
       if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
-        if (value.kind_of?(Fixnum))
+        if (value.kind_of?(Integer))
           @value = value.to_s
         else
           @value = value.dup
@@ -193,9 +195,14 @@ class Tlv
       when TLV_TYPE_LIBRARY_PATH; "LIBRARY-PATH"
       when TLV_TYPE_TARGET_PATH; "TARGET-PATH"
       when TLV_TYPE_MIGRATE_PID; "MIGRATE-PID"
-      when TLV_TYPE_MIGRATE_LEN; "MIGRATE-LEN"
+      when TLV_TYPE_MIGRATE_PAYLOAD_LEN; "MIGRATE-PAYLOAD-LEN"
       when TLV_TYPE_MIGRATE_PAYLOAD; "MIGRATE-PAYLOAD"
       when TLV_TYPE_MIGRATE_ARCH; "MIGRATE-ARCH"
+      when TLV_TYPE_MIGRATE_BASE_ADDR; "MIGRATE-BASE-ADDR"
+      when TLV_TYPE_MIGRATE_ENTRY_POINT; "MIGRATE-ENTRY-POINT"
+      when TLV_TYPE_MIGRATE_STUB_LEN; "MIGRATE-STUB-LEN"
+      when TLV_TYPE_MIGRATE_STUB; "MIGRATE-STUB"
+      when TLV_TYPE_MIGRATE_SOCKET_PATH; "MIGRATE-SOCKET-PATH"
       when TLV_TYPE_TRANS_TYPE; "TRANS-TYPE"
       when TLV_TYPE_TRANS_URL; "TRANS-URL"
       when TLV_TYPE_TRANS_COMM_TIMEOUT; "TRANS-COMM-TIMEOUT"
@@ -663,6 +670,44 @@ class Packet < GroupTlv
 
       add_tlv(TLV_TYPE_REQUEST_ID, rid)
     end
+  end
+
+  #
+  # Override the function that creates the raw byte stream for
+  # sending so that it generates an XOR key, uses it to scramble
+  # the serialized TLV content, and then returns the key plus the
+  # scrambled data as the payload.
+  #
+  def to_r
+    raw = super
+    xor_key = rand(254) + 1
+    xor_key |= (rand(254) + 1) << 8
+    xor_key |= (rand(254) + 1) << 16
+    xor_key |= (rand(254) + 1) << 24
+    result = [xor_key].pack('N') + xor_bytes(xor_key, raw)
+    result
+  end
+
+  #
+  # Override the function that reads from a raw byte stream so
+  # that the XORing of data is included in the process prior to
+  # passing it on to the default functionality that can parse
+  # the TLV values.
+  #
+  def from_r(bytes)
+    xor_key = bytes[0,4].unpack('N')[0]
+    super(xor_bytes(xor_key, bytes[4, bytes.length]))
+  end
+
+  #
+  # Xor a set of bytes with a given DWORD xor key.
+  #
+  def xor_bytes(xor_key, bytes)
+    result = ''
+    bytes.bytes.zip([xor_key].pack('V').bytes.cycle).each do |b|
+      result << (b[0].ord ^ b[1].ord).chr
+    end
+    result
   end
 
   ##

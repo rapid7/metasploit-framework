@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanServer
@@ -14,7 +14,9 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'Tomcat Administration Tool Default Access',
-      'Description' => 'Detect the Tomcat administration interface.',
+      'Description' => 'Detect the Tomcat administration interface.  The administration interface is included in versions 5.5 and lower.
+                        Port 8180 is the default for FreeBSD, 8080 for all others.',
+                        # version of admin interface source: O'Reilly Tomcat The Definitive Guide, page 82
       'References'  =>
         [
           ['URL', 'http://tomcat.apache.org/'],
@@ -25,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(8180),
+        Opt::RPORT(8180), # 8180 is default for FreeBSD.  All other OSes it's 8080
         OptString.new('TOMCAT_USER', [ false, 'The username to authenticate as', '']),
         OptString.new('TOMCAT_PASS', [ false, 'The password for the specified username', '']),
       ], self.class)

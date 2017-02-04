@@ -9,7 +9,7 @@ require 'rex'
 require 'rexml/document'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Auxiliary::Report
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Post
   end
 
   def decrypt(encrypted_data, key, iv, cipher_type)
-    aes = OpenSSL::Cipher::Cipher.new(cipher_type)
+    aes = OpenSSL::Cipher.new(cipher_type)
     aes.decrypt
     aes.key = key
     aes.iv = iv if iv != nil

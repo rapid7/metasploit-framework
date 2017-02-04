@@ -48,7 +48,7 @@ RSpec.describe Msf::DBManager::Export do
         )
       end
 
-      before(:each) do
+      before(:example) do
         report_file.write("<root>")
         extract_module_detail_info
         report_file.write("</root>")

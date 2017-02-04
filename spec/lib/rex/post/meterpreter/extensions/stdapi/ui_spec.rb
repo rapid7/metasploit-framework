@@ -10,7 +10,7 @@ RSpec.describe Rex::Post::Meterpreter::Extensions::Stdapi::UI do
 
   describe "#screenshot" do
 
-    before(:each) do
+    before(:example) do
       @client = double("client")
     end
 

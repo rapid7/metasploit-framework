@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'rex/google/geolocation'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
@@ -108,18 +108,8 @@ class Metasploit3 < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    if session.type =~ /shell/
-      # Use the shell platform for selecting the command
-      platform = session.platform
-    else
-      # For Meterpreter use the sysinfo OS since java Meterpreter returns java as platform
-      platform = session.sys.config.sysinfo['OS']
-      platform = 'osx' if platform =~ /darwin/i
-    end
-
-    case platform
-    when /win/i
-
+    case session.platform
+    when 'windows'
       listing = cmd_exec('netsh wlan show networks mode=bssid')
       if listing.nil?
         print_error("Unable to generate wireless listing.")
@@ -135,8 +125,7 @@ class Metasploit3 < Msf::Post
         end
       end
 
-    when /osx/i
-
+    when 'osx'
       listing = cmd_exec('/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -s')
       if listing.nil?
         print_error("Unable to generate wireless listing.")
@@ -151,8 +140,7 @@ class Metasploit3 < Msf::Post
         end
       end
 
-    when /linux/i
-
+    when 'linux'
       listing = cmd_exec('iwlist scanning')
       if listing.nil?
         print_error("Unable to generate wireless listing.")
@@ -168,8 +156,7 @@ class Metasploit3 < Msf::Post
         end
       end
 
-    when /solaris/i
-
+    when 'solaris'
       listing = cmd_exec('dladm scan-wifi')
       if listing.blank?
         print_error("Unable to generate wireless listing.")
@@ -181,8 +168,7 @@ class Metasploit3 < Msf::Post
         return
       end
 
-    when /bsd/i
-
+    when 'bsd'
       interface = cmd_exec("dmesg | grep -i wlan | cut -d ':' -f1 | uniq")
       # Printing interface as this platform requires the interface to be specified
       # it might not be detected correctly.

@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager#update_module_details with module' do |options={}|
+RSpec.shared_examples_for 'Msf::DBManager#update_module_details with module' do |options={}|
   options.assert_valid_keys(:reference_name, :type)
 
   reference_name = options.fetch(:reference_name)

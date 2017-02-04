@@ -5,7 +5,7 @@ require 'rex/proto/http/client_request'
 
 
 RSpec.shared_context "with no evasions" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_self_reference'] = false
     client_request.opts['uri_fake_params_start'] = false
     client_request.opts['uri_full_url'] = false
@@ -18,7 +18,7 @@ end
 
 
 RSpec.shared_context "with 'uri_dir_self_reference'" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_self_reference'] = true
   end
 
@@ -30,7 +30,7 @@ end
 
 
 RSpec.shared_context "with 'uri_dir_fake_relative'" do
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_dir_fake_relative'] = true
   end
 
@@ -44,11 +44,11 @@ end
 
 RSpec.shared_context "with 'uri_full_url'" do
 
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_full_url'] = true
   end
 
-  before(:each) do
+  before(:example) do
     client_request.opts['vhost'] = host
   end
 
@@ -108,9 +108,6 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         :set_uri_append        => { :result => "" },
         :set_agent_header      => { :result => "User-Agent: Mozilla/4.0 (compatible; Metasploit RSPEC)\r\n" },
         :set_host_header       => { :result => "Host: www.example.com\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar"], :result => "Foo: Bar\r\n" },
-        :set_formatted_header  => { :args => ["foo", "Bar"], :result => "foo: Bar\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar\twith\ttabs"], :result => "Foo: Bar\twith\ttabs\r\n" },
         :set_formatted_header  => { :args => ["Foo\twith\tabs", "Bar"], :result => "Foo\twith\tabs: Bar\r\n" },
       }
     ],
@@ -127,9 +124,6 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
         :set_agent_header      => { :result => "User-Agent:\r\n\tMozilla/4.0 (compatible; Metasploit RSPEC)\r\n" },
         :set_cookie_header     => { :result => "" },
         :set_connection_header => { :result => "Connection:\r\n\tclose\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar"], :result => "Foo:\r\n\tBar\r\n" },
-        :set_formatted_header  => { :args => ["foo", "Bar"], :result => "foo:\r\n\tBar\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar\twith\ttabs"], :result => "Foo:\r\n\tBar\twith\ttabs\r\n" },
         :set_formatted_header  => { :args => ["Foo\twith\tabs", "Bar"], :result => "Foo\twith\tabs:\r\n\tBar\r\n" },
       }
     ],
@@ -151,7 +145,36 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
       {
         :set_host_header       => { :result => "Host: [2001:DB8::1]:1234\r\n" },
       }
-    ]
+    ],
+
+    [
+      "with modified Content-Length header",
+      default_options.merge({
+        'headers' => { 'Content-Length' => 1337 }
+      }),
+      {
+        :set_content_len_header => { args: 0, result: ''}
+      }
+    ],
+
+    [
+      "with 1024 bytes of Content-Length",
+      default_options,
+      {
+        :set_content_len_header => { args: 1024, result: "Content-Length: 1024\r\n"}
+      }
+    ],
+
+    [
+      "with a POST request and no payload body",
+      default_options.merge({
+        'method' => 'POST'
+      }),
+      {
+        :set_content_len_header => { args: 0, result: "Content-Length: 0\r\n"}
+      }
+    ],
+
   ].each do |c, opts, expectations|
     context c do
       subject(:client_request) { Rex::Proto::Http::ClientRequest.new(opts) }

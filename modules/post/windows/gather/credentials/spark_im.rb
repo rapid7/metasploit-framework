@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'openssl'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::UserProfiles
 
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
     encrypted = hash.unpack("m")[0]
     key = "ugfpV1dMC5jyJtqwVAfTpHkxqJ0+E0ae".unpack("m")[0]
 
-    cipher = OpenSSL::Cipher::Cipher.new 'des-ede3'
+    cipher = OpenSSL::Cipher.new 'des-ede3'
     cipher.decrypt
     cipher.key = key
 

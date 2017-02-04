@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+require 'stringio'
+
 ENV['RAILS_ENV'] = 'test'
 
 unless Bundler.settings.without.include?(:coverage)
@@ -10,6 +12,12 @@ end
 #
 # Must be explicit as activerecord is optional dependency
 require 'active_record/railtie'
+
+require 'metasploit/framework/database'
+# check if database.yml is present
+unless Metasploit::Framework::Database.configurations_pathname.try(:to_path)
+  fail 'RSPEC currently needs a configured database'
+end
 
 require File.expand_path('../../config/environment', __FILE__)
 
@@ -93,7 +101,40 @@ RSpec.configure do |config|
     # a real object.
     mocks.verify_partial_doubles = true
   end
+
+  # rspec-rails 3 will no longer automatically infer an example group's spec type
+  # from the file location. You can explicitly opt-in to the feature using this
+  # config option.
+  # To explicitly tag specs without using automatic inference, set the `:type`
+  # metadata manually:
+  #
+  #     describe ThingsController, :type => :controller do
+  #       # Equivalent to being in spec/controllers
+  #     end
+  config.infer_spec_type_from_file_location!
 end
 
 Metasploit::Framework::Spec::Constants::Suite.configure!
 Metasploit::Framework::Spec::Threads::Suite.configure!
+
+def get_stdout(&block)
+  out = $stdout
+  $stdout = tmp = StringIO.new
+  begin
+    yield
+  ensure
+    $stdout = out
+  end
+  tmp.string
+end
+
+def get_stderr(&block)
+  out = $stderr
+  $stderr = tmp = StringIO.new
+  begin
+    yield
+  ensure
+    $stderr = out
+  end
+  tmp.string
+end

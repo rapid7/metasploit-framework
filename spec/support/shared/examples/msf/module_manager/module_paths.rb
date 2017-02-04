@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::ModuleManager::ModulePaths' do
+RSpec.shared_examples_for 'Msf::ModuleManager::ModulePaths' do
   def module_paths
     module_manager.send(:module_paths)
   end

@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager::WMAP' do
+RSpec.shared_examples_for 'Msf::DBManager::WMAP' do
   it { is_expected.to respond_to :create_request }
   it { is_expected.to respond_to :create_target }
   it { is_expected.to respond_to :delete_all_targets }

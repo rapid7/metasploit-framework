@@ -33,7 +33,7 @@ RSpec.describe Metasploit::Framework::Credential do
     end
 
     context 'when not paired' do
-      before(:each) do
+      before(:example) do
         cred_detail.paired = false
       end
 
@@ -53,7 +53,7 @@ RSpec.describe Metasploit::Framework::Credential do
     end
 
     context 'when paired' do
-      before(:each) do
+      before(:example) do
         cred_detail.paired = true
       end
 

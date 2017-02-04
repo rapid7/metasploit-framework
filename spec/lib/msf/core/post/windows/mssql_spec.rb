@@ -7,7 +7,8 @@ RSpec.describe Msf::Post::Windows::MSSQL do
   let(:subject) do
     mod = double(Module.new)
     mod.extend described_class
-    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error, :print_warning ]
+    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good,
+      :print_error, :vprint_error, :print_bad, :vprint_bad, :print_warning ]
     stubs.each { |meth| allow(mod).to receive(meth) }
     allow(mod).to receive(:service_info).and_return({})
     mod
@@ -293,7 +294,7 @@ RSpec.describe Msf::Post::Windows::MSSQL do
     end
 
     context 'user has privs to impersonate' do
-      before(:each) do
+      before(:example) do
         allow(subject).to receive_message_chain('session.sys.config.getuid').and_return('Superman')
         allow(subject).to receive_message_chain('client.sys.config.getprivs').and_return(['SeAssignPrimaryTokenPrivilege'])
         allow(subject).to receive_message_chain('session.sys.process.each_process').and_yield(process)
@@ -316,7 +317,7 @@ RSpec.describe Msf::Post::Windows::MSSQL do
     end
 
     context 'user does not have privs to impersonate' do
-      before(:each) do
+      before(:example) do
         allow(subject).to receive_message_chain('session.sys.config.getuid').and_return('Superman')
         allow(subject).to receive_message_chain('client.sys.config.getprivs').and_return([])
       end
@@ -375,7 +376,7 @@ RSpec.describe Msf::Post::Windows::MSSQL do
       'blah'
     end
 
-    before(:each) do
+    before(:example) do
       subject.sql_client = sqlclient
     end
 

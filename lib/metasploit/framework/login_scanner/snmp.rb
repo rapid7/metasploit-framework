@@ -31,7 +31,7 @@ module Metasploit
         attr_accessor :version
 
         # The number of logins to try in each batch
-        # @return [Fixnum]
+        # @return [Integer]
         attr_accessor :queue_size
 
         validates :version,
@@ -60,7 +60,7 @@ module Metasploit
           end
         end
 
-        # Attempt to login with every {Credential credential} in # {#cred_details}.
+        # Attempt to login with every {Credential credential} in # #cred_details.
         #
         # @yieldparam result [Result] The {Result} object for each attempt
         # @yieldreturn [void]

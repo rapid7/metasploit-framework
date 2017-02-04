@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager::Adapter' do
+RSpec.shared_examples_for 'Msf::DBManager::Adapter' do
   context 'CONSTANTS' do
     context 'ADAPTER' do
       subject(:adapter) {

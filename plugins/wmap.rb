@@ -1209,7 +1209,7 @@ class Plugin::Wmap < Msf::Plugin
 
       indent = '     '
 
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => indent.length,
         'Header'  => 'Defined targets',
         'Columns' =>
@@ -1259,7 +1259,7 @@ class Plugin::Wmap < Msf::Plugin
 
       indent = '     '
 
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => indent.length,
         'Header'  => 'Available sites',
         'Columns' =>
@@ -1948,7 +1948,7 @@ class Plugin::Wmap < Msf::Plugin
           begin
             n = rpccon.call('job.list')
 
-            tbl = Rex::Ui::Text::Table.new(
+            tbl = Rex::Text::Table.new(
               'Indent'  => indent.length,
               'Header'  => 'Jobs',
               'Columns' =>
@@ -2069,7 +2069,7 @@ class Plugin::Wmap < Msf::Plugin
     def rpc_list_nodes()
       indent = '     '
 
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => indent.length,
         'Header'  => 'Nodes',
         'Columns' =>
@@ -2148,7 +2148,7 @@ class Plugin::Wmap < Msf::Plugin
 
       wmaptype.each do |modt|
 
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Indent'  => indent.length,
           'Header'  =>  modt.to_s,
           'Columns' =>
@@ -2243,6 +2243,10 @@ class Plugin::Wmap < Msf::Plugin
 
   def initialize(framework, opts)
     super
+
+    if framework.db.active == false
+      raise 'Database not connected (try db_connect)'
+    end
 
     color = self.opts["ConsoleDriver"].output.supports_color? rescue false
 

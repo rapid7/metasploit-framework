@@ -105,7 +105,7 @@ end
 $framework = Msf::Simple::Framework.create(framework_opts)
 
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Module References',
   'Indent'  => Indent.length,
   'Columns' => [ 'Module', 'Disclosure Date' ]

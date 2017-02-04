@@ -6,7 +6,7 @@
 require 'rex/proto/http'
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -24,13 +24,13 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     ))
 
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", "ironport"])
       ], self.class)
@@ -60,10 +60,13 @@ class Metasploit3 < Msf::Auxiliary
         'uri'       => '/',
         'method'    => 'GET'
       })
-      print_good("#{rhost}:#{rport} - Server is responsive...")
+      if res
+        print_good("#{rhost}:#{rport} - Server is responsive...")
+        return true
+      end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      return
     end
+    false
   end
 
   #

@@ -8,7 +8,7 @@ module Msf
 
 ###
 #
-# Complex payload generation for Windows ARCH_X86_64 that speak HTTPS
+# Complex payload generation for Windows ARCH_X64 that speak HTTPS
 #
 ###
 
@@ -23,8 +23,9 @@ module Payload::Windows::ReverseHttps_x64
   #
   # Generate the first stage
   #
-  def generate
-    super(ssl: true)
+  def generate(opts={})
+    opts[:ssl] = true
+    super(opts)
   end
 
 end

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
 
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
     filename = datastore['FILENAME']
     verbose = datastore['VERBOSE']
     count = 0
-    unless File.exists? filename and File.file? filename
+    unless File.exist? filename and File.file? filename
       print_error("Pcap File does not exist")
       return
     end

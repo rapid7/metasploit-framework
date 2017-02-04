@@ -54,7 +54,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::IPBoard do
 
     context "when invalid IPBoard application" do
       let(:not_found_warning) { 'Server nonce not present, potentially not an IP Board install or bad URI.' }
-      before :each do
+      before :example do
         allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
           Rex::Proto::Http::Response.new(200)
         end
@@ -70,7 +70,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::IPBoard do
     end
 
     context "when valid IPBoard application" do
-      before :each do
+      before :example do
         allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
 
           if req.opts['uri'] && req.opts['uri'].include?('index.php') &&

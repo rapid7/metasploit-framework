@@ -8,7 +8,7 @@ require 'msf/core'
 require 'msf/core/handler/find_tag'
 
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 92
 

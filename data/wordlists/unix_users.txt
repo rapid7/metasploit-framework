@@ -40,6 +40,7 @@ hplip
 informix
 install
 irc
+karaf
 kernoops
 libuuid
 list
@@ -108,3 +109,4 @@ www-data
 xpdb
 xpopr
 zabbix
+vagrant

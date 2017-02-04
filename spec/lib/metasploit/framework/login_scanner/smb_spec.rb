@@ -47,6 +47,20 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
   it { is_expected.to respond_to :smb_pipe_evasion }
 
   context 'validations' do
+    before(:each) do
+        creds = double('Metasploit::Framework::CredentialCollection')
+        allow(creds).to receive(:pass_file)
+        allow(creds).to receive(:username)
+        allow(creds).to receive(:password)
+        allow(creds).to receive(:user_file)
+        allow(creds).to receive(:userpass_file)
+        allow(creds).to receive(:prepended_creds).and_return([])
+        allow(creds).to receive(:additional_privates).and_return([])
+        allow(creds).to receive(:additional_publics).and_return([])
+        allow(creds).to receive(:empty?).and_return(true)
+        login_scanner.cred_details = creds
+    end
+
     context '#smb_verify_signature' do
       it 'is not valid for the string true' do
         login_scanner.smb_verify_signature = 'true'
@@ -73,7 +87,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
   end
 
   context '#attempt_login' do
-    before(:each) do
+    before(:example) do
       allow(login_scanner).to receive_message_chain(:simple, :client, :auth_user, :nil?).and_return false
     end
     context 'when there is a connection error' do
@@ -119,7 +133,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
 
     context 'when the login succeeds' do
       context 'and the user is local admin' do
-        before(:each) do
+        before(:example) do
           login_scanner.simple = double
           allow(login_scanner.simple).to receive(:connect).with(/.*admin\$/i)
           allow(login_scanner.simple).to receive(:connect).with(/.*ipc\$/i)
@@ -135,7 +149,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::SMB do
       end
 
       context 'and the user is NOT local admin' do
-        before(:each) do
+        before(:example) do
           login_scanner.simple = double
           allow(login_scanner.simple).to receive(:connect).with(/.*admin\$/i).and_raise(
             # STATUS_ACCESS_DENIED

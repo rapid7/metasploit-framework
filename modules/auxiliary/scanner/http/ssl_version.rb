@@ -7,7 +7,7 @@ require 'rex/proto/http'
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -30,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
       {
         'SSL' => true,
         'RPORT' => 443,
-        'SSLVersion' => 'SSL3'
       },
       'References'  =>
       [
@@ -43,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('SSLVersion', [true, 'Specify the version of SSL that should be used', 'SSL3', ['SSL2', 'SSL3', 'TLS1']])
+        Opt::SSLVersion
       ]
     )
 

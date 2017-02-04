@@ -52,7 +52,7 @@ RSpec.describe Msf::Module do
 
     describe "#perform_extensions" do
       describe "when there are extensions registered" do
-        before(:each) do
+        before(:example) do
           msf_module.register_extensions(MsfExtensionTestFoo, MsfExtensionTestBar)
         end
 
@@ -63,7 +63,7 @@ RSpec.describe Msf::Module do
       end
 
       describe "when the datastore key has invalid data" do
-        before(:each) do
+        before(:example) do
           msf_module.datastore[Msf::Module::REPLICANT_EXTENSION_DS_KEY] = "invalid"
         end
 

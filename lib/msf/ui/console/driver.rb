@@ -27,6 +27,15 @@ class Driver < Msf::Ui::Driver
   DefaultPromptChar = "%clr>"
 
   #
+  # Console Command Dispatchers to be loaded after the Core dispatcher.
+  #
+  CommandDispatchers = [
+    CommandDispatcher::Modules,
+    CommandDispatcher::Jobs,
+    CommandDispatcher::Resource
+  ]
+
+  #
   # The console driver processes various framework notified events.
   #
   include FrameworkEventManager
@@ -108,11 +117,17 @@ class Driver < Msf::Ui::Driver
       print_error("***")
     end
 
+    # Load the other "core" command dispatchers
+    CommandDispatchers.each do |dispatcher|
+      enstack_dispatcher(dispatcher)
+    end
 
     # Add the database dispatcher if it is usable
     if (framework.db.usable)
       require 'msf/ui/console/command_dispatcher/db'
       enstack_dispatcher(CommandDispatcher::Db)
+      require 'msf/ui/console/command_dispatcher/creds'
+      enstack_dispatcher(CommandDispatcher::Creds)
     else
       print_error("***")
       if framework.db.error == "disabled"
@@ -139,18 +154,10 @@ class Driver < Msf::Ui::Driver
     self.disable_output = false
 
     # Whether or not command passthru should be allowed
-    self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
+    self.command_passthru = opts.fetch('AllowCommandPassthru', true)
 
     # Whether or not to confirm before exiting
-    self.confirm_exit = (opts['ConfirmExit'] == true) ? true : false
-
-    # Disables "dangerous" functionality of the console
-    @defanged = opts['Defanged'] == true
-
-    # If we're defanged, then command passthru should be disabled
-    if @defanged
-      self.command_passthru = false
-    end
+    self.confirm_exit = opts['ConfirmExit']
 
     # Parse any specified database.yml file
     if framework.db.usable and not opts['SkipDatabaseInit']
@@ -228,7 +235,7 @@ class Driver < Msf::Ui::Driver
     if opts['Resource'].blank?
       # None given, load the default
       default_resource = ::File.join(Msf::Config.config_directory, 'msfconsole.rc')
-      load_resource(default_resource) if ::File.exists?(default_resource)
+      load_resource(default_resource) if ::File.exist?(default_resource)
     else
       opts['Resource'].each { |r|
         load_resource(r)
@@ -287,7 +294,7 @@ class Driver < Msf::Ui::Driver
 
     fname = ::File.join(@junit_output_path, "#{bname}.xml")
     cnt   = 0
-    while ::File.exists?( fname )
+    while ::File.exist?( fname )
       cnt  += 1
       fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
     end
@@ -322,7 +329,7 @@ class Driver < Msf::Ui::Driver
     # Generate the output path, allow multiple test with the same name
     fname = ::File.join(@junit_output_path, "#{bname}.xml")
     cnt   = 0
-    while ::File.exists?( fname )
+    while ::File.exist?( fname )
       cnt  += 1
       fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
     end
@@ -424,7 +431,7 @@ class Driver < Msf::Ui::Driver
     if path == '-'
       resource_file = $stdin.read
       path = 'stdin'
-    elsif ::File.exists?(path)
+    elsif ::File.exist?(path)
       resource_file = ::File.read(path)
     else
       print_error("Cannot find resource script: #{path}")
@@ -535,6 +542,13 @@ class Driver < Msf::Ui::Driver
       end
     end
 
+    if framework.modules.module_load_warnings.length > 0
+      print_warning("The following modules were loaded with warnings:")
+      framework.modules.module_load_warnings.each do |path, error|
+        print_warning("\t#{path}: #{error}")
+      end
+    end
+
     framework.events.on_ui_start(Msf::Framework::Revision)
 
     if $msf_spinner_thread
@@ -563,7 +577,7 @@ class Driver < Msf::Ui::Driver
 
         if (framework and framework.payloads.valid?(val) == false)
           return false
-        elsif active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
+        elsif active_module && active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
           return false
         elsif (active_module)
           active_module.datastore.clear_non_user_defined
@@ -623,17 +637,6 @@ class Driver < Msf::Ui::Driver
   #
   attr_accessor :active_resource
 
-  #
-  # If defanged is true, dangerous functionality, such as exploitation, irb,
-  # and command shell passthru is disabled.  In this case, an exception is
-  # raised.
-  #
-  def defanged?
-    if @defanged
-      raise DefangedException
-    end
-  end
-
   def stop
     framework.events.on_ui_stop()
     super
@@ -650,9 +653,13 @@ protected
   # executable.  This is only allowed if command passthru has been permitted
   #
   def unknown_command(method, line)
+    if File.basename(method) == 'msfconsole'
+      print_error('msfconsole cannot be run inside msfconsole')
+      return
+    end
 
     [method, method+".exe"].each do |cmd|
-      if (command_passthru == true and Rex::FileUtils.find_full_path(cmd))
+      if command_passthru && Rex::FileUtils.find_full_path(cmd)
 
         print_status("exec: #{line}")
         print_line('')
@@ -732,7 +739,7 @@ protected
     if opts['RealReadline']
       # Remove the gem version from load path to be sure we're getting the
       # stdlib readline.
-      gem_dir = Gem::Specification.find_all_by_name('rb-readline-r7').first.gem_dir
+      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
       rb_readline_path = File.join(gem_dir, "lib")
       index = $LOAD_PATH.index(rb_readline_path)
       # Bundler guarantees that the gem will be there, so it should be safe to
@@ -761,17 +768,6 @@ protected
     end
   end
 end
-
-#
-# This exception is used to indicate that functionality is disabled due to
-# defanged being true
-#
-class DefangedException < ::Exception
-  def to_s
-    "This functionality is currently disabled (defanged mode)"
-  end
-end
-
 
 end
 end

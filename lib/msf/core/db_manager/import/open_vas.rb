@@ -29,6 +29,6 @@ module Msf::DBManager::Import::OpenVAS
     filename = args[:filename]
     wspace = args[:wspace] || workspace
 
-    raise Msf::DBImportError.new("No OpenVAS XML support. Please submit a patch to msfdev[at]metasploit.com")
+    raise Msf::DBImportError.new("No OpenVas XML support. Please submit a patch to msfdev[at]metasploit.com")
   end
 end

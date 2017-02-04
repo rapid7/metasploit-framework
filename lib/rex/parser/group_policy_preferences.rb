@@ -88,7 +88,7 @@ class GPP
   def self.create_tables(results, filetype, domain=nil, dc=nil)
     tables = []
     results.each do |result|
-      table = Rex::Ui::Text::Table.new(
+      table = Rex::Text::Table.new(
         'Header'     => 'Group Policy Credential Info',
         'Indent'     => 1,
         'SortIndex'  => -1,
@@ -165,7 +165,7 @@ class GPP
     end
 
     key = "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
-    aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
+    aes = OpenSSL::Cipher.new("AES-256-CBC")
     begin
       aes.decrypt
       aes.key = key

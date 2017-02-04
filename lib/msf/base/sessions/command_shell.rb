@@ -50,6 +50,7 @@ class CommandShell
   def initialize(*args)
     self.platform ||= ""
     self.arch     ||= ""
+    self.max_threads = 1
     super
   end
 
@@ -216,7 +217,7 @@ class CommandShell
       end
     end
 
-    if (datastore['InitialAutoRunScript'] && datastore['InitialAutoRunScript'].empty? == false)
+    if datastore['InitialAutoRunScript'] && !datastore['InitialAutoRunScript'].empty?
       args = Shellwords.shellwords( datastore['InitialAutoRunScript'] )
       print_status("Session ID #{sid} (#{tunnel_to_s}) processing InitialAutoRunScript '#{datastore['InitialAutoRunScript']}'")
       execute_script(args.shift, *args)
@@ -235,6 +236,7 @@ class CommandShell
 
   attr_accessor :arch
   attr_accessor :platform
+  attr_accessor :max_threads
 
 protected
 

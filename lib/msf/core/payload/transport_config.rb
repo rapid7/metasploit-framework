@@ -25,13 +25,10 @@ module Msf::Payload::TransportConfig
 
   def transport_config_bind_tcp(opts={})
     {
-      :scheme       => 'tcp',
-      :lhost        => datastore['LHOST'],
-      :lport        => datastore['LPORT'].to_i,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+      scheme: 'tcp',
+      lhost:  datastore['LHOST'],
+      lport:  datastore['LPORT'].to_i
+    }.merge(timeout_config)
   end
 
   def transport_config_reverse_https(opts={})
@@ -50,23 +47,30 @@ module Msf::Payload::TransportConfig
     unless uri
       type = opts[:stageless] == true ? :init_connect : :connect
       sum = uri_checksum_lookup(type)
-      uri = generate_uri_uuid(sum, opts[:uuid])
+      uri = luri + generate_uri_uuid(sum, opts[:uuid])
     end
 
     {
-      :scheme       => 'http',
-      :lhost        => opts[:lhost] || datastore['LHOST'],
-      :lport        => (opts[:lport] || datastore['LPORT']).to_i,
-      :uri          => uri,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i,
-      :ua           => datastore['MeterpreterUserAgent'],
-      :proxy_host   => datastore['PayloadProxyHost'],
-      :proxy_port   => datastore['PayloadProxyPort'],
-      :proxy_type   => datastore['PayloadProxyType'],
-      :proxy_user   => datastore['PayloadProxyUser'],
-      :proxy_pass   => datastore['PayloadProxyPass']
+      scheme:      'http',
+      lhost:       opts[:lhost] || datastore['LHOST'],
+      lport:       (opts[:lport] || datastore['LPORT']).to_i,
+      uri:         uri,
+      ua:          datastore['MeterpreterUserAgent'],
+      proxy_host:  datastore['PayloadProxyHost'],
+      proxy_port:  datastore['PayloadProxyPort'],
+      proxy_type:  datastore['PayloadProxyType'],
+      proxy_user:  datastore['PayloadProxyUser'],
+      proxy_pass:  datastore['PayloadProxyPass']
+    }.merge(timeout_config)
+  end
+
+private
+
+  def timeout_config
+    {
+      comm_timeout: datastore['SessionCommunicationTimeout'].to_i,
+      retry_total:  datastore['SessionRetryTotal'].to_i,
+      retry_wait:   datastore['SessionRetryWait'].to_i
     }
   end
 

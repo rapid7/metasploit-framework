@@ -9,10 +9,10 @@ module Rex
         #   @return [String] The kerberos server host
         attr_accessor :host
         # @!attribute port
-        #   @return [Fixnum] The kerberos server port
+        #   @return [Integer] The kerberos server port
         attr_accessor :port
         # @!attribute timeout
-        #   @return [Fixnum] The connect / read timeout
+        #   @return [Integer] The connect / read timeout
         attr_accessor :timeout
         # @todo Support UDP
         # @!attribute protocol
@@ -65,7 +65,7 @@ module Rex
         # Sends a kerberos request through the connection
         #
         # @param req [Rex::Proto::Kerberos::Model::KdcRequest] the request to send
-        # @return [Fixnum] the number of bytes sent
+        # @return [Integer] the number of bytes sent
         # @raise [RuntimeError] if the transport protocol is unknown
         # @raise [NotImplementedError] if the transport protocol isn't supported
         def send_request(req)
@@ -139,7 +139,7 @@ module Rex
         # Sends a Kerberos Request over a tcp connection
         #
         # @param req [Rex::Proto::Kerberos::Model::KdcRequest] the request to send
-        # @return [Fixnum] the number of bytes sent
+        # @return [Integer] the number of bytes sent
         # @raise [RuntimeError] if the request can't be encoded
         def send_request_tcp(req)
           data = req.encode

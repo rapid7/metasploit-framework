@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
 
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
       when 'LOCAL' then lookuptype = "40000000".hex
     end
 
-    if client.platform =~ /^x64/
+    if session.arch == ARCH_X64
       nameiterator = 8
       size = 64
       addrinfoinmem = 32
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Post
 
     netview = netview.sort_by {|e| e[:type]}
 
-    results = Rex::Ui::Text::Table.new(
+    results = Rex::Text::Table.new(
       'Header' => 'Netdiscovery Results',
       'Indent' => 2,
       'Columns' => ['TYPE', 'IP', 'COMPUTER NAME', 'VERSION', 'COMMENT']

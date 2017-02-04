@@ -6,7 +6,7 @@
 
 require 'msf/core'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 31
 
@@ -20,7 +20,7 @@ module Metasploit3
                            'joev' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X86_64
+      'Arch'          => ARCH_X64
     ))
 
     # exec payload options

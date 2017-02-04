@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     key = "\x5E\x9C\x3E\xDF\xE6\x25\x84\x36\x66\x21\x93\x80\x31\x5A\x29\x33" #static key used
 
-    aes = OpenSSL::Cipher::Cipher.new('AES-128-ECB') # ecb, bad bad tsk
+    aes = OpenSSL::Cipher.new('AES-128-ECB') # ecb, bad bad tsk
     aes.decrypt
     aes.padding=1
     aes.key = key

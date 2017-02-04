@@ -32,10 +32,6 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   def each_module_reference_name(path, opts={})
     whitelist = opts[:whitelist] || []
     ::Dir.foreach(path) do |entry|
-      if entry.downcase == '.svn'
-        next
-      end
-
       full_entry_path = ::File.join(path, entry)
       type = entry.singularize
 

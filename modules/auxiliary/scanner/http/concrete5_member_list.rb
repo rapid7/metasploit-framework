@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -66,9 +66,9 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def extract_members(res, url)
-    members = res.body.scan(/<div class="ccm\-profile\-member\-username">(.*)<\/div>/i)
+    members = res.get_html_document.search('div[@class="ccm-profile-member-username"]')
 
-    if members
+    unless members.empty?
       print_good("#{peer} Extracted #{members.length} entries")
 
       # separate user data into userID, username and Profile URL
@@ -76,13 +76,15 @@ class Metasploit4 < Msf::Auxiliary
       users = []
 
       members.each do | mem |
-        userid = mem[0].scan(/\/view\/(\d+)/i)
-        username = mem[0].scan(/">(.+)<\/a>/i)
-        profile = mem[0].scan(/href="(.+)">/i)
+        userid = mem.text.scan(/\/view\/(\d+)/i).flatten.first
+        anchor = mem.at('a')
+        username = anchor.text
+        profile = anchor.attributes['href'].value
         # add all data to memberlist for table output
-        memberlist.push([userid[0], username[0], profile[0]])
+
+        memberlist.push([userid, username, profile])
         # add usernames to users array for reporting
-        users.push(username[0])
+        users.push(username)
       end
 
       membertbl = Msf::Ui::Console::Table.new(
@@ -99,7 +101,7 @@ class Metasploit4 < Msf::Auxiliary
             ]})
 
       memberlist.each do | mem |
-        membertbl << ["#{mem[0].join}", "#{mem[1].join}", "#{mem[2].join}"]
+        membertbl << [mem[0], mem[1], mem[2]]
       end
 
       # print table

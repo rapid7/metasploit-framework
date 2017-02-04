@@ -9,7 +9,7 @@ require 'rex/parser/ini'
 require 'msf/core/auxiliary/report'
 
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Post
     decoded = pwd.unpack("m*")[0]
     key = "\xE1\xF0\xC3\xD2\xA5\xB4\x87\x96\x69\x78\x4B\x5A\x2D\x3C\x0F\x1E\x34\x12\x78\x56\xab\x90\xef\xcd"
     iv = "\x34\x12\x78\x56\xab\x90\xef\xcd"
-    des = OpenSSL::Cipher::Cipher.new("des-ede3-cbc")
+    des = OpenSSL::Cipher.new("des-ede3-cbc")
 
     des.decrypt
     des.key = key

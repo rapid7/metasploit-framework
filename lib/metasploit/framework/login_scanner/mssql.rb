@@ -32,6 +32,11 @@ module Metasploit
         validates :windows_authentication,
           inclusion: { in: [true, false] }
 
+        attr_accessor :tdsencryption
+
+        validates :tdsencryption,
+          inclusion: { in: [true, false] }
+
         def attempt_login(credential)
           result_options = {
               credential: credential,
@@ -70,6 +75,7 @@ module Metasploit
           self.use_ntlm2_session      = true if self.use_ntlm2_session.nil?
           self.use_ntlmv2             = true if self.use_ntlmv2.nil?
           self.windows_authentication = false if self.windows_authentication.nil?
+          self.tdsencryption          = false if self.tdsencryption.nil?
         end
       end
 

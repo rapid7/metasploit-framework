@@ -1,5 +1,5 @@
 RSpec.shared_context 'Msf::Framework#threads cleaner' do
-  after(:each) do |example|
+  after(:example) do |example|
     unless framework.threads?
       fail RuntimeError.new(
                "framework.threads was never initialized. There are no threads to clean up. " \

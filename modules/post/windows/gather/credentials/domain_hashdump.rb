@@ -8,7 +8,7 @@ require 'rex'
 require 'msf/core/auxiliary/report'
 require 'metasploit/framework/ntds/parser'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::Priv
@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Post
   end
 
   def session_compat?
-    if sysinfo['Architecture'] =~ /x64/ && session.platform =~ /x86/
+    if sysinfo['Architecture'] == ARCH_X64 && session.arch == ARCH_X86
       print_error "You are running 32-bit Meterpreter on a 64 bit system"
       print_error "Try migrating to a 64-bit process and try again"
       false

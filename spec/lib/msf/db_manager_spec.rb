@@ -52,5 +52,4 @@ RSpec.describe Msf::DBManager do
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :initialize_database_support }
   it { is_expected.to respond_to :service_name_map }
-  it { is_expected.to respond_to :warn_about_rubies }
 end

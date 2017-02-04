@@ -33,7 +33,7 @@ module Payload::Linux::ReverseTcp
     }
 
     # Generate the advanced stager if we have space
-    unless self.available_space.nil? || required_space > self.available_space
+    if self.available_space && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end
@@ -79,7 +79,7 @@ module Payload::Linux::ReverseTcp
   #
   # Generate an assembly stub with the configured feature set and options.
   #
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :host The host IP to connect to
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #

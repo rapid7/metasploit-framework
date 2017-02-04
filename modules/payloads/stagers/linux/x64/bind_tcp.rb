@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 78
 
@@ -21,7 +21,7 @@ module Metasploit3
       'Author'        => 'ricky',
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::BindTcp,
       'Stager'        =>
         {

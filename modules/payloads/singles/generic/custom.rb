@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/payload/generic'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 0
 
@@ -42,10 +42,12 @@ module Metasploit3
       self.arch = actual_arch
     end
 
-    if datastore['PAYLOADFILE']
-      IO.read(datastore['PAYLOADFILE'])
-    elsif datastore['PAYLOADSTR']
+    if datastore['PAYLOADSTR']
       datastore['PAYLOADSTR']
+    elsif datastore['PAYLOADFILE']
+      IO.read(datastore['PAYLOADFILE'])
+    else
+      ''
     end
   end
 

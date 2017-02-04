@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
     progress(file_size, file_size)
 
     fname = datastore['PATH'].gsub(/[\/\\]/, '_')
-    p = store_loot("titanftp.traversal", "text/plain", "rhost", file_data, fname)
+    p = store_loot("titanftp.traversal", "text/plain", ip, file_data, fname)
     print_status("Saved in: #{p}")
     vprint_status(file_data.inspect)
 

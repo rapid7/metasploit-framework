@@ -17,7 +17,7 @@ require 'rinda/tuplespace'
 require 'pathname'
 require 'uri'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

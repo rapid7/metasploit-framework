@@ -28,16 +28,16 @@ module Steam
 
   # Encodes a Steam message.
   #
-  # @param type [String, Fixnum] the message type
+  # @param type [String, Integer] the message type
   # @param body [String] the message body
   # @return [String] the encoded Steam message
   def encode_message(type, body)
-    if type.is_a? Fixnum
+    if type.is_a? Integer
       type_num = type
     elsif type.is_a? String
       type_num = type.ord
     else
-      fail ArgumentError, 'type must be a String or Fixnum'
+      fail ArgumentError, 'type must be a String or Integer'
     end
 
     [UNFRAGMENTED_HEADER, type_num ].pack('NC') + body
@@ -52,7 +52,7 @@ module Steam
 
   # Decodes an A2S_INFO response message
   #
-  # @parameter response [String] the A2S_INFO resposne to decode
+  # @param response [String] the A2S_INFO resposne to decode
   # @return [Hash] the fields extracted from the response
   def a2s_info_decode(response)
     # abort if it is impossibly short

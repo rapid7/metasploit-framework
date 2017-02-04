@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'enumerable'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -80,15 +80,15 @@ class Metasploit3 < Msf::Auxiliary
           @charset.push(Rex::Text.uri_encode(spec))
         end
       end
-      print_status("#{peer} - Performing Bruteforce attack")
-      vprint_status("#{peer} - Using CHARSET: [#{@charset.join(",")}]")
+      print_status("Performing Bruteforce attack")
+      vprint_status("Using CHARSET: [#{@charset.join(",")}]")
     else
-      print_status("#{peer} - Performing dictionary based attack (#{datastore['DICT']})")
+      print_status("Performing dictionary based attack (#{datastore['DICT']})")
     end
 
     if datastore['DICT'].blank? and datastore['MAXDEPTH'] > 2
       # warn user on long runs
-      print_status("#{peer} - Depth level #{datastore['MAXDEPTH']} selected... this may take some time!")
+      print_status("Depth level #{datastore['MAXDEPTH']} selected... this may take some time!")
     end
 
     # create initial test queue and populate
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
       @charset.each { |char| @test_queue.push(char) }
     else
       ::File.open(datastore['DICT']).each { |line| @test_queue.push(line.chomp) }
-      vprint_status("#{peer} - Loaded #{@test_queue.length} values from dictionary")
+      vprint_status("Loaded #{@test_queue.length} values from dictionary")
     end
 
     @depth_warning = true
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Testing for IBM Lotus Notes Sametime User Enumeration flaw")
+    print_status("Testing for IBM Lotus Notes Sametime User Enumeration flaw")
 
     # test for expected response code on non-existant uid/email
     if datastore['TYPE'] == "UID"
@@ -126,17 +126,17 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       if res.nil?
-        print_error("#{peer} - Timeout")
+        print_error("Timeout")
         return
       elsif res.code != 200
-        print_error("#{peer} - Unexpected response from server (Response code: #{res.code})")
+        print_error("Unexpected response from server (Response code: #{res.code})")
         return
       elsif JSON.parse(res.body)
         # valid JSON response - valid response for check
-        print_good("#{peer} - Response received, continuing to enumeration phase")
+        print_good("Response received, continuing to enumeration phase")
       end
     rescue JSON::ParserError,
-      print_error("#{peer} - Error parsing JSON: Invalid response from server")
+      print_error("Error parsing JSON: Invalid response from server")
       return
     end
 
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def test_handler
-    print_status("#{peer} - Beginning tests using #{datastore['TYPE']} search method (#{datastore['Threads']} Threads)")
+    print_status("Beginning tests using #{datastore['TYPE']} search method (#{datastore['Threads']} Threads)")
     test_length = 1 # initial test length set
 
     until @test_queue.empty?
@@ -169,7 +169,7 @@ class Metasploit3 < Msf::Auxiliary
             # provide feedback to user on current test length
             if datastore['DICT'].blank? and test_current.length > test_length
               test_length = test_current.length
-              print_status("#{peer} - Beginning bruteforce test for #{test_length} character strings")
+              print_status("Beginning bruteforce test for #{test_length} character strings")
             end
 
             res = make_request(test_current)
@@ -178,11 +178,11 @@ class Metasploit3 < Msf::Auxiliary
             if res.nil? and not @retries.include?(test_current)
               # attempt test again as the server was too busy to respond
               # correctly - error returned
-              print_error("#{peer} - Error reading JSON response, attempting to redo check for \"#{test_current}\"")
+              print_error("Error reading JSON response, attempting to redo check for \"#{test_current}\"")
               @test_queue.push(test_current)
               @retries << test_current
               if @retries.length == 10
-                print_error("#{peer} - Excessive number of retries detected (#{@retries.length}... check the TIMING and Threads options)")
+                print_error("Excessive number of retries detected (#{@retries.length}... check the TIMING and Threads options)")
               end
             elsif res
               # check response for user data
@@ -242,11 +242,11 @@ class Metasploit3 < Msf::Auxiliary
       unless @user_data.flatten.include?(userinfo['uid'])
         @user_data << [ userinfo['uid'], userinfo['mail'] || "-", userinfo['externalName'] || "-" ]
         # print newly discovered users straight to the screen if verbose mode is set
-        vprint_good("#{peer} - New user found: #{userinfo['uid']}")
+        vprint_good("New user found: #{userinfo['uid']}")
         report_user(userinfo['uid'])
       end
     rescue JSON::ParserError
-      print_error("#{peer} - Error reading JSON string, continuing")
+      print_error("Error reading JSON string, continuing")
     end
   end
 
@@ -263,7 +263,7 @@ class Metasploit3 < Msf::Auxiliary
         @test_queue.push(test_current + char)
       end
     elsif @depth_warning and test_current.length == datastore['MAXDEPTH'] and datastore['MAXDEPTH'] > 1
-      vprint_status("#{peer} - Depth limit reached [#{datastore['MAXDEPTH']} levels deep] finishing up current tests")
+      vprint_status("Depth limit reached [#{datastore['MAXDEPTH']} levels deep] finishing up current tests")
       @depth_warning = false
     end
   end
@@ -301,10 +301,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if not user_tbl.to_s.empty?
-      print_good("#{peer} - #{@user_data.length} users extracted")
+      print_good("#{@user_data.length} users extracted")
       print_line(user_tbl.to_s)
     else
-      print_error("#{peer} - No users discovered")
+      print_error("No users discovered")
     end
   end
 

@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 957487
 
@@ -40,8 +40,9 @@ module Metasploit3
     ], self.class)
   end
 
-  def generate
-    stage_meterpreter(true) + generate_config
+  def generate(opts={})
+    opts[:stageless] = true
+    stage_meterpreter(opts) + generate_config(opts)
   end
 
   def generate_config(opts={})

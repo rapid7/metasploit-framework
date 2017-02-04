@@ -49,7 +49,7 @@ module Auxiliary::AuthBrute
     @@max_per_service = nil
   end
 
-  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # Yields each Metasploit::Credential::Core in the Mdm::Workspace with
   # a private type of 'ntlm_hash'
   #
   # @yieldparam [Metasploit::Credential::Core]
@@ -60,7 +60,7 @@ module Auxiliary::AuthBrute
     end
   end
 
-  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # Yields each Metasploit::Credential::Core in the Mdm::Workspace with
   # a private type of 'password'
   #
   # @yieldparam [Metasploit::Credential::Core]
@@ -71,7 +71,7 @@ module Auxiliary::AuthBrute
     end
   end
 
-  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # Yields each Metasploit::Credential::Core in the Mdm::Workspace with
   # a private type of 'ssh_key'
   #
   # @yieldparam [Metasploit::Credential::Core]
@@ -90,7 +90,7 @@ module Auxiliary::AuthBrute
     (datastore['DB_ALL_CREDS'] || datastore['DB_ALL_PASS'] || datastore['DB_ALL_USERS']) && framework.db.active
   end
 
-  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing NTLMHashes
+  # This method takes a Metasploit::Framework::CredentialCollection and prepends existing NTLMHashes
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
   # @param cred_collection [Metasploit::Framework::CredentialCollection]
@@ -105,7 +105,7 @@ module Auxiliary::AuthBrute
     cred_collection
   end
 
-  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing SSHKeys
+  # This method takes a Metasploit::Framework::CredentialCollection and prepends existing SSHKeys
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
   # @param [Metasploit::Framework::CredentialCollection] cred_collection
@@ -120,7 +120,7 @@ module Auxiliary::AuthBrute
     cred_collection
   end
 
-  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing Password Credentials
+  # This method takes a Metasploit::Framework::CredentialCollection and prepends existing Password Credentials
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
   # @param cred_collection [Metasploit::Framework::CredentialCollection]
@@ -135,9 +135,9 @@ module Auxiliary::AuthBrute
     cred_collection
   end
 
-  # Takes a {Metasploit::Credential::Core} and converts it into a
-  # {Metasploit::Framework::Credential} and processes it into the
-  # {Metasploit::Framework::CredentialCollection} as dictated by the
+  # Takes a Metasploit::Credential::Core and converts it into a
+  # Metasploit::Framework::Credential and processes it into the
+  # Metasploit::Framework::CredentialCollection as dictated by the
   # selected datastore options.
   #
   # @param [Metasploit::Framework::CredentialCollection] cred_collection the credential collection to add to
@@ -593,9 +593,13 @@ module Auxiliary::AuthBrute
       old_msg = msg.to_s.strip
       msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
       if old_msg.match(msg_regex) and !old_msg.match(msg_regex)[6].to_s.strip.empty?
-        complete_message = [ip,port].join(":")
-        (complete_message << " ") if ip
-        complete_message << (old_msg.match(msg_regex)[4] || proto).to_s
+        complete_message = ''
+        unless ip.blank? && port.blank?
+          complete_message << "#{ip}:#{rport}"
+        else
+          complete_message << (old_msg.match(msg_regex)[4] || proto).to_s
+        end
+
         complete_message << " - "
         progress = tried_over_total(ip,port)
         complete_message << progress if progress
@@ -604,8 +608,7 @@ module Auxiliary::AuthBrute
         complete_message = msg.to_s.strip
       end
     else
-      complete_message = [ip,port].join(":")
-      (complete_message << " ") if ip
+      complete_message = ''
       complete_message << "#{proto.to_s.strip} - " if proto
       progress = tried_over_total(ip,port)
       complete_message << progress if progress
@@ -663,6 +666,8 @@ module Auxiliary::AuthBrute
   def vprint_error(msg='')
     print_brute :level => :verror, :legacy_msg => msg
   end
+
+  alias_method :vprint_bad, :vprint_error
 
   # Legacy vprint
   def vprint_good(msg='')

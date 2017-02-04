@@ -182,6 +182,25 @@ class APIRequest
       end
     end
 
+    @res.elements.each('//Failure') do |s|
+
+      # 1.1 returns lower case elements
+      s.elements.each('message') do |m|
+        @error = m.text
+      end
+      s.elements.each('stacktrace') do |m|
+        @trace = m.text
+      end
+
+      # 1.2 returns capitalized elements
+      s.elements.each('Message') do |m|
+        @error = m.text
+      end
+      s.elements.each('Stacktrace') do |m|
+        @trace = m.text
+      end
+    end
+
     # This is a hack to handle corner cases where a heavily loaded Nexpose instance
     # drops our HTTP connection before processing. We try 5 times to establish a
     # connection in these situations. The actual exception occurs in the Ruby
@@ -534,8 +553,8 @@ module NexposeAPI
         res << {
           :site_id       => site.attributes['id'].to_i,
           :name          => site.attributes['name'].to_s,
-          :risk_factor   => site.attributes['risk_factor'].to_f,
-          :risk_score    => site.attributes['risk_score'].to_f,
+          :risk_factor   => site.attributes['riskfactor'].to_f,
+          :risk_score    => site.attributes['riskscore'].to_f,
         }
       end
       return res
@@ -576,8 +595,8 @@ module NexposeAPI
         res << {
           :device_id     => device.attributes['id'].to_i,
           :address       => device.attributes['address'].to_s,
-          :risk_factor   => device.attributes['risk_factor'].to_f,
-          :risk_score    => device.attributes['risk_score'].to_f,
+          :risk_factor   => device.attributes['riskfactor'].to_f,
+          :risk_score    => device.attributes['riskscore'].to_f,
         }
       end
       return res

@@ -148,7 +148,7 @@ module Md5LookupUtility
     attr_accessor :rhost
 
     # @!attribute rport
-    #  @return [Fixnum] The port number to md5cracker.org
+    #  @return [Integer] The port number to md5cracker.org
     attr_accessor :rport
 
     # @!attribute target_uri
@@ -292,7 +292,7 @@ module Md5LookupUtility
 
         opt.on('-i', '--input <file>',
           'The file that contains all the MD5 hashes (one line per hash)') do |v|
-          if v && !::File.exists?(v)
+          if v && !::File.exist?(v)
             raise OptionParser::InvalidOption, "Invalid input file: #{v}"
           end
 
@@ -464,7 +464,7 @@ module Md5LookupUtility
     # Checks if the hash format is MD5 or not
     #
     # @param md5_hash [String] The MD5 hash (hex)
-    # @return [TrueClass/FlaseClass] True if the format is valid, otherwise false
+    # @return [TrueClass/FalseClass] True if the format is valid, otherwise false
     def is_md5_format?(md5_hash)
       (md5_hash =~ /^[a-f0-9]{32}$/i) ? true : false
     end

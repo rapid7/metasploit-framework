@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
   include Msf::Post::File
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
     n = datastore['ITERATIONS']
     file = datastore['FILE']
 
-    if datastore['ZERO']==true
+    if datastore['ZERO']
       type = 0
       print_status("The file will be overwritten with null bytes")
     end

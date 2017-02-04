@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rbconfig'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   def initialize(info={})
     super( update_info(info,
       'Name'           => 'Windows Gather Screen Spy',
@@ -54,8 +54,8 @@ class Metasploit3 < Msf::Post
     screenshot = Msf::Config.get_config_root + "/logs/" + host + ".jpg"
 
     migrate_explorer
-    if session.platform !~ /win32|win64/i
-      print_error("Unsupported Platform")
+    if session.platform !~ /windows/i
+      print_error('Unsupported Platform')
       return
     end
 

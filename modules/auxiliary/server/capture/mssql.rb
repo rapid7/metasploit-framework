@@ -12,7 +12,7 @@ NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
 MESSAGE = Rex::Proto::NTLM::Message
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
   include Msf::Exploit::Remote::SMB::Server

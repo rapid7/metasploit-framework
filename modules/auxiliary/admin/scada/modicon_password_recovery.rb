@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
 
@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def grab
-    logins = Rex::Ui::Text::Table.new(
+    logins = Rex::Text::Table.new(
       'Header'	=>	"Schneider Modicon Quantum services, usernames, and passwords",
       'Indent'	=>	1,
       'Columns'	=>	["Service", "User Name", "Password"]

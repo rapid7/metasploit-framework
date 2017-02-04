@@ -9,7 +9,7 @@ module Console
 # Console table display wrapper that allows for stylized tables
 #
 ###
-class Table < Rex::Ui::Text::Table
+class Table < Rex::Text::Table
 
   #
   # Default table styles.

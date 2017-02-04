@@ -1,0 +1,271 @@
+##
+#
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+#
+# TODO: SSL Support, Authentication, Listen to localhost only by default
+#
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Auxiliary
+
+  include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Auxiliary::Report
+
+  HWBRIDGE_API_VERSION = "0.0.1"
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'Hardware Bridge Server',
+      'Description' => %q{
+          This module sets up a web server to bridge communications between
+        Metasploit and physically attached hardware.
+        Currently this module supports: automotive
+      },
+      'Author'      => [ 'Craig Smith' ],
+      'License'     => MSF_LICENSE,
+      'Actions'     =>
+        [
+          [ 'WebServer' ]
+        ],
+      'PassiveActions' =>
+        [
+          'WebServer'
+        ],
+      'DefaultAction'  => 'WebServer'))
+
+    @operational_status = 0   # 0=unk, 1=connected, 2=not connected
+    @last_errors = Hash.new
+    @server_started = Time.new
+    @can_interfaces = Array.new
+    @pkt_response = {}  # Candump returned packets
+  end
+
+  def detect_can()
+    @can_interfaces = Array.new
+    Socket.getifaddrs.each do |i|
+      if i.name =~ /^can\d+$/ or i.name =~ /^vcan\d+$/ or i.name =~ /^slcan\d+$/
+        @can_interfaces << i.name
+      end
+    end
+  end
+
+  def get_status()
+    status = Hash.new
+    status["operational"] = @operational_status
+    status["hw_specialty"] = {}
+    status["hw_capabilities"] = {}
+    status["last_10_errors"] = @last_errors # NOTE: no support for this yet
+    status["api_version"] = HWBRIDGE_API_VERSION
+    status["fw_version"] = "not supported"
+    status["hw_version"] = "not supported"
+    if @can_interfaces.size > 0
+      status["hw_specialty"]["automotive"] = true
+      status["hw_capabilities"]["can"] = true
+    end
+    status["hw_capabilities"]["custom_methods"] = true # To test custom methods
+    status
+  end
+
+  def get_statistics()
+    stats = Hash.new
+    stats["uptime"] = Time.now - @server_started
+    stats["packet_stats"] = "not supported"
+    stats["last_request"] = "not supported"
+    stats["voltage"] = "not supported"
+    stats
+  end
+
+  def get_datetime()
+    { "system_datetime" => Time.now }
+  end
+
+  def get_timezone()
+    { "system_timezone" => Time.now.getlocal.zone }
+  end
+
+  def get_ip_config()
+  end
+
+  #
+  # Stub fucntion to test custom methods
+  # Defines a method "sample_cmd" with one argument "data" which is required
+  #
+  def get_custom_methods()
+    m = Hash.new
+    m["Methods"] = Array.new
+    meth = { "method_name" => "custom/sample_cmd", "method_desc" => "Sample HW test command", "args" => [] }
+    arg = { "arg_name" => "data", "arg_type" => "string", "required" => true }
+    meth["args"] << arg
+    meth["return"] = "string"
+    m["Methods"] << meth
+    m
+  end
+
+  def get_auto_supported_buses()
+    detect_can()
+    buses = Array.new
+    @can_interfaces.each do |can|
+      buses << { "bus_name" => can }
+    end
+    buses
+  end
+
+  # Sends a raw CAN packet
+  # bus = string
+  # id = hex ID
+  # data = string of up to 8 hex bytes
+  def cansend(bus, id, data)
+    result = {}
+    result["Success"] = false
+    id = id.to_i(16).to_s(16)  # Clean up the HEX
+    bytes = data.scan(/../)  # Break up data string into 2 char (byte) chunks
+    if bytes.size > 8
+      print_error("Data section can only contain a max of 8 bytes")
+      return result
+    end
+    `which cansend`
+    if not $?.success?
+      print_error("cansend from can-utils not found in path")
+      return result
+    end
+    @can_interfaces.each do |can|
+      if can == bus
+        system("cansend #{bus} #{id}##{bytes.join}")
+        result["Success"] = true if $?.success?
+      end
+    end
+    result
+  end
+
+  # Converts candump output to {Packets => [{ ID=> id DATA => [] }]}
+  def candump2hash(str_packets)
+    hash = {}
+    hash["Packets"] = []
+    lines = str_packets.split(/\n/)
+    lines.each do |line|
+      if line=~/\w+\s+(\w+)   \[\d\]  (.+)$/
+        id = $1
+        str_data = $2
+        data = str_data.split
+        hash["Packets"] << {"ID" => id, "DATA" => data}
+      end
+    end
+    hash
+  end
+
+  def candump(bus, id, timeout, maxpkts)
+    $candump_sniffer = Thread.new do
+      output = `candump #{bus},#{id}:FFFFFF -T #{timeout} -n #{maxpkts}`
+      @pkt_response = candump2hash(output)
+      Thread::exit()
+    end
+  end
+
+  # Sends an ISO-TP style CAN packet and waites for a response or a timeout
+  # bus = string
+  # srcid = hex id of the sent packet
+  # dstid = hex id of the return packets
+  # data = string of hex bytes to send
+  # timeout = optional int to timeout on lack of response
+  # maxpkts = max number of packets to recieve
+  def isotp_send_and_wait(bus, srcid, dstid, data, timeout=2000, maxpkts=3)
+    result = {}
+    result["Success"] = false
+    srcid = srcid.to_i(16).to_s(16)
+    dstid = dstid.to_i(16).to_s(16)
+    bytes = data.scan(/../)
+    if bytes.size > 8
+      print_error("Data section currently has to be less than 8 bytes")
+      return result
+    else
+      sz = "%02x" % bytes.size
+      bytes = sz + bytes.join
+    end
+    # Should we ever require isotpsend for this?
+    `which cansend`
+    if not $?.success?
+      print_error("cansend from can-utils not found in path")
+      return result
+    end
+    @can_interfaces.each do |can|
+      if can == bus
+        candump(bus,dstid,timeout,maxpkts)
+        system("cansend #{bus} #{srcid}##{bytes}")
+        result["Success"] = true if $?.success?
+        result["Packets"] = []
+        $candump_sniffer.join
+        if not @pkt_response.empty?
+          result = @pkt_response
+        end
+      end
+    end
+    result
+
+  end
+
+  #
+  # This is just a sample method that should show up
+  # as sample_cmd in the interface
+  #
+  def sample_custom_method(data)
+    res = {}
+    res["value"] = "Succesfully processed: #{data}"
+    res
+  end
+
+  def not_supported()
+    { "status" => "not supported" }
+  end
+
+  def on_request_uri(cli, request)
+    if request.uri =~ /status$/i
+      print_status("Sending status...")
+      send_response_html(cli, get_status().to_json(), { 'Content-Type' => 'application/json' })
+    elsif request.uri =~/statistics$/i
+      print_status("Sending statistics...")
+      send_response_html(cli, get_statistics().to_json(), { 'Content-Type' => 'application/json' })
+    elsif request.uri =~/settings\/datetime\/get$/i
+      print_status("Sending Datetime")
+      send_response_html(cli, get_datetime().to_json(), { 'Content-Type' => 'application/json' })
+    elsif request.uri =~/settings\/timezone\/get$/i
+      print_status("Sending Timezone")
+      send_response_html(cli, get_timezone().to_json(), { 'Content-Type' => 'application/json' })
+    elsif request.uri =~/custom_methods$/i
+      print_status("Sending custom methods")
+      send_response_html(cli, get_custom_methods().to_json(), { 'Content-Type' => 'application/json' })
+    elsif request.uri=~/custom\/sample_cmd\?data=(\S+)$/
+      print_status("Request for custom command with args #{$1}")
+      send_response_html(cli, sample_custom_method($1).to_json(), { 'Content-Type' => 'application/json' })
+    elsif request.uri =~/automotive/i
+      if request.uri =~ /automotive\/supported_buses/
+        print_status("Sending known buses...")
+        send_response_html(cli, get_auto_supported_buses().to_json, { 'Content-Type' => 'application/json' })
+      elsif request.uri =~/automotive\/(\w+)\/cansend\?id=(\w+)&data=(\w+)/
+        print_status("Request to send CAN packets for #{$1} => #{$2}##{$3}")
+        send_response_html(cli, cansend($1, $2, $3).to_json(), { 'Content-Type' => 'application/json' })
+      elsif request.uri =~/automotive\/(\w+)\/isotpsend_and_wait\?srcid=(\w+)&dstid=(\w+)&data=(\w+)/
+        bus = $1; srcid = $2; dstid = $3; data = $4
+        print_status("Request to send ISO-TP packet and wait for response  #{srcid}##{data} => #{dstid}")
+        timeout = 1500
+        maxpkts = 3
+        timeout = $1 if request.uri=~/&timeout=(\d+)/
+        maxpkts = $1 if request.uri=~/&maxpkts=(\d+)/
+        send_response_html(cli, isotp_send_and_wait(bus, srcid, dstid, data, timeout, maxpkts).to_json(),  { 'Content-Type' => 'application/json' })
+      else
+        send_response_html(cli, not_supported().to_json(), { 'Content-Type' => 'application/json' })
+      end
+    else
+      send_response_html(cli, not_supported().to_json(), { 'Content-Type' => 'application/json' })
+    end
+  end
+
+  def run
+    detect_can()
+    @server_started = Time.now
+    exploit()
+  end
+
+end

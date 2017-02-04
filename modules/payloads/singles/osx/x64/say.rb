@@ -6,7 +6,7 @@
 
 require 'msf/core'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 53
 
@@ -19,7 +19,7 @@ module Metasploit3
       'Author'        => 'nemo <nemo[at]felinemenace.org>',
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X86_64
+      'Arch'          => ARCH_X64
     ))
 
     # exec payload options

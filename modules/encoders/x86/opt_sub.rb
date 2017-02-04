@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
 
   Rank = ManualRanking
 
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Encoder
     register_options(
       [
         OptString.new( 'ValidCharSet', [ false, "Specify a known set of valid chars (ALPHA, ALPHANUM, FILEPATH)" ]),
-        OptBool.new( 'OverwriteProtect', [ false, "Indicate if the encoded payload requires protection against being overwritten" ])
+        OptBool.new( 'OverwriteProtect', [ false, "Indicate if the encoded payload requires protection against being overwritten", false])
       ],
       self.class)
   end
@@ -179,10 +179,8 @@ class Metasploit3 < Msf::Encoder
       raise EncodingError, "Unable to find AND-able chars resulting 0 in the valid character set."
     end
 
-    protect_payload = (datastore['OverwriteProtect'] || "").downcase == "true"
-
     # with everything set up, we can now call the encoding routine
-    state.decoder_stub = encode_payload(state.buf, reg_offset, protect_payload)
+    state.decoder_stub = encode_payload(state.buf, reg_offset, datastore['OverwriteProtect'])
 
     state.buf = ""
     state.decoder_stub

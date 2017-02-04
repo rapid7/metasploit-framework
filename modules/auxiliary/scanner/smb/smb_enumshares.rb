@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
         ))
     rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
       if e.error_code == 0xC00000BB
-        vprint_error("#{ip}:#{rport} - Got 0xC00000BB while enumerating shares, switching to srvsvc...")
+        vprint_error("Got 0xC00000BB while enumerating shares, switching to srvsvc...")
         @srvsvc = true # Make sure the module is aware of this state
         return srvsvc_netshareenum(ip)
       end
@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       dcerpc_bind(handle)
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      vprint_error("#{ip} : #{e.message}")
+      vprint_error(e.message)
       return []
     end
 
@@ -321,7 +321,7 @@ class Metasploit3 < Msf::Auxiliary
     write = false
 
     # Creating a separate file for each IP address's results.
-    detailed_tbl = Rex::Ui::Text::Table.new(
+    detailed_tbl = Rex::Text::Table.new(
       'Header'  => "Spidered results for #{ip}.",
       'Indent'  => 1,
       'Columns' => [ 'IP Address', 'Type', 'Share', 'Path', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
@@ -336,7 +336,7 @@ class Metasploit3 < Msf::Auxiliary
         next
       end
       if not datastore['ShowFiles']
-        print_status("#{ip}:#{rport} - Spidering #{x}.")
+        print_status("Spidering #{x}.")
       end
       subdirs = [""]
       if x.strip() == "C$" and datastore['SpiderProfiles']
@@ -361,14 +361,14 @@ class Metasploit3 < Msf::Auxiliary
             subdirs.shift
             next
           end
-          header = "#{ip}:#{rport}"
+          header = ""
           if simple.client.default_domain and simple.client.default_name
             header << " \\\\#{simple.client.default_domain}"
           end
           header << "\\#{x.sub("C$","C$\\")}" if simple.client.default_name
           header << subdirs[0]
 
-          pretty_tbl = Rex::Ui::Text::Table.new(
+          pretty_tbl = Rex::Text::Table.new(
             'Header'  => header,
             'Indent'  => 1,
             'Columns' => [ 'Type', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
@@ -408,18 +408,18 @@ class Metasploit3 < Msf::Auxiliary
         end
         subdirs.shift
       end
-    print_status("#{ip}:#{rport} - Spider #{x} complete.") unless datastore['ShowFiles'] == true
+    print_status("Spider #{x} complete.") unless datastore['ShowFiles']
     end
     unless detailed_tbl.rows.empty?
       if datastore['LogSpider'] == '1'
         p = store_loot('smb.enumshares', 'text/csv', ip, detailed_tbl.to_csv)
-        print_good("#{ip} - info saved in: #{p.to_s}")
+        print_good("info saved in: #{p.to_s}")
       elsif datastore['LogSpider'] == '2'
         p = store_loot('smb.enumshares', 'text/plain', ip, detailed_tbl)
-        print_good("#{ip} - info saved in: #{p.to_s}")
+        print_good("info saved in: #{p.to_s}")
       elsif datastore['LogSpider'] == '3'
         p = store_loot('smb.enumshares', 'text/plain', ip, logdata)
-        print_good("#{ip} - info saved in: #{p.to_s}")
+        print_good("info saved in: #{p.to_s}")
       end
     end
   end
@@ -453,12 +453,12 @@ class Metasploit3 < Msf::Auxiliary
         end
 
         os_info     = get_os_info(ip, rport)
-        print_status("#{ip}:#{rport} - #{os_info}") if os_info
+        print_status(os_info) if os_info
 
         if shares.empty?
-          print_status("#{ip}:#{rport} - No shares collected")
+          print_status("No shares collected")
         else
-          shares_info = shares.map{|x| "#{ip}:#{rport} - #{x[0]} - (#{x[1]}) #{x[2]}" }.join(", ")
+          shares_info = shares.map{|x| "#{x[0]} - (#{x[1]}) #{x[2]}" }.join(", ")
           shares_info.split(", ").each { |share|
             print_good share
           }
@@ -482,7 +482,7 @@ class Metasploit3 < Msf::Auxiliary
         raise $!
       rescue ::Rex::Proto::SMB::Exceptions::LoginError,
         ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-        print_error("#{ip}:#{rport} - #{e.message}")
+        print_error(e.message)
         return if e.message =~ /STATUS_ACCESS_DENIED/
       rescue Errno::ECONNRESET,
         ::Rex::Proto::SMB::Exceptions::InvalidType,
@@ -490,7 +490,7 @@ class Metasploit3 < Msf::Auxiliary
         ::Rex::Proto::SMB::Exceptions::InvalidCommand,
         ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
         ::Rex::Proto::SMB::Exceptions::NoReply => e
-        vprint_error("#{ip}:#{rport} - #{e.message}")
+        vprint_error(e.message)
         next if not shares.empty? and rport == 139 # no results, try again
       rescue Errno::ENOPROTOOPT
         print_status("Wait 5 seconds before retrying...")
@@ -499,7 +499,7 @@ class Metasploit3 < Msf::Auxiliary
       rescue ::Exception => e
         next if e.to_s =~ /execution expired/
         next if not shares.empty? and rport == 139
-        vprint_error("#{ip}:#{rport} - Error: '#{ip}' '#{e.class}' '#{e.to_s}'")
+        vprint_error("Error: '#{ip}' '#{e.class}' '#{e.to_s}'")
       ensure
         disconnect
       end

@@ -86,8 +86,6 @@ module Msf::Module::Search
               match = [t,w] if refs.any? { |ref| ref =~ /^cve\-/i and ref =~ r }
             when 'bid'
               match = [t,w] if refs.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
-            when 'osvdb'
-              match = [t,w] if refs.any? { |ref| ref =~ /^osvdb\-/i and ref =~ r }
             when 'edb'
               match = [t,w] if refs.any? { |ref| ref =~ /^edb\-/i and ref =~ r }
           end

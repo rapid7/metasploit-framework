@@ -15,7 +15,7 @@ require 'msf/core'
 # Executes an arbitrary command.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 31
 
@@ -29,7 +29,7 @@ module Metasploit3
       'Author'        => 'joev',
       'License'       => MSF_LICENSE,
       'Platform'      => 'bsd',
-      'Arch'          => ARCH_X86_64))
+      'Arch'          => ARCH_X64))
 
     # Register exec options
     register_options(

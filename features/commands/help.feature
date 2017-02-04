@@ -1,7 +1,7 @@
 Feature: Help command
 
   Background:
-    Given I run `msfconsole --defer-module-loads -x help -x exit`
+    Given I run `msfconsole --defer-module-loads -q -x help -x exit`
 
   Scenario: The 'help' command's output
     Then the output should contain:
@@ -12,48 +12,71 @@ Feature: Help command
           Command       Description
           -------       -----------
           ?             Help menu
-          advanced      Displays advanced options for one or more modules
-          back          Move back from the current context
           banner        Display an awesome metasploit banner
           cd            Change the current working directory
           color         Toggle color
           connect       Communicate with a host
-          edit          Edit the current module with $VISUAL or $EDITOR
           exit          Exit the console
           get           Gets the value of a context-specific variable
           getg          Gets the value of a global variable
           grep          Grep the output of another command
           help          Help menu
-          info          Displays information about one or more modules
+          history       Show command history
           irb           Drop into irb scripting mode
-          jobs          Displays and manages jobs
-          kill          Kill a job
           load          Load a framework plugin
-          loadpath      Searches for and loads modules from a path
-          makerc        Save commands entered since start to a file
-          options       Displays global options or for one or more modules
-          popm          Pops the latest module off the stack and makes it active
-          previous      Sets the previously loaded module as the current module
-          pushm         Pushes the active or list of modules onto the module stack
           quit          Exit the console
-          reload_all    Reloads all modules from all defined module paths
-          rename_job    Rename a job
-          resource      Run the commands stored in a file
           route         Route traffic through a session
           save          Saves the active datastores
-          search        Searches module names and descriptions
           sessions      Dump session listings and display information about sessions
           set           Sets a context-specific variable to a value
           setg          Sets a global variable to a value
-          show          Displays modules of a given type, or all modules
           sleep         Do nothing for the specified number of seconds
           spool         Write console output into a file as well the screen
           threads       View and manipulate background threads
           unload        Unload a framework plugin
           unset         Unsets one or more context-specific variables
           unsetg        Unsets one or more global variables
-          use           Selects a module by name
           version       Show the framework and console library version numbers
+
+
+      Module Commands
+      ===============
+
+          Command       Description
+          -------       -----------
+          advanced      Displays advanced options for one or more modules
+          back          Move back from the current context
+          edit          Edit the current module with the preferred editor
+          info          Displays information about one or more modules
+          loadpath      Searches for and loads modules from a path
+          options       Displays global options or for one or more modules
+          popm          Pops the latest module off the stack and makes it active
+          previous      Sets the previously loaded module as the current module
+          pushm         Pushes the active or list of modules onto the module stack
+          reload_all    Reloads all modules from all defined module paths
+          search        Searches module names and descriptions
+          show          Displays modules of a given type, or all modules
+          use           Selects a module by name
+
+
+      Job Commands
+      ============
+
+          Command       Description
+          -------       -----------
+          handler       Start a payload handler as job
+          jobs          Displays and manages jobs
+          kill          Kill a job
+          rename_job    Rename a job
+
+
+      Resource Script Commands
+      ========================
+
+          Command       Description
+          -------       -----------
+          makerc        Save commands entered since start to a file
+          resource      Run the commands stored in a file
 
 
       Database Backend Commands
@@ -61,7 +84,6 @@ Feature: Help command
 
           Command           Description
           -------           -----------
-          creds             List all credentials in the database
           db_connect        Connect to an existing database
           db_disconnect     Disconnect from the current database instance
           db_export         Export a file containing the contents of the database
@@ -75,5 +97,15 @@ Feature: Help command
           services          List all services in the database
           vulns             List all vulnerabilities in the database
           workspace         Switch between database workspaces
+
+
+    Credentials Backend Commands
+    ============================
+
+          Command       Description
+          -------       -----------
+          creds         List all credentials in the database
+
+
       """
 

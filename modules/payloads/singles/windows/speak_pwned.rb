@@ -38,7 +38,7 @@ require 'msf/core'
 require 'msf/core/payload/windows/exec'
 
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 247
 

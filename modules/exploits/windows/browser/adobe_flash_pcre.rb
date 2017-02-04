@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Exploit::Remote
+class MetasploitModule < Msf::Exploit::Remote
   Rank = NormalRanking
 
   CLASSID =  'd27cdb6e-ae6d-11cf-96b8-444553540000'

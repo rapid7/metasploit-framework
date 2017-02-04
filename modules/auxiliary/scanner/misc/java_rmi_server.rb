@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/java/serialization'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Java::Rmi::Client
   include Msf::Auxiliary::Scanner
@@ -35,19 +35,19 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(target_host)
-    vprint_status("#{peer} - Sending RMI Header...")
+    vprint_status("Sending RMI Header...")
     connect
 
     send_header
     ack = recv_protocol_ack
     if ack.nil?
-      print_error("#{peer} - Failed to negotiate RMI protocol")
+      print_error("Failed to negotiate RMI protocol")
       disconnect
       return
     end
 
     # Determine if the instance allows remote class loading
-    vprint_status("#{peer} - Sending RMI Call...")
+    vprint_status("Sending RMI Call...")
     jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
     jar_url = "file:RMIClassLoaderSecurityTest/" + jar
 
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     return_value = recv_return
 
     if return_value.nil?
-      print_error("#{peer} - Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
+      print_error("Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
       return
     end

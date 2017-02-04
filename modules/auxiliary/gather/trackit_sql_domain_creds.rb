@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -260,7 +260,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if loot[database_pw]
-      cipher = OpenSSL::Cipher::Cipher.new("des")
+      cipher = OpenSSL::Cipher.new("des")
       cipher.decrypt
       cipher.key = 'NumaraTI'
       cipher.iv = 'NumaraTI'
@@ -274,7 +274,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if loot[domain_admin_pw]
-      cipher = OpenSSL::Cipher::Cipher.new("des")
+      cipher = OpenSSL::Cipher.new("des")
       cipher.decrypt
       cipher.key = 'NumaraTI'
       cipher.iv = 'NumaraTI'

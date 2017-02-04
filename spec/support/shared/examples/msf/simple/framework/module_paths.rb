@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
+RSpec.shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
   it { is_expected.to be_a Msf::Simple::Framework::ModulePaths }
 
   context '#init_module_paths' do
@@ -20,7 +20,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
       {}
     end
 
-    before(:each) do
+    before(:example) do
       # create the framework first so that it's initialization's call
       # to init_module_paths doesn't get captured.
       framework
@@ -41,7 +41,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
     end
 
     context 'Msf::Config' do
-      before(:each) do
+      before(:example) do
         allow(Rails.application.paths).to receive(:[]).with('modules').and_return(nil)
       end
 
@@ -64,7 +64,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
     end
 
     context 'datastore' do
-      before(:each) do
+      before(:example) do
         allow(Rails.application.paths).to receive(:[]).with('modules').and_return(nil)
       end
 
@@ -79,7 +79,7 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
           module_paths
         end
 
-        before(:each) do
+        before(:example) do
           msf_module_paths = module_paths.join(';')
           framework.datastore['MsfModulePaths'] = msf_module_paths
         end

@@ -48,7 +48,7 @@ opts.parse(ARGV) { |opt, idx, val|
   when "-x"
     puts "Filter: #{val}"
     filter = val
-    fil=1		
+    fil=1
   end
 }
 
@@ -57,7 +57,7 @@ Indent = '    '
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create('DisableDatabase' => true)
 
-tbl = Rex::Ui::Text::Table.new(
+tbl = Rex::Text::Table.new(
   'Header'  => 'Module Targets',
   'Indent'  => Indent.length,
   'Columns' => [ 'Module name','Target' ]

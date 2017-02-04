@@ -7,7 +7,7 @@ require 'msf/core'
 require 'metasploit/framework/login_scanner/glassfish'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -42,8 +42,6 @@ class Metasploit3 < Msf::Auxiliary
         # There is no TARGETURI because when Glassfish is installed, the path is /
         Opt::RPORT(4848),
         OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
-        OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', false]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
       ], self.class)
   end
 
@@ -94,7 +92,9 @@ class Metasploit3 < Msf::Auxiliary
         cred_details:       @cred_collection,
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
-        connection_timeout: 5
+        connection_timeout: 5,
+        http_username:      datastore['HttpUsername'],
+        http_password:      datastore['HttpPassword']
       )
     )
   end

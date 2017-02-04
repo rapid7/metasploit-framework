@@ -1,4 +1,5 @@
 load Metasploit::Framework.root.join('tools/password/md5_lookup.rb').to_path
+require 'spec_helper'
 
 require 'rex/proto/http/response'
 require 'stringio'
@@ -68,17 +69,6 @@ RSpec.describe Md5LookupUtility do
     allow(subject).to receive(:send_request_cgi) do |opts|
       set_expected_response(body)
     end
-  end
-
-  def get_stdout(&block)
-    out = $stdout
-    $stdout = fake = StringIO.new
-    begin
-      yield
-    ensure
-      $stdout = out
-    end
-    fake.string
   end
 
   #
@@ -222,7 +212,7 @@ RSpec.describe Md5LookupUtility do
       }
     }
 
-    before(:each) do
+    before(:example) do
       expect(Md5LookupUtility::OptsConsole).to receive(:parse).with(any_args).and_return(options)
       allow(File).to receive(:open).with(input_file, 'rb').and_yield(StringIO.new(input_data))
       allow(File).to receive(:new).with(output_file, 'wb').and_return(StringIO.new)
@@ -320,8 +310,8 @@ RSpec.describe Md5LookupUtility do
       context 'when valid arguments are passed' do
         let(:opts) { subject.parse(valid_argv) }
 
-        before(:each) do
-          allow(File).to receive(:exists?).and_return(true)
+        before(:example) do
+          allow(File).to receive(:exist?).and_return(true)
         end
 
         it 'returns the input file path' do
@@ -339,8 +329,8 @@ RSpec.describe Md5LookupUtility do
       end
 
       context 'when the required input file is not set' do
-        before(:each) do
-          allow(File).to receive(:exists?).and_return(false)
+        before(:example) do
+          allow(File).to receive(:exist?).and_return(false)
         end
 
         it 'raises an OptionParser::MissingArgument error' do

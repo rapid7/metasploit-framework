@@ -10,7 +10,7 @@ require 'msf/core'
 #
 #  Kris Katterjohn - 03/03/2008
 ###
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 36
 

@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
 
-module Metasploit4
+module MetasploitModule
 
   CachedSize = 958531
 
@@ -40,13 +40,13 @@ module Metasploit4
     ], self.class)
   end
 
-  def generate
-    stage_meterpreter(true) + generate_config
+  def generate(opts={})
+    opts[:stageless] = true
+    stage_meterpreter(opts) + generate_config(opts)
   end
 
   def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
-    opts[:stageless] = true
 
     # create the configuration block
     config_opts = {

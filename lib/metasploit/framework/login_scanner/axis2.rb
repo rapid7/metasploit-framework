@@ -17,7 +17,7 @@ module Metasploit
         # (see Base#attempt_login)
         def attempt_login(credential)
           http_client = Rex::Proto::Http::Client.new(
-            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies
+            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password
           )
 
           configure_http_client(http_client)

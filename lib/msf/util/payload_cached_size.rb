@@ -29,7 +29,8 @@ class PayloadCachedSize
       'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
       'RC4PASSWORD' => 'Metasploit',
       'DNSZONE' => 'corelan.eu',
-      'PEXEC' => '/bin/sh'
+      'PEXEC' => '/bin/sh',
+      'StagerURILength' => 5
     },
     'Encoder'     => nil,
     'DisableNops' => true
@@ -44,7 +45,7 @@ class PayloadCachedSize
   def self.update_cache_constant(data, cached_size)
     data.
       gsub(/^\s*CachedSize\s*=\s*(\d+|:dynamic).*/, '').
-      gsub(/^(module Metasploit\d+)\s*\n/) do |m|
+      gsub(/^(module MetasploitModule)\s*\n/) do |m|
         "#{m.strip}\n\n  CachedSize = #{cached_size}\n\n"
       end
   end
@@ -78,7 +79,7 @@ class PayloadCachedSize
   # Calculates the CachedSize value for a payload module
   #
   # @param mod [Msf::Payload] The class of the payload module to update
-  # @return [Fixnum]
+  # @return [Integer]
   def self.compute_cached_size(mod)
     return ":dynamic" if is_dynamic?(mod)
     return mod.generate_simple(OPTS).size
@@ -87,9 +88,9 @@ class PayloadCachedSize
   # Determines whether a payload generates a static sized output
   #
   # @param mod [Msf::Payload] The class of the payload module to update
-  # @param generation_count [Fixnum] The number of iterations to use to
+  # @param generation_count [Integer] The number of iterations to use to
   #   verify that the size is static.
-  # @return [Fixnum]
+  # @return [Integer]
   def self.is_dynamic?(mod, generation_count=5)
     [*(1..generation_count)].map{|x|
       mod.generate_simple(OPTS).size}.uniq.length != 1

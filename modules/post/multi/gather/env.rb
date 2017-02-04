@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
 
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 
   def get_env_shell
     print_line @output if @output
-    if session.platform =~ /win/
+    if session.platform == 'windows'
       @ltype = "windows.environment"
       cmd = "set"
     else
@@ -46,8 +46,8 @@ class Metasploit3 < Msf::Post
   end
 
   def get_env_meterpreter
-    case sysinfo["OS"]
-    when /windows/i
+    case session.platform
+    when 'windows'
       var_names = []
       var_names << registry_enumvals("HKEY_CURRENT_USER\\Volatile Environment")
       var_names << registry_enumvals("HKEY_CURRENT_USER\\Environment")

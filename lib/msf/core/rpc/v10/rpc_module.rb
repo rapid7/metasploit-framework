@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'msf/util/document_generator'
+
 module Msf
 module RPC
 class RPC_Module < RPC_Base
@@ -67,6 +69,17 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.post')
   def rpc_post
     { "modules" => self.framework.post.keys }
+  end
+
+
+  # Returns detailed information about a module in HTML.
+  #
+  # @return [String] HTML file.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.info_html', 'exploit', 'windows/smb/ms08_067_netapi')
+  def rpc_info_html(mtype, mname)
+    m = _find_module(mtype, mname)
+    Msf::Util::DocumentGenerator.get_module_document(m)
   end
 
 
@@ -155,7 +168,7 @@ class RPC_Module < RPC_Base
   # @param [String] mname Post module name. For example: 'windows/wlan/wlan_profile'.
   # @raise [Msf::RPC::Exception] Module not found (wrong name).
   # @return [Hash] The post module's compatible sessions. It contains the following key:
-  #  * 'sessions' [Array<Fixnum>] A list of session IDs.
+  #  * 'sessions' [Array<Integer>] A list of session IDs.
   # @example Here's how you would use this from the client:
   #  rpc.call('module.compatible_sessions', 'windows/wlan/wlan_profile')
   def rpc_compatible_sessions(mname)
@@ -170,7 +183,7 @@ class RPC_Module < RPC_Base
   # Returns the compatible target-specific payloads for an exploit.
   #
   # @param [String] mname Exploit module name. For example: 'windows/smb/ms08_067_netapi'
-  # @param [Fixnum] target A specific target the exploit module provides.
+  # @param [Integer] target A specific target the exploit module provides.
   # @raise [Msf::RPC::Exception] Module not found (wrong name).
   # @return [Hash] The exploit's target-specific payloads. It contains the following key:
   #  * 'payloads' [Array<string>] A list of payloads.
@@ -246,7 +259,7 @@ class RPC_Module < RPC_Base
   #       even see these sessions, because it belongs to a different framework instance.
   #       However, this restriction does not apply to the database.
   # @return [Hash] It contains the following keys:
-  #  * 'job_id' [Fixnum] Job ID.
+  #  * 'job_id' [Integer] Job ID.
   #  * 'uuid' [String] UUID.
   # @example Here's how you would use this from the client:
   #  # Starts a windows/meterpreter/reverse_tcp on port 6669
@@ -288,7 +301,7 @@ class RPC_Module < RPC_Base
   # @option options [String] 'badchars' Bad characters.
   # @option options [String] 'platform' Platform.
   # @option options [String] 'arch' Architecture.
-  # @option options [Fixnum] 'ecount' Number of times to encode.
+  # @option options [Integer] 'ecount' Number of times to encode.
   # @option options [TrueClass] 'inject' To enable injection.
   # @option options [String] 'template' The template file (an executable).
   # @option options [String] 'template_path' Template path.

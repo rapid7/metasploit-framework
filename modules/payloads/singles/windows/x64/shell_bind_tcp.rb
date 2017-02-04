@@ -8,7 +8,7 @@ require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
   CachedSize = 505
 
@@ -23,7 +23,7 @@ module Metasploit3
       'Author'        => [ 'sf' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'Payload'       =>

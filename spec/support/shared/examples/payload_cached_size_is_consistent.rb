@@ -69,7 +69,7 @@
 # @option options [String] :reference_name The reference name for payload class that should be instantiated from mixing
 #   `:ancestor_reference_names`.
 # @return [void]
-shared_examples_for 'payload cached size is consistent' do |options|
+RSpec.shared_examples_for 'payload cached size is consistent' do |options|
 
   options.assert_valid_keys(:ancestor_reference_names, :modules_pathname, :reference_name, :dynamic_size)
 
@@ -101,7 +101,8 @@ shared_examples_for 'payload cached size is consistent' do |options|
       'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
       'RC4PASSWORD' => 'Metasploit',
       'DNSZONE' => 'corelan.eu',
-      'PEXEC' => '/bin/sh'
+      'PEXEC' => '/bin/sh',
+      'StagerURILength' => 5
     },
     'Encoder'     => nil,
     'DisableNops' => true

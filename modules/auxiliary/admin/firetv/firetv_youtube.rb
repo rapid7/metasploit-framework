@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -33,7 +33,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(8008),
-      OptString.new('VID', [true, 'Video ID', 'HkhSZyYmpO4'])
+      OptString.new('VID', [true, 'Video ID', 'kxopViU98Xo'])
     ])
   end
 

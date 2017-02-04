@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::Priv
@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Post
     hash = Digest::MD5.new
     hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
 
-    rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+    rc4 = OpenSSL::Cipher.new("rc4")
     rc4.key = hash.digest
     hbootkey  = rc4.update(vf[0x80, 32])
     hbootkey << rc4.final
@@ -257,18 +257,18 @@ class Metasploit3 < Msf::Post
 
     des_k1, des_k2 = rid_to_key(rid)
 
-    d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d1 = OpenSSL::Cipher.new('des-ecb')
     d1.padding = 0
     d1.key = des_k1
 
-    d2 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d2 = OpenSSL::Cipher.new('des-ecb')
     d2.padding = 0
     d2.key = des_k2
 
     md5 = Digest::MD5.new
     md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
 
-    rc4 = OpenSSL::Cipher::Cipher.new('rc4')
+    rc4 = OpenSSL::Cipher.new('rc4')
     rc4.key = md5.digest
     okey = rc4.update(enchash)
 

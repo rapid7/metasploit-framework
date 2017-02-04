@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'yaml'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -28,7 +28,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    if session.platform =~ /win/
+    case session.platform
+    when 'windows'
       if session.type == 'meterpreter'
         begin
           res = cmd_exec('c:\\Program Files\\Oracle\\VirtualBox\\vboxmanage', 'list -l vms')
@@ -48,7 +49,7 @@ class Metasploit3 < Msf::Post
           return nil
         end
       end
-    elsif session.platform =~ /unix|linux|bsd|osx/
+    when 'unix', 'linux', 'bsd', 'osx'
       res = cmd_exec('vboxmanage list -l vms')
 
       unless res.start_with?('Sun VirtualBox') || res.include?('Name:')

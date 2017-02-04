@@ -52,7 +52,7 @@ end
   when "-r"
     list = val
     resource = ""
-    if not ::File.exists?(list)
+    if not ::File.exist?(list)
       raise "Command List File does not exists!"
     else
       ::File.open(list, "r").each_line do |line|

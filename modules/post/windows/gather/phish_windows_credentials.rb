@@ -5,7 +5,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Powershell
 
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
             ],
       'References'    => [ 'URL', 'https://forsec.nl/2015/02/windows-credentials-phishing-using-metasploit' ],
       'Platform'      => [ 'win' ],
-      'Arch'          => [ 'x86', 'x64' ],
+      'Arch'          => [ ARCH_X86, ARCH_X64 ],
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 

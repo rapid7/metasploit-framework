@@ -1,5 +1,5 @@
 # -*- coding:binary -*-
-shared_examples_for 'Msf::Modules::Error subclass #initialize' do
+RSpec.shared_examples_for 'Msf::Modules::Error subclass #initialize' do
   context 'instance methods' do
     context '#initialize' do
       include_context 'Msf::Modules::Error attributes'

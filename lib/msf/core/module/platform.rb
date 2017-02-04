@@ -409,6 +409,10 @@ class Msf::Module::Platform
       Rank = 700
       Alias = "10"
     end
+    class V11
+      Rank = 800
+      Alias = "11"
+    end
   end
 
   #
@@ -532,4 +536,21 @@ class Msf::Module::Platform
     Rank = 100
     Alias = "mainframe"
   end
+
+  #
+  # Multi (for wildcard-style platform functions)
+  #
+  class Multi < Msf::Module::Platform
+    Rank = 100
+    Alias = "multi"
+  end
+
+  #
+  # Hardware
+  #
+  class Hardware < Msf::Module::Platform
+    Rank = 100
+    Alias = "hardware"
+  end
+
 end

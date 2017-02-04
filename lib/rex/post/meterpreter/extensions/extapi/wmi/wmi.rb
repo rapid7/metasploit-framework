@@ -31,7 +31,7 @@ class Wmi
   def query(query, root = nil)
     request = Packet.create_request('extapi_wmi_query')
 
-    request.add_tlv(TLV_TYPE_EXT_WMI_DOMAIN, root) unless root.blank?
+    request.add_tlv(TLV_TYPE_EXT_WMI_DOMAIN, root) unless root.to_s.strip.empty?
     request.add_tlv(TLV_TYPE_EXT_WMI_QUERY, query)
 
     response = client.send_request(request)

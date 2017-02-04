@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::Module::Type' do
+RSpec.shared_examples_for 'Msf::Module::Type' do
   it { is_expected.to respond_to :auxiliary? }
   it { is_expected.to respond_to :encoder? }
   it { is_expected.to respond_to :exploit? }

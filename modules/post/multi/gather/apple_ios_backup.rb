@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex/parser/apple_backup_manifestdb'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
 
@@ -38,10 +38,10 @@ class Metasploit3 < Msf::Post
   #
   def run
     case session.platform
-    when /osx/
+    when 'osx'
       @platform = :osx
       paths = enum_users_unix
-    when /win/
+    when 'windows'
       @platform = :windows
       drive = session.sys.config.getenv('SystemDrive')
       os = session.sys.config.sysinfo['OS']
