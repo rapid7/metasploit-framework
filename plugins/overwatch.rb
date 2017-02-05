@@ -54,7 +54,7 @@ class Plugin::Overwatch < Msf::Plugin
         self.driver.print_status("Overwatch started, logging is disabled. Use 'overwatch_start -h' for plugin information.")
       end
 
-      bool_options = [ :autoroute, :reroute_stale, :kill_stale, :kill_stale_dup, :log ]
+      bool_options = [ :autoroute, :reroute_stale, :ipv6, :kill_stale, :kill_stale_dup, :log ]
       bool_options.each do |o|
         self.config[o] = (self.config[o].to_s =~ /^[yt1]/i) ? true : false # Set option to true if (true, yes, or 1)
       end
@@ -179,13 +179,16 @@ class Plugin::Overwatch < Msf::Plugin
       return unless framework.sessions[sid].alive?
 
       framework.sessions[sid].net.config.each_route do | route |
-        if route.subnet =~ /\./ # Pick out the IPv4 addresses
+        if (Rex::Socket.is_ipv4?(route.netmask) && Rex::Socket.is_ipv4?(route.netmask))
           subnet = get_subnet_ipv4(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
           next unless is_routable_ipv4?(subnet, route.netmask)
-        elsif route.subnet =~ /:/
-          # Do IPv6 Checks
+
+        # Optional IPv6 routing
+        elsif (Rex::Socket.is_ipv6?(route.netmask) && Rex::Socket.is_ipv6?(route.netmask))
+          next unless self.config[:ipv6]
           subnet = route.subnet
           next unless is_routeable_ipv6?(subnet, route.netmask)
+
         else
           next
         end
@@ -346,49 +349,28 @@ class Plugin::Overwatch < Msf::Plugin
       return true
     end
 
+    # This function will exclude link-local, multicast, and default routes
+    #
+    # @subnet [string class] IPv6 subnet or address to check
+    # @netmask [string class] IPv6 netmask to check
+    #
+    # @return [true]  If good to add
+    # @return [false] If not
     def is_routeable_ipv6?(subnet, netmask)
       #return false unless validate_cmd(subnet, netmask)
 
       if netmask == 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
         return false
-      elsif subnet =~ /^fe80::/
+      elsif subnet =~ /^fe80::/  # Link-Local Subnet
         return false
-      elsif subnet == '::'
+      elsif subnet =~ /^fe02::/  # Interior Multicast
+        return false
+      elsif subnet =~ /^fe01::/  # Exterior Multicast
+        return false
+      elsif subnet == '::'       # Default Route
         return false
       end
       return true
-    end
-
-    # Validates the IP address (Both IPv4 and IPv6)
-    #
-    # @net  [integer class] IP subnet address
-    # @mask [integer class] IP netmask
-    #
-    # @return [true class] Address is valid
-    # @return [false class] Address is not valid
-    def validate_cmd(subnet=nil,netmask=nil)
-      return false unless (subnet && netmask)
-      return false unless(check_ip(subnet))
-      return false if(netmask and !(Rex::Socket.addr_atoc(netmask)))
-      return false if(netmask and !check_ip(netmask))
-      return true
-    end
-  
-    # Another step in IPv4 address validation.
-    #
-    # @net  [integer class] IPv4 subnet address
-    # @mask [integer class] Ipv4 netmask
-    #
-    # @return [true class] Address is valid
-    # @return [false class] Address is not valid
-    def check_ip(ip=nil)
-      return false if(ip.nil? || ip.strip.empty?)
-      begin
-        rw = Rex::Socket::RangeWalker.new(ip.strip)
-        (rw.valid? && rw.length == 1) ? true : false
-      rescue
-        return false
-      end
     end
 
     ###############################################################################
@@ -534,6 +516,7 @@ class Plugin::Overwatch < Msf::Plugin
       session_dup_timeout: 14400,
       freq: 10, # Ten Seconds - Appears to be a good balance for this plugin
       log: false,
+      ipv6: false,
       base: ::File.join(Msf::Config.get_config_root, "overwatch", Time.now.strftime("%Y-%m-%d.%s")),
     }
 
@@ -547,7 +530,8 @@ class Plugin::Overwatch < Msf::Plugin
       {
         'overwatch_start'         => "Start route and session management",
         'overwatch_stop'          => "Stop route and session management",
-        'overwatch_conf'          => "Configure plugin parameters",
+        'overwatch_config'        => "Configure plugin parameters",
+        'overwatch_status'        => "Show current plugin status"
       }
     end
 
@@ -561,14 +545,22 @@ class Plugin::Overwatch < Msf::Plugin
       stop_overwatch
     end
 
-    def cmd_overwatch_conf(*args)
+    def cmd_overwatch_config(*args)
       parse_config(*args)
+      cmd_overwatch_status
+    end
+
+    def cmd_overwatch_status
+      print_line("")
+      print_good("Overwatch is running.\n") if @@overwatch_worker
+      print_error("Overwatch is stopped.\n") unless @@overwatch_worker
+      
       print_status("Overwatch Configuration")
       print_status("----------------------")
       @@overwatch_config.each_pair do |k,v|
         print_status("  #{k}: #{v}")
       end
-      print_status("----------------------")
+      print_status("----------------------\n")
     end
 
     def cmd_overwatch_start(*args)
@@ -584,16 +576,16 @@ class Plugin::Overwatch < Msf::Plugin
           print_line("'autoroute' will automatically add routes from active sessions' routing tables and network interfaces.")
           print_line("'reroute_stale' will automatically re-route to active sessions with matching routes if 'route_timeout' (in seconds) is reached by a non-responsive session.")
           print_line("'autoroute' must be active for 'reroute_stale' to function.")
+          print_line("'ipv6' will add IPv6 routes from sessions in addition to IPv4 routes.")
           print_line("\nSession Management:")
           print_line("'kill_stale' will kill non-responsive sessions when they reach 'session_timeout' (in seconds).")
-          print_line("'kill_stale_dup' will kill non-responsive sessions when they reach 'session_dup_timeout' (in seconds) only")
-          print_line("if the session has a twin based on domain, computer name, user ID, platform, computer ID, and IP address.")
+          print_line("'kill_stale_dup' will kill non-responsive sessions when they reach 'session_dup_timeout' (in seconds) only if the session has a twin based on domain, computer name, user ID, platform, computer ID, and IP address.")
           print_line("\nAdditional Options:")
           print_line("'freq' sets the cycle time in seconds.")
-          print_line("Setting 'log' to true will generate a text file log of Overwatch's activities.")
-          print_line("\nUsage: overwatch_start [base=</path/to/directory>] [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10] [log=<true|false>]")
-          print_line("\nConfig Usage: overwatch_config [base=</path/to/directory>] [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10] [log=<true|false>]")
-          print_line("\nUse 'overwatch_config' to view current settings.")
+          print_line("'log' will generate a text file log of Overwatch's activities.")
+          print_line("\nUsage: overwatch_start [base=</path/to/directory>] [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [ipv6=<true|false>]  [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10] [log=<true|false>]")
+          print_line("\nConfig Usage: overwatch_config [base=</path/to/directory>] [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [ipv6=<true|false>] [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10] [log=<true|false>]")
+          print_line("\nUse 'overwatch_status' or 'overwatch_config' to view current settings.")
           print_line(opts.usage)
           
           return
