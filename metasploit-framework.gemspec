@@ -23,7 +23,9 @@ Gem::Specification.new do |spec|
   spec.description   = 'metasploit-framework'
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
-
+  spec.files         = `git ls-files`.split($/).reject { |file|		
+    file =~ /^documentation|^data\/gui|^external/		
+  }
   spec.bindir = '.'
   if ENV['CREATE_BINSTUBS']
     spec.executables   = [
