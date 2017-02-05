@@ -117,7 +117,7 @@ class Plugin::Overwatch < Msf::Plugin
     def session_log(sid, msg)
       return unless self.config[:log]
       ::File.open(::File.join(self.config[:base], "session.log"), "a") do |fd|
-        fd.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} Session #{sid} [#{self.state[sid].info}] #{msg}"
+        fd.puts "[*] #{Time.now.strftime('%Y-%m-%d %H:%M:%S')} Session #{sid} [#{self.state[sid].info}] #{msg}"
       end
     end
 
@@ -179,9 +179,16 @@ class Plugin::Overwatch < Msf::Plugin
       return unless framework.sessions[sid].alive?
 
       framework.sessions[sid].net.config.each_route do | route |
-        next unless route.subnet =~ /\./ # Pick out the IPv4 addresses
-        subnet = get_subnet(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
-        next unless is_routable?(subnet, route.netmask)
+        if route.subnet =~ /\./ # Pick out the IPv4 addresses
+          subnet = get_subnet_ipv4(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
+          next unless is_routable_ipv4?(subnet, route.netmask)
+        elsif route.subnet =~ /:/
+          # Do IPv6 Checks
+          subnet = route.subnet
+          next unless is_routeable_ipv6?(subnet, route.netmask)
+        else
+          next
+        end
 
         if subnet
           remove_if_stale(subnet, route.netmask, sid, stale_sids) if self.config[:reroute_stale]
@@ -223,8 +230,8 @@ class Plugin::Overwatch < Msf::Plugin
           netmask = interface.netmasks[index]
 
           next unless ip_addr =~ /\./ # Pick out the IPv4 addresses
-          subnet = get_subnet(ip_addr, netmask)
-          next unless is_routable?(subnet, netmask)
+          subnet = get_subnet_ipv4(ip_addr, netmask)
+          next unless is_routable_ipv4?(subnet, netmask)
 
           if subnet
             remove_if_stale(subnet, netmask, sid, stale_sids) if self.config[:reroute_stale]
@@ -279,15 +286,15 @@ class Plugin::Overwatch < Msf::Plugin
     #
     # @return [string class] The subnet related to the IP address and netmask
     # @return [nil class] Something is out of range
-    def get_subnet(ip_addr, netmask)
-      return nil if !validate_cmd(ip_addr, netmask) #make sure IP and netmask are valid
+    def get_subnet_ipv4(ip_addr, netmask)
+      #return nil unless validate_cmd(ip_addr, netmask) #make sure IP and netmask are valid
 
       nets = ip_addr.split('.')
       masks = netmask.split('.')
       output = ""
 
       (0..3).each do | index |
-        octet = get_subnet_octet(int_or_nil(nets[index]), int_or_nil(masks[index]))
+        octet = get_subnet_ipv4_octet(int_or_nil(nets[index]), int_or_nil(masks[index]))
         return nil if !octet
         output << octet.to_s
         output << '.' if index < 3
@@ -303,7 +310,7 @@ class Plugin::Overwatch < Msf::Plugin
     #
     # @return [integer class] Octet of the subnet
     # @return [nil class] If an input is nil
-    def get_subnet_octet(net, mask)
+    def get_subnet_ipv4_octet(net, mask)
       return nil unless (net && mask)
       subnet_range = 256 - mask  # This is the address space of the subnet octet
       multi = net / subnet_range # Integer division to get the multiplier needed to determine subnet octet
@@ -328,7 +335,7 @@ class Plugin::Overwatch < Msf::Plugin
     #
     # @return [true]  If good to add
     # @return [false] If not
-    def is_routable?(subnet, netmask)
+    def is_routable_ipv4?(subnet, netmask)
       if subnet =~ /^224\.|^127\./
         return false
       elsif subnet == '0.0.0.0'
@@ -339,10 +346,23 @@ class Plugin::Overwatch < Msf::Plugin
       return true
     end
 
-    # Validates the IPv4 address
+    def is_routeable_ipv6?(subnet, netmask)
+      #return false unless validate_cmd(subnet, netmask)
+
+      if netmask == 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
+        return false
+      elsif subnet =~ /^fe80::/
+        return false
+      elsif subnet == '::'
+        return false
+      end
+      return true
+    end
+
+    # Validates the IP address (Both IPv4 and IPv6)
     #
-    # @net  [integer class] IPv4 subnet address
-    # @mask [integer class] Ipv4 netmask
+    # @net  [integer class] IP subnet address
+    # @mask [integer class] IP netmask
     #
     # @return [true class] Address is valid
     # @return [false class] Address is not valid
