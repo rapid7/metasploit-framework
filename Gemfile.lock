@@ -33,6 +33,7 @@ PATH
       rb-readline
       recog
       redcarpet
+      rest-client
       rex-arch (= 0.1.4)
       rex-bin_tools
       rex-core
