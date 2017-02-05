@@ -943,7 +943,11 @@ class Core
       print(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
 
       if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
-        print_status('There are currently no routes defined.')
+        print_status("There are currently no routes defined.")
+      elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)
+        print_status("There are currently no IPv4 routes defined.")
+      elsif (tbl_ipv4.rows.length > 0) && (tbl_ipv6.rows.length < 1)
+        print_status("There are currently no IPv6 routes defined.")
       end
 
     else
