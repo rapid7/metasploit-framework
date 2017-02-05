@@ -24,9 +24,6 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
-  spec.files         = `git ls-files`.split($/).reject { |file|
-    file =~ /^documentation|^data\/gui|^external/
-  }
   spec.bindir = '.'
   if ENV['CREATE_BINSTUBS']
     spec.executables   = [
@@ -41,6 +38,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
+  # REST support
+  spec.add_runtime_dependency 'rest-client'
   # Database support
   spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Need 3+ for ActiveSupport::Concern
