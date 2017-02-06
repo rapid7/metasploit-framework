@@ -25,7 +25,7 @@ PATH
       octokit
       openssl-ccm
       openvas-omp
-      packetfu
+      packetfu (= 1.1.13.pre)
       patch_finder
       pcaprub
       pg
@@ -200,9 +200,8 @@ GEM
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
-    packetfu (1.1.11)
-      network_interface (~> 0.0)
-      pcaprub (~> 0.12)
+    packetfu (1.1.13.pre)
+      pcaprub
     patch_finder (1.0.2)
     pcaprub (0.12.4)
     pg (0.19.0)
