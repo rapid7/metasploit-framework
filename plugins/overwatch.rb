@@ -80,7 +80,7 @@ class Plugin::Overwatch < Msf::Plugin
           rescue Rex::TimeoutError => te # Error when a session stops responding and the requests time out.
             session_log(sid, "Timed out.")
 
-          rescue Rex::Post::Meterpreter::RequestError => re # Error when a session does not have access to routing information (PHP/Meterpreter sessions throw this error.
+          rescue Rex::Post::Meterpreter::RequestError => re # Error when a session does not have access to routing information.
             self.state[sid].add_error
             session_log(sid, "Access error: #{self.state[sid].get_error_count.to_s} of 3. Possibly migrating or routing not available.") # Only log this error three times
             session_log(sid, "No access to routing, skipping session.") if self.state[sid].errored_out? # Skip this session after it errored three times
@@ -101,7 +101,10 @@ class Plugin::Overwatch < Msf::Plugin
     # @return [void] A useful return value is not expected here
     def process(sid)
       return unless framework.sessions[sid].info #Make sure session is fully active before processing
-      self.state[sid] = SessionState.new(sid, framework.sessions[sid].inspect) if self.state[sid].nil?
+      type = framework.sessions[sid].type
+      type = framework.sessions[sid].session_type if framework.sessions[sid].respond_to?(:session_type)
+
+      self.state[sid] = SessionState.new(sid, framework.sessions[sid].inspect, type) if self.state[sid].nil?
       self.state[sid].update
       process_routing(sid) unless self.state[sid].errored_out?
       process_sessions(sid)
@@ -145,7 +148,8 @@ class Plugin::Overwatch < Msf::Plugin
         framework.sessions[sid].response_timeout = self.config[:route_timeout] # Don't want to wait 300 secs for a time out!
       end
 
-      add_routes(sid, stale_sids)
+      add_routes(sid, stale_sids) unless self.state[sid].host_add?
+      host_add_route(sid, stale_sids) if self.state[sid].host_add?
 
       if framework.sessions[sid].respond_to?(:response_timeout) && last_known_timeout 
         framework.sessions[sid].response_timeout = last_known_timeout # Set it back now that we are done trying to add routes.
@@ -178,13 +182,13 @@ class Plugin::Overwatch < Msf::Plugin
       return unless route_compatible?(sid)
       return unless framework.sessions[sid].alive?
 
-      framework.sessions[sid].net.config.each_route do | route |
-        if (Rex::Socket.is_ipv4?(route.netmask) && Rex::Socket.is_ipv4?(route.netmask))
+      framework.sessions[sid].net.config.each_route do | route |  # This line is where errors are thrown for python, php, etc...
+        if (Rex::Socket.is_ipv4?(route.subnet) && Rex::Socket.is_ipv4?(route.netmask))
           subnet = get_subnet_ipv4(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
           next unless is_routable_ipv4?(subnet, route.netmask)
 
         # Optional IPv6 routing
-        elsif (Rex::Socket.is_ipv6?(route.netmask) && Rex::Socket.is_ipv6?(route.netmask))
+        elsif (Rex::Socket.is_ipv6?(route.subnet) && Rex::Socket.is_ipv6?(route.netmask))
           next unless self.config[:ipv6]
           subnet = route.subnet
           next unless is_routeable_ipv6?(subnet, route.netmask)
@@ -232,7 +236,7 @@ class Plugin::Overwatch < Msf::Plugin
           ip_addr = interface.addrs[index]
           netmask = interface.netmasks[index]
 
-          next unless ip_addr =~ /\./ # Pick out the IPv4 addresses
+          next unless (Rex::Socket.is_ipv4?(ip_addr) && Rex::Socket.is_ipv4?(netmask)) # Pick out the IPv4 addresses
           subnet = get_subnet_ipv4(ip_addr, netmask)
           next unless is_routable_ipv4?(subnet, netmask)
 
@@ -252,6 +256,44 @@ class Plugin::Overwatch < Msf::Plugin
               end
             end
           end 
+        end
+      end
+    end
+
+    # Uses the session_host information to add a standard class C network.
+    # This is primarliy for python meterpreter sessions that do not have
+    # access to the host's routing table, but return the correct value for
+    # session_host
+    #
+    # @sid [int class] Session ID of the current session
+    # @stale_sids [int array] Array of session id's of sessions marked as stale
+    #
+    # @return [void] A useful return value is not expected here
+    def host_add_route(sid, stale_sids)
+      return unless framework.sessions[sid].alive?
+      return unless framework.sessions[sid].respond_to?(:net)
+
+      ip_addr = framework.sessions[sid].session_host
+      return unless Rex::Socket.is_ipv4?(ip_addr)
+
+      netmask = "255.255.255.0"
+      subnet = get_subnet_ipv4(ip_addr, netmask)
+      return unless is_routable_ipv4?(subnet, netmask)
+
+      if subnet
+        remove_if_stale(subnet, netmask, sid, stale_sids) if self.config[:reroute_stale]
+
+        if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
+          begin
+            if Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
+              session_log(sid, "Route added to subnet #{subnet}/#{netmask} from host's IP address.")
+            else
+              session_log(sid, "Could not add route to subnet #{subnet}/#{netmask} from host's IP address.")
+            end
+          rescue ::Exception => error
+            session_log(sid, "Could not add route to subnet #{subnet}/(#{netmask}) from host's IP address.")
+            session_log(sid, error.to_s)
+          end
         end
       end
     end
@@ -647,13 +689,16 @@ class Plugin::Overwatch < Msf::Plugin
 end #class Plugin::Overwatch < Msf::Plugin
 
 class SessionState
-  attr_accessor :error_count, :info, :last_update, :sid
+  attr_accessor :error_count, :info, :last_update, :sid, :type, :host_add, :errored_out
 
-  def initialize(sid, info)
+  def initialize(sid, info, type)
     @sid = sid
     @info = info
+    @type = type
     @error_count = 0
     @last_update = Time.now.to_f
+    @host_add = type =~ /python/ ? true : false 
+    @errored_out = type =~ /php/ ? true : false # PHP meterpreter sessions do not provide correct information for automatic routing.
   end
 
   def add_error
@@ -665,7 +710,11 @@ class SessionState
   end
 
   def errored_out?
-    @error_count >= 3 ? true : false
+     @error_count >= 3 ? true : false
+  end
+
+  def host_add?
+    @host_add
   end
 
   def get_error_count
