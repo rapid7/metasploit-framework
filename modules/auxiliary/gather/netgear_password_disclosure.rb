@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection timed out.')
     end
 
-    if !res.to_s.nil?
+    if res.nil?
       print_error("#{rhost} returned an empty response")
       return
     else
