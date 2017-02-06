@@ -10,18 +10,21 @@ If you want to suggest your own idea, please discuss it with us first on [our ma
 
 Perl, Python, and Ruby scripts can all be run via a short command line invocation. It would be nice to be able to use these payloads in `ARCH_CMD` contexts as well as their own separate architectures (`ARCH_PYTHON`, `ARCH_RUBY`).
 
-
 ### Automated exploit reliability scoring
 
 Automatically run a module over and over, determine success rates.
 
 **Mentor**: [@busterb](https://github.com/busterb)
 
+### Maleable HTTP/S C2 for Meterpreter
+
+Currently, the attributes that one can set for how a Meterpreter payload appears at the HTTP level are limited. We would like the ability to set and add arbitrary HTTP headers to requests and responses, so that the traffic appears more realistic.
+
+**Mentor**: [@busterb](https://github.com/busterb)
 
 ### Exploit regression testing
 
 Set up automated testing using something like Vagrant to spin up and configure vulnerable machines, run exploits against them.
-
 
 ### A categorical focus
 
