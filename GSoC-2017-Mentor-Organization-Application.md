@@ -20,7 +20,7 @@ First, we will ask students to use GitHub's Projects to track progress in real t
 
 **How will you get your students involved in your community during GSoC?**
 
-Most communication with students will happen in the same channels that all our contributors use; namely IRC and GitHub. Students will follow the same procedures of code review that all contributors follow. We hope that this will increase interactions with all of the existing contributors as well as users instead of feeling tied only to their mentor, giving them a network of support and hopefull illustrate the advantages of working with other minds.
+Most communication with students will happen in the same channels that all our contributors use; namely IRC and GitHub. Students will follow the same procedures of code review that all contributors follow. We hope that this will increase interactions with all of the existing contributors as well as users instead of feeling tied only to their mentor, giving them a network of support and hopefully illustrate the advantages of working with other minds.
 
 
 **How will you keep students involved with your community after GSoC?**
