@@ -87,6 +87,7 @@ All of the following folks have expressed willingness to be mentors.
 * [@egypt](https://github.com/egypt)
 * [@hdm](https://github.com/hdm)
 * [@jhart](https://github.com/jhart)
+* [@jinq102030](https://github.com/jinq102030)
 * [@mubix](https://github.com/mubix)
 * [@OJ](https://github.com/oj)
 * [@zeroSteiner](https://github.com/zeroSteiner)
