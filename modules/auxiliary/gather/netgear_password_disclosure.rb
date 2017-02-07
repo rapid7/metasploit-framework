@@ -74,6 +74,9 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
 
+      if token == '0'
+        print_status("If no creds are found, try the exploit again. #{rhost} returned a token of 0")
+      end
       print_status("Token found: #{token}")
       vprint_status("Token found at #{rhost}/unauth.cgi?id=#{token}")
 
