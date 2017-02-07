@@ -9,7 +9,7 @@ Metasploit offers a unique opportunity for students to deepen their security kno
 
 **How will you keep mentors engaged with their students?**
 
-All of our mentors are long-time development team members who have a long history of helping new users and contributors. Many of our mentors specialize in certain parts of the framework, so depending on the student's interests, we will match them with the most complementary mentor. Our project administrators will regularly check in with mentors and mentees to ensure that the relationship is productive and progressing as expected.
+All of our mentors are long-time development team members who have a history of helping new users and contributors. Many of our mentors specialize in certain parts of the framework, so depending on the student's interests, we will match them with the most complementary mentor. Our project administrators will regularly check in with mentors and mentees to ensure that the relationship is productive and progressing as expected.
 
 **How will you help your students stay on schedule to complete their projects?**
 
