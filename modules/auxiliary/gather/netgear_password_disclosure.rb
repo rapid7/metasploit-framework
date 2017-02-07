@@ -97,9 +97,6 @@ class MetasploitModule < Msf::Auxiliary
         else
           print_good("Creds found: #{username}/#{password}")
         end
-      else
-        print_error("#{rhost} is not vulnerable because password recovery is on.")
-      end
     else
       print_error("#{rhost} is not vulnerable: Not a NETGEAR device")
       return
