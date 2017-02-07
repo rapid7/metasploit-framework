@@ -70,7 +70,10 @@ class MetasploitModule < Msf::Auxiliary
   def do_list
     posts_to_list = list_posts
 
-    return if posts_to_list.empty?
+    if posts_to_list.empty?
+      vprint_status("No posts found at #{full_uri}")
+      return
+    end
 
     tbl = Rex::Text::Table.new(
       'Header'  => full_uri,
@@ -98,7 +101,10 @@ class MetasploitModule < Msf::Auxiliary
       posts_to_update << {id: datastore['POST_ID']}
     end
 
-    return if posts_to_update.empty?
+    if posts_to_update.empty?
+      vprint_status("No posts to update at #{full_uri}")
+      return
+    end
 
     posts_to_update.each do |post|
       res = update_post(post[:id],
