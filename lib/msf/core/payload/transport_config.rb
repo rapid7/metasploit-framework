@@ -33,7 +33,7 @@ module Msf::Payload::TransportConfig
 
   def transport_config_reverse_https(opts={})
     config = transport_config_reverse_http(opts)
-    config[:scheme] = datastore['OverrideScheme'] || 'https',
+    config[:scheme] = datastore['OverrideScheme'] || 'https'
     config[:ssl_cert_hash] = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
                                                datastore['HandlerSSLCert'])
     config
