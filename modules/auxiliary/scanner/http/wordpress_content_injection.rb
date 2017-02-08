@@ -143,7 +143,6 @@ class MetasploitModule < Msf::Auxiliary
       'method'     => 'GET',
       'uri'        => normalize_uri(get_rest_api, 'posts'),
       'vars_get'   => {
-        'status'   => status,
         'per_page' => datastore['PostCount'],
         'search'   => datastore['SearchTerm']
       }
