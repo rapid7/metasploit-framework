@@ -128,49 +128,10 @@ class Msf::Sessions::SSH::Ui::Console::CommandDispatcher
     # Process the command
     case args.shift
     when 'list'
-
-      p shell.client.ssh.forward.active_locals
-      table = Rex::Text::Table.new(
-        'Header'    => 'Active Port Forwards',
-        'Indent'    => 3,
-        'SortIndex' => -1,
-        'Columns'   => ['Index', 'Local', 'Remote', 'Direction'])
-
-      cnt = 0
-
-      shell.client.ssh.forward.active_locals.each do |port, address|
-        cnt += 1
-        table << [ cnt, "#{address}:#{port}", "", "Forward" ]
-      end
-
-      shell.client.ssh.forward.active_remotes.each do |port, address|
-        cnt += 1
-        table << [ cnt, "", "#{address}:#{port}", "Reverse" ]
-      end
-
-      print_line
-      if cnt > 0
-        print_line(table.to_s)
-        print_line("#{cnt} total active port forwards.")
-      else
-        print_line('No port forwards are currently active.')
-      end
-      print_line
-
+      portfwd_list
     when 'add'
       $stderr.puts(args.join("\n"))
-      if lhost.nil?
-        lhost = "127.0.0.1"
-      end
-      if lport.nil?
-        lport = 0
-      end
-      shell.client.ssh.logger.level = 0
-      listening_port = shell.client.ssh.forward.local(lhost, lport, rhost, rport)
-      sleep 1
-      p shell.client.ssh.forward.active_locals
-      p listening_port
-
+      portfwd_add(lhost, lport, rhost, rport)
     when 'delete', 'remove', 'del', 'rm'
     when 'flush'
     else
@@ -183,6 +144,47 @@ class Msf::Sessions::SSH::Ui::Console::CommandDispatcher
     print_line "Usage: portfwd [-h] [add | delete | list | flush] [args]"
     print_line
     print @@portfwd_opts.usage
+  end
+
+  def portfwd_add(lhost, lport, rhost, rport)
+    lhost ||= "127.0.0.1"
+    lport ||= 0
+
+    shell.client.ssh.logger.level = 0
+    listening_port = shell.client.ssh.forward.local(lhost, lport, rhost, rport)
+    sleep 1
+    p shell.client.ssh.forward.active_locals
+    p listening_port
+  end
+
+  def portfwd_list
+    p shell.client.ssh.forward.active_locals
+    table = Rex::Text::Table.new(
+      'Header'    => 'Active Port Forwards',
+      'Indent'    => 3,
+      'SortIndex' => -1,
+      'Columns'   => ['Index', 'Local', 'Remote', 'Direction'])
+
+    cnt = 0
+
+    shell.client.ssh.forward.active_locals.each do |port, address|
+      cnt += 1
+      table << [ cnt, "#{address}:#{port}", "", "Forward" ]
+    end
+
+    shell.client.ssh.forward.active_remotes.each do |port, address|
+      cnt += 1
+      table << [ cnt, "", "#{address}:#{port}", "Reverse" ]
+    end
+
+    print_line
+    if cnt > 0
+      print_line(table.to_s)
+      print_line("#{cnt} total active port forwards.")
+    else
+      print_line('No port forwards are currently active.')
+    end
+    print_line
   end
 
 end
