@@ -42,7 +42,17 @@ class Msf::Sessions::SSH
   def initialize(ssh, opts={})
     @ssh = ssh
     @platform = 'ssh'
+    @framework = opts[:framework]
     self.console = Ui::Console.new(self)
+
+    @framework.threads.spawn("portfwd for session #{self}", false) do
+      $stderr.puts("starting portfwd processing thread")
+      while ssh.forward.active_locals
+        ssh.process(0.5) { true }
+      end
+      $stderr.puts("Done processing for portfwd")
+    end
+
   end
 
   def alive?

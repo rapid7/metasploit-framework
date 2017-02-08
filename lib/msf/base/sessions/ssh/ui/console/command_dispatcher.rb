@@ -152,6 +152,7 @@ class Msf::Sessions::SSH::Ui::Console::CommandDispatcher
 
     shell.client.ssh.logger.level = 0
     listening_port = shell.client.ssh.forward.local(lhost, lport, rhost, rport)
+
     sleep 1
     p shell.client.ssh.forward.active_locals
     p listening_port

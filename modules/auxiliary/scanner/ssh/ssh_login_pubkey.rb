@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless ssh_socket
 
     remove_socket(ssh_socket.transport.socket)
-    s = Msf::Sessions::SSH.new(ssh_socket)
+    s = Msf::Sessions::SSH.new(ssh_socket, framework: framework)
     framework.sessions.register(s)
 
     # Set the session platform
