@@ -41,6 +41,10 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('POST_CONTENT',  [false, 'Post content']),
       OptString.new('POST_PASSWORD', [false, 'Post password (\'\' for none)'])
     ])
+
+    register_advanced_options([
+      OptInt.new('PostCount', [false, 'Number of posts to list', 100])
+    ])
   end
 
   def check_host(_ip)
@@ -130,8 +134,11 @@ class MetasploitModule < Msf::Auxiliary
     posts = []
 
     res = send_request_cgi({
-      'method' => 'GET',
-      'uri'    => normalize_uri(get_rest_api, 'posts')
+      'method'     => 'GET',
+      'uri'        => normalize_uri(get_rest_api, 'posts'),
+      'vars_get'   => {
+        'per_page' => datastore['PostCount']
+      }
     }, 3.5)
 
     if res && res.code == 200
