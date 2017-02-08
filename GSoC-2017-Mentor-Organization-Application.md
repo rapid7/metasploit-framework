@@ -13,7 +13,7 @@ All of our mentors are long-time development team members who have a history of 
 
 **How will you help your students stay on schedule to complete their projects?**
 
-First, we will ask students to use GitHub's Projects to track progress in real time as they are working. Mentors will help students divide projects into manageable chunks with measurable milestones. This will help students learn how to manage and delegate tasks on large scale projects. Additionally, students and mentors will need to collaborate on a weekly status report that describes their progress and send it to the mailing list.
+First, we will ask students to use GitHub's Projects to track progress in real time as they are working. Mentors will help students divide projects into manageable chunks with measurable milestones. This will help students learn how to manage and break up tasks on large scale projects. Additionally, students and mentors will need to collaborate on a weekly status report that describes their progress and send it to the mailing list.
 
 **How will you get your students involved in your community during GSoC?**
 
