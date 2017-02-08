@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     tbl = Rex::Text::Table.new(
-      'Header'  => full_uri,
+      'Header'  => "Posts at #{full_uri} (REST API: #{get_rest_api})",
       'Columns' => %w{ID Title URL Status Password}
     )
 
@@ -208,10 +208,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if link =~ %r{^<(.*)>; rel="https://api\.w\.org/"$}
       rest_api = route_rest_api($1)
-      vprint_status("REST API (Link header): #{rest_api}")
+      vprint_status('REST API found in Link header')
     elsif (xpath = html.at('//link[@rel = "https://api.w.org/"]/@href'))
       rest_api = route_rest_api(xpath)
-      vprint_status("REST API (HTML document): #{rest_api}")
+      vprint_status('REST API found in HTML document')
     end
 
     rest_api
