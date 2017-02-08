@@ -83,14 +83,21 @@ class MetasploitModule < Msf::Auxiliary
 
     tbl = Rex::Text::Table.new(
       'Header'  => full_uri,
-      'Columns' => ['ID', 'Title', 'URL', 'Password']
+      'Columns' => %w{ID Title URL Status Password}
     )
 
     posts_to_list.each do |post|
+      if post[:status] == 'publish'
+        status = 'Published'
+      else
+        status = post[:status].capitalize
+      end
+
       tbl << [
         post[:id],
         Rex::Text.html_decode(post[:title]),
         post[:url],
+        status,
         post[:password] ? 'Yes' : 'No'
       ]
     end
@@ -135,22 +142,26 @@ class MetasploitModule < Msf::Auxiliary
   def list_posts
     posts = []
 
-    res = send_request_cgi({
-      'method'     => 'GET',
-      'uri'        => normalize_uri(get_rest_api, 'posts'),
-      'vars_get'   => {
-        'per_page' => datastore['PostCount']
-      }
-    }, 3.5)
-
-    if res && res.code == 200
-      res.get_json_document.each do |post|
-        posts << {
-          id:       post['id'],
-          title:    post['title']['rendered'],
-          url:      post['link'],
-          password: post['content']['protected']
+    %w{publish future draft pending private}.each do |status|
+      res = send_request_cgi({
+        'method'     => 'GET',
+        'uri'        => normalize_uri(get_rest_api, 'posts'),
+        'vars_get'   => {
+          'status'   => status,
+          'per_page' => datastore['PostCount']
         }
+      }, 3.5)
+
+      if res && res.code == 200
+        res.get_json_document.each do |post|
+          posts << {
+            id:       post['id'],
+            title:    post['title']['rendered'],
+            url:      post['link'],
+            status:   status,
+            password: post['content']['protected']
+          }
+        end
       end
     end
 
