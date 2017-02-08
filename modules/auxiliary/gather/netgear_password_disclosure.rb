@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
       password = scrape(raw_html, "Router Admin Password", "You can")
       if username.nil? || password.nil?
         return Exploit::CheckCode::Safe
-      else  
+      else
         username = username.strip!
         password = password.strip!
       end
