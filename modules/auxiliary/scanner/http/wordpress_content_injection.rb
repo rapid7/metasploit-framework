@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(_ip)
     if !wordpress_and_online?
-      print_error("WordPress not detected at #{full_uri}")
+      vprint_error("WordPress not detected at #{full_uri}")
       return
     end
 
@@ -157,6 +157,8 @@ class MetasploitModule < Msf::Auxiliary
           password: post['content']['protected']
         }
       end
+    elsif res && (error = res.get_json_document['message'])
+      vprint_error("Failed to list posts: #{error}")
     end
 
     posts
