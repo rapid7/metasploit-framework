@@ -44,8 +44,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options([
       OptInt.new('PostCount',     [false, 'Number of posts to list', 100]),
-      OptString.new('SearchTerm', [false, 'Search term when listing posts']),
-      OptBool.new('AutoPublish',  [false, 'Publish updated posts', true])
+      OptString.new('SearchTerm', [false, 'Search term when listing posts'])
     ])
   end
 
@@ -129,8 +128,7 @@ class MetasploitModule < Msf::Auxiliary
       res = update_post(post[:id],
         title:    datastore['POST_TITLE'],
         content:  datastore['POST_CONTENT'],
-        password: datastore['POST_PASSWORD'],
-        status:   datastore['AutoPublish'] ? 'publish' : nil
+        password: datastore['POST_PASSWORD']
       )
 
       post_url = full_uri(wordpress_url_post(post[:id]))
@@ -182,7 +180,6 @@ class MetasploitModule < Msf::Auxiliary
     payload[:title]    = opts[:title] if opts[:title]
     payload[:content]  = opts[:content] if opts[:content]
     payload[:password] = opts[:password] if opts[:password]
-    payload[:status]   = opts[:status] if opts[:status]
 
     send_request_cgi({
       'method' => 'POST',
