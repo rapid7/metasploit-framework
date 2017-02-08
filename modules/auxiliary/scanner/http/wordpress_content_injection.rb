@@ -66,6 +66,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
+    if !wordpress_and_online?
+      print_error("WordPress not detected at #{full_uri}")
+      return
+    end
+
     case action.name
     when 'LIST'
       do_list
