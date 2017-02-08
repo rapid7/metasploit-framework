@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
       r = send_request_cgi({
         'uri' => "/passwordrecovered.cgi",
         'vars_get' => { 'id'  =>  token }
-        })
+      })
 
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
 
@@ -106,8 +106,8 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  #Almost every NETGEAR router sends a 'WWW-Authenticate' header in the response
-  #This checks the response dor that header.
+  # Almost every NETGEAR router sends a 'WWW-Authenticate' header in the response
+  # This checks the response for that header.
   def check
 
     res = send_request_cgi({'uri'=>'/'})
