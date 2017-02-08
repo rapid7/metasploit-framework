@@ -442,7 +442,7 @@ class Console::CommandDispatcher::Stdapi::Fs
           files.each do |file|
             src_separator = client.fs.file.separator
             src_path = file['path'] + client.fs.file.separator + file['name']
-            dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
+            dest_path = ::File.join(dest, ::Rex::FileUtils::clean_path(file['path'].tr(src_separator, ::File::SEPARATOR)))
 
             client.fs.file.download(dest_path, src_path, opts) do |step, src, dst|
               print_status("#{step.ljust(11)}: #{src} -> #{dst}")
