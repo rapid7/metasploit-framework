@@ -43,8 +43,9 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      OptInt.new('PostCount',    [false, 'Number of posts to list', 100]),
-      OptBool.new('AutoPublish', [false, 'Publish updated posts', true])
+      OptInt.new('PostCount',     [false, 'Number of posts to list', 100]),
+      OptString.new('SearchTerm', [false, 'Search term when listing posts']),
+      OptBool.new('AutoPublish',  [false, 'Publish updated posts', true])
     ])
   end
 
@@ -148,7 +149,8 @@ class MetasploitModule < Msf::Auxiliary
         'uri'        => normalize_uri(get_rest_api, 'posts'),
         'vars_get'   => {
           'status'   => status,
-          'per_page' => datastore['PostCount']
+          'per_page' => datastore['PostCount'],
+          'search'   => datastore['SearchTerm']
         }
       }, 3.5)
 
