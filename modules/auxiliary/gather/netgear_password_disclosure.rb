@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
         username = username.strip!
         password = password.strip!
       end
-      if username == "" || password == ""
+      if username.empty? || password.empty?
         print_error("No Creds found")
       else
         print_good("Creds found: #{username}/#{password}")
