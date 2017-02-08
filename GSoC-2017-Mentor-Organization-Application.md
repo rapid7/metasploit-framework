@@ -4,12 +4,12 @@ Please don't use markdown here, we have to paste it into a form. All answers are
 
 **Why does your org want to participate in Google Summer of Code?**
 
-Metasploit offers a unique opportunity for students to deepen their security knowledge and learn about exploit development. Many of our contributors are established exploit developers and penetration testers who have years of industry experience that they can share with students who want to deepen their security knowledge and learn about exploit development. 
+Metasploit offers a unique opportunity for students to deepen their security knowledge and learn about exploit development. Many of our contributors are established exploit developers and penetration testers who have years of industry experience that they can share with students who want to deepen their security knowledge and learn about exploit development.
 
 
 **How will you keep mentors engaged with their students?**
 
-All of our mentors are long-time development team members who have a history of helping new users and contributors. Many of our mentors specialize in certain parts of the framework, so depending on the student's interests, we will match them with the most complementary mentor. Our project administrators will regularly check in with mentors and mentees to ensure that the relationship is productive and progressing as expected.
+All of our mentors are long-time development team members who have a history of helping new users and contributors. Many of our mentors specialize in certain parts of the framework, so depending on the student's interests, we will match them with the most complementary mentor. Our project administrators will regularly check in with mentors and students to ensure that the relationship is productive and progressing as expected.
 
 **How will you help your students stay on schedule to complete their projects?**
 
