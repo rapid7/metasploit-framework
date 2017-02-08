@@ -117,9 +117,11 @@ class MetasploitModule < Msf::Auxiliary
       post_url = full_uri(wordpress_url_post(post[:id]))
 
       if res && res.code == 200
-        print_good("SUCCESS: #{post_url}")
+        print_good("SUCCESS: #{post_url} (post updated)")
+      elsif res && res.code == 404
+        print_error("FAILURE: #{post_url} (invalid post ID)")
       else
-        print_error("FAILURE: #{post_url}")
+        print_error("FAILURE: #{post_url} (unknown error)")
       end
     end
   end
