@@ -26,10 +26,10 @@ msf auxiliary(wordpress_content_injection) > run
 Posts at https://[redacted]:443/ (REST API: /wp-json/wp/v2)
 ============================================================
 
-ID  Title         URL                                                Status     Password
---  -----         ---                                                ------     --------
-1   Hello world!  https://[redacted]/2016/10/hello-world/            Published  No
-87  Hello world!  https://[redacted]/2016/08/hello-world-2/          Published  No
+ID  Title         URL                                        Password
+--  -----         ---                                        --------
+1   Hello world!  https://[redacted]/2016/10/hello-world/    No
+87  Hello world!  https://[redacted]/2016/08/hello-world-2/  No
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
