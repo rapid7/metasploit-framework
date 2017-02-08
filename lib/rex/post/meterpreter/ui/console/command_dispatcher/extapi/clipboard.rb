@@ -377,9 +377,7 @@ private
     # Basename ends up with a single name/folder. This is the only point where it
     # may be possible to do a dir trav up one folder. We need to check to make sure
     # that the basename doesn't result in a traversal
-    if base == '..'
-      return false
-    end
+    return false if base == '..'
 
     dest = File.join( dest_folder, base )
 
@@ -420,7 +418,7 @@ private
             print_line("Remote Path : #{f[:name]}")
             print_line("File size   : #{f[:size]} bytes")
             if get_files
-              unless download_file( loot_dir, f[:name] )
+              unless download_file(loot_dir, f[:name])
                 print_error("Download of #{f:name]} failed.")
               end
             end
