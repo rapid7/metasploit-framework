@@ -8,7 +8,7 @@ module Rex
         class LastRequest < Element
 
           # @!attribute type
-          #   @return [Fixnum] The type of value
+          #   @return [Integer] The type of value
           attr_accessor :type
           # @!attribute value
           #   @return [Time] the time of the last request
@@ -63,7 +63,7 @@ module Rex
           # Decodes the key_type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_type(input)
             input.value[0].value.to_i
           end

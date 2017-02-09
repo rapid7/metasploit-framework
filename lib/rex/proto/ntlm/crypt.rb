@@ -373,7 +373,7 @@ BASE = Rex::Proto::NTLM::Base
 
   def self.encrypt_sessionkey(session_key, user_session_key)
     raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-    cipher = OpenSSL::Cipher::Cipher.new('rc4')
+    cipher = OpenSSL::Cipher.new('rc4')
     cipher.encrypt
     cipher.key = user_session_key
     cipher.update(session_key)
@@ -381,7 +381,7 @@ BASE = Rex::Proto::NTLM::Base
 
   def self.decrypt_sessionkey(encrypted_session_key, user_session_key)
     raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-    cipher = OpenSSL::Cipher::Cipher.new('rc4')
+    cipher = OpenSSL::Cipher.new('rc4')
     cipher.decrypt
     cipher.key = user_session_key
     cipher.update(encrypted_session_key)

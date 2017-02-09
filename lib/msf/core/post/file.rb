@@ -27,7 +27,7 @@ module Msf::Post::File
     if session.type == "meterpreter"
       return session.fs.dir.getwd
     else
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         # XXX: %CD% only exists on XP and newer, figure something out for NT4
         # and 2k
         return session.shell_command_token("echo %CD%")
@@ -44,7 +44,7 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       return session.fs.dir.entries(directory)
     else
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
       else
         return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
@@ -64,7 +64,7 @@ module Msf::Post::File
       return false unless stat
       return stat.directory?
     else
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
       else
         f = session.shell_command_token("test -d \"#{path}\" && echo true")
@@ -98,7 +98,7 @@ module Msf::Post::File
       return false unless stat
       return stat.file?
     else
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
         if f =~ /true/
           f = cmd_exec("cmd.exe /C IF exist \"#{path}\\\\\" ( echo false ) ELSE ( echo true )")
@@ -124,7 +124,7 @@ module Msf::Post::File
       stat = session.fs.file.stat(path) rescue nil
       return !!(stat)
     else
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
       else
         f = cmd_exec("test -e \"#{path}\" && echo true")
@@ -260,7 +260,7 @@ module Msf::Post::File
     if session.type == "meterpreter"
       data = _read_file_meterpreter(file_name)
     elsif session.type == "shell"
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         data = session.shell_command_token("type \"#{file_name}\"")
       else
         data = session.shell_command_token("cat \"#{file_name}\"")
@@ -283,7 +283,7 @@ module Msf::Post::File
       fd.write(data)
       fd.close
     elsif session.respond_to? :shell_command_token
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         session.shell_command_token("echo #{data} > \"#{file_name}\"")
       else
         _write_file_unix_shell(file_name, data)
@@ -308,7 +308,7 @@ module Msf::Post::File
       fd.write(data)
       fd.close
     elsif session.respond_to? :shell_command_token
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         session.shell_command_token("<nul set /p=\"#{data}\" >> \"#{file_name}\"")
       else
         _write_file_unix_shell(file_name, data, true)
@@ -339,7 +339,7 @@ module Msf::Post::File
       if session.type == "meterpreter"
         session.fs.file.delete(remote) if exist?(remote)
       else
-        if session.platform =~ /win/
+        if session.platform == 'windows'
           cmd_exec("del /q /f \"#{remote}\"")
         else
           cmd_exec("rm -f \"#{remote}\"")
@@ -359,7 +359,7 @@ module Msf::Post::File
     if session.type == "meterpreter"
       return (session.fs.file.mv(old_file, new_file).result == 0)
     else
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|) =~ /moved/
       else
         cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|).empty?
@@ -533,7 +533,7 @@ protected
   #
   # Calculate the maximum line length for a unix shell.
   #
-  # @return [Fixnum]
+  # @return [Integer]
   def _unix_max_line_length
     # Based on autoconf's arg_max calculator, see
     # http://www.in-ulm.de/~mascheck/various/argmax/autoconf_check.html

@@ -71,6 +71,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'pwd'        => 'Print working directory',
       'rm'         => 'Delete the specified file',
       'mv'         => 'Move source to destination',
+      'cp'         => 'Copy source to destination',
       'rmdir'      => 'Remove directory',
       'search'     => 'Search for files',
       'upload'     => 'Upload a file or directory',
@@ -95,6 +96,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'rmdir'      => ['stdapi_fs_delete_dir'],
       'rm'         => ['stdapi_fs_delete_file'],
       'mv'         => ['stdapi_fs_file_move'],
+      'cp'         => ['stdapi_fs_file_copy'],
       'search'     => ['stdapi_fs_search'],
       'upload'     => [],
       'show_mount' => ['stdapi_fs_mount_show'],
@@ -440,7 +442,7 @@ class Console::CommandDispatcher::Stdapi::Fs
           files.each do |file|
             src_separator = client.fs.file.separator
             src_path = file['path'] + client.fs.file.separator + file['name']
-            dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
+            dest_path = ::File.join(dest, ::Rex::FileUtils::clean_path(file['path'].tr(src_separator, ::File::SEPARATOR)))
 
             client.fs.file.download(dest_path, src_path, opts) do |step, src, dst|
               print_status("#{step.ljust(11)}: #{src} -> #{dst}")

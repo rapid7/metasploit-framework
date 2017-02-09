@@ -96,17 +96,17 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     self.ctx_val = in_ctx_val
 
     if (in_ctx_id == 'CVE')
-      self.site = "http://cvedetails.com/cve/#{in_ctx_val}/"
+      self.site = "https://cvedetails.com/cve/CVE-#{in_ctx_val}/"
     elsif (in_ctx_id == 'CWE')
       self.site = "https://cwe.mitre.org/data/definitions/#{in_ctx_val}.html"
     elsif (in_ctx_id == 'BID')
       self.site = "http://www.securityfocus.com/bid/#{in_ctx_val}"
     elsif (in_ctx_id == 'MSB')
-      self.site = "http://technet.microsoft.com/en-us/security/bulletin/#{in_ctx_val}"
+      self.site = "https://technet.microsoft.com/en-us/library/security/#{in_ctx_val}"
     elsif (in_ctx_id == 'EDB')
       self.site = "https://www.exploit-db.com/exploits/#{in_ctx_val}"
     elsif (in_ctx_id == 'US-CERT-VU')
-      self.site = "http://www.kb.cert.org/vuls/id/#{in_ctx_val}"
+      self.site = "https://www.kb.cert.org/vuls/id/#{in_ctx_val}"
     elsif (in_ctx_id == 'ZDI')
       self.site = "http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}"
     elsif (in_ctx_id == 'WPVDB')

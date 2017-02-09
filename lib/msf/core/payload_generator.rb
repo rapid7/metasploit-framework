@@ -51,13 +51,13 @@ module Msf
     #   @return [Msf::Framework] The framework instance to use for generation
     attr_accessor :framework
     # @!attribute  iterations
-    #   @return [Fixnum] The number of iterations to run the encoder
+    #   @return [Integer] The number of iterations to run the encoder
     attr_accessor :iterations
     # @!attribute  keep
     #   @return [Boolean] Whether or not to preserve the original functionality of the template
     attr_accessor :keep
     # @!attribute  nops
-    #   @return [Fixnum] The size in bytes of NOP sled to prepend the payload with
+    #   @return [Integer] The size in bytes of NOP sled to prepend the payload with
     attr_accessor :nops
     # @!attribute  payload
     #   @return [String] The refname of the payload to generate
@@ -69,10 +69,10 @@ module Msf
     #   @return [Boolean] Whether or not to find the smallest possible output
     attr_accessor :smallest
     # @!attribute  space
-    #   @return [Fixnum] The maximum size in bytes of the payload
+    #   @return [Integer] The maximum size in bytes of the payload
     attr_accessor :space
     # @!attribute  encoder_space
-    #   @return [Fixnum] The maximum size in bytes of the encoded payload
+    #   @return [Integer] The maximum size in bytes of the encoded payload
     attr_accessor :encoder_space
     # @!attribute  stdin
     #   @return [String] The raw bytes of a payload taken from STDIN
@@ -89,14 +89,14 @@ module Msf
     # @option opts [String] :payload (see #payload)
     # @option opts [String] :format (see #format)
     # @option opts [String] :encoder (see #encoder)
-    # @option opts [Fixnum] :iterations (see #iterations)
+    # @option opts [Integer] :iterations (see #iterations)
     # @option opts [String] :arch (see #arch)
     # @option opts [String] :platform (see #platform)
     # @option opts [String] :badchars (see #badchars)
     # @option opts [String] :template (see #template)
-    # @option opts [Fixnum] :space (see #space)
-    # @option opts [Fixnum] :encoder_space (see #encoder_space)
-    # @option opts [Fixnum] :nops (see #nops)
+    # @option opts [Integer] :space (see #space)
+    # @option opts [Integer] :encoder_space (see #encoder_space)
+    # @option opts [Integer] :nops (see #nops)
     # @option opts [String] :add_code (see #add_code)
     # @option opts [Boolean] :keep (see #keep)
     # @option opts [Hash] :datastore (see #datastore)
@@ -143,7 +143,7 @@ module Msf
     # @param shellcode [String] The shellcode to add to
     # @return [String] the combined shellcode which executes the added code in a separate thread
     def add_shellcode(shellcode)
-      if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
+      if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == ARCH_X86
         cli_print "Adding shellcode from #{add_code} to the payload"
         shellcode_file = File.open(add_code)
         shellcode_file.binmode

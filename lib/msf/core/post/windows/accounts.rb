@@ -268,7 +268,7 @@ module Accounts
 
   # Gets an impersonation token from the primary token.
   #
-  # @return [Fixnum] the impersonate token handle identifier if success, nil if
+  # @return [Integer] the impersonate token handle identifier if success, nil if
   #	fails
   def get_imperstoken
     adv =  session.railgun.advapi32
@@ -291,7 +291,7 @@ module Accounts
   # to an access token.
   #
   # @param [String] dir the directory path
-  # @param [Fixnum] token the access token
+  # @param [Integer] token the access token
   # @return [String, nil] a String describing the permissions or nil
   def check_dir_perms(dir, token)
     adv =  session.railgun.advapi32

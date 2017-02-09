@@ -8,6 +8,8 @@ module Msf::Module::UI::Message
     super(print_prefix + msg)
   end
 
+  alias_method :print_bad, :print_error
+
   def print_good(msg='')
     super(print_prefix + msg)
   end
@@ -20,7 +22,7 @@ module Msf::Module::UI::Message
 
       xn ||= datastore['ExploitNumber']
       xn ||= framework.datastore['ExploitNumber']
-      if xn.is_a?(Fixnum)
+      if xn.is_a?(Integer)
         prefix << "[%04d] " % xn
       end
 

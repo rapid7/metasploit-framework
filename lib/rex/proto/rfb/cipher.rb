@@ -48,7 +48,7 @@ class Cipher
     # VNC auth does two 8-byte blocks individually instead supporting some block mode
     cipher = ''
     2.times { |x|
-      c = OpenSSL::Cipher::Cipher.new('des')
+      c = OpenSSL::Cipher.new('des')
       c.encrypt
       c.key = key
       cipher << c.update(plain[x*8, 8])
@@ -69,7 +69,7 @@ class Cipher
 
     # NOTE: This only does one 8 byte block
     plain = ''
-    c = OpenSSL::Cipher::Cipher.new('des')
+    c = OpenSSL::Cipher.new('des')
     c.decrypt
     c.key = key
     c.update(cipher)

@@ -10,8 +10,8 @@ module Process
   # Injects shellcode to a process, and executes it.
   #
   # @param shellcode [String] The shellcode to execute
-  # @param base_addr [Fixnum] The base address to allocate memory
-  # @param pid       [Fixnum] The process ID to inject to
+  # @param base_addr [Integer] The base address to allocate memory
+  # @param pid       [Integer] The process ID to inject to
   #
   # @return [Boolean] True if successful, otherwise false
   #

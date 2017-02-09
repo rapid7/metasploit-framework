@@ -34,7 +34,15 @@ module CommandShellOptions
     if self.platform and self.platform.kind_of? Msf::Module::Platform
       session.platform = self.platform.realname.downcase
     end
-    session.arch     = self.arch if self.arch
+
+    if self.arch
+      if self.arch.kind_of?(Array)
+        session.arch = self.arch.join('')
+      else
+        session.arch = self.arch
+      end
+    end
+
   end
 
 end

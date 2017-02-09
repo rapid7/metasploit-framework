@@ -256,6 +256,11 @@ class MetasploitModule < Msf::Auxiliary
       valid!
     end
 
+    # Override CredentialCollection#has_privates?
+    def has_privates?
+      !@key_data.empty?
+    end
+
     def realm
       nil
     end

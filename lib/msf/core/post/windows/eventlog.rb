@@ -10,7 +10,7 @@ module Eventlog
   #
   def eventlog_list
     key = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\"
-    if session.sys.config.sysinfo['OS'] =~ /Windows 2003|.Net|XP|2000/
+    if session.sys.config.sysinfo['OS'] =~ /Windows 2003|\.Net|XP|2000/
       key = "#{key}Eventlog"
     else
       key = "#{key}eventlog"

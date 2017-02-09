@@ -25,8 +25,7 @@ module MetasploitModule
       'Arch'        => ARCH_X86,
       'Handler'     => Msf::Handler::ReverseTcp,
       'Convention'  => 'sockedi',
-      'Stager'      => { 'RequiresMidstager' => false }
+      'Stager'      => {'RequiresMidstager' => false}
     ))
   end
-
 end

@@ -667,6 +667,8 @@ module Auxiliary::AuthBrute
     print_brute :level => :verror, :legacy_msg => msg
   end
 
+  alias_method :vprint_bad, :vprint_error
+
   # Legacy vprint
   def vprint_good(msg='')
     print_brute :level => :vgood, :legacy_msg => msg

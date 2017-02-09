@@ -119,7 +119,7 @@ class DLL
   def process_function_call(function, args, client)
     raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
 
-    if( client.platform =~ /x64/i )
+    if client.arch == ARCH_X64
       native = 'Q<'
     else
       native = 'V'
@@ -149,19 +149,25 @@ class DLL
 
       # we care only about out-only buffers
       if param_desc[2] == "out"
-        raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes " unless args[param_idx].class == Fixnum
+        if !args[param_idx].kind_of? Integer
+          raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes"
+        end
         buffer_size = args[param_idx]
         if param_desc[0] == "PDWORD"
           # bump up the size for an x64 pointer
-          if( native == 'Q<' and buffer_size == 4 )
+          if native == 'Q<' && buffer_size == 4
             args[param_idx] = 8
             buffer_size = args[param_idx]
           end
 
-          if( native == 'Q<' )
-            raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8" unless buffer_size == 8
-          elsif( native == 'V' )
-            raise "Please pass 4 for 'out' PDWORDS, since they require a buffer of size 4" unless buffer_size == 4
+          if native == 'Q<'
+            if buffer_size != 8
+              raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8"
+            end
+          elsif native == 'V'
+            if buffer_size != 4
+              raise "Please pass 4 for 'out' PDWORDS, since they require a buffer of size 4"
+            end
           end
         end
 
@@ -361,7 +367,7 @@ class DLL
 #		puts("
 #=== START of proccess_function_call snapshot ===
 #		{
-#			:platform => '#{native == 'Q' ? 'x64/win64' : 'x86/win32'}',
+#			:platform => '#{native == 'Q' ? 'x64/windows' : 'x86/windows'}',
 #			:name => '#{function.windows_name}',
 #			:params => #{function.params},
 #			:return_type => '#{function.return_type}',

@@ -45,6 +45,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'aix/ppc/shell_reverse_tcp'
   end
 
+  context 'android/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/android/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'android/meterpreter_reverse_https'
+  end
+
   context 'android/meterpreter_reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1695,6 +1705,28 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'mainframe/shell_reverse_tcp'
+  end
+
+  context 'multi/meterpreter/reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/multi/reverse_http',
+                            'stages/multi/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'multi/meterpreter/reverse_http'
+  end
+
+  context 'multi/meterpreter/reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/multi/reverse_https',
+                            'stages/multi/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'multi/meterpreter/reverse_https'
   end
 
   context 'netware/shell/reverse_tcp' do
@@ -4248,6 +4280,26 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/meterpreter/reverse_winhttps'
   end
 
+  context 'linux/aarch64/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/aarch64/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/mettle_reverse_tcp'
+  end
+
+  context 'linux/armbe/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armbe/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armbe/mettle_reverse_tcp'
+  end
+
   context 'linux/armle/mettle/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4270,6 +4322,26 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/armle/mettle/reverse_tcp'
   end
 
+  context 'linux/armle/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armle/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/mettle_reverse_tcp'
+  end
+
+  context 'linux/mips64/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mips64/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mips64/mettle_reverse_tcp'
+  end
+
   context 'linux/mipsbe/mettle/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4281,6 +4353,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/mipsbe/mettle/reverse_tcp'
   end
 
+  context 'linux/mipsbe/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mipsbe/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mipsbe/mettle_reverse_tcp'
+  end
+
   context 'linux/mipsle/mettle/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4290,6 +4372,36 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/mipsle/mettle/reverse_tcp'
+  end
+
+  context 'linux/mipsle/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mipsle/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mipsle/mettle_reverse_tcp'
+  end
+
+  context 'linux/ppc/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/ppc/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppc/mettle_reverse_tcp'
+  end
+
+  context 'linux/ppc64le/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/ppc64le/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppc64le/mettle_reverse_tcp'
   end
 
   context 'linux/x64/mettle/bind_tcp' do
@@ -4312,6 +4424,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/mettle/reverse_tcp'
+  end
+
+  context 'linux/x64/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/x64/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/mettle_reverse_tcp'
   end
 
   context 'linux/x86/mettle/bind_ipv6_tcp' do
@@ -4423,4 +4545,25 @@ RSpec.describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/mettle/reverse_tcp_uuid'
   end
+
+  context 'linux/x86/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/x86/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/mettle_reverse_tcp'
+  end
+
+  context 'linux/zarch/mettle_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/zarch/mettle_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/zarch/mettle_reverse_tcp'
+  end
+
 end

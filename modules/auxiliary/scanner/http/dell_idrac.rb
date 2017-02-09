@@ -77,6 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         password: pass,
         proof: auth.body.to_s
       )
+      return :next_user
     else
       print_error("#{target_url} - Dell iDRAC - Failed to login as '#{user}' with password '#{pass}'")
     end

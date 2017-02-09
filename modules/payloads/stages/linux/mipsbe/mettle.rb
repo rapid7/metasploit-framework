@@ -6,10 +6,12 @@
 require 'msf/core'
 require 'msf/base/sessions/meterpreter_mipsbe_linux'
 require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/mettle_config'
 require 'rex/elfparsey'
 
 module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MettleConfig
 
   def initialize(info = {})
     super(
@@ -90,7 +92,7 @@ module MetasploitModule
     conn.put(midstager) == midstager.length
   end
 
-  def generate_stage(_opts = {})
-    MetasploitPayloads::Mettle.read('mips-linux-muslsf', 'mettle.bin')
+  def generate_stage(opts = {})
+    MetasploitPayloads::Mettle.new('mips-linux-muslsf', generate_config(opts)).to_binary :process_image
   end
 end

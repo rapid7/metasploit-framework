@@ -80,7 +80,7 @@ module Payload::Linux::BindTcp
   #
   # Generate an assembly stub with the configured feature set and options.
   #
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
   def asm_bind_tcp(opts={})

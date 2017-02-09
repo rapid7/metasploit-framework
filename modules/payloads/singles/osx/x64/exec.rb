@@ -20,7 +20,7 @@ module MetasploitModule
                            'joev' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X86_64
+      'Arch'          => ARCH_X64
     ))
 
     # exec payload options

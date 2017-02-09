@@ -18,7 +18,7 @@ module MetasploitModule
       'Author'        => 'nemo',
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Session'       => Msf::Sessions::CommandShell,
       'Stage'         =>
         {

@@ -59,6 +59,10 @@ module Metasploit
         end
       end
 
+      def empty?
+        prepended_creds.empty? && !pass_file.present? && !password.present?
+      end
+
       # Add {Credential credentials} that will be yielded by {#each}
       #
       # @see prepended_creds

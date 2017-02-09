@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Post
 
   def decrypt(encoded)
     cipher = [encoded].pack("H*")
-    aes = OpenSSL::Cipher::Cipher.new("AES-128-ECB")
+    aes = OpenSSL::Cipher.new("AES-128-ECB")
     aes.padding = 0
     aes.decrypt
     aes.key = "hdfzpysvpzimorhk"

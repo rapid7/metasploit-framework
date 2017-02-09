@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Post
   # It will make sure that the process has a visible user meaning that the session has rights to that process.
   # Note: "target_pid = session.sys.process[proc_name]" will not work when "include Msf::Post::Windows::Priv" is in the module.
   #
-  # @return [Fixnum] the PID if one is found
+  # @return [Integer] the PID if one is found
   # @return [NilClass] if no PID was found
   def get_pid(proc_name)
     processes = client.sys.process.get_processes
@@ -170,7 +170,7 @@ class MetasploitModule < Msf::Post
 
   # This function will attempt to spawn a new process of the type provided by the name.
   #
-  # @return [Fixnum] the PID if the process spawned successfully
+  # @return [Integer] the PID if the process spawned successfully
   # @return [NilClass] if the spawn failed
   def spawn(proc_name)
     begin

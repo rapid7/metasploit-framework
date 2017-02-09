@@ -3,6 +3,7 @@
 require 'rex/post/meterpreter/packet_response_waiter'
 require 'rex/logging'
 require 'rex/exceptions'
+require 'msf/core/payload/uuid'
 
 module Rex
 module Post
@@ -192,7 +193,7 @@ module PacketDispatcher
   # Sends a packet and waits for a timeout for the given time interval.
   #
   # @param packet [Packet] request to send
-  # @param timeout [Fixnum,nil] seconds to wait for response, or nil to ignore the
+  # @param timeout [Integer,nil] seconds to wait for response, or nil to ignore the
   #   response and return immediately
   # @return (see #send_packet_wait_response)
   def send_request(packet, timeout = self.response_timeout)
@@ -218,7 +219,7 @@ module PacketDispatcher
   # Transmits a packet and waits for a response.
   #
   # @param packet [Packet] the request packet to send
-  # @param timeout [Fixnum,nil] number of seconds to wait, or nil to wait
+  # @param timeout [Integer,nil] number of seconds to wait, or nil to wait
   #   forever
   def send_packet_wait_response(packet, timeout)
     # First, add the waiter association for the supplied packet
@@ -243,6 +244,13 @@ module PacketDispatcher
     # Remove the waiter from the list of waiters in case it wasn't
     # removed. This happens if the waiter timed out above.
     remove_response_waiter(waiter)
+
+    # wire in the UUID for this, as it should be part of every response
+    # packet
+    if response && !self.payload_uuid
+      uuid = response.get_tlv_value(TLV_TYPE_UUID)
+      self.payload_uuid = Msf::Payload::UUID.new({:raw => uuid}) if uuid
+    end
 
     # Return the response packet, if any
     return response

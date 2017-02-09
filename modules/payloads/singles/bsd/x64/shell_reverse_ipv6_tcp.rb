@@ -24,7 +24,7 @@ module MetasploitModule
       'References'    => ['URL', 'https://github.com/earthquake/shellcodes/blob/master/x86_64_bsd_ipv6_reverse_tcp.asm.c'],
       'License'       => MSF_LICENSE,
       'Platform'      => 'bsd',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
