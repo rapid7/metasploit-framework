@@ -175,7 +175,7 @@ module Msf
         return if !aggregator_verify
 
         address_list = @aggregator.available_addresses
-        return unless address_list.nil?
+        return if address_list.nil?
 
         print_status("Remote addresses found:")
         address_list.each do |addr|
