@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(_ip)
     if !wordpress_and_online?
-      vprint_error("WordPress not detected at #{full_uri}")
+      print_error("WordPress not detected at #{full_uri}")
       return
     end
 
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
     posts_to_list = list_posts
 
     if posts_to_list.empty?
-      vprint_status("No posts found at #{full_uri}")
+      print_status("No posts found at #{full_uri}")
       return
     end
 
@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if posts_to_update.empty?
-      vprint_status("No posts to update at #{full_uri}")
+      print_status("No posts to update at #{full_uri}")
       return
     end
 
@@ -130,8 +130,6 @@ class MetasploitModule < Msf::Auxiliary
         print_good("SUCCESS: #{post_url} (Post updated)")
       elsif res && (error = res.get_json_document['message'])
         print_error("FAILURE: #{post_url} (#{error})")
-      else
-        print_error("FAILURE: #{post_url} (Unknown error)")
       end
     end
   end
