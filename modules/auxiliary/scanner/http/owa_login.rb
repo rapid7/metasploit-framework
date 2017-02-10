@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
           'Brandon Knight',
           'Pete (Bokojan) Arzamendi', # Outlook 2013 updates
           'Nate Power',                # HTTP timing option
-          'Chapman (R3naissance) Schleiss' # Save username in creds if response is less
+          'Chapman (R3naissance) Schleiss', # Save username in creds if response is less
+          'Andrew Smith' # valid creds, no mailbox
         ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
@@ -218,6 +219,19 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       # No password change required moving on.
+      # Check for valid login but no mailbox setup
+      if res.headers['location'] =~ /owa/ and res.headers['location'] !~ /reason/
+        print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}': NOTE a mailbox is not setup")
+        report_cred(
+          ip: datastore['RHOST'],
+          port: datastore['RPORT'],
+          service_name: 'owa',
+          user: user,
+          password: pass
+        )
+        return :next_user
+      end
+
       unless location = res.headers['location']
         print_error("#{msg} No HTTP redirect.  This is not OWA 2013, aborting.")
         return :abort
