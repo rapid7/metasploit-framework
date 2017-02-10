@@ -70,6 +70,21 @@ class Client
     send_request("/custom_methods")
   end
 
+  #
+  # Sends a reset signal to the device to perform a software bounce or a full
+  # factory reset.  Depends on how the device decided to handle it
+  #
+  def reset
+    send_request("/control/factory_reset")
+  end
+
+  #
+  # Sends a reboot signal to reboot the device.
+  #
+  def reboot
+    send_request("/control/reboot")
+  end
+
   ##
   #
   # Alias processor

@@ -57,6 +57,8 @@ class Console::CommandDispatcher::Core
       "bglist"     => "Lists running background scripts",
       "status"     => "Fetch bridge status information",
       "specialty"  => "Hardware devices specialty",
+      "reset"      => "Resets the device.  Some devices this is a full factory reset",
+      "reboot"     => "Reboots the device.  Usually only supported by stand-alone devices",
       "load_custom_methods" => "Loads custom HW commands if any"
     }
 
@@ -177,6 +179,9 @@ class Console::CommandDispatcher::Core
       op = "No" if status["operational"] == 2
       print_status("Operational: #{op}")
     end
+    print_status("Device: #{status["device_name"]}") if status.has_key? "device_name"
+    print_status("FW Version: #{status["fw_version"]}") if status.has_key? "fw_version"
+    print_status("HW Version: #{status["hw_version"]}") if status.has_key? "hw_version"
   end
 
   def cmd_specialty_help
@@ -194,6 +199,39 @@ class Console::CommandDispatcher::Core
       return true
     end
     print_line client.exploit.hw_specialty.to_s
+  end
+
+  def cmd_reset_help
+    print_line("Resets the device.  In some cases this can be used to perform a factory reset")
+    print_line
+  end
+
+  #
+  # Performs a device reset or factory reset
+  #
+  def cmd_reset(*args)
+    if args.length > 0
+      cmd_reset_help
+      return
+    end
+    client.reset
+  end
+
+  def cmd_reboot_help
+    print_line("Reboots the device.  This command typically only works on independent devices that")
+    print_line("are not attached to a laptop or other system")
+    print_line
+  end
+
+  #
+  # Perform a device reboot
+  #
+  def cmd_reboot(*args)
+    if args.length > 0
+      cmd_reboot_help
+      return
+    end
+    client.reboot
   end
 
   def cmd_load_custom_methods_help
