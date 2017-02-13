@@ -41,6 +41,21 @@
     [*] Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
   ```
+  
+  Another example can be found at this [source](http://bitvijays.github.io/blog/2016/03/03/learning-from-the-field-basic-network-hygiene/):
+  
+  ```
+    [*] Scanned  24 of 240 hosts (10% complete)
+    [+] 10.10.xx.xx NFS Export: /data/iso [0.0.0.0/0.0.0.0]
+    [*] Scanned  48 of 240 hosts (20% complete)
+    [+] 10.10.xx.xx NFS Export: /DataVolume/Public [*]
+    [+] 10.10.xx.xx NFS Export: /DataVolume/Download [*]
+    [+] 10.10.xx.xx NFS Export: /DataVolume/Softshare [*]
+    [*] Scanned  72 of 240 hosts (30% complete)
+    [+] 10.10.xx.xx NFS Export: /var/ftp/pub [10.0.0.0/255.255.255.0]
+    [*] Scanned  96 of 240 hosts (40% complete)
+    [+] 10.10.xx.xx NFS Export: /common []
+  ```
 
 ## Confirming
 
