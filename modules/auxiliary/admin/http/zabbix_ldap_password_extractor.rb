@@ -19,7 +19,8 @@ class MetasploitModule < Msf::Auxiliary
       'Reference'      =>
         [
           ['CVE', '2013-5572'],
-          ['URL', 'http://www.elladodelmal.com/2014/12/como-crear-el-modulo-metasploit-para-el.html']
+          ['URL', 'http://www.elladodelmal.com/2014/12/como-crear-el-modulo-metasploit-para-el.html'],
+          ['EDB','36157']
         ],
       'DisclosureDate' => 'Sep 30 2013'
     ))
