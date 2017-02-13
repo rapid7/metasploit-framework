@@ -57,7 +57,7 @@ Module: auxiliary/scanner/smb/smb_login
 ....
 ```
 
-If you were creating a KB for the smb login scanner, you'd add it to ```metasploit-framework/documentation/modules/auxiliary/smb```. 
+If you were creating a KB for the smb login scanner, you'd add it to ```metasploit-framework/documentation/modules/auxiliary/scanner/smb```. 
 
 ###Sections you should include in the KB
 
