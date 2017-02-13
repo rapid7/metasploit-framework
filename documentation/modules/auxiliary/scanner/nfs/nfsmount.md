@@ -1,8 +1,8 @@
 ## Vulnerable Application
 
-  NFS is very common, and this scanner searches for a mis-configuration, not a vulnerable software version.  Installation instructions for NFS can be found for every operating system.
-  The [Ubuntu 14.04](https://help.ubuntu.com/14.04/serverguide/network-file-system.html) instructions can be used as an example for installing and configuring NFS.  The
-  following was done on Kali linux:
+NFS is very common, and this scanner searches for a mis-configuration, not a vulnerable software version.  Installation instructions for NFS can be found for every operating system.
+The [Ubuntu 14.04](https://help.ubuntu.com/14.04/serverguide/network-file-system.html) instructions can be used as an example for installing and configuring NFS.  The
+following was done on Kali linux:
   
   1. `apt-get install nfs-kernel-server`
   2. Create 2 folders to share:
@@ -17,7 +17,7 @@
   ```
   4. Restart the service: `service nfs-kernel-server restart`
 
-  In this scenario, `closed_share` is set to read only, and only mountable by the IP 10.1.2.3.  `open_share` is mountable by anyone (`*`) in read/write mode.
+In this scenario, `closed_share` is set to read only, and only mountable by the IP 10.1.2.3.  `open_share` is mountable by anyone (`*`) in read/write mode.
 
 ## Verification Steps
 
@@ -102,7 +102,8 @@ The following instructions were written for Kali linux.
 The mount and its writability can now be tested:
 
 1. Write a file:  `echo "hello" > /mnt/remote/test`
-2. The remote end now has the file locally: ```
+2. The remote end now has the file locally:
+```
 cat /tmp/open_share/test 
 hello
 ```

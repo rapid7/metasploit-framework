@@ -17,8 +17,8 @@
 ### SNMP Versions
 
 SNMP has 3 main versions.
-* ***1**, ***2c**: both use simple password protection (string), and are often defaulted to `public` (read only), and `private` (read/write).  Version 2 is backwards compatible with version 1.  This is a plaintext protocol and is vulenrable to being intercepted.
-* ***3**: has several security levels and is significantly more complex, but also not covered in this module.
+* **1**, **2c**: both use simple password protection (string), and are often defaulted to `public` (read only), and `private` (read/write).  Version 2 is backwards compatible with version 1.  This is a plaintext protocol and is vulenrable to being intercepted.
+* **3**: has several security levels and is significantly more complex, but also not covered in this module.
 
 ## Verification Steps
 
