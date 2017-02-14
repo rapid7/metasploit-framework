@@ -88,6 +88,10 @@ class Client
   #  # {"version"=>"4.11.0-dev", "ruby"=>"2.1.5 x86_64-darwin14.0 2014-11-13", "api"=>"1.0"}
   #  rpc.call('core.version')
   def call(meth, *args)
+    if meth == 'auth.logout'
+      do_logout_cleanup
+    end
+
     unless meth == "auth.login"
       unless self.token
         raise RuntimeError, "client not authenticated"
@@ -100,7 +104,7 @@ class Client
     begin
       send_rpc_request(args)
     rescue Msf::RPC::ServerException => e
-      if e.message =~ /Invalid Authentication Token/i && meth != 'auth.login'
+      if e.message =~ /Invalid Authentication Token/i && meth != 'auth.login' && @user && @pass
         re_login
         args[1] = self.token
         retry
@@ -158,6 +162,11 @@ class Client
     else
       raise RuntimeError, res.inspect
     end
+  end
+
+  def do_logout_cleanup
+    @user = nil
+    @pass = nil
   end
 
 end
