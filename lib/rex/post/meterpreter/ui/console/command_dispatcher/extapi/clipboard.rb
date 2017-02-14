@@ -419,7 +419,7 @@ private
             print_line("File size   : #{f[:size]} bytes")
             if get_files
               unless download_file(loot_dir, f[:name])
-                print_error("Download of #{f:name]} failed.")
+                print_error("Download of #{f[:name]} failed.")
               end
             end
             print_line
