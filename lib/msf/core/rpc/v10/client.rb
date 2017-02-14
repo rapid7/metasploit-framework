@@ -28,6 +28,9 @@ class Client
   # @option info [String] :token A token used by the client.
   # @return [void]
   def initialize(info={})
+    @user = nil
+    @pass = nil
+
     self.info = {
       :host => '127.0.0.1',
       :port => 3790,
@@ -41,20 +44,30 @@ class Client
   end
 
 
-  # Logs in by calling the 'auth.login' API. The authentication token will expire 5 minutes
-  # after the last request was made.
+  # Logs in by calling the 'auth.login' API. The authentication token will expire after 5
+  # minutes, but will automatically be rewnewed when you make a new RPC request.
   #
   # @param [String] user Username.
   # @param [String] pass Password.
   # @raise RuntimeError Indicating a failed authentication.
   # @return [TrueClass] Indicating a successful login.
   def login(user,pass)
+    @user = user
+    @pass = pass
     res = self.call("auth.login", user, pass)
     unless (res && res['result'] == "success")
       raise RuntimeError, "authentication failed"
     end
     self.token = res['token']
     true
+  end
+
+
+  # Attempts to login again with the last known user name and password.
+  #
+  # @return [TrueClass] Indicating a successful login.
+  def re_login
+    login(@user, @pass)
   end
 
 
@@ -84,6 +97,36 @@ class Client
 
     args.unshift(meth)
 
+    begin
+      send_rpc_request(args)
+    rescue Msf::RPC::ServerException => e
+      if e.message =~ /Invalid Authentication Token/i && meth != 'auth.login'
+        re_login
+        args[1] = self.token
+        retry
+      else
+        raise e
+      end
+    ensure
+      @cli.close if @cli
+    end
+
+  end
+
+
+  # Closes the client.
+  #
+  # @return [void]
+  def close
+    if @cli && @cli.conn?
+      @cli.close
+    end
+    @cli = nil
+  end
+
+  private
+
+  def send_rpc_request(args)
     unless @cli
       @cli = Rex::Proto::Http::Client.new(info[:host], info[:port], info[:context], info[:ssl], info[:ssl_version])
       @cli.set_config(
@@ -101,7 +144,6 @@ class Client
     )
 
     res = @cli.send_recv(req)
-    @cli.close
 
     if res && [200, 401, 403, 500].include?(res.code)
       resp = MessagePack.unpack(res.body)
@@ -118,18 +160,6 @@ class Client
     end
   end
 
-
-  # Closes the client.
-  #
-  # @return [void]
-  def close
-    if @cli && @cli.conn?
-      @cli.close
-    end
-    @cli = nil
-  end
-
 end
 end
 end
-
