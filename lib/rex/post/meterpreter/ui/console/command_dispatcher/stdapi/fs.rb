@@ -756,7 +756,11 @@ class Console::CommandDispatcher::Stdapi::Fs
     # Source and destination will be the same
     src_items << last if src_items.empty?
 
-    dest = last
+    if args.size == 1
+      dest = last.split(/(\/|\\)/).last
+    else
+      dest = last
+    end
 
     # Go through each source item and upload them
     src_items.each { |src|
