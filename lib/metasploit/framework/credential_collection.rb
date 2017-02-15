@@ -215,7 +215,7 @@ class Metasploit::Framework::CredentialCollection
   end
 
   def has_privates?
-    password.present? || pass_file.present? || userpass_file.present? || !additional_privates.empty? || blank_passwords
+    password.present? || pass_file.present? || userpass_file.present? || !additional_privates.empty? || blank_passwords || user_as_pass
   end
 
   private
