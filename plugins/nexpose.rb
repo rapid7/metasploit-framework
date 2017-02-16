@@ -127,6 +127,8 @@ class Plugin::Nexpose < Msf::Plugin
           @trust_cert_file = args[1]
           if File.exists? @trust_cert_file
             @trust_cert = File.read(@trust_cert_file)
+          else
+            @sslv = @trust_cert_file
           end
         end
       when 4,5
@@ -135,6 +137,8 @@ class Plugin::Nexpose < Msf::Plugin
           @trust_cert_file = @trust_cert
           if File.exists? @trust_cert_file
             @trust_cert = File.read(@trust_cert_file)
+          else
+            @sslv = @trust_cert_file
           end
         end
       else
@@ -146,9 +150,9 @@ class Plugin::Nexpose < Msf::Plugin
 
     def nexpose_usage
       print_status("Usage: ")
-      print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
+      print_status("       nexpose_connect username:password@host[:port] <ssl-confirm || trusted_cert_file>")
       print_status("        -OR- ")
-      print_status("       nexpose_connect username password host port <ssl-confirm>")
+      print_status("       nexpose_connect username password host port <ssl-confirm || trusted_cert_file>")
     end
 
     def nexpose_login
