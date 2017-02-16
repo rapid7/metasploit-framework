@@ -10,6 +10,7 @@ require 'msf/core/post/hardware/automotive/uds'
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Hardware::Automotive::UDS
+  include Msf::Post::Hardware::Automotive::DTC
 
   def initialize(info={})
     super( update_info( info,
@@ -56,7 +57,23 @@ class MetasploitModule < Msf::Post
       print_status("Supported OBD Standards: #{get_obd_standards(datastore["CANBUS"], datastore["SRCID"], datastore["DSTID"])}")
     end
     dtcs = get_dtcs(datastore["CANBUS"], datastore["SRCID"], datastore["DSTID"])
-    print_status("DTCs: #{ dtcs.join(",") }") if dtcs.size > 0
+    if dtcs.size > 0
+      print_status("DTCS:")
+      dtcs.each do |dtc|
+        msg = dtc
+        msg += ": #{DTC_CODES[dtc]}" if DTC_CODES.has_key? dtc
+        print_status("  #{msg}")
+      end
+    end
+    frozen_dtcs = get_frozen_dtcs(datastore["CANBUS"], datastore["SRCID"], datastore["DSTID"])
+    if frozen_dtcs.size > 0
+      print_status("Frozen DTCS:")
+      frozen_dtcs.each do |dtc|
+        msg = dtc
+        msg += ": #{DTC_CODES[dtc]}" if DTC_CODES.has_key? dtc
+        print_status("  #{msg}")
+      end
+    end
     pids = get_vinfo_supported_pids(datastore["CANBUS"], datastore["SRCID"], datastore["DSTID"])
     print_status("Mode $09 Vehicle Info Supported PIDS: #{pids.inspect}")
     pids.each do |pid|

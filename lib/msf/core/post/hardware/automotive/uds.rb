@@ -13,10 +13,11 @@ module UDS
   #
   # @param id [String] Hex value as string. Example: 7e0
   # @param hash [Hash] Hash that includes "Packets" => [ { "ID" => "0xXXX", "DATA => [ "XX", "XX" ] } ]
+  # @param start_offset [Integer] First packet start offset after meta data
   #
   # @return [Array] Just the data portion of an ISO-TP response represented as Hex Strings
   #
-  def response_hash_to_data_array(id, hash)
+  def response_hash_to_data_array(id, hash, start_offset=5)
     data = []
     return data if not hash
     bad_count = 0
@@ -39,7 +40,7 @@ module UDS
             if pkt.has_key? "DATA"
               if counter == 0  # Get starting packet
                 if pkt["DATA"][0] == "10"
-                  data += pkt["DATA"][5,3]
+                  data += pkt["DATA"][start_offset, 8 - start_offset]
                   left2combine -= 1
                   counter += 1
                 else
@@ -391,11 +392,11 @@ module UDS
       return []
     end
     if data.has_key? "Packets" and data["Packets"].size > 0
-      data = response_hash_to_data_array(dstId, data)
+      data = response_hash_to_data_array(dstId, data, 4)
       if data.size > 0 and data.size % 2 == 0
-        (0..data.size).step(2) do |idx|
+        (0..data.size/2).step(2) do |idx|
           code = ""
-          case data[idx].hex & 0xC0
+          case data[idx].hex & 0xC0 >> 3
           when 0
             code = "P"
           when 1
@@ -405,7 +406,7 @@ module UDS
           when 3
             code = "U"
           end
-          code += (data[idx].hex & 0x3F).to_s(16)
+          code += (data[idx].hex & 0x3F).to_s(16).rjust(2,'0')
           code += data[idx+1]
           dtcs << code
         end
@@ -440,6 +441,62 @@ module UDS
     end
     client.automotive.send_isotp_and_wait_for_response(bus,srcId, dstId, [0x04], opt)
   end
+
+  ### Mode $07 ###
+
+  #
+  # Retrieves the Frozen Diagnostic Trouble Codes (DTCs)
+  #
+  # @param bus [String] unique CAN bus identifier
+  # @param srcId [Integer] Integer representation of the Sending CAN ID
+  # @param dstId [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
+  #
+  # @return [Array] Array of DTCs
+  def get_frozen_dtcs(bus, srcId, dstId, opt={})
+    dtcs = []
+    if not client.automotive
+      print_error("Not an automotive hwbridge session")
+      return {}
+    end
+    srcId = srcId.to_s(16)
+    dstId = dstId.to_s(16)
+    bus = client.automotive.active_bus if not bus
+    if not bus
+      print_line("No active bus, use 'connect' or specify bus via the options")
+      return {}
+    end
+    data = client.automotive.send_isotp_and_wait_for_response(bus,srcId, dstId, [0x07], opt)
+    return [] if data == nil
+    if data.has_key? "error"
+      print_error("UDS ERR: #{data["error"]}")
+      return []
+    end
+    if data.has_key? "Packets" and data["Packets"].size > 0
+      data = response_hash_to_data_array(dstId, data, 4)
+      if data.size > 0 and data.size % 2 == 0
+        (0..data.size/2).step(2) do |idx|
+          code = ""
+          case data[idx].hex & 0xC0 >> 3
+          when 0
+            code = "P"
+          when 1
+            code = "C"
+          when 2
+            code = "B"
+          when 3
+            code = "U"
+          end
+          code += (data[idx].hex & 0x3F).to_s(16).rjust(2,'0')
+          code += data[idx+1]
+          dtcs << code
+        end
+      end
+    end
+    dtcs
+  end
+
 
   ### Mode  $09 ###
 
@@ -483,6 +540,10 @@ module UDS
     packets = get_vehicle_info(bus, srcId, dstId, 0, {"MAXPKTS" => 1})
     return pids if packets == nil
     if packets.has_key? "Packets" and packets["Packets"].size > 0
+      if not packets["Packets"][0]["DATA"][1].hex == 0x49
+        print_error("ECU Did not return a valid response")
+        return []
+      end
       hexpids = packets["Packets"][0]["DATA"][3,6]
       hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
       (1..20).each do |pid|
