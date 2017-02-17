@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.13.19)
+    metasploit-framework (4.13.23)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -25,7 +25,7 @@ PATH
       octokit
       openssl-ccm
       openvas-omp
-      packetfu
+      packetfu (= 1.1.13.pre)
       patch_finder
       pcaprub
       pg
@@ -200,9 +200,8 @@ GEM
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
-    packetfu (1.1.11)
-      network_interface (~> 0.0)
-      pcaprub (~> 0.12)
+    packetfu (1.1.13.pre)
+      pcaprub
     patch_finder (1.0.2)
     pcaprub (0.12.4)
     pg (0.19.0)
@@ -233,7 +232,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
     rake (12.0.0)
-    rb-readline (0.5.3)
+    rb-readline (0.5.4)
     recog (2.1.4)
       nokogiri
     redcarpet (3.4.0)
@@ -245,7 +244,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.6)
+    rex-core (0.1.7)
     rex-encoder (0.1.2)
       metasm
       rex-arch
@@ -302,7 +301,7 @@ GEM
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
     rubyntlm (0.6.1)
-    rubyzip (1.2.0)
+    rubyzip (1.2.1)
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
@@ -348,4 +347,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.14.3
+   1.14.4
