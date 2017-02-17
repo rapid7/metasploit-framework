@@ -2,9 +2,7 @@
 #
 # Author: sn0wfa11 - jhale85446[at]gmail.com
 #
-# Session stepping and logging functionality borrowed on HDM's Beholder plugin.
-
-require 'fileutils'
+# Session stepping functionality borrowed on HDM's Beholder plugin.
 
 module Msf
 
@@ -28,7 +26,7 @@ class Plugin::Overwatch < Msf::Plugin
         begin
           self.start
         rescue ::Exception => e
-          $stderr.puts "OverwatchWorker: #{e.class} #{e.to_s} #{e.backtrace}"
+          $stderr.puts "OverwatchWorker: #{e.class} #{e.message}\n#{e.backtrace * "\n"}"
         end
 
         # Mark this worker as dead
@@ -44,17 +42,12 @@ class Plugin::Overwatch < Msf::Plugin
 
     # Starts the overwatch worker and loops through the open sessions
     # based on the defined timeframe.
-    # Primary error handling to the log file occurs here as well.
     #
     # @return [void] A useful return value is not expected here
     def start
-      if self.config[:log]
-        self.driver.print_status("Overwatch is logging to #{self.config[:base]}. Use 'overwatch_start -h' for plugin information.")
-      else
-        self.driver.print_status("Overwatch started, logging is disabled. Use 'overwatch_start -h' for plugin information.")
-      end
+      self.driver.print_status("Overwatch started. Use 'overwatch_start -h' for plugin information.")
 
-      bool_options = [ :autoroute, :reroute_stale, :ipv6, :kill_stale, :kill_stale_dup, :log ]
+      bool_options = [ :autoroute, :reroute_stale, :ipv6, :kill_stale, :kill_stale_dup ]
       bool_options.each do |o|
         self.config[o] = (self.config[o].to_s =~ /^[yt1]/i) ? true : false # Set option to true if (true, yes, or 1)
       end
@@ -63,9 +56,6 @@ class Plugin::Overwatch < Msf::Plugin
       int_options.each do |o|
         self.config[o] = self.config[o].to_i
       end
-
-      # Setup the log file if logging is active.
-      ::FileUtils.mkdir_p(self.config[:base]) if self.config[:log]
 
       loop do
         framework.sessions.keys.each do |sid|
@@ -78,15 +68,13 @@ class Plugin::Overwatch < Msf::Plugin
           # Error handling - Yea, lots of stuff in here to keep errors from popping up in the console when sessions die or go stale. 
           # We also skip sessions below that have more than three errors because they slow down processing.
           rescue Rex::TimeoutError => te # Error when a session stops responding and the requests time out.
-            session_log(sid, "Timed out.")
+            #Do Nothing for this error
 
           rescue Rex::Post::Meterpreter::RequestError => re # Error when a session does not have access to routing information.
             self.state[sid].add_error
-            session_log(sid, "Access error: #{self.state[sid].get_error_count.to_s} of 3. Possibly migrating or routing not available.") # Only log this error three times
-            session_log(sid, "No access to routing, skipping session.") if self.state[sid].errored_out? # Skip this session after it errored three times
 
           rescue ::Exception => e
-            session_log(sid, "Triggered an exception: #{e.class} <> #{e} #{e.backtrace}") # Log any other errors.
+            elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
           end
         end
         sleep(0.5) # This sleep time seams to work the best to keep processes from stepping on each other.
@@ -108,20 +96,6 @@ class Plugin::Overwatch < Msf::Plugin
       self.state[sid].update
       process_routing(sid) unless self.state[sid].errored_out?
       process_sessions(sid)
-    end
-
-    # Prints lines of the log along with session information.
-    # Only prints to log if logging is enabled.
-    #
-    # @sid [int class] Session ID of the current session
-    # @msg [string class] Message to be displayed in the log
-    #
-    # @return [void] A useful return value is not expected here
-    def session_log(sid, msg)
-      return unless self.config[:log]
-      ::File.open(::File.join(self.config[:base], "session.log"), "a") do |fd|
-        fd.puts "[*] #{Time.now.strftime('%Y-%m-%d %H:%M:%S')} Session #{sid} [#{self.state[sid].info}] #{msg}"
-      end
     end
 
     ##################################################################################
@@ -202,14 +176,9 @@ class Plugin::Overwatch < Msf::Plugin
 
           if !Rex::Socket::SwitchBoard.route_exists?(subnet, route.netmask)
             begin
-              if Rex::Socket::SwitchBoard.add_route(subnet, route.netmask, framework.sessions[sid])
-                session_log(sid, "Route added to subnet #{subnet}/#{route.netmask} from host's routing table.")
-              else
-                session_log(sid, "Could not add route to subnet #{subnet}/#{route.netmask} from host's routing table.")
-              end
-            rescue ::Exception => error
-              session_log(sid, "Could not add route to subnet #{subnet}/(#{route.netmask}) from host's routing table.")
-              session_log(sid, error.to_s)
+              Rex::Socket::SwitchBoard.add_route(subnet, route.netmask, framework.sessions[sid])
+            rescue ::Exception => e
+              elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
             end
           end
         end
@@ -245,14 +214,9 @@ class Plugin::Overwatch < Msf::Plugin
 
             if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
               begin
-                if Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
-                  session_log(sid, "Route added to subnet #{subnet}/#{netmask} from #{interface.mac_name}.")
-                else
-                  session_log(sid, "Could not add route to subnet #{subnet}/#{netmask} from #{interface.mac_name}")
-                end
-              rescue ::Exception => error
-                session_log(sid, "Could not add route to subnet #{subnet}/#{netmask} from #{interface.mac_name}")
-                session_log(sid, error.to_s)
+                Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
+              rescue ::Exception => e
+                elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
               end
             end
           end 
@@ -285,14 +249,9 @@ class Plugin::Overwatch < Msf::Plugin
 
         if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
           begin
-            if Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
-              session_log(sid, "Route added to subnet #{subnet}/#{netmask} from host's IP address.")
-            else
-              session_log(sid, "Could not add route to subnet #{subnet}/#{netmask} from host's IP address.")
-            end
-          rescue ::Exception => error
-            session_log(sid, "Could not add route to subnet #{subnet}/(#{netmask}) from host's IP address.")
-            session_log(sid, error.to_s)
+            Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
+          rescue ::Exception => e
+            elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
           end
         end
       end
@@ -311,12 +270,10 @@ class Plugin::Overwatch < Msf::Plugin
       Rex::Socket::SwitchBoard.each do | route |
         if stale_sids.include? route.comm.sid # See if a route is associated with a stale session
           if route.subnet == subnet && route.netmask == netmask # See if that route matches the one currently being processed
-            session_log(route.comm.sid, "Deleting route #{route.subnet}/#{route.netmask}")
             begin
               Rex::Socket::SwitchBoard.remove_route(route.subnet, route.netmask, route.comm) # Remove so fresh matching route can be added
-            rescue ::Exception => error
-              session_log(route.comm.sid, "Could not remove route to subnet #{route.subnet}/#{route.netmask}")
-              session_log(route.comm.sid, error.to_s)
+            rescue ::Exception => e
+              elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
             end
             return
           end
@@ -438,9 +395,12 @@ class Plugin::Overwatch < Msf::Plugin
       return unless framework.sessions[sid].respond_to?(:last_checkin)
       session_age = Time.now.to_i - framework.sessions[sid].last_checkin.to_i
       if session_age >= self.config[:session_timeout]
-        session_log(sid, "Session killed for being stale.")
         self.driver.print_status("Session #{sid.to_s} has become stale and is being killed.")
-        framework.sessions[sid].kill
+        begin
+          framework.sessions[sid].kill
+        rescue ::Exception => e
+          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        end
         return
       end
     end
@@ -461,9 +421,12 @@ class Plugin::Overwatch < Msf::Plugin
           next unless kill_dup_compatible?(sid_other)
           session_age_other = Time.now.to_i - framework.sessions[sid_other].last_checkin.to_i
           if is_dup?(sid, sid_other) && session_age >= session_age_other
-            session_log(sid, "Session killed for being stale.")
             self.driver.print_status("Session #{sid.to_s} is stale and is being killed. Duplicate as Session #{sid_other.to_s}")
-            framework.sessions[sid].kill
+            begin
+              framework.sessions[sid].kill
+            rescue ::Exception => e
+              elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+            end
             return
           end
         end
@@ -557,9 +520,7 @@ class Plugin::Overwatch < Msf::Plugin
       session_timeout: 86400,
       session_dup_timeout: 14400,
       freq: 10, # Ten Seconds - Appears to be a good balance for this plugin
-      log: false,
       ipv6: false,
-      base: ::File.join(Msf::Config.get_config_root, "overwatch", Time.now.strftime("%Y-%m-%d.%s")),
     }
 
     @@overwatch_worker = nil
@@ -624,9 +585,8 @@ class Plugin::Overwatch < Msf::Plugin
           print_line("'kill_stale_dup' will kill non-responsive sessions when they reach 'session_dup_timeout' (in seconds) only if the session has a twin based on domain, computer name, user ID, platform, computer ID, and IP address.")
           print_line("\nAdditional Options:")
           print_line("'freq' sets the cycle time in seconds.")
-          print_line("'log' will generate a text file log of Overwatch's activities.")
-          print_line("\nUsage: overwatch_start [base=</path/to/directory>] [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [ipv6=<true|false>]  [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10] [log=<true|false>]")
-          print_line("\nConfig Usage: overwatch_config [base=</path/to/directory>] [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [ipv6=<true|false>] [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10] [log=<true|false>]")
+          print_line("\nUsage: overwatch_start [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [ipv6=<true|false>]  [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10]")
+          print_line("\nConfig Usage: overwatch_config [autoroute=<true|false>] [reroute_stale=<true|false>] [route_timeout=30] [ipv6=<true|false>] [kill_stale=<true|false>] [kill_stale_dup=<true|false>] [session_timeout=86400] [session_dup_timeout=14400] [freq=10]")
           print_line("\nUse 'overwatch_status' or 'overwatch_config' to view current settings.")
           print_line(opts.usage)
           
