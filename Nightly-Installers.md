@@ -1,6 +1,6 @@
 # Metasploit Framework Open Source Nightly Installers
 
-Metaploit framework installers are built nightly for those wanting to track the bleeding edge, or those who would like a simplified Metasploit framework setup experience. These packages are built for OS X, Windows and various Linux distributions, including a complete bundled Ruby environment and PostgreSQL database. The installers integrate with your system packaging nicely and are easy to add and remove.
+Metaploit framework installers are built nightly for those wanting to track the bleeding edge, or those who would like a simplified Metasploit framework setup experience. These packages are built for OS X (64-bit), Windows (32-bit) and various Linux distributions (i386, amd64, armhf and arm64 Deb-based systems, x86_64 RPM-based systems), including a complete bundled Ruby environment, PostgreSQL database, and any other dependency. The installers integrate with your system package manager, making them easy to install and update.
 
 # Linux and OS X quick installation
 
