@@ -14,6 +14,8 @@ curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/t
 
 These packages integrate into your OS's native package management and can either be updated with the ```msfupdate``` command or using your preferred package manager. On first start, these packages will automatically setup the database. On Kali Linux systems, if your database has already been setup with ```msfdb init```, these packages will continue to use that database.
 
+Here is a log of the full installation process on an Arm Chromebook running Ubuntu in a Crouton Chroot environment:
+
 ```
 bcook@localhost:~$ uname -a
 Linux localhost 3.14.0 #1 SMP PREEMPT Mon Feb 6 21:59:30 PST 2017 armv7l armv7l armv7l GNU/Linux
