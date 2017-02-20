@@ -1,4 +1,4 @@
-Brute force utility by LegacySecurityGroup and the original can be found
+Port of a brute force utility by LegacySecurityGroup, the original can be found
 [here](https://github.com/exploitagency/github-rfpwnon/blob/master/rfpwnon.py).
 It's a generic AM/OOK brute forcer with PWM translations.  It has been
 demonstrated to work against static key garage door openers.
@@ -7,11 +7,11 @@ demonstrated to work against static key garage door openers.
 
   **FREQ**
 
-  Frequency to brute force.  
+  Frequency to brute force.
 
   **BAUD**
 
-  Baud rate: Default: 2000
+  Baud rate.  Default: 2000
 
   **BINLENGTH**
 
@@ -23,31 +23,31 @@ demonstrated to work against static key garage door openers.
 
   **PPAD**
 
-  Binary data to append to packet.  Example: "0101" Default: None
+  Binary data to append to packet.  (Example: "0101")  Default: None
 
   **TPAD**
 
-  Binary data to add to end of packet.  Example: "0101" Default: None
+  Binary data to add to end of packet.  (Example: "0101")  Default: None
 
   **RAW**
 
-  Do not do PWM encoding on packet, Default: False
+  Do not do PWM encoding on packet.  Default: False
 
   **TRI**
 
-  Use trinary signals. Default False
+  Use trinary signals.  Default: False
 
   **EXTRAVERBOSE**
 
-  Adds some extra status messages
+  Adds some extra status messages.
 
   **INDEX**
 
-  USB Index number.  Default 0
+  USB Index number.  Default: 0
 
   **DELAY**
 
-  How many milliseconds to delay before transmission.  Too fast tends to lock up the device.  Default 0.5 seconds (500)
+  How many milliseconds to delay before transmission.  Too fast tends to lock up the device.  Default: 500 (0.5 seconds)
 
 ## Scenarios
 

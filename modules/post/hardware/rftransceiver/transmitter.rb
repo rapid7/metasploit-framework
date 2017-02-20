@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
             given radio frequency.
 
         },
-      'References'     =>
+        'References'     =>
         [
           ['URL', 'https://github.com/AndrewMohawk/RfCatHelpers']
         ],

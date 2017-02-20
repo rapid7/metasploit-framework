@@ -167,7 +167,8 @@ class HWBridge  < Rex::Post::HWBridge::Client
     console.disable_output = original
   end
 
-  # Loads the rftranceiver extension
+  #
+  # Loads the rftransceiver extension
   #
   def load_rftransceiver
     original = console.disable_output

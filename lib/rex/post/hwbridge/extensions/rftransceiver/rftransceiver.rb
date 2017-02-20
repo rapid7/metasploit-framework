@@ -9,7 +9,7 @@ module Extensions
 module RFTransceiver
 
 ###
-# RF Tranceiver extension - set of commands to be executed on Trancievers like the TI cc11XX
+# RF Transceiver extension - set of commands to be executed on transceivers like the TI cc11XX
 ###
 
 class RFTransceiver < Extension

@@ -7,7 +7,7 @@ module Post
 module HWBridge
 module Ui
 ###
-# Automotive extension - set of commands to be executed on CAN bus
+# RF Transceiver extension - set of commands to be executed on transceivers like the TI cc11XX
 ###
 class Console::CommandDispatcher::RFtransceiver
   include Console::CommandDispatcher
@@ -18,24 +18,24 @@ class Console::CommandDispatcher::RFtransceiver
   #
   def commands
     all = {
-      'supported_idx'  => 'suppored USB indexes',
-      'idx'            => 'sets an active idx',
-      'freq'           => 'sets the frequency',
-      'modulation'     => 'sets the modulation',
-      'flen'           => 'sets the fixed length packet size',
-      'vlen'           => 'sets the variable lenght packet size',
-      'xmit'           => 'transmits some data',
-      'recv'           => 'receive a packet of data',
-      'enable_crc'     => 'enables crc',
-      'enable_manchester' => 'enales manchester encoding',
-      'channel'        => 'sets channel',
-      'channel_bw'     => 'sets the channel bandwidth',
-      'baud'           => 'sets the baud rate',
-      'deviation'      => 'sets the deviation',
-      'sync_word'      => 'sets the sync word',
-      'preamble'       => 'sets the preamble number',
-      'power'          => 'sets the power level',
-      'maxpower'       => 'sets max power'
+      'supported_idx'     => 'suppored USB indexes',
+      'idx'               => 'sets an active idx',
+      'freq'              => 'sets the frequency',
+      'modulation'        => 'sets the modulation',
+      'flen'              => 'sets the fixed length packet size',
+      'vlen'              => 'sets the variable length packet size',
+      'xmit'              => 'transmits some data',
+      'recv'              => 'receive a packet of data',
+      'enable_crc'        => 'enables crc',
+      'enable_manchester' => 'enables manchester encoding',
+      'channel'           => 'sets channel',
+      'channel_bw'        => 'sets the channel bandwidth',
+      'baud'              => 'sets the baud rate',
+      'deviation'         => 'sets the deviation',
+      'sync_word'         => 'sets the sync word',
+      'preamble'          => 'sets the preamble number',
+      'power'             => 'sets the power level',
+      'maxpower'          => 'sets max power'
     }
 
     all
@@ -66,7 +66,7 @@ class Console::CommandDispatcher::RFtransceiver
     self.idx = 0
     idx_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-i' => [ true, 'USB index, default 0']
+      '-i' => [ true, 'USB index, default 0' ]
     )
     idx_opts.parse(args) do |opt, _idx, val|
       case opt
@@ -108,8 +108,8 @@ class Console::CommandDispatcher::RFtransceiver
     arg = {}
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-f' => [ true, 'frequency to set, example: 433000000'],
-      '-m' => [ true, 'Mhz, default is 24']
+      '-f' => [ true, 'frequency to set, example: 433000000' ],
+      '-m' => [ true, 'Mhz' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -147,7 +147,7 @@ class Console::CommandDispatcher::RFtransceiver
     mod = nil
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-M' => [ true, 'Modulation name, See help for options']
+      '-M' => [ true, 'Modulation name, See help for options' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -175,7 +175,7 @@ class Console::CommandDispatcher::RFtransceiver
     flen = -1
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-l' => [ true, 'Fixed Length']
+      '-l' => [ true, 'Fixed Length' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -203,7 +203,7 @@ class Console::CommandDispatcher::RFtransceiver
     vlen = -1
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-l' => [ true, 'Variable Length']
+      '-l' => [ true, 'Variable Length' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -234,9 +234,9 @@ class Console::CommandDispatcher::RFtransceiver
     arg = {}
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-d' => [ true, 'Variable Length'],
-      '-r' => [ true, 'Repeat'],
-      '-o' => [ true, 'Data offset']
+      '-d' => [ true, 'Variable Length' ],
+      '-r' => [ true, 'Repeat' ],
+      '-o' => [ true, 'Data offset' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -272,8 +272,8 @@ class Console::CommandDispatcher::RFtransceiver
     blocksize = -1
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-t' => [ true, 'timeout'],
-      '-b' => [ true, 'blocksize']
+      '-t' => [ true, 'timeout' ],
+      '-b' => [ true, 'blocksize' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -345,7 +345,7 @@ class Console::CommandDispatcher::RFtransceiver
     channel = -1
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-c' => [ true, 'Channel number']
+      '-c' => [ true, 'Channel number' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -375,8 +375,8 @@ class Console::CommandDispatcher::RFtransceiver
     arg = {}
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-b' => [ true, 'Bandwidth'],
-      '-m' => [ true, 'Mhz']
+      '-b' => [ true, 'Bandwidth' ],
+      '-m' => [ true, 'Mhz' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -409,8 +409,8 @@ class Console::CommandDispatcher::RFtransceiver
     arg = {}
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-b' => [ true, 'Baud rate'],
-      '-m' => [ true, 'Mhz']
+      '-b' => [ true, 'Baud rate' ],
+      '-m' => [ true, 'Mhz' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -443,8 +443,8 @@ class Console::CommandDispatcher::RFtransceiver
     arg = {}
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-d' => [ true, 'Deviat'],
-      '-m' => [ true, 'Mhz']
+      '-d' => [ true, 'Deviat' ],
+      '-m' => [ true, 'Mhz' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -475,7 +475,7 @@ class Console::CommandDispatcher::RFtransceiver
     word = -1
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-w' => [ true, 'Sync word (Integer)']
+      '-w' => [ true, 'Sync word (Integer)' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -508,7 +508,7 @@ class Console::CommandDispatcher::RFtransceiver
     preamble = -1
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-n' => [ true, 'Number of preamble']
+      '-n' => [ true, 'Number of preamble' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt
@@ -550,7 +550,7 @@ class Console::CommandDispatcher::RFtransceiver
     power = -1
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-p' => [ true, 'Power level']
+      '-p' => [ true, 'Power level' ]
     )
     opts.parse(args) do |opt, _idx, val|
       case opt

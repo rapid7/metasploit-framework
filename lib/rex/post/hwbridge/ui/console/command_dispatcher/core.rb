@@ -57,8 +57,8 @@ class Console::CommandDispatcher::Core
       "bglist"     => "Lists running background scripts",
       "status"     => "Fetch bridge status information",
       "specialty"  => "Hardware devices specialty",
-      "reset"      => "Resets the device.  Some devices this is a full factory reset",
-      "reboot"     => "Reboots the device.  Usually only supported by stand-alone devices",
+      "reset"      => "Resets the device (NOTE: on some devices this is a FULL FACTORY RESET)",
+      "reboot"     => "Reboots the device (usually only supported by stand-alone devices)",
       "load_custom_methods" => "Loads custom HW commands if any"
     }
 

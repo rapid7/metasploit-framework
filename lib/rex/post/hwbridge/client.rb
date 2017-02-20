@@ -72,7 +72,7 @@ class Client
 
   #
   # Sends a reset signal to the device to perform a software bounce or a full
-  # factory reset.  Depends on how the device decided to handle it
+  # factory reset.  Depends on how the device decided to handle it.
   #
   def reset
     send_request("/control/factory_reset")

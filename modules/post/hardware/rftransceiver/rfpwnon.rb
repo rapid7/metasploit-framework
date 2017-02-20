@@ -6,8 +6,9 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         'Name'          => 'Brute Force AM/OOK (ie: Garage Doors)',
         'Description'   => %q{ Post Module for HWBridge RFTranscievers.  Brute forces AM OOK or raw
-                               raw binary signals.  This is a port of LegacySecurityGroup.com rfpwnon
-                               https://github.com/exploitagency/github-rfpwnon/blob/master/rfpwnon.py },
+                               binary signals.  This is a port of the LegacySecurityGroup.com rfpwnon tool.
+                               (https://github.com/exploitagency/github-rfpwnon/blob/master/rfpwnon.py)
+        },
         'License'       => MSF_LICENSE,
         'Author'        => ['Craig Smith'],
         'Platform'      => ['hardware'],
