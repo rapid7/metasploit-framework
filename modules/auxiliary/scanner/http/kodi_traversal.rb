@@ -13,9 +13,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Kodi 17.1 Local File Inclusion Vulnerability',
+      'Name'           => 'Kodi 17.0 Local File Inclusion Vulnerability',
       'Description'    => %q{
-        This module exploits a directory traversal flaw found in Kodi 17.1.
+        This module exploits a directory traversal flaw found in Kodi before 17.1.
       },
       'References'     =>
         [
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The URI path to the web application', '/']),
-        OptString.new('FILE',      [true, 'The file to obtain', '/etc/shadow']),
+        OptString.new('FILE',      [true, 'The file to obtain', '/etc/passwd']),
         OptInt.new('DEPTH',        [true, 'The max traversal depth to root directory', 10])
       ], self.class)
   end
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{fname} stored as '#{p}'")
 
     else
-      print_error("Fail to obtain file for some unknown reason")
+      print_error('Fail to obtain file for some unknown reason')
     end
   end
 
