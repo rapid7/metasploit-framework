@@ -309,15 +309,15 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   #
-  # Delete the specified file.
+  # Delete the specified file(s).
   #
   def cmd_rm(*args)
     if (args.length == 0)
-      print_line("Usage: rm file")
+      print_line("Usage: rm file1 [file2...]")
       return true
     end
 
-    client.fs.file.rm(args[0])
+    args.each { |f| client.fs.file.rm(f) }
 
     return true
   end
