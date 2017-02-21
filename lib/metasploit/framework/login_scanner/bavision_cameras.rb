@@ -19,7 +19,7 @@ module Metasploit
           login_uri = normalize_uri("#{uri}")
           res = send_request({'uri'=> login_uri})
 
-          if res && res.headers['WWW-Authenticate'].match(/realm="IPCamera Login"/)
+          if res && res.headers['WWW-Authenticate'] && res.headers['WWW-Authenticate'].match(/realm="IPCamera Login"/)
             return true
           end
 
