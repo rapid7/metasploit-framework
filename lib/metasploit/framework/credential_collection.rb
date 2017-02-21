@@ -207,9 +207,15 @@ class Metasploit::Framework::CredentialCollection
 
   # Returns true when #each will have no results to iterate
   def empty?
-    hasUser = username.present? || user_file.present? || userpass_file.present? || !additional_publics.empty?
-    hasPass = password.present? || pass_file.present? || userpass_file.present? ||!additional_privates.empty? || blank_passwords
-    prepended_creds.empty? && !hasUser || (hasUser && !hasPass)
+    prepended_creds.empty? && !has_users? || (has_users? && !has_privates?)
+  end
+
+  def has_users?
+    username.present? || user_file.present? || userpass_file.present? || !additional_publics.empty?
+  end
+
+  def has_privates?
+    password.present? || pass_file.present? || userpass_file.present? || !additional_privates.empty? || blank_passwords || user_as_pass
   end
 
   private

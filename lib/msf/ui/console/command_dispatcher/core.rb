@@ -890,9 +890,10 @@ class Core
       Rex::Socket::SwitchBoard.flush_routes
 
     when "print"
-      tbl = Table.new(
+      # IPv4 Table
+      tbl_ipv4 = Table.new(
         Table::Style::Default,
-        'Header'  => "Active Routing Table",
+        'Header'  => "IPv4 Active Routing Table",
         'Prefix'  => "\n",
         'Postfix' => "\n",
         'Columns' =>
@@ -907,6 +908,25 @@ class Core
             'Netmask' => { 'MaxWidth' => 17 },
           })
 
+      # IPv6 Table
+      tbl_ipv6 = Table.new(
+        Table::Style::Default,
+        'Header'  => "IPv6 Active Routing Table",
+        'Prefix'  => "\n",
+        'Postfix' => "\n",
+        'Columns' =>
+          [
+            'Subnet',
+            'Netmask',
+            'Gateway',
+          ],
+        'ColProps' =>
+          {
+            'Subnet'  => { 'MaxWidth' => 17 },
+            'Netmask' => { 'MaxWidth' => 17 },
+          })
+
+      # Populate Route Tables
       Rex::Socket::SwitchBoard.each { |route|
         if (route.comm.kind_of?(Msf::Session))
           gw = "Session #{route.comm.sid}"
@@ -914,14 +934,22 @@ class Core
           gw = route.comm.name.split(/::/)[-1]
         end
 
-        tbl << [ route.subnet, route.netmask, gw ]
+        tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)
+        tbl_ipv6 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv6?(route.netmask)
       }
 
-      if tbl.rows.length == 0
-        print_status('There are currently no routes defined.')
-      else
-        print(tbl.to_s)
+      # Print Route Tables
+      print(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
+      print(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
+
+      if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
+        print_status("There are currently no routes defined.")
+      elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)
+        print_status("There are currently no IPv4 routes defined.")
+      elsif (tbl_ipv4.rows.length > 0) && (tbl_ipv6.rows.length < 1)
+        print_status("There are currently no IPv6 routes defined.")
       end
+
     else
       cmd_route_help
     end

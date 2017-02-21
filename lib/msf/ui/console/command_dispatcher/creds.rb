@@ -202,7 +202,7 @@ class Creds
     end
     
     begin
-      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','host','port')
+      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name')
     rescue ArgumentError => e
       print_error(e.message)
     end
@@ -211,6 +211,13 @@ class Creds
     if params.slice('password','ntlm','ssh-key','hash').length > 1
       private_keys = params.slice('password','ntlm','ssh-key','hash').keys
       print_error("You can only specify a single Private type. Private types given: #{private_keys.join(', ')}")
+      return
+    end
+    
+    login_keys = params.slice('address','port','protocol','service-name')
+    if login_keys.any? and login_keys.length < 3
+      missing_login_keys = ['host','port','proto','service-name'] - login_keys.keys
+      print_error("Creating a login requires a address, a port, and a protocol. Missing params: #{missing_login_keys}")
       return
     end
    
@@ -260,9 +267,17 @@ class Creds
       data[:private_type] = :nonreplayable_hash
       data[:private_data] = params['hash']
     end
-    
+        
     begin
-      create_credential(data)
+      if login_keys.any?
+        data[:address] = params['address']
+        data[:port] = params['port']
+        data[:protocol] = params['protocol']
+        data[:service_name] = params['service-name']
+        create_credential_and_login(data)
+      else
+        create_credential(data)
+      end
     rescue ActiveRecord::RecordInvalid => e
       print_error("Failed to add #{data['private_type']}: #{e}")
     end
