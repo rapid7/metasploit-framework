@@ -26,11 +26,12 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
 
   it "should parse valid raw data into a packet object" do
     while @raw.length >0
-      parsed_packet = parser.recv(@sock)
+      parsed_packet, in_progress = parser.recv(@sock)
     end
     expect(parsed_packet).to be_a Rex::Post::Meterpreter::Packet
     expect(parsed_packet.type).to eq Rex::Post::Meterpreter::PACKET_TYPE_REQUEST
     expect(parsed_packet.method?("test_method")).to eq true
+    expect(in_progress).to eq false
   end
 
 end

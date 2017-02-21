@@ -284,6 +284,20 @@ module PacketDispatcher
   # Reception
   #
   ##
+
+  #
+  # Simple class to track packets and if they are in-progress or complete.
+  #
+  class QueuedPacket
+    attr_reader :packet
+    attr_reader :in_progress
+
+    def initialize(packet, in_progress)
+      @packet = packet
+      @in_progress = in_progress
+    end
+  end
+
   #
   # Monitors the PacketDispatcher's sock for data in its own
   # thread context and parsers all inbound packets.
@@ -306,8 +320,8 @@ module PacketDispatcher
         begin
           rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, PING_TIME)
           if rv
-            packet = receive_packet
-            @pqueue << packet if packet
+            packet, in_progress = receive_packet
+            @pqueue << QueuedPacket.new(packet, in_progress)
           elsif self.send_keepalives && @pqueue.empty?
             keepalive
           end
@@ -342,11 +356,11 @@ module PacketDispatcher
         tmp_channel = []
         tmp_close   = []
         backlog.each do |pkt|
-          if(pkt.response?)
+          if(pkt.packet.response?)
             tmp_command << pkt
             next
           end
-          if(pkt.method == "core_channel_close")
+          if(pkt.packet.method == "core_channel_close")
             tmp_close << pkt
             next
           end
@@ -365,7 +379,7 @@ module PacketDispatcher
         backlog.each do |pkt|
 
           begin
-          if ! dispatch_inbound_packet(pkt)
+          if ! dispatch_inbound_packet(pkt.packet, pkt.in_progress)
             # Keep Packets in the receive queue until a handler is registered
             # for them. Packets will live in the receive queue for up to
             # PACKET_TIMEOUT seconds, after which they will be dropped.
@@ -373,13 +387,15 @@ module PacketDispatcher
             # A common reason why there would not immediately be a handler for
             # a received Packet is in channels, where a connection may
             # open and receive data before anything has asked to read.
-            if (::Time.now.to_i - pkt.created_at.to_i < PACKET_TIMEOUT)
+            #
+            # Also, don't bother saving incomplete packets if we have no handler.
+            if (!pkt.in_progress and ::Time.now.to_i - pkt.packet.created_at.to_i < PACKET_TIMEOUT)
               incomplete << pkt
             end
           end
 
           rescue ::Exception => e
-            dlog("Dispatching exception with packet #{pkt}: #{e} #{e.backtrace}", 'meterpreter', LEV_1)
+            dlog("Dispatching exception with packet #{pkt.packet}: #{e} #{e.backtrace}", 'meterpreter', LEV_1)
           end
         end
 
@@ -459,12 +475,16 @@ module PacketDispatcher
   # Notifies a whomever is waiting for a the supplied response,
   # if anyone.
   #
-  def notify_response_waiter(response)
+  # For not-yet-complete responses, we might not be able to determine
+  # the response ID, in that case just let all waiters know that some
+  # responses are trickling in.
+  #
+  def notify_response_waiter(response, in_progress=false)
     handled = false
     self.waiters.each() { |waiter|
-      if (waiter.waiting_for?(response))
-        waiter.notify(response)
-        remove_response_waiter(waiter)
+      if (in_progress || waiter.waiting_for?(response))
+        waiter.notify(response, in_progress)
+        remove_response_waiter(waiter) unless in_progress
         handled = true
         break
       end
@@ -498,7 +518,7 @@ module PacketDispatcher
   # Otherwise, the packet is passed onto any registered dispatch
   # handlers until one returns success.
   #
-  def dispatch_inbound_packet(packet)
+  def dispatch_inbound_packet(packet, in_progress=false)
     handled = false
 
     # Update our last reply time
@@ -507,7 +527,7 @@ module PacketDispatcher
     # If the packet is a response, try to notify any potential
     # waiters
     if packet.response?
-      if (notify_response_waiter(packet))
+      if (notify_response_waiter(packet, in_progress))
         return true
       end
     end

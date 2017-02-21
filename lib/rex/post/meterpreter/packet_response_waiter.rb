@@ -39,6 +39,9 @@ class PacketResponseWaiter
   # @return [Integer] request ID to wait for
   attr_accessor :rid
 
+  # @return [Boolean] indicates if part of the response has been received
+  attr_accessor :in_progress
+
   #
   # Initializes a response waiter instance for the supplied request
   # identifier.
@@ -46,6 +49,7 @@ class PacketResponseWaiter
   def initialize(rid, completion_routine = nil, completion_param = nil)
     self.rid      = rid.dup
     self.response = nil
+    self.in_progress = false
 
     if (completion_routine)
       self.completion_routine = completion_routine
@@ -69,14 +73,21 @@ class PacketResponseWaiter
   #
   # @param response [Packet]
   # @return [void]
-  def notify(response)
+  def notify(response, in_progress = false)
     if (self.completion_routine)
-      self.response = response
-      self.completion_routine.call(response, self.completion_param)
+      self.in_progress = in_progress
+      unless in_progress
+        self.response = response
+        self.completion_routine.call(response, self.completion_param)
+      end
     else
       self.mutex.synchronize do
-        self.response = response
-        self.cond.signal
+        self.in_progress = in_progress
+        unless in_progress
+          # complete packet, ready for processing...
+          self.response = response
+          self.cond.signal
+        end
       end
     end
   end
@@ -92,7 +103,11 @@ class PacketResponseWaiter
     interval = nil if interval and interval == -1
     self.mutex.synchronize do
       if self.response.nil?
-        self.cond.wait(self.mutex, interval)
+        loop do
+          self.cond.wait(self.mutex, interval)
+          break unless self.in_progress
+          self.in_progress = false
+        end
       end
     end
     return self.response
