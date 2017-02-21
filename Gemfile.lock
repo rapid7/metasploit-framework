@@ -25,7 +25,7 @@ PATH
       octokit
       openssl-ccm
       openvas-omp
-      packetfu
+      packetfu (= 1.1.13.pre)
       patch_finder
       pcaprub
       pg
@@ -104,7 +104,7 @@ GEM
     bcrypt (3.1.11)
     bit-struct (0.15.0)
     builder (3.2.3)
-    capybara (2.12.0)
+    capybara (2.12.1)
       addressable
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -115,7 +115,6 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.1)
     contracts (0.14.0)
-    cool.io (1.4.6)
     cucumber (2.4.0)
       builder (>= 2.1.2)
       cucumber-core (~> 1.5.0)
@@ -147,16 +146,33 @@ GEM
     filesize (0.1.1)
     fivemat (1.3.2)
     gherkin (4.0.0)
+    google-protobuf (3.2.0)
+    googleauth (0.5.1)
+      faraday (~> 0.9)
+      jwt (~> 1.4)
+      logging (~> 2.0)
+      memoist (~> 0.12)
+      multi_json (~> 1.11)
+      os (~> 0.9)
+      signet (~> 0.7)
+    grpc (1.1.2)
+      google-protobuf (~> 3.1)
+      googleauth (~> 0.5.1)
     i18n (0.8.0)
     jsobfu (0.4.2)
       rkelly-remix
     json (1.8.6)
+    jwt (1.5.6)
+    little-plugger (1.1.4)
+    logging (2.1.0)
+      little-plugger (~> 1.1)
+      multi_json (~> 1.10)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
+    memoist (0.15.0)
     metasm (1.0.2)
-    metasploit-aggregator (0.1.2)
-      msgpack
-      msgpack-rpc
+    metasploit-aggregator (0.1.3)
+      grpc
       rex-arch
     metasploit-concern (2.0.3)
       activemodel (~> 4.2.6)
@@ -192,15 +208,12 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.10.1)
-    msgpack (0.5.12)
-    msgpack-rpc (0.5.4)
-      cool.io (~> 1.4.3)
-      msgpack (~> 0.5.10)
+    msgpack (1.0.3)
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
-    net-ssh (4.0.1)
+    net-ssh (4.1.0)
     network_interface (0.0.1)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
@@ -208,9 +221,9 @@ GEM
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
-    packetfu (1.1.11)
-      network_interface (~> 0.0)
-      pcaprub (~> 0.12)
+    os (0.9.6)
+    packetfu (1.1.13.pre)
+      pcaprub
     patch_finder (1.0.2)
     pcaprub (0.12.4)
     pg (0.19.0)
@@ -241,7 +254,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
     rake (12.0.0)
-    rb-readline (0.5.3)
+    rb-readline (0.5.4)
     recog (2.1.4)
       nokogiri
     redcarpet (3.4.0)
@@ -253,7 +266,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.6)
+    rex-core (0.1.7)
     rex-encoder (0.1.2)
       metasm
       rex-arch
@@ -310,12 +323,17 @@ GEM
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
     rubyntlm (0.6.1)
-    rubyzip (1.2.0)
+    rubyzip (1.2.1)
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
     shoulda-matchers (3.1.1)
       activesupport (>= 4.0.0)
+    signet (0.7.3)
+      addressable (~> 2.3)
+      faraday (~> 0.9)
+      jwt (~> 1.5)
+      multi_json (~> 1.10)
     simplecov (0.13.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -357,4 +375,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.14.3
+   1.14.4
