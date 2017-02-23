@@ -79,6 +79,21 @@ Using either Python or Powershell (or maybe both if it can be abstract enough). 
 
 **Mentor**: [@OJ](https://github.com/oj)
 
+--
+
+# Metasploitable3
+
+### Linux: add vulnerabilities
+
+**Requirements**: Vagrant
+
+### Windows: add vulnerabilities
+
+**Requirements**: Vagrant
+
+
+--
+
 # Potential Mentors
 
 All of the following folks have expressed willingness to be mentors.
