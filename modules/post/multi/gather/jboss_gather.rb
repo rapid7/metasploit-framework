@@ -47,7 +47,6 @@ class MetasploitModule < Msf::Post
                 protocol: 'tcp',
                 workspace_id: myworkspace_id
             }
-
             create_credential_login(login_data)
     end
 

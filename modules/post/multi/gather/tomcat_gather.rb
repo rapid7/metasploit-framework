@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Post
 username = []
 password = []
 port = 0 
-
   def report_creds(user, pass, port)
     return if (user.empty? or pass.empty?)
       # Assemble data about the credential objects we will be creating
