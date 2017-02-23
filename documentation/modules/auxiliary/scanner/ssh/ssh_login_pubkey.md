@@ -19,7 +19,11 @@
   6. Do: set usernames with one of the available options
   7. Do: `set KEY_PATH ` to either a file or path
   7. Do: `run`
-  8. You will hopefully see something similar to: `[+] SSH - Success: 'ubuntu:-----BEGIN RSA PRIVATE KEY-----`, and a shell opened.
+  8. You will hopefully see something similar to the following:
+
+  ```
+  [+] SSH - Success: 'ubuntu:-----BEGIN RSA PRIVATE KEY-----
+  ```
 
 ## Options
 

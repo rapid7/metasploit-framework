@@ -12,7 +12,9 @@
   4. Do: `set rhosts`
   5. Do: set usernames and passwords via any of the available options
   5. Do: `run`
-  6. You will hopefully see something similar to: `[+] SSH - Success: 'msfadmin:msfadmin' 'uid=1000(msfadmin) gid=1000(msfadmin) groups=4(adm),20(dialout),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),107(fuse),111(lpadmin),112(admin),119(sambashare),1000(msfadmin) Linux metasploitable 2.6.24-16-server #1 SMP Thu Apr 10 13:58:00 UTC 2008 i686 GNU/Linux '`, and a shell opened.
+  6. You will hopefully see something similar to, followed by a session:
+
+  ````[+] SSH - Success: 'msfadmin:msfadmin' 'uid=1000(msfadmin) gid=1000(msfadmin) groups=4(adm),20(dialout),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),107(fuse),111(lpadmin),112(admin),119(sambashare),1000(msfadmin) Linux metasploitable 2.6.24-16-server #1 SMP Thu Apr 10 13:58:00 UTC 2008 i686 GNU/Linux '```
 
 ## Options
 
@@ -54,7 +56,11 @@
 
   **VERBOSE**
   
-  Show a failed login attempt.  This can get rather verbose when large `USER_FILE`s or `PASS_FILE`s are used.  A failed attempt will look similar to the following: `[-] SSH - Failed: 'msfadmin:virtual'`
+  Show a failed login attempt.  This can get rather verbose when large `USER_FILE`s or `PASS_FILE`s are used.  A failed attempt will look similar to the following:
+
+  ```
+  [-] SSH - Failed: 'msfadmin:virtual'
+  ```
 
 ## Option Combinations
 
