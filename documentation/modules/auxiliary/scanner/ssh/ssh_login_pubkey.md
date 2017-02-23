@@ -58,6 +58,8 @@ This module makes a combination of all of the above when attempting logins.  So 
   Example run with a FOLDER set for `KEY_PATH` against:
   * Ubuntu 14.04 Server
 
+  While the two SSH key are nearly identical, one character has been modified in one of the keys to prevent a successful login.
+
 ```
 msf > use auxiliary/scanner/ssh/ssh_login_pubkey 
 msf auxiliary(ssh_login_pubkey) > set rhosts 192.168.2.156
