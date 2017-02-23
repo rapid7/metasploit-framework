@@ -32,11 +32,8 @@ Since the stager will have taken care of dealing with any size restrictions by a
 ```
 (Note that these are *functionally* identical -- there is a lot of randomization that goes into it so no two executables are exactly the same.)
 
-1. The Ruby side acts as a client using whichever transport mechanism
-   was set up by the stager (e.g.: tcp, http, https).
-   * In the case of a shell stage, Metasploit will connect the remote
-     process's stdio to your terminal when you interact with it.
-   * In the case of a Meterpreter stage, Metasploit will begin speaking
-     the Meterpreter wire protocol.
+1. The Ruby side acts as a client using whichever transport mechanism was set up by the stager (e.g.: tcp, http, https).
+   * In the case of a shell stage, Metasploit will connect the remote process's stdio to your terminal when you interact with it.
+   * In the case of a [[Meterpreter]] stage, Metasploit will begin speaking the Meterpreter wire protocol.
 
 
