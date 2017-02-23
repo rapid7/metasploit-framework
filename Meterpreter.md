@@ -32,13 +32,9 @@ Got dead Meterpreter sessions? Read this: [[Debugging Dead Meterpreter Sessions]
 To avoid confusion, the victim running meterpreter is always called the server and the ruby side controlling it is always called the client, regardless of the direction of the network transport connection.
 
 The Meterpreter server is broken into several pieces:
-  - `metsrv.dll` and `meterpreter.{jar,php,py}` - this is the heart of
-    meterpreter where the protocol and extension systems are
-    implemented.
-  - `ext_server_stdapi.{dll,jar,php,py}` - this extension implements
-    most of the commands familiar to users.
-  - `ext_server_*.{dll,jar,php,py}` - other extensions provide further
-    functionality and can be specific to particular environments.
+  - `metsrv.dll` and `meterpreter.{jar,php,py}` - this is the heart of meterpreter where the protocol and extension systems are implemented.
+  - `ext_server_stdapi.{dll,jar,php,py}` - this extension implements most of the commands familiar to users.
+  - `ext_server_*.{dll,jar,php,py}` - other extensions provide further functionality and can be specific to particular environments.
 
 ## Delivering Meterpreter
 
