@@ -4,6 +4,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::File
   include Msf::Post::Common
+
     def initialize(info={})
         super(update_info(info,
           'Name'          => 'Architicture Migrate',
@@ -16,6 +17,7 @@ class MetasploitModule < Msf::Post
           'SessionTypes'  => [ 'meterpreter' ]
         ))
     end
+
     def is_32_bit_on_64_bits()
         apicall = session.railgun.kernel32.IsWow64Process(-1,4)["Wow64Process"]
         if apicall == "\x00\x00\x00\x00"
@@ -25,11 +27,13 @@ class MetasploitModule < Msf::Post
         end
         return migrate
     end
+
     def get_windows_loc()
         apicall = session.railgun.kernel32.GetEnvironmentVariableA("Windir",255,255)["lpBuffer"]
         windir = apicall.split(":")[0]
         return windir
     end
+
     def run
         if is_32_bit_on_64_bits()
             print_error("The meterpreter is not the same architecture as the OS! Upgrading!")

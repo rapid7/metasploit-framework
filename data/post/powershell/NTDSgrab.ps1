@@ -1,4 +1,5 @@
-﻿#New-CabinetFile originally by Iain Brighton: http://virtualengine.co.uk/2014/creating-cab-files-with-powershell/
+﻿#Complete script created by Koen Riepe (koen.riepe@fox-it.com)
+#New-CabinetFile originally by Iain Brighton: http://virtualengine.co.uk/2014/creating-cab-files-with-powershell/
 function New-CabinetFile {
     [CmdletBinding()]
     Param(

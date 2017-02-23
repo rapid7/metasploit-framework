@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Post
 
     def initialize(info={})
     super(update_info(info,
-        'Name'          => 'Jboss credential collector',
+        'Name'          => 'Jboss Credential Collector',
         'Description'   => %q{
           This module can be used to extract the Jboss admin passwords for version 4,5 and 6.
         },
@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
             }
 
             credential_core = create_credential(credential_data)
-            
+
             if not port.is_a? Integer
                 print_status("Port not an Integer, Something probably went wrong")
                 port = 8080
@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
             create_credential_login(login_data)
     end
 
-    def OScheck()
+    def os_check()
     os  = ""
     if exist?("/etc/passwd")
       os =  "unix"
@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Post
            files = Array.new
            instances.each do |seed|
                file_path = seed + "\\conf\\props\\jmx-console-users.properties"
-               if exist?(file_path) 
+               if exist?(file_path)
                    files.push(file_path)
                end
            end
@@ -256,9 +256,9 @@ class MetasploitModule < Msf::Post
     end
 
     def run
-        if OScheck() == "win"
+        if os_check() == "win"
           gatherwin()
-        else 
+        else
           gathernix()
         end
     end

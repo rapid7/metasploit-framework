@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Gather Tomcat credentials',
+      'Name'          => 'Gather Tomcat Credentials',
       'Description'   => %q{
         This module will attempt to collect credentials from Tomcat services running on the machine.
       },
@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Post
 
 username = []
 password = []
-port = 0 
+port = 0
+
   def report_creds(user, pass, port)
     return if (user.empty? or pass.empty?)
       # Assemble data about the credential objects we will be creating
@@ -40,7 +41,7 @@ port = 0
       }
 
       credential_core = create_credential(credential_data)
-      
+
       if not port.is_a? Integer
         print_status("Port not an Integer")
         port = 8080
@@ -59,7 +60,7 @@ port = 0
         create_credential_login(login_data)
   end
 
-  def OScheck()
+  def os_check()
     os  = ""
     if exist?("/etc/passwd")
       os =  "unix"
@@ -153,9 +154,9 @@ port = 0
   end
 
   def run()
-    if OScheck() == "win"
+    if os_check() == "win"
       gatherwin()
-    else 
+    else
       gathernix()
     end
 
