@@ -17,4 +17,4 @@ If postgres is not running, try starting it manually:
 Once postgres is running and listening, go back to msfconsole:
 ````
 msf > db_connect
-````
+```
